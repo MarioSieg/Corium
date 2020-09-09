@@ -1,0 +1,11 @@
+sec @cfg:
+sec @extrn:
+sec @db:
+sec @exec:
+
+
+push %i32, &4
+push %i32, &13
+add %i32, ...
+pop %auto, ...
+call %auto, *&entry
