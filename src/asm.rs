@@ -20,31 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-pub struct VM {
-    identification: u16,
-    generation: u16,
-}
+pub const INTERRUPT: u32 = 0x00000000;
 
-impl VM {
-    pub fn new() -> Self {
-        Self
-    }
+pub const PUSH: u32 = 0x00000001;
 
-    pub fn with_config() -> Self {
-        Self
-    }
-}
-
-impl VM {
-    pub fn identification(&self) -> u16 {
-        self.identification
-    }
-
-    pub fn generation(&self) -> u16 {
-        self.generation
-    }
-
-    pub fn execute(&mut self) {
-        loop {}
-    }
-}
+pub const POP: u32 = 0x00000002;

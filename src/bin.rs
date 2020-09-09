@@ -20,12 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-pub mod stack;
-pub mod executor;
-pub mod asm;
-pub mod record;
-pub mod prelude;
-pub mod stream;
-pub mod validator;
-pub mod instruction;
-pub mod argument;
+extern crate ronvm;
+
+use ronvm::prelude::*;
+
+fn main() {
+
+    let mut code = BytecodeStream::new();
+    code.new_op(asm::PUSH).with_int(3);
+    code.new_op(asm::PUSH).with_float(3.1617);
+    code.new_op(asm::POP);
+    code.validate().unwrap();
+}

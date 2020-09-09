@@ -20,12 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-pub mod stack;
-pub mod executor;
-pub mod asm;
-pub mod record;
-pub mod prelude;
-pub mod stream;
-pub mod validator;
-pub mod instruction;
-pub mod argument;
+pub struct Executor {
+    identification: u16,
+    generation: u16,
+}
+
+impl Executor {
+    pub fn identification(&self) -> u16 {
+        self.identification
+    }
+
+    pub fn generation(&self) -> u16 {
+        self.generation
+    }
+
+    pub fn execute(&mut self) {
+        loop {}
+    }
+}

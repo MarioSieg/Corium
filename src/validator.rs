@@ -20,12 +20,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-pub mod stack;
-pub mod executor;
-pub mod asm;
-pub mod record;
-pub mod prelude;
-pub mod stream;
-pub mod validator;
-pub mod instruction;
-pub mod argument;
+use super::record::RecordUnionDiscriminator;
+use super::stream::BytecodeStream;
+
+/// Validates the input bytecode stream.
+/// Basically it iterates over the bytecode and checks
+/// if the paramters and calls are correct.
+/// For parameters it checks the type and values against the
+/// metadata in 'Instruction::META_TABLE'!
+/// It does some superficial memory and call checks.
+pub fn validate_bytecode(stream: &BytecodeStream) -> Result<(), Vec<&'static str>> {
+
+    // List of error messages.
+    let errors: Vec<&'static str> = Vec::new();
+
+    for rec in stream.buffer() {
+        match rec.1 {
+            RecordUnionDiscriminator::Opcode => {
+                
+            }
+            RecordUnionDiscriminator::Int => {
+
+            },
+            RecordUnionDiscriminator::Float => {
+
+            },
+        }
+    }
+
+    // If we have no errors, exit!
+    // Instead of quitting on the first error
+    // we check all. Then we do not have to recompile every
+    // time after fixing one.
+    if errors.is_empty() {
+        Result::Ok(())
+    }
+    else {
+        Result::Err(errors)
+    }
+}
