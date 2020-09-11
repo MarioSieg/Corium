@@ -204,15 +204,6 @@
 
 */
 
-extern crate ronvm;
-
-use ronvm::prelude::*;
-
 fn main() {
-    let mut code = BytecodeStream::new();
-    code.new_op(asm::PUSH).with_int(3);
-    code.new_op(asm::PUSH).with_float(3.1617);
-    code.new_op(asm::POP);
-    code.write_to_disk_as_txt(&std::path::Path::new("out.txt"))
-        .unwrap();
+    println!("Hello world!");
 }
