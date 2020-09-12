@@ -20,32 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use super::bytecode::*;
-use super::record::*;
-
-/// Executes the bytecode.
-/// Returns the interrupt id (exitcode) and the number of cycles.
-pub fn execute(mut code: BytecodeChunk) -> (i32, u64) {
-    let mut cycles: u64 = 0; // Cycles counter.
-    let mut opcode: u32 = 0; // Opcode.
-    let mut interrupt: i32 = 0; // Interrupt id.
-
-    loop {
-        cycles += 1;
-        opcode = code.fetch().u32();
-
-        match opcode {
-            asm::INTERRUPT => {
-                interrupt = code.fetch().i32();
-                if interrupt <= 0 {
-                    break;
-                } else {
-                    // Trigger exception
-                }
-            },
-            _ => (),
-        }
-    }
-
-    (interrupt, cycles)
-}
+pub use super::bytecode::*;
+pub use super::record::*;
+pub use super::executor::*;

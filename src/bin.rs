@@ -20,6 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-fn main() {
+extern crate ronvm;
 
+use ronvm::prelude::*;
+
+fn main() {
+    let mut code = BytecodeStream::new();
+    code.u32(asm::INTERRUPT).i32(0);
+    execute(code.build().unwrap());
 }
