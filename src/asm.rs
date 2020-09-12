@@ -20,23 +20,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-extern crate ronvm;
-
-use ronvm::prelude::*;
-
-fn main() {
-    let mut code = BytecodeStream::new();
-    let stack = Stack::with_length(8);
-    let now = std::time::Instant::now();
-
-    code.u32(asm::INTERRUPT).i32(1);
-    code.u32(asm::PUSH).i32(3);
-    code.u32(asm::PUSH).i32(8);
-    code.u32(asm::I32_ADD);
-    code.u32(asm::POP).u32(1);
-
-    let (int, cycles) = execute(code.build().unwrap(), stack);
-
-    println!("MS: {}", now.elapsed().as_secs_f64());
-    println!("INT: {}, CYC: {}", int, cycles);
-}
+pub const INTERRUPT: u32 = 0x00000000;
+pub const PUSH: u32 = 0x00000001;
+pub const POP: u32 = 0x00000002;
+pub const MOVE: u32 = 0x00000003;
+pub const COPY: u32 = 0x00000004;
+pub const DUPLICATE: u32 = 0x00000005;
+pub const DUPLICATE_X2: u32 = 0x00000006;
+pub const I32_ADD: u32 = 0x00000007;
+pub const I32_SUB: u32 = 0x00000008;
+pub const I32_MUL: u32 = 0x00000009;
+pub const I32_DIV: u32 = 0x0000000A;
+pub const I32_MOD: u32 = 0x0000000B;
+pub const I32_AND: u32 = 0x0000000C;
+pub const I32_OR: u32 = 0x0000000D;
+pub const I32_XOR: u32 = 0x0000000E;
+pub const I32_SAL: u32 = 0x0000000F;
+pub const I32_SAR: u32 = 0x00000010;
+pub const I32_COM: u32 = 0x00000011;
+pub const F32_ADD: u32 = 0x00000012;
+pub const F32_SUB: u32 = 0x00000013;
+pub const F32_MUL: u32 = 0x00000014;
+pub const F32_DIV: u32 = 0x00000015;
+pub const F32_MOD: u32 = 0x00000016;

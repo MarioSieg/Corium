@@ -20,32 +20,145 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use super::bytecode::*;
+use crate::stack::Stack;
+
+use super::asm;
+use super::chunk::*;
 use super::record::*;
 
 /// Executes the bytecode.
 /// Returns the interrupt id (exitcode) and the number of cycles.
-pub fn execute(mut code: BytecodeChunk) -> (i32, u64) {
+pub fn execute(mut code: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
     let mut cycles: u64 = 0; // Cycles counter.
-    let mut opcode: u32 = 0; // Opcode.
     let mut interrupt: i32 = 0; // Interrupt id.
 
-    loop {
-        cycles += 1;
-        opcode = code.fetch().u32();
-
-        match opcode {
+    'vm: loop {
+        match code.fetch().u32() {
             asm::INTERRUPT => {
                 interrupt = code.fetch().i32();
                 if interrupt <= 0 {
-                    break;
+                    break 'vm;
                 } else {
                     // Trigger exception
                 }
-            },
+            }
+
+            asm::PUSH => {
+                stack.push(code.fetch());
+            }
+
+            asm::POP => {
+                stack.pop_multi(code.fetch().u32() as _);
+            }
+
+            asm::MOVE => {
+                stack.poke_set(code.fetch().u32() as _, code.fetch());
+            }
+
+            asm::COPY => {
+                stack.poke_set(code.fetch().u32() as _, stack.poke(code.fetch().u32() as _));
+            }
+
+            asm::DUPLICATE => {
+                stack.push(stack.peek());
+            }
+
+            asm::DUPLICATE_X2 => {
+                stack.push(stack.peek());
+                stack.push(stack.peek());
+            }
+
+            asm::I32_ADD => {
+                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() + stack.peek().i32()));
+                stack.pop();
+            }
+
+            asm::I32_SUB => {
+                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() - stack.peek().i32()));
+                stack.pop();
+            }
+
+            asm::I32_MUL => {
+                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() * stack.peek().i32()));
+                stack.pop();
+            }
+
+            asm::I32_DIV => {
+                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() / stack.peek().i32()));
+                stack.pop();
+            }
+
+            asm::I32_MOD => {
+                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() % stack.peek().i32()));
+                stack.pop();
+            }
+
+            asm::I32_AND => {
+                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() & stack.peek().i32()));
+                stack.pop();
+            }
+
+            asm::I32_OR => {
+                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() | stack.peek().i32()));
+                stack.pop();
+            }
+
+            asm::I32_XOR => {
+                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() ^ stack.peek().i32()));
+                stack.pop();
+            }
+
+            asm::I32_SAL => {
+                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() << stack.peek().i32()));
+                stack.pop();
+            }
+
+            asm::I32_SAR => {
+                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() >> stack.peek().i32()));
+                stack.pop();
+            }
+
+            asm::I32_COM => {
+                stack.peek_previous_set(RecordUnion::from_i32(!stack.peek_previous().i32()));
+                stack.pop();
+            }
+
+            asm::F32_ADD => {
+                stack.peek_previous_set(RecordUnion::from_f32(stack.peek_previous().f32() + stack.peek().f32()));
+                stack.pop();
+            }
+
+            asm::F32_SUB => {
+                stack.peek_previous_set(RecordUnion::from_f32(stack.peek_previous().f32() - stack.peek().f32()));
+                stack.pop();
+            }
+
+            asm::F32_MUL => {
+                stack.peek_previous_set(RecordUnion::from_f32(stack.peek_previous().f32() * stack.peek().f32()));
+                stack.pop();
+            }
+
+            asm::F32_DIV => {
+                stack.peek_previous_set(RecordUnion::from_f32(stack.peek_previous().f32() / stack.peek().f32()));
+                stack.pop();
+            }
+
+            asm::F32_MOD => {
+                stack.peek_previous_set(RecordUnion::from_f32(stack.peek_previous().f32() % stack.peek().f32()));
+                stack.pop();
+            }
+
             _ => (),
         }
+
+        if code.is_done() {
+            break 'vm;
+        }
+
+        cycles += 1;
     }
+
+    print!("{:?}", stack);
 
     (interrupt, cycles)
 }

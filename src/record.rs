@@ -20,10 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#[derive(Copy, Clone, PartialEq, Debug, Hash)]
+use std::{default, fmt};
+
+#[derive(Copy, Clone, PartialEq, Hash)]
 pub struct RecordUnion(u32);
 
 impl RecordUnion {
+    pub const ZERO: Self = Self(0x00000000);
+    pub const MIN: Self = Self(0x00000000);
+    pub const MAX: Self = Self(0xffffffff);
+
     #[inline]
     pub fn new() -> Self {
         Self(0)
@@ -42,6 +48,11 @@ impl RecordUnion {
     #[inline]
     pub fn from_f32(val: f32) -> Self {
         Self(val as _)
+    }
+
+    #[inline]
+    pub fn from_bytes(bytes: [u8; 4]) -> Self {
+        Self(u32::from_le_bytes(bytes))
     }
 }
 
@@ -77,13 +88,8 @@ impl RecordUnion {
     }
 
     #[inline]
-    pub fn to_le_bytes(&self) -> [u8; 4] {
+    pub fn to_bytes(&self) -> [u8; 4] {
         self.0.to_le_bytes()
-    }
-
-    #[inline]
-    pub fn to_be_bytes(&self) -> [u8; 4] {
-        self.0.to_be_bytes()
     }
 }
 
@@ -92,4 +98,23 @@ pub enum Discriminator {
     U32,
     I32,
     F32,
+}
+
+impl fmt::Display for RecordUnion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} | {} | {}", self.u32(), self.i32(), self.f32())
+    }
+}
+
+impl fmt::Debug for RecordUnion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let b = self.to_bytes();
+        write!(f, "{:02x} {:02x} {:02x} {:02x} -> {} | {} | {}", b[0], b[1], b[2], b[3], self.u32(), self.i32(), self.f32())
+    }
+}
+
+impl default::Default for RecordUnion {
+    fn default() -> Self {
+        Self::ZERO
+    }
 }

@@ -20,11 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use super::record::*;
+use std::ops;
 
-pub mod asm {
-    pub const INTERRUPT: u32 = 0x00000000;
-}
+use super::chunk::*;
+use super::record::*;
 
 /// A bytecode stream is used to dynamically build bytecode.
 pub struct BytecodeStream(Vec<(RecordUnion, Discriminator)>);
@@ -54,13 +53,13 @@ impl BytecodeStream {
     }
 
     #[inline]
-    pub fn i32(&mut self, val: i32) -> &mut Self  {
+    pub fn i32(&mut self, val: i32) -> &mut Self {
         self.0.push((RecordUnion::from_i32(val), Discriminator::I32));
         self
     }
 
     #[inline]
-    pub fn f32(&mut self, val: f32) -> &mut Self  {
+    pub fn f32(&mut self, val: f32) -> &mut Self {
         self.0.push((RecordUnion::from_f32(val), Discriminator::F32));
         self
     }
@@ -74,7 +73,7 @@ impl BytecodeStream {
     pub fn buffer_mut(self) -> Vec<(RecordUnion, Discriminator)> { self.0 }
 
     #[inline]
-    pub fn len(&self) -> usize {
+    pub fn length(&self) -> usize {
         self.0.len()
     }
 
@@ -94,6 +93,11 @@ impl BytecodeStream {
     }
 
     #[inline]
+    pub fn clear(&mut self) {
+        self.0.clear()
+    }
+
+    #[inline]
     pub fn validate(&self) -> Result<(), Vec<&'static str>> {
         Ok(())
     }
@@ -106,62 +110,21 @@ impl BytecodeStream {
             for rec in self.0 {
                 buf.push(rec.0);
             }
-            Ok(BytecodeChunk::from_vec(buf, 0))
+            Ok(BytecodeChunk::from_vector(buf))
         }
     }
 }
 
-/// A fixed size chunk of bytecode, which can be executed by the VM.
-pub struct BytecodeChunk(Box<[RecordUnion]>, usize);
+impl ops::Index<usize> for BytecodeStream {
+    type Output = (RecordUnion, Discriminator);
 
-impl BytecodeChunk {
-    #[inline]
-    pub fn from_buffer(buf: Box<[RecordUnion]>, ip: usize) -> Self {
-        Self(buf, ip)
-    }
-
-    #[inline]
-    pub fn from_vec(vec: Vec<RecordUnion>, ip: usize) -> Self {
-        Self(vec.into_boxed_slice(), ip)
+    fn index(&self, idx: usize) -> &Self::Output {
+        &self.0[idx]
     }
 }
 
-impl BytecodeChunk {
-    #[inline]
-    pub fn buffer(&self) -> &[RecordUnion] {
-        &self.0
-    }
-
-    #[inline]
-    pub fn buffer_mut(self) -> Box<[RecordUnion]> { self.0 }
-
-    #[inline]
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    #[inline]
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-
-    #[inline]
-    pub fn size(&self) -> usize {
-        self.0.len() * std::mem::size_of::<RecordUnion>()
-    }
-
-    #[inline]
-    pub fn instruction_pointer(&self) -> usize { self.1 }
-
-    #[inline]
-    pub fn jump(&mut self, ip: usize) {
-        self.1 = ip
-    }
-
-    #[inline]
-    pub fn fetch(&mut self) -> RecordUnion {
-        let record = self.0[self.1];
-        self.1 += 1;
-        record
+impl ops::IndexMut<usize> for BytecodeStream {
+    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+        &mut self.0[idx]
     }
 }

@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 pub mod record;
-pub mod bytecode;
+pub mod stream;
 pub mod prelude;
 pub mod executor;
+pub mod stack;
+pub mod chunk;
+pub mod asm;
