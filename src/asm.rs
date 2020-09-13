@@ -52,7 +52,7 @@ pub struct InstructionMeta {
     pub mnemonic: &'static str,
 }
 
-pub const META_TABLE: &'static [InstructionMeta] = &[
+pub const META_TABLE: &[InstructionMeta] = &[
     InstructionMeta {
         opcode: ops::INTERRUPT,
         num_args: 1,

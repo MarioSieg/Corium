@@ -49,7 +49,9 @@ impl BytecodeChunk {
     }
 
     #[inline]
-    pub fn buffer_mut(self) -> Box<[RecordUnion]> { self.0 }
+    pub fn buffer_mut(self) -> Box<[RecordUnion]> {
+        self.0
+    }
 
     #[inline]
     pub fn length(&self) -> usize {
@@ -67,7 +69,9 @@ impl BytecodeChunk {
     }
 
     #[inline]
-    pub fn instruction_pointer(&self) -> usize { self.1 }
+    pub fn instruction_pointer(&self) -> usize {
+        self.1
+    }
 
     #[inline]
     pub fn jump(&mut self, ip: usize) {

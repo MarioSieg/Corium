@@ -69,7 +69,10 @@ impl Stack {
     pub fn with_byte_size(size: usize) -> Self {
         assert_ne!(size, 0);
         assert_eq!(size % std::mem::size_of::<RecordUnion>(), 0);
-        let mut this = Self::from_vector(vec![RecordUnion::ZERO; size / std::mem::size_of::<RecordUnion>()]);
+        let mut this = Self::from_vector(vec![
+            RecordUnion::ZERO;
+            size / std::mem::size_of::<RecordUnion>()
+        ]);
         this[0] = RecordUnion::MAX;
         this
     }

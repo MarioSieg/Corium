@@ -20,10 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-pub mod record;
-pub mod stream;
-pub mod prelude;
-pub mod executor;
-pub mod stack;
-pub mod chunk;
 pub mod asm;
+pub mod chunk;
+pub mod executor;
+pub mod prelude;
+pub mod record;
+pub mod stack;
+pub mod stream;

@@ -20,11 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use std::ops;
+use std::{default, ops};
 
-use super::asm;
-use super::chunk::*;
-use super::record::*;
+use super::{asm, chunk::*, record::*};
 
 /// A bytecode stream is used to dynamically build bytecode.
 pub struct BytecodeStream(Vec<(RecordUnion, Discriminator)>);
@@ -49,19 +47,22 @@ impl BytecodeStream {
 impl BytecodeStream {
     #[inline]
     pub fn u32(&mut self, val: u32) -> &mut Self {
-        self.0.push((RecordUnion::from_u32(val), Discriminator::U32));
+        self.0
+            .push((RecordUnion::from_u32(val), Discriminator::U32));
         self
     }
 
     #[inline]
     pub fn i32(&mut self, val: i32) -> &mut Self {
-        self.0.push((RecordUnion::from_i32(val), Discriminator::I32));
+        self.0
+            .push((RecordUnion::from_i32(val), Discriminator::I32));
         self
     }
 
     #[inline]
     pub fn f32(&mut self, val: f32) -> &mut Self {
-        self.0.push((RecordUnion::from_f32(val), Discriminator::F32));
+        self.0
+            .push((RecordUnion::from_f32(val), Discriminator::F32));
         self
     }
 
@@ -77,7 +78,9 @@ impl BytecodeStream {
     }
 
     #[inline]
-    pub fn buffer_mut(self) -> Vec<(RecordUnion, Discriminator)> { self.0 }
+    pub fn buffer_mut(self) -> Vec<(RecordUnion, Discriminator)> {
+        self.0
+    }
 
     #[inline]
     pub fn length(&self) -> usize {
@@ -133,5 +136,11 @@ impl ops::Index<usize> for BytecodeStream {
 impl ops::IndexMut<usize> for BytecodeStream {
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.0[idx]
+    }
+}
+
+impl default::Default for BytecodeStream {
+    fn default() -> Self {
+        Self::new()
     }
 }

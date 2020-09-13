@@ -69,52 +69,72 @@ pub fn execute(mut code: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
             }
 
             ops::I32_ADD => {
-                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() + stack.peek().i32()));
+                stack.peek_previous_set(RecordUnion::from_i32(
+                    stack.peek_previous().i32() + stack.peek().i32(),
+                ));
                 stack.pop();
             }
 
             ops::I32_SUB => {
-                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() - stack.peek().i32()));
+                stack.peek_previous_set(RecordUnion::from_i32(
+                    stack.peek_previous().i32() - stack.peek().i32(),
+                ));
                 stack.pop();
             }
 
             ops::I32_MUL => {
-                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() * stack.peek().i32()));
+                stack.peek_previous_set(RecordUnion::from_i32(
+                    stack.peek_previous().i32() * stack.peek().i32(),
+                ));
                 stack.pop();
             }
 
             ops::I32_DIV => {
-                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() / stack.peek().i32()));
+                stack.peek_previous_set(RecordUnion::from_i32(
+                    stack.peek_previous().i32() / stack.peek().i32(),
+                ));
                 stack.pop();
             }
 
             ops::I32_MOD => {
-                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() % stack.peek().i32()));
+                stack.peek_previous_set(RecordUnion::from_i32(
+                    stack.peek_previous().i32() % stack.peek().i32(),
+                ));
                 stack.pop();
             }
 
             ops::I32_AND => {
-                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() & stack.peek().i32()));
+                stack.peek_previous_set(RecordUnion::from_i32(
+                    stack.peek_previous().i32() & stack.peek().i32(),
+                ));
                 stack.pop();
             }
 
             ops::I32_OR => {
-                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() | stack.peek().i32()));
+                stack.peek_previous_set(RecordUnion::from_i32(
+                    stack.peek_previous().i32() | stack.peek().i32(),
+                ));
                 stack.pop();
             }
 
             ops::I32_XOR => {
-                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() ^ stack.peek().i32()));
+                stack.peek_previous_set(RecordUnion::from_i32(
+                    stack.peek_previous().i32() ^ stack.peek().i32(),
+                ));
                 stack.pop();
             }
 
             ops::I32_SAL => {
-                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() << stack.peek().i32()));
+                stack.peek_previous_set(RecordUnion::from_i32(
+                    stack.peek_previous().i32() << stack.peek().i32(),
+                ));
                 stack.pop();
             }
 
             ops::I32_SAR => {
-                stack.peek_previous_set(RecordUnion::from_i32(stack.peek_previous().i32() >> stack.peek().i32()));
+                stack.peek_previous_set(RecordUnion::from_i32(
+                    stack.peek_previous().i32() >> stack.peek().i32(),
+                ));
                 stack.pop();
             }
 
@@ -124,27 +144,37 @@ pub fn execute(mut code: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
             }
 
             ops::F32_ADD => {
-                stack.peek_previous_set(RecordUnion::from_f32(stack.peek_previous().f32() + stack.peek().f32()));
+                stack.peek_previous_set(RecordUnion::from_f32(
+                    stack.peek_previous().f32() + stack.peek().f32(),
+                ));
                 stack.pop();
             }
 
             ops::F32_SUB => {
-                stack.peek_previous_set(RecordUnion::from_f32(stack.peek_previous().f32() - stack.peek().f32()));
+                stack.peek_previous_set(RecordUnion::from_f32(
+                    stack.peek_previous().f32() - stack.peek().f32(),
+                ));
                 stack.pop();
             }
 
             ops::F32_MUL => {
-                stack.peek_previous_set(RecordUnion::from_f32(stack.peek_previous().f32() * stack.peek().f32()));
+                stack.peek_previous_set(RecordUnion::from_f32(
+                    stack.peek_previous().f32() * stack.peek().f32(),
+                ));
                 stack.pop();
             }
 
             ops::F32_DIV => {
-                stack.peek_previous_set(RecordUnion::from_f32(stack.peek_previous().f32() / stack.peek().f32()));
+                stack.peek_previous_set(RecordUnion::from_f32(
+                    stack.peek_previous().f32() / stack.peek().f32(),
+                ));
                 stack.pop();
             }
 
             ops::F32_MOD => {
-                stack.peek_previous_set(RecordUnion::from_f32(stack.peek_previous().f32() % stack.peek().f32()));
+                stack.peek_previous_set(RecordUnion::from_f32(
+                    stack.peek_previous().f32() % stack.peek().f32(),
+                ));
                 stack.pop();
             }
 
