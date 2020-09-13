@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-pub use super::asm;
+pub use super::asm::*;
 pub use super::chunk::*;
 pub use super::executor::*;
 pub use super::record::*;

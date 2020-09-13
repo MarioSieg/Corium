@@ -29,11 +29,11 @@ fn main() {
     let stack = Stack::with_length(8);
     let now = std::time::Instant::now();
 
-    code.u32(asm::INTERRUPT).i32(1);
-    code.u32(asm::PUSH).i32(3);
-    code.u32(asm::PUSH).i32(8);
-    code.u32(asm::I32_ADD);
-    code.u32(asm::POP).u32(1);
+    code.u32(ops::PUSH).i32(15);
+    code.u32(ops::PUSH).i32(100);
+    code.u32(ops::I32_ADD);
+    code.u32(ops::POP).u32(1);
+    code.finish();
 
     let (int, cycles) = execute(code.build().unwrap(), stack);
 

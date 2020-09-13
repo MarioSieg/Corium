@@ -102,14 +102,15 @@ pub enum Discriminator {
 
 impl fmt::Display for RecordUnion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} | {} | {}", self.u32(), self.i32(), self.f32())
+        let b = self.to_bytes();
+        write!(f, "{:02X} {:02X} {:02X} {:02X}", b[0], b[1], b[2], b[3])
     }
 }
 
 impl fmt::Debug for RecordUnion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b = self.to_bytes();
-        write!(f, "{:02x} {:02x} {:02x} {:02x} -> {} | {} | {}", b[0], b[1], b[2], b[3], self.u32(), self.i32(), self.f32())
+        write!(f, "{:02X} {:02X} {:02X} {:02X} -> {} | {} | {}", b[0], b[1], b[2], b[3], self.u32(), self.i32(), self.f32())
     }
 }
 

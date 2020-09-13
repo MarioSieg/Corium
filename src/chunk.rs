@@ -20,8 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use std::ops;
+use std::{fmt, ops};
 
+use super::asm;
 use super::record::*;
 
 /// A fixed size chunk of bytecode, which can be executed by the VM.
@@ -97,5 +98,21 @@ impl ops::Index<usize> for BytecodeChunk {
 impl ops::IndexMut<usize> for BytecodeChunk {
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.0[idx]
+    }
+}
+
+impl fmt::Debug for BytecodeChunk {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "--------Chunk--------")?;
+        let mut i = 0;
+        while i < self.0.len() {
+            let meta = &asm::META_TABLE[self.0[i].u32() as usize];
+            writeln!(f, "{:#010x} {} {}", i, self.0[i], meta.mnemonic)?;
+            for j in (1..=meta.num_args).map(|j| i + j) {
+                writeln!(f, "{:#010x} {}", j, self.0[j])?;
+            }
+            i += 1 + meta.num_args;
+        }
+        writeln!(f, "--------Chunk--------")
     }
 }

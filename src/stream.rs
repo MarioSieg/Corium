@@ -22,6 +22,7 @@
 
 use std::ops;
 
+use super::asm;
 use super::chunk::*;
 use super::record::*;
 
@@ -61,6 +62,12 @@ impl BytecodeStream {
     #[inline]
     pub fn f32(&mut self, val: f32) -> &mut Self {
         self.0.push((RecordUnion::from_f32(val), Discriminator::F32));
+        self
+    }
+
+    #[inline]
+    pub fn finish(&mut self) -> &mut Self {
+        self.u32(asm::ops::INTERRUPT).i32(0);
         self
     }
 
