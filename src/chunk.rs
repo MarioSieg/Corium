@@ -112,7 +112,6 @@ impl fmt::Debug for BytecodeChunk {
         writeln!(f, "-----------------------------------------------")?;
         let mut i = 0;
         while i < self.0.len() {
-            std::thread::sleep_ms(10);
             let meta = &asm::META_TABLE[self.0[i].u32() as usize];
             writeln!(f, "{:#018X} | {} | {}", i, self.0[i], meta.mnemonic)?;
             for j in (1..=meta.num_args).map(|j| i + j) {
