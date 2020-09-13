@@ -199,7 +199,7 @@ impl fmt::Debug for Stack {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "--------Stack--------")?;
         for (i, rec) in self.0.iter().enumerate() {
-            writeln!(f, "{:#010x} {:?}", i, rec)?
+            writeln!(f, "{:#010X} | {:?}", i, rec)?
         }
         writeln!(f, "--------Stack--------")
     }

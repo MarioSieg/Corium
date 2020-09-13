@@ -59,6 +59,10 @@ pub fn execute(mut code: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
                 stack.poke_set(code.fetch().u32() as _, stack.poke(code.fetch().u32() as _));
             }
 
+            ops::NOP => {
+                continue;
+            }
+
             ops::DUPLICATE => {
                 stack.push(stack.peek());
             }

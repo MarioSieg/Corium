@@ -28,12 +28,15 @@ fn main() {
     let mut code = BytecodeStream::new();
     let stack = Stack::with_length(8);
     let now = std::time::Instant::now();
-
-    code.u32(ops::PUSH).i32(15);
-    code.u32(ops::PUSH).i32(100);
-    code.u32(ops::I32_ADD);
-    code.u32(ops::POP).u32(1);
-    code.finish();
+    let mut rand = XorshiftGenerator::new(272727373);
+    for _ in 0..1000000 {
+        code.u32(ops::NOP);
+        code.u32(ops::PUSH).i32(rand.rand_i32_bounds());
+        code.u32(ops::PUSH).i32(rand.rand_i32_bounds());
+        code.u32(ops::I32_ADD);
+        code.u32(ops::POP).u32(1);
+        code.finish();
+    }
 
     let (int, cycles) = execute(code.build().unwrap(), stack);
 

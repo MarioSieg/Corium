@@ -112,7 +112,7 @@ impl fmt::Debug for RecordUnion {
         let b = self.to_bytes();
         write!(
             f,
-            "{:02X} {:02X} {:02X} {:02X} -> {} | {} | {}",
+            "{:02X} {:02X} {:02X} {:02X} | {} {} {:e}",
             b[0],
             b[1],
             b[2],

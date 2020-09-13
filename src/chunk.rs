@@ -107,16 +107,19 @@ impl ops::IndexMut<usize> for BytecodeChunk {
 
 impl fmt::Debug for BytecodeChunk {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "--------Chunk--------")?;
+        writeln!(f, "-----------------------------------------------")?;
+        writeln!(f, "      Address      |    Bytes    |  Opcode/Arg ")?;
+        writeln!(f, "-----------------------------------------------")?;
         let mut i = 0;
         while i < self.0.len() {
+            std::thread::sleep_ms(10);
             let meta = &asm::META_TABLE[self.0[i].u32() as usize];
-            writeln!(f, "{:#010x} {} {}", i, self.0[i], meta.mnemonic)?;
+            writeln!(f, "{:#018X} | {} | {}", i, self.0[i], meta.mnemonic)?;
             for j in (1..=meta.num_args).map(|j| i + j) {
-                writeln!(f, "{:#010x} {}", j, self.0[j])?;
+                writeln!(f, "{:#018X} | {:?}", j, self.0[j])?;
             }
             i += 1 + meta.num_args;
         }
-        writeln!(f, "--------Chunk--------")
+        writeln!(f, "-----------------------------------------------")
     }
 }

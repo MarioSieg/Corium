@@ -27,3 +27,4 @@ pub mod prelude;
 pub mod record;
 pub mod stack;
 pub mod stream;
+pub mod xorshift;
