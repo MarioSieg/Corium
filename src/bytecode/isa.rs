@@ -230,7 +230,7 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta] = &[
     },
     InstructionMeta {
         opcode: ops::MOVE,
-        num_args: 1,
+        num_args: 2,
         mnemonic: "mov",
     },
     InstructionMeta {

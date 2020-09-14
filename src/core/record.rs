@@ -294,17 +294,21 @@ impl fmt::Display for RecordUnion {
 impl fmt::Debug for RecordUnion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b = self.to_bytes();
-        write!(
-            f,
-            "{:02X} {:02X} {:02X} {:02X} | {} {} {:e}",
-            b[0],
-            b[1],
-            b[2],
-            b[3],
-            self.u32(),
-            self.i32(),
-            self.f32()
-        )
+        if self.u32() == 0 {
+            write!(f, "{:02X} {:02X} {:02X} {:02X} | 0", b[0], b[1], b[2], b[3],)
+        } else {
+            write!(
+                f,
+                "{:02X} {:02X} {:02X} {:02X} | $({} {} {:e})",
+                b[0],
+                b[1],
+                b[2],
+                b[3],
+                self.u32(),
+                self.i32(),
+                self.f32()
+            )
+        }
     }
 }
 

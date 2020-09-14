@@ -251,9 +251,16 @@ impl BytecodeStream {
         self
     }
 
+    pub fn begin(&mut self) -> &mut Self {
+        self.u32(asm_ops::MOVE)
+            .i32(0)
+            .u32(u32::from_le_bytes(*b"LOVE")); // Because I love my cutie so much!
+        self
+    }
+
     #[inline]
-    pub fn finish(&mut self) -> &mut Self {
-        self.u32(asm_ops::INTERRUPT).i32(0);
+    pub fn end(&mut self) -> &mut Self {
+        self.u32(asm_ops::INTERRUPT).i32(0); // Add interrupt as last instruction.
         self
     }
 

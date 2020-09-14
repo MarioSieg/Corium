@@ -210,20 +210,14 @@ use ronvm::prelude::*;
 
 fn main() {
     let mut code = BytecodeStream::new();
-    let stack = Stack::with_length(8);
-    let now = std::time::Instant::now();
-    let mut rand = XorshiftGenerator::new(272727373);
-    for _ in 0..512 {
-        code.u32(ops::NOP);
-        code.u32(ops::PUSH).i32(rand.rand_i32_bounds());
-        code.u32(ops::PUSH).i32(rand.rand_i32_bounds());
-        code.u32(ops::I32_ADD);
-        code.u32(ops::POP).u32(1);
-        code.finish();
-    }
 
-    let (int, cycles) = execute(code.build().unwrap(), stack);
+    code.begin();
+    code.u32(ops::NOP);
+    code.u32(ops::PUSH).i32(6);
+    code.u32(ops::PUSH).i32(8);
+    code.u32(ops::I32_ADD);
+    code.u32(ops::POP).u32(1);
+    code.end();
 
-    println!("MS: {}", now.elapsed().as_secs_f64());
-    println!("INT: {}, CYC: {}", int, cycles);
+    execute(code.build().unwrap(), Stack::with_length(8));
 }

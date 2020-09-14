@@ -228,37 +228,29 @@ impl Stack {
     #[inline]
     pub fn from_buffer(buf: Box<[RecordUnion]>) -> Self {
         assert_ne!(buf.len(), 0);
-        let mut this = Self(buf, 0);
-        this[0] = RecordUnion::MAX;
-        this
+        Self(buf, 0)
     }
 
     #[inline]
     pub fn from_vector(vec: Vec<RecordUnion>) -> Self {
         assert_ne!(vec.len(), 0);
-        let mut this = Self(vec.into_boxed_slice(), 0);
-        this[0] = RecordUnion::MAX;
-        this
+        Self(vec.into_boxed_slice(), 0)
     }
 
     #[inline]
     pub fn with_length(len: usize) -> Self {
         assert_ne!(len, 0);
-        let mut this = Self::from_vector(vec![RecordUnion::ZERO; len]);
-        this[0] = RecordUnion::MAX;
-        this
+        Self::from_vector(vec![RecordUnion::ZERO; len])
     }
 
     #[inline]
     pub fn with_byte_size(size: usize) -> Self {
         assert_ne!(size, 0);
         assert_eq!(size % std::mem::size_of::<RecordUnion>(), 0);
-        let mut this = Self::from_vector(vec![
+        Self::from_vector(vec![
             RecordUnion::ZERO;
             size / std::mem::size_of::<RecordUnion>()
-        ]);
-        this[0] = RecordUnion::MAX;
-        this
+        ])
     }
 
     #[inline]
@@ -383,7 +375,7 @@ impl fmt::Debug for Stack {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "--------Stack--------")?;
         for (i, rec) in self.0.iter().enumerate() {
-            writeln!(f, "{:#010X} | {:?}", i, rec)?
+            writeln!(f, "&{:#010X} | {:?}", i, rec)?
         }
         writeln!(f, "--------Stack--------")
     }
