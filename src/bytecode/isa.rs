@@ -254,6 +254,11 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta] = &[
         mnemonic: "ddupl",
     },
     InstructionMeta {
+        opcode: ops::REINTERPRET_CAST,
+        num_args: 2,
+        mnemonic: "reinterpret_cast",
+    },
+    InstructionMeta {
         opcode: ops::I32_ADD,
         num_args: 0,
         mnemonic: "iadd",
