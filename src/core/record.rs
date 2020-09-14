@@ -295,18 +295,28 @@ impl fmt::Debug for RecordUnion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b = self.to_bytes();
         if self.u32() == 0 {
-            write!(f, "{:02X} {:02X} {:02X} {:02X} | 0", b[0], b[1], b[2], b[3],)
+            write!(
+                f,
+                "{:02X} {:02X} {:02X} {:02X} | $0",
+                b[0], b[1], b[2], b[3]
+            )
+        } else if self.u32() == 1 {
+            write!(
+                f,
+                "{:02X} {:02X} {:02X} {:02X} | $1",
+                b[0], b[1], b[2], b[3]
+            )
         } else {
             write!(
                 f,
-                "{:02X} {:02X} {:02X} {:02X} | $({} {} {:e})",
+                "{:02X} {:02X} {:02X} {:02X} | $(U: {}, I: {}, F: {:E})",
                 b[0],
                 b[1],
                 b[2],
                 b[3],
                 self.u32(),
                 self.i32(),
-                self.f32()
+                self.f32(),
             )
         }
     }

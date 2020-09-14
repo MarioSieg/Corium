@@ -215,7 +215,7 @@ fn main() {
     code.u32(ops::NOP);
     code.u32(ops::PUSH).i32(6);
     code.u32(ops::PUSH).i32(8);
-    code.u32(ops::I32_ADD);
+    code.u32(ops::I32_MUL);
     code.u32(ops::POP).u32(1);
     code.end();
 

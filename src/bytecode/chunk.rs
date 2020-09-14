@@ -297,9 +297,9 @@ impl fmt::Debug for BytecodeChunk {
         let mut i = 0;
         while i < self.0.len() {
             let meta = &INSTRUCTION_TABLE[self.0[i].u32() as usize];
-            writeln!(f, "&{:#018X} | {} | %{}", i, self.0[i], meta.mnemonic)?;
+            writeln!(f, "&{:#018x} | {} | %{}", i, self.0[i], meta.mnemonic)?;
             for j in (1..=meta.num_args).map(|j| i + j) {
-                writeln!(f, "*{:#018X} | {:?}", j, self.0[j])?;
+                writeln!(f, "*{:#018x} | {:?}", j, self.0[j])?;
             }
             i += 1 + meta.num_args;
         }
