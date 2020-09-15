@@ -204,21 +204,6 @@
 
 */
 
-extern crate ronvm;
+mod sigils;
 
-use ronvm::prelude::*;
-
-fn main() {
-    let mut code = BytecodeStream::new();
-
-    code.begin();
-    code.u32(ops::NOP);
-    code.u32(ops::PUSH).i32(6);
-    code.u32(ops::CAST_F32_2_I32);
-    code.u32(ops::PUSH).i32(8);
-    code.u32(ops::I32_MUL);
-    code.u32(ops::POP).u32(1);
-    code.end();
-
-    execute(code.build().unwrap(), Stack::with_length(8));
-}
+pub use sigils::*;

@@ -208,6 +208,7 @@ use std::{fmt, ops};
 
 use crate::bytecode::INSTRUCTION_TABLE;
 use crate::core::RecordUnion;
+use crate::interpreter::*;
 
 /// A fixed size chunk of bytecode, which can be executed by the VM.
 pub struct BytecodeChunk(Box<[RecordUnion]>, usize);
@@ -289,20 +290,47 @@ impl ops::IndexMut<usize> for BytecodeChunk {
     }
 }
 
-impl fmt::Debug for BytecodeChunk {
+// Simple print:
+impl fmt::Display for BytecodeChunk {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "------------------------------------------------")?;
-        writeln!(f, "      Address       |    Bytes    |  Opcode/Arg ")?;
-        writeln!(f, "------------------------------------------------")?;
+        writeln!(f, "\n+-----------------------------------------------+")?;
+        writeln!(f, "|                    Bytecode                   |")?;
+        writeln!(f, "+-----------------------------------------------+")?;
         let mut i = 0;
         while i < self.0.len() {
             let meta = &INSTRUCTION_TABLE[self.0[i].u32() as usize];
-            writeln!(f, "&{:#018x} | {} | %{}", i, self.0[i], meta.mnemonic)?;
-            for j in (1..=meta.num_args).map(|j| i + j) {
-                writeln!(f, "*{:#018x} | {:?}", j, self.0[j])?;
-            }
-            i += 1 + meta.num_args;
+            writeln!(f, "| {}", meta.mnemonic)?;
+            i += 1 + meta.explicit_arguments.len();
         }
-        writeln!(f, "------------------------------------------------")
+        writeln!(f, "+-----------------------------------------------+\n")
+    }
+}
+
+// Detailed print (valid text bytecode with syntax)
+impl fmt::Debug for BytecodeChunk {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "\n+-----------------------------------------------+")?;
+        writeln!(f, "|                   Bytecode                    |")?;
+        writeln!(f, "+-----------------------------------------------+")?;
+        writeln!(f, "|       Address       |     Byte    |     Ops   |")?;
+        writeln!(f, "+-----------------------------------------------+")?;
+        let mut i = 0;
+        while i < self.0.len() {
+            let meta = &INSTRUCTION_TABLE[self.0[i].u32() as usize];
+            writeln!(f, "| {}{:#018x} | {} | {}{}",
+                     sigs::ADDRESS_OP,
+                     i,
+                     self.0[i],
+                     sigs::BEGIN_OP,
+                     meta.mnemonic)?;
+            for j in (1..=meta.explicit_arguments.len()).map(|j| i + j) {
+                writeln!(f, "| {}{:#018x} | {:?}",
+                       sigs::ADDRESS_VAL,
+                       i,
+                        self.0[j])?;
+            }
+            i += 1 + meta.explicit_arguments.len();
+        }
+        writeln!(f, "+----------------------End----------------------+\n")
     }
 }

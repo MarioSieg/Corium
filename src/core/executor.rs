@@ -253,12 +253,12 @@ pub fn execute(mut code: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
                 stack.push(stack.peek());
             }
             
-            ops::REINTERPRET_CAST => {
-                if code.fetch().i32() == 0 {
-                    stack.push(RecordUnion::from_i32(stack.peek().f32() as _));
-                } else {
-                    stack.push(RecordUnion::from_f32(stack.peek().i32() as _));
-                }
+            ops::CAST_I32_2_F32 => {
+                stack.push(RecordUnion::from_f32(stack.peek().i32() as _));
+            }
+
+            ops::CAST_F32_2_I32 => {
+                stack.push(RecordUnion::from_i32(stack.peek().f32() as _));
             }
 
             ops::I32_ADD => {

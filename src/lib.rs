@@ -209,3 +209,4 @@ pub mod core;
 pub mod jit;
 pub mod misc;
 pub mod prelude;
+pub mod interpreter;

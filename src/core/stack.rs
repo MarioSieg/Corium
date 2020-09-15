@@ -373,10 +373,12 @@ impl ops::IndexMut<usize> for Stack {
 
 impl fmt::Debug for Stack {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "--------Stack--------")?;
+        writeln!(f, "\n+-----------------------------------------------+")?;
+        writeln!(f, "|                     Stack                     |")?;
+        writeln!(f, "+-----------------------------------------------+")?;
         for (i, rec) in self.0.iter().enumerate() {
-            writeln!(f, "&{:#010X} | {:?}", i, rec)?
+            writeln!(f, "| &{:#010X} | {:?}", i, rec)?
         }
-        writeln!(f, "--------Stack--------")
+        writeln!(f, "+----------------------End----------------------+\n")
     }
 }

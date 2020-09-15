@@ -204,21 +204,14 @@
 
 */
 
-extern crate ronvm;
+pub mod sigs {
+    pub const ADDRESS_OP: char = '&';
+    pub const ADDRESS_VAL: char = '*';
 
-use ronvm::prelude::*;
+    pub const BEGIN_VALUE: char = '$';
+    pub const BEGIN_OP: char = '%';
 
-fn main() {
-    let mut code = BytecodeStream::new();
-
-    code.begin();
-    code.u32(ops::NOP);
-    code.u32(ops::PUSH).i32(6);
-    code.u32(ops::CAST_F32_2_I32);
-    code.u32(ops::PUSH).i32(8);
-    code.u32(ops::I32_MUL);
-    code.u32(ops::POP).u32(1);
-    code.end();
-
-    execute(code.build().unwrap(), Stack::with_length(8));
+    pub const MARKER_I32: char = 'i';
+    pub const MARKER_F32: char = 'f';
+    pub const MARKER_U32: char = 'u';
 }

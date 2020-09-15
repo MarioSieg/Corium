@@ -205,6 +205,7 @@
 */
 
 use std::{default, fmt};
+use crate::interpreter::*;
 
 #[derive(Copy, Clone, PartialEq, Hash)]
 pub struct RecordUnion(u32);
@@ -294,31 +295,23 @@ impl fmt::Display for RecordUnion {
 impl fmt::Debug for RecordUnion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b = self.to_bytes();
-        if self.u32() == 0 {
-            write!(
-                f,
-                "{:02X} {:02X} {:02X} {:02X} | $0",
-                b[0], b[1], b[2], b[3]
-            )
-        } else if self.u32() == 1 {
-            write!(
-                f,
-                "{:02X} {:02X} {:02X} {:02X} | $1",
-                b[0], b[1], b[2], b[3]
-            )
-        } else {
-            write!(
-                f,
-                "{:02X} {:02X} {:02X} {:02X} | $(U: {}, I: {}, F: {:E})",
-                b[0],
-                b[1],
-                b[2],
-                b[3],
-                self.u32(),
-                self.i32(),
-                self.f32(),
-            )
-        }
+        write!(
+            f,
+            "{:02X} {:02X} {:02X} {:02X} | {}{}{}, {}{:E}{}, {}{}{}",
+            b[0],
+            b[1],
+            b[2],
+            b[3],
+            sigs::BEGIN_VALUE,
+            self.i32(),
+            sigs::MARKER_I32,
+            sigs::BEGIN_VALUE,
+            self.f32(),
+            sigs::MARKER_F32,
+            sigs::BEGIN_VALUE,
+            self.u32(),
+            sigs::MARKER_U32,
+        )
     }
 }
 
