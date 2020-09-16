@@ -257,7 +257,7 @@ pub enum InstructionCategory {
 
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub struct InstructionMeta<'a> {
-    pub opcode: u32,
+    pub opcode: u8,
     pub mnemonic: &'a str,
     pub category: InstructionCategory,
     pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
@@ -704,6 +704,26 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         opcode: ops::I32_COM,
         mnemonic: "icom",
         category: InstructionCategory::Bitwise,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+            offset: -1,
+            alias: "scalar_operand_a",
+        }]),
+    },
+    InstructionMeta {
+        opcode: ops::I32_INCREMENT,
+        mnemonic: "iinc",
+        category: InstructionCategory::Arithmetic,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+            offset: -1,
+            alias: "scalar_operand_a",
+        }]),
+    },
+    InstructionMeta {
+        opcode: ops::I32_DECREMENT,
+        mnemonic: "idec",
+        category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,

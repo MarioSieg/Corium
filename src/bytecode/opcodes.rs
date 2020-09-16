@@ -204,7 +204,7 @@
 
 */
 
-#[repr(u32)]
+#[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum OpCode {
     Interrupt = ops::INTERRUPT,
@@ -235,6 +235,8 @@ pub enum OpCode {
     I32Sal = ops::I32_SAL,
     I32Sar = ops::I32_SAR,
     I32Com = ops::I32_COM,
+    I32Increment = ops::I32_INCREMENT,
+    I32Decrement = ops::I32_DECREMENT,
     F32Add = ops::F32_ADD,
     F32Sub = ops::F32_SUB,
     F32Mul = ops::F32_MUL,
@@ -244,37 +246,39 @@ pub enum OpCode {
 
 #[rustfmt::skip]
 pub(crate) mod ops {
-    pub const INTERRUPT: u32            = 0x00000000;
-    pub const PUSH: u32                 = 0x00000001;
-    pub const POP: u32                  = 0x00000002;
-    pub const MOVE: u32                 = 0x00000003;
-    pub const COPY: u32                 = 0x00000004;
-    pub const NOP: u32                  = 0x00000005;
-    pub const DUPLICATE: u32            = 0x00000006;
-    pub const DUPLICATE_X2: u32         = 0x00000007;
-    pub const CAST_I32_2_F32: u32       = 0x00000008;
-    pub const CAST_F32_2_I32: u32       = 0x00000009;
-    pub const JUMP: u32                 = 0x0000000A;
-    pub const JUMP_EQUALS: u32          = 0x0000000B;
-    pub const JUMP_NOT_EQUALS: u32      = 0x0000000C;
-    pub const JUMP_ABOVE: u32           = 0x0000000D;
-    pub const JUMP_ABOVE_EQUALS: u32    = 0x0000000E;
-    pub const JUMP_LESS: u32            = 0x0000000F;
-    pub const JUMP_LESS_EQUALS: u32     = 0x00000010;
-    pub const I32_ADD: u32              = 0x00000011;
-    pub const I32_SUB: u32              = 0x00000012;
-    pub const I32_MUL: u32              = 0x00000013;
-    pub const I32_DIV: u32              = 0x00000014;
-    pub const I32_MOD: u32              = 0x00000015;
-    pub const I32_AND: u32              = 0x00000016;
-    pub const I32_OR: u32               = 0x00000017;
-    pub const I32_XOR: u32              = 0x00000018;
-    pub const I32_SAL: u32              = 0x00000019;
-    pub const I32_SAR: u32              = 0x0000001A;
-    pub const I32_COM: u32              = 0x0000001B;
-    pub const F32_ADD: u32              = 0x0000001C;
-    pub const F32_SUB: u32              = 0x0000001D;
-    pub const F32_MUL: u32              = 0x0000001E;
-    pub const F32_DIV: u32              = 0x0000001F;
-    pub const F32_MOD: u32              = 0x00000020;
+    pub const INTERRUPT: u8            = 0x00;
+    pub const PUSH: u8                 = 0x01;
+    pub const POP: u8                  = 0x02;
+    pub const MOVE: u8                 = 0x03;
+    pub const COPY: u8                 = 0x04;
+    pub const NOP: u8                  = 0x05;
+    pub const DUPLICATE: u8            = 0x06;
+    pub const DUPLICATE_X2: u8         = 0x07;
+    pub const CAST_I32_2_F32: u8       = 0x08;
+    pub const CAST_F32_2_I32: u8       = 0x09;
+    pub const JUMP: u8                 = 0x0A;
+    pub const JUMP_EQUALS: u8          = 0x0B;
+    pub const JUMP_NOT_EQUALS: u8      = 0x0C;
+    pub const JUMP_ABOVE: u8           = 0x0D;
+    pub const JUMP_ABOVE_EQUALS: u8    = 0x0E;
+    pub const JUMP_LESS: u8            = 0x0F;
+    pub const JUMP_LESS_EQUALS: u8     = 0x10;
+    pub const I32_ADD: u8              = 0x11;
+    pub const I32_SUB: u8              = 0x12;
+    pub const I32_MUL: u8              = 0x13;
+    pub const I32_DIV: u8              = 0x14;
+    pub const I32_MOD: u8              = 0x15;
+    pub const I32_AND: u8              = 0x16;
+    pub const I32_OR: u8               = 0x17;
+    pub const I32_XOR: u8              = 0x18;
+    pub const I32_SAL: u8              = 0x19;
+    pub const I32_SAR: u8              = 0x1A;
+    pub const I32_COM: u8              = 0x1B;
+    pub const I32_INCREMENT: u8        = 0x1C;
+    pub const I32_DECREMENT: u8        = 0x1D;
+    pub const F32_ADD: u8              = 0x1E;
+    pub const F32_SUB: u8              = 0x1F;
+    pub const F32_MUL: u8              = 0x20;
+    pub const F32_DIV: u8              = 0x21;
+    pub const F32_MOD: u8              = 0x22;
 }

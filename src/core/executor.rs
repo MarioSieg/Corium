@@ -212,9 +212,15 @@ use crate::core::{RecordUnion, Stack};
 pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
     let mut cycles: u64 = 0; // Cycles counter.
     let mut interrupt: i32 = 0; // Interrupt id.
+    let mut opcode: u8; // Opcode
 
     loop {
-        match command_buffer.fetch().u32() {
+        opcode = command_buffer.fetch().i32() as _;
+        cycles += 1;
+        if command_buffer.is_done() {
+            break;
+        }
+        match opcode {
             ops::INTERRUPT => {
                 interrupt = command_buffer.fetch().i32();
                 if interrupt <= 0 {
@@ -222,22 +228,30 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                 } else {
                     // Trigger exception
                 }
+                continue;
             }
 
             ops::PUSH => {
                 stack.push(command_buffer.fetch());
+                continue;
             }
 
             ops::POP => {
-                stack.pop_multi(command_buffer.fetch().u32() as _);
+                stack.pop_multi(command_buffer.fetch().i32() as _);
+                continue;
             }
 
             ops::MOVE => {
-                stack.poke_set(command_buffer.fetch().u32() as _, command_buffer.fetch());
+                stack.poke_set(command_buffer.fetch().i32() as _, command_buffer.fetch());
+                continue;
             }
 
             ops::COPY => {
-                stack.poke_set(command_buffer.fetch().u32() as _, stack.poke(command_buffer.fetch().u32() as _));
+                stack.poke_set(
+                    command_buffer.fetch().i32() as _,
+                    stack.poke(command_buffer.fetch().i32() as _),
+                );
+                continue;
             }
 
             ops::NOP => {
@@ -246,24 +260,83 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
 
             ops::DUPLICATE => {
                 stack.push(stack.peek());
+                continue;
             }
 
             ops::DUPLICATE_X2 => {
                 stack.push(stack.peek());
                 stack.push(stack.peek());
+                continue;
             }
 
             ops::CAST_I32_2_F32 => {
                 stack.push(RecordUnion::from_f32(stack.peek().i32() as _));
+                continue;
             }
 
             ops::CAST_F32_2_I32 => {
                 stack.push(RecordUnion::from_i32(stack.peek().f32() as _));
+                continue;
             }
 
             ops::JUMP => {
                 let target_address = command_buffer.fetch().ptr();
                 command_buffer.jump(target_address);
+                continue;
+            }
+
+            ops::JUMP_EQUALS => {
+                if stack.peek_previous().i32() == stack.peek().i32() {
+                    let target_address = command_buffer.fetch().ptr();
+                    command_buffer.jump(target_address);
+                }
+                stack.pop_multi(2);
+                continue;
+            }
+
+            ops::JUMP_NOT_EQUALS => {
+                if stack.peek_previous().i32() != stack.peek().i32() {
+                    let target_address = command_buffer.fetch().ptr();
+                    command_buffer.jump(target_address);
+                }
+                stack.pop_multi(2);
+                continue;
+            }
+
+            ops::JUMP_ABOVE => {
+                if stack.peek_previous().i32() > stack.peek().i32() {
+                    let target_address = command_buffer.fetch().ptr();
+                    command_buffer.jump(target_address);
+                }
+                stack.pop_multi(2);
+                continue;
+            }
+
+            ops::JUMP_ABOVE_EQUALS => {
+                if stack.peek_previous().i32() >= stack.peek().i32() {
+                    let target_address = command_buffer.fetch().ptr();
+                    command_buffer.jump(target_address);
+                }
+                stack.pop_multi(2);
+                continue;
+            }
+
+            ops::JUMP_LESS => {
+                if stack.peek_previous().i32() < stack.peek().i32() {
+                    let target_address = command_buffer.fetch().ptr();
+                    command_buffer.jump(target_address);
+                }
+                stack.pop_multi(2);
+                continue;
+            }
+
+            ops::JUMP_LESS_EQUALS => {
+                if stack.peek_previous().i32() <= stack.peek().i32() {
+                    let target_address = command_buffer.fetch().ptr();
+                    command_buffer.jump(target_address);
+                }
+                stack.pop_multi(2);
+                continue;
             }
 
             ops::I32_ADD => {
@@ -271,6 +344,7 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().i32().wrapping_add(stack.peek().i32()),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::I32_SUB => {
@@ -278,6 +352,7 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().i32().wrapping_sub(stack.peek().i32()),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::I32_MUL => {
@@ -285,6 +360,7 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().i32().wrapping_mul(stack.peek().i32()),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::I32_DIV => {
@@ -292,6 +368,7 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().i32().wrapping_div(stack.peek().i32()),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::I32_MOD => {
@@ -299,6 +376,7 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().i32() % stack.peek().i32(),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::I32_AND => {
@@ -306,6 +384,7 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().i32() & stack.peek().i32(),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::I32_OR => {
@@ -313,6 +392,7 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().i32() | stack.peek().i32(),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::I32_XOR => {
@@ -320,25 +400,45 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().i32() ^ stack.peek().i32(),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::I32_SAL => {
                 stack.peek_previous_set(RecordUnion::from_i32(
-                    stack.peek_previous().i32().wrapping_shl(stack.peek().u32()),
+                    stack
+                        .peek_previous()
+                        .i32()
+                        .wrapping_shl(stack.peek().i32() as _),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::I32_SAR => {
                 stack.peek_previous_set(RecordUnion::from_i32(
-                    stack.peek_previous().i32().wrapping_shr(stack.peek().u32()),
+                    stack
+                        .peek_previous()
+                        .i32()
+                        .wrapping_shr(stack.peek().i32() as _),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::I32_COM => {
                 stack.peek_previous_set(RecordUnion::from_i32(!stack.peek_previous().i32()));
                 stack.pop();
+                continue;
+            }
+
+            ops::I32_INCREMENT => {
+                stack.peek_set(RecordUnion::from_i32(stack.peek().i32() + 1));
+                continue;
+            }
+
+            ops::I32_DECREMENT => {
+                stack.peek_set(RecordUnion::from_i32(stack.peek().i32() - 1));
+                continue;
             }
 
             ops::F32_ADD => {
@@ -346,6 +446,7 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().f32() + stack.peek().f32(),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::F32_SUB => {
@@ -353,6 +454,7 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().f32() - stack.peek().f32(),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::F32_MUL => {
@@ -360,6 +462,7 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().f32() * stack.peek().f32(),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::F32_DIV => {
@@ -367,6 +470,7 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().f32() / stack.peek().f32(),
                 ));
                 stack.pop();
+                continue;
             }
 
             ops::F32_MOD => {
@@ -374,20 +478,12 @@ pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64
                     stack.peek_previous().f32() % stack.peek().f32(),
                 ));
                 stack.pop();
+                continue;
             }
 
             _ => (),
         }
-
-        if command_buffer.is_done() {
-            break;
-        }
-
-        cycles += 1;
     }
-
-    print!("{:?}", stack);
-    print!("{:?}", command_buffer);
 
     (interrupt, cycles)
 }

@@ -221,11 +221,6 @@ impl RecordUnion {
     }
 
     #[inline]
-    pub fn from_u32(val: u32) -> Self {
-        Self(val)
-    }
-
-    #[inline]
     pub fn from_i32(val: i32) -> Self {
         Self(val as _)
     }
@@ -242,16 +237,6 @@ impl RecordUnion {
 }
 
 impl RecordUnion {
-    #[inline]
-    pub fn u32(&self) -> u32 {
-        self.0
-    }
-
-    #[inline]
-    pub fn set_u32(&mut self, val: u32) {
-        self.0 = val
-    }
-
     #[inline]
     pub fn i32(&self) -> i32 {
         self.0 as _
@@ -273,7 +258,9 @@ impl RecordUnion {
     }
 
     #[inline]
-    pub fn ptr(&self) -> usize { self.0 as _ }
+    pub fn ptr(&self) -> usize {
+        self.0 as _
+    }
 
     #[inline]
     pub fn to_bytes(&self) -> [u8; 4] {
@@ -283,7 +270,6 @@ impl RecordUnion {
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub enum Discriminator {
-    U32,
     I32,
     F32,
 }
@@ -300,7 +286,7 @@ impl fmt::Debug for RecordUnion {
         let b = self.to_bytes();
         write!(
             f,
-            "{:02X} {:02X} {:02X} {:02X} | {}{}{}, {}{:E}{}, {}{}{}",
+            "{:02X} {:02X} {:02X} {:02X} | {}{}{}, {}{:E}{}",
             b[0],
             b[1],
             b[2],
@@ -311,9 +297,6 @@ impl fmt::Debug for RecordUnion {
             sigs::BEGIN_VALUE,
             self.f32(),
             sigs::MARKER_F32,
-            sigs::BEGIN_VALUE,
-            self.u32(),
-            sigs::MARKER_U32,
         )
     }
 }

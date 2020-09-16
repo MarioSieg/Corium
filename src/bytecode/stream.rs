@@ -204,10 +204,11 @@
 
 */
 
-use std::{default, ops};
+use std::{default, fmt, ops};
 
-use crate::bytecode::{chunk::BytecodeChunk, OpCode};
+use crate::bytecode::{chunk::BytecodeChunk, OpCode, INSTRUCTION_TABLE};
 use crate::core::{Discriminator, RecordUnion};
+use crate::interpreter::*;
 use std::collections::HashMap;
 
 /// A bytecode stream is used to dynamically build bytecode.
@@ -245,20 +246,12 @@ impl BytecodeStream {
 impl BytecodeStream {
     #[inline]
     pub fn def_opcode(&mut self, op: OpCode) -> &mut Self {
-        self.with_u32(op as _)
+        self.with_i32(op as _)
     }
 
     #[inline]
     pub fn def_label(&mut self, name: &str) -> &mut Self {
-        self.jump_table
-            .insert(name.to_string(), self.code.len() - 1);
-        self
-    }
-
-    #[inline]
-    pub fn with_u32(&mut self, val: u32) -> &mut Self {
-        self.code
-            .push((RecordUnion::from_u32(val), Discriminator::U32));
+        self.jump_table.insert(name.to_string(), self.code.len());
         self
     }
 
@@ -278,7 +271,7 @@ impl BytecodeStream {
 
     #[inline]
     pub fn with_label(&mut self, name: &str) -> &mut Self {
-        self.with_u32(
+        self.with_i32(
             (*self
                 .jump_table
                 .get(name)
@@ -289,7 +282,7 @@ impl BytecodeStream {
     pub fn prologue(&mut self) -> &mut Self {
         self.def_opcode(OpCode::Move)
             .with_i32(0)
-            .with_u32(u32::from_le_bytes(*b"LOVE")); // Because I love my cutie so much!
+            .with_i32(i32::from_le_bytes(*b"LOVE")); // Because I love my cutie so much!
         self
     }
 
@@ -380,5 +373,56 @@ impl ops::IndexMut<usize> for BytecodeStream {
 impl default::Default for BytecodeStream {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+// Simple print:
+impl fmt::Display for BytecodeStream {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "\n+-----------------------------------------------+")?;
+        writeln!(f, "|                    Bytecode                   |")?;
+        writeln!(f, "+-----------------------------------------------+")?;
+        let mut i = 0;
+        while i < self.code.len() {
+            let meta = &INSTRUCTION_TABLE[self.code[i].0.i32() as usize];
+            writeln!(f, "| {}", meta.mnemonic)?;
+            i += 1 + meta.explicit_arguments.len();
+        }
+        writeln!(f, "+-----------------------------------------------+\n")
+    }
+}
+
+// Detailed print (valid text bytecode with syntax)
+impl fmt::Debug for BytecodeStream {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "\n+-----------------------------------------------+")?;
+        writeln!(f, "|                   Bytecode                    |")?;
+        writeln!(f, "+-----------------------------------------------+")?;
+        writeln!(f, "|       Address       |     Byte    |     Ops   |")?;
+        writeln!(f, "+-----------------------------------------------+")?;
+        let mut i = 0;
+        while i < self.code.len() {
+            let meta = &INSTRUCTION_TABLE[self.code[i].0.i32() as usize];
+            writeln!(
+                f,
+                "| {}{:#018x} | {} | {}{}",
+                sigs::ADDRESS_OP,
+                i,
+                self.code[i].0,
+                sigs::BEGIN_OP,
+                meta.mnemonic
+            )?;
+            for j in (1..=meta.explicit_arguments.len()).map(|j| i + j) {
+                writeln!(
+                    f,
+                    "| {}{:#018x} | {:?}",
+                    sigs::ADDRESS_VAL,
+                    j,
+                    self.code[j].0
+                )?;
+            }
+            i += 1 + meta.explicit_arguments.len();
+        }
+        writeln!(f, "+----------------------End----------------------+\n")
     }
 }

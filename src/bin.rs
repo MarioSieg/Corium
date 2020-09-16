@@ -207,19 +207,28 @@
 extern crate ronvm;
 
 use ronvm::prelude::*;
+use std::time::*;
 
 fn main() {
     let mut code = BytecodeStream::new();
 
+    let t = Instant::now();
+
     code.prologue();
-    code.def_opcode(OpCode::Nop);
+    code.def_opcode(OpCode::Push).with_i32(0);
     code.def_label("Loop");
+    code.def_opcode(OpCode::I32Increment);
     code.def_opcode(OpCode::Push).with_i32(6);
     code.def_opcode(OpCode::Push).with_i32(8);
     code.def_opcode(OpCode::I32Mul);
-    code.def_opcode(OpCode::Pop).with_u32(1);
-    code.def_opcode(OpCode::Jump).with_label("Loop");
+    code.def_opcode(OpCode::Pop).with_i32(1);
+    code.def_opcode(OpCode::Duplicate);
+    code.def_opcode(OpCode::Push).with_i32(1_000_000_000);
+    code.def_opcode(OpCode::JumpLess).with_label("Loop");
+    code.def_opcode(OpCode::Pop).with_i32(1);
     code.epilogue();
 
-    execute(code.build().unwrap(), Stack::with_length(8));
+    let (excode, cycles) = execute(code.build().unwrap(), Stack::with_length(32));
+    println!("t: {}", t.elapsed().as_secs_f32());
+    println!("exitcode: {}, cycles: {}", excode, cycles);
 }

@@ -213,5 +213,4 @@ pub mod sigs {
 
     pub const MARKER_I32: char = 'i';
     pub const MARKER_F32: char = 'f';
-    pub const MARKER_U32: char = 'u';
 }
