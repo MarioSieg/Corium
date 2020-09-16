@@ -212,8 +212,6 @@ use std::time::*;
 fn main() {
     let mut code = BytecodeStream::new();
 
-    let t = Instant::now();
-
     code.prologue();
     code.def_opcode(OpCode::Push).with_i32(0);
     code.def_label("Loop");
@@ -228,7 +226,11 @@ fn main() {
     code.def_opcode(OpCode::Pop).with_i32(1);
     code.epilogue();
 
+    print!("{:?}", code);
+    
+    let t = Instant::now();
     let (excode, cycles) = execute(code.build().unwrap(), Stack::with_length(32));
     println!("t: {}", t.elapsed().as_secs_f32());
+
     println!("exitcode: {}, cycles: {}", excode, cycles);
 }
