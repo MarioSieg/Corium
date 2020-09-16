@@ -273,6 +273,9 @@ impl RecordUnion {
     }
 
     #[inline]
+    pub fn ptr(&self) -> usize { self.0 as _ }
+
+    #[inline]
     pub fn to_bytes(&self) -> [u8; 4] {
         self.0.to_le_bytes()
     }

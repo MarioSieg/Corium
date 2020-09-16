@@ -227,29 +227,39 @@ pub enum ArgumentLiteralType {
     Proc,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub struct ExplicitArgumentMeta<'a> {
     pub accepted_value_types: &'a [ArgumentLiteralType],
     pub alias: &'a str,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub struct ImplicitArgumentMeta<'a> {
     pub offset: isize,
     pub alias: &'a str,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub enum ImplicitArguments<'a> {
     None,
     Variadic,
     Fixed(&'a [ImplicitArgumentMeta<'a>]),
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Eq, PartialEq, Copy, Clone, Debug)]
+pub enum InstructionCategory {
+    Control,
+    Memory,
+    Branching,
+    Arithmetic,
+    Bitwise,
+}
+
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub struct InstructionMeta<'a> {
     pub opcode: u32,
     pub mnemonic: &'a str,
+    pub category: InstructionCategory,
     pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
     pub implicit_arguments: ImplicitArguments<'a>,
 }
@@ -258,6 +268,7 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         opcode: ops::INTERRUPT,
         mnemonic: "interrupt",
+        category: InstructionCategory::Control,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::ValI32(ArgumentLiteralValue {
                 min: i32::MIN,
@@ -271,6 +282,7 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         opcode: ops::PUSH,
         mnemonic: "push",
+        category: InstructionCategory::Memory,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[
                 ArgumentLiteralType::ValI32(ArgumentLiteralValue {
@@ -291,6 +303,7 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         opcode: ops::POP,
         mnemonic: "pop",
+        category: InstructionCategory::Memory,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
                 min: u32::MIN,
@@ -304,6 +317,7 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         opcode: ops::MOVE,
         mnemonic: "mov",
+        category: InstructionCategory::Memory,
         explicit_arguments: &[
             ExplicitArgumentMeta {
                 accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
@@ -334,6 +348,7 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         mnemonic: "cpy",
         opcode: ops::COPY,
+        category: InstructionCategory::Memory,
         explicit_arguments: &[
             ExplicitArgumentMeta {
                 accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
@@ -357,12 +372,14 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         opcode: ops::NOP,
         mnemonic: "nop",
+        category: InstructionCategory::Control,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::None,
     },
     InstructionMeta {
         opcode: ops::DUPLICATE,
         mnemonic: "dupl",
+        category: InstructionCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -372,6 +389,7 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         opcode: ops::DUPLICATE_X2,
         mnemonic: "ddupl",
+        category: InstructionCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -381,6 +399,7 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         opcode: ops::CAST_I32_2_F32,
         mnemonic: "casti32tof32",
+        category: InstructionCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -390,6 +409,7 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         opcode: ops::CAST_F32_2_I32,
         mnemonic: "castf32toi32",
+        category: InstructionCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -397,236 +417,376 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         }]),
     },
     InstructionMeta {
+        opcode: ops::JUMP,
+        mnemonic: "jmp",
+        category: InstructionCategory::Branching,
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::Label],
+            alias: "target_label",
+        }],
+        implicit_arguments: ImplicitArguments::None,
+    },
+    InstructionMeta {
+        opcode: ops::JUMP_EQUALS,
+        mnemonic: "je",
+        category: InstructionCategory::Branching,
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::Label],
+            alias: "target_label",
+        }],
+        implicit_arguments: ImplicitArguments::Fixed(&[
+            ImplicitArgumentMeta {
+                offset: -2,
+                alias: "logical_operand_a",
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "logical_operand_b",
+            },
+        ]),
+    },
+    InstructionMeta {
+        opcode: ops::JUMP_NOT_EQUALS,
+        mnemonic: "jne",
+        category: InstructionCategory::Branching,
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::Label],
+            alias: "target_label",
+        }],
+        implicit_arguments: ImplicitArguments::Fixed(&[
+            ImplicitArgumentMeta {
+                offset: -2,
+                alias: "logical_operand_a",
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "logical_operand_b",
+            },
+        ]),
+    },
+    InstructionMeta {
+        opcode: ops::JUMP_ABOVE,
+        mnemonic: "ja",
+        category: InstructionCategory::Branching,
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::Label],
+            alias: "target_label",
+        }],
+        implicit_arguments: ImplicitArguments::Fixed(&[
+            ImplicitArgumentMeta {
+                offset: -2,
+                alias: "logical_operand_a",
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "logical_operand_b",
+            },
+        ]),
+    },
+    InstructionMeta {
+        opcode: ops::JUMP_ABOVE_EQUALS,
+        mnemonic: "jae",
+        category: InstructionCategory::Branching,
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::Label],
+            alias: "target_label",
+        }],
+        implicit_arguments: ImplicitArguments::Fixed(&[
+            ImplicitArgumentMeta {
+                offset: -2,
+                alias: "logical_operand_a",
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "logical_operand_b",
+            },
+        ]),
+    },
+    InstructionMeta {
+        opcode: ops::JUMP_LESS,
+        mnemonic: "jl",
+        category: InstructionCategory::Branching,
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::Label],
+            alias: "target_label",
+        }],
+        implicit_arguments: ImplicitArguments::Fixed(&[
+            ImplicitArgumentMeta {
+                offset: -2,
+                alias: "logical_operand_a",
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "logical_operand_b",
+            },
+        ]),
+    },
+    InstructionMeta {
+        opcode: ops::JUMP_LESS_EQUALS,
+        mnemonic: "jle",
+        category: InstructionCategory::Branching,
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::Label],
+            alias: "target_label",
+        }],
+        implicit_arguments: ImplicitArguments::Fixed(&[
+            ImplicitArgumentMeta {
+                offset: -2,
+                alias: "logical_operand_a",
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "logical_operand_b",
+            },
+        ]),
+    },
+    InstructionMeta {
         opcode: ops::I32_ADD,
         mnemonic: "iadd",
+        category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "operand_b",
+                offset: -2,
+                alias: "scalar_operand_a",
             },
             ImplicitArgumentMeta {
-                offset: -2,
-                alias: "operand_a",
+                offset: -1,
+                alias: "scalar_operand_b",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::I32_SUB,
         mnemonic: "isub",
+        category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "operand_b",
+                offset: -2,
+                alias: "scalar_operand_a",
             },
             ImplicitArgumentMeta {
-                offset: -2,
-                alias: "operand_a",
+                offset: -1,
+                alias: "scalar_operand_b",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::I32_MUL,
         mnemonic: "imul",
+        category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "operand_b",
+                offset: -2,
+                alias: "scalar_operand_a",
             },
             ImplicitArgumentMeta {
-                offset: -2,
-                alias: "operand_a",
+                offset: -1,
+                alias: "scalar_operand_b",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::I32_DIV,
         mnemonic: "idiv",
+        category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "operand_b",
+                offset: -2,
+                alias: "scalar_operand_a",
             },
             ImplicitArgumentMeta {
-                offset: -2,
-                alias: "operand_a",
+                offset: -1,
+                alias: "scalar_operand_b",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::I32_MOD,
         mnemonic: "imod",
+        category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "operand_b",
+                offset: -2,
+                alias: "scalar_operand_a",
             },
             ImplicitArgumentMeta {
-                offset: -2,
-                alias: "operand_a",
+                offset: -1,
+                alias: "scalar_operand_b",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::I32_AND,
         mnemonic: "iand",
+        category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "operand_b",
+                offset: -2,
+                alias: "scalar_operand_a",
             },
             ImplicitArgumentMeta {
-                offset: -2,
-                alias: "operand_a",
+                offset: -1,
+                alias: "scalar_operand_b",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::I32_OR,
         mnemonic: "ior",
+        category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "operand_b",
+                offset: -2,
+                alias: "scalar_operand_a",
             },
             ImplicitArgumentMeta {
-                offset: -2,
-                alias: "operand_a",
+                offset: -1,
+                alias: "scalar_operand_b",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::I32_XOR,
         mnemonic: "ixor",
+        category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "operand_b",
+                offset: -2,
+                alias: "scalar_operand_a",
             },
             ImplicitArgumentMeta {
-                offset: -2,
-                alias: "operand_a",
+                offset: -1,
+                alias: "scalar_operand_b",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::I32_SAL,
         mnemonic: "isal",
+        category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "operand_b",
+                offset: -2,
+                alias: "scalar_operand_a",
             },
             ImplicitArgumentMeta {
-                offset: -2,
-                alias: "operand_a",
+                offset: -1,
+                alias: "scalar_operand_b",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::I32_SAR,
         mnemonic: "isar",
+        category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "operand_b",
+                offset: -2,
+                alias: "scalar_operand_a",
             },
             ImplicitArgumentMeta {
-                offset: -2,
-                alias: "operand_a",
+                offset: -1,
+                alias: "scalar_operand_b",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::I32_COM,
         mnemonic: "icom",
+        category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
-            alias: "operand_a",
+            alias: "scalar_operand_a",
         }]),
     },
     InstructionMeta {
         opcode: ops::F32_ADD,
         mnemonic: "fadd",
+        category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
                 offset: -1,
-                alias: "operand_b",
+                alias: "scalar_operand_b",
             },
             ImplicitArgumentMeta {
                 offset: -2,
-                alias: "operand_a",
+                alias: "scalar_operand_a",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::F32_SUB,
         mnemonic: "fsub",
+        category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
                 offset: -1,
-                alias: "operand_b",
+                alias: "scalar_operand_b",
             },
             ImplicitArgumentMeta {
                 offset: -2,
-                alias: "operand_a",
+                alias: "scalar_operand_a",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::F32_MUL,
         mnemonic: "fmul",
+        category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
                 offset: -1,
-                alias: "operand_b",
+                alias: "scalar_operand_b",
             },
             ImplicitArgumentMeta {
                 offset: -2,
-                alias: "operand_a",
+                alias: "scalar_operand_a",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::F32_DIV,
         mnemonic: "fdiv",
+        category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
                 offset: -1,
-                alias: "operand_b",
+                alias: "scalar_operand_b",
             },
             ImplicitArgumentMeta {
                 offset: -2,
-                alias: "operand_a",
+                alias: "scalar_operand_a",
             },
         ]),
     },
     InstructionMeta {
         opcode: ops::F32_MOD,
         mnemonic: "fmod",
+        category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
                 offset: -1,
-                alias: "operand_b",
+                alias: "scalar_operand_b",
             },
             ImplicitArgumentMeta {
                 offset: -2,
-                alias: "operand_a",
+                alias: "scalar_operand_a",
             },
         ]),
     },

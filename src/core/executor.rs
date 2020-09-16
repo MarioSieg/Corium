@@ -209,14 +209,14 @@ use crate::core::{RecordUnion, Stack};
 
 /// Executes the bytecode.
 /// Returns the interrupt id (exitcode) and the number of cycles.
-pub fn execute(mut code: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
+pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
     let mut cycles: u64 = 0; // Cycles counter.
     let mut interrupt: i32 = 0; // Interrupt id.
 
     loop {
-        match code.fetch().u32() {
+        match command_buffer.fetch().u32() {
             ops::INTERRUPT => {
-                interrupt = code.fetch().i32();
+                interrupt = command_buffer.fetch().i32();
                 if interrupt <= 0 {
                     break;
                 } else {
@@ -225,19 +225,19 @@ pub fn execute(mut code: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
             }
 
             ops::PUSH => {
-                stack.push(code.fetch());
+                stack.push(command_buffer.fetch());
             }
 
             ops::POP => {
-                stack.pop_multi(code.fetch().u32() as _);
+                stack.pop_multi(command_buffer.fetch().u32() as _);
             }
 
             ops::MOVE => {
-                stack.poke_set(code.fetch().u32() as _, code.fetch());
+                stack.poke_set(command_buffer.fetch().u32() as _, command_buffer.fetch());
             }
 
             ops::COPY => {
-                stack.poke_set(code.fetch().u32() as _, stack.poke(code.fetch().u32() as _));
+                stack.poke_set(command_buffer.fetch().u32() as _, stack.poke(command_buffer.fetch().u32() as _));
             }
 
             ops::NOP => {
@@ -259,6 +259,11 @@ pub fn execute(mut code: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
 
             ops::CAST_F32_2_I32 => {
                 stack.push(RecordUnion::from_i32(stack.peek().f32() as _));
+            }
+
+            ops::JUMP => {
+                let target_address = command_buffer.fetch().ptr();
+                command_buffer.jump(target_address);
             }
 
             ops::I32_ADD => {
@@ -374,7 +379,7 @@ pub fn execute(mut code: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
             _ => (),
         }
 
-        if code.is_done() {
+        if command_buffer.is_done() {
             break;
         }
 
@@ -382,7 +387,7 @@ pub fn execute(mut code: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
     }
 
     print!("{:?}", stack);
-    print!("{:?}", code);
+    print!("{:?}", command_buffer);
 
     (interrupt, cycles)
 }

@@ -244,14 +244,14 @@ impl BytecodeStream {
 
 impl BytecodeStream {
     #[inline]
-    pub fn opcode(&mut self, op: OpCode) -> &mut Self {
+    pub fn def_opcode(&mut self, op: OpCode) -> &mut Self {
         self.with_u32(op as _)
     }
 
     #[inline]
-    pub fn label(&mut self, name: &str) -> &mut Self {
+    pub fn def_label(&mut self, name: &str) -> &mut Self {
         self.jump_table
-            .insert(String::from(name), self.code.len() - 1);
+            .insert(name.to_string(), self.code.len() - 1);
         self
     }
 
@@ -287,7 +287,7 @@ impl BytecodeStream {
     }
 
     pub fn prologue(&mut self) -> &mut Self {
-        self.opcode(OpCode::Move)
+        self.def_opcode(OpCode::Move)
             .with_i32(0)
             .with_u32(u32::from_le_bytes(*b"LOVE")); // Because I love my cutie so much!
         self
@@ -295,7 +295,7 @@ impl BytecodeStream {
 
     #[inline]
     pub fn epilogue(&mut self) -> &mut Self {
-        self.opcode(OpCode::Interrupt).with_i32(0); // Add interrupt as last instruction.
+        self.def_opcode(OpCode::Interrupt).with_i32(0); // Add interrupt as last instruction.
         self
     }
 

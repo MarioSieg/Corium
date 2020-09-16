@@ -212,12 +212,13 @@ fn main() {
     let mut code = BytecodeStream::new();
 
     code.prologue();
-    code.opcode(OpCode::Nop);
-    code.opcode(OpCode::Push).with_i32(6);
-    code.opcode(OpCode::CastI32toF32);
-    code.opcode(OpCode::Push).with_i32(8);
-    code.opcode(OpCode::I32Mul);
-    code.opcode(OpCode::Pop).with_u32(2);
+    code.def_opcode(OpCode::Nop);
+    code.def_label("Loop");
+    code.def_opcode(OpCode::Push).with_i32(6);
+    code.def_opcode(OpCode::Push).with_i32(8);
+    code.def_opcode(OpCode::I32Mul);
+    code.def_opcode(OpCode::Pop).with_u32(1);
+    code.def_opcode(OpCode::Jump).with_label("Loop");
     code.epilogue();
 
     execute(code.build().unwrap(), Stack::with_length(8));
