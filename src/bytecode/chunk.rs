@@ -211,68 +211,69 @@ use crate::core::RecordUnion;
 use crate::interpreter::*;
 
 /// A fixed size chunk of bytecode, which can be executed by the VM.
-pub struct BytecodeChunk(Box<[RecordUnion]>, usize);
+pub struct BytecodeChunk {
+    buf: Box<[RecordUnion]>,
+    ip: usize,
+}
 
 impl BytecodeChunk {
     #[inline]
     pub fn from_buffer(buf: Box<[RecordUnion]>) -> Self {
         assert_ne!(buf.len(), 0);
-        Self(buf, 0)
+        Self { buf, ip: 0 }
     }
 
     #[inline]
     pub fn from_vector(vec: Vec<RecordUnion>) -> Self {
         assert_ne!(vec.len(), 0);
-        Self(vec.into_boxed_slice(), 0)
+        Self {
+            buf: vec.into_boxed_slice(),
+            ip: 0,
+        }
     }
 }
 
 impl BytecodeChunk {
     #[inline]
     pub fn buffer(&self) -> &[RecordUnion] {
-        &self.0
-    }
-
-    #[inline]
-    pub fn buffer_mut(self) -> Box<[RecordUnion]> {
-        self.0
+        &self.buf
     }
 
     #[inline]
     pub fn length(&self) -> usize {
-        self.0.len()
+        self.buf.len()
     }
 
     #[inline]
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        self.buf.is_empty()
     }
 
     #[inline]
     pub fn size(&self) -> usize {
-        self.0.len() * std::mem::size_of::<RecordUnion>()
+        self.buf.len() * std::mem::size_of::<RecordUnion>()
     }
 
     #[inline]
     pub fn instruction_pointer(&self) -> usize {
-        self.1
+        self.ip
     }
 
     #[inline]
     pub fn jump(&mut self, ip: usize) {
-        self.1 = ip
+        self.ip = ip
     }
 
     #[inline]
     pub fn fetch(&mut self) -> RecordUnion {
-        let record = self.0[self.1];
-        self.1 += 1;
+        let record = self.buf[self.ip];
+        self.ip += 1;
         record
     }
 
     #[inline]
     pub fn is_done(&self) -> bool {
-        self.1 >= self.0.len()
+        self.ip >= self.buf.len()
     }
 }
 
@@ -280,13 +281,13 @@ impl ops::Index<usize> for BytecodeChunk {
     type Output = RecordUnion;
 
     fn index(&self, idx: usize) -> &Self::Output {
-        &self.0[idx]
+        &self.buf[idx]
     }
 }
 
 impl ops::IndexMut<usize> for BytecodeChunk {
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
-        &mut self.0[idx]
+        &mut self.buf[idx]
     }
 }
 
@@ -297,8 +298,8 @@ impl fmt::Display for BytecodeChunk {
         writeln!(f, "|                    Bytecode                   |")?;
         writeln!(f, "+-----------------------------------------------+")?;
         let mut i = 0;
-        while i < self.0.len() {
-            let meta = &INSTRUCTION_TABLE[self.0[i].u32() as usize];
+        while i < self.buf.len() {
+            let meta = &INSTRUCTION_TABLE[self.buf[i].u32() as usize];
             writeln!(f, "| {}", meta.mnemonic)?;
             i += 1 + meta.explicit_arguments.len();
         }
@@ -315,19 +316,19 @@ impl fmt::Debug for BytecodeChunk {
         writeln!(f, "|       Address       |     Byte    |     Ops   |")?;
         writeln!(f, "+-----------------------------------------------+")?;
         let mut i = 0;
-        while i < self.0.len() {
-            let meta = &INSTRUCTION_TABLE[self.0[i].u32() as usize];
-            writeln!(f, "| {}{:#018x} | {} | {}{}",
-                     sigs::ADDRESS_OP,
-                     i,
-                     self.0[i],
-                     sigs::BEGIN_OP,
-                     meta.mnemonic)?;
+        while i < self.buf.len() {
+            let meta = &INSTRUCTION_TABLE[self.buf[i].u32() as usize];
+            writeln!(
+                f,
+                "| {}{:#018x} | {} | {}{}",
+                sigs::ADDRESS_OP,
+                i,
+                self.buf[i],
+                sigs::BEGIN_OP,
+                meta.mnemonic
+            )?;
             for j in (1..=meta.explicit_arguments.len()).map(|j| i + j) {
-                writeln!(f, "| {}{:#018x} | {:?}",
-                       sigs::ADDRESS_VAL,
-                       i,
-                        self.0[j])?;
+                writeln!(f, "| {}{:#018x} | {:?}", sigs::ADDRESS_VAL, i, self.buf[j])?;
             }
             i += 1 + meta.explicit_arguments.len();
         }

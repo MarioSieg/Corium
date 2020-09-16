@@ -222,35 +222,45 @@ pub enum CommonStackSize {
     Large8MB = 1024 * 1024 * 8,
 }
 
-pub struct Stack(Box<[RecordUnion]>, usize);
+pub struct Stack {
+    buf: Box<[RecordUnion]>,
+    sp: usize,
+}
 
 impl Stack {
     #[inline]
     pub fn from_buffer(buf: Box<[RecordUnion]>) -> Self {
         assert_ne!(buf.len(), 0);
-        Self(buf, 0)
+        Self { buf, sp: 0 }
     }
 
     #[inline]
     pub fn from_vector(vec: Vec<RecordUnion>) -> Self {
         assert_ne!(vec.len(), 0);
-        Self(vec.into_boxed_slice(), 0)
+        Self {
+            buf: vec.into_boxed_slice(),
+            sp: 0,
+        }
     }
 
     #[inline]
     pub fn with_length(len: usize) -> Self {
         assert_ne!(len, 0);
-        Self::from_vector(vec![RecordUnion::ZERO; len])
+        Self {
+            buf: vec![RecordUnion::ZERO; len].into_boxed_slice(),
+            sp: 0,
+        }
     }
 
     #[inline]
     pub fn with_byte_size(size: usize) -> Self {
         assert_ne!(size, 0);
         assert_eq!(size % std::mem::size_of::<RecordUnion>(), 0);
-        Self::from_vector(vec![
-            RecordUnion::ZERO;
-            size / std::mem::size_of::<RecordUnion>()
-        ])
+        Self {
+            buf: vec![RecordUnion::ZERO; size / std::mem::size_of::<RecordUnion>()]
+                .into_boxed_slice(),
+            sp: 0,
+        }
     }
 
     #[inline]
@@ -262,98 +272,98 @@ impl Stack {
 impl Stack {
     #[inline]
     pub fn length(&self) -> usize {
-        self.0.len()
+        self.buf.len()
     }
 
     #[inline]
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        self.buf.is_empty()
     }
 
     #[inline]
     pub fn size(&self) -> usize {
-        self.0.len() * std::mem::size_of::<RecordUnion>()
+        self.buf.len() * std::mem::size_of::<RecordUnion>()
     }
 
     #[inline]
     pub fn buffer(&self) -> &[RecordUnion] {
-        &self.0
+        &self.buf
     }
 
     #[inline]
     pub fn stack_pointer(&self) -> usize {
-        self.1
+        self.sp
     }
 
     #[inline]
     pub fn push(&mut self, rec: RecordUnion) {
-        self.1 += 1;
-        self.0[self.1] = rec;
+        self.sp += 1;
+        self.buf[self.sp] = rec;
     }
 
     #[inline]
     pub fn push_all(&mut self) {
-        self.1 = self.0.len() - 1;
+        self.sp = self.buf.len() - 1;
     }
 
     #[inline]
     pub fn pop(&mut self) {
-        self.1 -= 1;
+        self.sp -= 1;
     }
 
     #[inline]
     pub fn pop_all(&mut self) {
-        self.1 = 0
+        self.sp = 0
     }
 
     #[inline]
     pub fn pop_multi(&mut self, count: usize) {
         debug_assert_ne!(count, 0);
-        self.1 -= count;
+        self.sp -= count;
     }
 
     #[inline]
     pub fn pop_ret(&mut self) -> RecordUnion {
-        let val = self.0[self.1];
-        self.1 -= 1;
+        let val = self.buf[self.sp];
+        self.sp -= 1;
         val
     }
 
     #[inline]
     pub fn peek(&self) -> RecordUnion {
-        self.0[self.1]
+        self.buf[self.sp]
     }
 
     #[inline]
     pub fn peek_set(&mut self, rec: RecordUnion) {
-        self.0[self.1] = rec
+        self.buf[self.sp] = rec
     }
 
     #[inline]
     pub fn peek_previous(&self) -> RecordUnion {
-        self.0[self.1 - 1]
+        self.buf[self.sp - 1]
     }
 
     #[inline]
     pub fn peek_previous_set(&mut self, rec: RecordUnion) {
-        self.0[self.1 - 1] = rec
+        self.buf[self.sp - 1] = rec
     }
 
     #[inline]
     pub fn poke(&self, idx: usize) -> RecordUnion {
-        debug_assert!(idx <= self.1);
-        self.0[idx]
+        debug_assert!(idx <= self.sp);
+        self.buf[idx]
     }
 
     #[inline]
     pub fn poke_set(&mut self, idx: usize, rec: RecordUnion) {
-        debug_assert!(idx <= self.1);
-        self.0[idx] = rec
+        debug_assert!(idx <= self.sp);
+        self.buf[idx] = rec
     }
 
     #[inline]
     pub fn is_overflowed(&self) -> bool {
-        self.1 >= self.0.len()
+        self.sp >= self.buf.len()
     }
 }
 
@@ -361,13 +371,13 @@ impl ops::Index<usize> for Stack {
     type Output = RecordUnion;
 
     fn index(&self, idx: usize) -> &Self::Output {
-        &self.0[idx]
+        &self.buf[idx]
     }
 }
 
 impl ops::IndexMut<usize> for Stack {
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
-        &mut self.0[idx]
+        &mut self.buf[idx]
     }
 }
 
@@ -376,7 +386,7 @@ impl fmt::Debug for Stack {
         writeln!(f, "\n+-----------------------------------------------+")?;
         writeln!(f, "|                     Stack                     |")?;
         writeln!(f, "+-----------------------------------------------+")?;
-        for (i, rec) in self.0.iter().enumerate() {
+        for (i, rec) in self.buf.iter().enumerate() {
             writeln!(f, "| &{:#010X} | {:?}", i, rec)?
         }
         writeln!(f, "+----------------------End----------------------+\n")

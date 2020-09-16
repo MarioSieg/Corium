@@ -204,8 +204,8 @@
 
 */
 
-use std::{default, fmt};
 use crate::interpreter::*;
+use std::{default, fmt};
 
 #[derive(Copy, Clone, PartialEq, Hash)]
 pub struct RecordUnion(u32);

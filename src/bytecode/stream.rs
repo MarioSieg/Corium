@@ -206,97 +206,143 @@
 
 use std::{default, ops};
 
-use crate::bytecode::{chunk::BytecodeChunk, ops as asm_ops};
+use crate::bytecode::{chunk::BytecodeChunk, OpCode};
 use crate::core::{Discriminator, RecordUnion};
+use std::collections::HashMap;
 
 /// A bytecode stream is used to dynamically build bytecode.
-pub struct BytecodeStream(Vec<(RecordUnion, Discriminator)>);
+pub struct BytecodeStream {
+    code: Vec<(RecordUnion, Discriminator)>,
+    jump_table: HashMap<String, usize>,
+}
 
 impl BytecodeStream {
     #[inline]
     pub fn new() -> Self {
-        Self(Vec::new())
+        Self {
+            code: Vec::new(),
+            jump_table: HashMap::new(),
+        }
     }
 
     #[inline]
     pub fn with_vec(vec: Vec<(RecordUnion, Discriminator)>) -> Self {
-        Self(vec)
+        Self {
+            code: vec,
+            jump_table: HashMap::new(),
+        }
     }
 
     #[inline]
     pub fn with_capacity(capacity: usize) -> Self {
-        Self(Vec::with_capacity(capacity))
+        Self {
+            code: Vec::with_capacity(capacity),
+            jump_table: HashMap::with_capacity(capacity),
+        }
     }
 }
 
 impl BytecodeStream {
     #[inline]
-    pub fn u32(&mut self, val: u32) -> &mut Self {
-        self.0
+    pub fn opcode(&mut self, op: OpCode) -> &mut Self {
+        self.with_u32(op as _)
+    }
+
+    #[inline]
+    pub fn label(&mut self, name: &str) -> &mut Self {
+        self.jump_table
+            .insert(String::from(name), self.code.len() - 1);
+        self
+    }
+
+    #[inline]
+    pub fn with_u32(&mut self, val: u32) -> &mut Self {
+        self.code
             .push((RecordUnion::from_u32(val), Discriminator::U32));
         self
     }
 
     #[inline]
-    pub fn i32(&mut self, val: i32) -> &mut Self {
-        self.0
+    pub fn with_i32(&mut self, val: i32) -> &mut Self {
+        self.code
             .push((RecordUnion::from_i32(val), Discriminator::I32));
         self
     }
 
     #[inline]
-    pub fn f32(&mut self, val: f32) -> &mut Self {
-        self.0
+    pub fn with_f32(&mut self, val: f32) -> &mut Self {
+        self.code
             .push((RecordUnion::from_f32(val), Discriminator::F32));
         self
     }
 
-    pub fn begin(&mut self) -> &mut Self {
-        self.u32(asm_ops::MOVE)
-            .i32(0)
-            .u32(u32::from_le_bytes(*b"LOVE")); // Because I love my cutie so much!
+    #[inline]
+    pub fn with_label(&mut self, name: &str) -> &mut Self {
+        self.with_u32(
+            (*self
+                .jump_table
+                .get(name)
+                .unwrap_or_else(|| panic!("Label {} not defined!", name))) as _,
+        )
+    }
+
+    pub fn prologue(&mut self) -> &mut Self {
+        self.opcode(OpCode::Move)
+            .with_i32(0)
+            .with_u32(u32::from_le_bytes(*b"LOVE")); // Because I love my cutie so much!
         self
     }
 
     #[inline]
-    pub fn end(&mut self) -> &mut Self {
-        self.u32(asm_ops::INTERRUPT).i32(0); // Add interrupt as last instruction.
+    pub fn epilogue(&mut self) -> &mut Self {
+        self.opcode(OpCode::Interrupt).with_i32(0); // Add interrupt as last instruction.
         self
     }
 
     #[inline]
-    pub fn buffer(&self) -> &Vec<(RecordUnion, Discriminator)> {
-        &self.0
+    pub fn jump_table(&self) -> &HashMap<String, usize> {
+        &self.jump_table
     }
 
     #[inline]
-    pub fn buffer_mut(self) -> Vec<(RecordUnion, Discriminator)> {
-        self.0
+    pub fn command_buffer(&self) -> &Vec<(RecordUnion, Discriminator)> {
+        &self.code
     }
 
     #[inline]
     pub fn length(&self) -> usize {
-        self.0.len()
+        self.code.len()
     }
 
     #[inline]
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        self.code.is_empty()
     }
 
     #[inline]
     pub fn capacity(&self) -> usize {
-        self.0.capacity()
+        self.code.capacity()
     }
 
     #[inline]
     pub fn size(&self) -> usize {
-        self.0.capacity() * std::mem::size_of::<(RecordUnion, Discriminator)>()
+        self.code.capacity() * std::mem::size_of::<(RecordUnion, Discriminator)>()
+            + self.jump_table.capacity() * std::mem::size_of::<usize>()
     }
 
     #[inline]
     pub fn clear(&mut self) {
-        self.0.clear()
+        self.code.clear()
+    }
+
+    #[inline]
+    pub fn clear_command_buffer(&mut self) {
+        self.code.clear()
+    }
+
+    #[inline]
+    pub fn clear_jump_table(&mut self) {
+        self.jump_table.clear()
     }
 
     #[inline]
@@ -308,8 +354,8 @@ impl BytecodeStream {
         if let Err(errors) = self.validate() {
             Err(errors)
         } else {
-            let mut buf = Vec::with_capacity(self.0.len());
-            for rec in self.0 {
+            let mut buf = Vec::with_capacity(self.code.len());
+            for rec in self.code {
                 buf.push(rec.0);
             }
             Ok(BytecodeChunk::from_vector(buf))
@@ -321,13 +367,13 @@ impl ops::Index<usize> for BytecodeStream {
     type Output = (RecordUnion, Discriminator);
 
     fn index(&self, idx: usize) -> &Self::Output {
-        &self.0[idx]
+        &self.code[idx]
     }
 }
 
 impl ops::IndexMut<usize> for BytecodeStream {
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
-        &mut self.0[idx]
+        &mut self.code[idx]
     }
 }
 

@@ -227,13 +227,13 @@ pub enum ArgumentLiteralType {
     Proc,
 }
 
-#[derive(PartialEq,Debug)]
+#[derive(PartialEq, Debug)]
 pub struct ExplicitArgumentMeta<'a> {
     pub accepted_value_types: &'a [ArgumentLiteralType],
     pub alias: &'a str,
 }
 
-#[derive(PartialEq,Debug)]
+#[derive(PartialEq, Debug)]
 pub struct ImplicitArgumentMeta<'a> {
     pub offset: isize,
     pub alias: &'a str,
@@ -250,7 +250,7 @@ pub enum ImplicitArguments<'a> {
 pub struct InstructionMeta<'a> {
     pub opcode: u32,
     pub mnemonic: &'a str,
-    pub explicit_arguments: &'a[ExplicitArgumentMeta<'a>],
+    pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
     pub implicit_arguments: ImplicitArguments<'a>,
 }
 
@@ -258,65 +258,47 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         opcode: ops::INTERRUPT,
         mnemonic: "interrupt",
-        explicit_arguments: &[
-            ExplicitArgumentMeta {
-                accepted_value_types: &[
-                    ArgumentLiteralType::ValI32(
-                        ArgumentLiteralValue {
-                            min: i32::MIN,
-                            max: i32::MAX,
-                            default: Some(i32::MIN)
-                        }
-                    )
-                ],
-                alias: "interrupt_code",
-            }
-        ],
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::ValI32(ArgumentLiteralValue {
+                min: i32::MIN,
+                max: i32::MAX,
+                default: Some(i32::MIN),
+            })],
+            alias: "interrupt_code",
+        }],
         implicit_arguments: ImplicitArguments::None,
     },
     InstructionMeta {
         opcode: ops::PUSH,
         mnemonic: "push",
-        explicit_arguments: &[
-            ExplicitArgumentMeta {
-                accepted_value_types: &[
-                    ArgumentLiteralType::ValI32(
-                        ArgumentLiteralValue {
-                            min: i32::MIN,
-                            max: i32::MAX,
-                            default: Some(0),
-                        }
-                    ),
-                    ArgumentLiteralType::ValF32(
-                        ArgumentLiteralValue {
-                            min: f32::MIN,
-                            max: f32::MAX,
-                            default: Some(0.0),
-                        }
-                    ),
-                ],
-                alias: "immediate_value"
-            }
-        ],
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[
+                ArgumentLiteralType::ValI32(ArgumentLiteralValue {
+                    min: i32::MIN,
+                    max: i32::MAX,
+                    default: Some(0),
+                }),
+                ArgumentLiteralType::ValF32(ArgumentLiteralValue {
+                    min: f32::MIN,
+                    max: f32::MAX,
+                    default: Some(0.0),
+                }),
+            ],
+            alias: "immediate_value",
+        }],
         implicit_arguments: ImplicitArguments::None,
     },
     InstructionMeta {
         opcode: ops::POP,
         mnemonic: "pop",
-        explicit_arguments: &[
-            ExplicitArgumentMeta {
-                accepted_value_types: &[
-                    ArgumentLiteralType::Offset(
-                        ArgumentLiteralValue {
-                            min: u32::MIN,
-                            max: u32::MAX,
-                            default: Some(0),
-                        }
-                    ),
-                ],
-                alias: "pop_count"
-            },
-        ],
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
+                min: u32::MIN,
+                max: u32::MAX,
+                default: Some(0),
+            })],
+            alias: "pop_count",
+        }],
         implicit_arguments: ImplicitArguments::Variadic,
     },
     InstructionMeta {
@@ -324,33 +306,25 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         mnemonic: "mov",
         explicit_arguments: &[
             ExplicitArgumentMeta {
-                accepted_value_types: &[
-                    ArgumentLiteralType::Offset(
-                        ArgumentLiteralValue {
-                            min: u32::MIN,
-                            max: u32::MAX,
-                            default: Some(0),
-                        }
-                    ),
-                ],
-                alias: "poke_offset"
+                accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
+                    min: u32::MIN,
+                    max: u32::MAX,
+                    default: Some(0),
+                })],
+                alias: "poke_offset",
             },
             ExplicitArgumentMeta {
                 accepted_value_types: &[
-                    ArgumentLiteralType::ValI32(
-                        ArgumentLiteralValue {
-                            min: i32::MIN,
-                            max: i32::MAX,
-                            default: Some(0),
-                        }
-                    ),
-                    ArgumentLiteralType::ValF32(
-                        ArgumentLiteralValue {
-                            min: f32::MIN,
-                            max: f32::MAX,
-                            default: Some(0.0),
-                        }
-                    ),
+                    ArgumentLiteralType::ValI32(ArgumentLiteralValue {
+                        min: i32::MIN,
+                        max: i32::MAX,
+                        default: Some(0),
+                    }),
+                    ArgumentLiteralType::ValF32(ArgumentLiteralValue {
+                        min: f32::MIN,
+                        max: f32::MAX,
+                        default: Some(0.0),
+                    }),
                 ],
                 alias: "immediate_value",
             },
@@ -362,27 +336,19 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         opcode: ops::COPY,
         explicit_arguments: &[
             ExplicitArgumentMeta {
-                accepted_value_types: &[
-                    ArgumentLiteralType::Offset(
-                        ArgumentLiteralValue {
-                            min: u32::MIN,
-                            max: u32::MAX,
-                            default: Some(0),
-                        }
-                    ),
-                ],
+                accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
+                    min: u32::MIN,
+                    max: u32::MAX,
+                    default: Some(0),
+                })],
                 alias: "poke_offset",
             },
             ExplicitArgumentMeta {
-                accepted_value_types: &[
-                    ArgumentLiteralType::Offset(
-                        ArgumentLiteralValue {
-                            min: u32::MIN,
-                            max: u32::MAX,
-                            default: Some(0),
-                        }
-                    ),
-                ],
+                accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
+                    min: u32::MIN,
+                    max: u32::MAX,
+                    default: Some(0),
+                })],
                 alias: "poke_offset",
             },
         ],
@@ -398,65 +364,52 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         opcode: ops::DUPLICATE,
         mnemonic: "dupl",
         explicit_arguments: &[],
-        implicit_arguments: ImplicitArguments::Fixed(&[
-              ImplicitArgumentMeta {
-                  offset: -1,
-                  alias: "source_value",
-              },
-          ],
-        ),
+        implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+            offset: -1,
+            alias: "source_value",
+        }]),
     },
     InstructionMeta {
         opcode: ops::DUPLICATE_X2,
         mnemonic: "ddupl",
         explicit_arguments: &[],
-        implicit_arguments: ImplicitArguments::Fixed(&[
-                ImplicitArgumentMeta {
-                    offset: -1,
-                    alias: "source_value",
-                },
-            ],
-        ),
+        implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+            offset: -1,
+            alias: "source_value",
+        }]),
     },
     InstructionMeta {
         opcode: ops::CAST_I32_2_F32,
         mnemonic: "casti32tof32",
         explicit_arguments: &[],
-        implicit_arguments: ImplicitArguments::Fixed(&[
-                ImplicitArgumentMeta {
-                    offset: -1,
-                    alias: "source_value",
-                }
-            ],
-        ),
+        implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+            offset: -1,
+            alias: "source_value",
+        }]),
     },
     InstructionMeta {
         opcode: ops::CAST_F32_2_I32,
         mnemonic: "castf32toi32",
         explicit_arguments: &[],
-        implicit_arguments: ImplicitArguments::Fixed(&[
-            ImplicitArgumentMeta {
-                offset: -1,
-                alias: "source_value",
-            }
-        ],
-        ),
+        implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+            offset: -1,
+            alias: "source_value",
+        }]),
     },
     InstructionMeta {
         opcode: ops::I32_ADD,
         mnemonic: "iadd",
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
-                ImplicitArgumentMeta {
-                    offset: -1,
-                    alias: "operand_b",
-                },
-                ImplicitArgumentMeta {
-                    offset: -2,
-                    alias: "operand_a",
-                }
-            ],
-        ),
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "operand_b",
+            },
+            ImplicitArgumentMeta {
+                offset: -2,
+                alias: "operand_a",
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::I32_SUB,
@@ -470,9 +423,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::I32_MUL,
@@ -486,9 +438,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::I32_DIV,
@@ -502,9 +453,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::I32_MOD,
@@ -518,9 +468,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::I32_AND,
@@ -534,9 +483,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::I32_OR,
@@ -550,9 +498,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::I32_XOR,
@@ -566,9 +513,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::I32_SAL,
@@ -582,9 +528,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::I32_SAR,
@@ -598,21 +543,17 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::I32_COM,
         mnemonic: "icom",
         explicit_arguments: &[],
-        implicit_arguments: ImplicitArguments::Fixed(&[
-            ImplicitArgumentMeta {
-                offset: -1,
-                alias: "operand_a",
-            },
-        ],
-        ),
+        implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+            offset: -1,
+            alias: "operand_a",
+        }]),
     },
     InstructionMeta {
         opcode: ops::F32_ADD,
@@ -626,9 +567,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::F32_SUB,
@@ -642,9 +582,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::F32_MUL,
@@ -658,9 +597,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::F32_DIV,
@@ -674,9 +612,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
     InstructionMeta {
         opcode: ops::F32_MOD,
@@ -690,8 +627,7 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "operand_a",
-            }
-        ],
-        ),
+            },
+        ]),
     },
 ];

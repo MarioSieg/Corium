@@ -252,7 +252,7 @@ pub fn execute(mut code: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
                 stack.push(stack.peek());
                 stack.push(stack.peek());
             }
-            
+
             ops::CAST_I32_2_F32 => {
                 stack.push(RecordUnion::from_f32(stack.peek().i32() as _));
             }

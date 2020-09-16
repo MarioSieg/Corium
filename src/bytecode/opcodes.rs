@@ -204,8 +204,39 @@
 
 */
 
+#[repr(u32)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum OpCode {
+    Interrupt = ops::INTERRUPT,
+    Push = ops::PUSH,
+    Pop = ops::POP,
+    Move = ops::MOVE,
+    Copy = ops::COPY,
+    Nop = ops::NOP,
+    Duplicate = ops::DUPLICATE,
+    DuplicateX2 = ops::DUPLICATE_X2,
+    CastI32toF32 = ops::CAST_I32_2_F32,
+    CastF32toI32 = ops::CAST_F32_2_I32,
+    I32Add = ops::I32_ADD,
+    I32Sub = ops::I32_SUB,
+    I32Mul = ops::I32_MUL,
+    I32Div = ops::I32_DIV,
+    I32Mod = ops::I32_MOD,
+    I32And = ops::I32_AND,
+    I32Or = ops::I32_OR,
+    I32Xor = ops::I32_XOR,
+    I32Sal = ops::I32_SAL,
+    I32Sar = ops::I32_SAR,
+    I32Com = ops::I32_COM,
+    F32Add = ops::F32_ADD,
+    F32Sub = ops::F32_SUB,
+    F32Mul = ops::F32_MUL,
+    F32Div = ops::F32_DIV,
+    F32Mod = ops::F32_MOD,
+}
+
 #[rustfmt::skip]
-pub mod ops {
+pub(crate) mod ops {
     pub const INTERRUPT: u32            = 0x00000000;
     pub const PUSH: u32                 = 0x00000001;
     pub const POP: u32                  = 0x00000002;
