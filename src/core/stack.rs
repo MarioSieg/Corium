@@ -291,7 +291,17 @@ impl Stack {
     }
 
     #[inline]
-    pub fn stack_pointer(&self) -> usize {
+    pub fn as_ptr(&self) -> *const RecordUnion {
+        self.buf.as_ptr()
+    }
+
+    #[inline]
+    pub fn as_mut_ptr(&mut self) -> *mut RecordUnion {
+        self.buf.as_mut_ptr()
+    }
+
+    #[inline]
+    pub fn stack_ptr(&self) -> usize {
         self.sp
     }
 

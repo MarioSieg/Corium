@@ -238,6 +238,16 @@ impl BytecodeChunk {
     }
 
     #[inline]
+    pub fn as_ptr(&self) -> *const RecordUnion {
+        self.buf.as_ptr()
+    }
+
+    #[inline]
+    pub fn as_mut_ptr(&mut self) -> *mut RecordUnion {
+        self.buf.as_mut_ptr()
+    }
+
+    #[inline]
     pub fn length(&self) -> usize {
         self.buf.len()
     }
@@ -253,7 +263,7 @@ impl BytecodeChunk {
     }
 
     #[inline]
-    pub fn instruction_pointer(&self) -> usize {
+    pub fn instruction_ptr(&self) -> usize {
         self.ip
     }
 

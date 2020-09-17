@@ -206,6 +206,7 @@
 
 pub mod bytecode;
 pub mod core;
+pub mod ffi;
 pub mod interpreter;
 pub mod jit;
 pub mod misc;

@@ -204,283 +204,36 @@
 
 */
 
-use crate::bytecode::{ops, BytecodeChunk};
-use crate::core::{RecordUnion, Stack};
+use crate::bytecode::BytecodeChunk;
+use crate::core::RecordUnion;
+use crate::core::Stack;
 
-/// Executes the bytecode.
-/// Returns the interrupt id (exitcode) and the number of cycles.
-pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> (i32, u64) {
-    let mut cycles: u64 = 0; // Cycles counter.
-    let mut interrupt: i32; // Interrupt id.
-    let mut opcode: u8; // Opcode
+#[repr(C)]
+pub struct VmCExecutorInput {
+    pub command_buffer: *const RecordUnion,
+    pub instruction_ptr: usize,
+    pub stack: *mut RecordUnion,
+    pub stack_ptr: usize,
+}
 
-    loop {
-        opcode = command_buffer.fetch().i32() as _;
-        cycles += 1;
-        match opcode {
-            ops::INTERRUPT => {
-                interrupt = command_buffer.fetch().i32();
-                if interrupt <= 0 {
-                    break;
-                } else {
-                    // Trigger exception
-                }
-                continue;
-            }
+#[repr(C)]
+pub struct VmCExecutorOutput {
+    pub exit_code: i32,
+    pub cycles: u64,
+}
 
-            ops::PUSH => {
-                stack.push(command_buffer.fetch());
-                continue;
-            }
+extern "C" {
+    fn ffi_c_execute(inout: *mut VmCExecutorInput) -> VmCExecutorOutput;
+}
 
-            ops::POP => {
-                stack.pop_multi(command_buffer.fetch().i32() as _);
-                continue;
-            }
-
-            ops::MOVE => {
-                stack.poke_set(command_buffer.fetch().i32() as _, command_buffer.fetch());
-                continue;
-            }
-
-            ops::COPY => {
-                stack.poke_set(
-                    command_buffer.fetch().i32() as _,
-                    stack.poke(command_buffer.fetch().i32() as _),
-                );
-                continue;
-            }
-
-            ops::NOP => {
-                continue;
-            }
-
-            ops::DUPLICATE => {
-                stack.push(stack.peek());
-                continue;
-            }
-
-            ops::DUPLICATE_X2 => {
-                stack.push(stack.peek());
-                stack.push(stack.peek());
-                continue;
-            }
-
-            ops::CAST_I32_2_F32 => {
-                stack.push(RecordUnion::from_f32(stack.peek().i32() as _));
-                continue;
-            }
-
-            ops::CAST_F32_2_I32 => {
-                stack.push(RecordUnion::from_i32(stack.peek().f32() as _));
-                continue;
-            }
-
-            ops::JUMP => {
-                let target_address = command_buffer.fetch().ptr();
-                command_buffer.jump(target_address);
-                continue;
-            }
-
-            ops::JUMP_EQUALS => {
-                if stack.peek_previous().i32() == stack.peek().i32() {
-                    let target_address = command_buffer.fetch().ptr();
-                    command_buffer.jump(target_address);
-                }
-                stack.pop_multi(2);
-                continue;
-            }
-
-            ops::JUMP_NOT_EQUALS => {
-                if stack.peek_previous().i32() != stack.peek().i32() {
-                    let target_address = command_buffer.fetch().ptr();
-                    command_buffer.jump(target_address);
-                }
-                stack.pop_multi(2);
-                continue;
-            }
-
-            ops::JUMP_ABOVE => {
-                if stack.peek_previous().i32() > stack.peek().i32() {
-                    let target_address = command_buffer.fetch().ptr();
-                    command_buffer.jump(target_address);
-                }
-                stack.pop_multi(2);
-                continue;
-            }
-
-            ops::JUMP_ABOVE_EQUALS => {
-                if stack.peek_previous().i32() >= stack.peek().i32() {
-                    let target_address = command_buffer.fetch().ptr();
-                    command_buffer.jump(target_address);
-                }
-                stack.pop_multi(2);
-                continue;
-            }
-
-            ops::JUMP_LESS => {
-                if stack.peek_previous().i32() < stack.peek().i32() {
-                    let target_address = command_buffer.fetch().ptr();
-                    command_buffer.jump(target_address);
-                }
-                stack.pop_multi(2);
-                continue;
-            }
-
-            ops::JUMP_LESS_EQUALS => {
-                if stack.peek_previous().i32() <= stack.peek().i32() {
-                    let target_address = command_buffer.fetch().ptr();
-                    command_buffer.jump(target_address);
-                }
-                stack.pop_multi(2);
-                continue;
-            }
-
-            ops::I32_ADD => {
-                stack.peek_previous_set(RecordUnion::from_i32(
-                    stack.peek_previous().i32().wrapping_add(stack.peek().i32()),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::I32_SUB => {
-                stack.peek_previous_set(RecordUnion::from_i32(
-                    stack.peek_previous().i32().wrapping_sub(stack.peek().i32()),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::I32_MUL => {
-                stack.peek_previous_set(RecordUnion::from_i32(
-                    stack.peek_previous().i32().wrapping_mul(stack.peek().i32()),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::I32_DIV => {
-                stack.peek_previous_set(RecordUnion::from_i32(
-                    stack.peek_previous().i32().wrapping_div(stack.peek().i32()),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::I32_MOD => {
-                stack.peek_previous_set(RecordUnion::from_i32(
-                    stack.peek_previous().i32() % stack.peek().i32(),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::I32_AND => {
-                stack.peek_previous_set(RecordUnion::from_i32(
-                    stack.peek_previous().i32() & stack.peek().i32(),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::I32_OR => {
-                stack.peek_previous_set(RecordUnion::from_i32(
-                    stack.peek_previous().i32() | stack.peek().i32(),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::I32_XOR => {
-                stack.peek_previous_set(RecordUnion::from_i32(
-                    stack.peek_previous().i32() ^ stack.peek().i32(),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::I32_SAL => {
-                stack.peek_previous_set(RecordUnion::from_i32(
-                    stack
-                        .peek_previous()
-                        .i32()
-                        .wrapping_shl(stack.peek().i32() as _),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::I32_SAR => {
-                stack.peek_previous_set(RecordUnion::from_i32(
-                    stack
-                        .peek_previous()
-                        .i32()
-                        .wrapping_shr(stack.peek().i32() as _),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::I32_COM => {
-                stack.peek_previous_set(RecordUnion::from_i32(!stack.peek_previous().i32()));
-                stack.pop();
-                continue;
-            }
-
-            ops::I32_INCREMENT => {
-                stack.peek_set(RecordUnion::from_i32(stack.peek().i32() + 1));
-                continue;
-            }
-
-            ops::I32_DECREMENT => {
-                stack.peek_set(RecordUnion::from_i32(stack.peek().i32() - 1));
-                continue;
-            }
-
-            ops::F32_ADD => {
-                stack.peek_previous_set(RecordUnion::from_f32(
-                    stack.peek_previous().f32() + stack.peek().f32(),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::F32_SUB => {
-                stack.peek_previous_set(RecordUnion::from_f32(
-                    stack.peek_previous().f32() - stack.peek().f32(),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::F32_MUL => {
-                stack.peek_previous_set(RecordUnion::from_f32(
-                    stack.peek_previous().f32() * stack.peek().f32(),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::F32_DIV => {
-                stack.peek_previous_set(RecordUnion::from_f32(
-                    stack.peek_previous().f32() / stack.peek().f32(),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            ops::F32_MOD => {
-                stack.peek_previous_set(RecordUnion::from_f32(
-                    stack.peek_previous().f32() % stack.peek().f32(),
-                ));
-                stack.pop();
-                continue;
-            }
-
-            _ => (),
-        }
-    }
-
-    (interrupt, cycles)
+pub fn c_execute(bytecode: &BytecodeChunk, stack: &mut Stack) -> (i32, u64) {
+    let mut input = VmCExecutorInput {
+        command_buffer: bytecode.as_ptr(),
+        instruction_ptr: bytecode.instruction_ptr(),
+        stack: stack.as_mut_ptr(),
+        stack_ptr: stack.stack_ptr(),
+    };
+    let pass_ptr: *mut _ = &mut input;
+    let output = unsafe { ffi_c_execute(pass_ptr) };
+    (output.exit_code, output.cycles)
 }

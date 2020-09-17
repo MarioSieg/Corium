@@ -227,7 +227,7 @@ fn main() {
     code.epilogue();
 
     print!("{:?}", code);
-    
+
     let t = Instant::now();
     let (excode, cycles) = execute(code.build().unwrap(), Stack::with_length(32));
     println!("t: {}", t.elapsed().as_secs_f32());
