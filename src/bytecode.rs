@@ -204,8 +204,8 @@
 
 */
 
-use std::{ops, fmt, default, mem, collections::HashMap};
 use super::core::RecordUnion;
+use std::{collections::HashMap, default, fmt, mem, ops};
 
 // TODO add OPS field
 #[repr(C)]
@@ -281,9 +281,7 @@ impl SignalUnion {
 
     #[inline]
     pub fn opcode(&self) -> OpCode {
-        unsafe {
-            mem::transmute::<u8, OpCode>(self.0 as _)
-        }
+        unsafe { mem::transmute::<u8, OpCode>(self.0 as _) }
     }
 
     #[inline]
@@ -326,7 +324,7 @@ impl fmt::Debug for SignalUnion {
             b[1],
             b[2],
             b[3],
-            super::interpreter:: sigs::BEGIN_VALUE,
+            super::interpreter::sigs::BEGIN_VALUE,
             self.i32(),
             super::interpreter::sigs::MARKER_I32,
             super::interpreter::sigs::BEGIN_VALUE,
@@ -341,7 +339,6 @@ impl default::Default for SignalUnion {
         Self::ZERO
     }
 }
-
 
 /// A bytecode stream is used to dynamically build bytecode.
 pub struct BytecodeStream {

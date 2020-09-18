@@ -204,9 +204,9 @@
 
 */
 
-use std::{ops, fmt, default};
-use super::interpreter::sigs;
 use super::bytecode::{asm, BytecodeChunk, SignalUnion};
+use super::interpreter::sigs;
+use std::{default, fmt, ops};
 
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Hash)]
@@ -566,9 +566,7 @@ pub mod executor {
 
         pub fn execute(mut input: VmCExecutorInput) -> ExecutorResult {
             let pass_ptr: *mut _ = &mut input;
-            let x = unsafe {
-                ffi_c_execute(pass_ptr)
-            };
+            let x = unsafe { ffi_c_execute(pass_ptr) };
             (x.exit_code, x.cycles)
         }
     }
@@ -630,7 +628,10 @@ pub mod executor {
                 }
 
                 asm::MOVE => {
-                    stack.poke_set(command_buffer.fetch().i32() as _, RecordUnion::from_signal(command_buffer.fetch()));
+                    stack.poke_set(
+                        command_buffer.fetch().i32() as _,
+                        RecordUnion::from_signal(command_buffer.fetch()),
+                    );
                     continue;
                 }
 

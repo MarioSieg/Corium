@@ -227,190 +227,190 @@ pub mod arch {
         use super::*;
 
         /*
-        ----EFLAGS----
+                ----EFLAGS----
 
-        Cf,     // Carry flag.
-        Pf,     // Parity flag.
-        Af,     // Adjust flag.
-        Zf,     // Zero flag.
-        Sf,     // Sign flag.
-        Tf,     // Trap flag.
-        If,     // Interrupt flag.
-        Df,     // Stream direction flag.
-        Of,     // Overflow flag.
-        Iopl,   // I/O privilege level field (2 bits).
-        Nt,     // Nested task flag (for interrupt chaining).
-        Rf,     // Resume flag.
-        Vm,     // Virtual-8086 compatibility mode flag.
-        Ac,     // Alignment check.
-        Vif,    // Virtual interrupt flag.
-        Vip,    // Virtual interrupt pending flag.
-        Id,     // Identification flag (CPUID)
-
-        Register {
-            target_type: RegisterTargetType::Flag,
-            bit_size: 32,
-            mnemonic: "eflags",
-            is_extensions: false,
-            is_general_purpose: false,
-            is_directly_addressable: false,
-            sub_registers: &[
+                Cf,     // Carry flag.
+                Pf,     // Parity flag.
+                Af,     // Adjust flag.
+                Zf,     // Zero flag.
+                Sf,     // Sign flag.
+                Tf,     // Trap flag.
+                If,     // Interrupt flag.
+                Df,     // Stream direction flag.
+                Of,     // Overflow flag.
+                Iopl,   // I/O privilege level field (2 bits).
+                Nt,     // Nested task flag (for interrupt chaining).
+                Rf,     // Resume flag.
+                Vm,     // Virtual-8086 compatibility mode flag.
+                Ac,     // Alignment check.
+                Vif,    // Virtual interrupt flag.
+                Vip,    // Virtual interrupt pending flag.
+                Id,     // Identification flag (CPUID)
 
                 Register {
                     target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "cf",
-                    is_extension: false,
+                    bit_size: 32,
+                    mnemonic: "eflags",
+                    is_extensions: false,
                     is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                    is_directly_addressable: false,
+                    sub_registers: &[
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "pf",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "cf",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "af",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "pf",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "zf",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "af",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "sf",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "zf",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "tf",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "sf",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "if",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "tf",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "df",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "if",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "of",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "df",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 2,
-                    mnemonic: "iopl",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "of",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "nt",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 2,
+                            mnemonic: "iopl",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "rf",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "nt",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "vm",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "rf",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "ac",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "vm",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "vif",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "ac",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "vip",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "vif",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
 
-                Register {
-                    target_type: RegisterTargetType::Flag,
-                    bit_size: 1,
-                    mnemonic: "id",
-                    is_extension: false,
-                    is_general_purpose: false,
-                    is_directly_addressable: true,
-                },
-            ]
-        }
-*/
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "vip",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
+
+                        Register {
+                            target_type: RegisterTargetType::Flag,
+                            bit_size: 1,
+                            mnemonic: "id",
+                            is_extension: false,
+                            is_general_purpose: false,
+                            is_directly_addressable: true,
+                        },
+                    ]
+                }
+        */
 
         pub enum Registers {
             Eax, // General purpose register (GPR).
