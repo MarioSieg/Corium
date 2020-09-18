@@ -221,7 +221,7 @@ fn main() {
     code.def_opcode(OpCode::I32Mul);
     code.def_opcode(OpCode::Pop).with_i32(1);
     code.def_opcode(OpCode::Duplicate);
-    code.def_opcode(OpCode::Push).with_i32(1_000_000_000);
+    code.def_opcode(OpCode::Push).with_i32(1000000);
     code.def_opcode(OpCode::JumpLess).with_label("Loop");
     code.def_opcode(OpCode::Pop).with_i32(1);
     code.epilogue();
@@ -229,7 +229,7 @@ fn main() {
     print!("{:?}", code);
 
     let t = Instant::now();
-    let (excode, cycles) = execute(code.build().unwrap(), Stack::with_length(32));
+    let (excode, cycles) = executor::execute(code.build().unwrap(), Stack::with_length(32));
     println!("t: {}", t.elapsed().as_secs_f32());
 
     println!("exitcode: {}, cycles: {}", excode, cycles);

@@ -204,9 +204,130 @@
 
 */
 
-use std::{fmt, ops};
+use std::{ops, fmt, default};
+use super::interpreter::sigs;
+use super::bytecode::{asm, BytecodeChunk, SignalUnion};
 
-use super::record::RecordUnion;
+#[repr(C)]
+#[derive(Copy, Clone, PartialEq, Hash)]
+pub struct RecordUnion(u32);
+
+impl RecordUnion {
+    pub const ZERO: Self = Self(0x00000000);
+    pub const MIN: Self = Self(0x00000000);
+    pub const MAX: Self = Self(0xffffffff);
+
+    #[inline]
+    pub fn new() -> Self {
+        Self(0)
+    }
+
+    #[inline]
+    pub fn from_i32(val: i32) -> Self {
+        Self(val as _)
+    }
+
+    #[inline]
+    pub fn from_u32(val: u32) -> Self {
+        Self(val)
+    }
+
+    #[inline]
+    pub fn from_f32(val: f32) -> Self {
+        Self(val as _)
+    }
+
+    #[inline]
+    pub fn from_bytes(bytes: [u8; 4]) -> Self {
+        Self(u32::from_le_bytes(bytes))
+    }
+
+    #[inline]
+    pub fn from_signal(x: SignalUnion) -> Self {
+        Self(x.u32())
+    }
+}
+
+impl RecordUnion {
+    #[inline]
+    pub fn i32(&self) -> i32 {
+        self.0 as _
+    }
+
+    #[inline]
+    pub fn set_i32(&mut self, val: i32) {
+        self.0 = val as _
+    }
+
+    #[inline]
+    pub fn u32(&self) -> u32 {
+        self.0
+    }
+
+    #[inline]
+    pub fn set_u32(&mut self, val: u32) {
+        self.0 = val
+    }
+
+    #[inline]
+    pub fn f32(&self) -> f32 {
+        f32::from_bits(self.0)
+    }
+
+    #[inline]
+    pub fn set_f32(&mut self, val: f32) {
+        self.0 = val.to_bits()
+    }
+
+    #[inline]
+    pub fn ptr(&self) -> usize {
+        self.0 as _
+    }
+
+    #[inline]
+    pub fn to_bytes(&self) -> [u8; 4] {
+        self.0.to_le_bytes()
+    }
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
+pub enum Discriminator {
+    I32,
+    F32,
+}
+
+impl fmt::Display for RecordUnion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let b = self.to_bytes();
+        write!(f, "{:02X} {:02X} {:02X} {:02X}", b[0], b[1], b[2], b[3])
+    }
+}
+
+impl fmt::Debug for RecordUnion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let b = self.to_bytes();
+        write!(
+            f,
+            "{:02X} {:02X} {:02X} {:02X} | {}{}{}, {}{:E}{}",
+            b[0],
+            b[1],
+            b[2],
+            b[3],
+            sigs::BEGIN_VALUE,
+            self.i32(),
+            sigs::MARKER_I32,
+            sigs::BEGIN_VALUE,
+            self.f32(),
+            sigs::MARKER_F32,
+        )
+    }
+}
+
+impl default::Default for RecordUnion {
+    fn default() -> Self {
+        Self::ZERO
+    }
+}
 
 #[repr(usize)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -400,5 +521,282 @@ impl fmt::Debug for Stack {
             writeln!(f, "| &{:#010X} | {:?}", i, rec)?
         }
         writeln!(f, "+----------------------End----------------------+\n")
+    }
+}
+
+pub mod executor {
+    use super::*;
+
+    type ExecutorResult = (i32, u64);
+
+    mod ffi {
+        #![allow(dead_code)]
+
+        use super::*;
+
+        #[repr(C)]
+        pub struct VmCExecutorInput {
+            pub command_buffer: *const SignalUnion,
+            pub instruction_ptr: usize,
+            pub stack: *mut RecordUnion,
+            pub stack_ptr: usize,
+        }
+
+        impl VmCExecutorInput {
+            pub fn new(bytecode: &BytecodeChunk, stack: &mut Stack) -> Self {
+                Self {
+                    command_buffer: bytecode.as_ptr(),
+                    instruction_ptr: bytecode.instruction_ptr(),
+                    stack: stack.as_mut_ptr(),
+                    stack_ptr: stack.stack_ptr(),
+                }
+            }
+        }
+
+        #[repr(C)]
+        pub struct VmCExecutorOutput {
+            pub exit_code: i32,
+            pub cycles: u64,
+        }
+
+        extern "C" {
+            #[no_mangle]
+            fn ffi_c_execute(inout: *mut VmCExecutorInput) -> VmCExecutorOutput;
+        }
+
+        pub fn execute(mut input: VmCExecutorInput) -> ExecutorResult {
+            let pass_ptr: *mut _ = &mut input;
+            let x = unsafe {
+                ffi_c_execute(pass_ptr)
+            };
+            (x.exit_code, x.cycles)
+        }
+    }
+
+    macro_rules! conditional_jump {
+        ($sta:ident, $cmd:ident, $op:tt) => {
+             if $sta.peek_previous().i32() $op $sta.peek().i32() {
+                let target_address = $cmd.fetch().ptr();
+                $cmd.jump(target_address);
+            }
+            $sta.pop_multi(2);
+        }
+    }
+
+    macro_rules! duplet_operation {
+        ($sta:ident, $sc:ident, $mk:ident, $op:tt) => {
+            $sta.peek_previous_set(RecordUnion::$mk(
+                $sta.peek_previous().$sc() $op $sta.peek().$sc())
+            );
+            $sta.pop();
+        }
+    }
+
+    macro_rules! scalar_operation {
+        ($sta:ident, $sc:ident, $mk:ident, $op:tt, $v:expr) => {
+            $sta.peek_set(RecordUnion::$mk($sta.peek().$sc() $op $v));
+        }
+    }
+
+    /// Executes the bytecode.
+    /// Returns the interrupt id (exitcode) and the number of cycles.
+    pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> ExecutorResult {
+        let mut cycles: u64 = 0; // Cycles counter.
+        let mut interrupt: i32; // Interrupt id.
+        let mut opcode: u8; // Opcode
+
+        loop {
+            opcode = command_buffer.fetch().i32() as _;
+            cycles += 1;
+            match opcode {
+                asm::INTERRUPT => {
+                    interrupt = command_buffer.fetch().i32();
+                    if interrupt <= 0 {
+                        break;
+                    } else {
+                        // Trigger exception
+                    }
+                    continue;
+                }
+
+                asm::PUSH => {
+                    stack.push(RecordUnion::from_signal(command_buffer.fetch()));
+                    continue;
+                }
+
+                asm::POP => {
+                    stack.pop_multi(command_buffer.fetch().i32() as _);
+                    continue;
+                }
+
+                asm::MOVE => {
+                    stack.poke_set(command_buffer.fetch().i32() as _, RecordUnion::from_signal(command_buffer.fetch()));
+                    continue;
+                }
+
+                asm::COPY => {
+                    stack.poke_set(
+                        command_buffer.fetch().i32() as _,
+                        stack.poke(command_buffer.fetch().i32() as _),
+                    );
+                    continue;
+                }
+
+                asm::NOP => {
+                    continue;
+                }
+
+                asm::DUPLICATE => {
+                    stack.push(stack.peek());
+                    continue;
+                }
+
+                asm::DUPLICATE_X2 => {
+                    stack.push(stack.peek());
+                    stack.push(stack.peek());
+                    continue;
+                }
+
+                asm::CAST_I32_2_F32 => {
+                    stack.push(RecordUnion::from_f32(stack.peek().i32() as _));
+                    continue;
+                }
+
+                asm::CAST_F32_2_I32 => {
+                    stack.push(RecordUnion::from_i32(stack.peek().f32() as _));
+                    continue;
+                }
+
+                asm::JUMP => {
+                    let target_address = command_buffer.fetch().ptr();
+                    command_buffer.jump(target_address);
+                    continue;
+                }
+
+                asm::JUMP_EQUALS => {
+                    conditional_jump!(stack, command_buffer, ==);
+                    continue;
+                }
+
+                asm::JUMP_NOT_EQUALS => {
+                    conditional_jump!(stack, command_buffer, !=);
+                    continue;
+                }
+
+                asm::JUMP_ABOVE => {
+                    conditional_jump!(stack, command_buffer, >);
+                    continue;
+                }
+
+                asm::JUMP_ABOVE_EQUALS => {
+                    conditional_jump!(stack, command_buffer, >=);
+                    continue;
+                }
+
+                asm::JUMP_LESS => {
+                    conditional_jump!(stack, command_buffer, <);
+                    continue;
+                }
+
+                asm::JUMP_LESS_EQUALS => {
+                    conditional_jump!(stack, command_buffer, <=);
+                    continue;
+                }
+
+                asm::I32_ADD => {
+                    duplet_operation!(stack, i32, from_i32, +);
+                    continue;
+                }
+
+                asm::I32_SUB => {
+                    duplet_operation!(stack, i32, from_i32, -);
+                    continue;
+                }
+
+                asm::I32_MUL => {
+                    duplet_operation!(stack, i32, from_i32, *);
+                    continue;
+                }
+
+                asm::I32_DIV => {
+                    duplet_operation!(stack, i32, from_i32, /);
+                    continue;
+                }
+
+                asm::I32_MOD => {
+                    duplet_operation!(stack, i32, from_i32, %);
+                    continue;
+                }
+
+                asm::I32_AND => {
+                    duplet_operation!(stack, i32, from_i32, &);
+                    continue;
+                }
+
+                asm::I32_OR => {
+                    duplet_operation!(stack, i32, from_i32, |);
+                    continue;
+                }
+
+                asm::I32_XOR => {
+                    duplet_operation!(stack, i32, from_i32, ^);
+                    continue;
+                }
+
+                asm::I32_SAL => {
+                    duplet_operation!(stack, i32, from_i32, <<);
+                    continue;
+                }
+
+                asm::I32_SAR => {
+                    duplet_operation!(stack, i32, from_i32, >>);
+                    continue;
+                }
+
+                asm::I32_COM => {
+                    stack.peek_set(RecordUnion::from_i32(!stack.peek().i32()));
+                    continue;
+                }
+
+                asm::I32_INCREMENT => {
+                    scalar_operation!(stack, i32, from_i32, +, 1);
+                    continue;
+                }
+
+                asm::I32_DECREMENT => {
+                    scalar_operation!(stack, i32, from_i32, -, 1);
+                    continue;
+                }
+
+                asm::F32_ADD => {
+                    duplet_operation!(stack, f32, from_f32, +);
+                    continue;
+                }
+
+                asm::F32_SUB => {
+                    duplet_operation!(stack, f32, from_f32, -);
+                    continue;
+                }
+
+                asm::F32_MUL => {
+                    duplet_operation!(stack, f32, from_f32, *);
+                    continue;
+                }
+
+                asm::F32_DIV => {
+                    duplet_operation!(stack, f32, from_f32, /);
+                    continue;
+                }
+
+                asm::F32_MOD => {
+                    duplet_operation!(stack, f32, from_f32, %);
+                    continue;
+                }
+
+                _ => (),
+            }
+        }
+
+        (interrupt, cycles)
     }
 }
