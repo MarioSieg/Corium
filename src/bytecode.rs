@@ -204,15 +204,15 @@
 
 */
 
-use super::core::RecordUnion;
+use super::core::Record;
 use std::{collections::HashMap, default, fmt, mem, ops};
 
 // TODO add OPS field
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Hash)]
-pub struct SignalUnion(u32);
+pub struct Signal(u32);
 
-impl SignalUnion {
+impl Signal {
     pub const ZERO: Self = Self(0x00000000);
     pub const MIN: Self = Self(0x00000000);
     pub const MAX: Self = Self(0xffffffff);
@@ -238,7 +238,7 @@ impl SignalUnion {
     }
 
     #[inline]
-    pub fn from_record(x: RecordUnion) -> Self {
+    pub fn from_record(x: Record) -> Self {
         Self(x.u32())
     }
 
@@ -248,7 +248,7 @@ impl SignalUnion {
     }
 }
 
-impl SignalUnion {
+impl Signal {
     #[inline]
     pub fn i32(&self) -> i32 {
         self.0 as _
@@ -307,14 +307,14 @@ pub enum Discriminator {
     OpCode,
 }
 
-impl fmt::Display for SignalUnion {
+impl fmt::Display for Signal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b = self.to_bytes();
         write!(f, "{:02X} {:02X} {:02X} {:02X}", b[0], b[1], b[2], b[3])
     }
 }
 
-impl fmt::Debug for SignalUnion {
+impl fmt::Debug for Signal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b = self.to_bytes();
         write!(
@@ -334,7 +334,7 @@ impl fmt::Debug for SignalUnion {
     }
 }
 
-impl default::Default for SignalUnion {
+impl default::Default for Signal {
     fn default() -> Self {
         Self::ZERO
     }
@@ -342,7 +342,7 @@ impl default::Default for SignalUnion {
 
 /// A bytecode stream is used to dynamically build bytecode.
 pub struct BytecodeStream {
-    code: Vec<(SignalUnion, Discriminator)>,
+    code: Vec<(Signal, Discriminator)>,
     jump_table: HashMap<String, usize>,
 }
 
@@ -356,7 +356,7 @@ impl BytecodeStream {
     }
 
     #[inline]
-    pub fn with_vec(vec: Vec<(SignalUnion, Discriminator)>) -> Self {
+    pub fn with_vec(vec: Vec<(Signal, Discriminator)>) -> Self {
         Self {
             code: vec,
             jump_table: HashMap::new(),
@@ -376,7 +376,7 @@ impl BytecodeStream {
     #[inline]
     pub fn def_opcode(&mut self, op: OpCode) -> &mut Self {
         self.code
-            .push((SignalUnion::from_opcode(op), Discriminator::OpCode));
+            .push((Signal::from_opcode(op), Discriminator::OpCode));
         self
     }
 
@@ -388,15 +388,13 @@ impl BytecodeStream {
 
     #[inline]
     pub fn with_i32(&mut self, val: i32) -> &mut Self {
-        self.code
-            .push((SignalUnion::from_i32(val), Discriminator::I32));
+        self.code.push((Signal::from_i32(val), Discriminator::I32));
         self
     }
 
     #[inline]
     pub fn with_f32(&mut self, val: f32) -> &mut Self {
-        self.code
-            .push((SignalUnion::from_f32(val), Discriminator::F32));
+        self.code.push((Signal::from_f32(val), Discriminator::F32));
         self
     }
 
@@ -429,7 +427,7 @@ impl BytecodeStream {
     }
 
     #[inline]
-    pub fn command_buffer(&self) -> &Vec<(SignalUnion, Discriminator)> {
+    pub fn command_buffer(&self) -> &Vec<(Signal, Discriminator)> {
         &self.code
     }
 
@@ -450,7 +448,7 @@ impl BytecodeStream {
 
     #[inline]
     pub fn size(&self) -> usize {
-        self.code.capacity() * std::mem::size_of::<(SignalUnion, Discriminator)>()
+        self.code.capacity() * std::mem::size_of::<(Signal, Discriminator)>()
             + self.jump_table.capacity() * std::mem::size_of::<usize>()
     }
 
@@ -488,7 +486,7 @@ impl BytecodeStream {
 }
 
 impl ops::Index<usize> for BytecodeStream {
-    type Output = (SignalUnion, Discriminator);
+    type Output = (Signal, Discriminator);
 
     fn index(&self, idx: usize) -> &Self::Output {
         &self.code[idx]
@@ -536,7 +534,7 @@ impl fmt::Debug for BytecodeStream {
             let meta = &INSTRUCTION_TABLE[self.code[i].0.i32() as usize];
             writeln!(
                 f,
-                "| {}{:#018x} | {} | {}{}",
+                "| {}{:#018X} | {} | {}{}",
                 super::interpreter::sigs::ADDRESS_OP,
                 i,
                 self.code[i].0,
@@ -546,7 +544,7 @@ impl fmt::Debug for BytecodeStream {
             for j in (1..=meta.explicit_arguments.len()).map(|j| i + j) {
                 writeln!(
                     f,
-                    "| {}{:#018x} | {:?}",
+                    "| {}{:#018X} | {:?}",
                     super::interpreter::sigs::ADDRESS_VAL,
                     j,
                     self.code[j].0
@@ -560,19 +558,19 @@ impl fmt::Debug for BytecodeStream {
 
 /// A fixed size chunk of bytecode, which can be executed by the VM.
 pub struct BytecodeChunk {
-    buf: Box<[SignalUnion]>,
+    buf: Box<[Signal]>,
     ip: usize,
 }
 
 impl BytecodeChunk {
     #[inline]
-    pub fn from_buffer(buf: Box<[SignalUnion]>) -> Self {
+    pub fn from_buffer(buf: Box<[Signal]>) -> Self {
         assert_ne!(buf.len(), 0);
         Self { buf, ip: 0 }
     }
 
     #[inline]
-    pub fn from_vector(vec: Vec<SignalUnion>) -> Self {
+    pub fn from_vector(vec: Vec<Signal>) -> Self {
         assert_ne!(vec.len(), 0);
         Self {
             buf: vec.into_boxed_slice(),
@@ -583,17 +581,17 @@ impl BytecodeChunk {
 
 impl BytecodeChunk {
     #[inline]
-    pub fn buffer(&self) -> &[SignalUnion] {
+    pub fn buffer(&self) -> &[Signal] {
         &self.buf
     }
 
     #[inline]
-    pub fn as_ptr(&self) -> *const SignalUnion {
+    pub fn as_ptr(&self) -> *const Signal {
         self.buf.as_ptr()
     }
 
     #[inline]
-    pub fn as_mut_ptr(&mut self) -> *mut SignalUnion {
+    pub fn as_mut_ptr(&mut self) -> *mut Signal {
         self.buf.as_mut_ptr()
     }
 
@@ -609,7 +607,7 @@ impl BytecodeChunk {
 
     #[inline]
     pub fn size(&self) -> usize {
-        self.buf.len() * std::mem::size_of::<SignalUnion>()
+        self.buf.len() * std::mem::size_of::<Signal>()
     }
 
     #[inline]
@@ -623,7 +621,7 @@ impl BytecodeChunk {
     }
 
     #[inline]
-    pub fn fetch(&mut self) -> SignalUnion {
+    pub fn fetch(&mut self) -> Signal {
         let record = self.buf[self.ip];
         self.ip += 1;
         record
@@ -636,7 +634,7 @@ impl BytecodeChunk {
 }
 
 impl ops::Index<usize> for BytecodeChunk {
-    type Output = SignalUnion;
+    type Output = Signal;
 
     fn index(&self, idx: usize) -> &Self::Output {
         &self.buf[idx]

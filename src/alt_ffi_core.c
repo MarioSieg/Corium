@@ -255,13 +255,59 @@
 #include<stdint.h>
 #include<stddef.h>
 
+/* !! Maps to src/bytecode/opcodes/OpCodes.rs !! */
+typedef enum {
+    OPCODE_INTERRUPT            = 0x00,
+    OPCODE_PUSH                 = 0x01,
+    OPCODE_POP                  = 0x02,
+    OPCODE_MOVE                 = 0x03,
+    OPCODE_COPY                 = 0x04,
+    OPCODE_NO_OPERATION         = 0x05,
+    OPCODE_DUPLICATE            = 0x06,
+    OPCODE_DUPLICATE_X2         = 0x07,
+    OPCODE_CAST_I32_2_F32       = 0x08,
+    OPCODE_CAST_F32_2_I32       = 0x09,
+    OPCODE_JUMP                 = 0x0A,
+    OPCODE_JUMP_EQUALS          = 0x0B,
+    OPCODE_JUMP_NOT_EQUALS      = 0x0C,
+    OPCODE_JUMP_ABOVE           = 0x0D,
+    OPCODE_JUMP_ABOVE_EQUALS    = 0x0E,
+    OPCODE_JUMP_LESS            = 0x0F,
+    OPCODE_JUMP_LESS_EQUALS     = 0x10,
+    OPCODE_I32_ADD              = 0x11,
+    OPCODE_I32_SUB              = 0x12,
+    OPCODE_I32_MUL              = 0x13,
+    OPCODE_I32_DIV              = 0x14,
+    OPCODE_I32_MOD              = 0x15,
+    OPCODE_I32_AND              = 0x16,
+    OPCODE_I32_OR               = 0x17,
+    OPCODE_I32_XOR              = 0x18,
+    OPCODE_I32_SAL              = 0x19,
+    OPCODE_I32_SAR              = 0x1A,
+    OPCODE_I32_COM              = 0x1B,
+    OPCODE_I32_INCREMENT        = 0x1C,
+    OPCODE_I32_DECREMENT        = 0x1D,
+    OPCODE_F32_ADD              = 0x1E,
+    OPCODE_F32_SUB              = 0x1F,
+    OPCODE_F32_MUL              = 0x20,
+    OPCODE_F32_DIV              = 0x21,
+    OPCODE_F32_MOD              = 0x22,
+
+    OPCODE_COUNT,
+} OpCode;
+
 /* !! Maps to src/core/record.rs/RecordUnion !! */
 typedef union {
     int32_t i32;
     float   f32;
 } RecordUnion;
 
-typedef RecordUnion Signal;
+/* !! Maps to src/core/bytecode.rs/SignalUnion !! */
+typedef union {
+    int32_t i32;
+    float   f32;
+    OpCode op;
+} SignalUnion;
 
 /* !! Maps to src/ffi/mod.rs/VmCExecutorInput !! */
 typedef struct {
@@ -277,84 +323,43 @@ typedef struct {
     uint64_t cycles;
 } VmCExecutorOutput;
 
-/* !! Maps to src/bytecode/opcodes/OpCodes.rs !! */
-typedef enum {
-    OPCODE_INTERRUPT = 0x00,
-    OPCODE_PUSH = 0x01,
-    OPCODE_POP = 0x02,
-    OPCODE_MOVE = 0x03,
-    OPCODE_COPY = 0x04,
-    OPCODE_NO_OPERATION = 0x05,
-    OPCODE_DUPLICATE = 0x06,
-    OPCODE_DUPLICATE_X2 = 0x07,
-    OPCODE_CAST_I32_2_F32 = 0x08,
-    OPCODE_CAST_F32_2_I32 = 0x09,
-    OPCODE_JUMP = 0x0A,
-    OPCODE_JUMP_EQUALS = 0x0B,
-    OPCODE_JUMP_NOT_EQUALS = 0x0C,
-    OPCODE_JUMP_ABOVE = 0x0D,
-    OPCODE_JUMP_ABOVE_EQUALS = 0x0E,
-    OPCODE_JUMP_LESS = 0x0F,
-    OPCODE_JUMP_LESS_EQUALS = 0x10,
-    OPCODE_I32_ADD = 0x11,
-    OPCODE_I32_SUB = 0x12,
-    OPCODE_I32_MUL = 0x13,
-    OPCODE_I32_DIV = 0x14,
-    OPCODE_I32_MOD = 0x15,
-    OPCODE_I32_AND = 0x16,
-    OPCODE_I32_OR = 0x17,
-    OPCODE_I32_XOR = 0x18,
-    OPCODE_I32_SAL = 0x19,
-    OPCODE_I32_SAR = 0x1A,
-    OPCODE_I32_COM = 0x1B,
-    OPCODE_I32_INCREMENT = 0x1C,
-    OPCODE_I32_DECREMENT = 0x1D,
-    OPCODE_F32_ADD = 0x1E,
-    OPCODE_F32_SUB = 0x1F,
-    OPCODE_F32_MUL = 0x20,
-    OPCODE_F32_DIV = 0x21,
-    OPCODE_F32_MOD = 0x22,
-
-    OPCODE_COUNT,
-} OpCode;
-
 static VmCExecutorOutput ffi_c_execute(VmCExecutorInput* const inout) {
     static void* const JUMP_TABLE[OPCODE_COUNT] = {
-        && L_OPCODE_INTERRUPT,
-        && L_OPCODE_PUSH,
-        && L_OPCODE_POP,
-        && L_OPCODE_MOVE,
-        && L_OPCODE_COPY,
-        && L_OPCODE_NO_OPERATION,
-        && L_OPCODE_DUPLICATE,
-        && L_OPCODE_DUPLICATE_X2,
-        && L_OPCODE_CAST_I32_2_F32,
-        && L_OPCODE_CAST_F32_2_I32,
-        && L_OPCODE_JUMP,
-        && L_OPCODE_JUMP_EQUALS,
-        && L_OPCODE_JUMP_NOT_EQUALS,
-        && L_OPCODE_JUMP_ABOVE,
-        && L_OPCODE_JUMP_ABOVE_EQUALS,
-        && L_OPCODE_JUMP_LESS,
-        && L_OPCODE_JUMP_LESS_EQUALS,
-        && L_OPCODE_I32_ADD,
-        && L_OPCODE_I32_SUB,
-        && L_OPCODE_I32_MUL,
-        && L_OPCODE_I32_DIV,
-        && L_OPCODE_I32_MOD,
-        && L_OPCODE_I32_AND,
-        && L_OPCODE_I32_OR,
-        && L_OPCODE_I32_XOR,
-        && L_OPCODE_I32_SAL,
-        && L_OPCODE_I32_SAR,
-        && L_OPCODE_I32_COM,
-        && L_OPCODE_I32_INCREMENT,
-        && L_OPCODE_I32_DECREMENT,
-        && L_OPCODE_F32_ADD,
-        && L_OPCODE_F32_SUB,
-        && L_OPCODE_F32_MUL,
-        && L_OPCODE_F32_DIV,
-        && L_OPCODE_F32_MOD,
+        &&L_OPCODE_INTERRUPT,
+        &&L_OPCODE_PUSH,
+        &&L_OPCODE_POP,
+        &&L_OPCODE_MOVE,
+        &&L_OPCODE_COPY,
+        &&L_OPCODE_NO_OPERATION,
+        &&L_OPCODE_DUPLICATE,
+        &&L_OPCODE_DUPLICATE_X2,
+        &&L_OPCODE_CAST_I32_2_F32,
+        &&L_OPCODE_CAST_F32_2_I32,
+        &&L_OPCODE_JUMP,
+        &&L_OPCODE_JUMP_EQUALS,
+        &&L_OPCODE_JUMP_NOT_EQUALS,
+        &&L_OPCODE_JUMP_ABOVE,
+        &&L_OPCODE_JUMP_ABOVE_EQUALS,
+        &&L_OPCODE_JUMP_LESS,
+        &&L_OPCODE_JUMP_LESS_EQUALS,
+        &&L_OPCODE_I32_ADD,
+        &&L_OPCODE_I32_SUB,
+        &&L_OPCODE_I32_MUL,
+        &&L_OPCODE_I32_DIV,
+        &&L_OPCODE_I32_MOD,
+        &&L_OPCODE_I32_AND,
+        &&L_OPCODE_I32_OR,
+        &&L_OPCODE_I32_XOR,
+        &&L_OPCODE_I32_SAL,
+        &&L_OPCODE_I32_SAR,
+        &&L_OPCODE_I32_COM,
+        &&L_OPCODE_I32_INCREMENT,
+        &&L_OPCODE_I32_DECREMENT,
+        &&L_OPCODE_F32_ADD,
+        &&L_OPCODE_F32_SUB,
+        &&L_OPCODE_F32_MUL,
+        &&L_OPCODE_F32_DIV,
+        &&L_OPCODE_F32_MOD,
     };
 
     register int_fast64_t cycles = 0;

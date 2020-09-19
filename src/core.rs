@@ -204,15 +204,15 @@
 
 */
 
-use super::bytecode::{asm, BytecodeChunk, SignalUnion};
+use super::bytecode::{asm, BytecodeChunk, Signal};
 use super::interpreter::sigs;
 use std::{default, fmt, ops};
 
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Hash)]
-pub struct RecordUnion(u32);
+pub struct Record(u32);
 
-impl RecordUnion {
+impl Record {
     pub const ZERO: Self = Self(0x00000000);
     pub const MIN: Self = Self(0x00000000);
     pub const MAX: Self = Self(0xffffffff);
@@ -243,12 +243,12 @@ impl RecordUnion {
     }
 
     #[inline]
-    pub fn from_signal(x: SignalUnion) -> Self {
+    pub fn from_signal(x: Signal) -> Self {
         Self(x.u32())
     }
 }
 
-impl RecordUnion {
+impl Record {
     #[inline]
     pub fn i32(&self) -> i32 {
         self.0 as _
@@ -296,14 +296,14 @@ pub enum Discriminator {
     F32,
 }
 
-impl fmt::Display for RecordUnion {
+impl fmt::Display for Record {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b = self.to_bytes();
         write!(f, "{:02X} {:02X} {:02X} {:02X}", b[0], b[1], b[2], b[3])
     }
 }
 
-impl fmt::Debug for RecordUnion {
+impl fmt::Debug for Record {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b = self.to_bytes();
         write!(
@@ -323,7 +323,7 @@ impl fmt::Debug for RecordUnion {
     }
 }
 
-impl default::Default for RecordUnion {
+impl default::Default for Record {
     fn default() -> Self {
         Self::ZERO
     }
@@ -344,19 +344,19 @@ pub enum CommonStackSize {
 }
 
 pub struct Stack {
-    buf: Box<[RecordUnion]>,
+    buf: Box<[Record]>,
     sp: usize,
 }
 
 impl Stack {
     #[inline]
-    pub fn from_buffer(buf: Box<[RecordUnion]>) -> Self {
+    pub fn from_buffer(buf: Box<[Record]>) -> Self {
         assert_ne!(buf.len(), 0);
         Self { buf, sp: 0 }
     }
 
     #[inline]
-    pub fn from_vector(vec: Vec<RecordUnion>) -> Self {
+    pub fn from_vector(vec: Vec<Record>) -> Self {
         assert_ne!(vec.len(), 0);
         Self {
             buf: vec.into_boxed_slice(),
@@ -368,7 +368,7 @@ impl Stack {
     pub fn with_length(len: usize) -> Self {
         assert_ne!(len, 0);
         Self {
-            buf: vec![RecordUnion::ZERO; len].into_boxed_slice(),
+            buf: vec![Record::ZERO; len].into_boxed_slice(),
             sp: 0,
         }
     }
@@ -376,10 +376,9 @@ impl Stack {
     #[inline]
     pub fn with_byte_size(size: usize) -> Self {
         assert_ne!(size, 0);
-        assert_eq!(size % std::mem::size_of::<RecordUnion>(), 0);
+        assert_eq!(size % std::mem::size_of::<Record>(), 0);
         Self {
-            buf: vec![RecordUnion::ZERO; size / std::mem::size_of::<RecordUnion>()]
-                .into_boxed_slice(),
+            buf: vec![Record::ZERO; size / std::mem::size_of::<Record>()].into_boxed_slice(),
             sp: 0,
         }
     }
@@ -403,21 +402,21 @@ impl Stack {
 
     #[inline]
     pub fn size(&self) -> usize {
-        self.buf.len() * std::mem::size_of::<RecordUnion>()
+        self.buf.len() * std::mem::size_of::<Record>()
     }
 
     #[inline]
-    pub fn buffer(&self) -> &[RecordUnion] {
+    pub fn buffer(&self) -> &[Record] {
         &self.buf
     }
 
     #[inline]
-    pub fn as_ptr(&self) -> *const RecordUnion {
+    pub fn as_ptr(&self) -> *const Record {
         self.buf.as_ptr()
     }
 
     #[inline]
-    pub fn as_mut_ptr(&mut self) -> *mut RecordUnion {
+    pub fn as_mut_ptr(&mut self) -> *mut Record {
         self.buf.as_mut_ptr()
     }
 
@@ -427,7 +426,7 @@ impl Stack {
     }
 
     #[inline]
-    pub fn push(&mut self, rec: RecordUnion) {
+    pub fn push(&mut self, rec: Record) {
         self.sp += 1;
         self.buf[self.sp] = rec;
     }
@@ -454,40 +453,40 @@ impl Stack {
     }
 
     #[inline]
-    pub fn pop_ret(&mut self) -> RecordUnion {
+    pub fn pop_ret(&mut self) -> Record {
         let val = self.buf[self.sp];
         self.sp -= 1;
         val
     }
 
     #[inline]
-    pub fn peek(&self) -> RecordUnion {
+    pub fn peek(&self) -> Record {
         self.buf[self.sp]
     }
 
     #[inline]
-    pub fn peek_set(&mut self, rec: RecordUnion) {
+    pub fn peek_set(&mut self, rec: Record) {
         self.buf[self.sp] = rec
     }
 
     #[inline]
-    pub fn peek_previous(&self) -> RecordUnion {
+    pub fn peek_previous(&self) -> Record {
         self.buf[self.sp - 1]
     }
 
     #[inline]
-    pub fn peek_previous_set(&mut self, rec: RecordUnion) {
+    pub fn peek_previous_set(&mut self, rec: Record) {
         self.buf[self.sp - 1] = rec
     }
 
     #[inline]
-    pub fn poke(&self, idx: usize) -> RecordUnion {
+    pub fn poke(&self, idx: usize) -> Record {
         debug_assert!(idx <= self.sp);
         self.buf[idx]
     }
 
     #[inline]
-    pub fn poke_set(&mut self, idx: usize, rec: RecordUnion) {
+    pub fn poke_set(&mut self, idx: usize, rec: Record) {
         debug_assert!(idx <= self.sp);
         self.buf[idx] = rec
     }
@@ -499,7 +498,7 @@ impl Stack {
 }
 
 impl ops::Index<usize> for Stack {
-    type Output = RecordUnion;
+    type Output = Record;
 
     fn index(&self, idx: usize) -> &Self::Output {
         &self.buf[idx]
@@ -536,9 +535,9 @@ pub mod executor {
 
         #[repr(C)]
         pub struct VmCExecutorInput {
-            pub command_buffer: *const SignalUnion,
+            pub command_buffer: *const Signal,
             pub instruction_ptr: usize,
-            pub stack: *mut RecordUnion,
+            pub stack: *mut Record,
             pub stack_ptr: usize,
         }
 
@@ -583,7 +582,7 @@ pub mod executor {
 
     macro_rules! duplet_operation {
         ($sta:ident, $sc:ident, $mk:ident, $op:tt) => {
-            $sta.peek_previous_set(RecordUnion::$mk(
+            $sta.peek_previous_set(Record::$mk(
                 $sta.peek_previous().$sc() $op $sta.peek().$sc())
             );
             $sta.pop();
@@ -592,7 +591,7 @@ pub mod executor {
 
     macro_rules! scalar_operation {
         ($sta:ident, $sc:ident, $mk:ident, $op:tt, $v:expr) => {
-            $sta.peek_set(RecordUnion::$mk($sta.peek().$sc() $op $v));
+            $sta.peek_set(Record::$mk($sta.peek().$sc() $op $v));
         }
     }
 
@@ -618,7 +617,7 @@ pub mod executor {
                 }
 
                 asm::PUSH => {
-                    stack.push(RecordUnion::from_signal(command_buffer.fetch()));
+                    stack.push(Record::from_signal(command_buffer.fetch()));
                     continue;
                 }
 
@@ -630,7 +629,7 @@ pub mod executor {
                 asm::MOVE => {
                     stack.poke_set(
                         command_buffer.fetch().i32() as _,
-                        RecordUnion::from_signal(command_buffer.fetch()),
+                        Record::from_signal(command_buffer.fetch()),
                     );
                     continue;
                 }
@@ -659,12 +658,12 @@ pub mod executor {
                 }
 
                 asm::CAST_I32_2_F32 => {
-                    stack.push(RecordUnion::from_f32(stack.peek().i32() as _));
+                    stack.push(Record::from_f32(stack.peek().i32() as _));
                     continue;
                 }
 
                 asm::CAST_F32_2_I32 => {
-                    stack.push(RecordUnion::from_i32(stack.peek().f32() as _));
+                    stack.push(Record::from_i32(stack.peek().f32() as _));
                     continue;
                 }
 
@@ -755,7 +754,7 @@ pub mod executor {
                 }
 
                 asm::I32_COM => {
-                    stack.peek_set(RecordUnion::from_i32(!stack.peek().i32()));
+                    stack.peek_set(Record::from_i32(!stack.peek().i32()));
                     continue;
                 }
 

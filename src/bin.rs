@@ -221,7 +221,7 @@ fn main() {
     code.def_opcode(OpCode::I32Mul);
     code.def_opcode(OpCode::Pop).with_i32(1);
     code.def_opcode(OpCode::Duplicate);
-    code.def_opcode(OpCode::Push).with_i32(1000000);
+    code.def_opcode(OpCode::Push).with_i32(i32::MAX);
     code.def_opcode(OpCode::JumpLess).with_label("Loop");
     code.def_opcode(OpCode::Pop).with_i32(1);
     code.epilogue();
