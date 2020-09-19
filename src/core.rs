@@ -204,128 +204,115 @@
 
 */
 
-use super::bytecode::{asm, BytecodeChunk, Signal};
+use super::bytecode::{BytecodeChunk, Signal};
 use super::interpreter::sigs;
-use std::{default, fmt, ops};
+use std::{convert, fmt, ops};
 
 #[repr(C)]
-#[derive(Copy, Clone, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Record(u32);
 
-impl Record {
-    pub const ZERO: Self = Self(0x00000000);
-    pub const MIN: Self = Self(0x00000000);
-    pub const MAX: Self = Self(0xffffffff);
-
-    #[inline]
-    pub fn new() -> Self {
-        Self(0)
-    }
-
-    #[inline]
-    pub fn from_i32(val: i32) -> Self {
-        Self(val as _)
-    }
-
-    #[inline]
-    pub fn from_u32(val: u32) -> Self {
-        Self(val)
-    }
-
-    #[inline]
-    pub fn from_f32(val: f32) -> Self {
-        Self(val as _)
-    }
-
-    #[inline]
-    pub fn from_bytes(bytes: [u8; 4]) -> Self {
-        Self(u32::from_le_bytes(bytes))
-    }
-
-    #[inline]
-    pub fn from_signal(x: Signal) -> Self {
-        Self(x.u32())
+impl convert::From<usize> for Record {
+    #[inline(always)]
+    fn from(x: usize) -> Self {
+        Self(x as _)
     }
 }
 
-impl Record {
-    #[inline]
-    pub fn i32(&self) -> i32 {
-        self.0 as _
-    }
-
-    #[inline]
-    pub fn set_i32(&mut self, val: i32) {
-        self.0 = val as _
-    }
-
-    #[inline]
-    pub fn u32(&self) -> u32 {
-        self.0
-    }
-
-    #[inline]
-    pub fn set_u32(&mut self, val: u32) {
-        self.0 = val
-    }
-
-    #[inline]
-    pub fn f32(&self) -> f32 {
-        f32::from_bits(self.0)
-    }
-
-    #[inline]
-    pub fn set_f32(&mut self, val: f32) {
-        self.0 = val.to_bits()
-    }
-
-    #[inline]
-    pub fn ptr(&self) -> usize {
-        self.0 as _
-    }
-
-    #[inline]
-    pub fn to_bytes(&self) -> [u8; 4] {
-        self.0.to_le_bytes()
+impl convert::From<Record> for usize {
+    #[inline(always)]
+    fn from(x: Record) -> Self {
+        x.0 as _
     }
 }
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
-pub enum Discriminator {
-    I32,
-    F32,
+impl convert::From<i32> for Record {
+    #[inline(always)]
+    fn from(x: i32) -> Self {
+        Self(x as _)
+    }
+}
+
+impl convert::From<Record> for i32 {
+    #[inline(always)]
+    fn from(x: Record) -> Self {
+        x.0 as _
+    }
+}
+
+impl convert::From<u32> for Record {
+    #[inline(always)]
+    fn from(x: u32) -> Self {
+        Self(x)
+    }
+}
+
+impl convert::From<Record> for u32 {
+    #[inline(always)]
+    fn from(x: Record) -> Self {
+        x.0
+    }
+}
+
+impl convert::From<f32> for Record {
+    #[inline(always)]
+    fn from(x: f32) -> Self {
+        Self(x.to_bits())
+    }
+}
+
+impl convert::From<Record> for f32 {
+    #[inline(always)]
+    fn from(x: Record) -> Self {
+        f32::from_bits(x.0)
+    }
+}
+
+impl convert::From<[u8; 4]> for Record {
+    #[inline(always)]
+    fn from(x: [u8; 4]) -> Self {
+        Self(u32::from_le_bytes(x))
+    }
+}
+
+impl convert::From<Record> for [u8; 4] {
+    #[inline(always)]
+    fn from(x: Record) -> Self {
+        x.0.to_le_bytes()
+    }
+}
+
+impl convert::From<Signal> for Record {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        Self(u32::from(x))
+    }
 }
 
 impl fmt::Display for Record {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let b = self.to_bytes();
+        let b: [u8; 4] = (*self).into();
         write!(f, "{:02X} {:02X} {:02X} {:02X}", b[0], b[1], b[2], b[3])
     }
 }
 
 impl fmt::Debug for Record {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let b = self.to_bytes();
+        let b: [u8; 4] = (*self).into();
         write!(
             f,
-            "{:02X} {:02X} {:02X} {:02X} | {}{}{}, {}{:E}{}",
+            "{:02X} {:02X} {:02X} {:02X} | {}{}{}, {}{:#E}{}",
             b[0],
             b[1],
             b[2],
             b[3],
             sigs::BEGIN_VALUE,
-            self.i32(),
+            i32::from(*self),
             sigs::MARKER_I32,
             sigs::BEGIN_VALUE,
-            self.f32(),
+            i32::from(*self),
             sigs::MARKER_F32,
         )
-    }
-}
-
-impl default::Default for Record {
-    fn default() -> Self {
-        Self::ZERO
     }
 }
 
@@ -349,149 +336,131 @@ pub struct Stack {
 }
 
 impl Stack {
-    #[inline]
-    pub fn from_buffer(buf: Box<[Record]>) -> Self {
-        assert_ne!(buf.len(), 0);
-        Self { buf, sp: 0 }
-    }
-
-    #[inline]
-    pub fn from_vector(vec: Vec<Record>) -> Self {
-        assert_ne!(vec.len(), 0);
-        Self {
-            buf: vec.into_boxed_slice(),
-            sp: 0,
-        }
-    }
-
-    #[inline]
     pub fn with_length(len: usize) -> Self {
         assert_ne!(len, 0);
         Self {
-            buf: vec![Record::ZERO; len].into_boxed_slice(),
+            buf: vec![Record::from(0); len].into_boxed_slice(),
             sp: 0,
         }
     }
 
-    #[inline]
     pub fn with_byte_size(size: usize) -> Self {
         assert_ne!(size, 0);
         assert_eq!(size % std::mem::size_of::<Record>(), 0);
         Self {
-            buf: vec![Record::ZERO; size / std::mem::size_of::<Record>()].into_boxed_slice(),
+            buf: vec![Record::from(0); size / std::mem::size_of::<Record>()].into_boxed_slice(),
             sp: 0,
         }
     }
 
-    #[inline]
     pub fn with_common_size(size: CommonStackSize) -> Self {
         Self::with_byte_size(size as usize)
     }
 }
 
 impl Stack {
-    #[inline]
+    #[inline(always)]
     pub fn length(&self) -> usize {
         self.buf.len()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn is_empty(&self) -> bool {
         self.buf.is_empty()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn size(&self) -> usize {
         self.buf.len() * std::mem::size_of::<Record>()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn buffer(&self) -> &[Record] {
         &self.buf
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn as_ptr(&self) -> *const Record {
         self.buf.as_ptr()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn as_mut_ptr(&mut self) -> *mut Record {
         self.buf.as_mut_ptr()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn stack_ptr(&self) -> usize {
         self.sp
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn push(&mut self, rec: Record) {
         self.sp += 1;
         self.buf[self.sp] = rec;
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn push_all(&mut self) {
         self.sp = self.buf.len() - 1;
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn pop(&mut self) {
         self.sp -= 1;
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn pop_all(&mut self) {
         self.sp = 0
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn pop_multi(&mut self, count: usize) {
         debug_assert_ne!(count, 0);
         self.sp -= count;
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn pop_ret(&mut self) -> Record {
         let val = self.buf[self.sp];
         self.sp -= 1;
         val
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn peek(&self) -> Record {
         self.buf[self.sp]
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn peek_set(&mut self, rec: Record) {
         self.buf[self.sp] = rec
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn peek_previous(&self) -> Record {
         self.buf[self.sp - 1]
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn peek_previous_set(&mut self, rec: Record) {
         self.buf[self.sp - 1] = rec
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn poke(&self, idx: usize) -> Record {
         debug_assert!(idx <= self.sp);
         self.buf[idx]
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn poke_set(&mut self, idx: usize, rec: Record) {
         debug_assert!(idx <= self.sp);
         self.buf[idx] = rec
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn is_overflowed(&self) -> bool {
         self.sp >= self.buf.len()
     }
@@ -500,14 +469,33 @@ impl Stack {
 impl ops::Index<usize> for Stack {
     type Output = Record;
 
+    #[inline(always)]
     fn index(&self, idx: usize) -> &Self::Output {
         &self.buf[idx]
     }
 }
 
 impl ops::IndexMut<usize> for Stack {
+    #[inline(always)]
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.buf[idx]
+    }
+}
+
+impl convert::From<Box<[Record]>> for Stack {
+    fn from(buf: Box<[Record]>) -> Self {
+        assert_ne!(buf.len(), 0);
+        Self { buf, sp: 0 }
+    }
+}
+
+impl convert::From<Vec<Record>> for Stack {
+    fn from(buf: Vec<Record>) -> Self {
+        assert_ne!(buf.len(), 0);
+        Self {
+            buf: buf.into_boxed_slice(),
+            sp: 0,
+        }
     }
 }
 
@@ -525,6 +513,7 @@ impl fmt::Debug for Stack {
 
 pub mod executor {
     use super::*;
+    use crate::bytecode::OpCode;
 
     type ExecutorResult = (i32, u64);
 
@@ -563,17 +552,17 @@ pub mod executor {
             fn ffi_c_execute(inout: *mut VmCExecutorInput) -> VmCExecutorOutput;
         }
 
-        pub fn execute(mut input: VmCExecutorInput) -> ExecutorResult {
+        pub unsafe fn execute(mut input: VmCExecutorInput) -> ExecutorResult {
             let pass_ptr: *mut _ = &mut input;
-            let x = unsafe { ffi_c_execute(pass_ptr) };
+            let x = ffi_c_execute(pass_ptr);
             (x.exit_code, x.cycles)
         }
     }
 
     macro_rules! conditional_jump {
         ($sta:ident, $cmd:ident, $op:tt) => {
-             if $sta.peek_previous().i32() $op $sta.peek().i32() {
-                let target_address = $cmd.fetch().ptr();
+             if i32::from($sta.peek_previous()) $op i32::from($sta.peek()) {
+                let target_address = $cmd.fetch().into();
                 $cmd.jump(target_address);
             }
             $sta.pop_multi(2);
@@ -581,18 +570,40 @@ pub mod executor {
     }
 
     macro_rules! duplet_operation {
-        ($sta:ident, $sc:ident, $mk:ident, $op:tt) => {
-            $sta.peek_previous_set(Record::$mk(
-                $sta.peek_previous().$sc() $op $sta.peek().$sc())
+        ($sta:ident, $sc:ident, $op:tt) => {
+            $sta.peek_previous_set(Record::from(
+                $sc::from($sta.peek_previous()) $op $sc::from($sta.peek()))
             );
             $sta.pop();
         }
     }
 
+    macro_rules! duplet_operation_intrin {
+        ($sta:ident, $sc:ident, $proc:ident) => {
+            $sta.peek_previous_set(Record::from($proc(
+                $sc::from($sta.peek_previous()),
+                $sc::from($sta.peek()),
+            )));
+            $sta.pop();
+        };
+    }
+
     macro_rules! scalar_operation {
-        ($sta:ident, $sc:ident, $mk:ident, $op:tt, $v:expr) => {
-            $sta.peek_set(Record::$mk($sta.peek().$sc() $op $v));
+        ($sta:ident, $sc:ident, $op:tt, $v:expr) => {
+            $sta.peek_set(Record::from($sc::from($sta.peek()) $op $v));
         }
+    }
+
+    // Bitwise rotate left (circular shift).
+    #[inline(always)]
+    const fn rol(val: i32, num: i32) -> i32 {
+        val << num | val >> (::std::mem::size_of::<i32>() as i32 * 8 - num)
+    }
+
+    // Bitwise rotate right (circular shift).
+    #[inline(always)]
+    const fn ror(val: i32, num: i32) -> i32 {
+        val >> num | val << (::std::mem::size_of::<i32>() as i32 * 8 - num)
     }
 
     /// Executes the bytecode.
@@ -600,14 +611,14 @@ pub mod executor {
     pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> ExecutorResult {
         let mut cycles: u64 = 0; // Cycles counter.
         let mut interrupt: i32; // Interrupt id.
-        let mut opcode: u8; // Opcode
+        let mut opcode: OpCode; // Opcode.
 
         loop {
-            opcode = command_buffer.fetch().i32() as _;
+            opcode = command_buffer.fetch().into();
             cycles += 1;
             match opcode {
-                asm::INTERRUPT => {
-                    interrupt = command_buffer.fetch().i32();
+                OpCode::Interrupt => {
+                    interrupt = command_buffer.fetch().into();
                     if interrupt <= 0 {
                         break;
                     } else {
@@ -616,184 +627,192 @@ pub mod executor {
                     continue;
                 }
 
-                asm::PUSH => {
-                    stack.push(Record::from_signal(command_buffer.fetch()));
+                OpCode::Push => {
+                    stack.push(Record::from(command_buffer.fetch()));
                     continue;
                 }
 
-                asm::POP => {
-                    stack.pop_multi(command_buffer.fetch().i32() as _);
+                OpCode::Pop => {
+                    stack.pop_multi(command_buffer.fetch().into());
                     continue;
                 }
 
-                asm::MOVE => {
+                OpCode::Move => {
                     stack.poke_set(
-                        command_buffer.fetch().i32() as _,
-                        Record::from_signal(command_buffer.fetch()),
+                        command_buffer.fetch().into(),
+                        Record::from(command_buffer.fetch()),
                     );
                     continue;
                 }
 
-                asm::COPY => {
+                OpCode::Copy => {
                     stack.poke_set(
-                        command_buffer.fetch().i32() as _,
-                        stack.poke(command_buffer.fetch().i32() as _),
+                        command_buffer.fetch().into(),
+                        stack.poke(command_buffer.fetch().into()),
                     );
                     continue;
                 }
 
-                asm::NOP => {
+                OpCode::NoOp => {
                     continue;
                 }
 
-                asm::DUPLICATE => {
+                OpCode::Duplicate => {
                     stack.push(stack.peek());
                     continue;
                 }
 
-                asm::DUPLICATE_X2 => {
+                OpCode::DuplicateX2 => {
                     stack.push(stack.peek());
                     stack.push(stack.peek());
                     continue;
                 }
 
-                asm::CAST_I32_2_F32 => {
-                    stack.push(Record::from_f32(stack.peek().i32() as _));
+                OpCode::CastI32toF32 => {
+                    stack.push(Record::from(f32::from(stack.peek())));
                     continue;
                 }
 
-                asm::CAST_F32_2_I32 => {
-                    stack.push(Record::from_i32(stack.peek().f32() as _));
+                OpCode::CastF32toI32 => {
+                    stack.push(Record::from(i32::from(stack.peek())));
                     continue;
                 }
 
-                asm::JUMP => {
-                    let target_address = command_buffer.fetch().ptr();
+                OpCode::Jump => {
+                    let target_address = command_buffer.fetch().into();
                     command_buffer.jump(target_address);
                     continue;
                 }
 
-                asm::JUMP_EQUALS => {
+                OpCode::JumpIfEquals => {
                     conditional_jump!(stack, command_buffer, ==);
                     continue;
                 }
 
-                asm::JUMP_NOT_EQUALS => {
+                OpCode::JumpIfNotEquals => {
                     conditional_jump!(stack, command_buffer, !=);
                     continue;
                 }
 
-                asm::JUMP_ABOVE => {
+                OpCode::JumpIfAbove => {
                     conditional_jump!(stack, command_buffer, >);
                     continue;
                 }
 
-                asm::JUMP_ABOVE_EQUALS => {
+                OpCode::JumpIfAboveEquals => {
                     conditional_jump!(stack, command_buffer, >=);
                     continue;
                 }
 
-                asm::JUMP_LESS => {
+                OpCode::JumpIfLess => {
                     conditional_jump!(stack, command_buffer, <);
                     continue;
                 }
 
-                asm::JUMP_LESS_EQUALS => {
+                OpCode::JumpIfLessEquals => {
                     conditional_jump!(stack, command_buffer, <=);
                     continue;
                 }
 
-                asm::I32_ADD => {
-                    duplet_operation!(stack, i32, from_i32, +);
+                OpCode::I32Add => {
+                    duplet_operation!(stack, i32, +);
                     continue;
                 }
 
-                asm::I32_SUB => {
-                    duplet_operation!(stack, i32, from_i32, -);
+                OpCode::I32Sub => {
+                    duplet_operation!(stack, i32, -);
                     continue;
                 }
 
-                asm::I32_MUL => {
-                    duplet_operation!(stack, i32, from_i32, *);
+                OpCode::I32Mul => {
+                    duplet_operation!(stack, i32, *);
                     continue;
                 }
 
-                asm::I32_DIV => {
-                    duplet_operation!(stack, i32, from_i32, /);
+                OpCode::I32Div => {
+                    duplet_operation!(stack, i32, /);
                     continue;
                 }
 
-                asm::I32_MOD => {
-                    duplet_operation!(stack, i32, from_i32, %);
+                OpCode::I32Mod => {
+                    duplet_operation!(stack, i32, %);
                     continue;
                 }
 
-                asm::I32_AND => {
-                    duplet_operation!(stack, i32, from_i32, &);
+                OpCode::I32And => {
+                    duplet_operation!(stack, i32, &);
                     continue;
                 }
 
-                asm::I32_OR => {
-                    duplet_operation!(stack, i32, from_i32, |);
+                OpCode::I32Or => {
+                    duplet_operation!(stack, i32, |);
                     continue;
                 }
 
-                asm::I32_XOR => {
-                    duplet_operation!(stack, i32, from_i32, ^);
+                OpCode::I32Xor => {
+                    duplet_operation!(stack, i32, ^);
                     continue;
                 }
 
-                asm::I32_SAL => {
-                    duplet_operation!(stack, i32, from_i32, <<);
+                OpCode::I32Sal => {
+                    duplet_operation!(stack, i32, <<);
                     continue;
                 }
 
-                asm::I32_SAR => {
-                    duplet_operation!(stack, i32, from_i32, >>);
+                OpCode::I32Sar => {
+                    duplet_operation!(stack, i32, >>);
                     continue;
                 }
 
-                asm::I32_COM => {
-                    stack.peek_set(Record::from_i32(!stack.peek().i32()));
+                OpCode::I32Rol => {
+                    duplet_operation_intrin!(stack, i32, rol);
                     continue;
                 }
 
-                asm::I32_INCREMENT => {
-                    scalar_operation!(stack, i32, from_i32, +, 1);
+                OpCode::I32Ror => {
+                    duplet_operation_intrin!(stack, i32, ror);
                     continue;
                 }
 
-                asm::I32_DECREMENT => {
-                    scalar_operation!(stack, i32, from_i32, -, 1);
+                OpCode::I32Com => {
+                    stack.peek_set(Record::from(!i32::from(stack.peek())));
                     continue;
                 }
 
-                asm::F32_ADD => {
-                    duplet_operation!(stack, f32, from_f32, +);
+                OpCode::I32Increment => {
+                    scalar_operation!(stack, i32, +, 1);
                     continue;
                 }
 
-                asm::F32_SUB => {
-                    duplet_operation!(stack, f32, from_f32, -);
+                OpCode::I32Decrement => {
+                    scalar_operation!(stack, i32, -, 1);
                     continue;
                 }
 
-                asm::F32_MUL => {
-                    duplet_operation!(stack, f32, from_f32, *);
+                OpCode::F32Add => {
+                    duplet_operation!(stack, f32, +);
                     continue;
                 }
 
-                asm::F32_DIV => {
-                    duplet_operation!(stack, f32, from_f32, /);
+                OpCode::F32Sub => {
+                    duplet_operation!(stack, f32, -);
                     continue;
                 }
 
-                asm::F32_MOD => {
-                    duplet_operation!(stack, f32, from_f32, %);
+                OpCode::F32Mul => {
+                    duplet_operation!(stack, f32, *);
                     continue;
                 }
 
-                _ => (),
+                OpCode::F32Div => {
+                    duplet_operation!(stack, f32, /);
+                    continue;
+                }
+
+                OpCode::F32Mod => {
+                    duplet_operation!(stack, f32, %);
+                    continue;
+                }
             }
         }
 

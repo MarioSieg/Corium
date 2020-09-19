@@ -254,6 +254,7 @@
 
 #include<stdint.h>
 #include<stddef.h>
+#include<limits.h>
 
 /* !! Maps to src/bytecode/opcodes/OpCodes.rs !! */
 typedef enum {
@@ -322,6 +323,18 @@ typedef struct {
     int32_t exit_code;
     uint64_t cycles;
 } VmCExecutorOutput;
+
+inline static int32_t rol(register const int32_t value, register int32_t count) {
+    auto const int32_t mask = CHAR_BIT * sizeof value - 1;
+    count &= mask;
+    return (value << count) | (value >> (-count & mask));
+}
+
+inline static int32_t ror(register const int32_t value, register int32_t count) {
+    auto const int32_t mask = CHAR_BIT * sizeof value - 1;
+    count &= mask;
+    return (value >> count) | (value << (-count & mask));
+}
 
 static VmCExecutorOutput ffi_c_execute(VmCExecutorInput* const inout) {
     static void* const JUMP_TABLE[OPCODE_COUNT] = {

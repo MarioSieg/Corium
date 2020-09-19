@@ -204,145 +204,141 @@
 
 */
 
-use super::core::Record;
-use std::{collections::HashMap, default, fmt, mem, ops};
+use super::{core::Record, interpreter::mnemonics};
+use std::{collections::HashMap, convert, default, fmt, mem, ops};
 
-// TODO add OPS field
 #[repr(C)]
-#[derive(Copy, Clone, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Signal(u32);
 
-impl Signal {
-    pub const ZERO: Self = Self(0x00000000);
-    pub const MIN: Self = Self(0x00000000);
-    pub const MAX: Self = Self(0xffffffff);
-
-    #[inline]
-    pub fn new() -> Self {
-        Self(0)
-    }
-
-    #[inline]
-    pub fn from_i32(val: i32) -> Self {
-        Self(val as _)
-    }
-
-    #[inline]
-    pub fn from_f32(val: f32) -> Self {
-        Self(val as _)
-    }
-
-    #[inline]
-    pub fn from_bytes(bytes: [u8; 4]) -> Self {
-        Self(u32::from_le_bytes(bytes))
-    }
-
-    #[inline]
-    pub fn from_record(x: Record) -> Self {
-        Self(x.u32())
-    }
-
-    #[inline]
-    pub fn from_opcode(x: OpCode) -> Self {
+impl convert::From<usize> for Signal {
+    #[inline(always)]
+    fn from(x: usize) -> Self {
         Self(x as _)
     }
 }
 
-impl Signal {
-    #[inline]
-    pub fn i32(&self) -> i32 {
-        self.0 as _
-    }
-
-    #[inline]
-    pub fn set_i32(&mut self, val: i32) {
-        self.0 = val as _
-    }
-
-    #[inline]
-    pub fn u32(&self) -> u32 {
-        self.0
-    }
-
-    #[inline]
-    pub fn set_u32(&mut self, val: u32) {
-        self.0 = val
-    }
-
-    #[inline]
-    pub fn f32(&self) -> f32 {
-        f32::from_bits(self.0)
-    }
-
-    #[inline]
-    pub fn set_f32(&mut self, val: f32) {
-        self.0 = val.to_bits()
-    }
-
-    #[inline]
-    pub fn opcode(&self) -> OpCode {
-        unsafe { mem::transmute::<u8, OpCode>(self.0 as _) }
-    }
-
-    #[inline]
-    pub fn set_opcode(&mut self, val: OpCode) {
-        self.0 = val as _
-    }
-
-    #[inline]
-    pub fn ptr(&self) -> usize {
-        self.0 as _
-    }
-
-    #[inline]
-    pub fn to_bytes(&self) -> [u8; 4] {
-        self.0.to_le_bytes()
+impl convert::From<Signal> for usize {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        x.0 as _
     }
 }
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
-pub enum Discriminator {
-    I32,
-    F32,
-    OpCode,
+impl convert::From<i32> for Signal {
+    #[inline(always)]
+    fn from(x: i32) -> Self {
+        Self(x as _)
+    }
+}
+
+impl convert::From<Signal> for i32 {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        x.0 as _
+    }
+}
+
+impl convert::From<u32> for Signal {
+    #[inline(always)]
+    fn from(x: u32) -> Self {
+        Self(x)
+    }
+}
+
+impl convert::From<Signal> for u32 {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        x.0
+    }
+}
+
+impl convert::From<f32> for Signal {
+    #[inline(always)]
+    fn from(x: f32) -> Self {
+        Self(x.to_bits())
+    }
+}
+
+impl convert::From<Signal> for f32 {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        f32::from_bits(x.0)
+    }
+}
+
+impl convert::From<OpCode> for Signal {
+    #[inline(always)]
+    fn from(x: OpCode) -> Self {
+        Self(x as _)
+    }
+}
+
+impl convert::From<Signal> for OpCode {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        unsafe { mem::transmute::<u8, OpCode>(x.0 as _) }
+    }
+}
+
+impl convert::From<[u8; 4]> for Signal {
+    #[inline(always)]
+    fn from(x: [u8; 4]) -> Self {
+        Self(u32::from_le_bytes(x))
+    }
+}
+
+impl convert::From<Signal> for [u8; 4] {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        x.0.to_le_bytes()
+    }
+}
+
+impl convert::From<Record> for Signal {
+    #[inline(always)]
+    fn from(x: Record) -> Self {
+        Self(u32::from(x))
+    }
 }
 
 impl fmt::Display for Signal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let b = self.to_bytes();
+        let b: [u8; 4] = (*self).into();
         write!(f, "{:02X} {:02X} {:02X} {:02X}", b[0], b[1], b[2], b[3])
     }
 }
 
 impl fmt::Debug for Signal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let b = self.to_bytes();
+        let b: [u8; 4] = (*self).into();
         write!(
             f,
-            "{:02X} {:02X} {:02X} {:02X} | {}{}{}, {}{:E}{}",
+            "{:02X} {:02X} {:02X} {:02X} | {}{}{}, {}{:#E}{}",
             b[0],
             b[1],
             b[2],
             b[3],
             super::interpreter::sigs::BEGIN_VALUE,
-            self.i32(),
+            i32::from(*self),
             super::interpreter::sigs::MARKER_I32,
             super::interpreter::sigs::BEGIN_VALUE,
-            self.f32(),
+            i32::from(*self),
             super::interpreter::sigs::MARKER_F32,
         )
     }
 }
 
-impl default::Default for Signal {
-    fn default() -> Self {
-        Self::ZERO
-    }
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
+pub enum SignalDiscriminator {
+    I32,
+    F32,
+    OpCode,
 }
 
 /// A bytecode stream is used to dynamically build bytecode.
 pub struct BytecodeStream {
-    code: Vec<(Signal, Discriminator)>,
+    code: Vec<(Signal, SignalDiscriminator)>,
     jump_table: HashMap<String, usize>,
 }
 
@@ -351,14 +347,6 @@ impl BytecodeStream {
     pub fn new() -> Self {
         Self {
             code: Vec::new(),
-            jump_table: HashMap::new(),
-        }
-    }
-
-    #[inline]
-    pub fn with_vec(vec: Vec<(Signal, Discriminator)>) -> Self {
-        Self {
-            code: vec,
             jump_table: HashMap::new(),
         }
     }
@@ -376,7 +364,7 @@ impl BytecodeStream {
     #[inline]
     pub fn def_opcode(&mut self, op: OpCode) -> &mut Self {
         self.code
-            .push((Signal::from_opcode(op), Discriminator::OpCode));
+            .push((Signal::from(op), SignalDiscriminator::OpCode));
         self
     }
 
@@ -388,13 +376,15 @@ impl BytecodeStream {
 
     #[inline]
     pub fn with_i32(&mut self, val: i32) -> &mut Self {
-        self.code.push((Signal::from_i32(val), Discriminator::I32));
+        self.code
+            .push((Signal::from(val), SignalDiscriminator::I32));
         self
     }
 
     #[inline]
     pub fn with_f32(&mut self, val: f32) -> &mut Self {
-        self.code.push((Signal::from_f32(val), Discriminator::F32));
+        self.code
+            .push((Signal::from(val), SignalDiscriminator::F32));
         self
     }
 
@@ -427,7 +417,7 @@ impl BytecodeStream {
     }
 
     #[inline]
-    pub fn command_buffer(&self) -> &Vec<(Signal, Discriminator)> {
+    pub fn command_buffer(&self) -> &Vec<(Signal, SignalDiscriminator)> {
         &self.code
     }
 
@@ -448,7 +438,7 @@ impl BytecodeStream {
 
     #[inline]
     pub fn size(&self) -> usize {
-        self.code.capacity() * std::mem::size_of::<(Signal, Discriminator)>()
+        self.code.capacity() * std::mem::size_of::<(Signal, SignalDiscriminator)>()
             + self.jump_table.capacity() * std::mem::size_of::<usize>()
     }
 
@@ -470,7 +460,7 @@ impl BytecodeStream {
     #[inline]
     pub fn validate(&self) -> Result<(), Vec<&'static str>> {
         Ok(())
-    }
+    } // TODO
 
     pub fn build(self) -> Result<BytecodeChunk, Vec<&'static str>> {
         if let Err(errors) = self.validate() {
@@ -480,22 +470,42 @@ impl BytecodeStream {
             for rec in self.code {
                 buf.push(rec.0);
             }
-            Ok(BytecodeChunk::from_vector(buf))
+            Ok(BytecodeChunk::from(buf))
         }
     }
 }
 
 impl ops::Index<usize> for BytecodeStream {
-    type Output = (Signal, Discriminator);
+    type Output = (Signal, SignalDiscriminator);
 
+    #[inline]
     fn index(&self, idx: usize) -> &Self::Output {
         &self.code[idx]
     }
 }
 
 impl ops::IndexMut<usize> for BytecodeStream {
+    #[inline]
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.code[idx]
+    }
+}
+
+impl convert::From<Box<[(Signal, SignalDiscriminator)]>> for BytecodeStream {
+    fn from(buf: Box<[(Signal, SignalDiscriminator)]>) -> Self {
+        Self {
+            code: Vec::from(buf),
+            jump_table: HashMap::new(),
+        }
+    }
+}
+
+impl convert::From<Vec<(Signal, SignalDiscriminator)>> for BytecodeStream {
+    fn from(vec: Vec<(Signal, SignalDiscriminator)>) -> Self {
+        Self {
+            code: vec,
+            jump_table: HashMap::new(),
+        }
     }
 }
 
@@ -513,7 +523,7 @@ impl fmt::Display for BytecodeStream {
         writeln!(f, "+-----------------------------------------------+")?;
         let mut i = 0;
         while i < self.code.len() {
-            let meta = &INSTRUCTION_TABLE[self.code[i].0.i32() as usize];
+            let meta = &INSTRUCTION_TABLE[i32::from(self.code[i].0) as usize];
             writeln!(f, "| {}", meta.mnemonic)?;
             i += 1 + meta.explicit_arguments.len();
         }
@@ -531,7 +541,7 @@ impl fmt::Debug for BytecodeStream {
         writeln!(f, "+-----------------------------------------------+")?;
         let mut i = 0;
         while i < self.code.len() {
-            let meta = &INSTRUCTION_TABLE[self.code[i].0.i32() as usize];
+            let meta = &INSTRUCTION_TABLE[i32::from(self.code[i].0) as usize];
             writeln!(
                 f,
                 "| {}{:#018X} | {} | {}{}",
@@ -563,71 +573,54 @@ pub struct BytecodeChunk {
 }
 
 impl BytecodeChunk {
-    #[inline]
-    pub fn from_buffer(buf: Box<[Signal]>) -> Self {
-        assert_ne!(buf.len(), 0);
-        Self { buf, ip: 0 }
-    }
-
-    #[inline]
-    pub fn from_vector(vec: Vec<Signal>) -> Self {
-        assert_ne!(vec.len(), 0);
-        Self {
-            buf: vec.into_boxed_slice(),
-            ip: 0,
-        }
-    }
-}
-
-impl BytecodeChunk {
-    #[inline]
+    #[inline(always)]
     pub fn buffer(&self) -> &[Signal] {
         &self.buf
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn as_ptr(&self) -> *const Signal {
         self.buf.as_ptr()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn as_mut_ptr(&mut self) -> *mut Signal {
         self.buf.as_mut_ptr()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn length(&self) -> usize {
         self.buf.len()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn is_empty(&self) -> bool {
         self.buf.is_empty()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn size(&self) -> usize {
         self.buf.len() * std::mem::size_of::<Signal>()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn instruction_ptr(&self) -> usize {
         self.ip
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn jump(&mut self, ip: usize) {
         self.ip = ip
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn fetch(&mut self) -> Signal {
         let record = self.buf[self.ip];
         self.ip += 1;
         record
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn is_done(&self) -> bool {
         self.ip >= self.buf.len()
     }
@@ -636,94 +629,82 @@ impl BytecodeChunk {
 impl ops::Index<usize> for BytecodeChunk {
     type Output = Signal;
 
+    #[inline(always)]
     fn index(&self, idx: usize) -> &Self::Output {
         &self.buf[idx]
     }
 }
 
 impl ops::IndexMut<usize> for BytecodeChunk {
+    #[inline(always)]
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.buf[idx]
     }
 }
 
-#[rustfmt::skip]
-pub(super) mod asm {
-    pub const INTERRUPT: u8            = 0x00;
-    pub const PUSH: u8                 = 0x01;
-    pub const POP: u8                  = 0x02;
-    pub const MOVE: u8                 = 0x03;
-    pub const COPY: u8                 = 0x04;
-    pub const NOP: u8                  = 0x05;
-    pub const DUPLICATE: u8            = 0x06;
-    pub const DUPLICATE_X2: u8         = 0x07;
-    pub const CAST_I32_2_F32: u8       = 0x08;
-    pub const CAST_F32_2_I32: u8       = 0x09;
-    pub const JUMP: u8                 = 0x0A;
-    pub const JUMP_EQUALS: u8          = 0x0B;
-    pub const JUMP_NOT_EQUALS: u8      = 0x0C;
-    pub const JUMP_ABOVE: u8           = 0x0D;
-    pub const JUMP_ABOVE_EQUALS: u8    = 0x0E;
-    pub const JUMP_LESS: u8            = 0x0F;
-    pub const JUMP_LESS_EQUALS: u8     = 0x10;
-    pub const I32_ADD: u8              = 0x11;
-    pub const I32_SUB: u8              = 0x12;
-    pub const I32_MUL: u8              = 0x13;
-    pub const I32_DIV: u8              = 0x14;
-    pub const I32_MOD: u8              = 0x15;
-    pub const I32_AND: u8              = 0x16;
-    pub const I32_OR: u8               = 0x17;
-    pub const I32_XOR: u8              = 0x18;
-    pub const I32_SAL: u8              = 0x19;
-    pub const I32_SAR: u8              = 0x1A;
-    pub const I32_COM: u8              = 0x1B;
-    pub const I32_INCREMENT: u8        = 0x1C;
-    pub const I32_DECREMENT: u8        = 0x1D;
-    pub const F32_ADD: u8              = 0x1E;
-    pub const F32_SUB: u8              = 0x1F;
-    pub const F32_MUL: u8              = 0x20;
-    pub const F32_DIV: u8              = 0x21;
-    pub const F32_MOD: u8              = 0x22;
+impl convert::From<Box<[Signal]>> for BytecodeChunk {
+    fn from(buf: Box<[Signal]>) -> Self {
+        assert_ne!(buf.len(), 0);
+        Self { buf, ip: 0 }
+    }
 }
+
+impl convert::From<Vec<Signal>> for BytecodeChunk {
+    fn from(buf: Vec<Signal>) -> Self {
+        assert_ne!(buf.len(), 0);
+        Self {
+            buf: buf.into_boxed_slice(),
+            ip: 0,
+        }
+    }
+}
+
+// To add a new instruction:
+// 1.) Add it to 'OpCode' enum with an opcode (just increment the previous)
+// 2.) Add a new mnemonic string constant in 'interpreter.rs'
+// 3.) Add metadata to 'INSTRUCTION_TABLE'
+// 4.) Add implementation in 'execute()' in 'core.rs' and in 'alt_ffi_core.c'
 
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum OpCode {
-    Interrupt = asm::INTERRUPT,
-    Push = asm::PUSH,
-    Pop = asm::POP,
-    Move = asm::MOVE,
-    Copy = asm::COPY,
-    Nop = asm::NOP,
-    Duplicate = asm::DUPLICATE,
-    DuplicateX2 = asm::DUPLICATE_X2,
-    CastI32toF32 = asm::CAST_I32_2_F32,
-    CastF32toI32 = asm::CAST_F32_2_I32,
-    Jump = asm::JUMP,
-    JumpEquals = asm::JUMP_EQUALS,
-    JumpNotEquals = asm::JUMP_NOT_EQUALS,
-    JumpAbove = asm::JUMP_ABOVE,
-    JumpAboveEquals = asm::JUMP_ABOVE_EQUALS,
-    JumpLess = asm::JUMP_LESS,
-    JumpLessEquals = asm::JUMP_LESS_EQUALS,
-    I32Add = asm::I32_ADD,
-    I32Sub = asm::I32_SUB,
-    I32Mul = asm::I32_MUL,
-    I32Div = asm::I32_DIV,
-    I32Mod = asm::I32_MOD,
-    I32And = asm::I32_AND,
-    I32Or = asm::I32_OR,
-    I32Xor = asm::I32_XOR,
-    I32Sal = asm::I32_SAL,
-    I32Sar = asm::I32_SAR,
-    I32Com = asm::I32_COM,
-    I32Increment = asm::I32_INCREMENT,
-    I32Decrement = asm::I32_DECREMENT,
-    F32Add = asm::F32_ADD,
-    F32Sub = asm::F32_SUB,
-    F32Mul = asm::F32_MUL,
-    F32Div = asm::F32_DIV,
-    F32Mod = asm::F32_MOD,
+    Interrupt,
+    Push,
+    Pop,
+    Move,
+    Copy,
+    NoOp,
+    Duplicate,
+    DuplicateX2,
+    CastI32toF32,
+    CastF32toI32,
+    Jump,
+    JumpIfEquals,
+    JumpIfNotEquals,
+    JumpIfAbove,
+    JumpIfAboveEquals,
+    JumpIfLess,
+    JumpIfLessEquals,
+    I32Add,
+    I32Sub,
+    I32Mul,
+    I32Div,
+    I32Mod,
+    I32And,
+    I32Or,
+    I32Xor,
+    I32Sal,
+    I32Sar,
+    I32Rol,
+    I32Ror,
+    I32Com,
+    I32Increment,
+    I32Decrement,
+    F32Add,
+    F32Sub,
+    F32Mul,
+    F32Div,
+    F32Mod,
 }
 
 pub trait ArgumentPrimitive: Sized + Copy + Clone + PartialEq {}
@@ -777,7 +758,7 @@ pub enum InstructionCategory {
 
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub struct InstructionMeta<'a> {
-    pub opcode: u8,
+    pub opcode: OpCode,
     pub mnemonic: &'a str,
     pub category: InstructionCategory,
     pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
@@ -786,8 +767,8 @@ pub struct InstructionMeta<'a> {
 
 pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
-        opcode: asm::INTERRUPT,
-        mnemonic: "interrupt",
+        opcode: OpCode::Interrupt,
+        mnemonic: mnemonics::INTERRUPT,
         category: InstructionCategory::Control,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::ValI32(ArgumentLiteralValue {
@@ -800,8 +781,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::None,
     },
     InstructionMeta {
-        opcode: asm::PUSH,
-        mnemonic: "push",
+        opcode: OpCode::Push,
+        mnemonic: mnemonics::PUSH,
         category: InstructionCategory::Memory,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[
@@ -821,8 +802,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::None,
     },
     InstructionMeta {
-        opcode: asm::POP,
-        mnemonic: "pop",
+        opcode: OpCode::Pop,
+        mnemonic: mnemonics::POP,
         category: InstructionCategory::Memory,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
@@ -835,8 +816,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::Variadic,
     },
     InstructionMeta {
-        opcode: asm::MOVE,
-        mnemonic: "mov",
+        opcode: OpCode::Move,
+        mnemonic: mnemonics::MOVE,
         category: InstructionCategory::Memory,
         explicit_arguments: &[
             ExplicitArgumentMeta {
@@ -866,8 +847,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::Variadic,
     },
     InstructionMeta {
-        mnemonic: "cpy",
-        opcode: asm::COPY,
+        opcode: OpCode::Copy,
+        mnemonic: mnemonics::COPY,
         category: InstructionCategory::Memory,
         explicit_arguments: &[
             ExplicitArgumentMeta {
@@ -890,15 +871,15 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::Variadic,
     },
     InstructionMeta {
-        opcode: asm::NOP,
-        mnemonic: "nop",
+        opcode: OpCode::NoOp,
+        mnemonic: mnemonics::NO_OP,
         category: InstructionCategory::Control,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::None,
     },
     InstructionMeta {
-        opcode: asm::DUPLICATE,
-        mnemonic: "dupl",
+        opcode: OpCode::Duplicate,
+        mnemonic: mnemonics::DUPLICATE,
         category: InstructionCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
@@ -907,8 +888,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         }]),
     },
     InstructionMeta {
-        opcode: asm::DUPLICATE_X2,
-        mnemonic: "ddupl",
+        opcode: OpCode::DuplicateX2,
+        mnemonic: mnemonics::DUPLICATE_X2,
         category: InstructionCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
@@ -917,8 +898,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         }]),
     },
     InstructionMeta {
-        opcode: asm::CAST_I32_2_F32,
-        mnemonic: "casti32tof32",
+        opcode: OpCode::CastI32toF32,
+        mnemonic: mnemonics::CAST_I32_TO_F32,
         category: InstructionCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
@@ -927,8 +908,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         }]),
     },
     InstructionMeta {
-        opcode: asm::CAST_F32_2_I32,
-        mnemonic: "castf32toi32",
+        opcode: OpCode::CastF32toI32,
+        mnemonic: mnemonics::CAST_F32_TO_I32,
         category: InstructionCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
@@ -937,8 +918,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         }]),
     },
     InstructionMeta {
-        opcode: asm::JUMP,
-        mnemonic: "jmp",
+        opcode: OpCode::Jump,
+        mnemonic: mnemonics::JUMP,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -947,8 +928,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::None,
     },
     InstructionMeta {
-        opcode: asm::JUMP_EQUALS,
-        mnemonic: "je",
+        opcode: OpCode::JumpIfEquals,
+        mnemonic: mnemonics::JUMP_EQUALS,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -966,8 +947,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::JUMP_NOT_EQUALS,
-        mnemonic: "jne",
+        opcode: OpCode::JumpIfNotEquals,
+        mnemonic: mnemonics::JUMP_NOT_EQUALS,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -985,8 +966,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::JUMP_ABOVE,
-        mnemonic: "ja",
+        opcode: OpCode::JumpIfAbove,
+        mnemonic: mnemonics::JUMP_ABOVE,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -1004,8 +985,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::JUMP_ABOVE_EQUALS,
-        mnemonic: "jae",
+        opcode: OpCode::JumpIfAboveEquals,
+        mnemonic: mnemonics::JUMP_ABOVE_EQUALS,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -1023,8 +1004,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::JUMP_LESS,
-        mnemonic: "jl",
+        opcode: OpCode::JumpIfLess,
+        mnemonic: mnemonics::JUMP_LESS,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -1042,8 +1023,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::JUMP_LESS_EQUALS,
-        mnemonic: "jle",
+        opcode: OpCode::JumpIfLessEquals,
+        mnemonic: mnemonics::JUMP_LESS_EQUALS,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -1061,8 +1042,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::I32_ADD,
-        mnemonic: "iadd",
+        opcode: OpCode::I32Add,
+        mnemonic: mnemonics::I32_ADD,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1077,8 +1058,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::I32_SUB,
-        mnemonic: "isub",
+        opcode: OpCode::I32Sub,
+        mnemonic: mnemonics::I32_SUB,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1093,8 +1074,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::I32_MUL,
-        mnemonic: "imul",
+        opcode: OpCode::I32Mul,
+        mnemonic: mnemonics::I32_MUL,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1109,8 +1090,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::I32_DIV,
-        mnemonic: "idiv",
+        opcode: OpCode::I32Div,
+        mnemonic: mnemonics::I32_DIV,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1125,8 +1106,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::I32_MOD,
-        mnemonic: "imod",
+        opcode: OpCode::I32Mod,
+        mnemonic: mnemonics::I32_MOD,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1141,8 +1122,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::I32_AND,
-        mnemonic: "iand",
+        opcode: OpCode::I32And,
+        mnemonic: mnemonics::I32_AND,
         category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1157,8 +1138,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::I32_OR,
-        mnemonic: "ior",
+        opcode: OpCode::I32Or,
+        mnemonic: mnemonics::I32_OR,
         category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1173,8 +1154,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::I32_XOR,
-        mnemonic: "ixor",
+        opcode: OpCode::I32Xor,
+        mnemonic: mnemonics::I32_XOR,
         category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1189,8 +1170,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::I32_SAL,
-        mnemonic: "isal",
+        opcode: OpCode::I32Sal,
+        mnemonic: mnemonics::I32_SAL,
         category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1205,8 +1186,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::I32_SAR,
-        mnemonic: "isar",
+        opcode: OpCode::I32Sar,
+        mnemonic: mnemonics::I32_SAR,
         category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1221,8 +1202,40 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::I32_COM,
-        mnemonic: "icom",
+        opcode: OpCode::I32Rol,
+        mnemonic: mnemonics::I32_ROL,
+        category: InstructionCategory::Bitwise,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::Fixed(&[
+            ImplicitArgumentMeta {
+                offset: -2,
+                alias: "scalar_operand_a",
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "scalar_operand_b",
+            },
+        ]),
+    },
+    InstructionMeta {
+        opcode: OpCode::I32Ror,
+        mnemonic: mnemonics::I32_ROR,
+        category: InstructionCategory::Bitwise,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::Fixed(&[
+            ImplicitArgumentMeta {
+                offset: -2,
+                alias: "scalar_operand_a",
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "scalar_operand_b",
+            },
+        ]),
+    },
+    InstructionMeta {
+        opcode: OpCode::I32Com,
+        mnemonic: mnemonics::I32_COM,
         category: InstructionCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
@@ -1231,8 +1244,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         }]),
     },
     InstructionMeta {
-        opcode: asm::I32_INCREMENT,
-        mnemonic: "iinc",
+        opcode: OpCode::I32Increment,
+        mnemonic: mnemonics::I32_INCREMENT,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
@@ -1241,8 +1254,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         }]),
     },
     InstructionMeta {
-        opcode: asm::I32_DECREMENT,
-        mnemonic: "idec",
+        opcode: OpCode::I32Decrement,
+        mnemonic: mnemonics::I32_DECREMENT,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
@@ -1251,8 +1264,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         }]),
     },
     InstructionMeta {
-        opcode: asm::F32_ADD,
-        mnemonic: "fadd",
+        opcode: OpCode::F32Add,
+        mnemonic: mnemonics::F32_ADD,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1267,8 +1280,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::F32_SUB,
-        mnemonic: "fsub",
+        opcode: OpCode::F32Sub,
+        mnemonic: mnemonics::F32_SUB,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1283,8 +1296,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::F32_MUL,
-        mnemonic: "fmul",
+        opcode: OpCode::F32Mul,
+        mnemonic: mnemonics::F32_MUL,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1299,8 +1312,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::F32_DIV,
-        mnemonic: "fdiv",
+        opcode: OpCode::F32Div,
+        mnemonic: mnemonics::F32_DIV,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
@@ -1315,8 +1328,8 @@ pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
     InstructionMeta {
-        opcode: asm::F32_MOD,
-        mnemonic: "fmod",
+        opcode: OpCode::F32Mod,
+        mnemonic: mnemonics::F32_MOD,
         category: InstructionCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[

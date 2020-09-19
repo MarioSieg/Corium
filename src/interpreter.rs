@@ -204,6 +204,47 @@
 
 */
 
+#[rustfmt::skip]
+pub mod mnemonics {
+    pub const INTERRUPT: &str           = "interrupt";
+    pub const PUSH: &str                = "push";
+    pub const POP: &str                 = "pop";
+    pub const MOVE: &str                = "mov";
+    pub const COPY: &str                = "cpy";
+    pub const NO_OP: &str               = "nop";
+    pub const DUPLICATE: &str           = "dupl";
+    pub const DUPLICATE_X2: &str        = "ddupl";
+    pub const CAST_I32_TO_F32: &str     = "casti2f";
+    pub const CAST_F32_TO_I32: &str     = "castf2i";
+    pub const JUMP: &str                = "jmp";
+    pub const JUMP_EQUALS: &str         = "je";
+    pub const JUMP_NOT_EQUALS: &str     = "jne";
+    pub const JUMP_ABOVE: &str          = "ja";
+    pub const JUMP_ABOVE_EQUALS: &str   = "jae";
+    pub const JUMP_LESS: &str           = "jl";
+    pub const JUMP_LESS_EQUALS: &str    = "jle";
+    pub const I32_ADD: &str             = "iadd";
+    pub const I32_SUB: &str             = "isub";
+    pub const I32_MUL: &str             = "imul";
+    pub const I32_DIV: &str             = "idiv";
+    pub const I32_MOD: &str             = "imod";
+    pub const I32_AND: &str             = "iand";
+    pub const I32_OR: &str              = "ior";
+    pub const I32_XOR: &str             = "ixor";
+    pub const I32_SAL: &str             = "isal";
+    pub const I32_SAR: &str             = "isar";
+    pub const I32_ROL: &str             = "irol";
+    pub const I32_ROR: &str             = "iror";
+    pub const I32_COM: &str             = "icom";
+    pub const I32_INCREMENT: &str       = "iinc";
+    pub const I32_DECREMENT: &str       = "idec";
+    pub const F32_ADD: &str             = "fadd";
+    pub const F32_SUB: &str             = "fsub";
+    pub const F32_MUL: &str             = "fmul";
+    pub const F32_DIV: &str             = "fdiv";
+    pub const F32_MOD: &str             = "fmod";
+}
+
 pub mod sigs {
     pub const ADDRESS_OP: char = '&';
     pub const ADDRESS_VAL: char = '*';

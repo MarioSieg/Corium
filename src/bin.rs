@@ -218,11 +218,11 @@ fn main() {
     code.def_opcode(OpCode::I32Increment);
     code.def_opcode(OpCode::Push).with_i32(6);
     code.def_opcode(OpCode::Push).with_i32(8);
-    code.def_opcode(OpCode::I32Mul);
+    code.def_opcode(OpCode::I32Ror);
     code.def_opcode(OpCode::Pop).with_i32(1);
     code.def_opcode(OpCode::Duplicate);
-    code.def_opcode(OpCode::Push).with_i32(i32::MAX);
-    code.def_opcode(OpCode::JumpLess).with_label("Loop");
+    code.def_opcode(OpCode::Push).with_i32(1000000);
+    code.def_opcode(OpCode::JumpIfLess).with_label("Loop");
     code.def_opcode(OpCode::Pop).with_i32(1);
     code.epilogue();
 
