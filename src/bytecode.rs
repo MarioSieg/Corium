@@ -205,7 +205,10 @@
 */
 
 use super::{core::Record, interpreter::mnemonics};
+use crate::bytecode::OpCode::F32Mod;
 use std::{collections::HashMap, convert, default, fmt, mem, ops};
+
+// TODO: Write docs
 
 #[repr(C)]
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
@@ -277,6 +280,7 @@ impl convert::From<OpCode> for Signal {
 impl convert::From<Signal> for OpCode {
     #[inline(always)]
     fn from(x: Signal) -> Self {
+        debug_assert!(x.0 < OpCode::COUNT as _);
         unsafe { mem::transmute::<u8, OpCode>(x.0 as _) }
     }
 }
@@ -336,10 +340,87 @@ pub enum SignalDiscriminator {
     OpCode,
 }
 
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+pub struct DiscriminatedSignal(pub(super) Signal, pub(super) SignalDiscriminator);
+
+impl convert::From<SignalDiscriminator> for DiscriminatedSignal {
+    #[inline]
+    fn from(x: SignalDiscriminator) -> Self {
+        Self(
+            match x {
+                SignalDiscriminator::I32 => Signal::from(0),
+                SignalDiscriminator::F32 => Signal::from(0.0),
+                SignalDiscriminator::OpCode => Signal::from(OpCode::Interrupt),
+            },
+            x,
+        )
+    }
+}
+
+impl convert::From<(Signal, SignalDiscriminator)> for DiscriminatedSignal {
+    #[inline]
+    fn from(x: (Signal, SignalDiscriminator)) -> Self {
+        Self(x.0, x.1)
+    }
+}
+
+impl fmt::Display for DiscriminatedSignal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.1)
+    }
+}
+
+impl fmt::Debug for DiscriminatedSignal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?} | {:?}", self.1, self.0)
+    }
+}
+
+impl DiscriminatedSignal {
+    #[inline]
+    pub fn signal(&self) -> Signal {
+        self.0
+    }
+
+    #[inline]
+    pub fn discriminator(&self) -> SignalDiscriminator {
+        self.1
+    }
+
+    #[inline]
+    pub fn i32(&self) -> Option<i32> {
+        if self.1 == SignalDiscriminator::I32 {
+            Some(i32::from(self.0))
+        } else {
+            None
+        }
+    }
+
+    #[inline]
+    pub fn f32(&self) -> Option<f32> {
+        if self.1 == SignalDiscriminator::F32 {
+            Some(f32::from(self.0))
+        } else {
+            None
+        }
+    }
+
+    #[inline]
+    pub fn opcode(&self) -> Option<OpCode> {
+        if self.1 == SignalDiscriminator::OpCode {
+            Some(OpCode::from(self.0))
+        } else {
+            None
+        }
+    }
+}
+
 /// A bytecode stream is used to dynamically build bytecode.
 pub struct BytecodeStream {
-    code: Vec<(Signal, SignalDiscriminator)>,
+    code: Vec<DiscriminatedSignal>,
     jump_table: HashMap<String, usize>,
+    last_op_idx: usize,
+    ops_count: usize,
 }
 
 impl BytecodeStream {
@@ -348,6 +429,8 @@ impl BytecodeStream {
         Self {
             code: Vec::new(),
             jump_table: HashMap::new(),
+            last_op_idx: 0,
+            ops_count: 0,
         }
     }
 
@@ -356,6 +439,8 @@ impl BytecodeStream {
         Self {
             code: Vec::with_capacity(capacity),
             jump_table: HashMap::with_capacity(capacity),
+            last_op_idx: 0,
+            ops_count: 0,
         }
     }
 }
@@ -363,8 +448,12 @@ impl BytecodeStream {
 impl BytecodeStream {
     #[inline]
     pub fn def_opcode(&mut self, op: OpCode) -> &mut Self {
-        self.code
-            .push((Signal::from(op), SignalDiscriminator::OpCode));
+        self.last_op_idx = self.code.len();
+        self.ops_count += 1;
+        self.code.push(DiscriminatedSignal::from((
+            Signal::from(op),
+            SignalDiscriminator::OpCode,
+        )));
         self
     }
 
@@ -376,19 +465,22 @@ impl BytecodeStream {
 
     #[inline]
     pub fn with_i32(&mut self, val: i32) -> &mut Self {
-        self.code
-            .push((Signal::from(val), SignalDiscriminator::I32));
+        self.code.push(DiscriminatedSignal::from((
+            Signal::from(val),
+            SignalDiscriminator::I32,
+        )));
         self
     }
 
     #[inline]
     pub fn with_f32(&mut self, val: f32) -> &mut Self {
-        self.code
-            .push((Signal::from(val), SignalDiscriminator::F32));
+        self.code.push(DiscriminatedSignal::from((
+            Signal::from(val),
+            SignalDiscriminator::F32,
+        )));
         self
     }
 
-    #[inline]
     pub fn with_label(&mut self, name: &str) -> &mut Self {
         self.with_i32(
             (*self
@@ -398,17 +490,14 @@ impl BytecodeStream {
         )
     }
 
-    pub fn prologue(&mut self) -> &mut Self {
-        self.def_opcode(OpCode::Move)
-            .with_i32(0)
-            .with_i32(i32::from_le_bytes(*b"LOVE")); // Because I love my cutie so much!
-        self
+    #[inline]
+    pub fn index(&self) -> usize {
+        self.code.len() - 1
     }
 
     #[inline]
-    pub fn epilogue(&mut self) -> &mut Self {
-        self.def_opcode(OpCode::Interrupt).with_i32(0); // Add interrupt as last instruction.
-        self
+    pub fn last_opcode_index(&self) -> usize {
+        self.last_op_idx
     }
 
     #[inline]
@@ -417,7 +506,17 @@ impl BytecodeStream {
     }
 
     #[inline]
-    pub fn command_buffer(&self) -> &Vec<(Signal, SignalDiscriminator)> {
+    pub fn operation_count(&self) -> usize {
+        self.ops_count
+    }
+
+    #[inline]
+    pub fn argument_count(&self) -> usize {
+        self.code.len() - self.ops_count
+    }
+
+    #[inline]
+    pub fn command_buffer(&self) -> &Vec<DiscriminatedSignal> {
         &self.code
     }
 
@@ -456,27 +555,10 @@ impl BytecodeStream {
     pub fn clear_jump_table(&mut self) {
         self.jump_table.clear()
     }
-
-    #[inline]
-    pub fn validate(&self) -> Result<(), Vec<&'static str>> {
-        Ok(())
-    } // TODO
-
-    pub fn build(self) -> Result<BytecodeChunk, Vec<&'static str>> {
-        if let Err(errors) = self.validate() {
-            Err(errors)
-        } else {
-            let mut buf = Vec::with_capacity(self.code.len());
-            for rec in self.code {
-                buf.push(rec.0);
-            }
-            Ok(BytecodeChunk::from(buf))
-        }
-    }
 }
 
 impl ops::Index<usize> for BytecodeStream {
-    type Output = (Signal, SignalDiscriminator);
+    type Output = DiscriminatedSignal;
 
     #[inline]
     fn index(&self, idx: usize) -> &Self::Output {
@@ -491,20 +573,24 @@ impl ops::IndexMut<usize> for BytecodeStream {
     }
 }
 
-impl convert::From<Box<[(Signal, SignalDiscriminator)]>> for BytecodeStream {
-    fn from(buf: Box<[(Signal, SignalDiscriminator)]>) -> Self {
+impl convert::From<Box<[DiscriminatedSignal]>> for BytecodeStream {
+    fn from(buf: Box<[DiscriminatedSignal]>) -> Self {
         Self {
             code: Vec::from(buf),
             jump_table: HashMap::new(),
+            last_op_idx: 0,
+            ops_count: 0,
         }
     }
 }
 
-impl convert::From<Vec<(Signal, SignalDiscriminator)>> for BytecodeStream {
-    fn from(vec: Vec<(Signal, SignalDiscriminator)>) -> Self {
+impl convert::From<Vec<DiscriminatedSignal>> for BytecodeStream {
+    fn from(vec: Vec<DiscriminatedSignal>) -> Self {
         Self {
             code: vec,
             jump_table: HashMap::new(),
+            last_op_idx: 0,
+            ops_count: 0,
         }
     }
 }
@@ -563,6 +649,52 @@ impl fmt::Debug for BytecodeStream {
             i += 1 + meta.explicit_arguments.len();
         }
         writeln!(f, "+----------------------End----------------------+\n")
+    }
+}
+
+impl BytecodeStream {
+    pub fn prologue(&mut self) -> &mut Self {
+        self.def_opcode(OpCode::Move)
+            .with_i32(0)
+            .with_i32(i32::from_le_bytes(*b"LOVE")); // Because I love my cutie so much!
+        self
+    }
+
+    pub fn epilogue(&mut self) -> &mut Self {
+        self.def_opcode(OpCode::Interrupt).with_i32(0); // Add interrupt as last instruction.
+        self
+    }
+
+    pub fn last_opcode(&self) -> Option<OpCode> {
+        debug_assert!(!self.is_empty());
+        self[self.last_op_idx].opcode()
+    }
+
+    // TODO continue with analyzers and tools
+    pub fn last_opcode_args(&self) -> Option<&[DiscriminatedSignal]> {
+        debug_assert!(!self.is_empty());
+        if let Some(opcode) = self[self.last_op_idx].opcode() {
+            let arg_count = opcode_meta(opcode).explicit_arguments.len();
+            Some(&self.code[self.last_op_idx + 1..=self.last_op_idx + arg_count])
+        } else {
+            None
+        }
+    }
+
+    pub fn validate(&self) -> Result<(), Vec<&'static str>> {
+        Ok(())
+    } // TODO
+
+    pub fn build(self) -> Result<BytecodeChunk, Vec<&'static str>> {
+        if let Err(errors) = self.validate() {
+            Err(errors)
+        } else {
+            let mut buf = Vec::with_capacity(self.code.len());
+            for rec in self.code {
+                buf.push(rec.0);
+            }
+            Ok(BytecodeChunk::from(buf))
+        }
     }
 }
 
@@ -707,6 +839,10 @@ pub enum OpCode {
     F32Mod,
 }
 
+impl OpCode {
+    pub const COUNT: usize = 1 + F32Mod as usize;
+}
+
 pub trait ArgumentPrimitive: Sized + Copy + Clone + PartialEq {}
 impl ArgumentPrimitive for i32 {}
 impl ArgumentPrimitive for f32 {}
@@ -765,7 +901,12 @@ pub struct InstructionMeta<'a> {
     pub implicit_arguments: ImplicitArguments<'a>,
 }
 
-pub const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
+#[inline]
+pub fn opcode_meta(op: OpCode) -> &'static InstructionMeta<'static> {
+    &INSTRUCTION_TABLE[op as usize]
+}
+
+const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         opcode: OpCode::Interrupt,
         mnemonic: mnemonics::INTERRUPT,

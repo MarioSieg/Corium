@@ -260,3 +260,401 @@ impl XorshiftGenerator {
         (self.rand_u32() as f64) / (<u32>::max_value() as f64)
     }
 }
+
+/// Macro to generate integer bitflags.
+// From bitflags crate (https://github.com/bitflags/bitflags).
+// Copied to here because the auto completion didn't recognized it when used as extern crate.
+// Removed the verbose functions.
+// See Credits.txt for the license.
+#[macro_export(local_inner_macros)]
+macro_rules! bitflags {
+    (
+        $(#[$outer:meta])*
+        pub struct $BitFlags:ident: $T:ty {
+            $(
+                $(#[$inner:ident $($args:tt)*])*
+                const $Flag:ident = $value:expr;
+            )+
+        }
+    ) => {
+        __bitflags! {
+            $(#[$outer])*
+            (pub) $BitFlags: $T {
+                $(
+                    $(#[$inner $($args)*])*
+                    $Flag = $value;
+                )+
+            }
+        }
+    };
+    (
+        $(#[$outer:meta])*
+        struct $BitFlags:ident: $T:ty {
+            $(
+                $(#[$inner:ident $($args:tt)*])*
+                const $Flag:ident = $value:expr;
+            )+
+        }
+    ) => {
+        __bitflags! {
+            $(#[$outer])*
+            () $BitFlags: $T {
+                $(
+                    $(#[$inner $($args)*])*
+                    $Flag = $value;
+                )+
+            }
+        }
+    };
+    (
+        $(#[$outer:meta])*
+        pub ($($vis:tt)+) struct $BitFlags:ident: $T:ty {
+            $(
+                $(#[$inner:ident $($args:tt)*])*
+                const $Flag:ident = $value:expr;
+            )+
+        }
+    ) => {
+        __bitflags! {
+            $(#[$outer])*
+            (pub ($($vis)+)) $BitFlags: $T {
+                $(
+                    $(#[$inner $($args)*])*
+                    $Flag = $value;
+                )+
+            }
+        }
+    };
+}
+
+#[macro_export(local_inner_macros)]
+#[doc(hidden)]
+macro_rules! __bitflags {
+    (
+        $(#[$outer:meta])*
+        ($($vis:tt)*) $BitFlags:ident: $T:ty {
+            $(
+                $(#[$inner:ident $($args:tt)*])*
+                $Flag:ident = $value:expr;
+            )+
+        }
+    ) => {
+        $(#[$outer])*
+        #[derive(Copy, PartialEq, Eq, Clone, PartialOrd, Ord, Hash)]
+        $($vis)* struct $BitFlags {
+            bits: $T,
+        }
+
+        __impl_bitflags! {
+            $BitFlags: $T {
+                $(
+                    $(#[$inner $($args)*])*
+                    $Flag = $value;
+                )+
+            }
+        }
+    };
+}
+
+#[macro_export(local_inner_macros)]
+#[doc(hidden)]
+#[cfg(bitflags_const_fn)]
+macro_rules! __fn_bitflags {
+    (
+        $(# $attr_args:tt)*
+        const fn $($item:tt)*
+    ) => {
+        $(# $attr_args)*
+        const fn $($item)*
+    };
+    (
+        $(# $attr_args:tt)*
+        pub const fn $($item:tt)*
+    ) => {
+        $(# $attr_args)*
+        pub const fn $($item)*
+    };
+    (
+        $(# $attr_args:tt)*
+        pub const unsafe fn $($item:tt)*
+    ) => {
+        $(# $attr_args)*
+        pub const unsafe fn $($item)*
+    };
+}
+
+#[macro_export(local_inner_macros)]
+#[doc(hidden)]
+#[cfg(not(bitflags_const_fn))]
+macro_rules! __fn_bitflags {
+    (
+        $(# $attr_args:tt)*
+        const fn $($item:tt)*
+    ) => {
+        $(# $attr_args)*
+        fn $($item)*
+    };
+    (
+        $(# $attr_args:tt)*
+        pub const fn $($item:tt)*
+    ) => {
+        $(# $attr_args)*
+        pub fn $($item)*
+    };
+    (
+        $(# $attr_args:tt)*
+        pub const unsafe fn $($item:tt)*
+    ) => {
+        $(# $attr_args)*
+        pub unsafe fn $($item)*
+    };
+}
+
+#[macro_export(local_inner_macros)]
+#[doc(hidden)]
+macro_rules! __impl_bitflags {
+    (
+        $BitFlags:ident: $T:ty {
+            $(
+                $(#[$attr:ident $($args:tt)*])*
+                $Flag:ident = $value:expr;
+            )+
+        }
+    ) => {
+        impl $crate::_core::fmt::Debug for $BitFlags {
+            fn fmt(&self, f: &mut $crate::_core::fmt::Formatter) -> $crate::_core::fmt::Result {
+                #[allow(non_snake_case)]
+                trait __BitFlags {
+                    $(
+                        #[inline]
+                        fn $Flag(&self) -> bool { false }
+                    )+
+                }
+
+                impl __BitFlags for $BitFlags {
+                    $(
+                        __impl_bitflags! {
+                            #[allow(deprecated)]
+                            #[inline]
+                            $(? #[$attr $($args)*])*
+                            fn $Flag(&self) -> bool {
+                                if Self::$Flag.bits == 0 && self.bits != 0 {
+                                    false
+                                } else {
+                                    self.bits & Self::$Flag.bits == Self::$Flag.bits
+                                }
+                            }
+                        }
+                    )+
+                }
+
+                let mut first = true;
+                $(
+                    if <$BitFlags as __BitFlags>::$Flag(self) {
+                        if !first {
+                            f.write_str(" | ")?;
+                        }
+                        first = false;
+                        f.write_str(__bitflags_stringify!($Flag))?;
+                    }
+                )+
+                let extra_bits = self.bits & !$BitFlags::all().bits();
+                if extra_bits != 0 {
+                    if !first {
+                        f.write_str(" | ")?;
+                    }
+                    first = false;
+                    f.write_str("0x")?;
+                    $crate::_core::fmt::LowerHex::fmt(&extra_bits, f)?;
+                }
+                if first {
+                    f.write_str("(empty)")?;
+                }
+                Ok(())
+            }
+        }
+        impl $crate::_core::fmt::Binary for $BitFlags {
+            fn fmt(&self, f: &mut $crate::_core::fmt::Formatter) -> $crate::_core::fmt::Result {
+                $crate::_core::fmt::Binary::fmt(&self.bits, f)
+            }
+        }
+        impl $crate::_core::fmt::Octal for $BitFlags {
+            fn fmt(&self, f: &mut $crate::_core::fmt::Formatter) -> $crate::_core::fmt::Result {
+                $crate::_core::fmt::Octal::fmt(&self.bits, f)
+            }
+        }
+        impl $crate::_core::fmt::LowerHex for $BitFlags {
+            fn fmt(&self, f: &mut $crate::_core::fmt::Formatter) -> $crate::_core::fmt::Result {
+                $crate::_core::fmt::LowerHex::fmt(&self.bits, f)
+            }
+        }
+        impl $crate::_core::fmt::UpperHex for $BitFlags {
+            fn fmt(&self, f: &mut $crate::_core::fmt::Formatter) -> $crate::_core::fmt::Result {
+                $crate::_core::fmt::UpperHex::fmt(&self.bits, f)
+            }
+        }
+
+        impl $crate::_core::ops::BitOr for $BitFlags {
+            type Output = $BitFlags;
+            #[inline]
+            fn bitor(self, other: $BitFlags) -> $BitFlags {
+                $BitFlags { bits: self.bits | other.bits }
+            }
+        }
+
+        impl $crate::_core::ops::BitOrAssign for $BitFlags {
+            #[inline]
+            fn bitor_assign(&mut self, other: $BitFlags) {
+                self.bits |= other.bits;
+            }
+        }
+
+        impl $crate::_core::ops::BitXor for $BitFlags {
+            type Output = $BitFlags;
+            #[inline]
+            fn bitxor(self, other: $BitFlags) -> $BitFlags {
+                $BitFlags { bits: self.bits ^ other.bits }
+            }
+        }
+
+        impl $crate::_core::ops::BitXorAssign for $BitFlags {
+            #[inline]
+            fn bitxor_assign(&mut self, other: $BitFlags) {
+                self.bits ^= other.bits;
+            }
+        }
+
+        impl $crate::_core::ops::BitAnd for $BitFlags {
+            type Output = $BitFlags;
+            #[inline]
+            fn bitand(self, other: $BitFlags) -> $BitFlags {
+                $BitFlags { bits: self.bits & other.bits }
+            }
+        }
+
+        impl $crate::_core::ops::BitAndAssign for $BitFlags {
+            #[inline]
+            fn bitand_assign(&mut self, other: $BitFlags) {
+                self.bits &= other.bits;
+            }
+        }
+
+        impl $crate::_core::ops::Sub for $BitFlags {
+            type Output = $BitFlags;
+
+            #[inline]
+            fn sub(self, other: $BitFlags) -> $BitFlags {
+                $BitFlags { bits: self.bits & !other.bits }
+            }
+        }
+
+        impl $crate::_core::ops::SubAssign for $BitFlags {
+
+            #[inline]
+            fn sub_assign(&mut self, other: $BitFlags) {
+                self.bits &= !other.bits;
+            }
+        }
+
+        impl $crate::_core::ops::Not for $BitFlags {
+            type Output = $BitFlags;
+
+
+            #[inline]
+            fn not(self) -> $BitFlags {
+                $BitFlags { bits: !self.bits } & $BitFlags::all()
+            }
+        }
+
+        impl $crate::_core::iter::Extend<$BitFlags> for $BitFlags {
+            fn extend<T: $crate::_core::iter::IntoIterator<Item=$BitFlags>>(&mut self, iterator: T) {
+                for item in iterator {
+                    self.insert(item)
+                }
+            }
+        }
+
+        impl $crate::_core::iter::FromIterator<$BitFlags> for $BitFlags {
+            fn from_iter<T: $crate::_core::iter::IntoIterator<Item=$BitFlags>>(iterator: T) -> $BitFlags {
+                let mut result = Self::empty();
+                result.extend(iterator);
+                result
+            }
+        }
+    };
+
+    (
+        $(#[$filtered:meta])*
+        ? #[cfg $($cfgargs:tt)*]
+        $(? #[$rest:ident $($restargs:tt)*])*
+        fn $($item:tt)*
+    ) => {
+        __impl_bitflags! {
+            $(#[$filtered])*
+            #[cfg $($cfgargs)*]
+            $(? #[$rest $($restargs)*])*
+            fn $($item)*
+        }
+    };
+    (
+        $(#[$filtered:meta])*
+        ? #[$next:ident $($nextargs:tt)*]
+        $(? #[$rest:ident $($restargs:tt)*])*
+        fn $($item:tt)*
+    ) => {
+        __impl_bitflags! {
+            $(#[$filtered])*
+
+            $(? #[$rest $($restargs)*])*
+            fn $($item)*
+        }
+    };
+    (
+        $(#[$filtered:meta])*
+        fn $($item:tt)*
+    ) => {
+        $(#[$filtered])*
+        fn $($item)*
+    };
+
+    (
+        $(#[$filtered:meta])*
+        ? #[cfg $($cfgargs:tt)*]
+        $(? #[$rest:ident $($restargs:tt)*])*
+        const $($item:tt)*
+    ) => {
+        __impl_bitflags! {
+            $(#[$filtered])*
+            #[cfg $($cfgargs)*]
+            $(? #[$rest $($restargs)*])*
+            const $($item)*
+        }
+    };
+    (
+        $(#[$filtered:meta])*
+        ? #[$next:ident $($nextargs:tt)*]
+        $(? #[$rest:ident $($restargs:tt)*])*
+        const $($item:tt)*
+    ) => {
+        __impl_bitflags! {
+            $(#[$filtered])*
+            $(? #[$rest $($restargs)*])*
+            const $($item)*
+        }
+    };
+    (
+        $(#[$filtered:meta])*
+        const $($item:tt)*
+    ) => {
+        $(#[$filtered])*
+        const $($item)*
+    };
+}
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __bitflags_stringify {
+    ($s:ident) => {
+        stringify!($s)
+    };
+}
