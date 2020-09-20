@@ -210,6 +210,9 @@ use ronin_runtime::prelude::*;
 use std::time::*;
 
 fn main() {
+    #[cfg(feature = "config_file")]
+    let _config = RuntimeConfig::load_from_file();
+
     let mut code = BytecodeStream::new();
 
     code.prologue();

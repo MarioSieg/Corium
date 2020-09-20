@@ -258,10 +258,3 @@ pub mod sigs {
     pub const MARKER_I32: char = 'i';
     pub const MARKER_F32: char = 'f';
 }
-
-pub mod file_ext {
-    pub const BYTECODE_TXT: &str = "vasm";
-    pub const BYTECODE_BIN: &str = "vbin";
-    pub const LIBRARY: &str = "vlib";
-    pub const CONFIG: &str = "vcfg";
-}

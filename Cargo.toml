@@ -12,4 +12,9 @@ path = "src/lib.rs"
 name = "ronin_virtual_machine"
 path = "src/bin.rs"
 
+[features]
+config_file = ["serde", "serde_json"]
+
 [dependencies]
+serde = { version = "1.0.116", features = ["derive"], optional = true }
+serde_json = { version = "1.0.57", optional = true }

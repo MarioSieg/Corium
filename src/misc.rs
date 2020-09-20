@@ -204,6 +204,17 @@
 
 */
 
+use std::{default::Default, path::PathBuf};
+
+#[cfg(feature = "config_file")]
+use std::{fs, path::Path};
+
+#[cfg(feature = "config_file")]
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "config_file")]
+use serde_json as json;
+
 const KX: u32 = 123456789;
 const KY: u32 = 362436069;
 const KZ: u32 = 521288629;
@@ -657,4 +668,158 @@ macro_rules! __bitflags_stringify {
     ($s:ident) => {
         stringify!($s)
     };
+}
+
+/// Contains configuration parameters for the VM.
+/// Will be serialized/deserialized from a config file.
+#[cfg_attr(feature = "config_file", derive(Serialize, Deserialize))]
+pub struct RuntimeConfig {
+    /// The cache directory.
+    pub cache_dir: PathBuf,
+
+    /// Additional directories to packages.
+    pub package_dirs: Vec<PathBuf>,
+
+    // Enable safe mode.
+    pub safe_mode: bool,
+
+    /// Per-thread stack size in bytes.
+    pub thread_stack_size: usize,
+
+    /// Initialize heap size in bytes.
+    pub init_heap_size: usize,
+
+    /// Maximal heap size in bytes.
+    /// -1 indicates automatic.
+    pub max_heap_size: isize,
+
+    /// Memory pool size in bytes.
+    pub pool_size: usize,
+
+    /// Allocator page chunk size in bytes.
+    pub allocator_chunk_size: usize,
+
+    /// Garbage collector memory scan threshold trigger in bytes.
+    pub gc_threshold: usize,
+
+    /// Enables garbage collector logging.
+    pub enable_verbose_gc: bool,
+
+    /// Enables generic logging.
+    pub enable_verbose_vm: bool,
+
+    /// If enabled, VM terminates immediately when an exception is thrown.
+    pub enable_exception_interrupt: bool,
+
+    /// Enables runtime profiling and diagnostics.
+    pub enable_diagnostics: bool,
+
+    /// Enables system and hardware telemetry.
+    pub enable_telemetry: bool,
+
+    /// Enables the crash handler and dump.
+    pub enable_crash_trap: bool,
+
+    /// Enables additional security checks.
+    pub enable_strict_security: bool,
+
+    /// Disables multithreading.
+    pub disable_multithreading: bool,
+
+    /// If enables, the VM only spawns threads according to the physical CPU cores.
+    pub use_physical_cores: bool,
+
+    /// If true, the VM can create and use a page file when the memory is sparse.
+    pub use_page_file: bool,
+
+    /// Enable very aggressive optimizations.
+    pub use_aggressive_opt: bool,
+
+    /// Disables just in time compilation.
+    pub disable_jit_compilation: bool,
+
+    /// Disables ahead of time compilation.
+    pub disable_aot_compilation: bool,
+
+    /// Disables bytecode and data caching.
+    pub disable_caching: bool,
+
+    /// Enables string compression.
+    pub compress_strings: bool,
+
+    /// Enables bytecode compression.
+    pub compress_bytecode: bool,
+
+    /// Disable optimization via AI and machine learning.
+    pub disable_ai_optimization: bool,
+
+    /// Optimization level.
+    pub optimization_level: u8,
+}
+
+#[cfg(feature = "config_file")]
+impl RuntimeConfig {
+    pub const CONFIG_FILE: &'static str = "vm.ini";
+
+    pub fn load_from_file() -> Result<Self, ()> {
+        if !Path::new(Self::CONFIG_FILE).exists() {
+            let default = Self::default();
+            let _ = Self::save_to_file(&default);
+            Ok(default)
+        } else if let Ok(string) = fs::read_to_string(Path::new(Self::CONFIG_FILE)) {
+            if let Ok(object) = json::from_str(&string) {
+                Ok(object)
+            } else {
+                Err(())
+            }
+        } else {
+            Err(())
+        }
+    }
+
+    pub fn save_to_file(inp: &Self) -> Result<(), ()> {
+        if let Ok(string) = json::to_string_pretty(inp) {
+            if fs::write(Path::new(Self::CONFIG_FILE), string).is_ok() {
+                Ok(())
+            } else {
+                Err(())
+            }
+        } else {
+            Err(())
+        }
+    }
+}
+
+impl Default for RuntimeConfig {
+    fn default() -> Self {
+        Self {
+            safe_mode: false,
+            thread_stack_size: 1024 * 1024 * 8,
+            init_heap_size: 1024 * 1024 * 32,
+            max_heap_size: -1,
+            pool_size: 1024 * 1024 * 16,
+            allocator_chunk_size: 1024 * 1024,
+            gc_threshold: 32,
+            enable_verbose_gc: false,
+            cache_dir: PathBuf::from("_roncache_"),
+            package_dirs: Vec::new(),
+            enable_verbose_vm: false,
+            enable_exception_interrupt: false,
+            enable_diagnostics: false,
+            enable_telemetry: false,
+            enable_crash_trap: true,
+            enable_strict_security: false,
+            disable_multithreading: false,
+            use_physical_cores: false,
+            use_page_file: false,
+            use_aggressive_opt: false,
+            disable_jit_compilation: true,
+            disable_aot_compilation: true,
+            disable_caching: false,
+            compress_strings: false,
+            compress_bytecode: false,
+            disable_ai_optimization: false,
+            optimization_level: 0,
+        }
+    }
 }
