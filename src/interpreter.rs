@@ -217,12 +217,14 @@ pub mod mnemonics {
     pub const CAST_I32_TO_F32: &str     = "casti2f";
     pub const CAST_F32_TO_I32: &str     = "castf2i";
     pub const JUMP: &str                = "jmp";
-    pub const JUMP_EQUALS: &str         = "je";
-    pub const JUMP_NOT_EQUALS: &str     = "jne";
-    pub const JUMP_ABOVE: &str          = "ja";
-    pub const JUMP_ABOVE_EQUALS: &str   = "jae";
-    pub const JUMP_LESS: &str           = "jl";
-    pub const JUMP_LESS_EQUALS: &str    = "jle";
+    pub const JUMP_IF_ZERO: &str        = "jz";
+    pub const JUMP_IF_NOT_ZERO: &str    = "jnz";
+    pub const JUMP_IF_EQUALS: &str      = "je";
+    pub const JUMP_IF_NOT_EQUALS: &str  = "jne";
+    pub const JUMP_IF_ABOVE: &str       = "ja";
+    pub const JUMP_IF_ABOVE_EQUALS: &str= "jae";
+    pub const JUMP_IF_LESS: &str        = "jl";
+    pub const JUMP_IF_LESS_EQUALS: &str = "jle";
     pub const I32_ADD: &str             = "iadd";
     pub const I32_SUB: &str             = "isub";
     pub const I32_MUL: &str             = "imul";
@@ -243,6 +245,7 @@ pub mod mnemonics {
     pub const F32_MUL: &str             = "fmul";
     pub const F32_DIV: &str             = "fdiv";
     pub const F32_MOD: &str             = "fmod";
+    pub const F32_MUL_ADD: &str         = "ffma";
 }
 
 pub mod sigs {

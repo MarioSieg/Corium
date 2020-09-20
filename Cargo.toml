@@ -1,16 +1,15 @@
 [package]
-name = "ronvm"
+name = "ron_vm"
 version = "0.1.0"
 authors = ["Mario Sieg (KerboGames) <support@kerbogames.com>"]
 edition = "2018"
 
-
 [lib]
-name = "ronvm"
+name = "ronin_runtime"
 path = "src/lib.rs"
 
 [[bin]]
-name = "rvm"
+name = "ronin_virtual_machine"
 path = "src/bin.rs"
 
 [dependencies]

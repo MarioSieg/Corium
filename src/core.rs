@@ -439,25 +439,15 @@ impl Stack {
     }
 
     #[inline(always)]
-    pub fn peek_previous(&self) -> Record {
-        self.buf[self.sp - 1]
-    }
-
-    #[inline(always)]
-    pub fn peek_previous_set(&mut self, rec: Record) {
-        self.buf[self.sp - 1] = rec
-    }
-
-    #[inline(always)]
     pub fn poke(&self, idx: usize) -> Record {
         debug_assert!(idx <= self.sp);
-        self.buf[idx]
+        self.buf[self.sp - idx]
     }
 
     #[inline(always)]
     pub fn poke_set(&mut self, idx: usize, rec: Record) {
         debug_assert!(idx <= self.sp);
-        self.buf[idx] = rec
+        self.buf[self.sp - idx] = rec
     }
 
     #[inline(always)]
@@ -559,9 +549,10 @@ pub mod executor {
         }
     }
 
+    #[macro_export]
     macro_rules! conditional_jump {
         ($sta:ident, $cmd:ident, $op:tt) => {
-             if i32::from($sta.peek_previous()) $op i32::from($sta.peek()) {
+             if i32::from($sta.poke(1)) $op i32::from($sta.peek()) {
                 let target_address = $cmd.fetch().into();
                 $cmd.jump(target_address);
             }
@@ -569,41 +560,43 @@ pub mod executor {
         }
     }
 
+    #[macro_export]
+    macro_rules! scalar_conditional_jump {
+        ($sta:ident, $cmd:ident, $op:tt, $val:expr) => {
+             if i32::from($sta.peek()) $op $val {
+                let target_address = $cmd.fetch().into();
+                $cmd.jump(target_address);
+            }
+            $sta.pop();
+        }
+    }
+
+    #[macro_export]
     macro_rules! duplet_operation {
         ($sta:ident, $sc:ident, $op:tt) => {
-            $sta.peek_previous_set(Record::from(
-                $sc::from($sta.peek_previous()) $op $sc::from($sta.peek()))
+            $sta.poke_set(1, Record::from(
+                $sc::from($sta.poke(1)) $op $sc::from($sta.peek()))
             );
             $sta.pop();
         }
     }
 
+    #[macro_export]
     macro_rules! duplet_operation_intrin {
-        ($sta:ident, $sc:ident, $proc:ident) => {
-            $sta.peek_previous_set(Record::from($proc(
-                $sc::from($sta.peek_previous()),
-                $sc::from($sta.peek()),
-            )));
+        ($sta:ident, $sc:ident, $proc:ident, $para:ident) => {
+            $sta.poke_set(
+                1,
+                Record::from($sc::from($sta.poke(1)).$proc($para::from($sta.peek()))),
+            );
             $sta.pop();
         };
     }
 
+    #[macro_export]
     macro_rules! scalar_operation {
         ($sta:ident, $sc:ident, $op:tt, $v:expr) => {
             $sta.peek_set(Record::from($sc::from($sta.peek()) $op $v));
         }
-    }
-
-    // Bitwise rotate left (circular shift).
-    #[inline(always)]
-    const fn rol(val: i32, num: i32) -> i32 {
-        val << num | val >> (::std::mem::size_of::<i32>() as i32 * 8 - num)
-    }
-
-    // Bitwise rotate right (circular shift).
-    #[inline(always)]
-    const fn ror(val: i32, num: i32) -> i32 {
-        val >> num | val << (::std::mem::size_of::<i32>() as i32 * 8 - num)
     }
 
     /// Executes the bytecode.
@@ -669,18 +662,28 @@ pub mod executor {
                 }
 
                 OpCode::CastI32toF32 => {
-                    stack.push(Record::from(f32::from(stack.peek())));
+                    stack.peek_set(Record::from(f32::from(stack.peek())));
                     continue;
                 }
 
                 OpCode::CastF32toI32 => {
-                    stack.push(Record::from(i32::from(stack.peek())));
+                    stack.peek_set(Record::from(i32::from(stack.peek())));
                     continue;
                 }
 
                 OpCode::Jump => {
                     let target_address = command_buffer.fetch().into();
                     command_buffer.jump(target_address);
+                    continue;
+                }
+
+                OpCode::JumpIfZero => {
+                    scalar_conditional_jump!(stack, command_buffer, ==, 0i32);
+                    continue;
+                }
+
+                OpCode::JumpIfNotZero => {
+                    scalar_conditional_jump!(stack, command_buffer, !=, 0i32);
                     continue;
                 }
 
@@ -765,12 +768,12 @@ pub mod executor {
                 }
 
                 OpCode::I32Rol => {
-                    duplet_operation_intrin!(stack, i32, rol);
+                    duplet_operation_intrin!(stack, i32, rotate_left, u32);
                     continue;
                 }
 
                 OpCode::I32Ror => {
-                    duplet_operation_intrin!(stack, i32, ror);
+                    duplet_operation_intrin!(stack, i32, rotate_right, u32);
                     continue;
                 }
 
@@ -811,6 +814,18 @@ pub mod executor {
 
                 OpCode::F32Mod => {
                     duplet_operation!(stack, f32, %);
+                    continue;
+                }
+
+                OpCode::F32MulAdd => {
+                    stack.poke_set(
+                        3,
+                        Record::from(
+                            f32::from(stack.poke(3))
+                                .mul_add(stack.poke(2).into(), stack.peek().into()),
+                        ),
+                    );
+                    stack.pop_multi(2);
                     continue;
                 }
             }

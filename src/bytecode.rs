@@ -205,15 +205,17 @@
 */
 
 use super::{core::Record, interpreter::mnemonics};
-use crate::bytecode::OpCode::F32Mod;
 use std::{collections::HashMap, convert, default, fmt, mem, ops};
 
-// TODO: Write docs
-
+/// Represents a single bytecode signal at runtime.
+/// A signal is used as an union which can be an instruction (opcode) or a parameter.
+/// For a typesafe, discriminated version use 'DiscriminatedSignal'.
 #[repr(C)]
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Signal(u32);
 
+/// Creates a signal from an usize.
+/// It might get truncated into an u32, if sizeof(usize) > 32.
 impl convert::From<usize> for Signal {
     #[inline(always)]
     fn from(x: usize) -> Self {
@@ -221,6 +223,10 @@ impl convert::From<usize> for Signal {
     }
 }
 
+/// Creates an usize from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an usize.
+/// /// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
 impl convert::From<Signal> for usize {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -228,6 +234,8 @@ impl convert::From<Signal> for usize {
     }
 }
 
+/// Creates a signal from an i32.
+/// The signal then represents an i32 with the value of x.
 impl convert::From<i32> for Signal {
     #[inline(always)]
     fn from(x: i32) -> Self {
@@ -235,6 +243,10 @@ impl convert::From<i32> for Signal {
     }
 }
 
+/// Creates an i32 from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an i32.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
 impl convert::From<Signal> for i32 {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -242,6 +254,8 @@ impl convert::From<Signal> for i32 {
     }
 }
 
+/// Creates a signal from an u32.
+/// The signal then represents an u32 with the value of x.
 impl convert::From<u32> for Signal {
     #[inline(always)]
     fn from(x: u32) -> Self {
@@ -249,6 +263,10 @@ impl convert::From<u32> for Signal {
     }
 }
 
+/// Creates an u32 from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an u32.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
 impl convert::From<Signal> for u32 {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -256,6 +274,7 @@ impl convert::From<Signal> for u32 {
     }
 }
 
+/// Creates a signal from a f32.
 impl convert::From<f32> for Signal {
     #[inline(always)]
     fn from(x: f32) -> Self {
@@ -263,6 +282,10 @@ impl convert::From<f32> for Signal {
     }
 }
 
+/// Creates an f32 from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an f32.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
 impl convert::From<Signal> for f32 {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -270,6 +293,8 @@ impl convert::From<Signal> for f32 {
     }
 }
 
+/// Creates a signal from an opcode.
+/// The signal then represents an opcode with the value of x.
 impl convert::From<OpCode> for Signal {
     #[inline(always)]
     fn from(x: OpCode) -> Self {
@@ -277,6 +302,10 @@ impl convert::From<OpCode> for Signal {
     }
 }
 
+/// Creates an opcode from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an opcode.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
 impl convert::From<Signal> for OpCode {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -285,6 +314,7 @@ impl convert::From<Signal> for OpCode {
     }
 }
 
+/// Creates a new signal from a byte array with four elements (32-bits).
 impl convert::From<[u8; 4]> for Signal {
     #[inline(always)]
     fn from(x: [u8; 4]) -> Self {
@@ -292,6 +322,7 @@ impl convert::From<[u8; 4]> for Signal {
     }
 }
 
+/// Creates a signal from a byte array with four elements (32-bits).
 impl convert::From<Signal> for [u8; 4] {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -299,6 +330,7 @@ impl convert::From<Signal> for [u8; 4] {
     }
 }
 
+/// Converts this signal from a stack record.
 impl convert::From<Record> for Signal {
     #[inline(always)]
     fn from(x: Record) -> Self {
@@ -306,6 +338,7 @@ impl convert::From<Record> for Signal {
     }
 }
 
+/// Only prints the byte array.
 impl fmt::Display for Signal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b: [u8; 4] = (*self).into();
@@ -313,6 +346,7 @@ impl fmt::Display for Signal {
     }
 }
 
+/// Prints the byte array with values and correct syntax.
 impl fmt::Debug for Signal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b: [u8; 4] = (*self).into();
@@ -333,16 +367,29 @@ impl fmt::Debug for Signal {
     }
 }
 
+/// The discriminator for a signal.
+/// It defined which types the signal can contain.
+/// This is only used by the interpreter, optimizer and validator, not at runtime!
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub enum SignalDiscriminator {
+    /// Represents an i32.
     I32,
+
+    /// Represents a f32.
     F32,
+
+    /// Represents an opcode.
     OpCode,
 }
 
+/// Type safe version of 'Signal' using a discriminator.
+/// This is only used by the interpreter, optimizer and validator, not at runtime!
+/// This gets converted to an undiscriminated signal before runtime injection.
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct DiscriminatedSignal(pub(super) Signal, pub(super) SignalDiscriminator);
 
+/// Creates a new instance with default zero values from the discriminated itself.
+/// For opcodes 'INTERRUPT' is used.
 impl convert::From<SignalDiscriminator> for DiscriminatedSignal {
     #[inline]
     fn from(x: SignalDiscriminator) -> Self {
@@ -357,6 +404,7 @@ impl convert::From<SignalDiscriminator> for DiscriminatedSignal {
     }
 }
 
+/// Creates a new instance from a duple.
 impl convert::From<(Signal, SignalDiscriminator)> for DiscriminatedSignal {
     #[inline]
     fn from(x: (Signal, SignalDiscriminator)) -> Self {
@@ -364,12 +412,14 @@ impl convert::From<(Signal, SignalDiscriminator)> for DiscriminatedSignal {
     }
 }
 
+/// Only prints discriminator.
 impl fmt::Display for DiscriminatedSignal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.1)
     }
 }
 
+/// Prints discriminator and values.
 impl fmt::Debug for DiscriminatedSignal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?} | {:?}", self.1, self.0)
@@ -377,16 +427,21 @@ impl fmt::Debug for DiscriminatedSignal {
 }
 
 impl DiscriminatedSignal {
+    /// Returns the undiscriminated signal part,
+    /// which contains the values.
     #[inline]
     pub fn signal(&self) -> Signal {
         self.0
     }
 
+    /// Returns the discriminator enumeration.
     #[inline]
     pub fn discriminator(&self) -> SignalDiscriminator {
         self.1
     }
 
+    /// If this instance represents an i32 it returns it.
+    /// Else none.
     #[inline]
     pub fn i32(&self) -> Option<i32> {
         if self.1 == SignalDiscriminator::I32 {
@@ -396,6 +451,8 @@ impl DiscriminatedSignal {
         }
     }
 
+    /// If this instance represents an f32 it returns it.
+    /// Else none.
     #[inline]
     pub fn f32(&self) -> Option<f32> {
         if self.1 == SignalDiscriminator::F32 {
@@ -405,6 +462,8 @@ impl DiscriminatedSignal {
         }
     }
 
+    /// If this instance represents an opcode it returns it.
+    /// Else none.
     #[inline]
     pub fn opcode(&self) -> Option<OpCode> {
         if self.1 == SignalDiscriminator::OpCode {
@@ -416,200 +475,261 @@ impl DiscriminatedSignal {
 }
 
 /// A bytecode stream is used to dynamically build bytecode.
+/// When building is done, the next step is validating.
+/// The validator checks if there are any invalid operations,
+/// values and parameters in the bytecode.
+/// If validation is successful, it can get converted
+/// into a bytecode chunk, which then can get executed by a VM executor kernel.
 pub struct BytecodeStream {
-    code: Vec<DiscriminatedSignal>,
+    stream: Vec<DiscriminatedSignal>,
     jump_table: HashMap<String, usize>,
     last_op_idx: usize,
     ops_count: usize,
+    has_prologue: bool,
+    has_epilogue: bool,
 }
 
 impl BytecodeStream {
+    /// Creates a new, empty bytecode stream.
     #[inline]
     pub fn new() -> Self {
         Self {
-            code: Vec::new(),
+            stream: Vec::new(),
             jump_table: HashMap::new(),
             last_op_idx: 0,
             ops_count: 0,
+            has_prologue: false,
+            has_epilogue: false,
         }
     }
 
+    /// Creates a new, empty instance with a specified
+    /// capacity for the command and jump table buffer.
     #[inline]
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
-            code: Vec::with_capacity(capacity),
+            stream: Vec::with_capacity(capacity),
             jump_table: HashMap::with_capacity(capacity),
             last_op_idx: 0,
             ops_count: 0,
+            has_prologue: false,
+            has_epilogue: false,
         }
     }
 }
 
 impl BytecodeStream {
+    /// Pushes a new operation into the command buffer stream.
+    /// If the operation requires any parameters, use with_* to
+    /// push them afterwards, otherwise validation will fail.
+    /// Returns this as ref to allow chain calls.
     #[inline]
-    pub fn def_opcode(&mut self, op: OpCode) -> &mut Self {
-        self.last_op_idx = self.code.len();
+    pub fn push_opcode(&mut self, op: OpCode) -> &mut Self {
+        self.last_op_idx = self.stream.len();
         self.ops_count += 1;
-        self.code.push(DiscriminatedSignal::from((
+        self.stream.push(DiscriminatedSignal::from((
             Signal::from(op),
             SignalDiscriminator::OpCode,
         )));
         self
     }
 
+    /// Pushes a new label into the jump table.
+    /// Returns this as ref to allow chain calls.
     #[inline]
-    pub fn def_label(&mut self, name: &str) -> &mut Self {
-        self.jump_table.insert(name.to_string(), self.code.len());
+    pub fn push_label(&mut self, name: &str) -> &mut Self {
+        self.jump_table.insert(name.to_string(), self.stream.len());
         self
     }
 
+    /// Pushes a new i32 operation parameter into the command buffer stream.
     #[inline]
     pub fn with_i32(&mut self, val: i32) -> &mut Self {
-        self.code.push(DiscriminatedSignal::from((
+        self.stream.push(DiscriminatedSignal::from((
             Signal::from(val),
             SignalDiscriminator::I32,
         )));
         self
     }
 
+    /// Pushes a new f32 operation parameter into the command buffer stream.
     #[inline]
     pub fn with_f32(&mut self, val: f32) -> &mut Self {
-        self.code.push(DiscriminatedSignal::from((
+        self.stream.push(DiscriminatedSignal::from((
             Signal::from(val),
             SignalDiscriminator::F32,
         )));
         self
     }
 
+    /// Pushes a new label operation parameter into the command buffer stream.
+    /// If the label does not exist in the jump table,
+    /// it will panic. (Label x not undefined!)
     pub fn with_label(&mut self, name: &str) -> &mut Self {
         self.with_i32(
             (*self
                 .jump_table
                 .get(name)
-                .unwrap_or_else(|| panic!("Label {} not defined!", name))) as _,
+                .unwrap_or_else(|| panic!("Label {} undefined!", name))) as _,
         )
     }
 
+    /// Returns the index to the last signal.
     #[inline]
     pub fn index(&self) -> usize {
-        self.code.len() - 1
+        self.stream.len() - 1
     }
 
+    /// Returns the index to the last signal, which was an operation.
     #[inline]
     pub fn last_opcode_index(&self) -> usize {
         self.last_op_idx
     }
 
+    /// Returns an immutable reference to the jump table.
     #[inline]
     pub fn jump_table(&self) -> &HashMap<String, usize> {
         &self.jump_table
     }
 
+    /// Returns the total count of signals, which are operations.
     #[inline]
     pub fn operation_count(&self) -> usize {
         self.ops_count
     }
 
+    /// Returns the total count of signals, which are operation arguments.
     #[inline]
     pub fn argument_count(&self) -> usize {
-        self.code.len() - self.ops_count
+        self.stream.len() - self.ops_count
     }
 
+    /// Returns an immutable reference to the command buffer stream
     #[inline]
     pub fn command_buffer(&self) -> &Vec<DiscriminatedSignal> {
-        &self.code
+        &self.stream
     }
 
+    /// Returns the amount of entries in the command buffer stream.
     #[inline]
     pub fn length(&self) -> usize {
-        self.code.len()
+        self.stream.len()
     }
 
+    /// Returns true if the command buffer stream is empty, else false.
     #[inline]
     pub fn is_empty(&self) -> bool {
-        self.code.is_empty()
+        self.stream.is_empty()
     }
 
+    /// Returns the allocated memory capacity of the command buffer stream.
     #[inline]
     pub fn capacity(&self) -> usize {
-        self.code.capacity()
+        self.stream.capacity()
     }
 
+    /// Returns the estimated amount of bytes the stream currently takes up in memory.
     #[inline]
     pub fn size(&self) -> usize {
-        self.code.capacity() * std::mem::size_of::<(Signal, SignalDiscriminator)>()
+        self.stream.capacity() * std::mem::size_of::<DiscriminatedSignal>()
             + self.jump_table.capacity() * std::mem::size_of::<usize>()
     }
 
+    /// Clears all entries in the command buffer stream
+    /// and in the jump table.
     #[inline]
     pub fn clear(&mut self) {
-        self.code.clear()
+        self.stream.clear();
+        self.jump_table.clear();
     }
 
+    /// Clears all entries in the command buffer stream.
     #[inline]
     pub fn clear_command_buffer(&mut self) {
-        self.code.clear()
+        self.stream.clear()
     }
 
+    /// Clears all entries in the jump table.
     #[inline]
     pub fn clear_jump_table(&mut self) {
         self.jump_table.clear()
+    }
+
+    /// Returns true if the common prologue code is inserted.
+    #[inline]
+    pub fn has_prologue_code(&self) -> bool {
+        self.has_prologue
+    }
+
+    /// Returns true if the common prologue code is inserted.
+    #[inline]
+    pub fn has_epilogue_code(&self) -> bool {
+        self.has_epilogue
     }
 }
 
 impl ops::Index<usize> for BytecodeStream {
     type Output = DiscriminatedSignal;
 
+    /// Returns the entry at index 'idx'.
     #[inline]
     fn index(&self, idx: usize) -> &Self::Output {
-        &self.code[idx]
+        &self.stream[idx]
     }
 }
 
 impl ops::IndexMut<usize> for BytecodeStream {
+    /// Returns the entry at index 'idx'.
     #[inline]
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
-        &mut self.code[idx]
+        &mut self.stream[idx]
     }
 }
 
 impl convert::From<Box<[DiscriminatedSignal]>> for BytecodeStream {
+    /// Creates a new instance from a boxed array.
     fn from(buf: Box<[DiscriminatedSignal]>) -> Self {
         Self {
-            code: Vec::from(buf),
+            stream: Vec::from(buf),
             jump_table: HashMap::new(),
             last_op_idx: 0,
             ops_count: 0,
+            has_prologue: false,
+            has_epilogue: false,
         }
     }
 }
 
 impl convert::From<Vec<DiscriminatedSignal>> for BytecodeStream {
+    /// Creates a new instance from a vec.
     fn from(vec: Vec<DiscriminatedSignal>) -> Self {
         Self {
-            code: vec,
+            stream: vec,
             jump_table: HashMap::new(),
             last_op_idx: 0,
             ops_count: 0,
+            has_prologue: false,
+            has_epilogue: false,
         }
     }
 }
 
 impl default::Default for BytecodeStream {
+    /// Same as new()
     fn default() -> Self {
         Self::new()
     }
 }
 
-// Simple print:
+/// Simple print.
 impl fmt::Display for BytecodeStream {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n+-----------------------------------------------+")?;
         writeln!(f, "|                    Bytecode                   |")?;
         writeln!(f, "+-----------------------------------------------+")?;
         let mut i = 0;
-        while i < self.code.len() {
-            let meta = &INSTRUCTION_TABLE[i32::from(self.code[i].0) as usize];
+        while i < self.stream.len() {
+            let meta = &INSTRUCTION_TABLE[i32::from(self.stream[i].0) as usize];
             writeln!(f, "| {}", meta.mnemonic)?;
             i += 1 + meta.explicit_arguments.len();
         }
@@ -617,7 +737,7 @@ impl fmt::Display for BytecodeStream {
     }
 }
 
-// Detailed print (valid text bytecode with syntax)
+/// Detailed print (valid text bytecode with syntax).
 impl fmt::Debug for BytecodeStream {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n+-----------------------------------------------+")?;
@@ -626,14 +746,14 @@ impl fmt::Debug for BytecodeStream {
         writeln!(f, "|       Address       |     Byte    |     Ops   |")?;
         writeln!(f, "+-----------------------------------------------+")?;
         let mut i = 0;
-        while i < self.code.len() {
-            let meta = &INSTRUCTION_TABLE[i32::from(self.code[i].0) as usize];
+        while i < self.stream.len() {
+            let meta = &INSTRUCTION_TABLE[i32::from(self.stream[i].0) as usize];
             writeln!(
                 f,
                 "| {}{:#018X} | {} | {}{}",
                 super::interpreter::sigs::ADDRESS_OP,
                 i,
-                self.code[i].0,
+                self.stream[i].0,
                 super::interpreter::sigs::BEGIN_OP,
                 meta.mnemonic
             )?;
@@ -643,7 +763,7 @@ impl fmt::Debug for BytecodeStream {
                     "| {}{:#018X} | {:?}",
                     super::interpreter::sigs::ADDRESS_VAL,
                     j,
-                    self.code[j].0
+                    self.stream[j].0
                 )?;
             }
             i += 1 + meta.explicit_arguments.len();
@@ -653,44 +773,66 @@ impl fmt::Debug for BytecodeStream {
 }
 
 impl BytecodeStream {
+    /// Inserts common prologue code into the bytecode stream.
+    /// This always should be called when a new instance is created
+    /// and before any instructions/arguments are there.
     pub fn prologue(&mut self) -> &mut Self {
-        self.def_opcode(OpCode::Move)
-            .with_i32(0)
-            .with_i32(i32::from_le_bytes(*b"LOVE")); // Because I love my cutie so much!
+        // The first record of the stack (0x00000000) is always unused because of the stack
+        // pointer layout. So we fill it with some random value using the MOV instruction.
+        self.push_opcode(OpCode::Move) // Move to stack slot.
+            .with_i32(0) // Into first stack slot (0x00000000)
+            .with_i32(i32::from_le_bytes(*b"LOVE")); // (4 * u8) Because I love my cutie!
+        self.has_prologue = true;
         self
     }
 
+    /// Inserts common prologue code into the bytecode stream.
+    /// This always should be called when building is done.
     pub fn epilogue(&mut self) -> &mut Self {
-        self.def_opcode(OpCode::Interrupt).with_i32(0); // Add interrupt as last instruction.
+        // Add interrupt as last instruction because
+        // there are no instruction pointer out of range checks
+        // for performance.
+        self.push_opcode(OpCode::Interrupt).with_i32(0);
+        self.has_epilogue = true;
         self
     }
 
+    /// Returns the last signal, which was an opcode (if any),
+    /// else None.
     pub fn last_opcode(&self) -> Option<OpCode> {
         debug_assert!(!self.is_empty());
         self[self.last_op_idx].opcode()
     }
 
-    // TODO continue with analyzers and tools
+    /// Returns a slice of the parameters of the stack operation.
+    /// Returns none if there are none or the operation index is invalid.
     pub fn last_opcode_args(&self) -> Option<&[DiscriminatedSignal]> {
         debug_assert!(!self.is_empty());
         if let Some(opcode) = self[self.last_op_idx].opcode() {
             let arg_count = opcode_meta(opcode).explicit_arguments.len();
-            Some(&self.code[self.last_op_idx + 1..=self.last_op_idx + arg_count])
+            if arg_count == 0 {
+                None
+            } else {
+                Some(&self.stream[self.last_op_idx + 1..=self.last_op_idx + arg_count])
+            }
         } else {
             None
         }
     }
 
+    /// Validates this bytecode and returns an list of error messages (if any).
     pub fn validate(&self) -> Result<(), Vec<&'static str>> {
         Ok(())
     } // TODO
 
+    /// Builds and validates this bytecode and returns an list of error messages (if any).
+    /// On success this returns the bytecode chunk, which can be injected into a VM executor kernel.
     pub fn build(self) -> Result<BytecodeChunk, Vec<&'static str>> {
         if let Err(errors) = self.validate() {
             Err(errors)
         } else {
-            let mut buf = Vec::with_capacity(self.code.len());
-            for rec in self.code {
+            let mut buf = Vec::with_capacity(self.stream.len());
+            for rec in self.stream {
                 buf.push(rec.0);
             }
             Ok(BytecodeChunk::from(buf))
@@ -699,6 +841,7 @@ impl BytecodeStream {
 }
 
 /// A fixed size chunk of bytecode, which can be executed by the VM.
+/// The bytecode inside is validated and optimized and ready for execution.
 pub struct BytecodeChunk {
     buf: Box<[Signal]>,
     ip: usize,
@@ -811,6 +954,8 @@ pub enum OpCode {
     CastI32toF32,
     CastF32toI32,
     Jump,
+    JumpIfZero,
+    JumpIfNotZero,
     JumpIfEquals,
     JumpIfNotEquals,
     JumpIfAbove,
@@ -837,10 +982,11 @@ pub enum OpCode {
     F32Mul,
     F32Div,
     F32Mod,
+    F32MulAdd,
 }
 
 impl OpCode {
-    pub const COUNT: usize = 1 + F32Mod as usize;
+    pub const COUNT: usize = 1 + OpCode::F32MulAdd as usize;
 }
 
 pub trait ArgumentPrimitive: Sized + Copy + Clone + PartialEq {}
@@ -874,6 +1020,7 @@ pub struct ExplicitArgumentMeta<'a> {
 pub struct ImplicitArgumentMeta<'a> {
     pub offset: isize,
     pub alias: &'a str,
+    pub gets_popped: bool,
 }
 
 #[derive(PartialEq, Copy, Clone, Debug)]
@@ -1026,6 +1173,7 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
             alias: "source_value",
+            gets_popped: false,
         }]),
     },
     InstructionMeta {
@@ -1036,6 +1184,7 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
             alias: "source_value",
+            gets_popped: false,
         }]),
     },
     InstructionMeta {
@@ -1046,6 +1195,7 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
             alias: "source_value",
+            gets_popped: false,
         }]),
     },
     InstructionMeta {
@@ -1056,6 +1206,7 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
             alias: "source_value",
+            gets_popped: false,
         }]),
     },
     InstructionMeta {
@@ -1069,8 +1220,36 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::None,
     },
     InstructionMeta {
+        opcode: OpCode::JumpIfZero,
+        mnemonic: mnemonics::JUMP_IF_ZERO,
+        category: InstructionCategory::Branching,
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::Label],
+            alias: "target_label",
+        }],
+        implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+            offset: -1,
+            alias: "logical_operand_a",
+            gets_popped: true,
+        }]),
+    },
+    InstructionMeta {
+        opcode: OpCode::JumpIfNotZero,
+        mnemonic: mnemonics::JUMP_IF_NOT_ZERO,
+        category: InstructionCategory::Branching,
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::Label],
+            alias: "target_label",
+        }],
+        implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+            offset: -1,
+            alias: "logical_operand_a",
+            gets_popped: true,
+        }]),
+    },
+    InstructionMeta {
         opcode: OpCode::JumpIfEquals,
-        mnemonic: mnemonics::JUMP_EQUALS,
+        mnemonic: mnemonics::JUMP_IF_EQUALS,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -1080,16 +1259,18 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "logical_operand_a",
+                gets_popped: true,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "logical_operand_b",
+                gets_popped: true,
             },
         ]),
     },
     InstructionMeta {
         opcode: OpCode::JumpIfNotEquals,
-        mnemonic: mnemonics::JUMP_NOT_EQUALS,
+        mnemonic: mnemonics::JUMP_IF_NOT_EQUALS,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -1099,16 +1280,18 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "logical_operand_a",
+                gets_popped: true,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "logical_operand_b",
+                gets_popped: true,
             },
         ]),
     },
     InstructionMeta {
         opcode: OpCode::JumpIfAbove,
-        mnemonic: mnemonics::JUMP_ABOVE,
+        mnemonic: mnemonics::JUMP_IF_ABOVE,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -1118,16 +1301,18 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "logical_operand_a",
+                gets_popped: true,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "logical_operand_b",
+                gets_popped: true,
             },
         ]),
     },
     InstructionMeta {
         opcode: OpCode::JumpIfAboveEquals,
-        mnemonic: mnemonics::JUMP_ABOVE_EQUALS,
+        mnemonic: mnemonics::JUMP_IF_ABOVE_EQUALS,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -1137,16 +1322,18 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "logical_operand_a",
+                gets_popped: true,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "logical_operand_b",
+                gets_popped: true,
             },
         ]),
     },
     InstructionMeta {
         opcode: OpCode::JumpIfLess,
-        mnemonic: mnemonics::JUMP_LESS,
+        mnemonic: mnemonics::JUMP_IF_LESS,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -1156,16 +1343,18 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "logical_operand_a",
+                gets_popped: true,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "logical_operand_b",
+                gets_popped: true,
             },
         ]),
     },
     InstructionMeta {
         opcode: OpCode::JumpIfLessEquals,
-        mnemonic: mnemonics::JUMP_LESS_EQUALS,
+        mnemonic: mnemonics::JUMP_IF_LESS_EQUALS,
         category: InstructionCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::Label],
@@ -1175,10 +1364,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "logical_operand_a",
+                gets_popped: true,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "logical_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1191,10 +1382,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1207,10 +1400,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1223,10 +1418,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1239,10 +1436,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1255,10 +1454,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1271,10 +1472,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1287,10 +1490,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1303,10 +1508,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1319,10 +1526,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1335,10 +1544,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1351,10 +1562,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1367,10 +1580,12 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
             ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1382,6 +1597,7 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
             alias: "scalar_operand_a",
+            gets_popped: false,
         }]),
     },
     InstructionMeta {
@@ -1392,6 +1608,7 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
             alias: "scalar_operand_a",
+            gets_popped: false,
         }]),
     },
     InstructionMeta {
@@ -1402,6 +1619,7 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
             alias: "scalar_operand_a",
+            gets_popped: false,
         }]),
     },
     InstructionMeta {
@@ -1411,12 +1629,14 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "scalar_operand_b",
-            },
-            ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1427,12 +1647,14 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "scalar_operand_b",
-            },
-            ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1443,12 +1665,14 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "scalar_operand_b",
-            },
-            ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1459,12 +1683,14 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -1,
-                alias: "scalar_operand_b",
-            },
-            ImplicitArgumentMeta {
                 offset: -2,
                 alias: "scalar_operand_a",
+                gets_popped: false,
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "scalar_operand_b",
+                gets_popped: true,
             },
         ]),
     },
@@ -1475,12 +1701,37 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
+                offset: -2,
+                alias: "scalar_operand_a",
+                gets_popped: false,
+            },
+            ImplicitArgumentMeta {
                 offset: -1,
                 alias: "scalar_operand_b",
+                gets_popped: true,
+            },
+        ]),
+    },
+    InstructionMeta {
+        opcode: OpCode::F32MulAdd,
+        mnemonic: mnemonics::F32_MUL_ADD,
+        category: InstructionCategory::Arithmetic,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::Fixed(&[
+            ImplicitArgumentMeta {
+                offset: -3,
+                alias: "scalar_operand_a",
+                gets_popped: false,
             },
             ImplicitArgumentMeta {
                 offset: -2,
-                alias: "scalar_operand_a",
+                alias: "scalar_operand_b",
+                gets_popped: true,
+            },
+            ImplicitArgumentMeta {
+                offset: -1,
+                alias: "scalar_operand_c",
+                gets_popped: true,
             },
         ]),
     },

@@ -204,26 +204,26 @@
 
 */
 
-extern crate ronvm;
+extern crate ronin_runtime;
 
-use ronvm::prelude::*;
+use ronin_runtime::prelude::*;
 use std::time::*;
 
 fn main() {
     let mut code = BytecodeStream::new();
 
     code.prologue();
-    code.def_opcode(OpCode::Push).with_i32(0);
-    code.def_label("Loop");
-    code.def_opcode(OpCode::I32Increment);
-    code.def_opcode(OpCode::Push).with_i32(6);
-    code.def_opcode(OpCode::Push).with_i32(8);
-    code.def_opcode(OpCode::I32Ror);
-    code.def_opcode(OpCode::Pop).with_i32(1);
-    code.def_opcode(OpCode::Duplicate);
-    code.def_opcode(OpCode::Push).with_i32(1000000);
-    code.def_opcode(OpCode::JumpIfLess).with_label("Loop");
-    code.def_opcode(OpCode::Pop).with_i32(1);
+    code.push_opcode(OpCode::Push).with_i32(0);
+    code.push_label("Loop");
+    code.push_opcode(OpCode::I32Increment);
+    code.push_opcode(OpCode::Push).with_i32(6);
+    code.push_opcode(OpCode::Push).with_i32(8);
+    code.push_opcode(OpCode::I32Ror);
+    code.push_opcode(OpCode::Pop).with_i32(1);
+    code.push_opcode(OpCode::Duplicate);
+    code.push_opcode(OpCode::Push).with_i32(1000000);
+    code.push_opcode(OpCode::JumpIfLess).with_label("Loop");
+    code.push_opcode(OpCode::Pop).with_i32(1);
     code.epilogue();
 
     print!("{:?}", code);
