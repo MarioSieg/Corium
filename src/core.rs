@@ -204,7 +204,7 @@
 
 */
 
-use super::bytecode::{BytecodeChunk, Signal};
+use super::bytecode::Signal;
 use super::interpreter::sigs;
 use std::{convert, fmt, ops};
 
@@ -502,51 +502,23 @@ impl fmt::Debug for Stack {
 }
 
 pub mod executor {
-    use super::*;
-    use crate::bytecode::OpCode;
+    use crate::bytecode::{BytecodeChunk, OpCode};
+    use crate::core::{Record, Stack};
+    use std::time::Instant;
 
-    type ExecutorResult = (i32, u64);
+    /// Input data required for the VM executor to run.
+    pub struct ExecutorInput {
+        pub stack: Stack,
+        pub chunk: BytecodeChunk,
+    }
 
-    mod ffi {
-        #![allow(dead_code)]
-
-        use super::*;
-
-        #[repr(C)]
-        pub struct VmCExecutorInput {
-            pub command_buffer: *const Signal,
-            pub instruction_ptr: usize,
-            pub stack: *mut Record,
-            pub stack_ptr: usize,
-        }
-
-        impl VmCExecutorInput {
-            pub fn new(bytecode: &BytecodeChunk, stack: &mut Stack) -> Self {
-                Self {
-                    command_buffer: bytecode.as_ptr(),
-                    instruction_ptr: bytecode.instruction_ptr(),
-                    stack: stack.as_mut_ptr(),
-                    stack_ptr: stack.stack_ptr(),
-                }
-            }
-        }
-
-        #[repr(C)]
-        pub struct VmCExecutorOutput {
-            pub exit_code: i32,
-            pub cycles: u64,
-        }
-
-        extern "C" {
-            #[no_mangle]
-            fn ffi_c_execute(inout: *mut VmCExecutorInput) -> VmCExecutorOutput;
-        }
-
-        pub unsafe fn execute(mut input: VmCExecutorInput) -> ExecutorResult {
-            let pass_ptr: *mut _ = &mut input;
-            let x = ffi_c_execute(pass_ptr);
-            (x.exit_code, x.cycles)
-        }
+    /// Output data coming from the VM executor after program execution finished.
+    pub struct ExecutorOutput {
+        pub input: ExecutorInput,
+        pub cycles: u64,
+        pub exit_code: i32,
+        pub interrupt_code: i32,
+        pub time: f64,
     }
 
     #[macro_export]
@@ -601,7 +573,15 @@ pub mod executor {
 
     /// Executes the bytecode.
     /// Returns the interrupt id (exitcode) and the number of cycles.
-    pub fn execute(mut command_buffer: BytecodeChunk, mut stack: Stack) -> ExecutorResult {
+    pub fn execute(input: ExecutorInput) -> ExecutorOutput {
+        debug_assert!(!input.stack.is_empty());
+        debug_assert!(!input.chunk.is_empty());
+        debug_assert_eq!(input.chunk.instruction_ptr(), 0);
+        debug_assert_eq!(input.stack.stack_ptr(), 0);
+
+        let clock = Instant::now();
+        let mut command_buffer = input.chunk;
+        let mut stack = input.stack;
         let mut cycles: u64 = 0; // Cycles counter.
         let mut interrupt: i32; // Interrupt id.
         let mut opcode: OpCode; // Opcode.
@@ -831,6 +811,15 @@ pub mod executor {
             }
         }
 
-        (interrupt, cycles)
+        ExecutorOutput {
+            input: ExecutorInput {
+                stack,
+                chunk: command_buffer,
+            },
+            cycles,
+            exit_code: interrupt,
+            interrupt_code: interrupt,
+            time: clock.elapsed().as_secs_f64(),
+        }
     }
 }

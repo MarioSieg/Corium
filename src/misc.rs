@@ -245,6 +245,12 @@ impl MT19937_64 {
         mt
     }
 
+    pub fn from_seed(seed: &[u64]) -> MT19937_64 {
+        let mut mt = Self::UNINITIALIZED;
+        mt.reseed(seed);
+        mt
+    }
+
     pub fn reseed_u64(&mut self, seed: u64) {
         self.idx = Self::NN;
         self.state[0] = Wra(seed);
@@ -253,12 +259,6 @@ impl MT19937_64 {
                 * (self.state[i - 1] ^ (self.state[i - 1] >> 62))
                 + Wra(i as u64);
         }
-    }
-
-    pub fn from_seed(seed: &[u64]) -> MT19937_64 {
-        let mut mt = Self::UNINITIALIZED;
-        mt.reseed(seed);
-        mt
     }
 
     pub fn reseed(&mut self, key: &[u64]) {
@@ -334,7 +334,6 @@ impl MT19937_64 {
         mt
     }
 
-    #[inline]
     fn temper(mut x: u64) -> u64 {
         x ^= (x >> 29) & 0x5555555555555555;
         x ^= (x << 17) & 0x71D67FFFEDA60000;
@@ -343,7 +342,6 @@ impl MT19937_64 {
         x
     }
 
-    #[inline]
     fn untemper(mut x: u64) -> u64 {
         x ^= x >> 43;
         x ^= (x << 37) & 0xFFF7EEE000000000;
@@ -357,7 +355,6 @@ impl MT19937_64 {
 }
 
 impl Clone for MT19937_64 {
-    #[inline(always)]
     fn clone(&self) -> MT19937_64 {
         *self
     }
@@ -513,7 +510,6 @@ impl MT19937 {
         mt
     }
 
-    #[inline]
     fn temper(mut x: u32) -> u32 {
         x ^= x >> 11;
         x ^= (x << 7) & 0x9d2c5680;
@@ -522,7 +518,6 @@ impl MT19937 {
         x
     }
 
-    #[inline]
     fn untemper(mut x: u32) -> u32 {
         x ^= x >> 18;
         x ^= (x << 15) & 0x2fc60000;
@@ -533,7 +528,6 @@ impl MT19937 {
         x ^= (x << 7) & 0x90000000;
         x ^= x >> 11;
         x ^= x >> 22;
-
         x
     }
 }
@@ -798,10 +792,6 @@ impl Xorshift1024 {
 }
 
 /// Macro to generate integer bitflags.
-/// Added here because the auto completion didn't recognized the flags when used as extern crate.
-/// Removed the verbose functions.
-/// From bitflags crate (https://github.com/bitflags/bitflags).
-/// See Credits.txt for the license.
 #[macro_export(local_inner_macros)]
 macro_rules! bitflags {
     (
@@ -1209,13 +1199,32 @@ pub struct RuntimeConfig {
     pub thread_stack_size: usize,
 }
 
-impl Default for RuntimeConfig {
-    fn default() -> Self {
+impl RuntimeConfig {
+    pub fn new() -> Self {
         Self {
             cache_dir: PathBuf::from("_roncache_"),
             additional_package_dirs: Vec::new(),
             thread_stack_size: 1024 * 1024 * 8,
         }
+    }
+
+    #[inline]
+    #[cfg(feature = "config_file")]
+    pub fn load() -> Self {
+        Self::load_from_file().unwrap_or(RuntimeConfig::default())
+    }
+
+    #[inline]
+    #[cfg(not(feature = "config_file"))]
+    pub fn load() -> Self {
+        RuntimeConfig::default()
+    }
+}
+
+impl Default for RuntimeConfig {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
     }
 }
 

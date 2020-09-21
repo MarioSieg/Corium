@@ -206,34 +206,30 @@
 
 extern crate ronin_runtime;
 
+use ronin_runtime::core::executor::ExecutorInput;
 use ronin_runtime::prelude::*;
-use std::time::*;
 
 fn main() {
-    #[cfg(feature = "config_file")]
-    let _config = RuntimeConfig::load_from_file();
-
     let mut code = BytecodeStream::new();
 
     code.prologue();
     code.push_opcode(OpCode::Push).with_i32(0);
-    code.push_label("Loop");
+    code.push_label("_loop");
     code.push_opcode(OpCode::I32Increment);
     code.push_opcode(OpCode::Push).with_i32(6);
     code.push_opcode(OpCode::Push).with_i32(8);
     code.push_opcode(OpCode::I32Ror);
     code.push_opcode(OpCode::Pop).with_i32(1);
     code.push_opcode(OpCode::Duplicate);
-    code.push_opcode(OpCode::Push).with_i32(1000000);
-    code.push_opcode(OpCode::JumpIfLess).with_label("Loop");
+    code.push_opcode(OpCode::Push).with_i32(i32::MAX);
+    code.push_opcode(OpCode::JumpIfLess).with_label("_loop");
     code.push_opcode(OpCode::Pop).with_i32(1);
     code.epilogue();
 
-    print!("{:?}", code);
+    let input = ExecutorInput {
+        chunk: code.build().unwrap(),
+        stack: Stack::with_length(32),
+    };
 
-    let t = Instant::now();
-    let (excode, cycles) = executor::execute(code.build().unwrap(), Stack::with_length(32));
-    println!("t: {}", t.elapsed().as_secs_f32());
-
-    println!("exitcode: {}, cycles: {}", excode, cycles);
+    let _ = executor::execute(input);
 }

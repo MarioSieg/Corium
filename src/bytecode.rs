@@ -848,46 +848,58 @@ pub struct BytecodeChunk {
 }
 
 impl BytecodeChunk {
+    /// Returns an immutable reference to the underlying command buffer.
     #[inline(always)]
     pub fn buffer(&self) -> &[Signal] {
         &self.buf
     }
 
+    /// Returns an immutable pointer to the underlying command buffer array data.
     #[inline(always)]
     pub fn as_ptr(&self) -> *const Signal {
         self.buf.as_ptr()
     }
 
+    /// Returns an mutable pointer to the underlying command buffer array data.
     #[inline(always)]
     pub fn as_mut_ptr(&mut self) -> *mut Signal {
         self.buf.as_mut_ptr()
     }
 
+    /// Returns the amount of signals inside the command buffer.
     #[inline(always)]
     pub fn length(&self) -> usize {
         self.buf.len()
     }
 
+    /// Returns true if the command buffer is empty, else false.
     #[inline(always)]
     pub fn is_empty(&self) -> bool {
         self.buf.is_empty()
     }
 
+    /// Returns the estimated amount of bytes this instance takes up in memory.
     #[inline(always)]
     pub fn size(&self) -> usize {
         self.buf.len() * std::mem::size_of::<Signal>()
     }
 
+    /// Returns the instruction pointer.
     #[inline(always)]
     pub fn instruction_ptr(&self) -> usize {
         self.ip
     }
 
+    /// Jumps to a specific address in the command buffer.
+    /// If this address does not exist it will panic in debug bulids.
     #[inline(always)]
     pub fn jump(&mut self, ip: usize) {
+        debug_assert!(ip < self.buf.len());
         self.ip = ip
     }
 
+    /// Fetches the next signal from the command buffer
+    /// and increments the instruction pointer by one.
     #[inline(always)]
     pub fn fetch(&mut self) -> Signal {
         let record = self.buf[self.ip];
@@ -895,6 +907,8 @@ impl BytecodeChunk {
         record
     }
 
+    /// Returns true if the instruction pointer reached the end of the command buffer,
+    /// else false.
     #[inline(always)]
     pub fn is_done(&self) -> bool {
         self.ip >= self.buf.len()
@@ -904,6 +918,7 @@ impl BytecodeChunk {
 impl ops::Index<usize> for BytecodeChunk {
     type Output = Signal;
 
+    /// Returns the element at 'idx'.
     #[inline(always)]
     fn index(&self, idx: usize) -> &Self::Output {
         &self.buf[idx]
@@ -911,6 +926,7 @@ impl ops::Index<usize> for BytecodeChunk {
 }
 
 impl ops::IndexMut<usize> for BytecodeChunk {
+    /// Returns the element at 'idx'.
     #[inline(always)]
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.buf[idx]
@@ -940,6 +956,8 @@ impl convert::From<Vec<Signal>> for BytecodeChunk {
 // 3.) Add metadata to 'INSTRUCTION_TABLE'
 // 4.) Add implementation in 'execute()' in 'core.rs' and in 'alt_ffi_core.c'
 
+/// Represents an opcode.
+/// Contains all bytecode instructions available.
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum OpCode {
@@ -989,11 +1007,14 @@ impl OpCode {
     pub const COUNT: usize = 1 + OpCode::F32MulAdd as usize;
 }
 
+/// Restricts possible immediate value arguments types like:
+/// u32, i32, f32
 pub trait ArgumentPrimitive: Sized + Copy + Clone + PartialEq {}
 impl ArgumentPrimitive for i32 {}
 impl ArgumentPrimitive for f32 {}
 impl ArgumentPrimitive for u32 {}
 
+/// Contains limits and a default value for immediate arguments.
 #[derive(PartialEq, Debug)]
 pub struct ArgumentLiteralValue<T: ArgumentPrimitive> {
     pub min: T,
@@ -1001,6 +1022,7 @@ pub struct ArgumentLiteralValue<T: ArgumentPrimitive> {
     pub default: Option<T>,
 }
 
+/// Contains all possible immediate argument types and their corresponding limits and default values.
 #[derive(PartialEq, Debug)]
 pub enum ArgumentLiteralType {
     ValI32(ArgumentLiteralValue<i32>),
@@ -1010,12 +1032,14 @@ pub enum ArgumentLiteralType {
     Proc,
 }
 
+/// Metadata descriptor for explicit bytecode arguments.
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub struct ExplicitArgumentMeta<'a> {
     pub accepted_value_types: &'a [ArgumentLiteralType],
     pub alias: &'a str,
 }
 
+/// Metadata descriptor for implicit bytecode arguments.
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub struct ImplicitArgumentMeta<'a> {
     pub offset: isize,
@@ -1023,6 +1047,7 @@ pub struct ImplicitArgumentMeta<'a> {
     pub gets_popped: bool,
 }
 
+/// Contains metadata variations for implicit arguments.
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub enum ImplicitArguments<'a> {
     None,
@@ -1030,6 +1055,7 @@ pub enum ImplicitArguments<'a> {
     Fixed(&'a [ImplicitArgumentMeta<'a>]),
 }
 
+/// Rough categories for instructions.
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub enum InstructionCategory {
     Control,
@@ -1039,6 +1065,7 @@ pub enum InstructionCategory {
     Bitwise,
 }
 
+/// Metadata descriptor for a bytecode instruction.
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub struct InstructionMeta<'a> {
     pub opcode: OpCode,
@@ -1048,11 +1075,14 @@ pub struct InstructionMeta<'a> {
     pub implicit_arguments: ImplicitArguments<'a>,
 }
 
+/// Returns the metadata for the corresponding opcode.
 #[inline]
 pub fn opcode_meta(op: OpCode) -> &'static InstructionMeta<'static> {
     &INSTRUCTION_TABLE[op as usize]
 }
 
+/// Contains all metadata for all instructions.
+/// The index if the opcode.
 const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
     InstructionMeta {
         opcode: OpCode::Interrupt,
