@@ -204,8 +204,6 @@
 
 */
 
-#[cfg(feature = "execution_log")]
-use super::bytecode::opcode_meta;
 use super::bytecode::{BytecodeChunk, IntrinProcID, OpCode, Signal};
 use std::{convert, fmt, ops};
 
@@ -609,8 +607,6 @@ impl fmt::Debug for Stack {
 
 /// Contains the VM kernel and executor.
 pub mod executor {
-    #[cfg(feature = "execution_log")]
-    use super::opcode_meta;
     use super::{BytecodeChunk, IntrinProcID, OpCode, Record, Stack};
     use std::time::Instant;
 
@@ -705,11 +701,6 @@ pub mod executor {
         'vm: loop {
             let opcode = command_buffer.fetch().into();
             cycles += 1;
-
-            #[cfg(feature = "execution_log")]
-            {
-                println!("{} {} {}", cycles, interrupt, opcode_meta(opcode).mnemonic,);
-            }
 
             match opcode {
                 OpCode::Interrupt => {

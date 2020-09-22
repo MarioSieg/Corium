@@ -14,7 +14,6 @@ path = "src/bin.rs"
 
 [features]
 config_file = ["serde", "serde_json"]
-execution_log = []
 
 [dependencies]
 serde = { version = "1.0.116", features = ["derive"], optional = true }
