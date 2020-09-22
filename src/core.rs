@@ -204,14 +204,20 @@
 
 */
 
-use super::bytecode::Signal;
-use super::interpreter::sigs;
+#[cfg(feature = "execution_log")]
+use super::bytecode::opcode_meta;
+use super::bytecode::{BytecodeChunk, IntrinProcID, OpCode, Signal};
 use std::{convert, fmt, ops};
 
+/// Represents a single stack record at runtime.
+/// A record is used as an union which can be an i32, f32 or u32.
+/// It is not discriminated and typesafe so be carefully!
 #[repr(C)]
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Record(u32);
 
+/// Creates a record from an usize.
+/// It might get truncated into an u32, if sizeof(usize) > 32.
 impl convert::From<usize> for Record {
     #[inline(always)]
     fn from(x: usize) -> Self {
@@ -219,6 +225,9 @@ impl convert::From<usize> for Record {
     }
 }
 
+/// Creates an usize from a record.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an usize.
 impl convert::From<Record> for usize {
     #[inline(always)]
     fn from(x: Record) -> Self {
@@ -226,6 +235,8 @@ impl convert::From<Record> for usize {
     }
 }
 
+/// Creates a record from an i32.
+/// The record then represents an i32 with the value of x.
 impl convert::From<i32> for Record {
     #[inline(always)]
     fn from(x: i32) -> Self {
@@ -233,6 +244,9 @@ impl convert::From<i32> for Record {
     }
 }
 
+/// Creates an i32 from a record.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an i32.
 impl convert::From<Record> for i32 {
     #[inline(always)]
     fn from(x: Record) -> Self {
@@ -240,6 +254,8 @@ impl convert::From<Record> for i32 {
     }
 }
 
+/// Creates a signal from an u32.
+/// The record then represents an u32 with the value of x.
 impl convert::From<u32> for Record {
     #[inline(always)]
     fn from(x: u32) -> Self {
@@ -247,6 +263,9 @@ impl convert::From<u32> for Record {
     }
 }
 
+/// Creates an u32 from a record.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an u32.
 impl convert::From<Record> for u32 {
     #[inline(always)]
     fn from(x: Record) -> Self {
@@ -254,6 +273,8 @@ impl convert::From<Record> for u32 {
     }
 }
 
+/// Creates a signal from a f32.
+/// The record then represents an f32 with the value of x.
 impl convert::From<f32> for Record {
     #[inline(always)]
     fn from(x: f32) -> Self {
@@ -261,6 +282,9 @@ impl convert::From<f32> for Record {
     }
 }
 
+/// Creates an f32 from a record.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an f32.
 impl convert::From<Record> for f32 {
     #[inline(always)]
     fn from(x: Record) -> Self {
@@ -275,6 +299,7 @@ impl convert::From<[u8; 4]> for Record {
     }
 }
 
+/// Creates a new signal from a little endian byte array with four elements (32-bits).
 impl convert::From<Record> for [u8; 4] {
     #[inline(always)]
     fn from(x: Record) -> Self {
@@ -282,6 +307,7 @@ impl convert::From<Record> for [u8; 4] {
     }
 }
 
+/// Creates a signal from a byte array with four elements (32-bits).
 impl convert::From<Signal> for Record {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -289,6 +315,7 @@ impl convert::From<Signal> for Record {
     }
 }
 
+/// Only prints the byte array.
 impl fmt::Display for Record {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b: [u8; 4] = (*self).into();
@@ -296,46 +323,76 @@ impl fmt::Display for Record {
     }
 }
 
+/// Prints the byte array with values and correct syntax.
 impl fmt::Debug for Record {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let b: [u8; 4] = (*self).into();
         write!(
             f,
-            "{:02X} {:02X} {:02X} {:02X} | {}{}{}, {}{:#E}{}",
+            "{:02X} {:02X} {:02X} {:02X} | {} {:#e}",
             b[0],
             b[1],
             b[2],
             b[3],
-            sigs::BEGIN_VALUE,
             i32::from(*self),
-            sigs::MARKER_I32,
-            sigs::BEGIN_VALUE,
-            i32::from(*self),
-            sigs::MARKER_F32,
+            f32::from(*self),
         )
     }
 }
 
+/// Contains common stack sizes.
 #[repr(usize)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum CommonStackSize {
-    Small8KB = 1024,
+    /// 8KB stack -> ((1024 * 8) / 4) entries, sizeof(Record) == 4
+    Small8KB = 1024 * 8,
+
     Small32KB = 1024 * 32,
+
+    /// 32KB stack -> ((1024 * 32) / 4) entries, sizeof(Record) == 4
     Small64KB = 1024 * 64,
+
+    /// 128KB stack -> ((1024 * 128) / 4) entries, sizeof(Record) == 4
     Medium128KB = 1024 * 128,
+
+    /// 256KB stack -> ((1024 * 256) / 4) entries, sizeof(Record) == 4
     Medium256KB = 1024 * 256,
+
+    /// 512KB stack -> ((1024 * 512) / 4) entries, sizeof(Record) == 4
     Medium512KB = 1024 * 512,
+
+    /// 1KB stack -> ((1024 * 1024) / 4) entries, sizeof(Record) == 4
     Large1MB = 1024 * 1024,
+
+    /// 4MB stack -> ((1024 * 1024 * 4) / 4) entries, sizeof(Record) == 4
     Large4MB = 1024 * 1024 * 4,
+
+    /// 8MB stack -> ((1024 * 1024 * 48 / 4) entries, sizeof(Record) == 4
     Large8MB = 1024 * 1024 * 8,
 }
 
+impl CommonStackSize {
+    /// Returns the amount of bytes by the current enumerator.
+    #[inline]
+    pub fn as_bytes(&self) -> usize {
+        *self as _
+    }
+
+    /// Returns the amount of bits by the current enumerator.
+    #[inline]
+    pub fn as_bits(&self) -> usize {
+        (*self as usize) * 8
+    }
+}
+
+/// Represents a mutable, fixed size heap-allocated stack.
 pub struct Stack {
     buf: Box<[Record]>,
     sp: usize,
 }
 
 impl Stack {
+    /// Creates a new instance with a specified amount of records.
     pub fn with_length(len: usize) -> Self {
         assert_ne!(len, 0);
         Self {
@@ -344,6 +401,8 @@ impl Stack {
         }
     }
 
+    /// Creates a new instance with a specified size in bytes.
+    /// Panics if the byte size is 0 or not a multiple of (sizeof(Record) == 4)
     pub fn with_byte_size(size: usize) -> Self {
         assert_ne!(size, 0);
         assert_eq!(size % std::mem::size_of::<Record>(), 0);
@@ -353,103 +412,143 @@ impl Stack {
         }
     }
 
+    /// Creates a new instance with a byte size specified in the enum.
     pub fn with_common_size(size: CommonStackSize) -> Self {
         Self::with_byte_size(size as usize)
     }
 }
 
 impl Stack {
+    /// Returns the number of records the buffer can hold.
     #[inline(always)]
     pub fn length(&self) -> usize {
         self.buf.len()
     }
 
+    /// Returns true if there are no records, else false. (sp == 0)
     #[inline(always)]
     pub fn is_empty(&self) -> bool {
-        self.buf.is_empty()
+        self.sp == 0
     }
 
+    /// Returns the estimated size this instance takes up in memory in bytes.
     #[inline(always)]
     pub fn size(&self) -> usize {
         self.buf.len() * std::mem::size_of::<Record>()
     }
 
+    /// Returns an immutable reference to the record buffer.
     #[inline(always)]
     pub fn buffer(&self) -> &[Record] {
         &self.buf
     }
 
+    /// Returns an immutable pointer to the record buffer data.
     #[inline(always)]
     pub fn as_ptr(&self) -> *const Record {
         self.buf.as_ptr()
     }
 
+    /// Returns an mutable pointer to the record buffer data.
     #[inline(always)]
     pub fn as_mut_ptr(&mut self) -> *mut Record {
         self.buf.as_mut_ptr()
     }
 
+    /// Returns the stack pointer index (sp).
     #[inline(always)]
     pub fn stack_ptr(&self) -> usize {
         self.sp
     }
 
+    /// Pushes a new record into the stack.
+    /// Remember that this never allocates, as the stack is fixed size.
+    /// Does not check for stack overflow in release!
     #[inline(always)]
     pub fn push(&mut self, rec: Record) {
+        debug_assert!(self.sp < self.buf.len(), "VM StackOverflow");
         self.sp += 1;
         self.buf[self.sp] = rec;
     }
 
+    /// Pushes the stack to it's capacity.
+    /// Warning! A push call after this will result in a stack overflow.
     #[inline(always)]
     pub fn push_all(&mut self) {
         self.sp = self.buf.len() - 1;
     }
 
+    /// Pops the top stack record off the stack
+    /// and decrements the stack pointer.
     #[inline(always)]
     pub fn pop(&mut self) {
+        debug_assert_ne!(self.sp, 0, "VM_Stack_ZeroPop");
+        debug_assert!(self.sp.checked_sub(1).is_some(), "VM_Stack_OverflowPop");
         self.sp -= 1;
     }
 
+    /// Pops all records from the stack.
+    /// The stack pointer is zero afterwards.
     #[inline(always)]
     pub fn pop_all(&mut self) {
         self.sp = 0
     }
 
+    /// Pops multiple records from the stack.
+    /// Count must be > 0!
     #[inline(always)]
     pub fn pop_multi(&mut self, count: usize) {
-        debug_assert_ne!(count, 0);
+        debug_assert_ne!(count, 0, "VM_Stack_ZeroPop");
+        debug_assert!(self.sp.checked_sub(count).is_some(), "VM_Stack_OverflowPop");
         self.sp -= count;
     }
 
+    /// Pops the top stack record off the stack,
+    /// decrements the stack pointer
+    /// and returns the the former top element,
     #[inline(always)]
     pub fn pop_ret(&mut self) -> Record {
+        debug_assert!(self.sp > 0, "VM_Stack_Underflow");
         let val = self.buf[self.sp];
         self.sp -= 1;
         val
     }
 
+    /// Returns the record at the top of the stack.
     #[inline(always)]
     pub fn peek(&self) -> Record {
+        debug_assert!(self.sp < self.buf.len(), "VM_Stack_OutOfRangePeek!");
         self.buf[self.sp]
     }
 
+    /// Sets the element at the top of the stack.
     #[inline(always)]
     pub fn peek_set(&mut self, rec: Record) {
+        debug_assert!(self.sp < self.buf.len(), "VM_Stack_OutOfRangePeek!");
         self.buf[self.sp] = rec
     }
 
+    /// Returns the record at the offset from the stack pointer.
+    /// Make sure 'idx' is less than the stack pointer
+    /// and stack pointer minus 'idx' is less than the record buffer length.
     #[inline(always)]
     pub fn poke(&self, idx: usize) -> Record {
-        debug_assert!(idx <= self.sp);
+        debug_assert!(idx <= self.sp, "VM_Stack_OutOfRangePoke!");
+        debug_assert!(self.sp - idx <= self.buf.len(), "VM_Stack_OutOfRangePoke!");
         self.buf[self.sp - idx]
     }
 
+    /// Sets the record at the offset from the stack pointer.
+    /// Make sure 'idx' is less than the stack pointer
+    /// and stack pointer minus 'idx' is less than the record buffer length.
     #[inline(always)]
     pub fn poke_set(&mut self, idx: usize, rec: Record) {
-        debug_assert!(idx <= self.sp);
+        debug_assert!(idx <= self.sp, "VM_Stack_OutOfRangePoke!");
+        debug_assert!(self.sp - idx <= self.buf.len(), "VM_Stack_OutOfRangePoke!"); // TODO check for overflow
         self.buf[self.sp - idx] = rec
     }
 
+    /// Returns true if stack overflow happend.
     #[inline(always)]
     pub fn is_overflowed(&self) -> bool {
         self.sp >= self.buf.len()
@@ -459,6 +558,7 @@ impl Stack {
 impl ops::Index<usize> for Stack {
     type Output = Record;
 
+    /// Returns an immutable reference to the record in the record buffer at 'idx'.
     #[inline(always)]
     fn index(&self, idx: usize) -> &Self::Output {
         &self.buf[idx]
@@ -466,6 +566,7 @@ impl ops::Index<usize> for Stack {
 }
 
 impl ops::IndexMut<usize> for Stack {
+    /// Returns a mutable reference to the record in the record buffer at 'idx'.
     #[inline(always)]
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.buf[idx]
@@ -473,6 +574,8 @@ impl ops::IndexMut<usize> for Stack {
 }
 
 impl convert::From<Box<[Record]>> for Stack {
+    /// Creates a new instance from a boxed array.
+    /// Panics if length is zero!
     fn from(buf: Box<[Record]>) -> Self {
         assert_ne!(buf.len(), 0);
         Self { buf, sp: 0 }
@@ -480,6 +583,8 @@ impl convert::From<Box<[Record]>> for Stack {
 }
 
 impl convert::From<Vec<Record>> for Stack {
+    /// Creates a new instance from a vector.
+    /// Panics if length is zero!
     fn from(buf: Vec<Record>) -> Self {
         assert_ne!(buf.len(), 0);
         Self {
@@ -490,6 +595,7 @@ impl convert::From<Vec<Record>> for Stack {
 }
 
 impl fmt::Debug for Stack {
+    /// Prints the stack with values.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n+-----------------------------------------------+")?;
         writeln!(f, "|                     Stack                     |")?;
@@ -501,9 +607,11 @@ impl fmt::Debug for Stack {
     }
 }
 
+/// Contains the VM kernel and executor.
 pub mod executor {
-    use crate::bytecode::{BytecodeChunk, OpCode};
-    use crate::core::{Record, Stack};
+    #[cfg(feature = "execution_log")]
+    use super::opcode_meta;
+    use super::{BytecodeChunk, IntrinProcID, OpCode, Record, Stack};
     use std::time::Instant;
 
     /// Input data required for the VM executor to run.
@@ -521,51 +629,59 @@ pub mod executor {
         pub time: f64,
     }
 
+    /// Implements a conditional branch jump with a logical type comparison between two operands.
     #[macro_export]
-    macro_rules! conditional_jump {
-        ($sta:ident, $cmd:ident, $op:tt) => {
-             if i32::from($sta.poke(1)) $op i32::from($sta.peek()) {
-                let target_address = $cmd.fetch().into();
+    macro_rules! impl_duplet_con_jmp {
+        ($sta:ident, $cmd:ident, $op:tt, $tp:ty) => {
+            let target_address: usize = $cmd.fetch().into();
+            if <$tp>::from($sta.poke(1)) $op <$tp>::from($sta.peek()) {
                 $cmd.jump(target_address);
             }
             $sta.pop_multi(2);
         }
     }
 
+    /// Implements a conditional branch jump with a logical type comparison between two operands,
+    /// but one of them is specified.
     #[macro_export]
-    macro_rules! scalar_conditional_jump {
-        ($sta:ident, $cmd:ident, $op:tt, $val:expr) => {
-             if i32::from($sta.peek()) $op $val {
-                let target_address = $cmd.fetch().into();
+    macro_rules! impl_scalar_con_jmp {
+        ($sta:ident, $cmd:ident, $op:tt, $val:expr, $tp:ty) => {
+            let target_address: usize = $cmd.fetch().into();
+            if <$tp>::from($sta.peek()) $op $val {
                 $cmd.jump(target_address);
             }
             $sta.pop();
         }
     }
 
+    /// Implements an arithmetic operation with two operands.
     #[macro_export]
-    macro_rules! duplet_operation {
-        ($sta:ident, $sc:ident, $op:tt) => {
+    macro_rules! impl_duplet_op {
+        ($sta:ident, $sc:ty, $op:tt) => {
             $sta.poke_set(1, Record::from(
-                $sc::from($sta.poke(1)) $op $sc::from($sta.peek()))
+                <$sc>::from($sta.poke(1)) $op <$sc>::from($sta.peek()))
             );
             $sta.pop();
         }
     }
 
+    /// Implements an arithmetic operation with two operands,
+    /// but calls some static value on the type.
     #[macro_export]
-    macro_rules! duplet_operation_intrin {
-        ($sta:ident, $sc:ident, $proc:ident, $para:ident) => {
+    macro_rules! impl_duplet_op_static {
+        ($sta:ident, $sc:ty, $proc:ident) => {
             $sta.poke_set(
                 1,
-                Record::from($sc::from($sta.poke(1)).$proc($para::from($sta.peek()))),
+                Record::from(<$sc>::from($sta.poke(1)).$proc(<$sc>::from($sta.peek()) as _)),
             );
             $sta.pop();
         };
     }
 
+    /// Implements an arithmetic operation with two operands,
+    /// but one operand is already specified.
     #[macro_export]
-    macro_rules! scalar_operation {
+    macro_rules! impl_scalar_op {
         ($sta:ident, $sc:ident, $op:tt, $v:expr) => {
             $sta.peek_set(Record::from($sc::from($sta.peek()) $op $v));
         }
@@ -574,40 +690,56 @@ pub mod executor {
     /// Executes the bytecode.
     /// Returns the interrupt id (exitcode) and the number of cycles.
     pub fn execute(input: ExecutorInput) -> ExecutorOutput {
-        debug_assert!(!input.stack.is_empty());
-        debug_assert!(!input.chunk.is_empty());
-        debug_assert_eq!(input.chunk.instruction_ptr(), 0);
-        debug_assert_eq!(input.stack.stack_ptr(), 0);
+        assert!(input.stack.is_empty());
+        assert!(!input.chunk.is_empty());
+        assert!(input.chunk.length() < u32::MAX as _);
+        assert_eq!(input.chunk.instruction_ptr(), 0);
+        assert_eq!(input.stack.stack_ptr(), 0);
 
         let clock = Instant::now();
         let mut command_buffer = input.chunk;
         let mut stack = input.stack;
-        let mut cycles: u64 = 0; // Cycles counter.
-        let mut interrupt: i32; // Interrupt id.
-        let mut opcode: OpCode; // Opcode.
+        let mut cycles: u64 = 0;
+        let mut interrupt: i32;
 
-        loop {
-            opcode = command_buffer.fetch().into();
+        'vm: loop {
+            let opcode = command_buffer.fetch().into();
             cycles += 1;
+
+            #[cfg(feature = "execution_log")]
+            {
+                println!("{} {} {}", cycles, interrupt, opcode_meta(opcode).mnemonic,);
+            }
+
             match opcode {
                 OpCode::Interrupt => {
                     interrupt = command_buffer.fetch().into();
                     if interrupt <= 0 {
-                        break;
+                        break 'vm;
                     } else {
-                        // Trigger exception
                     }
-                    continue;
+                    continue 'vm;
+                }
+
+                OpCode::CallIntrinsic => {
+                    let intrin = command_buffer.fetch().into();
+                    match intrin {
+                        IntrinProcID::GenericPutChar => {
+                            println!("Hey!");
+                            continue 'vm;
+                        }
+                        _ => (),
+                    }
                 }
 
                 OpCode::Push => {
                     stack.push(Record::from(command_buffer.fetch()));
-                    continue;
+                    continue 'vm;
                 }
 
                 OpCode::Pop => {
                     stack.pop_multi(command_buffer.fetch().into());
-                    continue;
+                    continue 'vm;
                 }
 
                 OpCode::Move => {
@@ -615,7 +747,7 @@ pub mod executor {
                         command_buffer.fetch().into(),
                         Record::from(command_buffer.fetch()),
                     );
-                    continue;
+                    continue 'vm;
                 }
 
                 OpCode::Copy => {
@@ -623,178 +755,178 @@ pub mod executor {
                         command_buffer.fetch().into(),
                         stack.poke(command_buffer.fetch().into()),
                     );
-                    continue;
+                    continue 'vm;
                 }
 
                 OpCode::NoOp => {
-                    continue;
+                    continue 'vm;
                 }
 
                 OpCode::Duplicate => {
                     stack.push(stack.peek());
-                    continue;
+                    continue 'vm;
                 }
 
                 OpCode::DuplicateX2 => {
                     stack.push(stack.peek());
                     stack.push(stack.peek());
-                    continue;
+                    continue 'vm;
                 }
 
                 OpCode::CastI32toF32 => {
                     stack.peek_set(Record::from(f32::from(stack.peek())));
-                    continue;
+                    continue 'vm;
                 }
 
                 OpCode::CastF32toI32 => {
                     stack.peek_set(Record::from(i32::from(stack.peek())));
-                    continue;
+                    continue 'vm;
                 }
 
                 OpCode::Jump => {
                     let target_address = command_buffer.fetch().into();
                     command_buffer.jump(target_address);
-                    continue;
+                    continue 'vm;
                 }
 
                 OpCode::JumpIfZero => {
-                    scalar_conditional_jump!(stack, command_buffer, ==, 0i32);
-                    continue;
+                    impl_scalar_con_jmp!(stack, command_buffer, ==, 0i32, i32);
+                    continue 'vm;
                 }
 
                 OpCode::JumpIfNotZero => {
-                    scalar_conditional_jump!(stack, command_buffer, !=, 0i32);
-                    continue;
+                    impl_scalar_con_jmp!(stack, command_buffer, !=, 0i32, i32);
+                    continue 'vm;
                 }
 
                 OpCode::JumpIfEquals => {
-                    conditional_jump!(stack, command_buffer, ==);
-                    continue;
+                    impl_duplet_con_jmp!(stack, command_buffer, ==, i32);
+                    continue 'vm;
                 }
 
                 OpCode::JumpIfNotEquals => {
-                    conditional_jump!(stack, command_buffer, !=);
-                    continue;
+                    impl_duplet_con_jmp!(stack, command_buffer, !=, i32);
+                    continue 'vm;
                 }
 
                 OpCode::JumpIfAbove => {
-                    conditional_jump!(stack, command_buffer, >);
-                    continue;
+                    impl_duplet_con_jmp!(stack, command_buffer, >, i32);
+                    continue 'vm;
                 }
 
                 OpCode::JumpIfAboveEquals => {
-                    conditional_jump!(stack, command_buffer, >=);
-                    continue;
+                    impl_duplet_con_jmp!(stack, command_buffer, >=, i32);
+                    continue 'vm;
                 }
 
                 OpCode::JumpIfLess => {
-                    conditional_jump!(stack, command_buffer, <);
-                    continue;
+                    impl_duplet_con_jmp!(stack, command_buffer, <, i32);
+                    continue 'vm;
                 }
 
                 OpCode::JumpIfLessEquals => {
-                    conditional_jump!(stack, command_buffer, <=);
-                    continue;
+                    impl_duplet_con_jmp!(stack, command_buffer, <=, i32);
+                    continue 'vm;
                 }
 
                 OpCode::I32Add => {
-                    duplet_operation!(stack, i32, +);
-                    continue;
+                    impl_duplet_op_static!(stack, i32, wrapping_add);
+                    continue 'vm;
                 }
 
                 OpCode::I32Sub => {
-                    duplet_operation!(stack, i32, -);
-                    continue;
+                    impl_duplet_op_static!(stack, i32, wrapping_sub);
+                    continue 'vm;
                 }
 
                 OpCode::I32Mul => {
-                    duplet_operation!(stack, i32, *);
-                    continue;
+                    impl_duplet_op_static!(stack, i32, wrapping_mul);
+                    continue 'vm;
                 }
 
                 OpCode::I32Div => {
-                    duplet_operation!(stack, i32, /);
-                    continue;
+                    impl_duplet_op_static!(stack, i32, wrapping_div);
+                    continue 'vm;
                 }
 
                 OpCode::I32Mod => {
-                    duplet_operation!(stack, i32, %);
-                    continue;
+                    impl_duplet_op!(stack, i32, %);
+                    continue 'vm;
                 }
 
                 OpCode::I32And => {
-                    duplet_operation!(stack, i32, &);
-                    continue;
+                    impl_duplet_op!(stack, i32, &);
+                    continue 'vm;
                 }
 
                 OpCode::I32Or => {
-                    duplet_operation!(stack, i32, |);
-                    continue;
+                    impl_duplet_op!(stack, i32, |);
+                    continue 'vm;
                 }
 
                 OpCode::I32Xor => {
-                    duplet_operation!(stack, i32, ^);
-                    continue;
+                    impl_duplet_op!(stack, i32, ^);
+                    continue 'vm;
                 }
 
                 OpCode::I32Sal => {
-                    duplet_operation!(stack, i32, <<);
-                    continue;
+                    impl_duplet_op_static!(stack, i32, wrapping_shl);
+                    continue 'vm;
                 }
 
                 OpCode::I32Sar => {
-                    duplet_operation!(stack, i32, >>);
-                    continue;
+                    impl_duplet_op_static!(stack, i32, wrapping_shr);
+                    continue 'vm;
                 }
 
                 OpCode::I32Rol => {
-                    duplet_operation_intrin!(stack, i32, rotate_left, u32);
-                    continue;
+                    impl_duplet_op_static!(stack, i32, rotate_left);
+                    continue 'vm;
                 }
 
                 OpCode::I32Ror => {
-                    duplet_operation_intrin!(stack, i32, rotate_right, u32);
-                    continue;
+                    impl_duplet_op_static!(stack, i32, rotate_right);
+                    continue 'vm;
                 }
 
                 OpCode::I32Com => {
                     stack.peek_set(Record::from(!i32::from(stack.peek())));
-                    continue;
+                    continue 'vm;
                 }
 
                 OpCode::I32Increment => {
-                    scalar_operation!(stack, i32, +, 1);
-                    continue;
+                    impl_scalar_op!(stack, i32, +, 1);
+                    continue 'vm;
                 }
 
                 OpCode::I32Decrement => {
-                    scalar_operation!(stack, i32, -, 1);
-                    continue;
+                    impl_scalar_op!(stack, i32, -, 1);
+                    continue 'vm;
                 }
 
                 OpCode::F32Add => {
-                    duplet_operation!(stack, f32, +);
-                    continue;
+                    impl_duplet_op!(stack, f32, +);
+                    continue 'vm;
                 }
 
                 OpCode::F32Sub => {
-                    duplet_operation!(stack, f32, -);
-                    continue;
+                    impl_duplet_op!(stack, f32, -);
+                    continue 'vm;
                 }
 
                 OpCode::F32Mul => {
-                    duplet_operation!(stack, f32, *);
-                    continue;
+                    impl_duplet_op!(stack, f32, *);
+                    continue 'vm;
                 }
 
                 OpCode::F32Div => {
-                    duplet_operation!(stack, f32, /);
-                    continue;
+                    impl_duplet_op!(stack, f32, /);
+                    continue 'vm;
                 }
 
                 OpCode::F32Mod => {
-                    duplet_operation!(stack, f32, %);
-                    continue;
+                    impl_duplet_op!(stack, f32, %);
+                    continue 'vm;
                 }
 
                 OpCode::F32MulAdd => {

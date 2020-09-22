@@ -204,7 +204,10 @@
 
 */
 
-use super::{core::Record, interpreter::mnemonics};
+use super::{
+    core::Record,
+    interpreter::{mnemonics, tokens},
+};
 use std::{collections::HashMap, convert, default, fmt, mem, ops};
 
 /// Represents a single bytecode signal at runtime.
@@ -215,10 +218,11 @@ use std::{collections::HashMap, convert, default, fmt, mem, ops};
 pub struct Signal(u32);
 
 /// Creates a signal from an usize.
-/// It might get truncated into an u32, if sizeof(usize) > 32.
+/// Panics if the usize is > u32::MAX!
 impl convert::From<usize> for Signal {
     #[inline(always)]
     fn from(x: usize) -> Self {
+        debug_assert!(x < u32::MAX as _, "VM_Signal_USizeTooLarge");
         Self(x as _)
     }
 }
@@ -226,7 +230,7 @@ impl convert::From<usize> for Signal {
 /// Creates an usize from a signal.
 /// This might lead to arbitrary values,
 /// if the signal representation wasn't an usize.
-/// /// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
 impl convert::From<Signal> for usize {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -275,6 +279,7 @@ impl convert::From<Signal> for u32 {
 }
 
 /// Creates a signal from a f32.
+/// The signal then represents an f32 with the value of x.
 impl convert::From<f32> for Signal {
     #[inline(always)]
     fn from(x: f32) -> Self {
@@ -310,11 +315,32 @@ impl convert::From<Signal> for OpCode {
     #[inline(always)]
     fn from(x: Signal) -> Self {
         debug_assert!(x.0 < OpCode::COUNT as _);
-        unsafe { mem::transmute::<u8, OpCode>(x.0 as _) }
+        unsafe { mem::transmute::<u32, OpCode>(x.0) }
     }
 }
 
-/// Creates a new signal from a byte array with four elements (32-bits).
+/// Creates a signal from an intrinsic proc id.
+/// The signal then represents an opcode with the value of x.
+impl convert::From<IntrinProcID> for Signal {
+    #[inline(always)]
+    fn from(x: IntrinProcID) -> Self {
+        Self(x as _)
+    }
+}
+
+/// Creates an intrinsic proc id from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an intrinsic proc id.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+impl convert::From<Signal> for IntrinProcID {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        debug_assert!(x.0 < IntrinProcID::COUNT as _);
+        unsafe { mem::transmute::<u32, IntrinProcID>(x.0) }
+    }
+}
+
+/// Creates a new signal from a little endian byte array with four elements (32-bits).
 impl convert::From<[u8; 4]> for Signal {
     #[inline(always)]
     fn from(x: [u8; 4]) -> Self {
@@ -352,17 +378,13 @@ impl fmt::Debug for Signal {
         let b: [u8; 4] = (*self).into();
         write!(
             f,
-            "{:02X} {:02X} {:02X} {:02X} | {}{}{}, {}{:#E}{}",
+            "{:02X} {:02X} {:02X} {:02X} | {}, {:#e}",
             b[0],
             b[1],
             b[2],
             b[3],
-            super::interpreter::sigs::BEGIN_VALUE,
             i32::from(*self),
-            super::interpreter::sigs::MARKER_I32,
-            super::interpreter::sigs::BEGIN_VALUE,
             i32::from(*self),
-            super::interpreter::sigs::MARKER_F32,
         )
     }
 }
@@ -380,6 +402,12 @@ pub enum SignalDiscriminator {
 
     /// Represents an opcode.
     OpCode,
+
+    /// Represents an intrinsic procedure id.
+    IntrinProcID,
+
+    /// Represents an label.
+    Label,
 }
 
 /// Type safe version of 'Signal' using a discriminator.
@@ -387,22 +415,6 @@ pub enum SignalDiscriminator {
 /// This gets converted to an undiscriminated signal before runtime injection.
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct DiscriminatedSignal(pub(super) Signal, pub(super) SignalDiscriminator);
-
-/// Creates a new instance with default zero values from the discriminated itself.
-/// For opcodes 'INTERRUPT' is used.
-impl convert::From<SignalDiscriminator> for DiscriminatedSignal {
-    #[inline]
-    fn from(x: SignalDiscriminator) -> Self {
-        Self(
-            match x {
-                SignalDiscriminator::I32 => Signal::from(0),
-                SignalDiscriminator::F32 => Signal::from(0.0),
-                SignalDiscriminator::OpCode => Signal::from(OpCode::Interrupt),
-            },
-            x,
-        )
-    }
-}
 
 /// Creates a new instance from a duple.
 impl convert::From<(Signal, SignalDiscriminator)> for DiscriminatedSignal {
@@ -419,10 +431,50 @@ impl fmt::Display for DiscriminatedSignal {
     }
 }
 
-/// Prints discriminator and values.
+/// Prints values.
 impl fmt::Debug for DiscriminatedSignal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?} | {:?}", self.1, self.0)
+        match self.1 {
+            SignalDiscriminator::I32 => write!(
+                f,
+                "{} | [{}] {}{}",
+                self.0,
+                tokens::TYPE_I32,
+                tokens::BEGIN_IMMEDIATE_VALUE,
+                i32::from(self.0)
+            ),
+            SignalDiscriminator::F32 => write!(
+                f,
+                "{} | [{}] {}{}",
+                self.0,
+                tokens::TYPE_F32,
+                tokens::BEGIN_IMMEDIATE_VALUE,
+                f32::from(self.0)
+            ),
+            SignalDiscriminator::OpCode => write!(
+                f,
+                "{} | [{}] {}{}",
+                self.0,
+                tokens::TYPE_OPCODE,
+                tokens::BEGIN_OPCODE,
+                opcode_meta(OpCode::from(self.0)).mnemonic,
+            ),
+            SignalDiscriminator::IntrinProcID => write!(
+                f,
+                "{} | [{}] {}{}",
+                self.0,
+                tokens::TYPE_INTRIN_ID,
+                tokens::BEGIN_INTRIN_ID,
+                format!("{:?}", IntrinProcID::from(self.0)).to_lowercase(),
+            ),
+            SignalDiscriminator::Label => write!(
+                f,
+                "{} | [{}] {}",
+                self.0,
+                tokens::TYPE_I32,
+                tokens::BEGIN_LABEL,
+            ),
+        }
     }
 }
 
@@ -468,6 +520,17 @@ impl DiscriminatedSignal {
     pub fn opcode(&self) -> Option<OpCode> {
         if self.1 == SignalDiscriminator::OpCode {
             Some(OpCode::from(self.0))
+        } else {
+            None
+        }
+    }
+
+    /// If this instance represents an label, it returns it.
+    /// Else none.
+    #[inline]
+    pub fn label(&self) -> Option<usize> {
+        if self.1 == SignalDiscriminator::Label {
+            Some(usize::from(self.0))
         } else {
             None
         }
@@ -523,27 +586,24 @@ impl BytecodeStream {
     /// If the operation requires any parameters, use with_* to
     /// push them afterwards, otherwise validation will fail.
     /// Returns this as ref to allow chain calls.
-    #[inline]
     pub fn push_opcode(&mut self, op: OpCode) -> &mut Self {
         self.last_op_idx = self.stream.len();
-        self.ops_count += 1;
         self.stream.push(DiscriminatedSignal::from((
             Signal::from(op),
             SignalDiscriminator::OpCode,
         )));
+        self.ops_count = self.stream.len() - 1;
         self
     }
 
     /// Pushes a new label into the jump table.
     /// Returns this as ref to allow chain calls.
-    #[inline]
     pub fn push_label(&mut self, name: &str) -> &mut Self {
         self.jump_table.insert(name.to_string(), self.stream.len());
         self
     }
 
     /// Pushes a new i32 operation parameter into the command buffer stream.
-    #[inline]
     pub fn with_i32(&mut self, val: i32) -> &mut Self {
         self.stream.push(DiscriminatedSignal::from((
             Signal::from(val),
@@ -553,7 +613,6 @@ impl BytecodeStream {
     }
 
     /// Pushes a new f32 operation parameter into the command buffer stream.
-    #[inline]
     pub fn with_f32(&mut self, val: f32) -> &mut Self {
         self.stream.push(DiscriminatedSignal::from((
             Signal::from(val),
@@ -566,12 +625,24 @@ impl BytecodeStream {
     /// If the label does not exist in the jump table,
     /// it will panic. (Label x not undefined!)
     pub fn with_label(&mut self, name: &str) -> &mut Self {
-        self.with_i32(
-            (*self
-                .jump_table
-                .get(name)
-                .unwrap_or_else(|| panic!("Label {} undefined!", name))) as _,
-        )
+        let label: u32 = (*self
+            .jump_table
+            .get(name)
+            .unwrap_or_else(|| panic!("Label {} undefined!", name))) as _;
+        self.stream.push(DiscriminatedSignal::from((
+            Signal::from(label),
+            SignalDiscriminator::Label,
+        )));
+        self
+    }
+
+    /// Pushes a new intrisc procedure id operation parameter into the command buffer stream.
+    pub fn with_intrin_id(&mut self, val: IntrinProcID) -> &mut Self {
+        self.stream.push(DiscriminatedSignal::from((
+            Signal::from(val),
+            SignalDiscriminator::IntrinProcID,
+        )));
+        self
     }
 
     /// Returns the index to the last signal.
@@ -666,6 +737,73 @@ impl BytecodeStream {
     pub fn has_epilogue_code(&self) -> bool {
         self.has_epilogue
     }
+
+    /// Inserts common prologue code into the bytecode stream.
+    /// This always should be called when a new instance is created
+    /// and before any instructions/arguments are there.
+    pub fn prologue(&mut self) -> &mut Self {
+        // The first record of the stack (0x00000000) is always unused because of the stack
+        // pointer layout. So we fill it with some random value using the MOV instruction.
+        self.push_opcode(OpCode::Move) // Move to stack slot.
+            .with_i32(0) // Into first stack slot (0x00000000)
+            .with_i32(i32::from_le_bytes(*b"LOVE")); // (4 * u8) Because I love my cutie!
+        self.has_prologue = true;
+        self
+    }
+
+    /// Inserts common prologue code into the bytecode stream.
+    /// This always should be called when building is done.
+    pub fn epilogue(&mut self) -> &mut Self {
+        // Add interrupt as last instruction because
+        // there are no instruction pointer out of range checks
+        // for performance.
+        self.push_opcode(OpCode::Interrupt).with_i32(0);
+        self.has_epilogue = true;
+        self
+    }
+
+    /// Returns the last signal, which was an opcode (if any),
+    /// else None.
+    pub fn last_opcode(&self) -> Option<OpCode> {
+        debug_assert!(!self.is_empty());
+        self[self.last_op_idx].opcode()
+    }
+
+    /// Returns a slice of the parameters of the stack operation.
+    /// Returns none if there are none or the operation index is invalid.
+    pub fn last_explicit_opcode_args(&self) -> Option<&[DiscriminatedSignal]> {
+        debug_assert!(!self.is_empty());
+        if let Some(opcode) = self[self.last_op_idx].opcode() {
+            let arg_count = opcode_meta(opcode).explicit_arguments.len();
+            if arg_count == 0 {
+                None
+            } else {
+                Some(&self.stream[self.last_op_idx..=self.last_op_idx + arg_count])
+            }
+        } else {
+            None
+        }
+    }
+
+    /// Validates this bytecode and returns an list of error messages (if any).
+    pub fn validate(&self) -> Result<(), Vec<&'static str>> {
+        Ok(())
+    } // TODO
+
+    /// Builds and validates this bytecode and returns an list of error messages (if any).
+    /// On success this returns the bytecode chunk, which can be injected into a VM executor kernel.
+    pub fn build(self) -> Result<BytecodeChunk, Vec<&'static str>> {
+        debug_assert!(!self.is_empty());
+        if let Err(errors) = self.validate() {
+            Err(errors)
+        } else {
+            let mut buf = Vec::with_capacity(self.stream.len());
+            for rec in self.stream {
+                buf.push(rec.0);
+            }
+            Ok(BytecodeChunk::from(buf))
+        }
+    }
 }
 
 impl ops::Index<usize> for BytecodeStream {
@@ -727,13 +865,12 @@ impl fmt::Display for BytecodeStream {
         writeln!(f, "\n+-----------------------------------------------+")?;
         writeln!(f, "|                    Bytecode                   |")?;
         writeln!(f, "+-----------------------------------------------+")?;
-        let mut i = 0;
-        while i < self.stream.len() {
-            let meta = &INSTRUCTION_TABLE[i32::from(self.stream[i].0) as usize];
-            writeln!(f, "| {}", meta.mnemonic)?;
-            i += 1 + meta.explicit_arguments.len();
+        for (i, arg) in self.stream.iter().enumerate() {
+            if let Some(op) = arg.opcode() {
+                println!("| {:#010X} | {:?}", i, op)
+            }
         }
-        writeln!(f, "+-----------------------------------------------+\n")
+        writeln!(f, "+----------------------End----------------------+\n")
     }
 }
 
@@ -741,102 +878,22 @@ impl fmt::Display for BytecodeStream {
 impl fmt::Debug for BytecodeStream {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n+-----------------------------------------------+")?;
-        writeln!(f, "|                   Bytecode                    |")?;
+        writeln!(f, "|                    Bytecode                   |")?;
         writeln!(f, "+-----------------------------------------------+")?;
-        writeln!(f, "|       Address       |     Byte    |     Ops   |")?;
-        writeln!(f, "+-----------------------------------------------+")?;
-        let mut i = 0;
-        while i < self.stream.len() {
-            let meta = &INSTRUCTION_TABLE[i32::from(self.stream[i].0) as usize];
-            writeln!(
-                f,
-                "| {}{:#018X} | {} | {}{}",
-                super::interpreter::sigs::ADDRESS_OP,
-                i,
-                self.stream[i].0,
-                super::interpreter::sigs::BEGIN_OP,
-                meta.mnemonic
-            )?;
-            for j in (1..=meta.explicit_arguments.len()).map(|j| i + j) {
-                writeln!(
-                    f,
-                    "| {}{:#018X} | {:?}",
-                    super::interpreter::sigs::ADDRESS_VAL,
-                    j,
-                    self.stream[j].0
-                )?;
+        for (i, arg) in self.stream.iter().enumerate() {
+            if let Some(address) = arg.label() {
+                let mut label: &str = "!!!";
+                for (key, val) in &self.jump_table {
+                    if *val == address {
+                        label = &key;
+                    }
+                }
+                println!("| {:#010X} | {:?}{}", i, arg, label)
+            } else {
+                println!("| {:#010X} | {:?}", i, arg)
             }
-            i += 1 + meta.explicit_arguments.len();
         }
         writeln!(f, "+----------------------End----------------------+\n")
-    }
-}
-
-impl BytecodeStream {
-    /// Inserts common prologue code into the bytecode stream.
-    /// This always should be called when a new instance is created
-    /// and before any instructions/arguments are there.
-    pub fn prologue(&mut self) -> &mut Self {
-        // The first record of the stack (0x00000000) is always unused because of the stack
-        // pointer layout. So we fill it with some random value using the MOV instruction.
-        self.push_opcode(OpCode::Move) // Move to stack slot.
-            .with_i32(0) // Into first stack slot (0x00000000)
-            .with_i32(i32::from_le_bytes(*b"LOVE")); // (4 * u8) Because I love my cutie!
-        self.has_prologue = true;
-        self
-    }
-
-    /// Inserts common prologue code into the bytecode stream.
-    /// This always should be called when building is done.
-    pub fn epilogue(&mut self) -> &mut Self {
-        // Add interrupt as last instruction because
-        // there are no instruction pointer out of range checks
-        // for performance.
-        self.push_opcode(OpCode::Interrupt).with_i32(0);
-        self.has_epilogue = true;
-        self
-    }
-
-    /// Returns the last signal, which was an opcode (if any),
-    /// else None.
-    pub fn last_opcode(&self) -> Option<OpCode> {
-        debug_assert!(!self.is_empty());
-        self[self.last_op_idx].opcode()
-    }
-
-    /// Returns a slice of the parameters of the stack operation.
-    /// Returns none if there are none or the operation index is invalid.
-    pub fn last_opcode_args(&self) -> Option<&[DiscriminatedSignal]> {
-        debug_assert!(!self.is_empty());
-        if let Some(opcode) = self[self.last_op_idx].opcode() {
-            let arg_count = opcode_meta(opcode).explicit_arguments.len();
-            if arg_count == 0 {
-                None
-            } else {
-                Some(&self.stream[self.last_op_idx + 1..=self.last_op_idx + arg_count])
-            }
-        } else {
-            None
-        }
-    }
-
-    /// Validates this bytecode and returns an list of error messages (if any).
-    pub fn validate(&self) -> Result<(), Vec<&'static str>> {
-        Ok(())
-    } // TODO
-
-    /// Builds and validates this bytecode and returns an list of error messages (if any).
-    /// On success this returns the bytecode chunk, which can be injected into a VM executor kernel.
-    pub fn build(self) -> Result<BytecodeChunk, Vec<&'static str>> {
-        if let Err(errors) = self.validate() {
-            Err(errors)
-        } else {
-            let mut buf = Vec::with_capacity(self.stream.len());
-            for rec in self.stream {
-                buf.push(rec.0);
-            }
-            Ok(BytecodeChunk::from(buf))
-        }
     }
 }
 
@@ -894,7 +951,7 @@ impl BytecodeChunk {
     /// If this address does not exist it will panic in debug bulids.
     #[inline(always)]
     pub fn jump(&mut self, ip: usize) {
-        debug_assert!(ip < self.buf.len());
+        debug_assert!(ip < self.buf.len(), "VM_BytecodeChunk_InvalidJumpAddress");
         self.ip = ip
     }
 
@@ -902,6 +959,10 @@ impl BytecodeChunk {
     /// and increments the instruction pointer by one.
     #[inline(always)]
     pub fn fetch(&mut self) -> Signal {
+        debug_assert!(
+            self.ip < self.buf.len(),
+            "VM_BytecodeChunk_BytecodeBufferEnd"
+        );
         let record = self.buf[self.ip];
         self.ip += 1;
         record
@@ -958,10 +1019,11 @@ impl convert::From<Vec<Signal>> for BytecodeChunk {
 
 /// Represents an opcode.
 /// Contains all bytecode instructions available.
-#[repr(u8)]
+#[repr(u32)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum OpCode {
     Interrupt,
+    CallIntrinsic,
     Push,
     Pop,
     Move,
@@ -1004,6 +1066,7 @@ pub enum OpCode {
 }
 
 impl OpCode {
+    /// Number of enumerators.
     pub const COUNT: usize = 1 + OpCode::F32MulAdd as usize;
 }
 
@@ -1099,6 +1162,20 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         implicit_arguments: ImplicitArguments::None,
     },
     InstructionMeta {
+        opcode: OpCode::CallIntrinsic,
+        mnemonic: mnemonics::INTRINSIC_PROC,
+        category: InstructionCategory::Control,
+        explicit_arguments: &[ExplicitArgumentMeta {
+            accepted_value_types: &[ArgumentLiteralType::ValI32(ArgumentLiteralValue {
+                min: i32::MIN,
+                max: i32::MAX,
+                default: Some(i32::MIN),
+            })],
+            alias: "interrupt_code",
+        }],
+        implicit_arguments: ImplicitArguments::None,
+    },
+    InstructionMeta {
         opcode: OpCode::Push,
         mnemonic: mnemonics::PUSH,
         category: InstructionCategory::Memory,
@@ -1175,7 +1252,7 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
                     max: u32::MAX,
                     default: Some(0),
                 })],
-                alias: "poke_offset",
+                alias: "poke_offset_a",
             },
             ExplicitArgumentMeta {
                 accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
@@ -1183,7 +1260,7 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
                     max: u32::MAX,
                     default: Some(0),
                 })],
-                alias: "poke_offset",
+                alias: "poke_offset_b",
             },
         ],
         implicit_arguments: ImplicitArguments::Variadic,
@@ -1766,3 +1843,203 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
         ]),
     },
 ];
+
+/// Contains all intrinsic procedure ids.
+#[repr(u32)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum IntrinProcID {
+    /// Prints one character to stdout
+    GenericPutChar,
+
+    /// Returns the largest integer less than or equal to a number.
+    MathFloor,
+
+    /// Returns the smallest integer greater than or equal to a number.
+    MathCeil,
+
+    /// Returns the nearest integer to a number. Round half-way cases away from 0.0.
+    MathRound,
+
+    /// Returns the integer part of a number.
+    MathTrunc,
+
+    /// Returns the fractional part of a number.
+    MathFract,
+
+    /// Computes the absolute value of self. Returns NAN if the number is NAN.
+    MathAbs,
+
+    /// Returns a number that represents the sign of self.
+    MathSignum,
+
+    /// Returns a number composed of the magnitude of self and the sign of sign.
+    /// Equal to self if the sign of self and sign are the same, otherwise equal to -self. If self is a NAN, then a NAN with the sign of sign is returned.
+    MathCopysign,
+
+    /// Calculates Euclidean division, the matching method for rem_euclid.
+    /// This computes the integer n such that self = n * rhs + self.rem_euclid(rhs).
+    /// In other words, the result is self / rhs rounded to the integer n such that self >= n * rhs.
+    MathDivEuclid,
+
+    ///Calculates the least nonnegative remainder of self (mod rhs).
+    /// In particular, the return value r satisfies 0.0 <= r < rhs.abs() in most cases.
+    /// However, due to a floating point round-off error it can result in r == rhs.abs(),
+    /// violating the mathematical definition, if self is much smaller than rhs.abs() in magnitude and self < 0.0.
+    /// This result is not an element of the function's codomain,
+    /// but it is the closest floating point number in the real numbers and thus fulfills
+    /// the property self == self.div_euclid(rhs) * rhs + self.rem_euclid(rhs) approximatively.
+    MathRemEuclid,
+
+    /// Raises a number to an integer power.
+    /// Using this function is generally faster than using powf.
+    MathPowI,
+
+    /// Raises a number to a floating point power.
+    MathPowF,
+
+    /// Returns the square root of a number.
+    /// Returns NaN if self is a negative number.
+    MathSqrt,
+
+    /// Returns e^(self), (the exponential function).
+    MathExp,
+
+    /// Returns 2^(self).
+    MathExp2,
+
+    /// Returns the natural logarithm of the number.
+    MathLn,
+
+    /// Returns the logarithm of the number with respect to an arbitrary base.
+    /// The result may not be correctly rounded owing to implementation details;
+    /// self.log2() can produce more accurate results for base 2, and self.log10()
+    /// can produce more accurate results for base 10.
+    MathLog,
+
+    /// Returns the base 2 logarithm of the number.
+    MathLog2,
+
+    /// Returns the base 10 logarithm of the number.
+    MathLog10,
+
+    /// Returns the cubic root of a number.
+    MathCbrt,
+
+    /// Calculates the length of the hypotenuse of a right-angle triangle given legs of length x and y.
+    MathHypot,
+
+    /// Computes the sine of a number (in radians).
+    MathSin,
+
+    /// Computes the cosine of a number (in radians).
+    MathCos,
+
+    /// Computes the tangent of a number (in radians).
+    MathTan,
+
+    /// Computes the arcsine of a number.
+    /// Return value is in radians in the range [-pi/2, pi/2] or NaN
+    /// if the number is outside the range [-1, 1].
+    MathAsin,
+
+    /// Computes the arccosine of a number.
+    /// Return value is in radians in the range [0, pi] or NaN
+    /// if the number is outside the range [-1, 1].
+    MathAcos,
+
+    /// Computes the arctangent of a number. Return value is in radians in the range [-pi/2, pi/2];
+    MathAtan,
+
+    /// Computes the four quadrant arctangent of self (y) and other (x) in radians.
+    /// x = 0, y = 0: 0
+    /// x >= 0: arctan(y/x) -> [-pi/2, pi/2]
+    /// y >= 0: arctan(y/x) + pi -> (pi/2, pi]
+    /// y < 0: arctan(y/x) - pi -> (-pi, -pi/2)
+    MathAtan2,
+
+    /// Simultaneously computes the sine and cosine of the number,
+    /// x. Returns (sin(x), cos(x)).
+    MathSinCos,
+
+    /// Returns e^(self) - 1 in a way that is accurate even if the number is close to zero.
+    MathExpM1,
+
+    /// Returns ln(1+n) (natural logarithm) more accurately than if the operations were performed separately.
+    MathLn1P,
+
+    /// Hyperbolic sine function.
+    MathSinH,
+
+    /// Hyperbolic cosine function.
+    MathCosH,
+
+    /// Hyperbolic tangent function.
+    MathTanH,
+
+    /// Inverse hyperbolic sine function.
+    MathAsinH,
+
+    /// Inverse hyperbolic cosine function.
+    MathAcosH,
+
+    /// Inverse hyperbolic tangent function.
+    MathAtanH,
+
+    /// Returns true if this value is NaN.
+    MathIsNan,
+
+    /// Returns true if this value is positive infinity or negative infinity, and false otherwise.
+    MathIsInfinite,
+
+    /// Returns true if this number is neither infinite nor NaN.
+    MathIsFinite,
+
+    /// Returns true if the number is neither zero, infinite, subnormal, or NaN.
+    MathIsNormal,
+
+    /// Returns true if self has a positive sign, including +0.0,
+    /// NaNs with positive sign bit and positive infinity.
+    MathIsSignalPositive,
+
+    /// Returns true if self has a negative sign, including -0.0,
+    /// NaNs with negative sign bit and negative infinity.
+    MathIsSignalNegative,
+
+    /// Takes the reciprocal (inverse) of a number, 1/x.
+    MathRecip,
+
+    /// Converts radians to degrees.
+    MathToDegrees,
+
+    /// Converts degrees to radians.
+    MathToRadians,
+
+    /// Returns the maximum of the two numbers.
+    /// If one of the arguments is NaN, then the other argument is returned.
+    MathMax,
+
+    /// Returns the minimum of the two numbers.
+    /// If one of the arguments is NaN, then the other argument is returned.
+    MathMin,
+}
+
+impl IntrinProcID {
+    /// Number of enumerators.
+    pub const COUNT: usize = 1 + IntrinProcID::MathMin as usize;
+}
+
+/// Contains meta about an intrinsic procedure.
+pub struct IntrinsicProcMeta<'a> {
+    pub id: IntrinProcID,
+    pub arguments: ImplicitArguments<'a>,
+}
+
+/// Returns the metadata for the intrinsic procedure ids.
+#[inline]
+pub fn intrin_proc_id_meta(iproc: IntrinProcID) -> &'static IntrinsicProcMeta<'static> {
+    &INTRINSIC_PROCEDURE_TABLE[iproc as usize]
+}
+
+/// Contains all metadata for all intrinsic procedure ids.
+/// The index if the intrin proc id.
+const INTRINSIC_PROCEDURE_TABLE: &[IntrinsicProcMeta<'static>] = &[];

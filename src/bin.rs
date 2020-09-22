@@ -216,20 +216,19 @@ fn main() {
     code.push_opcode(OpCode::Push).with_i32(0);
     code.push_label("_loop");
     code.push_opcode(OpCode::I32Increment);
-    code.push_opcode(OpCode::Push).with_i32(6);
-    code.push_opcode(OpCode::Push).with_i32(8);
-    code.push_opcode(OpCode::I32Ror);
-    code.push_opcode(OpCode::Pop).with_i32(1);
     code.push_opcode(OpCode::Duplicate);
-    code.push_opcode(OpCode::Push).with_i32(i32::MAX);
+    code.push_opcode(OpCode::Push).with_i32(10);
     code.push_opcode(OpCode::JumpIfLess).with_label("_loop");
-    code.push_opcode(OpCode::Pop).with_i32(1);
     code.epilogue();
+
+    print!("{:?}", code);
 
     let input = ExecutorInput {
         chunk: code.build().unwrap(),
         stack: Stack::with_length(32),
     };
 
-    let _ = executor::execute(input);
+    let output = executor::execute(input);
+
+    println!("Cycles: {}", output.cycles);
 }
