@@ -204,18 +204,54 @@
 
 */
 
-pub enum RegisterTargetType {
-    Word,
-    Real,
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum RegisterType {
+    GPR,
+    SPR,
 }
 
-/// Represents a 32-bit int or 128-bit float register.
-pub struct Register<'reg> {
-    pub target_type: RegisterTargetType,
-    pub bit_size: usize,
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum RegisterTargetType {
+    Integer,
+    Float,
+}
+
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum SaveMode {
+    Caller,
+    Callee,
+}
+
+pub struct RegisterDescriptor {
     pub mnemonic: &'static str,
-    pub is_extension: bool,
-    pub is_general_purpose: bool,
-    pub is_directly_addressable: bool,
-    pub sub_registers: &'reg [Register<'reg>],
+    pub size: u16,
+    pub register_type: RegisterType,
+    pub target_type: RegisterTargetType,
+    pub save_mode: SaveMode,
+    pub param_register: Option<u8>,
+    pub return_register: bool,
+}
+
+impl RegisterDescriptor {
+    pub fn is_temporary_register(&self) -> bool {
+        !self.return_register
+            && self.param_register.is_none()
+            && self.save_mode == SaveMode::Caller
+            && self.register_type == RegisterType::GPR
+    }
+
+    pub fn is_procedure_register(&self) -> bool {
+        self.return_register || self.param_register.is_some()
+    }
+}
+
+pub struct TargetPlatform {
+    pub name: &'static str,
+    pub stack_alignment: usize,
+    pub stack_redzone: usize,
+    pub registers: &'static [RegisterDescriptor],
+}
+
+pub trait Arch {
+    const PLATFORM: TargetPlatform;
 }

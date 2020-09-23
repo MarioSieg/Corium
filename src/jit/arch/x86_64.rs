@@ -204,4 +204,256 @@
 
 */
 
-pub mod x86_64;
+use crate::jit::core::*;
+
+pub struct X86_64;
+
+impl Arch for X86_64 {
+    const PLATFORM: TargetPlatform = TargetPlatform {
+        name: "x86_64",
+        stack_alignment: 128,
+        stack_redzone: 1024,
+        registers: &[
+            // Used to return value from value.
+            RegisterDescriptor {
+                mnemonic: "RAX",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Caller,
+                param_register: None,
+                return_register: true,
+            },
+            // Optional base pointer.
+            RegisterDescriptor {
+                mnemonic: "RBX",
+                size: 64,
+                register_type: RegisterType::SPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Callee,
+                param_register: None,
+                return_register: false,
+            },
+            // Used to pass 4th argument to function.
+            RegisterDescriptor {
+                mnemonic: "RCX",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Caller,
+                param_register: Some(4),
+                return_register: false,
+            },
+            // Used to pass 3rt argument to function.
+            RegisterDescriptor {
+                mnemonic: "RDX",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Caller,
+                param_register: Some(3),
+                return_register: false,
+            },
+            // Stack pointer.
+            RegisterDescriptor {
+                mnemonic: "RSP",
+                size: 64,
+                register_type: RegisterType::SPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Callee,
+                param_register: None,
+                return_register: false,
+            },
+            // Frame pointer.
+            RegisterDescriptor {
+                mnemonic: "RBP",
+                size: 64,
+                register_type: RegisterType::SPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Callee,
+                param_register: None,
+                return_register: false,
+            },
+            // Used to pass 2nd argument to function.
+            RegisterDescriptor {
+                mnemonic: "RSI",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Caller,
+                param_register: Some(2),
+                return_register: false,
+            },
+            // Used to pass 1st argument to function.
+            RegisterDescriptor {
+                mnemonic: "RDI",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Caller,
+                param_register: Some(1),
+                return_register: false,
+            },
+            // Used to pass 5nd argument to function.
+            RegisterDescriptor {
+                mnemonic: "R8",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Caller,
+                param_register: Some(5),
+                return_register: false,
+            },
+            // Used to pass 6nd argument to function.
+            RegisterDescriptor {
+                mnemonic: "R9",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Caller,
+                param_register: Some(6),
+                return_register: false,
+            },
+            // Temporary register.
+            RegisterDescriptor {
+                mnemonic: "R10",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Caller,
+                param_register: None,
+                return_register: false,
+            },
+            // Temporary register.
+            RegisterDescriptor {
+                mnemonic: "R11",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Caller,
+                param_register: None,
+                return_register: false,
+            },
+            // Callee saved register.
+            RegisterDescriptor {
+                mnemonic: "R12",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Callee,
+                param_register: None,
+                return_register: false,
+            },
+            // Callee saved register.
+            RegisterDescriptor {
+                mnemonic: "R13",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Callee,
+                param_register: None,
+                return_register: false,
+            },
+            // Callee saved register.
+            RegisterDescriptor {
+                mnemonic: "R14",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Callee,
+                param_register: None,
+                return_register: false,
+            },
+            // Callee saved register.
+            RegisterDescriptor {
+                mnemonic: "R15",
+                size: 64,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Integer,
+                save_mode: SaveMode::Callee,
+                param_register: None,
+                return_register: false,
+            },
+            // Used to return and pass 1st float argument to function.
+            RegisterDescriptor {
+                mnemonic: "XMM0",
+                size: 128,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Float,
+                save_mode: SaveMode::Caller,
+                param_register: Some(1),
+                return_register: true,
+            },
+            // Used to return and pass 2nd float argument to function.
+            RegisterDescriptor {
+                mnemonic: "XMM1",
+                size: 128,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Float,
+                save_mode: SaveMode::Caller,
+                param_register: Some(2),
+                return_register: true,
+            },
+            // Used to pass 3rd float argument to function.
+            RegisterDescriptor {
+                mnemonic: "XMM2",
+                size: 128,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Float,
+                save_mode: SaveMode::Caller,
+                param_register: Some(3),
+                return_register: false,
+            },
+            // Used to pass 4th float argument to function.
+            RegisterDescriptor {
+                mnemonic: "XMM3",
+                size: 128,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Float,
+                save_mode: SaveMode::Caller,
+                param_register: Some(4),
+                return_register: false,
+            },
+            // Used to pass 5th float argument to function.
+            RegisterDescriptor {
+                mnemonic: "XMM4",
+                size: 128,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Float,
+                save_mode: SaveMode::Caller,
+                param_register: Some(5),
+                return_register: false,
+            },
+            // Used to pass 6th float argument to function.
+            RegisterDescriptor {
+                mnemonic: "XMM5",
+                size: 128,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Float,
+                save_mode: SaveMode::Caller,
+                param_register: Some(6),
+                return_register: false,
+            },
+            // Used to pass 7th float argument to function.
+            RegisterDescriptor {
+                mnemonic: "XMM6",
+                size: 128,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Float,
+                save_mode: SaveMode::Caller,
+                param_register: Some(7),
+                return_register: false,
+            },
+            // Used to pass 8th float argument to function.
+            RegisterDescriptor {
+                mnemonic: "XMM7",
+                size: 128,
+                register_type: RegisterType::GPR,
+                target_type: RegisterTargetType::Float,
+                save_mode: SaveMode::Caller,
+                param_register: Some(8),
+                return_register: false,
+            },
+        ],
+    };
+}
