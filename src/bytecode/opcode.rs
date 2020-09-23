@@ -204,39 +204,61 @@
 
 */
 
-extern crate ronin_runtime;
+// To add a new instruction:
+// 1.) Add it to 'OpCode' enum with an opcode (just increment the previous)
+// 2.) Add a new mnemonic string constant in 'interpreter.rs'
+// 3.) Add metadata to 'INSTRUCTION_TABLE'
+// 4.) Add implementation in 'execute()' in 'core.rs' and in 'alt_ffi_core.c'
 
-use ronin_runtime::core::executor::ExecutorInput;
-use ronin_runtime::prelude::*;
+/// Represents an opcode.
+/// Contains all bytecode instructions available.
+#[repr(u32)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum OpCode {
+    Interrupt,
+    CallIntrinsic,
+    Push,
+    Pop,
+    Move,
+    Copy,
+    NoOp,
+    Duplicate,
+    DuplicateX2,
+    CastI32toF32,
+    CastF32toI32,
+    Jump,
+    JumpIfZero,
+    JumpIfNotZero,
+    JumpIfEquals,
+    JumpIfNotEquals,
+    JumpIfAbove,
+    JumpIfAboveEquals,
+    JumpIfLess,
+    JumpIfLessEquals,
+    I32Add,
+    I32Sub,
+    I32Mul,
+    I32Div,
+    I32Mod,
+    I32And,
+    I32Or,
+    I32Xor,
+    I32Sal,
+    I32Sar,
+    I32Rol,
+    I32Ror,
+    I32Com,
+    I32Increment,
+    I32Decrement,
+    F32Add,
+    F32Sub,
+    F32Mul,
+    F32Div,
+    F32Mod,
+    F32MulAdd,
+}
 
-fn main() {
-    let mut code = BytecodeStream::new();
-
-    code.prologue();
-    code.push_opcode(OpCode::Push).with_i32(0);
-    code.push_label("_loop");
-    code.push_opcode(OpCode::I32Increment);
-    code.push_opcode(OpCode::Duplicate);
-
-    code.push_opcode(OpCode::CallIntrinsic)
-        .with_intrin_id(IntrinProcID::GPutChar);
-
-    code.push_opcode(OpCode::Push).with_i32(10);
-    code.push_opcode(OpCode::JumpIfLess).with_label("_loop");
-    code.epilogue();
-
-    print!("{:?}", code);
-
-    let input = ExecutorInput {
-        chunk: code.build().unwrap(),
-        stack: Stack::with_length(32),
-    };
-
-    let output = execute(input);
-
-    println!("-------------------------------------------------");
-    println!(
-        "Execution ended!\nTime: {}s\nCycles: {}",
-        output.time, output.cycles
-    );
+impl OpCode {
+    /// Number of enumerators.
+    pub const COUNT: usize = 1 + OpCode::F32MulAdd as usize;
 }

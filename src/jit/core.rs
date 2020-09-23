@@ -204,39 +204,18 @@
 
 */
 
-extern crate ronin_runtime;
+pub enum RegisterTargetType {
+    Word,
+    Real,
+}
 
-use ronin_runtime::core::executor::ExecutorInput;
-use ronin_runtime::prelude::*;
-
-fn main() {
-    let mut code = BytecodeStream::new();
-
-    code.prologue();
-    code.push_opcode(OpCode::Push).with_i32(0);
-    code.push_label("_loop");
-    code.push_opcode(OpCode::I32Increment);
-    code.push_opcode(OpCode::Duplicate);
-
-    code.push_opcode(OpCode::CallIntrinsic)
-        .with_intrin_id(IntrinProcID::GPutChar);
-
-    code.push_opcode(OpCode::Push).with_i32(10);
-    code.push_opcode(OpCode::JumpIfLess).with_label("_loop");
-    code.epilogue();
-
-    print!("{:?}", code);
-
-    let input = ExecutorInput {
-        chunk: code.build().unwrap(),
-        stack: Stack::with_length(32),
-    };
-
-    let output = execute(input);
-
-    println!("-------------------------------------------------");
-    println!(
-        "Execution ended!\nTime: {}s\nCycles: {}",
-        output.time, output.cycles
-    );
+/// Represents a 32-bit int or 128-bit float register.
+pub struct Register<'reg> {
+    pub target_type: RegisterTargetType,
+    pub bit_size: usize,
+    pub mnemonic: &'static str,
+    pub is_extension: bool,
+    pub is_general_purpose: bool,
+    pub is_directly_addressable: bool,
+    pub sub_registers: &'reg [Register<'reg>],
 }

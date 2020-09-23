@@ -204,39 +204,119 @@
 
 */
 
-extern crate ronin_runtime;
+use crate::bytecode::signal::Signal;
+use std::{convert, ops};
 
-use ronin_runtime::core::executor::ExecutorInput;
-use ronin_runtime::prelude::*;
+/// A fixed size chunk of bytecode, which can be executed by the VM.
+/// The bytecode inside is validated and optimized and ready for execution.
+pub struct BytecodeChunk {
+    buf: Box<[Signal]>,
+    ip: usize,
+}
 
-fn main() {
-    let mut code = BytecodeStream::new();
+impl BytecodeChunk {
+    /// Returns an immutable reference to the underlying command buffer.
+    #[inline(always)]
+    pub fn buffer(&self) -> &[Signal] {
+        &self.buf
+    }
 
-    code.prologue();
-    code.push_opcode(OpCode::Push).with_i32(0);
-    code.push_label("_loop");
-    code.push_opcode(OpCode::I32Increment);
-    code.push_opcode(OpCode::Duplicate);
+    /// Returns an immutable pointer to the underlying command buffer array data.
+    #[inline(always)]
+    pub fn as_ptr(&self) -> *const Signal {
+        self.buf.as_ptr()
+    }
 
-    code.push_opcode(OpCode::CallIntrinsic)
-        .with_intrin_id(IntrinProcID::GPutChar);
+    /// Returns an mutable pointer to the underlying command buffer array data.
+    #[inline(always)]
+    pub fn as_mut_ptr(&mut self) -> *mut Signal {
+        self.buf.as_mut_ptr()
+    }
 
-    code.push_opcode(OpCode::Push).with_i32(10);
-    code.push_opcode(OpCode::JumpIfLess).with_label("_loop");
-    code.epilogue();
+    /// Returns the amount of signals inside the command buffer.
+    #[inline(always)]
+    pub fn length(&self) -> usize {
+        self.buf.len()
+    }
 
-    print!("{:?}", code);
+    /// Returns true if the command buffer is empty, else false.
+    #[inline(always)]
+    pub fn is_empty(&self) -> bool {
+        self.buf.is_empty()
+    }
 
-    let input = ExecutorInput {
-        chunk: code.build().unwrap(),
-        stack: Stack::with_length(32),
-    };
+    /// Returns the estimated amount of bytes this instance takes up in memory.
+    #[inline(always)]
+    pub fn size(&self) -> usize {
+        self.buf.len() * std::mem::size_of::<Signal>()
+    }
 
-    let output = execute(input);
+    /// Returns the instruction pointer.
+    #[inline(always)]
+    pub fn instruction_ptr(&self) -> usize {
+        self.ip
+    }
 
-    println!("-------------------------------------------------");
-    println!(
-        "Execution ended!\nTime: {}s\nCycles: {}",
-        output.time, output.cycles
-    );
+    /// Jumps to a specific address in the command buffer.
+    /// If this address does not exist it will panic in debug bulids.
+    #[inline(always)]
+    pub fn jump(&mut self, ip: usize) {
+        debug_assert!(ip < self.buf.len(), "VM_BytecodeChunk_InvalidJumpAddress");
+        self.ip = ip
+    }
+
+    /// Fetches the next signal from the command buffer
+    /// and increments the instruction pointer by one.
+    #[inline(always)]
+    pub fn fetch(&mut self) -> Signal {
+        debug_assert!(
+            self.ip < self.buf.len(),
+            "VM_BytecodeChunk_BytecodeBufferEnd"
+        );
+        let record = self.buf[self.ip];
+        self.ip += 1;
+        record
+    }
+
+    /// Returns true if the instruction pointer reached the end of the command buffer,
+    /// else false.
+    #[inline(always)]
+    pub fn is_done(&self) -> bool {
+        self.ip >= self.buf.len()
+    }
+}
+
+impl ops::Index<usize> for BytecodeChunk {
+    type Output = Signal;
+
+    /// Returns the element at 'idx'.
+    #[inline(always)]
+    fn index(&self, idx: usize) -> &Self::Output {
+        &self.buf[idx]
+    }
+}
+
+impl ops::IndexMut<usize> for BytecodeChunk {
+    /// Returns the element at 'idx'.
+    #[inline(always)]
+    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+        &mut self.buf[idx]
+    }
+}
+
+impl convert::From<Box<[Signal]>> for BytecodeChunk {
+    fn from(buf: Box<[Signal]>) -> Self {
+        assert_ne!(buf.len(), 0);
+        Self { buf, ip: 0 }
+    }
+}
+
+impl convert::From<Vec<Signal>> for BytecodeChunk {
+    fn from(buf: Vec<Signal>) -> Self {
+        assert_ne!(buf.len(), 0);
+        Self {
+            buf: buf.into_boxed_slice(),
+            ip: 0,
+        }
+    }
 }

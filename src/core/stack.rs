@@ -204,39 +204,272 @@
 
 */
 
-extern crate ronin_runtime;
+use super::record::Record;
+use std::{convert, fmt, ops};
 
-use ronin_runtime::core::executor::ExecutorInput;
-use ronin_runtime::prelude::*;
+/// Contains common stack sizes.
+#[repr(usize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum CommonStackSize {
+    /// 8KB stack -> ((1024 * 8) / 4) entries, sizeof(Record) == 4
+    Small8KB = 1024 * 8,
 
-fn main() {
-    let mut code = BytecodeStream::new();
+    Small32KB = 1024 * 32,
 
-    code.prologue();
-    code.push_opcode(OpCode::Push).with_i32(0);
-    code.push_label("_loop");
-    code.push_opcode(OpCode::I32Increment);
-    code.push_opcode(OpCode::Duplicate);
+    /// 32KB stack -> ((1024 * 32) / 4) entries, sizeof(Record) == 4
+    Small64KB = 1024 * 64,
 
-    code.push_opcode(OpCode::CallIntrinsic)
-        .with_intrin_id(IntrinProcID::GPutChar);
+    /// 128KB stack -> ((1024 * 128) / 4) entries, sizeof(Record) == 4
+    Medium128KB = 1024 * 128,
 
-    code.push_opcode(OpCode::Push).with_i32(10);
-    code.push_opcode(OpCode::JumpIfLess).with_label("_loop");
-    code.epilogue();
+    /// 256KB stack -> ((1024 * 256) / 4) entries, sizeof(Record) == 4
+    Medium256KB = 1024 * 256,
 
-    print!("{:?}", code);
+    /// 512KB stack -> ((1024 * 512) / 4) entries, sizeof(Record) == 4
+    Medium512KB = 1024 * 512,
 
-    let input = ExecutorInput {
-        chunk: code.build().unwrap(),
-        stack: Stack::with_length(32),
-    };
+    /// 1KB stack -> ((1024 * 1024) / 4) entries, sizeof(Record) == 4
+    Large1MB = 1024 * 1024,
 
-    let output = execute(input);
+    /// 4MB stack -> ((1024 * 1024 * 4) / 4) entries, sizeof(Record) == 4
+    Large4MB = 1024 * 1024 * 4,
 
-    println!("-------------------------------------------------");
-    println!(
-        "Execution ended!\nTime: {}s\nCycles: {}",
-        output.time, output.cycles
-    );
+    /// 8MB stack -> ((1024 * 1024 * 48 / 4) entries, sizeof(Record) == 4
+    Large8MB = 1024 * 1024 * 8,
+}
+
+impl CommonStackSize {
+    /// Returns the amount of bytes by the current enumerator.
+    #[inline]
+    pub fn as_bytes(&self) -> usize {
+        *self as _
+    }
+
+    /// Returns the amount of bits by the current enumerator.
+    #[inline]
+    pub fn as_bits(&self) -> usize {
+        (*self as usize) * 8
+    }
+}
+
+/// Represents a mutable, fixed size heap-allocated stack.
+pub struct Stack {
+    buf: Box<[Record]>,
+    sp: usize,
+}
+
+impl Stack {
+    /// Creates a new instance with a specified amount of records.
+    pub fn with_length(len: usize) -> Self {
+        assert_ne!(len, 0);
+        Self {
+            buf: vec![Record::from(0); len].into_boxed_slice(),
+            sp: 0,
+        }
+    }
+
+    /// Creates a new instance with a specified size in bytes.
+    /// Panics if the byte size is 0 or not a multiple of (sizeof(Record) == 4)
+    pub fn with_byte_size(size: usize) -> Self {
+        assert_ne!(size, 0);
+        assert_eq!(size % std::mem::size_of::<Record>(), 0);
+        Self {
+            buf: vec![Record::from(0); size / std::mem::size_of::<Record>()].into_boxed_slice(),
+            sp: 0,
+        }
+    }
+
+    /// Creates a new instance with a byte size specified in the enum.
+    pub fn with_common_size(size: CommonStackSize) -> Self {
+        Self::with_byte_size(size as usize)
+    }
+}
+
+impl Stack {
+    /// Returns the number of records the buffer can hold.
+    #[inline(always)]
+    pub fn length(&self) -> usize {
+        self.buf.len()
+    }
+
+    /// Returns true if there are no records, else false. (sp == 0)
+    #[inline(always)]
+    pub fn is_empty(&self) -> bool {
+        self.sp == 0
+    }
+
+    /// Returns the estimated size this instance takes up in memory in bytes.
+    #[inline(always)]
+    pub fn size(&self) -> usize {
+        self.buf.len() * std::mem::size_of::<Record>()
+    }
+
+    /// Returns an immutable reference to the record buffer.
+    #[inline(always)]
+    pub fn buffer(&self) -> &[Record] {
+        &self.buf
+    }
+
+    /// Returns an immutable pointer to the record buffer data.
+    #[inline(always)]
+    pub fn as_ptr(&self) -> *const Record {
+        self.buf.as_ptr()
+    }
+
+    /// Returns an mutable pointer to the record buffer data.
+    #[inline(always)]
+    pub fn as_mut_ptr(&mut self) -> *mut Record {
+        self.buf.as_mut_ptr()
+    }
+
+    /// Returns the stack pointer index (sp).
+    #[inline(always)]
+    pub fn stack_ptr(&self) -> usize {
+        self.sp
+    }
+
+    /// Pushes a new record into the stack.
+    /// Remember that this never allocates, as the stack is fixed size.
+    /// Does not check for stack overflow in release!
+    #[inline(always)]
+    pub fn push(&mut self, rec: Record) {
+        debug_assert!(self.sp < self.buf.len(), "VM StackOverflow");
+        self.sp += 1;
+        self.buf[self.sp] = rec;
+    }
+
+    /// Pushes the stack to it's capacity.
+    /// Warning! A push call after this will result in a stack overflow.
+    #[inline(always)]
+    pub fn push_all(&mut self) {
+        self.sp = self.buf.len() - 1;
+    }
+
+    /// Pops the top stack record off the stack
+    /// and decrements the stack pointer.
+    #[inline(always)]
+    pub fn pop(&mut self) {
+        debug_assert_ne!(self.sp, 0, "VM_Stack_ZeroPop");
+        debug_assert!(self.sp.checked_sub(1).is_some(), "VM_Stack_OverflowPop");
+        self.sp -= 1;
+    }
+
+    /// Pops all records from the stack.
+    /// The stack pointer is zero afterwards.
+    #[inline(always)]
+    pub fn pop_all(&mut self) {
+        self.sp = 0
+    }
+
+    /// Pops multiple records from the stack.
+    /// Count must be > 0!
+    #[inline(always)]
+    pub fn pop_multi(&mut self, count: usize) {
+        debug_assert_ne!(count, 0, "VM_Stack_ZeroPop");
+        debug_assert!(self.sp.checked_sub(count).is_some(), "VM_Stack_OverflowPop");
+        self.sp -= count;
+    }
+
+    /// Pops the top stack record off the stack,
+    /// decrements the stack pointer
+    /// and returns the the former top element,
+    #[inline(always)]
+    pub fn pop_ret(&mut self) -> Record {
+        debug_assert!(self.sp > 0, "VM_Stack_Underflow");
+        let val = self.buf[self.sp];
+        self.sp -= 1;
+        val
+    }
+
+    /// Returns the record at the top of the stack.
+    #[inline(always)]
+    pub fn peek(&self) -> Record {
+        debug_assert!(self.sp < self.buf.len(), "VM_Stack_OutOfRangePeek!");
+        self.buf[self.sp]
+    }
+
+    /// Sets the element at the top of the stack.
+    #[inline(always)]
+    pub fn peek_set(&mut self, rec: Record) {
+        debug_assert!(self.sp < self.buf.len(), "VM_Stack_OutOfRangePeek!");
+        self.buf[self.sp] = rec
+    }
+
+    /// Returns the record at the offset from the stack pointer.
+    /// Make sure 'idx' is less than the stack pointer
+    /// and stack pointer minus 'idx' is less than the record buffer length.
+    #[inline(always)]
+    pub fn poke(&self, idx: usize) -> Record {
+        debug_assert!(idx <= self.sp, "VM_Stack_OutOfRangePoke!");
+        debug_assert!(self.sp - idx <= self.buf.len(), "VM_Stack_OutOfRangePoke!");
+        self.buf[self.sp - idx]
+    }
+
+    /// Sets the record at the offset from the stack pointer.
+    /// Make sure 'idx' is less than the stack pointer
+    /// and stack pointer minus 'idx' is less than the record buffer length.
+    #[inline(always)]
+    pub fn poke_set(&mut self, idx: usize, rec: Record) {
+        debug_assert!(idx <= self.sp, "VM_Stack_OutOfRangePoke!");
+        debug_assert!(self.sp - idx <= self.buf.len(), "VM_Stack_OutOfRangePoke!"); // TODO check for overflow
+        self.buf[self.sp - idx] = rec
+    }
+
+    /// Returns true if stack overflow happend.
+    #[inline(always)]
+    pub fn is_overflowed(&self) -> bool {
+        self.sp >= self.buf.len()
+    }
+}
+
+impl ops::Index<usize> for Stack {
+    type Output = Record;
+
+    /// Returns an immutable reference to the record in the record buffer at 'idx'.
+    #[inline(always)]
+    fn index(&self, idx: usize) -> &Self::Output {
+        &self.buf[idx]
+    }
+}
+
+impl ops::IndexMut<usize> for Stack {
+    /// Returns a mutable reference to the record in the record buffer at 'idx'.
+    #[inline(always)]
+    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+        &mut self.buf[idx]
+    }
+}
+
+impl convert::From<Box<[Record]>> for Stack {
+    /// Creates a new instance from a boxed array.
+    /// Panics if length is zero!
+    fn from(buf: Box<[Record]>) -> Self {
+        assert_ne!(buf.len(), 0);
+        Self { buf, sp: 0 }
+    }
+}
+
+impl convert::From<Vec<Record>> for Stack {
+    /// Creates a new instance from a vector.
+    /// Panics if length is zero!
+    fn from(buf: Vec<Record>) -> Self {
+        assert_ne!(buf.len(), 0);
+        Self {
+            buf: buf.into_boxed_slice(),
+            sp: 0,
+        }
+    }
+}
+
+impl fmt::Debug for Stack {
+    /// Prints the stack with values.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "\n+-----------------------------------------------+")?;
+        writeln!(f, "|                     Stack                     |")?;
+        writeln!(f, "+-----------------------------------------------+")?;
+        for (i, rec) in self.buf.iter().enumerate() {
+            writeln!(f, "| &{:#010X} | {:?}", i, rec)?
+        }
+        writeln!(f, "+----------------------End----------------------+\n")
+    }
 }

@@ -204,39 +204,87 @@
 
 */
 
-extern crate ronin_runtime;
+use std::{default::Default, path::PathBuf};
 
-use ronin_runtime::core::executor::ExecutorInput;
-use ronin_runtime::prelude::*;
+#[cfg(feature = "config_file")]
+use serde::{Deserialize, Serialize};
+#[cfg(feature = "config_file")]
+use serde_json as json;
+#[cfg(feature = "config_file")]
+use std::{fs, path::Path};
 
-fn main() {
-    let mut code = BytecodeStream::new();
+/// Contains configuration parameters for the VM.
+/// Will be serialized/deserialized from a config file.
+#[cfg_attr(feature = "config_file", derive(Serialize, Deserialize))]
+pub struct RuntimeConfig {
+    /// The cache directory.
+    pub cache_dir: PathBuf,
 
-    code.prologue();
-    code.push_opcode(OpCode::Push).with_i32(0);
-    code.push_label("_loop");
-    code.push_opcode(OpCode::I32Increment);
-    code.push_opcode(OpCode::Duplicate);
+    /// Additional package directories.
+    pub additional_package_dirs: Vec<PathBuf>,
 
-    code.push_opcode(OpCode::CallIntrinsic)
-        .with_intrin_id(IntrinProcID::GPutChar);
+    /// Per-thread stack size in bytes.
+    pub thread_stack_size: usize,
+}
 
-    code.push_opcode(OpCode::Push).with_i32(10);
-    code.push_opcode(OpCode::JumpIfLess).with_label("_loop");
-    code.epilogue();
+impl RuntimeConfig {
+    pub fn new() -> Self {
+        Self {
+            cache_dir: PathBuf::from("_roncache_"),
+            additional_package_dirs: Vec::new(),
+            thread_stack_size: 1024 * 1024 * 8,
+        }
+    }
 
-    print!("{:?}", code);
+    #[inline]
+    #[cfg(feature = "config_file")]
+    pub fn load() -> Self {
+        Self::load_from_file().unwrap_or(RuntimeConfig::default())
+    }
 
-    let input = ExecutorInput {
-        chunk: code.build().unwrap(),
-        stack: Stack::with_length(32),
-    };
+    #[inline]
+    #[cfg(not(feature = "config_file"))]
+    pub fn load() -> Self {
+        RuntimeConfig::default()
+    }
+}
 
-    let output = execute(input);
+impl Default for RuntimeConfig {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
-    println!("-------------------------------------------------");
-    println!(
-        "Execution ended!\nTime: {}s\nCycles: {}",
-        output.time, output.cycles
-    );
+#[cfg(feature = "config_file")]
+impl RuntimeConfig {
+    pub const CONFIG_FILE: &'static str = "vm.ini";
+
+    pub fn load_from_file() -> Result<Self, ()> {
+        if !Path::new(Self::CONFIG_FILE).exists() {
+            let default = Self::default();
+            let _ = Self::save_to_file(&default);
+            Ok(default)
+        } else if let Ok(string) = fs::read_to_string(Path::new(Self::CONFIG_FILE)) {
+            if let Ok(object) = json::from_str(&string) {
+                Ok(object)
+            } else {
+                Err(())
+            }
+        } else {
+            Err(())
+        }
+    }
+
+    pub fn save_to_file(inp: &Self) -> Result<(), ()> {
+        if let Ok(string) = json::to_string_pretty(inp) {
+            if fs::write(Path::new(Self::CONFIG_FILE), string).is_ok() {
+                Ok(())
+            } else {
+                Err(())
+            }
+        } else {
+            Err(())
+        }
+    }
 }

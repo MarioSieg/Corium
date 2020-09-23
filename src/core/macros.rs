@@ -204,39 +204,86 @@
 
 */
 
-extern crate ronin_runtime;
+/// Implements a conditional branch jump with a logical type comparison between two operands.
+macro_rules! impl_duplet_con_jmp {
+        ($sta:ident, $cmd:ident, $op:tt, $tp:ty) => {
+            let target_address: usize = $cmd.fetch().into();
+            if <$tp>::from($sta.poke(1)) $op <$tp>::from($sta.peek()) {
+                $cmd.jump(target_address);
+            }
+            $sta.pop_multi(2);
+        }
+    }
 
-use ronin_runtime::core::executor::ExecutorInput;
-use ronin_runtime::prelude::*;
+/// Implements a conditional branch jump with a logical type comparison between two operands,
+/// but one of them is specified.
+macro_rules! impl_scalar_con_jmp {
+        ($sta:ident, $cmd:ident, $op:tt, $val:expr, $tp:ty) => {
+            let target_address: usize = $cmd.fetch().into();
+            if <$tp>::from($sta.peek()) $op $val {
+                $cmd.jump(target_address);
+            }
+            $sta.pop();
+        }
+    }
 
-fn main() {
-    let mut code = BytecodeStream::new();
+/// Implements an arithmetic operation with two operands.
+macro_rules! impl_duplet_op {
+        ($sta:ident, $sc:ty, $op:tt) => {
+            $sta.poke_set(
+                1,
+                Record::from(
+                    <$sc>::from($sta.poke(1)) $op
+                    <$sc>::from($sta.peek())
+                )
+            );
+            $sta.pop();
+        }
+    }
 
-    code.prologue();
-    code.push_opcode(OpCode::Push).with_i32(0);
-    code.push_label("_loop");
-    code.push_opcode(OpCode::I32Increment);
-    code.push_opcode(OpCode::Duplicate);
-
-    code.push_opcode(OpCode::CallIntrinsic)
-        .with_intrin_id(IntrinProcID::GPutChar);
-
-    code.push_opcode(OpCode::Push).with_i32(10);
-    code.push_opcode(OpCode::JumpIfLess).with_label("_loop");
-    code.epilogue();
-
-    print!("{:?}", code);
-
-    let input = ExecutorInput {
-        chunk: code.build().unwrap(),
-        stack: Stack::with_length(32),
+/// Implements an arithmetic operation with two operands,
+/// but calls some static value on the type.
+macro_rules! impl_duplet_op_static {
+    ($sta:ident, $sc:ty, $proc:ident) => {
+        $sta.poke_set(
+            1,
+            Record::from(<$sc>::from($sta.poke(1)).$proc(<$sc>::from($sta.peek()) as _)),
+        );
+        $sta.pop();
     };
+}
 
-    let output = execute(input);
+/// Implements an arithmetic operation with two operands,
+/// but one operand is already specified.
+macro_rules! impl_scalar_op {
+        ($sta:ident, $sc:ty, $op:tt, $v:expr) => {
+            $sta.peek_set(
+                Record::from(<$sc>::from($sta.peek())
+                $op
+                $v
+            ));
+        }
+    }
 
-    println!("-------------------------------------------------");
-    println!(
-        "Execution ended!\nTime: {}s\nCycles: {}",
-        output.time, output.cycles
-    );
+/// Implements an intrinsic procedure with one scalar parameter.
+/// Pops the input argument and pushes the result.
+macro_rules! impl_scalar_intrin {
+    ($sta:ident, $sc:ty, $proc:ident) => {
+        $sta.peek_set(Record::from(<$sc>::$proc(<$sc>::from($sta.peek()))));
+    };
+}
+
+/// Implements an intrinsic procedure with two scalar parameters.
+/// Pops the input arguments and pushes the result.
+macro_rules! impl_duplet_intrin {
+    ($sta:ident, $sc:ty, $proc:ident) => {
+        $sta.poke_set(
+            1,
+            Record::from(<$sc>::$proc(
+                <$sc>::from($sta.poke(1)),
+                <$sc>::from($sta.peek()),
+            )),
+        );
+        $sta.pop();
+    };
 }

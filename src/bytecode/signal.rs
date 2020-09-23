@@ -204,63 +204,200 @@
 
 */
 
-#[rustfmt::skip]
-pub mod mnemonics {
-    pub const INTERRUPT: &str           = "INTERRUPT";
-    pub const INTRINSIC_PROC: &str      = "INTRIN";
-    pub const PUSH: &str                = "PUSH";
-    pub const POP: &str                 = "POP";
-    pub const MOVE: &str                = "MOV";
-    pub const COPY: &str                = "CPY";
-    pub const NO_OP: &str               = "NOP";
-    pub const DUPLICATE: &str           = "DUPL";
-    pub const DUPLICATE_X2: &str        = "DDUPL";
-    pub const CAST_I32_TO_F32: &str     = "CASTI2F";
-    pub const CAST_F32_TO_I32: &str     = "CASTF2I";
-    pub const JUMP: &str                = "JMP";
-    pub const JUMP_IF_ZERO: &str        = "JZ";
-    pub const JUMP_IF_NOT_ZERO: &str    = "JNZ";
-    pub const JUMP_IF_EQUALS: &str      = "JE";
-    pub const JUMP_IF_NOT_EQUALS: &str  = "JNE";
-    pub const JUMP_IF_ABOVE: &str       = "JA";
-    pub const JUMP_IF_ABOVE_EQUALS: &str= "JAE";
-    pub const JUMP_IF_LESS: &str        = "JL";
-    pub const JUMP_IF_LESS_EQUALS: &str = "JLE";
-    pub const I32_ADD: &str             = "IADD";
-    pub const I32_SUB: &str             = "ISUB";
-    pub const I32_MUL: &str             = "IMUL";
-    pub const I32_DIV: &str             = "IDIV";
-    pub const I32_MOD: &str             = "IMOD";
-    pub const I32_AND: &str             = "IAND";
-    pub const I32_OR: &str              = "IOR";
-    pub const I32_XOR: &str             = "IXOR";
-    pub const I32_SAL: &str             = "ISAL";
-    pub const I32_SAR: &str             = "ISAR";
-    pub const I32_ROL: &str             = "IROL";
-    pub const I32_ROR: &str             = "IROR";
-    pub const I32_COM: &str             = "ICOM";
-    pub const I32_INCREMENT: &str       = "IINC";
-    pub const I32_DECREMENT: &str       = "IDEC";
-    pub const F32_ADD: &str             = "FADD";
-    pub const F32_SUB: &str             = "FSUB";
-    pub const F32_MUL: &str             = "FMUL";
-    pub const F32_DIV: &str             = "FDIV";
-    pub const F32_MOD: &str             = "FMOD";
-    pub const F32_MUL_ADD: &str         = "FFMA";
+use crate::bytecode::{
+    discriminated::DiscriminatedSignal, intrinsic::IntrinProcID, opcode::OpCode,
+};
+use crate::core::record::Record;
+use std::{convert, fmt, mem};
+
+/// Represents a single bytecode signal at runtime.
+/// A signal is used as an union which can be an instruction (opcode) or a parameter.
+/// For a typesafe, discriminated version use 'DiscriminatedSignal'.
+#[repr(C)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+pub struct Signal(u32);
+
+/// Creates a signal from an usize.
+/// Panics if the usize is > u32::MAX!
+impl convert::From<usize> for Signal {
+    #[inline(always)]
+    fn from(x: usize) -> Self {
+        debug_assert!(x < u32::MAX as _, "VM_Signal_USizeTooLarge");
+        Self(x as _)
+    }
 }
 
-pub mod tokens {
-    pub const ADDRESS_OP: char = '&';
-    pub const ADDRESS_VAL: char = '*';
+/// Creates an usize from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an usize.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+impl convert::From<Signal> for usize {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        x.0 as _
+    }
+}
 
-    pub const BEGIN_IMMEDIATE_VALUE: char = '$';
-    pub const BEGIN_LABEL: char = '@';
-    pub const BEGIN_OPCODE: char = '%';
-    pub const BEGIN_INTRIN_ID: char = '_';
+/// Creates a signal from an i32.
+/// The signal then represents an i32 with the value of x.
+impl convert::From<i32> for Signal {
+    #[inline(always)]
+    fn from(x: i32) -> Self {
+        Self(x as _)
+    }
+}
 
-    pub const TYPE_F32: &str = "F32";
-    pub const TYPE_I32: &str = "I32";
-    pub const TYPE_OPCODE: &str = "OPC";
-    pub const TYPE_INTRIN_ID: &str = "IPI";
-    pub const TYPE_LABEL: &str = "PIN";
+/// Creates an i32 from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an i32.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+impl convert::From<Signal> for i32 {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        x.0 as _
+    }
+}
+
+/// Creates a signal from an u32.
+/// The signal then represents an u32 with the value of x.
+impl convert::From<u32> for Signal {
+    #[inline(always)]
+    fn from(x: u32) -> Self {
+        Self(x)
+    }
+}
+
+/// Creates an u32 from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an u32.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+impl convert::From<Signal> for u32 {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        x.0
+    }
+}
+
+/// Creates a signal from a f32.
+/// The signal then represents an f32 with the value of x.
+impl convert::From<f32> for Signal {
+    #[inline(always)]
+    fn from(x: f32) -> Self {
+        Self(x.to_bits())
+    }
+}
+
+/// Creates an f32 from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an f32.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+impl convert::From<Signal> for f32 {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        f32::from_bits(x.0)
+    }
+}
+
+/// Creates a signal from an opcode.
+/// The signal then represents an opcode with the value of x.
+impl convert::From<OpCode> for Signal {
+    #[inline(always)]
+    fn from(x: OpCode) -> Self {
+        Self(x as _)
+    }
+}
+
+/// Creates an opcode from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an opcode.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+impl convert::From<Signal> for OpCode {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        debug_assert!(x.0 < OpCode::COUNT as _);
+        unsafe { mem::transmute::<u32, OpCode>(x.0) }
+    }
+}
+
+/// Creates a signal from an intrinsic proc id.
+/// The signal then represents an opcode with the value of x.
+impl convert::From<IntrinProcID> for Signal {
+    #[inline(always)]
+    fn from(x: IntrinProcID) -> Self {
+        Self(x as _)
+    }
+}
+
+/// Creates an intrinsic proc id from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't an intrinsic proc id.
+/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+impl convert::From<Signal> for IntrinProcID {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        debug_assert!(x.0 < IntrinProcID::COUNT as _);
+        unsafe { mem::transmute::<u32, IntrinProcID>(x.0) }
+    }
+}
+
+/// Creates a new signal from a little endian byte array with four elements (32-bits).
+impl convert::From<[u8; 4]> for Signal {
+    #[inline(always)]
+    fn from(x: [u8; 4]) -> Self {
+        Self(u32::from_le_bytes(x))
+    }
+}
+
+/// Creates a signal from a byte array with four elements (32-bits).
+impl convert::From<Signal> for [u8; 4] {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        x.0.to_le_bytes()
+    }
+}
+
+/// Converts this signal from a stack record.
+impl convert::From<Record> for Signal {
+    #[inline(always)]
+    fn from(x: Record) -> Self {
+        Self(u32::from(x))
+    }
+}
+
+/// Creates a signal from an discriminated signal.
+impl<'a> convert::From<DiscriminatedSignal<'a>> for Signal {
+    fn from(x: DiscriminatedSignal) -> Self {
+        match x {
+            DiscriminatedSignal::I32(i) => Self::from(i),
+            DiscriminatedSignal::F32(f) => Self::from(f),
+            DiscriminatedSignal::OpCode(op) => Self::from(op),
+            DiscriminatedSignal::IntrinProcID(ipc) => Self::from(ipc),
+            DiscriminatedSignal::Label(l, _) => Self::from(l),
+        }
+    }
+}
+
+/// Only prints the byte array.
+impl fmt::Display for Signal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let b: [u8; 4] = (*self).into();
+        write!(f, "{:02X} {:02X} {:02X} {:02X}", b[0], b[1], b[2], b[3])
+    }
+}
+
+/// Prints the byte array with values and correct syntax.
+impl fmt::Debug for Signal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let b: [u8; 4] = (*self).into();
+        write!(
+            f,
+            "{:02X} {:02X} {:02X} {:02X} | {}, {:#e}",
+            b[0],
+            b[1],
+            b[2],
+            b[3],
+            i32::from(*self),
+            i32::from(*self),
+        )
+    }
 }

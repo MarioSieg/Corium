@@ -204,39 +204,76 @@
 
 */
 
-extern crate ronin_runtime;
+use crate::bytecode::{intrinsic::IntrinProcID, meta::opcode_meta, opcode::OpCode, signal::Signal};
+use crate::interpreter::tokens;
+use std::fmt;
 
-use ronin_runtime::core::executor::ExecutorInput;
-use ronin_runtime::prelude::*;
+/// Type safe version of 'Signal' using a discriminator.
+/// This is only used by the interpreter, optimizer and validator, not at runtime!
+/// This gets converted to an undiscriminated signal before runtime injection.
+#[derive(Copy, Clone, PartialEq)]
+pub enum DiscriminatedSignal<'a> {
+    I32(i32),
+    F32(f32),
+    OpCode(OpCode),
+    IntrinProcID(IntrinProcID),
+    Label(u32, &'a str),
+}
 
-fn main() {
-    let mut code = BytecodeStream::new();
+pub type Param<'a> = DiscriminatedSignal<'a>;
 
-    code.prologue();
-    code.push_opcode(OpCode::Push).with_i32(0);
-    code.push_label("_loop");
-    code.push_opcode(OpCode::I32Increment);
-    code.push_opcode(OpCode::Duplicate);
+/// Only prints discriminator.
+impl<'a> fmt::Display for DiscriminatedSignal<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
 
-    code.push_opcode(OpCode::CallIntrinsic)
-        .with_intrin_id(IntrinProcID::GPutChar);
+/// Prints values.
+impl<'a> fmt::Debug for DiscriminatedSignal<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            Self::I32(int) => write!(
+                f,
+                "{} | [{}] {}{}",
+                Signal::from(*self),
+                tokens::TYPE_I32,
+                tokens::BEGIN_IMMEDIATE_VALUE,
+                int
+            ),
 
-    code.push_opcode(OpCode::Push).with_i32(10);
-    code.push_opcode(OpCode::JumpIfLess).with_label("_loop");
-    code.epilogue();
-
-    print!("{:?}", code);
-
-    let input = ExecutorInput {
-        chunk: code.build().unwrap(),
-        stack: Stack::with_length(32),
-    };
-
-    let output = execute(input);
-
-    println!("-------------------------------------------------");
-    println!(
-        "Execution ended!\nTime: {}s\nCycles: {}",
-        output.time, output.cycles
-    );
+            Self::F32(flt) => write!(
+                f,
+                "{} | [{}] {}{}",
+                Signal::from(*self),
+                tokens::TYPE_F32,
+                tokens::BEGIN_IMMEDIATE_VALUE,
+                flt
+            ),
+            Self::OpCode(op) => write!(
+                f,
+                "{} | [{}] {}{}",
+                Signal::from(*self),
+                tokens::TYPE_OPCODE,
+                tokens::BEGIN_OPCODE,
+                opcode_meta(op).mnemonic,
+            ),
+            Self::IntrinProcID(ipi) => write!(
+                f,
+                "{} | [{}] {}{}",
+                Signal::from(*self),
+                tokens::TYPE_INTRIN_ID,
+                tokens::BEGIN_INTRIN_ID,
+                format!("{:?}", ipi).to_lowercase(),
+            ),
+            Self::Label(_, name) => write!(
+                f,
+                "{} | [{}] {}{}",
+                Signal::from(*self),
+                tokens::TYPE_LABEL,
+                tokens::BEGIN_LABEL,
+                name
+            ),
+        }
+    }
 }
