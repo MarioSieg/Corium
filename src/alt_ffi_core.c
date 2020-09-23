@@ -312,7 +312,7 @@ typedef union {
 
 /* !! Maps to src/ffi/mod.rs/VmCExecutorInput !! */
 typedef struct {
-    const Signal* const command_buffer;
+    const SignalUnion* const command_buffer;
     size_t instruction_ptr;
     RecordUnion* const stack;
     size_t stack_ptr;
@@ -378,7 +378,7 @@ static VmCExecutorOutput ffi_c_execute(VmCExecutorInput* const inout) {
     register int_fast64_t cycles = 0;
     register int_fast32_t interrupt_code = 0;
     register int_fast32_t opcode = 0;
-    register const Signal* restrict ip = inout->command_buffer + inout->instruction_ptr;
+    register const SignalUnion* restrict ip = inout->command_buffer + inout->instruction_ptr;
     register RecordUnion* restrict sp = inout->stack + inout->stack_ptr;
     register void* const restrict* const restrict jump_table = JUMP_TABLE;
 

@@ -364,6 +364,19 @@ impl convert::From<Record> for Signal {
     }
 }
 
+/// Creates a signal from an discriminated signal.
+impl<'a> convert::From<DiscriminatedSignal<'a>> for Signal {
+    fn from(x: DiscriminatedSignal) -> Self {
+        match x {
+            DiscriminatedSignal::I32(i) => Self::from(i),
+            DiscriminatedSignal::F32(f) => Self::from(f),
+            DiscriminatedSignal::OpCode(op) => Self::from(op),
+            DiscriminatedSignal::IntrinProcID(ipc) => Self::from(ipc),
+            DiscriminatedSignal::Label(l, _) => Self::from(l),
+        }
+    }
+}
+
 /// Only prints the byte array.
 impl fmt::Display for Signal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -389,150 +402,70 @@ impl fmt::Debug for Signal {
     }
 }
 
-/// The discriminator for a signal.
-/// It defined which types the signal can contain.
-/// This is only used by the interpreter, optimizer and validator, not at runtime!
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
-pub enum SignalDiscriminator {
-    /// Represents an i32.
-    I32,
-
-    /// Represents a f32.
-    F32,
-
-    /// Represents an opcode.
-    OpCode,
-
-    /// Represents an intrinsic procedure id.
-    IntrinProcID,
-
-    /// Represents an label.
-    Label,
-}
-
 /// Type safe version of 'Signal' using a discriminator.
 /// This is only used by the interpreter, optimizer and validator, not at runtime!
 /// This gets converted to an undiscriminated signal before runtime injection.
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
-pub struct DiscriminatedSignal(pub(super) Signal, pub(super) SignalDiscriminator);
-
-/// Creates a new instance from a duple.
-impl convert::From<(Signal, SignalDiscriminator)> for DiscriminatedSignal {
-    #[inline]
-    fn from(x: (Signal, SignalDiscriminator)) -> Self {
-        Self(x.0, x.1)
-    }
+#[derive(Copy, Clone, PartialEq)]
+pub enum DiscriminatedSignal<'a> {
+    I32(i32),
+    F32(f32),
+    OpCode(OpCode),
+    IntrinProcID(IntrinProcID),
+    Label(u32, &'a str),
 }
 
 /// Only prints discriminator.
-impl fmt::Display for DiscriminatedSignal {
+impl<'a> fmt::Display for DiscriminatedSignal<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self.1)
+        write!(f, "{:?}", self)
     }
 }
 
 /// Prints values.
-impl fmt::Debug for DiscriminatedSignal {
+impl<'a> fmt::Debug for DiscriminatedSignal<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self.1 {
-            SignalDiscriminator::I32 => write!(
+        match *self {
+            Self::I32(int) => write!(
                 f,
                 "{} | [{}] {}{}",
-                self.0,
+                Signal::from(*self),
                 tokens::TYPE_I32,
                 tokens::BEGIN_IMMEDIATE_VALUE,
-                i32::from(self.0)
+                int
             ),
-            SignalDiscriminator::F32 => write!(
+
+            Self::F32(flt) => write!(
                 f,
                 "{} | [{}] {}{}",
-                self.0,
+                Signal::from(*self),
                 tokens::TYPE_F32,
                 tokens::BEGIN_IMMEDIATE_VALUE,
-                f32::from(self.0)
+                flt
             ),
-            SignalDiscriminator::OpCode => write!(
+            Self::OpCode(op) => write!(
                 f,
                 "{} | [{}] {}{}",
-                self.0,
+                Signal::from(*self),
                 tokens::TYPE_OPCODE,
                 tokens::BEGIN_OPCODE,
-                opcode_meta(OpCode::from(self.0)).mnemonic,
+                opcode_meta(op).mnemonic,
             ),
-            SignalDiscriminator::IntrinProcID => write!(
+            Self::IntrinProcID(ipi) => write!(
                 f,
                 "{} | [{}] {}{}",
-                self.0,
+                Signal::from(*self),
                 tokens::TYPE_INTRIN_ID,
                 tokens::BEGIN_INTRIN_ID,
-                format!("{:?}", IntrinProcID::from(self.0)).to_lowercase(),
+                format!("{:?}", ipi).to_lowercase(),
             ),
-            SignalDiscriminator::Label => write!(
+            Self::Label(_, name) => write!(
                 f,
-                "{} | [{}] {}",
-                self.0,
-                tokens::TYPE_I32,
+                "{} | [{}] {}{}",
+                Signal::from(*self),
+                tokens::TYPE_LABEL,
                 tokens::BEGIN_LABEL,
+                name
             ),
-        }
-    }
-}
-
-impl DiscriminatedSignal {
-    /// Returns the undiscriminated signal part,
-    /// which contains the values.
-    #[inline]
-    pub fn signal(&self) -> Signal {
-        self.0
-    }
-
-    /// Returns the discriminator enumeration.
-    #[inline]
-    pub fn discriminator(&self) -> SignalDiscriminator {
-        self.1
-    }
-
-    /// If this instance represents an i32 it returns it.
-    /// Else none.
-    #[inline]
-    pub fn i32(&self) -> Option<i32> {
-        if self.1 == SignalDiscriminator::I32 {
-            Some(i32::from(self.0))
-        } else {
-            None
-        }
-    }
-
-    /// If this instance represents an f32 it returns it.
-    /// Else none.
-    #[inline]
-    pub fn f32(&self) -> Option<f32> {
-        if self.1 == SignalDiscriminator::F32 {
-            Some(f32::from(self.0))
-        } else {
-            None
-        }
-    }
-
-    /// If this instance represents an opcode it returns it.
-    /// Else none.
-    #[inline]
-    pub fn opcode(&self) -> Option<OpCode> {
-        if self.1 == SignalDiscriminator::OpCode {
-            Some(OpCode::from(self.0))
-        } else {
-            None
-        }
-    }
-
-    /// If this instance represents an label, it returns it.
-    /// Else none.
-    #[inline]
-    pub fn label(&self) -> Option<usize> {
-        if self.1 == SignalDiscriminator::Label {
-            Some(usize::from(self.0))
-        } else {
-            None
         }
     }
 }
@@ -543,16 +476,16 @@ impl DiscriminatedSignal {
 /// values and parameters in the bytecode.
 /// If validation is successful, it can get converted
 /// into a bytecode chunk, which then can get executed by a VM executor kernel.
-pub struct BytecodeStream {
-    stream: Vec<DiscriminatedSignal>,
-    jump_table: HashMap<String, usize>,
+pub struct BytecodeStream<'a> {
+    stream: Vec<DiscriminatedSignal<'a>>,
+    jump_table: HashMap<String, u32>,
     last_op_idx: usize,
     ops_count: usize,
     has_prologue: bool,
     has_epilogue: bool,
 }
 
-impl BytecodeStream {
+impl<'a> BytecodeStream<'a> {
     /// Creates a new, empty bytecode stream.
     #[inline]
     pub fn new() -> Self {
@@ -581,17 +514,14 @@ impl BytecodeStream {
     }
 }
 
-impl BytecodeStream {
+impl<'a> BytecodeStream<'a> {
     /// Pushes a new operation into the command buffer stream.
     /// If the operation requires any parameters, use with_* to
     /// push them afterwards, otherwise validation will fail.
     /// Returns this as ref to allow chain calls.
     pub fn push_opcode(&mut self, op: OpCode) -> &mut Self {
         self.last_op_idx = self.stream.len();
-        self.stream.push(DiscriminatedSignal::from((
-            Signal::from(op),
-            SignalDiscriminator::OpCode,
-        )));
+        self.stream.push(DiscriminatedSignal::OpCode(op));
         self.ops_count = self.stream.len() - 1;
         self
     }
@@ -599,49 +529,38 @@ impl BytecodeStream {
     /// Pushes a new label into the jump table.
     /// Returns this as ref to allow chain calls.
     pub fn push_label(&mut self, name: &str) -> &mut Self {
-        self.jump_table.insert(name.to_string(), self.stream.len());
+        self.jump_table
+            .insert(name.to_string(), self.stream.len() as _);
         self
     }
 
     /// Pushes a new i32 operation parameter into the command buffer stream.
     pub fn with_i32(&mut self, val: i32) -> &mut Self {
-        self.stream.push(DiscriminatedSignal::from((
-            Signal::from(val),
-            SignalDiscriminator::I32,
-        )));
+        self.stream.push(DiscriminatedSignal::I32(val));
         self
     }
 
     /// Pushes a new f32 operation parameter into the command buffer stream.
     pub fn with_f32(&mut self, val: f32) -> &mut Self {
-        self.stream.push(DiscriminatedSignal::from((
-            Signal::from(val),
-            SignalDiscriminator::F32,
-        )));
+        self.stream.push(DiscriminatedSignal::F32(val));
         self
     }
 
     /// Pushes a new label operation parameter into the command buffer stream.
     /// If the label does not exist in the jump table,
     /// it will panic. (Label x not undefined!)
-    pub fn with_label(&mut self, name: &str) -> &mut Self {
+    pub fn with_label(&mut self, name: &'a str) -> &mut Self {
         let label: u32 = (*self
             .jump_table
             .get(name)
             .unwrap_or_else(|| panic!("Label {} undefined!", name))) as _;
-        self.stream.push(DiscriminatedSignal::from((
-            Signal::from(label),
-            SignalDiscriminator::Label,
-        )));
+        self.stream.push(DiscriminatedSignal::Label(label, &name));
         self
     }
 
     /// Pushes a new intrisc procedure id operation parameter into the command buffer stream.
-    pub fn with_intrin_id(&mut self, val: IntrinProcID) -> &mut Self {
-        self.stream.push(DiscriminatedSignal::from((
-            Signal::from(val),
-            SignalDiscriminator::IntrinProcID,
-        )));
+    pub fn with_intrin_id(&mut self, id: IntrinProcID) -> &mut Self {
+        self.stream.push(DiscriminatedSignal::IntrinProcID(id));
         self
     }
 
@@ -659,7 +578,7 @@ impl BytecodeStream {
 
     /// Returns an immutable reference to the jump table.
     #[inline]
-    pub fn jump_table(&self) -> &HashMap<String, usize> {
+    pub fn jump_table(&self) -> &HashMap<String, u32> {
         &self.jump_table
     }
 
@@ -766,14 +685,18 @@ impl BytecodeStream {
     /// else None.
     pub fn last_opcode(&self) -> Option<OpCode> {
         debug_assert!(!self.is_empty());
-        self[self.last_op_idx].opcode()
+        if let DiscriminatedSignal::OpCode(op) = self[self.last_op_idx] {
+            Some(op)
+        } else {
+            None
+        }
     }
 
     /// Returns a slice of the parameters of the stack operation.
     /// Returns none if there are none or the operation index is invalid.
     pub fn last_explicit_opcode_args(&self) -> Option<&[DiscriminatedSignal]> {
         debug_assert!(!self.is_empty());
-        if let Some(opcode) = self[self.last_op_idx].opcode() {
+        if let DiscriminatedSignal::OpCode(opcode) = self[self.last_op_idx] {
             let arg_count = opcode_meta(opcode).explicit_arguments.len();
             if arg_count == 0 {
                 None
@@ -799,15 +722,15 @@ impl BytecodeStream {
         } else {
             let mut buf = Vec::with_capacity(self.stream.len());
             for rec in self.stream {
-                buf.push(rec.0);
+                buf.push(rec.into());
             }
             Ok(BytecodeChunk::from(buf))
         }
     }
 }
 
-impl ops::Index<usize> for BytecodeStream {
-    type Output = DiscriminatedSignal;
+impl<'a> ops::Index<usize> for BytecodeStream<'a> {
+    type Output = DiscriminatedSignal<'a>;
 
     /// Returns the entry at index 'idx'.
     #[inline]
@@ -816,7 +739,7 @@ impl ops::Index<usize> for BytecodeStream {
     }
 }
 
-impl ops::IndexMut<usize> for BytecodeStream {
+impl<'a> ops::IndexMut<usize> for BytecodeStream<'a> {
     /// Returns the entry at index 'idx'.
     #[inline]
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
@@ -824,9 +747,9 @@ impl ops::IndexMut<usize> for BytecodeStream {
     }
 }
 
-impl convert::From<Box<[DiscriminatedSignal]>> for BytecodeStream {
+impl<'a> convert::From<Box<[DiscriminatedSignal<'a>]>> for BytecodeStream<'a> {
     /// Creates a new instance from a boxed array.
-    fn from(buf: Box<[DiscriminatedSignal]>) -> Self {
+    fn from(buf: Box<[DiscriminatedSignal<'a>]>) -> Self {
         Self {
             stream: Vec::from(buf),
             jump_table: HashMap::new(),
@@ -838,9 +761,9 @@ impl convert::From<Box<[DiscriminatedSignal]>> for BytecodeStream {
     }
 }
 
-impl convert::From<Vec<DiscriminatedSignal>> for BytecodeStream {
+impl<'a> convert::From<Vec<DiscriminatedSignal<'a>>> for BytecodeStream<'a> {
     /// Creates a new instance from a vec.
-    fn from(vec: Vec<DiscriminatedSignal>) -> Self {
+    fn from(vec: Vec<DiscriminatedSignal<'a>>) -> Self {
         Self {
             stream: vec,
             jump_table: HashMap::new(),
@@ -852,7 +775,7 @@ impl convert::From<Vec<DiscriminatedSignal>> for BytecodeStream {
     }
 }
 
-impl default::Default for BytecodeStream {
+impl<'a> default::Default for BytecodeStream<'a> {
     /// Same as new()
     fn default() -> Self {
         Self::new()
@@ -860,13 +783,13 @@ impl default::Default for BytecodeStream {
 }
 
 /// Simple print.
-impl fmt::Display for BytecodeStream {
+impl<'a> fmt::Display for BytecodeStream<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n+-----------------------------------------------+")?;
         writeln!(f, "|                    Bytecode                   |")?;
         writeln!(f, "+-----------------------------------------------+")?;
         for (i, arg) in self.stream.iter().enumerate() {
-            if let Some(op) = arg.opcode() {
+            if let DiscriminatedSignal::OpCode(op) = arg {
                 println!("| {:#010X} | {:?}", i, op)
             }
         }
@@ -875,23 +798,13 @@ impl fmt::Display for BytecodeStream {
 }
 
 /// Detailed print (valid text bytecode with syntax).
-impl fmt::Debug for BytecodeStream {
+impl<'a> fmt::Debug for BytecodeStream<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n+-----------------------------------------------+")?;
         writeln!(f, "|                    Bytecode                   |")?;
         writeln!(f, "+-----------------------------------------------+")?;
         for (i, arg) in self.stream.iter().enumerate() {
-            if let Some(address) = arg.label() {
-                let mut label: &str = "!!!";
-                for (key, val) in &self.jump_table {
-                    if *val == address {
-                        label = &key;
-                    }
-                }
-                println!("| {:#010X} | {:?}{}", i, arg, label)
-            } else {
-                println!("| {:#010X} | {:?}", i, arg)
-            }
+            println!("| {:#010X} | {:?}", i, arg)
         }
         writeln!(f, "+----------------------End----------------------+\n")
     }
@@ -1845,41 +1758,43 @@ const INSTRUCTION_TABLE: &[InstructionMeta<'static>] = &[
 ];
 
 /// Contains all intrinsic procedure ids.
+/// G = Generic
+/// M = Math
 #[repr(u32)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum IntrinProcID {
     /// Prints one character to stdout
-    GenericPutChar,
+    GPutChar,
 
     /// Returns the largest integer less than or equal to a number.
-    MathFloor,
+    MFloor,
 
     /// Returns the smallest integer greater than or equal to a number.
-    MathCeil,
+    MCeil,
 
     /// Returns the nearest integer to a number. Round half-way cases away from 0.0.
-    MathRound,
+    MRound,
 
     /// Returns the integer part of a number.
-    MathTrunc,
+    MTrunc,
 
     /// Returns the fractional part of a number.
-    MathFract,
+    MFract,
 
     /// Computes the absolute value of self. Returns NAN if the number is NAN.
-    MathAbs,
+    MAbs,
 
     /// Returns a number that represents the sign of self.
-    MathSignum,
+    MSignum,
 
     /// Returns a number composed of the magnitude of self and the sign of sign.
     /// Equal to self if the sign of self and sign are the same, otherwise equal to -self. If self is a NAN, then a NAN with the sign of sign is returned.
-    MathCopysign,
+    MCopysign,
 
     /// Calculates Euclidean division, the matching method for rem_euclid.
     /// This computes the integer n such that self = n * rhs + self.rem_euclid(rhs).
     /// In other words, the result is self / rhs rounded to the integer n such that self >= n * rhs.
-    MathDivEuclid,
+    MDivEuclid,
 
     ///Calculates the least nonnegative remainder of self (mod rhs).
     /// In particular, the return value r satisfies 0.0 <= r < rhs.abs() in most cases.
@@ -1888,144 +1803,136 @@ pub enum IntrinProcID {
     /// This result is not an element of the function's codomain,
     /// but it is the closest floating point number in the real numbers and thus fulfills
     /// the property self == self.div_euclid(rhs) * rhs + self.rem_euclid(rhs) approximatively.
-    MathRemEuclid,
-
-    /// Raises a number to an integer power.
-    /// Using this function is generally faster than using powf.
-    MathPowI,
+    MRemEuclid,
 
     /// Raises a number to a floating point power.
-    MathPowF,
+    MPowF,
 
     /// Returns the square root of a number.
     /// Returns NaN if self is a negative number.
-    MathSqrt,
+    MSqrt,
 
     /// Returns e^(self), (the exponential function).
-    MathExp,
+    MExp,
 
     /// Returns 2^(self).
-    MathExp2,
+    MExp2,
 
     /// Returns the natural logarithm of the number.
-    MathLn,
+    MLn,
 
     /// Returns the logarithm of the number with respect to an arbitrary base.
     /// The result may not be correctly rounded owing to implementation details;
     /// self.log2() can produce more accurate results for base 2, and self.log10()
     /// can produce more accurate results for base 10.
-    MathLog,
+    MLog,
 
     /// Returns the base 2 logarithm of the number.
-    MathLog2,
+    MLog2,
 
     /// Returns the base 10 logarithm of the number.
-    MathLog10,
+    MLog10,
 
     /// Returns the cubic root of a number.
-    MathCbrt,
+    MCbrt,
 
     /// Calculates the length of the hypotenuse of a right-angle triangle given legs of length x and y.
-    MathHypot,
+    MHypot,
 
     /// Computes the sine of a number (in radians).
-    MathSin,
+    MSin,
 
     /// Computes the cosine of a number (in radians).
-    MathCos,
+    MCos,
 
     /// Computes the tangent of a number (in radians).
-    MathTan,
+    MTan,
 
     /// Computes the arcsine of a number.
     /// Return value is in radians in the range [-pi/2, pi/2] or NaN
     /// if the number is outside the range [-1, 1].
-    MathAsin,
+    MAsin,
 
     /// Computes the arccosine of a number.
     /// Return value is in radians in the range [0, pi] or NaN
     /// if the number is outside the range [-1, 1].
-    MathAcos,
+    MAcos,
 
     /// Computes the arctangent of a number. Return value is in radians in the range [-pi/2, pi/2];
-    MathAtan,
+    MAtan,
 
     /// Computes the four quadrant arctangent of self (y) and other (x) in radians.
     /// x = 0, y = 0: 0
     /// x >= 0: arctan(y/x) -> [-pi/2, pi/2]
     /// y >= 0: arctan(y/x) + pi -> (pi/2, pi]
     /// y < 0: arctan(y/x) - pi -> (-pi, -pi/2)
-    MathAtan2,
-
-    /// Simultaneously computes the sine and cosine of the number,
-    /// x. Returns (sin(x), cos(x)).
-    MathSinCos,
+    MAtan2,
 
     /// Returns e^(self) - 1 in a way that is accurate even if the number is close to zero.
-    MathExpM1,
+    MExpM1,
 
     /// Returns ln(1+n) (natural logarithm) more accurately than if the operations were performed separately.
-    MathLn1P,
+    MLn1P,
 
     /// Hyperbolic sine function.
-    MathSinH,
+    MSinH,
 
     /// Hyperbolic cosine function.
-    MathCosH,
+    MCosH,
 
     /// Hyperbolic tangent function.
-    MathTanH,
+    MTanH,
 
     /// Inverse hyperbolic sine function.
-    MathAsinH,
+    MAsinH,
 
     /// Inverse hyperbolic cosine function.
-    MathAcosH,
+    MAcosH,
 
     /// Inverse hyperbolic tangent function.
-    MathAtanH,
+    MAtanH,
 
     /// Returns true if this value is NaN.
-    MathIsNan,
+    MIsNan,
 
     /// Returns true if this value is positive infinity or negative infinity, and false otherwise.
-    MathIsInfinite,
+    MIsInfinite,
 
     /// Returns true if this number is neither infinite nor NaN.
-    MathIsFinite,
+    MIsFinite,
 
     /// Returns true if the number is neither zero, infinite, subnormal, or NaN.
-    MathIsNormal,
+    MIsNormal,
 
     /// Returns true if self has a positive sign, including +0.0,
     /// NaNs with positive sign bit and positive infinity.
-    MathIsSignalPositive,
+    MIsSignalPositive,
 
     /// Returns true if self has a negative sign, including -0.0,
     /// NaNs with negative sign bit and negative infinity.
-    MathIsSignalNegative,
+    MIsSignalNegative,
 
     /// Takes the reciprocal (inverse) of a number, 1/x.
-    MathRecip,
+    MRecip,
 
     /// Converts radians to degrees.
-    MathToDegrees,
+    MToDegrees,
 
     /// Converts degrees to radians.
-    MathToRadians,
+    MToRadians,
 
     /// Returns the maximum of the two numbers.
     /// If one of the arguments is NaN, then the other argument is returned.
-    MathMax,
+    MMax,
 
     /// Returns the minimum of the two numbers.
     /// If one of the arguments is NaN, then the other argument is returned.
-    MathMin,
+    MMin,
 }
 
 impl IntrinProcID {
     /// Number of enumerators.
-    pub const COUNT: usize = 1 + IntrinProcID::MathMin as usize;
+    pub const COUNT: usize = 1 + IntrinProcID::MMin as usize;
 }
 
 /// Contains meta about an intrinsic procedure.

@@ -654,8 +654,12 @@ pub mod executor {
     #[macro_export]
     macro_rules! impl_duplet_op {
         ($sta:ident, $sc:ty, $op:tt) => {
-            $sta.poke_set(1, Record::from(
-                <$sc>::from($sta.poke(1)) $op <$sc>::from($sta.peek()))
+            $sta.poke_set(
+                1,
+                Record::from(
+                    <$sc>::from($sta.poke(1)) $op
+                    <$sc>::from($sta.peek())
+                )
             );
             $sta.pop();
         }
@@ -678,9 +682,38 @@ pub mod executor {
     /// but one operand is already specified.
     #[macro_export]
     macro_rules! impl_scalar_op {
-        ($sta:ident, $sc:ident, $op:tt, $v:expr) => {
-            $sta.peek_set(Record::from($sc::from($sta.peek()) $op $v));
+        ($sta:ident, $sc:ty, $op:tt, $v:expr) => {
+            $sta.peek_set(
+                Record::from(<$sc>::from($sta.peek())
+                $op
+                $v
+            ));
         }
+    }
+
+    /// Implements an intrinsic procedure with one scalar parameter.
+    /// Pops the input argument and pushes the result.
+    #[macro_export]
+    macro_rules! impl_scalar_intrin {
+        ($sta:ident, $sc:ty, $proc:ident) => {
+            $sta.peek_set(Record::from(<$sc>::$proc(<$sc>::from($sta.peek()))));
+        };
+    }
+
+    /// Implements an intrinsic procedure with two scalar parameters.
+    /// Pops the input arguments and pushes the result.
+    #[macro_export]
+    macro_rules! impl_duplet_intrin {
+        ($sta:ident, $sc:ty, $proc:ident) => {
+            $sta.poke_set(
+                1,
+                Record::from(<$sc>::$proc(
+                    <$sc>::from($sta.poke(1)),
+                    <$sc>::from($sta.peek()),
+                )),
+            );
+            $sta.pop();
+        };
     }
 
     /// Executes the bytecode.
@@ -715,8 +748,171 @@ pub mod executor {
                 OpCode::CallIntrinsic => {
                     let intrin = command_buffer.fetch().into();
                     match intrin {
-                        IntrinProcID::GenericPutChar => {
-                            println!("Hey!");
+                        IntrinProcID::GPutChar => {
+                            println!("HelloWorld!");
+                            continue 'vm;
+                        }
+                        IntrinProcID::MFloor => {
+                            impl_scalar_intrin!(stack, f32, floor);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MCeil => {
+                            impl_scalar_intrin!(stack, f32, ceil);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MRound => {
+                            impl_scalar_intrin!(stack, f32, round);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MTrunc => {
+                            impl_scalar_intrin!(stack, f32, trunc);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MFract => {
+                            impl_scalar_intrin!(stack, f32, fract);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MAbs => {
+                            impl_scalar_intrin!(stack, f32, abs);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MSignum => {
+                            impl_scalar_intrin!(stack, f32, signum);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MCopysign => {
+                            impl_duplet_intrin!(stack, f32, copysign);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MDivEuclid => {
+                            impl_duplet_intrin!(stack, f32, div_euclid);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MRemEuclid => {
+                            impl_duplet_intrin!(stack, f32, rem_euclid);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MPowF => {
+                            impl_duplet_intrin!(stack, f32, powf);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MSqrt => {
+                            impl_scalar_intrin!(stack, f32, sqrt);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MExp => {
+                            impl_scalar_intrin!(stack, f32, exp);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MExp2 => {
+                            impl_scalar_intrin!(stack, f32, exp2);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MLn => {
+                            impl_scalar_intrin!(stack, f32, ln);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MLog => {
+                            impl_duplet_intrin!(stack, f32, log);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MLog2 => {
+                            impl_scalar_intrin!(stack, f32, log2);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MLog10 => {
+                            impl_scalar_intrin!(stack, f32, log10);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MCbrt => {
+                            impl_scalar_intrin!(stack, f32, cbrt);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MHypot => {
+                            impl_duplet_intrin!(stack, f32, hypot);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MSin => {
+                            impl_scalar_intrin!(stack, f32, sin);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MCos => {
+                            impl_scalar_intrin!(stack, f32, cos);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MTan => {
+                            impl_scalar_intrin!(stack, f32, tan);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MAsin => {
+                            impl_scalar_intrin!(stack, f32, asin);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MAcos => {
+                            impl_scalar_intrin!(stack, f32, acos);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MAtan => {
+                            impl_scalar_intrin!(stack, f32, atan);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MAtan2 => {
+                            impl_duplet_intrin!(stack, f32, atan2);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MExpM1 => {
+                            impl_scalar_intrin!(stack, f32, exp_m1);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MLn1P => {
+                            impl_scalar_intrin!(stack, f32, ln_1p);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MSinH => {
+                            impl_scalar_intrin!(stack, f32, sinh);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MCosH => {
+                            impl_scalar_intrin!(stack, f32, cosh);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MTanH => {
+                            impl_scalar_intrin!(stack, f32, tanh);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MAsinH => {
+                            impl_scalar_intrin!(stack, f32, asinh);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MAcosH => {
+                            impl_scalar_intrin!(stack, f32, acosh);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MAtanH => {
+                            impl_scalar_intrin!(stack, f32, atanh);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MIsNan => {
+                            continue 'vm;
+                        }
+                        IntrinProcID::MIsFinite => {
+                            continue 'vm;
+                        }
+                        IntrinProcID::MIsNormal => {
+                            continue 'vm;
+                        }
+                        IntrinProcID::MIsSignalPositive => {
+                            continue 'vm;
+                        }
+                        IntrinProcID::MIsSignalNegative => {
+                            continue 'vm;
+                        }
+                        IntrinProcID::MMax => {
+                            impl_duplet_intrin!(stack, f32, max);
+                            continue 'vm;
+                        }
+                        IntrinProcID::MMin => {
+                            impl_duplet_intrin!(stack, f32, min);
                             continue 'vm;
                         }
                         _ => (),

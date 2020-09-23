@@ -262,4 +262,5 @@ pub mod tokens {
     pub const TYPE_I32: &str = "I32";
     pub const TYPE_OPCODE: &str = "OPC";
     pub const TYPE_INTRIN_ID: &str = "IPI";
+    pub const TYPE_LABEL: &str = "PIN";
 }

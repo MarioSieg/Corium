@@ -209,6 +209,8 @@ extern crate ronin_runtime;
 use ronin_runtime::core::executor::ExecutorInput;
 use ronin_runtime::prelude::*;
 
+// TODO: Implement char
+
 fn main() {
     let mut code = BytecodeStream::new();
 
@@ -217,6 +219,10 @@ fn main() {
     code.push_label("_loop");
     code.push_opcode(OpCode::I32Increment);
     code.push_opcode(OpCode::Duplicate);
+
+    code.push_opcode(OpCode::CallIntrinsic)
+        .with_intrin_id(IntrinProcID::GPutChar);
+
     code.push_opcode(OpCode::Push).with_i32(10);
     code.push_opcode(OpCode::JumpIfLess).with_label("_loop");
     code.epilogue();
@@ -230,5 +236,9 @@ fn main() {
 
     let output = executor::execute(input);
 
-    println!("Cycles: {}", output.cycles);
+    println!("-------------------------------------------------");
+    println!(
+        "Execution ended!\nTime: {}s\nCycles: {}",
+        output.time, output.cycles
+    );
 }
