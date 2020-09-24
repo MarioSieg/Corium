@@ -204,12 +204,48 @@
 
 */
 
-pub use crate::bytecode::chunk::*;
-pub use crate::bytecode::discriminated::*;
-pub use crate::bytecode::intrinsic::*;
-pub use crate::bytecode::opcode::*;
-pub use crate::bytecode::stream::*;
-pub use crate::core::executor::*;
-pub use crate::core::stack::*;
-pub use crate::interpreter::core::*;
-pub use crate::misc::config::*;
+use std::{
+    fs::File,
+    io::{self, prelude::*},
+    path::Path,
+};
+
+/// Buf reader which reuses the file buffer for each line.
+pub struct BufReader {
+    reader: io::BufReader<File>,
+}
+
+impl BufReader {
+    /// Opens a new buf reader.
+    pub fn open(path: &Path) -> io::Result<Self> {
+        let file = File::open(path)?;
+        let reader = io::BufReader::new(file);
+
+        Ok(Self { reader })
+    }
+
+    /// Reads a single line from the buffer.
+    pub fn read_line<'buf>(
+        &mut self,
+        buffer: &'buf mut String,
+    ) -> Option<io::Result<&'buf mut String>> {
+        buffer.clear();
+
+        self.reader
+            .read_line(buffer)
+            .map(|u| if u == 0 { None } else { Some(buffer) })
+            .transpose()
+    }
+
+    /// Reads all lines.
+    pub fn read_all_lines<F: FnMut(&mut String)>(file: &Path, mut proc: F) -> io::Result<()> {
+        let mut reader = Self::open(file)?;
+        let mut buffer = String::new();
+
+        while let Some(Ok(mut line)) = reader.read_line(&mut buffer) {
+            proc(&mut line);
+        }
+
+        Ok(())
+    }
+}

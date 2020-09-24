@@ -204,8 +204,6 @@
 
 */
 
-use crate::bytecode::meta::ImplicitArguments;
-
 /// Contains all intrinsic procedure ids.
 /// G = Generic
 /// M = Math
@@ -383,19 +381,3 @@ impl IntrinProcID {
     /// Number of enumerators.
     pub const COUNT: usize = 1 + IntrinProcID::MMin as usize;
 }
-
-/// Contains meta about an intrinsic procedure.
-pub struct IntrinsicProcMeta<'a> {
-    pub id: IntrinProcID,
-    pub arguments: ImplicitArguments<'a>,
-}
-
-/// Returns the metadata for the intrinsic procedure ids.
-#[inline]
-pub fn intrin_proc_id_meta(iproc: IntrinProcID) -> &'static IntrinsicProcMeta<'static> {
-    &INTRINSIC_PROCEDURE_TABLE[iproc as usize]
-}
-
-/// Contains all metadata for all intrinsic procedure ids.
-/// The index if the intrin proc id.
-const INTRINSIC_PROCEDURE_TABLE: &[IntrinsicProcMeta<'static>] = &[];

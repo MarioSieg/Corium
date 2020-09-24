@@ -216,8 +216,8 @@ use std::{collections::HashMap, convert, default, fmt, ops};
 /// values and parameters in the bytecode.
 /// If validation is successful, it can get converted
 /// into a bytecode chunk, which then can get executed by a VM executor kernel.
-pub struct BytecodeStream<'a> {
-    stream: Vec<DiscriminatedSignal<'a>>,
+pub struct BytecodeStream {
+    stream: Vec<DiscriminatedSignal>,
     jump_table: HashMap<String, u32>,
     last_op_idx: usize,
     ops_count: usize,
@@ -225,7 +225,7 @@ pub struct BytecodeStream<'a> {
     has_epilogue: bool,
 }
 
-impl<'a> BytecodeStream<'a> {
+impl BytecodeStream {
     /// Creates a new, empty bytecode stream.
     #[inline]
     pub fn new() -> Self {
@@ -254,7 +254,7 @@ impl<'a> BytecodeStream<'a> {
     }
 }
 
-impl<'a> BytecodeStream<'a> {
+impl BytecodeStream {
     /// Pushes a new operation into the command buffer stream.
     /// If the operation requires any parameters, use with_* to
     /// push them afterwards, otherwise validation will fail.
@@ -289,18 +289,24 @@ impl<'a> BytecodeStream<'a> {
     /// Pushes a new label operation parameter into the command buffer stream.
     /// If the label does not exist in the jump table,
     /// it will panic. (Label x not undefined!)
-    pub fn with_label(&mut self, name: &'a str) -> &mut Self {
+    pub fn with_label(&mut self, name: &str) -> &mut Self {
         let label: u32 = (*self
             .jump_table
             .get(name)
             .unwrap_or_else(|| panic!("Label {} undefined!", name))) as _;
-        self.stream.push(DiscriminatedSignal::Label(label, &name));
+        self.stream.push(DiscriminatedSignal::Label(label));
         self
     }
 
     /// Pushes a new intrisc procedure id operation parameter into the command buffer stream.
     pub fn with_intrin_id(&mut self, id: IntrinProcID) -> &mut Self {
         self.stream.push(DiscriminatedSignal::IntrinProcID(id));
+        self
+    }
+
+    /// Appends a new signal into the stream.
+    pub fn append_signal(&mut self, sig: DiscriminatedSignal) -> &mut Self {
+        self.stream.push(sig);
         self
     }
 
@@ -469,8 +475,8 @@ impl<'a> BytecodeStream<'a> {
     }
 }
 
-impl<'a> ops::Index<usize> for BytecodeStream<'a> {
-    type Output = DiscriminatedSignal<'a>;
+impl ops::Index<usize> for BytecodeStream {
+    type Output = DiscriminatedSignal;
 
     /// Returns the entry at index 'idx'.
     #[inline]
@@ -479,7 +485,7 @@ impl<'a> ops::Index<usize> for BytecodeStream<'a> {
     }
 }
 
-impl<'a> ops::IndexMut<usize> for BytecodeStream<'a> {
+impl ops::IndexMut<usize> for BytecodeStream {
     /// Returns the entry at index 'idx'.
     #[inline]
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
@@ -487,9 +493,9 @@ impl<'a> ops::IndexMut<usize> for BytecodeStream<'a> {
     }
 }
 
-impl<'a> convert::From<Box<[DiscriminatedSignal<'a>]>> for BytecodeStream<'a> {
+impl convert::From<Box<[DiscriminatedSignal]>> for BytecodeStream {
     /// Creates a new instance from a boxed array.
-    fn from(buf: Box<[DiscriminatedSignal<'a>]>) -> Self {
+    fn from(buf: Box<[DiscriminatedSignal]>) -> Self {
         Self {
             stream: Vec::from(buf),
             jump_table: HashMap::new(),
@@ -501,9 +507,9 @@ impl<'a> convert::From<Box<[DiscriminatedSignal<'a>]>> for BytecodeStream<'a> {
     }
 }
 
-impl<'a> convert::From<Vec<DiscriminatedSignal<'a>>> for BytecodeStream<'a> {
+impl convert::From<Vec<DiscriminatedSignal>> for BytecodeStream {
     /// Creates a new instance from a vec.
-    fn from(vec: Vec<DiscriminatedSignal<'a>>) -> Self {
+    fn from(vec: Vec<DiscriminatedSignal>) -> Self {
         Self {
             stream: vec,
             jump_table: HashMap::new(),
@@ -515,7 +521,7 @@ impl<'a> convert::From<Vec<DiscriminatedSignal<'a>>> for BytecodeStream<'a> {
     }
 }
 
-impl<'a> default::Default for BytecodeStream<'a> {
+impl default::Default for BytecodeStream {
     /// Same as new()
     fn default() -> Self {
         Self::new()
@@ -523,7 +529,7 @@ impl<'a> default::Default for BytecodeStream<'a> {
 }
 
 /// Simple print.
-impl<'a> fmt::Display for BytecodeStream<'a> {
+impl fmt::Display for BytecodeStream {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n+-----------------------------------------------+")?;
         writeln!(f, "|                    Bytecode                   |")?;
@@ -538,7 +544,7 @@ impl<'a> fmt::Display for BytecodeStream<'a> {
 }
 
 /// Detailed print (valid text bytecode with syntax).
-impl<'a> fmt::Debug for BytecodeStream<'a> {
+impl fmt::Debug for BytecodeStream {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n+-----------------------------------------------+")?;
         writeln!(f, "|                    Bytecode                   |")?;

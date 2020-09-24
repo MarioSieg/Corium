@@ -212,25 +212,25 @@ use std::fmt;
 /// This is only used by the interpreter, optimizer and validator, not at runtime!
 /// This gets converted to an undiscriminated signal before runtime injection.
 #[derive(Copy, Clone, PartialEq)]
-pub enum DiscriminatedSignal<'a> {
+pub enum DiscriminatedSignal {
     I32(i32),
     F32(f32),
     OpCode(OpCode),
     IntrinProcID(IntrinProcID),
-    Label(u32, &'a str),
+    Label(u32),
 }
 
-pub type Param<'a> = DiscriminatedSignal<'a>;
+pub type Param = DiscriminatedSignal;
 
 /// Only prints discriminator.
-impl<'a> fmt::Display for DiscriminatedSignal<'a> {
+impl fmt::Display for DiscriminatedSignal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self)
     }
 }
 
 /// Prints values.
-impl<'a> fmt::Debug for DiscriminatedSignal<'a> {
+impl fmt::Debug for DiscriminatedSignal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Self::I32(int) => write!(
@@ -238,7 +238,7 @@ impl<'a> fmt::Debug for DiscriminatedSignal<'a> {
                 "{} | [{}] {}{}",
                 Signal::from(*self),
                 tokens::TYPE_I32,
-                tokens::BEGIN_IMMEDIATE_VALUE,
+                tokens::BEGIN_ARG_SCALAR,
                 int
             ),
 
@@ -247,7 +247,7 @@ impl<'a> fmt::Debug for DiscriminatedSignal<'a> {
                 "{} | [{}] {}{}",
                 Signal::from(*self),
                 tokens::TYPE_F32,
-                tokens::BEGIN_IMMEDIATE_VALUE,
+                tokens::BEGIN_ARG_SCALAR,
                 flt
             ),
             Self::OpCode(op) => write!(
@@ -255,7 +255,7 @@ impl<'a> fmt::Debug for DiscriminatedSignal<'a> {
                 "{} | [{}] {}{}",
                 Signal::from(*self),
                 tokens::TYPE_OPCODE,
-                tokens::BEGIN_OPCODE,
+                tokens::BEGIN_LINE_OPCODE,
                 opcode_meta(op).mnemonic,
             ),
             Self::IntrinProcID(ipi) => write!(
@@ -263,16 +263,16 @@ impl<'a> fmt::Debug for DiscriminatedSignal<'a> {
                 "{} | [{}] {}{}",
                 Signal::from(*self),
                 tokens::TYPE_INTRIN_ID,
-                tokens::BEGIN_INTRIN_ID,
+                tokens::BEGIN_ARG_INTRIN_ID,
                 format!("{:?}", ipi).to_lowercase(),
             ),
-            Self::Label(_, name) => write!(
+            Self::Label(address) => write!(
                 f,
                 "{} | [{}] {}{}",
                 Signal::from(*self),
                 tokens::TYPE_LABEL,
-                tokens::BEGIN_LABEL,
-                name
+                tokens::BEGIN_LINE_LABEL,
+                address
             ),
         }
     }

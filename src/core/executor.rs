@@ -228,6 +228,13 @@ pub struct ExecutorOutput {
 /// Executes the bytecode.
 /// Returns the interrupt id (exitcode) and the number of cycles.
 pub fn execute(input: ExecutorInput) -> ExecutorOutput {
+    #[cfg(not(debug_assertions))]
+    std::panic::set_hook(Box::new(|info| {
+        if let Some(s) = info.payload().downcast_ref::<String>() {
+            println!("[RoninVirtualMachine] FATAL INTERNAL ERROR: {}", s);
+        }
+    }));
+
     assert!(input.stack.is_empty());
     assert!(!input.chunk.is_empty());
     assert!(input.chunk.length() < u32::MAX as _);
@@ -404,6 +411,9 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
                     IntrinProcID::MIsNan => {
                         continue 'vm;
                     }
+                    IntrinProcID::MIsInfinite => {
+                        continue 'vm;
+                    }
                     IntrinProcID::MIsFinite => {
                         continue 'vm;
                     }
@@ -416,6 +426,15 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
                     IntrinProcID::MIsSignalNegative => {
                         continue 'vm;
                     }
+                    IntrinProcID::MRecip => {
+                        continue 'vm;
+                    }
+                    IntrinProcID::MToDegrees => {
+                        continue 'vm;
+                    }
+                    IntrinProcID::MToRadians => {
+                        continue 'vm;
+                    }
                     IntrinProcID::MMax => {
                         impl_duplet_intrin!(stack, f32, max);
                         continue 'vm;
@@ -424,7 +443,6 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
                         impl_duplet_intrin!(stack, f32, min);
                         continue 'vm;
                     }
-                    _ => (),
                 }
             }
 

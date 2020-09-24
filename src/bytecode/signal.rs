@@ -365,14 +365,14 @@ impl convert::From<Record> for Signal {
 }
 
 /// Creates a signal from an discriminated signal.
-impl<'a> convert::From<DiscriminatedSignal<'a>> for Signal {
+impl<'a> convert::From<DiscriminatedSignal> for Signal {
     fn from(x: DiscriminatedSignal) -> Self {
         match x {
             DiscriminatedSignal::I32(i) => Self::from(i),
             DiscriminatedSignal::F32(f) => Self::from(f),
             DiscriminatedSignal::OpCode(op) => Self::from(op),
             DiscriminatedSignal::IntrinProcID(ipc) => Self::from(ipc),
-            DiscriminatedSignal::Label(l, _) => Self::from(l),
+            DiscriminatedSignal::Label(l) => Self::from(l),
         }
     }
 }

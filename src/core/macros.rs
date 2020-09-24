@@ -206,40 +206,40 @@
 
 /// Implements a conditional branch jump with a logical type comparison between two operands.
 macro_rules! impl_duplet_con_jmp {
-        ($sta:ident, $cmd:ident, $op:tt, $tp:ty) => {
-            let target_address: usize = $cmd.fetch().into();
-            if <$tp>::from($sta.poke(1)) $op <$tp>::from($sta.peek()) {
-                $cmd.jump(target_address);
-            }
-            $sta.pop_multi(2);
+    ($sta:ident, $cmd:ident, $op:tt, $tp:ty) => {
+        let target_address: usize = $cmd.fetch().into();
+        if <$tp>::from($sta.poke(1)) $op <$tp>::from($sta.peek()) {
+            $cmd.jump(target_address);
         }
+        $sta.pop_multi(2);
     }
+}
 
 /// Implements a conditional branch jump with a logical type comparison between two operands,
 /// but one of them is specified.
 macro_rules! impl_scalar_con_jmp {
-        ($sta:ident, $cmd:ident, $op:tt, $val:expr, $tp:ty) => {
-            let target_address: usize = $cmd.fetch().into();
-            if <$tp>::from($sta.peek()) $op $val {
-                $cmd.jump(target_address);
-            }
-            $sta.pop();
+    ($sta:ident, $cmd:ident, $op:tt, $val:expr, $tp:ty) => {
+        let target_address: usize = $cmd.fetch().into();
+        if <$tp>::from($sta.peek()) $op $val {
+            $cmd.jump(target_address);
         }
+        $sta.pop();
     }
+}
 
 /// Implements an arithmetic operation with two operands.
 macro_rules! impl_duplet_op {
-        ($sta:ident, $sc:ty, $op:tt) => {
-            $sta.poke_set(
-                1,
-                Record::from(
-                    <$sc>::from($sta.poke(1)) $op
-                    <$sc>::from($sta.peek())
-                )
-            );
-            $sta.pop();
-        }
+    ($sta:ident, $sc:ty, $op:tt) => {
+        $sta.poke_set(
+            1,
+            Record::from(
+                <$sc>::from($sta.poke(1)) $op
+                <$sc>::from($sta.peek())
+            )
+        );
+        $sta.pop();
     }
+}
 
 /// Implements an arithmetic operation with two operands,
 /// but calls some static value on the type.

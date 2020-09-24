@@ -204,12 +204,354 @@
 
 */
 
-pub use crate::bytecode::chunk::*;
-pub use crate::bytecode::discriminated::*;
-pub use crate::bytecode::intrinsic::*;
-pub use crate::bytecode::opcode::*;
-pub use crate::bytecode::stream::*;
-pub use crate::core::executor::*;
-pub use crate::core::stack::*;
-pub use crate::interpreter::core::*;
-pub use crate::misc::config::*;
+use crate::bytecode::meta::*;
+
+/// Contains all metadata for all intrinsic procedure ids.
+/// The index if the intrin proc id.
+pub(crate) const INTRINSIC_PROCEDURE_TABLE: &[ImplicitArguments<'static>; IntrinProcID::COUNT] = &[
+    // Putchar:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Floor:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Ceil                    :
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Round:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Trunc:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Fract:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Abs:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Signum:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Copysign:
+    ImplicitArguments::Fixed(&[
+        ImplicitArgumentMeta {
+            offset: -2,
+            alias: "argument_1",
+            gets_popped: true,
+        },
+        ImplicitArgumentMeta {
+            offset: -1,
+            alias: "argument_2",
+            gets_popped: true,
+        },
+    ]),
+    // Div Euclid:
+    ImplicitArguments::Fixed(&[
+        ImplicitArgumentMeta {
+            offset: -2,
+            alias: "argument_1",
+            gets_popped: true,
+        },
+        ImplicitArgumentMeta {
+            offset: -1,
+            alias: "argument_2",
+            gets_popped: true,
+        },
+    ]),
+    // Rem Euclid:
+    ImplicitArguments::Fixed(&[
+        ImplicitArgumentMeta {
+            offset: -2,
+            alias: "argument_1",
+            gets_popped: true,
+        },
+        ImplicitArgumentMeta {
+            offset: -1,
+            alias: "argument_2",
+            gets_popped: true,
+        },
+    ]),
+    // PowF:
+    ImplicitArguments::Fixed(&[
+        ImplicitArgumentMeta {
+            offset: -2,
+            alias: "argument_1",
+            gets_popped: true,
+        },
+        ImplicitArgumentMeta {
+            offset: -1,
+            alias: "argument_2",
+            gets_popped: true,
+        },
+    ]),
+    // Sqrt:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Exp:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Exp2:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Ln:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Log:
+    ImplicitArguments::Fixed(&[
+        ImplicitArgumentMeta {
+            offset: -2,
+            alias: "argument_1",
+            gets_popped: true,
+        },
+        ImplicitArgumentMeta {
+            offset: -1,
+            alias: "argument_2",
+            gets_popped: true,
+        },
+    ]),
+    // Log2:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Log10:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Cbrt:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Hypot:
+    ImplicitArguments::Fixed(&[
+        ImplicitArgumentMeta {
+            offset: -2,
+            alias: "argument_1",
+            gets_popped: true,
+        },
+        ImplicitArgumentMeta {
+            offset: -1,
+            alias: "argument_2",
+            gets_popped: true,
+        },
+    ]),
+    // Sin:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Cos:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Tan:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Asin:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Acos:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Atan:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Atan2:
+    ImplicitArguments::Fixed(&[
+        ImplicitArgumentMeta {
+            offset: -2,
+            alias: "argument_1",
+            gets_popped: true,
+        },
+        ImplicitArgumentMeta {
+            offset: -1,
+            alias: "argument_2",
+            gets_popped: true,
+        },
+    ]),
+    // ExpM1:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Ln1P:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // SinH:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // CosH:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // TanH:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // AsinH:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // AcosH:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // AtanH:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // IsNan:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // IsInfinite:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // IsFinite:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // IsNormal:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // IsSignalPos:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // SignalNeg:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Recip:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // ToDegrees:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // ToRadians:
+    ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
+        offset: -1,
+        alias: "argument_1",
+        gets_popped: true,
+    }]),
+    // Max:
+    ImplicitArguments::Fixed(&[
+        ImplicitArgumentMeta {
+            offset: -2,
+            alias: "argument_1",
+            gets_popped: true,
+        },
+        ImplicitArgumentMeta {
+            offset: -1,
+            alias: "argument_2",
+            gets_popped: true,
+        },
+    ]),
+    // Min:
+    ImplicitArguments::Fixed(&[
+        ImplicitArgumentMeta {
+            offset: -2,
+            alias: "argument_1",
+            gets_popped: true,
+        },
+        ImplicitArgumentMeta {
+            offset: -1,
+            alias: "argument_2",
+            gets_popped: true,
+        },
+    ]),
+];
