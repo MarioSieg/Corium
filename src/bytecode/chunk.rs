@@ -320,3 +320,40 @@ impl convert::From<Vec<Signal>> for BytecodeChunk {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::bytecode::{opcode::OpCode, stream::BytecodeStream};
+
+    #[test]
+    fn fetch() {
+        let mut code = BytecodeStream::new();
+        code.push_opcode(OpCode::Push).with_i32(3);
+        code.push_opcode(OpCode::Push).with_i32(8);
+        code.push_opcode(OpCode::I32Mul);
+        let mut code = code.build().unwrap();
+        assert_eq!(OpCode::from(code.fetch()), OpCode::Push);
+        assert_eq!(i32::from(code.fetch()), 3);
+        assert_eq!(OpCode::from(code.fetch()), OpCode::Push);
+        assert_eq!(i32::from(code.fetch()), 8);
+        assert_eq!(OpCode::from(code.fetch()), OpCode::I32Mul);
+        assert!(code.is_done());
+    }
+
+    #[test]
+    fn jump() {
+        let mut code = BytecodeStream::new();
+        code.push_opcode(OpCode::Push).with_i32(3);
+        code.push_opcode(OpCode::Push).with_i32(8);
+        code.push_opcode(OpCode::I32Mul);
+        let mut code = code.build().unwrap();
+        assert_eq!(OpCode::from(code.fetch()), OpCode::Push);
+        assert_eq!(i32::from(code.fetch()), 3);
+        assert_eq!(OpCode::from(code.fetch()), OpCode::Push);
+        assert_eq!(i32::from(code.fetch()), 8);
+        assert_eq!(OpCode::from(code.fetch()), OpCode::I32Mul);
+        assert!(code.is_done());
+        code.jump(0);
+        assert_eq!(OpCode::from(code.fetch()), OpCode::Push);
+    }
+}

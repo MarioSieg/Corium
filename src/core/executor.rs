@@ -645,9 +645,9 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
 
             OpCode::F32MulAdd => {
                 stack.poke_set(
-                    3,
+                    2,
                     Record::from(
-                        f32::from(stack.poke(3)).mul_add(stack.poke(2).into(), stack.peek().into()),
+                        f32::from(stack.poke(2)).mul_add(stack.poke(1).into(), stack.peek().into()),
                     ),
                 );
                 stack.pop_multi(2);
@@ -665,5 +665,243 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
         exit_code: interrupt,
         interrupt_code: interrupt,
         time: clock.elapsed().as_secs_f64(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{execute, ExecutorInput};
+    use crate::bytecode::{intrinsic::IntrinProcID, opcode::OpCode, stream::BytecodeStream};
+    use crate::core::stack::Stack;
+
+    #[test]
+    fn memory_dupl_ddupl() {
+        let mut stream = BytecodeStream::new();
+        stream.push_opcode(OpCode::Push).with_i32(3);
+        stream.push_opcode(OpCode::Duplicate);
+        stream.push_opcode(OpCode::DuplicateX2);
+        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        let input = ExecutorInput {
+            stack: Stack::with_length(4),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack.poke(3)), 3);
+        assert_eq!(i32::from(stack.poke(2)), 3);
+        assert_eq!(i32::from(stack.poke(1)), 3);
+        assert_eq!(i32::from(stack.poke(0)), 3);
+    }
+
+    #[test]
+    fn memory_mov_cpy() {
+        let mut stream = BytecodeStream::new();
+        stream.push_opcode(OpCode::Push).with_i32(3);
+        stream.push_opcode(OpCode::Push).with_i32(7);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Move).with_i32(1).with_i32(-4);
+        stream.push_opcode(OpCode::Copy).with_i32(0).with_i32(1);
+        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        let input = ExecutorInput {
+            stack: Stack::with_length(3),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack.poke(1)), -4);
+        assert_eq!(i32::from(stack.peek()), -4);
+    }
+
+    #[test]
+    fn memory_push_pop() {
+        let mut stream = BytecodeStream::new();
+        for i in 0..4096 {
+            stream.push_opcode(OpCode::Push).with_i32(i);
+        }
+        stream.push_opcode(OpCode::Pop).with_i32(2048);
+        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        let input = ExecutorInput {
+            stack: Stack::with_length(8192),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack.peek()), 2047);
+    }
+
+    #[test]
+    fn control_intrinsic() {
+        let mut stream = BytecodeStream::new();
+        stream.push_opcode(OpCode::Push).with_f32(0.5236);
+        stream
+            .push_opcode(OpCode::CallIntrinsic)
+            .with_intrin_id(IntrinProcID::MSin);
+        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        let input = ExecutorInput {
+            stack: Stack::with_length(1),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert!(f32::from(stack.peek()) - 0.5 < 0.00001);
+    }
+
+    #[test]
+    fn control_interrupt() {
+        let mut stream = BytecodeStream::new();
+        stream.push_opcode(OpCode::Push).with_i32(0);
+        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        stream.push_opcode(OpCode::Push).with_i32(0);
+        let input = ExecutorInput {
+            stack: Stack::with_length(2),
+            chunk: stream.build().unwrap(),
+        };
+        let chunk = execute(input).input.chunk;
+        assert_eq!(chunk.instruction_ptr(), 4);
+    }
+
+    fn test_i32op_template(op: OpCode, a: i32, b: i32, x: i32) {
+        let mut stream = BytecodeStream::new();
+        stream.push_opcode(OpCode::Push).with_i32(a);
+        stream.push_opcode(OpCode::Push).with_i32(b);
+        stream.push_opcode(op);
+        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        let input = ExecutorInput {
+            stack: Stack::with_length(2),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        if a != b {
+            assert_eq!(stack.stack_ptr(), 1);
+        }
+        assert_eq!(i32::from(stack.peek()), x);
+    }
+
+    fn test_f32op_template(op: OpCode, a: f32, b: f32, x: f32) {
+        let mut stream = BytecodeStream::new();
+        stream.push_opcode(OpCode::Push).with_f32(a);
+        stream.push_opcode(OpCode::Push).with_f32(b);
+        stream.push_opcode(op);
+        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        let input = ExecutorInput {
+            stack: Stack::with_length(4),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(stack.stack_ptr(), 1);
+        assert_eq!(f32::from(stack.peek()), x);
+    }
+
+    #[test]
+    fn arithmetic_f32_add() {
+        test_f32op_template(OpCode::F32Add, 3.5, 2.5, 6.0);
+    }
+
+    #[test]
+    fn arithmetic_f32_sub() {
+        test_f32op_template(OpCode::F32Sub, 3.5, 2.5, 1.0);
+    }
+
+    #[test]
+    fn arithmetic_f32_mul() {
+        test_f32op_template(OpCode::F32Mul, 3.5, 2.5, 8.75);
+    }
+
+    #[test]
+    fn arithmetic_f32_div() {
+        test_f32op_template(OpCode::F32Div, 3.5, 2.5, 1.4);
+    }
+
+    #[test]
+    fn arithmetic_f32_mod() {
+        test_f32op_template(OpCode::F32Mod, 3.5, 2.5, 1.0);
+    }
+
+    #[test]
+    fn arithmetic_f32_fma() {
+        let mut stream = BytecodeStream::new();
+        stream.push_opcode(OpCode::Push).with_f32(2.0);
+        stream.push_opcode(OpCode::Push).with_f32(3.0);
+        stream.push_opcode(OpCode::Push).with_f32(4.0);
+        stream.push_opcode(OpCode::F32MulAdd);
+        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        let input = ExecutorInput {
+            stack: Stack::with_length(4),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(stack.stack_ptr(), 1);
+        assert_eq!(f32::from(stack.peek()), 10.0);
+    }
+
+    #[test]
+    fn arithmetic_i32_add() {
+        test_i32op_template(OpCode::I32Add, 8, 4, 12);
+    }
+
+    #[test]
+    fn arithmetic_i32_sub() {
+        test_i32op_template(OpCode::I32Sub, 8, 4, 4);
+    }
+
+    #[test]
+    fn arithmetic_i32_mul() {
+        test_i32op_template(OpCode::I32Mul, 8, 4, 32);
+    }
+
+    #[test]
+    fn arithmetic_i32_div() {
+        test_i32op_template(OpCode::I32Div, 8, 4, 2);
+    }
+
+    #[test]
+    fn arithmetic_i32_mod() {
+        test_i32op_template(OpCode::I32Mod, 8, 5, 3);
+    }
+
+    #[test]
+    fn arithmetic_i32_and() {
+        test_i32op_template(OpCode::I32And, 2, 3, 2);
+    }
+
+    #[test]
+    fn arithmetic_i32_or() {
+        test_i32op_template(OpCode::I32Or, 2, 8, 10);
+    }
+
+    #[test]
+    fn arithmetic_i32_xor() {
+        test_i32op_template(OpCode::I32Xor, 9, 9, 0);
+    }
+
+    #[test]
+    fn arithmetic_i32_sal() {
+        test_i32op_template(OpCode::I32Sal, 1, 8, 256);
+    }
+
+    #[test]
+    fn arithmetic_i32_sar() {
+        test_i32op_template(OpCode::I32Sar, 8, 1, 4);
+    }
+
+    #[test]
+    fn arithmetic_i32_rol() {
+        test_i32op_template(OpCode::I32Rol, 4, 64, 4);
+    }
+
+    #[test]
+    fn arithmetic_i32_ror() {
+        test_i32op_template(OpCode::I32Ror, 64, 4, 4);
+    }
+
+    #[test]
+    fn arithmetic_i32_com() {
+        test_i32op_template(OpCode::I32Com, 8, 8, -9);
+    }
+
+    #[test]
+    fn arithmetic_i32_inc() {
+        test_i32op_template(OpCode::I32Increment, 0, 0, 1);
+    }
+
+    #[test]
+    fn arithmetic_i32_dec() {
+        test_i32op_template(OpCode::I32Decrement, 1, 1, 0);
     }
 }

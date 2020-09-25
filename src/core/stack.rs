@@ -205,7 +205,7 @@
 */
 
 use super::record::Record;
-use std::{convert, fmt, ops};
+use std::{convert, fmt, mem, ops};
 
 /// Contains common stack sizes.
 #[repr(usize)]
@@ -263,7 +263,8 @@ impl Stack {
     pub fn with_length(len: usize) -> Self {
         assert_ne!(len, 0);
         Self {
-            buf: vec![Record::from(0); len].into_boxed_slice(),
+            // Plus 1 because the first stack element is preserved.
+            buf: vec![Record::from(0); len + 1].into_boxed_slice(),
             sp: 0,
         }
     }
@@ -272,9 +273,9 @@ impl Stack {
     /// Panics if the byte size is 0 or not a multiple of (sizeof(Record) == 4)
     pub fn with_byte_size(size: usize) -> Self {
         assert_ne!(size, 0);
-        assert_eq!(size % std::mem::size_of::<Record>(), 0);
+        assert_eq!(size % mem::size_of::<Record>(), 0);
         Self {
-            buf: vec![Record::from(0); size / std::mem::size_of::<Record>()].into_boxed_slice(),
+            buf: vec![Record::from(0); size / mem::size_of::<Record>()].into_boxed_slice(),
             sp: 0,
         }
     }
@@ -301,7 +302,7 @@ impl Stack {
     /// Returns the estimated size this instance takes up in memory in bytes.
     #[inline(always)]
     pub fn size(&self) -> usize {
-        self.buf.len() * std::mem::size_of::<Record>()
+        self.buf.len() * mem::size_of::<Record>()
     }
 
     /// Returns an immutable reference to the record buffer.
@@ -471,5 +472,161 @@ impl fmt::Debug for Stack {
             writeln!(f, "| &{:#010X} | {:?}", i, rec)?
         }
         writeln!(f, "+----------------------End----------------------+\n")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{mem, Record, Stack};
+
+    #[test]
+    fn allocator() {
+        let stack = Stack::with_length(32);
+        assert!(stack.is_empty());
+        assert_eq!(stack.length(), 33); // Because first stack entry is unused.
+        assert_eq!(stack.buffer().len(), 33);
+        assert_eq!(stack.size(), stack.length() * mem::size_of::<Record>());
+    }
+
+    #[test]
+    #[should_panic]
+    fn mk_empty_from_vec() {
+        let _ = Stack::from(Vec::new());
+    }
+
+    #[test]
+    #[should_panic]
+    fn mk_empty_from_arrc() {
+        let _ = Stack::from(Vec::new().into_boxed_slice());
+    }
+
+    #[test]
+    #[should_panic]
+    fn poke_invalid() {
+        let stack = Stack::with_length(32);
+        let _ = stack.poke(2);
+    }
+
+    #[test]
+    #[should_panic]
+    fn poke_set_invalid() {
+        let mut stack = Stack::with_length(32);
+        stack.poke_set(1, Record::from(0i32));
+    }
+
+    #[test]
+    #[should_panic]
+    fn overflow() {
+        let mut stack = Stack::with_length(32);
+        stack.push_all();
+        stack.push(Record::from(0));
+        assert!(!stack.is_empty());
+        assert!(stack.is_overflowed());
+    }
+
+    #[test]
+    fn peek() {
+        let mut stack = Stack::with_length(32);
+        stack.push(Record::from(-10_i32));
+        assert!(!stack.is_empty());
+        assert!(!stack.is_overflowed());
+        assert_eq!(stack.peek(), Record::from(-10_i32));
+        stack.push(Record::from(1.999_f32));
+        assert!(!stack.is_empty());
+        assert!(!stack.is_overflowed());
+        assert_eq!(stack.peek(), Record::from(1.999_f32));
+    }
+
+    #[test]
+    fn peek_set() {
+        let mut stack = Stack::with_length(32);
+        stack.push(Record::from(-10_i32));
+        assert!(!stack.is_empty());
+        assert!(!stack.is_overflowed());
+        assert_eq!(stack.peek(), Record::from(-10_i32));
+        stack.peek_set(Record::from(1.999_f32));
+        assert!(!stack.is_empty());
+        assert!(!stack.is_overflowed());
+        assert_eq!(stack.peek(), Record::from(1.999_f32));
+    }
+
+    #[test]
+    fn poke() {
+        let mut stack = Stack::with_length(32);
+        stack.push(Record::from(-10_i32));
+        stack.push(Record::from(10_i32));
+        assert!(!stack.is_empty());
+        assert!(!stack.is_overflowed());
+        assert_eq!(stack.poke(1), Record::from(-10_i32));
+        assert_eq!(stack.poke(0), Record::from(10_i32));
+    }
+
+    #[test]
+    fn poke_set() {
+        let mut stack = Stack::with_length(32);
+        stack.push(Record::from(0i32));
+        stack.push(Record::from(0i32));
+        assert!(!stack.is_empty());
+        assert!(!stack.is_overflowed());
+        stack.poke_set(1, Record::from(-10_i32));
+        stack.poke_set(0, Record::from(10_i32));
+        assert_eq!(stack.poke(1), Record::from(-10_i32));
+        assert_eq!(stack.poke(0), Record::from(10_i32));
+        assert_eq!(stack.peek(), Record::from(10_i32));
+    }
+
+    #[test]
+    fn push() {
+        let mut stack = Stack::with_length(32);
+        stack.push(Record::from(-10_i32));
+        assert_eq!(stack.peek(), Record::from(-10_i32));
+        assert!(!stack.is_empty());
+        assert!(!stack.is_overflowed());
+    }
+
+    #[test]
+    fn pop() {
+        let mut stack = Stack::with_length(32);
+        stack.push(Record::from(-10_i32));
+        stack.pop();
+        assert!(stack.is_empty());
+        assert!(!stack.is_overflowed());
+    }
+
+    #[test]
+    fn pop_multi() {
+        let mut stack = Stack::with_length(32);
+        stack.push(Record::from(10_i32));
+        assert_eq!(stack.peek(), Record::from(10_i32));
+        stack.pop_multi(1);
+        assert!(stack.is_empty());
+        assert!(!stack.is_overflowed());
+    }
+
+    #[test]
+    #[should_panic]
+    fn pop_multi_invalid() {
+        let mut stack = Stack::with_length(32);
+        stack.push(Record::from(10_i32));
+        stack.pop_multi(2);
+        assert!(stack.is_overflowed());
+    }
+
+    #[test]
+    fn pop_all() {
+        let mut stack = Stack::with_length(32);
+        stack.push(Record::from(-10_i32));
+        stack.pop_all();
+        assert!(stack.is_empty());
+        assert!(!stack.is_overflowed());
+    }
+
+    #[test]
+    fn pop_ret() {
+        let mut stack = Stack::with_length(32);
+        stack.push(Record::from(10_i32));
+        assert_eq!(stack.pop_ret(), Record::from(10_i32));
+        assert!(stack.is_empty());
+        assert!(!stack.is_overflowed());
     }
 }

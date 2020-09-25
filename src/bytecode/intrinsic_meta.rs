@@ -555,3 +555,13 @@ pub(crate) const INTRINSIC_PROCEDURE_TABLE: &[ImplicitArguments<'static>; Intrin
         },
     ]),
 ];
+
+#[cfg(test)]
+mod tests {
+    use crate::bytecode::{intrinsic::IntrinProcID, intrinsic_meta::INTRINSIC_PROCEDURE_TABLE};
+
+    #[test]
+    fn array_len_enum_count() {
+        assert_eq!(INTRINSIC_PROCEDURE_TABLE.len(), IntrinProcID::COUNT);
+    }
+}

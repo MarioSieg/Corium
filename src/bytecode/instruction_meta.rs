@@ -906,3 +906,33 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
         ]),
     },
 ];
+
+#[cfg(test)]
+mod tests {
+    use crate::bytecode::{instruction_meta::INSTRUCTION_TABLE, opcode::OpCode};
+    use crate::interpreter::mnemonics;
+
+    #[test]
+    fn array_len_enum_count() {
+        assert_eq!(INSTRUCTION_TABLE.len(), OpCode::COUNT);
+    }
+
+    #[test]
+    fn lookup() {
+        assert_eq!(
+            INSTRUCTION_TABLE[OpCode::Push as usize].mnemonic,
+            mnemonics::PUSH
+        );
+        assert_eq!(
+            INSTRUCTION_TABLE[OpCode::F32Add as usize].mnemonic,
+            mnemonics::F32_ADD
+        );
+    }
+
+    #[test]
+    fn valid() {
+        for meta in INSTRUCTION_TABLE.iter() {
+            assert!(!meta.mnemonic.is_empty());
+        }
+    }
+}

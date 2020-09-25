@@ -337,3 +337,39 @@ impl fmt::Debug for Record {
         )
     }
 }
+
+#[cfg(tests)]
+mod tests {
+    #[cfg(test)]
+    mod tests {
+        use super::Record;
+        use crate::bytecode::signal::Signal;
+        use std::mem;
+
+        #[test]
+        fn size() {
+            assert_eq!(mem::size_of::<Record>(), mem::size_of::<i32>());
+            assert_eq!(mem::size_of::<Signal>(), mem::size_of::<Record>());
+        }
+
+        #[test]
+        fn union_i32() {
+            assert_eq!(i32::from(Record::from(-5_i32)), -5);
+        }
+
+        #[test]
+        fn union_u32() {
+            assert_eq!(u32::from(Record::from(5_u32)), 5);
+        }
+
+        #[test]
+        fn union_bytes() {
+            assert_eq!(u32::from(Record::from([0xFF, 0xFF, 0xFF, 0xFF])), u32::MAX);
+        }
+
+        #[test]
+        fn union_f32() {
+            assert_eq!(f32::from(Record::from(5.12345_f32)), 5.12345);
+        }
+    }
+}

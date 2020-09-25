@@ -401,3 +401,47 @@ impl fmt::Debug for Signal {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::bytecode::{intrinsic::IntrinProcID, opcode::OpCode, signal::Signal};
+    use std::mem;
+
+    #[test]
+    fn size() {
+        assert_eq!(mem::size_of::<Signal>(), mem::size_of::<i32>());
+    }
+
+    #[test]
+    fn union_i32() {
+        assert_eq!(i32::from(Signal::from(-5_i32)), -5);
+    }
+
+    #[test]
+    fn union_u32() {
+        assert_eq!(u32::from(Signal::from(5_u32)), 5);
+    }
+
+    #[test]
+    fn union_bytes() {
+        assert_eq!(u32::from(Signal::from([0xFF, 0xFF, 0xFF, 0xFF])), u32::MAX);
+    }
+
+    #[test]
+    fn union_f32() {
+        assert_eq!(f32::from(Signal::from(5.12345_f32)), 5.12345);
+    }
+
+    #[test]
+    fn union_opcode() {
+        assert_eq!(OpCode::from(Signal::from(OpCode::Move)), OpCode::Move);
+    }
+
+    #[test]
+    fn union_intrinsic_proc_id() {
+        assert_eq!(
+            IntrinProcID::from(Signal::from(IntrinProcID::MSin)),
+            IntrinProcID::MSin
+        );
+    }
+}
