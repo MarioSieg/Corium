@@ -233,13 +233,6 @@ pub fn first_char(x: &str) -> char {
 /// Interprets a bytecode file and returns a bytecode stream containing the code.
 /// Panics on any bytecode error.
 pub fn interpret_bytecode(file: &Path) -> BytecodeStream {
-    #[cfg(not(debug_assertions))]
-    std::panic::set_hook(Box::new(|info| {
-        if let Some(s) = info.payload().downcast_ref::<String>() {
-            println!("[RoninVirtualMachine] FATAL INTERPRETER ERROR: {}", s);
-        }
-    }));
-
     let mut stream = BytecodeStream::with_capacity(128);
     let mut current_section = Section::Execute;
     let mut lineidx: usize = 0;

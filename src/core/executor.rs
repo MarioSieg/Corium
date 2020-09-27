@@ -228,13 +228,6 @@ pub struct ExecutorOutput {
 /// Executes the bytecode.
 /// Returns the interrupt id (exitcode) and the number of cycles.
 pub fn execute(input: ExecutorInput) -> ExecutorOutput {
-    #[cfg(not(debug_assertions))]
-    std::panic::set_hook(Box::new(|info| {
-        if let Some(s) = info.payload().downcast_ref::<String>() {
-            println!("[RoninVirtualMachine] FATAL INTERNAL ERROR: {}", s);
-        }
-    }));
-
     assert!(input.stack.is_empty());
     assert!(!input.chunk.is_empty());
     assert!(input.chunk.length() < u32::MAX as _);
