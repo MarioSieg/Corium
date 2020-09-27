@@ -251,9 +251,9 @@ impl BytecodeChunk {
         self.buf.len() * std::mem::size_of::<Signal>()
     }
 
-    /// Returns the instruction pointer.
+    /// Returns the operation pointer.
     #[inline(always)]
-    pub fn instruction_ptr(&self) -> usize {
+    pub fn operation_ptr(&self) -> usize {
         self.ip
     }
 
@@ -266,7 +266,7 @@ impl BytecodeChunk {
     }
 
     /// Fetches the next signal from the command buffer
-    /// and increments the instruction pointer by one.
+    /// and increments the operation pointer by one.
     #[inline(always)]
     pub fn fetch(&mut self) -> Signal {
         debug_assert!(
@@ -278,7 +278,7 @@ impl BytecodeChunk {
         record
     }
 
-    /// Returns true if the instruction pointer reached the end of the command buffer,
+    /// Returns true if the operation pointer reached the end of the command buffer,
     /// else false.
     #[inline(always)]
     pub fn is_done(&self) -> bool {

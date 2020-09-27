@@ -205,7 +205,7 @@
 */
 
 use crate::{
-    bytecode::{chunk::BytecodeChunk, intrinsic::IntrinProcID, opcode::OpCode},
+    bytecode::{chunk::BytecodeChunk, intrinsic::IntrinsicID, opcode::OpCode},
     core::{record::Record, stack::Stack},
 };
 use std::time::Instant;
@@ -231,7 +231,7 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
     assert!(input.stack.is_empty());
     assert!(!input.chunk.is_empty());
     assert!(input.chunk.length() < u32::MAX as _);
-    assert_eq!(input.chunk.instruction_ptr(), 0);
+    assert_eq!(input.chunk.operation_ptr(), 0);
     assert_eq!(input.stack.stack_ptr(), 0);
 
     let clock = Instant::now();
@@ -257,182 +257,182 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
             OpCode::CallIntrinsic => {
                 let intrin = command_buffer.fetch().into();
                 match intrin {
-                    IntrinProcID::GPutChar => {
+                    IntrinsicID::GPutChar => {
                         println!("HelloWorld!");
                         continue 'vm;
                     }
-                    IntrinProcID::MFloor => {
+                    IntrinsicID::MFloor => {
                         impl_scalar_intrin!(stack, f32, floor);
                         continue 'vm;
                     }
-                    IntrinProcID::MCeil => {
+                    IntrinsicID::MCeil => {
                         impl_scalar_intrin!(stack, f32, ceil);
                         continue 'vm;
                     }
-                    IntrinProcID::MRound => {
+                    IntrinsicID::MRound => {
                         impl_scalar_intrin!(stack, f32, round);
                         continue 'vm;
                     }
-                    IntrinProcID::MTrunc => {
+                    IntrinsicID::MTrunc => {
                         impl_scalar_intrin!(stack, f32, trunc);
                         continue 'vm;
                     }
-                    IntrinProcID::MFract => {
+                    IntrinsicID::MFract => {
                         impl_scalar_intrin!(stack, f32, fract);
                         continue 'vm;
                     }
-                    IntrinProcID::MAbs => {
+                    IntrinsicID::MAbs => {
                         impl_scalar_intrin!(stack, f32, abs);
                         continue 'vm;
                     }
-                    IntrinProcID::MSignum => {
+                    IntrinsicID::MSignum => {
                         impl_scalar_intrin!(stack, f32, signum);
                         continue 'vm;
                     }
-                    IntrinProcID::MCopysign => {
+                    IntrinsicID::MCopysign => {
                         impl_duplet_intrin!(stack, f32, copysign);
                         continue 'vm;
                     }
-                    IntrinProcID::MDivEuclid => {
+                    IntrinsicID::MDivEuclid => {
                         impl_duplet_intrin!(stack, f32, div_euclid);
                         continue 'vm;
                     }
-                    IntrinProcID::MRemEuclid => {
+                    IntrinsicID::MRemEuclid => {
                         impl_duplet_intrin!(stack, f32, rem_euclid);
                         continue 'vm;
                     }
-                    IntrinProcID::MPowF => {
+                    IntrinsicID::MPowF => {
                         impl_duplet_intrin!(stack, f32, powf);
                         continue 'vm;
                     }
-                    IntrinProcID::MSqrt => {
+                    IntrinsicID::MSqrt => {
                         impl_scalar_intrin!(stack, f32, sqrt);
                         continue 'vm;
                     }
-                    IntrinProcID::MExp => {
+                    IntrinsicID::MExp => {
                         impl_scalar_intrin!(stack, f32, exp);
                         continue 'vm;
                     }
-                    IntrinProcID::MExp2 => {
+                    IntrinsicID::MExp2 => {
                         impl_scalar_intrin!(stack, f32, exp2);
                         continue 'vm;
                     }
-                    IntrinProcID::MLn => {
+                    IntrinsicID::MLn => {
                         impl_scalar_intrin!(stack, f32, ln);
                         continue 'vm;
                     }
-                    IntrinProcID::MLog => {
+                    IntrinsicID::MLog => {
                         impl_duplet_intrin!(stack, f32, log);
                         continue 'vm;
                     }
-                    IntrinProcID::MLog2 => {
+                    IntrinsicID::MLog2 => {
                         impl_scalar_intrin!(stack, f32, log2);
                         continue 'vm;
                     }
-                    IntrinProcID::MLog10 => {
+                    IntrinsicID::MLog10 => {
                         impl_scalar_intrin!(stack, f32, log10);
                         continue 'vm;
                     }
-                    IntrinProcID::MCbrt => {
+                    IntrinsicID::MCbrt => {
                         impl_scalar_intrin!(stack, f32, cbrt);
                         continue 'vm;
                     }
-                    IntrinProcID::MHypot => {
+                    IntrinsicID::MHypot => {
                         impl_duplet_intrin!(stack, f32, hypot);
                         continue 'vm;
                     }
-                    IntrinProcID::MSin => {
+                    IntrinsicID::MSin => {
                         impl_scalar_intrin!(stack, f32, sin);
                         continue 'vm;
                     }
-                    IntrinProcID::MCos => {
+                    IntrinsicID::MCos => {
                         impl_scalar_intrin!(stack, f32, cos);
                         continue 'vm;
                     }
-                    IntrinProcID::MTan => {
+                    IntrinsicID::MTan => {
                         impl_scalar_intrin!(stack, f32, tan);
                         continue 'vm;
                     }
-                    IntrinProcID::MAsin => {
+                    IntrinsicID::MAsin => {
                         impl_scalar_intrin!(stack, f32, asin);
                         continue 'vm;
                     }
-                    IntrinProcID::MAcos => {
+                    IntrinsicID::MAcos => {
                         impl_scalar_intrin!(stack, f32, acos);
                         continue 'vm;
                     }
-                    IntrinProcID::MAtan => {
+                    IntrinsicID::MAtan => {
                         impl_scalar_intrin!(stack, f32, atan);
                         continue 'vm;
                     }
-                    IntrinProcID::MAtan2 => {
+                    IntrinsicID::MAtan2 => {
                         impl_duplet_intrin!(stack, f32, atan2);
                         continue 'vm;
                     }
-                    IntrinProcID::MExpM1 => {
+                    IntrinsicID::MExpM1 => {
                         impl_scalar_intrin!(stack, f32, exp_m1);
                         continue 'vm;
                     }
-                    IntrinProcID::MLn1P => {
+                    IntrinsicID::MLn1P => {
                         impl_scalar_intrin!(stack, f32, ln_1p);
                         continue 'vm;
                     }
-                    IntrinProcID::MSinH => {
+                    IntrinsicID::MSinH => {
                         impl_scalar_intrin!(stack, f32, sinh);
                         continue 'vm;
                     }
-                    IntrinProcID::MCosH => {
+                    IntrinsicID::MCosH => {
                         impl_scalar_intrin!(stack, f32, cosh);
                         continue 'vm;
                     }
-                    IntrinProcID::MTanH => {
+                    IntrinsicID::MTanH => {
                         impl_scalar_intrin!(stack, f32, tanh);
                         continue 'vm;
                     }
-                    IntrinProcID::MAsinH => {
+                    IntrinsicID::MAsinH => {
                         impl_scalar_intrin!(stack, f32, asinh);
                         continue 'vm;
                     }
-                    IntrinProcID::MAcosH => {
+                    IntrinsicID::MAcosH => {
                         impl_scalar_intrin!(stack, f32, acosh);
                         continue 'vm;
                     }
-                    IntrinProcID::MAtanH => {
+                    IntrinsicID::MAtanH => {
                         impl_scalar_intrin!(stack, f32, atanh);
                         continue 'vm;
                     }
-                    IntrinProcID::MIsNan => {
+                    IntrinsicID::MIsNan => {
                         continue 'vm;
                     }
-                    IntrinProcID::MIsInfinite => {
+                    IntrinsicID::MIsInfinite => {
                         continue 'vm;
                     }
-                    IntrinProcID::MIsFinite => {
+                    IntrinsicID::MIsFinite => {
                         continue 'vm;
                     }
-                    IntrinProcID::MIsNormal => {
+                    IntrinsicID::MIsNormal => {
                         continue 'vm;
                     }
-                    IntrinProcID::MIsSignalPositive => {
+                    IntrinsicID::MIsSignalPositive => {
                         continue 'vm;
                     }
-                    IntrinProcID::MIsSignalNegative => {
+                    IntrinsicID::MIsSignalNegative => {
                         continue 'vm;
                     }
-                    IntrinProcID::MRecip => {
+                    IntrinsicID::MRecip => {
                         continue 'vm;
                     }
-                    IntrinProcID::MToDegrees => {
+                    IntrinsicID::MToDegrees => {
                         continue 'vm;
                     }
-                    IntrinProcID::MToRadians => {
+                    IntrinsicID::MToRadians => {
                         continue 'vm;
                     }
-                    IntrinProcID::MMax => {
+                    IntrinsicID::MMax => {
                         impl_duplet_intrin!(stack, f32, max);
                         continue 'vm;
                     }
-                    IntrinProcID::MMin => {
+                    IntrinsicID::MMin => {
                         impl_duplet_intrin!(stack, f32, min);
                         continue 'vm;
                     }
@@ -664,7 +664,7 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
 #[cfg(test)]
 mod tests {
     use super::{execute, ExecutorInput};
-    use crate::bytecode::{intrinsic::IntrinProcID, opcode::OpCode, stream::BytecodeStream};
+    use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode, stream::BytecodeStream};
     use crate::core::stack::Stack;
 
     #[test]
@@ -725,7 +725,7 @@ mod tests {
         stream.push_opcode(OpCode::Push).with_f32(0.5236);
         stream
             .push_opcode(OpCode::CallIntrinsic)
-            .with_intrin_id(IntrinProcID::MSin);
+            .with_intrin_id(IntrinsicID::MSin);
         stream.push_opcode(OpCode::Interrupt).with_i32(0);
         let input = ExecutorInput {
             stack: Stack::with_length(1),
@@ -746,7 +746,7 @@ mod tests {
             chunk: stream.build().unwrap(),
         };
         let chunk = execute(input).input.chunk;
-        assert_eq!(chunk.instruction_ptr(), 4);
+        assert_eq!(chunk.operation_ptr(), 4);
     }
 
     fn test_i32op_template(op: OpCode, a: i32, b: i32, x: i32) {

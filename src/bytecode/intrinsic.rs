@@ -209,7 +209,7 @@
 /// M = Math
 #[repr(u32)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum IntrinProcID {
+pub enum IntrinsicID {
     /// Prints one character to stdout
     GPutChar,
 
@@ -377,7 +377,7 @@ pub enum IntrinProcID {
     MMin,
 }
 
-impl IntrinProcID {
+impl IntrinsicID {
     /// Number of enumerators.
-    pub const COUNT: usize = 1 + IntrinProcID::MMin as usize;
+    pub const COUNT: usize = 1 + IntrinsicID::MMin as usize;
 }

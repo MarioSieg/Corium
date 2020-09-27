@@ -1,0 +1,7 @@
+%PUSH 0i
+&L0
+%IINC
+%DUPL
+%INTRIN 0i
+%PUSH 10i
+%JL L0*

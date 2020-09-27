@@ -204,17 +204,17 @@
 
 */
 
+pub use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode};
 pub(crate) use crate::bytecode::{
-    instruction_meta::INSTRUCTION_TABLE, intrinsic_meta::INTRINSIC_PROCEDURE_TABLE,
+    intrinsic_meta::INTRINSIC_PROCEDURE_TABLE, operation_meta::OPERATION_TABLE,
 };
-pub use crate::bytecode::{intrinsic::IntrinProcID, opcode::OpCode};
+use std::fmt;
 
 /// Restricts possible immediate value arguments types like:
 /// u32, i32, f32
 pub trait ArgumentPrimitive: Sized + Copy + Clone + PartialEq {}
 impl ArgumentPrimitive for i32 {}
 impl ArgumentPrimitive for f32 {}
-impl ArgumentPrimitive for u32 {}
 
 /// Contains limits and a default value for immediate arguments.
 #[derive(PartialEq, Debug)]
@@ -229,9 +229,21 @@ pub struct ArgumentLiteralValue<T: ArgumentPrimitive> {
 pub enum ArgumentLiteralType {
     ValI32(ArgumentLiteralValue<i32>),
     ValF32(ArgumentLiteralValue<f32>),
-    Offset(ArgumentLiteralValue<u32>),
-    Label,
-    Proc,
+    PinID,
+}
+
+impl fmt::Display for ArgumentLiteralType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match *self {
+                Self::ValI32(_) => "i32",
+                Self::ValF32(_) => "f32",
+                Self::PinID => "pin",
+            }
+        )
+    }
 }
 
 /// Metadata descriptor for explicit bytecode arguments.
@@ -257,9 +269,9 @@ pub enum ImplicitArguments<'a> {
     Fixed(&'a [ImplicitArgumentMeta<'a>]),
 }
 
-/// Rough categories for instructions.
+/// Rough categories for operations.
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
-pub enum InstructionCategory {
+pub enum OperationCategory {
     Control,
     Memory,
     Branching,
@@ -267,12 +279,12 @@ pub enum InstructionCategory {
     Bitwise,
 }
 
-/// Metadata descriptor for a bytecode instruction.
+/// Metadata descriptor for a bytecode operation.
 #[derive(PartialEq, Copy, Clone, Debug)]
-pub struct InstructionMeta<'a> {
+pub struct OperationMeta<'a> {
     pub opcode: OpCode,
     pub mnemonic: &'a str,
-    pub category: InstructionCategory,
+    pub category: OperationCategory,
     pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
     pub implicit_arguments: ImplicitArguments<'a>,
 }
@@ -284,12 +296,12 @@ pub struct IntrinsicProcMeta<'a> {
 
 /// Returns the metadata for the corresponding opcode.
 #[inline]
-pub fn opcode_meta(op: OpCode) -> &'static InstructionMeta<'static> {
-    &INSTRUCTION_TABLE[op as usize]
+pub fn opcode_meta(op: OpCode) -> &'static OperationMeta<'static> {
+    &OPERATION_TABLE[op as usize]
 }
 
 /// Returns the metadata for the intrinsic procedure ids.
 #[inline]
-pub fn intrin_proc_id_meta(iproc: IntrinProcID) -> &'static ImplicitArguments<'static> {
+pub fn intrin_proc_id_meta(iproc: IntrinsicID) -> &'static ImplicitArguments<'static> {
     &INTRINSIC_PROCEDURE_TABLE[iproc as usize]
 }

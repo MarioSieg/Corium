@@ -204,8 +204,7 @@
 
 */
 
-use crate::bytecode::{intrinsic::IntrinProcID, meta::opcode_meta, opcode::OpCode, signal::Signal};
-use crate::interpreter::tokens;
+use crate::bytecode::{intrinsic::IntrinsicID, meta::opcode_meta, opcode::OpCode, signal::Signal};
 use std::fmt;
 
 /// Type safe version of 'Signal' using a discriminator.
@@ -216,8 +215,8 @@ pub enum DiscriminatedSignal {
     I32(i32),
     F32(f32),
     OpCode(OpCode),
-    IntrinProcID(IntrinProcID),
-    Label(u32),
+    IntrinsicID(IntrinsicID),
+    Pin(u32),
 }
 
 pub type Param = DiscriminatedSignal;
@@ -233,47 +232,19 @@ impl fmt::Display for DiscriminatedSignal {
 impl fmt::Debug for DiscriminatedSignal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            Self::I32(int) => write!(
-                f,
-                "{} | [{}] {}{}",
-                Signal::from(*self),
-                tokens::TYPE_I32,
-                tokens::BEGIN_ARG_SCALAR,
-                int
-            ),
+            Self::I32(int) => write!(f, "{} | {}", Signal::from(*self), int),
 
-            Self::F32(flt) => write!(
+            Self::F32(flt) => write!(f, "{} | {}", Signal::from(*self), flt),
+            Self::OpCode(op) => {
+                write!(f, "{} | {}", Signal::from(*self), opcode_meta(op).mnemonic,)
+            }
+            Self::IntrinsicID(ipi) => write!(
                 f,
-                "{} | [{}] {}{}",
+                "{} | {}",
                 Signal::from(*self),
-                tokens::TYPE_F32,
-                tokens::BEGIN_ARG_SCALAR,
-                flt
-            ),
-            Self::OpCode(op) => write!(
-                f,
-                "{} | [{}] {}{}",
-                Signal::from(*self),
-                tokens::TYPE_OPCODE,
-                tokens::BEGIN_LINE_OPCODE,
-                opcode_meta(op).mnemonic,
-            ),
-            Self::IntrinProcID(ipi) => write!(
-                f,
-                "{} | [{}] {}{}",
-                Signal::from(*self),
-                tokens::TYPE_INTRIN_ID,
-                tokens::BEGIN_ARG_INTRIN_ID,
                 format!("{:?}", ipi).to_lowercase(),
             ),
-            Self::Label(address) => write!(
-                f,
-                "{} | [{}] {}{}",
-                Signal::from(*self),
-                tokens::TYPE_LABEL,
-                tokens::BEGIN_LINE_LABEL,
-                address
-            ),
+            Self::Pin(address) => write!(f, "{} | {}", Signal::from(*self), address),
         }
     }
 }

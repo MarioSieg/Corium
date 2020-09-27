@@ -207,5 +207,6 @@
 #[rustfmt::skip]
 pub mod mnemonics;
 pub mod core;
+pub mod lexer;
 pub mod reader;
 pub mod tokens;

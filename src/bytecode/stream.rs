@@ -205,7 +205,7 @@
 */
 
 use crate::bytecode::{
-    chunk::BytecodeChunk, discriminated::DiscriminatedSignal, intrinsic::IntrinProcID,
+    chunk::BytecodeChunk, discriminated::DiscriminatedSignal, intrinsic::IntrinsicID,
     meta::opcode_meta, opcode::OpCode,
 };
 use std::{collections::HashMap, convert, default, fmt, ops};
@@ -266,9 +266,9 @@ impl BytecodeStream {
         self
     }
 
-    /// Pushes a new label into the jump table.
+    /// Pushes a new pin into the jump table.
     /// Returns this as ref to allow chain calls.
-    pub fn push_label(&mut self, name: &str) -> &mut Self {
+    pub fn push_pin(&mut self, name: &str) -> &mut Self {
         self.jump_table
             .insert(name.to_string(), self.stream.len() as _);
         self
@@ -286,21 +286,21 @@ impl BytecodeStream {
         self
     }
 
-    /// Pushes a new label operation parameter into the command buffer stream.
-    /// If the label does not exist in the jump table,
-    /// it will panic. (Label x not undefined!)
-    pub fn with_label(&mut self, name: &str) -> &mut Self {
-        let label: u32 = (*self
+    /// Pushes a new pin operation parameter into the command buffer stream.
+    /// If the pin does not exist in the jump table,
+    /// it will panic. (Pin x not undefined!)
+    pub fn with_pin(&mut self, name: &str) -> &mut Self {
+        let pin: u32 = (*self
             .jump_table
             .get(name)
-            .unwrap_or_else(|| panic!("Label {} undefined!", name))) as _;
-        self.stream.push(DiscriminatedSignal::Label(label));
+            .unwrap_or_else(|| panic!("Pin {} undefined!", name))) as _;
+        self.stream.push(DiscriminatedSignal::Pin(pin));
         self
     }
 
     /// Pushes a new intrisc procedure id operation parameter into the command buffer stream.
-    pub fn with_intrin_id(&mut self, id: IntrinProcID) -> &mut Self {
-        self.stream.push(DiscriminatedSignal::IntrinProcID(id));
+    pub fn with_intrin_id(&mut self, id: IntrinsicID) -> &mut Self {
+        self.stream.push(DiscriminatedSignal::IntrinsicID(id));
         self
     }
 
@@ -405,10 +405,10 @@ impl BytecodeStream {
 
     /// Inserts common prologue code into the bytecode stream.
     /// This always should be called when a new instance is created
-    /// and before any instructions/arguments are there.
+    /// and before any operations/arguments are there.
     pub fn prologue(&mut self) -> &mut Self {
         // The first record of the stack (0x00000000) is always unused because of the stack
-        // pointer layout. So we fill it with some random value using the MOV instruction.
+        // pointer layout. So we fill it with some random value using the MOV operation.
         self.push_opcode(OpCode::Move) // Move to stack slot.
             .with_i32(0) // Into first stack slot (0x00000000)
             .with_i32(i32::from_le_bytes(*b"LOVE")); // (4 * u8) Because I love my cutie!
@@ -419,8 +419,8 @@ impl BytecodeStream {
     /// Inserts common prologue code into the bytecode stream.
     /// This always should be called when building is done.
     pub fn epilogue(&mut self) -> &mut Self {
-        // Add interrupt as last instruction because
-        // there are no instruction pointer out of range checks
+        // Add interrupt as last operation because
+        // there are no operation pointer out of range checks
         // for performance.
         self.push_opcode(OpCode::Interrupt).with_i32(0);
         self.has_epilogue = true;

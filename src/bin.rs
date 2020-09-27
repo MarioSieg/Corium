@@ -209,8 +209,8 @@ extern crate ronin_runtime;
 use ronin_runtime::prelude::*;
 
 fn main() {
-    let code = interpret_bytecode(&std::path::Path::new("src/asm/simple.ron"));
-    println!("{:?}", code);
+    let code = interpret_bytecode(&std::path::Path::new("src/asm/simple.ronasm")).unwrap();
+
     let input = ExecutorInput {
         chunk: code.build().unwrap(),
         stack: Stack::with_length(32),

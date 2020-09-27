@@ -206,10 +206,10 @@
 
 pub mod chunk;
 pub mod discriminated;
-pub mod instruction_meta;
 pub mod intrinsic;
 pub mod intrinsic_meta;
 pub mod meta;
 pub mod opcode;
+pub mod operation_meta;
 pub mod signal;
 pub mod stream;

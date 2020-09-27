@@ -204,242 +204,268 @@
 
 */
 
-use crate::bytecode::{discriminated::DiscriminatedSignal, intrinsic::IntrinsicID, opcode::OpCode};
-use crate::core::record::Record;
-use std::{convert, fmt, mem};
+use crate::bytecode::meta::{ArgumentLiteralType, OPERATION_TABLE};
+use crate::bytecode::stream::BytecodeStream;
+use crate::interpreter::tokens as tok;
+use std::{cmp::Ordering, str::FromStr};
 
-/// Represents a single bytecode signal at runtime.
-/// A signal is used as an union which can be an operation (opcode) or a parameter.
-/// For a typesafe, discriminated version use 'DiscriminatedSignal'.
-#[repr(C)]
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
-pub struct Signal(u32);
-
-/// Creates a signal from an usize.
-/// Panics if the usize is > u32::MAX!
-impl convert::From<usize> for Signal {
-    #[inline(always)]
-    fn from(x: usize) -> Self {
-        debug_assert!(x < u32::MAX as _, "VM_Signal_USizeTooLarge");
-        Self(x as _)
+/// Parses one whole line.
+pub fn eval_line(line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>) -> bool {
+    clean(line);
+    if line.is_empty() {
+        return true;
     }
-}
-
-/// Creates an usize from a signal.
-/// This might lead to arbitrary values,
-/// if the signal representation wasn't an usize.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
-impl convert::From<Signal> for usize {
-    #[inline(always)]
-    fn from(x: Signal) -> Self {
-        x.0 as _
-    }
-}
-
-/// Creates a signal from an i32.
-/// The signal then represents an i32 with the value of x.
-impl convert::From<i32> for Signal {
-    #[inline(always)]
-    fn from(x: i32) -> Self {
-        Self(x as _)
-    }
-}
-
-/// Creates an i32 from a signal.
-/// This might lead to arbitrary values,
-/// if the signal representation wasn't an i32.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
-impl convert::From<Signal> for i32 {
-    #[inline(always)]
-    fn from(x: Signal) -> Self {
-        x.0 as _
-    }
-}
-
-/// Creates a signal from an u32.
-/// The signal then represents an u32 with the value of x.
-impl convert::From<u32> for Signal {
-    #[inline(always)]
-    fn from(x: u32) -> Self {
-        Self(x)
-    }
-}
-
-/// Creates an u32 from a signal.
-/// This might lead to arbitrary values,
-/// if the signal representation wasn't an u32.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
-impl convert::From<Signal> for u32 {
-    #[inline(always)]
-    fn from(x: Signal) -> Self {
-        x.0
-    }
-}
-
-/// Creates a signal from a f32.
-/// The signal then represents an f32 with the value of x.
-impl convert::From<f32> for Signal {
-    #[inline(always)]
-    fn from(x: f32) -> Self {
-        Self(x.to_bits())
-    }
-}
-
-/// Creates an f32 from a signal.
-/// This might lead to arbitrary values,
-/// if the signal representation wasn't an f32.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
-impl convert::From<Signal> for f32 {
-    #[inline(always)]
-    fn from(x: Signal) -> Self {
-        f32::from_bits(x.0)
-    }
-}
-
-/// Creates a signal from an opcode.
-/// The signal then represents an opcode with the value of x.
-impl convert::From<OpCode> for Signal {
-    #[inline(always)]
-    fn from(x: OpCode) -> Self {
-        Self(x as _)
-    }
-}
-
-/// Creates an opcode from a signal.
-/// This might lead to arbitrary values,
-/// if the signal representation wasn't an opcode.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
-impl convert::From<Signal> for OpCode {
-    #[inline(always)]
-    fn from(x: Signal) -> Self {
-        debug_assert!(x.0 < OpCode::COUNT as _);
-        unsafe { mem::transmute::<u32, OpCode>(x.0) }
-    }
-}
-
-/// Creates a signal from an intrinsic proc id.
-/// The signal then represents an opcode with the value of x.
-impl convert::From<IntrinsicID> for Signal {
-    #[inline(always)]
-    fn from(x: IntrinsicID) -> Self {
-        Self(x as _)
-    }
-}
-
-/// Creates an intrinsic proc id from a signal.
-/// This might lead to arbitrary values,
-/// if the signal representation wasn't an intrinsic proc id.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
-impl convert::From<Signal> for IntrinsicID {
-    #[inline(always)]
-    fn from(x: Signal) -> Self {
-        debug_assert!(x.0 < IntrinsicID::COUNT as _);
-        unsafe { mem::transmute::<u32, IntrinsicID>(x.0) }
-    }
-}
-
-/// Creates a new signal from a little endian byte array with four elements (32-bits).
-impl convert::From<[u8; 4]> for Signal {
-    #[inline(always)]
-    fn from(x: [u8; 4]) -> Self {
-        Self(u32::from_le_bytes(x))
-    }
-}
-
-/// Creates a signal from a byte array with four elements (32-bits).
-impl convert::From<Signal> for [u8; 4] {
-    #[inline(always)]
-    fn from(x: Signal) -> Self {
-        x.0.to_le_bytes()
-    }
-}
-
-/// Converts this signal from a stack record.
-impl convert::From<Record> for Signal {
-    #[inline(always)]
-    fn from(x: Record) -> Self {
-        Self(u32::from(x))
-    }
-}
-
-/// Creates a signal from an discriminated signal.
-impl<'a> convert::From<DiscriminatedSignal> for Signal {
-    fn from(x: DiscriminatedSignal) -> Self {
-        match x {
-            DiscriminatedSignal::I32(i) => Self::from(i),
-            DiscriminatedSignal::F32(f) => Self::from(f),
-            DiscriminatedSignal::OpCode(op) => Self::from(op),
-            DiscriminatedSignal::IntrinsicID(ipc) => Self::from(ipc),
-            DiscriminatedSignal::Pin(l) => Self::from(l),
+    let first = first_char_rem(line);
+    match first {
+        tok::LINE_SIGIL_MNEMONIC => eval_mnemonic(line, stream, errors),
+        tok::LINE_SIGIL_PIN => eval_pin(line, stream, errors),
+        _ => {
+            errors.push(format!("Invalid line sigil: {:?}", first));
+            false
         }
     }
 }
 
-/// Only prints the byte array.
-impl fmt::Display for Signal {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let b: [u8; 4] = (*self).into();
-        write!(f, "{:02X} {:02X} {:02X} {:02X}", b[0], b[1], b[2], b[3])
+/// Removes all whitespace, newlines etc...
+fn clean(s: &mut String) {
+    *s = s.replace(&[' ', '\n', '\t', '\r', '\0'][..], "");
+}
+
+/// Removes the first char and returns it.
+fn first_char_rem(s: &mut String) -> char {
+    let c = s.chars().next().unwrap();
+    *s = s.replacen(c, "", 1);
+    c
+}
+
+/// Removes the first char and returns it.
+fn last_char_rem(s: &mut String) -> char {
+    let c = s.chars().last().unwrap();
+    *s = s.replacen(c, "", 1);
+    c
+}
+
+/// Removes the string if 'x' starts with it. Returns true if 'x' started with it, else false.
+fn first_str_rem(s: &mut String, t: &str) -> bool {
+    if s.starts_with(t) {
+        *s = s.replacen(t, "", 1);
+        true
+    } else {
+        false
     }
 }
 
-/// Prints the byte array with values and correct syntax.
-impl fmt::Debug for Signal {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let b: [u8; 4] = (*self).into();
-        write!(
-            f,
-            "{:02X} {:02X} {:02X} {:02X} | {}, {:#e}",
-            b[0],
-            b[1],
-            b[2],
-            b[3],
-            i32::from(*self),
-            i32::from(*self),
-        )
+fn eval_mnemonic(line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>) -> bool {
+    let mut m = None;
+    's: for meta in OPERATION_TABLE.iter() {
+        if first_str_rem(line, meta.mnemonic) {
+            stream.push_opcode(meta.opcode);
+            m = Some(meta);
+            break 's;
+        }
+    }
+    if m.is_none() {
+        errors.push(format!("Unknown mnemonic: {:?}", line));
+    }
+    if let Some(meta) = m {
+        match meta.explicit_arguments.len() {
+            0 => {
+                if !line.is_empty() {
+                    errors.push(format!("Redundant argument: {:?}", line));
+                    false
+                } else {
+                    true
+                }
+            }
+            1 => {
+                if line.is_empty() {
+                    errors.push(format!("Argument required, found none! {:?}", line));
+                    false
+                } else {
+                    eval_param(
+                        line,
+                        stream,
+                        errors,
+                        &meta.explicit_arguments[0].accepted_value_types[..],
+                    )
+                }
+            }
+            _ => {
+                if line.is_empty() {
+                    errors.push(format!("Argument required, found none! {:?}", line));
+                    false
+                } else {
+                    let mut args: Vec<String> = line
+                        .split(tok::ARGUMENT_SEPARATOR)
+                        .map(|str| str.to_string())
+                        .collect();
+                    match args.len().cmp(&meta.explicit_arguments.len()) {
+                        Ordering::Less => {
+                            errors.push(format!(
+                                "Not enough arguments provided! Expected: {}",
+                                meta.explicit_arguments.len()
+                            ));
+                            false
+                        }
+                        Ordering::Greater => {
+                            errors.push(format!(
+                                "Too many arguments provided! Expected: {}",
+                                meta.explicit_arguments.len()
+                            ));
+                            false
+                        }
+                        Ordering::Equal => {
+                            for (i, ex_arg) in meta.explicit_arguments.iter().enumerate() {
+                                if !eval_param(
+                                    &mut args[i],
+                                    stream,
+                                    errors,
+                                    &ex_arg.accepted_value_types[..],
+                                ) {
+                                    return false;
+                                }
+                            }
+                            true
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        errors.push(format!("Unknown mnemonic: {:?}", line));
+        false
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode, signal::Signal};
-    use std::mem;
+fn eval_pin(line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>) -> bool {
+    if stream.jump_table().contains_key(line) {
+        errors.push(format!("Pin is already defined: {:?}", line));
+        false
+    } else {
+        stream.push_pin(line);
+        true
+    }
+}
 
-    #[test]
-    fn size() {
-        assert_eq!(mem::size_of::<Signal>(), mem::size_of::<i32>());
+fn eval_param(
+    line: &mut String,
+    stream: &mut BytecodeStream,
+    errors: &mut Vec<String>,
+    desired: &[ArgumentLiteralType],
+) -> bool {
+    if line.is_empty() {
+        return false;
     }
 
-    #[test]
-    fn union_i32() {
-        assert_eq!(i32::from(Signal::from(-5_i32)), -5);
-    }
+    let mut eval_f32 =
+        |line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>| -> bool {
+            if let Ok(x) = f32::from_str(line) {
+                stream.with_f32(x);
+                true
+            } else {
+                errors.push(format!("Invalid decimal literal for f32: {:?}!", line));
+                false
+            }
+        };
 
-    #[test]
-    fn union_u32() {
-        assert_eq!(u32::from(Signal::from(5_u32)), 5);
-    }
+    let mut eval_i32 =
+        |line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>| -> bool {
+            if first_str_rem(line, tok::LITERAL_PREFIX_HEX) {
+                if let Ok(x) = i32::from_str_radix(line, 6) {
+                    stream.with_i32(x);
+                    true
+                } else {
+                    errors.push(format!("Invalid hexadecimal literal for i32: {:?}!", line));
+                    false
+                }
+            } else if first_str_rem(line, tok::LITERAL_PREFIX_BIN) {
+                if let Ok(x) = i32::from_str_radix(line, 2) {
+                    stream.with_i32(x);
+                    true
+                } else {
+                    errors.push(format!("Invalid binary literal for i32: {:?}!", line));
+                    false
+                }
+            } else if first_str_rem(line, tok::LITERAL_PREFIX_OCT) {
+                if let Ok(x) = i32::from_str_radix(line, 8) {
+                    stream.with_i32(x);
+                    true
+                } else {
+                    errors.push(format!("Invalid octal literal for i32: {:?}!", line));
+                    false
+                }
+            } else if let Ok(x) = i32::from_str_radix(line, 10) {
+                stream.with_i32(x);
+                true
+            } else {
+                errors.push(format!("Invalid decimal literal for i32: {:?}!", line));
+                false
+            }
+        };
 
-    #[test]
-    fn union_bytes() {
-        assert_eq!(u32::from(Signal::from([0xFF, 0xFF, 0xFF, 0xFF])), u32::MAX);
-    }
+    let mut eval_pin =
+        |line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>| -> bool {
+            if line.chars().all(char::is_alphanumeric) {
+                if stream.jump_table().contains_key(line) {
+                    stream.with_pin(line);
+                    true
+                } else {
+                    errors.push(format!("Undefined pin {:?}", line));
+                    false
+                }
+            } else {
+                errors.push(String::from(
+                    "Invalid pin name! Only alphanumeric characters are allowed!!",
+                ));
+                false
+            }
+        };
 
-    #[test]
-    fn union_f32() {
-        assert_eq!(f32::from(Signal::from(5.12345_f32)), 5.12345);
-    }
+    let last = last_char_rem(line);
 
-    #[test]
-    fn union_opcode() {
-        assert_eq!(OpCode::from(Signal::from(OpCode::Move)), OpCode::Move);
-    }
+    let mut eval = |f: &mut dyn FnMut(&mut String, &mut BytecodeStream, &mut Vec<_>) -> bool,
+                    c: &dyn Fn(&ArgumentLiteralType) -> bool|
+     -> bool {
+        let mut found = false;
+        'se: for d in desired {
+            if c(&d) {
+                found = true;
+                break 'se;
+            }
+        }
+        if found {
+            f(line, stream, errors)
+        } else {
+            errors.push(String::from("Invalid argument type!"));
+            false
+        }
+    };
 
-    #[test]
-    fn union_intrinsic_proc_id() {
-        assert_eq!(
-            IntrinsicID::from(Signal::from(IntrinsicID::MSin)),
-            IntrinsicID::MSin
-        );
+    match last {
+        tok::LITERAL_SUFFIX_I32 => eval(&mut eval_i32, &|x| {
+            if let ArgumentLiteralType::ValI32(_) = x {
+                true
+            } else {
+                false
+            }
+        }),
+        tok::LITERAL_SUFFIX_F32 => eval(&mut eval_f32, &|x| {
+            if let ArgumentLiteralType::ValF32(_) = x {
+                true
+            } else {
+                false
+            }
+        }),
+        tok::LITERAL_SUFFIX_PIN => eval(&mut eval_pin, &|x| {
+            if let ArgumentLiteralType::PinID = x {
+                true
+            } else {
+                false
+            }
+        }),
+        _ => {
+            errors.push(String::from("Missing type indicator suffix!"));
+            false
+        }
     }
 }

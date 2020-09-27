@@ -208,7 +208,7 @@ use crate::bytecode::meta::*;
 
 /// Contains all metadata for all intrinsic procedure ids.
 /// The index if the intrin proc id.
-pub(crate) const INTRINSIC_PROCEDURE_TABLE: &[ImplicitArguments<'static>; IntrinProcID::COUNT] = &[
+pub(crate) const INTRINSIC_PROCEDURE_TABLE: &[ImplicitArguments<'static>; IntrinsicID::COUNT] = &[
     // Putchar:
     ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
         offset: -1,
@@ -558,10 +558,10 @@ pub(crate) const INTRINSIC_PROCEDURE_TABLE: &[ImplicitArguments<'static>; Intrin
 
 #[cfg(test)]
 mod tests {
-    use crate::bytecode::{intrinsic::IntrinProcID, intrinsic_meta::INTRINSIC_PROCEDURE_TABLE};
+    use crate::bytecode::{intrinsic::IntrinsicID, intrinsic_meta::INTRINSIC_PROCEDURE_TABLE};
 
     #[test]
     fn array_len_enum_count() {
-        assert_eq!(INTRINSIC_PROCEDURE_TABLE.len(), IntrinProcID::COUNT);
+        assert_eq!(INTRINSIC_PROCEDURE_TABLE.len(), IntrinsicID::COUNT);
     }
 }

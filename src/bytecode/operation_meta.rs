@@ -207,13 +207,13 @@
 use crate::bytecode::meta::*;
 use crate::interpreter::mnemonics;
 
-/// Contains all metadata for all instructions.
+/// Contains all metadata for all operations.
 /// The index if the opcode.
-pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] = &[
-    InstructionMeta {
+pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
+    OperationMeta {
         opcode: OpCode::Interrupt,
         mnemonic: mnemonics::INTERRUPT,
-        category: InstructionCategory::Control,
+        category: OperationCategory::Control,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::ValI32(ArgumentLiteralValue {
                 min: i32::MIN,
@@ -224,10 +224,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
         }],
         implicit_arguments: ImplicitArguments::None,
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::CallIntrinsic,
         mnemonic: mnemonics::INTRINSIC_PROC,
-        category: InstructionCategory::Control,
+        category: OperationCategory::Control,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[ArgumentLiteralType::ValI32(ArgumentLiteralValue {
                 min: i32::MIN,
@@ -238,10 +238,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
         }],
         implicit_arguments: ImplicitArguments::None,
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::Push,
         mnemonic: mnemonics::PUSH,
-        category: InstructionCategory::Memory,
+        category: OperationCategory::Memory,
         explicit_arguments: &[ExplicitArgumentMeta {
             accepted_value_types: &[
                 ArgumentLiteralType::ValI32(ArgumentLiteralValue {
@@ -259,29 +259,29 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
         }],
         implicit_arguments: ImplicitArguments::None,
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::Pop,
         mnemonic: mnemonics::POP,
-        category: InstructionCategory::Memory,
+        category: OperationCategory::Memory,
         explicit_arguments: &[ExplicitArgumentMeta {
-            accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
-                min: u32::MIN,
-                max: u32::MAX,
+            accepted_value_types: &[ArgumentLiteralType::ValI32(ArgumentLiteralValue {
+                min: 0,
+                max: i32::MAX,
                 default: Some(0),
             })],
             alias: "pop_count",
         }],
         implicit_arguments: ImplicitArguments::Variadic,
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::Move,
         mnemonic: mnemonics::MOVE,
-        category: InstructionCategory::Memory,
+        category: OperationCategory::Memory,
         explicit_arguments: &[
             ExplicitArgumentMeta {
-                accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
-                    min: u32::MIN,
-                    max: u32::MAX,
+                accepted_value_types: &[ArgumentLiteralType::ValI32(ArgumentLiteralValue {
+                    min: 0,
+                    max: i32::MAX,
                     default: Some(0),
                 })],
                 alias: "poke_offset",
@@ -304,23 +304,23 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
         ],
         implicit_arguments: ImplicitArguments::Variadic,
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::Copy,
         mnemonic: mnemonics::COPY,
-        category: InstructionCategory::Memory,
+        category: OperationCategory::Memory,
         explicit_arguments: &[
             ExplicitArgumentMeta {
-                accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
-                    min: u32::MIN,
-                    max: u32::MAX,
+                accepted_value_types: &[ArgumentLiteralType::ValI32(ArgumentLiteralValue {
+                    min: 0,
+                    max: i32::MAX,
                     default: Some(0),
                 })],
                 alias: "poke_offset_a",
             },
             ExplicitArgumentMeta {
-                accepted_value_types: &[ArgumentLiteralType::Offset(ArgumentLiteralValue {
-                    min: u32::MIN,
-                    max: u32::MAX,
+                accepted_value_types: &[ArgumentLiteralType::ValI32(ArgumentLiteralValue {
+                    min: 0,
+                    max: i32::MAX,
                     default: Some(0),
                 })],
                 alias: "poke_offset_b",
@@ -328,17 +328,17 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
         ],
         implicit_arguments: ImplicitArguments::Variadic,
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::NoOp,
         mnemonic: mnemonics::NO_OP,
-        category: InstructionCategory::Control,
+        category: OperationCategory::Control,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::None,
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::Duplicate,
         mnemonic: mnemonics::DUPLICATE,
-        category: InstructionCategory::Memory,
+        category: OperationCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -346,10 +346,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             gets_popped: false,
         }]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::DuplicateX2,
         mnemonic: mnemonics::DUPLICATE_X2,
-        category: InstructionCategory::Memory,
+        category: OperationCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -357,10 +357,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             gets_popped: false,
         }]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::CastI32toF32,
         mnemonic: mnemonics::CAST_I32_TO_F32,
-        category: InstructionCategory::Memory,
+        category: OperationCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -368,10 +368,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             gets_popped: false,
         }]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::CastF32toI32,
         mnemonic: mnemonics::CAST_F32_TO_I32,
-        category: InstructionCategory::Memory,
+        category: OperationCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -379,23 +379,23 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             gets_popped: false,
         }]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::Jump,
         mnemonic: mnemonics::JUMP,
-        category: InstructionCategory::Branching,
+        category: OperationCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
-            accepted_value_types: &[ArgumentLiteralType::Label],
-            alias: "target_label",
+            accepted_value_types: &[ArgumentLiteralType::PinID],
+            alias: "target_pin",
         }],
         implicit_arguments: ImplicitArguments::None,
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::JumpIfZero,
         mnemonic: mnemonics::JUMP_IF_ZERO,
-        category: InstructionCategory::Branching,
+        category: OperationCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
-            accepted_value_types: &[ArgumentLiteralType::Label],
-            alias: "target_label",
+            accepted_value_types: &[ArgumentLiteralType::PinID],
+            alias: "target_pin",
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -403,13 +403,13 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             gets_popped: true,
         }]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::JumpIfNotZero,
         mnemonic: mnemonics::JUMP_IF_NOT_ZERO,
-        category: InstructionCategory::Branching,
+        category: OperationCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
-            accepted_value_types: &[ArgumentLiteralType::Label],
-            alias: "target_label",
+            accepted_value_types: &[ArgumentLiteralType::PinID],
+            alias: "target_pin",
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -417,13 +417,13 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             gets_popped: true,
         }]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::JumpIfEquals,
         mnemonic: mnemonics::JUMP_IF_EQUALS,
-        category: InstructionCategory::Branching,
+        category: OperationCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
-            accepted_value_types: &[ArgumentLiteralType::Label],
-            alias: "target_label",
+            accepted_value_types: &[ArgumentLiteralType::PinID],
+            alias: "target_pin",
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -438,13 +438,13 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::JumpIfNotEquals,
         mnemonic: mnemonics::JUMP_IF_NOT_EQUALS,
-        category: InstructionCategory::Branching,
+        category: OperationCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
-            accepted_value_types: &[ArgumentLiteralType::Label],
-            alias: "target_label",
+            accepted_value_types: &[ArgumentLiteralType::PinID],
+            alias: "target_pin",
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -459,13 +459,13 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::JumpIfAbove,
         mnemonic: mnemonics::JUMP_IF_ABOVE,
-        category: InstructionCategory::Branching,
+        category: OperationCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
-            accepted_value_types: &[ArgumentLiteralType::Label],
-            alias: "target_label",
+            accepted_value_types: &[ArgumentLiteralType::PinID],
+            alias: "target_pin",
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -480,13 +480,13 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::JumpIfAboveEquals,
         mnemonic: mnemonics::JUMP_IF_ABOVE_EQUALS,
-        category: InstructionCategory::Branching,
+        category: OperationCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
-            accepted_value_types: &[ArgumentLiteralType::Label],
-            alias: "target_label",
+            accepted_value_types: &[ArgumentLiteralType::PinID],
+            alias: "target_pin",
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -501,13 +501,13 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::JumpIfLess,
         mnemonic: mnemonics::JUMP_IF_LESS,
-        category: InstructionCategory::Branching,
+        category: OperationCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
-            accepted_value_types: &[ArgumentLiteralType::Label],
-            alias: "target_label",
+            accepted_value_types: &[ArgumentLiteralType::PinID],
+            alias: "target_pin",
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -522,13 +522,13 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::JumpIfLessEquals,
         mnemonic: mnemonics::JUMP_IF_LESS_EQUALS,
-        category: InstructionCategory::Branching,
+        category: OperationCategory::Branching,
         explicit_arguments: &[ExplicitArgumentMeta {
-            accepted_value_types: &[ArgumentLiteralType::Label],
-            alias: "target_label",
+            accepted_value_types: &[ArgumentLiteralType::PinID],
+            alias: "target_pin",
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -543,10 +543,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Add,
         mnemonic: mnemonics::I32_ADD,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -561,10 +561,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Sub,
         mnemonic: mnemonics::I32_SUB,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -579,10 +579,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Mul,
         mnemonic: mnemonics::I32_MUL,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -597,10 +597,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Div,
         mnemonic: mnemonics::I32_DIV,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -615,10 +615,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Mod,
         mnemonic: mnemonics::I32_MOD,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -633,10 +633,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32And,
         mnemonic: mnemonics::I32_AND,
-        category: InstructionCategory::Bitwise,
+        category: OperationCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -651,10 +651,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Or,
         mnemonic: mnemonics::I32_OR,
-        category: InstructionCategory::Bitwise,
+        category: OperationCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -669,10 +669,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Xor,
         mnemonic: mnemonics::I32_XOR,
-        category: InstructionCategory::Bitwise,
+        category: OperationCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -687,10 +687,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Sal,
         mnemonic: mnemonics::I32_SAL,
-        category: InstructionCategory::Bitwise,
+        category: OperationCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -705,10 +705,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Sar,
         mnemonic: mnemonics::I32_SAR,
-        category: InstructionCategory::Bitwise,
+        category: OperationCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -723,10 +723,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Rol,
         mnemonic: mnemonics::I32_ROL,
-        category: InstructionCategory::Bitwise,
+        category: OperationCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -741,10 +741,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Ror,
         mnemonic: mnemonics::I32_ROR,
-        category: InstructionCategory::Bitwise,
+        category: OperationCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -759,10 +759,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Com,
         mnemonic: mnemonics::I32_COM,
-        category: InstructionCategory::Bitwise,
+        category: OperationCategory::Bitwise,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -770,10 +770,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             gets_popped: false,
         }]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Increment,
         mnemonic: mnemonics::I32_INCREMENT,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -781,10 +781,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             gets_popped: false,
         }]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::I32Decrement,
         mnemonic: mnemonics::I32_DECREMENT,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -792,10 +792,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             gets_popped: false,
         }]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::F32Add,
         mnemonic: mnemonics::F32_ADD,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -810,10 +810,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::F32Sub,
         mnemonic: mnemonics::F32_SUB,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -828,10 +828,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::F32Mul,
         mnemonic: mnemonics::F32_MUL,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -846,10 +846,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::F32Div,
         mnemonic: mnemonics::F32_DIV,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -864,10 +864,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::F32Mod,
         mnemonic: mnemonics::F32_MOD,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -882,10 +882,10 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
             },
         ]),
     },
-    InstructionMeta {
+    OperationMeta {
         opcode: OpCode::F32MulAdd,
         mnemonic: mnemonics::F32_MUL_ADD,
-        category: InstructionCategory::Arithmetic,
+        category: OperationCategory::Arithmetic,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -909,29 +909,29 @@ pub(crate) const INSTRUCTION_TABLE: &[InstructionMeta<'static>; OpCode::COUNT] =
 
 #[cfg(test)]
 mod tests {
-    use crate::bytecode::{instruction_meta::INSTRUCTION_TABLE, opcode::OpCode};
+    use crate::bytecode::{opcode::OpCode, operation_meta::OPERATION_TABLE};
     use crate::interpreter::mnemonics;
 
     #[test]
     fn array_len_enum_count() {
-        assert_eq!(INSTRUCTION_TABLE.len(), OpCode::COUNT);
+        assert_eq!(OPERATION_TABLE.len(), OpCode::COUNT);
     }
 
     #[test]
     fn lookup() {
         assert_eq!(
-            INSTRUCTION_TABLE[OpCode::Push as usize].mnemonic,
+            OPERATION_TABLE[OpCode::Push as usize].mnemonic,
             mnemonics::PUSH
         );
         assert_eq!(
-            INSTRUCTION_TABLE[OpCode::F32Add as usize].mnemonic,
+            OPERATION_TABLE[OpCode::F32Add as usize].mnemonic,
             mnemonics::F32_ADD
         );
     }
 
     #[test]
     fn valid() {
-        for meta in INSTRUCTION_TABLE.iter() {
+        for meta in OPERATION_TABLE.iter() {
             assert!(!meta.mnemonic.is_empty());
         }
     }

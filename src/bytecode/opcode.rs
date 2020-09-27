@@ -204,14 +204,14 @@
 
 */
 
-// To add a new instruction:
+// To add a new operation:
 // 1.) Add it to 'OpCode' enum with an opcode (just increment the previous)
 // 2.) Add a new mnemonic string constant in 'interpreter.rs'
-// 3.) Add metadata to 'INSTRUCTION_TABLE'
+// 3.) Add metadata to 'OPERATION_TABLE'
 // 4.) Add implementation in 'execute()' in 'core.rs' and in 'alt_ffi_core.c'
 
 /// Represents an opcode.
-/// Contains all bytecode instructions available.
+/// Contains all bytecode operations available.
 #[repr(u32)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum OpCode {

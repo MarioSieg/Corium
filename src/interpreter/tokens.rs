@@ -204,27 +204,15 @@
 
 */
 
-pub const ADDRESS_OP: char = '&';
-pub const ADDRESS_VAL: char = '*';
+pub const LINE_SIGIL_MNEMONIC: char = '%';
+pub const LINE_SIGIL_PIN: char = '&';
 
-pub const BEGIN_ARG_SCALAR: char = '$';
-pub const BEGIN_ARG_INTRIN_ID: char = '_';
-pub const BEGIN_ARG_LABEL: char = '@';
+pub const LITERAL_SUFFIX_I32: char = 'i';
+pub const LITERAL_SUFFIX_F32: char = 'f';
+pub const LITERAL_SUFFIX_PIN: char = '*';
 
-pub const BEGIN_LINE_SECTION: char = '.';
-pub const BEGIN_LINE_LABEL: char = '@';
-pub const BEGIN_LINE_LABEL_BODY: char = ':';
-pub const BEGIN_LINE_OPCODE: char = '%';
-pub const BEGIN_LINE_COMMENT: char = '#';
+pub const LITERAL_PREFIX_HEX: &str = "0x";
+pub const LITERAL_PREFIX_BIN: &str = "0b";
+pub const LITERAL_PREFIX_OCT: &str = "0c";
 
-pub const TYPE_I32: &str = "I32";
-pub const TYPE_F32: &str = "F32";
-pub const TYPE_OPCODE: &str = "OPC";
-pub const TYPE_INTRIN_ID: &str = "IPI";
-pub const TYPE_LABEL: &str = "PIN";
-
-pub const DECL_TYPE_BEGIN: char = '[';
-pub const DECL_TYPE_END: char = ']';
-
-pub const SECTION_DB: &str = "DB";
-pub const SECTION_EXEC: &str = "EXEC";
+pub const ARGUMENT_SEPARATOR: char = ',';
