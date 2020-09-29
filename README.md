@@ -1,4 +1,10 @@
 # NominaxRonVM
+![alt](https://img.shields.io/github/license/MarioSieg/NominaxRonVM)
+![alt](https://img.shields.io/discord/739144355700539393)
+![alt](https://img.shields.io/github/repo-size/MarioSieg/NominaxRonVM)
+![alt](https://img.shields.io/tokei/lines/github/MarioSieg/NominaxRonVM)
+![alt](https://img.shields.io/github/commit-activity/w/MarioSieg/NominaxRonVM)
+
  --Ronin Virtual Machine--
  * PC, Mac, Linux, IOS, Android
  * Multithreading, SIMD
