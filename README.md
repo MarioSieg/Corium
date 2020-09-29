@@ -1,7 +1,11 @@
 # NominaxRonVM
  --Ronin Virtual Machine--
-C backend only works with GCC or Clang!
-Stable instruction set:
+ * PC, Mac, Linux, IOS, Android
+ * Multithreading, SIMD
+ * Backend for the Nominax programming language
+ * C backend for GCC Clang with computed goto branch table optimization (not yet online)
+ * Stable ISA:
+ 
 | Interrupt                                                             | INTERRUPT | 0h  | Control                 | interrupt_id: i32       |                                    |         |                 |
 |-----------------------------------------------------------------------|-----------|-----|-------------------------|-------------------------|------------------------------------|---------|-----------------|
 | Call intrinsic                                                        | INTRIN    | 1h  | Control                 | intrin_id: u32          | …                                  |         |                 |
