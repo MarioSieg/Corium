@@ -206,7 +206,7 @@
 
 #[rustfmt::skip]
 pub mod mnemonics;
-pub mod ansi_codes;
+pub mod ansi_color_codes;
 pub mod core;
 pub mod lexer;
 pub mod reader;

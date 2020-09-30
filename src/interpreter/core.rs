@@ -205,7 +205,7 @@
 */
 
 use crate::bytecode::stream::BytecodeStream;
-use crate::interpreter::{ansi_codes as asi, lexer, reader};
+use crate::interpreter::{ansi_color_codes as asi, lexer, reader};
 use std::{path::Path, time::Instant};
 
 /// Contains all bytecode sections.

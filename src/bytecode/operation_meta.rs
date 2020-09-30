@@ -337,7 +337,7 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         category: OperationCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
-            offset: -1,
+            offset: 0,
             alias: "source_value",
             gets_popped: false,
         }]),
@@ -348,7 +348,7 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         category: OperationCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
-            offset: -1,
+            offset: 0,
             alias: "source_value",
             gets_popped: false,
         }]),
@@ -359,7 +359,7 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         category: OperationCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
-            offset: -1,
+            offset: 0,
             alias: "source_value",
             gets_popped: false,
         }]),
@@ -370,7 +370,7 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         category: OperationCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
-            offset: -1,
+            offset: 0,
             alias: "source_value",
             gets_popped: false,
         }]),
@@ -394,7 +394,7 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
             alias: "target_pin",
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
-            offset: -1,
+            offset: 0,
             alias: "logical_operand_a",
             gets_popped: true,
         }]),
@@ -408,7 +408,7 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
             alias: "target_pin",
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
-            offset: -1,
+            offset: 0,
             alias: "logical_operand_a",
             gets_popped: true,
         }]),
@@ -423,12 +423,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "logical_operand_a",
                 gets_popped: true,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "logical_operand_b",
                 gets_popped: true,
             },
@@ -444,12 +444,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "logical_operand_a",
                 gets_popped: true,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "logical_operand_b",
                 gets_popped: true,
             },
@@ -465,12 +465,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "logical_operand_a",
                 gets_popped: true,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "logical_operand_b",
                 gets_popped: true,
             },
@@ -486,12 +486,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "logical_operand_a",
                 gets_popped: true,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "logical_operand_b",
                 gets_popped: true,
             },
@@ -507,12 +507,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "logical_operand_a",
                 gets_popped: true,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "logical_operand_b",
                 gets_popped: true,
             },
@@ -528,12 +528,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         }],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "logical_operand_a",
                 gets_popped: true,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "logical_operand_b",
                 gets_popped: true,
             },
@@ -546,12 +546,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -564,12 +564,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -582,12 +582,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -600,12 +600,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -618,12 +618,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -636,12 +636,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -654,12 +654,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -672,12 +672,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -690,12 +690,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -708,12 +708,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -726,12 +726,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -744,12 +744,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -761,7 +761,7 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
-            offset: -1,
+            offset: 0,
             alias: "scalar_operand_a",
             gets_popped: false,
         }]),
@@ -772,7 +772,7 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
-            offset: -1,
+            offset: 0,
             alias: "scalar_operand_a",
             gets_popped: false,
         }]),
@@ -783,7 +783,7 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
-            offset: -1,
+            offset: 0,
             alias: "scalar_operand_a",
             gets_popped: false,
         }]),
@@ -795,12 +795,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -813,12 +813,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -831,12 +831,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -849,12 +849,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -867,12 +867,12 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
@@ -885,17 +885,17 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
-                offset: -3,
+                offset: -2,
                 alias: "scalar_operand_a",
                 gets_popped: false,
             },
             ImplicitArgumentMeta {
-                offset: -2,
+                offset: -1,
                 alias: "scalar_operand_b",
                 gets_popped: true,
             },
             ImplicitArgumentMeta {
-                offset: -1,
+                offset: 0,
                 alias: "scalar_operand_c",
                 gets_popped: true,
             },
