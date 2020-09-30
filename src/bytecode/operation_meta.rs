@@ -226,14 +226,10 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
     },
     OperationMeta {
         opcode: OpCode::CallIntrinsic,
-        mnemonic: mnemonics::INTRINSIC_PROC,
+        mnemonic: mnemonics::CALL_INTRINSIC,
         category: OperationCategory::Control,
         explicit_arguments: &[ExplicitArgumentMeta {
-            accepted_value_types: &[ArgumentLiteralType::ValI32(ArgumentLiteralValue {
-                min: i32::MIN,
-                max: i32::MAX,
-                default: Some(i32::MIN),
-            })],
+            accepted_value_types: &[ArgumentLiteralType::IpcID],
             alias: "interrupt_code",
         }],
         implicit_arguments: ImplicitArguments::None,
@@ -347,8 +343,8 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         }]),
     },
     OperationMeta {
-        opcode: OpCode::DuplicateX2,
-        mnemonic: mnemonics::DUPLICATE_X2,
+        opcode: OpCode::DuplicateTwice,
+        mnemonic: mnemonics::DUPLICATE_TWICE,
         category: OperationCategory::Memory,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
@@ -544,9 +540,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Add,
-        mnemonic: mnemonics::I32_ADD,
-        category: OperationCategory::Arithmetic,
+        opcode: OpCode::I32Addition,
+        mnemonic: mnemonics::I32_ADDITION,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -562,9 +558,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Sub,
-        mnemonic: mnemonics::I32_SUB,
-        category: OperationCategory::Arithmetic,
+        opcode: OpCode::I32Subtraction,
+        mnemonic: mnemonics::I32_SUBTRACTION,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -580,9 +576,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Mul,
-        mnemonic: mnemonics::I32_MUL,
-        category: OperationCategory::Arithmetic,
+        opcode: OpCode::I32Multiplication,
+        mnemonic: mnemonics::I32_MULTIPLICATION,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -598,9 +594,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Div,
-        mnemonic: mnemonics::I32_DIV,
-        category: OperationCategory::Arithmetic,
+        opcode: OpCode::I32Division,
+        mnemonic: mnemonics::I32_DIVISION,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -616,9 +612,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Mod,
-        mnemonic: mnemonics::I32_MOD,
-        category: OperationCategory::Arithmetic,
+        opcode: OpCode::I32Modulo,
+        mnemonic: mnemonics::I32_MODULO,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -634,9 +630,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32And,
-        mnemonic: mnemonics::I32_AND,
-        category: OperationCategory::Bitwise,
+        opcode: OpCode::I32BitwiseAnd,
+        mnemonic: mnemonics::I32_BITWISE_AND,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -652,9 +648,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Or,
-        mnemonic: mnemonics::I32_OR,
-        category: OperationCategory::Bitwise,
+        opcode: OpCode::I32BitwiseOr,
+        mnemonic: mnemonics::I32_BITWISE_OR,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -670,9 +666,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Xor,
-        mnemonic: mnemonics::I32_XOR,
-        category: OperationCategory::Bitwise,
+        opcode: OpCode::I32BitwiseXor,
+        mnemonic: mnemonics::I32_BITWISE_XOR,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -688,9 +684,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Sal,
-        mnemonic: mnemonics::I32_SAL,
-        category: OperationCategory::Bitwise,
+        opcode: OpCode::I32BitwiseArithmeticLeftShift,
+        mnemonic: mnemonics::I32_BITWISE_ARITHMETIC_LEFT_SHIFT,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -706,9 +702,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Sar,
-        mnemonic: mnemonics::I32_SAR,
-        category: OperationCategory::Bitwise,
+        opcode: OpCode::I32BitwiseArithmeticRightShift,
+        mnemonic: mnemonics::I32_BITWISE_ARITHMETIC_RIGHT_SHIFT,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -724,9 +720,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Rol,
-        mnemonic: mnemonics::I32_ROL,
-        category: OperationCategory::Bitwise,
+        opcode: OpCode::I32BitwiseCircularLeftShift,
+        mnemonic: mnemonics::I32_BITWISE_CIRCULAR_LEFT_SHIFT,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -742,9 +738,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Ror,
-        mnemonic: mnemonics::I32_ROR,
-        category: OperationCategory::Bitwise,
+        opcode: OpCode::I32BitwiseCircularRightShift,
+        mnemonic: mnemonics::I32_BITWISE_CIRCULAR_RIGHT_SHIFT,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -760,9 +756,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::I32Com,
-        mnemonic: mnemonics::I32_COM,
-        category: OperationCategory::Bitwise,
+        opcode: OpCode::I32BitwiseComplement,
+        mnemonic: mnemonics::I32_BITWISE_COMPLEMENT,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -773,7 +769,7 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
     OperationMeta {
         opcode: OpCode::I32Increment,
         mnemonic: mnemonics::I32_INCREMENT,
-        category: OperationCategory::Arithmetic,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -784,7 +780,7 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
     OperationMeta {
         opcode: OpCode::I32Decrement,
         mnemonic: mnemonics::I32_DECREMENT,
-        category: OperationCategory::Arithmetic,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[ImplicitArgumentMeta {
             offset: -1,
@@ -793,9 +789,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         }]),
     },
     OperationMeta {
-        opcode: OpCode::F32Add,
-        mnemonic: mnemonics::F32_ADD,
-        category: OperationCategory::Arithmetic,
+        opcode: OpCode::F32Addition,
+        mnemonic: mnemonics::F32_ADDITION,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -811,9 +807,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::F32Sub,
-        mnemonic: mnemonics::F32_SUB,
-        category: OperationCategory::Arithmetic,
+        opcode: OpCode::F32Subtraction,
+        mnemonic: mnemonics::F32_SUBTRACTION,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -829,9 +825,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::F32Mul,
-        mnemonic: mnemonics::F32_MUL,
-        category: OperationCategory::Arithmetic,
+        opcode: OpCode::F32Multiplication,
+        mnemonic: mnemonics::F32_MULTIPLICATION,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -847,9 +843,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::F32Div,
-        mnemonic: mnemonics::F32_DIV,
-        category: OperationCategory::Arithmetic,
+        opcode: OpCode::F32Division,
+        mnemonic: mnemonics::F32_DIVISION,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -865,9 +861,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::F32Mod,
-        mnemonic: mnemonics::F32_MOD,
-        category: OperationCategory::Arithmetic,
+        opcode: OpCode::F32Modulo,
+        mnemonic: mnemonics::F32_MODULO,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -883,9 +879,9 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
         ]),
     },
     OperationMeta {
-        opcode: OpCode::F32MulAdd,
-        mnemonic: mnemonics::F32_MUL_ADD,
-        category: OperationCategory::Arithmetic,
+        opcode: OpCode::F32FusedMultiplyAddition,
+        mnemonic: mnemonics::F32_FUSED_MULTIPLY_ADDITION,
+        category: OperationCategory::Arithmetics,
         explicit_arguments: &[],
         implicit_arguments: ImplicitArguments::Fixed(&[
             ImplicitArgumentMeta {
@@ -902,6 +898,1368 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
                 offset: -1,
                 alias: "scalar_operand_c",
                 gets_popped: true,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4Addition,
+        mnemonic: mnemonics::I32_VECTOR4_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4Subtraction,
+        mnemonic: mnemonics::I32_VECTOR4_SUBTRACTION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4Multiplication,
+        mnemonic: mnemonics::I32_VECTOR4_MULTIPLICATION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4Division,
+        mnemonic: mnemonics::I32_VECTOR4_DIVISION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4Modulo,
+        mnemonic: mnemonics::I32_VECTOR4_MODULO,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4BitwiseAnd,
+        mnemonic: mnemonics::I32_VECTOR4_BITWISE_AND,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4BitwiseOr,
+        mnemonic: mnemonics::I32_VECTOR4_BITWISE_OR,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4BitwiseXor,
+        mnemonic: mnemonics::I32_VECTOR4_BITWISE_XOR,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4BitwiseArithmeticLeftShift,
+        mnemonic: mnemonics::I32_VECTOR4_BITWISE_ARITHMETIC_LEFT_SHIFT,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4BitwiseArithmeticRightShift,
+        mnemonic: mnemonics::I32_VECTOR4_BITWISE_ARITHMETIC_RIGHT_SHIFT,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4BitwiseCircularLeftShift,
+        mnemonic: mnemonics::I32_VECTOR4_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4BitwiseCircularRightShift,
+        mnemonic: mnemonics::I32_VECTOR4_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector4BitwiseComplement,
+        mnemonic: mnemonics::I32_VECTOR4_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[UnifornSequenceMeta {
+            meta: ImplicitArgumentMeta {
+                offset: 0,
+                alias: "vector_operand_a",
+                gets_popped: true,
+            },
+            amount: 4,
+        }]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector4Addition,
+        mnemonic: mnemonics::F32_VECTOR4_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector4Subtraction,
+        mnemonic: mnemonics::F32_VECTOR4_SUBTRACTION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector4Multiplication,
+        mnemonic: mnemonics::F32_VECTOR4_MULTIPLICATION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector4Division,
+        mnemonic: mnemonics::F32_VECTOR4_DIVISION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector4Modulo,
+        mnemonic: mnemonics::F32_VECTOR4_MODULO,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector4FusedMultiplyAddition,
+        mnemonic: mnemonics::F32_VECTOR4_FUSED_MULTIPLY_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: true,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -4,
+                    alias: "vector_operand_b",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_c",
+                    gets_popped: false,
+                },
+                amount: 4,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8Addition,
+        mnemonic: mnemonics::I32_VECTOR8_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8Subtraction,
+        mnemonic: mnemonics::I32_VECTOR8_SUBTRACTION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8Multiplication,
+        mnemonic: mnemonics::I32_VECTOR8_MULTIPLICATION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8Division,
+        mnemonic: mnemonics::I32_VECTOR8_DIVISION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8Modulo,
+        mnemonic: mnemonics::I32_VECTOR8_MODULO,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8BitwiseAnd,
+        mnemonic: mnemonics::I32_VECTOR8_BITWISE_AND,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8BitwiseOr,
+        mnemonic: mnemonics::I32_VECTOR8_BITWISE_OR,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8BitwiseXor,
+        mnemonic: mnemonics::I32_VECTOR8_BITWISE_XOR,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8BitwiseArithmeticLeftShift,
+        mnemonic: mnemonics::I32_VECTOR8_BITWISE_ARITHMETIC_LEFT_SHIFT,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8BitwiseArithmeticRightShift,
+        mnemonic: mnemonics::I32_VECTOR8_BITWISE_ARITHMETIC_RIGHT_SHIFT,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8BitwiseCircularLeftShift,
+        mnemonic: mnemonics::I32_VECTOR8_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8BitwiseCircularRightShift,
+        mnemonic: mnemonics::I32_VECTOR8_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector8BitwiseComplement,
+        mnemonic: mnemonics::I32_VECTOR8_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[UnifornSequenceMeta {
+            meta: ImplicitArgumentMeta {
+                offset: 0,
+                alias: "vector_operand_a",
+                gets_popped: true,
+            },
+            amount: 8,
+        }]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector8Addition,
+        mnemonic: mnemonics::F32_VECTOR8_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector8Subtraction,
+        mnemonic: mnemonics::F32_VECTOR8_SUBTRACTION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector8Multiplication,
+        mnemonic: mnemonics::F32_VECTOR8_MULTIPLICATION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector8Division,
+        mnemonic: mnemonics::F32_VECTOR8_DIVISION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector8Modulo,
+        mnemonic: mnemonics::F32_VECTOR8_MODULO,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector8FusedMultiplyAddition,
+        mnemonic: mnemonics::F32_VECTOR8_FUSED_MULTIPLY_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_a",
+                    gets_popped: true,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -8,
+                    alias: "vector_operand_b",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_c",
+                    gets_popped: false,
+                },
+                amount: 8,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16Addition,
+        mnemonic: mnemonics::I32_VECTOR16_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16Subtraction,
+        mnemonic: mnemonics::I32_VECTOR16_SUBTRACTION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16Multiplication,
+        mnemonic: mnemonics::I32_VECTOR16_MULTIPLICATION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16Division,
+        mnemonic: mnemonics::I32_VECTOR16_DIVISION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16Modulo,
+        mnemonic: mnemonics::I32_VECTOR16_MODULO,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16BitwiseAnd,
+        mnemonic: mnemonics::I32_VECTOR16_BITWISE_AND,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16BitwiseOr,
+        mnemonic: mnemonics::I32_VECTOR16_BITWISE_OR,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16BitwiseXor,
+        mnemonic: mnemonics::I32_VECTOR16_BITWISE_XOR,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16BitwiseArithmeticLeftShift,
+        mnemonic: mnemonics::I32_VECTOR16_BITWISE_ARITHMETIC_LEFT_SHIFT,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16BitwiseArithmeticRightShift,
+        mnemonic: mnemonics::I32_VECTOR16_BITWISE_ARITHMETIC_RIGHT_SHIFT,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16BitwiseCircularLeftShift,
+        mnemonic: mnemonics::I32_VECTOR16_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16BitwiseCircularRightShift,
+        mnemonic: mnemonics::I32_VECTOR16_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::I32Vector16BitwiseComplement,
+        mnemonic: mnemonics::I32_VECTOR16_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[UnifornSequenceMeta {
+            meta: ImplicitArgumentMeta {
+                offset: 0,
+                alias: "vector_operand_a",
+                gets_popped: true,
+            },
+            amount: 16,
+        }]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector16Addition,
+        mnemonic: mnemonics::F32_VECTOR16_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector16Subtraction,
+        mnemonic: mnemonics::F32_VECTOR16_SUBTRACTION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector16Multiplication,
+        mnemonic: mnemonics::F32_VECTOR16_MULTIPLICATION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector16Division,
+        mnemonic: mnemonics::F32_VECTOR16_DIVISION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector16Modulo,
+        mnemonic: mnemonics::F32_VECTOR16_MODULO,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_b",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+        ]),
+    },
+    OperationMeta {
+        opcode: OpCode::F32Vector16FusedMultiplyAddition,
+        mnemonic: mnemonics::F32_VECTOR16_FUSED_MULTIPLY_ADDITION,
+        category: OperationCategory::VectorArithmetics,
+        explicit_arguments: &[],
+        implicit_arguments: ImplicitArguments::FixedUniformSequence(&[
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_a",
+                    gets_popped: true,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: -16,
+                    alias: "vector_operand_b",
+                    gets_popped: false,
+                },
+                amount: 16,
+            },
+            UnifornSequenceMeta {
+                meta: ImplicitArgumentMeta {
+                    offset: 0,
+                    alias: "vector_operand_c",
+                    gets_popped: false,
+                },
+                amount: 16,
             },
         ]),
     },
@@ -924,8 +2282,8 @@ mod tests {
             mnemonics::PUSH
         );
         assert_eq!(
-            OPERATION_TABLE[OpCode::F32Add as usize].mnemonic,
-            mnemonics::F32_ADD
+            OPERATION_TABLE[OpCode::F32Addition as usize].mnemonic,
+            mnemonics::F32_ADDITION
         );
     }
 

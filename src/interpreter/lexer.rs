@@ -204,8 +204,12 @@
 
 */
 
-use crate::bytecode::meta::{ArgumentLiteralType, OPERATION_TABLE};
-use crate::bytecode::stream::BytecodeStream;
+use crate::bytecode::{
+    intrinsic::IntrinsicID,
+    meta::{ArgumentLiteralType, OPERATION_TABLE},
+    signal::Signal,
+    stream::BytecodeStream,
+};
 use crate::interpreter::tokens as tok;
 use std::{cmp::Ordering, str::FromStr};
 
@@ -430,6 +434,26 @@ fn eval_param(
             }
         };
 
+    let mut eval_ipc =
+        |line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>| -> bool {
+            if let Ok(x) = i32::from_str_radix(line, 16) {
+                if x >= 0 && x < IntrinsicID::COUNT as i32 {
+                    stream.with_intrin_id(IntrinsicID::from(Signal::from(x)));
+                    true
+                } else {
+                    errors.push(format!(
+                        "Invalid ipc! Must be in range from {} to {}",
+                        x,
+                        IntrinsicID::COUNT
+                    ));
+                    false
+                }
+            } else {
+                errors.push(format!("Invalid hexadecimal literal for ipc: {:?}!", line));
+                false
+            }
+        };
+
     let last = last_char_rem(line);
 
     let mut eval = |f: &mut dyn FnMut(&mut String, &mut BytecodeStream, &mut Vec<_>) -> bool,
@@ -467,6 +491,13 @@ fn eval_param(
         }),
         tok::LITERAL_SUFFIX_PIN => eval(&mut eval_pin, &|x| {
             if let ArgumentLiteralType::PinID = x {
+                true
+            } else {
+                false
+            }
+        }),
+        tok::LITERAL_SUFFIX_IPC => eval(&mut eval_ipc, &|x| {
+            if let ArgumentLiteralType::IpcID = x {
                 true
             } else {
                 false

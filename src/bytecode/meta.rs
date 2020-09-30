@@ -206,7 +206,7 @@
 
 pub use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode};
 pub(crate) use crate::bytecode::{
-    intrinsic_meta::INTRINSIC_PROCEDURE_TABLE, operation_meta::OPERATION_TABLE,
+    intrinsic_meta::CALL_INTRINSICEDURE_TABLE, operation_meta::OPERATION_TABLE,
 };
 use std::fmt;
 
@@ -230,6 +230,7 @@ pub enum ArgumentLiteralType {
     ValI32(ArgumentLiteralValue<i32>),
     ValF32(ArgumentLiteralValue<f32>),
     PinID,
+    IpcID,
 }
 
 impl fmt::Display for ArgumentLiteralType {
@@ -241,6 +242,7 @@ impl fmt::Display for ArgumentLiteralType {
                 Self::ValI32(_) => "i32",
                 Self::ValF32(_) => "f32",
                 Self::PinID => "pin",
+                Self::IpcID => "ipc",
             }
         )
     }
@@ -261,12 +263,20 @@ pub struct ImplicitArgumentMeta<'a> {
     pub gets_popped: bool,
 }
 
+/// Uniform argument meta.
+#[derive(PartialEq, Copy, Clone, Debug)]
+pub struct UnifornSequenceMeta<'a> {
+    pub meta: ImplicitArgumentMeta<'a>,
+    pub amount: usize,
+}
+
 /// Contains metadata variations for implicit arguments.
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub enum ImplicitArguments<'a> {
     None,
     Variadic,
     Fixed(&'a [ImplicitArgumentMeta<'a>]),
+    FixedUniformSequence(&'a [UnifornSequenceMeta<'a>]),
 }
 
 /// Rough categories for operations.
@@ -275,8 +285,8 @@ pub enum OperationCategory {
     Control,
     Memory,
     Branching,
-    Arithmetic,
-    Bitwise,
+    Arithmetics,
+    VectorArithmetics,
 }
 
 /// Metadata descriptor for a bytecode operation.
@@ -303,5 +313,5 @@ pub fn opcode_meta(op: OpCode) -> &'static OperationMeta<'static> {
 /// Returns the metadata for the intrinsic procedure ids.
 #[inline]
 pub fn intrin_proc_id_meta(iproc: IntrinsicID) -> &'static ImplicitArguments<'static> {
-    &INTRINSIC_PROCEDURE_TABLE[iproc as usize]
+    &CALL_INTRINSICEDURE_TABLE[iproc as usize]
 }

@@ -210,6 +210,7 @@ pub const LINE_SIGIL_PIN: char = '&';
 pub const LITERAL_SUFFIX_I32: char = 'i';
 pub const LITERAL_SUFFIX_F32: char = 'f';
 pub const LITERAL_SUFFIX_PIN: char = '*';
+pub const LITERAL_SUFFIX_IPC: char = '~';
 
 pub const LITERAL_PREFIX_HEX: &str = "0x";
 pub const LITERAL_PREFIX_BIN: &str = "0b";

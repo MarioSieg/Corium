@@ -474,7 +474,7 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
                 continue 'vm;
             }
 
-            OpCode::DuplicateX2 => {
+            OpCode::DuplicateTwice => {
                 stack.push(stack.peek());
                 stack.push(stack.peek());
                 continue 'vm;
@@ -536,67 +536,67 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
                 continue 'vm;
             }
 
-            OpCode::I32Add => {
+            OpCode::I32Addition => {
                 impl_duplet_op_static!(stack, i32, wrapping_add);
                 continue 'vm;
             }
 
-            OpCode::I32Sub => {
+            OpCode::I32Subtraction => {
                 impl_duplet_op_static!(stack, i32, wrapping_sub);
                 continue 'vm;
             }
 
-            OpCode::I32Mul => {
+            OpCode::I32Multiplication => {
                 impl_duplet_op_static!(stack, i32, wrapping_mul);
                 continue 'vm;
             }
 
-            OpCode::I32Div => {
+            OpCode::I32Division => {
                 impl_duplet_op_static!(stack, i32, wrapping_div);
                 continue 'vm;
             }
 
-            OpCode::I32Mod => {
+            OpCode::I32Modulo => {
                 impl_duplet_op!(stack, i32, %);
                 continue 'vm;
             }
 
-            OpCode::I32And => {
+            OpCode::I32BitwiseAnd => {
                 impl_duplet_op!(stack, i32, &);
                 continue 'vm;
             }
 
-            OpCode::I32Or => {
+            OpCode::I32BitwiseOr => {
                 impl_duplet_op!(stack, i32, |);
                 continue 'vm;
             }
 
-            OpCode::I32Xor => {
+            OpCode::I32BitwiseXor => {
                 impl_duplet_op!(stack, i32, ^);
                 continue 'vm;
             }
 
-            OpCode::I32Sal => {
+            OpCode::I32BitwiseArithmeticLeftShift => {
                 impl_duplet_op_static!(stack, i32, wrapping_shl);
                 continue 'vm;
             }
 
-            OpCode::I32Sar => {
+            OpCode::I32BitwiseArithmeticRightShift => {
                 impl_duplet_op_static!(stack, i32, wrapping_shr);
                 continue 'vm;
             }
 
-            OpCode::I32Rol => {
+            OpCode::I32BitwiseCircularLeftShift => {
                 impl_duplet_op_static!(stack, i32, rotate_left);
                 continue 'vm;
             }
 
-            OpCode::I32Ror => {
+            OpCode::I32BitwiseCircularRightShift => {
                 impl_duplet_op_static!(stack, i32, rotate_right);
                 continue 'vm;
             }
 
-            OpCode::I32Com => {
+            OpCode::I32BitwiseComplement => {
                 stack.peek_set(Record::from(!i32::from(stack.peek())));
                 continue 'vm;
             }
@@ -611,32 +611,32 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
                 continue 'vm;
             }
 
-            OpCode::F32Add => {
+            OpCode::F32Addition => {
                 impl_duplet_op!(stack, f32, +);
                 continue 'vm;
             }
 
-            OpCode::F32Sub => {
+            OpCode::F32Subtraction => {
                 impl_duplet_op!(stack, f32, -);
                 continue 'vm;
             }
 
-            OpCode::F32Mul => {
+            OpCode::F32Multiplication => {
                 impl_duplet_op!(stack, f32, *);
                 continue 'vm;
             }
 
-            OpCode::F32Div => {
+            OpCode::F32Division => {
                 impl_duplet_op!(stack, f32, /);
                 continue 'vm;
             }
 
-            OpCode::F32Mod => {
+            OpCode::F32Modulo => {
                 impl_duplet_op!(stack, f32, %);
                 continue 'vm;
             }
 
-            OpCode::F32MulAdd => {
+            OpCode::F32FusedMultiplyAddition => {
                 stack.poke_set(
                     2,
                     Record::from(
@@ -646,6 +646,120 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
                 stack.pop_multi(2);
                 continue;
             }
+
+            OpCode::I32Vector4Addition => {}
+
+            OpCode::I32Vector4Subtraction => {}
+
+            OpCode::I32Vector4Multiplication => {}
+
+            OpCode::I32Vector4Division => {}
+
+            OpCode::I32Vector4Modulo => {}
+
+            OpCode::I32Vector4BitwiseAnd => {}
+
+            OpCode::I32Vector4BitwiseOr => {}
+
+            OpCode::I32Vector4BitwiseXor => {}
+
+            OpCode::I32Vector4BitwiseArithmeticLeftShift => {}
+
+            OpCode::I32Vector4BitwiseArithmeticRightShift => {}
+
+            OpCode::I32Vector4BitwiseCircularLeftShift => {}
+
+            OpCode::I32Vector4BitwiseCircularRightShift => {}
+
+            OpCode::I32Vector4BitwiseComplement => {}
+
+            OpCode::F32Vector4Addition => {}
+
+            OpCode::F32Vector4Subtraction => {}
+
+            OpCode::F32Vector4Multiplication => {}
+
+            OpCode::F32Vector4Division => {}
+
+            OpCode::F32Vector4Modulo => {}
+
+            OpCode::F32Vector4FusedMultiplyAddition => {}
+
+            OpCode::I32Vector8Addition => {}
+
+            OpCode::I32Vector8Subtraction => {}
+
+            OpCode::I32Vector8Multiplication => {}
+
+            OpCode::I32Vector8Division => {}
+
+            OpCode::I32Vector8Modulo => {}
+
+            OpCode::I32Vector8BitwiseAnd => {}
+
+            OpCode::I32Vector8BitwiseOr => {}
+
+            OpCode::I32Vector8BitwiseXor => {}
+
+            OpCode::I32Vector8BitwiseArithmeticLeftShift => {}
+
+            OpCode::I32Vector8BitwiseArithmeticRightShift => {}
+
+            OpCode::I32Vector8BitwiseCircularLeftShift => {}
+
+            OpCode::I32Vector8BitwiseCircularRightShift => {}
+
+            OpCode::I32Vector8BitwiseComplement => {}
+
+            OpCode::F32Vector8Addition => {}
+
+            OpCode::F32Vector8Subtraction => {}
+
+            OpCode::F32Vector8Multiplication => {}
+
+            OpCode::F32Vector8Division => {}
+
+            OpCode::F32Vector8Modulo => {}
+
+            OpCode::F32Vector8FusedMultiplyAddition => {}
+
+            OpCode::I32Vector16Addition => {}
+
+            OpCode::I32Vector16Subtraction => {}
+
+            OpCode::I32Vector16Multiplication => {}
+
+            OpCode::I32Vector16Division => {}
+
+            OpCode::I32Vector16Modulo => {}
+
+            OpCode::I32Vector16BitwiseAnd => {}
+
+            OpCode::I32Vector16BitwiseOr => {}
+
+            OpCode::I32Vector16BitwiseXor => {}
+
+            OpCode::I32Vector16BitwiseArithmeticLeftShift => {}
+
+            OpCode::I32Vector16BitwiseArithmeticRightShift => {}
+
+            OpCode::I32Vector16BitwiseCircularLeftShift => {}
+
+            OpCode::I32Vector16BitwiseCircularRightShift => {}
+
+            OpCode::I32Vector16BitwiseComplement => {}
+
+            OpCode::F32Vector16Addition => {}
+
+            OpCode::F32Vector16Subtraction => {}
+
+            OpCode::F32Vector16Multiplication => {}
+
+            OpCode::F32Vector16Division => {}
+
+            OpCode::F32Vector16Modulo => {}
+
+            OpCode::F32Vector16FusedMultiplyAddition => {}
         }
     }
 
@@ -672,7 +786,7 @@ mod tests {
         let mut stream = BytecodeStream::new();
         stream.push_opcode(OpCode::Push).with_i32(3);
         stream.push_opcode(OpCode::Duplicate);
-        stream.push_opcode(OpCode::DuplicateX2);
+        stream.push_opcode(OpCode::DuplicateTwice);
         stream.push_opcode(OpCode::Interrupt).with_i32(0);
         let input = ExecutorInput {
             stack: Stack::with_length(4),
@@ -783,27 +897,27 @@ mod tests {
 
     #[test]
     fn arithmetic_f32_add() {
-        test_f32op_template(OpCode::F32Add, 3.5, 2.5, 6.0);
+        test_f32op_template(OpCode::F32Addition, 3.5, 2.5, 6.0);
     }
 
     #[test]
     fn arithmetic_f32_sub() {
-        test_f32op_template(OpCode::F32Sub, 3.5, 2.5, 1.0);
+        test_f32op_template(OpCode::F32Subtraction, 3.5, 2.5, 1.0);
     }
 
     #[test]
     fn arithmetic_f32_mul() {
-        test_f32op_template(OpCode::F32Mul, 3.5, 2.5, 8.75);
+        test_f32op_template(OpCode::F32Multiplication, 3.5, 2.5, 8.75);
     }
 
     #[test]
     fn arithmetic_f32_div() {
-        test_f32op_template(OpCode::F32Div, 3.5, 2.5, 1.4);
+        test_f32op_template(OpCode::F32Division, 3.5, 2.5, 1.4);
     }
 
     #[test]
     fn arithmetic_f32_mod() {
-        test_f32op_template(OpCode::F32Mod, 3.5, 2.5, 1.0);
+        test_f32op_template(OpCode::F32Modulo, 3.5, 2.5, 1.0);
     }
 
     #[test]
@@ -812,7 +926,7 @@ mod tests {
         stream.push_opcode(OpCode::Push).with_f32(2.0);
         stream.push_opcode(OpCode::Push).with_f32(3.0);
         stream.push_opcode(OpCode::Push).with_f32(4.0);
-        stream.push_opcode(OpCode::F32MulAdd);
+        stream.push_opcode(OpCode::F32FusedMultiplyAddition);
         stream.push_opcode(OpCode::Interrupt).with_i32(0);
         let input = ExecutorInput {
             stack: Stack::with_length(4),
@@ -825,67 +939,67 @@ mod tests {
 
     #[test]
     fn arithmetic_i32_add() {
-        test_i32op_template(OpCode::I32Add, 8, 4, 12);
+        test_i32op_template(OpCode::I32Addition, 8, 4, 12);
     }
 
     #[test]
     fn arithmetic_i32_sub() {
-        test_i32op_template(OpCode::I32Sub, 8, 4, 4);
+        test_i32op_template(OpCode::I32Subtraction, 8, 4, 4);
     }
 
     #[test]
     fn arithmetic_i32_mul() {
-        test_i32op_template(OpCode::I32Mul, 8, 4, 32);
+        test_i32op_template(OpCode::I32Multiplication, 8, 4, 32);
     }
 
     #[test]
     fn arithmetic_i32_div() {
-        test_i32op_template(OpCode::I32Div, 8, 4, 2);
+        test_i32op_template(OpCode::I32Division, 8, 4, 2);
     }
 
     #[test]
     fn arithmetic_i32_mod() {
-        test_i32op_template(OpCode::I32Mod, 8, 5, 3);
+        test_i32op_template(OpCode::I32Modulo, 8, 5, 3);
     }
 
     #[test]
     fn arithmetic_i32_and() {
-        test_i32op_template(OpCode::I32And, 2, 3, 2);
+        test_i32op_template(OpCode::I32BitwiseAnd, 2, 3, 2);
     }
 
     #[test]
     fn arithmetic_i32_or() {
-        test_i32op_template(OpCode::I32Or, 2, 8, 10);
+        test_i32op_template(OpCode::I32BitwiseOr, 2, 8, 10);
     }
 
     #[test]
     fn arithmetic_i32_xor() {
-        test_i32op_template(OpCode::I32Xor, 9, 9, 0);
+        test_i32op_template(OpCode::I32BitwiseXor, 9, 9, 0);
     }
 
     #[test]
     fn arithmetic_i32_sal() {
-        test_i32op_template(OpCode::I32Sal, 1, 8, 256);
+        test_i32op_template(OpCode::I32BitwiseArithmeticLeftShift, 1, 8, 256);
     }
 
     #[test]
     fn arithmetic_i32_sar() {
-        test_i32op_template(OpCode::I32Sar, 8, 1, 4);
+        test_i32op_template(OpCode::I32BitwiseArithmeticRightShift, 8, 1, 4);
     }
 
     #[test]
     fn arithmetic_i32_rol() {
-        test_i32op_template(OpCode::I32Rol, 4, 64, 4);
+        test_i32op_template(OpCode::I32BitwiseCircularLeftShift, 4, 64, 4);
     }
 
     #[test]
     fn arithmetic_i32_ror() {
-        test_i32op_template(OpCode::I32Ror, 64, 4, 4);
+        test_i32op_template(OpCode::I32BitwiseCircularRightShift, 64, 4, 4);
     }
 
     #[test]
     fn arithmetic_i32_com() {
-        test_i32op_template(OpCode::I32Com, 8, 8, -9);
+        test_i32op_template(OpCode::I32BitwiseComplement, 8, 8, -9);
     }
 
     #[test]

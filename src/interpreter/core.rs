@@ -294,62 +294,61 @@ mod tests {
 
     #[test]
     fn interpret() {
+        /*
+            +-----------------------------------------------+
+            |                    Bytecode                   |
+            +-----------------------------------------------+
+            | 0x00000000 | 04 00 00 00 | MOV
+            | 0x00000001 | 00 00 00 00 | 0
+            | 0x00000002 | 4C 4F 56 45 | 1163284300
+            | 0x00000003 | 02 00 00 00 | PUSH
+            | 0x00000004 | 00 00 00 00 | 0
+            | 0x00000005 | 01 00 00 00 | INTRIN
+            | 0x00000006 | 00 00 00 00 | gputchar
+            | 0x00000007 | 21 00 00 00 | IINC
+            | 0x00000008 | 07 00 00 00 | DUPL
+            | 0x00000009 | 02 00 00 00 | PUSH
+            | 0x0000000A | 0A 00 00 00 | 10
+            | 0x0000000B | 12 00 00 00 | JL
+            | 0x0000000C | 05 00 00 00 | 5
+            | 0x0000000D | 00 00 00 00 | INTERRUPT
+            | 0x0000000E | 00 00 00 00 | 0
+            +----------------------End----------------------+
+        */
         const CODE: &[&str] = &[
             "%PUSH 0i",
             "&L0",
+            "%INTRIN 0~",
             "%IINC",
             "%DUPL",
-            "%INTRIN 0i",
             "%PUSH 10i",
             "%JL L0*",
         ];
         let output = interpret_lines(CODE.iter().map(|x| x.to_string()).collect());
         assert!(output.is_ok());
         let output = output.unwrap();
-
-        /*
-           +-----------------------------------------------+
-           |                    Bytecode                   |
-           +-----------------------------------------------+
-           | 0x00000000 | 04 00 00 00 | MOV
-           | 0x00000001 | 00 00 00 00 | 0
-           | 0x00000002 | 4C 4F 56 45 | 1163284300
-           | 0x00000003 | 02 00 00 00 | PUSH
-           | 0x00000004 | 00 00 00 00 | 0
-           | 0x00000005 | 21 00 00 00 | IINC
-           | 0x00000006 | 07 00 00 00 | DUPL
-           | 0x00000007 | 01 00 00 00 | INTRIN
-           | 0x00000008 | 00 00 00 00 | 0
-           | 0x00000009 | 02 00 00 00 | PUSH
-           | 0x0000000A | 0A 00 00 00 | 10
-           | 0x0000000B | 12 00 00 00 | JL
-           | 0x0000000C | 05 00 00 00 | 5
-           | 0x0000000D | 00 00 00 00 | INTERRUPT
-           | 0x0000000E | 00 00 00 00 | 0
-           +----------------------End----------------------+
-        */
         assert_eq!(output.length(), 15);
         assert_eq!(output[0], DiscriminatedSignal::OpCode(OpCode::Move));
         assert_eq!(output[1], DiscriminatedSignal::I32(0_i32));
         assert_eq!(output[2], DiscriminatedSignal::I32(1163284300_i32));
         assert_eq!(output[3], DiscriminatedSignal::OpCode(OpCode::Push));
         assert_eq!(output[4], DiscriminatedSignal::I32(0_i32));
-        assert_eq!(output[5], DiscriminatedSignal::OpCode(OpCode::I32Increment));
-        assert_eq!(output[6], DiscriminatedSignal::OpCode(OpCode::Duplicate));
         assert_eq!(
-            output[7],
+            output[5],
             DiscriminatedSignal::OpCode(OpCode::CallIntrinsic)
         );
         assert_eq!(
-            output[8],
+            output[6],
             DiscriminatedSignal::IntrinsicID(IntrinsicID::GPutChar)
         );
+        assert_eq!(output[7], DiscriminatedSignal::OpCode(OpCode::I32Increment));
+        assert_eq!(output[8], DiscriminatedSignal::OpCode(OpCode::Duplicate));
         assert_eq!(output[9], DiscriminatedSignal::OpCode(OpCode::Push));
         assert_eq!(output[10], DiscriminatedSignal::I32(10_i32));
         assert_eq!(output[11], DiscriminatedSignal::OpCode(OpCode::JumpIfLess));
         assert_eq!(output[12], DiscriminatedSignal::Pin(5_u32));
         assert_eq!(output[13], DiscriminatedSignal::OpCode(OpCode::Interrupt));
-        assert_eq!(output[14], DiscriminatedSignal::I32(10_i32));
+        assert_eq!(output[14], DiscriminatedSignal::I32(0_i32));
 
         let chunk = output.build();
         assert!(chunk.is_ok());
