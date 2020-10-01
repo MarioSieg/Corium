@@ -204,153 +204,68 @@
 
 */
 
-use crate::bytecode::stream::BytecodeStream;
-use crate::interpreter::{ansi_color_codes as asi, lexer, reader, utils};
-use std::{path::Path, time::Instant};
+#include"mem.h"
+#include"cfg.h"
+#include"exception.h"
+#include<stdlib.h>
+#include<string.h>
 
-/// Contains all bytecode sections.
-#[repr(usize)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum Section {
-    Database,
-    Execute,
+#ifdef DEBUG_VERBOSE
+#include<stdio.h>
+#endif
+
+void(*g_alloc)(void **const  _out, const unsigned long long _size, const enum mem_t _init) = dalloc;
+void(*g_realloc)(void **const  _out, const unsigned long long _size, const enum mem_t _init) = drealloc;
+void(*g_dealloc)(void **const  _inout) = ddealloc;
+
+void dalloc(void **const  _out, const unsigned long long _size, const enum mem_t _init) {
+
+    if(!_out || !_size) {
+#ifdef DEBUG_VERBOSE
+        printf("Allocation failed! Invalid bind pointer or size!\n");
+#endif
+        THROW(EX_INVALID_ARGUMENT);
+        return;
+    }
+    *_out = _init == MEM_ZERO ? calloc(1, _size) : malloc(_size);
+    THROW(*_out ? EX_OK : EX_UNKNOWN);
 }
 
-/// Interprets a bytecode file and returns a bytecode stream containing the code on success, else a vec with a line and error message.
-pub fn interpret_file(file: &Path) -> Result<BytecodeStream, Vec<(usize, String)>> {
-    let mut lines: Vec<_> = Vec::with_capacity(32);
+void drealloc(void **const _out, const unsigned long long _size, const enum mem_t _init) {
 
-    let eval = |line: &mut String| {
-        lines.push(line.clone());
-    };
-
-    if reader::BufReader::read_all_lines(file, eval).is_ok() {
-        interpret_lines(lines)
-    } else {
-        Err(vec![(0, format!("Failed to open file: {:?}!", file)); 1])
+    if(!_out || !_size) {
+#ifdef DEBUG_VERBOSE
+        printf("Reallocation failed! Invalid bind pointer or size!\n");
+#endif
+        THROW(EX_INVALID_ARGUMENT);
+        return;
     }
+    auto void * const backup = *_out;
+    *_out = realloc(*_out, _size);
+    if(!*_out) {
+        free(backup);
+#ifdef DEBUG_VERBOSE
+        printf("Failed to reallocate memory block!\n");
+#endif
+        THROW(EX_MEMORY_ALLOCATION);
+        return;
+    }
+    if(_init == MEM_ZERO) {
+        memset(*_out, 0, _size);
+    }
+    CLEAR_EXSTATUS();
 }
 
-/// Interprets a vec of strings, where each string is a line of bytecode and returns a bytecode stream containing the code on success, else a vec with a line and error message
-pub fn interpret_lines(in_lines: Vec<String>) -> Result<BytecodeStream, Vec<(usize, String)>> {
-    let clock = Instant::now();
-    let mut lines = {
-        let mut lines = Vec::with_capacity(in_lines.len());
-        for mut i in in_lines {
-            let mut backup = i.clone();
-            utils::clean(&mut i);
-            utils::clean_controls(&mut backup);
-            lines.push((i, backup));
-        }
-        lines
-    };
-    let mut stream = BytecodeStream::with_capacity(128);
-    let mut error_list = Vec::with_capacity(16);
-    let mut _current_section = Section::Execute;
-    let mut lineidx: usize = 0;
+void ddealloc(void **const  _inout) {
 
-    stream.prologue();
-
-    for (line, backup) in &mut lines {
-        lineidx += 1;
-        let mut errors = Vec::new();
-        let mut input = lexer::LexIn {
-            line,
-            backup,
-            stream: &mut stream,
-            errors: &mut errors,
-        };
-        if !lexer::eval_line(&mut input) {
-            for err in errors {
-                error_list.push((lineidx, err));
-            }
-        }
+    if(!_inout) {
+#ifdef DEBUG_VERBOSE
+        printf("Deallocation failed! Invalid bind pointer!\n");
+#endif
+        THROW(EX_INVALID_ARGUMENT);
+        return;
     }
-
-    stream.epilogue();
-
-    let res = if !error_list.is_empty() {
-        println!("{}", asi::RED_BOLD);
-        for err in &error_list {
-            println!("Line {} \"{}\": {}", err.0, lines[err.0 - 1].1, err.1);
-        }
-        println!("{}", asi::RESET);
-        Result::Err(error_list)
-    } else {
-        Result::Ok(stream)
-    };
-
-    println!(
-        "Interpreted {} lines in {}s",
-        lineidx,
-        clock.elapsed().as_secs_f32()
-    );
-
-    res
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::bytecode::{
-        discriminated::DiscriminatedSignal, intrinsic::IntrinsicID, opcode::OpCode,
-    };
-
-    #[test]
-    fn interpret() {
-        /*
-            +-----------------------------------------------+
-            |                    Bytecode                   |
-            +-----------------------------------------------+
-            | 0x00000000 | 04 00 00 00 | MOV
-            | 0x00000001 | 00 00 00 00 | 0
-            | 0x00000002 | 4C 4F 56 45 | 1163284300
-            | 0x00000003 | 02 00 00 00 | PUSH
-            | 0x00000004 | 00 00 00 00 | 0
-            | 0x00000005 | 01 00 00 00 | INTRIN
-            | 0x00000006 | 00 00 00 00 | gputchar
-            | 0x00000007 | 21 00 00 00 | IINC
-            | 0x00000008 | 07 00 00 00 | DUPL
-            | 0x00000009 | 02 00 00 00 | PUSH
-            | 0x0000000A | 0A 00 00 00 | 10
-            | 0x0000000B | 12 00 00 00 | JL
-            | 0x0000000C | 05 00 00 00 | 5
-            | 0x0000000D | 00 00 00 00 | INTERRUPT
-            | 0x0000000E | 00 00 00 00 | 0
-            +----------------------End----------------------+
-        */
-        let output = ronasm! [
-             "%PUSH 0i",
-            "&L0",
-            "%INTRIN 0~",
-            "%IINC",
-            "%DUPL",
-            "%PUSH 10i",
-            "%JL L0*",
-        ];
-        assert_eq!(output.length(), 15);
-        assert_eq!(output[0], DiscriminatedSignal::OpCode(OpCode::Move));
-        assert_eq!(output[1], DiscriminatedSignal::I32(0_i32));
-        assert_eq!(output[2], DiscriminatedSignal::I32(1163284300_i32));
-        assert_eq!(output[3], DiscriminatedSignal::OpCode(OpCode::Push));
-        assert_eq!(output[4], DiscriminatedSignal::I32(0_i32));
-        assert_eq!(
-            output[5],
-            DiscriminatedSignal::OpCode(OpCode::CallIntrinsic)
-        );
-        assert_eq!(
-            output[6],
-            DiscriminatedSignal::IntrinsicID(IntrinsicID::GPutChar)
-        );
-        assert_eq!(output[7], DiscriminatedSignal::OpCode(OpCode::I32Increment));
-        assert_eq!(output[8], DiscriminatedSignal::OpCode(OpCode::Duplicate));
-        assert_eq!(output[9], DiscriminatedSignal::OpCode(OpCode::Push));
-        assert_eq!(output[10], DiscriminatedSignal::I32(10_i32));
-        assert_eq!(output[11], DiscriminatedSignal::OpCode(OpCode::JumpIfLess));
-        assert_eq!(output[12], DiscriminatedSignal::Pin(5_u32));
-        assert_eq!(output[13], DiscriminatedSignal::OpCode(OpCode::Interrupt));
-        assert_eq!(output[14], DiscriminatedSignal::I32(0_i32));
-
-        let chunk = output.build();
-        assert!(chunk.is_ok());
-    }
+    free(*_inout);
+    *_inout = NULLPTR;
+    CLEAR_EXSTATUS();
 }

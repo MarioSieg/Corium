@@ -204,153 +204,134 @@
 
 */
 
-use crate::bytecode::stream::BytecodeStream;
-use crate::interpreter::{ansi_color_codes as asi, lexer, reader, utils};
-use std::{path::Path, time::Instant};
+#ifndef $INSTRUCTION_H
+#define $INSTRUCTION_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/// Contains all bytecode sections.
-#[repr(usize)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum Section {
-    Database,
-    Execute,
+#include"common.h"
+
+/* Operations/Instructions */
+enum op_t {
+
+    OP_INT       = 0x00,
+    OP_STO       = 0x01,
+    OP_DUPL      = 0x02,
+    OP_DUPLDUP   = 0x03,
+    OP_MOV       = 0x04,
+    OP_PUSH      = 0x05,
+    OP_POP       = 0x06,
+    OP_CALL      = 0x07,
+    OP_RET       = 0x08,
+    OP_INTRIN    = 0x09,
+    OP_NOP       = 0x0a,
+    OP_JMP       = 0x0b,
+    OP_JE        = 0x0c,
+    OP_JNE       = 0x0d,
+    OP_JA        = 0x0e,
+    OP_JL        = 0x0f,
+    OP_JAE       = 0x10,
+    OP_JLE       = 0x11,
+    OP_IADD      = 0x12,
+    OP_ISUB      = 0x13,
+    OP_IDIV      = 0x14,
+    OP_IMUL      = 0x15,
+    OP_IMOD      = 0x16,
+    OP_IAND      = 0x17,
+    OP_IOR       = 0x18,
+    OP_IXOR      = 0x19,
+    OP_ICOM      = 0x1a,
+    OP_ISAL      = 0x1b,
+    OP_ISAR      = 0x1c,
+    OP_FADD      = 0x1d,
+    OP_FSUB      = 0x1e,
+    OP_FMUL      = 0x1f,
+    OP_FDIV      = 0x20,
+    OP_FMOD      = 0x21,
+    OP_IINC      = 0x22,
+    OP_IDEC      = 0x23,
+    OP_FNEG      = 0x24,
+    OP_INEG      = 0x25,
+    OP_SWAP      = 0x26,
+
+    OP_NUM
+};
+
+/* Section */
+enum sec_t {
+
+    SEC_EXEC,    /* Executeable code     */
+    SEC_EXTRN,   /* Extern linkage       */
+    SEC_DATA,    /* Global database      */
+    SEC_SYS,     /* System descriptor    */
+
+    SEC_NUM
+};
+
+/* Operation evaluation type */
+enum ope_t {
+
+    OPE_RUNTIME,        /* Runtime instruction      */
+    OPE_MACRO,          /* Preprocessor instruction */
+    OPE_COMPILETIME     /* Compiletime instruction  */
+};
+
+/* Operation parameter type */
+enum opt_t {
+
+    OPT_NONE     = 0,        /* Instruction does not have any parameters */
+    OPT_EXPLICIT = 1 << 0,   /* Instruction must be called with param */
+    OPT_IMPLICIT = 1 << 1    /* Instruction params are on the stack */
+};
+
+/* Operation parameter primitive type */
+enum oppt_t {
+
+    OPPT_NONE,      /* Specify if instruction has no parameters */
+    OPPT_IPARAM,    /* Expecting integer */
+    OPPT_FPARAM,    /* Expecting float */
+    OPPT_HPARAM,    /* Expecting hybrid integer or float */
+    OPPT_PPID,      /* Expecting pin/proc ID */
+    OPPT_INTID,     /* Expecting intrinsic proc ID */
+
+    OPPT_NUM
+};
+
+/* Preprocessor instruction */
+enum pp_instr_t {
+
+    PPI_DEFINE,
+    PPI_PRAGMA,
+
+    PPI_NUM
+};
+
+#define VARIADIC -1
+
+struct op_meta_t {
+
+    const char *mnemonic;                       /* Mnemonic */
+    enum ope_t type                     : 2;    /* Evaluation type */
+    enum sec_t section                  : 3;    /* Section flags */
+    enum oppt_t para_prim               : 3;    /* Parameter primitive type */
+    enum opt_t para_type                : 2;    /* Parameter type */
+    signed char para_impl_num           : 4;    /* Number of implicit params - max: 3 */
+    signed char para_impl_input_num     : 4;    /* Number of implit params, which are getting popped by the instruction - max: 3 */
+    signed char para_impl_output_num    : 4;    /* Number of implitit params, which are getting pushed by the instruction - max: 3 */
+    signed char para_expl_num           : 4;    /* Number of explicit params - max: 3 */
+};
+
+/* Operation metadata */
+extern const struct op_meta_t g_op_meta[OP_NUM];
+
+/* Section mnemonics */
+extern const char *const g_sec_mnics[SEC_NUM];
+
+/* Preprocessor mnemonics */
+extern const char *const g_pp_mnics[PPI_NUM];
+
+#ifdef __cplusplus
 }
-
-/// Interprets a bytecode file and returns a bytecode stream containing the code on success, else a vec with a line and error message.
-pub fn interpret_file(file: &Path) -> Result<BytecodeStream, Vec<(usize, String)>> {
-    let mut lines: Vec<_> = Vec::with_capacity(32);
-
-    let eval = |line: &mut String| {
-        lines.push(line.clone());
-    };
-
-    if reader::BufReader::read_all_lines(file, eval).is_ok() {
-        interpret_lines(lines)
-    } else {
-        Err(vec![(0, format!("Failed to open file: {:?}!", file)); 1])
-    }
-}
-
-/// Interprets a vec of strings, where each string is a line of bytecode and returns a bytecode stream containing the code on success, else a vec with a line and error message
-pub fn interpret_lines(in_lines: Vec<String>) -> Result<BytecodeStream, Vec<(usize, String)>> {
-    let clock = Instant::now();
-    let mut lines = {
-        let mut lines = Vec::with_capacity(in_lines.len());
-        for mut i in in_lines {
-            let mut backup = i.clone();
-            utils::clean(&mut i);
-            utils::clean_controls(&mut backup);
-            lines.push((i, backup));
-        }
-        lines
-    };
-    let mut stream = BytecodeStream::with_capacity(128);
-    let mut error_list = Vec::with_capacity(16);
-    let mut _current_section = Section::Execute;
-    let mut lineidx: usize = 0;
-
-    stream.prologue();
-
-    for (line, backup) in &mut lines {
-        lineidx += 1;
-        let mut errors = Vec::new();
-        let mut input = lexer::LexIn {
-            line,
-            backup,
-            stream: &mut stream,
-            errors: &mut errors,
-        };
-        if !lexer::eval_line(&mut input) {
-            for err in errors {
-                error_list.push((lineidx, err));
-            }
-        }
-    }
-
-    stream.epilogue();
-
-    let res = if !error_list.is_empty() {
-        println!("{}", asi::RED_BOLD);
-        for err in &error_list {
-            println!("Line {} \"{}\": {}", err.0, lines[err.0 - 1].1, err.1);
-        }
-        println!("{}", asi::RESET);
-        Result::Err(error_list)
-    } else {
-        Result::Ok(stream)
-    };
-
-    println!(
-        "Interpreted {} lines in {}s",
-        lineidx,
-        clock.elapsed().as_secs_f32()
-    );
-
-    res
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::bytecode::{
-        discriminated::DiscriminatedSignal, intrinsic::IntrinsicID, opcode::OpCode,
-    };
-
-    #[test]
-    fn interpret() {
-        /*
-            +-----------------------------------------------+
-            |                    Bytecode                   |
-            +-----------------------------------------------+
-            | 0x00000000 | 04 00 00 00 | MOV
-            | 0x00000001 | 00 00 00 00 | 0
-            | 0x00000002 | 4C 4F 56 45 | 1163284300
-            | 0x00000003 | 02 00 00 00 | PUSH
-            | 0x00000004 | 00 00 00 00 | 0
-            | 0x00000005 | 01 00 00 00 | INTRIN
-            | 0x00000006 | 00 00 00 00 | gputchar
-            | 0x00000007 | 21 00 00 00 | IINC
-            | 0x00000008 | 07 00 00 00 | DUPL
-            | 0x00000009 | 02 00 00 00 | PUSH
-            | 0x0000000A | 0A 00 00 00 | 10
-            | 0x0000000B | 12 00 00 00 | JL
-            | 0x0000000C | 05 00 00 00 | 5
-            | 0x0000000D | 00 00 00 00 | INTERRUPT
-            | 0x0000000E | 00 00 00 00 | 0
-            +----------------------End----------------------+
-        */
-        let output = ronasm! [
-             "%PUSH 0i",
-            "&L0",
-            "%INTRIN 0~",
-            "%IINC",
-            "%DUPL",
-            "%PUSH 10i",
-            "%JL L0*",
-        ];
-        assert_eq!(output.length(), 15);
-        assert_eq!(output[0], DiscriminatedSignal::OpCode(OpCode::Move));
-        assert_eq!(output[1], DiscriminatedSignal::I32(0_i32));
-        assert_eq!(output[2], DiscriminatedSignal::I32(1163284300_i32));
-        assert_eq!(output[3], DiscriminatedSignal::OpCode(OpCode::Push));
-        assert_eq!(output[4], DiscriminatedSignal::I32(0_i32));
-        assert_eq!(
-            output[5],
-            DiscriminatedSignal::OpCode(OpCode::CallIntrinsic)
-        );
-        assert_eq!(
-            output[6],
-            DiscriminatedSignal::IntrinsicID(IntrinsicID::GPutChar)
-        );
-        assert_eq!(output[7], DiscriminatedSignal::OpCode(OpCode::I32Increment));
-        assert_eq!(output[8], DiscriminatedSignal::OpCode(OpCode::Duplicate));
-        assert_eq!(output[9], DiscriminatedSignal::OpCode(OpCode::Push));
-        assert_eq!(output[10], DiscriminatedSignal::I32(10_i32));
-        assert_eq!(output[11], DiscriminatedSignal::OpCode(OpCode::JumpIfLess));
-        assert_eq!(output[12], DiscriminatedSignal::Pin(5_u32));
-        assert_eq!(output[13], DiscriminatedSignal::OpCode(OpCode::Interrupt));
-        assert_eq!(output[14], DiscriminatedSignal::I32(0_i32));
-
-        let chunk = output.build();
-        assert!(chunk.is_ok());
-    }
-}
+#endif
+#endif

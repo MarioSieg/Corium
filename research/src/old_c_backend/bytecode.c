@@ -204,153 +204,148 @@
 
 */
 
-use crate::bytecode::stream::BytecodeStream;
-use crate::interpreter::{ansi_color_codes as asi, lexer, reader, utils};
-use std::{path::Path, time::Instant};
+#include"bytecode.h"
+#include"mem.h"
+#include"syntax.h"
+#include"exception.h"
 
-/// Contains all bytecode sections.
-#[repr(usize)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum Section {
-    Database,
-    Execute,
-}
+#include<stdio.h>
 
-/// Interprets a bytecode file and returns a bytecode stream containing the code on success, else a vec with a line and error message.
-pub fn interpret_file(file: &Path) -> Result<BytecodeStream, Vec<(usize, String)>> {
-    let mut lines: Vec<_> = Vec::with_capacity(32);
+void prog(struct prog_t ** const _out, unsigned long long _num) {
 
-    let eval = |line: &mut String| {
-        lines.push(line.clone());
-    };
+    auto struct prog_t * p;
 
-    if reader::BufReader::read_all_lines(file, eval).is_ok() {
-        interpret_lines(lines)
-    } else {
-        Err(vec![(0, format!("Failed to open file: {:?}!", file)); 1])
+    /* Allocate host */
+    g_alloc((void**)&p, sizeof(struct prog_t), MEM_NONE);
+    if(EXCEPT()) {
+
+        goto fail;
     }
-}
+    if(_num) {
+        /* Allocate stream */
+        g_alloc((void**)&p->dat, sizeof(union signal_t) * _num, MEM_ZERO);
+        if(EXCEPT()) {
 
-/// Interprets a vec of strings, where each string is a line of bytecode and returns a bytecode stream containing the code on success, else a vec with a line and error message
-pub fn interpret_lines(in_lines: Vec<String>) -> Result<BytecodeStream, Vec<(usize, String)>> {
-    let clock = Instant::now();
-    let mut lines = {
-        let mut lines = Vec::with_capacity(in_lines.len());
-        for mut i in in_lines {
-            let mut backup = i.clone();
-            utils::clean(&mut i);
-            utils::clean_controls(&mut backup);
-            lines.push((i, backup));
+            goto fail;
         }
-        lines
-    };
-    let mut stream = BytecodeStream::with_capacity(128);
-    let mut error_list = Vec::with_capacity(16);
-    let mut _current_section = Section::Execute;
-    let mut lineidx: usize = 0;
+        p->cap = _num;
+        p->size = sizeof(union signal_t) * _num;
 
-    stream.prologue();
+    } else {
 
-    for (line, backup) in &mut lines {
-        lineidx += 1;
-        let mut errors = Vec::new();
-        let mut input = lexer::LexIn {
-            line,
-            backup,
-            stream: &mut stream,
-            errors: &mut errors,
-        };
-        if !lexer::eval_line(&mut input) {
-            for err in errors {
-                error_list.push((lineidx, err));
-            }
-        }
+        p->size = p->cap = 0;
+        p->dat = NULLPTR;
     }
 
-    stream.epilogue();
+    p->num = 0;
+    *_out = p;
+    CLEAR_EXSTATUS();
+    return;
 
-    let res = if !error_list.is_empty() {
-        println!("{}", asi::RED_BOLD);
-        for err in &error_list {
-            println!("Line {} \"{}\": {}", err.0, lines[err.0 - 1].1, err.1);
-        }
-        println!("{}", asi::RESET);
-        Result::Err(error_list)
-    } else {
-        Result::Ok(stream)
-    };
-
-    println!(
-        "Interpreted {} lines in {}s",
-        lineidx,
-        clock.elapsed().as_secs_f32()
-    );
-
-    res
+    fail:
+        g_dealloc((void**)&p);
+        g_dealloc((void**)&p->dat);
+        *_out = NULLPTR;
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::bytecode::{
-        discriminated::DiscriminatedSignal, intrinsic::IntrinsicID, opcode::OpCode,
-    };
+static void prog_ext(struct prog_t *const _in) {
 
-    #[test]
-    fn interpret() {
-        /*
-            +-----------------------------------------------+
-            |                    Bytecode                   |
-            +-----------------------------------------------+
-            | 0x00000000 | 04 00 00 00 | MOV
-            | 0x00000001 | 00 00 00 00 | 0
-            | 0x00000002 | 4C 4F 56 45 | 1163284300
-            | 0x00000003 | 02 00 00 00 | PUSH
-            | 0x00000004 | 00 00 00 00 | 0
-            | 0x00000005 | 01 00 00 00 | INTRIN
-            | 0x00000006 | 00 00 00 00 | gputchar
-            | 0x00000007 | 21 00 00 00 | IINC
-            | 0x00000008 | 07 00 00 00 | DUPL
-            | 0x00000009 | 02 00 00 00 | PUSH
-            | 0x0000000A | 0A 00 00 00 | 10
-            | 0x0000000B | 12 00 00 00 | JL
-            | 0x0000000C | 05 00 00 00 | 5
-            | 0x0000000D | 00 00 00 00 | INTERRUPT
-            | 0x0000000E | 00 00 00 00 | 0
-            +----------------------End----------------------+
-        */
-        let output = ronasm! [
-             "%PUSH 0i",
-            "&L0",
-            "%INTRIN 0~",
-            "%IINC",
-            "%DUPL",
-            "%PUSH 10i",
-            "%JL L0*",
-        ];
-        assert_eq!(output.length(), 15);
-        assert_eq!(output[0], DiscriminatedSignal::OpCode(OpCode::Move));
-        assert_eq!(output[1], DiscriminatedSignal::I32(0_i32));
-        assert_eq!(output[2], DiscriminatedSignal::I32(1163284300_i32));
-        assert_eq!(output[3], DiscriminatedSignal::OpCode(OpCode::Push));
-        assert_eq!(output[4], DiscriminatedSignal::I32(0_i32));
-        assert_eq!(
-            output[5],
-            DiscriminatedSignal::OpCode(OpCode::CallIntrinsic)
-        );
-        assert_eq!(
-            output[6],
-            DiscriminatedSignal::IntrinsicID(IntrinsicID::GPutChar)
-        );
-        assert_eq!(output[7], DiscriminatedSignal::OpCode(OpCode::I32Increment));
-        assert_eq!(output[8], DiscriminatedSignal::OpCode(OpCode::Duplicate));
-        assert_eq!(output[9], DiscriminatedSignal::OpCode(OpCode::Push));
-        assert_eq!(output[10], DiscriminatedSignal::I32(10_i32));
-        assert_eq!(output[11], DiscriminatedSignal::OpCode(OpCode::JumpIfLess));
-        assert_eq!(output[12], DiscriminatedSignal::Pin(5_u32));
-        assert_eq!(output[13], DiscriminatedSignal::OpCode(OpCode::Interrupt));
-        assert_eq!(output[14], DiscriminatedSignal::I32(0_i32));
+    if(_in->cap > _in->num + 1) {   /* Enough memory, no reallocation required */
+        CLEAR_EXSTATUS();
+        return;
+    }
+    g_realloc((void**)&_in->dat, _in->size << 1, MEM_NONE);
+    if(EXCEPT()) {
+        return;
+    }
+    _in->cap <<= 1;
+    _in->size <<= 1;
+    CLEAR_EXSTATUS();
+}
 
-        let chunk = output.build();
-        assert!(chunk.is_ok());
+
+void prog_put_sig(struct prog_t *const _in, const union signal_t _v) {
+
+    prog_ext(_in);
+    if(EXCEPT()) {
+        return;
+    }
+    _in->dat[_in->num++] = _v;
+    CLEAR_EXSTATUS();
+}
+
+void prog_put_op(struct prog_t *const _in, const enum op_t _v) {
+
+    prog_ext(_in);
+    if(EXCEPT()) {
+        return;
+    }
+    _in->dat[_in->num++].op = _v;
+    CLEAR_EXSTATUS();
+}
+
+void prog_put_i(struct prog_t *const _in, const int _v) {
+
+    prog_ext(_in);
+    if(EXCEPT()) {
+        return;
+    }
+    _in->dat[_in->num++].i = _v;
+    CLEAR_EXSTATUS();
+}
+
+void prog_put_f(struct prog_t *const _in, const float _v) {
+
+    prog_ext(_in);
+    if(EXCEPT()) {
+        return;
+    }
+    _in->dat[_in->num++].f = _v;
+    CLEAR_EXSTATUS();
+}
+
+void prog_destroy(struct prog_t ** const _in) {
+
+    if((*_in)->dat) {
+
+         g_dealloc((void**)&(*_in)->dat);
+    }
+    g_dealloc((void**)_in);
+}
+
+void prog_resize_perfect(struct prog_t *const _in) {
+
+    /* Do final block allocation to exact size */
+    _in->size = _in->num * sizeof(union signal_t);
+    _in->cap = _in->num;
+
+    auto union signal_t *const dat = _in->dat;
+
+    g_realloc((void**)&_in->dat, _in->size, MEM_NONE);
+    if(EXCEPT()) {
+
+        printf("Final bytecode allocation failed! Size: %llu!\n", _in->size);
+        g_dealloc((void**)&dat);
+        return;
+    }
+
+    CLEAR_EXSTATUS();
+}
+
+void prog_dump(const struct prog_t *const _in) {
+
+    printf("Codedump:\n&: %p, &&: %p, Num: %llu, Cap: %llu, Size: %llu\n",
+           _in,
+           _in->dat,
+           _in->num,
+           _in->cap,
+           _in->size);
+    register union signal_t *a, *b;
+    for(a = _in->dat, b = _in->dat + _in->num - 1; a < b; ++a) {
+        printf("&: %p, i: %016i, f: %016f, op: %x\n",
+               a,
+               a->i,
+               a->f,
+               a->op);
     }
 }

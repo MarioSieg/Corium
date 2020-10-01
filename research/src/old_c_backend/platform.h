@@ -204,153 +204,104 @@
 
 */
 
-use crate::bytecode::stream::BytecodeStream;
-use crate::interpreter::{ansi_color_codes as asi, lexer, reader, utils};
-use std::{path::Path, time::Instant};
+#ifndef $PLATFORM_H
+#define $PLATFORM_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/// Contains all bytecode sections.
-#[repr(usize)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum Section {
-    Database,
-    Execute,
+#include"cfg.h"
+
+/* ---> How to add own platform <---
+ * Add OS_<name> macro and detection below
+ * Add native system implementation (nsi_<name>.c) - look at existing implementation for example in nsi_windows.c nsi_linux.c
+ * Any OS specific stuff is in nsi_*.c!
+ *
+ * ---> How to add own compiler <---
+ * Add COM_<name> macro and detection below
+ * Configure computed goto support and compiler macros accordingly
+ */
+
+/* Compiler conditionals */
+
+#define COM_CLANG    0   /* LLVM Clang */
+#define COM_GCC      0   /* GnuCompilerCollection */
+#define COM_MSVC     0   /* MicrosoftVisualC */
+#define COM_MINGW    0   /* Minimalist GNU for Windows */
+#define COM_TCC      0   /* Tiny C Compiler */
+
+/* Platform target conditionals - to add any  */
+
+#define OS_LINUX     0   /* Linux */
+#define OS_WINDOWS   0   /* Microsoft Windows 64-bit */
+
+/* Is 1 if computed goto is supported (storing addresses of labels using &&). Only supported on GCC & Clang
+ * for other compilers there is a fallback version. For Windows I recommend to use Clang instead of MSVC to also use the
+ * computed goto jump branch table kernel optimization! It can make the VM up to 20% faster*!
+ *
+ * *Depends on the machine, optimization level and program!
+ */
+#define COMPUTED_GOTO_SUPPORTED 0
+
+#if defined(__linux__)
+
+#undef OS_LINUX
+#define OS_LINUX 1
+#define OS_NAME "Linux"
+
+#elif defined(_WIN64) || defined(_WIN32)
+
+#undef OS_WINDOWS
+#define OS_WINDOWS 1
+#define OS_NAME "Windows"
+
+#else
+
+#error "platform.h: Unknown platform! To add one, read comment header in platform.h!"
+
+#endif
+
+#ifdef __clang__
+
+#undef COM_CLANG
+#define COM_CLANG 1
+#undef COMPUTED_GOTO_SUPPORTED
+#define COMPUTED_GOTO_SUPPORTED 1
+
+#elif __GNUC__
+
+#undef COM_GCC
+#define COM_GCC 1
+#undef COMPUTED_GOTO_SUPPORTED
+#define COMPUTED_GOTO_SUPPORTED 1
+
+#elif _MSC_VER
+
+#undef COM_MSVC
+#define COM_MSVC 1
+#define  __restrict /* Needed for MSVC ¯\_(ツ)_/¯*/
+
+#elif __MINGW32__ || __MINGW64__
+
+#undef COM_MINGW
+#define COM_MINGW 1
+#undef COMPUTED_GOTO_SUPPORTED
+#define COMPUTED_GOTO_SUPPORTED 1
+
+#elif __TINYC__
+
+#undef COM_TCC
+#define COM_TCC 1
+#undef COMPUTED_GOTO_SUPPORTED
+#define COMPUTED_GOTO_SUPPORTED 1
+
+#else
+
+#error "platform.h: Unknown compiler! To add one, read comment header in platform.h!"
+
+#endif
+
+#ifdef __cplusplus
 }
-
-/// Interprets a bytecode file and returns a bytecode stream containing the code on success, else a vec with a line and error message.
-pub fn interpret_file(file: &Path) -> Result<BytecodeStream, Vec<(usize, String)>> {
-    let mut lines: Vec<_> = Vec::with_capacity(32);
-
-    let eval = |line: &mut String| {
-        lines.push(line.clone());
-    };
-
-    if reader::BufReader::read_all_lines(file, eval).is_ok() {
-        interpret_lines(lines)
-    } else {
-        Err(vec![(0, format!("Failed to open file: {:?}!", file)); 1])
-    }
-}
-
-/// Interprets a vec of strings, where each string is a line of bytecode and returns a bytecode stream containing the code on success, else a vec with a line and error message
-pub fn interpret_lines(in_lines: Vec<String>) -> Result<BytecodeStream, Vec<(usize, String)>> {
-    let clock = Instant::now();
-    let mut lines = {
-        let mut lines = Vec::with_capacity(in_lines.len());
-        for mut i in in_lines {
-            let mut backup = i.clone();
-            utils::clean(&mut i);
-            utils::clean_controls(&mut backup);
-            lines.push((i, backup));
-        }
-        lines
-    };
-    let mut stream = BytecodeStream::with_capacity(128);
-    let mut error_list = Vec::with_capacity(16);
-    let mut _current_section = Section::Execute;
-    let mut lineidx: usize = 0;
-
-    stream.prologue();
-
-    for (line, backup) in &mut lines {
-        lineidx += 1;
-        let mut errors = Vec::new();
-        let mut input = lexer::LexIn {
-            line,
-            backup,
-            stream: &mut stream,
-            errors: &mut errors,
-        };
-        if !lexer::eval_line(&mut input) {
-            for err in errors {
-                error_list.push((lineidx, err));
-            }
-        }
-    }
-
-    stream.epilogue();
-
-    let res = if !error_list.is_empty() {
-        println!("{}", asi::RED_BOLD);
-        for err in &error_list {
-            println!("Line {} \"{}\": {}", err.0, lines[err.0 - 1].1, err.1);
-        }
-        println!("{}", asi::RESET);
-        Result::Err(error_list)
-    } else {
-        Result::Ok(stream)
-    };
-
-    println!(
-        "Interpreted {} lines in {}s",
-        lineidx,
-        clock.elapsed().as_secs_f32()
-    );
-
-    res
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::bytecode::{
-        discriminated::DiscriminatedSignal, intrinsic::IntrinsicID, opcode::OpCode,
-    };
-
-    #[test]
-    fn interpret() {
-        /*
-            +-----------------------------------------------+
-            |                    Bytecode                   |
-            +-----------------------------------------------+
-            | 0x00000000 | 04 00 00 00 | MOV
-            | 0x00000001 | 00 00 00 00 | 0
-            | 0x00000002 | 4C 4F 56 45 | 1163284300
-            | 0x00000003 | 02 00 00 00 | PUSH
-            | 0x00000004 | 00 00 00 00 | 0
-            | 0x00000005 | 01 00 00 00 | INTRIN
-            | 0x00000006 | 00 00 00 00 | gputchar
-            | 0x00000007 | 21 00 00 00 | IINC
-            | 0x00000008 | 07 00 00 00 | DUPL
-            | 0x00000009 | 02 00 00 00 | PUSH
-            | 0x0000000A | 0A 00 00 00 | 10
-            | 0x0000000B | 12 00 00 00 | JL
-            | 0x0000000C | 05 00 00 00 | 5
-            | 0x0000000D | 00 00 00 00 | INTERRUPT
-            | 0x0000000E | 00 00 00 00 | 0
-            +----------------------End----------------------+
-        */
-        let output = ronasm! [
-             "%PUSH 0i",
-            "&L0",
-            "%INTRIN 0~",
-            "%IINC",
-            "%DUPL",
-            "%PUSH 10i",
-            "%JL L0*",
-        ];
-        assert_eq!(output.length(), 15);
-        assert_eq!(output[0], DiscriminatedSignal::OpCode(OpCode::Move));
-        assert_eq!(output[1], DiscriminatedSignal::I32(0_i32));
-        assert_eq!(output[2], DiscriminatedSignal::I32(1163284300_i32));
-        assert_eq!(output[3], DiscriminatedSignal::OpCode(OpCode::Push));
-        assert_eq!(output[4], DiscriminatedSignal::I32(0_i32));
-        assert_eq!(
-            output[5],
-            DiscriminatedSignal::OpCode(OpCode::CallIntrinsic)
-        );
-        assert_eq!(
-            output[6],
-            DiscriminatedSignal::IntrinsicID(IntrinsicID::GPutChar)
-        );
-        assert_eq!(output[7], DiscriminatedSignal::OpCode(OpCode::I32Increment));
-        assert_eq!(output[8], DiscriminatedSignal::OpCode(OpCode::Duplicate));
-        assert_eq!(output[9], DiscriminatedSignal::OpCode(OpCode::Push));
-        assert_eq!(output[10], DiscriminatedSignal::I32(10_i32));
-        assert_eq!(output[11], DiscriminatedSignal::OpCode(OpCode::JumpIfLess));
-        assert_eq!(output[12], DiscriminatedSignal::Pin(5_u32));
-        assert_eq!(output[13], DiscriminatedSignal::OpCode(OpCode::Interrupt));
-        assert_eq!(output[14], DiscriminatedSignal::I32(0_i32));
-
-        let chunk = output.build();
-        assert!(chunk.is_ok());
-    }
-}
+#endif
+#endif

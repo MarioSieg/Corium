@@ -212,13 +212,13 @@ use std::fmt;
 
 /// Restricts possible immediate value arguments types like:
 /// u32, i32, f32
-pub trait ArgumentPrimitive: Sized + Copy + Clone + PartialEq {}
+pub trait ArgumentPrimitive: Default + Sized + Copy + Clone + PartialEq {}
 impl ArgumentPrimitive for i32 {}
 impl ArgumentPrimitive for f32 {}
 
 /// Contains limits and a default value for immediate arguments.
-#[derive(PartialEq, Debug)]
-pub struct ArgumentLiteralValue<T: ArgumentPrimitive> {
+#[derive(PartialEq, Debug, Default)]
+pub struct ArgumentLiteralValue<T> where T: ArgumentPrimitive {
     pub min: T,
     pub max: T,
     pub default: Option<T>,

@@ -204,153 +204,49 @@
 
 */
 
-use crate::bytecode::stream::BytecodeStream;
-use crate::interpreter::{ansi_color_codes as asi, lexer, reader, utils};
-use std::{path::Path, time::Instant};
+/* Interpreter V.2 */
 
-/// Contains all bytecode sections.
-#[repr(usize)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum Section {
-    Database,
-    Execute,
+#ifndef $INTERPRETER_H
+#define $INTERPRETER_H
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include"common.h"
+
+#define MAX_LINE 0x40                   /* Max line length */
+#define MAX_ID 0x20                     /* Max procedure/pin/dbvar name length */
+#define MAX_ID_VAL 0x20                 /* Max len of macro value */
+#define DEF_LEN 0xff                    /* Common base allocator chunk size */
+#define BYTECODE_TXT_EXT ".rvmasm"      /* Text bytecode extension */
+#define BYTECODE_IMG_EXT ".rvmimg"      /* Binary bytecode image extension */
+
+struct prog_t;
+
+enum interpreter_flags_t {
+
+    INF_NONE                        = 0,
+    INF_BYPASS_PREPROCESSOR         = 1 << 0,   /* Bypass preprocessor pass */
+    INF_BYPASS_INTERUMENTING        = 1 << 1,   /* Bypass instrumenting pass */
+    INF_BYPASS_OPTIMIZING           = 1 << 2,   /* Bypass mini optimizing pass */
+    INF_BYPASS_PEFECT_FIT_RESIZE    = 1 << 3,   /* Bypass final block allocation */
+    INF_BYPASS_AUTO_INTERRUPT       = 1 << 4,   /* Do not automatically append interrupt */
+};
+
+enum disasm_t {
+
+    DIS_BASIC,
+    DIS_DETAILED,
+    DIS_FULL
+};
+
+/* [uses_gerrno] Parses bytecode from text (.rvmasm) file, file must have (.rvm) extension! */
+extern unsigned long long parse_from_file(struct prog_t **const _prog, const char *const _file, const enum interpreter_flags_t _flags);
+
+/* Disassemble's file to terminal */
+extern void disassemble(const struct prog_t *const _prog, const enum disasm_t _mode);
+
+#ifdef __cplusplus
 }
-
-/// Interprets a bytecode file and returns a bytecode stream containing the code on success, else a vec with a line and error message.
-pub fn interpret_file(file: &Path) -> Result<BytecodeStream, Vec<(usize, String)>> {
-    let mut lines: Vec<_> = Vec::with_capacity(32);
-
-    let eval = |line: &mut String| {
-        lines.push(line.clone());
-    };
-
-    if reader::BufReader::read_all_lines(file, eval).is_ok() {
-        interpret_lines(lines)
-    } else {
-        Err(vec![(0, format!("Failed to open file: {:?}!", file)); 1])
-    }
-}
-
-/// Interprets a vec of strings, where each string is a line of bytecode and returns a bytecode stream containing the code on success, else a vec with a line and error message
-pub fn interpret_lines(in_lines: Vec<String>) -> Result<BytecodeStream, Vec<(usize, String)>> {
-    let clock = Instant::now();
-    let mut lines = {
-        let mut lines = Vec::with_capacity(in_lines.len());
-        for mut i in in_lines {
-            let mut backup = i.clone();
-            utils::clean(&mut i);
-            utils::clean_controls(&mut backup);
-            lines.push((i, backup));
-        }
-        lines
-    };
-    let mut stream = BytecodeStream::with_capacity(128);
-    let mut error_list = Vec::with_capacity(16);
-    let mut _current_section = Section::Execute;
-    let mut lineidx: usize = 0;
-
-    stream.prologue();
-
-    for (line, backup) in &mut lines {
-        lineidx += 1;
-        let mut errors = Vec::new();
-        let mut input = lexer::LexIn {
-            line,
-            backup,
-            stream: &mut stream,
-            errors: &mut errors,
-        };
-        if !lexer::eval_line(&mut input) {
-            for err in errors {
-                error_list.push((lineidx, err));
-            }
-        }
-    }
-
-    stream.epilogue();
-
-    let res = if !error_list.is_empty() {
-        println!("{}", asi::RED_BOLD);
-        for err in &error_list {
-            println!("Line {} \"{}\": {}", err.0, lines[err.0 - 1].1, err.1);
-        }
-        println!("{}", asi::RESET);
-        Result::Err(error_list)
-    } else {
-        Result::Ok(stream)
-    };
-
-    println!(
-        "Interpreted {} lines in {}s",
-        lineidx,
-        clock.elapsed().as_secs_f32()
-    );
-
-    res
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::bytecode::{
-        discriminated::DiscriminatedSignal, intrinsic::IntrinsicID, opcode::OpCode,
-    };
-
-    #[test]
-    fn interpret() {
-        /*
-            +-----------------------------------------------+
-            |                    Bytecode                   |
-            +-----------------------------------------------+
-            | 0x00000000 | 04 00 00 00 | MOV
-            | 0x00000001 | 00 00 00 00 | 0
-            | 0x00000002 | 4C 4F 56 45 | 1163284300
-            | 0x00000003 | 02 00 00 00 | PUSH
-            | 0x00000004 | 00 00 00 00 | 0
-            | 0x00000005 | 01 00 00 00 | INTRIN
-            | 0x00000006 | 00 00 00 00 | gputchar
-            | 0x00000007 | 21 00 00 00 | IINC
-            | 0x00000008 | 07 00 00 00 | DUPL
-            | 0x00000009 | 02 00 00 00 | PUSH
-            | 0x0000000A | 0A 00 00 00 | 10
-            | 0x0000000B | 12 00 00 00 | JL
-            | 0x0000000C | 05 00 00 00 | 5
-            | 0x0000000D | 00 00 00 00 | INTERRUPT
-            | 0x0000000E | 00 00 00 00 | 0
-            +----------------------End----------------------+
-        */
-        let output = ronasm! [
-             "%PUSH 0i",
-            "&L0",
-            "%INTRIN 0~",
-            "%IINC",
-            "%DUPL",
-            "%PUSH 10i",
-            "%JL L0*",
-        ];
-        assert_eq!(output.length(), 15);
-        assert_eq!(output[0], DiscriminatedSignal::OpCode(OpCode::Move));
-        assert_eq!(output[1], DiscriminatedSignal::I32(0_i32));
-        assert_eq!(output[2], DiscriminatedSignal::I32(1163284300_i32));
-        assert_eq!(output[3], DiscriminatedSignal::OpCode(OpCode::Push));
-        assert_eq!(output[4], DiscriminatedSignal::I32(0_i32));
-        assert_eq!(
-            output[5],
-            DiscriminatedSignal::OpCode(OpCode::CallIntrinsic)
-        );
-        assert_eq!(
-            output[6],
-            DiscriminatedSignal::IntrinsicID(IntrinsicID::GPutChar)
-        );
-        assert_eq!(output[7], DiscriminatedSignal::OpCode(OpCode::I32Increment));
-        assert_eq!(output[8], DiscriminatedSignal::OpCode(OpCode::Duplicate));
-        assert_eq!(output[9], DiscriminatedSignal::OpCode(OpCode::Push));
-        assert_eq!(output[10], DiscriminatedSignal::I32(10_i32));
-        assert_eq!(output[11], DiscriminatedSignal::OpCode(OpCode::JumpIfLess));
-        assert_eq!(output[12], DiscriminatedSignal::Pin(5_u32));
-        assert_eq!(output[13], DiscriminatedSignal::OpCode(OpCode::Interrupt));
-        assert_eq!(output[14], DiscriminatedSignal::I32(0_i32));
-
-        let chunk = output.build();
-        assert!(chunk.is_ok());
-    }
-}
+#endif
+#endif

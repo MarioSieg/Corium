@@ -210,115 +210,84 @@ use crate::bytecode::{
     signal::Signal,
     stream::BytecodeStream,
 };
-use crate::interpreter::tokens as tok;
-use std::{cmp::Ordering, str::FromStr};
+use crate::interpreter::{tokens as tok, utils::*};
+use std::{cmp::Ordering, str::FromStr, default};
+
+pub struct LexIn<'d> {
+    pub line: &'d mut String,
+    pub backup: &'d String,
+    pub stream: &'d mut BytecodeStream,
+    pub errors: &'d mut Vec<String>,
+}
 
 /// Parses one whole line.
-pub fn eval_line(
-    line: &mut String,
-    stream: &mut BytecodeStream,
-    errors: &mut Vec<String>,
-    backup: &mut String,
-) -> bool {
-    clean(line);
-    *backup = line.clone();
-    if line.is_empty() {
+pub fn eval_line<'a>(in_: &mut LexIn<'a>) -> bool {
+    if in_.line.is_empty() {
         return true;
     }
-    let first = first_char_rem(line);
+    let first = first_char_rem(in_.line);
     match first {
-        tok::LINE_SIGIL_MNEMONIC => eval_mnemonic(line, stream, errors),
-        tok::LINE_SIGIL_PIN => eval_pin(line, stream, errors),
+        tok::LINE_SIGIL_MNEMONIC => eval_mnemonic(in_),
+        tok::LINE_SIGIL_PIN => eval_pin(in_),
         _ => {
-            errors.push(format!("Missing line sigil here: \"{}{}\"", first, line));
+            in_.errors.push(format!("Missing line sigil here: \"{}{}\"", first, in_.line));
             false
         }
     }
 }
 
-/// Removes all whitespace, newlines etc...
-fn clean(s: &mut String) {
-    *s = s.replace(&[' ', '\n', '\t', '\r', '\0'][..], "");
-}
-
-/// Removes the first char and returns it.
-fn first_char_rem(s: &mut String) -> char {
-    let c = s.chars().next().unwrap();
-    *s = s.replacen(c, "", 1);
-    c
-}
-
-/// Removes the first char and returns it.
-fn last_char_rem(s: &mut String) -> char {
-    let c = s.chars().last().unwrap();
-    *s = s.replacen(c, "", 1);
-    c
-}
-
-/// Removes the string if 'x' starts with it. Returns true if 'x' started with it, else false.
-fn first_str_rem(s: &mut String, t: &str) -> bool {
-    if s.starts_with(t) {
-        *s = s.replacen(t, "", 1);
-        true
-    } else {
-        false
-    }
-}
-
-fn eval_mnemonic(line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>) -> bool {
+fn eval_mnemonic<'a>(in_: &mut LexIn<'a>) -> bool {
     let mut m = None;
     's: for meta in OPERATION_TABLE.iter() {
-        if first_str_rem(line, meta.mnemonic) {
-            stream.push_opcode(meta.opcode);
+        if first_str_rem(in_.line, meta.mnemonic) {
+            in_.stream.push_opcode(meta.opcode);
             m = Some(meta);
             break 's;
         }
     }
     if m.is_none() {
-        errors.push(format!("Unknown mnemonic: {:?}", line));
+        in_.errors.push(format!("Unknown mnemonic: {:?}", in_.line));
     }
     if let Some(meta) = m {
         match meta.explicit_arguments.len() {
             0 => {
-                if !line.is_empty() {
-                    errors.push(format!("Redundant argument: {:?}", line));
+                if !in_.line.is_empty() {
+                    in_.errors.push(format!("Redundant argument: {:?}", in_.line));
                     false
                 } else {
                     true
                 }
             }
             1 => {
-                if line.is_empty() {
-                    errors.push(format!("Argument required, found none! {:?}", line));
+                if in_.line.is_empty() {
+                    in_.errors.push(format!("Argument required, found none! {:?}",in_.line));
                     false
                 } else {
                     eval_param(
-                        line,
-                        stream,
-                        errors,
+                        in_,
                         &meta.explicit_arguments[0].accepted_value_types[..],
                     )
                 }
             }
             _ => {
-                if line.is_empty() {
-                    errors.push(format!("Argument required, found none! {:?}", line));
+                if in_.line.is_empty() {
+                    in_.errors.push(format!("Argument required, found none! {:?}", in_.line));
                     false
                 } else {
-                    let mut args: Vec<String> = line
+                    let mut args: Vec<String> = in_.line
                         .split(tok::ARGUMENT_SEPARATOR)
                         .map(|str| str.to_string())
                         .collect();
                     match args.len().cmp(&meta.explicit_arguments.len()) {
                         Ordering::Less => {
-                            errors.push(format!(
+                            in_.errors.push(format!(
                                 "Not enough arguments provided! Expected: {}",
                                 meta.explicit_arguments.len()
                             ));
                             false
                         }
                         Ordering::Greater => {
-                            errors.push(format!(
+                            in_.errors.push(format!(
                                 "Too many arguments provided! Expected: {}",
                                 meta.explicit_arguments.len()
                             ));
@@ -326,10 +295,14 @@ fn eval_mnemonic(line: &mut String, stream: &mut BytecodeStream, errors: &mut Ve
                         }
                         Ordering::Equal => {
                             for (i, ex_arg) in meta.explicit_arguments.iter().enumerate() {
+                                let mut in2 = LexIn {
+                                    line: &mut args[i],
+                                    backup: in_.backup,
+                                    stream: in_.stream,
+                                    errors: in_.errors,
+                                };
                                 if !eval_param(
-                                    &mut args[i],
-                                    stream,
-                                    errors,
+                                    &mut in2,
                                     &ex_arg.accepted_value_types[..],
                                 ) {
                                     return false;
@@ -342,169 +315,157 @@ fn eval_mnemonic(line: &mut String, stream: &mut BytecodeStream, errors: &mut Ve
             }
         }
     } else {
-        errors.push(format!("Unknown mnemonic: {:?}", line));
+        in_.errors.push(format!("Unknown mnemonic: {:?}", in_.backup));
         false
     }
 }
 
-fn eval_pin(line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>) -> bool {
-    if stream.jump_table().contains_key(line) {
-        errors.push(format!("Pin is already defined: {:?}", line));
+fn eval_pin<'a>(in_: &mut LexIn<'a>) -> bool {
+    if in_.stream.jump_table().contains_key(in_.line) {
+        in_.errors.push(format!("Pin is already defined: {:?}", in_.backup));
         false
     } else {
-        stream.push_pin(line);
+        in_.stream.push_pin(in_.line);
         true
     }
 }
 
-fn eval_param(
-    line: &mut String,
-    stream: &mut BytecodeStream,
-    errors: &mut Vec<String>,
-    desired: &[ArgumentLiteralType],
-) -> bool {
-    if line.is_empty() {
+fn eval_arg_f32<'a>(in_: &mut LexIn<'a>) -> bool {
+    if let Ok(x) = f32::from_str(in_.line) {
+        in_.stream.with_f32(x);
+        true
+    } else {
+        in_.errors.push(format!("Invalid decimal literal for f32: {:?}!", in_.backup));
+        false
+    }
+}
+
+fn eval_arg_i32<'a>(in_: &mut LexIn<'a>) -> bool {
+    if first_str_rem(in_.line, tok::LITERAL_PREFIX_HEX) {
+        if let Ok(x) = i32::from_str_radix(in_.line, 6) {
+            in_.stream.with_i32(x);
+            true
+        } else {
+            in_. errors.push(format!("Invalid hexadecimal literal for i32: {:?}!", in_.backup));
+            false
+        }
+    } else if first_str_rem(in_.line, tok::LITERAL_PREFIX_BIN) {
+        if let Ok(x) = i32::from_str_radix(in_.line, 2) {
+            in_.stream.with_i32(x);
+            true
+        } else {
+            in_.errors.push(format!("Invalid binary literal for i32: {:?}!", in_.backup));
+            false
+        }
+    } else if first_str_rem(in_.line, tok::LITERAL_PREFIX_OCT) {
+        if let Ok(x) = i32::from_str_radix(in_.line, 8) {
+            in_.stream.with_i32(x);
+            true
+        } else {
+            in_.errors.push(format!("Invalid octal literal for i32: {:?}!", in_.backup));
+            false
+        }
+    } else if let Ok(x) = i32::from_str_radix(in_.line, 10) {
+        in_.stream.with_i32(x);
+        true
+    } else {
+        in_.errors.push(format!("Invalid decimal literal for i32: {:?}!", in_.backup));
+        false
+    }
+}
+
+fn eval_arg_pin<'a>(in_: &mut LexIn<'a>) -> bool {
+    if in_.line.chars().all(char::is_alphanumeric) {
+        if in_.stream.jump_table().contains_key(in_.line) {
+            in_.stream.with_pin(in_.line);
+            true
+        } else {
+            in_.errors.push(format!(
+                "Undefined pin {:?}! You should define it somewhere above!",
+                in_.backup
+            ));
+            false
+        }
+    } else {
+        in_.errors.push(String::from(
+            "Invalid pin name! Only alphanumeric characters are allowed!",
+        ));
+        false
+    }
+}
+
+fn eval_arg_ipc<'a>(in_: &mut LexIn<'a>) -> bool {
+    if let Ok(x) = i32::from_str_radix(in_.line, 16) {
+        if x >= 0 && x < IntrinsicID::COUNT as i32 {
+            in_.stream.with_intrin_id(IntrinsicID::from(Signal::from(x)));
+            true
+        } else {
+            in_.errors.push(format!(
+                "Invalid ipc! Must be in range from {} to {}",
+                x,
+                IntrinsicID::COUNT
+            ));
+            false
+        }
+    } else {
+        in_.errors.push(format!("Invalid hexadecimal literal for ipc: {:?}!", in_.backup));
+        false
+    }
+}
+
+fn eval_param<'a>(in_: &mut LexIn<'a>, targets: &[ArgumentLiteralType]) -> bool {
+    if in_.line.is_empty() {
         return false;
     }
 
-    let mut eval_f32 =
-        |line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>| -> bool {
-            if let Ok(x) = f32::from_str(line) {
-                stream.with_f32(x);
-                true
-            } else {
-                errors.push(format!("Invalid decimal literal for f32: {:?}!", line));
-                false
+    let suffix = last_char_rem(in_.line);
+
+    let mut eval =|f: &mut dyn FnMut(&mut LexIn<'a>) -> bool, target: &ArgumentLiteralType| -> bool {
+        let found = {
+            let mut found = false;
+            'se: for tar in targets {
+                if variant_eq(tar, target) {
+                    found = true;
+                    break 'se;
+                }
             }
+            found
         };
-
-    let mut eval_i32 =
-        |line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>| -> bool {
-            if first_str_rem(line, tok::LITERAL_PREFIX_HEX) {
-                if let Ok(x) = i32::from_str_radix(line, 6) {
-                    stream.with_i32(x);
-                    true
-                } else {
-                    errors.push(format!("Invalid hexadecimal literal for i32: {:?}!", line));
-                    false
-                }
-            } else if first_str_rem(line, tok::LITERAL_PREFIX_BIN) {
-                if let Ok(x) = i32::from_str_radix(line, 2) {
-                    stream.with_i32(x);
-                    true
-                } else {
-                    errors.push(format!("Invalid binary literal for i32: {:?}!", line));
-                    false
-                }
-            } else if first_str_rem(line, tok::LITERAL_PREFIX_OCT) {
-                if let Ok(x) = i32::from_str_radix(line, 8) {
-                    stream.with_i32(x);
-                    true
-                } else {
-                    errors.push(format!("Invalid octal literal for i32: {:?}!", line));
-                    false
-                }
-            } else if let Ok(x) = i32::from_str_radix(line, 10) {
-                stream.with_i32(x);
-                true
-            } else {
-                errors.push(format!("Invalid decimal literal for i32: {:?}!", line));
-                false
-            }
-        };
-
-    let mut eval_pin =
-        |line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>| -> bool {
-            if line.chars().all(char::is_alphanumeric) {
-                if stream.jump_table().contains_key(line) {
-                    stream.with_pin(line);
-                    true
-                } else {
-                    errors.push(format!(
-                        "Undefined pin {:?}! You should define it somewhere above!",
-                        line
-                    ));
-                    false
-                }
-            } else {
-                errors.push(String::from(
-                    "Invalid pin name! Only alphanumeric characters are allowed!!",
-                ));
-                false
-            }
-        };
-
-    let mut eval_ipc =
-        |line: &mut String, stream: &mut BytecodeStream, errors: &mut Vec<String>| -> bool {
-            if let Ok(x) = i32::from_str_radix(line, 16) {
-                if x >= 0 && x < IntrinsicID::COUNT as i32 {
-                    stream.with_intrin_id(IntrinsicID::from(Signal::from(x)));
-                    true
-                } else {
-                    errors.push(format!(
-                        "Invalid ipc! Must be in range from {} to {}",
-                        x,
-                        IntrinsicID::COUNT
-                    ));
-                    false
-                }
-            } else {
-                errors.push(format!("Invalid hexadecimal literal for ipc: {:?}!", line));
-                false
-            }
-        };
-
-    let last = last_char_rem(line);
-
-    let mut eval = |f: &mut dyn FnMut(&mut String, &mut BytecodeStream, &mut Vec<_>) -> bool,
-                    c: &dyn Fn(&ArgumentLiteralType) -> bool|
-     -> bool {
-        let mut found = false;
-        'se: for d in desired {
-            if c(&d) {
-                found = true;
-                break 'se;
-            }
-        }
         if found {
-            f(line, stream, errors)
+            f(in_)
         } else {
-            errors.push(String::from("Invalid argument type!"));
+            let mut error = format!("Invalid argument type: \"{}\"! Expected: ", in_.backup);
+            for tar in targets {
+                error += &format!("{}, ", tar);
+            }
+            error += &format!(" <- Requires {:?} for i32, {:?} for f32, {:?} for pin, {:?} for ipc",
+                             tok::LITERAL_SUFFIX_I32, tok::LITERAL_SUFFIX_F32, tok::LITERAL_SUFFIX_PIN, tok::LITERAL_SUFFIX_IPC);
+            in_.errors.push(error);
             false
         }
     };
 
-    match last {
-        tok::LITERAL_SUFFIX_I32 => eval(&mut eval_i32, &|x| {
-            if let ArgumentLiteralType::ValI32(_) = x {
-                true
-            } else {
-                false
-            }
-        }),
-        tok::LITERAL_SUFFIX_F32 => eval(&mut eval_f32, &|x| {
-            if let ArgumentLiteralType::ValF32(_) = x {
-                true
-            } else {
-                false
-            }
-        }),
-        tok::LITERAL_SUFFIX_PIN => eval(&mut eval_pin, &|x| {
-            if let ArgumentLiteralType::PinID = x {
-                true
-            } else {
-                false
-            }
-        }),
-        tok::LITERAL_SUFFIX_IPC => eval(&mut eval_ipc, &|x| {
-            if let ArgumentLiteralType::IpcID = x {
-                true
-            } else {
-                false
-            }
-        }),
+    match suffix {
+        tok::LITERAL_SUFFIX_I32 => {
+            let cmp = &ArgumentLiteralType::ValI32(default::Default::default());
+            eval(&mut eval_arg_i32, cmp)
+        },
+        tok::LITERAL_SUFFIX_F32 => {
+            let cmp = &ArgumentLiteralType::ValF32(default::Default::default());
+            eval(&mut eval_arg_f32, cmp)
+        },
+        tok::LITERAL_SUFFIX_PIN => {
+            let cmp = &ArgumentLiteralType::PinID;
+            eval(&mut eval_arg_pin, cmp)
+        },
+        tok::LITERAL_SUFFIX_IPC => {
+            let cmp = &ArgumentLiteralType::IpcID;
+            eval(&mut eval_arg_ipc, cmp)
+        },
         _ => {
-            errors.push(String::from("Missing type indicator suffix!"));
+            in_.errors.push(format!("Missing type indicator suffix: {:?} <- Requires {:?} for i32, {:?} for f32, {:?} for pin, {:?} for ipc",
+                                    in_.backup, tok::LITERAL_SUFFIX_I32, tok::LITERAL_SUFFIX_F32, tok::LITERAL_SUFFIX_PIN, tok::LITERAL_SUFFIX_IPC
+            ));
             false
         }
     }

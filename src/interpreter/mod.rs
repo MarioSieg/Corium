@@ -206,8 +206,11 @@
 
 #[rustfmt::skip]
 pub mod mnemonics;
+#[macro_use]
+pub mod macros;
 pub mod ansi_color_codes;
 pub mod core;
 pub mod lexer;
 pub mod reader;
 pub mod tokens;
+pub mod utils;
