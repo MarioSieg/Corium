@@ -204,117 +204,51 @@
 
 */
 
-pub use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode};
-pub(crate) use crate::bytecode::{
-    intrinsic_meta::CALL_INTRINSICEDURE_TABLE, operation_meta::OPERATION_TABLE,
-};
-use std::fmt;
+#include"nsi.h"
+#include"platform.h"
 
-/// Restricts possible immediate value arguments types like:
-/// u32, i32, f32
-pub trait ArgumentPrimitive: Default + Sized + Copy + Clone + PartialEq {}
-impl ArgumentPrimitive for i32 {}
-impl ArgumentPrimitive for f32 {}
+#if OS_LINUX
 
-/// Contains limits and a default value for immediate arguments.
-#[derive(PartialEq, Debug, Default)]
-pub struct ArgumentLiteralValue<T>
-where
-    T: ArgumentPrimitive,
-{
-    pub min: T,
-    pub max: T,
-    pub default: Option<T>,
+#include<time.h>
+#include<sched.h>
+#include<stdio.h>
+#include<unistd.h>
+#include<sys/syscall.h>
+
+void nsi_sleep(const unsigned _ms) {
+
+    auto struct timespec req = { (time_t) _ms / 1000u, (long)( (_ms % 1000u) * 1000000u) };
+    auto struct timespec rem = { 0, 0 };
+    nanosleep(&req, &rem);
 }
 
-/// Contains all possible immediate argument types and their corresponding limits and default values.
-#[derive(PartialEq)]
-pub enum ArgumentLiteralType {
-    ValI32(ArgumentLiteralValue<i32>),
-    ValF32(ArgumentLiteralValue<f32>),
-    PinID,
-    IpcID,
+void nsi_yield(void) {
+
+    sched_yield();
 }
 
-impl fmt::Display for ArgumentLiteralType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match *self {
-                Self::ValI32(_) => "i32",
-                Self::ValF32(_) => "f32",
-                Self::PinID => "pin",
-                Self::IpcID => "ipc",
-            }
-        )
+unsigned nsi_thread_id(void) {
+
+    return (pid_t)syscall(SYS_gettid);
+}
+
+unsigned long long nsi_used_mem(void) {
+
+    FILE *const f = fopen("/proc/self/statm", "r");
+    if(!f) {
+
+        return 0;
     }
+
+    long pages;
+    const int num = fscanf(f, "%*s%ld", &pages);
+    fclose(f);
+    return !num ? 0 : pages * sysconf(_SC_PAGESIZE);
 }
 
-/// Metadata descriptor for explicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ExplicitArgumentMeta<'a> {
-    pub accepted_value_types: &'a [ArgumentLiteralType],
-    pub alias: &'a str,
+int nsi_chdir(const char *const _path) {
+
+    return chdir(_path);
 }
 
-/// Metadata descriptor for implicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ImplicitArgumentMeta<'a> {
-    pub offset: isize,
-    pub alias: &'a str,
-    pub gets_popped: bool,
-}
-
-/// Uniform argument meta.
-#[derive(PartialEq, Copy, Clone)]
-pub struct UnifornSequenceMeta<'a> {
-    pub meta: ImplicitArgumentMeta<'a>,
-    pub amount: usize,
-}
-
-/// Contains metadata variations for implicit arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub enum ImplicitArguments<'a> {
-    None,
-    Variadic,
-    Fixed(&'a [ImplicitArgumentMeta<'a>]),
-    FixedUniformSequence(&'a [UnifornSequenceMeta<'a>]),
-}
-
-/// Rough categories for operations.
-#[derive(Eq, PartialEq, Copy, Clone)]
-pub enum OperationCategory {
-    Control,
-    Memory,
-    Branching,
-    Arithmetics,
-    VectorArithmetics,
-}
-
-/// Metadata descriptor for a bytecode operation.
-#[derive(PartialEq, Copy, Clone)]
-pub struct OperationMeta<'a> {
-    pub opcode: OpCode,
-    pub mnemonic: &'a str,
-    pub category: OperationCategory,
-    pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
-    pub implicit_arguments: ImplicitArguments<'a>,
-}
-
-/// Contains meta about an intrinsic procedure.
-pub struct IntrinsicProcMeta<'a> {
-    pub arguments: ImplicitArguments<'a>,
-}
-
-/// Returns the metadata for the corresponding opcode.
-#[inline]
-pub fn opcode_meta(op: OpCode) -> &'static OperationMeta<'static> {
-    &OPERATION_TABLE[op as usize]
-}
-
-/// Returns the metadata for the intrinsic procedure ids.
-#[inline]
-pub fn intrin_proc_id_meta(iproc: IntrinsicID) -> &'static ImplicitArguments<'static> {
-    &CALL_INTRINSICEDURE_TABLE[iproc as usize]
-}
+#endif

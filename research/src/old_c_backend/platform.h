@@ -204,117 +204,104 @@
 
 */
 
-pub use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode};
-pub(crate) use crate::bytecode::{
-    intrinsic_meta::CALL_INTRINSICEDURE_TABLE, operation_meta::OPERATION_TABLE,
-};
-use std::fmt;
+#ifndef $PLATFORM_H
+#define $PLATFORM_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/// Restricts possible immediate value arguments types like:
-/// u32, i32, f32
-pub trait ArgumentPrimitive: Default + Sized + Copy + Clone + PartialEq {}
-impl ArgumentPrimitive for i32 {}
-impl ArgumentPrimitive for f32 {}
+#include"cfg.h"
 
-/// Contains limits and a default value for immediate arguments.
-#[derive(PartialEq, Debug, Default)]
-pub struct ArgumentLiteralValue<T>
-where
-    T: ArgumentPrimitive,
-{
-    pub min: T,
-    pub max: T,
-    pub default: Option<T>,
+/* ---> How to add own platform <---
+ * Add OS_<name> macro and detection below
+ * Add native system implementation (nsi_<name>.c) - look at existing implementation for example in nsi_windows.c nsi_linux.c
+ * Any OS specific stuff is in nsi_*.c!
+ *
+ * ---> How to add own compiler <---
+ * Add COM_<name> macro and detection below
+ * Configure computed goto support and compiler macros accordingly
+ */
+
+/* Compiler conditionals */
+
+#define COM_CLANG    0   /* LLVM Clang */
+#define COM_GCC      0   /* GnuCompilerCollection */
+#define COM_MSVC     0   /* MicrosoftVisualC */
+#define COM_MINGW    0   /* Minimalist GNU for Windows */
+#define COM_TCC      0   /* Tiny C Compiler */
+
+/* Platform target conditionals - to add any  */
+
+#define OS_LINUX     0   /* Linux */
+#define OS_WINDOWS   0   /* Microsoft Windows 64-bit */
+
+/* Is 1 if computed goto is supported (storing addresses of labels using &&). Only supported on GCC & Clang
+ * for other compilers there is a fallback version. For Windows I recommend to use Clang instead of MSVC to also use the
+ * computed goto jump branch table kernel optimization! It can make the VM up to 20% faster*!
+ *
+ * *Depends on the machine, optimization level and program!
+ */
+#define COMPUTED_GOTO_SUPPORTED 0
+
+#if defined(__linux__)
+
+#undef OS_LINUX
+#define OS_LINUX 1
+#define OS_NAME "Linux"
+
+#elif defined(_WIN64) || defined(_WIN32)
+
+#undef OS_WINDOWS
+#define OS_WINDOWS 1
+#define OS_NAME "Windows"
+
+#else
+
+#error "platform.h: Unknown platform! To add one, read comment header in platform.h!"
+
+#endif
+
+#ifdef __clang__
+
+#undef COM_CLANG
+#define COM_CLANG 1
+#undef COMPUTED_GOTO_SUPPORTED
+#define COMPUTED_GOTO_SUPPORTED 1
+
+#elif __GNUC__
+
+#undef COM_GCC
+#define COM_GCC 1
+#undef COMPUTED_GOTO_SUPPORTED
+#define COMPUTED_GOTO_SUPPORTED 1
+
+#elif _MSC_VER
+
+#undef COM_MSVC
+#define COM_MSVC 1
+#define  __restrict /* Needed for MSVC ¯\_(ツ)_/¯*/
+
+#elif __MINGW32__ || __MINGW64__
+
+#undef COM_MINGW
+#define COM_MINGW 1
+#undef COMPUTED_GOTO_SUPPORTED
+#define COMPUTED_GOTO_SUPPORTED 1
+
+#elif __TINYC__
+
+#undef COM_TCC
+#define COM_TCC 1
+#undef COMPUTED_GOTO_SUPPORTED
+#define COMPUTED_GOTO_SUPPORTED 1
+
+#else
+
+#error "platform.h: Unknown compiler! To add one, read comment header in platform.h!"
+
+#endif
+
+#ifdef __cplusplus
 }
-
-/// Contains all possible immediate argument types and their corresponding limits and default values.
-#[derive(PartialEq)]
-pub enum ArgumentLiteralType {
-    ValI32(ArgumentLiteralValue<i32>),
-    ValF32(ArgumentLiteralValue<f32>),
-    PinID,
-    IpcID,
-}
-
-impl fmt::Display for ArgumentLiteralType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match *self {
-                Self::ValI32(_) => "i32",
-                Self::ValF32(_) => "f32",
-                Self::PinID => "pin",
-                Self::IpcID => "ipc",
-            }
-        )
-    }
-}
-
-/// Metadata descriptor for explicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ExplicitArgumentMeta<'a> {
-    pub accepted_value_types: &'a [ArgumentLiteralType],
-    pub alias: &'a str,
-}
-
-/// Metadata descriptor for implicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ImplicitArgumentMeta<'a> {
-    pub offset: isize,
-    pub alias: &'a str,
-    pub gets_popped: bool,
-}
-
-/// Uniform argument meta.
-#[derive(PartialEq, Copy, Clone)]
-pub struct UnifornSequenceMeta<'a> {
-    pub meta: ImplicitArgumentMeta<'a>,
-    pub amount: usize,
-}
-
-/// Contains metadata variations for implicit arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub enum ImplicitArguments<'a> {
-    None,
-    Variadic,
-    Fixed(&'a [ImplicitArgumentMeta<'a>]),
-    FixedUniformSequence(&'a [UnifornSequenceMeta<'a>]),
-}
-
-/// Rough categories for operations.
-#[derive(Eq, PartialEq, Copy, Clone)]
-pub enum OperationCategory {
-    Control,
-    Memory,
-    Branching,
-    Arithmetics,
-    VectorArithmetics,
-}
-
-/// Metadata descriptor for a bytecode operation.
-#[derive(PartialEq, Copy, Clone)]
-pub struct OperationMeta<'a> {
-    pub opcode: OpCode,
-    pub mnemonic: &'a str,
-    pub category: OperationCategory,
-    pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
-    pub implicit_arguments: ImplicitArguments<'a>,
-}
-
-/// Contains meta about an intrinsic procedure.
-pub struct IntrinsicProcMeta<'a> {
-    pub arguments: ImplicitArguments<'a>,
-}
-
-/// Returns the metadata for the corresponding opcode.
-#[inline]
-pub fn opcode_meta(op: OpCode) -> &'static OperationMeta<'static> {
-    &OPERATION_TABLE[op as usize]
-}
-
-/// Returns the metadata for the intrinsic procedure ids.
-#[inline]
-pub fn intrin_proc_id_meta(iproc: IntrinsicID) -> &'static ImplicitArguments<'static> {
-    &CALL_INTRINSICEDURE_TABLE[iproc as usize]
-}
+#endif
+#endif

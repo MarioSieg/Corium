@@ -204,117 +204,58 @@
 
 */
 
-pub use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode};
-pub(crate) use crate::bytecode::{
-    intrinsic_meta::CALL_INTRINSICEDURE_TABLE, operation_meta::OPERATION_TABLE,
-};
-use std::fmt;
+#include"bytecode.h"
+#include"stack.h"
+#include"kernel.h"
+#include"interpreter.h"
+#include"intrin.h"
+#include"nsi.h"
+#include"exception.h"
 
-/// Restricts possible immediate value arguments types like:
-/// u32, i32, f32
-pub trait ArgumentPrimitive: Default + Sized + Copy + Clone + PartialEq {}
-impl ArgumentPrimitive for i32 {}
-impl ArgumentPrimitive for f32 {}
+#include<stdio.h>
+#include<math.h>
+#include<time.h>
 
-/// Contains limits and a default value for immediate arguments.
-#[derive(PartialEq, Debug, Default)]
-pub struct ArgumentLiteralValue<T>
-where
-    T: ArgumentPrimitive,
-{
-    pub min: T,
-    pub max: T,
-    pub default: Option<T>,
-}
+int main(const int argc, const char *const* const argv ) {
 
-/// Contains all possible immediate argument types and their corresponding limits and default values.
-#[derive(PartialEq)]
-pub enum ArgumentLiteralType {
-    ValI32(ArgumentLiteralValue<i32>),
-    ValF32(ArgumentLiteralValue<f32>),
-    PinID,
-    IpcID,
-}
+#if 1
+    FILE *f = fopen("examples/test.rvmasm", "wt");
+    fprintf(f, "@exec\n%%equ MIN_VAL = 0\n%%equ MAX_VAL = 7fffffff\n");
+    int i;
+    for(i = 0; i < 20000; ++i) {
 
-impl fmt::Display for ArgumentLiteralType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match *self {
-                Self::ValI32(_) => "i32",
-                Self::ValF32(_) => "f32",
-                Self::PinID => "pin",
-                Self::IpcID => "ipc",
-            }
-        )
+        fprintf(f,
+                "push $i; MIN_VAL\n"
+                "*_p%i_:\n"
+                "iinc\n"
+                "dupl\n"
+                "push $x; MAX_VAL\n"
+                "jl *_p%i_\n", i, i);
     }
-}
+    fclose(f);
+#endif
 
-/// Metadata descriptor for explicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ExplicitArgumentMeta<'a> {
-    pub accepted_value_types: &'a [ArgumentLiteralType],
-    pub alias: &'a str,
-}
+    auto struct stack_t *mem;
+    stack(&mem, 32);
 
-/// Metadata descriptor for implicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ImplicitArgumentMeta<'a> {
-    pub offset: isize,
-    pub alias: &'a str,
-    pub gets_popped: bool,
-}
+    auto struct prog_t *pro;
 
-/// Uniform argument meta.
-#[derive(PartialEq, Copy, Clone)]
-pub struct UnifornSequenceMeta<'a> {
-    pub meta: ImplicitArgumentMeta<'a>,
-    pub amount: usize,
-}
+    parse_from_file(&pro, "examples/test.rvmasm", INF_NONE);
+    if(EXCEPT()) {
 
-/// Contains metadata variations for implicit arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub enum ImplicitArguments<'a> {
-    None,
-    Variadic,
-    Fixed(&'a [ImplicitArgumentMeta<'a>]),
-    FixedUniformSequence(&'a [UnifornSequenceMeta<'a>]),
-}
+        return -1;
+    }
 
-/// Rough categories for operations.
-#[derive(Eq, PartialEq, Copy, Clone)]
-pub enum OperationCategory {
-    Control,
-    Memory,
-    Branching,
-    Arithmetics,
-    VectorArithmetics,
-}
+    deferred_bind_stack(mem);
+    deferred_bind_prog(pro);
 
-/// Metadata descriptor for a bytecode operation.
-#[derive(PartialEq, Copy, Clone)]
-pub struct OperationMeta<'a> {
-    pub opcode: OpCode,
-    pub mnemonic: &'a str,
-    pub category: OperationCategory,
-    pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
-    pub implicit_arguments: ImplicitArguments<'a>,
-}
+    exec();
 
-/// Contains meta about an intrinsic procedure.
-pub struct IntrinsicProcMeta<'a> {
-    pub arguments: ImplicitArguments<'a>,
-}
+    prog_dump(pro);
+    stack_dump(mem);
 
-/// Returns the metadata for the corresponding opcode.
-#[inline]
-pub fn opcode_meta(op: OpCode) -> &'static OperationMeta<'static> {
-    &OPERATION_TABLE[op as usize]
-}
+    prog_destroy(&pro);
+    stack_destroy(&mem);
 
-/// Returns the metadata for the intrinsic procedure ids.
-#[inline]
-pub fn intrin_proc_id_meta(iproc: IntrinsicID) -> &'static ImplicitArguments<'static> {
-    &CALL_INTRINSICEDURE_TABLE[iproc as usize]
+    return 0;
 }

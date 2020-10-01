@@ -204,117 +204,68 @@
 
 */
 
-pub use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode};
-pub(crate) use crate::bytecode::{
-    intrinsic_meta::CALL_INTRINSICEDURE_TABLE, operation_meta::OPERATION_TABLE,
-};
-use std::fmt;
+#include"mem.h"
+#include"cfg.h"
+#include"exception.h"
+#include<stdlib.h>
+#include<string.h>
 
-/// Restricts possible immediate value arguments types like:
-/// u32, i32, f32
-pub trait ArgumentPrimitive: Default + Sized + Copy + Clone + PartialEq {}
-impl ArgumentPrimitive for i32 {}
-impl ArgumentPrimitive for f32 {}
+#ifdef DEBUG_VERBOSE
+#include<stdio.h>
+#endif
 
-/// Contains limits and a default value for immediate arguments.
-#[derive(PartialEq, Debug, Default)]
-pub struct ArgumentLiteralValue<T>
-where
-    T: ArgumentPrimitive,
-{
-    pub min: T,
-    pub max: T,
-    pub default: Option<T>,
-}
+void(*g_alloc)(void **const  _out, const unsigned long long _size, const enum mem_t _init) = dalloc;
+void(*g_realloc)(void **const  _out, const unsigned long long _size, const enum mem_t _init) = drealloc;
+void(*g_dealloc)(void **const  _inout) = ddealloc;
 
-/// Contains all possible immediate argument types and their corresponding limits and default values.
-#[derive(PartialEq)]
-pub enum ArgumentLiteralType {
-    ValI32(ArgumentLiteralValue<i32>),
-    ValF32(ArgumentLiteralValue<f32>),
-    PinID,
-    IpcID,
-}
+void dalloc(void **const  _out, const unsigned long long _size, const enum mem_t _init) {
 
-impl fmt::Display for ArgumentLiteralType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match *self {
-                Self::ValI32(_) => "i32",
-                Self::ValF32(_) => "f32",
-                Self::PinID => "pin",
-                Self::IpcID => "ipc",
-            }
-        )
+    if(!_out || !_size) {
+#ifdef DEBUG_VERBOSE
+        printf("Allocation failed! Invalid bind pointer or size!\n");
+#endif
+        THROW(EX_INVALID_ARGUMENT);
+        return;
     }
+    *_out = _init == MEM_ZERO ? calloc(1, _size) : malloc(_size);
+    THROW(*_out ? EX_OK : EX_UNKNOWN);
 }
 
-/// Metadata descriptor for explicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ExplicitArgumentMeta<'a> {
-    pub accepted_value_types: &'a [ArgumentLiteralType],
-    pub alias: &'a str,
+void drealloc(void **const _out, const unsigned long long _size, const enum mem_t _init) {
+
+    if(!_out || !_size) {
+#ifdef DEBUG_VERBOSE
+        printf("Reallocation failed! Invalid bind pointer or size!\n");
+#endif
+        THROW(EX_INVALID_ARGUMENT);
+        return;
+    }
+    auto void * const backup = *_out;
+    *_out = realloc(*_out, _size);
+    if(!*_out) {
+        free(backup);
+#ifdef DEBUG_VERBOSE
+        printf("Failed to reallocate memory block!\n");
+#endif
+        THROW(EX_MEMORY_ALLOCATION);
+        return;
+    }
+    if(_init == MEM_ZERO) {
+        memset(*_out, 0, _size);
+    }
+    CLEAR_EXSTATUS();
 }
 
-/// Metadata descriptor for implicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ImplicitArgumentMeta<'a> {
-    pub offset: isize,
-    pub alias: &'a str,
-    pub gets_popped: bool,
-}
+void ddealloc(void **const  _inout) {
 
-/// Uniform argument meta.
-#[derive(PartialEq, Copy, Clone)]
-pub struct UnifornSequenceMeta<'a> {
-    pub meta: ImplicitArgumentMeta<'a>,
-    pub amount: usize,
-}
-
-/// Contains metadata variations for implicit arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub enum ImplicitArguments<'a> {
-    None,
-    Variadic,
-    Fixed(&'a [ImplicitArgumentMeta<'a>]),
-    FixedUniformSequence(&'a [UnifornSequenceMeta<'a>]),
-}
-
-/// Rough categories for operations.
-#[derive(Eq, PartialEq, Copy, Clone)]
-pub enum OperationCategory {
-    Control,
-    Memory,
-    Branching,
-    Arithmetics,
-    VectorArithmetics,
-}
-
-/// Metadata descriptor for a bytecode operation.
-#[derive(PartialEq, Copy, Clone)]
-pub struct OperationMeta<'a> {
-    pub opcode: OpCode,
-    pub mnemonic: &'a str,
-    pub category: OperationCategory,
-    pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
-    pub implicit_arguments: ImplicitArguments<'a>,
-}
-
-/// Contains meta about an intrinsic procedure.
-pub struct IntrinsicProcMeta<'a> {
-    pub arguments: ImplicitArguments<'a>,
-}
-
-/// Returns the metadata for the corresponding opcode.
-#[inline]
-pub fn opcode_meta(op: OpCode) -> &'static OperationMeta<'static> {
-    &OPERATION_TABLE[op as usize]
-}
-
-/// Returns the metadata for the intrinsic procedure ids.
-#[inline]
-pub fn intrin_proc_id_meta(iproc: IntrinsicID) -> &'static ImplicitArguments<'static> {
-    &CALL_INTRINSICEDURE_TABLE[iproc as usize]
+    if(!_inout) {
+#ifdef DEBUG_VERBOSE
+        printf("Deallocation failed! Invalid bind pointer!\n");
+#endif
+        THROW(EX_INVALID_ARGUMENT);
+        return;
+    }
+    free(*_inout);
+    *_inout = NULLPTR;
+    CLEAR_EXSTATUS();
 }

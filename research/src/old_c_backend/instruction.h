@@ -204,117 +204,134 @@
 
 */
 
-pub use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode};
-pub(crate) use crate::bytecode::{
-    intrinsic_meta::CALL_INTRINSICEDURE_TABLE, operation_meta::OPERATION_TABLE,
+#ifndef $INSTRUCTION_H
+#define $INSTRUCTION_H
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include"common.h"
+
+/* Operations/Instructions */
+enum op_t {
+
+    OP_INT       = 0x00,
+    OP_STO       = 0x01,
+    OP_DUPL      = 0x02,
+    OP_DUPLDUP   = 0x03,
+    OP_MOV       = 0x04,
+    OP_PUSH      = 0x05,
+    OP_POP       = 0x06,
+    OP_CALL      = 0x07,
+    OP_RET       = 0x08,
+    OP_INTRIN    = 0x09,
+    OP_NOP       = 0x0a,
+    OP_JMP       = 0x0b,
+    OP_JE        = 0x0c,
+    OP_JNE       = 0x0d,
+    OP_JA        = 0x0e,
+    OP_JL        = 0x0f,
+    OP_JAE       = 0x10,
+    OP_JLE       = 0x11,
+    OP_IADD      = 0x12,
+    OP_ISUB      = 0x13,
+    OP_IDIV      = 0x14,
+    OP_IMUL      = 0x15,
+    OP_IMOD      = 0x16,
+    OP_IAND      = 0x17,
+    OP_IOR       = 0x18,
+    OP_IXOR      = 0x19,
+    OP_ICOM      = 0x1a,
+    OP_ISAL      = 0x1b,
+    OP_ISAR      = 0x1c,
+    OP_FADD      = 0x1d,
+    OP_FSUB      = 0x1e,
+    OP_FMUL      = 0x1f,
+    OP_FDIV      = 0x20,
+    OP_FMOD      = 0x21,
+    OP_IINC      = 0x22,
+    OP_IDEC      = 0x23,
+    OP_FNEG      = 0x24,
+    OP_INEG      = 0x25,
+    OP_SWAP      = 0x26,
+
+    OP_NUM
 };
-use std::fmt;
 
-/// Restricts possible immediate value arguments types like:
-/// u32, i32, f32
-pub trait ArgumentPrimitive: Default + Sized + Copy + Clone + PartialEq {}
-impl ArgumentPrimitive for i32 {}
-impl ArgumentPrimitive for f32 {}
+/* Section */
+enum sec_t {
 
-/// Contains limits and a default value for immediate arguments.
-#[derive(PartialEq, Debug, Default)]
-pub struct ArgumentLiteralValue<T>
-where
-    T: ArgumentPrimitive,
-{
-    pub min: T,
-    pub max: T,
-    pub default: Option<T>,
+    SEC_EXEC,    /* Executeable code     */
+    SEC_EXTRN,   /* Extern linkage       */
+    SEC_DATA,    /* Global database      */
+    SEC_SYS,     /* System descriptor    */
+
+    SEC_NUM
+};
+
+/* Operation evaluation type */
+enum ope_t {
+
+    OPE_RUNTIME,        /* Runtime instruction      */
+    OPE_MACRO,          /* Preprocessor instruction */
+    OPE_COMPILETIME     /* Compiletime instruction  */
+};
+
+/* Operation parameter type */
+enum opt_t {
+
+    OPT_NONE     = 0,        /* Instruction does not have any parameters */
+    OPT_EXPLICIT = 1 << 0,   /* Instruction must be called with param */
+    OPT_IMPLICIT = 1 << 1    /* Instruction params are on the stack */
+};
+
+/* Operation parameter primitive type */
+enum oppt_t {
+
+    OPPT_NONE,      /* Specify if instruction has no parameters */
+    OPPT_IPARAM,    /* Expecting integer */
+    OPPT_FPARAM,    /* Expecting float */
+    OPPT_HPARAM,    /* Expecting hybrid integer or float */
+    OPPT_PPID,      /* Expecting pin/proc ID */
+    OPPT_INTID,     /* Expecting intrinsic proc ID */
+
+    OPPT_NUM
+};
+
+/* Preprocessor instruction */
+enum pp_instr_t {
+
+    PPI_DEFINE,
+    PPI_PRAGMA,
+
+    PPI_NUM
+};
+
+#define VARIADIC -1
+
+struct op_meta_t {
+
+    const char *mnemonic;                       /* Mnemonic */
+    enum ope_t type                     : 2;    /* Evaluation type */
+    enum sec_t section                  : 3;    /* Section flags */
+    enum oppt_t para_prim               : 3;    /* Parameter primitive type */
+    enum opt_t para_type                : 2;    /* Parameter type */
+    signed char para_impl_num           : 4;    /* Number of implicit params - max: 3 */
+    signed char para_impl_input_num     : 4;    /* Number of implit params, which are getting popped by the instruction - max: 3 */
+    signed char para_impl_output_num    : 4;    /* Number of implitit params, which are getting pushed by the instruction - max: 3 */
+    signed char para_expl_num           : 4;    /* Number of explicit params - max: 3 */
+};
+
+/* Operation metadata */
+extern const struct op_meta_t g_op_meta[OP_NUM];
+
+/* Section mnemonics */
+extern const char *const g_sec_mnics[SEC_NUM];
+
+/* Preprocessor mnemonics */
+extern const char *const g_pp_mnics[PPI_NUM];
+
+#ifdef __cplusplus
 }
-
-/// Contains all possible immediate argument types and their corresponding limits and default values.
-#[derive(PartialEq)]
-pub enum ArgumentLiteralType {
-    ValI32(ArgumentLiteralValue<i32>),
-    ValF32(ArgumentLiteralValue<f32>),
-    PinID,
-    IpcID,
-}
-
-impl fmt::Display for ArgumentLiteralType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match *self {
-                Self::ValI32(_) => "i32",
-                Self::ValF32(_) => "f32",
-                Self::PinID => "pin",
-                Self::IpcID => "ipc",
-            }
-        )
-    }
-}
-
-/// Metadata descriptor for explicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ExplicitArgumentMeta<'a> {
-    pub accepted_value_types: &'a [ArgumentLiteralType],
-    pub alias: &'a str,
-}
-
-/// Metadata descriptor for implicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ImplicitArgumentMeta<'a> {
-    pub offset: isize,
-    pub alias: &'a str,
-    pub gets_popped: bool,
-}
-
-/// Uniform argument meta.
-#[derive(PartialEq, Copy, Clone)]
-pub struct UnifornSequenceMeta<'a> {
-    pub meta: ImplicitArgumentMeta<'a>,
-    pub amount: usize,
-}
-
-/// Contains metadata variations for implicit arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub enum ImplicitArguments<'a> {
-    None,
-    Variadic,
-    Fixed(&'a [ImplicitArgumentMeta<'a>]),
-    FixedUniformSequence(&'a [UnifornSequenceMeta<'a>]),
-}
-
-/// Rough categories for operations.
-#[derive(Eq, PartialEq, Copy, Clone)]
-pub enum OperationCategory {
-    Control,
-    Memory,
-    Branching,
-    Arithmetics,
-    VectorArithmetics,
-}
-
-/// Metadata descriptor for a bytecode operation.
-#[derive(PartialEq, Copy, Clone)]
-pub struct OperationMeta<'a> {
-    pub opcode: OpCode,
-    pub mnemonic: &'a str,
-    pub category: OperationCategory,
-    pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
-    pub implicit_arguments: ImplicitArguments<'a>,
-}
-
-/// Contains meta about an intrinsic procedure.
-pub struct IntrinsicProcMeta<'a> {
-    pub arguments: ImplicitArguments<'a>,
-}
-
-/// Returns the metadata for the corresponding opcode.
-#[inline]
-pub fn opcode_meta(op: OpCode) -> &'static OperationMeta<'static> {
-    &OPERATION_TABLE[op as usize]
-}
-
-/// Returns the metadata for the intrinsic procedure ids.
-#[inline]
-pub fn intrin_proc_id_meta(iproc: IntrinsicID) -> &'static ImplicitArguments<'static> {
-    &CALL_INTRINSICEDURE_TABLE[iproc as usize]
-}
+#endif
+#endif

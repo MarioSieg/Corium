@@ -205,7 +205,7 @@
 */
 
 use crate::bytecode::stream::BytecodeStream;
-use crate::interpreter::{ansi_color_codes as asi, lexer, reader};
+use crate::interpreter::{ansi_color_codes as asi, lexer, reader, utils};
 use std::{path::Path, time::Instant};
 
 /// Contains all bytecode sections.
@@ -214,17 +214,6 @@ use std::{path::Path, time::Instant};
 pub enum Section {
     Database,
     Execute,
-}
-
-// Returns true if the str 'x' begins with char 'y', else false.
-#[inline]
-pub fn begins_with(x: &str, y: char) -> bool {
-    x.starts_with(y)
-}
-
-#[inline]
-pub fn first_char(x: &str) -> char {
-    x.chars().next().unwrap()
 }
 
 /// Interprets a bytecode file and returns a bytecode stream containing the code on success, else a vec with a line and error message.
@@ -243,20 +232,35 @@ pub fn interpret_file(file: &Path) -> Result<BytecodeStream, Vec<(usize, String)
 }
 
 /// Interprets a vec of strings, where each string is a line of bytecode and returns a bytecode stream containing the code on success, else a vec with a line and error message
-pub fn interpret_lines(mut lines: Vec<String>) -> Result<BytecodeStream, Vec<(usize, String)>> {
+pub fn interpret_lines(in_lines: Vec<String>) -> Result<BytecodeStream, Vec<(usize, String)>> {
     let clock = Instant::now();
+    let mut lines = {
+        let mut lines = Vec::with_capacity(in_lines.len());
+        for mut i in in_lines {
+            let mut backup = i.clone();
+            utils::clean(&mut i);
+            utils::clean_controls(&mut backup);
+            lines.push((i, backup));
+        }
+        lines
+    };
     let mut stream = BytecodeStream::with_capacity(128);
     let mut error_list = Vec::with_capacity(16);
     let mut _current_section = Section::Execute;
     let mut lineidx: usize = 0;
-    let mut backup = String::new();
 
     stream.prologue();
 
-    for line in &mut lines {
+    for (line, backup) in &mut lines {
         lineidx += 1;
         let mut errors = Vec::new();
-        if !lexer::eval_line(line, &mut stream, &mut errors, &mut backup) {
+        let mut input = lexer::LexIn {
+            line,
+            backup,
+            stream: &mut stream,
+            errors: &mut errors,
+        };
+        if !lexer::eval_line(&mut input) {
             for err in errors {
                 error_list.push((lineidx, err));
             }
@@ -268,7 +272,7 @@ pub fn interpret_lines(mut lines: Vec<String>) -> Result<BytecodeStream, Vec<(us
     let res = if !error_list.is_empty() {
         println!("{}", asi::RED_BOLD);
         for err in &error_list {
-            println!("Line {}: {}", err.0, err.1);
+            println!("Line {} \"{}\": {}", err.0, lines[err.0 - 1].1, err.1);
         }
         println!("{}", asi::RESET);
         Result::Err(error_list)
@@ -287,7 +291,6 @@ pub fn interpret_lines(mut lines: Vec<String>) -> Result<BytecodeStream, Vec<(us
 
 #[cfg(test)]
 mod tests {
-    use super::interpret_lines;
     use crate::bytecode::{
         discriminated::DiscriminatedSignal, intrinsic::IntrinsicID, opcode::OpCode,
     };
@@ -315,7 +318,7 @@ mod tests {
             | 0x0000000E | 00 00 00 00 | 0
             +----------------------End----------------------+
         */
-        const CODE: &[&str] = &[
+        let output = ronasm![
             "%PUSH 0i",
             "&L0",
             "%INTRIN 0~",
@@ -324,9 +327,6 @@ mod tests {
             "%PUSH 10i",
             "%JL L0*",
         ];
-        let output = interpret_lines(CODE.iter().map(|x| x.to_string()).collect());
-        assert!(output.is_ok());
-        let output = output.unwrap();
         assert_eq!(output.length(), 15);
         assert_eq!(output[0], DiscriminatedSignal::OpCode(OpCode::Move));
         assert_eq!(output[1], DiscriminatedSignal::I32(0_i32));

@@ -204,117 +204,53 @@
 
 */
 
-pub use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode};
-pub(crate) use crate::bytecode::{
-    intrinsic_meta::CALL_INTRINSICEDURE_TABLE, operation_meta::OPERATION_TABLE,
+#ifndef $BYTECODE_H
+#define $BYTECODE_H
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include"signal.h"
+#include"instruction.h"
+
+#define DEF_BYTECODE_LEN (1 << 4)
+#define PROMAX LLONG_MAX
+#define PROMIN LLONG_MIN
+
+/* Bytecode execution program */
+struct prog_t {
+
+    union signal_t *dat;     /* Signal buffer */
+    unsigned long long size;             /* Signal buffer size in bytes */
+    unsigned long long num;              /* Number of signal records in signal buffer */
+    unsigned long long cap;              /* Capacity of signal buffer */
 };
-use std::fmt;
 
-/// Restricts possible immediate value arguments types like:
-/// u32, i32, f32
-pub trait ArgumentPrimitive: Default + Sized + Copy + Clone + PartialEq {}
-impl ArgumentPrimitive for i32 {}
-impl ArgumentPrimitive for f32 {}
+/* [uses_gerrno] Create program and signal buffer and reserve memory for _num signal entries */
+extern void prog(struct prog_t ** const _out, unsigned long long _num);
 
-/// Contains limits and a default value for immediate arguments.
-#[derive(PartialEq, Debug, Default)]
-pub struct ArgumentLiteralValue<T>
-where
-    T: ArgumentPrimitive,
-{
-    pub min: T,
-    pub max: T,
-    pub default: Option<T>,
+/* Destroy program, signal buffer and release memory */
+extern void prog_destroy(struct prog_t ** const _in);
+
+/* [uses_gerrno] Push record into signal buffer */
+extern void prog_put_sig(struct prog_t *const _in, const union signal_t _v);
+
+/* [uses_gerrno] Push opcode into signal buffer */
+extern void prog_put_op(struct prog_t *const _in, const enum op_t _v);
+
+/* [uses_gerrno] Push integer param (iparam) into signal buffer */
+extern void prog_put_i(struct prog_t *const _in, const int _v);
+
+/* [uses_gerrno] Push float param (fparam) into signal buffer */
+extern void prog_put_f(struct prog_t *const _in, const float _v);
+
+/* [uses_gerrno] Resize program memory to perfect size! (Resize cap to num) */
+extern void prog_resize_perfect(struct prog_t *const _in);
+
+/* Print program to terminal */
+extern void prog_dump(const struct prog_t *const _in);
+
+#ifdef __cplusplus
 }
-
-/// Contains all possible immediate argument types and their corresponding limits and default values.
-#[derive(PartialEq)]
-pub enum ArgumentLiteralType {
-    ValI32(ArgumentLiteralValue<i32>),
-    ValF32(ArgumentLiteralValue<f32>),
-    PinID,
-    IpcID,
-}
-
-impl fmt::Display for ArgumentLiteralType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match *self {
-                Self::ValI32(_) => "i32",
-                Self::ValF32(_) => "f32",
-                Self::PinID => "pin",
-                Self::IpcID => "ipc",
-            }
-        )
-    }
-}
-
-/// Metadata descriptor for explicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ExplicitArgumentMeta<'a> {
-    pub accepted_value_types: &'a [ArgumentLiteralType],
-    pub alias: &'a str,
-}
-
-/// Metadata descriptor for implicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ImplicitArgumentMeta<'a> {
-    pub offset: isize,
-    pub alias: &'a str,
-    pub gets_popped: bool,
-}
-
-/// Uniform argument meta.
-#[derive(PartialEq, Copy, Clone)]
-pub struct UnifornSequenceMeta<'a> {
-    pub meta: ImplicitArgumentMeta<'a>,
-    pub amount: usize,
-}
-
-/// Contains metadata variations for implicit arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub enum ImplicitArguments<'a> {
-    None,
-    Variadic,
-    Fixed(&'a [ImplicitArgumentMeta<'a>]),
-    FixedUniformSequence(&'a [UnifornSequenceMeta<'a>]),
-}
-
-/// Rough categories for operations.
-#[derive(Eq, PartialEq, Copy, Clone)]
-pub enum OperationCategory {
-    Control,
-    Memory,
-    Branching,
-    Arithmetics,
-    VectorArithmetics,
-}
-
-/// Metadata descriptor for a bytecode operation.
-#[derive(PartialEq, Copy, Clone)]
-pub struct OperationMeta<'a> {
-    pub opcode: OpCode,
-    pub mnemonic: &'a str,
-    pub category: OperationCategory,
-    pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
-    pub implicit_arguments: ImplicitArguments<'a>,
-}
-
-/// Contains meta about an intrinsic procedure.
-pub struct IntrinsicProcMeta<'a> {
-    pub arguments: ImplicitArguments<'a>,
-}
-
-/// Returns the metadata for the corresponding opcode.
-#[inline]
-pub fn opcode_meta(op: OpCode) -> &'static OperationMeta<'static> {
-    &OPERATION_TABLE[op as usize]
-}
-
-/// Returns the metadata for the intrinsic procedure ids.
-#[inline]
-pub fn intrin_proc_id_meta(iproc: IntrinsicID) -> &'static ImplicitArguments<'static> {
-    &CALL_INTRINSICEDURE_TABLE[iproc as usize]
-}
+#endif
+#endif

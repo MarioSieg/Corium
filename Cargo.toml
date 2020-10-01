@@ -16,5 +16,9 @@ path = "src/bin.rs"
 config_file = ["serde", "serde_json"]
 
 [dependencies]
+# Required:
+bitflags = "1.2.1"
+
+# Optional (only needed for some special features):
 serde = { version = "1.0.116", features = ["derive"], optional = true }
 serde_json = { version = "1.0.57", optional = true }

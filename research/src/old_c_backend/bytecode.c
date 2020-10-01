@@ -204,117 +204,148 @@
 
 */
 
-pub use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode};
-pub(crate) use crate::bytecode::{
-    intrinsic_meta::CALL_INTRINSICEDURE_TABLE, operation_meta::OPERATION_TABLE,
-};
-use std::fmt;
+#include"bytecode.h"
+#include"mem.h"
+#include"syntax.h"
+#include"exception.h"
 
-/// Restricts possible immediate value arguments types like:
-/// u32, i32, f32
-pub trait ArgumentPrimitive: Default + Sized + Copy + Clone + PartialEq {}
-impl ArgumentPrimitive for i32 {}
-impl ArgumentPrimitive for f32 {}
+#include<stdio.h>
 
-/// Contains limits and a default value for immediate arguments.
-#[derive(PartialEq, Debug, Default)]
-pub struct ArgumentLiteralValue<T>
-where
-    T: ArgumentPrimitive,
-{
-    pub min: T,
-    pub max: T,
-    pub default: Option<T>,
-}
+void prog(struct prog_t ** const _out, unsigned long long _num) {
 
-/// Contains all possible immediate argument types and their corresponding limits and default values.
-#[derive(PartialEq)]
-pub enum ArgumentLiteralType {
-    ValI32(ArgumentLiteralValue<i32>),
-    ValF32(ArgumentLiteralValue<f32>),
-    PinID,
-    IpcID,
-}
+    auto struct prog_t * p;
 
-impl fmt::Display for ArgumentLiteralType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match *self {
-                Self::ValI32(_) => "i32",
-                Self::ValF32(_) => "f32",
-                Self::PinID => "pin",
-                Self::IpcID => "ipc",
-            }
-        )
+    /* Allocate host */
+    g_alloc((void**)&p, sizeof(struct prog_t), MEM_NONE);
+    if(EXCEPT()) {
+
+        goto fail;
     }
+    if(_num) {
+        /* Allocate stream */
+        g_alloc((void**)&p->dat, sizeof(union signal_t) * _num, MEM_ZERO);
+        if(EXCEPT()) {
+
+            goto fail;
+        }
+        p->cap = _num;
+        p->size = sizeof(union signal_t) * _num;
+
+    } else {
+
+        p->size = p->cap = 0;
+        p->dat = NULLPTR;
+    }
+
+    p->num = 0;
+    *_out = p;
+    CLEAR_EXSTATUS();
+    return;
+
+    fail:
+        g_dealloc((void**)&p);
+        g_dealloc((void**)&p->dat);
+        *_out = NULLPTR;
 }
 
-/// Metadata descriptor for explicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ExplicitArgumentMeta<'a> {
-    pub accepted_value_types: &'a [ArgumentLiteralType],
-    pub alias: &'a str,
+static void prog_ext(struct prog_t *const _in) {
+
+    if(_in->cap > _in->num + 1) {   /* Enough memory, no reallocation required */
+        CLEAR_EXSTATUS();
+        return;
+    }
+    g_realloc((void**)&_in->dat, _in->size << 1, MEM_NONE);
+    if(EXCEPT()) {
+        return;
+    }
+    _in->cap <<= 1;
+    _in->size <<= 1;
+    CLEAR_EXSTATUS();
 }
 
-/// Metadata descriptor for implicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ImplicitArgumentMeta<'a> {
-    pub offset: isize,
-    pub alias: &'a str,
-    pub gets_popped: bool,
+
+void prog_put_sig(struct prog_t *const _in, const union signal_t _v) {
+
+    prog_ext(_in);
+    if(EXCEPT()) {
+        return;
+    }
+    _in->dat[_in->num++] = _v;
+    CLEAR_EXSTATUS();
 }
 
-/// Uniform argument meta.
-#[derive(PartialEq, Copy, Clone)]
-pub struct UnifornSequenceMeta<'a> {
-    pub meta: ImplicitArgumentMeta<'a>,
-    pub amount: usize,
+void prog_put_op(struct prog_t *const _in, const enum op_t _v) {
+
+    prog_ext(_in);
+    if(EXCEPT()) {
+        return;
+    }
+    _in->dat[_in->num++].op = _v;
+    CLEAR_EXSTATUS();
 }
 
-/// Contains metadata variations for implicit arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub enum ImplicitArguments<'a> {
-    None,
-    Variadic,
-    Fixed(&'a [ImplicitArgumentMeta<'a>]),
-    FixedUniformSequence(&'a [UnifornSequenceMeta<'a>]),
+void prog_put_i(struct prog_t *const _in, const int _v) {
+
+    prog_ext(_in);
+    if(EXCEPT()) {
+        return;
+    }
+    _in->dat[_in->num++].i = _v;
+    CLEAR_EXSTATUS();
 }
 
-/// Rough categories for operations.
-#[derive(Eq, PartialEq, Copy, Clone)]
-pub enum OperationCategory {
-    Control,
-    Memory,
-    Branching,
-    Arithmetics,
-    VectorArithmetics,
+void prog_put_f(struct prog_t *const _in, const float _v) {
+
+    prog_ext(_in);
+    if(EXCEPT()) {
+        return;
+    }
+    _in->dat[_in->num++].f = _v;
+    CLEAR_EXSTATUS();
 }
 
-/// Metadata descriptor for a bytecode operation.
-#[derive(PartialEq, Copy, Clone)]
-pub struct OperationMeta<'a> {
-    pub opcode: OpCode,
-    pub mnemonic: &'a str,
-    pub category: OperationCategory,
-    pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
-    pub implicit_arguments: ImplicitArguments<'a>,
+void prog_destroy(struct prog_t ** const _in) {
+
+    if((*_in)->dat) {
+
+         g_dealloc((void**)&(*_in)->dat);
+    }
+    g_dealloc((void**)_in);
 }
 
-/// Contains meta about an intrinsic procedure.
-pub struct IntrinsicProcMeta<'a> {
-    pub arguments: ImplicitArguments<'a>,
+void prog_resize_perfect(struct prog_t *const _in) {
+
+    /* Do final block allocation to exact size */
+    _in->size = _in->num * sizeof(union signal_t);
+    _in->cap = _in->num;
+
+    auto union signal_t *const dat = _in->dat;
+
+    g_realloc((void**)&_in->dat, _in->size, MEM_NONE);
+    if(EXCEPT()) {
+
+        printf("Final bytecode allocation failed! Size: %llu!\n", _in->size);
+        g_dealloc((void**)&dat);
+        return;
+    }
+
+    CLEAR_EXSTATUS();
 }
 
-/// Returns the metadata for the corresponding opcode.
-#[inline]
-pub fn opcode_meta(op: OpCode) -> &'static OperationMeta<'static> {
-    &OPERATION_TABLE[op as usize]
-}
+void prog_dump(const struct prog_t *const _in) {
 
-/// Returns the metadata for the intrinsic procedure ids.
-#[inline]
-pub fn intrin_proc_id_meta(iproc: IntrinsicID) -> &'static ImplicitArguments<'static> {
-    &CALL_INTRINSICEDURE_TABLE[iproc as usize]
+    printf("Codedump:\n&: %p, &&: %p, Num: %llu, Cap: %llu, Size: %llu\n",
+           _in,
+           _in->dat,
+           _in->num,
+           _in->cap,
+           _in->size);
+    register union signal_t *a, *b;
+    for(a = _in->dat, b = _in->dat + _in->num - 1; a < b; ++a) {
+        printf("&: %p, i: %016i, f: %016f, op: %x\n",
+               a,
+               a->i,
+               a->f,
+               a->op);
+    }
 }

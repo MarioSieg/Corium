@@ -209,7 +209,7 @@ extern crate ronin_runtime;
 use ronin_runtime::prelude::*;
 
 fn main() {
-    let code = interpret_file(&std::path::Path::new("src/asm/simple.ronasm")).unwrap();
+    let code = interpret_file(&std::path::Path::new("examples/simple.ro")).unwrap();
     println!("{:?}", code);
     let input = ExecutorInput {
         chunk: code.build().unwrap(),

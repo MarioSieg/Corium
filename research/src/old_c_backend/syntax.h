@@ -204,117 +204,86 @@
 
 */
 
-pub use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode};
-pub(crate) use crate::bytecode::{
-    intrinsic_meta::CALL_INTRINSICEDURE_TABLE, operation_meta::OPERATION_TABLE,
-};
-use std::fmt;
+#ifndef $SYNTAX_H
+#define $SYNTAX_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/// Restricts possible immediate value arguments types like:
-/// u32, i32, f32
-pub trait ArgumentPrimitive: Default + Sized + Copy + Clone + PartialEq {}
-impl ArgumentPrimitive for i32 {}
-impl ArgumentPrimitive for f32 {}
+/* General tokens: */
 
-/// Contains limits and a default value for immediate arguments.
-#[derive(PartialEq, Debug, Default)]
-pub struct ArgumentLiteralValue<T>
-where
-    T: ArgumentPrimitive,
-{
-    pub min: T,
-    pub max: T,
-    pub default: Option<T>,
+#define TOKEN_SIGIL_INTHEX   'x'    /* $x;ab2b3h    ->  Hexadecimal                 */
+#define TOKEN_SIGIL_INTBIN   'b'    /* $b;10101b    ->  Binary                      */
+#define TOKEN_SIGIL_INTOCT   'o'    /* $o;213c      ->  Octal                       */
+#define TOKEN_SIGIL_INTDEC   'i'    /* $i;456       ->  Decimal                     */
+#define TOKEN_SIGIL_FLOAT    'f'    /* $f;3.1415f   ->  Float                       */
+#define TOKEN_SIGIL_INTRIN   'p'    /* $c; 7ff                                       */
+#define TOKEN_NUMBER         '$'
+#define TOKEN_NUM_DELIM      ';'
+#define TOKEN_PIN            '*'    /* *test        ->  PIN (Hex)                   */
+#define TOKEN_COLON          ':'    /* *pin_test: */
+#define TOKEN_COMMENT        '#'
+#define TOKEN_EQUALS         '='
+#define TOKEN_SECTION        '@'
+#define TOKEN_DELIMITER      ','
+#define TOKEN_PREPROCESSOR   '%'
+
+#define PREPROCESSOR_MNEMONIC_DEFINE "equ"
+#define PREPROCESSOR_MNEMONIC_PRAGMA "pragma"
+
+#define LITERAL_DELIM_CHAR   '\''   /* 'A'      ->  Char    */
+#define LITERAL_DELIM_STR    '"'    /* "String" ->  String  */
+
+/* Section aliases: */
+
+#define SEC_MNEMONIC_EXEC    "exec"
+#define SEC_MNEMONIC_EXTRN   "extrn"
+#define SEC_MNEMONIC_DATA    "db"
+#define SEC_MNEMONIC_SYS     "sys"
+
+/* Mnemonics: */
+
+#define MNEMONIC_INTER       "int"
+#define MNEMONIC_STO         "sto"
+#define MNEMONIC_DUPL        "dupl"
+#define MNEMONIC_DUPLDUP     "dupldup"
+#define MNEMONIC_MOV         "mov"
+#define MNEMONIC_PUSH        "push"
+#define MNEMONIC_POP         "pop"
+#define MNEMONIC_CALL        "call"
+#define MNEMONIC_RET         "ret"
+#define MNEMONIC_INTRIN      "intrin"
+#define MNEMONIC_NOP         "nop"
+#define MNEMONIC_JMP         "jmp"
+#define MNEMONIC_JE          "je"
+#define MNEMONIC_JNE         "jne"
+#define MNEMONIC_JA          "ja"
+#define MNEMONIC_JL          "jl"
+#define MNEMONIC_JAE         "jae"
+#define MNEMONIC_JLE         "jle"
+#define MNEMONIC_IADD        "iadd"
+#define MNEMONIC_ISUB        "isub"
+#define MNEMONIC_IDIV        "idiv"
+#define MNEMONIC_IMUL        "imul"
+#define MNEMONIC_IMOD        "imod"
+#define MNEMONIC_IAND        "iand"
+#define MNEMONIC_IOR         "ior"
+#define MNEMONIC_IXOR        "ixor"
+#define MNEMONIC_ICOM        "icom"
+#define MNEMONIC_ISAL        "isal"
+#define MNEMONIC_ISAR        "isar"
+#define MNEMONIC_FADD        "fadd"
+#define MNEMONIC_FSUB        "fsub"
+#define MNEMONIC_FMUL        "fmul"
+#define MNEMONIC_FDIV        "fdiv"
+#define MNEMONIC_FMOD        "fmod"
+#define MNEMONIC_IINC        "iinc"
+#define MNEMONIC_IDEC        "idec"
+#define MNEMONIC_FNEG        "fneg"
+#define MNEMONIC_INEG        "ineg"
+#define MNEMONIC_SWAP        "swap"
+
+#ifdef __cplusplus
 }
-
-/// Contains all possible immediate argument types and their corresponding limits and default values.
-#[derive(PartialEq)]
-pub enum ArgumentLiteralType {
-    ValI32(ArgumentLiteralValue<i32>),
-    ValF32(ArgumentLiteralValue<f32>),
-    PinID,
-    IpcID,
-}
-
-impl fmt::Display for ArgumentLiteralType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match *self {
-                Self::ValI32(_) => "i32",
-                Self::ValF32(_) => "f32",
-                Self::PinID => "pin",
-                Self::IpcID => "ipc",
-            }
-        )
-    }
-}
-
-/// Metadata descriptor for explicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ExplicitArgumentMeta<'a> {
-    pub accepted_value_types: &'a [ArgumentLiteralType],
-    pub alias: &'a str,
-}
-
-/// Metadata descriptor for implicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ImplicitArgumentMeta<'a> {
-    pub offset: isize,
-    pub alias: &'a str,
-    pub gets_popped: bool,
-}
-
-/// Uniform argument meta.
-#[derive(PartialEq, Copy, Clone)]
-pub struct UnifornSequenceMeta<'a> {
-    pub meta: ImplicitArgumentMeta<'a>,
-    pub amount: usize,
-}
-
-/// Contains metadata variations for implicit arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub enum ImplicitArguments<'a> {
-    None,
-    Variadic,
-    Fixed(&'a [ImplicitArgumentMeta<'a>]),
-    FixedUniformSequence(&'a [UnifornSequenceMeta<'a>]),
-}
-
-/// Rough categories for operations.
-#[derive(Eq, PartialEq, Copy, Clone)]
-pub enum OperationCategory {
-    Control,
-    Memory,
-    Branching,
-    Arithmetics,
-    VectorArithmetics,
-}
-
-/// Metadata descriptor for a bytecode operation.
-#[derive(PartialEq, Copy, Clone)]
-pub struct OperationMeta<'a> {
-    pub opcode: OpCode,
-    pub mnemonic: &'a str,
-    pub category: OperationCategory,
-    pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
-    pub implicit_arguments: ImplicitArguments<'a>,
-}
-
-/// Contains meta about an intrinsic procedure.
-pub struct IntrinsicProcMeta<'a> {
-    pub arguments: ImplicitArguments<'a>,
-}
-
-/// Returns the metadata for the corresponding opcode.
-#[inline]
-pub fn opcode_meta(op: OpCode) -> &'static OperationMeta<'static> {
-    &OPERATION_TABLE[op as usize]
-}
-
-/// Returns the metadata for the intrinsic procedure ids.
-#[inline]
-pub fn intrin_proc_id_meta(iproc: IntrinsicID) -> &'static ImplicitArguments<'static> {
-    &CALL_INTRINSICEDURE_TABLE[iproc as usize]
-}
+#endif
+#endif

@@ -204,117 +204,68 @@
 
 */
 
-pub use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode};
-pub(crate) use crate::bytecode::{
-    intrinsic_meta::CALL_INTRINSICEDURE_TABLE, operation_meta::OPERATION_TABLE,
+
+#ifndef $INTRIN_H
+#define $INTRIN_H
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include"common.h"
+
+enum ipcid_t {
+
+    IPCID_PRINT      = 0x00,
+    IPCID_INPUT      = 0x01,
+
+    IPCID_NUM
 };
-use std::fmt;
 
-/// Restricts possible immediate value arguments types like:
-/// u32, i32, f32
-pub trait ArgumentPrimitive: Default + Sized + Copy + Clone + PartialEq {}
-impl ArgumentPrimitive for i32 {}
-impl ArgumentPrimitive for f32 {}
+struct intrin_meta_t {
 
-/// Contains limits and a default value for immediate arguments.
-#[derive(PartialEq, Debug, Default)]
-pub struct ArgumentLiteralValue<T>
-where
-    T: ArgumentPrimitive,
-{
-    pub min: T,
-    pub max: T,
-    pub default: Option<T>,
+    unsigned char para_impl_num    : 3;
+    unsigned char para_input_num   : 3;
+    unsigned char para_output_num  : 3;
+};
+
+extern const struct intrin_meta_t g_intrindat[IPCID_NUM];
+
+struct stack_t;
+struct prog_t;
+
+/* Custom intrinsic input package */
+struct cintrin_in_t {
+
+    long long sp;            /* Stack pointer        */
+    long long ip;            /* Instruction pointer  */
+    union record_t * st;  /* Stack memory         */
+    union signal_t * pg;  /* Program code         */
+};
+
+/* Custom intrinsic output package */
+struct cintrin_out_t {
+
+    long long ip;    /* Instruction pointer  */
+    long long sp;    /* Stack pointer        */
+};
+
+/* Automatically return correct data from intrinsic procedure! */
+#define CINTRIN_RET()                           \
+    auto const struct cintrin_out $_out_$ = {   \
+        .ip = _ip,                              \
+        .sp = _sp                               \
+    };                                          \
+    return $_out_$;
+
+typedef struct cintrin_out_t(cintrin_proc_t)(long long _ip, long long _sp, union signal_t * const _pg, union record_t * const _st);  /* Custom intrinsic callback */
+
+/* [uses_gerrno] Create custom intrinsic lookup table */
+extern void cintrin_create(cintrin_proc_t *** const _out, const unsigned long long _num);
+
+/* [uses_gerrno] Destroy custom intrinsic lookup table */
+extern void cintrin_destroy(cintrin_proc_t *** const _in);
+
+#ifdef __cplusplus
 }
-
-/// Contains all possible immediate argument types and their corresponding limits and default values.
-#[derive(PartialEq)]
-pub enum ArgumentLiteralType {
-    ValI32(ArgumentLiteralValue<i32>),
-    ValF32(ArgumentLiteralValue<f32>),
-    PinID,
-    IpcID,
-}
-
-impl fmt::Display for ArgumentLiteralType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match *self {
-                Self::ValI32(_) => "i32",
-                Self::ValF32(_) => "f32",
-                Self::PinID => "pin",
-                Self::IpcID => "ipc",
-            }
-        )
-    }
-}
-
-/// Metadata descriptor for explicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ExplicitArgumentMeta<'a> {
-    pub accepted_value_types: &'a [ArgumentLiteralType],
-    pub alias: &'a str,
-}
-
-/// Metadata descriptor for implicit bytecode arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub struct ImplicitArgumentMeta<'a> {
-    pub offset: isize,
-    pub alias: &'a str,
-    pub gets_popped: bool,
-}
-
-/// Uniform argument meta.
-#[derive(PartialEq, Copy, Clone)]
-pub struct UnifornSequenceMeta<'a> {
-    pub meta: ImplicitArgumentMeta<'a>,
-    pub amount: usize,
-}
-
-/// Contains metadata variations for implicit arguments.
-#[derive(PartialEq, Copy, Clone)]
-pub enum ImplicitArguments<'a> {
-    None,
-    Variadic,
-    Fixed(&'a [ImplicitArgumentMeta<'a>]),
-    FixedUniformSequence(&'a [UnifornSequenceMeta<'a>]),
-}
-
-/// Rough categories for operations.
-#[derive(Eq, PartialEq, Copy, Clone)]
-pub enum OperationCategory {
-    Control,
-    Memory,
-    Branching,
-    Arithmetics,
-    VectorArithmetics,
-}
-
-/// Metadata descriptor for a bytecode operation.
-#[derive(PartialEq, Copy, Clone)]
-pub struct OperationMeta<'a> {
-    pub opcode: OpCode,
-    pub mnemonic: &'a str,
-    pub category: OperationCategory,
-    pub explicit_arguments: &'a [ExplicitArgumentMeta<'a>],
-    pub implicit_arguments: ImplicitArguments<'a>,
-}
-
-/// Contains meta about an intrinsic procedure.
-pub struct IntrinsicProcMeta<'a> {
-    pub arguments: ImplicitArguments<'a>,
-}
-
-/// Returns the metadata for the corresponding opcode.
-#[inline]
-pub fn opcode_meta(op: OpCode) -> &'static OperationMeta<'static> {
-    &OPERATION_TABLE[op as usize]
-}
-
-/// Returns the metadata for the intrinsic procedure ids.
-#[inline]
-pub fn intrin_proc_id_meta(iproc: IntrinsicID) -> &'static ImplicitArguments<'static> {
-    &CALL_INTRINSICEDURE_TABLE[iproc as usize]
-}
+#endif
+#endif
