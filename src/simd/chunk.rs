@@ -205,6 +205,7 @@
 */
 
 use super::extensions::CpuExtensionFlags;
+use std::ops;
 
 /// Restricts to a scalar type, which could be used with SIMD intrinsics.
 pub trait VectorScalar: Default + Sized + Copy + Clone + PartialEq {}
@@ -224,9 +225,9 @@ impl VectorScalar for bool {}
 impl VectorScalar for char {}
 
 /// Base for a data chunk.
-pub trait SimdChunk {
+pub trait VectorChunk {
     const SIZE: usize;
-    const SCALAR_COUNT: usize;
+    const LENGTH: usize;
     const REQUIRES: CpuExtensionFlags;
     type Scalar: VectorScalar;
 }
