@@ -204,30 +204,16 @@
 
 */
 
-use super::extensions::CpuExtensionFlags;
-use std::ops;
+use super::{flags::CpuExtensionFlags, aligned::AlignedTo16Array4};
 
-/// Restricts to a scalar type, which could be used with SIMD intrinsics.
-pub trait VectorScalar: Default + Sized + Copy + Clone + PartialEq {}
-impl VectorScalar for i8 {}
-impl VectorScalar for u8 {}
-impl VectorScalar for i16 {}
-impl VectorScalar for u16 {}
-impl VectorScalar for i32 {}
-impl VectorScalar for u32 {}
-impl VectorScalar for i64 {}
-impl VectorScalar for u64 {}
-impl VectorScalar for i128 {}
-impl VectorScalar for u128 {}
-impl VectorScalar for f32 {}
-impl VectorScalar for f64 {}
-impl VectorScalar for bool {}
-impl VectorScalar for char {}
+pub struct F32X4(AlignedTo16Array4<f32>, CpuExtensionFlags);
 
-/// Base for a data chunk.
-pub trait VectorChunk {
-    const SIZE: usize;
-    const LENGTH: usize;
-    const REQUIRES: CpuExtensionFlags;
-    type Scalar: VectorScalar;
+impl F32X4 {
+    pub fn new(flags: CpuExtensionFlags) -> Self {
+        Self(AlignedTo16Array4::default(), flags)
+    }
+
+    pub fn with_data(data: AlignedTo16Array4<f32>, flags: CpuExtensionFlags) -> Self {
+        Self(data, flags)
+    }
 }

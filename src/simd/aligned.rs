@@ -204,6 +204,21 @@
 
 */
 
-pub mod f32x4;
-pub mod flags;
-pub mod aligned;
+pub trait VectorScalar32: Sized + Copy + Clone {}
+impl VectorScalar32 for i32 {}
+impl VectorScalar32 for f32 {}
+
+/// 16-Bytes 128-Bit aligned array with 4 scalars.
+#[repr(align(16))]
+#[derive(Default, Clone)]
+pub struct AlignedTo16Array4<T>(pub [T; 4]) where T: VectorScalar32;
+
+/// 32-Bytes 256-Bit aligned array with 8 scalars.
+#[repr(align(32))]
+#[derive(Default, Clone)]
+pub struct AlignedTo32Array8<T>(pub [T; 8]) where T: VectorScalar32;
+
+/// 64-Bytes 512-Bit aligned array with 16 scalars.
+#[repr(align(64))]
+#[derive(Default, Clone)]
+pub struct AlignedTo64Array16<T>(pub [T; 16]) where T: VectorScalar32;

@@ -369,185 +369,186 @@ impl CpuExtensionFlags {
         let mut flags = Self::NONE;
 
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-        {
-            if is_x86_feature_detected!("aes") {
-                flags |= Self::AES;
+            {
+                if is_x86_feature_detected!("aes") {
+                    flags |= Self::AES;
+                }
+                if is_x86_feature_detected!("pclmulqdq") {
+                    flags |= Self::PCLMULQDQ;
+                }
+                if is_x86_feature_detected!("rdrand") {
+                    flags |= Self::RDRAND;
+                }
+                if is_x86_feature_detected!("rdseed") {
+                    flags |= Self::RDSEED;
+                }
+                if is_x86_feature_detected!("tsc") {
+                    flags |= Self::TSC;
+                }
+                if is_x86_feature_detected!("mmx") {
+                    flags |= Self::MMX;
+                }
+                if is_x86_feature_detected!("sse") {
+                    flags |= Self::SSE;
+                }
+                if is_x86_feature_detected!("sse2") {
+                    flags |= Self::SSE2;
+                }
+                if is_x86_feature_detected!("sse3") {
+                    flags |= Self::SSE3;
+                }
+                if is_x86_feature_detected!("ssse3") {
+                    flags |= Self::SSSE3;
+                }
+                if is_x86_feature_detected!("sse4.1") {
+                    flags |= Self::SSE4_1;
+                }
+                if is_x86_feature_detected!("sse4.2") {
+                    flags |= Self::SSE4_2;
+                }
+                if is_x86_feature_detected!("sse4a") {
+                    flags |= Self::SSE4A;
+                }
+                if is_x86_feature_detected!("sha") {
+                    flags |= Self::SHA;
+                }
+                if is_x86_feature_detected!("avx") {
+                    flags |= Self::AVX;
+                }
+                if is_x86_feature_detected!("avx2") {
+                    flags |= Self::AVX2;
+                }
+                if is_x86_feature_detected!("avx512f") {
+                    flags |= Self::AVX512F;
+                }
+                if is_x86_feature_detected!("avx512cd") {
+                    flags |= Self::AVX512CD;
+                }
+                if is_x86_feature_detected!("avx512er") {
+                    flags |= Self::AVX512ER;
+                }
+                if is_x86_feature_detected!("avx512pf") {
+                    flags |= Self::AVX512PF;
+                }
+                if is_x86_feature_detected!("avx512bw") {
+                    flags |= Self::AVX512BW;
+                }
+                if is_x86_feature_detected!("avx512dq") {
+                    flags |= Self::AVX512DQ;
+                }
+                if is_x86_feature_detected!("avx512vl") {
+                    flags |= Self::AVX512VL;
+                }
+                if is_x86_feature_detected!("avx512ifma") {
+                    flags |= Self::AVX512IFMA;
+                }
+                if is_x86_feature_detected!("avx512vbmi") {
+                    flags |= Self::AVX512VBMI;
+                }
+                if is_x86_feature_detected!("avx512vpopcntdq") {
+                    flags |= Self::AVX512VPOPCNTDQ;
+                }
+                if is_x86_feature_detected!("avx512vbmi2") {
+                    flags |= Self::AVX512VBMI2;
+                }
+                if is_x86_feature_detected!("avx512gfni") {
+                    flags |= Self::AVX512GFNI;
+                }
+                if is_x86_feature_detected!("avx512vaes") {
+                    flags |= Self::AVX512VAES;
+                }
+                if is_x86_feature_detected!("avx512vpclmulqdq") {
+                    flags |= Self::AVX512VPCLMULQDQ;
+                }
+                if is_x86_feature_detected!("avx512vnni") {
+                    flags |= Self::AVX512VNNI;
+                }
+                if is_x86_feature_detected!("avx512bitalg") {
+                    flags |= Self::AVX512BITALG;
+                }
+                if is_x86_feature_detected!("avx512bf16") {
+                    flags |= Self::AVX512BF16;
+                }
+                if is_x86_feature_detected!("avx512vp2intersect") {
+                    flags |= Self::AVX512VP2INTER;
+                }
+                if is_x86_feature_detected!("f16c") {
+                    flags |= Self::F16C;
+                }
+                if is_x86_feature_detected!("fma") {
+                    flags |= Self::FMA;
+                }
+                if is_x86_feature_detected!("bmi1") {
+                    flags |= Self::BMI1;
+                }
+                if is_x86_feature_detected!("bmi2") {
+                    flags |= Self::BMI2;
+                }
+                if is_x86_feature_detected!("abm") {
+                    flags |= Self::ABM;
+                }
+                if is_x86_feature_detected!("lzcnt") {
+                    flags |= Self::LZCNT;
+                }
+                if is_x86_feature_detected!("tbm") {
+                    flags |= Self::TBM;
+                }
+                if is_x86_feature_detected!("popcnt") {
+                    flags |= Self::POPCNT;
+                }
+                if is_x86_feature_detected!("fxsr") {
+                    flags |= Self::FXSR;
+                }
+                if is_x86_feature_detected!("xsave") {
+                    flags |= Self::XSAVE;
+                }
+                if is_x86_feature_detected!("xsaveopt") {
+                    flags |= Self::XSAVEOPT;
+                }
+                if is_x86_feature_detected!("xsaves") {
+                    flags |= Self::XSAVES;
+                }
+                if is_x86_feature_detected!("xsavec") {
+                    flags |= Self::XSAVEC;
+                }
+                if is_x86_feature_detected!("cmpxchg16b") {
+                    flags |= Self::CMPXCHG16B;
+                }
+                if is_x86_feature_detected!("adx") {
+                    flags |= Self::ADX;
+                }
+                if is_x86_feature_detected!("rtm") {
+                    flags |= Self::RTM;
+                }
             }
-            if is_x86_feature_detected!("pclmulqdq") {
-                flags |= Self::PCLMULQDQ;
-            }
-            if is_x86_feature_detected!("rdrand") {
-                flags |= Self::RDRAND;
-            }
-            if is_x86_feature_detected!("rdseed") {
-                flags |= Self::RDSEED;
-            }
-            if is_x86_feature_detected!("tsc") {
-                flags |= Self::TSC;
-            }
-            if is_x86_feature_detected!("mmx") {
-                flags |= Self::MMX;
-            }
-            if is_x86_feature_detected!("sse") {
-                flags |= Self::SSE;
-            }
-            if is_x86_feature_detected!("sse2") {
-                flags |= Self::SSE2;
-            }
-            if is_x86_feature_detected!("sse3") {
-                flags |= Self::SSE3;
-            }
-            if is_x86_feature_detected!("ssse3") {
-                flags |= Self::SSSE3;
-            }
-            if is_x86_feature_detected!("sse4.1") {
-                flags |= Self::SSE4_1;
-            }
-            if is_x86_feature_detected!("sse4.2") {
-                flags |= Self::SSE4_2;
-            }
-            if is_x86_feature_detected!("sse4a") {
-                flags |= Self::SSE4A;
-            }
-            if is_x86_feature_detected!("sha") {
-                flags |= Self::SHA;
-            }
-            if is_x86_feature_detected!("avx") {
-                flags |= Self::AVX;
-            }
-            if is_x86_feature_detected!("avx2") {
-                flags |= Self::AVX2;
-            }
-            if is_x86_feature_detected!("avx512f") {
-                flags |= Self::AVX512F;
-            }
-            if is_x86_feature_detected!("avx512cd") {
-                flags |= Self::AVX512CD;
-            }
-            if is_x86_feature_detected!("avx512er") {
-                flags |= Self::AVX512ER;
-            }
-            if is_x86_feature_detected!("avx512pf") {
-                flags |= Self::AVX512PF;
-            }
-            if is_x86_feature_detected!("avx512bw") {
-                flags |= Self::AVX512BW;
-            }
-            if is_x86_feature_detected!("avx512dq") {
-                flags |= Self::AVX512DQ;
-            }
-            if is_x86_feature_detected!("avx512vl") {
-                flags |= Self::AVX512VL;
-            }
-            if is_x86_feature_detected!("avx512ifma") {
-                flags |= Self::AVX512IFMA;
-            }
-            if is_x86_feature_detected!("avx512vbmi") {
-                flags |= Self::AVX512VBMI;
-            }
-            if is_x86_feature_detected!("avx512vpopcntdq") {
-                flags |= Self::AVX512VPOPCNTDQ;
-            }
-            if is_x86_feature_detected!("avx512vbmi2") {
-                flags |= Self::AVX512VBMI2;
-            }
-            if is_x86_feature_detected!("avx512gfni") {
-                flags |= Self::AVX512GFNI;
-            }
-            if is_x86_feature_detected!("avx512vaes") {
-                flags |= Self::AVX512VAES;
-            }
-            if is_x86_feature_detected!("avx512vpclmulqdq") {
-                flags |= Self::AVX512VPCLMULQDQ;
-            }
-            if is_x86_feature_detected!("avx512vnni") {
-                flags |= Self::AVX512VNNI;
-            }
-            if is_x86_feature_detected!("avx512bitalg") {
-                flags |= Self::AVX512BITALG;
-            }
-            if is_x86_feature_detected!("avx512bf16") {
-                flags |= Self::AVX512BF16;
-            }
-            if is_x86_feature_detected!("avx512vp2intersect") {
-                flags |= Self::AVX512VP2INTER;
-            }
-            if is_x86_feature_detected!("f16c") {
-                flags |= Self::F16C;
-            }
-            if is_x86_feature_detected!("fma") {
-                flags |= Self::FMA;
-            }
-            if is_x86_feature_detected!("bmi1") {
-                flags |= Self::BMI1;
-            }
-            if is_x86_feature_detected!("bmi2") {
-                flags |= Self::BMI2;
-            }
-            if is_x86_feature_detected!("abm") {
-                flags |= Self::ABM;
-            }
-            if is_x86_feature_detected!("lzcnt") {
-                flags |= Self::LZCNT;
-            }
-            if is_x86_feature_detected!("tbm") {
-                flags |= Self::TBM;
-            }
-            if is_x86_feature_detected!("popcnt") {
-                flags |= Self::POPCNT;
-            }
-            if is_x86_feature_detected!("fxsr") {
-                flags |= Self::FXSR;
-            }
-            if is_x86_feature_detected!("xsave") {
-                flags |= Self::XSAVE;
-            }
-            if is_x86_feature_detected!("xsaveopt") {
-                flags |= Self::XSAVEOPT;
-            }
-            if is_x86_feature_detected!("xsaves") {
-                flags |= Self::XSAVES;
-            }
-            if is_x86_feature_detected!("xsavec") {
-                flags |= Self::XSAVEC;
-            }
-            if is_x86_feature_detected!("cmpxchg16b") {
-                flags |= Self::CMPXCHG16B;
-            }
-            if is_x86_feature_detected!("adx") {
-                flags |= Self::ADX;
-            }
-            if is_x86_feature_detected!("rtm") {
-                flags |= Self::RTM;
-            }
-        }
 
         #[cfg(any(target_arch = "mips", target_arch = "mips64"))]
-        {
-            // is_mips_feature_detected
-            // is_mips64_feature_detected
-            todo!();
-        }
+            {
+                // is_mips_feature_detected
+                // is_mips64_feature_detected
+                todo!();
+            }
 
         #[cfg(any(target_arch = "powerpc", target_arch = "powerpc64"))]
-        {
-            // is_powerpc_feature_detected
-            // is_powerpc64_feature_detected
-            todo!();
-        }
+            {
+                // is_powerpc_feature_detected
+                // is_powerpc64_feature_detected
+                todo!();
+            }
 
         #[cfg(target_arch = "arm")]
-        {
-            // is_arm_feature_detected
-            todo!();
-        }
+            {
+                // is_arm_feature_detected
+                todo!();
+            }
 
         #[cfg(target_arch = "aarch64")]
-        {
-            // is_aarch64_feature_detected!
-            todo!();
-        }
+            {
+                // is_aarch64_feature_detected!
+                todo!();
+            }
 
         flags
     }
 }
+
