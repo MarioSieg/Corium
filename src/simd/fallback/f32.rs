@@ -204,267 +204,242 @@
 
 */
 
-use super::{flags::CpuExtensionFlags, aligned::*};
-use std::ops;
-
-pub struct F32X16 {
-    data: AlignedTo64Array16<f32>,
-    flags: CpuExtensionFlags
+#[inline(always)]
+pub fn add4(x: &mut [f32; 4], y: &[f32; 4]) {
+    x[0] += y[0];
+    x[1] += y[1];
+    x[2] += y[2];
+    x[3] += y[3];
 }
 
-impl F32X16 {
-    pub fn new(flags: CpuExtensionFlags) -> Self {
-        Self {
-            data: AlignedTo64Array16::default(),
-            flags,
-        }
-    }
-
-    pub fn with_data(data: AlignedTo64Array16<f32>, flags: CpuExtensionFlags) -> Self {
-        Self {
-            data,
-            flags,
-        }
-    }
+#[inline(always)]
+pub fn add8(x: &mut [f32; 8], y: &[f32; 8]) {
+    x[0] += y[0];
+    x[1] += y[1];
+    x[2] += y[2];
+    x[3] += y[3];
+    x[4] += y[4];
+    x[5] += y[5];
+    x[6] += y[6];
+    x[7] += y[7];
 }
 
-impl F32X16 {
-    pub fn data(&self) -> &AlignedTo64Array16<f32> {
-        &self.data
-    }
-
-    pub fn flags(&self) -> CpuExtensionFlags {
-        self.flags
-    }
+#[inline(always)]
+pub fn add16(x: &mut [f32; 16], y: &[f32; 16]) {
+    x[0] += y[0];
+    x[1] += y[1];
+    x[2] += y[2];
+    x[3] += y[3];
+    x[4] += y[4];
+    x[5] += y[5];
+    x[6] += y[6];
+    x[7] += y[7];
+    x[8] += y[8];
+    x[9] += y[9];
+    x[10] += y[10];
+    x[11] += y[11];
+    x[12] += y[12];
+    x[13] += y[13];
+    x[14] += y[14];
+    x[15] += y[15];
 }
 
-impl ops::Index<usize> for F32X16 {
-    type Output = f32;
-
-    fn index(&self, idx: usize) -> &Self::Output {
-        &self.data[idx]
-    }
+#[inline(always)]
+pub fn sub4(x: &mut [f32; 4], y: &[f32; 4]) {
+    x[0] -= y[0];
+    x[1] -= y[1];
+    x[2] -= y[2];
+    x[3] -= y[3];
 }
 
-impl ops::IndexMut<usize> for F32X16 {
-    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
-        &mut self.data[idx]
-    }
+#[inline(always)]
+pub fn sub8(x: &mut [f32; 8], y: &[f32; 8]) {
+    x[0] -= y[0];
+    x[1] -= y[1];
+    x[2] -= y[2];
+    x[3] -= y[3];
+    x[4] -= y[4];
+    x[5] -= y[5];
+    x[6] -= y[6];
+    x[7] -= y[7];
 }
 
-impl F32X16 {
-    pub fn add(&mut self, x: &Self) {
-        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-            {
-                #[cfg(target_arch = "x86")]
-                use std::arch::x86::*;
-                #[cfg(target_arch = "x86_64")]
-                use std::arch::x86_64::*;
-
-                if self.flags & CpuExtensionFlags::AVX512F != CpuExtensionFlags::NONE {
-                    unsafe {
-                        // USE AVX because Rust does not support AVX-512 completely.
-                        // Also AVX-512 is only supported on a very few CPUs.
-                        let ptr_a: *mut f32 = self.data.as_mut_ptr();
-                        let ptr_b: *const f32 = x.data.as_ptr();
-                        _mm256_store_ps(ptr_a, _mm256_add_ps(_mm256_load_ps(ptr_a), _mm256_load_ps(ptr_b)));
-                        _mm256_store_ps(ptr_a.offset(8), _mm256_add_ps(_mm256_load_ps(ptr_a.offset(8)), _mm256_load_ps(ptr_b.offset(8))));
-                    }
-                    return;
-                } else if self.flags & CpuExtensionFlags::AVX != CpuExtensionFlags::NONE {
-                    unsafe {
-                        let ptr_a: *mut f32 = self.data.as_mut_ptr();
-                        let ptr_b: *const f32 = x.data.as_ptr();
-                        _mm256_store_ps(ptr_a, _mm256_add_ps(_mm256_load_ps(ptr_a), _mm256_load_ps(ptr_b)));
-                        _mm256_store_ps(ptr_a.offset(8), _mm256_add_ps(_mm256_load_ps(ptr_a.offset(8)), _mm256_load_ps(ptr_b.offset(8))));
-                    }
-                    return;
-                } else if self.flags & CpuExtensionFlags::SSE != CpuExtensionFlags::NONE {
-                    unsafe {
-                        let ptr_a: *mut f32 = self.data.as_mut_ptr();
-                        let ptr_b: *const f32 = x.data.as_ptr();
-                        _mm_store_ps(ptr_a, _mm_add_ps(_mm_load_ps(ptr_a), _mm_load_ps(ptr_b)));
-                        _mm_store_ps(ptr_a.offset(4), _mm_add_ps(_mm_load_ps(ptr_a.offset(4)), _mm_load_ps(ptr_b.offset(4))));
-                        _mm_store_ps(ptr_a.offset(8), _mm_add_ps(_mm_load_ps(ptr_a.offset(8)), _mm_load_ps(ptr_b.offset(8))));
-                        _mm_store_ps(ptr_a.offset(12), _mm_add_ps(_mm_load_ps(ptr_a.offset(12)), _mm_load_ps(ptr_b.offset(12))));
-                    }
-                    return;
-                }
-
-                self.data[0] += x.data[0];
-                self.data[1] += x.data[1];
-                self.data[2] += x.data[2];
-                self.data[3] += x.data[3];
-                self.data[4] += x.data[4];
-                self.data[5] += x.data[5];
-                self.data[6] += x.data[6];
-                self.data[7] += x.data[7];
-                self.data[8] += x.data[8];
-                self.data[9] += x.data[9];
-                self.data[10] += x.data[10];
-                self.data[11] += x.data[11];
-                self.data[12] += x.data[12];
-                self.data[13] += x.data[13];
-                self.data[14] += x.data[14];
-                self.data[15] += x.data[15];
-            }
-    }
-
-    pub fn sub(&mut self, x: &Self) {
-        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-            {
-                #[cfg(target_arch = "x86")]
-                use std::arch::x86::*;
-                #[cfg(target_arch = "x86_64")]
-                use std::arch::x86_64::*;
-
-                if self.flags & CpuExtensionFlags::AVX512F != CpuExtensionFlags::NONE {
-                    unsafe {
-                        // USE AVX because Rust does not support AVX-512 completely.
-                        // Also AVX-512 is only supported on a very few CPUs.
-                        let ptr_a: *mut f32 = self.data.as_mut_ptr();
-                        let ptr_b: *const f32 = x.data.as_ptr();
-                        _mm256_store_ps(ptr_a, _mm256_sub_ps(_mm256_load_ps(ptr_a), _mm256_load_ps(ptr_b)));
-                        _mm256_store_ps(ptr_a.offset(8), _mm256_sub_ps(_mm256_load_ps(ptr_a.offset(8)), _mm256_load_ps(ptr_b.offset(8))));
-                    }
-                    return;
-                } else if self.flags & CpuExtensionFlags::AVX != CpuExtensionFlags::NONE {
-                    unsafe {
-                        let ptr_a: *mut f32 = self.data.as_mut_ptr();
-                        let ptr_b: *const f32 = x.data.as_ptr();
-                        _mm256_store_ps(ptr_a, _mm256_sub_ps(_mm256_load_ps(ptr_a), _mm256_load_ps(ptr_b)));
-                        _mm256_store_ps(ptr_a.offset(8), _mm256_sub_ps(_mm256_load_ps(ptr_a.offset(8)), _mm256_load_ps(ptr_b.offset(8))));
-                    }
-                    return;
-                } else if self.flags & CpuExtensionFlags::SSE != CpuExtensionFlags::NONE {
-                    unsafe {
-                        let ptr_a: *mut f32 = self.data.as_mut_ptr();
-                        let ptr_b: *const f32 = x.data.as_ptr();
-                        _mm_store_ps(ptr_a, _mm_sub_ps(_mm_load_ps(ptr_a), _mm_load_ps(ptr_b)));
-                        _mm_store_ps(ptr_a.offset(4), _mm_sub_ps(_mm_load_ps(ptr_a.offset(4)), _mm_load_ps(ptr_b.offset(4))));
-                        _mm_store_ps(ptr_a.offset(8), _mm_sub_ps(_mm_load_ps(ptr_a.offset(8)), _mm_load_ps(ptr_b.offset(8))));
-                        _mm_store_ps(ptr_a.offset(12), _mm_sub_ps(_mm_load_ps(ptr_a.offset(12)), _mm_load_ps(ptr_b.offset(12))));
-                    }
-                    return;
-                }
-
-                self.data[0] -= x.data[0];
-                self.data[1] -= x.data[1];
-                self.data[2] -= x.data[2];
-                self.data[3] -= x.data[3];
-                self.data[4] -= x.data[4];
-                self.data[5] -= x.data[5];
-                self.data[6] -= x.data[6];
-                self.data[7] -= x.data[7];
-                self.data[8] -= x.data[8];
-                self.data[9] -= x.data[9];
-                self.data[10] -= x.data[10];
-                self.data[11] -= x.data[11];
-                self.data[12] -= x.data[12];
-                self.data[13] -= x.data[13];
-                self.data[14] -= x.data[14];
-                self.data[15] -= x.data[15];
-            }
-    }
+#[inline(always)]
+pub fn sub16(x: &mut [f32; 16], y: &[f32; 16]) {
+    x[0] -= y[0];
+    x[1] -= y[1];
+    x[2] -= y[2];
+    x[3] -= y[3];
+    x[4] -= y[4];
+    x[5] -= y[5];
+    x[6] -= y[6];
+    x[7] -= y[7];
+    x[8] -= y[8];
+    x[9] -= y[9];
+    x[10] -= y[10];
+    x[11] -= y[11];
+    x[12] -= y[12];
+    x[13] -= y[13];
+    x[14] -= y[14];
+    x[15] -= y[15];
 }
 
-#[cfg(test)]
-mod test {
-    use super::F32X16;
-    use crate::simd::aligned::AlignedTo64Array16;
-    use crate::simd::flags::CpuExtensionFlags;
+#[inline(always)]
+pub fn mul4(x: &mut [f32; 4], y: &[f32; 4]) {
+    x[0] *= y[0];
+    x[1] *= y[1];
+    x[2] *= y[2];
+    x[3] *= y[3];
+}
 
-    #[test]
-    fn add() {
-        let arr = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0];
-        let flags = CpuExtensionFlags::query_all();
+#[inline(always)]
+pub fn mul8(x: &mut [f32; 8], y: &[f32; 8]) {
+    x[0] *= y[0];
+    x[1] *= y[1];
+    x[2] *= y[2];
+    x[3] *= y[3];
+    x[4] *= y[4];
+    x[5] *= y[5];
+    x[6] *= y[6];
+    x[7] *= y[7];
+}
 
-        let mut alpha = F32X16::with_data(AlignedTo64Array16(arr), flags);
-        let beta = F32X16::with_data(AlignedTo64Array16(arr), flags);
+#[inline(always)]
+pub fn mul16(x: &mut [f32; 16], y: &[f32; 16]) {
+    x[0] *= y[0];
+    x[1] *= y[1];
+    x[2] *= y[2];
+    x[3] *= y[3];
+    x[4] *= y[4];
+    x[5] *= y[5];
+    x[6] *= y[6];
+    x[7] *= y[7];
+    x[8] *= y[8];
+    x[9] *= y[9];
+    x[10] *= y[10];
+    x[11] *= y[11];
+    x[12] *= y[12];
+    x[13] *= y[13];
+    x[14] *= y[14];
+    x[15] *= y[15];
+}
 
-        alpha.add(&beta);
+#[inline(always)]
+pub fn div4(x: &mut [f32; 4], y: &[f32; 4]) {
+    x[0] /= y[0];
+    x[1] /= y[1];
+    x[2] /= y[2];
+    x[3] /= y[3];
+}
 
-        assert_eq!(alpha.data.0[0], 2.0);
-        assert_eq!(alpha.data.0[1], 4.0);
-        assert_eq!(alpha.data.0[2], 6.0);
-        assert_eq!(alpha.data.0[3], 8.0);
-        assert_eq!(alpha.data.0[4], 10.0);
-        assert_eq!(alpha.data.0[5], 12.0);
-        assert_eq!(alpha.data.0[6], 14.0);
-        assert_eq!(alpha.data.0[7], 16.0);
-        assert_eq!(alpha.data.0[8], 18.0);
-        assert_eq!(alpha.data.0[9], 20.0);
-        assert_eq!(alpha.data.0[10], 22.0);
-        assert_eq!(alpha.data.0[11], 24.0);
-        assert_eq!(alpha.data.0[12], 26.0);
-        assert_eq!(alpha.data.0[13], 28.0);
-        assert_eq!(alpha.data.0[14], 30.0);
-        assert_eq!(alpha.data.0[15], 32.0);
+#[inline(always)]
+pub fn div8(x: &mut [f32; 8], y: &[f32; 8]) {
+    x[0] /= y[0];
+    x[1] /= y[1];
+    x[2] /= y[2];
+    x[3] /= y[3];
+    x[4] /= y[4];
+    x[5] /= y[5];
+    x[6] /= y[6];
+    x[7] /= y[7];
+}
 
-        alpha.add(&beta);
+#[inline(always)]
+pub fn div16(x: &mut [f32; 16], y: &[f32; 16]) {
+    x[0] /= y[0];
+    x[1] /= y[1];
+    x[2] /= y[2];
+    x[3] /= y[3];
+    x[4] /= y[4];
+    x[5] /= y[5];
+    x[6] /= y[6];
+    x[7] /= y[7];
+    x[8] /= y[8];
+    x[9] /= y[9];
+    x[10] /= y[10];
+    x[11] /= y[11];
+    x[12] /= y[12];
+    x[13] /= y[13];
+    x[14] /= y[14];
+    x[15] /= y[15];
+}
 
-        assert_eq!(alpha.data.0[0], 3.0);
-        assert_eq!(alpha.data.0[1], 6.0);
-        assert_eq!(alpha.data.0[2], 9.0);
-        assert_eq!(alpha.data.0[3], 12.0);
-        assert_eq!(alpha.data.0[4], 15.0);
-        assert_eq!(alpha.data.0[5], 18.0);
-        assert_eq!(alpha.data.0[6], 21.0);
-        assert_eq!(alpha.data.0[7], 24.0);
-        assert_eq!(alpha.data.0[8], 27.0);
-        assert_eq!(alpha.data.0[9], 30.0);
-        assert_eq!(alpha.data.0[10], 33.0);
-        assert_eq!(alpha.data.0[11], 36.0);
-        assert_eq!(alpha.data.0[12], 39.0);
-        assert_eq!(alpha.data.0[13], 42.0);
-        assert_eq!(alpha.data.0[14], 45.0);
-        assert_eq!(alpha.data.0[15], 48.0);
-    }
+#[inline(always)]
+pub fn mod4(x: &mut [f32; 4], y: &[f32; 4]) {
+    x[0] %= y[0];
+    x[1] %= y[1];
+    x[2] %= y[2];
+    x[3] %= y[3];
+}
 
-    #[test]
-    fn sub() {
-        let arr = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0];
-        let flags = CpuExtensionFlags::query_all();
+#[inline(always)]
+pub fn mod8(x: &mut [f32; 8], y: &[f32; 8]) {
+    x[0] %= y[0];
+    x[1] %= y[1];
+    x[2] %= y[2];
+    x[3] %= y[3];
+    x[4] %= y[4];
+    x[5] %= y[5];
+    x[6] %= y[6];
+    x[7] %= y[7];
+}
 
-        let mut alpha = F32X16::with_data(AlignedTo64Array16(arr), flags);
-        let beta = F32X16::with_data(AlignedTo64Array16(arr), flags);
+#[inline(always)]
+pub fn mod16(x: &mut [f32; 16], y: &[f32; 16]) {
+    x[0] %= y[0];
+    x[1] %= y[1];
+    x[2] %= y[2];
+    x[3] %= y[3];
+    x[4] %= y[4];
+    x[5] %= y[5];
+    x[6] %= y[6];
+    x[7] %= y[7];
+    x[8] %= y[8];
+    x[9] %= y[9];
+    x[10] %= y[10];
+    x[11] %= y[11];
+    x[12] %= y[12];
+    x[13] %= y[13];
+    x[14] %= y[14];
+    x[15] %= y[15];
+}
 
-        alpha.sub(&beta);
+#[inline(always)]
+pub fn fma4(x: &mut [f32; 4], y: &[f32; 4], z: &[f32; 4]) {
+    x[0] = x[0].mul_add(y[0], z[0]);
+    x[1] = x[1].mul_add(y[1], z[1]);
+    x[2] = x[2].mul_add(y[2], z[2]);
+    x[3] = x[3].mul_add(y[3], z[3]);
+}
 
-        assert_eq!(alpha.data.0[0], 2.0);
-        assert_eq!(alpha.data.0[1], 4.0);
-        assert_eq!(alpha.data.0[2], 6.0);
-        assert_eq!(alpha.data.0[3], 8.0);
-        assert_eq!(alpha.data.0[4], 10.0);
-        assert_eq!(alpha.data.0[5], 12.0);
-        assert_eq!(alpha.data.0[6], 14.0);
-        assert_eq!(alpha.data.0[7], 16.0);
-        assert_eq!(alpha.data.0[8], 18.0);
-        assert_eq!(alpha.data.0[9], 20.0);
-        assert_eq!(alpha.data.0[10], 22.0);
-        assert_eq!(alpha.data.0[11], 24.0);
-        assert_eq!(alpha.data.0[12], 26.0);
-        assert_eq!(alpha.data.0[13], 28.0);
-        assert_eq!(alpha.data.0[14], 30.0);
-        assert_eq!(alpha.data.0[15], 32.0);
+#[inline(always)]
+pub fn fma8(x: &mut [f32; 8], y: &[f32; 8], z: &[f32; 8]) {
+    x[0] = x[0].mul_add(y[0], z[0]);
+    x[1] = x[1].mul_add(y[1], z[1]);
+    x[2] = x[2].mul_add(y[2], z[2]);
+    x[3] = x[3].mul_add(y[3], z[3]);
+    x[4] = x[4].mul_add(y[4], z[4]);
+    x[5] = x[5].mul_add(y[5], z[5]);
+    x[6] = x[6].mul_add(y[6], z[6]);
+    x[7] = x[7].mul_add(y[7], z[7]);
+}
 
-        alpha.add(&beta);
-
-        assert_eq!(alpha.data.0[0], 3.0);
-        assert_eq!(alpha.data.0[1], 6.0);
-        assert_eq!(alpha.data.0[2], 9.0);
-        assert_eq!(alpha.data.0[3], 12.0);
-        assert_eq!(alpha.data.0[4], 15.0);
-        assert_eq!(alpha.data.0[5], 18.0);
-        assert_eq!(alpha.data.0[6], 21.0);
-        assert_eq!(alpha.data.0[7], 24.0);
-        assert_eq!(alpha.data.0[8], 27.0);
-        assert_eq!(alpha.data.0[9], 30.0);
-        assert_eq!(alpha.data.0[10], 33.0);
-        assert_eq!(alpha.data.0[11], 36.0);
-        assert_eq!(alpha.data.0[12], 39.0);
-        assert_eq!(alpha.data.0[13], 42.0);
-        assert_eq!(alpha.data.0[14], 45.0);
-        assert_eq!(alpha.data.0[15], 48.0);
-    }
+#[inline(always)]
+pub fn fma16(x: &mut [f32; 16], y: &[f32; 16], z: &[f32; 16]) {
+    x[0] = x[0].mul_add(y[0], z[0]);
+    x[1] = x[1].mul_add(y[1], z[1]);
+    x[2] = x[2].mul_add(y[2], z[2]);
+    x[3] = x[3].mul_add(y[3], z[3]);
+    x[4] = x[4].mul_add(y[4], z[4]);
+    x[5] = x[5].mul_add(y[5], z[5]);
+    x[6] = x[6].mul_add(y[6], z[6]);
+    x[7] = x[7].mul_add(y[7], z[7]);
+    x[8] = x[8].mul_add(y[8], z[8]);
+    x[9] = x[9].mul_add(y[9], z[9]);
+    x[10] = x[10].mul_add(y[10], z[10]);
+    x[11] = x[11].mul_add(y[11], z[11]);
+    x[12] = x[12].mul_add(y[12], z[12]);
+    x[13] = x[13].mul_add(y[13], z[13]);
+    x[14] = x[14].mul_add(y[14], z[14]);
+    x[15] = x[15].mul_add(y[15], z[15]);
 }

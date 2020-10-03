@@ -204,12 +204,5 @@
 
 */
 
-pub mod chunk;
-pub mod discriminated;
-pub mod intrinsic;
-pub mod intrinsic_meta;
-pub mod meta;
-pub mod opcode;
-pub mod operation_meta;
-pub mod signal;
-pub mod stream;
+pub mod f32;
+pub mod i32;

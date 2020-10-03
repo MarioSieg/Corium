@@ -204,6 +204,18 @@
 
 */
 
-pub mod f32x16;
-pub mod flags;
 pub mod aligned;
+pub mod fallback;
+pub mod flags;
+
+#[cfg(all(
+    any(target_arch = "x86", target_arch = "x86_64"),
+    all(target_feature = "sse2", target_feature = "fma")
+))]
+pub mod sse;
+
+#[cfg(all(
+    any(target_arch = "x86", target_arch = "x86_64"),
+    all(target_feature = "avx", target_feature = "fma")
+))]
+pub mod avx;

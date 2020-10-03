@@ -204,12 +204,10 @@
 
 */
 
-pub mod chunk;
-pub mod discriminated;
-pub mod intrinsic;
-pub mod intrinsic_meta;
-pub mod meta;
-pub mod opcode;
-pub mod operation_meta;
-pub mod signal;
-pub mod stream;
+// Currently we do use the unaligned loads/stores (loadu, storeu) which is okay.
+// There might be a small 10% performance impact. If this turns out to be more in benchmarks,
+// we should align everything properly.
+#![allow(clippy::cast_ptr_alignment)]
+
+pub mod f32;
+pub mod i32;

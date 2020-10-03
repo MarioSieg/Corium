@@ -211,7 +211,10 @@ impl VectorScalar32 for i32 {}
 impl VectorScalar32 for f32 {}
 
 /// Base for all aligned arrays.
-pub trait AlignedArray<T>: Sized + Default + Clone + Index<usize> + IndexMut<usize> where T: VectorScalar32 {
+pub trait AlignedArray<T>: Sized + Default + Clone + Index<usize> + IndexMut<usize>
+where
+    T: VectorScalar32,
+{
     /// The length of the array.
     const LENGTH: usize;
 
@@ -231,9 +234,14 @@ pub trait AlignedArray<T>: Sized + Default + Clone + Index<usize> + IndexMut<usi
 /// 16-Bytes 128-Bit aligned array with 4 scalars.
 #[repr(align(16))]
 #[derive(Default, Clone)]
-pub struct AlignedTo16Array4<T>(pub [T; 4]) where T: VectorScalar32;
+pub struct AlignedTo16Array4<T>(pub [T; 4])
+where
+    T: VectorScalar32;
 
-impl<T> AlignedArray<T> for AlignedTo16Array4<T> where T: VectorScalar32 {
+impl<T> AlignedArray<T> for AlignedTo16Array4<T>
+where
+    T: VectorScalar32,
+{
     /// The length of the array.
     const LENGTH: usize = 4;
 
@@ -256,14 +264,20 @@ impl<T> AlignedArray<T> for AlignedTo16Array4<T> where T: VectorScalar32 {
     }
 }
 
-impl<T> Index<usize> for AlignedTo16Array4<T> where T: VectorScalar32 {
+impl<T> Index<usize> for AlignedTo16Array4<T>
+where
+    T: VectorScalar32,
+{
     type Output = T;
     fn index(&self, idx: usize) -> &Self::Output {
         &self.0[idx]
     }
 }
 
-impl<T> IndexMut<usize> for AlignedTo16Array4<T> where T: VectorScalar32 {
+impl<T> IndexMut<usize> for AlignedTo16Array4<T>
+where
+    T: VectorScalar32,
+{
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.0[idx]
     }
@@ -272,9 +286,14 @@ impl<T> IndexMut<usize> for AlignedTo16Array4<T> where T: VectorScalar32 {
 /// 32-Bytes 256-Bit aligned array with 8 scalars.
 #[repr(align(32))]
 #[derive(Default, Clone)]
-pub struct AlignedTo32Array8<T>(pub [T; 8]) where T: VectorScalar32;
+pub struct AlignedTo32Array8<T>(pub [T; 8])
+where
+    T: VectorScalar32;
 
-impl<T> AlignedArray<T> for AlignedTo32Array8<T> where T: VectorScalar32 {
+impl<T> AlignedArray<T> for AlignedTo32Array8<T>
+where
+    T: VectorScalar32,
+{
     /// The length of the array.
     const LENGTH: usize = 8;
 
@@ -297,14 +316,20 @@ impl<T> AlignedArray<T> for AlignedTo32Array8<T> where T: VectorScalar32 {
     }
 }
 
-impl<T> Index<usize> for AlignedTo32Array8<T> where T: VectorScalar32 {
+impl<T> Index<usize> for AlignedTo32Array8<T>
+where
+    T: VectorScalar32,
+{
     type Output = T;
     fn index(&self, idx: usize) -> &Self::Output {
         &self.0[idx]
     }
 }
 
-impl<T> IndexMut<usize> for AlignedTo32Array8<T> where T: VectorScalar32 {
+impl<T> IndexMut<usize> for AlignedTo32Array8<T>
+where
+    T: VectorScalar32,
+{
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.0[idx]
     }
@@ -313,9 +338,14 @@ impl<T> IndexMut<usize> for AlignedTo32Array8<T> where T: VectorScalar32 {
 /// 64-Bytes 512-Bit aligned array with 16 scalars.
 #[repr(align(64))]
 #[derive(Default, Clone)]
-pub struct AlignedTo64Array16<T>(pub [T; 16]) where T: VectorScalar32;
+pub struct AlignedTo64Array16<T>(pub [T; 16])
+where
+    T: VectorScalar32;
 
-impl<T> AlignedArray<T> for AlignedTo64Array16<T> where T: VectorScalar32 {
+impl<T> AlignedArray<T> for AlignedTo64Array16<T>
+where
+    T: VectorScalar32,
+{
     /// The length of the array.
     const LENGTH: usize = 4;
 
@@ -338,14 +368,20 @@ impl<T> AlignedArray<T> for AlignedTo64Array16<T> where T: VectorScalar32 {
     }
 }
 
-impl<T> Index<usize> for AlignedTo64Array16<T> where T: VectorScalar32 {
+impl<T> Index<usize> for AlignedTo64Array16<T>
+where
+    T: VectorScalar32,
+{
     type Output = T;
     fn index(&self, idx: usize) -> &Self::Output {
         &self.0[idx]
     }
 }
 
-impl<T> IndexMut<usize> for AlignedTo64Array16<T> where T: VectorScalar32 {
+impl<T> IndexMut<usize> for AlignedTo64Array16<T>
+where
+    T: VectorScalar32,
+{
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.0[idx]
     }
