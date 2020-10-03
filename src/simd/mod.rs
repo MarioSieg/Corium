@@ -204,6 +204,6 @@
 
 */
 
-pub mod f32x4;
+pub mod f32x16;
 pub mod flags;
 pub mod aligned;
