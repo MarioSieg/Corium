@@ -13,8 +13,8 @@ name = "ronin_virtual_machine"
 path = "src/bin.rs"
 
 [features]
-config_file = ["serde", "serde_json"]
 simd = []
+config_file = ["serde", "serde_json"]
 
 [dependencies]
 # Required:

@@ -388,10 +388,10 @@ impl CpuExtensionFlags {
             if is_x86_feature_detected!("mmx") {
                 flags |= Self::MMX;
             }
-            if is_x86_feature_detected!("sse") {
+            if is_x86_feature_detected!("sse4.1") {
                 flags |= Self::SSE;
             }
-            if is_x86_feature_detected!("sse2") {
+            if is_x86_feature_detected!("sse4.1") {
                 flags |= Self::SSE2;
             }
             if is_x86_feature_detected!("sse3") {
