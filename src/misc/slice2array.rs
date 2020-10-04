@@ -204,14 +204,236 @@
 
 */
 
-pub mod aligned;
-pub mod f32;
-pub mod fallback;
-pub mod flags;
-pub mod i32;
+#[inline(always)]
+pub fn slice2array4<T>(in_: &[T]) -> &[T; 4]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 4);
+    unsafe { &*(in_.as_ptr() as *const [T; 4]) }
+}
 
-#[cfg(all(target_arch = "x86_64", target_feature = "sse"))]
-mod sse;
+#[inline(always)]
+pub fn slice2array4_mut<T>(in_: &mut [T]) -> &mut [T; 4]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 4);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 4]) }
+}
 
-#[cfg(all(target_arch = "x86_64", target_feature = "avx"))]
-mod avx;
+#[inline(always)]
+pub fn slice2array8<T>(in_: &[T]) -> &[T; 8]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 8);
+    unsafe { &*(in_.as_ptr() as *const [T; 8]) }
+}
+
+#[inline(always)]
+pub fn slice2array8_mut<T>(in_: &mut [T]) -> &mut [T; 8]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 8);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 8]) }
+}
+
+#[inline(always)]
+pub fn slice2array16<T>(in_: &[T]) -> &[T; 16]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 16);
+    unsafe { &*(in_.as_ptr() as *const [T; 16]) }
+}
+
+#[inline(always)]
+pub fn slice2array16_mut<T>(in_: &mut [T]) -> &mut [T; 16]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 16);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 16]) }
+}
+
+#[inline(always)]
+pub fn slice2array32<T>(in_: &[T]) -> &[T; 32]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 32);
+    unsafe { &*(in_.as_ptr() as *const [T; 32]) }
+}
+
+#[inline(always)]
+pub fn slice2array32_mut<T>(in_: &mut [T]) -> &mut [T; 32]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 32);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 32]) }
+}
+
+#[inline(always)]
+pub fn slice2array64<T>(in_: &[T]) -> &[T; 64]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 64);
+    unsafe { &*(in_.as_ptr() as *const [T; 64]) }
+}
+
+#[inline(always)]
+pub fn slice2array64_mut<T>(in_: &mut [T]) -> &mut [T; 64]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 64);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 64]) }
+}
+
+#[inline(always)]
+pub fn slice2array128<T>(in_: &[T]) -> &[T; 128]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 128);
+    unsafe { &*(in_.as_ptr() as *const [T; 128]) }
+}
+
+#[inline(always)]
+pub fn slice2array128_mut<T>(in_: &mut [T]) -> &mut [T; 128]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 128);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 128]) }
+}
+
+#[inline(always)]
+pub fn slice2array256<T>(in_: &[T]) -> &[T; 256]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 256);
+    unsafe { &*(in_.as_ptr() as *const [T; 256]) }
+}
+
+#[inline(always)]
+pub fn slice2array256_mut<T>(in_: &mut [T]) -> &mut [T; 256]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 256);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 256]) }
+}
+
+#[inline(always)]
+pub fn slice2array512<T>(in_: &[T]) -> &[T; 512]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 512);
+    unsafe { &*(in_.as_ptr() as *const [T; 512]) }
+}
+
+#[inline(always)]
+pub fn slice2array512_mut<T>(in_: &mut [T]) -> &mut [T; 512]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 512);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 512]) }
+}
+
+#[inline(always)]
+pub fn slice2array1024<T>(in_: &[T]) -> &[T; 1024]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 1024);
+    unsafe { &*(in_.as_ptr() as *const [T; 1024]) }
+}
+
+#[inline(always)]
+pub fn slice2array1024_mut<T>(in_: &mut [T]) -> &mut [T; 1024]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 1024);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 1024]) }
+}
+
+#[inline(always)]
+pub fn slice2array2048<T>(in_: &[T]) -> &[T; 2048]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 2048);
+    unsafe { &*(in_.as_ptr() as *const [T; 2048]) }
+}
+
+#[inline(always)]
+pub fn slice2array2048_mut<T>(in_: &mut [T]) -> &mut [T; 2048]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 2048);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 2048]) }
+}
+
+#[inline(always)]
+pub fn slice2array4096<T>(in_: &[T]) -> &[T; 4096]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 4096);
+    unsafe { &*(in_.as_ptr() as *const [T; 4096]) }
+}
+
+#[inline(always)]
+pub fn slice2array4096_mut<T>(in_: &mut [T]) -> &mut [T; 4096]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 4096);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 4096]) }
+}
+
+#[inline(always)]
+pub fn slice2array8192<T>(in_: &[T]) -> &[T; 8192]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 8192);
+    unsafe { &*(in_.as_ptr() as *const [T; 8192]) }
+}
+
+#[inline(always)]
+pub fn slice2array8192_mut<T>(in_: &mut [T]) -> &mut [T; 8192]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 8192);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 8192]) }
+}
+
+#[inline(always)]
+pub fn slice2array16384<T>(in_: &[T]) -> &[T; 16384]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 16384);
+    unsafe { &*(in_.as_ptr() as *const [T; 16384]) }
+}
+
+#[inline(always)]
+pub fn slice2array16384_mut<T>(in_: &mut [T]) -> &mut [T; 16384]
+where
+    T: Sized + Copy + Clone,
+{
+    debug_assert_eq!(in_.len(), 16384);
+    unsafe { &mut *(in_.as_ptr() as *mut [T; 16384]) }
+}

@@ -206,8 +206,6 @@
 
 use crate::simd::fallback;
 
-#[cfg(target_arch = "x86")]
-use std::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
 
@@ -406,7 +404,7 @@ pub fn or16(x: &mut [i32; 16], y: &[i32; 16]) {
                 _mm256_loadu_si256(y as *const __m256i),
             ),
         );
-        _mm256_store_si256(
+        _mm256_storeu_si256(
             x.offset(8) as *mut __m256i,
             _mm256_or_si256(
                 _mm256_loadu_si256(x.offset(8) as *const __m256i),
@@ -519,7 +517,6 @@ mod test {
         }
     }
 
-    /*
     #[test]
     fn add16() {
         let y = [
@@ -999,5 +996,4 @@ mod test {
             assert_eq!(x, y);
         }
     }
-    */
 }

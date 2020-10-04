@@ -207,3 +207,4 @@
 pub mod config;
 pub mod mt19937;
 pub mod mt19937_64;
+pub mod slice2array;

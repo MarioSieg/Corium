@@ -204,8 +204,8 @@
 
 */
 
-#[cfg(target_arch = "x86")]
-use std::arch::x86::*;
+use crate::simd::fallback;
+
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
 
@@ -295,6 +295,16 @@ pub fn div16(x: &mut [f32; 16], y: &[f32; 16]) {
             _mm256_div_ps(_mm256_loadu_ps(x.offset(8)), _mm256_loadu_ps(y.offset(8))),
         );
     }
+}
+
+#[inline(always)]
+pub fn mod8(x: &mut [f32; 8], y: &[f32; 8]) {
+    fallback::f32::mod8(x, y);
+}
+
+#[inline(always)]
+pub fn mod16(x: &mut [f32; 16], y: &[f32; 16]) {
+    fallback::f32::mod16(x, y);
 }
 
 #[inline(always)]
@@ -420,6 +430,36 @@ mod tests {
         let mut x_fallback = x_simd;
         super::mul16(&mut x_simd, &y);
         fallback::f32::mul16(&mut x_fallback, &y);
+        for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
+            assert_eq!(x, y);
+        }
+    }
+
+    #[test]
+    fn mod8() {
+        let y = [3.0, -5.0, 8.0, 200.0, -32.0, -80.0, 4322809.0, 2.0];
+        let mut x_simd = [4.0, 2.0, 8.0, 109.0, 9.0, 134.0, 21.0, 3.0];
+        let mut x_fallback = x_simd;
+        super::mod8(&mut x_simd, &y);
+        fallback::f32::mod8(&mut x_fallback, &y);
+        for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
+            assert_eq!(x, y);
+        }
+    }
+
+    #[test]
+    fn mod16() {
+        let y = [
+            4.0, 2.0, 8.0, 109.0, 9.0, 134.0, 21.0, 3.0, -2233.0, 0242.0, 8.0, 109.0, 9.0, 134.0,
+            21.0, 3.0,
+        ];
+        let mut x_simd = [
+            3.0, -5.0, 8.0, 200.0, -32.0, 92.0, 12.0, 2.0, 3.0, -5.0, 8.0, 200.0, -32.0, 92.0,
+            12.0, 2.0,
+        ];
+        let mut x_fallback = x_simd;
+        super::mod16(&mut x_simd, &y);
+        fallback::f32::mod16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
