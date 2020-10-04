@@ -206,18 +206,18 @@
 
 #[inline(always)]
 pub fn add4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::add4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::add4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::add4(x, y);
     }
@@ -225,22 +225,22 @@ pub fn add4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn add8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::add8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::add8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::add8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::add8(x, y);
     }
@@ -248,22 +248,22 @@ pub fn add8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn add16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::add16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::add16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::add16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::add16(x, y);
     }
@@ -271,18 +271,18 @@ pub fn add16(x: &mut [i32; 16], y: &[i32; 16]) {
 
 #[inline(always)]
 pub fn sub4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::sub4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::sub4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::sub4(x, y);
     }
@@ -290,22 +290,22 @@ pub fn sub4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn sub8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::sub8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::sub8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::sub8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::sub8(x, y);
     }
@@ -313,22 +313,22 @@ pub fn sub8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn sub16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::sub16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::sub16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::sub16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::sub16(x, y);
     }
@@ -336,18 +336,18 @@ pub fn sub16(x: &mut [i32; 16], y: &[i32; 16]) {
 
 #[inline(always)]
 pub fn mul4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::mul4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::mul4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::mul4(x, y);
     }
@@ -355,22 +355,22 @@ pub fn mul4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn mul8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::mul8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::mul8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::mul8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::mul8(x, y);
     }
@@ -378,22 +378,22 @@ pub fn mul8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn mul16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::mul16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::mul16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::mul16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::mul16(x, y);
     }
@@ -401,18 +401,18 @@ pub fn mul16(x: &mut [i32; 16], y: &[i32; 16]) {
 
 #[inline(always)]
 pub fn div4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::div4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::div4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::div4(x, y);
     }
@@ -420,22 +420,22 @@ pub fn div4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn div8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::div8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::div8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::div8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::div8(x, y);
     }
@@ -443,22 +443,22 @@ pub fn div8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn div16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::div16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::div16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::div16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::div16(x, y);
     }
@@ -466,18 +466,18 @@ pub fn div16(x: &mut [i32; 16], y: &[i32; 16]) {
 
 #[inline(always)]
 pub fn mod4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::mod4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::mod4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::mod4(x, y);
     }
@@ -485,22 +485,22 @@ pub fn mod4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn mod8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::mod8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::mod8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::mod8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::mod8(x, y);
     }
@@ -508,22 +508,22 @@ pub fn mod8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn mod16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::mod16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::mod16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::mod16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::mod16(x, y);
     }
@@ -531,18 +531,18 @@ pub fn mod16(x: &mut [i32; 16], y: &[i32; 16]) {
 
 #[inline(always)]
 pub fn and4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::and4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::and4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::and4(x, y);
     }
@@ -550,22 +550,22 @@ pub fn and4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn and8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::and8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::and8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::and8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::and8(x, y);
     }
@@ -573,22 +573,22 @@ pub fn and8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn and16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::and16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::and16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::and16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::and16(x, y);
     }
@@ -596,18 +596,18 @@ pub fn and16(x: &mut [i32; 16], y: &[i32; 16]) {
 
 #[inline(always)]
 pub fn or4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::or4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::or4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::or4(x, y);
     }
@@ -615,22 +615,22 @@ pub fn or4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn or8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::or8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::or8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::or8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::or8(x, y);
     }
@@ -638,22 +638,22 @@ pub fn or8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn or16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::or16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::or16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::or16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::or16(x, y);
     }
@@ -661,18 +661,18 @@ pub fn or16(x: &mut [i32; 16], y: &[i32; 16]) {
 
 #[inline(always)]
 pub fn xor4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::xor4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::xor4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::xor4(x, y);
     }
@@ -680,22 +680,22 @@ pub fn xor4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn xor8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::xor8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::xor8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::xor8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::xor8(x, y);
     }
@@ -703,22 +703,22 @@ pub fn xor8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn xor16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::xor16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::xor16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::xor16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::xor16(x, y);
     }
@@ -726,18 +726,18 @@ pub fn xor16(x: &mut [i32; 16], y: &[i32; 16]) {
 
 #[inline(always)]
 pub fn sal4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::sal4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::sal4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::sal4(x, y);
     }
@@ -745,22 +745,22 @@ pub fn sal4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn sal8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::sal8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::sal8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::sal8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::sal8(x, y);
     }
@@ -768,22 +768,22 @@ pub fn sal8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn sal16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::sal16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::sal16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::sal16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::sal16(x, y);
     }
@@ -791,18 +791,18 @@ pub fn sal16(x: &mut [i32; 16], y: &[i32; 16]) {
 
 #[inline(always)]
 pub fn sar4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::sar4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::sar4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::sar4(x, y);
     }
@@ -810,22 +810,22 @@ pub fn sar4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn sar8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::sar8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::sar8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::sar8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::sar8(x, y);
     }
@@ -833,22 +833,22 @@ pub fn sar8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn sar16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::sar16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::sar16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::sar16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::sar16(x, y);
     }
@@ -856,18 +856,18 @@ pub fn sar16(x: &mut [i32; 16], y: &[i32; 16]) {
 
 #[inline(always)]
 pub fn rol4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::rol4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::rol4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::rol4(x, y);
     }
@@ -875,22 +875,22 @@ pub fn rol4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn rol8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::rol8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::rol8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::rol8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::rol8(x, y);
     }
@@ -898,22 +898,22 @@ pub fn rol8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn rol16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::rol16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::rol16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::rol16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::rol16(x, y);
     }
@@ -921,18 +921,18 @@ pub fn rol16(x: &mut [i32; 16], y: &[i32; 16]) {
 
 #[inline(always)]
 pub fn ror4(x: &mut [i32; 4], y: &[i32; 4]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
-        #[cfg(target_feature = "sse")]
+        #[cfg(target_feature = "sse2")]
         {
             super::sse::i32::ror4(x, y);
         }
-        #[cfg(not(target_feature = "sse"))]
+        #[cfg(not(target_feature = "sse2"))]
         {
             super::fallback::i32::ror4(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::ror4(x, y);
     }
@@ -940,22 +940,22 @@ pub fn ror4(x: &mut [i32; 4], y: &[i32; 4]) {
 
 #[inline(always)]
 pub fn ror8(x: &mut [i32; 8], y: &[i32; 8]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::ror8(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::ror8(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::ror8(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::ror8(x, y);
     }
@@ -963,22 +963,22 @@ pub fn ror8(x: &mut [i32; 8], y: &[i32; 8]) {
 
 #[inline(always)]
 pub fn ror16(x: &mut [i32; 16], y: &[i32; 16]) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
             super::avx::i32::ror16(x, y);
         }
-        #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+        #[cfg(all(not(target_feature = "avx"), target_feature = "sse2"))]
         {
             super::sse::i32::ror16(x, y);
         }
-        #[cfg(not(any(target_feature = "sse", target_feature = "avx")))]
+        #[cfg(not(any(target_feature = "sse2", target_feature = "avx")))]
         {
             super::fallback::i32::ror16(x, y);
         }
     }
-    #[cfg(not(target_arch = "x86_64"))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::i32::ror16(x, y);
     }

@@ -204,29 +204,4 @@
 
 */
 
-pub mod aligned;
 pub mod f32;
-pub mod fallback;
-pub mod flags;
-pub mod i32;
-
-#[cfg(all(
-    target_feature = "simd",
-    target_arch = "x86_64",
-    target_feature = "sse2"
-))]
-mod sse;
-
-#[cfg(all(
-    target_feature = "simd",
-    target_arch = "x86_64",
-    target_feature = "avx"
-))]
-mod avx;
-
-#[cfg(all(
-    target_feature = "simd",
-    target_arch = "x86_64",
-    target_feature = "fma"
-))]
-pub mod fma;
