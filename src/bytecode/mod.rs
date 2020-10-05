@@ -213,3 +213,5 @@ pub mod opcode;
 pub mod operation_meta;
 pub mod signal;
 pub mod stream;
+#[rustfmt::skip]
+pub mod mnemonics;

@@ -536,7 +536,7 @@ impl fmt::Display for BytecodeStream {
         writeln!(f, "+-----------------------------------------------+")?;
         for (i, arg) in self.stream.iter().enumerate() {
             if let DiscriminatedSignal::OpCode(op) = arg {
-                println!("| {:#010X} | {:?}", i, op)
+                println!("| &{:#010X} | {:?}", i, op)
             }
         }
         writeln!(f, "+----------------------End----------------------+\n")
@@ -550,7 +550,7 @@ impl fmt::Debug for BytecodeStream {
         writeln!(f, "|                    Bytecode                   |")?;
         writeln!(f, "+-----------------------------------------------+")?;
         for (i, arg) in self.stream.iter().enumerate() {
-            println!("| {:#010X} | {:?}", i, arg)
+            println!("| &{:#010X} | {:?}", i, arg)
         }
         writeln!(f, "+----------------------End----------------------+\n")
     }

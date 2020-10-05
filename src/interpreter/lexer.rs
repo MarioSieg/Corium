@@ -221,13 +221,14 @@ pub struct LexIn<'d> {
 }
 
 /// Parses one whole line.
-pub fn eval_line<'a>(in_: &mut LexIn<'a>) -> bool {
+pub fn eval_line(in_: &mut LexIn) -> bool {
     if in_.line.is_empty() {
         return true;
     }
     *in_.line = in_.line.to_uppercase();
     let first = first_char_rem(in_.line);
     match first {
+        tok::LINE_SIGIL_COMMENT => true,
         tok::LINE_SIGIL_MNEMONIC => eval_mnemonic(in_),
         tok::LINE_SIGIL_PIN => eval_pin(in_),
         _ => {
@@ -240,7 +241,7 @@ pub fn eval_line<'a>(in_: &mut LexIn<'a>) -> bool {
     }
 }
 
-fn eval_mnemonic<'a>(in_: &mut LexIn<'a>) -> bool {
+fn eval_mnemonic(in_: &mut LexIn) -> bool {
     let mut m = None;
     's: for meta in OPERATION_TABLE.iter() {
         if first_str_rem(in_.line, meta.mnemonic) {
@@ -323,7 +324,7 @@ fn eval_mnemonic<'a>(in_: &mut LexIn<'a>) -> bool {
     }
 }
 
-fn eval_pin<'a>(in_: &mut LexIn<'a>) -> bool {
+fn eval_pin(in_: &mut LexIn) -> bool {
     if in_.stream.jump_table().contains_key(in_.line) {
         in_.errors
             .push(format!("Pin is already defined: {:?}", in_.backup));
@@ -334,7 +335,7 @@ fn eval_pin<'a>(in_: &mut LexIn<'a>) -> bool {
     }
 }
 
-fn eval_arg_f32<'a>(in_: &mut LexIn<'a>) -> bool {
+fn eval_arg_f32(in_: &mut LexIn) -> bool {
     if let Ok(x) = f32::from_str(in_.line) {
         in_.stream.with_f32(x);
         true
@@ -347,7 +348,7 @@ fn eval_arg_f32<'a>(in_: &mut LexIn<'a>) -> bool {
     }
 }
 
-fn eval_arg_i32<'a>(in_: &mut LexIn<'a>) -> bool {
+fn eval_arg_i32(in_: &mut LexIn) -> bool {
     if first_str_rem(in_.line, tok::LITERAL_PREFIX_HEX) {
         if let Ok(x) = i32::from_str_radix(in_.line, 6) {
             in_.stream.with_i32(x);
@@ -389,7 +390,7 @@ fn eval_arg_i32<'a>(in_: &mut LexIn<'a>) -> bool {
     }
 }
 
-fn eval_arg_pin<'a>(in_: &mut LexIn<'a>) -> bool {
+fn eval_arg_pin(in_: &mut LexIn) -> bool {
     if in_.line.chars().all(char::is_alphanumeric) {
         if in_.stream.jump_table().contains_key(in_.line) {
             in_.stream.with_pin(in_.line);

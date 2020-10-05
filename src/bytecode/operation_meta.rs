@@ -205,7 +205,7 @@
 */
 
 use crate::bytecode::meta::*;
-use crate::interpreter::mnemonics;
+use crate::bytecode::mnemonics;
 
 /// Contains all metadata for all operations.
 /// The index if the opcode.
@@ -2267,8 +2267,8 @@ pub(crate) const OPERATION_TABLE: &[OperationMeta<'static>; OpCode::COUNT] = &[
 
 #[cfg(test)]
 mod tests {
+    use crate::bytecode::mnemonics;
     use crate::bytecode::{opcode::OpCode, operation_meta::OPERATION_TABLE};
-    use crate::interpreter::mnemonics;
 
     #[test]
     fn array_len_enum_count() {

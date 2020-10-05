@@ -206,6 +206,7 @@
 
 pub const LINE_SIGIL_MNEMONIC: char = '%';
 pub const LINE_SIGIL_PIN: char = '&';
+pub const LINE_SIGIL_COMMENT: char = '#';
 
 pub const LITERAL_SUFFIX_I32: char = 'I';
 pub const LITERAL_SUFFIX_F32: char = 'F';

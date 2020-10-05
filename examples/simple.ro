@@ -1,7 +1,0 @@
-%push 0i
-&L0
-%intrin 0;
-%iinc
-%dupl
-%push 10i
-%jl L0*
