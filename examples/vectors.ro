@@ -1,0 +1,11 @@
+%push 1i
+%push 2i
+%push 3i
+%push 4i
+
+%push 1i
+%push 2i
+%push 3i
+%push 4i
+
+%vquadiadd

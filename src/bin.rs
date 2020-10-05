@@ -209,13 +209,14 @@ extern crate ronin_runtime;
 use ronin_runtime::prelude::*;
 
 fn main() {
-    let code = interpret_file(&std::path::Path::new("examples/simple.ro")).unwrap();
+    let code = interpret_file(&std::path::Path::new("examples/vectors.ro")).unwrap();
     println!("{:?}", code);
     let input = ExecutorInput {
         chunk: code.build().unwrap(),
         stack: Stack::with_length(32),
     };
     let output = execute(input);
+    println!("{:?}", output.input.stack);
     println!("-------------------------------------------------");
     println!(
         "Execution ended!\nTime: {}s\nCycles: {}",

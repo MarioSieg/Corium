@@ -1,7 +1,7 @@
-%PUSH 0i
+%push 0i
 &L0
-%INTRIN 0~
-%IINC
-%DUPL
-%PUSH 10i
-%JL L0*
+%intrin 0;
+%iinc
+%dupl
+%push 10i
+%jl L0*

@@ -205,7 +205,7 @@
 */
 
 use super::record::Record;
-use std::{convert, fmt, mem, ops};
+use std::{convert, fmt, mem, ops, slice};
 
 /// Contains common stack sizes.
 #[repr(usize)]
@@ -421,22 +421,42 @@ impl Stack {
     pub fn is_overflowed(&self) -> bool {
         self.sp >= self.buf.len()
     }
+
+    /// Returns am immutable slice between the stack pointer and the offset.
+    #[inline(always)]
+    pub fn slice_at_duplet_offset2(&self, offset_a: usize, offset_b: usize) -> &[Record] {
+        &self.buf[(self.sp - (offset_b - 1))..=self.sp - offset_a]
+    }
+
+    /// Returns a mutable slice between the stack pointer + offset_a and the stack pointer + offset_b
+    #[inline(always)]
+    pub fn slice_at_duplet_offset2_mut(
+        &mut self,
+        offset_a: usize,
+        offset_b: usize,
+    ) -> &mut [Record] {
+        &mut self.buf[(self.sp - (offset_b - 1))..=self.sp - offset_a]
+    }
 }
 
-impl ops::Index<usize> for Stack {
-    type Output = Record;
+impl<I> ops::Index<I> for Stack
+where
+    I: slice::SliceIndex<[Record]>,
+{
+    type Output = I::Output;
 
-    /// Returns an immutable reference to the record in the record buffer at 'idx'.
     #[inline(always)]
-    fn index(&self, idx: usize) -> &Self::Output {
+    fn index(&self, idx: I) -> &Self::Output {
         &self.buf[idx]
     }
 }
 
-impl ops::IndexMut<usize> for Stack {
-    /// Returns a mutable reference to the record in the record buffer at 'idx'.
+impl<I> ops::IndexMut<I> for Stack
+where
+    I: slice::SliceIndex<[Record]>,
+{
     #[inline(always)]
-    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+    fn index_mut(&mut self, idx: I) -> &mut Self::Output {
         &mut self.buf[idx]
     }
 }

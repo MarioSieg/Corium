@@ -205,6 +205,7 @@
 */
 
 /// Implements a conditional branch jump with a logical type comparison between two operands.
+#[macro_export]
 macro_rules! impl_duplet_con_jmp {
     ($sta:ident, $cmd:ident, $op:tt, $tp:ty) => {
         let target_address: usize = $cmd.fetch().into();
@@ -217,6 +218,7 @@ macro_rules! impl_duplet_con_jmp {
 
 /// Implements a conditional branch jump with a logical type comparison between two operands,
 /// but one of them is specified.
+#[macro_export]
 macro_rules! impl_scalar_con_jmp {
     ($sta:ident, $cmd:ident, $op:tt, $val:expr, $tp:ty) => {
         let target_address: usize = $cmd.fetch().into();
@@ -228,6 +230,7 @@ macro_rules! impl_scalar_con_jmp {
 }
 
 /// Implements an arithmetic operation with two operands.
+#[macro_export]
 macro_rules! impl_duplet_op {
     ($sta:ident, $sc:ty, $op:tt) => {
         $sta.poke_set(
@@ -243,6 +246,7 @@ macro_rules! impl_duplet_op {
 
 /// Implements an arithmetic operation with two operands,
 /// but calls some static value on the type.
+#[macro_export]
 macro_rules! impl_duplet_op_static {
     ($sta:ident, $sc:ty, $proc:ident) => {
         $sta.poke_set(
@@ -255,6 +259,7 @@ macro_rules! impl_duplet_op_static {
 
 /// Implements an arithmetic operation with two operands,
 /// but one operand is already specified.
+#[macro_export]
 macro_rules! impl_scalar_op {
         ($sta:ident, $sc:ty, $op:tt, $v:expr) => {
             $sta.peek_set(
@@ -267,6 +272,7 @@ macro_rules! impl_scalar_op {
 
 /// Implements an intrinsic procedure with one scalar parameter.
 /// Pops the input argument and pushes the result.
+#[macro_export]
 macro_rules! impl_scalar_intrin {
     ($sta:ident, $sc:ty, $proc:ident) => {
         $sta.peek_set(Record::from(<$sc>::$proc(<$sc>::from($sta.peek()))));
@@ -275,6 +281,7 @@ macro_rules! impl_scalar_intrin {
 
 /// Implements an intrinsic procedure with two scalar parameters.
 /// Pops the input arguments and pushes the result.
+#[macro_export]
 macro_rules! impl_duplet_intrin {
     ($sta:ident, $sc:ty, $proc:ident) => {
         $sta.poke_set(
@@ -285,5 +292,41 @@ macro_rules! impl_duplet_intrin {
             )),
         );
         $sta.pop();
+    };
+}
+
+#[macro_export]
+macro_rules! impl_vector_op {
+    ($sta:ident, $mod:ident, $proc:ident, $type:ty, $stride:expr) => {
+        let x: &mut [$type] = {
+            let x = $sta.slice_at_duplet_offset2_mut($stride, $stride * 2);
+            unsafe { std::slice::from_raw_parts_mut(x.as_mut_ptr() as *mut _, x.len()) }
+        };
+        let y: &[$type] = {
+            let x = $sta.slice_at_duplet_offset2($stride, $stride * 2);
+            unsafe { std::slice::from_raw_parts(x.as_ptr() as *const _, x.len()) }
+        };
+        crate::simd::$mod::$proc(x, y);
+        $sta.pop_multi($stride);
+    };
+}
+
+#[macro_export]
+macro_rules! impl_fma_vector_op {
+    ($sta:ident, $mod:ident, $proc:ident, $type:ty, $stride:expr) => {
+        let x: &mut [$type] = {
+            let x = $sta.slice_at_duplet_offset2_mut($stride, $stride * 2);
+            unsafe { std::slice::from_raw_parts_mut(x.as_mut_ptr() as *mut _, x.len()) }
+        };
+        let y: &[$type] = {
+            let x = $sta.slice_at_duplet_offset2($stride, $stride * 2);
+            unsafe { std::slice::from_raw_parts(x.as_ptr() as *const _, x.len()) }
+        };
+        let z: &[$type] = {
+            let x = $sta.slice_at_duplet_offset2($stride, $stride * 3);
+            unsafe { std::slice::from_raw_parts(x.as_ptr() as *const _, x.len()) }
+        };
+        crate::simd::$mod::$proc(x, y, z);
+        $sta.pop_multi($stride);
     };
 }

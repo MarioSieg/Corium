@@ -224,6 +224,15 @@ pub fn add4(x: &mut [f32; 4], y: &[f32; 4]) {
 }
 
 #[inline(always)]
+pub fn add4_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 4);
+    debug_assert_eq!(y.len(), 4);
+    let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    add4(x, y);
+}
+
+#[inline(always)]
 pub fn add8(x: &mut [f32; 8], y: &[f32; 8]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
@@ -244,6 +253,15 @@ pub fn add8(x: &mut [f32; 8], y: &[f32; 8]) {
     {
         super::fallback::f32::add8(x, y);
     }
+}
+
+#[inline(always)]
+pub fn add8_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 8);
+    debug_assert_eq!(y.len(), 8);
+    let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    add8(x, y);
 }
 
 #[inline(always)]
@@ -270,6 +288,15 @@ pub fn add16(x: &mut [f32; 16], y: &[f32; 16]) {
 }
 
 #[inline(always)]
+pub fn add16_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 16);
+    debug_assert_eq!(y.len(), 16);
+    let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    add16(x, y);
+}
+
+#[inline(always)]
 pub fn sub4(x: &mut [f32; 4], y: &[f32; 4]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
@@ -286,6 +313,15 @@ pub fn sub4(x: &mut [f32; 4], y: &[f32; 4]) {
     {
         super::fallback::f32::sub4(x, y);
     }
+}
+
+#[inline(always)]
+pub fn sub4_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 4);
+    debug_assert_eq!(y.len(), 4);
+    let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    sub4(x, y);
 }
 
 #[inline(always)]
@@ -312,6 +348,15 @@ pub fn sub8(x: &mut [f32; 8], y: &[f32; 8]) {
 }
 
 #[inline(always)]
+pub fn sub8_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 8);
+    debug_assert_eq!(y.len(), 8);
+    let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    sub8(x, y);
+}
+
+#[inline(always)]
 pub fn sub16(x: &mut [f32; 16], y: &[f32; 16]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
@@ -335,6 +380,15 @@ pub fn sub16(x: &mut [f32; 16], y: &[f32; 16]) {
 }
 
 #[inline(always)]
+pub fn sub16_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 16);
+    debug_assert_eq!(y.len(), 16);
+    let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    sub16(x, y);
+}
+
+#[inline(always)]
 pub fn mul4(x: &mut [f32; 4], y: &[f32; 4]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
@@ -351,6 +405,15 @@ pub fn mul4(x: &mut [f32; 4], y: &[f32; 4]) {
     {
         super::fallback::f32::mul4(x, y);
     }
+}
+
+#[inline(always)]
+pub fn mul4_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 4);
+    debug_assert_eq!(y.len(), 4);
+    let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    mul4(x, y);
 }
 
 #[inline(always)]
@@ -377,6 +440,15 @@ pub fn mul8(x: &mut [f32; 8], y: &[f32; 8]) {
 }
 
 #[inline(always)]
+pub fn mul8_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 8);
+    debug_assert_eq!(y.len(), 8);
+    let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    mul8(x, y);
+}
+
+#[inline(always)]
 pub fn mul16(x: &mut [f32; 16], y: &[f32; 16]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
@@ -400,6 +472,15 @@ pub fn mul16(x: &mut [f32; 16], y: &[f32; 16]) {
 }
 
 #[inline(always)]
+pub fn mul16_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 16);
+    debug_assert_eq!(y.len(), 16);
+    let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    mul16(x, y);
+}
+
+#[inline(always)]
 pub fn div4(x: &mut [f32; 4], y: &[f32; 4]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
@@ -416,6 +497,15 @@ pub fn div4(x: &mut [f32; 4], y: &[f32; 4]) {
     {
         super::fallback::f32::div4(x, y);
     }
+}
+
+#[inline(always)]
+pub fn div4_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 4);
+    debug_assert_eq!(y.len(), 4);
+    let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    div4(x, y);
 }
 
 #[inline(always)]
@@ -442,6 +532,15 @@ pub fn div8(x: &mut [f32; 8], y: &[f32; 8]) {
 }
 
 #[inline(always)]
+pub fn div8_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 8);
+    debug_assert_eq!(y.len(), 8);
+    let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    div8(x, y);
+}
+
+#[inline(always)]
 pub fn div16(x: &mut [f32; 16], y: &[f32; 16]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
@@ -465,6 +564,15 @@ pub fn div16(x: &mut [f32; 16], y: &[f32; 16]) {
 }
 
 #[inline(always)]
+pub fn div16_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 16);
+    debug_assert_eq!(y.len(), 16);
+    let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    div16(x, y);
+}
+
+#[inline(always)]
 pub fn mod4(x: &mut [f32; 4], y: &[f32; 4]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
@@ -481,6 +589,15 @@ pub fn mod4(x: &mut [f32; 4], y: &[f32; 4]) {
     {
         super::fallback::f32::mod4(x, y);
     }
+}
+
+#[inline(always)]
+pub fn mod4_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 4);
+    debug_assert_eq!(y.len(), 4);
+    let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    mod4(x, y);
 }
 
 #[inline(always)]
@@ -507,6 +624,15 @@ pub fn mod8(x: &mut [f32; 8], y: &[f32; 8]) {
 }
 
 #[inline(always)]
+pub fn mod8_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 8);
+    debug_assert_eq!(y.len(), 8);
+    let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    mod8(x, y);
+}
+
+#[inline(always)]
 pub fn mod16(x: &mut [f32; 16], y: &[f32; 16]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
@@ -530,6 +656,15 @@ pub fn mod16(x: &mut [f32; 16], y: &[f32; 16]) {
 }
 
 #[inline(always)]
+pub fn mod16_slice(x: &mut [f32], y: &[f32]) {
+    debug_assert_eq!(x.len(), 16);
+    debug_assert_eq!(y.len(), 16);
+    let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    mod16(x, y);
+}
+
+#[inline(always)]
 pub fn fma4(x: &mut [f32; 4], y: &[f32; 4], z: &[f32; 4]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
@@ -546,6 +681,17 @@ pub fn fma4(x: &mut [f32; 4], y: &[f32; 4], z: &[f32; 4]) {
     {
         super::fallback::f32::fma4(x, y, z);
     }
+}
+
+#[inline(always)]
+pub fn fma4_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
+    debug_assert_eq!(x.len(), 4);
+    debug_assert_eq!(y.len(), 4);
+    debug_assert_eq!(z.len(), 4);
+    let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    let z: &[f32; 4] = unsafe { &*(z.as_ptr() as *const [f32; 4]) };
+    fma4(x, y, z);
 }
 
 #[inline(always)]
@@ -568,6 +714,17 @@ pub fn fma8(x: &mut [f32; 8], y: &[f32; 8], z: &[f32; 8]) {
 }
 
 #[inline(always)]
+pub fn fma8_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
+    debug_assert_eq!(x.len(), 8);
+    debug_assert_eq!(y.len(), 8);
+    debug_assert_eq!(z.len(), 8);
+    let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    let z: &[f32; 8] = unsafe { &*(z.as_ptr() as *const [f32; 8]) };
+    fma8(x, y, z);
+}
+
+#[inline(always)]
 pub fn fma16(x: &mut [f32; 16], y: &[f32; 16], z: &[f32; 16]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
@@ -586,9 +743,19 @@ pub fn fma16(x: &mut [f32; 16], y: &[f32; 16], z: &[f32; 16]) {
     }
 }
 
+#[inline(always)]
+pub fn fma16_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
+    debug_assert_eq!(x.len(), 16);
+    debug_assert_eq!(y.len(), 16);
+    debug_assert_eq!(z.len(), 16);
+    let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    let z: &[f32; 16] = unsafe { &*(z.as_ptr() as *const [f32; 16]) };
+    fma16(x, y, z);
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::misc::slice2array as s2a;
     use crate::simd::fallback;
 
     #[test]
@@ -868,14 +1035,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::add4(
-                s2a::slice2array4_mut(&mut x[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
-            fallback::f32::add4(
-                s2a::slice2array4_mut(&mut y[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
+            super::add4_slice(&mut x[i..i + 4], &z[i..i + 4]);
+            fallback::f32::add4_slice(&mut y[i..i + 4], &z[i..i + 4]);
             i += 4;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -891,14 +1052,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::add8(
-                s2a::slice2array8_mut(&mut x[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
-            fallback::f32::add8(
-                s2a::slice2array8_mut(&mut y[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
+            super::add8_slice(&mut x[i..i + 8], &z[i..i + 8]);
+            fallback::f32::add8_slice(&mut y[i..i + 8], &z[i..i + 8]);
             i += 8;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -914,14 +1069,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::add16(
-                s2a::slice2array16_mut(&mut x[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
-            fallback::f32::add16(
-                s2a::slice2array16_mut(&mut y[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
+            super::add16_slice(&mut x[i..i + 16], &z[i..i + 16]);
+            fallback::f32::add16_slice(&mut y[i..i + 16], &z[i..i + 16]);
             i += 16;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -937,14 +1086,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::sub4(
-                s2a::slice2array4_mut(&mut x[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
-            fallback::f32::sub4(
-                s2a::slice2array4_mut(&mut y[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
+            super::sub4_slice(&mut x[i..i + 4], &z[i..i + 4]);
+            fallback::f32::sub4_slice(&mut y[i..i + 4], &z[i..i + 4]);
             i += 4;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -960,14 +1103,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::sub8(
-                s2a::slice2array8_mut(&mut x[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
-            fallback::f32::sub8(
-                s2a::slice2array8_mut(&mut y[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
+            super::sub8_slice(&mut x[i..i + 8], &z[i..i + 8]);
+            fallback::f32::sub8_slice(&mut y[i..i + 8], &z[i..i + 8]);
             i += 8;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -983,14 +1120,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::sub16(
-                s2a::slice2array16_mut(&mut x[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
-            fallback::f32::sub16(
-                s2a::slice2array16_mut(&mut y[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
+            super::sub16_slice(&mut x[i..i + 16], &z[i..i + 16]);
+            fallback::f32::sub16_slice(&mut y[i..i + 16], &z[i..i + 16]);
             i += 16;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1006,14 +1137,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mul4(
-                s2a::slice2array4_mut(&mut x[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
-            fallback::f32::mul4(
-                s2a::slice2array4_mut(&mut y[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
+            super::mul4_slice(&mut x[i..i + 4], &z[i..i + 4]);
+            fallback::f32::mul4_slice(&mut y[i..i + 4], &z[i..i + 4]);
             i += 4;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1029,14 +1154,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mul8(
-                s2a::slice2array8_mut(&mut x[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
-            fallback::f32::mul8(
-                s2a::slice2array8_mut(&mut y[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
+            super::mul8_slice(&mut x[i..i + 8], &z[i..i + 8]);
+            fallback::f32::mul8_slice(&mut y[i..i + 8], &z[i..i + 8]);
             i += 8;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1052,14 +1171,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mul16(
-                s2a::slice2array16_mut(&mut x[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
-            fallback::f32::mul16(
-                s2a::slice2array16_mut(&mut y[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
+            super::mul16_slice(&mut x[i..i + 16], &z[i..i + 16]);
+            fallback::f32::mul16_slice(&mut y[i..i + 16], &z[i..i + 16]);
             i += 16;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1075,14 +1188,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::div4(
-                s2a::slice2array4_mut(&mut x[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
-            fallback::f32::div4(
-                s2a::slice2array4_mut(&mut y[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
+            super::div4_slice(&mut x[i..i + 4], &z[i..i + 4]);
+            fallback::f32::div4_slice(&mut y[i..i + 4], &z[i..i + 4]);
             i += 4;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1098,14 +1205,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::div8(
-                s2a::slice2array8_mut(&mut x[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
-            fallback::f32::div8(
-                s2a::slice2array8_mut(&mut y[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
+            super::div8_slice(&mut x[i..i + 8], &z[i..i + 8]);
+            fallback::f32::div8_slice(&mut y[i..i + 8], &z[i..i + 8]);
             i += 8;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1121,14 +1222,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::div16(
-                s2a::slice2array16_mut(&mut x[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
-            fallback::f32::div16(
-                s2a::slice2array16_mut(&mut y[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
+            super::div16_slice(&mut x[i..i + 16], &z[i..i + 16]);
+            fallback::f32::div16_slice(&mut y[i..i + 16], &z[i..i + 16]);
             i += 16;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1144,14 +1239,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mod4(
-                s2a::slice2array4_mut(&mut x[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
-            fallback::f32::mod4(
-                s2a::slice2array4_mut(&mut y[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
+            super::mod4_slice(&mut x[i..i + 4], &z[i..i + 4]);
+            fallback::f32::mod4_slice(&mut y[i..i + 4], &z[i..i + 4]);
             i += 4;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1167,14 +1256,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mod8(
-                s2a::slice2array8_mut(&mut x[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
-            fallback::f32::mod8(
-                s2a::slice2array8_mut(&mut y[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
+            super::mod8_slice(&mut x[i..i + 8], &z[i..i + 8]);
+            fallback::f32::mod8_slice(&mut y[i..i + 8], &z[i..i + 8]);
             i += 8;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1190,89 +1273,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mod16(
-                s2a::slice2array16_mut(&mut x[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
-            fallback::f32::mod16(
-                s2a::slice2array16_mut(&mut y[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
-            i += 16;
-        }
-        for (x, y) in x.iter().zip(y.iter()) {
-            assert_eq!(x, y);
-        }
-    }
-
-    #[test]
-    fn huge_fma4() {
-        let mut x = Box::new(*HUGE_VAL_ARR);
-        let mut y = x.clone();
-        let z = x.clone();
-
-        let mut i = 0;
-        while i < y.len() {
-            super::fma4(
-                s2a::slice2array4_mut(&mut x[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
-            fallback::f32::fma4(
-                s2a::slice2array4_mut(&mut y[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-                s2a::slice2array4(&z[i..i + 4]),
-            );
-            i += 4;
-        }
-        for (x, y) in x.iter().zip(y.iter()) {
-            assert_eq!(x, y);
-        }
-    }
-
-    #[test]
-    fn huge_fma8() {
-        let mut x = Box::new(*HUGE_VAL_ARR);
-        let mut y = x.clone();
-        let z = x.clone();
-
-        let mut i = 0;
-        while i < y.len() {
-            super::fma8(
-                s2a::slice2array8_mut(&mut x[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
-            fallback::f32::fma8(
-                s2a::slice2array8_mut(&mut y[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-                s2a::slice2array8(&z[i..i + 8]),
-            );
-            i += 8;
-        }
-        for (x, y) in x.iter().zip(y.iter()) {
-            assert_eq!(x, y);
-        }
-    }
-
-    #[test]
-    fn huge_fma16() {
-        let mut x = Box::new(*HUGE_VAL_ARR);
-        let mut y = x.clone();
-        let z = x.clone();
-
-        let mut i = 0;
-        while i < y.len() {
-            super::fma16(
-                s2a::slice2array16_mut(&mut x[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
-            fallback::f32::fma16(
-                s2a::slice2array16_mut(&mut y[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-                s2a::slice2array16(&z[i..i + 16]),
-            );
+            super::mod16_slice(&mut x[i..i + 16], &z[i..i + 16]);
+            fallback::f32::mod16_slice(&mut y[i..i + 16], &z[i..i + 16]);
             i += 16;
         }
         for (x, y) in x.iter().zip(y.iter()) {

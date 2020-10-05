@@ -204,8 +204,8 @@
 
 */
 
-#![allow(unused_macros)]
-
+#[allow(unused_macros)]
+#[macro_export]
 macro_rules! ronasm {
     ($($x:expr, ) *) => {{
         let slice = [$(String::from($x)), *];

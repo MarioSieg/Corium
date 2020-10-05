@@ -225,6 +225,7 @@ pub fn eval_line<'a>(in_: &mut LexIn<'a>) -> bool {
     if in_.line.is_empty() {
         return true;
     }
+    *in_.line = in_.line.to_uppercase();
     let first = first_char_rem(in_.line);
     match first {
         tok::LINE_SIGIL_MNEMONIC => eval_mnemonic(in_),
