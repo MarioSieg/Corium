@@ -1,0 +1,12 @@
+; The bytecode is case insensitive.
+; Line prefixes:
+
+; % -> instruction
+; & -> pin
+
+; Type suffixes:
+; i/I -> integer (int32_t)
+; f/F -> float
+; * -> pin address
+; # -> ipc
+

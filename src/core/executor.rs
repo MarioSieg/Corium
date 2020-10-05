@@ -1170,4 +1170,340 @@ mod tests {
     fn arithmetic_i32_dec() {
         test_i32op_template(OpCode::I32Decrement, 1, 1, 0);
     }
+
+    #[test]
+    fn simd_vquadiadd() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(1);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(4);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4Addition);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), 6);
+        assert_eq!(i32::from(stack[2]), 7);
+        assert_eq!(i32::from(stack[3]), 10);
+        assert_eq!(i32::from(stack[4]), -1);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
+
+    #[test]
+    fn simd_vquadisub() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(1);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(4);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4Subtraction);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), -2);
+        assert_eq!(i32::from(stack[2]), 3);
+        assert_eq!(i32::from(stack[3]), -8);
+        assert_eq!(i32::from(stack[4]), -5);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
+
+    #[test]
+    fn simd_vquadimul() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(1);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(4);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4Multiplication);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), 8);
+        assert_eq!(i32::from(stack[2]), 10);
+        assert_eq!(i32::from(stack[3]), 9);
+        assert_eq!(i32::from(stack[4]), -6);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
+
+    #[test]
+    fn simd_vquadidiv() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(40);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(1);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(10);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4Division);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), 4);
+        assert_eq!(i32::from(stack[2]), 2);
+        assert_eq!(i32::from(stack[3]), 0);
+        assert_eq!(i32::from(stack[4]), -1);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
+
+    #[test]
+    fn simd_vquadimod() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(40);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(1);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(4);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4Modulo);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), 0);
+        assert_eq!(i32::from(stack[2]), 1);
+        assert_eq!(i32::from(stack[3]), 1);
+        assert_eq!(i32::from(stack[4]), -1);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
+
+    #[test]
+    fn simd_vquadiand() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(1);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(4);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4BitwiseAnd);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), 0);
+        assert_eq!(i32::from(stack[2]), 0);
+        assert_eq!(i32::from(stack[3]), 1);
+        assert_eq!(i32::from(stack[4]), 0);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
+
+    #[test]
+    fn simd_vquadior() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(1);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(4);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4BitwiseOr);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), 6);
+        assert_eq!(i32::from(stack[2]), 7);
+        assert_eq!(i32::from(stack[3]), 9);
+        assert_eq!(i32::from(stack[4]), -1);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
+
+    #[test]
+    fn simd_vquadixor() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(1);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(4);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4BitwiseXor);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), 6);
+        assert_eq!(i32::from(stack[2]), 7);
+        assert_eq!(i32::from(stack[3]), 8);
+        assert_eq!(i32::from(stack[4]), -1);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
+
+    #[test]
+    fn simd_vquadisal() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(1);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(4);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4BitwiseArithmeticLeftShift);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), 32);
+        assert_eq!(i32::from(stack[2]), 20);
+        assert_eq!(i32::from(stack[3]), 512);
+        assert_eq!(i32::from(stack[4]), -12);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
+
+    #[test]
+    fn simd_vquadisar() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(1);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(4);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4BitwiseArithmeticRightShift);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), 0);
+        assert_eq!(i32::from(stack[2]), 1);
+        assert_eq!(i32::from(stack[3]), 0);
+        assert_eq!(i32::from(stack[4]), -1);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
+
+    #[test]
+    fn simd_vquadirol() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(2000000000);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(4);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4BitwiseCircularLeftShift);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), 32);
+        assert_eq!(i32::from(stack[2]), 20);
+        assert_eq!(i32::from(stack[3]), 1797783790);
+        assert_eq!(i32::from(stack[4]), -9);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
+
+    #[test]
+    fn simd_vquadiror() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(5);
+        stream.push_opcode(OpCode::Push).with_i32(1);
+        stream.push_opcode(OpCode::Push).with_i32(-3);
+
+        stream.push_opcode(OpCode::Push).with_i32(4);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::Push).with_i32(9);
+        stream.push_opcode(OpCode::Push).with_i32(2);
+        stream.push_opcode(OpCode::I32Vector4BitwiseCircularRightShift);
+        stream.epilogue();
+
+        let input = ExecutorInput {
+            stack: Stack::with_length(32),
+            chunk: stream.build().unwrap(),
+        };
+        let stack = execute(input).input.stack;
+        assert_eq!(i32::from(stack[1]), 536870912);
+        assert_eq!(i32::from(stack[2]), 1073741825);
+        assert_eq!(i32::from(stack[3]), 8388608);
+        assert_eq!(i32::from(stack[4]), 2147483647);
+        assert_eq!(stack.stack_ptr(), 4);
+    }
 }

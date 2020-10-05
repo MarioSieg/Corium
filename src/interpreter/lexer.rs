@@ -227,6 +227,9 @@ pub fn eval_line(in_: &mut LexIn) -> bool {
     }
     *in_.line = in_.line.to_uppercase();
     let first = first_char_rem(in_.line);
+    if let Some(comment) = in_.line.find(tok::LINE_SIGIL_COMMENT) {
+        *in_.line = String::from(&in_.line[0..comment]);
+    }
     match first {
         tok::LINE_SIGIL_COMMENT => true,
         tok::LINE_SIGIL_MNEMONIC => eval_mnemonic(in_),
@@ -234,7 +237,7 @@ pub fn eval_line(in_: &mut LexIn) -> bool {
         _ => {
             in_.errors.push(format!(
                 "Missing line sigil here: \"{}{}\"",
-                first, in_.line
+                first, in_.backup
             ));
             false
         }
@@ -251,14 +254,15 @@ fn eval_mnemonic(in_: &mut LexIn) -> bool {
         }
     }
     if m.is_none() {
-        in_.errors.push(format!("Unknown mnemonic: {:?}", in_.line));
+        in_.errors
+            .push(format!("Unknown mnemonic: {:?}", in_.backup));
     }
     if let Some(meta) = m {
         match meta.explicit_arguments.len() {
             0 => {
                 if !in_.line.is_empty() {
                     in_.errors
-                        .push(format!("Redundant argument: {:?}", in_.line));
+                        .push(format!("Redundant argument: {:?}", in_.backup));
                     false
                 } else {
                     true
@@ -267,7 +271,7 @@ fn eval_mnemonic(in_: &mut LexIn) -> bool {
             1 => {
                 if in_.line.is_empty() {
                     in_.errors
-                        .push(format!("Argument required, found none! {:?}", in_.line));
+                        .push(format!("Argument required, found none! {:?}", in_.backup));
                     false
                 } else {
                     eval_param(in_, &meta.explicit_arguments[0].accepted_value_types[..])
@@ -276,7 +280,7 @@ fn eval_mnemonic(in_: &mut LexIn) -> bool {
             _ => {
                 if in_.line.is_empty() {
                     in_.errors
-                        .push(format!("Argument required, found none! {:?}", in_.line));
+                        .push(format!("Argument required, found none! {:?}", in_.backup));
                     false
                 } else {
                     let mut args: Vec<String> = in_

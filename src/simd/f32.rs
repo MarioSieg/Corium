@@ -228,7 +228,7 @@ pub fn add4_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 4);
     debug_assert_eq!(y.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
-    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
     add4(x, y);
 }
 
@@ -260,7 +260,7 @@ pub fn add8_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 8);
     debug_assert_eq!(y.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
-    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
     add8(x, y);
 }
 
@@ -292,7 +292,7 @@ pub fn add16_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 16);
     debug_assert_eq!(y.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
-    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
     add16(x, y);
 }
 
@@ -320,7 +320,7 @@ pub fn sub4_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 4);
     debug_assert_eq!(y.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
-    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
     sub4(x, y);
 }
 
@@ -352,7 +352,7 @@ pub fn sub8_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 8);
     debug_assert_eq!(y.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
-    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
     sub8(x, y);
 }
 
@@ -384,7 +384,7 @@ pub fn sub16_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 16);
     debug_assert_eq!(y.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
-    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
     sub16(x, y);
 }
 
@@ -412,7 +412,7 @@ pub fn mul4_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 4);
     debug_assert_eq!(y.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
-    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
     mul4(x, y);
 }
 
@@ -444,7 +444,7 @@ pub fn mul8_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 8);
     debug_assert_eq!(y.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
-    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
     mul8(x, y);
 }
 
@@ -476,7 +476,7 @@ pub fn mul16_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 16);
     debug_assert_eq!(y.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
-    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
     mul16(x, y);
 }
 
@@ -504,7 +504,7 @@ pub fn div4_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 4);
     debug_assert_eq!(y.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
-    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
     div4(x, y);
 }
 
@@ -536,7 +536,7 @@ pub fn div8_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 8);
     debug_assert_eq!(y.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
-    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
     div8(x, y);
 }
 
@@ -568,7 +568,7 @@ pub fn div16_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 16);
     debug_assert_eq!(y.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
-    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
     div16(x, y);
 }
 
@@ -596,7 +596,7 @@ pub fn mod4_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 4);
     debug_assert_eq!(y.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
-    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
     mod4(x, y);
 }
 
@@ -628,7 +628,7 @@ pub fn mod8_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 8);
     debug_assert_eq!(y.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
-    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
     mod8(x, y);
 }
 
@@ -660,7 +660,7 @@ pub fn mod16_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 16);
     debug_assert_eq!(y.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
-    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
     mod16(x, y);
 }
 
@@ -689,7 +689,7 @@ pub fn fma4_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
     debug_assert_eq!(y.len(), 4);
     debug_assert_eq!(z.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
-    let y: &[f32; 4] = unsafe { &*(x.as_ptr() as *const [f32; 4]) };
+    let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
     let z: &[f32; 4] = unsafe { &*(z.as_ptr() as *const [f32; 4]) };
     fma4(x, y, z);
 }
@@ -719,7 +719,7 @@ pub fn fma8_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
     debug_assert_eq!(y.len(), 8);
     debug_assert_eq!(z.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
-    let y: &[f32; 8] = unsafe { &*(x.as_ptr() as *const [f32; 8]) };
+    let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
     let z: &[f32; 8] = unsafe { &*(z.as_ptr() as *const [f32; 8]) };
     fma8(x, y, z);
 }
@@ -749,7 +749,7 @@ pub fn fma16_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
     debug_assert_eq!(y.len(), 16);
     debug_assert_eq!(z.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
-    let y: &[f32; 16] = unsafe { &*(x.as_ptr() as *const [f32; 16]) };
+    let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
     let z: &[f32; 16] = unsafe { &*(z.as_ptr() as *const [f32; 16]) };
     fma16(x, y, z);
 }

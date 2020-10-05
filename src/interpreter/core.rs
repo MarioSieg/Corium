@@ -321,7 +321,7 @@ mod tests {
         let output = ronasm![
             "%PUSH 0i",
             "&L0",
-            "%INTRIN 0;",
+            "%INTRIN 0#",
             "%IINC",
             "%DUPL",
             "%PUSH 10i",

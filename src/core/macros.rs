@@ -299,12 +299,12 @@ macro_rules! impl_duplet_intrin {
 macro_rules! impl_vector_op {
     ($sta:ident, $mod:ident, $proc:ident, $type:ty, $stride:expr) => {
         let x: &mut [$type] = {
-            let x = $sta.slice_at_duplet_offset2_mut($stride, $stride * 2);
-            unsafe { std::slice::from_raw_parts_mut(x.as_mut_ptr() as *mut _, x.len()) }
+            let z = $sta.slice_at_duplet_offset2_mut($stride, $stride * 2);
+            unsafe { std::slice::from_raw_parts_mut(z.as_mut_ptr() as *mut _, z.len()) }
         };
         let y: &[$type] = {
-            let x = $sta.slice_at_duplet_offset2($stride, $stride * 2);
-            unsafe { std::slice::from_raw_parts(x.as_ptr() as *const _, x.len()) }
+            let z = $sta.slice_at_duplet_offset2(0, $stride);
+            unsafe { std::slice::from_raw_parts(z.as_ptr() as *const _, z.len()) }
         };
         crate::simd::$mod::$proc(x, y);
         $sta.pop_multi($stride);

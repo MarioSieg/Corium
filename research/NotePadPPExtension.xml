@@ -5,7 +5,7 @@
             <Prefix Keywords1="no" Keywords2="no" Keywords3="no" Keywords4="no" Keywords5="no" Keywords6="no" Keywords7="no" Keywords8="no" />
         </Settings>
         <KeywordLists>
-            <Keywords name="Comments">00# 01 02# 03 04</Keywords>
+            <Keywords name="Comments">00; 01 02 03 04</Keywords>
             <Keywords name="Numbers, prefix1">0x 0b 0c</Keywords>
             <Keywords name="Numbers, prefix2"></Keywords>
             <Keywords name="Numbers, extras1">a A b B c C d D e E f F</Keywords>
@@ -13,7 +13,7 @@
             <Keywords name="Numbers, suffix1"></Keywords>
             <Keywords name="Numbers, suffix2">c f u i</Keywords>
             <Keywords name="Numbers, range"></Keywords>
-            <Keywords name="Operators1">% &amp; * , ~ ;</Keywords>
+            <Keywords name="Operators1">% &amp; * , ~ #</Keywords>
             <Keywords name="Operators2"></Keywords>
             <Keywords name="Folders in code1, open"></Keywords>
             <Keywords name="Folders in code1, middle"></Keywords>
