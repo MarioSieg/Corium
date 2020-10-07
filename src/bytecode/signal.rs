@@ -204,13 +204,13 @@
 
 */
 
-use crate::bytecode::{discriminated::DiscriminatedSignal, intrinsic::IntrinsicID, opcode::OpCode};
+use crate::bytecode::{ast::Token, intrinsic::IntrinsicID, opcode::OpCode};
 use crate::core::record::Record;
 use std::{convert, fmt, mem};
 
 /// Represents a single bytecode signal at runtime.
 /// A signal is used as an union which can be an operation (opcode) or a parameter.
-/// For a typesafe, discriminated version use 'DiscriminatedSignal'.
+/// For a typesafe, discriminated version use 'Token'.
 #[repr(C)]
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Signal(u32);
@@ -228,7 +228,7 @@ impl convert::From<usize> for Signal {
 /// Creates an usize from a signal.
 /// This might lead to arbitrary values,
 /// if the signal representation wasn't an usize.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+/// Look at 'Token' for a typesafe non runtime version.
 impl convert::From<Signal> for usize {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -248,7 +248,7 @@ impl convert::From<i32> for Signal {
 /// Creates an i32 from a signal.
 /// This might lead to arbitrary values,
 /// if the signal representation wasn't an i32.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+/// Look at 'Token' for a typesafe non runtime version.
 impl convert::From<Signal> for i32 {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -268,7 +268,7 @@ impl convert::From<u32> for Signal {
 /// Creates an u32 from a signal.
 /// This might lead to arbitrary values,
 /// if the signal representation wasn't an u32.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+/// Look at 'Token' for a typesafe non runtime version.
 impl convert::From<Signal> for u32 {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -288,7 +288,7 @@ impl convert::From<f32> for Signal {
 /// Creates an f32 from a signal.
 /// This might lead to arbitrary values,
 /// if the signal representation wasn't an f32.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+/// Look at 'Token' for a typesafe non runtime version.
 impl convert::From<Signal> for f32 {
     #[inline(always)]
     fn from(x: Signal) -> Self {
@@ -308,11 +308,11 @@ impl convert::From<OpCode> for Signal {
 /// Creates an opcode from a signal.
 /// This might lead to arbitrary values,
 /// if the signal representation wasn't an opcode.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+/// Look at 'Token' for a typesafe non runtime version.
 impl convert::From<Signal> for OpCode {
     #[inline(always)]
     fn from(x: Signal) -> Self {
-        debug_assert!(x.0 < OpCode::COUNT as _);
+        debug_assert!(x.0 < OpCode::_Count as _);
         unsafe { mem::transmute::<u32, OpCode>(x.0) }
     }
 }
@@ -329,11 +329,11 @@ impl convert::From<IntrinsicID> for Signal {
 /// Creates an intrinsic proc id from a signal.
 /// This might lead to arbitrary values,
 /// if the signal representation wasn't an intrinsic proc id.
-/// Look at 'DiscriminatedSignal' for a typesafe non runtime version.
+/// Look at 'Token' for a typesafe non runtime version.
 impl convert::From<Signal> for IntrinsicID {
     #[inline(always)]
     fn from(x: Signal) -> Self {
-        debug_assert!(x.0 < IntrinsicID::COUNT as _);
+        debug_assert!(x.0 < IntrinsicID::_Count as _);
         unsafe { mem::transmute::<u32, IntrinsicID>(x.0) }
     }
 }
@@ -363,14 +363,14 @@ impl convert::From<Record> for Signal {
 }
 
 /// Creates a signal from an discriminated signal.
-impl<'a> convert::From<DiscriminatedSignal> for Signal {
-    fn from(x: DiscriminatedSignal) -> Self {
+impl<'a> convert::From<Token> for Signal {
+    fn from(x: Token) -> Self {
         match x {
-            DiscriminatedSignal::I32(i) => Self::from(i),
-            DiscriminatedSignal::F32(f) => Self::from(f),
-            DiscriminatedSignal::OpCode(op) => Self::from(op),
-            DiscriminatedSignal::IntrinsicID(ipc) => Self::from(ipc),
-            DiscriminatedSignal::Pin(l) => Self::from(l),
+            Token::I32(i) => Self::from(i),
+            Token::F32(f) => Self::from(f),
+            Token::OpCode(op) => Self::from(op),
+            Token::IntrinsicID(ipc) => Self::from(ipc),
+            Token::Pin(l) => Self::from(l),
         }
     }
 }

@@ -206,20 +206,16 @@
 
 extern crate ronin_runtime;
 
+use ronin_runtime::misc::io::IO;
 use ronin_runtime::prelude::*;
 
 fn main() {
-    let code = interpret_file(&std::path::Path::new("examples/vectors.ro")).unwrap();
-    println!("{:?}", code);
-    let input = ExecutorInput {
-        chunk: code.build().unwrap(),
-        stack: Stack::with_length(32),
-    };
-    let output = execute(input);
-    println!("{:?}", output.input.stack);
-    println!("-------------------------------------------------");
-    println!(
-        "Execution ended!\nTime: {}s\nCycles: {}",
-        output.time, output.cycles
-    );
+    use OpCode::*;
+    let mut stream = BytecodeStream::new();
+    stream.with(Push).with(0);
+    stream.with(I32Increment);
+    stream.with(Duplicate);
+    stream.with(Push).with(1_000_000_000);
+    stream.with(JumpIfLess).with(1u32);
+    stream.dump();
 }

@@ -204,11 +204,17 @@
 
 */
 
-use crate::bytecode::{
-    chunk::BytecodeChunk, discriminated::DiscriminatedSignal, intrinsic::IntrinsicID,
-    meta::opcode_meta, opcode::OpCode,
-};
-use std::{collections::HashMap, convert, default, fmt, ops};
+use crate::bytecode::{ast::Token, chunk::BytecodeChunk, intrinsic::IntrinsicID, opcode::OpCode};
+use crate::misc::io;
+use std::{convert, default, ops};
+
+/// Trait to push ops to stream.
+pub trait With<T>
+where
+    T: Sized + Copy + Clone,
+{
+    fn with(&mut self, x: T) -> &mut Self;
+}
 
 /// A bytecode stream is used to dynamically build bytecode.
 /// When building is done, the next step is validating.
@@ -217,8 +223,7 @@ use std::{collections::HashMap, convert, default, fmt, ops};
 /// If validation is successful, it can get converted
 /// into a bytecode chunk, which then can get executed by a VM executor kernel.
 pub struct BytecodeStream {
-    stream: Vec<DiscriminatedSignal>,
-    jump_table: HashMap<String, u32>,
+    stream: Vec<Token>,
     last_op_idx: usize,
     ops_count: usize,
     has_prologue: bool,
@@ -231,7 +236,6 @@ impl BytecodeStream {
     pub fn new() -> Self {
         Self {
             stream: Vec::new(),
-            jump_table: HashMap::new(),
             last_op_idx: 0,
             ops_count: 0,
             has_prologue: false,
@@ -245,7 +249,6 @@ impl BytecodeStream {
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
             stream: Vec::with_capacity(capacity),
-            jump_table: HashMap::with_capacity(capacity),
             last_op_idx: 0,
             ops_count: 0,
             has_prologue: false,
@@ -259,54 +262,34 @@ impl BytecodeStream {
     /// If the operation requires any parameters, use with_* to
     /// push them afterwards, otherwise validation will fail.
     /// Returns this as ref to allow chain calls.
-    pub fn push_opcode(&mut self, op: OpCode) -> &mut Self {
+    fn push_opcode(&mut self, op: OpCode) -> &mut Self {
         self.last_op_idx = self.stream.len();
-        self.stream.push(DiscriminatedSignal::OpCode(op));
+        self.stream.push(Token::OpCode(op));
         self.ops_count = self.stream.len() - 1;
         self
     }
 
-    /// Pushes a new pin into the jump table.
-    /// Returns this as ref to allow chain calls.
-    pub fn push_pin(&mut self, name: &str) -> &mut Self {
-        self.jump_table
-            .insert(name.to_string(), self.stream.len() as _);
-        self
-    }
-
     /// Pushes a new i32 operation parameter into the command buffer stream.
-    pub fn with_i32(&mut self, val: i32) -> &mut Self {
-        self.stream.push(DiscriminatedSignal::I32(val));
+    fn with_i32(&mut self, val: i32) -> &mut Self {
+        self.stream.push(Token::I32(val));
         self
     }
 
     /// Pushes a new f32 operation parameter into the command buffer stream.
-    pub fn with_f32(&mut self, val: f32) -> &mut Self {
-        self.stream.push(DiscriminatedSignal::F32(val));
+    fn with_f32(&mut self, val: f32) -> &mut Self {
+        self.stream.push(Token::F32(val));
         self
     }
 
     /// Pushes a new pin operation parameter into the command buffer stream.
-    /// If the pin does not exist in the jump table,
-    /// it will panic. (Pin x not undefined!)
-    pub fn with_pin(&mut self, name: &str) -> &mut Self {
-        let pin: u32 = (*self
-            .jump_table
-            .get(name)
-            .unwrap_or_else(|| panic!("Pin {} undefined!", name))) as _;
-        self.stream.push(DiscriminatedSignal::Pin(pin));
+    fn with_pin(&mut self, val: u32) -> &mut Self {
+        self.stream.push(Token::Pin(val));
         self
     }
 
-    /// Pushes a new intrisc procedure id operation parameter into the command buffer stream.
-    pub fn with_intrin_id(&mut self, id: IntrinsicID) -> &mut Self {
-        self.stream.push(DiscriminatedSignal::IntrinsicID(id));
-        self
-    }
-
-    /// Appends a new signal into the stream.
-    pub fn append_signal(&mut self, sig: DiscriminatedSignal) -> &mut Self {
-        self.stream.push(sig);
+    /// Pushes a new intrinsic procedure id operation parameter into the command buffer stream.
+    fn with_intrin_id(&mut self, id: IntrinsicID) -> &mut Self {
+        self.stream.push(Token::IntrinsicID(id));
         self
     }
 
@@ -320,12 +303,6 @@ impl BytecodeStream {
     #[inline]
     pub fn last_opcode_index(&self) -> usize {
         self.last_op_idx
-    }
-
-    /// Returns an immutable reference to the jump table.
-    #[inline]
-    pub fn jump_table(&self) -> &HashMap<String, u32> {
-        &self.jump_table
     }
 
     /// Returns the total count of signals, which are operations.
@@ -342,7 +319,7 @@ impl BytecodeStream {
 
     /// Returns an immutable reference to the command buffer stream
     #[inline]
-    pub fn command_buffer(&self) -> &Vec<DiscriminatedSignal> {
+    pub fn command_buffer(&self) -> &Vec<Token> {
         &self.stream
     }
 
@@ -367,8 +344,7 @@ impl BytecodeStream {
     /// Returns the estimated amount of bytes the stream currently takes up in memory.
     #[inline]
     pub fn size(&self) -> usize {
-        self.stream.capacity() * std::mem::size_of::<DiscriminatedSignal>()
-            + self.jump_table.capacity() * std::mem::size_of::<usize>()
+        self.stream.capacity() * std::mem::size_of::<Token>()
     }
 
     /// Clears all entries in the command buffer stream
@@ -376,19 +352,6 @@ impl BytecodeStream {
     #[inline]
     pub fn clear(&mut self) {
         self.stream.clear();
-        self.jump_table.clear();
-    }
-
-    /// Clears all entries in the command buffer stream.
-    #[inline]
-    pub fn clear_command_buffer(&mut self) {
-        self.stream.clear()
-    }
-
-    /// Clears all entries in the jump table.
-    #[inline]
-    pub fn clear_jump_table(&mut self) {
-        self.jump_table.clear()
     }
 
     /// Returns true if the common prologue code is inserted.
@@ -431,7 +394,7 @@ impl BytecodeStream {
     /// else None.
     pub fn last_opcode(&self) -> Option<OpCode> {
         debug_assert!(!self.is_empty());
-        if let DiscriminatedSignal::OpCode(op) = self[self.last_op_idx] {
+        if let Token::OpCode(op) = self[self.last_op_idx] {
             Some(op)
         } else {
             None
@@ -440,18 +403,22 @@ impl BytecodeStream {
 
     /// Returns a slice of the parameters of the stack operation.
     /// Returns none if there are none or the operation index is invalid.
-    pub fn last_explicit_opcode_args(&self) -> Option<&[DiscriminatedSignal]> {
+    pub fn last_explicit_opcode_args(&self) -> Option<&[Token]> {
+        todo!();
+        /*
         debug_assert!(!self.is_empty());
-        if let DiscriminatedSignal::OpCode(opcode) = self[self.last_op_idx] {
+        if let Token::OpCode(_opcode) = self[self.last_op_idx] {
             let arg_count = opcode_meta(opcode).explicit_arguments.len();
             if arg_count == 0 {
                 None
             } else {
                 Some(&self.stream[self.last_op_idx..=self.last_op_idx + arg_count])
             }
+            None
         } else {
             None
         }
+        */
     }
 
     /// Validates this bytecode and returns an list of error messages (if any).
@@ -476,7 +443,7 @@ impl BytecodeStream {
 }
 
 impl ops::Index<usize> for BytecodeStream {
-    type Output = DiscriminatedSignal;
+    type Output = Token;
 
     /// Returns the entry at index 'idx'.
     #[inline]
@@ -493,12 +460,11 @@ impl ops::IndexMut<usize> for BytecodeStream {
     }
 }
 
-impl convert::From<Box<[DiscriminatedSignal]>> for BytecodeStream {
+impl convert::From<Box<[Token]>> for BytecodeStream {
     /// Creates a new instance from a boxed array.
-    fn from(buf: Box<[DiscriminatedSignal]>) -> Self {
+    fn from(buf: Box<[Token]>) -> Self {
         Self {
             stream: Vec::from(buf),
-            jump_table: HashMap::new(),
             last_op_idx: 0,
             ops_count: 0,
             has_prologue: false,
@@ -507,12 +473,11 @@ impl convert::From<Box<[DiscriminatedSignal]>> for BytecodeStream {
     }
 }
 
-impl convert::From<Vec<DiscriminatedSignal>> for BytecodeStream {
+impl convert::From<Vec<Token>> for BytecodeStream {
     /// Creates a new instance from a vec.
-    fn from(vec: Vec<DiscriminatedSignal>) -> Self {
+    fn from(vec: Vec<Token>) -> Self {
         Self {
             stream: vec,
-            jump_table: HashMap::new(),
             last_op_idx: 0,
             ops_count: 0,
             has_prologue: false,
@@ -528,30 +493,78 @@ impl default::Default for BytecodeStream {
     }
 }
 
-/// Simple print.
-impl fmt::Display for BytecodeStream {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "\n+-----------------------------------------------+")?;
-        writeln!(f, "|                    Bytecode                   |")?;
-        writeln!(f, "+-----------------------------------------------+")?;
-        for (i, arg) in self.stream.iter().enumerate() {
-            if let DiscriminatedSignal::OpCode(op) = arg {
-                println!("| &{:#010X} | {:?}", i, op)
-            }
-        }
-        writeln!(f, "+----------------------End----------------------+\n")
+impl With<OpCode> for BytecodeStream {
+    /// Pushes a new operation into the command buffer stream.
+    /// If the operation requires any parameters, use with_* to
+    /// push them afterwards, otherwise validation will fail.
+    /// Returns this as ref to allow chain calls.
+    #[inline]
+    fn with(&mut self, x: OpCode) -> &mut Self {
+        self.push_opcode(x)
     }
 }
 
-/// Detailed print (valid text bytecode with syntax).
-impl fmt::Debug for BytecodeStream {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "\n+-----------------------------------------------+")?;
-        writeln!(f, "|                    Bytecode                   |")?;
-        writeln!(f, "+-----------------------------------------------+")?;
-        for (i, arg) in self.stream.iter().enumerate() {
-            println!("| &{:#010X} | {:?}", i, arg)
+impl With<u32> for BytecodeStream {
+    /// Pushes a new pin operation parameter into the command buffer stream.
+    #[inline]
+    fn with(&mut self, x: u32) -> &mut Self {
+        self.with_pin(x)
+    }
+}
+
+impl With<IntrinsicID> for BytecodeStream {
+    /// Pushes a new intrinsic procedure id operation parameter into the command buffer stream.
+    #[inline]
+    fn with(&mut self, x: IntrinsicID) -> &mut Self {
+        self.with_intrin_id(x)
+    }
+}
+
+impl With<i32> for BytecodeStream {
+    /// Pushes a new i32 operation parameter into the command buffer stream.
+    #[inline]
+    fn with(&mut self, x: i32) -> &mut Self {
+        self.with_i32(x)
+    }
+}
+
+impl With<f32> for BytecodeStream {
+    /// Pushes a new f32 operation parameter into the command buffer stream.
+    #[inline]
+    fn with(&mut self, x: f32) -> &mut Self {
+        self.with_f32(x)
+    }
+}
+
+impl io::ToString for BytecodeStream {
+    fn to_string(&self) -> String {
+        let mut buffer = String::new();
+        for i in &self.stream {
+            if let Token::OpCode(_) = i {
+                buffer += "\n";
+            }
+            buffer += &format!("{:?}", i);
         }
-        writeln!(f, "+----------------------End----------------------+\n")
+        buffer
+    }
+}
+
+impl io::From<&str> for BytecodeStream {
+    fn from(_x: &str) -> Self {
+        Self::new()
+    }
+}
+
+impl<'a> io::IO<'a, ()> for BytecodeStream {
+    fn dump(&self) {
+        println!("{}", self.to_string());
+    }
+
+    fn to_file(&self, _file: &io::Path) -> Result<(), ()> {
+        Err(())
+    }
+
+    fn from_file(_file: &io::Path) -> Result<Self, ()> {
+        Err(())
     }
 }

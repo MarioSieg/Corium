@@ -313,9 +313,6 @@ pub enum OpCode {
     F32Vector16Division,
     F32Vector16Modulo,
     F32Vector16FusedMultiplyAddition,
-}
 
-impl OpCode {
-    /// Number of enumerators.
-    pub const COUNT: usize = 1 + OpCode::F32Vector16FusedMultiplyAddition as usize;
+    _Count,
 }

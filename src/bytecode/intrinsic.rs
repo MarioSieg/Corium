@@ -375,9 +375,6 @@ pub enum IntrinsicID {
     /// Returns the minimum of the two numbers.
     /// If one of the arguments is NaN, then the other argument is returned.
     MMin,
-}
 
-impl IntrinsicID {
-    /// Number of enumerators.
-    pub const COUNT: usize = 1 + IntrinsicID::MMin as usize;
+    _Count,
 }

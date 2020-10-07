@@ -238,7 +238,7 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
     let mut command_buffer = input.chunk;
     let mut stack = input.stack;
     let mut cycles: u64 = 0;
-    let mut interrupt: i32;
+    let mut interrupt: i32 = 0;
 
     'vm: loop {
         let opcode = command_buffer.fetch().into();
@@ -435,6 +435,9 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
                     IntrinsicID::MMin => {
                         impl_duplet_intrin!(stack, f32, min);
                         continue 'vm;
+                    }
+                    _ => {
+                        break 'vm;
                     }
                 }
             }
@@ -918,6 +921,10 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
 
             OpCode::F32Vector16FusedMultiplyAddition => {
                 impl_fma_vector_op!(stack, f32, fma16_slice, f32, 16);
+            }
+
+            _ => {
+                break 'vm;
             }
         }
     }

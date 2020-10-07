@@ -204,11 +204,78 @@
 
 */
 
-#[allow(unused_macros)]
-#[macro_export]
-macro_rules! ronasm {
-    ($($x:expr, ) *) => {{
-        let slice = [$(String::from($x)), *];
-        crate::interpreter::core::interpret_lines(slice.to_vec()).unwrap()
-    }};
+use crate::bytecode::{intrinsic::IntrinsicID, lexemes, opcode::OpCode};
+use std::fmt;
+
+/// A token in bytecode.
+/// Like a type safe version of 'Signal' using a discriminator and more features.
+/// This is only used by the interpreter, optimizer and validator, not at runtime!
+#[derive(Copy, Clone, PartialEq)]
+pub enum Token {
+    I32(i32),
+    F32(f32),
+    OpCode(OpCode),
+    IntrinsicID(IntrinsicID),
+    Pin(u32),
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            Self::I32(value) => writeln!(f, " {}", value),
+            Self::F32(value) => writeln!(f, " {}", value),
+            Self::Pin(value) => writeln!(f, " {}", value),
+            Self::IntrinsicID(value) => writeln!(f, "{}", value as u32),
+            Self::OpCode(value) => writeln!(f, "{}", value as u32),
+        }
+    }
+}
+
+impl fmt::Debug for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            Self::I32(value) => write!(
+                f,
+                " {}{} {}{}{:X}",
+                lexemes::markers::TYPE,
+                lexemes::Types[*self],
+                lexemes::markers::IMMEDIATE_VALUE,
+                lexemes::literals::BEGIN_HEXADECIMAL,
+                value
+            ),
+            Self::F32(value) => write!(
+                f,
+                " {}{} {}{}{:E}",
+                lexemes::markers::TYPE,
+                lexemes::Types[*self],
+                lexemes::markers::IMMEDIATE_VALUE,
+                lexemes::literals::BEGIN_SCIENTIFIC,
+                value
+            ),
+            Self::Pin(value) => write!(
+                f,
+                " {}{} {}{}{:X}",
+                lexemes::markers::TYPE,
+                lexemes::Types[*self],
+                lexemes::markers::IMMEDIATE_VALUE,
+                lexemes::literals::BEGIN_HEXADECIMAL,
+                value
+            ),
+            Self::IntrinsicID(value) => write!(
+                f,
+                " {}{} {}{}{:?}",
+                lexemes::markers::TYPE,
+                lexemes::Types[*self],
+                lexemes::markers::IMMEDIATE_VALUE,
+                lexemes::literals::BEGIN_HEXADECIMAL,
+                value
+            ),
+            Self::OpCode(value) => write!(
+                f,
+                "{}{}",
+                lexemes::markers::INSTRUCTION,
+                lexemes::MNEMONICS[value as usize]
+            ),
+        }
+    }
 }

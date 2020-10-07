@@ -204,17 +204,153 @@
 
 */
 
-pub const LINE_SIGIL_MNEMONIC: char = '%';
-pub const LINE_SIGIL_PIN: char = '&';
-pub const LINE_SIGIL_COMMENT: char = ';';
+use super::ast::Token;
+use std::ops::Index;
 
-pub const LITERAL_SUFFIX_I32: char = 'I';
-pub const LITERAL_SUFFIX_F32: char = 'F';
-pub const LITERAL_SUFFIX_PIN: char = '*';
-pub const LITERAL_SUFFIX_IPC: char = '#';
+pub mod markers {
+    pub const COMMENT: char = ';';
+    pub const MACRO: char = '#';
+    pub const INSTRUCTION: char = '%';
+    pub const TYPE: char = '*';
+    pub const IMMEDIATE_VALUE: char = '$';
+    pub const BEGIN_MACRO: char = '(';
+    pub const END_MACRO: char = ')';
+    pub const ARGUMENT_SEPERATOR: char = ';';
+}
 
-pub const LITERAL_PREFIX_HEX: &str = "0X";
-pub const LITERAL_PREFIX_BIN: &str = "0B";
-pub const LITERAL_PREFIX_OCT: &str = "0C";
+pub mod literals {
+    pub const BEGIN_DECIMAL: &str = "0d";
+    pub const BEGIN_BINARY: &str = "0b";
+    pub const BEGIN_HEXADECIMAL: &str = "0x";
+    pub const BEGIN_OCTAL: &str = "0c";
+    pub const BEGIN_QUATERNARY: &str = "0q";
+    pub const BEGIN_SCIENTIFIC: &str = "0s";
+    pub const STRING_LITERAL: char = '\"';
+    pub const CHAR_LITERAL: char = '\'';
+    pub const BYTES_LITERAL: char = '´';
+}
 
-pub const ARGUMENT_SEPARATOR: char = ',';
+pub struct Types;
+
+impl Types {
+    const DATA: &'static [&'static str] = &["i32", "f32", "pin", "ipc"];
+}
+
+impl Index<Token> for Types {
+    type Output = &'static str;
+    fn index(&self, idx: Token) -> &Self::Output {
+        match idx {
+            Token::I32(_) => &Self::DATA[0],
+            Token::F32(_) => &Self::DATA[1],
+            Token::Pin(_) => &Self::DATA[2],
+            Token::IntrinsicID(_) => &Self::DATA[3],
+            _ => &"",
+        }
+    }
+}
+
+pub const MACROS: &[&str] = &[
+    "inc", "def", "ifdef", "ifndef", "elif", "if", "else", "equ", "ascii", "uft8", "extrn", "proc",
+    "pin", "db", "exec",
+];
+
+pub const MNEMONICS: &[&str] = &[
+    "interrupt",
+    "intrin",
+    "push",
+    "pop",
+    "mov",
+    "cpy",
+    "nop",
+    "dupl",
+    "ddupl",
+    "casti2f",
+    "castf2i",
+    "jmp",
+    "jz",
+    "jnz",
+    "je",
+    "jne",
+    "ja",
+    "jae",
+    "jl",
+    "jle",
+    "iadd",
+    "isub",
+    "imul",
+    "idiv",
+    "imod",
+    "iand",
+    "ior",
+    "ixor",
+    "isal",
+    "isar",
+    "irol",
+    "iror",
+    "icom",
+    "iinc",
+    "idec",
+    "fadd",
+    "fsub",
+    "fmul",
+    "fdiv",
+    "fmod",
+    "ffma",
+    "vquadiadd",
+    "vquadisub",
+    "vquadimul",
+    "vquadidiv",
+    "vquadimod",
+    "vquadiand",
+    "vquadior",
+    "vquadixor",
+    "vquadisal",
+    "vquadisar",
+    "vquadirol",
+    "vquadiror",
+    "vquadicom",
+    "vquadfadd",
+    "vquadfsub",
+    "vquadfmul",
+    "vquadfdiv",
+    "vquadfmod",
+    "vquadffma",
+    "voctaiadd",
+    "voctaisub",
+    "voctaimul",
+    "voctaidiv",
+    "voctaimod",
+    "voctaiand",
+    "voctaior",
+    "voctaixor",
+    "voctaisal",
+    "voctaisar",
+    "voctairol",
+    "voctairor",
+    "voctaicom",
+    "voctafadd",
+    "voctafsub",
+    "voctafmul",
+    "voctafdiv",
+    "voctafmod",
+    "voctaffma",
+    "vhexaiadd",
+    "vhexaisub",
+    "vhexaimul",
+    "vhexaidiv",
+    "vhexaimod",
+    "vhexaiand",
+    "vhexaior",
+    "vhexaixor",
+    "vhexaisal",
+    "vhexaisar",
+    "vhexairol",
+    "vhexairor",
+    "vhexaicom",
+    "vhexafadd",
+    "vhexafsub",
+    "vhexafmul",
+    "vhexafdiv",
+    "vhexafmod",
+    "vhexaffma",
+];

@@ -1,8 +1,0 @@
-; A simple for loop example.
-
-%push 0i				; int i = 0; -> Push counter variable "i" onto stack and initialize it to 0.
-&L0						; LO: -> Create a new label called "L0".
-%iinc					; i++; -> Increment "i" by 1.
-%dupl					; stack[++sp] = stack[sp]; -> Duplicate the stack top, afterwards we have two "i" on the stack.
-%push 1000000000i		; stack[sp] = (int)[ip++]; -> Push the target value "t" onto the stack.
-%jl L0*					; if stack[sp - 1] < stack[sp] { goto LO; } if "i" < "t", goto L0. Pops "i" and "t".
