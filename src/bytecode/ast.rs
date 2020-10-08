@@ -466,7 +466,7 @@ impl fmt::Debug for Token {
         match *self {
             Self::I32(value) => write!(
                 f,
-                " {}{}{}{} {}{}{:08X}{}",
+                " {}{}{}{} {}{}{:X}{}",
                 lexemes::markers::TYPE,
                 ansi::BLUE_BOLD,
                 lexemes::Types[self],
@@ -491,7 +491,7 @@ impl fmt::Debug for Token {
             Self::C32(value) => {
                 write!(
                     f,
-                    " {}{}{}{} {}{}{:08X}{}",
+                    " {}{}{}{} {}{}{:X}{}",
                     lexemes::markers::TYPE,
                     ansi::BLUE_BOLD,
                     lexemes::Types[self],
@@ -503,16 +503,22 @@ impl fmt::Debug for Token {
                 )?;
                 write!(
                     f,
-                    "{} {} {:?}{}",
+                    "{} {} {} {} {:?}{}",
                     ansi::GREEN,
                     lexemes::markers::COMMENT,
+                    if value.is_ascii() {
+                        "ASCII"
+                    } else {
+                        "UFT-32"
+                    },
+                    value as u32,
                     value,
                     ansi::RESET,
                 )
             }
             Self::Pin(value) => write!(
                 f,
-                " {}{}{}{} {}{}{}{:08X}{}{}",
+                " {}{}{}{} {}{}{}{:X}{}{}",
                 lexemes::markers::TYPE,
                 ansi::BLUE_BOLD,
                 lexemes::Types[self],
@@ -527,7 +533,7 @@ impl fmt::Debug for Token {
             Self::Ipc(value) => {
                 write!(
                     f,
-                    " {}{}{}{} {}{}{}{:08X}{}",
+                    " {}{}{}{} {}{}{}{:X}{}",
                     lexemes::markers::TYPE,
                     ansi::BLUE_BOLD,
                     lexemes::Types[self],

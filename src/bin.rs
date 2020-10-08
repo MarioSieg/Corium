@@ -227,7 +227,9 @@ fn main() {
             .with(Ipc(Intrinsics::PutChar));
     }
     stream.with(OpCode(Op::JumpIfLess)).with(I32(5));
-    stream.with(OpCode(Op::CallIntrinsic)).with(Ipc(Intrinsics::Flush));
+    stream
+        .with(OpCode(Op::CallIntrinsic))
+        .with(Ipc(Intrinsics::Flush));
     stream.epilogue();
     stream.dump();
     let input = ExecutorInput {

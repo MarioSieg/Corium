@@ -266,7 +266,7 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
                     Intrinsics::Flush => {
                         print!("{}", stdout);
                         stdout.clear();
-                    },
+                    }
                     Intrinsics::Floor => {
                         impl_scalar_intrin!(stack, f32, floor);
                         continue 'vm;
