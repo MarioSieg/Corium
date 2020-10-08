@@ -7,10 +7,10 @@
 ![alt](https://img.shields.io/github/repo-size/MarioSieg/NominaxRonVM)
 
 # Features
- * PC, Mac, Linux, IOS, Android
+ * PC, Mac, Linux, IOS, Android.
  * Extremly fast thanks to multithreading, SIMD and GPU offloading.
- * Backend for the Nominax programming language
- * C backend for GCC, Clang with computed goto branch table optimization (not yet online)
+ * Backend for the Nominax programming language.
+ * C backend for GCC, Clang with computed goto branch table optimization (not yet online).
  
 # Example
 ```
