@@ -1,4 +1,4 @@
-# NominaxRonVM
+# Ronin Virtual Machine
 ![alt](https://img.shields.io/github/license/MarioSieg/NominaxRonVM)
 ![alt](https://img.shields.io/github/commit-activity/w/MarioSieg/NominaxRonVM)
 ![alt](https://img.shields.io/appveyor/build/MarioSieg/NominaxRonVM)
@@ -6,13 +6,66 @@
 ![alt](https://img.shields.io/tokei/lines/github/MarioSieg/NominaxRonVM)
 ![alt](https://img.shields.io/github/repo-size/MarioSieg/NominaxRonVM)
 
- --Ronin Virtual Machine--
+# Features
  * PC, Mac, Linux, IOS, Android
- * Multithreading, SIMD
+ * Extremly fast thanks to multithreading, SIMD and GPU offloading.
  * Backend for the Nominax programming language
  * C backend for GCC, Clang with computed goto branch table optimization (not yet online)
- * Stable ISA:
  
+# Example
+```
+; ----------------------------
+; le=73 ca=128 ar=35 o=36 p=1 e=1 
+; ---------------------------- ; @exec
+; &0x00000000+02 | 05 00 00 00 ; %mov *i32 $0x00000000, *i32 $0x45564F4C
+; &0x00000003+01 | 03 00 00 00 ; %push *i32 $0x00000000
+; &0x00000005+00 | 21 00 00 00 ; %iinc
+; &0x00000006+00 | 07 00 00 00 ; %dupl
+; &0x00000007+01 | 03 00 00 00 ; %push *i32 $0x00000005
+; &0x00000009+01 | 03 00 00 00 ; %push *c32 $\00000048 ; 'H'
+; &0x0000000B+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x0000000D+01 | 03 00 00 00 ; %push *c32 $\00000065 ; 'e'
+; &0x0000000F+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x00000011+01 | 03 00 00 00 ; %push *c32 $\0000006C ; 'l'
+; &0x00000013+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x00000015+01 | 03 00 00 00 ; %push *c32 $\0000006C ; 'l'
+; &0x00000017+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x00000019+01 | 03 00 00 00 ; %push *c32 $\0000006F ; 'o'
+; &0x0000001B+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x0000001D+01 | 03 00 00 00 ; %push *c32 $\0000002C ; ','
+; &0x0000001F+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x00000021+01 | 03 00 00 00 ; %push *c32 $\00000020 ; ' '
+; &0x00000023+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x00000025+01 | 03 00 00 00 ; %push *c32 $\00000057 ; 'W'
+; &0x00000027+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x00000029+01 | 03 00 00 00 ; %push *c32 $\0000006F ; 'o'
+; &0x0000002B+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x0000002D+01 | 03 00 00 00 ; %push *c32 $\00000072 ; 'r'
+; &0x0000002F+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x00000031+01 | 03 00 00 00 ; %push *c32 $\0000006C ; 'l'
+; &0x00000033+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x00000035+01 | 03 00 00 00 ; %push *c32 $\00000064 ; 'd'
+; &0x00000037+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x00000039+01 | 03 00 00 00 ; %push *c32 $\00000021 ; '!'
+; &0x0000003B+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x0000003D+01 | 03 00 00 00 ; %push *c32 $\0000000A ; '\n'
+; &0x0000003F+01 | 01 00 00 00 ; %intrin *ipc [$0x00000000] ; __putchar
+; &0x00000041+03 | 12 00 00 00 ; %jl *i32 $0x00000005
+; &0x00000043+01 | 01 00 00 00 ; %intrin *ipc [$0x00000001] ; __flush
+; ---------------------------- ; @exec
+; &0x00000045+01 | 00 00 00 00 ; %interrupt *i32 $0x00000000
+```
+## Output
+```
+Hello, World!
+Hello, World!
+Hello, World!
+Hello, World!
+Hello, World!
+C: 164, T: 0.000029S
+```
+
+# Instruction Set
 | Name                                                                  | Mnemonic  | Opcode | Category                | Arguments (Explicit)    | Stack Arguments (Implicit)         | C Operator | Mathematical    |
 |-----------------------------------------------------------------------|-----------|--------|-------------------------|-------------------------|------------------------------------|------------|-----------------|
 | Interrupt                                                             | INTERRUPT | 0h     | Control                 | interrupt_id: i32       |                                    |            |                 |
