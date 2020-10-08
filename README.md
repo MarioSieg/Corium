@@ -1,4 +1,4 @@
-# NominaxRonVM
+# Ronin Virtual Machine
 ![alt](https://img.shields.io/github/license/MarioSieg/NominaxRonVM)
 ![alt](https://img.shields.io/github/commit-activity/w/MarioSieg/NominaxRonVM)
 ![alt](https://img.shields.io/appveyor/build/MarioSieg/NominaxRonVM)
@@ -6,13 +6,25 @@
 ![alt](https://img.shields.io/tokei/lines/github/MarioSieg/NominaxRonVM)
 ![alt](https://img.shields.io/github/repo-size/MarioSieg/NominaxRonVM)
 
- --Ronin Virtual Machine--
- * PC, Mac, Linux, IOS, Android
- * Multithreading, SIMD
- * Backend for the Nominax programming language
- * C backend for GCC, Clang with computed goto branch table optimization (not yet online)
- * Stable ISA:
+# Features
+ * PC, Mac, Linux, IOS, Android.
+ * Extremly fast thanks to multithreading, SIMD and GPU offloading.
+ * Backend for the Nominax programming language.
+ * C backend for GCC, Clang with computed goto branch table optimization (not yet online).
  
+# Example
+![alt](https://i.imgur.com/2aft9YZ.png)
+## Output
+```
+Hello, World!
+Hello, World!
+Hello, World!
+Hello, World!
+Hello, World!
+C: 164, T: 0.000029S
+```
+
+# Instruction Set
 | Name                                                                  | Mnemonic  | Opcode | Category                | Arguments (Explicit)    | Stack Arguments (Implicit)         | C Operator | Mathematical    |
 |-----------------------------------------------------------------------|-----------|--------|-------------------------|-------------------------|------------------------------------|------------|-----------------|
 | Interrupt                                                             | INTERRUPT | 0h     | Control                 | interrupt_id: i32       |                                    |            |                 |
