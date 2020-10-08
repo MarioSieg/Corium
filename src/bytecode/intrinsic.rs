@@ -209,39 +209,42 @@
 /// M = Math
 #[repr(u32)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum IntrinsicID {
+pub enum Intrinsics {
     /// Prints one character to stdout
-    GPutChar,
+    PutChar,
+
+    /// Flushes the virtual stdout to the system's stdout.
+    Flush,
 
     /// Returns the largest integer less than or equal to a number.
-    MFloor,
+    Floor,
 
     /// Returns the smallest integer greater than or equal to a number.
-    MCeil,
+    Ceil,
 
     /// Returns the nearest integer to a number. Round half-way cases away from 0.0.
-    MRound,
+    Round,
 
     /// Returns the integer part of a number.
-    MTrunc,
+    Trunc,
 
     /// Returns the fractional part of a number.
-    MFract,
+    Fract,
 
     /// Computes the absolute value of self. Returns NAN if the number is NAN.
-    MAbs,
+    Abs,
 
     /// Returns a number that represents the sign of self.
-    MSignum,
+    Signum,
 
     /// Returns a number composed of the magnitude of self and the sign of sign.
     /// Equal to self if the sign of self and sign are the same, otherwise equal to -self. If self is a NAN, then a NAN with the sign of sign is returned.
-    MCopysign,
+    Copysign,
 
     /// Calculates Euclidean division, the matching method for rem_euclid.
     /// This computes the integer n such that self = n * rhs + self.rem_euclid(rhs).
     /// In other words, the result is self / rhs rounded to the integer n such that self >= n * rhs.
-    MDivEuclid,
+    DivEuclid,
 
     ///Calculates the least nonnegative remainder of self (mod rhs).
     /// In particular, the return value r satisfies 0.0 <= r < rhs.abs() in most cases.
@@ -250,131 +253,131 @@ pub enum IntrinsicID {
     /// This result is not an element of the function's codomain,
     /// but it is the closest floating point number in the real numbers and thus fulfills
     /// the property self == self.div_euclid(rhs) * rhs + self.rem_euclid(rhs) approximatively.
-    MRemEuclid,
+    RemEuclid,
 
     /// Raises a number to a floating point power.
-    MPowF,
+    PowF,
 
     /// Returns the square root of a number.
     /// Returns NaN if self is a negative number.
-    MSqrt,
+    Sqrt,
 
     /// Returns e^(self), (the exponential function).
-    MExp,
+    Exp,
 
     /// Returns 2^(self).
-    MExp2,
+    Exp2,
 
     /// Returns the natural logarithm of the number.
-    MLn,
+    Ln,
 
     /// Returns the logarithm of the number with respect to an arbitrary base.
     /// The result may not be correctly rounded owing to implementation details;
     /// self.log2() can produce more accurate results for base 2, and self.log10()
     /// can produce more accurate results for base 10.
-    MLog,
+    Log,
 
     /// Returns the base 2 logarithm of the number.
-    MLog2,
+    Log2,
 
     /// Returns the base 10 logarithm of the number.
-    MLog10,
+    Log10,
 
     /// Returns the cubic root of a number.
-    MCbrt,
+    Cbrt,
 
     /// Calculates the length of the hypotenuse of a right-angle triangle given legs of length x and y.
-    MHypot,
+    Hypot,
 
     /// Computes the sine of a number (in radians).
-    MSin,
+    Sin,
 
     /// Computes the cosine of a number (in radians).
-    MCos,
+    Cos,
 
     /// Computes the tangent of a number (in radians).
-    MTan,
+    Tan,
 
     /// Computes the arcsine of a number.
     /// Return value is in radians in the range [-pi/2, pi/2] or NaN
     /// if the number is outside the range [-1, 1].
-    MAsin,
+    Asin,
 
     /// Computes the arccosine of a number.
     /// Return value is in radians in the range [0, pi] or NaN
     /// if the number is outside the range [-1, 1].
-    MAcos,
+    Acos,
 
     /// Computes the arctangent of a number. Return value is in radians in the range [-pi/2, pi/2];
-    MAtan,
+    Atan,
 
     /// Computes the four quadrant arctangent of self (y) and other (x) in radians.
     /// x = 0, y = 0: 0
     /// x >= 0: arctan(y/x) -> [-pi/2, pi/2]
     /// y >= 0: arctan(y/x) + pi -> (pi/2, pi]
     /// y < 0: arctan(y/x) - pi -> (-pi, -pi/2)
-    MAtan2,
+    Atan2,
 
     /// Returns e^(self) - 1 in a way that is accurate even if the number is close to zero.
-    MExpM1,
+    ExpM1,
 
     /// Returns ln(1+n) (natural logarithm) more accurately than if the operations were performed separately.
-    MLn1P,
+    Ln1P,
 
     /// Hyperbolic sine function.
-    MSinH,
+    SinH,
 
     /// Hyperbolic cosine function.
-    MCosH,
+    CosH,
 
     /// Hyperbolic tangent function.
-    MTanH,
+    TanH,
 
     /// Inverse hyperbolic sine function.
-    MAsinH,
+    AsinH,
 
     /// Inverse hyperbolic cosine function.
-    MAcosH,
+    AcosH,
 
     /// Inverse hyperbolic tangent function.
-    MAtanH,
+    AtanH,
 
     /// Returns true if this value is NaN.
-    MIsNan,
+    IsNan,
 
     /// Returns true if this value is positive infinity or negative infinity, and false otherwise.
-    MIsInfinite,
+    IsInfinite,
 
     /// Returns true if this number is neither infinite nor NaN.
-    MIsFinite,
+    IsFinite,
 
     /// Returns true if the number is neither zero, infinite, subnormal, or NaN.
-    MIsNormal,
+    IsNormal,
 
     /// Returns true if self has a positive sign, including +0.0,
     /// NaNs with positive sign bit and positive infinity.
-    MIsSignalPositive,
+    IsSignalPositive,
 
     /// Returns true if self has a negative sign, including -0.0,
     /// NaNs with negative sign bit and negative infinity.
-    MIsSignalNegative,
+    IsSignalNegative,
 
     /// Takes the reciprocal (inverse) of a number, 1/x.
-    MRecip,
+    Recip,
 
     /// Converts radians to degrees.
-    MToDegrees,
+    ToDegrees,
 
     /// Converts degrees to radians.
-    MToRadians,
+    ToRadians,
 
     /// Returns the maximum of the two numbers.
     /// If one of the arguments is NaN, then the other argument is returned.
-    MMax,
+    Max,
 
     /// Returns the minimum of the two numbers.
     /// If one of the arguments is NaN, then the other argument is returned.
-    MMin,
+    Min,
 
     _Count,
 }

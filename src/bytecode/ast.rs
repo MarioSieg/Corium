@@ -204,7 +204,7 @@
 
 */
 
-use super::{intrinsic::IntrinsicID, lexemes};
+use super::{intrinsic::Intrinsics, lexemes};
 use crate::misc::ansi;
 use std::{convert, fmt};
 
@@ -218,8 +218,9 @@ pub enum Token {
 
     I32(i32),
     F32(f32),
-    IntrinsicID(IntrinsicID),
+    C32(char),
     Pin(u32),
+    Ipc(Intrinsics),
 }
 
 impl Token {
@@ -252,7 +253,7 @@ impl Token {
     #[inline]
     pub fn is_scalar(&self) -> bool {
         match *self {
-            Self::I32(_) | Self::F32(_) => true,
+            Self::I32(_) | Self::F32(_) | Self::C32(_) => true,
             _ => false,
         }
     }
@@ -398,10 +399,11 @@ impl convert::From<&Token> for Option<[u8; 4]> {
     fn from(x: &Token) -> Self {
         match *x {
             Token::OpCode(value) => Some((value as u32).to_le_bytes()),
-            Token::IntrinsicID(value) => Some((value as u32).to_le_bytes()),
+            Token::Ipc(value) => Some((value as u32).to_le_bytes()),
             Token::I32(value) => Some(value.to_le_bytes()),
             Token::F32(value) => Some(value.to_le_bytes()),
             Token::Pin(value) => Some(value.to_le_bytes()),
+            Token::C32(value) => Some((value as u32).to_le_bytes()),
             Token::Section(_) => None,
         }
     }
@@ -450,8 +452,9 @@ impl fmt::Display for Token {
         match *self {
             Self::I32(value) => writeln!(f, " {}", value),
             Self::F32(value) => writeln!(f, " {}", value),
+            Self::C32(value) => writeln!(f, " {}", value),
             Self::Pin(value) => writeln!(f, " {}", value),
-            Self::IntrinsicID(value) => writeln!(f, "{}", value as u32),
+            Self::Ipc(value) => writeln!(f, "{}", value as u32),
             Self::OpCode(value) => writeln!(f, "{}", value as u32),
             Self::Section(value) => writeln!(f, "{}", value as u32),
         }
@@ -485,32 +488,65 @@ impl fmt::Debug for Token {
                 value,
                 ansi::RESET,
             ),
+            Self::C32(value) => {
+                write!(
+                    f,
+                    " {}{}{}{} {}{}{:08X}{}",
+                    lexemes::markers::TYPE,
+                    ansi::BLUE_BOLD,
+                    lexemes::Types[self],
+                    ansi::MAGENTA,
+                    lexemes::markers::IMMEDIATE_VALUE,
+                    lexemes::literals::CHAR_LITERAL,
+                    value as u32,
+                    ansi::RESET,
+                )?;
+                write!(
+                    f,
+                    "{} {} {:?}{}",
+                    ansi::GREEN,
+                    lexemes::markers::COMMENT,
+                    value,
+                    ansi::RESET,
+                )
+            }
             Self::Pin(value) => write!(
                 f,
-                " {}{}{}{} {}{}{:08X}{}",
+                " {}{}{}{} {}{}{}{:08X}{}{}",
                 lexemes::markers::TYPE,
                 ansi::BLUE_BOLD,
                 lexemes::Types[self],
                 ansi::RESET,
+                lexemes::markers::BEGIN_PTR,
                 lexemes::markers::IMMEDIATE_VALUE,
                 lexemes::literals::BEGIN_HEXADECIMAL,
                 value,
+                lexemes::markers::END_PTR,
                 ansi::RESET,
             ),
-            Self::IntrinsicID(value) => write!(
-                f,
-                " {}{}{}{} {}{}{:08X} {} ; {:?}{}",
-                lexemes::markers::TYPE,
-                ansi::BLUE_BOLD,
-                lexemes::Types[self],
-                ansi::MAGENTA,
-                lexemes::markers::IMMEDIATE_VALUE,
-                lexemes::literals::BEGIN_HEXADECIMAL,
-                value as u32,
-                ansi::GREEN,
-                value,
-                ansi::RESET,
-            ),
+            Self::Ipc(value) => {
+                write!(
+                    f,
+                    " {}{}{}{} {}{}{}{:08X}{}",
+                    lexemes::markers::TYPE,
+                    ansi::BLUE_BOLD,
+                    lexemes::Types[self],
+                    ansi::MAGENTA,
+                    lexemes::markers::BEGIN_PTR,
+                    lexemes::markers::IMMEDIATE_VALUE,
+                    lexemes::literals::BEGIN_HEXADECIMAL,
+                    value as u32,
+                    lexemes::markers::END_PTR,
+                )?;
+                write!(
+                    f,
+                    "{} {} __{}{}",
+                    ansi::GREEN,
+                    lexemes::markers::COMMENT,
+                    format!("{:?}", value).to_lowercase(),
+                    ansi::RESET,
+                )
+            }
             Self::OpCode(value) => write!(
                 f,
                 "{}{}{}{}",

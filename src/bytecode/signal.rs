@@ -206,7 +206,7 @@
 
 use crate::bytecode::{
     ast::{OpCode, Token},
-    intrinsic::IntrinsicID,
+    intrinsic::Intrinsics,
 };
 use crate::core::record::Record;
 use std::{convert, fmt, mem};
@@ -279,6 +279,29 @@ impl convert::From<Signal> for u32 {
     }
 }
 
+/// Creates a signal from a char.
+/// The record then represents a char with the value of x.
+impl convert::From<char> for Signal {
+    #[inline(always)]
+    fn from(x: char) -> Self {
+        Self(x as u32)
+    }
+}
+
+/// Creates a char from a signal.
+/// This might lead to arbitrary values,
+/// if the signal representation wasn't a char.
+impl convert::From<Signal> for char {
+    #[inline(always)]
+    fn from(x: Signal) -> Self {
+        debug_assert!(
+            std::char::from_u32(x.into()).is_some(),
+            "VM_RecordCharMiscast!"
+        );
+        unsafe { std::char::from_u32_unchecked(x.into()) }
+    }
+}
+
 /// Creates a signal from a f32.
 /// The signal then represents an f32 with the value of x.
 impl convert::From<f32> for Signal {
@@ -322,9 +345,9 @@ impl convert::From<Signal> for OpCode {
 
 /// Creates a signal from an intrinsic proc id.
 /// The signal then represents an opcode with the value of x.
-impl convert::From<IntrinsicID> for Signal {
+impl convert::From<Intrinsics> for Signal {
     #[inline(always)]
-    fn from(x: IntrinsicID) -> Self {
+    fn from(x: Intrinsics) -> Self {
         Self(x as _)
     }
 }
@@ -333,11 +356,11 @@ impl convert::From<IntrinsicID> for Signal {
 /// This might lead to arbitrary values,
 /// if the signal representation wasn't an intrinsic proc id.
 /// Look at 'Token' for a typesafe non runtime version.
-impl convert::From<Signal> for IntrinsicID {
+impl convert::From<Signal> for Intrinsics {
     #[inline(always)]
     fn from(x: Signal) -> Self {
-        debug_assert!(x.0 < IntrinsicID::_Count as _);
-        unsafe { mem::transmute::<u32, IntrinsicID>(x.0) }
+        debug_assert!(x.0 < Intrinsics::_Count as _);
+        unsafe { mem::transmute::<u32, Intrinsics>(x.0) }
     }
 }
 
@@ -371,8 +394,9 @@ impl<'a> convert::From<Token> for Option<Signal> {
         match x {
             Token::I32(i) => Some(Signal::from(i)),
             Token::F32(f) => Some(Signal::from(f)),
+            Token::C32(c) => Some(Signal::from(c)),
             Token::OpCode(op) => Some(Signal::from(op)),
-            Token::IntrinsicID(ipc) => Some(Signal::from(ipc)),
+            Token::Ipc(ipc) => Some(Signal::from(ipc)),
             Token::Pin(l) => Some(Signal::from(l)),
             _ => None,
         }
@@ -406,7 +430,7 @@ impl fmt::Debug for Signal {
 
 #[cfg(test)]
 mod tests {
-    use crate::bytecode::{ast::OpCode, intrinsic::IntrinsicID, signal::Signal};
+    use crate::bytecode::{ast::OpCode, intrinsic::Intrinsics, signal::Signal};
     use std::mem;
 
     #[test]
@@ -442,8 +466,8 @@ mod tests {
     #[test]
     fn union_intrinsic_proc_id() {
         assert_eq!(
-            IntrinsicID::from(Signal::from(IntrinsicID::MSin)),
-            IntrinsicID::MSin
+            Intrinsics::from(Signal::from(Intrinsics::Sin)),
+            Intrinsics::Sin
         );
     }
 }

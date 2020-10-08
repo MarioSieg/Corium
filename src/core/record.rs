@@ -225,7 +225,7 @@ impl convert::From<usize> for Record {
 
 /// Creates an usize from a record.
 /// This might lead to arbitrary values,
-/// if the signal representation wasn't an usize.
+/// if the record representation wasn't an usize.
 impl convert::From<Record> for usize {
     #[inline(always)]
     fn from(x: Record) -> Self {
@@ -244,7 +244,7 @@ impl convert::From<i32> for Record {
 
 /// Creates an i32 from a record.
 /// This might lead to arbitrary values,
-/// if the signal representation wasn't an i32.
+/// if the record representation wasn't an i32.
 impl convert::From<Record> for i32 {
     #[inline(always)]
     fn from(x: Record) -> Self {
@@ -252,7 +252,7 @@ impl convert::From<Record> for i32 {
     }
 }
 
-/// Creates a signal from an u32.
+/// Creates a record from an u32.
 /// The record then represents an u32 with the value of x.
 impl convert::From<u32> for Record {
     #[inline(always)]
@@ -263,7 +263,7 @@ impl convert::From<u32> for Record {
 
 /// Creates an u32 from a record.
 /// This might lead to arbitrary values,
-/// if the signal representation wasn't an u32.
+/// if the record representation wasn't an u32.
 impl convert::From<Record> for u32 {
     #[inline(always)]
     fn from(x: Record) -> Self {
@@ -271,7 +271,30 @@ impl convert::From<Record> for u32 {
     }
 }
 
-/// Creates a signal from a f32.
+/// Creates a record from a char.
+/// The record then represents a char with the value of x.
+impl convert::From<char> for Record {
+    #[inline(always)]
+    fn from(x: char) -> Self {
+        Self(x as u32)
+    }
+}
+
+/// Creates a char from a record.
+/// This might lead to arbitrary values,
+/// if the record representation wasn't a char.
+impl convert::From<Record> for char {
+    #[inline(always)]
+    fn from(x: Record) -> Self {
+        debug_assert!(
+            std::char::from_u32(x.into()).is_some(),
+            "VM_RecordCharMiscast!"
+        );
+        unsafe { std::char::from_u32_unchecked(x.into()) }
+    }
+}
+
+/// Creates a srecord from a f32.
 /// The record then represents an f32 with the value of x.
 impl convert::From<f32> for Record {
     #[inline(always)]
@@ -282,7 +305,7 @@ impl convert::From<f32> for Record {
 
 /// Creates an f32 from a record.
 /// This might lead to arbitrary values,
-/// if the signal representation wasn't an f32.
+/// if the record representation wasn't an f32.
 impl convert::From<Record> for f32 {
     #[inline(always)]
     fn from(x: Record) -> Self {
@@ -327,7 +350,7 @@ impl fmt::Debug for Record {
         let b: [u8; 4] = (*self).into();
         write!(
             f,
-            "{:02X} {:02X} {:02X} {:02X} | {} {:#e}",
+            "{:02X} {:02X} {:02X} {:02X} | {} {}",
             b[0],
             b[1],
             b[2],

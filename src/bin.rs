@@ -209,23 +209,31 @@ extern crate ronin_runtime;
 use ronin_runtime::misc::io::IO;
 use ronin_runtime::prelude::*;
 
-use OpCode::*;
+use ronin_runtime::bytecode::ast::OpCode as Op;
+use Token::*;
 
 fn main() {
     let mut stream = BytecodeStream::new();
     stream.prologue();
 
-    stream.with(Token::OpCode(Push)).with(Token::I32(0));
-    stream.with(Token::OpCode(I32Increment));
-    stream.with(Token::OpCode(Duplicate));
-    stream
-        .with(Token::OpCode(Push))
-        .with(Token::I32(1_000_000_000));
-    stream.with(Token::OpCode(JumpIfLess)).with(Token::I32(1));
-    stream
-        .with(Token::OpCode(CallIntrinsic))
-        .with(Token::IntrinsicID(IntrinsicID::GPutChar));
-
+    stream.with(OpCode(Op::Push)).with(I32(0));
+    stream.with(OpCode(Op::I32Increment));
+    stream.with(OpCode(Op::Duplicate));
+    stream.with(OpCode(Op::Push)).with(I32(5));
+    for c1 in "Hello, World!\n".chars() {
+        stream.with(OpCode(Op::Push)).with(C32(c1));
+        stream
+            .with(OpCode(Op::CallIntrinsic))
+            .with(Ipc(Intrinsics::PutChar));
+    }
+    stream.with(OpCode(Op::JumpIfLess)).with(I32(5));
+    stream.with(OpCode(Op::CallIntrinsic)).with(Ipc(Intrinsics::Flush));
     stream.epilogue();
     stream.dump();
+    let input = ExecutorInput {
+        chunk: stream.build().unwrap(),
+        stack: Stack::with_length(32),
+    };
+    let output = execute(input);
+    println!("C: {}, T: {}", output.cycles, output.time);
 }

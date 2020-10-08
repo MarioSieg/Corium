@@ -213,8 +213,9 @@ bitflags! {
         const I32 = 1 << 0;
         const F32 = 1 << 1;
         const U32 = 1 << 2;
-        const IPC = 1 << 3;
-        const PIN = 1 << 4;
+        const C32 = 1 << 3;
+        const IPC = 1 << 4;
+        const PIN = 1 << 5;
     }
 }
 
@@ -225,22 +226,25 @@ pub enum ImplicitArgumentTypes {
     Fixed(u8),
 }
 
-#[rustfmt::skip]
 pub const EXPLICIT_ARGUMENTS: &[Option<&[ExplicitArgumentType]>; OpCode::_Count as usize] = &[
     // Control:
     Some(&[ExplicitArgumentType::I32]),
     Some(&[ExplicitArgumentType::U32]),
     None,
-
     // Memory:
     Some(&[ExplicitArgumentType::from_bits_truncate(
-        ExplicitArgumentType::I32.bits() | ExplicitArgumentType::F32.bits() | ExplicitArgumentType::U32.bits(),
+        ExplicitArgumentType::I32.bits()
+            | ExplicitArgumentType::F32.bits()
+            | ExplicitArgumentType::U32.bits()
+            | ExplicitArgumentType::C32.bits(),
     )]),
     Some(&[ExplicitArgumentType::U32]),
     Some(&[
         ExplicitArgumentType::U32,
         ExplicitArgumentType::from_bits_truncate(
-            ExplicitArgumentType::I32.bits() | ExplicitArgumentType::F32.bits() | ExplicitArgumentType::U32.bits(),
+            ExplicitArgumentType::I32.bits()
+                | ExplicitArgumentType::F32.bits()
+                | ExplicitArgumentType::U32.bits(),
         ),
     ]),
     Some(&[ExplicitArgumentType::U32, ExplicitArgumentType::U32]),
@@ -248,18 +252,40 @@ pub const EXPLICIT_ARGUMENTS: &[Option<&[ExplicitArgumentType]>; OpCode::_Count 
     None,
     None,
     None,
-
     // Branching:
     Some(&[ExplicitArgumentType::U32]),
     Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
     Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
-    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
-    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
-    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
-    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
-    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
-    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
-
+    Some(&[
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::U32,
+    ]),
+    Some(&[
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::U32,
+    ]),
+    Some(&[
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::U32,
+    ]),
+    Some(&[
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::U32,
+    ]),
+    Some(&[
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::U32,
+    ]),
+    Some(&[
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::I32,
+        ExplicitArgumentType::U32,
+    ]),
     // Arithmetics:
     None,
     None,
@@ -282,7 +308,6 @@ pub const EXPLICIT_ARGUMENTS: &[Option<&[ExplicitArgumentType]>; OpCode::_Count 
     None,
     None,
     None,
-
     // Vectors:
     None,
     None,

@@ -214,8 +214,8 @@ pub mod markers {
     pub const INSTRUCTION: char = '%';
     pub const TYPE: char = '*';
     pub const IMMEDIATE_VALUE: char = '$';
-    pub const BEGIN_MACRO: char = '(';
-    pub const END_MACRO: char = ')';
+    pub const BEGIN_PTR: char = '[';
+    pub const END_PTR: char = ']';
     pub const ARGUMENT_SEPARATOR: char = ',';
     pub const SECTION: char = '@';
 }
@@ -228,14 +228,14 @@ pub mod literals {
     pub const BEGIN_QUATERNARY: &str = "0q";
     pub const BEGIN_SCIENTIFIC: &str = "0s";
     pub const STRING_LITERAL: char = '\"';
-    pub const CHAR_LITERAL: char = '\'';
+    pub const CHAR_LITERAL: char = '\\';
     pub const BYTES_LITERAL: char = '´';
 }
 
 pub struct Types;
 
 impl Types {
-    const DATA: &'static [&'static str] = &["i32", "f32", "pin", "ipc"];
+    const DATA: &'static [&'static str] = &["i32", "f32", "c32", "pin", "ipc"];
 }
 
 impl Index<&Token> for Types {
@@ -244,8 +244,9 @@ impl Index<&Token> for Types {
         match idx {
             Token::I32(_) => &Self::DATA[0],
             Token::F32(_) => &Self::DATA[1],
-            Token::Pin(_) => &Self::DATA[2],
-            Token::IntrinsicID(_) => &Self::DATA[3],
+            Token::C32(_) => &Self::DATA[2],
+            Token::Pin(_) => &Self::DATA[3],
+            Token::Ipc(_) => &Self::DATA[4],
             _ => &"?",
         }
     }

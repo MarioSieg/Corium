@@ -204,10 +204,10 @@
 
 */
 
-use crate::bytecode::{
+use super::{
     ast::{OpCode, Section, Token},
     chunk::BytecodeChunk,
-    lexemes,
+    descriptors, lexemes,
     signal::Signal,
 };
 use crate::misc::{ansi, io};
@@ -260,8 +260,10 @@ impl BytecodeStream {
 impl BytecodeStream {
     // Pushes a new token.
     pub fn with(&mut self, tok: Token) -> &mut Self {
-        if let Token::OpCode(_) = tok {
+        if tok.is_operation() {
             self.ops_count += 1;
+        } else if tok.is_argument() {
+            self.args_count += 1;
         }
         self.stream.push(tok);
         self
@@ -476,8 +478,24 @@ impl default::Default for BytecodeStream {
 
 impl io::ToString for BytecodeStream {
     fn to_string(&self) -> String {
-        let mut buffer = String::new();
+        let mut buffer = format!(
+            concat!(
+                "{}{} ----------------------------\n",
+                "{} le={} ca={} ar={} o={} p={} e={} {}"
+            ),
+            ansi::GREEN,
+            lexemes::markers::COMMENT,
+            lexemes::markers::COMMENT,
+            self.stream.len(),
+            self.stream.capacity(),
+            self.args_count,
+            self.ops_count,
+            self.has_prologue as u8,
+            self.has_epilogue as u8,
+            ansi::RESET,
+        );
         let mut prev = &Token::OpCode(OpCode::NoOp);
+        let mut i: usize = 0;
         for tok in &self.stream {
             if prev.is_argument() && tok.is_argument() {
                 buffer.push(lexemes::markers::ARGUMENT_SEPARATOR);
@@ -485,11 +503,22 @@ impl io::ToString for BytecodeStream {
                 buffer += "\n";
                 buffer += &{
                     let bytes: Option<[u8; 4]> = tok.into();
+                    let args_offset = if let Token::OpCode(x) = tok {
+                        if let Some(x) = descriptors::EXPLICIT_ARGUMENTS[*x as usize] {
+                            x.len()
+                        } else {
+                            0
+                        }
+                    } else {
+                        0
+                    };
                     if let Some(bytes) = bytes {
                         format!(
-                            "{}{} {:02X} {:02X} {:02X} {:02X} ;{} ",
+                            "{}{} &{:#010X}+{:02X} | {:02X} {:02X} {:02X} {:02X} ;{} ",
                             ansi::GREEN,
                             lexemes::markers::COMMENT,
+                            i,
+                            args_offset,
                             bytes[0],
                             bytes[1],
                             bytes[2],
@@ -498,8 +527,9 @@ impl io::ToString for BytecodeStream {
                         )
                     } else {
                         format!(
-                            "{}{} -- -- -- -- ;{} ",
+                            "{}{} ---------------------------- {}{} ",
                             ansi::GREEN,
+                            lexemes::markers::COMMENT,
                             lexemes::markers::COMMENT,
                             ansi::RESET,
                         )
@@ -508,6 +538,9 @@ impl io::ToString for BytecodeStream {
             }
             buffer += &format!("{:?}", tok);
             prev = tok;
+            if !tok.is_section() {
+                i += 1;
+            }
         }
         buffer
     }
