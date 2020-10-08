@@ -204,7 +204,10 @@
 
 */
 
-use crate::bytecode::{ast::Token, intrinsic::IntrinsicID, opcode::OpCode};
+use crate::bytecode::{
+    ast::{OpCode, Token},
+    intrinsic::IntrinsicID,
+};
 use crate::core::record::Record;
 use std::{convert, fmt, mem};
 
@@ -363,14 +366,15 @@ impl convert::From<Record> for Signal {
 }
 
 /// Creates a signal from an discriminated signal.
-impl<'a> convert::From<Token> for Signal {
+impl<'a> convert::From<Token> for Option<Signal> {
     fn from(x: Token) -> Self {
         match x {
-            Token::I32(i) => Self::from(i),
-            Token::F32(f) => Self::from(f),
-            Token::OpCode(op) => Self::from(op),
-            Token::IntrinsicID(ipc) => Self::from(ipc),
-            Token::Pin(l) => Self::from(l),
+            Token::I32(i) => Some(Signal::from(i)),
+            Token::F32(f) => Some(Signal::from(f)),
+            Token::OpCode(op) => Some(Signal::from(op)),
+            Token::IntrinsicID(ipc) => Some(Signal::from(ipc)),
+            Token::Pin(l) => Some(Signal::from(l)),
+            _ => None,
         }
     }
 }
@@ -402,7 +406,7 @@ impl fmt::Debug for Signal {
 
 #[cfg(test)]
 mod tests {
-    use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode, signal::Signal};
+    use crate::bytecode::{ast::OpCode, intrinsic::IntrinsicID, signal::Signal};
     use std::mem;
 
     #[test]

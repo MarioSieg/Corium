@@ -204,6 +204,7 @@
 
 */
 
+pub mod ansi;
 pub mod config;
 pub mod io;
 pub mod mt19937;

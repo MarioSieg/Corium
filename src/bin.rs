@@ -209,13 +209,23 @@ extern crate ronin_runtime;
 use ronin_runtime::misc::io::IO;
 use ronin_runtime::prelude::*;
 
+use OpCode::*;
+
 fn main() {
-    use OpCode::*;
     let mut stream = BytecodeStream::new();
-    stream.with(Push).with(0);
-    stream.with(I32Increment);
-    stream.with(Duplicate);
-    stream.with(Push).with(1_000_000_000);
-    stream.with(JumpIfLess).with(1u32);
+    stream.prologue();
+
+    stream.with(Token::OpCode(Push)).with(Token::I32(0));
+    stream.with(Token::OpCode(I32Increment));
+    stream.with(Token::OpCode(Duplicate));
+    stream
+        .with(Token::OpCode(Push))
+        .with(Token::I32(1_000_000_000));
+    stream.with(Token::OpCode(JumpIfLess)).with(Token::I32(1));
+    stream
+        .with(Token::OpCode(CallIntrinsic))
+        .with(Token::IntrinsicID(IntrinsicID::GPutChar));
+
+    stream.epilogue();
     stream.dump();
 }

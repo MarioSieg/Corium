@@ -204,115 +204,20 @@
 
 */
 
-// To add a new operation:
-// 1.) Add it to 'OpCode' enum with an opcode (just increment the previous)
-// 2.) Add a new mnemonic string constant in 'interpreter.rs'
-// 3.) Add metadata to 'OPERATION_TABLE'
-// 4.) Add implementation in 'execute()' in 'core.rs' and in 'alt_ffi_core.c'
-
-/// Represents an opcode.
-/// Contains all bytecode operations available.
-#[repr(u32)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum OpCode {
-    Interrupt,
-    CallIntrinsic,
-    Push,
-    Pop,
-    Move,
-    Copy,
-    NoOp,
-    Duplicate,
-    DuplicateTwice,
-    CastI32toF32,
-    CastF32toI32,
-    Jump,
-    JumpIfZero,
-    JumpIfNotZero,
-    JumpIfEquals,
-    JumpIfNotEquals,
-    JumpIfAbove,
-    JumpIfAboveEquals,
-    JumpIfLess,
-    JumpIfLessEquals,
-    I32Addition,
-    I32Subtraction,
-    I32Multiplication,
-    I32Division,
-    I32Modulo,
-    I32BitwiseAnd,
-    I32BitwiseOr,
-    I32BitwiseXor,
-    I32BitwiseArithmeticLeftShift,
-    I32BitwiseArithmeticRightShift,
-    I32BitwiseCircularLeftShift,
-    I32BitwiseCircularRightShift,
-    I32BitwiseComplement,
-    I32Increment,
-    I32Decrement,
-    F32Addition,
-    F32Subtraction,
-    F32Multiplication,
-    F32Division,
-    F32Modulo,
-    F32FusedMultiplyAddition,
-    I32Vector4Addition,
-    I32Vector4Subtraction,
-    I32Vector4Multiplication,
-    I32Vector4Division,
-    I32Vector4Modulo,
-    I32Vector4BitwiseAnd,
-    I32Vector4BitwiseOr,
-    I32Vector4BitwiseXor,
-    I32Vector4BitwiseArithmeticLeftShift,
-    I32Vector4BitwiseArithmeticRightShift,
-    I32Vector4BitwiseCircularLeftShift,
-    I32Vector4BitwiseCircularRightShift,
-    I32Vector4BitwiseComplement,
-    F32Vector4Addition,
-    F32Vector4Subtraction,
-    F32Vector4Multiplication,
-    F32Vector4Division,
-    F32Vector4Modulo,
-    F32Vector4FusedMultiplyAddition,
-    I32Vector8Addition,
-    I32Vector8Subtraction,
-    I32Vector8Multiplication,
-    I32Vector8Division,
-    I32Vector8Modulo,
-    I32Vector8BitwiseAnd,
-    I32Vector8BitwiseOr,
-    I32Vector8BitwiseXor,
-    I32Vector8BitwiseArithmeticLeftShift,
-    I32Vector8BitwiseArithmeticRightShift,
-    I32Vector8BitwiseCircularLeftShift,
-    I32Vector8BitwiseCircularRightShift,
-    I32Vector8BitwiseComplement,
-    F32Vector8Addition,
-    F32Vector8Subtraction,
-    F32Vector8Multiplication,
-    F32Vector8Division,
-    F32Vector8Modulo,
-    F32Vector8FusedMultiplyAddition,
-    I32Vector16Addition,
-    I32Vector16Subtraction,
-    I32Vector16Multiplication,
-    I32Vector16Division,
-    I32Vector16Modulo,
-    I32Vector16BitwiseAnd,
-    I32Vector16BitwiseOr,
-    I32Vector16BitwiseXor,
-    I32Vector16BitwiseArithmeticLeftShift,
-    I32Vector16BitwiseArithmeticRightShift,
-    I32Vector16BitwiseCircularLeftShift,
-    I32Vector16BitwiseCircularRightShift,
-    I32Vector16BitwiseComplement,
-    F32Vector16Addition,
-    F32Vector16Subtraction,
-    F32Vector16Multiplication,
-    F32Vector16Division,
-    F32Vector16Modulo,
-    F32Vector16FusedMultiplyAddition,
-
-    _Count,
-}
+pub const BLACK: &str = "\x1b[0;30m";
+pub const BLACK_BOLD: &str = "\x1b[1;30m";
+pub const RED: &str = "\x1b[0;31m";
+pub const RED_BOLD: &str = "\x1b[1;31m";
+pub const GREEN: &str = "\x1b[0;32m";
+pub const GREEN_BOLD: &str = "\x1b[1;32m";
+pub const YELLOW: &str = "\x1b[0;33m";
+pub const YELLOW_BOLD: &str = "\x1b[1;33m";
+pub const BLUE: &str = "\x1b[0;34m";
+pub const BLUE_BOLD: &str = "\x1b[1;34m";
+pub const MAGENTA: &str = "\x1b[0;35m";
+pub const MAGENTA_BOLD: &str = "\x1b[1;35m";
+pub const CYAN: &str = "\x1b[0;36m";
+pub const CYAN_BOLD: &str = "\x1b[1;36m";
+pub const WHITE: &str = "\x1b[0;37m";
+pub const WHITE_BOLD: &str = "\x1b[1;37m";
+pub const RESET: &str = "\x1b[0;0m";

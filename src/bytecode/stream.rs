@@ -204,17 +204,14 @@
 
 */
 
-use crate::bytecode::{ast::Token, chunk::BytecodeChunk, intrinsic::IntrinsicID, opcode::OpCode};
-use crate::misc::io;
+use crate::bytecode::{
+    ast::{OpCode, Section, Token},
+    chunk::BytecodeChunk,
+    lexemes,
+    signal::Signal,
+};
+use crate::misc::{ansi, io};
 use std::{convert, default, ops};
-
-/// Trait to push ops to stream.
-pub trait With<T>
-where
-    T: Sized + Copy + Clone,
-{
-    fn with(&mut self, x: T) -> &mut Self;
-}
 
 /// A bytecode stream is used to dynamically build bytecode.
 /// When building is done, the next step is validating.
@@ -226,6 +223,7 @@ pub struct BytecodeStream {
     stream: Vec<Token>,
     last_op_idx: usize,
     ops_count: usize,
+    args_count: usize,
     has_prologue: bool,
     has_epilogue: bool,
 }
@@ -238,6 +236,7 @@ impl BytecodeStream {
             stream: Vec::new(),
             last_op_idx: 0,
             ops_count: 0,
+            args_count: 0,
             has_prologue: false,
             has_epilogue: false,
         }
@@ -251,6 +250,7 @@ impl BytecodeStream {
             stream: Vec::with_capacity(capacity),
             last_op_idx: 0,
             ops_count: 0,
+            args_count: 0,
             has_prologue: false,
             has_epilogue: false,
         }
@@ -258,38 +258,12 @@ impl BytecodeStream {
 }
 
 impl BytecodeStream {
-    /// Pushes a new operation into the command buffer stream.
-    /// If the operation requires any parameters, use with_* to
-    /// push them afterwards, otherwise validation will fail.
-    /// Returns this as ref to allow chain calls.
-    fn push_opcode(&mut self, op: OpCode) -> &mut Self {
-        self.last_op_idx = self.stream.len();
-        self.stream.push(Token::OpCode(op));
-        self.ops_count = self.stream.len() - 1;
-        self
-    }
-
-    /// Pushes a new i32 operation parameter into the command buffer stream.
-    fn with_i32(&mut self, val: i32) -> &mut Self {
-        self.stream.push(Token::I32(val));
-        self
-    }
-
-    /// Pushes a new f32 operation parameter into the command buffer stream.
-    fn with_f32(&mut self, val: f32) -> &mut Self {
-        self.stream.push(Token::F32(val));
-        self
-    }
-
-    /// Pushes a new pin operation parameter into the command buffer stream.
-    fn with_pin(&mut self, val: u32) -> &mut Self {
-        self.stream.push(Token::Pin(val));
-        self
-    }
-
-    /// Pushes a new intrinsic procedure id operation parameter into the command buffer stream.
-    fn with_intrin_id(&mut self, id: IntrinsicID) -> &mut Self {
-        self.stream.push(Token::IntrinsicID(id));
+    // Pushes a new token.
+    pub fn with(&mut self, tok: Token) -> &mut Self {
+        if let Token::OpCode(_) = tok {
+            self.ops_count += 1;
+        }
+        self.stream.push(tok);
         self
     }
 
@@ -314,7 +288,7 @@ impl BytecodeStream {
     /// Returns the total count of signals, which are operation arguments.
     #[inline]
     pub fn argument_count(&self) -> usize {
-        self.stream.len() - self.ops_count
+        self.args_count
     }
 
     /// Returns an immutable reference to the command buffer stream
@@ -370,11 +344,12 @@ impl BytecodeStream {
     /// This always should be called when a new instance is created
     /// and before any operations/arguments are there.
     pub fn prologue(&mut self) -> &mut Self {
+        self.with(Token::Section(Section::Execute));
         // The first record of the stack (0x00000000) is always unused because of the stack
         // pointer layout. So we fill it with some random value using the MOV operation.
-        self.push_opcode(OpCode::Move) // Move to stack slot.
-            .with_i32(0) // Into first stack slot (0x00000000)
-            .with_i32(i32::from_le_bytes(*b"LOVE")); // (4 * u8) Because I love my cutie!
+        self.with(Token::OpCode(OpCode::Move)) // Move to stack slot.
+            .with(Token::I32(0)) // Into first stack slot (0x00000000)
+            .with(Token::I32(i32::from_le_bytes(*b"LOVE"))); // (4 * u8) Because I love my cutie!
         self.has_prologue = true;
         self
     }
@@ -385,7 +360,9 @@ impl BytecodeStream {
         // Add interrupt as last operation because
         // there are no operation pointer out of range checks
         // for performance.
-        self.push_opcode(OpCode::Interrupt).with_i32(0);
+        self.with(Token::Section(Section::Execute));
+        self.with(Token::OpCode(OpCode::Interrupt))
+            .with(Token::I32(0));
         self.has_epilogue = true;
         self
     }
@@ -434,8 +411,10 @@ impl BytecodeStream {
             Err(errors)
         } else {
             let mut buf = Vec::with_capacity(self.stream.len());
-            for rec in self.stream {
-                buf.push(rec.into());
+            for tok in self.stream {
+                if let Some(sig) = Option::<Signal>::from(tok) {
+                    buf.push(sig);
+                }
             }
             Ok(BytecodeChunk::from(buf))
         }
@@ -467,6 +446,7 @@ impl convert::From<Box<[Token]>> for BytecodeStream {
             stream: Vec::from(buf),
             last_op_idx: 0,
             ops_count: 0,
+            args_count: 0,
             has_prologue: false,
             has_epilogue: false,
         }
@@ -480,6 +460,7 @@ impl convert::From<Vec<Token>> for BytecodeStream {
             stream: vec,
             last_op_idx: 0,
             ops_count: 0,
+            args_count: 0,
             has_prologue: false,
             has_epilogue: false,
         }
@@ -493,57 +474,40 @@ impl default::Default for BytecodeStream {
     }
 }
 
-impl With<OpCode> for BytecodeStream {
-    /// Pushes a new operation into the command buffer stream.
-    /// If the operation requires any parameters, use with_* to
-    /// push them afterwards, otherwise validation will fail.
-    /// Returns this as ref to allow chain calls.
-    #[inline]
-    fn with(&mut self, x: OpCode) -> &mut Self {
-        self.push_opcode(x)
-    }
-}
-
-impl With<u32> for BytecodeStream {
-    /// Pushes a new pin operation parameter into the command buffer stream.
-    #[inline]
-    fn with(&mut self, x: u32) -> &mut Self {
-        self.with_pin(x)
-    }
-}
-
-impl With<IntrinsicID> for BytecodeStream {
-    /// Pushes a new intrinsic procedure id operation parameter into the command buffer stream.
-    #[inline]
-    fn with(&mut self, x: IntrinsicID) -> &mut Self {
-        self.with_intrin_id(x)
-    }
-}
-
-impl With<i32> for BytecodeStream {
-    /// Pushes a new i32 operation parameter into the command buffer stream.
-    #[inline]
-    fn with(&mut self, x: i32) -> &mut Self {
-        self.with_i32(x)
-    }
-}
-
-impl With<f32> for BytecodeStream {
-    /// Pushes a new f32 operation parameter into the command buffer stream.
-    #[inline]
-    fn with(&mut self, x: f32) -> &mut Self {
-        self.with_f32(x)
-    }
-}
-
 impl io::ToString for BytecodeStream {
     fn to_string(&self) -> String {
         let mut buffer = String::new();
-        for i in &self.stream {
-            if let Token::OpCode(_) = i {
+        let mut prev = &Token::OpCode(OpCode::NoOp);
+        for tok in &self.stream {
+            if prev.is_argument() && tok.is_argument() {
+                buffer.push(lexemes::markers::ARGUMENT_SEPARATOR);
+            } else if tok.is_operation() || tok.is_section() {
                 buffer += "\n";
+                buffer += &{
+                    let bytes: Option<[u8; 4]> = tok.into();
+                    if let Some(bytes) = bytes {
+                        format!(
+                            "{}{} {:02X} {:02X} {:02X} {:02X} ;{} ",
+                            ansi::GREEN,
+                            lexemes::markers::COMMENT,
+                            bytes[0],
+                            bytes[1],
+                            bytes[2],
+                            bytes[3],
+                            ansi::RESET,
+                        )
+                    } else {
+                        format!(
+                            "{}{} -- -- -- -- ;{} ",
+                            ansi::GREEN,
+                            lexemes::markers::COMMENT,
+                            ansi::RESET,
+                        )
+                    }
+                };
             }
-            buffer += &format!("{:?}", i);
+            buffer += &format!("{:?}", tok);
+            prev = tok;
         }
         buffer
     }

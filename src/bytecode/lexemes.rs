@@ -205,6 +205,7 @@
 */
 
 use super::ast::Token;
+use super::{ast::OpCode, ast::Section};
 use std::ops::Index;
 
 pub mod markers {
@@ -215,7 +216,8 @@ pub mod markers {
     pub const IMMEDIATE_VALUE: char = '$';
     pub const BEGIN_MACRO: char = '(';
     pub const END_MACRO: char = ')';
-    pub const ARGUMENT_SEPERATOR: char = ';';
+    pub const ARGUMENT_SEPARATOR: char = ',';
+    pub const SECTION: char = '@';
 }
 
 pub mod literals {
@@ -236,32 +238,29 @@ impl Types {
     const DATA: &'static [&'static str] = &["i32", "f32", "pin", "ipc"];
 }
 
-impl Index<Token> for Types {
+impl Index<&Token> for Types {
     type Output = &'static str;
-    fn index(&self, idx: Token) -> &Self::Output {
+    fn index(&self, idx: &Token) -> &Self::Output {
         match idx {
             Token::I32(_) => &Self::DATA[0],
             Token::F32(_) => &Self::DATA[1],
             Token::Pin(_) => &Self::DATA[2],
             Token::IntrinsicID(_) => &Self::DATA[3],
-            _ => &"",
+            _ => &"?",
         }
     }
 }
 
-pub const MACROS: &[&str] = &[
-    "inc", "def", "ifdef", "ifndef", "elif", "if", "else", "equ", "ascii", "uft8", "extrn", "proc",
-    "pin", "db", "exec",
-];
+pub const SECTIONS: &[&str; Section::_Count as usize] = &["db", "extrn", "exec", "sys"];
 
-pub const MNEMONICS: &[&str] = &[
+pub const MNEMONICS: &[&str; OpCode::_Count as usize] = &[
     "interrupt",
     "intrin",
+    "nop",
     "push",
     "pop",
     "mov",
     "cpy",
-    "nop",
     "dupl",
     "ddupl",
     "casti2f",

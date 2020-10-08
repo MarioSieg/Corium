@@ -205,7 +205,7 @@
 */
 
 use crate::{
-    bytecode::{chunk::BytecodeChunk, intrinsic::IntrinsicID, opcode::OpCode},
+    bytecode::{ast::OpCode, chunk::BytecodeChunk, intrinsic::IntrinsicID},
     core::{record::Record, stack::Stack},
 };
 use std::time::Instant;
@@ -944,16 +944,23 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
 #[cfg(test)]
 mod tests {
     use super::{execute, ExecutorInput};
-    use crate::bytecode::{intrinsic::IntrinsicID, opcode::OpCode, stream::BytecodeStream};
+    use crate::bytecode::{
+        ast::{
+            OpCode::{self, *},
+            Token,
+        },
+        intrinsic::IntrinsicID,
+        stream::BytecodeStream,
+    };
     use crate::core::stack::Stack;
 
     #[test]
     fn memory_dupl_ddupl() {
         let mut stream = BytecodeStream::new();
-        stream.push_opcode(OpCode::Push).with_i32(3);
-        stream.push_opcode(OpCode::Duplicate);
-        stream.push_opcode(OpCode::DuplicateTwice);
-        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        stream.with(Token::OpCode(Push)).with(Token::I32(3));
+        stream.with(Token::OpCode(Duplicate));
+        stream.with(Token::OpCode(DuplicateTwice));
+        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build().unwrap(),
@@ -968,12 +975,18 @@ mod tests {
     #[test]
     fn memory_mov_cpy() {
         let mut stream = BytecodeStream::new();
-        stream.push_opcode(OpCode::Push).with_i32(3);
-        stream.push_opcode(OpCode::Push).with_i32(7);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Move).with_i32(1).with_i32(-4);
-        stream.push_opcode(OpCode::Copy).with_i32(0).with_i32(1);
-        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        stream.with(Token::OpCode(Push)).with(Token::I32(3));
+        stream.with(Token::OpCode(Push)).with(Token::I32(7));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream
+            .with(Token::OpCode(Move))
+            .with(Token::I32(1))
+            .with(Token::I32(-4));
+        stream
+            .with(Token::OpCode(Copy))
+            .with(Token::I32(0))
+            .with(Token::I32(1));
+        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(3),
             chunk: stream.build().unwrap(),
@@ -987,10 +1000,10 @@ mod tests {
     fn memory_push_pop() {
         let mut stream = BytecodeStream::new();
         for i in 0..4096 {
-            stream.push_opcode(OpCode::Push).with_i32(i);
+            stream.with(Token::OpCode(Push)).with(Token::I32(i));
         }
-        stream.push_opcode(OpCode::Pop).with_i32(2048);
-        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        stream.with(Token::OpCode(Pop)).with(Token::I32(2048));
+        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(8192),
             chunk: stream.build().unwrap(),
@@ -1002,11 +1015,11 @@ mod tests {
     #[test]
     fn control_intrinsic() {
         let mut stream = BytecodeStream::new();
-        stream.push_opcode(OpCode::Push).with_f32(0.5236);
+        stream.with(Token::OpCode(Push)).with(Token::F32(0.5236));
         stream
-            .push_opcode(OpCode::CallIntrinsic)
-            .with_intrin_id(IntrinsicID::MSin);
-        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+            .with(Token::OpCode(CallIntrinsic))
+            .with(Token::IntrinsicID(IntrinsicID::MSin));
+        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(1),
             chunk: stream.build().unwrap(),
@@ -1018,9 +1031,9 @@ mod tests {
     #[test]
     fn control_interrupt() {
         let mut stream = BytecodeStream::new();
-        stream.push_opcode(OpCode::Push).with_i32(0);
-        stream.push_opcode(OpCode::Interrupt).with_i32(0);
-        stream.push_opcode(OpCode::Push).with_i32(0);
+        stream.with(Token::OpCode(Push)).with(Token::I32(0));
+        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
+        stream.with(Token::OpCode(Push)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(2),
             chunk: stream.build().unwrap(),
@@ -1031,10 +1044,10 @@ mod tests {
 
     fn test_i32op_template(op: OpCode, a: i32, b: i32, x: i32) {
         let mut stream = BytecodeStream::new();
-        stream.push_opcode(OpCode::Push).with_i32(a);
-        stream.push_opcode(OpCode::Push).with_i32(b);
-        stream.push_opcode(op);
-        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        stream.with(Token::OpCode(Push)).with(Token::I32(a));
+        stream.with(Token::OpCode(Push)).with(Token::I32(b));
+        stream.with(Token::OpCode(op));
+        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(2),
             chunk: stream.build().unwrap(),
@@ -1048,10 +1061,10 @@ mod tests {
 
     fn test_f32op_template(op: OpCode, a: f32, b: f32, x: f32) {
         let mut stream = BytecodeStream::new();
-        stream.push_opcode(OpCode::Push).with_f32(a);
-        stream.push_opcode(OpCode::Push).with_f32(b);
-        stream.push_opcode(op);
-        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        stream.with(Token::OpCode(Push)).with(Token::F32(a));
+        stream.with(Token::OpCode(Push)).with(Token::F32(b));
+        stream.with(Token::OpCode(op));
+        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build().unwrap(),
@@ -1089,11 +1102,11 @@ mod tests {
     #[test]
     fn arithmetic_f32_fma() {
         let mut stream = BytecodeStream::new();
-        stream.push_opcode(OpCode::Push).with_f32(2.0);
-        stream.push_opcode(OpCode::Push).with_f32(3.0);
-        stream.push_opcode(OpCode::Push).with_f32(4.0);
-        stream.push_opcode(OpCode::F32FusedMultiplyAddition);
-        stream.push_opcode(OpCode::Interrupt).with_i32(0);
+        stream.with(Token::OpCode(Push)).with(Token::F32(2.0));
+        stream.with(Token::OpCode(Push)).with(Token::F32(3.0));
+        stream.with(Token::OpCode(Push)).with(Token::F32(4.0));
+        stream.with(Token::OpCode(F32FusedMultiplyAddition));
+        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build().unwrap(),
@@ -1182,16 +1195,16 @@ mod tests {
     fn simd_vquadiadd() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(1);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::OpCode(Push)).with(Token::I32(1));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(4);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4Addition);
+        stream.with(Token::OpCode(Push)).with(Token::I32(4));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4Addition));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1210,16 +1223,16 @@ mod tests {
     fn simd_vquadisub() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(1);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::OpCode(Push)).with(Token::I32(1));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(4);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4Subtraction);
+        stream.with(Token::OpCode(Push)).with(Token::I32(4));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4Subtraction));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1238,16 +1251,16 @@ mod tests {
     fn simd_vquadimul() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(1);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::OpCode(Push)).with(Token::I32(1));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(4);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4Multiplication);
+        stream.with(Token::OpCode(Push)).with(Token::I32(4));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4Multiplication));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1266,16 +1279,16 @@ mod tests {
     fn simd_vquadidiv() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(40);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(1);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(40));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::OpCode(Push)).with(Token::I32(1));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(10);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4Division);
+        stream.with(Token::OpCode(Push)).with(Token::I32(10));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4Division));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1294,16 +1307,16 @@ mod tests {
     fn simd_vquadimod() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(40);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(1);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(40));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::OpCode(Push)).with(Token::I32(1));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(4);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4Modulo);
+        stream.with(Token::OpCode(Push)).with(Token::I32(4));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4Modulo));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1322,16 +1335,16 @@ mod tests {
     fn simd_vquadiand() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(1);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::OpCode(Push)).with(Token::I32(1));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(4);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4BitwiseAnd);
+        stream.with(Token::OpCode(Push)).with(Token::I32(4));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4BitwiseAnd));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1350,16 +1363,16 @@ mod tests {
     fn simd_vquadior() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(1);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::OpCode(Push)).with(Token::I32(1));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(4);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4BitwiseOr);
+        stream.with(Token::OpCode(Push)).with(Token::I32(4));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4BitwiseOr));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1378,16 +1391,16 @@ mod tests {
     fn simd_vquadixor() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(1);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::OpCode(Push)).with(Token::I32(1));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(4);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4BitwiseXor);
+        stream.with(Token::OpCode(Push)).with(Token::I32(4));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4BitwiseXor));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1406,16 +1419,16 @@ mod tests {
     fn simd_vquadisal() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(1);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::OpCode(Push)).with(Token::I32(1));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(4);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4BitwiseArithmeticLeftShift);
+        stream.with(Token::OpCode(Push)).with(Token::I32(4));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4BitwiseArithmeticLeftShift));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1434,16 +1447,16 @@ mod tests {
     fn simd_vquadisar() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(1);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::OpCode(Push)).with(Token::I32(1));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(4);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4BitwiseArithmeticRightShift);
+        stream.with(Token::OpCode(Push)).with(Token::I32(4));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4BitwiseArithmeticRightShift));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1462,16 +1475,18 @@ mod tests {
     fn simd_vquadirol() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(2000000000);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream
+            .with(Token::OpCode(Push))
+            .with(Token::I32(2000000000));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(4);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4BitwiseCircularLeftShift);
+        stream.with(Token::OpCode(Push)).with(Token::I32(4));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4BitwiseCircularLeftShift));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1490,16 +1505,16 @@ mod tests {
     fn simd_vquadiror() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(5);
-        stream.push_opcode(OpCode::Push).with_i32(1);
-        stream.push_opcode(OpCode::Push).with_i32(-3);
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::OpCode(Push)).with(Token::I32(1));
+        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
 
-        stream.push_opcode(OpCode::Push).with_i32(4);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::Push).with_i32(9);
-        stream.push_opcode(OpCode::Push).with_i32(2);
-        stream.push_opcode(OpCode::I32Vector4BitwiseCircularRightShift);
+        stream.with(Token::OpCode(Push)).with(Token::I32(4));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(Push)).with(Token::I32(9));
+        stream.with(Token::OpCode(Push)).with(Token::I32(2));
+        stream.with(Token::OpCode(I32Vector4BitwiseCircularRightShift));
         stream.epilogue();
 
         let input = ExecutorInput {

@@ -204,10 +204,247 @@
 
 */
 
-pub mod ast;
-pub mod chunk;
-pub mod descriptors;
-pub mod intrinsic;
-pub mod lexemes;
-pub mod signal;
-pub mod stream;
+use super::ast::OpCode;
+use bitflags::bitflags;
+
+bitflags! {
+    pub struct ExplicitArgumentType: u8 {
+        const NONE = 0;
+        const I32 = 1 << 0;
+        const F32 = 1 << 1;
+        const U32 = 1 << 2;
+        const IPC = 1 << 3;
+        const PIN = 1 << 4;
+    }
+}
+
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum ImplicitArgumentTypes {
+    None,
+    Variadic,
+    Fixed(u8),
+}
+
+#[rustfmt::skip]
+pub const EXPLICIT_ARGUMENTS: &[Option<&[ExplicitArgumentType]>; OpCode::_Count as usize] = &[
+    // Control:
+    Some(&[ExplicitArgumentType::I32]),
+    Some(&[ExplicitArgumentType::U32]),
+    None,
+
+    // Memory:
+    Some(&[ExplicitArgumentType::from_bits_truncate(
+        ExplicitArgumentType::I32.bits() | ExplicitArgumentType::F32.bits() | ExplicitArgumentType::U32.bits(),
+    )]),
+    Some(&[ExplicitArgumentType::U32]),
+    Some(&[
+        ExplicitArgumentType::U32,
+        ExplicitArgumentType::from_bits_truncate(
+            ExplicitArgumentType::I32.bits() | ExplicitArgumentType::F32.bits() | ExplicitArgumentType::U32.bits(),
+        ),
+    ]),
+    Some(&[ExplicitArgumentType::U32, ExplicitArgumentType::U32]),
+    None,
+    None,
+    None,
+    None,
+
+    // Branching:
+    Some(&[ExplicitArgumentType::U32]),
+    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
+    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
+    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
+    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
+    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
+    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
+    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
+    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
+
+    // Arithmetics:
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+
+    // Vectors:
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+];
+
+pub const IMPLICIT_ARGUMENTS: &[ImplicitArgumentTypes; OpCode::_Count as usize] = &[
+    // Control:
+    ImplicitArgumentTypes::None,
+    ImplicitArgumentTypes::Variadic,
+    ImplicitArgumentTypes::None,
+    // Memory:
+    ImplicitArgumentTypes::None,
+    ImplicitArgumentTypes::Variadic,
+    ImplicitArgumentTypes::Fixed(1),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(1),
+    ImplicitArgumentTypes::Fixed(1),
+    ImplicitArgumentTypes::Fixed(1),
+    ImplicitArgumentTypes::Fixed(1),
+    // Branching:
+    ImplicitArgumentTypes::None,
+    ImplicitArgumentTypes::Fixed(1),
+    ImplicitArgumentTypes::Fixed(1),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    // Arithmetics:
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(1),
+    ImplicitArgumentTypes::Fixed(1),
+    ImplicitArgumentTypes::Fixed(1),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(2),
+    ImplicitArgumentTypes::Fixed(3),
+    // Vectors:
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(8),
+    ImplicitArgumentTypes::Fixed(12),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(16),
+    ImplicitArgumentTypes::Fixed(24),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(32),
+    ImplicitArgumentTypes::Fixed(48),
+];
