@@ -204,9 +204,7 @@
 
 */
 
-use super::ast::Token;
 use super::{ast::OpCode, ast::Section};
-use std::ops::Index;
 
 pub mod markers {
     pub const COMMENT: char = ';';
@@ -228,29 +226,10 @@ pub mod literals {
     pub const BEGIN_QUATERNARY: &str = "0q";
     pub const BEGIN_SCIENTIFIC: &str = "0s";
     pub const STRING_LITERAL: char = '\"';
-    pub const CHAR_LITERAL: char = '\\';
     pub const BYTES_LITERAL: char = '´';
 }
 
-pub struct Types;
-
-impl Types {
-    const DATA: &'static [&'static str] = &["i32", "f32", "c32", "pin", "ipc"];
-}
-
-impl Index<&Token> for Types {
-    type Output = &'static str;
-    fn index(&self, idx: &Token) -> &Self::Output {
-        match idx {
-            Token::I32(_) => &Self::DATA[0],
-            Token::F32(_) => &Self::DATA[1],
-            Token::C32(_) => &Self::DATA[2],
-            Token::Pin(_) => &Self::DATA[3],
-            Token::Ipc(_) => &Self::DATA[4],
-            _ => &"?",
-        }
-    }
-}
+pub const TYPES: &[&str] = &["i32", "f32", "c32", "pin", "ipc"];
 
 pub const SECTIONS: &[&str; Section::_Count as usize] = &["db", "extrn", "exec", "sys"];
 

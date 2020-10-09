@@ -463,13 +463,24 @@ impl fmt::Display for Token {
 
 impl fmt::Debug for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
+        let get_type = || -> &'static str {
+            match self {
+                Self::I32(_) => lexemes::TYPES[0],
+                Self::F32(_) => lexemes::TYPES[1],
+                Self::C32(_) => lexemes::TYPES[2],
+                Self::Pin(_) => lexemes::TYPES[3],
+                Self::Ipc(_) => lexemes::TYPES[4],
+                _ => &"?",
+            }
+        };
+
+        match self {
             Self::I32(value) => write!(
                 f,
                 " {}{}{}{} {}{}{:X}{}",
                 lexemes::markers::TYPE,
                 ansi::BLUE_BOLD,
-                lexemes::Types[self],
+                get_type(),
                 ansi::MAGENTA,
                 lexemes::markers::IMMEDIATE_VALUE,
                 lexemes::literals::BEGIN_HEXADECIMAL,
@@ -481,47 +492,30 @@ impl fmt::Debug for Token {
                 " {}{}{}{} {}{}{:E}{}",
                 lexemes::markers::TYPE,
                 ansi::BLUE_BOLD,
-                lexemes::Types[self],
+                get_type(),
                 ansi::MAGENTA,
                 lexemes::markers::IMMEDIATE_VALUE,
                 lexemes::literals::BEGIN_SCIENTIFIC,
                 value,
                 ansi::RESET,
             ),
-            Self::C32(value) => {
-                write!(
-                    f,
-                    " {}{}{}{} {}{}{:X}{}",
-                    lexemes::markers::TYPE,
-                    ansi::BLUE_BOLD,
-                    lexemes::Types[self],
-                    ansi::MAGENTA,
-                    lexemes::markers::IMMEDIATE_VALUE,
-                    lexemes::literals::CHAR_LITERAL,
-                    value as u32,
-                    ansi::RESET,
-                )?;
-                write!(
-                    f,
-                    "{} {} {} {} {:?}{}",
-                    ansi::GREEN,
-                    lexemes::markers::COMMENT,
-                    if value.is_ascii() {
-                        "ASCII"
-                    } else {
-                        "UFT-32"
-                    },
-                    value as u32,
-                    value,
-                    ansi::RESET,
-                )
-            }
+            Self::C32(value) => write!(
+                f,
+                " {}{}{}{} {}{:X}{}",
+                lexemes::markers::TYPE,
+                ansi::BLUE_BOLD,
+                get_type(),
+                ansi::MAGENTA,
+                lexemes::markers::IMMEDIATE_VALUE,
+                *value as u32,
+                ansi::RESET,
+            ),
             Self::Pin(value) => write!(
                 f,
                 " {}{}{}{} {}{}{}{:X}{}{}",
                 lexemes::markers::TYPE,
                 ansi::BLUE_BOLD,
-                lexemes::Types[self],
+                get_type(),
                 ansi::RESET,
                 lexemes::markers::BEGIN_PTR,
                 lexemes::markers::IMMEDIATE_VALUE,
@@ -530,35 +524,25 @@ impl fmt::Debug for Token {
                 lexemes::markers::END_PTR,
                 ansi::RESET,
             ),
-            Self::Ipc(value) => {
-                write!(
-                    f,
-                    " {}{}{}{} {}{}{}{:X}{}",
-                    lexemes::markers::TYPE,
-                    ansi::BLUE_BOLD,
-                    lexemes::Types[self],
-                    ansi::MAGENTA,
-                    lexemes::markers::BEGIN_PTR,
-                    lexemes::markers::IMMEDIATE_VALUE,
-                    lexemes::literals::BEGIN_HEXADECIMAL,
-                    value as u32,
-                    lexemes::markers::END_PTR,
-                )?;
-                write!(
-                    f,
-                    "{} {} __{}{}",
-                    ansi::GREEN,
-                    lexemes::markers::COMMENT,
-                    format!("{:?}", value).to_lowercase(),
-                    ansi::RESET,
-                )
-            }
+            Self::Ipc(value) => write!(
+                f,
+                " {}{}{}{} {}{}{}{:X}{}",
+                lexemes::markers::TYPE,
+                ansi::BLUE_BOLD,
+                get_type(),
+                ansi::MAGENTA,
+                lexemes::markers::BEGIN_PTR,
+                lexemes::markers::IMMEDIATE_VALUE,
+                lexemes::literals::BEGIN_HEXADECIMAL,
+                *value as u32,
+                lexemes::markers::END_PTR,
+            ),
             Self::OpCode(value) => write!(
                 f,
                 "{}{}{}{}",
                 lexemes::markers::INSTRUCTION,
                 ansi::BLUE_BOLD,
-                lexemes::MNEMONICS[value as usize],
+                lexemes::MNEMONICS[*value as usize],
                 ansi::RESET,
             ),
             Self::Section(value) => write!(
@@ -566,7 +550,7 @@ impl fmt::Debug for Token {
                 "{}{}{}{}",
                 ansi::YELLOW,
                 lexemes::markers::SECTION,
-                lexemes::SECTIONS[value as usize],
+                lexemes::SECTIONS[*value as usize],
                 ansi::RESET,
             ),
         }
