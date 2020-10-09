@@ -226,14 +226,20 @@ fn main() {
             .with(OpCode(Op::CallIntrinsic))
             .with(Ipc(Intrinsics::PutChar));
     }
-    stream.with(OpCode(Op::JumpIfLess)).with(I32(5));
+    stream.with(OpCode(Op::JumpIfLess)).with(Pin(5));
     stream
         .with(OpCode(Op::CallIntrinsic))
         .with(Ipc(Intrinsics::Flush));
     stream.epilogue();
     stream.dump();
+    let chunk = stream.build(ValidationSecurityLevel::Basic);
+    if let Err(err) = chunk {
+        println!("{}", err);
+        return;
+    }
+    let chunk = chunk.unwrap();
     let input = ExecutorInput {
-        chunk: stream.build().unwrap(),
+        chunk,
         stack: Stack::with_length(32),
     };
     let output = execute(input);

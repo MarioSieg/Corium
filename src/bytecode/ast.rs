@@ -205,7 +205,6 @@
 */
 
 use super::{intrinsic::Intrinsics, lexemes};
-use crate::misc::ansi;
 use std::{convert, fmt};
 
 /// A token in bytecode.
@@ -218,6 +217,7 @@ pub enum Token {
 
     I32(i32),
     F32(f32),
+    U32(u32),
     C32(char),
     Pin(u32),
     Ipc(Intrinsics),
@@ -253,7 +253,7 @@ impl Token {
     #[inline]
     pub fn is_scalar(&self) -> bool {
         match *self {
-            Self::I32(_) | Self::F32(_) | Self::C32(_) => true,
+            Self::I32(_) | Self::F32(_) | Self::C32(_) | Self::U32(_) => true,
             _ => false,
         }
     }
@@ -402,6 +402,7 @@ impl convert::From<&Token> for Option<[u8; 4]> {
             Token::Ipc(value) => Some((value as u32).to_le_bytes()),
             Token::I32(value) => Some(value.to_le_bytes()),
             Token::F32(value) => Some(value.to_le_bytes()),
+            Token::U32(value) => Some(value.to_le_bytes()),
             Token::Pin(value) => Some(value.to_le_bytes()),
             Token::C32(value) => Some((value as u32).to_le_bytes()),
             Token::Section(_) => None,
@@ -432,10 +433,10 @@ impl OpCode {
 impl fmt::Display for Section {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            Self::Database => write!(f, "DataBase"),
-            Self::Extern => write!(f, "External"),
-            Self::Execute => write!(f, "ExecuteEntry"),
-            Self::System => write!(f, "SystemAnnotations"),
+            Self::Database => write!(f, "{}", lexemes::SECTIONS[0]),
+            Self::Extern => write!(f, "{}", lexemes::SECTIONS[1]),
+            Self::Execute => write!(f, "{}", lexemes::SECTIONS[2]),
+            Self::System => write!(f, "{}", lexemes::SECTIONS[3]),
             _ => Ok(()),
         }
     }
@@ -450,13 +451,14 @@ impl fmt::Debug for Section {
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            Self::I32(value) => writeln!(f, " {}", value),
-            Self::F32(value) => writeln!(f, " {}", value),
-            Self::C32(value) => writeln!(f, " {}", value),
-            Self::Pin(value) => writeln!(f, " {}", value),
-            Self::Ipc(value) => writeln!(f, "{}", value as u32),
-            Self::OpCode(value) => writeln!(f, "{}", value as u32),
-            Self::Section(value) => writeln!(f, "{}", value as u32),
+            Self::I32(_) => write!(f, "{}", lexemes::TYPES[0]),
+            Self::F32(_) => write!(f, "{}", lexemes::TYPES[1]),
+            Self::U32(_) => write!(f, "{}", lexemes::TYPES[2]),
+            Self::C32(_) => write!(f, "{}", lexemes::TYPES[3]),
+            Self::Pin(_) => write!(f, "{}", lexemes::TYPES[4]),
+            Self::Ipc(_) => write!(f, "{}", lexemes::TYPES[5]),
+            Self::OpCode(_) => write!(f, "op"),
+            Self::Section(_) => write!(f, "sec"),
         }
     }
 }
@@ -467,9 +469,10 @@ impl fmt::Debug for Token {
             match self {
                 Self::I32(_) => lexemes::TYPES[0],
                 Self::F32(_) => lexemes::TYPES[1],
-                Self::C32(_) => lexemes::TYPES[2],
-                Self::Pin(_) => lexemes::TYPES[3],
-                Self::Ipc(_) => lexemes::TYPES[4],
+                Self::U32(_) => lexemes::TYPES[2],
+                Self::C32(_) => lexemes::TYPES[3],
+                Self::Pin(_) => lexemes::TYPES[4],
+                Self::Ipc(_) => lexemes::TYPES[5],
                 _ => &"?",
             }
         };
@@ -477,60 +480,55 @@ impl fmt::Debug for Token {
         match self {
             Self::I32(value) => write!(
                 f,
-                " {}{}{}{} {}{}{:X}{}",
+                " {}{} {}{}{:X}",
                 lexemes::markers::TYPE,
-                ansi::BLUE_BOLD,
                 get_type(),
-                ansi::MAGENTA,
                 lexemes::markers::IMMEDIATE_VALUE,
                 lexemes::literals::BEGIN_HEXADECIMAL,
                 value,
-                ansi::RESET,
             ),
             Self::F32(value) => write!(
                 f,
-                " {}{}{}{} {}{}{:E}{}",
+                " {}{} {}{}{:E}",
                 lexemes::markers::TYPE,
-                ansi::BLUE_BOLD,
                 get_type(),
-                ansi::MAGENTA,
                 lexemes::markers::IMMEDIATE_VALUE,
                 lexemes::literals::BEGIN_SCIENTIFIC,
                 value,
-                ansi::RESET,
+            ),
+            Self::U32(value) => write!(
+                f,
+                " {}{} {}{}{:X}",
+                lexemes::markers::TYPE,
+                get_type(),
+                lexemes::markers::IMMEDIATE_VALUE,
+                lexemes::literals::BEGIN_HEXADECIMAL,
+                value,
             ),
             Self::C32(value) => write!(
                 f,
-                " {}{}{}{} {}{:X}{}",
+                " {}{} {}{:X}",
                 lexemes::markers::TYPE,
-                ansi::BLUE_BOLD,
                 get_type(),
-                ansi::MAGENTA,
                 lexemes::markers::IMMEDIATE_VALUE,
                 *value as u32,
-                ansi::RESET,
             ),
             Self::Pin(value) => write!(
                 f,
-                " {}{}{}{} {}{}{}{:X}{}{}",
+                " {}{} {}{}{}{:X}{}",
                 lexemes::markers::TYPE,
-                ansi::BLUE_BOLD,
                 get_type(),
-                ansi::RESET,
                 lexemes::markers::BEGIN_PTR,
                 lexemes::markers::IMMEDIATE_VALUE,
                 lexemes::literals::BEGIN_HEXADECIMAL,
                 value,
                 lexemes::markers::END_PTR,
-                ansi::RESET,
             ),
             Self::Ipc(value) => write!(
                 f,
-                " {}{}{}{} {}{}{}{:X}{}",
+                " {}{} {}{}{}{:X}{}",
                 lexemes::markers::TYPE,
-                ansi::BLUE_BOLD,
                 get_type(),
-                ansi::MAGENTA,
                 lexemes::markers::BEGIN_PTR,
                 lexemes::markers::IMMEDIATE_VALUE,
                 lexemes::literals::BEGIN_HEXADECIMAL,
@@ -539,19 +537,15 @@ impl fmt::Debug for Token {
             ),
             Self::OpCode(value) => write!(
                 f,
-                "{}{}{}{}",
+                "{}{}",
                 lexemes::markers::INSTRUCTION,
-                ansi::BLUE_BOLD,
                 lexemes::MNEMONICS[*value as usize],
-                ansi::RESET,
             ),
             Self::Section(value) => write!(
                 f,
-                "{}{}{}{}",
-                ansi::YELLOW,
+                "{}{}",
                 lexemes::markers::SECTION,
                 lexemes::SECTIONS[*value as usize],
-                ansi::RESET,
             ),
         }
     }

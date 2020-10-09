@@ -204,20 +204,38 @@
 
 */
 
-pub const BLACK: &str = "\x1b[0;30m";
-pub const BLACK_BOLD: &str = "\x1b[1;30m";
-pub const RED: &str = "\x1b[0;31m";
-pub const RED_BOLD: &str = "\x1b[1;31m";
-pub const GREEN: &str = "\x1b[0;32m";
-pub const GREEN_BOLD: &str = "\x1b[1;32m";
-pub const YELLOW: &str = "\x1b[0;33m";
-pub const YELLOW_BOLD: &str = "\x1b[1;33m";
-pub const BLUE: &str = "\x1b[0;34m";
-pub const BLUE_BOLD: &str = "\x1b[1;34m";
-pub const MAGENTA: &str = "\x1b[0;35m";
-pub const MAGENTA_BOLD: &str = "\x1b[1;35m";
-pub const CYAN: &str = "\x1b[0;36m";
-pub const CYAN_BOLD: &str = "\x1b[1;36m";
-pub const WHITE: &str = "\x1b[0;37m";
-pub const WHITE_BOLD: &str = "\x1b[1;37m";
-pub const RESET: &str = "\x1b[0;0m";
+use super::{ast::Token, descriptors::ExplicitArgumentType as Eat};
+
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum ValidationSecurityLevel {
+    Basic,
+    Advanced,
+    Full,
+}
+
+pub fn is_valid_arg(token: &Token, arg_type: Eat) -> bool {
+    match token {
+        Token::I32(_) if arg_type & Eat::I32 != Eat::NONE => true,
+        Token::F32(_) if arg_type & Eat::F32 != Eat::NONE => true,
+        Token::U32(_) if arg_type & Eat::U32 != Eat::NONE => true,
+        Token::C32(_) if arg_type & Eat::C32 != Eat::NONE => true,
+        Token::Ipc(_) if arg_type & Eat::IPC != Eat::NONE => true,
+        Token::Pin(_) if arg_type & Eat::PIN != Eat::NONE => true,
+        _ => false,
+    }
+}
+
+/// Validates the input bytecode.
+pub fn validate(in_: &[Token], _sec: ValidationSecurityLevel) -> Result<(), String> {
+    if in_.is_empty() {
+        return Err(String::from("Empty token slice!"));
+    }
+
+    let errors: String = String::new();
+
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors)
+    }
+}

@@ -209,9 +209,10 @@ use super::{
     chunk::BytecodeChunk,
     descriptors, lexemes,
     signal::Signal,
+    validator::{validate, ValidationSecurityLevel},
 };
-use crate::misc::{ansi, io};
-use std::{convert, default, ops};
+use crate::misc::io;
+use std::{convert, default, fs, io as sio, ops};
 
 /// A bytecode stream is used to dynamically build bytecode.
 /// When building is done, the next step is validating.
@@ -350,8 +351,8 @@ impl BytecodeStream {
         // The first record of the stack (0x00000000) is always unused because of the stack
         // pointer layout. So we fill it with some random value using the MOV operation.
         self.with(Token::OpCode(OpCode::Move)) // Move to stack slot.
-            .with(Token::I32(0)) // Into first stack slot (0x00000000)
-            .with(Token::I32(i32::from_le_bytes(*b"LOVE"))); // (4 * u8) Because I love my cutie!
+            .with(Token::U32(0)) // Into first stack slot (0x00000000)
+            .with(Token::U32(u32::from_le_bytes(*b"LOVE"))); // (4 * u8) Because I love my cutie!
         self.has_prologue = true;
         self
     }
@@ -383,33 +384,28 @@ impl BytecodeStream {
     /// Returns a slice of the parameters of the stack operation.
     /// Returns none if there are none or the operation index is invalid.
     pub fn last_explicit_opcode_args(&self) -> Option<&[Token]> {
-        todo!();
-        /*
         debug_assert!(!self.is_empty());
-        if let Token::OpCode(_opcode) = self[self.last_op_idx] {
-            let arg_count = opcode_meta(opcode).explicit_arguments.len();
-            if arg_count == 0 {
-                None
+        if let Some(op) = self.last_opcode() {
+            if let Some(arg_count) = descriptors::EXPLICIT_ARGUMENTS[op as usize] {
+                Some(&self.stream[self.last_op_idx..=self.last_op_idx + arg_count.len()])
             } else {
-                Some(&self.stream[self.last_op_idx..=self.last_op_idx + arg_count])
+                None
             }
-            None
         } else {
             None
         }
-        */
     }
 
     /// Validates this bytecode and returns an list of error messages (if any).
-    pub fn validate(&self) -> Result<(), Vec<&'static str>> {
-        Ok(())
-    } // TODO
+    pub fn validate(&self, sec: ValidationSecurityLevel) -> Result<(), String> {
+        validate(&self.stream[..], sec)
+    }
 
     /// Builds and validates this bytecode and returns an list of error messages (if any).
     /// On success this returns the bytecode chunk, which can be injected into a VM executor kernel.
-    pub fn build(self) -> Result<BytecodeChunk, Vec<&'static str>> {
+    pub fn build(self, sec: ValidationSecurityLevel) -> Result<BytecodeChunk, String> {
         debug_assert!(!self.is_empty());
-        if let Err(errors) = self.validate() {
+        if let Err(errors) = self.validate(sec) {
             Err(errors)
         } else {
             let mut buf = Vec::with_capacity(self.stream.len());
@@ -480,10 +476,9 @@ impl io::ToString for BytecodeStream {
     fn to_string(&self) -> String {
         let mut buffer = format!(
             concat!(
-                "{}{} ----------------------------\n",
-                "{} le={} ca={} ar={} o={} p={} e={} {}"
+                "{} ----------------------------\n",
+                "{} le={} ca={} ar={} o={} p={} e={}"
             ),
-            ansi::GREEN,
             lexemes::markers::COMMENT,
             lexemes::markers::COMMENT,
             self.stream.len(),
@@ -492,7 +487,6 @@ impl io::ToString for BytecodeStream {
             self.ops_count,
             self.has_prologue as u8,
             self.has_epilogue as u8,
-            ansi::RESET,
         );
         let mut prev = &Token::OpCode(OpCode::NoOp);
         let mut i: usize = 0;
@@ -514,8 +508,7 @@ impl io::ToString for BytecodeStream {
                     };
                     if let Some(bytes) = bytes {
                         format!(
-                            "{}{} &{:#010X}+{:02X} | {:02X} {:02X} {:02X} {:02X} ;{} ",
-                            ansi::GREEN,
+                            "{} &{:#010X}+{:02X} | {:02X} {:02X} {:02X} {:02X} ; ",
                             lexemes::markers::COMMENT,
                             i,
                             args_offset,
@@ -523,15 +516,12 @@ impl io::ToString for BytecodeStream {
                             bytes[1],
                             bytes[2],
                             bytes[3],
-                            ansi::RESET,
                         )
                     } else {
                         format!(
-                            "{}{} ---------------------------- {}{} ",
-                            ansi::GREEN,
+                            "{} ---------------------------- {}",
                             lexemes::markers::COMMENT,
                             lexemes::markers::COMMENT,
-                            ansi::RESET,
                         )
                     }
                 };
@@ -552,16 +542,16 @@ impl io::From<&str> for BytecodeStream {
     }
 }
 
-impl<'a> io::IO<'a, ()> for BytecodeStream {
+impl<'a> io::IO<'a, sio::Error> for BytecodeStream {
     fn dump(&self) {
         println!("{}", self.to_string());
     }
 
-    fn to_file(&self, _file: &io::Path) -> Result<(), ()> {
-        Err(())
+    fn to_file(&self, file: &io::Path) -> Result<(), sio::Error> {
+        fs::write(file, self.to_string())
     }
 
-    fn from_file(_file: &io::Path) -> Result<Self, ()> {
-        Err(())
+    fn from_file(_file: &io::Path) -> Result<Self, sio::Error> {
+        unimplemented!()
     }
 }

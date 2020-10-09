@@ -229,7 +229,7 @@ pub mod literals {
     pub const BYTES_LITERAL: char = '´';
 }
 
-pub const TYPES: &[&str] = &["i32", "f32", "c32", "pin", "ipc"];
+pub const TYPES: &[&str] = &["i32", "f32", "u32", "c32", "pin", "ipc"];
 
 pub const SECTIONS: &[&str; Section::_Count as usize] = &["db", "extrn", "exec", "sys"];
 

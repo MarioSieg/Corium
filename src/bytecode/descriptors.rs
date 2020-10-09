@@ -229,7 +229,7 @@ pub enum ImplicitArgumentTypes {
 pub const EXPLICIT_ARGUMENTS: &[Option<&[ExplicitArgumentType]>; OpCode::_Count as usize] = &[
     // Control:
     Some(&[ExplicitArgumentType::I32]),
-    Some(&[ExplicitArgumentType::U32]),
+    Some(&[ExplicitArgumentType::IPC]),
     None,
     // Memory:
     Some(&[ExplicitArgumentType::from_bits_truncate(
@@ -253,39 +253,15 @@ pub const EXPLICIT_ARGUMENTS: &[Option<&[ExplicitArgumentType]>; OpCode::_Count 
     None,
     None,
     // Branching:
-    Some(&[ExplicitArgumentType::U32]),
-    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
-    Some(&[ExplicitArgumentType::I32, ExplicitArgumentType::U32]),
-    Some(&[
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::U32,
-    ]),
-    Some(&[
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::U32,
-    ]),
-    Some(&[
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::U32,
-    ]),
-    Some(&[
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::U32,
-    ]),
-    Some(&[
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::U32,
-    ]),
-    Some(&[
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::I32,
-        ExplicitArgumentType::U32,
-    ]),
+    Some(&[ExplicitArgumentType::PIN]),
+    Some(&[ExplicitArgumentType::PIN]),
+    Some(&[ExplicitArgumentType::PIN]),
+    Some(&[ExplicitArgumentType::PIN]),
+    Some(&[ExplicitArgumentType::PIN]),
+    Some(&[ExplicitArgumentType::PIN]),
+    Some(&[ExplicitArgumentType::PIN]),
+    Some(&[ExplicitArgumentType::PIN]),
+    Some(&[ExplicitArgumentType::PIN]),
     // Arithmetics:
     None,
     None,
