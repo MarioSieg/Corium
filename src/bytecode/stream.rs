@@ -204,12 +204,13 @@
 
 */
 
+pub use super::validator::ValidationPolicy;
 use super::{
     ast::{OpCode, Section, Token},
     chunk::BytecodeChunk,
     descriptors, lexemes,
     signal::Signal,
-    validator::{validate, ValidationSecurityLevel},
+    validator::validate,
 };
 use crate::misc::io;
 use std::{convert, default, fs, io as sio, ops};
@@ -397,13 +398,13 @@ impl BytecodeStream {
     }
 
     /// Validates this bytecode and returns an list of error messages (if any).
-    pub fn validate(&self, sec: ValidationSecurityLevel) -> Result<(), String> {
+    pub fn validate(&self, sec: ValidationPolicy) -> Result<(), String> {
         validate(&self.stream[..], sec)
     }
 
     /// Builds and validates this bytecode and returns an list of error messages (if any).
     /// On success this returns the bytecode chunk, which can be injected into a VM executor kernel.
-    pub fn build(self, sec: ValidationSecurityLevel) -> Result<BytecodeChunk, String> {
+    pub fn build(self, sec: ValidationPolicy) -> Result<BytecodeChunk, String> {
         debug_assert!(!self.is_empty());
         if let Err(errors) = self.validate(sec) {
             Err(errors)

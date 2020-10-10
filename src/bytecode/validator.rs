@@ -204,38 +204,139 @@
 
 */
 
-use super::{ast::Token, descriptors::ExplicitArgumentType as Eat};
+use super::{
+    ast::Token,
+    descriptors::{self, ExplicitArgumentType},
+    lexemes,
+};
 
 #[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ValidationSecurityLevel {
+pub enum ValidationPolicy {
     Basic,
     Advanced,
     Full,
 }
 
-pub fn is_valid_arg(token: &Token, arg_type: Eat) -> bool {
+pub fn is_valid_arg(token: &Token, arg_type: ExplicitArgumentType) -> bool {
     match token {
-        Token::I32(_) if arg_type & Eat::I32 != Eat::NONE => true,
-        Token::F32(_) if arg_type & Eat::F32 != Eat::NONE => true,
-        Token::U32(_) if arg_type & Eat::U32 != Eat::NONE => true,
-        Token::C32(_) if arg_type & Eat::C32 != Eat::NONE => true,
-        Token::Ipc(_) if arg_type & Eat::IPC != Eat::NONE => true,
-        Token::Pin(_) if arg_type & Eat::PIN != Eat::NONE => true,
+        Token::I32(_) if arg_type & ExplicitArgumentType::I32 != ExplicitArgumentType::NONE => true,
+        Token::F32(_) if arg_type & ExplicitArgumentType::F32 != ExplicitArgumentType::NONE => true,
+        Token::U32(_) if arg_type & ExplicitArgumentType::U32 != ExplicitArgumentType::NONE => true,
+        Token::C32(_) if arg_type & ExplicitArgumentType::C32 != ExplicitArgumentType::NONE => true,
+        Token::Ipc(_) if arg_type & ExplicitArgumentType::IPC != ExplicitArgumentType::NONE => true,
+        Token::Pin(_) if arg_type & ExplicitArgumentType::PIN != ExplicitArgumentType::NONE => true,
         _ => false,
     }
 }
 
+pub fn fatal(idx: usize, tok: &Token, msg: &str) -> String {
+    format!(
+        "\x1b[1;31m\t\"&{:#010X} {:?}\": {}\t\x1b[0;0m\n",
+        idx, tok, msg
+    )
+}
+
+pub fn warning(idx: usize, tok: &Token, msg: &str) -> String {
+    format!(
+        "\x1b[1;33m\t\"&{:#010X} {:?}\": {}\t\x1b[0;0m\n",
+        idx, tok, msg
+    )
+}
+
 /// Validates the input bytecode.
-pub fn validate(in_: &[Token], _sec: ValidationSecurityLevel) -> Result<(), String> {
+pub fn validate(in_: &[Token], _sec: ValidationPolicy) -> Result<(), String> {
     if in_.is_empty() {
         return Err(String::from("Empty token slice!"));
     }
 
-    let errors: String = String::new();
+    let mut errors: String = String::new();
+    let mut actual_arguments_count: usize = 0;
+    let mut prev_op: Option<&Token> = None;
+    let mut op_counter: usize = 0;
+
+    // Helper to produce an error or warning:
+    let mut problem = |idx: usize, tok: &Token, is_warning: bool, msg: &str| {
+        errors += &if is_warning {
+            warning(idx, tok, msg)
+        } else {
+            fatal(idx, tok, msg)
+        };
+    };
+
+    for tok in in_ {
+        if tok.is_operation() {
+            // Increment op counter:
+            op_counter += 1;
+
+            // If a previous operation exists:
+            if let Some(Token::OpCode(prev)) = prev_op {
+                // Fetch mnemonic via opcode as index from mnemonic data:
+                let mnemonic = lexemes::MNEMONICS[*prev as usize];
+
+                // Fetch required number of arguments via opcode as index from descriptor data:
+                let desired_arguments_count =
+                    if let Some(args) = descriptors::EXPLICIT_ARGUMENTS[*prev as usize] {
+                        args.len()
+                    } else {
+                        0
+                    };
+
+                // If the actual arguments count and the desired do not match,
+                // we either do have too many or too less arguments. That's a fatal error:
+                if actual_arguments_count != desired_arguments_count {
+                    problem(
+                        op_counter,
+                        prev_op.unwrap(),
+                        false,
+                        &format!(
+                            "Invalid argument count for instruction \"{}\"! Expected {}, found {}!",
+                            mnemonic, desired_arguments_count, actual_arguments_count
+                        ),
+                    );
+                }
+
+                prev_op = Some(tok);
+            } else {
+                prev_op = Some(tok);
+            }
+            actual_arguments_count = 0;
+        } else if tok.is_argument() {
+            actual_arguments_count += 1;
+        }
+    }
 
     if errors.is_empty() {
         Ok(())
     } else {
         Err(errors)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::bytecode::{
+        ast::{OpCode, Token},
+        stream::{BytecodeStream, ValidationPolicy},
+    };
+
+    #[test]
+    fn too_many_args() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream
+            .with(Token::OpCode(OpCode::Push))
+            .with(Token::I32(3))
+            .with(Token::I32(2)); // Push only wants one argument but we deliver two!
+        stream.epilogue(); // TODO err!
+        assert!(stream.validate(ValidationPolicy::Full).is_err());
+    }
+
+    #[test]
+    fn too_less_args() {
+        let mut stream = BytecodeStream::new();
+        stream.prologue();
+        stream.with(Token::OpCode(OpCode::Push)); // Push only wants one argument but we deliver zero!
+        stream.epilogue();
+        assert!(stream.validate(ValidationPolicy::Full).is_err());
     }
 }

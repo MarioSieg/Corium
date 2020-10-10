@@ -328,7 +328,7 @@ mod tests {
             OpCode::{self, *},
             Token,
         },
-        stream::BytecodeStream,
+        stream::{BytecodeStream, ValidationPolicy},
     };
 
     #[test]
@@ -337,7 +337,7 @@ mod tests {
         code.with(Token::OpCode(Push)).with(Token::I32(3));
         code.with(Token::OpCode(Push)).with(Token::I32(8));
         code.with(Token::OpCode(I32Multiplication));
-        let mut code = code.build().unwrap();
+        let mut code = code.build(ValidationPolicy::Full).unwrap();
         assert_eq!(OpCode::from(code.fetch()), Push);
         assert_eq!(i32::from(code.fetch()), 3);
         assert_eq!(OpCode::from(code.fetch()), Push);
@@ -352,7 +352,7 @@ mod tests {
         code.with(Token::OpCode(Push)).with(Token::I32(3));
         code.with(Token::OpCode(Push)).with(Token::I32(8));
         code.with(Token::OpCode(I32Multiplication));
-        let mut code = code.build().unwrap();
+        let mut code = code.build(ValidationPolicy::Full).unwrap();
         assert_eq!(OpCode::from(code.fetch()), Push);
         assert_eq!(i32::from(code.fetch()), 3);
         assert_eq!(OpCode::from(code.fetch()), Push);

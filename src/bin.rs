@@ -232,7 +232,7 @@ fn main() {
         .with(Ipc(Intrinsics::Flush));
     stream.epilogue();
     stream.dump();
-    let chunk = stream.build(ValidationSecurityLevel::Basic);
+    let chunk = stream.build(ValidationPolicy::Full);
     if let Err(err) = chunk {
         println!("{}", err);
         return;
