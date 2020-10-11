@@ -252,6 +252,13 @@ impl CommonStackSize {
     }
 }
 
+impl convert::From<CommonStackSize> for usize {
+    #[inline]
+    fn from(x: CommonStackSize) -> Self {
+        x as Self
+    }
+}
+
 /// Represents a mutable, fixed size heap-allocated stack.
 pub struct Stack {
     buf: Box<[Record]>,

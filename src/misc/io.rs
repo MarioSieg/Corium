@@ -204,10 +204,33 @@
 
 */
 
-pub use std::{convert::From, path::Path, string::ToString};
+use std::{fs, path::Path};
 
-pub trait IO<'a, E>: ToString + From<&'a str> {
-    fn dump(&self);
-    fn to_file(&self, file: &Path) -> Result<(), E>;
-    fn from_file(file: &Path) -> Result<Self, E>;
+pub trait IO
+where
+    Self: Sized,
+{
+    fn dump(&self) {
+        print!("{}", self.to_string_buffer());
+    }
+
+    fn write_to_file(&self, file: &Path) -> Result<(), ()> {
+        if fs::write(file, self.to_string_buffer()).is_ok() {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    fn read_from_file(file: &Path) -> Result<Self, ()> {
+        if let Ok(data) = fs::read_to_string(file) {
+            Self::from_string_buffer(data)
+        } else {
+            Err(())
+        }
+    }
+
+    fn to_string_buffer(&self) -> String;
+
+    fn from_string_buffer(in_: String) -> Result<Self, ()>;
 }

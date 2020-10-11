@@ -263,45 +263,66 @@ pub fn validate(in_: &[Token], _sec: ValidationPolicy) -> Result<(), String> {
         };
     };
 
-    for tok in in_ {
-        if tok.is_operation() {
-            // Increment op counter:
-            op_counter += 1;
+    // Check valid operation arg count.
+    let mut check_op_args = |op, count: usize, counter: usize| {
+        // Fetch mnemonic via opcode as index from mnemonic data:
+        let mnemonic = lexemes::MNEMONICS[op as usize];
 
-            // If a previous operation exists:
-            if let Some(Token::OpCode(prev)) = prev_op {
-                // Fetch mnemonic via opcode as index from mnemonic data:
-                let mnemonic = lexemes::MNEMONICS[*prev as usize];
-
-                // Fetch required number of arguments via opcode as index from descriptor data:
-                let desired_arguments_count =
-                    if let Some(args) = descriptors::EXPLICIT_ARGUMENTS[*prev as usize] {
-                        args.len()
-                    } else {
-                        0
-                    };
-
-                // If the actual arguments count and the desired do not match,
-                // we either do have too many or too less arguments. That's a fatal error:
-                if actual_arguments_count != desired_arguments_count {
-                    problem(
-                        op_counter,
-                        prev_op.unwrap(),
-                        false,
-                        &format!(
-                            "Invalid argument count for instruction \"{}\"! Expected {}, found {}!",
-                            mnemonic, desired_arguments_count, actual_arguments_count
-                        ),
-                    );
-                }
-
-                prev_op = Some(tok);
+        // Fetch required number of arguments via opcode as index from descriptor data:
+        let desired_arguments_count =
+            if let Some(args) = descriptors::EXPLICIT_ARGUMENTS[op as usize] {
+                args.len()
             } else {
-                prev_op = Some(tok);
+                0
+            };
+
+        // If the actual arguments count and the desired do not match,
+        // we either do have too many or too less arguments. That's a fatal error:
+        if count != desired_arguments_count {
+            problem(
+                counter,
+                &Token::OpCode(op),
+                false,
+                &format!(
+                    "Invalid argument count for instruction \"{}\"! Expected {}, found {}!",
+                    mnemonic, desired_arguments_count, count
+                ),
+            );
+        }
+    };
+
+    let mut check_op = |tok, count: &mut usize| {
+        // Increment op counter:
+        op_counter += 1;
+        // If a previous operation exists:
+        if let Some(Token::OpCode(prev)) = prev_op {
+            check_op_args(*prev, *count, op_counter);
+            prev_op = Some(tok);
+        } else {
+            prev_op = Some(tok);
+        }
+        *count = 0;
+    };
+
+    'search: for (i, tok) in in_.iter().enumerate() {
+        if tok.is_operation() {
+            check_op(tok, &mut actual_arguments_count);
+
+            // If this is the last token, check again:
+            if i == in_.len() - 1 {
+                check_op(tok, &mut actual_arguments_count);
             }
-            actual_arguments_count = 0;
-        } else if tok.is_argument() {
+            continue 'search;
+        }
+
+        if tok.is_argument() {
             actual_arguments_count += 1;
+
+            // If this is the last token, check again:
+            if i == in_.len() - 1 {
+                check_op(tok, &mut actual_arguments_count);
+                continue 'search;
+            }
         }
     }
 
@@ -322,21 +343,17 @@ mod tests {
     #[test]
     fn too_many_args() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream
             .with(Token::OpCode(OpCode::Push))
             .with(Token::I32(3))
             .with(Token::I32(2)); // Push only wants one argument but we deliver two!
-        stream.epilogue(); // TODO err!
         assert!(stream.validate(ValidationPolicy::Full).is_err());
     }
 
     #[test]
     fn too_less_args() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::OpCode(OpCode::Push)); // Push only wants one argument but we deliver zero!
-        stream.epilogue();
         assert!(stream.validate(ValidationPolicy::Full).is_err());
     }
 }

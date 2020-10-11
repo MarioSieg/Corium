@@ -204,25 +204,64 @@
 
 */
 
-use std::{default::Default, path::PathBuf};
+use std::{collections::HashMap, path::PathBuf};
 
-pub struct RuntimeConfig {
-    /// The cache directory.
-    pub cache_dir: PathBuf,
-
-    /// Additional package directories.
-    pub additional_package_dirs: Vec<PathBuf>,
-
-    /// Per-thread stack size in bytes.
-    pub thread_stack_size: usize,
+/// Represents an entry with an associated value.
+pub enum Entry {
+    I8(i8),
+    U8(u8),
+    I16(i16),
+    U16(u16),
+    I32(i32),
+    U32(u32),
+    I64(i64),
+    U64(u64),
+    I128(i128),
+    U128(u128),
+    F32(f32),
+    F64(f64),
+    String(String),
 }
 
-impl Default for RuntimeConfig {
-    fn default() -> Self {
+/// Represents an initialization config file in the RAM,
+/// which can be saved to disk.
+pub struct IniFile {
+    sections: HashMap<String, HashMap<String, Entry>>,
+    path: PathBuf,
+}
+
+impl IniFile {
+    /// Creates a new section.
+    pub fn push_section(&mut self, name: &str) {
+        self.sections.insert(String::from(name), HashMap::new());
+    }
+
+    /// Creates a new section with x capacity.
+    pub fn push_section_with_capacity(&mut self, name: &str, cap: usize) {
+        self.sections
+            .insert(String::from(name), HashMap::with_capacity(cap));
+    }
+}
+
+impl IniFile {
+    pub const DEFAULT_SECTION: &'static str = "DEF";
+    pub const EXTENSION: &'static str = ".ini";
+
+    /// Creates a new instance in RAM.
+    pub fn new(path: PathBuf) -> Self {
         Self {
-            cache_dir: PathBuf::from("_cache_"),
-            additional_package_dirs: Vec::new(),
-            thread_stack_size: 1024 * 1024 * 8,
+            sections: HashMap::new(),
+            path,
         }
+    }
+
+    /// Creates a new instance in RAM with x capacity.
+    pub fn with_capacity(path: PathBuf, cap: usize) -> Self {
+        let mut this = Self {
+            sections: HashMap::with_capacity(cap),
+            path,
+        };
+        this.push_section(Self::DEFAULT_SECTION);
+        this
     }
 }

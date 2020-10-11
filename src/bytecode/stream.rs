@@ -213,7 +213,7 @@ use super::{
     validator::validate,
 };
 use crate::misc::io;
-use std::{convert, default, fs, io as sio, ops};
+use std::{convert, default, ops};
 
 /// A bytecode stream is used to dynamically build bytecode.
 /// When building is done, the next step is validating.
@@ -420,61 +420,8 @@ impl BytecodeStream {
     }
 }
 
-impl ops::Index<usize> for BytecodeStream {
-    type Output = Token;
-
-    /// Returns the entry at index 'idx'.
-    #[inline]
-    fn index(&self, idx: usize) -> &Self::Output {
-        &self.stream[idx]
-    }
-}
-
-impl ops::IndexMut<usize> for BytecodeStream {
-    /// Returns the entry at index 'idx'.
-    #[inline]
-    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
-        &mut self.stream[idx]
-    }
-}
-
-impl convert::From<Box<[Token]>> for BytecodeStream {
-    /// Creates a new instance from a boxed array.
-    fn from(buf: Box<[Token]>) -> Self {
-        Self {
-            stream: Vec::from(buf),
-            last_op_idx: 0,
-            ops_count: 0,
-            args_count: 0,
-            has_prologue: false,
-            has_epilogue: false,
-        }
-    }
-}
-
-impl convert::From<Vec<Token>> for BytecodeStream {
-    /// Creates a new instance from a vec.
-    fn from(vec: Vec<Token>) -> Self {
-        Self {
-            stream: vec,
-            last_op_idx: 0,
-            ops_count: 0,
-            args_count: 0,
-            has_prologue: false,
-            has_epilogue: false,
-        }
-    }
-}
-
-impl default::Default for BytecodeStream {
-    /// Same as new()
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl io::ToString for BytecodeStream {
-    fn to_string(&self) -> String {
+impl io::IO for BytecodeStream {
+    fn to_string_buffer(&self) -> String {
         let mut buffer = format!(
             concat!(
                 "{} ----------------------------\n",
@@ -533,26 +480,64 @@ impl io::ToString for BytecodeStream {
                 i += 1;
             }
         }
+        buffer.push('\n');
         buffer
     }
+
+    fn from_string_buffer(_in: String) -> Result<Self, ()> {
+        Err(())
+    }
 }
 
-impl io::From<&str> for BytecodeStream {
-    fn from(_x: &str) -> Self {
+impl ops::Index<usize> for BytecodeStream {
+    type Output = Token;
+
+    /// Returns the entry at index 'idx'.
+    #[inline]
+    fn index(&self, idx: usize) -> &Self::Output {
+        &self.stream[idx]
+    }
+}
+
+impl ops::IndexMut<usize> for BytecodeStream {
+    /// Returns the entry at index 'idx'.
+    #[inline]
+    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+        &mut self.stream[idx]
+    }
+}
+
+impl convert::From<Box<[Token]>> for BytecodeStream {
+    /// Creates a new instance from a boxed array.
+    fn from(buf: Box<[Token]>) -> Self {
+        Self {
+            stream: Vec::from(buf),
+            last_op_idx: 0,
+            ops_count: 0,
+            args_count: 0,
+            has_prologue: false,
+            has_epilogue: false,
+        }
+    }
+}
+
+impl convert::From<Vec<Token>> for BytecodeStream {
+    /// Creates a new instance from a vec.
+    fn from(vec: Vec<Token>) -> Self {
+        Self {
+            stream: vec,
+            last_op_idx: 0,
+            ops_count: 0,
+            args_count: 0,
+            has_prologue: false,
+            has_epilogue: false,
+        }
+    }
+}
+
+impl default::Default for BytecodeStream {
+    /// Same as new()
+    fn default() -> Self {
         Self::new()
-    }
-}
-
-impl<'a> io::IO<'a, sio::Error> for BytecodeStream {
-    fn dump(&self) {
-        println!("{}", self.to_string());
-    }
-
-    fn to_file(&self, file: &io::Path) -> Result<(), sio::Error> {
-        fs::write(file, self.to_string())
-    }
-
-    fn from_file(_file: &io::Path) -> Result<Self, sio::Error> {
-        unimplemented!()
     }
 }
