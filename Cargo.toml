@@ -13,9 +13,10 @@ name = "ronin_virtual_machine"
 path = "src/bin.rs"
 
 [features]
-default = ["simd"]
+default = ["simd", "multithreading"]
 simd = []
+multithreading = ["rayon"]
 
 [dependencies]
-# Required:
-bitflags = "1.2.1"  # For bitsflags
+bitflags = "1.2.1"
+rayon = { version = "1.4.1", optional = true }

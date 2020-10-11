@@ -405,16 +405,24 @@ impl BytecodeStream {
     /// Builds and validates this bytecode and returns an list of error messages (if any).
     /// On success this returns the bytecode chunk, which can be injected into a VM executor kernel.
     pub fn build(self, sec: ValidationPolicy) -> Result<BytecodeChunk, String> {
-        debug_assert!(!self.is_empty());
-        if let Err(errors) = self.validate(sec) {
+        if self.is_empty() {
+            return Err(String::from("Empty stream!"));
+        }
+        use std::time::Instant;
+        let clock = Instant::now();
+        let val_result = self.validate(sec);
+        println!("Validation: {}ms", clock.elapsed().as_secs_f64());
+        if let Err(errors) = val_result {
             Err(errors)
         } else {
+            let clock = Instant::now();
             let mut buf = Vec::with_capacity(self.stream.len());
             for tok in self.stream {
                 if let Some(sig) = Option::<Signal>::from(tok) {
                     buf.push(sig);
                 }
             }
+            println!("Build: {}ms", clock.elapsed().as_secs_f64());
             Ok(BytecodeChunk::from(buf))
         }
     }

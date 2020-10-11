@@ -209,6 +209,8 @@ use super::{
     descriptors::{self, ExplicitArgumentType},
     lexemes,
 };
+use crate::bytecode::ast::OpCode;
+use std::mem;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ValidationPolicy {
@@ -243,6 +245,51 @@ pub fn warning(idx: usize, tok: &Token, msg: &str) -> String {
     )
 }
 
+// Validates an operation.
+pub fn check_op<'t>(
+    tok: &'t Token,
+    count: &mut usize,
+    op_counter: &mut usize,
+    prev_op: &mut Option<Token>,
+    errors: &mut String,
+) {
+    *op_counter += 1;
+    // If a previous operation exists:
+    if let Some(Token::OpCode(prev)) = prev_op {
+        check_op_args(*prev, *count, *op_counter, errors);
+        *prev_op = Some(tok.clone());
+    } else {
+        *prev_op = Some(tok.clone());
+    }
+    *count = 0;
+}
+
+/// Validates arguments.
+pub fn check_op_args(op: OpCode, count: usize, counter: usize, errors: &mut String) {
+    // Fetch mnemonic via opcode as index from mnemonic data:
+    let mnemonic = lexemes::MNEMONICS[op as usize];
+
+    // Fetch required number of arguments via opcode as index from descriptor data:
+    let desired_arguments_count = if let Some(args) = descriptors::EXPLICIT_ARGUMENTS[op as usize] {
+        args.len()
+    } else {
+        0
+    };
+
+    // If the actual arguments count and the desired do not match,
+    // we either do have too many or too less arguments. That's a fatal error:
+    if count != desired_arguments_count {
+        *errors += &fatal(
+            counter,
+            &Token::OpCode(op),
+            &format!(
+                "Invalid argument count for instruction \"{}\"! Expected {}, found {}!",
+                mnemonic, desired_arguments_count, count
+            ),
+        );
+    }
+}
+
 /// Validates the input bytecode.
 pub fn validate(in_: &[Token], _sec: ValidationPolicy) -> Result<(), String> {
     if in_.is_empty() {
@@ -251,80 +298,47 @@ pub fn validate(in_: &[Token], _sec: ValidationPolicy) -> Result<(), String> {
 
     let mut errors: String = String::new();
     let mut actual_arguments_count: usize = 0;
-    let mut prev_op: Option<&Token> = None;
+    let mut prev_op: Option<Token> = None;
     let mut op_counter: usize = 0;
 
-    // Helper to produce an error or warning:
-    let mut problem = |idx: usize, tok: &Token, is_warning: bool, msg: &str| {
-        errors += &if is_warning {
-            warning(idx, tok, msg)
-        } else {
-            fatal(idx, tok, msg)
-        };
-    };
+    let last = in_.last().unwrap();
 
-    // Check valid operation arg count.
-    let mut check_op_args = |op, count: usize, counter: usize| {
-        // Fetch mnemonic via opcode as index from mnemonic data:
-        let mnemonic = lexemes::MNEMONICS[op as usize];
-
-        // Fetch required number of arguments via opcode as index from descriptor data:
-        let desired_arguments_count =
-            if let Some(args) = descriptors::EXPLICIT_ARGUMENTS[op as usize] {
-                args.len()
-            } else {
-                0
-            };
-
-        // If the actual arguments count and the desired do not match,
-        // we either do have too many or too less arguments. That's a fatal error:
-        if count != desired_arguments_count {
-            problem(
-                counter,
-                &Token::OpCode(op),
-                false,
-                &format!(
-                    "Invalid argument count for instruction \"{}\"! Expected {}, found {}!",
-                    mnemonic, desired_arguments_count, count
-                ),
-            );
-        }
-    };
-
-    let mut check_op = |tok, count: &mut usize| {
-        // Increment op counter:
-        op_counter += 1;
-        // If a previous operation exists:
-        if let Some(Token::OpCode(prev)) = prev_op {
-            check_op_args(*prev, *count, op_counter);
-            prev_op = Some(tok);
-        } else {
-            prev_op = Some(tok);
-        }
-        *count = 0;
-    };
-
-    'search: for (i, tok) in in_.iter().enumerate() {
+    let check = |tok: &Token| {
         if tok.is_operation() {
-            check_op(tok, &mut actual_arguments_count);
-
+            check_op(
+                tok,
+                &mut actual_arguments_count,
+                &mut op_counter,
+                &mut prev_op,
+                &mut errors,
+            );
             // If this is the last token, check again:
-            if i == in_.len() - 1 {
-                check_op(tok, &mut actual_arguments_count);
+            if mem::discriminant(last) == mem::discriminant(tok) {
+                check_op(
+                    tok,
+                    &mut actual_arguments_count,
+                    &mut op_counter,
+                    &mut prev_op,
+                    &mut errors,
+                );
             }
-            continue 'search;
-        }
-
-        if tok.is_argument() {
+        } else if tok.is_argument() {
             actual_arguments_count += 1;
 
             // If this is the last token, check again:
-            if i == in_.len() - 1 {
-                check_op(tok, &mut actual_arguments_count);
-                continue 'search;
+            if mem::discriminant(last) == mem::discriminant(tok) {
+                check_op(
+                    tok,
+                    &mut actual_arguments_count,
+                    &mut op_counter,
+                    &mut prev_op,
+                    &mut errors,
+                );
             }
         }
-    }
+    };
+
+    in_.iter().for_each(check);
 
     if errors.is_empty() {
         Ok(())

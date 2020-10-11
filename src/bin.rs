@@ -215,28 +215,30 @@ use Token::*;
 fn main() {
     let mut stream = BytecodeStream::new();
     stream.prologue();
-
-    stream.with(OpCode(Op::Push)).with(I32(0));
-    stream.with(OpCode(Op::I32Increment));
-    stream.with(OpCode(Op::Duplicate));
-    stream.with(OpCode(Op::Push)).with(I32(5));
-    for c1 in "Hello, World!\n".chars() {
-        stream.with(OpCode(Op::Push)).with(C32(c1));
+    for _ in 0..10_000_000 {
+        stream.with(OpCode(Op::Push)).with(I32(0));
+        stream.with(OpCode(Op::I32Increment));
+        stream.with(OpCode(Op::Duplicate));
+        stream.with(OpCode(Op::Push)).with(I32(5));
+        for c1 in "Hello, World!\n".chars() {
+            stream.with(OpCode(Op::Push)).with(C32(c1));
+            stream
+                .with(OpCode(Op::CallIntrinsic))
+                .with(Ipc(Intrinsics::PutChar));
+        }
+        stream.with(OpCode(Op::JumpIfLess)).with(Pin(5));
         stream
             .with(OpCode(Op::CallIntrinsic))
-            .with(Ipc(Intrinsics::PutChar));
+            .with(Ipc(Intrinsics::Flush));
     }
-    stream.with(OpCode(Op::JumpIfLess)).with(Pin(5));
-    stream
-        .with(OpCode(Op::CallIntrinsic))
-        .with(Ipc(Intrinsics::Flush));
     stream.epilogue();
-    stream.dump();
+    //stream.dump();
     let chunk = stream.build(ValidationPolicy::Full);
     if let Err(err) = chunk {
         println!("{}", err);
         return;
     }
+    /*
     let chunk = chunk.unwrap();
     let input = ExecutorInput {
         chunk,
@@ -244,4 +246,5 @@ fn main() {
     };
     let output = execute(input);
     println!("C: {}, T: {}", output.cycles, output.time);
+    */
 }
