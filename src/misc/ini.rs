@@ -241,6 +241,11 @@ impl IniFile {
         self.sections
             .insert(String::from(name), HashMap::with_capacity(cap));
     }
+
+    #[inline]
+    pub fn path(&self) -> &PathBuf {
+        &self.path
+    }
 }
 
 impl IniFile {

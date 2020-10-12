@@ -398,33 +398,27 @@ impl BytecodeStream {
     }
 
     /// Validates this bytecode and returns an list of error messages (if any).
-    pub fn validate(&self, sec: ValidationPolicy) -> Result<(), String> {
+    pub fn validate(&self, sec: ValidationPolicy) {
         validate(&self.stream[..], sec)
     }
 
     /// Builds and validates this bytecode and returns an list of error messages (if any).
     /// On success this returns the bytecode chunk, which can be injected into a VM executor kernel.
-    pub fn build(self, sec: ValidationPolicy) -> Result<BytecodeChunk, String> {
-        if self.is_empty() {
-            return Err(String::from("Empty stream!"));
-        }
+    pub fn build(self, sec: ValidationPolicy) -> BytecodeChunk {
+        assert!(!self.is_empty());
         use std::time::Instant;
         let clock = Instant::now();
-        let val_result = self.validate(sec);
+        self.validate(sec);
         println!("Validation: {}ms", clock.elapsed().as_secs_f64());
-        if let Err(errors) = val_result {
-            Err(errors)
-        } else {
-            let clock = Instant::now();
-            let mut buf = Vec::with_capacity(self.stream.len());
-            for tok in self.stream {
-                if let Some(sig) = Option::<Signal>::from(tok) {
-                    buf.push(sig);
-                }
+        let clock = Instant::now();
+        let mut buf = Vec::with_capacity(self.stream.len());
+        for tok in self.stream {
+            if let Some(sig) = Option::<Signal>::from(tok) {
+                buf.push(sig);
             }
-            println!("Build: {}ms", clock.elapsed().as_secs_f64());
-            Ok(BytecodeChunk::from(buf))
         }
+        println!("Build: {}ms", clock.elapsed().as_secs_f64());
+        BytecodeChunk::from(buf)
     }
 }
 

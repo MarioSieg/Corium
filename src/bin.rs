@@ -206,7 +206,6 @@
 
 extern crate ronin_runtime;
 
-use ronin_runtime::misc::io::IO;
 use ronin_runtime::prelude::*;
 
 use ronin_runtime::bytecode::ast::OpCode as Op;
@@ -215,7 +214,7 @@ use Token::*;
 fn main() {
     let mut stream = BytecodeStream::new();
     stream.prologue();
-    for _ in 0..10_000_000 {
+    for _ in 0..30_000 {
         stream.with(OpCode(Op::Push)).with(I32(0));
         stream.with(OpCode(Op::I32Increment));
         stream.with(OpCode(Op::Duplicate));
@@ -232,12 +231,9 @@ fn main() {
             .with(Ipc(Intrinsics::Flush));
     }
     stream.epilogue();
+    println!("{}", stream.length());
     //stream.dump();
-    let chunk = stream.build(ValidationPolicy::Full);
-    if let Err(err) = chunk {
-        println!("{}", err);
-        return;
-    }
+    let _chunk = stream.build(ValidationPolicy::Full);
     /*
     let chunk = chunk.unwrap();
     let input = ExecutorInput {
