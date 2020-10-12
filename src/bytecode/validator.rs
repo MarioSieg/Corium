@@ -324,8 +324,49 @@ pub fn validate(in_: &[Token], _sec: ValidationPolicy) {
         }
     };
 
+<<<<<<< Updated upstream
     // Execute in parallel:
     in_.par_iter().enumerate().for_each(check);
+=======
+    let last = in_.last().unwrap();
+
+    // Check if the last token is an operation and arguments are missing:
+    if let Token::OpCode(op) = last {
+        if let Some(args) = descriptors::EXPLICIT_ARGUMENTS[*op as usize] {
+            fatal!(format!(
+                "Invalid argument count for instruction \"{}\"! Expected {} found 0!",
+                lexemes::MNEMONICS[*op as usize],
+                args.len(),
+            ));
+            panic!();
+        }
+    }
+    // Check if the last token is an arguments and there are some missing for the operation:
+    else if last.is_argument() {
+        let op = in_.iter().rev().position(|x| match x {
+            Token::OpCode(_) => true,
+            _ => false,
+        });
+        if let Some(op_pos) = op {
+            if op_pos < in_.len() {
+                if let Some(op_idx) = in_.len().saturating_sub(1).checked_sub(op_pos) {
+                    if let Token::OpCode(mut prev) = in_[op_idx] {
+                        let mut arg_count: usize = op_pos;
+                        // Search next tokens:
+                        'search: for tok in &in_[op_idx..] {
+                            if !check_single_token(tok, &mut arg_count, &mut prev) {
+                                break 'search;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Execute check loop in parallel if multithreading is enabled:
+    par::iter(in_).enumerate().for_each(check);
+>>>>>>> Stashed changes
 }
 
 /// Converts a token stream into a signal stream for execution.

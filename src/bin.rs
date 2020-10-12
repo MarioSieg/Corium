@@ -233,17 +233,7 @@ fn main() {
     }
     stream.epilogue();
     println!("{}", stream.length());
-    //stream.dump();
     let clock = Instant::now();
     let _ = stream.build(ValidationPolicy::Full);
     println!("Build took: {:.3}s", clock.elapsed().as_secs_f32())
-    /*
-    let chunk = chunk.unwrap();
-    let input = ExecutorInput {
-        chunk,
-        stack: Stack::with_length(32),
-    };
-    let output = execute(input);
-    println!("C: {}, T: {}", output.cycles, output.time);
-    */
 }
