@@ -206,7 +206,7 @@
 
 #[inline(always)]
 pub fn add4(x: &mut [f32; 4], y: &[f32; 4]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "sse4.1")]
         {
@@ -217,7 +217,7 @@ pub fn add4(x: &mut [f32; 4], y: &[f32; 4]) {
             super::fallback::f32::add4(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::add4(x, y);
     }
@@ -234,7 +234,7 @@ pub fn add4_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn add8(x: &mut [f32; 8], y: &[f32; 8]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
@@ -249,7 +249,7 @@ pub fn add8(x: &mut [f32; 8], y: &[f32; 8]) {
             super::fallback::f32::add8(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::add8(x, y);
     }
@@ -266,7 +266,7 @@ pub fn add8_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn add16(x: &mut [f32; 16], y: &[f32; 16]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
@@ -281,7 +281,7 @@ pub fn add16(x: &mut [f32; 16], y: &[f32; 16]) {
             super::fallback::f32::add16(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::add16(x, y);
     }
@@ -298,7 +298,7 @@ pub fn add16_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn sub4(x: &mut [f32; 4], y: &[f32; 4]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "sse4.1")]
         {
@@ -309,7 +309,7 @@ pub fn sub4(x: &mut [f32; 4], y: &[f32; 4]) {
             super::fallback::f32::sub4(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::sub4(x, y);
     }
@@ -326,7 +326,7 @@ pub fn sub4_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn sub8(x: &mut [f32; 8], y: &[f32; 8]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
@@ -341,7 +341,7 @@ pub fn sub8(x: &mut [f32; 8], y: &[f32; 8]) {
             super::fallback::f32::sub8(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::sub8(x, y);
     }
@@ -358,7 +358,7 @@ pub fn sub8_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn sub16(x: &mut [f32; 16], y: &[f32; 16]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
@@ -373,7 +373,7 @@ pub fn sub16(x: &mut [f32; 16], y: &[f32; 16]) {
             super::fallback::f32::sub16(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::sub16(x, y);
     }
@@ -390,7 +390,7 @@ pub fn sub16_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn mul4(x: &mut [f32; 4], y: &[f32; 4]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "sse4.1")]
         {
@@ -401,7 +401,7 @@ pub fn mul4(x: &mut [f32; 4], y: &[f32; 4]) {
             super::fallback::f32::mul4(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::mul4(x, y);
     }
@@ -418,7 +418,7 @@ pub fn mul4_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn mul8(x: &mut [f32; 8], y: &[f32; 8]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
@@ -433,7 +433,7 @@ pub fn mul8(x: &mut [f32; 8], y: &[f32; 8]) {
             super::fallback::f32::mul8(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::mul8(x, y);
     }
@@ -450,7 +450,7 @@ pub fn mul8_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn mul16(x: &mut [f32; 16], y: &[f32; 16]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
@@ -465,7 +465,7 @@ pub fn mul16(x: &mut [f32; 16], y: &[f32; 16]) {
             super::fallback::f32::mul16(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::mul16(x, y);
     }
@@ -482,7 +482,7 @@ pub fn mul16_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn div4(x: &mut [f32; 4], y: &[f32; 4]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "sse4.1")]
         {
@@ -493,7 +493,7 @@ pub fn div4(x: &mut [f32; 4], y: &[f32; 4]) {
             super::fallback::f32::div4(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::div4(x, y);
     }
@@ -510,7 +510,7 @@ pub fn div4_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn div8(x: &mut [f32; 8], y: &[f32; 8]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
@@ -525,7 +525,7 @@ pub fn div8(x: &mut [f32; 8], y: &[f32; 8]) {
             super::fallback::f32::div8(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::div8(x, y);
     }
@@ -542,7 +542,7 @@ pub fn div8_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn div16(x: &mut [f32; 16], y: &[f32; 16]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
@@ -557,7 +557,7 @@ pub fn div16(x: &mut [f32; 16], y: &[f32; 16]) {
             super::fallback::f32::div16(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::div16(x, y);
     }
@@ -574,7 +574,7 @@ pub fn div16_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn mod4(x: &mut [f32; 4], y: &[f32; 4]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "sse4.1")]
         {
@@ -585,7 +585,7 @@ pub fn mod4(x: &mut [f32; 4], y: &[f32; 4]) {
             super::fallback::f32::mod4(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::mod4(x, y);
     }
@@ -602,7 +602,7 @@ pub fn mod4_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn mod8(x: &mut [f32; 8], y: &[f32; 8]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
@@ -617,7 +617,7 @@ pub fn mod8(x: &mut [f32; 8], y: &[f32; 8]) {
             super::fallback::f32::mod8(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::mod8(x, y);
     }
@@ -634,7 +634,7 @@ pub fn mod8_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn mod16(x: &mut [f32; 16], y: &[f32; 16]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
@@ -649,7 +649,7 @@ pub fn mod16(x: &mut [f32; 16], y: &[f32; 16]) {
             super::fallback::f32::mod16(x, y);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::mod16(x, y);
     }
@@ -666,18 +666,18 @@ pub fn mod16_slice(x: &mut [f32], y: &[f32]) {
 
 #[inline(always)]
 pub fn fma4(x: &mut [f32; 4], y: &[f32; 4], z: &[f32; 4]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "fma")]
         {
-            super::fma::f32::fma4(x, y, z);
+            super::sse::f32::fma4(x, y, z);
         }
         #[cfg(not(target_feature = "fma"))]
         {
             super::fallback::f32::fma4(x, y, z);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::fma4(x, y, z);
     }
@@ -696,18 +696,18 @@ pub fn fma4_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
 
 #[inline(always)]
 pub fn fma8(x: &mut [f32; 8], y: &[f32; 8], z: &[f32; 8]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "fma")]
         {
-            super::fma::f32::fma8(x, y, z);
+            super::avx::f32::fma8(x, y, z);
         }
         #[cfg(not(target_feature = "fma"))]
         {
             super::fallback::f32::fma8(x, y, z);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::fma8(x, y, z);
     }
@@ -726,18 +726,18 @@ pub fn fma8_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
 
 #[inline(always)]
 pub fn fma16(x: &mut [f32; 16], y: &[f32; 16], z: &[f32; 16]) {
-    #[cfg(all(target_arch = "x86_64"))]
+    #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "fma")]
         {
-            super::fma::f32::fma16(x, y, z);
+            super::avx::f32::fma16(x, y, z);
         }
         #[cfg(not(target_feature = "fma"))]
         {
             super::fallback::f32::fma16(x, y, z);
         }
     }
-    #[cfg(not(all(target_arch = "x86_64")))]
+    #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
         super::fallback::f32::fma16(x, y, z);
     }

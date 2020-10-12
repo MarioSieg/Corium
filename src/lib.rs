@@ -204,9 +204,20 @@
 
 */
 
+/// Bytecode data, ast, parser, optimizer, validator.
 pub mod bytecode;
+
+/// Executor, stack, record, hooks and core implementation.
 pub mod core;
+
+/// Compiler, optimizer, backend, code generator.
 pub mod jit;
+
+/// Helpers and utilities.
 pub mod misc;
+
+/// Most used modules for a quick import.
 pub mod prelude;
+
+/// SIMD (Single Instruction Multiple Data) tools for i32 and f32.
 pub mod simd;

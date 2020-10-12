@@ -209,6 +209,7 @@ extern crate ronin_runtime;
 use ronin_runtime::prelude::*;
 
 use ronin_runtime::bytecode::ast::OpCode as Op;
+use std::time::Instant;
 use Token::*;
 
 fn main() {
@@ -233,7 +234,9 @@ fn main() {
     stream.epilogue();
     println!("{}", stream.length());
     //stream.dump();
-    let _chunk = stream.build(ValidationPolicy::Full);
+    let clock = Instant::now();
+    let _ = stream.build(ValidationPolicy::Full);
+    println!("Build took: {:.3}s", clock.elapsed().as_secs_f32())
     /*
     let chunk = chunk.unwrap();
     let input = ExecutorInput {

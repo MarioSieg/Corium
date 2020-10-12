@@ -12,6 +12,10 @@ path = "src/lib.rs"
 name = "ronin_virtual_machine"
 path = "src/bin.rs"
 
+[features]
+default = ["simd"]
+simd = []
+
 [dependencies]
 bitflags = "1.2.1"
 rayon = "1.4.1"

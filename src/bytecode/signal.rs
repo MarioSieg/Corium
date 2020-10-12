@@ -389,16 +389,16 @@ impl convert::From<Record> for Signal {
 }
 
 /// Creates a signal from an discriminated signal.
-impl<'a> convert::From<Token> for Option<Signal> {
-    fn from(x: Token) -> Self {
+impl<'a> convert::From<&Token> for Option<Signal> {
+    fn from(x: &Token) -> Self {
         match x {
-            Token::I32(i) => Some(Signal::from(i)),
-            Token::F32(f) => Some(Signal::from(f)),
-            Token::C32(c) => Some(Signal::from(c)),
-            Token::U32(u) => Some(Signal::from(u)),
-            Token::OpCode(op) => Some(Signal::from(op)),
-            Token::Ipc(ipc) => Some(Signal::from(ipc)),
-            Token::Pin(l) => Some(Signal::from(l)),
+            Token::I32(i) => Some(Signal::from(*i)),
+            Token::F32(f) => Some(Signal::from(*f)),
+            Token::C32(c) => Some(Signal::from(*c)),
+            Token::U32(u) => Some(Signal::from(*u)),
+            Token::OpCode(op) => Some(Signal::from(*op)),
+            Token::Ipc(ipc) => Some(Signal::from(*ipc)),
+            Token::Pin(l) => Some(Signal::from(*l)),
             _ => None,
         }
     }

@@ -969,7 +969,7 @@ mod tests {
         stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.poke(3)), 3);
@@ -995,7 +995,7 @@ mod tests {
         stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(3),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.poke(1)), -4);
@@ -1012,7 +1012,7 @@ mod tests {
         stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(8192),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.peek()), 2047);
@@ -1028,7 +1028,7 @@ mod tests {
         stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(1),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert!(f32::from(stack.peek()) - 0.5 < 0.00001);
@@ -1042,7 +1042,7 @@ mod tests {
         stream.with(Token::OpCode(Push)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(2),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let chunk = execute(input).input.chunk;
         assert_eq!(chunk.operation_ptr(), 4);
@@ -1056,7 +1056,7 @@ mod tests {
         stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(2),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         if a != b {
@@ -1073,7 +1073,7 @@ mod tests {
         stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(stack.stack_ptr(), 1);
@@ -1115,7 +1115,7 @@ mod tests {
         stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(stack.stack_ptr(), 1);
@@ -1215,7 +1215,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1243,7 +1243,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), -2);
@@ -1271,7 +1271,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 8);
@@ -1299,7 +1299,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 4);
@@ -1327,7 +1327,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1355,7 +1355,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1383,7 +1383,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1411,7 +1411,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1439,7 +1439,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 32);
@@ -1467,7 +1467,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1497,7 +1497,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 32);
@@ -1525,7 +1525,7 @@ mod tests {
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full).unwrap(),
+            chunk: stream.build(ValidationPolicy::Full),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 536870912);

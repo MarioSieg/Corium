@@ -208,9 +208,7 @@ pub use super::validator::ValidationPolicy;
 use super::{
     ast::{OpCode, Section, Token},
     chunk::BytecodeChunk,
-    descriptors, lexemes,
-    signal::Signal,
-    validator::validate,
+    descriptors, lexemes, validator,
 };
 use crate::misc::io;
 use std::{convert, default, ops};
@@ -398,26 +396,17 @@ impl BytecodeStream {
     }
 
     /// Validates this bytecode and returns an list of error messages (if any).
+    #[inline]
     pub fn validate(&self, sec: ValidationPolicy) {
-        validate(&self.stream[..], sec)
+        validator::validate(&self.stream[..], sec)
     }
 
     /// Builds and validates this bytecode and returns an list of error messages (if any).
     /// On success this returns the bytecode chunk, which can be injected into a VM executor kernel.
     pub fn build(self, sec: ValidationPolicy) -> BytecodeChunk {
         assert!(!self.is_empty());
-        use std::time::Instant;
-        let clock = Instant::now();
-        self.validate(sec);
-        println!("Validation: {}ms", clock.elapsed().as_secs_f64());
-        let clock = Instant::now();
-        let mut buf = Vec::with_capacity(self.stream.len());
-        for tok in self.stream {
-            if let Some(sig) = Option::<Signal>::from(tok) {
-                buf.push(sig);
-            }
-        }
-        println!("Build: {}ms", clock.elapsed().as_secs_f64());
+        validator::validate(&self.stream[..], sec);
+        let buf = validator::build(&self.stream[..]);
         BytecodeChunk::from(buf)
     }
 }

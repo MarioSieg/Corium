@@ -209,7 +209,7 @@ use super::{
     descriptors::{self, ExplicitArgumentType},
     lexemes,
 };
-use crate::bytecode::ast::OpCode;
+use crate::bytecode::{ast::OpCode, signal::Signal};
 use rayon::prelude::*;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -219,123 +219,125 @@ pub enum ValidationPolicy {
     Full,
 }
 
+#[inline]
+fn fatal(msg: String) {
+    panic!("\x1b[1;31m\t{}\t\x1b[0;0m\n", msg);
+}
+
+/// Checks if operation argument count is valid.
+pub fn check_op_args_count(op: OpCode, arg_count: usize) -> bool {
+    // If operation has explicit arguments:
+    if let Some(args) = descriptors::EXPLICIT_ARGUMENTS[op as usize] {
+        // Required argument count:
+        let desired_arg_count = args.len();
+
+        // If actual argument count does not equals the required argument count,
+        // we have an argument mismatch, which is a fatal error!
+        if arg_count != desired_arg_count {
+            fatal(format!(
+                "Invalid argument count for instruction \"{}\"! Expected {} found {}!",
+                lexemes::MNEMONICS[op as usize],
+                desired_arg_count,
+                arg_count
+            ));
+        }
+        return true;
+    }
+    false
+}
+
+/// Checks if argument type is valid.
+pub fn is_arg_equ(token: &Token, arg_type: ExplicitArgumentType) -> bool {
+    match token {
+        Token::I32(_) if arg_type & ExplicitArgumentType::I32 != ExplicitArgumentType::NONE => true,
+        Token::F32(_) if arg_type & ExplicitArgumentType::F32 != ExplicitArgumentType::NONE => true,
+        Token::U32(_) if arg_type & ExplicitArgumentType::U32 != ExplicitArgumentType::NONE => true,
+        Token::C32(_) if arg_type & ExplicitArgumentType::C32 != ExplicitArgumentType::NONE => true,
+        Token::Ipc(_) if arg_type & ExplicitArgumentType::IPC != ExplicitArgumentType::NONE => true,
+        Token::Pin(_) if arg_type & ExplicitArgumentType::PIN != ExplicitArgumentType::NONE => true,
+        _ => false,
+    }
+}
+
+/// Checks if the argument type is valid, if not it panics.
+pub fn check_if_arg_valid(x: usize, op: OpCode, tok: &Token) {
+    if let Some(args) = descriptors::EXPLICIT_ARGUMENTS[op as usize] {
+        assert!(x < args.len());
+        if !is_arg_equ(tok, args[x]) {
+            fatal(format!(
+                "Invalid argument type for instruction \"{}\"! Expected {:?} found {}!",
+                lexemes::MNEMONICS[op as usize],
+                args[x],
+                tok
+            ));
+        }
+    }
+}
+
+/// Checks one single token.
+pub fn check_single_token(tok: &Token, arg_count: &mut usize, prev: &mut OpCode) -> bool {
+    // If token is an argument,
+    // increment argument count and continue.
+    if tok.is_argument() {
+        *arg_count += 1;
+        return true;
+    }
+
+    // If token is operation:
+    if let Token::OpCode(op) = tok {
+        // If it is the first operation, prev is none, so assign:
+        if *prev == OpCode::_Count {
+            *prev = *op;
+            return true;
+        }
+
+        //check_if_arg_valid(x, *op, tok);
+
+        // Check if op is valid.
+        // Returns false if the op does not have any arguments,
+        // so we can skip the iteration.
+        if check_op_args_count(*prev, *arg_count) {
+            return false;
+        }
+    }
+    true
+}
+
 /// Validates the input bytecode.
 pub fn validate(in_: &[Token], _sec: ValidationPolicy) {
     assert!(!in_.is_empty());
 
-    let fatal = |err_data: (usize, &Token), msg: &str| {
-        panic!(
-            "\x1b[1;31m\t\"&{:#010X} {:?}\": {}\t\x1b[0;0m\n",
-            err_data.0, err_data.1, msg
-        );
-    };
-
-    let _warning = |err_data: (usize, &Token), msg: &str| {
-        panic!(
-            "\x1b[1;33m\t\"&{:#010X} {:?}\": {}\t\x1b[0;0m\n",
-            err_data.0, err_data.1, msg
-        );
-    };
-
-    // Checks if operation arguments is valid.
-    let check_op_args = |err_data: (usize, &Token), op: OpCode, arg_count: usize| -> bool {
-        // If operation has explicit arguments:
-        if let Some(args) = descriptors::EXPLICIT_ARGUMENTS[op as usize] {
-            // Fetch mnemonic:
-            let mnemonic = lexemes::MNEMONICS[op as usize];
-
-            // Required argument count:
-            let desired_arg_count = args.len();
-
-            // If actual argument count does not equals the required argument count,
-            // we have an argument mismatch, which is a fatal error!
-            if arg_count != desired_arg_count {
-                fatal(
-                    err_data,
-                    &format!(
-                        "Invalid argument count for instruction \"{}\"! Expected {} found {}!",
-                        mnemonic, desired_arg_count, arg_count
-                    ),
-                );
-            }
-            return true;
-        }
-        false
-    };
-
-    // Checks if argument type is valid.
-    let _is_valid_arg = |token: &Token, arg_type: ExplicitArgumentType| -> bool {
-        match token {
-            Token::I32(_) if arg_type & ExplicitArgumentType::I32 != ExplicitArgumentType::NONE => {
-                true
-            }
-            Token::F32(_) if arg_type & ExplicitArgumentType::F32 != ExplicitArgumentType::NONE => {
-                true
-            }
-            Token::U32(_) if arg_type & ExplicitArgumentType::U32 != ExplicitArgumentType::NONE => {
-                true
-            }
-            Token::C32(_) if arg_type & ExplicitArgumentType::C32 != ExplicitArgumentType::NONE => {
-                true
-            }
-            Token::Ipc(_) if arg_type & ExplicitArgumentType::IPC != ExplicitArgumentType::NONE => {
-                true
-            }
-            Token::Pin(_) if arg_type & ExplicitArgumentType::PIN != ExplicitArgumentType::NONE => {
-                true
-            }
-            _ => false,
-        }
-    };
-
-    // Check token:
-    let check_single_token = |err_data: (usize, &Token),
-                              tok: &Token,
-                              arg_count: &mut usize,
-                              prev: &mut Option<OpCode>|
-     -> bool {
-        // If token is an argument,
-        // increment argument count and continue.
-        if tok.is_argument() {
-            *arg_count += 1;
-            return true;
-        }
-
-        // If token is operation:
-        if let Token::OpCode(op) = tok {
-            // If it is the first operation, prev is none, so assign:
-            if prev.is_none() {
-                *prev = Some(*op);
-                return true;
-            }
-
-            // Check if op is valid.
-            // Returns false if the op does not have any arguments,
-            // so we can skip the iteration.
-            if check_op_args(err_data, prev.unwrap(), *arg_count) {
-                return false;
-            }
-        }
-
-        true
-    };
-
     // Closure for each_loop.
     let check = |i: (usize, &Token)| {
-        if i.1.is_operation() {
-            let mut arg_count: usize = 0;
-            let mut prev: Option<OpCode> = None;
+        if !i.1.is_operation() {
+            return;
+        }
 
-            // Search next tokens:
-            'search: for tok2 in &in_[i.0..] {
-                if !check_single_token(i, tok2, &mut arg_count, &mut prev) {
-                    break 'search;
-                }
+        let mut arg_count: usize = 0;
+        let mut prev = OpCode::_Count;
+
+        // Search next tokens:
+        'search: for tok in &in_[i.0..] {
+            if !check_single_token(tok, &mut arg_count, &mut prev) {
+                break 'search;
             }
         }
     };
 
-    in_.into_par_iter().enumerate().for_each(check);
+    // Execute in parallel:
+    in_.par_iter().enumerate().for_each(check);
+}
+
+/// Converts a token stream into a signal stream for execution.
+/// The tokens should be validated before calling this!
+pub fn build(in_: &[Token]) -> Box<[Signal]> {
+    let mut buffer = Vec::with_capacity(in_.len());
+    in_.iter().for_each(|tok| {
+        if let Some(sig) = Option::<Signal>::from(&*tok) {
+            buffer.push(sig);
+        }
+    });
+    buffer.into_boxed_slice()
 }
 
 #[cfg(test)]
