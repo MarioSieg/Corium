@@ -324,16 +324,14 @@ pub fn validate(in_: &[Token], _sec: ValidationPolicy) {
         }
     };
 
-<<<<<<< Updated upstream
     // Execute in parallel:
     in_.par_iter().enumerate().for_each(check);
-=======
     let last = in_.last().unwrap();
 
     // Check if the last token is an operation and arguments are missing:
     if let Token::OpCode(op) = last {
         if let Some(args) = descriptors::EXPLICIT_ARGUMENTS[*op as usize] {
-            fatal!(format!(
+            fatal(format!(
                 "Invalid argument count for instruction \"{}\"! Expected {} found 0!",
                 lexemes::MNEMONICS[*op as usize],
                 args.len(),
@@ -363,10 +361,6 @@ pub fn validate(in_: &[Token], _sec: ValidationPolicy) {
             }
         }
     }
-
-    // Execute check loop in parallel if multithreading is enabled:
-    par::iter(in_).enumerate().for_each(check);
->>>>>>> Stashed changes
 }
 
 /// Converts a token stream into a signal stream for execution.
