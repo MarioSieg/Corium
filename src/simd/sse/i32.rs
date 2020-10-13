@@ -208,7 +208,7 @@ use crate::simd::fallback;
 use std::arch::x86_64::*;
 
 #[inline(always)]
-pub fn add4(x: &mut [i32; 4], y: &[i32; 4]) {
+pub fn __add4(x: &mut [i32; 4], y: &[i32; 4]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -223,7 +223,7 @@ pub fn add4(x: &mut [i32; 4], y: &[i32; 4]) {
 }
 
 #[inline(always)]
-pub fn add8(x: &mut [i32; 8], y: &[i32; 8]) {
+pub fn __add8(x: &mut [i32; 8], y: &[i32; 8]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -245,7 +245,7 @@ pub fn add8(x: &mut [i32; 8], y: &[i32; 8]) {
 }
 
 #[inline(always)]
-pub fn add16(x: &mut [i32; 16], y: &[i32; 16]) {
+pub fn __add16(x: &mut [i32; 16], y: &[i32; 16]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -281,7 +281,7 @@ pub fn add16(x: &mut [i32; 16], y: &[i32; 16]) {
 }
 
 #[inline(always)]
-pub fn sub4(x: &mut [i32; 4], y: &[i32; 4]) {
+pub fn __sub4(x: &mut [i32; 4], y: &[i32; 4]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -296,7 +296,7 @@ pub fn sub4(x: &mut [i32; 4], y: &[i32; 4]) {
 }
 
 #[inline(always)]
-pub fn sub8(x: &mut [i32; 8], y: &[i32; 8]) {
+pub fn __sub8(x: &mut [i32; 8], y: &[i32; 8]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -318,7 +318,7 @@ pub fn sub8(x: &mut [i32; 8], y: &[i32; 8]) {
 }
 
 #[inline(always)]
-pub fn sub16(x: &mut [i32; 16], y: &[i32; 16]) {
+pub fn __sub16(x: &mut [i32; 16], y: &[i32; 16]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -354,7 +354,7 @@ pub fn sub16(x: &mut [i32; 16], y: &[i32; 16]) {
 }
 
 #[inline(always)]
-pub fn mul4(x: &mut [i32; 4], y: &[i32; 4]) {
+pub fn __mul4(x: &mut [i32; 4], y: &[i32; 4]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -369,7 +369,7 @@ pub fn mul4(x: &mut [i32; 4], y: &[i32; 4]) {
 }
 
 #[inline(always)]
-pub fn mul8(x: &mut [i32; 8], y: &[i32; 8]) {
+pub fn __mul8(x: &mut [i32; 8], y: &[i32; 8]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -391,7 +391,7 @@ pub fn mul8(x: &mut [i32; 8], y: &[i32; 8]) {
 }
 
 #[inline(always)]
-pub fn mul16(x: &mut [i32; 16], y: &[i32; 16]) {
+pub fn __mul16(x: &mut [i32; 16], y: &[i32; 16]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -427,37 +427,37 @@ pub fn mul16(x: &mut [i32; 16], y: &[i32; 16]) {
 }
 
 #[inline(always)]
-pub fn div4(x: &mut [i32; 4], y: &[i32; 4]) {
-    fallback::i32::div4(x, y);
+pub fn __div4(x: &mut [i32; 4], y: &[i32; 4]) {
+    fallback::i32::__div4(x, y);
 }
 
 #[inline(always)]
-pub fn div8(x: &mut [i32; 8], y: &[i32; 8]) {
-    fallback::i32::div8(x, y);
+pub fn __div8(x: &mut [i32; 8], y: &[i32; 8]) {
+    fallback::i32::__div8(x, y);
 }
 
 #[inline(always)]
-pub fn div16(x: &mut [i32; 16], y: &[i32; 16]) {
-    fallback::i32::div16(x, y);
+pub fn __div16(x: &mut [i32; 16], y: &[i32; 16]) {
+    fallback::i32::__div16(x, y);
 }
 
 #[inline(always)]
-pub fn mod4(x: &mut [i32; 4], y: &[i32; 4]) {
-    fallback::i32::mod4(x, y);
+pub fn __mod4(x: &mut [i32; 4], y: &[i32; 4]) {
+    fallback::i32::__mod4(x, y);
 }
 
 #[inline(always)]
-pub fn mod8(x: &mut [i32; 8], y: &[i32; 8]) {
-    fallback::i32::mod8(x, y);
+pub fn __mod8(x: &mut [i32; 8], y: &[i32; 8]) {
+    fallback::i32::__mod8(x, y);
 }
 
 #[inline(always)]
-pub fn mod16(x: &mut [i32; 16], y: &[i32; 16]) {
-    fallback::i32::mod16(x, y);
+pub fn __mod16(x: &mut [i32; 16], y: &[i32; 16]) {
+    fallback::i32::__mod16(x, y);
 }
 
 #[inline(always)]
-pub fn and4(x: &mut [i32; 4], y: &[i32; 4]) {
+pub fn __and4(x: &mut [i32; 4], y: &[i32; 4]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -472,7 +472,7 @@ pub fn and4(x: &mut [i32; 4], y: &[i32; 4]) {
 }
 
 #[inline(always)]
-pub fn and8(x: &mut [i32; 8], y: &[i32; 8]) {
+pub fn __and8(x: &mut [i32; 8], y: &[i32; 8]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -494,7 +494,7 @@ pub fn and8(x: &mut [i32; 8], y: &[i32; 8]) {
 }
 
 #[inline(always)]
-pub fn and16(x: &mut [i32; 16], y: &[i32; 16]) {
+pub fn __and16(x: &mut [i32; 16], y: &[i32; 16]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -530,7 +530,7 @@ pub fn and16(x: &mut [i32; 16], y: &[i32; 16]) {
 }
 
 #[inline(always)]
-pub fn or4(x: &mut [i32; 4], y: &[i32; 4]) {
+pub fn __or4(x: &mut [i32; 4], y: &[i32; 4]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -545,7 +545,7 @@ pub fn or4(x: &mut [i32; 4], y: &[i32; 4]) {
 }
 
 #[inline(always)]
-pub fn or8(x: &mut [i32; 8], y: &[i32; 8]) {
+pub fn __or8(x: &mut [i32; 8], y: &[i32; 8]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -567,7 +567,7 @@ pub fn or8(x: &mut [i32; 8], y: &[i32; 8]) {
 }
 
 #[inline(always)]
-pub fn or16(x: &mut [i32; 16], y: &[i32; 16]) {
+pub fn __or16(x: &mut [i32; 16], y: &[i32; 16]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -603,7 +603,7 @@ pub fn or16(x: &mut [i32; 16], y: &[i32; 16]) {
 }
 
 #[inline(always)]
-pub fn xor4(x: &mut [i32; 4], y: &[i32; 4]) {
+pub fn __xor4(x: &mut [i32; 4], y: &[i32; 4]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -618,7 +618,7 @@ pub fn xor4(x: &mut [i32; 4], y: &[i32; 4]) {
 }
 
 #[inline(always)]
-pub fn xor8(x: &mut [i32; 8], y: &[i32; 8]) {
+pub fn __xor8(x: &mut [i32; 8], y: &[i32; 8]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -640,7 +640,7 @@ pub fn xor8(x: &mut [i32; 8], y: &[i32; 8]) {
 }
 
 #[inline(always)]
-pub fn xor16(x: &mut [i32; 16], y: &[i32; 16]) {
+pub fn __xor16(x: &mut [i32; 16], y: &[i32; 16]) {
     unsafe {
         let x: *mut i32 = x.as_mut_ptr();
         let y: *const i32 = y.as_ptr();
@@ -676,63 +676,63 @@ pub fn xor16(x: &mut [i32; 16], y: &[i32; 16]) {
 }
 
 #[inline(always)]
-pub fn sal4(x: &mut [i32; 4], y: &[i32; 4]) {
-    fallback::i32::sal4(x, y);
+pub fn __sal4(x: &mut [i32; 4], y: &[i32; 4]) {
+    fallback::i32::__sal4(x, y);
 }
 
 #[inline(always)]
-pub fn sal8(x: &mut [i32; 8], y: &[i32; 8]) {
-    fallback::i32::sal8(x, y);
+pub fn __sal8(x: &mut [i32; 8], y: &[i32; 8]) {
+    fallback::i32::__sal8(x, y);
 }
 
 #[inline(always)]
-pub fn sal16(x: &mut [i32; 16], y: &[i32; 16]) {
-    fallback::i32::sal16(x, y);
+pub fn __sal16(x: &mut [i32; 16], y: &[i32; 16]) {
+    fallback::i32::__sal16(x, y);
 }
 
 #[inline(always)]
-pub fn sar4(x: &mut [i32; 4], y: &[i32; 4]) {
-    fallback::i32::sar4(x, y);
+pub fn __sar4(x: &mut [i32; 4], y: &[i32; 4]) {
+    fallback::i32::__sar4(x, y);
 }
 
 #[inline(always)]
-pub fn sar8(x: &mut [i32; 8], y: &[i32; 8]) {
-    fallback::i32::sar8(x, y);
+pub fn __sar8(x: &mut [i32; 8], y: &[i32; 8]) {
+    fallback::i32::__sar8(x, y);
 }
 
 #[inline(always)]
-pub fn sar16(x: &mut [i32; 16], y: &[i32; 16]) {
-    fallback::i32::sar16(x, y);
+pub fn __sar16(x: &mut [i32; 16], y: &[i32; 16]) {
+    fallback::i32::__sar16(x, y);
 }
 
 #[inline(always)]
-pub fn rol4(x: &mut [i32; 4], y: &[i32; 4]) {
-    fallback::i32::rol4(x, y);
+pub fn __rol4(x: &mut [i32; 4], y: &[i32; 4]) {
+    fallback::i32::__rol4(x, y);
 }
 
 #[inline(always)]
-pub fn rol8(x: &mut [i32; 8], y: &[i32; 8]) {
-    fallback::i32::rol8(x, y);
+pub fn __rol8(x: &mut [i32; 8], y: &[i32; 8]) {
+    fallback::i32::__rol8(x, y);
 }
 
 #[inline(always)]
-pub fn rol16(x: &mut [i32; 16], y: &[i32; 16]) {
-    fallback::i32::rol16(x, y);
+pub fn __rol16(x: &mut [i32; 16], y: &[i32; 16]) {
+    fallback::i32::__rol16(x, y);
 }
 
 #[inline(always)]
-pub fn ror4(x: &mut [i32; 4], y: &[i32; 4]) {
-    fallback::i32::ror4(x, y);
+pub fn __ror4(x: &mut [i32; 4], y: &[i32; 4]) {
+    fallback::i32::__ror4(x, y);
 }
 
 #[inline(always)]
-pub fn ror8(x: &mut [i32; 8], y: &[i32; 8]) {
-    fallback::i32::ror8(x, y);
+pub fn __ror8(x: &mut [i32; 8], y: &[i32; 8]) {
+    fallback::i32::__ror8(x, y);
 }
 
 #[inline(always)]
-pub fn ror16(x: &mut [i32; 16], y: &[i32; 16]) {
-    fallback::i32::ror16(x, y);
+pub fn __ror16(x: &mut [i32; 16], y: &[i32; 16]) {
+    fallback::i32::__ror16(x, y);
 }
 
 #[cfg(test)]
@@ -740,31 +740,31 @@ mod test {
     use crate::simd::fallback;
 
     #[test]
-    fn add4() {
+    fn __add4() {
         let y = [3, -5, -0x80000000, 0x7FFFFFFF];
         let mut x_simd = [32, 2883, 117, 3221132];
         let mut x_fallback = x_simd;
-        super::add4(&mut x_simd, &y);
-        fallback::i32::add4(&mut x_fallback, &y);
+        super::__add4(&mut x_simd, &y);
+        fallback::i32::__add4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn add8() {
+    fn __add8() {
         let y = [3, -5, 8, 200, -32, -0x80000000, 0x7FFFFFFF, 2];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::add8(&mut x_simd, &y);
-        fallback::i32::add8(&mut x_fallback, &y);
+        super::__add8(&mut x_simd, &y);
+        fallback::i32::__add8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn add16() {
+    fn __add16() {
         let y = [
             4,
             2,
@@ -785,39 +785,39 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::add16(&mut x_simd, &y);
-        fallback::i32::add16(&mut x_fallback, &y);
+        super::__add16(&mut x_simd, &y);
+        fallback::i32::__add16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sub4() {
+    fn __sub4() {
         let y = [3, -5, 8, 200];
         let mut x_simd = [32, -0x80000000, 0x7FFFFFFF, 3221132];
         let mut x_fallback = x_simd;
-        super::sub4(&mut x_simd, &y);
-        fallback::i32::sub4(&mut x_fallback, &y);
+        super::__sub4(&mut x_simd, &y);
+        fallback::i32::__sub4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sub8() {
+    fn __sub8() {
         let y = [3, -5, 8, 200, -32, -0x80000000, 0x7FFFFFFF, 2];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::sub8(&mut x_simd, &y);
-        fallback::i32::sub8(&mut x_fallback, &y);
+        super::__sub8(&mut x_simd, &y);
+        fallback::i32::__sub8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sub16() {
+    fn __sub16() {
         let y = [
             4,
             2,
@@ -838,39 +838,39 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::sub16(&mut x_simd, &y);
-        fallback::i32::sub16(&mut x_fallback, &y);
+        super::__sub16(&mut x_simd, &y);
+        fallback::i32::__sub16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mul4() {
+    fn __mul4() {
         let y = [3, -5, 8, 200];
         let mut x_simd = [3, 0x7FFFFFFF, 117, 3221132];
         let mut x_fallback = x_simd;
-        super::mul4(&mut x_simd, &y);
-        fallback::i32::mul4(&mut x_fallback, &y);
+        super::__mul4(&mut x_simd, &y);
+        fallback::i32::__mul4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mul8() {
+    fn __mul8() {
         let y = [3, -5, 8, 200, -32, -0x80000000, 0x7FFFFFFF, 2];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::mul8(&mut x_simd, &y);
-        fallback::i32::mul8(&mut x_fallback, &y);
+        super::__mul8(&mut x_simd, &y);
+        fallback::i32::__mul8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mul16() {
+    fn __mul16() {
         let y = [
             4,
             2,
@@ -891,39 +891,39 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::mul16(&mut x_simd, &y);
-        fallback::i32::mul16(&mut x_fallback, &y);
+        super::__mul16(&mut x_simd, &y);
+        fallback::i32::__mul16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn div4() {
+    fn __div4() {
         let y = [3, -5, 8, 200];
         let mut x_simd = [32, 2883, -0x80000000, 0x7FFFFFFF];
         let mut x_fallback = x_simd;
-        super::div4(&mut x_simd, &y);
-        fallback::i32::div4(&mut x_fallback, &y);
+        super::__div4(&mut x_simd, &y);
+        fallback::i32::__div4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn div8() {
+    fn __div8() {
         let y = [3, -5, 8, 200, -32, -0x80000000, 0x7FFFFFFF, 2];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::div8(&mut x_simd, &y);
-        fallback::i32::div8(&mut x_fallback, &y);
+        super::__div8(&mut x_simd, &y);
+        fallback::i32::__div8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn div16() {
+    fn __div16() {
         let y = [
             4,
             2,
@@ -944,39 +944,39 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::div16(&mut x_simd, &y);
-        fallback::i32::div16(&mut x_fallback, &y);
+        super::__div16(&mut x_simd, &y);
+        fallback::i32::__div16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mod4() {
+    fn __mod4() {
         let y = [3, -5, 8, 200];
         let mut x_simd = [32, 2883, -0x80000000, 0x7FFFFFFF];
         let mut x_fallback = x_simd;
-        super::mod4(&mut x_simd, &y);
-        fallback::i32::mod4(&mut x_fallback, &y);
+        super::__mod4(&mut x_simd, &y);
+        fallback::i32::__mod4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mod8() {
+    fn __mod8() {
         let y = [3, -5, 8, 200, -32, -0x80000000, 0x7FFFFFFF, 2];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::mod8(&mut x_simd, &y);
-        fallback::i32::mod8(&mut x_fallback, &y);
+        super::__mod8(&mut x_simd, &y);
+        fallback::i32::__mod8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mod16() {
+    fn __mod16() {
         let y = [
             4,
             2,
@@ -997,39 +997,39 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::mod16(&mut x_simd, &y);
-        fallback::i32::mod16(&mut x_fallback, &y);
+        super::__mod16(&mut x_simd, &y);
+        fallback::i32::__mod16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn and4() {
+    fn __and4() {
         let y = [3, -5, 8, 200];
         let mut x_simd = [32, 2883, -0x80000000, 0x7FFFFFFF];
         let mut x_fallback = x_simd;
-        super::and4(&mut x_simd, &y);
-        fallback::i32::and4(&mut x_fallback, &y);
+        super::__and4(&mut x_simd, &y);
+        fallback::i32::__and4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn and8() {
+    fn __and8() {
         let y = [3, -5, 8, 200, -32, 92, -0x80000000, 0x7FFFFFFF];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::and8(&mut x_simd, &y);
-        fallback::i32::and8(&mut x_fallback, &y);
+        super::__and8(&mut x_simd, &y);
+        fallback::i32::__and8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn and16() {
+    fn __and16() {
         let y = [
             4,
             2,
@@ -1050,39 +1050,39 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::and16(&mut x_simd, &y);
-        fallback::i32::and16(&mut x_fallback, &y);
+        super::__and16(&mut x_simd, &y);
+        fallback::i32::__and16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn or4() {
+    fn __or4() {
         let y = [3, -5, 8, 200];
         let mut x_simd = [32, 2883, -0x80000000, 0x7FFFFFFF];
         let mut x_fallback = x_simd;
-        super::or4(&mut x_simd, &y);
-        fallback::i32::or4(&mut x_fallback, &y);
+        super::__or4(&mut x_simd, &y);
+        fallback::i32::__or4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn or8() {
+    fn __or8() {
         let y = [3, -5, 8, 200, -32, 92, -0x80000000, 0x7FFFFFFF];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::or8(&mut x_simd, &y);
-        fallback::i32::or8(&mut x_fallback, &y);
+        super::__or8(&mut x_simd, &y);
+        fallback::i32::__or8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn or16() {
+    fn __or16() {
         let y = [
             4,
             2,
@@ -1103,39 +1103,39 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::or16(&mut x_simd, &y);
-        fallback::i32::or16(&mut x_fallback, &y);
+        super::__or16(&mut x_simd, &y);
+        fallback::i32::__or16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn xor4() {
+    fn __xor4() {
         let y = [3, -5, 8, 200];
         let mut x_simd = [32, 2883, -0x80000000, 0x7FFFFFFF];
         let mut x_fallback = x_simd;
-        super::xor4(&mut x_simd, &y);
-        fallback::i32::xor4(&mut x_fallback, &y);
+        super::__xor4(&mut x_simd, &y);
+        fallback::i32::__xor4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn xor8() {
+    fn __xor8() {
         let y = [3, -5, 8, 200, -32, -0x80000000, 0x7FFFFFFF, 2];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::xor8(&mut x_simd, &y);
-        fallback::i32::xor8(&mut x_fallback, &y);
+        super::__xor8(&mut x_simd, &y);
+        fallback::i32::__xor8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn xor16() {
+    fn __xor16() {
         let y = [
             4,
             2,
@@ -1156,39 +1156,39 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::xor16(&mut x_simd, &y);
-        fallback::i32::xor16(&mut x_fallback, &y);
+        super::__xor16(&mut x_simd, &y);
+        fallback::i32::__xor16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sal4() {
+    fn __sal4() {
         let y = [3, -5, 8, 200];
         let mut x_simd = [32, 2883, -0x80000000, 0x7FFFFFFF];
         let mut x_fallback = x_simd;
-        super::sal4(&mut x_simd, &y);
-        fallback::i32::sal4(&mut x_fallback, &y);
+        super::__sal4(&mut x_simd, &y);
+        fallback::i32::__sal4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sal8() {
+    fn __sal8() {
         let y = [3, -5, 8, 200, -32, -0x80000000, 0x7FFFFFFF, 2];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::sal8(&mut x_simd, &y);
-        fallback::i32::sal8(&mut x_fallback, &y);
+        super::__sal8(&mut x_simd, &y);
+        fallback::i32::__sal8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sal16() {
+    fn __sal16() {
         let y = [
             4,
             2,
@@ -1209,39 +1209,39 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::sal16(&mut x_simd, &y);
-        fallback::i32::sal16(&mut x_fallback, &y);
+        super::__sal16(&mut x_simd, &y);
+        fallback::i32::__sal16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sar4() {
+    fn __sar4() {
         let y = [3, -5, 8, 200];
         let mut x_simd = [32, 2883, -0x80000000, 0x7FFFFFFF];
         let mut x_fallback = x_simd;
-        super::sar4(&mut x_simd, &y);
-        fallback::i32::sar4(&mut x_fallback, &y);
+        super::__sar4(&mut x_simd, &y);
+        fallback::i32::__sar4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sar8() {
+    fn __sar8() {
         let y = [3, -5, 8, 200, -32, -0x80000000, 0x7FFFFFFF, 2];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::sar8(&mut x_simd, &y);
-        fallback::i32::sar8(&mut x_fallback, &y);
+        super::__sar8(&mut x_simd, &y);
+        fallback::i32::__sar8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sar16() {
+    fn __sar16() {
         let y = [
             4,
             2,
@@ -1262,39 +1262,39 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::sar16(&mut x_simd, &y);
-        fallback::i32::sar16(&mut x_fallback, &y);
+        super::__sar16(&mut x_simd, &y);
+        fallback::i32::__sar16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn rol4() {
+    fn __rol4() {
         let y = [3, -5, 8, 200];
         let mut x_simd = [32, 2883, -0x80000000, 0x7FFFFFFF];
         let mut x_fallback = x_simd;
-        super::rol4(&mut x_simd, &y);
-        fallback::i32::rol4(&mut x_fallback, &y);
+        super::__rol4(&mut x_simd, &y);
+        fallback::i32::__rol4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn rol8() {
+    fn __rol8() {
         let y = [3, -5, 8, 200, -32, 92, -0x80000000, 0x7FFFFFFF];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::rol8(&mut x_simd, &y);
-        fallback::i32::rol8(&mut x_fallback, &y);
+        super::__rol8(&mut x_simd, &y);
+        fallback::i32::__rol8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn rol16() {
+    fn __rol16() {
         let y = [
             4,
             2,
@@ -1315,39 +1315,39 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::rol16(&mut x_simd, &y);
-        fallback::i32::rol16(&mut x_fallback, &y);
+        super::__rol16(&mut x_simd, &y);
+        fallback::i32::__rol16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn ror4() {
+    fn __ror4() {
         let y = [3, -5, 8, 200];
         let mut x_simd = [32, 2883, -0x80000000, 0x7FFFFFFF];
         let mut x_fallback = x_simd;
-        super::ror4(&mut x_simd, &y);
-        fallback::i32::ror4(&mut x_fallback, &y);
+        super::__ror4(&mut x_simd, &y);
+        fallback::i32::__ror4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn ror8() {
+    fn __ror8() {
         let y = [3, -5, 8, 200, -32, -0x80000000, 0x7FFFFFFF, 2];
         let mut x_simd = [4, 2, 8, 109, 9, 134, 21, 3];
         let mut x_fallback = x_simd;
-        super::ror8(&mut x_simd, &y);
-        fallback::i32::ror8(&mut x_fallback, &y);
+        super::__ror8(&mut x_simd, &y);
+        fallback::i32::__ror8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn ror16() {
+    fn __ror16() {
         let y = [
             4,
             2,
@@ -1368,8 +1368,8 @@ mod test {
         ];
         let mut x_simd = [3, -5, 8, 200, -32, 92, 12, 2, 3, -5, 8, 200, -32, 92, 12, 2];
         let mut x_fallback = x_simd;
-        super::ror16(&mut x_simd, &y);
-        fallback::i32::ror16(&mut x_fallback, &y);
+        super::__ror16(&mut x_simd, &y);
+        fallback::i32::__ror16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }

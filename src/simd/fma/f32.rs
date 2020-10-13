@@ -207,7 +207,7 @@
 use std::arch::x86_64::*;
 
 #[inline(always)]
-pub fn fma4(x: &mut [f32; 4], y: &[f32; 4], z: &[f32; 4]) {
+pub fn __fma4(x: &mut [f32; 4], y: &[f32; 4], z: &[f32; 4]) {
     unsafe {
         let x: *mut f32 = x.as_mut_ptr();
         let y: *const f32 = y.as_ptr();
@@ -220,7 +220,7 @@ pub fn fma4(x: &mut [f32; 4], y: &[f32; 4], z: &[f32; 4]) {
 }
 
 #[inline(always)]
-pub fn fma8(x: &mut [f32; 8], y: &[f32; 8], z: &[f32; 8]) {
+pub fn __fma8(x: &mut [f32; 8], y: &[f32; 8], z: &[f32; 8]) {
     unsafe {
         let x: *mut f32 = x.as_mut_ptr();
         let y: *const f32 = y.as_ptr();
@@ -233,7 +233,7 @@ pub fn fma8(x: &mut [f32; 8], y: &[f32; 8], z: &[f32; 8]) {
 }
 
 #[inline(always)]
-pub fn fma16(x: &mut [f32; 16], y: &[f32; 16], z: &[f32; 16]) {
+pub fn __fma16(x: &mut [f32; 16], y: &[f32; 16], z: &[f32; 16]) {
     unsafe {
         let x: *mut f32 = x.as_mut_ptr();
         let y: *const f32 = y.as_ptr();
@@ -258,33 +258,33 @@ mod tests {
     use crate::simd::fallback;
 
     #[test]
-    fn fma4() {
+    fn __fma4() {
         let y = [3.0, -5.0, 8.0, 200.0];
         let z = y;
         let mut x_simd = [32.0, 2883.0, f32::MAX, f32::MIN];
         let mut x_fallback = x_simd;
-        super::fma4(&mut x_simd, &y, &z);
-        fallback::f32::fma4(&mut x_fallback, &y, &z);
+        super::__fma4(&mut x_simd, &y, &z);
+        fallback::f32::__fma4(&mut x_fallback, &y, &z);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn fma8() {
+    fn __fma8() {
         let y = [3.0, -5.0, 8.0, 200.0, -32.0, f32::MAX, f32::MIN, 2.0];
         let z = y;
         let mut x_simd = [4.0, 2.0, 8.0, 109.0, 9.0, 134.0, 21.0, 3.0];
         let mut x_fallback = x_simd;
-        super::fma8(&mut x_simd, &y, &z);
-        fallback::f32::fma8(&mut x_fallback, &y, &z);
+        super::__fma8(&mut x_simd, &y, &z);
+        fallback::f32::__fma8(&mut x_fallback, &y, &z);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn fma16() {
+    fn __fma16() {
         let y = [
             4.0,
             2.0,
@@ -309,8 +309,8 @@ mod tests {
             12.0, 2.0,
         ];
         let mut x_fallback = x_simd;
-        super::fma16(&mut x_simd, &y, &z);
-        fallback::f32::fma16(&mut x_fallback, &y, &z);
+        super::__fma16(&mut x_simd, &y, &z);
+        fallback::f32::__fma16(&mut x_fallback, &y, &z);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }

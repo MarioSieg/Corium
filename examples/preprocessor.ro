@@ -1,0 +1,14 @@
+#define VALUE 10
+#define SQUARE(x) (x * x)
+
+#ifdef __LINUX__
+
+#endif
+
+#ifdef __WINDOWS__
+
+#endif
+
+#ifdef __MAC__
+
+#endif

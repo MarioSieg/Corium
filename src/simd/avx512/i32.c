@@ -204,69 +204,28 @@
 
 */
 
-use std::{collections::HashMap, path::PathBuf};
+#include<stdint.h>
+#include<zmmintrin.h>
 
-/// Represents an entry with an associated value.
-pub enum Entry {
-    I8(i8),
-    U8(u8),
-    I16(i16),
-    U16(u16),
-    I32(i32),
-    U32(u32),
-    I64(i64),
-    U64(u64),
-    I128(i128),
-    U128(u128),
-    F32(f32),
-    F64(f64),
-    String(String),
+/* NOTE: Currently we still load unaligned memory using the _mm512_loadu_* instructions. */
+
+static inline void __add16(register int32_t* const x, register const int32_t* const y) {
+    auto __m512 mx = _mm512_loadu_epi32(x);
+    auto __m512 my = _mm512_loadu_epi32(y);
+    auto __m512 mz = _mm512_add_epi32(mx, my);
+    _mm512_storeu_epi32(x, mz);
 }
 
-/// Represents an initialization config file in the RAM,
-/// which can be saved to disk.
-pub struct IniFile {
-    sections: HashMap<String, HashMap<String, Entry>>,
-    path: PathBuf,
+static inline void __sub16(register int32_t* const x, register const int32_t* const y) {
+    auto __m512 mx = _mm512_loadu_epi32(x);
+    auto __m512 my = _mm512_loadu_epi32(y);
+    auto __m512 mz = _mm512_sub_epi32(mx, my);
+    _mm512_storeu_epi32(x, mz);
 }
 
-impl IniFile {
-    /// Creates a new section.
-    pub fn push_section(&mut self, name: &str) {
-        self.sections.insert(String::from(name), HashMap::new());
-    }
-
-    /// Creates a new section with x capacity.
-    pub fn push_section_with_capacity(&mut self, name: &str, cap: usize) {
-        self.sections
-            .insert(String::from(name), HashMap::with_capacity(cap));
-    }
-
-    #[inline]
-    pub fn path(&self) -> &PathBuf {
-        &self.path
-    }
-}
-
-impl IniFile {
-    pub const DEFAULT_SECTION: &'static str = "DEF";
-    pub const EXTENSION: &'static str = ".ini";
-
-    /// Creates a new instance in RAM.
-    pub fn new(path: PathBuf) -> Self {
-        Self {
-            sections: HashMap::new(),
-            path,
-        }
-    }
-
-    /// Creates a new instance in RAM with x capacity.
-    pub fn with_capacity(path: PathBuf, cap: usize) -> Self {
-        let mut this = Self {
-            sections: HashMap::with_capacity(cap),
-            path,
-        };
-        this.push_section(Self::DEFAULT_SECTION);
-        this
-    }
+static inline void __mul16(register int32_t* const x, register const int32_t* const y) {
+    auto __m512 mx = _mm512_loadu_epi32(x);
+    auto __m512 my = _mm512_loadu_epi32(y);
+    auto __m512 mz = _mm512_mullo_epi32(mx, my);
+    _mm512_storeu_epi32(x, mz);
 }

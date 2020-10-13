@@ -209,8 +209,10 @@ use super::{
     descriptors::{self, ExplicitArgumentType},
     lexemes,
 };
-use crate::bytecode::{ast::OpCode, signal::Signal};
-use rayon::prelude::*;
+use crate::{
+    bytecode::{ast::OpCode, signal::Signal},
+    par::{self, prelude::*},
+};
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ValidationPolicy {
@@ -325,7 +327,7 @@ pub fn validate(in_: &[Token], _sec: ValidationPolicy) {
     };
 
     // Execute in parallel:
-    in_.par_iter().enumerate().for_each(check);
+    par::iter(in_).enumerate().for_each(check);
     let last = in_.last().unwrap();
 
     // Check if the last token is an operation and arguments are missing:

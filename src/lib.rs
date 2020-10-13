@@ -221,3 +221,6 @@ pub mod prelude;
 
 /// SIMD (Single Instruction Multiple Data) tools for i32 and f32.
 pub mod simd;
+
+/// Tools and adapters for multithreaded parallelism.
+pub mod par;

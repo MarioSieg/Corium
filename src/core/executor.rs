@@ -657,276 +657,276 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
             }
 
             OpCode::I32Vector4Addition => {
-                impl_vector_op!(stack, i32, add4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __add4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4Subtraction => {
-                impl_vector_op!(stack, i32, sub4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __sub4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4Multiplication => {
-                impl_vector_op!(stack, i32, mul4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __mul4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4Division => {
-                impl_vector_op!(stack, i32, div4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __div4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4Modulo => {
-                impl_vector_op!(stack, i32, mod4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __mod4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4BitwiseAnd => {
-                impl_vector_op!(stack, i32, and4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __and4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4BitwiseOr => {
-                impl_vector_op!(stack, i32, or4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __or4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4BitwiseXor => {
-                impl_vector_op!(stack, i32, xor4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __xor4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4BitwiseArithmeticLeftShift => {
-                impl_vector_op!(stack, i32, sal4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __sal4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4BitwiseArithmeticRightShift => {
-                impl_vector_op!(stack, i32, sar4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __sar4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4BitwiseCircularLeftShift => {
-                impl_vector_op!(stack, i32, rol4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __rol4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4BitwiseCircularRightShift => {
-                impl_vector_op!(stack, i32, ror4_slice, i32, 4);
+                impl_vector_op!(stack, i32, __ror4_slice, i32, 4);
                 continue;
             }
 
             OpCode::I32Vector4BitwiseComplement => {}
 
             OpCode::F32Vector4Addition => {
-                impl_vector_op!(stack, f32, add4_slice, f32, 4);
+                impl_vector_op!(stack, f32, __add4_slice, f32, 4);
                 continue;
             }
 
             OpCode::F32Vector4Subtraction => {
-                impl_vector_op!(stack, f32, sub4_slice, f32, 4);
+                impl_vector_op!(stack, f32, __sub4_slice, f32, 4);
                 continue;
             }
 
             OpCode::F32Vector4Multiplication => {
-                impl_vector_op!(stack, f32, mul4_slice, f32, 4);
+                impl_vector_op!(stack, f32, __mul4_slice, f32, 4);
                 continue;
             }
 
             OpCode::F32Vector4Division => {
-                impl_vector_op!(stack, f32, div4_slice, f32, 4);
+                impl_vector_op!(stack, f32, __div4_slice, f32, 4);
                 continue;
             }
 
             OpCode::F32Vector4Modulo => {
-                impl_vector_op!(stack, f32, mod4_slice, f32, 4);
+                impl_vector_op!(stack, f32, __mod4_slice, f32, 4);
                 continue;
             }
 
             OpCode::F32Vector4FusedMultiplyAddition => {
-                impl_fma_vector_op!(stack, f32, fma4_slice, f32, 4);
+                impl_fma_vector_op!(stack, f32, __fma4_slice, f32, 4);
             }
 
             OpCode::I32Vector8Addition => {
-                impl_vector_op!(stack, i32, add8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __add8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8Subtraction => {
-                impl_vector_op!(stack, i32, sub8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __sub8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8Multiplication => {
-                impl_vector_op!(stack, i32, mul8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __mul8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8Division => {
-                impl_vector_op!(stack, i32, div8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __div8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8Modulo => {
-                impl_vector_op!(stack, i32, mod8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __mod8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8BitwiseAnd => {
-                impl_vector_op!(stack, i32, and8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __and8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8BitwiseOr => {
-                impl_vector_op!(stack, i32, or8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __or8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8BitwiseXor => {
-                impl_vector_op!(stack, i32, xor8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __xor8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8BitwiseArithmeticLeftShift => {
-                impl_vector_op!(stack, i32, sal8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __sal8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8BitwiseArithmeticRightShift => {
-                impl_vector_op!(stack, i32, sar8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __sar8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8BitwiseCircularLeftShift => {
-                impl_vector_op!(stack, i32, rol8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __rol8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8BitwiseCircularRightShift => {
-                impl_vector_op!(stack, i32, ror8_slice, i32, 8);
+                impl_vector_op!(stack, i32, __ror8_slice, i32, 8);
                 continue;
             }
 
             OpCode::I32Vector8BitwiseComplement => {}
 
             OpCode::F32Vector8Addition => {
-                impl_vector_op!(stack, f32, add8_slice, f32, 8);
+                impl_vector_op!(stack, f32, __add8_slice, f32, 8);
                 continue;
             }
 
             OpCode::F32Vector8Subtraction => {
-                impl_vector_op!(stack, f32, sub8_slice, f32, 8);
+                impl_vector_op!(stack, f32, __sub8_slice, f32, 8);
                 continue;
             }
 
             OpCode::F32Vector8Multiplication => {
-                impl_vector_op!(stack, f32, mul8_slice, f32, 8);
+                impl_vector_op!(stack, f32, __mul8_slice, f32, 8);
                 continue;
             }
 
             OpCode::F32Vector8Division => {
-                impl_vector_op!(stack, f32, div8_slice, f32, 8);
+                impl_vector_op!(stack, f32, __div8_slice, f32, 8);
                 continue;
             }
 
             OpCode::F32Vector8Modulo => {
-                impl_vector_op!(stack, f32, mod8_slice, f32, 8);
+                impl_vector_op!(stack, f32, __mod8_slice, f32, 8);
                 continue;
             }
 
             OpCode::F32Vector8FusedMultiplyAddition => {
-                impl_fma_vector_op!(stack, f32, fma8_slice, f32, 8);
+                impl_fma_vector_op!(stack, f32, __fma8_slice, f32, 8);
             }
 
             OpCode::I32Vector16Addition => {
-                impl_vector_op!(stack, i32, add16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __add16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16Subtraction => {
-                impl_vector_op!(stack, i32, sub16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __sub16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16Multiplication => {
-                impl_vector_op!(stack, i32, mul16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __mul16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16Division => {
-                impl_vector_op!(stack, i32, div16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __div16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16Modulo => {
-                impl_vector_op!(stack, i32, mod16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __mod16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16BitwiseAnd => {
-                impl_vector_op!(stack, i32, and16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __and16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16BitwiseOr => {
-                impl_vector_op!(stack, i32, or16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __or16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16BitwiseXor => {
-                impl_vector_op!(stack, i32, xor16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __xor16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16BitwiseArithmeticLeftShift => {
-                impl_vector_op!(stack, i32, sal16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __sal16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16BitwiseArithmeticRightShift => {
-                impl_vector_op!(stack, i32, sar16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __sar16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16BitwiseCircularLeftShift => {
-                impl_vector_op!(stack, i32, rol16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __rol16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16BitwiseCircularRightShift => {
-                impl_vector_op!(stack, i32, ror16_slice, i32, 16);
+                impl_vector_op!(stack, i32, __ror16_slice, i32, 16);
                 continue;
             }
 
             OpCode::I32Vector16BitwiseComplement => {}
 
             OpCode::F32Vector16Addition => {
-                impl_vector_op!(stack, f32, add16_slice, f32, 16);
+                impl_vector_op!(stack, f32, __add16_slice, f32, 16);
                 continue;
             }
 
             OpCode::F32Vector16Subtraction => {
-                impl_vector_op!(stack, f32, sub16_slice, f32, 16);
+                impl_vector_op!(stack, f32, __sub16_slice, f32, 16);
                 continue;
             }
 
             OpCode::F32Vector16Multiplication => {
-                impl_vector_op!(stack, f32, mul16_slice, f32, 16);
+                impl_vector_op!(stack, f32, __mul16_slice, f32, 16);
                 continue;
             }
 
             OpCode::F32Vector16Division => {
-                impl_vector_op!(stack, f32, div16_slice, f32, 16);
+                impl_vector_op!(stack, f32, __div16_slice, f32, 16);
                 continue;
             }
 
             OpCode::F32Vector16Modulo => {
-                impl_vector_op!(stack, f32, mod16_slice, f32, 16);
+                impl_vector_op!(stack, f32, __mod16_slice, f32, 16);
                 continue;
             }
 
             OpCode::F32Vector16FusedMultiplyAddition => {
-                impl_fma_vector_op!(stack, f32, fma16_slice, f32, 16);
+                impl_fma_vector_op!(stack, f32, __fma16_slice, f32, 16);
             }
 
             _ => {

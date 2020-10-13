@@ -205,553 +205,553 @@
 */
 
 #[inline(always)]
-pub fn add4(x: &mut [f32; 4], y: &[f32; 4]) {
+pub fn __add4(x: &mut [f32; 4], y: &[f32; 4]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "sse4.1")]
         {
-            super::sse::f32::add4(x, y);
+            super::sse::f32::__add4(x, y);
         }
         #[cfg(not(target_feature = "sse4.1"))]
         {
-            super::fallback::f32::add4(x, y);
+            super::fallback::f32::__add4(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::add4(x, y);
+        super::fallback::f32::__add4(x, y);
     }
 }
 
 #[inline(always)]
-pub fn add4_slice(x: &mut [f32], y: &[f32]) {
+pub fn __add4_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 4);
     debug_assert_eq!(y.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
     let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
-    add4(x, y);
+    __add4(x, y);
 }
 
 #[inline(always)]
-pub fn add8(x: &mut [f32; 8], y: &[f32; 8]) {
+pub fn __add8(x: &mut [f32; 8], y: &[f32; 8]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
-            super::avx::f32::add8(x, y);
+            super::avx::f32::__add8(x, y);
         }
         #[cfg(all(not(target_feature = "avx"), target_feature = "sse4.1"))]
         {
-            super::sse::f32::add8(x, y);
+            super::sse::f32::__add8(x, y);
         }
         #[cfg(not(any(target_feature = "sse4.1", target_feature = "avx")))]
         {
-            super::fallback::f32::add8(x, y);
+            super::fallback::f32::__add8(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::add8(x, y);
+        super::fallback::f32::__add8(x, y);
     }
 }
 
 #[inline(always)]
-pub fn add8_slice(x: &mut [f32], y: &[f32]) {
+pub fn __add8_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 8);
     debug_assert_eq!(y.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
     let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
-    add8(x, y);
+    __add8(x, y);
 }
 
 #[inline(always)]
-pub fn add16(x: &mut [f32; 16], y: &[f32; 16]) {
+pub fn __add16(x: &mut [f32; 16], y: &[f32; 16]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
-            super::avx::f32::add16(x, y);
+            super::avx::f32::__add16(x, y);
         }
         #[cfg(all(not(target_feature = "avx"), target_feature = "sse4.1"))]
         {
-            super::sse::f32::add16(x, y);
+            super::sse::f32::__add16(x, y);
         }
         #[cfg(not(any(target_feature = "sse4.1", target_feature = "avx")))]
         {
-            super::fallback::f32::add16(x, y);
+            super::fallback::f32::__add16(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::add16(x, y);
+        super::fallback::f32::__add16(x, y);
     }
 }
 
 #[inline(always)]
-pub fn add16_slice(x: &mut [f32], y: &[f32]) {
+pub fn __add16_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 16);
     debug_assert_eq!(y.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
     let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
-    add16(x, y);
+    __add16(x, y);
 }
 
 #[inline(always)]
-pub fn sub4(x: &mut [f32; 4], y: &[f32; 4]) {
+pub fn __sub4(x: &mut [f32; 4], y: &[f32; 4]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "sse4.1")]
         {
-            super::sse::f32::sub4(x, y);
+            super::sse::f32::__sub4(x, y);
         }
         #[cfg(not(target_feature = "sse4.1"))]
         {
-            super::fallback::f32::sub4(x, y);
+            super::fallback::f32::__sub4(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::sub4(x, y);
+        super::fallback::f32::__sub4(x, y);
     }
 }
 
 #[inline(always)]
-pub fn sub4_slice(x: &mut [f32], y: &[f32]) {
+pub fn __sub4_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 4);
     debug_assert_eq!(y.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
     let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
-    sub4(x, y);
+    __sub4(x, y);
 }
 
 #[inline(always)]
-pub fn sub8(x: &mut [f32; 8], y: &[f32; 8]) {
+pub fn __sub8(x: &mut [f32; 8], y: &[f32; 8]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
-            super::avx::f32::sub8(x, y);
+            super::avx::f32::__sub8(x, y);
         }
         #[cfg(all(not(target_feature = "avx"), target_feature = "sse4.1"))]
         {
-            super::sse::f32::sub8(x, y);
+            super::sse::f32::__sub8(x, y);
         }
         #[cfg(not(any(target_feature = "sse4.1", target_feature = "avx")))]
         {
-            super::fallback::f32::sub8(x, y);
+            super::fallback::f32::__sub8(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::sub8(x, y);
+        super::fallback::f32::__sub8(x, y);
     }
 }
 
 #[inline(always)]
-pub fn sub8_slice(x: &mut [f32], y: &[f32]) {
+pub fn __sub8_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 8);
     debug_assert_eq!(y.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
     let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
-    sub8(x, y);
+    __sub8(x, y);
 }
 
 #[inline(always)]
-pub fn sub16(x: &mut [f32; 16], y: &[f32; 16]) {
+pub fn __sub16(x: &mut [f32; 16], y: &[f32; 16]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
-            super::avx::f32::sub16(x, y);
+            super::avx::f32::__sub16(x, y);
         }
         #[cfg(all(not(target_feature = "avx"), target_feature = "sse4.1"))]
         {
-            super::sse::f32::sub16(x, y);
+            super::sse::f32::__sub16(x, y);
         }
         #[cfg(not(any(target_feature = "sse4.1", target_feature = "avx")))]
         {
-            super::fallback::f32::sub16(x, y);
+            super::fallback::f32::__sub16(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::sub16(x, y);
+        super::fallback::f32::__sub16(x, y);
     }
 }
 
 #[inline(always)]
-pub fn sub16_slice(x: &mut [f32], y: &[f32]) {
+pub fn __sub16_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 16);
     debug_assert_eq!(y.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
     let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
-    sub16(x, y);
+    __sub16(x, y);
 }
 
 #[inline(always)]
-pub fn mul4(x: &mut [f32; 4], y: &[f32; 4]) {
+pub fn __mul4(x: &mut [f32; 4], y: &[f32; 4]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "sse4.1")]
         {
-            super::sse::f32::mul4(x, y);
+            super::sse::f32::__mul4(x, y);
         }
         #[cfg(not(target_feature = "sse4.1"))]
         {
-            super::fallback::f32::mul4(x, y);
+            super::fallback::f32::__mul4(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::mul4(x, y);
+        super::fallback::f32::__mul4(x, y);
     }
 }
 
 #[inline(always)]
-pub fn mul4_slice(x: &mut [f32], y: &[f32]) {
+pub fn __mul4_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 4);
     debug_assert_eq!(y.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
     let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
-    mul4(x, y);
+    __mul4(x, y);
 }
 
 #[inline(always)]
-pub fn mul8(x: &mut [f32; 8], y: &[f32; 8]) {
+pub fn __mul8(x: &mut [f32; 8], y: &[f32; 8]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
-            super::avx::f32::mul8(x, y);
+            super::avx::f32::__mul8(x, y);
         }
         #[cfg(all(not(target_feature = "avx"), target_feature = "sse4.1"))]
         {
-            super::sse::f32::mul8(x, y);
+            super::sse::f32::__mul8(x, y);
         }
         #[cfg(not(any(target_feature = "sse4.1", target_feature = "avx")))]
         {
-            super::fallback::f32::mul8(x, y);
+            super::fallback::f32::__mul8(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::mul8(x, y);
+        super::fallback::f32::__mul8(x, y);
     }
 }
 
 #[inline(always)]
-pub fn mul8_slice(x: &mut [f32], y: &[f32]) {
+pub fn __mul8_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 8);
     debug_assert_eq!(y.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
     let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
-    mul8(x, y);
+    __mul8(x, y);
 }
 
 #[inline(always)]
-pub fn mul16(x: &mut [f32; 16], y: &[f32; 16]) {
+pub fn __mul16(x: &mut [f32; 16], y: &[f32; 16]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
-            super::avx::f32::mul16(x, y);
+            super::avx::f32::__mul16(x, y);
         }
         #[cfg(all(not(target_feature = "avx"), target_feature = "sse4.1"))]
         {
-            super::sse::f32::mul16(x, y);
+            super::sse::f32::__mul16(x, y);
         }
         #[cfg(not(any(target_feature = "sse4.1", target_feature = "avx")))]
         {
-            super::fallback::f32::mul16(x, y);
+            super::fallback::f32::__mul16(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::mul16(x, y);
+        super::fallback::f32::__mul16(x, y);
     }
 }
 
 #[inline(always)]
-pub fn mul16_slice(x: &mut [f32], y: &[f32]) {
+pub fn __mul16_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 16);
     debug_assert_eq!(y.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
     let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
-    mul16(x, y);
+    __mul16(x, y);
 }
 
 #[inline(always)]
-pub fn div4(x: &mut [f32; 4], y: &[f32; 4]) {
+pub fn __div4(x: &mut [f32; 4], y: &[f32; 4]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "sse4.1")]
         {
-            super::sse::f32::div4(x, y);
+            super::sse::f32::__div4(x, y);
         }
         #[cfg(not(target_feature = "sse4.1"))]
         {
-            super::fallback::f32::div4(x, y);
+            super::fallback::f32::__div4(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::div4(x, y);
+        super::fallback::f32::__div4(x, y);
     }
 }
 
 #[inline(always)]
-pub fn div4_slice(x: &mut [f32], y: &[f32]) {
+pub fn __div4_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 4);
     debug_assert_eq!(y.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
     let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
-    div4(x, y);
+    __div4(x, y);
 }
 
 #[inline(always)]
-pub fn div8(x: &mut [f32; 8], y: &[f32; 8]) {
+pub fn __div8(x: &mut [f32; 8], y: &[f32; 8]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
-            super::avx::f32::div8(x, y);
+            super::avx::f32::__div8(x, y);
         }
         #[cfg(all(not(target_feature = "avx"), target_feature = "sse4.1"))]
         {
-            super::sse::f32::div8(x, y);
+            super::sse::f32::__div8(x, y);
         }
         #[cfg(not(any(target_feature = "sse4.1", target_feature = "avx")))]
         {
-            super::fallback::f32::div8(x, y);
+            super::fallback::f32::__div8(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::div8(x, y);
+        super::fallback::f32::__div8(x, y);
     }
 }
 
 #[inline(always)]
-pub fn div8_slice(x: &mut [f32], y: &[f32]) {
+pub fn __div8_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 8);
     debug_assert_eq!(y.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
     let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
-    div8(x, y);
+    __div8(x, y);
 }
 
 #[inline(always)]
-pub fn div16(x: &mut [f32; 16], y: &[f32; 16]) {
+pub fn __div16(x: &mut [f32; 16], y: &[f32; 16]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
-            super::avx::f32::div16(x, y);
+            super::avx::f32::__div16(x, y);
         }
         #[cfg(all(not(target_feature = "avx"), target_feature = "sse4.1"))]
         {
-            super::sse::f32::div16(x, y);
+            super::sse::f32::__div16(x, y);
         }
         #[cfg(not(any(target_feature = "sse4.1", target_feature = "avx")))]
         {
-            super::fallback::f32::div16(x, y);
+            super::fallback::f32::__div16(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::div16(x, y);
+        super::fallback::f32::__div16(x, y);
     }
 }
 
 #[inline(always)]
-pub fn div16_slice(x: &mut [f32], y: &[f32]) {
+pub fn __div16_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 16);
     debug_assert_eq!(y.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
     let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
-    div16(x, y);
+    __div16(x, y);
 }
 
 #[inline(always)]
-pub fn mod4(x: &mut [f32; 4], y: &[f32; 4]) {
+pub fn __mod4(x: &mut [f32; 4], y: &[f32; 4]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "sse4.1")]
         {
-            super::sse::f32::mod4(x, y);
+            super::sse::f32::__mod4(x, y);
         }
         #[cfg(not(target_feature = "sse4.1"))]
         {
-            super::fallback::f32::mod4(x, y);
+            super::fallback::f32::__mod4(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::mod4(x, y);
+        super::fallback::f32::__mod4(x, y);
     }
 }
 
 #[inline(always)]
-pub fn mod4_slice(x: &mut [f32], y: &[f32]) {
+pub fn __mod4_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 4);
     debug_assert_eq!(y.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
     let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
-    mod4(x, y);
+    __mod4(x, y);
 }
 
 #[inline(always)]
-pub fn mod8(x: &mut [f32; 8], y: &[f32; 8]) {
+pub fn __mod8(x: &mut [f32; 8], y: &[f32; 8]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
-            super::avx::f32::mod8(x, y);
+            super::avx::f32::__mod8(x, y);
         }
         #[cfg(all(not(target_feature = "avx"), target_feature = "sse4.1"))]
         {
-            super::sse::f32::mod8(x, y);
+            super::sse::f32::__mod8(x, y);
         }
         #[cfg(not(any(target_feature = "sse4.1", target_feature = "avx")))]
         {
-            super::fallback::f32::mod8(x, y);
+            super::fallback::f32::__mod8(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::mod8(x, y);
+        super::fallback::f32::__mod8(x, y);
     }
 }
 
 #[inline(always)]
-pub fn mod8_slice(x: &mut [f32], y: &[f32]) {
+pub fn __mod8_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 8);
     debug_assert_eq!(y.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
     let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
-    mod8(x, y);
+    __mod8(x, y);
 }
 
 #[inline(always)]
-pub fn mod16(x: &mut [f32; 16], y: &[f32; 16]) {
+pub fn __mod16(x: &mut [f32; 16], y: &[f32; 16]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "avx")]
         {
-            super::avx::f32::mod16(x, y);
+            super::avx::f32::__mod16(x, y);
         }
         #[cfg(all(not(target_feature = "avx"), target_feature = "sse4.1"))]
         {
-            super::sse::f32::mod16(x, y);
+            super::sse::f32::__mod16(x, y);
         }
         #[cfg(not(any(target_feature = "sse4.1", target_feature = "avx")))]
         {
-            super::fallback::f32::mod16(x, y);
+            super::fallback::f32::__mod16(x, y);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::mod16(x, y);
+        super::fallback::f32::__mod16(x, y);
     }
 }
 
 #[inline(always)]
-pub fn mod16_slice(x: &mut [f32], y: &[f32]) {
+pub fn __mod16_slice(x: &mut [f32], y: &[f32]) {
     debug_assert_eq!(x.len(), 16);
     debug_assert_eq!(y.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
     let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
-    mod16(x, y);
+    __mod16(x, y);
 }
 
 #[inline(always)]
-pub fn fma4(x: &mut [f32; 4], y: &[f32; 4], z: &[f32; 4]) {
+pub fn __fma4(x: &mut [f32; 4], y: &[f32; 4], z: &[f32; 4]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "fma")]
         {
-            super::sse::f32::fma4(x, y, z);
+            super::sse::f32::__fma4(x, y, z);
         }
         #[cfg(not(target_feature = "fma"))]
         {
-            super::fallback::f32::fma4(x, y, z);
+            super::fallback::f32::__fma4(x, y, z);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::fma4(x, y, z);
+        super::fallback::f32::__fma4(x, y, z);
     }
 }
 
 #[inline(always)]
-pub fn fma4_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
+pub fn __fma4_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
     debug_assert_eq!(x.len(), 4);
     debug_assert_eq!(y.len(), 4);
     debug_assert_eq!(z.len(), 4);
     let x: &mut [f32; 4] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 4]) };
     let y: &[f32; 4] = unsafe { &*(y.as_ptr() as *const [f32; 4]) };
     let z: &[f32; 4] = unsafe { &*(z.as_ptr() as *const [f32; 4]) };
-    fma4(x, y, z);
+    __fma4(x, y, z);
 }
 
 #[inline(always)]
-pub fn fma8(x: &mut [f32; 8], y: &[f32; 8], z: &[f32; 8]) {
+pub fn __fma8(x: &mut [f32; 8], y: &[f32; 8], z: &[f32; 8]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "fma")]
         {
-            super::avx::f32::fma8(x, y, z);
+            super::avx::f32::__fma8(x, y, z);
         }
         #[cfg(not(target_feature = "fma"))]
         {
-            super::fallback::f32::fma8(x, y, z);
+            super::fallback::f32::__fma8(x, y, z);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::fma8(x, y, z);
+        super::fallback::f32::__fma8(x, y, z);
     }
 }
 
 #[inline(always)]
-pub fn fma8_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
+pub fn __fma8_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
     debug_assert_eq!(x.len(), 8);
     debug_assert_eq!(y.len(), 8);
     debug_assert_eq!(z.len(), 8);
     let x: &mut [f32; 8] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 8]) };
     let y: &[f32; 8] = unsafe { &*(y.as_ptr() as *const [f32; 8]) };
     let z: &[f32; 8] = unsafe { &*(z.as_ptr() as *const [f32; 8]) };
-    fma8(x, y, z);
+    __fma8(x, y, z);
 }
 
 #[inline(always)]
-pub fn fma16(x: &mut [f32; 16], y: &[f32; 16], z: &[f32; 16]) {
+pub fn __fma16(x: &mut [f32; 16], y: &[f32; 16], z: &[f32; 16]) {
     #[cfg(all(target_feature = "simd", target_arch = "x86_64"))]
     {
         #[cfg(target_feature = "fma")]
         {
-            super::avx::f32::fma16(x, y, z);
+            super::avx::f32::__fma16(x, y, z);
         }
         #[cfg(not(target_feature = "fma"))]
         {
-            super::fallback::f32::fma16(x, y, z);
+            super::fallback::f32::__fma16(x, y, z);
         }
     }
     #[cfg(not(all(target_feature = "simd", target_arch = "x86_64")))]
     {
-        super::fallback::f32::fma16(x, y, z);
+        super::fallback::f32::__fma16(x, y, z);
     }
 }
 
 #[inline(always)]
-pub fn fma16_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
+pub fn __fma16_slice(x: &mut [f32], y: &[f32], z: &[f32]) {
     debug_assert_eq!(x.len(), 16);
     debug_assert_eq!(y.len(), 16);
     debug_assert_eq!(z.len(), 16);
     let x: &mut [f32; 16] = unsafe { &mut *(x.as_mut_ptr() as *mut [f32; 16]) };
     let y: &[f32; 16] = unsafe { &*(y.as_ptr() as *const [f32; 16]) };
     let z: &[f32; 16] = unsafe { &*(z.as_ptr() as *const [f32; 16]) };
-    fma16(x, y, z);
+    __fma16(x, y, z);
 }
 
 #[cfg(test)]
@@ -759,31 +759,31 @@ mod tests {
     use crate::simd::fallback;
 
     #[test]
-    fn add4() {
+    fn __add4() {
         let y = [3.0, -5.0, -3000.0, 332.0];
         let mut x_simd = [32.0, 2883.0, 117.0, 3221132.0];
         let mut x_fallback = x_simd;
-        super::add4(&mut x_simd, &y);
-        fallback::f32::add4(&mut x_fallback, &y);
+        super::__add4(&mut x_simd, &y);
+        fallback::f32::__add4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn add8() {
+    fn __add8() {
         let y = [3.0, -5.0, 8.0, 200.0, -32.0, -3222.9999, 3213.0, 2.0];
         let mut x_simd = [4.0, 2.0, 8.0, 109.0, 9.0, 134.0, 21.0, 3.0];
         let mut x_fallback = x_simd;
-        super::add8(&mut x_simd, &y);
-        fallback::f32::add8(&mut x_fallback, &y);
+        super::__add8(&mut x_simd, &y);
+        fallback::f32::__add8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn add16() {
+    fn __add16() {
         let y = [
             4.0, 2.0, 8.0, 109.0, 9.0, -422.0, 3233.4332, 3.0, 4.0, 2.0, 8.0, 109.0, 9.0, 134.0,
             21.0, 3.0,
@@ -793,39 +793,39 @@ mod tests {
             12.0, 2.0,
         ];
         let mut x_fallback = x_simd;
-        super::add16(&mut x_simd, &y);
-        fallback::f32::add16(&mut x_fallback, &y);
+        super::__add16(&mut x_simd, &y);
+        fallback::f32::__add16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sub4() {
+    fn __sub4() {
         let y = [3.0, -5.0, -3000.0, 332.0];
         let mut x_simd = [32.0, 2883.0, 117.0, 3221132.0];
         let mut x_fallback = x_simd;
-        super::sub4(&mut x_simd, &y);
-        fallback::f32::sub4(&mut x_fallback, &y);
+        super::__sub4(&mut x_simd, &y);
+        fallback::f32::__sub4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sub8() {
+    fn __sub8() {
         let y = [3.0, -5.0, 8.0, 200.0, -32.0, -3222.9999, 3213.0, 2.0];
         let mut x_simd = [4.0, 2.0, 8.0, 109.0, 9.0, 134.0, 21.0, 3.0];
         let mut x_fallback = x_simd;
-        super::sub8(&mut x_simd, &y);
-        fallback::f32::sub8(&mut x_fallback, &y);
+        super::__sub8(&mut x_simd, &y);
+        fallback::f32::__sub8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn sub16() {
+    fn __sub16() {
         let y = [
             4.0, 2.0, 8.0, 109.0, 9.0, -422.0, 3233.4332, 3.0, 4.0, 2.0, 8.0, 109.0, 9.0, 134.0,
             21.0, 3.0,
@@ -835,39 +835,39 @@ mod tests {
             12.0, 2.0,
         ];
         let mut x_fallback = x_simd;
-        super::sub16(&mut x_simd, &y);
-        fallback::f32::sub16(&mut x_fallback, &y);
+        super::__sub16(&mut x_simd, &y);
+        fallback::f32::__sub16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mul4() {
+    fn __mul4() {
         let y = [3.0, -5.0, -3000.0, 332.0];
         let mut x_simd = [32.0, 2883.0, 117.0, 3221132.0];
         let mut x_fallback = x_simd;
-        super::mul4(&mut x_simd, &y);
-        fallback::f32::mul4(&mut x_fallback, &y);
+        super::__mul4(&mut x_simd, &y);
+        fallback::f32::__mul4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mul8() {
+    fn __mul8() {
         let y = [3.0, -5.0, 8.0, 200.0, -32.0, -3222.9999, 3213.0, 2.0];
         let mut x_simd = [4.0, 2.0, 8.0, 109.0, 9.0, 134.0, 21.0, 3.0];
         let mut x_fallback = x_simd;
-        super::mul8(&mut x_simd, &y);
-        fallback::f32::mul8(&mut x_fallback, &y);
+        super::__mul8(&mut x_simd, &y);
+        fallback::f32::__mul8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mul16() {
+    fn __mul16() {
         let y = [
             4.0, 2.0, 8.0, 109.0, 9.0, -422.0, 3233.4332, 3.0, 4.0, 2.0, 8.0, 109.0, 9.0, 134.0,
             21.0, 3.0,
@@ -877,39 +877,39 @@ mod tests {
             12.0, 2.0,
         ];
         let mut x_fallback = x_simd;
-        super::mul16(&mut x_simd, &y);
-        fallback::f32::mul16(&mut x_fallback, &y);
+        super::__mul16(&mut x_simd, &y);
+        fallback::f32::__mul16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mod4() {
+    fn __mod4() {
         let y = [3.0, -5.0, 8.0, 200.0];
         let mut x_simd = [32.0, 2883.0, -3200.0, 2442.0];
         let mut x_fallback = x_simd;
-        super::mod4(&mut x_simd, &y);
-        fallback::f32::mod4(&mut x_fallback, &y);
+        super::__mod4(&mut x_simd, &y);
+        fallback::f32::__mod4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mod8() {
+    fn __mod8() {
         let y = [3.0, -5.0, 8.0, 200.0, -32.0, -80.0, 4322809.0, 2.0];
         let mut x_simd = [4.0, 2.0, 8.0, 109.0, 9.0, 134.0, 21.0, 3.0];
         let mut x_fallback = x_simd;
-        super::mod8(&mut x_simd, &y);
-        fallback::f32::mod8(&mut x_fallback, &y);
+        super::__mod8(&mut x_simd, &y);
+        fallback::f32::__mod8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn mod16() {
+    fn __mod16() {
         let y = [
             4.0, 2.0, 8.0, 109.0, 9.0, 134.0, 21.0, 3.0, -2233.0, 0242.0, 8.0, 109.0, 9.0, 134.0,
             21.0, 3.0,
@@ -919,39 +919,39 @@ mod tests {
             12.0, 2.0,
         ];
         let mut x_fallback = x_simd;
-        super::mod16(&mut x_simd, &y);
-        fallback::f32::mod16(&mut x_fallback, &y);
+        super::__mod16(&mut x_simd, &y);
+        fallback::f32::__mod16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn div4() {
+    fn __div4() {
         let y = [3.0, -5.0, -3000.0, 332.0];
         let mut x_simd = [32.0, 2883.0, 117.0, 3221132.0];
         let mut x_fallback = x_simd;
-        super::div4(&mut x_simd, &y);
-        fallback::f32::div4(&mut x_fallback, &y);
+        super::__div4(&mut x_simd, &y);
+        fallback::f32::__div4(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn div8() {
+    fn __div8() {
         let y = [3.0, -5.0, 8.0, 200.0, -32.0, -3222.9999, 3213.0, 2.0];
         let mut x_simd = [4.0, 2.0, 8.0, 109.0, 9.0, 134.0, 21.0, 3.0];
         let mut x_fallback = x_simd;
-        super::div8(&mut x_simd, &y);
-        fallback::f32::div8(&mut x_fallback, &y);
+        super::__div8(&mut x_simd, &y);
+        fallback::f32::__div8(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn div16() {
+    fn __div16() {
         let y = [
             4.0, 2.0, 8.0, 109.0, 9.0, -422.0, 3233.4332, 3.0, 4.0, 2.0, 8.0, 109.0, 9.0, 134.0,
             21.0, 3.0,
@@ -961,41 +961,41 @@ mod tests {
             12.0, 2.0,
         ];
         let mut x_fallback = x_simd;
-        super::div16(&mut x_simd, &y);
-        fallback::f32::div16(&mut x_fallback, &y);
+        super::__div16(&mut x_simd, &y);
+        fallback::f32::__div16(&mut x_fallback, &y);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn fma4() {
+    fn __fma4() {
         let y = [3.0, -5.0, 8.0, 200.0];
         let z = y;
         let mut x_simd = [32.0, 2883.0, f32::MAX, f32::MIN];
         let mut x_fallback = x_simd;
-        super::fma4(&mut x_simd, &y, &z);
-        fallback::f32::fma4(&mut x_fallback, &y, &z);
+        super::__fma4(&mut x_simd, &y, &z);
+        fallback::f32::__fma4(&mut x_fallback, &y, &z);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn fma8() {
+    fn __fma8() {
         let y = [3.0, -5.0, 8.0, 200.0, -32.0, f32::MAX, f32::MIN, 2.0];
         let z = y;
         let mut x_simd = [4.0, 2.0, 8.0, 109.0, 9.0, 134.0, 21.0, 3.0];
         let mut x_fallback = x_simd;
-        super::fma8(&mut x_simd, &y, &z);
-        fallback::f32::fma8(&mut x_fallback, &y, &z);
+        super::__fma8(&mut x_simd, &y, &z);
+        fallback::f32::__fma8(&mut x_fallback, &y, &z);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
     }
 
     #[test]
-    fn fma16() {
+    fn __fma16() {
         let y = [
             4.0,
             2.0,
@@ -1020,8 +1020,8 @@ mod tests {
             12.0, 2.0,
         ];
         let mut x_fallback = x_simd;
-        super::fma16(&mut x_simd, &y, &z);
-        fallback::f32::fma16(&mut x_fallback, &y, &z);
+        super::__fma16(&mut x_simd, &y, &z);
+        fallback::f32::__fma16(&mut x_fallback, &y, &z);
         for (x, y) in x_simd.iter().zip(x_fallback.iter()) {
             assert_eq!(x, y);
         }
@@ -1035,8 +1035,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::add4_slice(&mut x[i..i + 4], &z[i..i + 4]);
-            fallback::f32::add4_slice(&mut y[i..i + 4], &z[i..i + 4]);
+            super::__add4_slice(&mut x[i..i + 4], &z[i..i + 4]);
+            fallback::f32::__add4_slice(&mut y[i..i + 4], &z[i..i + 4]);
             i += 4;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1052,8 +1052,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::add8_slice(&mut x[i..i + 8], &z[i..i + 8]);
-            fallback::f32::add8_slice(&mut y[i..i + 8], &z[i..i + 8]);
+            super::__add8_slice(&mut x[i..i + 8], &z[i..i + 8]);
+            fallback::f32::__add8_slice(&mut y[i..i + 8], &z[i..i + 8]);
             i += 8;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1069,8 +1069,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::add16_slice(&mut x[i..i + 16], &z[i..i + 16]);
-            fallback::f32::add16_slice(&mut y[i..i + 16], &z[i..i + 16]);
+            super::__add16_slice(&mut x[i..i + 16], &z[i..i + 16]);
+            fallback::f32::__add16_slice(&mut y[i..i + 16], &z[i..i + 16]);
             i += 16;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1086,8 +1086,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::sub4_slice(&mut x[i..i + 4], &z[i..i + 4]);
-            fallback::f32::sub4_slice(&mut y[i..i + 4], &z[i..i + 4]);
+            super::__sub4_slice(&mut x[i..i + 4], &z[i..i + 4]);
+            fallback::f32::__sub4_slice(&mut y[i..i + 4], &z[i..i + 4]);
             i += 4;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1103,8 +1103,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::sub8_slice(&mut x[i..i + 8], &z[i..i + 8]);
-            fallback::f32::sub8_slice(&mut y[i..i + 8], &z[i..i + 8]);
+            super::__sub8_slice(&mut x[i..i + 8], &z[i..i + 8]);
+            fallback::f32::__sub8_slice(&mut y[i..i + 8], &z[i..i + 8]);
             i += 8;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1120,8 +1120,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::sub16_slice(&mut x[i..i + 16], &z[i..i + 16]);
-            fallback::f32::sub16_slice(&mut y[i..i + 16], &z[i..i + 16]);
+            super::__sub16_slice(&mut x[i..i + 16], &z[i..i + 16]);
+            fallback::f32::__sub16_slice(&mut y[i..i + 16], &z[i..i + 16]);
             i += 16;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1137,8 +1137,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mul4_slice(&mut x[i..i + 4], &z[i..i + 4]);
-            fallback::f32::mul4_slice(&mut y[i..i + 4], &z[i..i + 4]);
+            super::__mul4_slice(&mut x[i..i + 4], &z[i..i + 4]);
+            fallback::f32::__mul4_slice(&mut y[i..i + 4], &z[i..i + 4]);
             i += 4;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1154,8 +1154,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mul8_slice(&mut x[i..i + 8], &z[i..i + 8]);
-            fallback::f32::mul8_slice(&mut y[i..i + 8], &z[i..i + 8]);
+            super::__mul8_slice(&mut x[i..i + 8], &z[i..i + 8]);
+            fallback::f32::__mul8_slice(&mut y[i..i + 8], &z[i..i + 8]);
             i += 8;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1171,8 +1171,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mul16_slice(&mut x[i..i + 16], &z[i..i + 16]);
-            fallback::f32::mul16_slice(&mut y[i..i + 16], &z[i..i + 16]);
+            super::__mul16_slice(&mut x[i..i + 16], &z[i..i + 16]);
+            fallback::f32::__mul16_slice(&mut y[i..i + 16], &z[i..i + 16]);
             i += 16;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1188,8 +1188,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::div4_slice(&mut x[i..i + 4], &z[i..i + 4]);
-            fallback::f32::div4_slice(&mut y[i..i + 4], &z[i..i + 4]);
+            super::__div4_slice(&mut x[i..i + 4], &z[i..i + 4]);
+            fallback::f32::__div4_slice(&mut y[i..i + 4], &z[i..i + 4]);
             i += 4;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1205,8 +1205,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::div8_slice(&mut x[i..i + 8], &z[i..i + 8]);
-            fallback::f32::div8_slice(&mut y[i..i + 8], &z[i..i + 8]);
+            super::__div8_slice(&mut x[i..i + 8], &z[i..i + 8]);
+            fallback::f32::__div8_slice(&mut y[i..i + 8], &z[i..i + 8]);
             i += 8;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1222,8 +1222,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::div16_slice(&mut x[i..i + 16], &z[i..i + 16]);
-            fallback::f32::div16_slice(&mut y[i..i + 16], &z[i..i + 16]);
+            super::__div16_slice(&mut x[i..i + 16], &z[i..i + 16]);
+            fallback::f32::__div16_slice(&mut y[i..i + 16], &z[i..i + 16]);
             i += 16;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1239,8 +1239,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mod4_slice(&mut x[i..i + 4], &z[i..i + 4]);
-            fallback::f32::mod4_slice(&mut y[i..i + 4], &z[i..i + 4]);
+            super::__mod4_slice(&mut x[i..i + 4], &z[i..i + 4]);
+            fallback::f32::__mod4_slice(&mut y[i..i + 4], &z[i..i + 4]);
             i += 4;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1256,8 +1256,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mod8_slice(&mut x[i..i + 8], &z[i..i + 8]);
-            fallback::f32::mod8_slice(&mut y[i..i + 8], &z[i..i + 8]);
+            super::__mod8_slice(&mut x[i..i + 8], &z[i..i + 8]);
+            fallback::f32::__mod8_slice(&mut y[i..i + 8], &z[i..i + 8]);
             i += 8;
         }
         for (x, y) in x.iter().zip(y.iter()) {
@@ -1273,8 +1273,8 @@ mod tests {
 
         let mut i = 0;
         while i < y.len() {
-            super::mod16_slice(&mut x[i..i + 16], &z[i..i + 16]);
-            fallback::f32::mod16_slice(&mut y[i..i + 16], &z[i..i + 16]);
+            super::__mod16_slice(&mut x[i..i + 16], &z[i..i + 16]);
+            fallback::f32::__mod16_slice(&mut y[i..i + 16], &z[i..i + 16]);
             i += 16;
         }
         for (x, y) in x.iter().zip(y.iter()) {
