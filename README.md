@@ -6,23 +6,27 @@
 ![alt](https://img.shields.io/tokei/lines/github/MarioSieg/NominaxRonVM)
 ![alt](https://img.shields.io/github/repo-size/MarioSieg/NominaxRonVM)
 
+# What is it?
+The Ronin Virtual Machine is a modular, flexible and modern runtime for scripting languages.
+Parallelism and speed is one of the main features. The idea was to create a runtime which automatically
+runs code in parallel, if it could increase performance.
+For the implementation, multithreading, GPU offloading (GP-GPU) and SIMD is used.
+It also features a bytecode optimizer, validator, JIT compiler, debugger and analyzer.
+
 # Features
- * PC, Mac, Linux, IOS, Android.
- * Extremly fast thanks to multithreading, SIMD and GPU offloading.
- * Backend for the Nominax programming language.
+ * Target systems: PC, Mac, Linux, IOS, Android.
+ * Parallel subsystems (JIT, optimizer, validator etc).
+ * Parallel runtime and instructions (Iterators, VM Kernels, Ports).
+ * SIMD instructions and special optimizations using SSE4.1, AVX and AVX-512 for x86_64.
+ * GPU offloading (GPGPU) using cuda and vulkan compute shaders.
+ * Flexible bytecode design and builder to build a backend for your custom language.
  * C backend for GCC, Clang with computed goto branch table optimization (not yet online).
  
-# Example
-![alt](https://i.imgur.com/2aft9YZ.png)
-## Output
-```
-Hello, World!
-Hello, World!
-Hello, World!
-Hello, World!
-Hello, World!
-C: 164, T: 0.000029S
-```
+ # Languages
+* Rust     (primary)
+* Assembly (some JIT and SIMD optimized code)
+* RonAsm   (custom bytecode-language snippets)
+* The C/C++ code is only for research purposes and is not getting compiled.
 
 # Instruction Set
 | Name                                                                  | Mnemonic  | Opcode | Category                | Arguments (Explicit)    | Stack Arguments (Implicit)         | C Operator | Mathematical    |
