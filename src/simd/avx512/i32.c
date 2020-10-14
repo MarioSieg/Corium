@@ -204,28 +204,69 @@
 
 */
 
+/* To get assembly output with clang: */
+/* clang f32.c -march=skylake-avx512 -S -o f32.asm -mllvm --x86-asm-syntax=intel */
+
 #include<stdint.h>
-#include<zmmintrin.h>
+#include<immintrin.h>
 
-/* NOTE: Currently we still load unaligned memory using the _mm512_loadu_* instructions. */
+#ifdef __AVX512F__
 
-static inline void __add16(register int32_t* const x, register const int32_t* const y) {
+typedef int32_t DW;
+
+static inline void __add16(register DW* const x, register const DW* const y) {
     auto __m512 mx = _mm512_loadu_epi32(x);
     auto __m512 my = _mm512_loadu_epi32(y);
     auto __m512 mz = _mm512_add_epi32(mx, my);
     _mm512_storeu_epi32(x, mz);
 }
 
-static inline void __sub16(register int32_t* const x, register const int32_t* const y) {
+static inline void __sub16(register DW* const x, register const DW* const y) {
     auto __m512 mx = _mm512_loadu_epi32(x);
     auto __m512 my = _mm512_loadu_epi32(y);
     auto __m512 mz = _mm512_sub_epi32(mx, my);
     _mm512_storeu_epi32(x, mz);
 }
 
-static inline void __mul16(register int32_t* const x, register const int32_t* const y) {
+static inline void __mul16(register DW* const x, register const DW* const y) {
     auto __m512 mx = _mm512_loadu_epi32(x);
     auto __m512 my = _mm512_loadu_epi32(y);
     auto __m512 mz = _mm512_mullo_epi32(mx, my);
     _mm512_storeu_epi32(x, mz);
 }
+
+static inline void __and16(register DW* const x, register const DW* const y) {
+    auto __m512 mx = _mm512_loadu_epi32(x);
+    auto __m512 my = _mm512_loadu_epi32(y);
+    auto __m512 mz = _mm512_and_epi32(mx, my);
+    _mm512_storeu_epi32(x, mz);
+}
+
+static inline void __or16(register DW* const x, register const DW* const y) {
+    auto __m512 mx = _mm512_loadu_epi32(x);
+    auto __m512 my = _mm512_loadu_epi32(y);
+    auto __m512 mz = _mm512_or_epi32(mx, my);
+    _mm512_storeu_epi32(x, mz);
+}
+
+static inline void __xor16(register DW* const x, register const DW* const y) {
+    auto __m512 mx = _mm512_loadu_epi32(x);
+    auto __m512 my = _mm512_loadu_epi32(y);
+    auto __m512 mz = _mm512_xor_epi32(mx, my);
+    _mm512_storeu_epi32(x, mz);
+}
+
+/* DUMMY */
+int main(const int argc, const char* const* const argv) {
+    (void)argv, (void)argv;
+    auto DW x[16], y[16];
+    __add16(&x[0], &y[0]);
+    __sub16(&x[0], &y[0]);
+    __mul16(&x[0], &y[0]);
+    __and16(&x[0], &y[0]);
+    __or16(&x[0], &y[0]);
+    __xor16(&x[0], &y[0]);
+    return 0;
+}
+
+#endif

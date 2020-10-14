@@ -214,7 +214,6 @@ use Token::*;
 
 fn main() {
     let mut stream = BytecodeStream::new();
-    stream.prologue();
     for _ in 0..30_000 {
         stream.with(OpCode(Op::Push)).with(I32(0));
         stream.with(OpCode(Op::I32Increment));

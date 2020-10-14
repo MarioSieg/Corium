@@ -204,10 +204,13 @@
 
 */
 
-#include<stdint.h>
-#include<zmmintrin.h>
+/* To get assembly output with clang: */
+/* clang i32.c -march=skylake-avx512 -S -o i32.asm -mllvm --x86-asm-syntax=intel */
 
-/* NOTE: Currently we still load unaligned memory using the _mm512_loadu_* instructions. */
+#include<stdint.h>
+#include<immintrin.h>
+
+#ifdef __AVX512F__
 
 static inline void __add16(register float* const x, register const float* const y) {
     auto __m512 mx = _mm512_loadu_ps(x);
@@ -229,3 +232,24 @@ static inline void __mul16(register float* const x, register const float* const 
     auto __m512 mz = _mm512_mul_ps(mx, my);
     _mm512_storeu_epi32(x, mz);
 }
+
+static inline void __div16(register float* const x, register const float* const y) {
+    auto __m512 mx = _mm512_loadu_ps(x);
+    auto __m512 my = _mm512_loadu_ps(y);
+    auto __m512 mz = _mm512_div_ps(mx, my);
+    _mm512_storeu_epi32(x, mz);
+}
+
+/* DUMMY */
+int main(const int argc, const char* const* const argv) {
+    (void)argv, (void)argv;
+    auto float x[16], y[16];
+    __add16(&x[0], &y[0]);
+    __sub16(&x[0], &y[0]);
+    __mul16(&x[0], &y[0]);
+    __div16(&x[0], &y[0]);
+    return 0;
+}
+
+
+#endif
