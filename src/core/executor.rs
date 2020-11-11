@@ -208,6 +208,7 @@ use crate::{
     bytecode::{ast::OpCode, chunk::BytecodeChunk, intrinsic::Intrinsics},
     core::{record::Record, stack::Stack},
 };
+use std::thread::{self, JoinHandle};
 use std::time::Instant;
 
 /// Input data required for the VM executor to run.
@@ -223,6 +224,11 @@ pub struct ExecutorOutput {
     pub exit_code: i32,
     pub interrupt_code: i32,
     pub time: f64,
+}
+
+/// Executes the bytecode in a background thread.
+pub fn execute_thread(input: ExecutorInput) -> JoinHandle<ExecutorOutput> {
+    thread::spawn(move || execute(input))
 }
 
 /// Executes the bytecode.

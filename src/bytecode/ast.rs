@@ -226,36 +226,22 @@ pub enum Token {
 impl Token {
     #[inline]
     pub fn is_operation(&self) -> bool {
-        if let Self::OpCode(_) = *self {
-            true
-        } else {
-            false
-        }
+        matches!(*self, Self::OpCode(_))
     }
 
     #[inline]
     pub fn is_section(&self) -> bool {
-        if let Self::Section(_) = *self {
-            true
-        } else {
-            false
-        }
+        matches!(*self, Self::Section(_))
     }
 
     #[inline]
     pub fn is_argument(&self) -> bool {
-        match *self {
-            Self::OpCode(_) | Self::Section(_) => false,
-            _ => true,
-        }
+        !matches!(*self, Self::OpCode(_) | Self::Section(_))
     }
 
     #[inline]
     pub fn is_scalar(&self) -> bool {
-        match *self {
-            Self::I32(_) | Self::F32(_) | Self::C32(_) | Self::U32(_) => true,
-            _ => false,
-        }
+        matches!(*self, Self::I32(_) | Self::F32(_) | Self::C32(_) | Self::U32(_))
     }
 }
 

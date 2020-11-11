@@ -204,39 +204,9 @@
 
 */
 
-extern crate ronin_runtime;
+use super::stack::Stack;
 
-use ronin_runtime::prelude::*;
-
-use ronin_runtime::bytecode::ast::OpCode as Op;
-use ronin_runtime::misc::io::IO;
-use Token::*;
-
-fn main() {
-    let mut stream = BytecodeStream::new();
-    stream.prologue();
-    stream.with(OpCode(Op::Push)).with(I32(0));
-    stream.with(OpCode(Op::I32Increment));
-    stream.with(OpCode(Op::Duplicate));
-    stream.with(OpCode(Op::Push)).with(I32(5));
-    for c1 in "Hello, World!\n".chars() {
-        stream.with(OpCode(Op::Push)).with(C32(c1));
-        stream
-            .with(OpCode(Op::CallIntrinsic))
-            .with(Ipc(Intrinsics::PutChar));
-    }
-    stream.with(OpCode(Op::JumpIfLess)).with(Pin(5));
-    stream
-        .with(OpCode(Op::CallIntrinsic))
-        .with(Ipc(Intrinsics::Flush));
-    stream.with(OpCode(Op::Pop)).with(I32(1));
-    stream.epilogue();
-    stream.dump();
-
-    let input = ExecutorInput {
-        stack: Stack::with_length(32),
-        chunk: stream.build(ValidationPolicy::Full),
-    };
-
-    let _output = execute_thread(input).join().unwrap();
+pub struct Kernel {
+    pub id: u16,
+    pub stack: Stack,
 }

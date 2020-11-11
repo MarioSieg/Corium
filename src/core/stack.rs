@@ -419,7 +419,7 @@ impl Stack {
     #[inline(always)]
     pub fn poke_set(&mut self, idx: usize, rec: Record) {
         debug_assert!(idx <= self.sp, "VM_Stack_OutOfRangePoke!");
-        debug_assert!(self.sp - idx <= self.buf.len(), "VM_Stack_OutOfRangePoke!"); // TODO check for overflow
+        debug_assert!(self.sp - idx <= self.buf.len(), "VM_Stack_OutOfRangePoke!");
         self.buf[self.sp - idx] = rec
     }
 

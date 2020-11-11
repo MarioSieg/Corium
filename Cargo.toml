@@ -15,6 +15,7 @@ path = "src/bin.rs"
 [features]
 simd = []
 multithreading = ["rayon"]
+default = ["simd", "multithreading"]
 
 [dependencies]
 # Required:

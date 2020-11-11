@@ -343,10 +343,7 @@ pub fn validate(in_: &[Token], _sec: ValidationPolicy) {
     }
     // Check if the last token is an arguments and there are some missing for the operation:
     else if last.is_argument() {
-        let op = in_.iter().rev().position(|x| match x {
-            Token::OpCode(_) => true,
-            _ => false,
-        });
+        let op = in_.iter().rev().position(|x| matches!(x, Token::OpCode(_)));
         if let Some(op_pos) = op {
             if op_pos < in_.len() {
                 if let Some(op_idx) = in_.len().saturating_sub(1).checked_sub(op_pos) {
