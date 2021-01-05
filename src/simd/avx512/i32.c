@@ -209,63 +209,82 @@
 
 #include<stdint.h>
 #include<immintrin.h>
+#include<stdlib.h>
+#include<stdio.h>
 
 #ifdef __AVX512F__
 
-typedef int32_t DW;
+typedef int32_t _RON_DW32_;
 
-static inline void __add16(register DW* const x, register const DW* const y) {
-    auto __m512 mx = _mm512_loadu_epi32(x);
-    auto __m512 my = _mm512_loadu_epi32(y);
-    auto __m512 mz = _mm512_add_epi32(mx, my);
-    _mm512_storeu_epi32(x, mz);
+#define IMPL_AVX512_ASM_OP(_x, _y, _op)         \
+	auto __m512i mx = _mm512_loadu_epi32(_x);    \
+	auto __m512i my = _mm512_loadu_epi32(_y);    \
+	auto __m512i mz = _mm512_add_epi32(mx, my);  \
+	_mm512_##_op##_epi32(_x, mz);
+
+static void __test__() {
+    const size_t size = 4096;
+    printf("Test allocating memory %zuB", size);
+    _RON_DW32_* mem = malloc(sizeof(_RON_DW32_) * size);
+	if(!mem) {
+        return;
+	}
+    size_t i = 0;
+    for (_RON_DW32_* a = mem, *b = mem + size; a < b; *a++ = i++);
 }
 
-static inline void __sub16(register DW* const x, register const DW* const y) {
-    auto __m512 mx = _mm512_loadu_epi32(x);
-    auto __m512 my = _mm512_loadu_epi32(y);
-    auto __m512 mz = _mm512_sub_epi32(mx, my);
-    _mm512_storeu_epi32(x, mz);
+static inline void __add16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
+    auto __m512i mx = _mm512_loadu_epi32(_x);
+    auto __m512i my = _mm512_loadu_epi32(_y);
+    auto __m512i mz = _mm512_add_epi32(mx, my);
+    _mm512_storeu_epi32(_x, mz);
 }
 
-static inline void __mul16(register DW* const x, register const DW* const y) {
-    auto __m512 mx = _mm512_loadu_epi32(x);
-    auto __m512 my = _mm512_loadu_epi32(y);
-    auto __m512 mz = _mm512_mullo_epi32(mx, my);
-    _mm512_storeu_epi32(x, mz);
+static inline void __sub16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
+    auto __m512i mx = _mm512_loadu_epi32(_x);
+    auto __m512i my = _mm512_loadu_epi32(_y);
+    auto __m512i mz = _mm512_sub_epi32(mx, my);
+    _mm512_storeu_epi32(_x, mz);
 }
 
-static inline void __and16(register DW* const x, register const DW* const y) {
-    auto __m512 mx = _mm512_loadu_epi32(x);
-    auto __m512 my = _mm512_loadu_epi32(y);
-    auto __m512 mz = _mm512_and_epi32(mx, my);
-    _mm512_storeu_epi32(x, mz);
+static inline void __mul16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
+    auto __m512i mx = _mm512_loadu_epi32(_x);
+    auto __m512i my = _mm512_loadu_epi32(_y);
+    auto __m512i mz = _mm512_mullo_epi32(mx, my);
+    _mm512_storeu_epi32(_x, mz);
 }
 
-static inline void __or16(register DW* const x, register const DW* const y) {
-    auto __m512 mx = _mm512_loadu_epi32(x);
-    auto __m512 my = _mm512_loadu_epi32(y);
-    auto __m512 mz = _mm512_or_epi32(mx, my);
-    _mm512_storeu_epi32(x, mz);
+static inline void __and16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
+    auto __m512i mx = _mm512_loadu_epi32(_x);
+    auto __m512i my = _mm512_loadu_epi32(_y);
+    auto __m512i mz = _mm512_and_epi32(mx, my);
+    _mm512_storeu_epi32(_x, mz);
 }
 
-static inline void __xor16(register DW* const x, register const DW* const y) {
-    auto __m512 mx = _mm512_loadu_epi32(x);
-    auto __m512 my = _mm512_loadu_epi32(y);
-    auto __m512 mz = _mm512_xor_epi32(mx, my);
-    _mm512_storeu_epi32(x, mz);
+static inline void __or16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
+    auto __m512i mx = _mm512_loadu_epi32(_x);
+    auto __m512i my = _mm512_loadu_epi32(_y);
+    auto __m512i mz = _mm512_or_epi32(mx, my);
+    _mm512_storeu_epi32(_x, mz);
+}
+
+static inline void __xor16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
+    auto __m512i mx = _mm512_loadu_epi32(_x);
+    auto __m512i my = _mm512_loadu_epi32(_y);
+    auto __m512i mz = _mm512_xor_epi32(mx, my);
+    _mm512_storeu_epi32(_x, mz);
 }
 
 /* DUMMY */
 int main(const int argc, const char* const* const argv) {
     (void)argv, (void)argv;
-    auto DW x[16], y[16];
-    __add16(&x[0], &y[0]);
-    __sub16(&x[0], &y[0]);
-    __mul16(&x[0], &y[0]);
-    __and16(&x[0], &y[0]);
-    __or16(&x[0], &y[0]);
-    __xor16(&x[0], &y[0]);
+    auto _RON_DW32_ _x[16], _y[16];
+    __add16(&_x[0], &_y[0]);
+    __sub16(&_x[0], &_y[0]);
+    __mul16(&_x[0], &_y[0]);
+    __and16(&_x[0], &_y[0]);
+    __or16(&_x[0], &_y[0]);
+    __xor16(&_x[0], &_y[0]);
     return 0;
 }
 

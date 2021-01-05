@@ -260,6 +260,7 @@ impl convert::From<CommonStackSize> for usize {
 }
 
 /// Represents a mutable, fixed size heap-allocated stack.
+#[derive(Clone)]
 pub struct Stack {
     buf: Box<[Record]>,
     sp: usize,

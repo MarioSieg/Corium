@@ -204,50 +204,56 @@
 
 */
 
+// ReSharper disable CppClangTidyBugproneReservedIdentifier
+
+
+
 /* To get assembly output with clang: */
 /* clang i32.c -march=skylake-avx512 -S -o i32.asm -mllvm --x86-asm-syntax=intel */
 
-#include<stdint.h>
-#include<immintrin.h>
+#include <stdint.h>
+#include <immintrin.h>
 
-#ifdef __AVX512F__
+#ifndef __AVX512F__
 
-static inline void __add16(register float* const x, register const float* const y) {
-    auto __m512 mx = _mm512_loadu_ps(x);
-    auto __m512 my = _mm512_loadu_ps(y);
-    auto __m512 mz = _mm512_add_ps(mx, my);
-    _mm512_storeu_epi32(x, mz);
+typedef float _RON_RL32_;
+
+static inline void __add16(register _RON_RL32_* const _x, register const _RON_RL32_* const _y) {
+    const __m512 mx = _mm512_loadu_ps(_x);
+    const __m512 my = _mm512_loadu_ps(_y);
+    const __m512 mz = _mm512_add_ps(mx, my);
+    _mm512_storeu_ps(_x, mz);
 }
 
-static inline void __sub16(register float* const x, register const float* const y) {
-    auto __m512 mx = _mm512_loadu_ps(x);
-    auto __m512 my = _mm512_loadu_ps(y);
-    auto __m512 mz = _mm512_sub_ps(mx, my);
-    _mm512_storeu_epi32(x, mz);
+static inline void __sub16(register _RON_RL32_* const _x, register const _RON_RL32_* const _y) {
+    const __m512 mx = _mm512_loadu_ps(_x);
+    const __m512 my = _mm512_loadu_ps(_y);
+    const __m512 mz = _mm512_sub_ps(mx, my);
+   _mm512_storeu_ps(_x, mz);
 }
 
-static inline void __mul16(register float* const x, register const float* const y) {
-    auto __m512 mx = _mm512_loadu_ps(x);
-    auto __m512 my = _mm512_loadu_ps(y);
-    auto __m512 mz = _mm512_mul_ps(mx, my);
-    _mm512_storeu_epi32(x, mz);
+static inline void __mul16(register _RON_RL32_* const _x, register const _RON_RL32_* const _y) {
+    const __m512 mx = _mm512_loadu_ps(_x);
+    const __m512 my = _mm512_loadu_ps(_y);
+    const __m512 mz = _mm512_mul_ps(mx, my);
+    _mm512_storeu_ps(_x, mz);
 }
 
-static inline void __div16(register float* const x, register const float* const y) {
-    auto __m512 mx = _mm512_loadu_ps(x);
-    auto __m512 my = _mm512_loadu_ps(y);
-    auto __m512 mz = _mm512_div_ps(mx, my);
-    _mm512_storeu_epi32(x, mz);
+static inline void __div16(register _RON_RL32_* const _x, register const _RON_RL32_* const _y) {
+    const __m512 mx = _mm512_loadu_ps(_x);
+    const __m512 my = _mm512_loadu_ps(_y);
+    const __m512 mz = _mm512_div_ps(mx, my);
+    _mm512_storeu_ps(_x, mz);
 }
 
 /* DUMMY */
 int main(const int argc, const char* const* const argv) {
     (void)argv, (void)argv;
-    auto float x[16], y[16];
-    __add16(&x[0], &y[0]);
-    __sub16(&x[0], &y[0]);
-    __mul16(&x[0], &y[0]);
-    __div16(&x[0], &y[0]);
+    auto float _x[16], _y[16];
+    __add16(&_x[0], &_y[0]);
+    __sub16(&_x[0], &_y[0]);
+    __mul16(&_x[0], &_y[0]);
+    __div16(&_x[0], &_y[0]);
     return 0;
 }
 

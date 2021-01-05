@@ -207,36 +207,37 @@
 extern crate ronin_runtime;
 
 use ronin_runtime::prelude::*;
-
-use ronin_runtime::bytecode::ast::OpCode as Op;
-use ronin_runtime::misc::io::IO;
-use Token::*;
+use std::time::Instant;
 
 fn main() {
+    let clock = Instant::now();
     let mut stream = BytecodeStream::new();
     stream.prologue();
-    stream.with(OpCode(Op::Push)).with(I32(0));
-    stream.with(OpCode(Op::I32Increment));
-    stream.with(OpCode(Op::Duplicate));
-    stream.with(OpCode(Op::Push)).with(I32(5));
-    for c1 in "Hello, World!\n".chars() {
-        stream.with(OpCode(Op::Push)).with(C32(c1));
-        stream
+    for _ in 0..100_000 {
+        stream.with(OpCode(Op::Push)).with(I32(0));
+        stream.with(OpCode(Op::I32Increment));
+        stream.with(OpCode(Op::Duplicate));
+        stream.with(OpCode(Op::Push)).with(I32(5));
+        for c1 in "Hello, World!\n".chars() {
+            stream.with(OpCode(Op::Push)).with(C32(c1));
+            stream
+                .with(OpCode(Op::CallIntrinsic))
+                .with(Ipc(Intrinsics::PutChar));
+        }
+        stream.with(OpCode(Op::JumpIfLess)).with(Pin(5));
+        /*stream
             .with(OpCode(Op::CallIntrinsic))
-            .with(Ipc(Intrinsics::PutChar));
+            .with(Ipc(Intrinsics::Flush));
+            */
+        stream.with(OpCode(Op::Pop)).with(I32(1));
     }
-    stream.with(OpCode(Op::JumpIfLess)).with(Pin(5));
-    stream
-        .with(OpCode(Op::CallIntrinsic))
-        .with(Ipc(Intrinsics::Flush));
-    stream.with(OpCode(Op::Pop)).with(I32(1));
     stream.epilogue();
-    stream.dump();
-
+    let chunk = stream.build(ValidationPolicy::Basic);
     let input = ExecutorInput {
-        stack: Stack::with_length(32),
-        chunk: stream.build(ValidationPolicy::Full),
+        chunk,
+        stack: Stack::with_byte_size(1024 * 1024),
+        fixed: Some(0xFF),
     };
-
-    let _output = execute_thread(input).join().unwrap();
+    let _output = execute(input);
+    println!("Executed VM in {}s!", clock.elapsed().as_secs_f64());
 }

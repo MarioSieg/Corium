@@ -208,11 +208,11 @@ use crate::{
     bytecode::{ast::OpCode, chunk::BytecodeChunk, intrinsic::Intrinsics},
     core::{record::Record, stack::Stack},
 };
-use std::thread::{self, JoinHandle};
 use std::time::Instant;
 
 /// Input data required for the VM executor to run.
 pub struct ExecutorInput {
+    pub fixed: Option<u64>,
     pub stack: Stack,
     pub chunk: BytecodeChunk,
 }
@@ -226,11 +226,6 @@ pub struct ExecutorOutput {
     pub time: f64,
 }
 
-/// Executes the bytecode in a background thread.
-pub fn execute_thread(input: ExecutorInput) -> JoinHandle<ExecutorOutput> {
-    thread::spawn(move || execute(input))
-}
-
 /// Executes the bytecode.
 /// Returns the interrupt id (exitcode) and the number of cycles.
 pub fn execute(input: ExecutorInput) -> ExecutorOutput {
@@ -241,13 +236,14 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
     assert_eq!(input.stack.stack_ptr(), 0);
 
     let clock = Instant::now();
+    let fixed = input.fixed.unwrap_or(u64::MAX);
     let mut stdout = String::with_capacity(16);
     let mut command_buffer = input.chunk;
     let mut stack = input.stack;
     let mut cycles: u64 = 0;
     let mut interrupt: i32 = 0;
 
-    'vm: loop {
+    'vm: while cycles < fixed {
         let opcode = command_buffer.fetch().into();
         cycles += 1;
 
@@ -945,6 +941,7 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
         input: ExecutorInput {
             stack,
             chunk: command_buffer,
+            fixed: None,
         },
         cycles,
         exit_code: interrupt,
@@ -976,6 +973,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.poke(3)), 3);
@@ -1002,6 +1000,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(3),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.poke(1)), -4);
@@ -1019,6 +1018,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(8192),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.peek()), 2047);
@@ -1035,6 +1035,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(1),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert!(f32::from(stack.peek()) - 0.5 < 0.00001);
@@ -1049,6 +1050,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(2),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let chunk = execute(input).input.chunk;
         assert_eq!(chunk.operation_ptr(), 4);
@@ -1063,6 +1065,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(2),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         if a != b {
@@ -1080,6 +1083,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(stack.stack_ptr(), 1);
@@ -1122,6 +1126,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(stack.stack_ptr(), 1);
@@ -1222,6 +1227,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1250,6 +1256,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), -2);
@@ -1278,6 +1285,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 8);
@@ -1306,6 +1314,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 4);
@@ -1334,6 +1343,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1362,6 +1372,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1390,6 +1401,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1418,6 +1430,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1446,6 +1459,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 32);
@@ -1474,6 +1488,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1504,6 +1519,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 32);
@@ -1532,6 +1548,7 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
+            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 536870912);

@@ -209,6 +209,7 @@ use std::{convert, ops};
 
 /// A fixed size chunk of bytecode, which can be executed by the VM.
 /// The bytecode inside is validated and optimized and ready for execution.
+#[derive(Clone, Debug)]
 pub struct BytecodeChunk {
     buf: Box<[Signal]>,
     ip: usize,
@@ -219,6 +220,12 @@ impl BytecodeChunk {
     #[inline(always)]
     pub fn buffer(&self) -> &[Signal] {
         &self.buf
+    }
+
+    /// Returns the underlying command buffer.
+    #[inline(always)]
+    pub fn mov_buffer(self) -> Box<[Signal]> {
+        self.buf
     }
 
     /// Returns an immutable pointer to the underlying command buffer array data.
@@ -308,6 +315,13 @@ impl convert::From<Box<[Signal]>> for BytecodeChunk {
     fn from(buf: Box<[Signal]>) -> Self {
         assert_ne!(buf.len(), 0);
         Self { buf, ip: 0 }
+    }
+}
+
+impl convert::From<(Box<[Signal]>, usize)> for BytecodeChunk {
+    fn from(buf: (Box<[Signal]>, usize)) -> Self {
+        assert_ne!(buf.0.len(), 0);
+        Self { ip: buf.1, buf: buf.0 }
     }
 }
 

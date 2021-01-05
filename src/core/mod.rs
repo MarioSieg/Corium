@@ -211,3 +211,4 @@ pub mod hooks;
 pub mod kernel;
 pub mod record;
 pub mod stack;
+pub mod vm;

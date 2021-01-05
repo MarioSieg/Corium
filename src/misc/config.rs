@@ -215,6 +215,12 @@ pub struct RuntimeConfig {
 
     /// Per-thread stack size in bytes.
     pub thread_stack_size: usize,
+
+    /// Number of instructions in each chunk.
+    pub chunk_size: usize,
+
+    /// Enable verbose printing.
+    pub verbose: bool,
 }
 
 impl Default for RuntimeConfig {
@@ -223,6 +229,8 @@ impl Default for RuntimeConfig {
             cache_dir: PathBuf::from("_cache_"),
             additional_package_dirs: Vec::new(),
             thread_stack_size: 1024 * 1024 * 8,
+            chunk_size: 1,
+            verbose: true
         }
     }
 }
