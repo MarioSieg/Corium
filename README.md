@@ -1,8 +1,6 @@
 # Ronin Virtual Machine
 ![alt](https://img.shields.io/github/license/MarioSieg/NominaxRonVM)
-![alt](https://img.shields.io/github/commit-activity/w/MarioSieg/NominaxRonVM)
 ![alt](https://img.shields.io/appveyor/build/MarioSieg/NominaxRonVM)
-![alt](https://img.shields.io/discord/739144355700539393)
 ![alt](https://img.shields.io/tokei/lines/github/MarioSieg/NominaxRonVM)
 ![alt](https://img.shields.io/github/repo-size/MarioSieg/NominaxRonVM)
 
@@ -17,7 +15,7 @@ It also features a bytecode optimizer, validator, JIT compiler, debugger and ana
  * Target systems: PC, Mac, Linux, IOS, Android.
  * Parallel subsystems (JIT, optimizer, validator etc).
  * Parallel runtime and instructions (Iterators, VM Kernels, Ports).
- * SIMD instructions and special optimizations using SSE4.1, AVX and AVX-512 for x86_64.
+ * SIMD instructions and special optimizations using SSE4.1, AVX, AVX-512 and FMA for x86_64.
  * GPU offloading (GPGPU) using cuda and vulkan compute shaders.
  * Flexible bytecode design and builder to build a backend for your custom language.
  * C backend for GCC, Clang with computed goto branch table optimization (not yet online).
