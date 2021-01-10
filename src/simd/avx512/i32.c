@@ -205,7 +205,7 @@
 */
 
 /* To get assembly output with clang: */
-/* clang f32.c -march=skylake-avx512 -S -o f32.asm -mllvm --x86-asm-syntax=intel */
+/* clang i32.c -march=skylake-avx512 -Ofast -S -o i32.asm */
 
 #include<stdint.h>
 #include<immintrin.h>
@@ -278,14 +278,25 @@ static inline void __xor16(register _RON_DW32_* const _x, register const _RON_DW
 /* DUMMY */
 int main(const int argc, const char* const* const argv) {
     (void)argv, (void)argv;
-    auto _RON_DW32_ _x[16], _y[16];
+    auto _RON_DW32_ _x[16] = {0}, _y[16] = {0};
+    *_x = *_y = argc;
     __add16(&_x[0], &_y[0]);
+    asm volatile(""::"g"(_x) : "memory");
+    asm volatile(""::"g"(_y) : "memory");
     __sub16(&_x[0], &_y[0]);
     __mul16(&_x[0], &_y[0]);
+    asm volatile(""::"g"(_x) : "memory");
+    asm volatile(""::"g"(_y) : "memory");
     __and16(&_x[0], &_y[0]);
+    asm volatile(""::"g"(_x) : "memory");
+    asm volatile(""::"g"(_y) : "memory");
     __or16(&_x[0], &_y[0]);
+    asm volatile(""::"g"(_x) : "memory");
+    asm volatile(""::"g"(_y) : "memory");
     __xor16(&_x[0], &_y[0]);
-    return 0;
+    asm volatile(""::"g"(_x):"memory");
+    asm volatile(""::"g"(_y):"memory");
+    return *_x;
 }
 
 #endif

@@ -209,7 +209,7 @@
 
 
 /* To get assembly output with clang: */
-/* clang i32.c -march=skylake-avx512 -S -o i32.asm -mllvm --x86-asm-syntax=intel */
+/* clang f32.c -march=skylake-avx512 -Ofast -S -o f32.asm */
 
 #include <stdint.h>
 #include <immintrin.h>
