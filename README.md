@@ -11,7 +11,7 @@ runs code in parallel, if it could increase performance.
 For the implementation, multithreading, GPU offloading (GP-GPU) and SIMD is used.
 It also features a bytecode optimizer, validator, JIT compiler, debugger and analyzer.
 
-# Features
+# Planned Features
  * Target systems: PC, Mac, Linux, IOS, Android.
  * Parallel subsystems (JIT, optimizer, validator etc).
  * Parallel runtime and instructions (Iterators, VM Kernels, Ports).
@@ -24,7 +24,8 @@ It also features a bytecode optimizer, validator, JIT compiler, debugger and ana
 * Rust     (primary)
 * Assembly (some JIT and SIMD optimized code)
 * RonAsm   (custom bytecode-language snippets)
-* The C/C++ code is only for research purposes and is not getting compiled.
+* C++      (the assembler for the JIT compiler is written in C++ 20 but not included here)
+* C        AVX 512 SIMD extensions are written using C intrinsics (immintrin.h) because Rust does not yet support them
 
 # Instruction Set
 | Name                                                                  | Mnemonic  | Opcode | Category                | Arguments (Explicit)    | Stack Arguments (Implicit)         | C Operator | Mathematical    |
