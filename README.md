@@ -21,7 +21,7 @@ It also features a bytecode optimizer, validator, JIT compiler, debugger and ana
  * C backend for GCC, Clang with computed goto branch table optimization (not yet online).
  
  # To run it
- To see some multithreading action first run:
+ To see some multithreading in action first run:
  "cargo run --release --no-default-features"
  this will do all the work on only one thread.
  The console will output the time needed.
