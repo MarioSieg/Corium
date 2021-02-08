@@ -311,6 +311,9 @@ pub fn validate(in_: &[Token], _sec: ValidationPolicy) {
 
     // Closure for each_loop.
     let check = |i: (usize, &Token)| {
+        if (i.0 as isize) < 0 {
+            return;
+        }
         if !i.1.is_operation() {
             return;
         }
