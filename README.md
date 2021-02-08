@@ -20,6 +20,16 @@ It also features a bytecode optimizer, validator, JIT compiler, debugger and ana
  * Flexible bytecode design and builder to build a backend for your custom language.
  * C backend for GCC, Clang with computed goto branch table optimization (not yet online).
  
+ # To run it
+ To see some multithreading action first run:
+ "cargo run --release --no-default-features"
+ this will do all the work on only one thread.
+ The console will output the time needed.
+ Now run:
+  "cargo run --release"
+  And you will see how all CPU cores are used (Task Manager)
+and the work will be done much more quicker!
+ 
  # Languages
 * Rust     (primary)
 * Assembly (some JIT and SIMD optimized code)
