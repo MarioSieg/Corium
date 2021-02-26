@@ -214,71 +214,77 @@
 
 #ifdef __AVX512F__
 
+#ifdef _MSC_VER
+#define restrict __restrict
+#endif
+
 typedef int32_t _RON_DW32_;
 
 #define IMPL_AVX512_ASM_OP(_x, _y, _op)         \
-	auto __m512i mx = _mm512_loadu_epi32(_x);    \
-	auto __m512i my = _mm512_loadu_epi32(_y);    \
-	auto __m512i mz = _mm512_add_epi32(mx, my);  \
+	__m512i mx = _mm512_loadu_epi32(_x);        \
+	__m512i my = _mm512_loadu_epi32(_y);        \
+	__m512i mz = _mm512_add_epi32(mx, my);      \
 	_mm512_##_op##_epi32(_x, mz);
 
-static void __test__() {
+static void* __test__() {
     const size_t size = 4096;
     printf("Test allocating memory %zuB", size);
-    _RON_DW32_* mem = malloc(sizeof(_RON_DW32_) * size);
+    _RON_DW32_* const mem = malloc(sizeof(_RON_DW32_) * size);
 	if(!mem) {
         return;
 	}
     size_t i = 0;
-    for (_RON_DW32_* a = mem, *b = mem + size; a < b; *a++ = i++);
+    for (register _RON_DW32_* restrict iter = mem, *restrict const end = mem + size; iter < end;)
+        *iter++ = i++;
+    return (void*)mem;
 }
 
-static inline void __add16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
-    auto __m512i mx = _mm512_loadu_epi32(_x);
-    auto __m512i my = _mm512_loadu_epi32(_y);
-    auto __m512i mz = _mm512_add_epi32(mx, my);
+static inline void __add16(register _RON_DW32_* restrict const _x, register const _RON_DW32_* restrict const _y) {
+	__m512i mx = _mm512_loadu_epi32(_x);
+    __m512i my = _mm512_loadu_epi32(_y);
+    __m512i mz = _mm512_add_epi32(mx, my);
+	_mm512_storeu_epi32(_x, mz);
+}
+
+static inline void __sub16(register _RON_DW32_* restrict const _x, register const _RON_DW32_* restrict const _y) {
+    __m512i mx = _mm512_loadu_epi32(_x);
+    __m512i my = _mm512_loadu_epi32(_y);
+    __m512i mz = _mm512_sub_epi32(mx, my);
     _mm512_storeu_epi32(_x, mz);
 }
 
-static inline void __sub16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
-    auto __m512i mx = _mm512_loadu_epi32(_x);
-    auto __m512i my = _mm512_loadu_epi32(_y);
-    auto __m512i mz = _mm512_sub_epi32(mx, my);
+static inline void __mul16(register _RON_DW32_* restrict const _x, register const _RON_DW32_* restrict const _y) {
+    __m512i mx = _mm512_loadu_epi32(_x);
+    __m512i my = _mm512_loadu_epi32(_y);
+    __m512i mz = _mm512_mullo_epi32(mx, my);
     _mm512_storeu_epi32(_x, mz);
 }
 
-static inline void __mul16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
-    auto __m512i mx = _mm512_loadu_epi32(_x);
-    auto __m512i my = _mm512_loadu_epi32(_y);
-    auto __m512i mz = _mm512_mullo_epi32(mx, my);
+static inline void __and16(register _RON_DW32_* restrict const _x, register const _RON_DW32_* restrict const _y) {
+    __m512i mx = _mm512_loadu_epi32(_x);
+    __m512i my = _mm512_loadu_epi32(_y);
+    __m512i mz = _mm512_and_epi32(mx, my);
     _mm512_storeu_epi32(_x, mz);
 }
 
-static inline void __and16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
-    auto __m512i mx = _mm512_loadu_epi32(_x);
-    auto __m512i my = _mm512_loadu_epi32(_y);
-    auto __m512i mz = _mm512_and_epi32(mx, my);
+static inline void __or16(register _RON_DW32_* restrict const _x, register const _RON_DW32_* restrict const _y) {
+     __m512i mx = _mm512_loadu_epi32(_x);
+     __m512i my = _mm512_loadu_epi32(_y);
+     __m512i mz = _mm512_or_epi32(mx, my);
     _mm512_storeu_epi32(_x, mz);
 }
 
-static inline void __or16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
-    auto __m512i mx = _mm512_loadu_epi32(_x);
-    auto __m512i my = _mm512_loadu_epi32(_y);
-    auto __m512i mz = _mm512_or_epi32(mx, my);
-    _mm512_storeu_epi32(_x, mz);
-}
-
-static inline void __xor16(register _RON_DW32_* const _x, register const _RON_DW32_* const _y) {
-    auto __m512i mx = _mm512_loadu_epi32(_x);
-    auto __m512i my = _mm512_loadu_epi32(_y);
-    auto __m512i mz = _mm512_xor_epi32(mx, my);
+static inline void __xor16(register _RON_DW32_* restrict const _x, register const _RON_DW32_* restrict const _y) {
+     __m512i mx = _mm512_loadu_epi32(_x);
+     __m512i my = _mm512_loadu_epi32(_y);
+     __m512i mz = _mm512_xor_epi32(mx, my);
     _mm512_storeu_epi32(_x, mz);
 }
 
 /* DUMMY */
 int main(const int argc, const char* const* const argv) {
     (void)argv, (void)argv;
-    auto _RON_DW32_ _x[16] = {0}, _y[16] = {0};
+     _RON_DW32_ _x[16] = {0}, _y[16] = {0};
     *_x = *_y = argc;
     __add16(&_x[0], &_y[0]);
     asm volatile(""::"g"(_x) : "memory");

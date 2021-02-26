@@ -7,6 +7,16 @@ fn main() {
     let clock = Instant::now();
     let mut stream = BytecodeStream::new();
     stream.prologue();
+    /*
+        push #0
+        inc
+        dupl
+        push #5
+        push #*
+        intrin #0
+        jl #&5
+        pop #1
+    */
     for _ in 0..30_000 {
         stream.with(OpCode(Op::Push)).with(I32(0));
         stream.with(OpCode(Op::I32Increment));
