@@ -3,7 +3,7 @@
 /// M = Math
 #[repr(u32)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum Intrinsics {
+pub enum IntId {
     /// Prints one character to stdout
     PutChar,
 

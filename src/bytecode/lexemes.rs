@@ -25,7 +25,7 @@ pub mod literals {
 
 pub const TYPES: &[&str] = &["i32", "f32", "u32", "c32", "pin", "ipc"];
 
-pub const MNEMONICS: &[&str; OpCode::_Count as usize] = &[
+pub const MNEMONICS: &[&str; OpCode::Count as usize] = &[
     "interrupt",
     "intrin",
     "nop",

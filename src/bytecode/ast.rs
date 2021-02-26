@@ -1,36 +1,67 @@
-use super::{intrinsic::Intrinsics, lexemes};
-use std::{convert, fmt};
+use super::intrinsic::IntId;
+use super::lexemes;
+use std::fmt;
 
 /// A token in bytecode.
 /// Like a type safe version of 'Signal' using a discriminator and more features.
 /// This is only used by the interpreter, optimizer and validator, not at runtime!
 #[derive(Clone, PartialEq)]
 pub enum Token {
-    OpCode(OpCode),
+    Opc(OpCode),
+    Int(IntId),
+
     I32(i32),
     F32(f32),
     U32(u32),
     C32(char),
     Pin(u32),
-    Ipc(Intrinsics),
 }
 
 impl Token {
     #[inline]
-    pub fn is_operation(&self) -> bool {
-        matches!(*self, Self::OpCode(_))
+    pub fn is_instr(&self) -> bool {
+        matches!(*self, Self::Opc(_))
     }
 
     #[inline]
-    pub fn is_argument(&self) -> bool {
-        !matches!(*self, Self::OpCode(_))
+    pub fn is_imm(&self) -> bool {
+        !matches!(*self, Self::Opc(_))
     }
 
-    #[inline]
-    pub fn is_scalar(&self) -> bool {
-        matches!(
-            *self,
-            Self::I32(_) | Self::F32(_) | Self::C32(_) | Self::U32(_)
+    pub fn bytes(&self) -> [u8; 4] {
+        match *self {
+            Token::Opc(x) => (x as u32).to_le_bytes(),
+            Token::Int(x) => (x as u32).to_le_bytes(),
+            Token::C32(x) => (x as u32).to_le_bytes(),
+            Token::I32(x) => x.to_le_bytes(),
+            Token::F32(x) => x.to_le_bytes(),
+            Token::U32(x) => x.to_le_bytes(),
+            Token::Pin(x) => x.to_le_bytes(),
+        }
+    }
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            Token::Opc(x) => write!(f, "{}", lexemes::MNEMONICS[x as usize]),
+            Token::Int(x) => write!(f, "intrin({:?})", x),
+            Token::C32(x) => write!(f, "c32({})", x),
+            Token::I32(x) => write!(f, "i32({})", x),
+            Token::F32(x) => write!(f, "f32({})", x),
+            Token::U32(x) => write!(f, "u32({})", x),
+            Token::Pin(x) => write!(f, "pin({})", x),
+        }
+    }
+}
+
+impl fmt::Debug for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let bytes = self.bytes();
+        write!(
+            f,
+            "{:02X} {:02X} {:02X} {:02X}",
+            bytes[0], bytes[1], bytes[2], bytes[3]
         )
     }
 }
@@ -148,115 +179,5 @@ pub enum OpCode {
     F32Vector16Modulo,
     F32Vector16FusedMultiplyAddition,
 
-    _Count,
-}
-
-impl convert::From<&Token> for Option<[u8; 4]> {
-    fn from(x: &Token) -> Self {
-        match *x {
-            Token::OpCode(value) => Some((value as u32).to_le_bytes()),
-            Token::Ipc(value) => Some((value as u32).to_le_bytes()),
-            Token::I32(value) => Some(value.to_le_bytes()),
-            Token::F32(value) => Some(value.to_le_bytes()),
-            Token::U32(value) => Some(value.to_le_bytes()),
-            Token::Pin(value) => Some(value.to_le_bytes()),
-            Token::C32(value) => Some((value as u32).to_le_bytes()),
-        }
-    }
-}
-
-impl fmt::Display for Token {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
-            Self::I32(_) => write!(f, "{}", lexemes::TYPES[0]),
-            Self::F32(_) => write!(f, "{}", lexemes::TYPES[1]),
-            Self::U32(_) => write!(f, "{}", lexemes::TYPES[2]),
-            Self::C32(_) => write!(f, "{}", lexemes::TYPES[3]),
-            Self::Pin(_) => write!(f, "{}", lexemes::TYPES[4]),
-            Self::Ipc(_) => write!(f, "{}", lexemes::TYPES[5]),
-            Self::OpCode(_) => write!(f, "op"),
-        }
-    }
-}
-
-impl fmt::Debug for Token {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let get_type = || -> &'static str {
-            match self {
-                Self::I32(_) => lexemes::TYPES[0],
-                Self::F32(_) => lexemes::TYPES[1],
-                Self::U32(_) => lexemes::TYPES[2],
-                Self::C32(_) => lexemes::TYPES[3],
-                Self::Pin(_) => lexemes::TYPES[4],
-                Self::Ipc(_) => lexemes::TYPES[5],
-                _ => &"?",
-            }
-        };
-
-        match self {
-            Self::I32(value) => write!(
-                f,
-                " {}{} {}{}{:X}",
-                lexemes::markers::TYPE,
-                get_type(),
-                lexemes::markers::IMMEDIATE_VALUE,
-                lexemes::literals::BEGIN_HEXADECIMAL,
-                value,
-            ),
-            Self::F32(value) => write!(
-                f,
-                " {}{} {}{}{:E}",
-                lexemes::markers::TYPE,
-                get_type(),
-                lexemes::markers::IMMEDIATE_VALUE,
-                lexemes::literals::BEGIN_SCIENTIFIC,
-                value,
-            ),
-            Self::U32(value) => write!(
-                f,
-                " {}{} {}{}{:X}",
-                lexemes::markers::TYPE,
-                get_type(),
-                lexemes::markers::IMMEDIATE_VALUE,
-                lexemes::literals::BEGIN_HEXADECIMAL,
-                value,
-            ),
-            Self::C32(value) => write!(
-                f,
-                " {}{} {}{:X}",
-                lexemes::markers::TYPE,
-                get_type(),
-                lexemes::markers::IMMEDIATE_VALUE,
-                *value as u32,
-            ),
-            Self::Pin(value) => write!(
-                f,
-                " {}{} {}{}{}{:X}{}",
-                lexemes::markers::TYPE,
-                get_type(),
-                lexemes::markers::BEGIN_PTR,
-                lexemes::markers::IMMEDIATE_VALUE,
-                lexemes::literals::BEGIN_HEXADECIMAL,
-                value,
-                lexemes::markers::END_PTR,
-            ),
-            Self::Ipc(value) => write!(
-                f,
-                " {}{} {}{}{}{:X}{}",
-                lexemes::markers::TYPE,
-                get_type(),
-                lexemes::markers::BEGIN_PTR,
-                lexemes::markers::IMMEDIATE_VALUE,
-                lexemes::literals::BEGIN_HEXADECIMAL,
-                *value as u32,
-                lexemes::markers::END_PTR,
-            ),
-            Self::OpCode(value) => write!(
-                f,
-                "{}{}",
-                lexemes::markers::INSTRUCTION,
-                lexemes::MNEMONICS[*value as usize],
-            ),
-        }
-    }
+    Count,
 }

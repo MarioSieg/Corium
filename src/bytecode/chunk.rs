@@ -145,9 +145,9 @@ mod tests {
     #[test]
     fn fetch() {
         let mut code = BytecodeStream::new();
-        code.with(Token::OpCode(Push)).with(Token::I32(3));
-        code.with(Token::OpCode(Push)).with(Token::I32(8));
-        code.with(Token::OpCode(I32Multiplication));
+        code.with(Token::Opc(Push)).with(Token::I32(3));
+        code.with(Token::Opc(Push)).with(Token::I32(8));
+        code.with(Token::Opc(I32Multiplication));
         let mut code = code.build(ValidationPolicy::Full);
         assert_eq!(OpCode::from(code.fetch()), Push);
         assert_eq!(i32::from(code.fetch()), 3);
@@ -160,9 +160,9 @@ mod tests {
     #[test]
     fn jump() {
         let mut code = BytecodeStream::new();
-        code.with(Token::OpCode(Push)).with(Token::I32(3));
-        code.with(Token::OpCode(Push)).with(Token::I32(8));
-        code.with(Token::OpCode(I32Multiplication));
+        code.with(Token::Opc(Push)).with(Token::I32(3));
+        code.with(Token::Opc(Push)).with(Token::I32(8));
+        code.with(Token::Opc(I32Multiplication));
         let mut code = code.build(ValidationPolicy::Full);
         assert_eq!(OpCode::from(code.fetch()), Push);
         assert_eq!(i32::from(code.fetch()), 3);

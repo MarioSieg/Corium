@@ -20,7 +20,7 @@ pub enum ImplicitArgumentTypes {
     Fixed(u8),
 }
 
-pub const EXPLICIT_ARGUMENTS: &[Option<&[ExplicitArgumentType]>; OpCode::_Count as usize] = &[
+pub const EXPLICIT_ARGUMENTS: &[Option<&[ExplicitArgumentType]>; OpCode::Count as usize] = &[
     // Control:
     Some(&[ExplicitArgumentType::I32]),
     Some(&[ExplicitArgumentType::IPC]),
@@ -138,7 +138,7 @@ pub const EXPLICIT_ARGUMENTS: &[Option<&[ExplicitArgumentType]>; OpCode::_Count 
     None,
 ];
 
-pub const IMPLICIT_ARGUMENTS: &[ImplicitArgumentTypes; OpCode::_Count as usize] = &[
+pub const IMPLICIT_ARGUMENTS: &[ImplicitArgumentTypes; OpCode::Count as usize] = &[
     // Control:
     ImplicitArgumentTypes::None,
     ImplicitArgumentTypes::Variadic,

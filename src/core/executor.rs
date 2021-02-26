@@ -1,5 +1,5 @@
 use crate::{
-    bytecode::{ast::OpCode, chunk::BytecodeChunk, intrinsic::Intrinsics},
+    bytecode::{ast::OpCode, chunk::BytecodeChunk, intrinsic::IntId},
     core::{record::Record, stack::Stack},
 };
 use std::time::Instant;
@@ -54,187 +54,187 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
             OpCode::CallIntrinsic => {
                 let intrin = command_buffer.fetch().into();
                 match intrin {
-                    Intrinsics::PutChar => {
+                    IntId::PutChar => {
                         stdout.push(char::from(stack.peek()));
                         stack.pop();
                         continue 'vm;
                     }
-                    Intrinsics::Flush => {
+                    IntId::Flush => {
                         print!("{}", stdout);
                         stdout.clear();
                     }
-                    Intrinsics::Floor => {
+                    IntId::Floor => {
                         impl_scalar_intrin!(stack, f32, floor);
                         continue 'vm;
                     }
-                    Intrinsics::Ceil => {
+                    IntId::Ceil => {
                         impl_scalar_intrin!(stack, f32, ceil);
                         continue 'vm;
                     }
-                    Intrinsics::Round => {
+                    IntId::Round => {
                         impl_scalar_intrin!(stack, f32, round);
                         continue 'vm;
                     }
-                    Intrinsics::Trunc => {
+                    IntId::Trunc => {
                         impl_scalar_intrin!(stack, f32, trunc);
                         continue 'vm;
                     }
-                    Intrinsics::Fract => {
+                    IntId::Fract => {
                         impl_scalar_intrin!(stack, f32, fract);
                         continue 'vm;
                     }
-                    Intrinsics::Abs => {
+                    IntId::Abs => {
                         impl_scalar_intrin!(stack, f32, abs);
                         continue 'vm;
                     }
-                    Intrinsics::Signum => {
+                    IntId::Signum => {
                         impl_scalar_intrin!(stack, f32, signum);
                         continue 'vm;
                     }
-                    Intrinsics::Copysign => {
+                    IntId::Copysign => {
                         impl_duplet_intrin!(stack, f32, copysign);
                         continue 'vm;
                     }
-                    Intrinsics::DivEuclid => {
+                    IntId::DivEuclid => {
                         impl_duplet_intrin!(stack, f32, div_euclid);
                         continue 'vm;
                     }
-                    Intrinsics::RemEuclid => {
+                    IntId::RemEuclid => {
                         impl_duplet_intrin!(stack, f32, rem_euclid);
                         continue 'vm;
                     }
-                    Intrinsics::PowF => {
+                    IntId::PowF => {
                         impl_duplet_intrin!(stack, f32, powf);
                         continue 'vm;
                     }
-                    Intrinsics::Sqrt => {
+                    IntId::Sqrt => {
                         impl_scalar_intrin!(stack, f32, sqrt);
                         continue 'vm;
                     }
-                    Intrinsics::Exp => {
+                    IntId::Exp => {
                         impl_scalar_intrin!(stack, f32, exp);
                         continue 'vm;
                     }
-                    Intrinsics::Exp2 => {
+                    IntId::Exp2 => {
                         impl_scalar_intrin!(stack, f32, exp2);
                         continue 'vm;
                     }
-                    Intrinsics::Ln => {
+                    IntId::Ln => {
                         impl_scalar_intrin!(stack, f32, ln);
                         continue 'vm;
                     }
-                    Intrinsics::Log => {
+                    IntId::Log => {
                         impl_duplet_intrin!(stack, f32, log);
                         continue 'vm;
                     }
-                    Intrinsics::Log2 => {
+                    IntId::Log2 => {
                         impl_scalar_intrin!(stack, f32, log2);
                         continue 'vm;
                     }
-                    Intrinsics::Log10 => {
+                    IntId::Log10 => {
                         impl_scalar_intrin!(stack, f32, log10);
                         continue 'vm;
                     }
-                    Intrinsics::Cbrt => {
+                    IntId::Cbrt => {
                         impl_scalar_intrin!(stack, f32, cbrt);
                         continue 'vm;
                     }
-                    Intrinsics::Hypot => {
+                    IntId::Hypot => {
                         impl_duplet_intrin!(stack, f32, hypot);
                         continue 'vm;
                     }
-                    Intrinsics::Sin => {
+                    IntId::Sin => {
                         impl_scalar_intrin!(stack, f32, sin);
                         continue 'vm;
                     }
-                    Intrinsics::Cos => {
+                    IntId::Cos => {
                         impl_scalar_intrin!(stack, f32, cos);
                         continue 'vm;
                     }
-                    Intrinsics::Tan => {
+                    IntId::Tan => {
                         impl_scalar_intrin!(stack, f32, tan);
                         continue 'vm;
                     }
-                    Intrinsics::Asin => {
+                    IntId::Asin => {
                         impl_scalar_intrin!(stack, f32, asin);
                         continue 'vm;
                     }
-                    Intrinsics::Acos => {
+                    IntId::Acos => {
                         impl_scalar_intrin!(stack, f32, acos);
                         continue 'vm;
                     }
-                    Intrinsics::Atan => {
+                    IntId::Atan => {
                         impl_scalar_intrin!(stack, f32, atan);
                         continue 'vm;
                     }
-                    Intrinsics::Atan2 => {
+                    IntId::Atan2 => {
                         impl_duplet_intrin!(stack, f32, atan2);
                         continue 'vm;
                     }
-                    Intrinsics::ExpM1 => {
+                    IntId::ExpM1 => {
                         impl_scalar_intrin!(stack, f32, exp_m1);
                         continue 'vm;
                     }
-                    Intrinsics::Ln1P => {
+                    IntId::Ln1P => {
                         impl_scalar_intrin!(stack, f32, ln_1p);
                         continue 'vm;
                     }
-                    Intrinsics::SinH => {
+                    IntId::SinH => {
                         impl_scalar_intrin!(stack, f32, sinh);
                         continue 'vm;
                     }
-                    Intrinsics::CosH => {
+                    IntId::CosH => {
                         impl_scalar_intrin!(stack, f32, cosh);
                         continue 'vm;
                     }
-                    Intrinsics::TanH => {
+                    IntId::TanH => {
                         impl_scalar_intrin!(stack, f32, tanh);
                         continue 'vm;
                     }
-                    Intrinsics::AsinH => {
+                    IntId::AsinH => {
                         impl_scalar_intrin!(stack, f32, asinh);
                         continue 'vm;
                     }
-                    Intrinsics::AcosH => {
+                    IntId::AcosH => {
                         impl_scalar_intrin!(stack, f32, acosh);
                         continue 'vm;
                     }
-                    Intrinsics::AtanH => {
+                    IntId::AtanH => {
                         impl_scalar_intrin!(stack, f32, atanh);
                         continue 'vm;
                     }
-                    Intrinsics::IsNan => {
+                    IntId::IsNan => {
                         continue 'vm;
                     }
-                    Intrinsics::IsInfinite => {
+                    IntId::IsInfinite => {
                         continue 'vm;
                     }
-                    Intrinsics::IsFinite => {
+                    IntId::IsFinite => {
                         continue 'vm;
                     }
-                    Intrinsics::IsNormal => {
+                    IntId::IsNormal => {
                         continue 'vm;
                     }
-                    Intrinsics::IsSignalPositive => {
+                    IntId::IsSignalPositive => {
                         continue 'vm;
                     }
-                    Intrinsics::IsSignalNegative => {
+                    IntId::IsSignalNegative => {
                         continue 'vm;
                     }
-                    Intrinsics::Recip => {
+                    IntId::Recip => {
                         continue 'vm;
                     }
-                    Intrinsics::ToDegrees => {
+                    IntId::ToDegrees => {
                         continue 'vm;
                     }
-                    Intrinsics::ToRadians => {
+                    IntId::ToRadians => {
                         continue 'vm;
                     }
-                    Intrinsics::Max => {
+                    IntId::Max => {
                         impl_duplet_intrin!(stack, f32, max);
                         continue 'vm;
                     }
-                    Intrinsics::Min => {
+                    IntId::Min => {
                         impl_duplet_intrin!(stack, f32, min);
                         continue 'vm;
                     }
@@ -752,7 +752,7 @@ mod tests {
             OpCode::{self, *},
             Token,
         },
-        intrinsic::Intrinsics,
+        intrinsic::IntId,
         stream::{BytecodeStream, ValidationPolicy},
     };
     use crate::core::stack::Stack;
@@ -760,10 +760,10 @@ mod tests {
     #[test]
     fn memory_dupl_ddupl() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::OpCode(Push)).with(Token::I32(3));
-        stream.with(Token::OpCode(Duplicate));
-        stream.with(Token::OpCode(DuplicateTwice));
-        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
+        stream.with(Token::Opc(Push)).with(Token::I32(3));
+        stream.with(Token::Opc(Duplicate));
+        stream.with(Token::Opc(DuplicateTwice));
+        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build(ValidationPolicy::Full),
@@ -779,18 +779,18 @@ mod tests {
     #[test]
     fn memory_mov_cpy() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::OpCode(Push)).with(Token::I32(3));
-        stream.with(Token::OpCode(Push)).with(Token::I32(7));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(3));
+        stream.with(Token::Opc(Push)).with(Token::I32(7));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream
-            .with(Token::OpCode(Move))
+            .with(Token::Opc(Move))
             .with(Token::I32(1))
             .with(Token::I32(-4));
         stream
-            .with(Token::OpCode(Copy))
+            .with(Token::Opc(Copy))
             .with(Token::I32(0))
             .with(Token::I32(1));
-        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
+        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(3),
             chunk: stream.build(ValidationPolicy::Full),
@@ -805,10 +805,10 @@ mod tests {
     fn memory_push_pop() {
         let mut stream = BytecodeStream::new();
         for i in 0..4096 {
-            stream.with(Token::OpCode(Push)).with(Token::I32(i));
+            stream.with(Token::Opc(Push)).with(Token::I32(i));
         }
-        stream.with(Token::OpCode(Pop)).with(Token::I32(2048));
-        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
+        stream.with(Token::Opc(Pop)).with(Token::I32(2048));
+        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(8192),
             chunk: stream.build(ValidationPolicy::Full),
@@ -821,11 +821,11 @@ mod tests {
     #[test]
     fn control_intrinsic() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::OpCode(Push)).with(Token::F32(0.5236));
+        stream.with(Token::Opc(Push)).with(Token::F32(0.5236));
         stream
-            .with(Token::OpCode(CallIntrinsic))
-            .with(Token::Ipc(Intrinsics::Sin));
-        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
+            .with(Token::Opc(CallIntrinsic))
+            .with(Token::Int(IntId::Sin));
+        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(1),
             chunk: stream.build(ValidationPolicy::Full),
@@ -838,9 +838,9 @@ mod tests {
     #[test]
     fn control_interrupt() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::OpCode(Push)).with(Token::I32(0));
-        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
-        stream.with(Token::OpCode(Push)).with(Token::I32(0));
+        stream.with(Token::Opc(Push)).with(Token::I32(0));
+        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
+        stream.with(Token::Opc(Push)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(2),
             chunk: stream.build(ValidationPolicy::Full),
@@ -852,10 +852,10 @@ mod tests {
 
     fn test_i32op_template(op: OpCode, a: i32, b: i32, x: i32) {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::OpCode(Push)).with(Token::I32(a));
-        stream.with(Token::OpCode(Push)).with(Token::I32(b));
-        stream.with(Token::OpCode(op));
-        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
+        stream.with(Token::Opc(Push)).with(Token::I32(a));
+        stream.with(Token::Opc(Push)).with(Token::I32(b));
+        stream.with(Token::Opc(op));
+        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(2),
             chunk: stream.build(ValidationPolicy::Full),
@@ -870,10 +870,10 @@ mod tests {
 
     fn test_f32op_template(op: OpCode, a: f32, b: f32, x: f32) {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::OpCode(Push)).with(Token::F32(a));
-        stream.with(Token::OpCode(Push)).with(Token::F32(b));
-        stream.with(Token::OpCode(op));
-        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
+        stream.with(Token::Opc(Push)).with(Token::F32(a));
+        stream.with(Token::Opc(Push)).with(Token::F32(b));
+        stream.with(Token::Opc(op));
+        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build(ValidationPolicy::Full),
@@ -912,11 +912,11 @@ mod tests {
     #[test]
     fn arithmetic_f32_fma() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::OpCode(Push)).with(Token::F32(2.0));
-        stream.with(Token::OpCode(Push)).with(Token::F32(3.0));
-        stream.with(Token::OpCode(Push)).with(Token::F32(4.0));
-        stream.with(Token::OpCode(F32FusedMultiplyAddition));
-        stream.with(Token::OpCode(Interrupt)).with(Token::I32(0));
+        stream.with(Token::Opc(Push)).with(Token::F32(2.0));
+        stream.with(Token::Opc(Push)).with(Token::F32(3.0));
+        stream.with(Token::Opc(Push)).with(Token::F32(4.0));
+        stream.with(Token::Opc(F32FusedMultiplyAddition));
+        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build(ValidationPolicy::Full),
@@ -1006,16 +1006,16 @@ mod tests {
     fn simd_vquadiadd() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream.with(Token::OpCode(Push)).with(Token::I32(1));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(1));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(4));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4Addition));
+        stream.with(Token::Opc(Push)).with(Token::I32(4));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4Addition));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1035,16 +1035,16 @@ mod tests {
     fn simd_vquadisub() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream.with(Token::OpCode(Push)).with(Token::I32(1));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(1));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(4));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4Subtraction));
+        stream.with(Token::Opc(Push)).with(Token::I32(4));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4Subtraction));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1064,16 +1064,16 @@ mod tests {
     fn simd_vquadimul() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream.with(Token::OpCode(Push)).with(Token::I32(1));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(1));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(4));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4Multiplication));
+        stream.with(Token::Opc(Push)).with(Token::I32(4));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4Multiplication));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1093,16 +1093,16 @@ mod tests {
     fn simd_vquadidiv() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(40));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream.with(Token::OpCode(Push)).with(Token::I32(1));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(40));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(1));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(10));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4Division));
+        stream.with(Token::Opc(Push)).with(Token::I32(10));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4Division));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1122,16 +1122,16 @@ mod tests {
     fn simd_vquadimod() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(40));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream.with(Token::OpCode(Push)).with(Token::I32(1));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(40));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(1));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(4));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4Modulo));
+        stream.with(Token::Opc(Push)).with(Token::I32(4));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4Modulo));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1151,16 +1151,16 @@ mod tests {
     fn simd_vquadiand() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream.with(Token::OpCode(Push)).with(Token::I32(1));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(1));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(4));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4BitwiseAnd));
+        stream.with(Token::Opc(Push)).with(Token::I32(4));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4BitwiseAnd));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1180,16 +1180,16 @@ mod tests {
     fn simd_vquadior() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream.with(Token::OpCode(Push)).with(Token::I32(1));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(1));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(4));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4BitwiseOr));
+        stream.with(Token::Opc(Push)).with(Token::I32(4));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4BitwiseOr));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1209,16 +1209,16 @@ mod tests {
     fn simd_vquadixor() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream.with(Token::OpCode(Push)).with(Token::I32(1));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(1));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(4));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4BitwiseXor));
+        stream.with(Token::Opc(Push)).with(Token::I32(4));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4BitwiseXor));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1238,16 +1238,16 @@ mod tests {
     fn simd_vquadisal() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream.with(Token::OpCode(Push)).with(Token::I32(1));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(1));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(4));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4BitwiseArithmeticLeftShift));
+        stream.with(Token::Opc(Push)).with(Token::I32(4));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4BitwiseArithmeticLeftShift));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1267,16 +1267,16 @@ mod tests {
     fn simd_vquadisar() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream.with(Token::OpCode(Push)).with(Token::I32(1));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(1));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(4));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4BitwiseArithmeticRightShift));
+        stream.with(Token::Opc(Push)).with(Token::I32(4));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4BitwiseArithmeticRightShift));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1296,18 +1296,16 @@ mod tests {
     fn simd_vquadirol() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream
-            .with(Token::OpCode(Push))
-            .with(Token::I32(2000000000));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(2000000000));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(4));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4BitwiseCircularLeftShift));
+        stream.with(Token::Opc(Push)).with(Token::I32(4));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4BitwiseCircularLeftShift));
         stream.epilogue();
 
         let input = ExecutorInput {
@@ -1327,16 +1325,16 @@ mod tests {
     fn simd_vquadiror() {
         let mut stream = BytecodeStream::new();
         stream.prologue();
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(5));
-        stream.with(Token::OpCode(Push)).with(Token::I32(1));
-        stream.with(Token::OpCode(Push)).with(Token::I32(-3));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.with(Token::Opc(Push)).with(Token::I32(1));
+        stream.with(Token::Opc(Push)).with(Token::I32(-3));
 
-        stream.with(Token::OpCode(Push)).with(Token::I32(4));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(Push)).with(Token::I32(9));
-        stream.with(Token::OpCode(Push)).with(Token::I32(2));
-        stream.with(Token::OpCode(I32Vector4BitwiseCircularRightShift));
+        stream.with(Token::Opc(Push)).with(Token::I32(4));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(Push)).with(Token::I32(9));
+        stream.with(Token::Opc(Push)).with(Token::I32(2));
+        stream.with(Token::Opc(I32Vector4BitwiseCircularRightShift));
         stream.epilogue();
 
         let input = ExecutorInput {

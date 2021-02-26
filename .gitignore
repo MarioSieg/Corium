@@ -12,3 +12,4 @@ vm.ini
 **/*.rs.bk
 /.idea/
 /.vs/
+/research/

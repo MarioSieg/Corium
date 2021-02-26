@@ -1,4 +1,4 @@
-pub use crate::bytecode::ast::{self, OpCode as Op, Token::*};
+pub use crate::bytecode::ast::*;
 pub use crate::bytecode::chunk::*;
 pub use crate::bytecode::intrinsic::*;
 pub use crate::bytecode::stream::*;
