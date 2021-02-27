@@ -6,7 +6,6 @@ use std::time::Instant;
 
 /// Input data required for the VM executor to run.
 pub struct ExecutorInput {
-    pub fixed: Option<u64>,
     pub stack: Stack,
     pub chunk: BytecodeChunk,
 }
@@ -17,7 +16,7 @@ pub struct ExecutorOutput {
     pub cycles: u64,
     pub exit_code: i32,
     pub interrupt_code: i32,
-    pub time: f64,
+    pub time: f32,
 }
 
 /// Executes the bytecode.
@@ -30,14 +29,12 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
     assert_eq!(input.stack.stack_ptr(), 0);
 
     let clock = Instant::now();
-    let fixed = input.fixed.unwrap_or(u64::MAX);
-    let mut stdout = String::with_capacity(16);
     let mut command_buffer = input.chunk;
     let mut stack = input.stack;
     let mut cycles: u64 = 0;
     let mut interrupt: i32 = 0;
 
-    'vm: while cycles < fixed {
+    loop {
         let opcode = command_buffer.fetch().into();
         cycles += 1;
 
@@ -45,403 +42,398 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
             OpCode::Interrupt => {
                 interrupt = command_buffer.fetch().into();
                 if interrupt <= 0 {
-                    break 'vm;
+                    break;
                 } else {
                 }
-                continue 'vm;
+                continue;
             }
 
-            OpCode::CallIntrinsic => {
+            OpCode::Intrin => {
                 let intrin = command_buffer.fetch().into();
                 match intrin {
                     IntId::PutChar => {
-                        stdout.push(char::from(stack.peek()));
-                        stack.pop();
-                        continue 'vm;
+                        continue;
                     }
-                    IntId::Flush => {
-                        print!("{}", stdout);
-                        stdout.clear();
-                    }
+                    IntId::Flush => {}
                     IntId::Floor => {
                         impl_scalar_intrin!(stack, f32, floor);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Ceil => {
                         impl_scalar_intrin!(stack, f32, ceil);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Round => {
                         impl_scalar_intrin!(stack, f32, round);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Trunc => {
                         impl_scalar_intrin!(stack, f32, trunc);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Fract => {
                         impl_scalar_intrin!(stack, f32, fract);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Abs => {
                         impl_scalar_intrin!(stack, f32, abs);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Signum => {
                         impl_scalar_intrin!(stack, f32, signum);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Copysign => {
                         impl_duplet_intrin!(stack, f32, copysign);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::DivEuclid => {
                         impl_duplet_intrin!(stack, f32, div_euclid);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::RemEuclid => {
                         impl_duplet_intrin!(stack, f32, rem_euclid);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::PowF => {
                         impl_duplet_intrin!(stack, f32, powf);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Sqrt => {
                         impl_scalar_intrin!(stack, f32, sqrt);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Exp => {
                         impl_scalar_intrin!(stack, f32, exp);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Exp2 => {
                         impl_scalar_intrin!(stack, f32, exp2);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Ln => {
                         impl_scalar_intrin!(stack, f32, ln);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Log => {
                         impl_duplet_intrin!(stack, f32, log);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Log2 => {
                         impl_scalar_intrin!(stack, f32, log2);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Log10 => {
                         impl_scalar_intrin!(stack, f32, log10);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Cbrt => {
                         impl_scalar_intrin!(stack, f32, cbrt);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Hypot => {
                         impl_duplet_intrin!(stack, f32, hypot);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Sin => {
                         impl_scalar_intrin!(stack, f32, sin);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Cos => {
                         impl_scalar_intrin!(stack, f32, cos);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Tan => {
                         impl_scalar_intrin!(stack, f32, tan);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Asin => {
                         impl_scalar_intrin!(stack, f32, asin);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Acos => {
                         impl_scalar_intrin!(stack, f32, acos);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Atan => {
                         impl_scalar_intrin!(stack, f32, atan);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Atan2 => {
                         impl_duplet_intrin!(stack, f32, atan2);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::ExpM1 => {
                         impl_scalar_intrin!(stack, f32, exp_m1);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Ln1P => {
                         impl_scalar_intrin!(stack, f32, ln_1p);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::SinH => {
                         impl_scalar_intrin!(stack, f32, sinh);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::CosH => {
                         impl_scalar_intrin!(stack, f32, cosh);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::TanH => {
                         impl_scalar_intrin!(stack, f32, tanh);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::AsinH => {
                         impl_scalar_intrin!(stack, f32, asinh);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::AcosH => {
                         impl_scalar_intrin!(stack, f32, acosh);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::AtanH => {
                         impl_scalar_intrin!(stack, f32, atanh);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::IsNan => {
-                        continue 'vm;
+                        continue;
                     }
                     IntId::IsInfinite => {
-                        continue 'vm;
+                        continue;
                     }
                     IntId::IsFinite => {
-                        continue 'vm;
+                        continue;
                     }
                     IntId::IsNormal => {
-                        continue 'vm;
+                        continue;
                     }
                     IntId::IsSignalPositive => {
-                        continue 'vm;
+                        continue;
                     }
                     IntId::IsSignalNegative => {
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Recip => {
-                        continue 'vm;
+                        continue;
                     }
                     IntId::ToDegrees => {
-                        continue 'vm;
+                        continue;
                     }
                     IntId::ToRadians => {
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Max => {
                         impl_duplet_intrin!(stack, f32, max);
-                        continue 'vm;
+                        continue;
                     }
                     IntId::Min => {
                         impl_duplet_intrin!(stack, f32, min);
-                        continue 'vm;
+                        continue;
                     }
                     _ => {
-                        break 'vm;
+                        break;
                     }
                 }
             }
 
             OpCode::Push => {
                 stack.push(Record::from(command_buffer.fetch()));
-                continue 'vm;
+                continue;
             }
 
             OpCode::Pop => {
                 stack.pop_multi(command_buffer.fetch().into());
-                continue 'vm;
+                continue;
             }
 
-            OpCode::Move => {
+            OpCode::Mov => {
                 stack.poke_set(
                     command_buffer.fetch().into(),
                     Record::from(command_buffer.fetch()),
                 );
-                continue 'vm;
+                continue;
             }
 
-            OpCode::Copy => {
+            OpCode::Cpy => {
                 stack.poke_set(
                     command_buffer.fetch().into(),
                     stack.poke(command_buffer.fetch().into()),
                 );
-                continue 'vm;
+                continue;
             }
 
-            OpCode::NoOp => {
-                continue 'vm;
+            OpCode::Nop => {
+                continue;
             }
 
-            OpCode::Duplicate => {
+            OpCode::Dupl => {
                 stack.push(stack.peek());
-                continue 'vm;
+                continue;
             }
 
-            OpCode::DuplicateTwice => {
+            OpCode::Ddupl => {
                 stack.push(stack.peek());
                 stack.push(stack.peek());
-                continue 'vm;
+                continue;
             }
 
-            OpCode::CastI32toF32 => {
+            OpCode::CastI2F => {
                 stack.peek_set(Record::from(f32::from(stack.peek())));
-                continue 'vm;
+                continue;
             }
 
-            OpCode::CastF32toI32 => {
+            OpCode::CastF2I => {
                 stack.peek_set(Record::from(i32::from(stack.peek())));
-                continue 'vm;
+                continue;
             }
 
-            OpCode::Jump => {
+            OpCode::Jmp => {
                 let target_address = command_buffer.fetch().into();
                 command_buffer.jump(target_address);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::JumpIfZero => {
+            OpCode::Jz => {
                 impl_scalar_con_jmp!(stack, command_buffer, ==, 0i32, i32);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::JumpIfNotZero => {
+            OpCode::Jnz => {
                 impl_scalar_con_jmp!(stack, command_buffer, !=, 0i32, i32);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::JumpIfEquals => {
+            OpCode::Je => {
                 impl_duplet_con_jmp!(stack, command_buffer, ==, i32);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::JumpIfNotEquals => {
+            OpCode::Jne => {
                 impl_duplet_con_jmp!(stack, command_buffer, !=, i32);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::JumpIfAbove => {
+            OpCode::Ja => {
                 impl_duplet_con_jmp!(stack, command_buffer, >, i32);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::JumpIfAboveEquals => {
+            OpCode::Jae => {
                 impl_duplet_con_jmp!(stack, command_buffer, >=, i32);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::JumpIfLess => {
+            OpCode::Jl => {
                 impl_duplet_con_jmp!(stack, command_buffer, <, i32);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::JumpIfLessEquals => {
+            OpCode::Jle => {
                 impl_duplet_con_jmp!(stack, command_buffer, <=, i32);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32Addition => {
+            OpCode::Iadd => {
                 impl_duplet_op_static!(stack, i32, wrapping_add);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32Subtraction => {
+            OpCode::Isub => {
                 impl_duplet_op_static!(stack, i32, wrapping_sub);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32Multiplication => {
+            OpCode::Imul => {
                 impl_duplet_op_static!(stack, i32, wrapping_mul);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32Division => {
+            OpCode::Idiv => {
                 impl_duplet_op_static!(stack, i32, wrapping_div);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32Modulo => {
+            OpCode::Imod => {
                 impl_duplet_op!(stack, i32, %);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32BitwiseAnd => {
+            OpCode::Iand => {
                 impl_duplet_op!(stack, i32, &);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32BitwiseOr => {
+            OpCode::Ior => {
                 impl_duplet_op!(stack, i32, |);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32BitwiseXor => {
+            OpCode::Ixor => {
                 impl_duplet_op!(stack, i32, ^);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32BitwiseArithmeticLeftShift => {
+            OpCode::Isal => {
                 impl_duplet_op_static!(stack, i32, wrapping_shl);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32BitwiseArithmeticRightShift => {
+            OpCode::Isar => {
                 impl_duplet_op_static!(stack, i32, wrapping_shr);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32BitwiseCircularLeftShift => {
+            OpCode::Irol => {
                 impl_duplet_op_static!(stack, i32, rotate_left);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32BitwiseCircularRightShift => {
+            OpCode::Iror => {
                 impl_duplet_op_static!(stack, i32, rotate_right);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32BitwiseComplement => {
+            OpCode::Icom => {
                 stack.peek_set(Record::from(!i32::from(stack.peek())));
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32Increment => {
+            OpCode::Iinc => {
                 impl_scalar_op!(stack, i32, +, 1);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::I32Decrement => {
+            OpCode::Idec => {
                 impl_scalar_op!(stack, i32, -, 1);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::F32Addition => {
+            OpCode::Fadd => {
                 impl_duplet_op!(stack, f32, +);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::F32Subtraction => {
+            OpCode::Fsub => {
                 impl_duplet_op!(stack, f32, -);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::F32Multiplication => {
+            OpCode::Fmul => {
                 impl_duplet_op!(stack, f32, *);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::F32Division => {
+            OpCode::Fdiv => {
                 impl_duplet_op!(stack, f32, /);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::F32Modulo => {
+            OpCode::Fmod => {
                 impl_duplet_op!(stack, f32, %);
-                continue 'vm;
+                continue;
             }
 
-            OpCode::F32FusedMultiplyAddition => {
+            OpCode::Ffma => {
                 stack.poke_set(
                     2,
                     Record::from(
@@ -452,281 +444,281 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
                 continue;
             }
 
-            OpCode::I32Vector4Addition => {
+            OpCode::Viquadadd => {
                 impl_vector_op!(stack, i32, __add4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4Subtraction => {
+            OpCode::Viquadsub => {
                 impl_vector_op!(stack, i32, __sub4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4Multiplication => {
+            OpCode::Viquadmul => {
                 impl_vector_op!(stack, i32, __mul4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4Division => {
+            OpCode::Viquaddiv => {
                 impl_vector_op!(stack, i32, __div4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4Modulo => {
+            OpCode::Viquadmod => {
                 impl_vector_op!(stack, i32, __mod4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4BitwiseAnd => {
+            OpCode::Viquadand => {
                 impl_vector_op!(stack, i32, __and4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4BitwiseOr => {
+            OpCode::Viquador => {
                 impl_vector_op!(stack, i32, __or4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4BitwiseXor => {
+            OpCode::Viquadxor => {
                 impl_vector_op!(stack, i32, __xor4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4BitwiseArithmeticLeftShift => {
+            OpCode::Viquadsal => {
                 impl_vector_op!(stack, i32, __sal4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4BitwiseArithmeticRightShift => {
+            OpCode::Viquadsar => {
                 impl_vector_op!(stack, i32, __sar4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4BitwiseCircularLeftShift => {
+            OpCode::Viquadrol => {
                 impl_vector_op!(stack, i32, __rol4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4BitwiseCircularRightShift => {
+            OpCode::Viquadror => {
                 impl_vector_op!(stack, i32, __ror4_slice, i32, 4);
                 continue;
             }
 
-            OpCode::I32Vector4BitwiseComplement => {}
+            OpCode::Viquadcom => {}
 
-            OpCode::F32Vector4Addition => {
+            OpCode::Vfquadadd => {
                 impl_vector_op!(stack, f32, __add4_slice, f32, 4);
                 continue;
             }
 
-            OpCode::F32Vector4Subtraction => {
+            OpCode::Vfquadsub => {
                 impl_vector_op!(stack, f32, __sub4_slice, f32, 4);
                 continue;
             }
 
-            OpCode::F32Vector4Multiplication => {
+            OpCode::Vfquadmul => {
                 impl_vector_op!(stack, f32, __mul4_slice, f32, 4);
                 continue;
             }
 
-            OpCode::F32Vector4Division => {
+            OpCode::Vfquaddiv => {
                 impl_vector_op!(stack, f32, __div4_slice, f32, 4);
                 continue;
             }
 
-            OpCode::F32Vector4Modulo => {
+            OpCode::Vfquadmod => {
                 impl_vector_op!(stack, f32, __mod4_slice, f32, 4);
                 continue;
             }
 
-            OpCode::F32Vector4FusedMultiplyAddition => {
+            OpCode::Vfquadfma => {
                 impl_fma_vector_op!(stack, f32, __fma4_slice, f32, 4);
             }
 
-            OpCode::I32Vector8Addition => {
+            OpCode::Vioctaadd => {
                 impl_vector_op!(stack, i32, __add8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8Subtraction => {
+            OpCode::Vioctasub => {
                 impl_vector_op!(stack, i32, __sub8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8Multiplication => {
+            OpCode::Vioctamul => {
                 impl_vector_op!(stack, i32, __mul8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8Division => {
+            OpCode::Vioctadiv => {
                 impl_vector_op!(stack, i32, __div8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8Modulo => {
+            OpCode::Vioctamod => {
                 impl_vector_op!(stack, i32, __mod8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8BitwiseAnd => {
+            OpCode::Vioctaand => {
                 impl_vector_op!(stack, i32, __and8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8BitwiseOr => {
+            OpCode::Vioctaor => {
                 impl_vector_op!(stack, i32, __or8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8BitwiseXor => {
+            OpCode::Vioctaxor => {
                 impl_vector_op!(stack, i32, __xor8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8BitwiseArithmeticLeftShift => {
+            OpCode::Vioctasal => {
                 impl_vector_op!(stack, i32, __sal8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8BitwiseArithmeticRightShift => {
+            OpCode::Vioctasar => {
                 impl_vector_op!(stack, i32, __sar8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8BitwiseCircularLeftShift => {
+            OpCode::Vioctarol => {
                 impl_vector_op!(stack, i32, __rol8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8BitwiseCircularRightShift => {
+            OpCode::Vioctaror => {
                 impl_vector_op!(stack, i32, __ror8_slice, i32, 8);
                 continue;
             }
 
-            OpCode::I32Vector8BitwiseComplement => {}
+            OpCode::Vioctacom => {}
 
-            OpCode::F32Vector8Addition => {
+            OpCode::Vfoctaadd => {
                 impl_vector_op!(stack, f32, __add8_slice, f32, 8);
                 continue;
             }
 
-            OpCode::F32Vector8Subtraction => {
+            OpCode::Vfoctasub => {
                 impl_vector_op!(stack, f32, __sub8_slice, f32, 8);
                 continue;
             }
 
-            OpCode::F32Vector8Multiplication => {
+            OpCode::Vfoctamul => {
                 impl_vector_op!(stack, f32, __mul8_slice, f32, 8);
                 continue;
             }
 
-            OpCode::F32Vector8Division => {
+            OpCode::Vfoctadiv => {
                 impl_vector_op!(stack, f32, __div8_slice, f32, 8);
                 continue;
             }
 
-            OpCode::F32Vector8Modulo => {
+            OpCode::Vfoctamod => {
                 impl_vector_op!(stack, f32, __mod8_slice, f32, 8);
                 continue;
             }
 
-            OpCode::F32Vector8FusedMultiplyAddition => {
+            OpCode::Vfoctafma => {
                 impl_fma_vector_op!(stack, f32, __fma8_slice, f32, 8);
             }
 
-            OpCode::I32Vector16Addition => {
+            OpCode::Vihexaadd => {
                 impl_vector_op!(stack, i32, __add16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16Subtraction => {
+            OpCode::Vihexasub => {
                 impl_vector_op!(stack, i32, __sub16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16Multiplication => {
+            OpCode::Vihexamul => {
                 impl_vector_op!(stack, i32, __mul16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16Division => {
+            OpCode::Vihexadiv => {
                 impl_vector_op!(stack, i32, __div16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16Modulo => {
+            OpCode::Vihexamod => {
                 impl_vector_op!(stack, i32, __mod16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16BitwiseAnd => {
+            OpCode::Vihexaand => {
                 impl_vector_op!(stack, i32, __and16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16BitwiseOr => {
+            OpCode::Vihexaor => {
                 impl_vector_op!(stack, i32, __or16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16BitwiseXor => {
+            OpCode::Vihexaxor => {
                 impl_vector_op!(stack, i32, __xor16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16BitwiseArithmeticLeftShift => {
+            OpCode::Vihexasal => {
                 impl_vector_op!(stack, i32, __sal16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16BitwiseArithmeticRightShift => {
+            OpCode::Vihexasar => {
                 impl_vector_op!(stack, i32, __sar16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16BitwiseCircularLeftShift => {
+            OpCode::Vihexarol => {
                 impl_vector_op!(stack, i32, __rol16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16BitwiseCircularRightShift => {
+            OpCode::Vihexaror => {
                 impl_vector_op!(stack, i32, __ror16_slice, i32, 16);
                 continue;
             }
 
-            OpCode::I32Vector16BitwiseComplement => {}
+            OpCode::Vihexacom => {}
 
-            OpCode::F32Vector16Addition => {
+            OpCode::Vfhexaadd => {
                 impl_vector_op!(stack, f32, __add16_slice, f32, 16);
                 continue;
             }
 
-            OpCode::F32Vector16Subtraction => {
+            OpCode::Vfhexasub => {
                 impl_vector_op!(stack, f32, __sub16_slice, f32, 16);
                 continue;
             }
 
-            OpCode::F32Vector16Multiplication => {
+            OpCode::Vfhexamul => {
                 impl_vector_op!(stack, f32, __mul16_slice, f32, 16);
                 continue;
             }
 
-            OpCode::F32Vector16Division => {
+            OpCode::Vfhexadiv => {
                 impl_vector_op!(stack, f32, __div16_slice, f32, 16);
                 continue;
             }
 
-            OpCode::F32Vector16Modulo => {
+            OpCode::Vfhexamod => {
                 impl_vector_op!(stack, f32, __mod16_slice, f32, 16);
                 continue;
             }
 
-            OpCode::F32Vector16FusedMultiplyAddition => {
+            OpCode::Vfhexafma => {
                 impl_fma_vector_op!(stack, f32, __fma16_slice, f32, 16);
             }
 
             _ => {
-                break 'vm;
+                break;
             }
         }
     }
@@ -735,12 +727,11 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
         input: ExecutorInput {
             stack,
             chunk: command_buffer,
-            fixed: None,
         },
         cycles,
         exit_code: interrupt,
         interrupt_code: interrupt,
-        time: clock.elapsed().as_secs_f64(),
+        time: clock.elapsed().as_secs_f32(),
     }
 }
 
@@ -761,13 +752,12 @@ mod tests {
     fn memory_dupl_ddupl() {
         let mut stream = BytecodeStream::new();
         stream.with(Token::Opc(Push)).with(Token::I32(3));
-        stream.with(Token::Opc(Duplicate));
-        stream.with(Token::Opc(DuplicateTwice));
+        stream.with(Token::Opc(Dupl));
+        stream.with(Token::Opc(Ddupl));
         stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.poke(3)), 3);
@@ -783,18 +773,17 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(7));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream
-            .with(Token::Opc(Move))
+            .with(Token::Opc(Mov))
             .with(Token::I32(1))
             .with(Token::I32(-4));
         stream
-            .with(Token::Opc(Copy))
+            .with(Token::Opc(Cpy))
             .with(Token::I32(0))
             .with(Token::I32(1));
         stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(3),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.poke(1)), -4);
@@ -812,7 +801,6 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(8192),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.peek()), 2047);
@@ -822,14 +810,11 @@ mod tests {
     fn control_intrinsic() {
         let mut stream = BytecodeStream::new();
         stream.with(Token::Opc(Push)).with(Token::F32(0.5236));
-        stream
-            .with(Token::Opc(CallIntrinsic))
-            .with(Token::Int(IntId::Sin));
+        stream.with(Token::Opc(Intrin)).with(Token::Int(IntId::Sin));
         stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(1),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert!(f32::from(stack.peek()) - 0.5 < 0.00001);
@@ -844,10 +829,9 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(2),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let chunk = execute(input).input.chunk;
-        assert_eq!(chunk.operation_ptr(), 4);
+        assert_eq!(chunk.operation_ptr(), 7);
     }
 
     fn test_i32op_template(op: OpCode, a: i32, b: i32, x: i32) {
@@ -859,7 +843,6 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(2),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         if a != b {
@@ -877,7 +860,6 @@ mod tests {
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(stack.stack_ptr(), 1);
@@ -886,27 +868,27 @@ mod tests {
 
     #[test]
     fn arithmetic_f32_add() {
-        test_f32op_template(OpCode::F32Addition, 3.5, 2.5, 6.0);
+        test_f32op_template(OpCode::Fadd, 3.5, 2.5, 6.0);
     }
 
     #[test]
     fn arithmetic_f32_sub() {
-        test_f32op_template(OpCode::F32Subtraction, 3.5, 2.5, 1.0);
+        test_f32op_template(OpCode::Fsub, 3.5, 2.5, 1.0);
     }
 
     #[test]
     fn arithmetic_f32_mul() {
-        test_f32op_template(OpCode::F32Multiplication, 3.5, 2.5, 8.75);
+        test_f32op_template(OpCode::Fmul, 3.5, 2.5, 8.75);
     }
 
     #[test]
     fn arithmetic_f32_div() {
-        test_f32op_template(OpCode::F32Division, 3.5, 2.5, 1.4);
+        test_f32op_template(OpCode::Fdiv, 3.5, 2.5, 1.4);
     }
 
     #[test]
     fn arithmetic_f32_mod() {
-        test_f32op_template(OpCode::F32Modulo, 3.5, 2.5, 1.0);
+        test_f32op_template(OpCode::Fmod, 3.5, 2.5, 1.0);
     }
 
     #[test]
@@ -915,12 +897,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::F32(2.0));
         stream.with(Token::Opc(Push)).with(Token::F32(3.0));
         stream.with(Token::Opc(Push)).with(Token::F32(4.0));
-        stream.with(Token::Opc(F32FusedMultiplyAddition));
+        stream.with(Token::Opc(Ffma));
         stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(stack.stack_ptr(), 1);
@@ -929,83 +910,82 @@ mod tests {
 
     #[test]
     fn arithmetic_i32_add() {
-        test_i32op_template(OpCode::I32Addition, 8, 4, 12);
+        test_i32op_template(OpCode::Iadd, 8, 4, 12);
     }
 
     #[test]
     fn arithmetic_i32_sub() {
-        test_i32op_template(OpCode::I32Subtraction, 8, 4, 4);
+        test_i32op_template(OpCode::Isub, 8, 4, 4);
     }
 
     #[test]
     fn arithmetic_i32_mul() {
-        test_i32op_template(OpCode::I32Multiplication, 8, 4, 32);
+        test_i32op_template(OpCode::Imul, 8, 4, 32);
     }
 
     #[test]
     fn arithmetic_i32_div() {
-        test_i32op_template(OpCode::I32Division, 8, 4, 2);
+        test_i32op_template(OpCode::Idiv, 8, 4, 2);
     }
 
     #[test]
     fn arithmetic_i32_mod() {
-        test_i32op_template(OpCode::I32Modulo, 8, 5, 3);
+        test_i32op_template(OpCode::Imod, 8, 5, 3);
     }
 
     #[test]
     fn arithmetic_i32_and() {
-        test_i32op_template(OpCode::I32BitwiseAnd, 2, 3, 2);
+        test_i32op_template(OpCode::Iand, 2, 3, 2);
     }
 
     #[test]
     fn arithmetic_i32_or() {
-        test_i32op_template(OpCode::I32BitwiseOr, 2, 8, 10);
+        test_i32op_template(OpCode::Ior, 2, 8, 10);
     }
 
     #[test]
     fn arithmetic_i32_xor() {
-        test_i32op_template(OpCode::I32BitwiseXor, 9, 9, 0);
+        test_i32op_template(OpCode::Ixor, 9, 9, 0);
     }
 
     #[test]
     fn arithmetic_i32_sal() {
-        test_i32op_template(OpCode::I32BitwiseArithmeticLeftShift, 1, 8, 256);
+        test_i32op_template(OpCode::Isal, 1, 8, 256);
     }
 
     #[test]
     fn arithmetic_i32_sar() {
-        test_i32op_template(OpCode::I32BitwiseArithmeticRightShift, 8, 1, 4);
+        test_i32op_template(OpCode::Isar, 8, 1, 4);
     }
 
     #[test]
     fn arithmetic_i32_rol() {
-        test_i32op_template(OpCode::I32BitwiseCircularLeftShift, 4, 64, 4);
+        test_i32op_template(OpCode::Irol, 4, 64, 4);
     }
 
     #[test]
     fn arithmetic_i32_ror() {
-        test_i32op_template(OpCode::I32BitwiseCircularRightShift, 64, 4, 4);
+        test_i32op_template(OpCode::Iror, 64, 4, 4);
     }
 
     #[test]
     fn arithmetic_i32_com() {
-        test_i32op_template(OpCode::I32BitwiseComplement, 8, 8, -9);
+        test_i32op_template(OpCode::Icom, 8, 8, -9);
     }
 
     #[test]
     fn arithmetic_i32_inc() {
-        test_i32op_template(OpCode::I32Increment, 0, 0, 1);
+        test_i32op_template(OpCode::Iinc, 0, 0, 1);
     }
 
     #[test]
     fn arithmetic_i32_dec() {
-        test_i32op_template(OpCode::I32Decrement, 1, 1, 0);
+        test_i32op_template(OpCode::Idec, 1, 1, 0);
     }
 
     #[test]
     fn simd_vquadiadd() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(1));
@@ -1015,13 +995,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4Addition));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquadadd));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1034,7 +1012,6 @@ mod tests {
     #[test]
     fn simd_vquadisub() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(1));
@@ -1044,13 +1021,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4Subtraction));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquadsub));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), -2);
@@ -1063,7 +1038,6 @@ mod tests {
     #[test]
     fn simd_vquadimul() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(1));
@@ -1073,13 +1047,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4Multiplication));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquadmul));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 8);
@@ -1092,7 +1064,6 @@ mod tests {
     #[test]
     fn simd_vquadidiv() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(40));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(1));
@@ -1102,13 +1073,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4Division));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquaddiv));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 4);
@@ -1121,7 +1090,6 @@ mod tests {
     #[test]
     fn simd_vquadimod() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(40));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(1));
@@ -1131,13 +1099,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4Modulo));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquadmod));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1150,7 +1116,6 @@ mod tests {
     #[test]
     fn simd_vquadiand() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(1));
@@ -1160,13 +1125,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4BitwiseAnd));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquadand));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1179,7 +1142,6 @@ mod tests {
     #[test]
     fn simd_vquadior() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(1));
@@ -1189,13 +1151,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4BitwiseOr));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquador));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1208,7 +1168,6 @@ mod tests {
     #[test]
     fn simd_vquadixor() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(1));
@@ -1218,13 +1177,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4BitwiseXor));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquadxor));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1237,7 +1194,6 @@ mod tests {
     #[test]
     fn simd_vquadisal() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(1));
@@ -1247,13 +1203,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4BitwiseArithmeticLeftShift));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquadsal));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 32);
@@ -1266,7 +1220,6 @@ mod tests {
     #[test]
     fn simd_vquadisar() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(1));
@@ -1276,13 +1229,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4BitwiseArithmeticRightShift));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquadsar));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1295,7 +1246,6 @@ mod tests {
     #[test]
     fn simd_vquadirol() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(2000000000));
@@ -1305,13 +1255,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4BitwiseCircularLeftShift));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquadrol));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 32);
@@ -1324,7 +1272,6 @@ mod tests {
     #[test]
     fn simd_vquadiror() {
         let mut stream = BytecodeStream::new();
-        stream.prologue();
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(5));
         stream.with(Token::Opc(Push)).with(Token::I32(1));
@@ -1334,13 +1281,11 @@ mod tests {
         stream.with(Token::Opc(Push)).with(Token::I32(2));
         stream.with(Token::Opc(Push)).with(Token::I32(9));
         stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(I32Vector4BitwiseCircularRightShift));
-        stream.epilogue();
+        stream.with(Token::Opc(Viquadror));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
             chunk: stream.build(ValidationPolicy::Full),
-            fixed: None,
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 536870912);

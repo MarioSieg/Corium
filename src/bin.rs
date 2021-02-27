@@ -6,5 +6,6 @@ fn main() {
     let mut bytecode = BytecodeStream::new();
     bytecode.with(Token::Opc(OpCode::Push));
     bytecode.with(Token::I32(0xFFFFF));
+    println!("{}", bytecode);
     println!("{:?}", bytecode);
 }

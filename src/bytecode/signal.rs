@@ -254,7 +254,7 @@ mod tests {
 
     #[test]
     fn union_opcode() {
-        assert_eq!(OpCode::from(Signal::from(OpCode::Move)), OpCode::Move);
+        assert_eq!(OpCode::from(Signal::from(OpCode::Mov)), OpCode::Mov);
     }
 
     #[test]

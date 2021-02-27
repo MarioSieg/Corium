@@ -2,6 +2,7 @@ use super::ast::{OpCode, Token};
 use super::chunk::BytecodeChunk;
 use super::descriptors;
 use super::validator;
+pub use super::validator::ValidationPolicy;
 use std::{convert, default, fmt, ops};
 
 /// A bytecode stream is used to dynamically build bytecode.
@@ -24,7 +25,7 @@ impl BytecodeStream {
     fn prologue(mut self) -> Self {
         // The first record of the stack (0x00000000) is always unused because of the stack
         // pointer layout. So we fill it with some random value using the MOV operation.
-        self.with(Token::Opc(OpCode::Move)) // Move to stack slot.
+        self.with(Token::Opc(OpCode::Mov)) // Move to stack slot.
             .with(Token::U32(0)) // Into first stack slot (0x00000000)
             .with(Token::U32(u32::from_le_bytes(*b"LOVE"))); // (4 * u8) Because I love my cutie!
         self
