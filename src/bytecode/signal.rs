@@ -12,6 +12,13 @@ use std::{convert, fmt, mem};
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Signal(u32);
 
+impl Signal {
+    #[inline]
+    pub fn bytes(&self) -> [u8; std::mem::size_of::<Self>()] {
+        self.0.to_le_bytes()
+    }
+}
+
 /// Creates a signal from an usize.
 /// Panics if the usize is > u32::MAX!
 impl convert::From<usize> for Signal {
@@ -88,10 +95,7 @@ impl convert::From<char> for Signal {
 impl convert::From<Signal> for char {
     #[inline(always)]
     fn from(x: Signal) -> Self {
-        debug_assert!(
-            std::char::from_u32(x.into()).is_some(),
-            "VM_RecordCharMiscast!"
-        );
+        debug_assert!(std::char::from_u32(x.into()).is_some(),);
         unsafe { std::char::from_u32_unchecked(x.into()) }
     }
 }
@@ -153,7 +157,7 @@ impl convert::From<IntId> for Signal {
 impl convert::From<Signal> for IntId {
     #[inline(always)]
     fn from(x: Signal) -> Self {
-        debug_assert!(x.0 < IntId::_Count as _);
+        debug_assert!(x.0 < IntId::Count as _);
         unsafe { mem::transmute::<u32, IntId>(x.0) }
     }
 }
@@ -182,7 +186,7 @@ impl convert::From<Record> for Signal {
     }
 }
 
-/// Creates a signal from an discriminated signal.
+/// Creates a signal from an discriminated token.
 impl<'a> convert::From<&Token> for Option<Signal> {
     fn from(x: &Token) -> Self {
         match x {
@@ -192,7 +196,8 @@ impl<'a> convert::From<&Token> for Option<Signal> {
             Token::U32(u) => Some(Signal::from(*u)),
             Token::Opc(op) => Some(Signal::from(*op)),
             Token::Int(ipc) => Some(Signal::from(*ipc)),
-            Token::Pin(l) => Some(Signal::from(*l)),
+            Token::Pin(_, x) => Some(Signal::from(x.expect("Pin not evaluated!"))),
+            _ => panic!("Pin marker can not be converted to bytes!"),
         }
     }
 }
@@ -200,25 +205,8 @@ impl<'a> convert::From<&Token> for Option<Signal> {
 /// Only prints the byte array.
 impl fmt::Display for Signal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let b: [u8; 4] = (*self).into();
+        let b = self.bytes();
         write!(f, "{:02X} {:02X} {:02X} {:02X}", b[0], b[1], b[2], b[3])
-    }
-}
-
-/// Prints the byte array with values and correct syntax.
-impl fmt::Debug for Signal {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let b: [u8; 4] = (*self).into();
-        write!(
-            f,
-            "{:02X} {:02X} {:02X} {:02X} | {}, {:#e}",
-            b[0],
-            b[1],
-            b[2],
-            b[3],
-            i32::from(*self),
-            i32::from(*self),
-        )
     }
 }
 

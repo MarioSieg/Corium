@@ -18,6 +18,3 @@ pub mod signal;
 
 /// The bytecode stream, which can be used to build bytecode in software.
 pub mod stream;
-
-/// Algorithms and tools to validate a bytecode stream before executing it as a bytecode chunk.
-pub mod validator;

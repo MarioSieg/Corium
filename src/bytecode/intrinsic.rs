@@ -1,7 +1,7 @@
 /// Contains all intrinsic procedure ids.
 /// G = Generic
 /// M = Math
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum IntId {
     /// Prints one character to stdout
@@ -173,5 +173,5 @@ pub enum IntId {
     /// If one of the arguments is NaN, then the other argument is returned.
     Min,
 
-    _Count,
+    Count,
 }

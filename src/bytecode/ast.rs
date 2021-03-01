@@ -1,5 +1,6 @@
 use super::intrinsic::IntId;
 use super::lexemes;
+use colored::Colorize;
 use std::fmt;
 
 /// A token in bytecode.
@@ -14,43 +15,51 @@ pub enum Token {
     F32(f32),
     U32(u32),
     C32(char),
-    Pin(u32),
+    Pin(String, Option<i32>),
+    PinMarker(String, usize),
 }
 
 impl Token {
-    #[inline]
-    pub fn is_instr(&self) -> bool {
-        matches!(*self, Self::Opc(_))
-    }
-
-    #[inline]
-    pub fn is_imm(&self) -> bool {
-        !matches!(*self, Self::Opc(_))
-    }
-
     pub fn bytes(&self) -> [u8; 4] {
-        match *self {
-            Token::Opc(x) => (x as u32).to_le_bytes(),
-            Token::Int(x) => (x as u32).to_le_bytes(),
-            Token::C32(x) => (x as u32).to_le_bytes(),
-            Token::I32(x) => x.to_le_bytes(),
-            Token::F32(x) => x.to_le_bytes(),
-            Token::U32(x) => x.to_le_bytes(),
-            Token::Pin(x) => x.to_le_bytes(),
+        match self {
+            Token::Opc(x) => (*x as u32).to_le_bytes(),
+            Token::Int(x) => (*x as u32).to_le_bytes(),
+            Token::C32(x) => (*x as u32).to_le_bytes(),
+            Token::I32(x) => (*x).to_le_bytes(),
+            Token::F32(x) => (*x).to_le_bytes(),
+            Token::U32(x) => (*x).to_le_bytes(),
+            Token::Pin(_, x) => x.unwrap_or_default().to_le_bytes(),
+            _ => panic!("Pin marker can not be converted to bytes!"),
         }
     }
 }
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
-            Token::Opc(x) => write!(f, "{}", lexemes::MNEMONICS[x as usize]),
-            Token::Pin(x) => write!(f, "%pin &{:#X}", x),
-            Token::Int(x) => write!(f, "%ipc *{:#X}", x as u32),
-            Token::C32(x) => write!(f, "%c32 ${}", x as u32),
-            Token::I32(x) => write!(f, "%i32 ${}", x),
-            Token::F32(x) => write!(f, "%f32 ${}", x as u32),
-            Token::U32(x) => write!(f, "%u32 ${}", x),
+        match self {
+            Token::Opc(x) => write!(f, "{:<12}", lexemes::MNEMONICS[*x as usize].bold().cyan()),
+            Token::Pin(name, _) => write!(
+                f,
+                "{} &{}",
+                "%pin".green(),
+                (format!("@{}", name)).bright_purple()
+            ),
+            Token::Int(x) => write!(
+                f,
+                "{} *${}",
+                "%ipc".green(),
+                format!("0x{:X}", *x as i32).yellow()
+            ),
+            Token::C32(x) => write!(
+                f,
+                "{} ${}",
+                "%c32".green(),
+                format!("{}", *x as u32).yellow()
+            ),
+            Token::I32(x) => write!(f, "{} ${}", "%i32".green(), format!("{}", x).yellow()),
+            Token::F32(x) => write!(f, "{} ${}", "%f32".green(), format!("{}", x).yellow()),
+            Token::U32(x) => write!(f, "{} ${}", "%u32".green(), format!("{}", x).yellow()),
+            Token::PinMarker(name, _) => write!(f, "{}", format!("@{}:", name).bright_purple()),
         }
     }
 }
@@ -58,11 +67,23 @@ impl fmt::Display for Token {
 impl fmt::Debug for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let bytes = self.bytes();
-        write!(
-            f,
-            "{:02X} {:02X} {:02X} {:02X}",
-            bytes[0], bytes[1], bytes[2], bytes[3]
-        )
+        if matches!(*self, Token::Opc(_)) {
+            write!(
+                f,
+                "{}",
+                format!(
+                    "{:02X} {:02X} {:02X} {:02X}",
+                    bytes[0], bytes[1], bytes[2], bytes[3]
+                )
+                .cyan()
+            )
+        } else {
+            write!(
+                f,
+                "{:02X} {:02X} {:02X} {:02X}",
+                bytes[0], bytes[1], bytes[2], bytes[3]
+            )
+        }
     }
 }
 
@@ -72,7 +93,7 @@ impl fmt::Debug for Token {
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum OpCode {
     // Control:
-    Interrupt = 0x00,
+    Int = 0x00,
     Intrin = 0x01,
     Nop = 0x02,
 

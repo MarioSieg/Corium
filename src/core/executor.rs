@@ -1,7 +1,5 @@
-use crate::{
-    bytecode::{ast::OpCode, chunk::BytecodeChunk, intrinsic::IntId},
-    core::{record::Record, stack::Stack},
-};
+use super::{record::Record, stack::Stack};
+use crate::bytecode::{ast::OpCode, chunk::BytecodeChunk, intrinsic::IntId};
 use std::time::Instant;
 
 /// Input data required for the VM executor to run.
@@ -39,7 +37,7 @@ pub fn execute(input: ExecutorInput) -> ExecutorOutput {
         cycles += 1;
 
         match opcode {
-            OpCode::Interrupt => {
+            OpCode::Int => {
                 interrupt = command_buffer.fetch().into();
                 if interrupt <= 0 {
                     break;
@@ -744,20 +742,20 @@ mod tests {
             Token,
         },
         intrinsic::IntId,
-        stream::{BytecodeStream, ValidationPolicy},
+        stream::BytecodeStream,
     };
     use crate::core::stack::Stack;
 
     #[test]
     fn memory_dupl_ddupl() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(3));
-        stream.with(Token::Opc(Dupl));
-        stream.with(Token::Opc(Ddupl));
-        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
+        stream.push(Token::Opc(Push)).push(Token::I32(3));
+        stream.push(Token::Opc(Dupl));
+        stream.push(Token::Opc(Ddupl));
+        stream.push(Token::Opc(Int)).push(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.poke(3)), 3);
@@ -769,21 +767,21 @@ mod tests {
     #[test]
     fn memory_mov_cpy() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(3));
-        stream.with(Token::Opc(Push)).with(Token::I32(7));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(3));
+        stream.push(Token::Opc(Push)).push(Token::I32(7));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
         stream
-            .with(Token::Opc(Mov))
-            .with(Token::I32(1))
-            .with(Token::I32(-4));
+            .push(Token::Opc(Mov))
+            .push(Token::I32(1))
+            .push(Token::I32(-4));
         stream
-            .with(Token::Opc(Cpy))
-            .with(Token::I32(0))
-            .with(Token::I32(1));
-        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
+            .push(Token::Opc(Cpy))
+            .push(Token::I32(0))
+            .push(Token::I32(1));
+        stream.push(Token::Opc(Int)).push(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(3),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.poke(1)), -4);
@@ -794,13 +792,13 @@ mod tests {
     fn memory_push_pop() {
         let mut stream = BytecodeStream::new();
         for i in 0..4096 {
-            stream.with(Token::Opc(Push)).with(Token::I32(i));
+            stream.push(Token::Opc(Push)).push(Token::I32(i));
         }
-        stream.with(Token::Opc(Pop)).with(Token::I32(2048));
-        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
+        stream.push(Token::Opc(Pop)).push(Token::I32(2048));
+        stream.push(Token::Opc(Int)).push(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(8192),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack.peek()), 2047);
@@ -809,12 +807,12 @@ mod tests {
     #[test]
     fn control_intrinsic() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::F32(0.5236));
-        stream.with(Token::Opc(Intrin)).with(Token::Int(IntId::Sin));
-        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
+        stream.push(Token::Opc(Push)).push(Token::F32(0.5236));
+        stream.push(Token::Opc(Intrin)).push(Token::Int(IntId::Sin));
+        stream.push(Token::Opc(Int)).push(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(1),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert!(f32::from(stack.peek()) - 0.5 < 0.00001);
@@ -823,12 +821,12 @@ mod tests {
     #[test]
     fn control_interrupt() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(0));
-        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
-        stream.with(Token::Opc(Push)).with(Token::I32(0));
+        stream.push(Token::Opc(Push)).push(Token::I32(0));
+        stream.push(Token::Opc(Int)).push(Token::I32(0));
+        stream.push(Token::Opc(Push)).push(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(2),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let chunk = execute(input).input.chunk;
         assert_eq!(chunk.operation_ptr(), 7);
@@ -836,13 +834,13 @@ mod tests {
 
     fn test_i32op_template(op: OpCode, a: i32, b: i32, x: i32) {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(a));
-        stream.with(Token::Opc(Push)).with(Token::I32(b));
-        stream.with(Token::Opc(op));
-        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
+        stream.push(Token::Opc(Push)).push(Token::I32(a));
+        stream.push(Token::Opc(Push)).push(Token::I32(b));
+        stream.push(Token::Opc(op));
+        stream.push(Token::Opc(Int)).push(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(2),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         if a != b {
@@ -853,13 +851,13 @@ mod tests {
 
     fn test_f32op_template(op: OpCode, a: f32, b: f32, x: f32) {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::F32(a));
-        stream.with(Token::Opc(Push)).with(Token::F32(b));
-        stream.with(Token::Opc(op));
-        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
+        stream.push(Token::Opc(Push)).push(Token::F32(a));
+        stream.push(Token::Opc(Push)).push(Token::F32(b));
+        stream.push(Token::Opc(op));
+        stream.push(Token::Opc(Int)).push(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(stack.stack_ptr(), 1);
@@ -894,14 +892,14 @@ mod tests {
     #[test]
     fn arithmetic_f32_fma() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::F32(2.0));
-        stream.with(Token::Opc(Push)).with(Token::F32(3.0));
-        stream.with(Token::Opc(Push)).with(Token::F32(4.0));
-        stream.with(Token::Opc(Ffma));
-        stream.with(Token::Opc(Interrupt)).with(Token::I32(0));
+        stream.push(Token::Opc(Push)).push(Token::F32(2.0));
+        stream.push(Token::Opc(Push)).push(Token::F32(3.0));
+        stream.push(Token::Opc(Push)).push(Token::F32(4.0));
+        stream.push(Token::Opc(Ffma));
+        stream.push(Token::Opc(Int)).push(Token::I32(0));
         let input = ExecutorInput {
             stack: Stack::with_length(4),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(stack.stack_ptr(), 1);
@@ -986,20 +984,20 @@ mod tests {
     #[test]
     fn simd_vquadiadd() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(1));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(1));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(4));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquadadd));
+        stream.push(Token::Opc(Push)).push(Token::I32(4));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquadadd));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1012,20 +1010,20 @@ mod tests {
     #[test]
     fn simd_vquadisub() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(1));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(1));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(4));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquadsub));
+        stream.push(Token::Opc(Push)).push(Token::I32(4));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquadsub));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), -2);
@@ -1038,20 +1036,20 @@ mod tests {
     #[test]
     fn simd_vquadimul() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(1));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(1));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(4));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquadmul));
+        stream.push(Token::Opc(Push)).push(Token::I32(4));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquadmul));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 8);
@@ -1064,20 +1062,20 @@ mod tests {
     #[test]
     fn simd_vquadidiv() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(40));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(1));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(40));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(1));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(10));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquaddiv));
+        stream.push(Token::Opc(Push)).push(Token::I32(10));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquaddiv));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 4);
@@ -1090,20 +1088,20 @@ mod tests {
     #[test]
     fn simd_vquadimod() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(40));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(1));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(40));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(1));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(4));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquadmod));
+        stream.push(Token::Opc(Push)).push(Token::I32(4));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquadmod));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1116,20 +1114,20 @@ mod tests {
     #[test]
     fn simd_vquadiand() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(1));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(1));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(4));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquadand));
+        stream.push(Token::Opc(Push)).push(Token::I32(4));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquadand));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1142,20 +1140,20 @@ mod tests {
     #[test]
     fn simd_vquadior() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(1));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(1));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(4));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquador));
+        stream.push(Token::Opc(Push)).push(Token::I32(4));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquador));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1168,20 +1166,20 @@ mod tests {
     #[test]
     fn simd_vquadixor() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(1));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(1));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(4));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquadxor));
+        stream.push(Token::Opc(Push)).push(Token::I32(4));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquadxor));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 6);
@@ -1194,20 +1192,20 @@ mod tests {
     #[test]
     fn simd_vquadisal() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(1));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(1));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(4));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquadsal));
+        stream.push(Token::Opc(Push)).push(Token::I32(4));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquadsal));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 32);
@@ -1220,20 +1218,20 @@ mod tests {
     #[test]
     fn simd_vquadisar() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(1));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(1));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(4));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquadsar));
+        stream.push(Token::Opc(Push)).push(Token::I32(4));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquadsar));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 0);
@@ -1246,20 +1244,20 @@ mod tests {
     #[test]
     fn simd_vquadirol() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(2000000000));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(2000000000));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(4));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquadrol));
+        stream.push(Token::Opc(Push)).push(Token::I32(4));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquadrol));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 32);
@@ -1272,20 +1270,20 @@ mod tests {
     #[test]
     fn simd_vquadiror() {
         let mut stream = BytecodeStream::new();
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(5));
-        stream.with(Token::Opc(Push)).with(Token::I32(1));
-        stream.with(Token::Opc(Push)).with(Token::I32(-3));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(5));
+        stream.push(Token::Opc(Push)).push(Token::I32(1));
+        stream.push(Token::Opc(Push)).push(Token::I32(-3));
 
-        stream.with(Token::Opc(Push)).with(Token::I32(4));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Push)).with(Token::I32(9));
-        stream.with(Token::Opc(Push)).with(Token::I32(2));
-        stream.with(Token::Opc(Viquadror));
+        stream.push(Token::Opc(Push)).push(Token::I32(4));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Push)).push(Token::I32(9));
+        stream.push(Token::Opc(Push)).push(Token::I32(2));
+        stream.push(Token::Opc(Viquadror));
 
         let input = ExecutorInput {
             stack: Stack::with_length(32),
-            chunk: stream.build(ValidationPolicy::Full),
+            chunk: stream.build(),
         };
         let stack = execute(input).input.stack;
         assert_eq!(i32::from(stack[1]), 536870912);

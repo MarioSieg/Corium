@@ -1,9 +1,9 @@
 use crate::bytecode::signal::Signal;
-use std::{convert, ops};
+use std::{convert, fmt, ops};
 
 /// A fixed size chunk of bytecode, which can be executed by the VM.
 /// The bytecode inside is validated and optimized and ready for execution.
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct BytecodeChunk {
     buf: Box<[Signal]>,
     ip: usize,
@@ -62,7 +62,7 @@ impl BytecodeChunk {
     /// If this address does not exist it will panic in debug bulids.
     #[inline(always)]
     pub fn jump(&mut self, ip: usize) {
-        debug_assert!(ip < self.buf.len(), "VM_BytecodeChunk_InvalidJumpAddress");
+        debug_assert!(ip < self.buf.len());
         self.ip = ip
     }
 
@@ -70,10 +70,7 @@ impl BytecodeChunk {
     /// and increments the operation pointer by one.
     #[inline(always)]
     pub fn fetch(&mut self) -> Signal {
-        debug_assert!(
-            self.ip < self.buf.len(),
-            "VM_BytecodeChunk_BytecodeBufferEnd"
-        );
+        debug_assert!(self.ip < self.buf.len());
         let record = self.buf[self.ip];
         self.ip += 1;
         record
@@ -84,6 +81,18 @@ impl BytecodeChunk {
     #[inline(always)]
     pub fn is_done(&self) -> bool {
         self.ip >= self.buf.len()
+    }
+}
+
+impl fmt::Display for BytecodeChunk {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for (i, val) in self.buf.iter().enumerate() {
+            if i % 4 == 0 {
+                writeln!(f)?;
+            }
+            write!(f, "{} ", val)?;
+        }
+        Ok(())
     }
 }
 
