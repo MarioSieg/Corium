@@ -1,9 +1,3 @@
-# Ronin Virtual Machine
-![alt](https://img.shields.io/github/license/MarioSieg/NominaxRonVM)
-![alt](https://img.shields.io/appveyor/build/MarioSieg/NominaxRonVM)
-![alt](https://img.shields.io/tokei/lines/github/MarioSieg/NominaxRonVM)
-![alt](https://img.shields.io/github/repo-size/MarioSieg/NominaxRonVM)
-
 # What is it?
 The Ronin Virtual Machine is a modular, flexible and modern runtime for scripting languages.
 Parallelism and speed is one of the main features. The idea was to create a runtime which automatically
