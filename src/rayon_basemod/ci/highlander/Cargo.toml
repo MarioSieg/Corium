@@ -1,0 +1,17 @@
+[package]
+authors = ["Josh Stone <cuviper@gmail.com>"]
+edition = "2018"
+name = "highlander"
+description = "There Can Be Only One"
+version = "0.0.0"
+publish = false
+
+[dependencies]
+
+[dependencies.alt-core]
+optional = false
+path = "../alt-core"
+
+[dependencies.rayon-core]
+optional = false
+path = "../../rayon-core"
