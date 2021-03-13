@@ -58,7 +58,8 @@ auto main(const signed argc, const char* const* const argv) -> signed {
 		else if (threads <= 16) cout << 'C';
 		else if (threads <= 32) cout << 'B';
 		else					cout << 'A';
-
+		cout << '\n';
+		
 		if (threads <= 8) [[unlikely]]
 			cout << "Warning! Low end machine, performance might suffer!\n";
 
