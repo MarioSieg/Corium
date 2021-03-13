@@ -35,12 +35,14 @@ auto main(const signed argc, const char* const* const argv) -> signed {
 		return std::find(args.begin(), args.end(), arg) != args.end();
 	};
 
+	ios_base::sync_with_stdio(false);
+
 	// -nosplash
-	if (!isArgSet(Commands[1][0]))
+	if (!isArgSet(Commands[1][0])) [[unlikely]]
 		cout << Logo;
 
 	// -silent
-	if (!isArgSet(Commands[0][0])) {
+	if (!isArgSet(Commands[0][0])) [[unlikely]] {
 		cout << "Nominax Runtime\n";
 		cout << "(c) Copyright Mario Sieg <mt3000@gmx.de>, Germany 2019-2021!\n";
 
@@ -50,22 +52,20 @@ auto main(const signed argc, const char* const* const argv) -> signed {
 		const auto threads = thread::hardware_concurrency();
 		cout << "Hardware Concurrency: " << threads << '\n';
 		cout << "Machine Class: ";
-		if (threads <= 2)
-			cout << 'F';
-		else if (threads <= 4)
-			cout << 'E';
-		else if (threads <= 8)
-			cout << 'D';
-		else if (threads <= 16)
-			cout << 'C';
-		else if (threads <= 32)
-			cout << 'B';
-		else
-			cout << "A+";
+		if (threads <= 2)		cout << 'F';
+		else if (threads <= 4)	cout << 'E';
+		else if (threads <= 8)	cout << 'D';
+		else if (threads <= 16) cout << 'C';
+		else if (threads <= 32) cout << 'B';
+		else					cout << 'A';
+		cout << '\n';
+		
+		if (threads <= 8) [[unlikely]]
+			cout << "Warning! Low end machine, performance might suffer!\n";
 
 		cout << '\n';
 
-		cout << "Executing runtime system...\n";
+		cout << "Executing...\n";
 		cout << "================================================================\n\n";
 	}
 	
