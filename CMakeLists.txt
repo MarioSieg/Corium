@@ -5,7 +5,7 @@ project("Nominax" CXX)
 if(MSVC)
 	message(FATAl_ERROR "MSVC is not supported! Use Clang or G++!")
 else()
-	set(CMAKE_CXX_FLAGS  "-fno-exceptions -flto -Ofast -march=native -Wall -Wextra -Werror -Wno-c++20-compat -Wno-c++98-compat -Wno-switch-enum  -Wno-c++98-compat-pedantic -Wno-unknown-attributes")
+	set(CMAKE_CXX_FLAGS  "-fno-exceptions -flto -Ofast -march=native -Wall -Wextra")
 	set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS}")
 endif()
 
