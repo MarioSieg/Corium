@@ -23,7 +23,7 @@ Vectorizing, SoA and GPU offloading are included too!</h4>
 - :heavy_check_mark: x86-64, ARM 64
 - :heavy_check_mark: Linux, Windows, Mac, Android, iOS
 
-Nominax is build after a strict specification, which resides in the "specification" Branch.
+Nominax is build after a strict specification.
 Corium is a fully parallel, high performance scripting language made for AI and gaming, which is running on Nominax.
 Nominax is the primary environment for Corium but any Language can be accelerated by Nominax.
 The system defines it's own cross platform intermediate representation (NXIR), which can be targeted by any compiler.
