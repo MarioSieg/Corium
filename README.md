@@ -2,6 +2,10 @@
 <h3>Nominax is a high performance, parallel runtime environment.
 It can automatically accelerate programs by using the hardware more efficient and distributing the workload across different CPU cores.
 Vectorizing, SoA and GPU offloading are included too!</h4>
+
+![image](https://user-images.githubusercontent.com/49988901/111071215-60b04f80-84d5-11eb-9ddb-cfda5fcd8eb7.png)
+
+
 <h4>Nominax Planned Features:</h3>
 
 - Parallel virtual register machine
@@ -28,4 +32,6 @@ The specification branch contains the specification documents.
 
 <h3> Data Types <h3>
 Nominax supports multiple primitive and advanced data types:
-![](https://i.imgur.com/8ED4emK.png)
+
+![image](https://i.imgur.com/8ED4emK.png)
+![image](https://user-images.githubusercontent.com/49988901/111071150-1d55e100-84d5-11eb-8612-9db0de2c8a80.png)
