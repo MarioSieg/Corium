@@ -22,7 +22,7 @@ Nominax is build after a strict specification, which resides in the "specificati
 Corium is a fully parallel, high performance scripting language made for AI and gaming, which is running on Nominax.
 Nominax is the primary environment for Corium but any Language can be accelerated by Nominax.
 The system defines it's own cross plattform intermediate representation (NXIR), which can be targetted by any compiler.
-Converters from Java and Python Bytecode to NXIR are also planned.
+Because Nominax can easily execute any bytecode language, converters from Java and Python Bytecode to NXIR are also planned.
 
 <h3> Branches </h3>
 The master branch contains releases.
@@ -30,7 +30,7 @@ The redux branch is the development branch.
 The legacy branch contains the old version written in Rust.
 The specification branch contains the specification documents.
 
-<h3> Data Types <h3>
+<h3> Data Types </h3>
 Nominax supports multiple primitive and advanced data types:
 
 ![image](https://i.imgur.com/8ED4emK.png)
