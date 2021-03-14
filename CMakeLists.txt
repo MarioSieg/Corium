@@ -17,4 +17,4 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 message("${CMAKE_CXX_FLAGS}")
 
-add_executable("Nominax" "Source/Entry.cpp" "Include/Nominax.hpp")
+add_executable("Nominax" "Source/Entry.cpp" "Include/Nominax/Nominax.hpp" "Include/Nominax/Signal.hpp" "Source/Signal.cpp")

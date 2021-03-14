@@ -4,4 +4,6 @@
 
 #pragma once
 
+#include "Signal.hpp"
 #include "Types.hpp"
+

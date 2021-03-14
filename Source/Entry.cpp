@@ -27,7 +27,7 @@ constexpr string_view Logo = R"(
 |/    )_)(_______)|/     \|\_______/|/    )_)|/     \||/     \|
 )";
 
-auto main(const signed argc, const char* const* const argv) -> signed {
+auto main(const int argc, const char* const* const argv) -> int {
 
 	vector<string_view> args(argv + 1, argv + argc);
 
