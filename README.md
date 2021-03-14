@@ -5,7 +5,7 @@ Vectorizing, SoA and GPU offloading are included too!</h4>
 
 ![image](https://user-images.githubusercontent.com/49988901/111071215-60b04f80-84d5-11eb-9ddb-cfda5fcd8eb7.png)
 
-<h3> Nominax became closed source for further development. Nominax might become open source again, as soon as there is a stable version</h3>
+<h3> Nominax became closed source for further development. Nominax might become open source again, as soon as there is a stable version!</h3>
 
 <h4>Nominax Planned Features:</h3>
 
