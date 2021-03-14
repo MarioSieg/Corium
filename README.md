@@ -5,6 +5,7 @@ Vectorizing, SoA and GPU offloading are included too!</h4>
 
 ![image](https://user-images.githubusercontent.com/49988901/111071215-60b04f80-84d5-11eb-9ddb-cfda5fcd8eb7.png)
 
+<h3> Nominax became closed source for further development. Nominax might become open source again, as soon as there is a stable version</h3>
 
 <h4>Nominax Planned Features:</h3>
 
@@ -27,15 +28,6 @@ Corium is a fully parallel, high performance scripting language made for AI and 
 Nominax is the primary environment for Corium but any Language can be accelerated by Nominax.
 The system defines it's own cross platform intermediate representation (NXIR), which can be targeted by any compiler.
 Because Nominax can easily execute any bytecode language, converters from Java and Python Bytecode to NXIR are also planned.
-
-<h3> Branches </h3>
-The master branch contains releases.
-The redux branch is the development branch.
-The legacy branch contains the old version written in Rust.
-The specification branch contains the specification documents.
-
-<h3> Data Types </h3>
-Nominax supports multiple primitive and advanced data types:
 
 ![image](https://i.imgur.com/8ED4emK.png)
 ![image](https://user-images.githubusercontent.com/49988901/111071150-1d55e100-84d5-11eb-8612-9db0de2c8a80.png)
