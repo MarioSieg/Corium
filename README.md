@@ -7,21 +7,18 @@ Vectorizing, SoA and GPU offloading are included too!</h4>
 
 <h3> Nominax became closed source for further development. Nominax might become open source again, as soon as there is a stable version!</h3>
 
-<h4>Nominax Planned Features:</h3>
+<h4>Features:</h3>
 
-- :heavy_check_mark: Parallel virtual register machine
-- :heavy_check_mark: Multithreading, Async and Coroutines
-- :heavy_check_mark: Auto vectorization
-- :heavy_check_mark: JIT compiler
-- :heavy_check_mark: Garbage Collector
-- :heavy_check_mark: Dynamic Pool Preallocator
-- :heavy_check_mark: Intrinsic platform interface
-- :heavy_check_mark: GPU Offloading
-- :heavy_check_mark: Modern C++ 20 interface
-- :heavy_check_mark: Cross platform intermediate representation
-- :heavy_check_mark: Runtime support for SSE, AVX and AVX-512
-- :heavy_check_mark: x86-64, ARM 64
 - :heavy_check_mark: Linux, Windows, Mac, Android, iOS
+- :heavy_check_mark: x86-64, ARM-64
+- :heavy_check_mark: JIT compiler
+- :heavy_check_mark: Runtime support for SSE, AVX and AVX-512
+- :heavy_check_mark: Modern C++ 20 API
+- :heavy_check_mark: Safe multithreading
+- :heavy_check_mark: Parallel instruction support
+- :heavy_check_mark: ARC GC
+- :heavy_check_mark: Built-in and custom intrinsic routines
+- :heavy_check_mark: Highly configurable
 
 Nominax is build after a strict specification.
 Corium is a fully parallel, high performance scripting language made for AI and gaming, which is running on Nominax.
