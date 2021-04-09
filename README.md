@@ -1,9 +1,9 @@
 # Nominax Runtime
-<h3>Nominax is a high performance, parallel runtime environment.
-It can automatically accelerate programs by using the hardware more efficient and distributing the workload across different CPU cores.
-Vectorizing, SoA and GPU offloading are included too!</h4>
-
 ![image](https://user-images.githubusercontent.com/49988901/111071215-60b04f80-84d5-11eb-9ddb-cfda5fcd8eb7.png)
+<h4>Nominax is a high performance, parallel runtime environment.<br> It has a virtual machine, JIT-compiler, garbage collector and intrinsic interface.<br>
+Nominax has parallel instructions and systems, allowing for easy data and task parallelism.<br>
+The system will be used as a runtime for the Corium language and as Lua runtime in a game engine.
+</h4>
 
 <h4>Features:</h3>
 
