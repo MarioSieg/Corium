@@ -1,6 +1,6 @@
 #pragma once
 
-#include "anatomy.hpp"
+#include "record.hpp"
 
 namespace nominax {
 	enum class instruction: std::uint32_t {
@@ -34,6 +34,12 @@ namespace nominax {
 		irol		= 0x00'00'00'1B,
 		iror		= 0x00'00'00'1C,
 		ineg		= 0x00'00'00'1D,
+		fadd		= 0x00'00'00'1E,
+		fsub		= 0x00'00'00'1F,
+		fmul		= 0x00'00'00'20,
+		fdiv		= 0x00'00'00'21,
+		fmod		= 0x00'00'00'22,
+		fneg		= 0x00'00'00'23,
 		
 		count
 	};

@@ -10,7 +10,7 @@
 #include <x86intrin.h>
 #endif
 
-namespace nominax {	
+namespace nominax {
 	auto reactor_input::validate() const noexcept -> reactor_validation_result {
 		// validate all pointers:
 		if (!(this->test_signal_status
@@ -46,6 +46,51 @@ namespace nominax {
 
 		return reactor_validation_result::ok;
 	}
+
+	[[nodiscard]]
+	__attribute__((always_inline)) static constexpr auto rol(const u32 n, u32 x) noexcept -> u32 {
+		constexpr u32 mask = CHAR_BIT * sizeof(u32) - 1;
+		x &= mask;
+		return n << x | n >> -x & mask;
+	}
+
+	[[nodiscard]]
+	__attribute__((always_inline)) static constexpr auto ror(const u32 n, u32 x) noexcept -> u32 {
+		constexpr u32 mask = CHAR_BIT * sizeof(u32) - 1;
+		x &= mask;
+		return n >> x | n << -x & mask;
+	}
+
+	__attribute__((always_inline)) static void operator %=(record32& x, const f32 y) noexcept{
+		x.f = std::fmod(x.f, y);
+	}
+
+	[[maybe_unused]]
+	__attribute__((always_inline)) static auto ftoi_fast(const f32 x) noexcept -> i32 {
+		#if NOMINAX_NO_SSE
+			i32 r;
+			asm volatile(
+				"fistp %0\n"
+				: "=m"(r)
+				: "t"(x)
+				: "st"
+			);
+			return r;
+		#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && __SSE2__
+			return _mm_cvt_ss2si(_mm_load_ss(&x));
+		#else
+			return static_cast<i32>(x);
+		#endif
+	}
+
+	#define LIKELY(x)	__builtin_expect(!!(x), 1)
+	#define UNLIKELY(x) __builtin_expect(!!(x), 0)
+
+	#if NOMINAX_REACTOR_ASM_MARKERS
+	#define ASM_MARKER(msg) asm volatile("#" msg)
+	#else
+	#define ASM_MARKER(msg)
+	#endif
 
 	auto execute_reactor(const reactor_input& input) -> reactor_output {
 		if (const auto result = input.validate(); result != reactor_validation_result::ok) [[unlikely]] {
@@ -88,7 +133,13 @@ namespace nominax {
 			&&__isar__,
 			&&__irol__,
 			&&__iror__,
-			&&__ineg__
+			&&__ineg__,
+			&&__fadd__,
+			&&__fsub__,
+			&&__fmul__,
+			&&__fdiv__,
+			&&__fmod__,
+			&&__fneg__
 		};
 		
 		struct $ {
@@ -100,16 +151,8 @@ namespace nominax {
 			}
 		};
 		static_assert($::validate_branch_table());
-
-		#define DBGA assert
-
-		#if NOMINAX_REACTOR_ASM_MARKERS
-			#define MARKER(msg) asm volatile("#" msg)
-		#else
-			#define MARKER(_)
-		#endif
 		
-		MARKER("reactor begin");
+		asm volatile("#" "reactor begin");
 		
 		interrupt_accumulator								interrupt			{};																/* interrupt id flag        */
 		void*												usr_dat				{input.user_data};												/* user data                */
@@ -122,224 +165,245 @@ namespace nominax {
 		record32* __restrict__								sp					{input.stack};													/* stack pointer lo			*/
 		record32* const	__restrict__						sp_hi				{input.stack + input.stack_size};								/* stack pointer hi			*/
 		const void* __restrict__ const* __restrict__ const	bp					{branch_table.data()};											/* branch pointer			*/
-			
-		#define NEXT() goto **(bp + (*++ip).op)
-		#define IMM() (*++ip)
-		#define POKE(x) (*(sp + (x)))
-		#define PUSH() (*++sp)
-		#define PEEK() (*sp)
-		#define POP() (--sp)
 
-		MARKER("reactor exec");
-		
-		NEXT();
+		ASM_MARKER("reactor exec");
+
+		// exec first:
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__int__: {
-			MARKER("__int__");
-			DBGA(ip <= ip_hi);
-			interrupt = IMM().r32.u;
-			if (interrupt < 0 || !interrupt_handler(interrupt, *test_signal_status, usr_dat)) [[unlikely]] {
+			ASM_MARKER("__int__");
+			interrupt = (*++ip).r32.u;			// imm()
+			if (UNLIKELY(interrupt < 0 || !interrupt_handler(interrupt, *test_signal_status, usr_dat))) [[unlikely]] {
 				goto _terminate_;
 			}
 		}
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__intrin__: {
-			MARKER("__intrin__");
-			DBGA(ip <= ip_hi); // check for arg 1 (imm)
-			const auto iid = IMM().r32.i;
-			if (iid < 0) [[likely]] {
+			ASM_MARKER("__intrin__");
+			const auto iid = (*++ip).r32.i;		// imm()
+			if (LIKELY(iid < 0)) [[likely]] {
 				// TODO call build-in
 			} else {
-				DBGA(intrinsic_table + iid < intrinsic_table_hi);
 				(**(intrinsic_table + iid))();
 			}
 		}
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__call__: {
-			MARKER("__call__");
+			ASM_MARKER("__call__");
 		}
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__ret__: {
-			MARKER("__ret__");
+			ASM_MARKER("__ret__");
 		}
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__mov__: {
-			MARKER("__mov__");
-			DBGA(ip <= ip_hi);                  // check for arg 1	(reg)
-			DBGA(ip + 1 <= ip_hi);				// check for arg 2	(reg)
-			const u32 dst = IMM().r32.u;		// arg 1 (reg) - dst
-			const u32 src = IMM().r32.u;		// arg 2 (reg) - src
-			POKE(dst) = POKE(src);				// copy
+			ASM_MARKER("__mov__");
+			const u32 dst = (*++ip).r32.u;		// imm() -> arg 1 (reg) - dst
+			const u32 src = (*++ip).r32.u;		// imm() -> arg 2 (reg) - src
+			*(sp + dst) = *(sp + src);			// poke(dst) = poke(src)
 		}
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__sto__: {
-			MARKER("__sto__");
-			DBGA(ip <= ip_hi);                  // check for arg 1	(reg)
-			DBGA(ip + 1 <= ip_hi);				// check for arg 2	(imm)
-			const u32 dst = IMM().r32.u;		// arg 1 (reg) - dst
-			DBGA(dst != 0);						// stack bottom is reserved for nop padding
-			const u32 imm = IMM().r32.u;		// arg 2 (reg) - raw bits
-			POKE(dst).u = imm;					// copy
+			ASM_MARKER("__sto__");
+			const u32 dst = (*++ip).r32.u;		// imm() -> arg 1 (reg) - dst
+			const u32 imm = (*++ip).r32.u;		// imm() ->  arg 2 (reg) - raw bits
+			(*(sp + dst)).u = imm;				// poke(dst) = imm()
 		}
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__push__:
-		MARKER("__push__");
-		PUSH() = IMM().r32;
-		NEXT();
+		ASM_MARKER("__push__");
+		*++sp = (*++ip).r32;					// push(imm())
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__pop__:
-		MARKER("__pop__");
-		POP();
-		NEXT();
+		ASM_MARKER("__pop__");
+		--sp;
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__pop2__:
-		MARKER("__pop2__");
+		ASM_MARKER("__pop2__");
 		sp -= 2;
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__dupl__: {
-			MARKER("__dupl__");
-			const auto top = PEEK();
-			PUSH() = top;
+			ASM_MARKER("__dupl__");
+			const auto top = *sp;				// peek()
+			*++sp = top;						// push(peek())
 		}
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__dupl2__: {
-			MARKER("__dupl2__");
-			const auto top = PEEK();
-			PUSH() = top;
-			PUSH() = top;
+			ASM_MARKER("__dupl2__");
+			const auto top = *sp;				// peek
+			*++sp = top;						// push(peek())
+			*++sp = top;						// push(peek())
 		}
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__nop__:
-		MARKER("__nop__");
-		NEXT();
+		ASM_MARKER("__nop__");
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__pushz__:
-		MARKER("__pushz__");
-		PUSH().u = 0;
-		NEXT();
+		ASM_MARKER("__pushz__");
+		(*++sp).u = 0;							// push(0)
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__pusho__:
-		MARKER("__pusho__");
-		PUSH().u = 1;
-		NEXT();
+		ASM_MARKER("__pusho__");
+		(*++sp).u = 1;							// push(1)
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__iinc__:
-		MARKER("__iinc__");
+		ASM_MARKER("__iinc__");
 		++sp->i;
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__idec__:
-		MARKER("__idec__");
+		ASM_MARKER("__idec__");
 		--sp->i;
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__iadd__:
-		MARKER("__iadd__");
-		POP();
-		PEEK().i += POKE(1).i;
-		NEXT();
+		ASM_MARKER("__iadd__");
+		--sp;									// pop
+		(*sp).i += (*(sp + 1)).i;				// peek() += poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__isub__:
-		MARKER("__isub__");
-		POP();
-		PEEK().i -= POKE(1).i;
-		NEXT();
+		ASM_MARKER("__isub__");
+		--sp;									// pop
+		(*sp).i -= (*(sp + 1)).i;				// peek() -= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
 		
 	__imul__:
-		MARKER("__imul__");
-		POP();
-		PEEK().i *= POKE(1).i;
-		NEXT();
+		ASM_MARKER("__imul__");
+		--sp;									// pop
+		(*sp).i *= (*(sp + 1)).i;				// peek() *= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__idiv__:
-		MARKER("__idiv__");
-		POP();
-		PEEK().i /= POKE(1).i;
-		NEXT();
+		ASM_MARKER("__idiv__");
+		--sp;									// pop
+		(*sp).i /= (*(sp + 1)).i;				// peek() /= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__imod__:
-		MARKER("__imod__");
-		POP();
-		PEEK().i %= POKE(1).i;
-		NEXT();
+		ASM_MARKER("__imod__");
+		--sp;									// pop
+		(*sp).i %= (*(sp + 1)).i;				// peek() %= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__iand__:
-		MARKER("__iand__");
-		POP();
-		PEEK().i &= POKE(1).i;
-		NEXT();
+		ASM_MARKER("__iand__");
+		--sp;									// pop
+		(*sp).i &= (*(sp + 1)).i;				// peek() &= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__ior__:
-		MARKER("__ior__");
-		POP();
-		PEEK().i |= POKE(1).i;
-		NEXT();
+		ASM_MARKER("__ior__");
+		--sp;									// pop
+		(*sp).i |= (*(sp + 1)).i;				// peek() |= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__ixor__:
-		MARKER("__ixor__");
-		POP();
-		PEEK().i ^= POKE(1).i;
-		NEXT();
+		ASM_MARKER("__ixor__");
+		--sp;									// pop
+		(*sp).i ^= (*(sp + 1)).i;				// peek() ^= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__icom__:
-		MARKER("__icom__");
-		PEEK().i = ~PEEK().i;
-		NEXT();
+		ASM_MARKER("__icom__");
+		(*sp).i = ~(*sp).i;
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__isal__:
-		MARKER("__isal__");
-		POP();
-		PEEK().i <<= POKE(1).i;
-		NEXT();
+		ASM_MARKER("__isal__");
+		--sp;									// pop
+		(*sp).i <<= (*(sp + 1)).i;				// peek() <<= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__isar__:
-		MARKER("__isar__");
-		POP();
-		PEEK().i >>= POKE(1).i;
-		NEXT();
+		ASM_MARKER("__isar__");
+		--sp;									// pop
+		(*sp).i >>= (*(sp + 1)).i;				// peek() >>= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__irol__:
-		MARKER("__irol__");
-		POP();
+		ASM_MARKER("__irol__");
+		--sp;									// pop
 		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
-			PEEK().u = _rotl(PEEK().u, POKE(1).i);
+			(*sp).u = _rotl((*sp).u, (*(sp + 1)).i);
 		#else
-			PEEK().u = rol(PEEK().u, POKE(1).i);
+			(*sp).u = rol((*sp).u, (*(sp + 1)).i);
 		#endif
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__iror__:
-		MARKER("__iror__");
-		POP();
+		ASM_MARKER("__iror__");
+		--sp;									// pop
 		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
-			PEEK().u = _rotr(PEEK().u, POKE(1).i);
+			(*sp).u = _rotr((*sp).u, (*(sp + 1)).i);
 		#else
-			PEEK().u = ror(PEEK().u, POKE(1).i);
+			(*sp).u = ror((*sp).u, (*(sp + 1)).i);
 		#endif
-		NEXT();
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__ineg__:
-		MARKER("__ineg__");
-		PEEK().i = -PEEK().i;
-		NEXT();
+		ASM_MARKER("__ineg__");
+		(*sp).i = -(*sp).i;
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__fadd__:
+		ASM_MARKER("__fadd__");
+		--sp;									// pop
+		(*sp).f += (*(sp + 1)).f;				// peek() += poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__fsub__:
+		ASM_MARKER("__fsub__");
+		--sp;									// pop
+		(*sp).f -= (*(sp + 1)).f;				// peek() -= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__fmul__:
+		ASM_MARKER("__fmul__");
+		--sp;									// pop
+		(*sp).f *= (*(sp + 1)).f;				// peek() *= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__fdiv__:
+		ASM_MARKER("__fdiv__");
+		--sp;									// pop
+		(*sp).f /= (*(sp + 1)).f;				// peek() /= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__fmod__:
+		ASM_MARKER("__fmod__");
+		--sp;									// pop
+		*sp %= (*(sp + 1)).f;					// peek() %= poke(1)
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__fneg__:
+		ASM_MARKER("__fneg__");
+		(*sp).f = -(*sp).f;
+		goto **(bp + (*++ip).op);				// next_instr()
 		
 	_terminate_:
-		MARKER("reactor end");
+		ASM_MARKER("reactor end");
 		const auto post = std::chrono::high_resolution_clock::now();
 		const auto dur = post - pre;
 		const auto ip_diff = static_cast<std::ptrdiff_t>(ip - input.code_chunk);
 		const auto sp_diff = static_cast<std::ptrdiff_t>(sp - input.stack);
 
-		MARKER("reactor ret");
+		ASM_MARKER("reactor ret");
 		return {
 			.validation_result = reactor_validation_result::ok,
 			.input = input,

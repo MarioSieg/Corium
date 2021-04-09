@@ -51,18 +51,4 @@ namespace nominax {
 
 	[[nodiscard]]
 	extern auto execute_reactor(const reactor_input& input) -> reactor_output;
-
-	[[nodiscard]]
-	static constexpr auto rol(const u32 n, u32 x) noexcept -> u32 {
-		constexpr u32 mask = CHAR_BIT * sizeof(u32) - 1;
-		x &= mask;
-		return n << x | n >> -x & mask;
-	}
-
-	[[nodiscard]]
-	static constexpr auto ror(const u32 n, u32 x) noexcept -> u32 {
-		constexpr u32 mask = CHAR_BIT * sizeof(u32) - 1;
-		x &= mask;
-		return n >> x | n << -x & mask;
-	}
 }
