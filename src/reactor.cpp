@@ -4,11 +4,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cassert>
-
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
-#include <x86intrin.h>
-#endif
 
 namespace nominax {
 	auto reactor_input::validate() const noexcept -> reactor_validation_result {
@@ -45,42 +40,6 @@ namespace nominax {
 		}
 
 		return reactor_validation_result::ok;
-	}
-
-	[[nodiscard]]
-	__attribute__((always_inline)) static constexpr auto rol(const u32 n, u32 x) noexcept -> u32 {
-		constexpr u32 mask = CHAR_BIT * sizeof(u32) - 1;
-		x &= mask;
-		return n << x | n >> -x & mask;
-	}
-
-	[[nodiscard]]
-	__attribute__((always_inline)) static constexpr auto ror(const u32 n, u32 x) noexcept -> u32 {
-		constexpr u32 mask = CHAR_BIT * sizeof(u32) - 1;
-		x &= mask;
-		return n >> x | n << -x & mask;
-	}
-
-	__attribute__((always_inline)) static void operator %=(record32& x, const f32 y) noexcept{
-		x.f = std::fmod(x.f, y);
-	}
-
-	[[maybe_unused]]
-	__attribute__((always_inline)) static auto ftoi_fast(const f32 x) noexcept -> i32 {
-		#if NOMINAX_NO_SSE
-			i32 r;
-			asm volatile(
-				"fistp %0\n"
-				: "=m"(r)
-				: "t"(x)
-				: "st"
-			);
-			return r;
-		#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && __SSE2__
-			return _mm_cvt_ss2si(_mm_load_ss(&x));
-		#else
-			return static_cast<i32>(x);
-		#endif
 	}
 
 	#define LIKELY(x)	__builtin_expect(!!(x), 1)
@@ -212,7 +171,7 @@ namespace nominax {
 	__sto__: {
 			ASM_MARKER("__sto__");
 			const u32 dst = (*++ip).r32.u;		// imm() -> arg 1 (reg) - dst
-			const u32 imm = (*++ip).r32.u;		// imm() ->  arg 2 (reg) - raw bits
+			const u32 imm = (*++ip).r32.u;		// imm() -> arg 2 (reg) - raw bits
 			(*(sp + dst)).u = imm;				// poke(dst) = imm()
 		}
 		goto **(bp + (*++ip).op);				// next_instr()

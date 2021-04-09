@@ -39,10 +39,30 @@ static reactor_input default_test_input{
 };
 
 static constexpr std::array<signal32, 3> default_test_code = {
-		signal32{instruction::nop}, // first padding
-		signal32{instruction::inter},
-		signal32{5},
+	signal32{instruction::nop}, // first padding
+	signal32{instruction::inter},
+	signal32{5},
 };
+
+#if NOMINAX_ARCH_X86_64
+TEST(reactor_internals, ftoi_fast_sse) {
+	f32 x = 3.1;
+	i32 y = ftoi_fast(x);
+	ASSERT_EQ(y, 3);
+	x = 0.999;
+	y = ftoi_fast(x);
+	ASSERT_EQ(y, 1);
+	x = 0.45;
+	y = ftoi_fast(x);
+	ASSERT_EQ(y, 0);
+	x = 0.51;
+	y = ftoi_fast(x);
+	ASSERT_EQ(y, 1);
+	x = 100.9;
+	y = ftoi_fast(x);
+	ASSERT_EQ(y, 101);
+}
+#endif
 
 TEST(reactor_execution, __int__) {
 	const std::array<signal32, 5> code = {
