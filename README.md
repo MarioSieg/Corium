@@ -19,4 +19,5 @@ The system will be used as a runtime for the Corium language and as Lua runtime 
 - :low_brightness: Highly configurable
 
 Nominax is build after a strict specification.
-Powered by Nominax is: Corium - an easy to use, parallel and high performance scripting language made for penetration testing, AI and gaming.
+Powered by Nominax is: <br>
+Corium - an easy to use, parallel and high performance scripting language made for penetration testing, AI and gaming.
