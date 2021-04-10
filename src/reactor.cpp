@@ -98,7 +98,10 @@ namespace nominax {
 			&&__fmul__,
 			&&__fdiv__,
 			&&__fmod__,
-			&&__fneg__
+			&&__fneg__,
+			&&__finc__,
+			&&__fdec__,
+			&&__fpusho__
 		};
 		
 		struct $ {
@@ -354,7 +357,22 @@ namespace nominax {
 		ASM_MARKER("__fneg__");
 		(*sp).f = -(*sp).f;
 		goto **(bp + (*++ip).op);				// next_instr()
-		
+
+	__finc__:
+		ASM_MARKER("__iinc__");
+		++sp->f;
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__fdec__:
+		ASM_MARKER("__iinc__");
+		--sp->f;
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__fpusho__:
+		ASM_MARKER("__fpusho__");
+		(*++sp).f = 1.F;						// push(1)
+		goto **(bp + (*++ip).op);				// next_instr()
+
 	_terminate_:
 		ASM_MARKER("reactor end");
 		const auto post = std::chrono::high_resolution_clock::now();
