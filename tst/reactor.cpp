@@ -310,9 +310,9 @@ TEST(reactor_execution, __idec__) {
 TEST(reactor_execution, __pushz__) {
 	const std::array<signal32, 6> code = {
 		signal32{instruction::nop}, // first padding
-		signal32{instruction::pushz},
-		signal32{instruction::pushz},
-		signal32{instruction::pushz},
+		signal32{instruction::ipushz},
+		signal32{instruction::ipushz},
+		signal32{instruction::ipushz},
 		signal32{instruction::inter},
 		signal32{-1},
 	};
@@ -331,7 +331,7 @@ TEST(reactor_execution, __ipusho__) {
 	const std::array<signal32, 6> code = {
 		signal32{instruction::nop}, // first padding
 		signal32{instruction::ipusho},
-		signal32{instruction::pushz},
+		signal32{instruction::ipushz},
 		signal32{instruction::ipusho},
 		signal32{instruction::inter},
 		signal32{-1},
@@ -808,7 +808,7 @@ TEST(reactor_execution, __fpusho__) {
 	const std::array<signal32, 6> code = {
 		signal32{instruction::nop}, // first padding
 		signal32{instruction::fpusho},
-		signal32{instruction::pushz},
+		signal32{instruction::ipushz},
 		signal32{instruction::fpusho},
 		signal32{instruction::inter},
 		signal32{-1},
