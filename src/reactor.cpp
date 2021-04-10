@@ -1,9 +1,10 @@
+#include <algorithm>
+#include <array>
+
 #include "../inc/nominax/reactor.hpp"
 #include "../inc/nominax/macrocfg.hpp"
 #include "../inc/nominax/platform.hpp"
-
-#include <algorithm>
-#include <array>
+#include "../inc/nominax/reactor_internals.hpp"
 
 namespace nominax {
 	auto reactor_input::validate() const noexcept -> reactor_validation_result {
@@ -301,7 +302,7 @@ namespace nominax {
 	__irol__:
 		ASM_MARKER("__irol__");
 		--sp;									// pop
-		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
+		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
 			(*sp).u = _rotl((*sp).u, (*(sp + 1)).i);
 		#else
 			(*sp).u = rol((*sp).u, (*(sp + 1)).i);
@@ -311,7 +312,7 @@ namespace nominax {
 	__iror__:
 		ASM_MARKER("__iror__");
 		--sp;									// pop
-		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
+		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
 			(*sp).u = _rotr((*sp).u, (*(sp + 1)).i);
 		#else
 			(*sp).u = ror((*sp).u, (*(sp + 1)).i);
@@ -372,6 +373,7 @@ namespace nominax {
 		ASM_MARKER("__fpusho__");
 		(*++sp).f = 1.F;						// push(1)
 		goto **(bp + (*++ip).op);				// next_instr()
+		
 	_terminate_:
 		ASM_MARKER("reactor end");
 		const auto post = std::chrono::high_resolution_clock::now();
