@@ -104,7 +104,7 @@ namespace nominax {
 			&&__finc__,
 			&&__fdec__,
 			&&__jmp__,
-			&&__jmpi__
+			&&__jmprel__
 		};
 		
 		struct $ {
@@ -371,15 +371,15 @@ namespace nominax {
 
 	__jmp__: {
 			ASM_MARKER("__jmp__");
-			const u32 abs{(*++ip).r32.u};
-			ip = ip_lo + abs;					// begin + offset
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			ip = ip_lo + abs;					// ip = begin + offset
 		}
 		goto **(bp + (*ip).op);					// next_instr() -> no increment because of new address
 
-	__jmpi__: {
-			ASM_MARKER("__jmpi__");
-			const u32 rel{(*++ip).r32.u};
-			ip += rel;
+	__jmprel__: {
+			ASM_MARKER("__jmprel__");
+			const u32 rel{(*++ip).r32.u};		// relative address
+			ip += rel;							// ip +-= rel
 		}
 		goto **(bp + (*++ip).op);				// next_instr()
 		
