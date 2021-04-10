@@ -3,7 +3,9 @@
 #include "record.hpp"
 
 namespace nominax {
-	enum class instruction: std::uint32_t {
+	using opcode = std::uint32_t;
+	
+	enum class alignas(alignof(opcode)) instruction: opcode {
 		inter		= 0x00'00'00'00,
 		intrin		= 0x00'00'00'01,
 		call		= 0x00'00'00'02,
@@ -43,6 +45,8 @@ namespace nominax {
 		fneg		= 0x00'00'00'24,
 		finc		= 0x00'00'00'25,
 		fdec		= 0x00'00'00'26,
+		jmp			= 0x00'00'00'27,
+		jmpi		= 0x00'00'00'28,
 		
 		count
 	};
