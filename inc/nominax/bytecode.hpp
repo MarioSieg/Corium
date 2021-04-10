@@ -46,7 +46,7 @@ namespace nominax {
 		finc		= 0x00'00'00'25,
 		fdec		= 0x00'00'00'26,
 		jmp			= 0x00'00'00'27,
-		jmpi		= 0x00'00'00'28,
+		jmprel		= 0x00'00'00'28,
 		
 		count
 	};

@@ -381,7 +381,7 @@ namespace nominax {
 			const u32 rel{(*++ip).r32.u};		// relative address
 			ip += rel;							// ip +-= rel
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bp + (*ip).op);					// next_instr()
 		
 	_terminate_:
 		ASM_MARKER("reactor end");

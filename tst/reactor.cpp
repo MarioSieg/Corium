@@ -844,6 +844,28 @@ TEST(reactor_execution, __jmp__) {
 	ASSERT_EQ(o.ip_diff, 8);
 }
 
+TEST(reactor_execution, __jmprel__) {
+	const std::array<signal32, 9> code{
+		signal32{instruction::nop}, // first padding
+		signal32{instruction::jmprel},
+		signal32{3U},
+		signal32{instruction::inter},
+		signal32{-1},
+		signal32{instruction::push},
+		signal32{10},
+		signal32{instruction::inter},
+		signal32{-1},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input.stack[1].i, 10);
+	ASSERT_EQ(o.ip_diff, 8);
+}
+
 TEST(reactor_input_validation, valid_pointers) {
 	const auto input = reactor_input{
 		.test_signal_status = &test_signal_status,
