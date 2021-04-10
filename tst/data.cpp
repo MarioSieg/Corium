@@ -1,7 +1,4 @@
 #include "tstbase.hpp"
-
-#include <x86intrin.h>
-
 #include "../inc/nominax/reactor.hpp"
 
 using namespace nominax;

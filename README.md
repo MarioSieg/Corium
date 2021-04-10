@@ -1,3 +1,6 @@
+![](https://img.shields.io/tokei/lines/github/mariosieg/nominax?style=flat-square)
+![](https://img.shields.io/github/license/mariosieg/nominax?style=flat-square)
+
 # Nominax Runtime
 ![image](https://user-images.githubusercontent.com/49988901/111071215-60b04f80-84d5-11eb-9ddb-cfda5fcd8eb7.png)
 <h4>Nominax is a high performance, parallel runtime environment.<br> It has a virtual machine, JIT-compiler, garbage collector and intrinsic interface.<br>

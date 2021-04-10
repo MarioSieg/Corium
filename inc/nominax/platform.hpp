@@ -3,6 +3,8 @@
 #define NOMINAX_OS_WINDOWS	false
 #define NOMINAX_OS_MAC		false
 #define NOMINAX_OS_LINUX	false
+#define NOMINAX_OS_ANDROID	false
+#define NOMINAX_OS_IOS		false
 #define NOMINAX_ARCH_X86_64	false
 #define NOMINAX_ARCH_ARM_64	false
 
@@ -15,13 +17,15 @@
 #		undef NOMINAX_OS_MAC
 #		define NOMINAX_OS_MAC true
 #	elif defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
-#		error "plattform.hpp: Mobile device are not yet supported!"
+#		undef NOMINAX_OS_IOS
+#		define NOMINAX_OS_IOS true
 #	else
 #		error "platform.hpp: Unknown Apple OS!"
 #	endif
 #elif defined(__linux__)
 #	ifdef __ANDROID__
-#		error "platform.hpp: Mobile device are not yet supported!"
+#		undef NOMINAX_OS_ANDROID
+#		define NOMINAX_OS_ANDROID true
 #	endif
 #	undef NOMINAX_OS_LINUX
 #	define NOMINAX_OS_LINUX true

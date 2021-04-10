@@ -1,9 +1,10 @@
+#include <algorithm>
+#include <array>
+
 #include "../inc/nominax/reactor.hpp"
 #include "../inc/nominax/macrocfg.hpp"
 #include "../inc/nominax/platform.hpp"
-
-#include <algorithm>
-#include <array>
+#include "../inc/nominax/reactor_internals.hpp"
 
 namespace nominax {
 	auto reactor_input::validate() const noexcept -> reactor_validation_result {
@@ -75,8 +76,9 @@ namespace nominax {
 			&&__dupl__,
 			&&__dupl2__,
 			&&__nop__,
-			&&__pushz__,
+			&&__ipushz__,
 			&&__ipusho__,
+			&&__fpusho__,
 			&&__iinc__,
 			&&__idec__,
 			&&__iadd__,
@@ -101,7 +103,8 @@ namespace nominax {
 			&&__fneg__,
 			&&__finc__,
 			&&__fdec__,
-			&&__fpusho__
+			&&__jmp__,
+			&&__jmprel__
 		};
 		
 		struct $ {
@@ -122,7 +125,8 @@ namespace nominax {
 		intrinsic_routine* const* const						intrinsic_table		{input.intrinsic_table};										/* intrinsic table hi       */
 		intrinsic_routine* const* const						intrinsic_table_hi	{input.intrinsic_table + input.intrinsic_table_size};			/* intrinsic table lo       */
 		interrupt_routine* const							interrupt_handler	{input.interrupt_handler};										/* global interrupt routine */
-		const signal32* __restrict__						ip					{input.code_chunk};												/* instruction ptr lo       */
+		const signal32* const __restrict					ip_lo				{input.code_chunk};
+		const signal32* __restrict__						ip					{ip_lo};														/* instruction ptr lo       */
 		const signal32* const __restrict__					ip_hi				{input.code_chunk + input.code_chunk_size};						/* instruction ptr hi       */
 		record32* __restrict__								sp					{input.stack};													/* stack pointer lo			*/
 		record32* const	__restrict__						sp_hi				{input.stack + input.stack_size};								/* stack pointer hi			*/
@@ -144,7 +148,7 @@ namespace nominax {
 
 	__intrin__: {
 			ASM_MARKER("__intrin__");
-			const auto iid = (*++ip).r32.i;		// imm()
+			const i32 iid{(*++ip).r32.i};		// imm()
 			if (LIKELY(iid < 0)) [[likely]] {
 				// TODO call build-in
 			} else {
@@ -165,16 +169,16 @@ namespace nominax {
 
 	__mov__: {
 			ASM_MARKER("__mov__");
-			const u32 dst = (*++ip).r32.u;		// imm() -> arg 1 (reg) - dst
-			const u32 src = (*++ip).r32.u;		// imm() -> arg 2 (reg) - src
+			const u32 dst{(*++ip).r32.u};		// imm() -> arg 1 (reg) - dst
+			const u32 src{(*++ip).r32.u};		// imm() -> arg 2 (reg) - src
 			*(sp + dst) = *(sp + src);			// poke(dst) = poke(src)
 		}
 		goto **(bp + (*++ip).op);				// next_instr()
 
 	__sto__: {
 			ASM_MARKER("__sto__");
-			const u32 dst = (*++ip).r32.u;		// imm() -> arg 1 (reg) - dst
-			const u32 imm = (*++ip).r32.u;		// imm() -> arg 2 (reg) - raw bits
+			const u32 dst{(*++ip).r32.u};		// imm() -> arg 1 (reg) - dst
+			const u32 imm{(*++ip).r32.u};		// imm() -> arg 2 (reg) - raw bits
 			(*(sp + dst)).u = imm;				// poke(dst) = imm()
 		}
 		goto **(bp + (*++ip).op);				// next_instr()
@@ -196,14 +200,14 @@ namespace nominax {
 
 	__dupl__: {
 			ASM_MARKER("__dupl__");
-			const auto top = *sp;				// peek()
+			const auto top{*sp};				// peek()
 			*++sp = top;						// push(peek())
 		}
 		goto **(bp + (*++ip).op);				// next_instr()
 
 	__dupl2__: {
 			ASM_MARKER("__dupl2__");
-			const auto top = *sp;				// peek
+			const auto top{*sp};				// peek
 			*++sp = top;						// push(peek())
 			*++sp = top;						// push(peek())
 		}
@@ -213,8 +217,8 @@ namespace nominax {
 		ASM_MARKER("__nop__");
 		goto **(bp + (*++ip).op);				// next_instr()
 
-	__pushz__:
-		ASM_MARKER("__pushz__");
+	__ipushz__:
+		ASM_MARKER("__ipushz__");
 		(*++sp).u = 0;							// push(0)
 		goto **(bp + (*++ip).op);				// next_instr()
 
@@ -223,6 +227,11 @@ namespace nominax {
 		(*++sp).u = 1;							// push(1)
 		goto **(bp + (*++ip).op);				// next_instr()
 
+	__fpusho__:
+		ASM_MARKER("__fpusho__");
+		(*++sp).f = 1.F;						// push(1)
+		goto **(bp + (*++ip).op);				// next_instr()
+		
 	__iinc__:
 		ASM_MARKER("__iinc__");
 		++sp->i;
@@ -301,21 +310,13 @@ namespace nominax {
 	__irol__:
 		ASM_MARKER("__irol__");
 		--sp;									// pop
-		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
-			(*sp).u = _rotl((*sp).u, (*(sp + 1)).i);
-		#else
-			(*sp).u = rol((*sp).u, (*(sp + 1)).i);
-		#endif
+		(*sp).u = rol((*sp).u, (*(sp + 1)).i);
 		goto **(bp + (*++ip).op);				// next_instr()
 
 	__iror__:
 		ASM_MARKER("__iror__");
 		--sp;									// pop
-		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
-			(*sp).u = _rotr((*sp).u, (*(sp + 1)).i);
-		#else
-			(*sp).u = ror((*sp).u, (*(sp + 1)).i);
-		#endif
+		(*sp).u = ror((*sp).u, (*(sp + 1)).i);
 		goto **(bp + (*++ip).op);				// next_instr()
 
 	__ineg__:
@@ -359,18 +360,27 @@ namespace nominax {
 		goto **(bp + (*++ip).op);				// next_instr()
 
 	__finc__:
-		ASM_MARKER("__iinc__");
+		ASM_MARKER("__finc__");
 		++sp->f;
 		goto **(bp + (*++ip).op);				// next_instr()
 
 	__fdec__:
-		ASM_MARKER("__iinc__");
+		ASM_MARKER("__fdec__");
 		--sp->f;
 		goto **(bp + (*++ip).op);				// next_instr()
 
-	__fpusho__:
-		ASM_MARKER("__fpusho__");
-		(*++sp).f = 1.F;						// push(1)
+	__jmp__: {
+			ASM_MARKER("__jmp__");
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			ip = ip_lo + abs;					// ip = begin + offset
+		}
+		goto **(bp + (*ip).op);					// next_instr() -> no increment because of new address
+
+	__jmprel__: {
+			ASM_MARKER("__jmprel__");
+			const u32 rel{(*++ip).r32.u};		// relative address
+			ip += rel;							// ip +-= rel
+		}
 		goto **(bp + (*++ip).op);				// next_instr()
 		
 	_terminate_:
