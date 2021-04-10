@@ -76,7 +76,7 @@ namespace nominax {
 			&&__dupl2__,
 			&&__nop__,
 			&&__pushz__,
-			&&__pusho__,
+			&&__ipusho__,
 			&&__iinc__,
 			&&__idec__,
 			&&__iadd__,
@@ -218,8 +218,8 @@ namespace nominax {
 		(*++sp).u = 0;							// push(0)
 		goto **(bp + (*++ip).op);				// next_instr()
 
-	__pusho__:
-		ASM_MARKER("__pusho__");
+	__ipusho__:
+		ASM_MARKER("__ipusho__");
 		(*++sp).u = 1;							// push(1)
 		goto **(bp + (*++ip).op);				// next_instr()
 
@@ -372,7 +372,6 @@ namespace nominax {
 		ASM_MARKER("__fpusho__");
 		(*++sp).f = 1.F;						// push(1)
 		goto **(bp + (*++ip).op);				// next_instr()
-
 	_terminate_:
 		ASM_MARKER("reactor end");
 		const auto post = std::chrono::high_resolution_clock::now();

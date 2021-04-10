@@ -334,12 +334,12 @@ TEST(reactor_execution, __pushz__) {
 	ASSERT_EQ(o.input.stack[3].f, 0.0F);
 }
 
-TEST(reactor_execution, __pusho__) {
+TEST(reactor_execution, __ipusho__) {
 	const std::array<signal32, 6> code = {
 		signal32{instruction::nop}, // first padding
-		signal32{instruction::pusho},
+		signal32{instruction::ipusho},
 		signal32{instruction::pushz},
-		signal32{instruction::pusho},
+		signal32{instruction::ipusho},
 		signal32{instruction::inter},
 		signal32{-1},
 	};
