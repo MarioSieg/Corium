@@ -76,7 +76,7 @@ namespace nominax {
 			&&__dupl2__,
 			&&__nop__,
 			&&__pushz__,
-			&&__pusho__,
+			&&__ipusho__,
 			&&__iinc__,
 			&&__idec__,
 			&&__iadd__,
@@ -98,7 +98,10 @@ namespace nominax {
 			&&__fmul__,
 			&&__fdiv__,
 			&&__fmod__,
-			&&__fneg__
+			&&__fneg__,
+			&&__finc__,
+			&&__fdec__,
+			&&__fpusho__
 		};
 		
 		struct $ {
@@ -215,8 +218,8 @@ namespace nominax {
 		(*++sp).u = 0;							// push(0)
 		goto **(bp + (*++ip).op);				// next_instr()
 
-	__pusho__:
-		ASM_MARKER("__pusho__");
+	__ipusho__:
+		ASM_MARKER("__ipusho__");
 		(*++sp).u = 1;							// push(1)
 		goto **(bp + (*++ip).op);				// next_instr()
 
@@ -353,6 +356,21 @@ namespace nominax {
 	__fneg__:
 		ASM_MARKER("__fneg__");
 		(*sp).f = -(*sp).f;
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__finc__:
+		ASM_MARKER("__iinc__");
+		++sp->f;
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__fdec__:
+		ASM_MARKER("__iinc__");
+		--sp->f;
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__fpusho__:
+		ASM_MARKER("__fpusho__");
+		(*++sp).f = 1.F;						// push(1)
 		goto **(bp + (*++ip).op);				// next_instr()
 		
 	_terminate_:

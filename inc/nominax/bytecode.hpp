@@ -17,7 +17,7 @@ namespace nominax {
 		dupl2		= 0x00'00'00'0A,
 		nop			= 0x00'00'00'0B,
 		pushz		= 0x00'00'00'0C,
-		pusho		= 0x00'00'00'0D,
+		ipusho		= 0x00'00'00'0D,
 		iinc		= 0x00'00'00'0E,
 		idec		= 0x00'00'00'0F,
 		iadd		= 0x00'00'00'10,
@@ -40,6 +40,9 @@ namespace nominax {
 		fdiv		= 0x00'00'00'21,
 		fmod		= 0x00'00'00'22,
 		fneg		= 0x00'00'00'23,
+		finc		= 0x00'00'00'24,
+		fdec		= 0x00'00'00'25,
+		fpusho		= 0x00'00'00'26,
 		
 		count
 	};

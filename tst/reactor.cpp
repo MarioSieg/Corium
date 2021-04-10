@@ -334,12 +334,12 @@ TEST(reactor_execution, __pushz__) {
 	ASSERT_EQ(o.input.stack[3].f, 0.0F);
 }
 
-TEST(reactor_execution, __pusho__) {
+TEST(reactor_execution, __ipusho__) {
 	const std::array<signal32, 6> code = {
 		signal32{instruction::nop}, // first padding
-		signal32{instruction::pusho},
+		signal32{instruction::ipusho},
 		signal32{instruction::pushz},
-		signal32{instruction::pusho},
+		signal32{instruction::ipusho},
 		signal32{instruction::inter},
 		signal32{-1},
 	};
@@ -761,6 +761,74 @@ TEST(reactor_execution, __fneg__) {
 	const auto o = execute_reactor(input);
 	ASSERT_EQ(o.input.stack[1].f, -2.25F);
 	ASSERT_EQ(o.sp_diff, 1);
+}
+
+TEST(reactor_execution, __finc__) {
+	const std::array<signal32, 10> code = {
+		signal32{instruction::nop}, // first padding
+		signal32{instruction::push},
+		signal32{.0F},
+		signal32{instruction::finc},
+		signal32{instruction::finc},
+		signal32{instruction::finc},
+		signal32{instruction::finc},
+		signal32{instruction::finc},
+		signal32{instruction::inter},
+		signal32{-1},
+	};
+	auto input = default_test_input;
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o = execute_reactor(input);
+	ASSERT_EQ(o.input.stack[0], rec_nop_padding);
+	ASSERT_EQ(o.input.stack[1].f, 5.F);
+	ASSERT_EQ(o.sp_diff, 1);
+}
+
+TEST(reactor_execution, __fdec__) {
+	const std::array<signal32, 10> code = {
+		signal32{instruction::nop}, // first padding
+		signal32{instruction::push},
+		signal32{2.F},
+		signal32{instruction::fdec},
+		signal32{instruction::fdec},
+		signal32{instruction::fdec},
+		signal32{instruction::fdec},
+		signal32{instruction::fdec},
+		signal32{instruction::inter},
+		signal32{-1},
+	};
+	auto input = default_test_input;
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o = execute_reactor(input);
+	ASSERT_EQ(o.input.stack[0], rec_nop_padding);
+	ASSERT_EQ(o.input.stack[1].f, -3.F);
+	ASSERT_EQ(o.sp_diff, 1);
+}
+
+TEST(reactor_execution, __fpusho__) {
+	const std::array<signal32, 6> code = {
+		signal32{instruction::nop}, // first padding
+		signal32{instruction::fpusho},
+		signal32{instruction::pushz},
+		signal32{instruction::fpusho},
+		signal32{instruction::inter},
+		signal32{-1},
+	};
+	auto input = default_test_input;
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o = execute_reactor(input);
+	ASSERT_EQ(o.input.stack[1].f, 1.F);
+	ASSERT_EQ(o.input.stack[2].u, 0);
+	ASSERT_EQ(o.input.stack[3].f, 1.F);
 }
 
 TEST(reactor_input_validation, valid_pointers) {
