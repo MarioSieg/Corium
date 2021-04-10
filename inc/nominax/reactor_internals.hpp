@@ -9,17 +9,21 @@
 
 namespace nominax {
 	[[nodiscard]]
-	__attribute__((always_inline)) constexpr auto rol(const u32 n, u32 x) noexcept -> u32 {
-		constexpr u32 mask = CHAR_BIT * sizeof(u32) - 1;
-		x &= mask;
-		return n << x | n >> -x & mask;
+	__attribute__((always_inline)) inline auto rol(const u32 n, u32 x) noexcept -> u32 {
+		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
+			return _rotl(n, x);
+		#else
+			return std::rotl<decltype(x)>(n, x);
+		#endif
 	}
 
 	[[nodiscard]]
-	__attribute__((always_inline)) constexpr auto ror(const u32 n, u32 x) noexcept -> u32 {
-		constexpr u32 mask = CHAR_BIT * sizeof(u32) - 1;
-		x &= mask;
-		return n >> x | n << -x & mask;
+	__attribute__((always_inline)) inline auto ror(const u32 n, u32 x) noexcept -> u32 {
+		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
+				return _rotr(n, x);
+		#else
+				return std::rotr<decltype(x)>(n, x);
+		#endif
 	}
 
 	__attribute__((always_inline)) inline void operator %=(record32& x, const f32 y) noexcept {

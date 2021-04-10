@@ -45,6 +45,16 @@ static constexpr std::array<signal32, 3> default_test_code = {
 	signal32{5},
 };
 
+TEST(reactor_internals, rol) {
+	ASSERT_EQ(rol(3, 1), std::rotl<u32>(3, 1));
+	ASSERT_EQ(rol(0, 0), std::rotl<u32>(0, 0));
+	ASSERT_EQ(rol(1, 1), std::rotl<u32>(1, 1));
+}
+
+TEST(reactor_internals, ror) {
+	ASSERT_EQ(ror(1, 3), std::rotr<u32>(1, 3));
+}
+
 TEST(reactor_execution, __int__) {
 	const std::array<signal32, 5> code = {
 		signal32{instruction::nop}, // first padding

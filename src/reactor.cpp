@@ -302,21 +302,13 @@ namespace nominax {
 	__irol__:
 		ASM_MARKER("__irol__");
 		--sp;									// pop
-		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
-			(*sp).u = _rotl((*sp).u, (*(sp + 1)).i);
-		#else
-			(*sp).u = rol((*sp).u, (*(sp + 1)).i);
-		#endif
+		(*sp).u = rol((*sp).u, (*(sp + 1)).i);
 		goto **(bp + (*++ip).op);				// next_instr()
 
 	__iror__:
 		ASM_MARKER("__iror__");
 		--sp;									// pop
-		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
-			(*sp).u = _rotr((*sp).u, (*(sp + 1)).i);
-		#else
-			(*sp).u = ror((*sp).u, (*(sp + 1)).i);
-		#endif
+		(*sp).u = ror((*sp).u, (*(sp + 1)).i);
 		goto **(bp + (*++ip).op);				// next_instr()
 
 	__ineg__:
