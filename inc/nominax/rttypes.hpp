@@ -34,7 +34,7 @@ namespace nominax {
 	using interrupt_accumulator = std::int_fast32_t;
 	static_assert(std::is_trivial_v<interrupt_accumulator>);
 
-	using interrupt_routine = auto (interrupt_accumulator, volatile std::sig_atomic_t&, void*) noexcept -> bool;
+	using interrupt_routine = auto (interrupt_accumulator, volatile std::sig_atomic_t&, void*) -> bool;
 	static_assert(std::is_function_v<interrupt_routine>);
 
 	using intrinsic_routine = auto () -> bool;
