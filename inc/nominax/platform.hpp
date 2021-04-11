@@ -5,10 +5,15 @@
 #define NOMINAX_OS_LINUX	false
 #define NOMINAX_OS_ANDROID	false
 #define NOMINAX_OS_IOS		false
+#define NOMINAX_ARCH_X86_32	false
 #define NOMINAX_ARCH_X86_64	false
 #define NOMINAX_ARCH_ARM_64	false
+#define NOMINAX_ARCH_ARM_32	false
 #define NOMINAX_RELEASE		false
 #define NOMINAX_DEBUG		false
+
+#define NOMINAX_32_BIT (NOMINAX_ARCH_X86_32 || NOMINAX_ARCH_ARM_32)
+#define NOMINAX_64_BIT (NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_ARM_64)
 
 #define NOMINAX_POSIX (NOMINAX_OS_LINUX || NOMINAX_OS_ANDROID || NOMINAX_OS_MAC || NOMINAX_OS_IOS)
 
@@ -20,7 +25,7 @@
 #	define NOMINAX_DEBUG true
 #endif
 
-#ifdef _WIN64
+#if defined(_WIN32) || defined(_WIN64)
 #	undef NOMINAX_OS_WINDOWS
 #	define NOMINAX_OS_WINDOWS true
 #elif defined(__APPLE__)
@@ -45,9 +50,15 @@
 #	error "platform.hpp: Unknown operating system!"
 #endif
 
-#if defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(_M_X64)
+#if defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(_M_X64) || defined(_M_AMD64)
 #	undef NOMINAX_ARCH_X86_64
 #	define NOMINAX_ARCH_X86_64 true
+#elif defined(i386) || defined(__i386) || defined(__i386__) || defined(_M_IX86) && !(defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(_M_X64) || defined(_M_AMD64))
+#	undef NOMINAX_ARCH_X86_32
+#	define NOMINAX_ARCH_X86_32 true
+#elif (defined(__arm__) || defined(_M_ARM)) && !defined(__aarch64__)
+#	undef NOMINAX_ARCH_ARM_32
+#	define NOMINAX_ARCH_ARM_32 true
 #elif defined(__aarch64__)
 #	undef NOMINAX_ARCH_ARM_64
 #	define NOMINAX_ARCH_ARM_64 true

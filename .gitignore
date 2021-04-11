@@ -2,3 +2,4 @@ out/
 .vs/
 CMakeSettings.json
 CMakeLists.txt.user
+reactor.asm
