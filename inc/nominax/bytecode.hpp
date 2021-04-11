@@ -18,7 +18,7 @@ namespace nominax {
 		dupl		= 0x00'00'00'09,
 		dupl2		= 0x00'00'00'0A,
 		nop			= 0x00'00'00'0B,
-		ipushz		= 0x00'00'00'0C,
+		pushz		= 0x00'00'00'0C,
 		ipusho		= 0x00'00'00'0D,
 		fpusho		= 0x00'00'00'0E,
 		iinc		= 0x00'00'00'0F,
@@ -46,7 +46,17 @@ namespace nominax {
 		finc		= 0x00'00'00'25,
 		fdec		= 0x00'00'00'26,
 		jmp			= 0x00'00'00'27,
-		jmpi		= 0x00'00'00'28,
+		jmprel		= 0x00'00'00'28,
+		jz			= 0x00'00'00'29,
+		jnz			= 0x00'00'00'2A,
+		jo_cmpi		= 0x00'00'00'2B,
+		jo_cmpf		= 0x00'00'00'2C,
+		jno_cmpi	= 0x00'00'00'2D,
+		jno_cmpf	= 0x00'00'00'2E,
+		je_cmpi		= 0x00'00'00'2F,
+		je_cmpf		= 0x00'00'00'30,
+		jne_cmpi	= 0x00'00'00'31,
+		jne_cmpf	= 0x00'00'00'32,
 		
 		count
 	};

@@ -7,6 +7,8 @@
 #include "platform.hpp"
 #include "record.hpp"
 
+#include <ctime>
+
 namespace nominax {
 	[[nodiscard]]
 	__attribute__((always_inline)) inline auto rol(const u32 n, u32 x) noexcept -> u32 {
@@ -30,8 +32,7 @@ namespace nominax {
 		x.f = std::fmod(x.f, y);
 	}
 
-	[[noreturn]]
-	__attribute__((always_inline)) inline void hard_fault_trap() noexcept {
+	__attribute__((always_inline)) inline void breakpoint_interrupt() noexcept {
 		#if NOMINAX_ARCH_X86_64
 			asm("int $3");
 		#elif NOMINAX_ARCH_ARM_64
@@ -46,6 +47,11 @@ namespace nominax {
 		#endif
 	}
 
+	[[noreturn]]
+	__attribute((always_inline)) inline void hard_fault_trap() noexcept {
+		std::abort();
+	}
+
 	__attribute__((always_inline)) inline void read_fence() noexcept {
 		asm volatile("":::"memory");
 	}
@@ -57,6 +63,29 @@ namespace nominax {
 	__attribute__((always_inline)) inline void read_write_fence() noexcept {
 		asm volatile("":::"memory");
 	}
+
+	union f32_repr {
+		explicit constexpr f32_repr(f32 x) noexcept;
+		
+		f32 f;
+		i32 i;
+
+		[[nodiscard]] constexpr auto is_negative() const noexcept -> bool;
+		[[nodiscard]] constexpr auto raw_mantissa() const noexcept -> std::uint32_t;
+		[[nodiscard]] constexpr auto raw_exponent() const noexcept -> std::uint8_t;
+
+	private:
+		struct {
+			std::uint32_t mantissa	: 23;
+			std::uint32_t exponent	: 8;
+			std::uint32_t sign		: 1;
+		};
+	};
+
+	__attribute__((always_inline)) constexpr f32_repr::f32_repr(const f32 x) noexcept : f(x) {}
+	__attribute__((always_inline)) constexpr auto f32_repr::is_negative() const noexcept -> bool { return (this->i >> 31) != 0; }
+	__attribute__((always_inline)) constexpr auto f32_repr::raw_mantissa() const noexcept -> std::uint32_t { return this->i & ((1 << 23) - 1); }
+	__attribute__((always_inline)) constexpr auto f32_repr::raw_exponent() const noexcept -> std::uint8_t { return (this->i >> 23) & 0xFF; }
 
 	#if false
 	[[deprecated("unsafe")]]
@@ -90,9 +119,15 @@ namespace nominax {
 	[[nodiscard]]
 	inline auto safe_localtime(const std::time_t& time) -> std::tm {
 		std::tm buf{};
-		static std::mutex mtx;
-		std::lock_guard<decltype(mtx)> lock(mtx);
-		buf = *std::localtime(&time);
+		#if NOMINAX_POSIX
+			localtime_r(&time, &buf);
+		#elif NOMINAX_OS_WINDOWS
+			localtime_s(&buf, &time);
+		#else
+			static std::mutex mtx;
+			std::lock_guard<decltype(mtx)> lock(mtx);
+			buf = *std::localtime(&time);
+		#endif
 		return buf;
 	}
 }

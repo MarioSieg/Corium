@@ -7,6 +7,18 @@
 #define NOMINAX_OS_IOS		false
 #define NOMINAX_ARCH_X86_64	false
 #define NOMINAX_ARCH_ARM_64	false
+#define NOMINAX_RELEASE		false
+#define NOMINAX_DEBUG		false
+
+#define NOMINAX_POSIX (NOMINAX_OS_LINUX || NOMINAX_OS_ANDROID || NOMINAX_OS_MAC || NOMINAX_OS_IOS)
+
+#if NDEBUG
+#	undef NOMINAX_RELEASE
+#	define NOMINAX_RELEASE true
+#else
+#	undef NOMINAX_DEBUG
+#	define NOMINAX_DEBUG true
+#endif
 
 #ifdef _WIN64
 #	undef NOMINAX_OS_WINDOWS
