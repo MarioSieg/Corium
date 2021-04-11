@@ -21,12 +21,12 @@ namespace nominax {
 	/// </summary>
 	struct reactor_input final {
 		volatile std::sig_atomic_t*		test_signal_status		{nullptr};
-		const signal32*					code_chunk				{nullptr};
+		const signal64*					code_chunk				{nullptr};
 		std::size_t						code_chunk_size			{0};
 		intrinsic_routine**				intrinsic_table			{nullptr};
 		std::size_t						intrinsic_table_size	{0};
 		interrupt_routine*				interrupt_handler		{nullptr};
-		record32*						stack					{nullptr};
+		record64*						stack					{nullptr};
 		std::size_t						stack_size				{0};
 		void*							user_data				{nullptr};
 

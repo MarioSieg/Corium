@@ -158,10 +158,10 @@ namespace nominax {
 		volatile std::sig_atomic_t* const					test_signal_status	{input.test_signal_status};										/* signal status flag       */
 		intrinsic_routine* const* const						intrinsic_table		{input.intrinsic_table};										/* intrinsic table hi       */
 		interrupt_routine* const							interrupt_handler	{input.interrupt_handler};										/* global interrupt routine */
-		const signal32* const __restrict					ip_lo				{input.code_chunk};
-		const signal32* __restrict__						ip					{ip_lo};														/* instruction ptr lo       */
-		record32* __restrict__								sp					{input.stack};													/* stack pointer lo			*/
-		record32* const	__restrict__						sp_hi				{input.stack + input.stack_size};								/* stack pointer hi			*/
+		const signal64* const __restrict					ip_lo				{input.code_chunk};
+		const signal64* __restrict__						ip					{ip_lo};														/* instruction ptr lo       */
+		record64* __restrict__								sp					{input.stack};													/* stack pointer lo			*/
+		record64* const	__restrict__						sp_hi				{input.stack + input.stack_size};								/* stack pointer hi			*/
 
 		ASM_MARKER("reactor exec");
 
@@ -170,7 +170,7 @@ namespace nominax {
 
 	__int__: {
 			ASM_MARKER("__int__");
-			interrupt = (*++ip).r32.u;			// imm()
+			interrupt = (*++ip).r64.u;			// imm()
 			if (UNLIKELY(interrupt < 0 || !interrupt_handler(interrupt, *test_signal_status, usr_dat))) [[unlikely]] {
 				goto _terminate_;
 			}
@@ -179,7 +179,7 @@ namespace nominax {
 
 	__intrin__: {
 			ASM_MARKER("__intrin__");
-			const i32 iid{(*++ip).r32.i};		// imm()
+			const i64 iid{(*++ip).r64.i};		// imm()
 			if (LIKELY(iid < 0)) [[likely]] {
 				// TODO call build-in
 			} else {
@@ -200,16 +200,16 @@ namespace nominax {
 
 	__mov__: {
 			ASM_MARKER("__mov__");
-			const u32 dst{(*++ip).r32.u};		// imm() -> arg 1 (reg) - dst
-			const u32 src{(*++ip).r32.u};		// imm() -> arg 2 (reg) - src
+			const u64 dst{(*++ip).r64.u};		// imm() -> arg 1 (reg) - dst
+			const u64 src{(*++ip).r64.u};		// imm() -> arg 2 (reg) - src
 			*(sp + dst) = *(sp + src);			// poke(dst) = poke(src)
 		}
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__sto__: {
 			ASM_MARKER("__sto__");
-			const u32 dst{(*++ip).r32.u};		// imm() -> arg 1 (reg) - dst
-			const u32 imm{(*++ip).r32.u};		// imm() -> arg 2 (reg) - raw bits
+			const u64 dst{(*++ip).r64.u};		// imm() -> arg 1 (reg) - dst
+			const u64 imm{(*++ip).r64.u};		// imm() -> arg 2 (reg) - raw bits
 			(*(sp + dst)).u = imm;				// poke(dst) = imm()
 		}
 		goto **(bt + (*++ip).op);				// next_instr()
@@ -217,7 +217,7 @@ namespace nominax {
 	__push__:
 		// TODO: CHECK FOR STACK OVERFLOW
 		ASM_MARKER("__push__");
-		*++sp = (*++ip).r32;					// push(imm())
+		*++sp = (*++ip).r64;					// push(imm())
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__pop__:
@@ -261,7 +261,7 @@ namespace nominax {
 
 	__fpusho__:
 		ASM_MARKER("__fpusho__");
-		(*++sp).f = 1.F;						// push(1)
+		(*++sp).f = 1.0;						// push(1)
 		goto **(bt + (*++ip).op);				// next_instr()
 		
 	__iinc__:
@@ -403,21 +403,21 @@ namespace nominax {
 
 	__jmp__: {
 			ASM_MARKER("__jmp__");
-			const u32 abs{(*++ip).r32.u};		// absolute address
+			const u64 abs{(*++ip).r64.u};		// absolute address
 			ip = ip_lo + abs;					// ip = begin + offset
 		}
 		goto **(bt + (*ip).op);					// next_instr() -> no inc -> new address
 
 	__jmprel__: {
 			ASM_MARKER("__jmprel__");
-			const u32 rel{(*++ip).r32.u};		// relative address
+			const u64 rel{(*++ip).r64.u};		// relative address
 			ip += rel;							// ip +-= rel
 		}
 		goto **(bt + (*ip).op);					// next_instr() -> no inc -> new address
 
 	__jz__: {
 			ASM_MARKER("__jz__");
-			const u32 abs{(*++ip).r32.u};		// absolute address
+			const u64 abs{(*++ip).r64.u};		// absolute address
 			if ((*sp).u == 0) {
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
@@ -427,7 +427,7 @@ namespace nominax {
 
 	__jnz__: {
 			ASM_MARKER("__jnz__");
-			const u32 abs{(*++ip).r32.u};		// absolute address
+			const u64 abs{(*++ip).r64.u};		// absolute address
 			if ((*sp).u != 0) {
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
@@ -437,7 +437,7 @@ namespace nominax {
 
 	__jo_cmpi__: {
 			ASM_MARKER("__jo_cmpi__");
-			const u32 abs{(*++ip).r32.u};		// absolute address
+			const u64 abs{(*++ip).r64.u};		// absolute address
 			if ((*sp--).i == 1) {				// pop()
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
@@ -446,8 +446,8 @@ namespace nominax {
 
 	__jo_cmpf__: {
 			ASM_MARKER("__jo_cmpf__");
-			const u32 abs{(*++ip).r32.u};		// absolute address
-			if ((*sp--).f == 1.F) {				// pop()
+			const u64 abs{(*++ip).r64.u};		// absolute address
+			if ((*sp--).f == 1.0) {				// pop()
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
 		}
@@ -455,7 +455,7 @@ namespace nominax {
 
 	__jno_cmpi__: {
 			ASM_MARKER("__jno_cmpi__");
-			const u32 abs{(*++ip).r32.u};		// absolute address
+			const u64 abs{(*++ip).r64.u};		// absolute address
 			if ((*sp--).i != 1) {				// pop()
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
@@ -464,8 +464,8 @@ namespace nominax {
 
 	__jno_cmpf__: {
 			ASM_MARKER("__jno_cmpf__");
-			const u32 abs{(*++ip).r32.u};		// absolute address
-			if ((*sp--).f != 1.F) {				// pop()
+			const u64 abs{(*++ip).r64.u};		// absolute address
+			if ((*sp--).f != 1.0) {				// pop()
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
 		}
@@ -474,7 +474,7 @@ namespace nominax {
 	__je_cmpi__: {
 			ASM_MARKER("__je_cmpi__");
 			--sp;								// pop()
-			const u32 abs{(*++ip).r32.u};		// absolute address
+			const u64 abs{(*++ip).r64.u};		// absolute address
 			if ((*sp).i == (*(sp + 1)).i) {
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
@@ -485,7 +485,7 @@ namespace nominax {
 	__je_cmpf__: {
 			ASM_MARKER("__je_cmpf__");
 			--sp;								// pop()
-			const u32 abs{(*++ip).r32.u};		// absolute address
+			const u64 abs{(*++ip).r64.u};		// absolute address
 			if ((*sp).f == (*(sp + 1)).f) {
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
@@ -496,7 +496,7 @@ namespace nominax {
 	__jne_cmpi__: {
 			ASM_MARKER("__jne_cmpi__");
 			--sp;								// pop()
-			const u32 abs{(*++ip).r32.u};		// absolute address
+			const u64 abs{(*++ip).r64.u};		// absolute address
 			if ((*sp).i != (*(sp + 1)).i) {
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
@@ -507,7 +507,7 @@ namespace nominax {
 	__jne_cmpf__: {
 			ASM_MARKER("__jne_cmpf__");
 			--sp;								// pop()
-			const u32 abs{(*++ip).r32.u};		// absolute address
+			const u64 abs{(*++ip).r64.u};		// absolute address
 			if ((*sp).f != (*(sp + 1)).f) {
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
