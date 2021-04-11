@@ -18,6 +18,9 @@ TEST(reactor_aggregates, union_reinterpretation) {
 	rec.c = '!';
 	ASSERT_EQ(rec.c, '!');
 
+	rec.ptr = &rec;
+	ASSERT_EQ(rec.ptr, &rec);
+
 	constexpr signal64 sig{
 		instruction::mov
 	};
