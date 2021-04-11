@@ -43,13 +43,32 @@ namespace nominax {
 		return reactor_validation_result::ok;
 	}
 
+	/* So in C++ 20 we already have [[likely]] and [[unlikely]].
+	 * When I wrote this comment (11.04.2021) LLVM/Clang 11 has no support for [[likely]] and [[unlikely]].
+	 * The support will come with LLVM/Clang 12. Until all compiles correctly support [[likely]] and [[unlikely]]
+	 * I use the built-in intrinsics like in the Linux kernel. I often use branch hints do indicate expected branches,
+	 * but the most performance critical code is the reactor, so it's important that they are noticed by the compiler,
+	 * which is not yet the case with [[likely]] and [[unlikely]]!
+	 * x86-64 has branch hints - some sources say they are ignored, some say they are not, other say it depends on the company
+	 * ARM-64 also has some branch hints
+	 * The biggest difference could affect the code reordering - search for more info.
+	 */
+	
+	/* Branch prediction hint - this path is likely! Might affect code reordering, and branch prediction. */
 	#define LIKELY(x)	__builtin_expect(!!(x), 1)
+
+	/* Branch prediction hint - this path is unlikely! Might affect code reordering, and branch prediction. */
 	#define UNLIKELY(x) __builtin_expect(!!(x), 0)
 
 	#if NOMINAX_REACTOR_ASM_MARKERS
-	#define ASM_MARKER(msg) asm volatile("#" msg)
+		/* This inserts a comment with the msg into the assembler code.
+		 * Useful for finding the asm code of the instructions.
+		 * These should be disabled when building for release because asm volatile
+		 * is like a black box and never touched by the compiler and might affect code generation!
+		 */
+		#define ASM_MARKER(msg) asm volatile("#" msg)
 	#else
-	#define ASM_MARKER(msg)
+		#define ASM_MARKER(msg)
 	#endif
 
 	auto execute_reactor(const reactor_input& input) -> reactor_output {
@@ -63,7 +82,7 @@ namespace nominax {
 		
 		const auto pre = std::chrono::high_resolution_clock::now();
 
-		static constexpr std::array<const void* __restrict__ const, static_cast<std::size_t>(instruction::count)> branch_table = {
+		static constexpr const void* __restrict__ const branch_table[static_cast<std::size_t>(instruction::count)]{
 			&&__int__,
 			&&__intrin__,
 			&&__call__,
@@ -116,27 +135,31 @@ namespace nominax {
 		struct $ {
 			[[nodiscard]]
 			static consteval auto validate_branch_table() noexcept -> bool {
-				return std::ranges::all_of(branch_table.begin(), branch_table.end(), [](const void* const x) noexcept -> bool {
-					return x != nullptr;
-				});
+				const auto* iter = branch_table;
+				const auto* const end = branch_table + sizeof branch_table / sizeof *branch_table;
+				while (iter < end) [[likely]] {
+					if (!(*iter++)) [[unlikely]] {
+						return false;
+					}
+				}
+				return true;
 			}
 		};
 		static_assert($::validate_branch_table());
 		
-		asm volatile("#" "reactor begin");
+		ASM_MARKER("#" "reactor begin");
 		
 		interrupt_accumulator								interrupt			{};																/* interrupt id flag        */
 		void*												usr_dat				{input.user_data};												/* user data                */
 		volatile std::sig_atomic_t* const					test_signal_status	{input.test_signal_status};										/* signal status flag       */
 		intrinsic_routine* const* const						intrinsic_table		{input.intrinsic_table};										/* intrinsic table hi       */
-		intrinsic_routine* const* const						intrinsic_table_hi	{input.intrinsic_table + input.intrinsic_table_size};			/* intrinsic table lo       */
 		interrupt_routine* const							interrupt_handler	{input.interrupt_handler};										/* global interrupt routine */
 		const signal32* const __restrict					ip_lo				{input.code_chunk};
 		const signal32* __restrict__						ip					{ip_lo};														/* instruction ptr lo       */
 		const signal32* const __restrict__					ip_hi				{input.code_chunk + input.code_chunk_size};						/* instruction ptr hi       */
 		record32* __restrict__								sp					{input.stack};													/* stack pointer lo			*/
 		record32* const	__restrict__						sp_hi				{input.stack + input.stack_size};								/* stack pointer hi			*/
-		const void* __restrict__ const* __restrict__ const	bp					{branch_table.data()};											/* branch pointer			*/
+		const void* __restrict__ const* __restrict__ const	bp					{branch_table};													/* branch pointer			*/
 
 		ASM_MARKER("reactor exec");
 
@@ -440,7 +463,7 @@ namespace nominax {
 		goto **(bp + (*++ip).op);				// next_instr()
 
 	__jno_cmpf__: {
-			ASM_MARKER("__jo_cmpf__");
+			ASM_MARKER("__jno_cmpf__");
 			const u32 abs{(*++ip).r32.u};		// absolute address
 			if (sp->f != 1.F) {
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)

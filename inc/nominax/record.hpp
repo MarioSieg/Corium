@@ -90,6 +90,6 @@ namespace nominax {
 	using interrupt_routine = auto (interrupt_accumulator, volatile std::sig_atomic_t&, void*) noexcept -> bool;
 	static_assert(std::is_function_v<interrupt_routine>);
 
-	using intrinsic_routine = auto () noexcept -> bool;
+	using intrinsic_routine = auto () -> bool;
 	static_assert(std::is_function_v<intrinsic_routine>);
 }

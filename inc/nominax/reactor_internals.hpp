@@ -7,6 +7,8 @@
 #include "platform.hpp"
 #include "record.hpp"
 
+#include <ctime>
+
 namespace nominax {
 	[[nodiscard]]
 	__attribute__((always_inline)) inline auto rol(const u32 n, u32 x) noexcept -> u32 {
@@ -30,8 +32,7 @@ namespace nominax {
 		x.f = std::fmod(x.f, y);
 	}
 
-	[[noreturn]]
-	__attribute__((always_inline)) inline void hard_fault_trap() noexcept {
+	__attribute__((always_inline)) inline void breakpoint_interrupt() noexcept {
 		#if NOMINAX_ARCH_X86_64
 			asm("int $3");
 		#elif NOMINAX_ARCH_ARM_64
@@ -44,6 +45,11 @@ namespace nominax {
 			auto* int3 = reinterpret_cast<int*>(3);
 			*int3 = 3;
 		#endif
+	}
+
+	[[noreturn]]
+	__attribute((always_inline)) inline void hard_fault_trap() noexcept {
+		std::abort();
 	}
 
 	__attribute__((always_inline)) inline void read_fence() noexcept {
@@ -90,9 +96,15 @@ namespace nominax {
 	[[nodiscard]]
 	inline auto safe_localtime(const std::time_t& time) -> std::tm {
 		std::tm buf{};
-		static std::mutex mtx;
-		std::lock_guard<decltype(mtx)> lock(mtx);
-		buf = *std::localtime(&time);
+		#if NOMINAX_POSIX
+			localtime_r(&time, &buf);
+		#elif NOMINAX_OS_WINDOWS
+			localtime_s(&buf, &time);
+		#else
+			static std::mutex mtx;
+			std::lock_guard<decltype(mtx)> lock(mtx);
+			buf = *std::localtime(&time);
+		#endif
 		return buf;
 	}
 }
