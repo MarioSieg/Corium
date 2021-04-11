@@ -308,9 +308,9 @@ TEST(reactor_execution, __idec__) {
 TEST(reactor_execution, __pushz__) {
 	const std::array<signal32, 6> code{
 		signal32{instruction::nop}, // first padding
-		signal32{instruction::ipushz},
-		signal32{instruction::ipushz},
-		signal32{instruction::ipushz},
+		signal32{instruction::pushz},
+		signal32{instruction::pushz},
+		signal32{instruction::pushz},
 		signal32{instruction::inter},
 		signal32{-1},
 	};
@@ -329,7 +329,7 @@ TEST(reactor_execution, __ipusho__) {
 	const std::array<signal32, 6> code{
 		signal32{instruction::nop}, // first padding
 		signal32{instruction::ipusho},
-		signal32{instruction::ipushz},
+		signal32{instruction::pushz},
 		signal32{instruction::ipusho},
 		signal32{instruction::inter},
 		signal32{-1},
@@ -806,7 +806,7 @@ TEST(reactor_execution, __fpusho__) {
 	const std::array<signal32, 6> code{
 		signal32{instruction::nop}, // first padding
 		signal32{instruction::fpusho},
-		signal32{instruction::ipushz},
+		signal32{instruction::pushz},
 		signal32{instruction::fpusho},
 		signal32{instruction::inter},
 		signal32{-1},
@@ -869,7 +869,7 @@ TEST(reactor_execution, __jmprel__) {
 TEST(reactor_execution, __jz__) {
 	const std::array<signal32, 11> code{
 		signal32{instruction::nop},		// first padding
-		signal32{instruction::ipushz},
+		signal32{instruction::pushz},
 		signal32{instruction::jz},
 		signal32{6U},					// first padding does not count
 		signal32{instruction::inter},
@@ -899,7 +899,7 @@ TEST(reactor_execution, __jnz__) {
 		signal32{6U},					// first padding does not count
 		signal32{instruction::inter},
 		signal32{-1},
-		signal32{instruction::ipushz},
+		signal32{instruction::pushz},
 		signal32{instruction::jz},
 		signal32{9U},
 		signal32{instruction::inter},
@@ -912,6 +912,106 @@ TEST(reactor_execution, __jnz__) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_EQ(o.input.stack[1].u, 0);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 10);
+}
+
+TEST(reactor_execution, __jo_cmpi__) {
+	const std::array<signal32, 11> code{
+		signal32{instruction::nop},		// first padding
+		signal32{instruction::ipusho},
+		signal32{instruction::jo_cmpi},
+		signal32{6U},					// first padding does not count
+		signal32{instruction::inter},
+		signal32{-1},
+		signal32{instruction::pushz},
+		signal32{instruction::jo_cmpi},
+		signal32{0U},
+		signal32{instruction::inter},
+		signal32{-1},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input.stack[1].u, 0);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 10);
+}
+
+TEST(reactor_execution, __jno_cmpi__) {
+	const std::array<signal32, 11> code{
+		signal32{instruction::nop},		// first padding
+		signal32{instruction::pushz},
+		signal32{instruction::jno_cmpi},
+		signal32{6U},					// first padding does not count
+		signal32{instruction::inter},
+		signal32{-1},
+		signal32{instruction::ipusho},
+		signal32{instruction::jno_cmpi},
+		signal32{0U},
+		signal32{instruction::inter},
+		signal32{-1},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input.stack[1].u, 1);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 10);
+}
+
+TEST(reactor_execution, __jo_cmpf__) {
+	const std::array<signal32, 11> code{
+		signal32{instruction::nop},		// first padding
+		signal32{instruction::fpusho},
+		signal32{instruction::jo_cmpf},
+		signal32{6U},					// first padding does not count
+		signal32{instruction::inter},
+		signal32{-1},
+		signal32{instruction::pushz},
+		signal32{instruction::jo_cmpf},
+		signal32{0U},
+		signal32{instruction::inter},
+		signal32{-1},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input.stack[1].f, 0.F);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 10);
+}
+
+TEST(reactor_execution, __jno_cmpf__) {
+	const std::array<signal32, 11> code{
+		signal32{instruction::nop},		// first padding
+		signal32{instruction::pushz},
+		signal32{instruction::jno_cmpf},
+		signal32{6U},					// first padding does not count
+		signal32{instruction::inter},
+		signal32{-1},
+		signal32{instruction::fpusho},
+		signal32{instruction::jno_cmpf},
+		signal32{0U},
+		signal32{instruction::inter},
+		signal32{-1},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input.stack[1].f, 1.F);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
 }

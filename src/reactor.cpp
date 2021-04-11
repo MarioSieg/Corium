@@ -106,7 +106,11 @@ namespace nominax {
 			&&__jmp__,
 			&&__jmprel__,
 			&&__jz__,
-			&&__jnz__
+			&&__jnz__,
+			&&__jo_cmpi__,
+			&&__jo_cmpf__,
+			&&__jno_cmpi__,
+			&&__jno_cmpf__
 		};
 		
 		struct $ {
@@ -393,7 +397,7 @@ namespace nominax {
 			}
 			--sp;								// pop()
 		}	
-		goto **(bp + (*++ip).op);				// next_instr() -> no inc -> new address
+		goto **(bp + (*++ip).op);				// next_instr()
 
 	__jnz__: {
 			ASM_MARKER("__jnz__");
@@ -403,7 +407,47 @@ namespace nominax {
 			}
 			--sp;								// pop()
 		}
-		goto **(bp + (*++ip).op);				// next_instr() -> no inc -> new address
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__jo_cmpi__: {
+			ASM_MARKER("__jo_cmpi__");
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			if (sp->i == 1) {
+				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
+			}
+			--sp;								// pop()
+		}
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__jo_cmpf__: {
+			ASM_MARKER("__jo_cmpf__");
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			if (sp->f == 1.F) {
+				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
+			}
+			--sp;								// pop()
+		}
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__jno_cmpi__: {
+			ASM_MARKER("__jno_cmpi__");
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			if (sp->i != 1) {
+				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
+			}
+			--sp;								// pop()
+		}
+		goto **(bp + (*++ip).op);				// next_instr()
+
+	__jno_cmpf__: {
+			ASM_MARKER("__jo_cmpf__");
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			if (sp->f != 1.F) {
+				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
+			}
+			--sp;								// pop()
+		}
+		goto **(bp + (*++ip).op);				// next_instr()
 		
 	_terminate_:
 		ASM_MARKER("reactor end");
