@@ -64,6 +64,29 @@ namespace nominax {
 		asm volatile("":::"memory");
 	}
 
+	union f32_repr {
+		explicit constexpr f32_repr(f32 x) noexcept;
+		
+		f32 f;
+		i32 i;
+
+		[[nodiscard]] constexpr auto is_negative() const noexcept -> bool;
+		[[nodiscard]] constexpr auto raw_mantissa() const noexcept -> std::uint32_t;
+		[[nodiscard]] constexpr auto raw_exponent() const noexcept -> std::uint8_t;
+
+	private:
+		struct {
+			std::uint32_t mantissa	: 23;
+			std::uint32_t exponent	: 8;
+			std::uint32_t sign		: 1;
+		};
+	};
+
+	__attribute__((always_inline)) constexpr f32_repr::f32_repr(const f32 x) noexcept : f(x) {}
+	__attribute__((always_inline)) constexpr auto f32_repr::is_negative() const noexcept -> bool { return (this->i >> 31) != 0; }
+	__attribute__((always_inline)) constexpr auto f32_repr::raw_mantissa() const noexcept -> std::uint32_t { return this->i & ((1 << 23) - 1); }
+	__attribute__((always_inline)) constexpr auto f32_repr::raw_exponent() const noexcept -> std::uint8_t { return (this->i >> 23) & 0xFF; }
+
 	#if false
 	[[deprecated("unsafe")]]
 	[[maybe_unused]]

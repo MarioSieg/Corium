@@ -53,6 +53,10 @@ namespace nominax {
 		jo_cmpf		= 0x00'00'00'2C,
 		jno_cmpi	= 0x00'00'00'2D,
 		jno_cmpf	= 0x00'00'00'2E,
+		je_cmpi		= 0x00'00'00'2F,
+		je_cmpf		= 0x00'00'00'30,
+		jne_cmpi	= 0x00'00'00'31,
+		jne_cmpf	= 0x00'00'00'32,
 		
 		count
 	};

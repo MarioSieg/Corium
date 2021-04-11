@@ -27,37 +27,37 @@ namespace nominax {
 		constexpr auto operator >=(record32 rhs) const noexcept -> bool;
 	};
 
-	constexpr record32::record32() noexcept : u{0} {}
-	constexpr record32::record32(const i32 x) noexcept : i{x} {}
-	constexpr record32::record32(const u32 x) noexcept : u{x} {}
-	constexpr record32::record32(const f32 x) noexcept : f{x} {}
-	constexpr record32::record32(const c32 x) noexcept : c{x} {}
+	__attribute__((always_inline)) constexpr record32::record32() noexcept : u{0} {}
+	__attribute__((always_inline)) constexpr record32::record32(const i32 x) noexcept : i{x} {}
+	__attribute__((always_inline)) constexpr record32::record32(const u32 x) noexcept : u{x} {}
+	__attribute__((always_inline)) constexpr record32::record32(const f32 x) noexcept : f{x} {}
+	__attribute__((always_inline)) constexpr record32::record32(const c32 x) noexcept : c{x} {}
 
-	constexpr record32::operator bool() const noexcept {
+	__attribute__((always_inline)) constexpr record32::operator bool() const noexcept {
 		return static_cast<bool>(this->u);
 	}
 
-	constexpr auto record32::operator ==(const record32 rhs) const noexcept -> bool {
+	__attribute__((always_inline)) constexpr auto record32::operator ==(const record32 rhs) const noexcept -> bool {
 		return this->u == rhs.u;
 	}
 
-	constexpr auto record32::operator !=(const record32 rhs) const noexcept -> bool {
+	__attribute__((always_inline)) constexpr auto record32::operator !=(const record32 rhs) const noexcept -> bool {
 		return !(*this == rhs);
 	}
 
-	constexpr auto record32::operator <(const record32 rhs) const noexcept -> bool {
+	__attribute__((always_inline)) constexpr auto record32::operator <(const record32 rhs) const noexcept -> bool {
 		return this->u < rhs.u;
 	}
 
-	constexpr auto record32::operator >(const record32 rhs) const noexcept -> bool {
+	__attribute__((always_inline)) constexpr auto record32::operator >(const record32 rhs) const noexcept -> bool {
 		return this->u > rhs.u;
 	}
 
-	constexpr auto record32::operator <=(const record32 rhs) const noexcept -> bool {
+	__attribute__((always_inline)) constexpr auto record32::operator <=(const record32 rhs) const noexcept -> bool {
 		return this->u <= rhs.u;
 	}
 
-	constexpr auto record32::operator >=(const record32 rhs) const noexcept -> bool {
+	__attribute__((always_inline)) constexpr auto record32::operator >=(const record32 rhs) const noexcept -> bool {
 		return this->u >= rhs.u;
 	}
 

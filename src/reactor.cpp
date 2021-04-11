@@ -129,7 +129,11 @@ namespace nominax {
 			&&__jo_cmpi__,
 			&&__jo_cmpf__,
 			&&__jno_cmpi__,
-			&&__jno_cmpf__
+			&&__jno_cmpf__,
+			&&__je_cmpi__,
+			&&__je_cmpf__,
+			&&__jne_cmpi__,
+			&&__jne_cmpf__
 		};
 		
 		struct $ {
@@ -262,12 +266,12 @@ namespace nominax {
 		
 	__iinc__:
 		ASM_MARKER("__iinc__");
-		++sp->i;
+		++(*sp).i;
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__idec__:
 		ASM_MARKER("__idec__");
-		--sp->i;
+		--(*sp).i;
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__iadd__:
@@ -414,7 +418,7 @@ namespace nominax {
 	__jz__: {
 			ASM_MARKER("__jz__");
 			const u32 abs{(*++ip).r32.u};		// absolute address
-			if (sp->u == 0) {
+			if ((*sp).u == 0) {
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
 			--sp;								// pop()
@@ -424,7 +428,7 @@ namespace nominax {
 	__jnz__: {
 			ASM_MARKER("__jnz__");
 			const u32 abs{(*++ip).r32.u};		// absolute address
-			if (sp->u != 0) {
+			if ((*sp).u != 0) {
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
 			--sp;								// pop()
@@ -434,37 +438,77 @@ namespace nominax {
 	__jo_cmpi__: {
 			ASM_MARKER("__jo_cmpi__");
 			const u32 abs{(*++ip).r32.u};		// absolute address
-			if (sp->i == 1) {
+			if ((*sp--).i == 1) {				// pop()
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;								// pop()
 		}
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__jo_cmpf__: {
 			ASM_MARKER("__jo_cmpf__");
 			const u32 abs{(*++ip).r32.u};		// absolute address
-			if (sp->f == 1.F) {
+			if ((*sp--).f == 1.F) {				// pop()
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;								// pop()
 		}
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__jno_cmpi__: {
 			ASM_MARKER("__jno_cmpi__");
 			const u32 abs{(*++ip).r32.u};		// absolute address
-			if (sp->i != 1) {
+			if ((*sp--).i != 1) {				// pop()
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;								// pop()
 		}
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__jno_cmpf__: {
 			ASM_MARKER("__jno_cmpf__");
 			const u32 abs{(*++ip).r32.u};		// absolute address
-			if (sp->f != 1.F) {
+			if ((*sp--).f != 1.F) {				// pop()
+				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
+			}
+		}
+		goto **(bt + (*++ip).op);				// next_instr()
+		
+	__je_cmpi__: {
+			ASM_MARKER("__je_cmpi__");
+			--sp;								// pop()
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			if ((*sp).i == (*(sp + 1)).i) {
+				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
+			}
+			--sp;								// pop()
+		}
+		goto **(bt + (*++ip).op);				// next_instr()
+
+	__je_cmpf__: {
+			ASM_MARKER("__je_cmpf__");
+			--sp;								// pop()
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			if ((*sp).f == (*(sp + 1)).f) {
+				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
+			}
+			--sp;								// pop()
+		}
+		goto **(bt + (*++ip).op);				// next_instr()
+
+	__jne_cmpi__: {
+			ASM_MARKER("__jne_cmpi__");
+			--sp;								// pop()
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			if ((*sp).i != (*(sp + 1)).i) {
+				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
+			}
+			--sp;								// pop()
+		}
+		goto **(bt + (*++ip).op);				// next_instr()
+
+	__jne_cmpf__: {
+			ASM_MARKER("__jne_cmpf__");
+			--sp;								// pop()
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			if ((*sp).f != (*(sp + 1)).f) {
 				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
 			}
 			--sp;								// pop()
