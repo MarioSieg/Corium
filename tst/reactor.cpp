@@ -18,7 +18,7 @@ static constinit std::array<intrinsic_routine*, 3> test_intrinsic_routine_table{
 
 static constexpr auto test_stack_size = 32; // 32 records
 
-static constinit std::array<record64, test_stack_size> test_stack{rec_nop_padding};
+static constinit std::array<record64, test_stack_size> test_stack{record64::nop_padding()};
 
 static constinit volatile std::sig_atomic_t test_signal_status;
 
@@ -277,7 +277,7 @@ TEST(reactor_execution, __iinc__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input.stack[0], rec_nop_padding);
+	ASSERT_EQ(o.input.stack[0], record64::nop_padding());
 	ASSERT_EQ(o.input.stack[1].i, 5);
 	ASSERT_EQ(o.sp_diff, 1);
 }
@@ -300,7 +300,7 @@ TEST(reactor_execution, __idec__) {
 	input.code_chunk_size = code.size();
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input.stack[0], rec_nop_padding);
+	ASSERT_EQ(o.input.stack[0], record64::nop_padding());
 	ASSERT_EQ(o.input.stack[1].i, -3);
 	ASSERT_EQ(o.sp_diff, 1);
 }
@@ -775,7 +775,7 @@ TEST(reactor_execution, __finc__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input.stack[0], rec_nop_padding);
+	ASSERT_EQ(o.input.stack[0], record64::nop_padding());
 	ASSERT_EQ(o.input.stack[1].f, 5.);
 	ASSERT_EQ(o.sp_diff, 1);
 }
@@ -799,7 +799,7 @@ TEST(reactor_execution, __fdec__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input.stack[0], rec_nop_padding);
+	ASSERT_EQ(o.input.stack[0], record64::nop_padding());
 	ASSERT_EQ(o.input.stack[1].f, -3.);
 	ASSERT_EQ(o.sp_diff, 1);
 }

@@ -27,7 +27,7 @@ namespace nominax {
 		}
 
 		// first stack entry is never used and must be nop-padding:
-		if (*stack != rec_nop_padding) [[unlikely]] {
+		if (*stack != record64::nop_padding()) [[unlikely]] {
 			return reactor_validation_result::missing_stack_prologue;
 		}
 
