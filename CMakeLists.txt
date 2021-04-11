@@ -2,6 +2,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
+set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 project("nominax" CXX ASM)
 
 set(CMAKE_C_COMPILER_WORKS true)
