@@ -82,7 +82,7 @@ namespace nominax {
 		
 		const auto pre = std::chrono::high_resolution_clock::now();
 
-		static constexpr const void* __restrict__ const branch_table[static_cast<std::size_t>(instruction::count)]{
+		static constexpr const void* __restrict__ const bt[static_cast<std::size_t>(instruction::count)]{
 			&&__int__,
 			&&__intrin__,
 			&&__call__,
@@ -135,8 +135,8 @@ namespace nominax {
 		struct $ {
 			[[nodiscard]]
 			static consteval auto validate_branch_table() noexcept -> bool {
-				const auto* iter = branch_table;
-				const auto* const end = branch_table + sizeof branch_table / sizeof *branch_table;
+				const auto* iter = bt;
+				const auto* const end = bt + sizeof bt / sizeof *bt;
 				while (iter < end) [[likely]] {
 					if (!(*iter++)) [[unlikely]] {
 						return false;
@@ -156,15 +156,13 @@ namespace nominax {
 		interrupt_routine* const							interrupt_handler	{input.interrupt_handler};										/* global interrupt routine */
 		const signal32* const __restrict					ip_lo				{input.code_chunk};
 		const signal32* __restrict__						ip					{ip_lo};														/* instruction ptr lo       */
-		const signal32* const __restrict__					ip_hi				{input.code_chunk + input.code_chunk_size};						/* instruction ptr hi       */
 		record32* __restrict__								sp					{input.stack};													/* stack pointer lo			*/
 		record32* const	__restrict__						sp_hi				{input.stack + input.stack_size};								/* stack pointer hi			*/
-		const void* __restrict__ const* __restrict__ const	bp					{branch_table};													/* branch pointer			*/
 
 		ASM_MARKER("reactor exec");
 
 		// exec first:
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__int__: {
 			ASM_MARKER("__int__");
@@ -173,7 +171,7 @@ namespace nominax {
 				goto _terminate_;
 			}
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__intrin__: {
 			ASM_MARKER("__intrin__");
@@ -184,17 +182,17 @@ namespace nominax {
 				(**(intrinsic_table + iid))();
 			}
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__call__: {
 			ASM_MARKER("__call__");
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__ret__: {
 			ASM_MARKER("__ret__");
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__mov__: {
 			ASM_MARKER("__mov__");
@@ -202,7 +200,7 @@ namespace nominax {
 			const u32 src{(*++ip).r32.u};		// imm() -> arg 2 (reg) - src
 			*(sp + dst) = *(sp + src);			// poke(dst) = poke(src)
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__sto__: {
 			ASM_MARKER("__sto__");
@@ -210,29 +208,30 @@ namespace nominax {
 			const u32 imm{(*++ip).r32.u};		// imm() -> arg 2 (reg) - raw bits
 			(*(sp + dst)).u = imm;				// poke(dst) = imm()
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__push__:
+		// TODO: CHECK FOR STACK OVERFLOW
 		ASM_MARKER("__push__");
 		*++sp = (*++ip).r32;					// push(imm())
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__pop__:
 		ASM_MARKER("__pop__");
 		--sp;
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__pop2__:
 		ASM_MARKER("__pop2__");
 		sp -= 2;
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__dupl__: {
 			ASM_MARKER("__dupl__");
 			const auto top{*sp};				// peek()
 			*++sp = top;						// push(peek())
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__dupl2__: {
 			ASM_MARKER("__dupl2__");
@@ -240,177 +239,177 @@ namespace nominax {
 			*++sp = top;						// push(peek())
 			*++sp = top;						// push(peek())
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__nop__:
 		ASM_MARKER("__nop__");
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__ipushz__:
 		ASM_MARKER("__ipushz__");
 		(*++sp).u = 0;							// push(0)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__ipusho__:
 		ASM_MARKER("__ipusho__");
 		(*++sp).u = 1;							// push(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__fpusho__:
 		ASM_MARKER("__fpusho__");
 		(*++sp).f = 1.F;						// push(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 		
 	__iinc__:
 		ASM_MARKER("__iinc__");
 		++sp->i;
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__idec__:
 		ASM_MARKER("__idec__");
 		--sp->i;
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__iadd__:
 		ASM_MARKER("__iadd__");
 		--sp;									// pop
 		(*sp).i += (*(sp + 1)).i;				// peek() += poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__isub__:
 		ASM_MARKER("__isub__");
 		--sp;									// pop
 		(*sp).i -= (*(sp + 1)).i;				// peek() -= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 		
 	__imul__:
 		ASM_MARKER("__imul__");
 		--sp;									// pop
 		(*sp).i *= (*(sp + 1)).i;				// peek() *= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__idiv__:
 		ASM_MARKER("__idiv__");
 		--sp;									// pop
 		(*sp).i /= (*(sp + 1)).i;				// peek() /= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__imod__:
 		ASM_MARKER("__imod__");
 		--sp;									// pop
 		(*sp).i %= (*(sp + 1)).i;				// peek() %= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__iand__:
 		ASM_MARKER("__iand__");
 		--sp;									// pop
 		(*sp).i &= (*(sp + 1)).i;				// peek() &= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__ior__:
 		ASM_MARKER("__ior__");
 		--sp;									// pop
 		(*sp).i |= (*(sp + 1)).i;				// peek() |= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__ixor__:
 		ASM_MARKER("__ixor__");
 		--sp;									// pop
 		(*sp).i ^= (*(sp + 1)).i;				// peek() ^= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__icom__:
 		ASM_MARKER("__icom__");
 		(*sp).i = ~(*sp).i;
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__isal__:
 		ASM_MARKER("__isal__");
 		--sp;									// pop
 		(*sp).i <<= (*(sp + 1)).i;				// peek() <<= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__isar__:
 		ASM_MARKER("__isar__");
 		--sp;									// pop
 		(*sp).i >>= (*(sp + 1)).i;				// peek() >>= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__irol__:
 		ASM_MARKER("__irol__");
 		--sp;									// pop
 		(*sp).u = rol((*sp).u, (*(sp + 1)).i);
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__iror__:
 		ASM_MARKER("__iror__");
 		--sp;									// pop
 		(*sp).u = ror((*sp).u, (*(sp + 1)).i);
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__ineg__:
 		ASM_MARKER("__ineg__");
 		(*sp).i = -(*sp).i;
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__fadd__:
 		ASM_MARKER("__fadd__");
 		--sp;									// pop
 		(*sp).f += (*(sp + 1)).f;				// peek() += poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__fsub__:
 		ASM_MARKER("__fsub__");
 		--sp;									// pop
 		(*sp).f -= (*(sp + 1)).f;				// peek() -= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__fmul__:
 		ASM_MARKER("__fmul__");
 		--sp;									// pop
 		(*sp).f *= (*(sp + 1)).f;				// peek() *= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__fdiv__:
 		ASM_MARKER("__fdiv__");
 		--sp;									// pop
 		(*sp).f /= (*(sp + 1)).f;				// peek() /= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__fmod__:
 		ASM_MARKER("__fmod__");
 		--sp;									// pop
 		*sp %= (*(sp + 1)).f;					// peek() %= poke(1)
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__fneg__:
 		ASM_MARKER("__fneg__");
 		(*sp).f = -(*sp).f;
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__finc__:
 		ASM_MARKER("__finc__");
 		++sp->f;
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__fdec__:
 		ASM_MARKER("__fdec__");
 		--sp->f;
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__jmp__: {
 			ASM_MARKER("__jmp__");
 			const u32 abs{(*++ip).r32.u};		// absolute address
 			ip = ip_lo + abs;					// ip = begin + offset
 		}
-		goto **(bp + (*ip).op);					// next_instr() -> no inc -> new address
+		goto **(bt + (*ip).op);					// next_instr() -> no inc -> new address
 
 	__jmprel__: {
 			ASM_MARKER("__jmprel__");
 			const u32 rel{(*++ip).r32.u};		// relative address
 			ip += rel;							// ip +-= rel
 		}
-		goto **(bp + (*ip).op);					// next_instr() -> no inc -> new address
+		goto **(bt + (*ip).op);					// next_instr() -> no inc -> new address
 
 	__jz__: {
 			ASM_MARKER("__jz__");
@@ -420,7 +419,7 @@ namespace nominax {
 			}
 			--sp;								// pop()
 		}	
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__jnz__: {
 			ASM_MARKER("__jnz__");
@@ -430,7 +429,7 @@ namespace nominax {
 			}
 			--sp;								// pop()
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__jo_cmpi__: {
 			ASM_MARKER("__jo_cmpi__");
@@ -440,7 +439,7 @@ namespace nominax {
 			}
 			--sp;								// pop()
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__jo_cmpf__: {
 			ASM_MARKER("__jo_cmpf__");
@@ -450,7 +449,7 @@ namespace nominax {
 			}
 			--sp;								// pop()
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__jno_cmpi__: {
 			ASM_MARKER("__jno_cmpi__");
@@ -460,7 +459,7 @@ namespace nominax {
 			}
 			--sp;								// pop()
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 
 	__jno_cmpf__: {
 			ASM_MARKER("__jno_cmpf__");
@@ -470,7 +469,7 @@ namespace nominax {
 			}
 			--sp;								// pop()
 		}
-		goto **(bp + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).op);				// next_instr()
 		
 	_terminate_:
 		ASM_MARKER("reactor end");
