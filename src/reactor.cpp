@@ -104,7 +104,9 @@ namespace nominax {
 			&&__finc__,
 			&&__fdec__,
 			&&__jmp__,
-			&&__jmprel__
+			&&__jmprel__,
+			&&__jz__,
+			&&__jnz__
 		};
 		
 		struct $ {
@@ -374,14 +376,34 @@ namespace nominax {
 			const u32 abs{(*++ip).r32.u};		// absolute address
 			ip = ip_lo + abs;					// ip = begin + offset
 		}
-		goto **(bp + (*ip).op);					// next_instr() -> no increment because of new address
+		goto **(bp + (*ip).op);					// next_instr() -> no inc -> new address
 
 	__jmprel__: {
 			ASM_MARKER("__jmprel__");
 			const u32 rel{(*++ip).r32.u};		// relative address
 			ip += rel;							// ip +-= rel
 		}
-		goto **(bp + (*ip).op);					// next_instr()
+		goto **(bp + (*ip).op);					// next_instr() -> no inc -> new address
+
+	__jz__: {
+			ASM_MARKER("__jz__");
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			if (sp->u == 0) {
+				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
+			}
+			--sp;								// pop()
+		}	
+		goto **(bp + (*++ip).op);				// next_instr() -> no inc -> new address
+
+	__jnz__: {
+			ASM_MARKER("__jnz__");
+			const u32 abs{(*++ip).r32.u};		// absolute address
+			if (sp->u != 0) {
+				ip = ip_lo + abs - 1;			// ip = begin + offset - 1 (inc stride)
+			}
+			--sp;								// pop()
+		}
+		goto **(bp + (*++ip).op);				// next_instr() -> no inc -> new address
 		
 	_terminate_:
 		ASM_MARKER("reactor end");
