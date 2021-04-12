@@ -61,33 +61,47 @@ namespace nominax {
 		count
 	};
 
-	union alignas(alignof(opcode)) signal64 {
+
+	/* 64-bit byte code signal data contains either an instruction or an immediate value. */
+	union alignas(alignof(opcode)) csignal {
 		record64 r64;
 		instruction instr;
 		opcode op;
 		void* ptr;
 
-		explicit constexpr signal64(record64 x_) noexcept;
-		explicit constexpr signal64(instruction x_) noexcept;
-		explicit constexpr signal64(void* x_) noexcept;
-		explicit constexpr signal64(i64 x_) noexcept;
-		explicit constexpr signal64(u64 x_) noexcept;
-		explicit constexpr signal64(f64 x_) noexcept;
-		explicit constexpr signal64(c32 x_) noexcept;
+		explicit constexpr csignal(record64 x_) noexcept;
+		explicit constexpr csignal(instruction x_) noexcept;
+		explicit constexpr csignal(void* x_) noexcept;
+		explicit constexpr csignal(i64 x_) noexcept;
+		explicit constexpr csignal(u64 x_) noexcept;
+		explicit constexpr csignal(f64 x_) noexcept;
+		explicit constexpr csignal(c32 x_) noexcept;
 	};
 
-	constexpr signal64::signal64(const record64 x_) noexcept : r64{x_} {}
-	constexpr signal64::signal64(const instruction x_) noexcept : instr{x_} {}
-	constexpr signal64::signal64(void* const x_) noexcept : ptr{x_} {}
-	constexpr signal64::signal64(const i64 x_) noexcept : r64{x_} {}
-	constexpr signal64::signal64(const u64 x_) noexcept : r64{x_} {}
-	constexpr signal64::signal64(const f64 x_) noexcept : r64{x_} {}
-	constexpr signal64::signal64(const c32 x_) noexcept : r64{x_} {}
+	constexpr csignal::csignal(const record64 x_) noexcept : r64{x_} {}
+	constexpr csignal::csignal(const instruction x_) noexcept : instr{x_} {}
+	constexpr csignal::csignal(void* const x_) noexcept : ptr{x_} {}
+	constexpr csignal::csignal(const i64 x_) noexcept : r64{x_} {}
+	constexpr csignal::csignal(const u64 x_) noexcept : r64{x_} {}
+	constexpr csignal::csignal(const f64 x_) noexcept : r64{x_} {}
+	constexpr csignal::csignal(const c32 x_) noexcept : r64{x_} {}
+
+	constexpr auto operator""_sig_u(const unsigned long long int x_) noexcept -> csignal {
+		return csignal{static_cast<u64>(x_)};
+	}
+
+	constexpr auto operator""_sig_i(const unsigned long long int x_) noexcept -> csignal {
+		return csignal{static_cast<i64>(x_)};
+	}
+
+	constexpr auto operator""_sig_f(const long double x_) noexcept -> csignal {
+		return csignal{static_cast<f64>(x_)};
+	}
 
 	static_assert(std::is_same_v<std::underlying_type_t<instruction>, std::uint64_t>);
 	static_assert(sizeof(instruction) == alignof(u64));
 	static_assert(alignof(instruction) == alignof(u64));
-	static_assert(sizeof(signal64) == alignof(u64));
-	static_assert(alignof(signal64) == alignof(u64));
-	static_assert(std::is_standard_layout_v<signal64>);
+	static_assert(sizeof(csignal) == alignof(u64));
+	static_assert(alignof(csignal) == alignof(u64));
+	static_assert(std::is_standard_layout_v<csignal>);
 }

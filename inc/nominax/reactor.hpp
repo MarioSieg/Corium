@@ -22,7 +22,7 @@ namespace nominax {
 	/// </summary>
 	struct reactor_input final {
 		volatile std::sig_atomic_t*		test_signal_status		{nullptr};
-		const signal64*					code_chunk				{nullptr};
+		const csignal*					code_chunk				{nullptr};
 		std::size_t						code_chunk_size			{0};
 		intrinsic_routine**				intrinsic_table			{nullptr};
 		std::size_t						intrinsic_table_size	{0};
