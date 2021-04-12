@@ -57,10 +57,17 @@ namespace nominax {
 		je_cmpf		= 0x00'00'00'00'00'00'00'30,
 		jne_cmpi	= 0x00'00'00'00'00'00'00'31,
 		jne_cmpf	= 0x00'00'00'00'00'00'00'32,
+		ja_cmpi		= 0x00'00'00'00'00'00'00'33,
+		ja_cmpf		= 0x00'00'00'00'00'00'00'34,
+		jl_cmpi		= 0x00'00'00'00'00'00'00'35,
+		jl_cmpf		= 0x00'00'00'00'00'00'00'36,
+		jae_cmpi	= 0x00'00'00'00'00'00'00'37,
+		jae_cmpf	= 0x00'00'00'00'00'00'00'38,
+		jle_cmpi	= 0x00'00'00'00'00'00'00'39,
+		jle_cmpf	= 0x00'00'00'00'00'00'00'3A,
 		
 		count
 	};
-
 
 	/* 64-bit byte code signal data contains either an instruction or an immediate value. */
 	union alignas(alignof(opcode)) csignal {
