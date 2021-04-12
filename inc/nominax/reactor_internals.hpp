@@ -11,24 +11,24 @@
 
 namespace nominax {
 	[[nodiscard]]
-	__attribute__((always_inline)) inline auto rol(const u32 n, u32 x) noexcept -> u32 {
+	__attribute__((always_inline)) inline auto rol(const u64 n, u64 x) noexcept -> u64 {
 		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
-			return _rotl(n, x);
+			return _rotl64(n, x);
 		#else
 			return std::rotl<decltype(x)>(n, x);
 		#endif
 	}
 
 	[[nodiscard]]
-	__attribute__((always_inline)) inline auto ror(const u32 n, u32 x) noexcept -> u32 {
+	__attribute__((always_inline)) inline auto ror(const u64 n, u64 x) noexcept -> u64 {
 		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
-				return _rotr(n, x);
+				return _rotr64(n, x);
 		#else
 				return std::rotr<decltype(x)>(n, x);
 		#endif
 	}
 
-	__attribute__((always_inline)) inline void operator %=(record32& x, const f32 y) noexcept {
+	__attribute__((always_inline)) inline void operator %=(record64& x, const f64 y) noexcept {
 		x.f = std::fmod(x.f, y);
 	}
 
@@ -65,10 +65,10 @@ namespace nominax {
 	}
 
 	union f32_repr {
-		explicit constexpr f32_repr(f32 x) noexcept;
+		explicit constexpr f32_repr(f64 x) noexcept;
 		
-		f32 f;
-		i32 i;
+		f64 f;
+		i64 i;
 
 		[[nodiscard]] constexpr auto is_negative() const noexcept -> bool;
 		[[nodiscard]] constexpr auto raw_mantissa() const noexcept -> std::uint32_t;
@@ -82,7 +82,7 @@ namespace nominax {
 		};
 	};
 
-	__attribute__((always_inline)) constexpr f32_repr::f32_repr(const f32 x) noexcept : f(x) {}
+	__attribute__((always_inline)) constexpr f32_repr::f32_repr(const f64 x) noexcept : f(x) {}
 	__attribute__((always_inline)) constexpr auto f32_repr::is_negative() const noexcept -> bool { return (this->i >> 31) != 0; }
 	__attribute__((always_inline)) constexpr auto f32_repr::raw_mantissa() const noexcept -> std::uint32_t { return this->i & ((1 << 23) - 1); }
 	__attribute__((always_inline)) constexpr auto f32_repr::raw_exponent() const noexcept -> std::uint8_t { return (this->i >> 23) & 0xFF; }
