@@ -19,7 +19,9 @@ add_library("libnominax"
     "inc/nominax/bytecode.hpp"
     "src/reactor.cpp" 
 	"inc/nominax/record.hpp" 
-	"inc/nominax/macrocfg.hpp" "inc/nominax/rttypes.hpp")
+	"inc/nominax/macrocfg.hpp" 
+	"inc/nominax/runtime.hpp"
+	"inc/nominax/interrupts.hpp" "inc/nominax/info.hpp")
 
 add_executable("nominax" "src/main.cpp")
 target_link_libraries("nominax" "libnominax")

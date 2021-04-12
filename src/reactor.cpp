@@ -2,8 +2,8 @@
 #include <array>
 
 #include "../inc/nominax/reactor.hpp"
+#include "../inc/nominax/interrupts.hpp"
 #include "../inc/nominax/macrocfg.hpp"
-#include "../inc/nominax/platform.hpp"
 #include "../inc/nominax/reactor_internals.hpp"
 
 namespace nominax {
@@ -74,9 +74,8 @@ namespace nominax {
 	auto execute_reactor(const reactor_input& input) -> reactor_output {
 		if (const auto result = input.validate(); result != reactor_validation_result::ok) [[unlikely]] {
 			return reactor_output{
+				.input = &input,
 				.validation_result = result,
-				.input = input,
-				.status = false
 			};
 		}
 		
@@ -154,14 +153,13 @@ namespace nominax {
 		ASM_MARKER("#" "reactor begin");
 		
 		interrupt_accumulator								interrupt			{};																/* interrupt id flag        */
-		void*												usr_dat				{input.user_data};												/* user data                */
-		volatile std::sig_atomic_t* const					test_signal_status	{input.test_signal_status};										/* signal status flag       */
+		void*												usr_dat				{input.user_data};												/* user data                */										/* signal status flag       */
 		intrinsic_routine* const* const						intrinsic_table		{input.intrinsic_table};										/* intrinsic table hi       */
 		interrupt_routine* const							interrupt_handler	{input.interrupt_handler};										/* global interrupt routine */
 		const signal64* const __restrict					ip_lo				{input.code_chunk};
 		const signal64* __restrict__						ip					{ip_lo};														/* instruction ptr lo       */
 		record64* __restrict__								sp					{input.stack};													/* stack pointer lo			*/
-		record64* const	__restrict__						sp_hi				{input.stack + input.stack_size};								/* stack pointer hi			*/
+		record64* const	__restrict__						sp_hi				{input.stack + input.stack_size - 1};								/* stack pointer hi			*/
 
 		ASM_MARKER("reactor exec");
 
@@ -170,8 +168,9 @@ namespace nominax {
 
 	__int__: {
 			ASM_MARKER("__int__");
-			interrupt = (*++ip).r64.u;			// imm()
-			if (UNLIKELY(interrupt < 0 || !interrupt_handler(interrupt, *test_signal_status, usr_dat))) [[unlikely]] {
+			interrupt = (*++ip).r64.r32.i;
+			// check if interrupt handler request exit or interrupt is error (interrupt < 0) or success (interrupt == 0)
+			if (UNLIKELY(!interrupt_handler(interrupt, usr_dat) || interrupt <= 0)) {
 				goto _terminate_;
 			}
 		}
@@ -180,7 +179,7 @@ namespace nominax {
 	__intrin__: {
 			ASM_MARKER("__intrin__");
 			const i64 iid{(*++ip).r64.i};		// imm()
-			if (LIKELY(iid < 0)) [[likely]] {
+			if (LIKELY(iid < 0)) {
 				// TODO call build-in
 			} else {
 				(**(intrinsic_table + iid))();
@@ -214,9 +213,14 @@ namespace nominax {
 		}
 		goto **(bt + (*++ip).op);				// next_instr()
 
-	__push__:
-		// TODO: CHECK FOR STACK OVERFLOW
+	__push__:							
 		ASM_MARKER("__push__");
+		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
+			if (UNLIKELY(sp == sp_hi)) [[unlikely]] {	// check for stack overflow
+				interrupt = er_stack_overflow;			// hard system fault
+				goto _hard_fault_err_;					// kill
+			}
+		#endif
 		*++sp = (*++ip).r64;					// push(imm())
 		goto **(bt + (*++ip).op);				// next_instr()
 
@@ -232,6 +236,12 @@ namespace nominax {
 
 	__dupl__: {
 			ASM_MARKER("__dupl__");
+			#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
+				if (UNLIKELY(sp == sp_hi)) [[unlikely]] {	// check for stack overflow
+					interrupt = er_stack_overflow;			// hard system fault
+					goto _hard_fault_err_;					// kill
+				}
+			#endif
 			const auto top{*sp};				// peek()
 			*++sp = top;						// push(peek())
 		}
@@ -239,6 +249,12 @@ namespace nominax {
 
 	__dupl2__: {
 			ASM_MARKER("__dupl2__");
+			#if NOMINAX_STACK_OVERFLOW_CHECKS					// push 2 check
+				if (UNLIKELY(sp + 1 >= sp_hi)) [[unlikely]] {	// check for stack overflow
+					interrupt = er_stack_overflow;				// hard system fault
+					goto _hard_fault_err_;						// kill
+				}
+			#endif
 			const auto top{*sp};				// peek
 			*++sp = top;						// push(peek())
 			*++sp = top;						// push(peek())
@@ -251,16 +267,34 @@ namespace nominax {
 
 	__ipushz__:
 		ASM_MARKER("__ipushz__");
+		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
+			if (UNLIKELY(sp == sp_hi)) [[unlikely]] {	// check for stack overflow
+				interrupt = er_stack_overflow;			// hard system fault
+				goto _hard_fault_err_;					// kill
+			}
+		#endif
 		(*++sp).u = 0;							// push(0)
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__ipusho__:
 		ASM_MARKER("__ipusho__");
+		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
+			if (UNLIKELY(sp == sp_hi)) [[unlikely]] {	// check for stack overflow
+				interrupt = er_stack_overflow;			// hard system fault
+				goto _hard_fault_err_;					// kill
+			}
+		#endif
 		(*++sp).u = 1;							// push(1)
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__fpusho__:
 		ASM_MARKER("__fpusho__");
+		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
+			if (UNLIKELY(sp == sp_hi)) [[unlikely]] {	// check for stack overflow
+				interrupt = er_stack_overflow;			// hard system fault
+				goto _hard_fault_err_;					// kill
+			}
+		#endif
 		(*++sp).f = 1.0;						// push(1)
 		goto **(bt + (*++ip).op);				// next_instr()
 		
@@ -514,25 +548,24 @@ namespace nominax {
 			--sp;								// pop()
 		}
 		goto **(bt + (*++ip).op);				// next_instr()
-		
-	_terminate_:
-		ASM_MARKER("reactor end");
-		const auto post = std::chrono::high_resolution_clock::now();
-		const auto dur = post - pre;
-		const auto ip_diff = static_cast<std::ptrdiff_t>(ip - input.code_chunk);
-		const auto sp_diff = static_cast<std::ptrdiff_t>(sp - input.stack);
 
+	_hard_fault_err_:
+	_terminate_:
+		ASM_MARKER("_terminate_");
+		const auto post = std::chrono::high_resolution_clock::now();
+		
 		ASM_MARKER("reactor ret");
 		return {
+			.input = &input,
 			.validation_result = reactor_validation_result::ok,
-			.input = input,
-			.status = !interrupt,
+			.terminate_result = convert_terminate_type(interrupt),
+			.system_interrupt = convert_to_system_interrupt_or_unknown(interrupt),
 			.pre = pre,
 			.post = post,
-			.duration = dur,
+			.duration = post - pre,
 			.interrupt = interrupt,
-			.ip_diff = ip_diff,
-			.sp_diff = sp_diff,
+			.ip_diff = static_cast<std::ptrdiff_t>(ip - input.code_chunk),
+			.sp_diff = static_cast<std::ptrdiff_t>(sp - input.stack),
 		};
 	}
 }
