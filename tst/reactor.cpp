@@ -1368,6 +1368,294 @@ TEST(reactor_execution, __jne_cmpf__) {
 	ASSERT_EQ(o.interrupt, -0xFF);
 }
 
+TEST(reactor_execution, __ja_cmpi__) {
+	const std::array<csignal, 17> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::ja_cmpi},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
+		csignal{instruction::push},
+		csignal{INT64_C(3)},
+		csignal{instruction::push},
+		csignal{INT64_C(53)},
+		csignal{instruction::ja_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 3);
+	ASSERT_EQ(o.input->stack[2].i, 53);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 16);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __ja_cmpf__) {
+	const std::array<csignal, 17> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{5.0},
+		csignal{instruction::push},
+		csignal{2.0},
+		csignal{instruction::ja_cmpf},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
+		csignal{instruction::push},
+		csignal{3.0},
+		csignal{instruction::push},
+		csignal{53.0},
+		csignal{instruction::ja_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].f, 3.0);
+	ASSERT_EQ(o.input->stack[2].f, 53.0);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 16);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jl_cmpi__) {
+	const std::array<csignal, 17> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::jl_cmpi},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
+		csignal{instruction::push},
+		csignal{INT64_C(53)},
+		csignal{instruction::push},
+		csignal{INT64_C(3)},
+		csignal{instruction::jl_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 53);
+	ASSERT_EQ(o.input->stack[2].i, 3);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 16);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jl_cmpf__) {
+	const std::array<csignal, 17> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{2.0},
+		csignal{instruction::push},
+		csignal{5.0},
+		csignal{instruction::jl_cmpf},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
+		csignal{instruction::push},
+		csignal{53.0},
+		csignal{instruction::push},
+		csignal{3.0},
+		csignal{instruction::jl_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].f, 53.0);
+	ASSERT_EQ(o.input->stack[2].f, 3.0);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 16);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jae_cmpi__) {
+	const std::array<csignal, 23> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::jae_cmpi},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-3)},
+		csignal{instruction::ipusho},
+		csignal{instruction::ipusho},
+		csignal{instruction::jae_cmpi},
+		csignal{UINT64_C(15)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-5)},
+		csignal{instruction::push},
+		csignal{INT64_C(3)},
+		csignal{instruction::push},
+		csignal{INT64_C(53)},
+		csignal{instruction::jae_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 3);
+	ASSERT_EQ(o.input->stack[2].i, 53);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 22);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jae_cmpf__) {
+	const std::array<csignal, 23> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{5.0},
+		csignal{instruction::push},
+		csignal{2.0},
+		csignal{instruction::jae_cmpf},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-3)},
+		csignal{instruction::ipusho},
+		csignal{instruction::ipusho},
+		csignal{instruction::jae_cmpf},
+		csignal{UINT64_C(15)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-5)},
+		csignal{instruction::push},
+		csignal{3.0},
+		csignal{instruction::push},
+		csignal{53.0},
+		csignal{instruction::jae_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].f, 3.0);
+	ASSERT_EQ(o.input->stack[2].f, 53.0);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 22);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jle_cmpi__) {
+	const std::array<csignal, 23> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::jle_cmpi},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-3)},
+		csignal{instruction::ipusho},
+		csignal{instruction::ipusho},
+		csignal{instruction::jle_cmpi},
+		csignal{UINT64_C(15)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-5)},
+		csignal{instruction::push},
+		csignal{INT64_C(53)},
+		csignal{instruction::push},
+		csignal{INT64_C(3)},
+		csignal{instruction::jle_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 53);
+	ASSERT_EQ(o.input->stack[2].i, 3);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 22);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jle_cmpf__) {
+	const std::array<csignal, 23> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{2.0},
+		csignal{instruction::push},
+		csignal{5.0},
+		csignal{instruction::jle_cmpf},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-3)},
+		csignal{instruction::ipusho},
+		csignal{instruction::ipusho},
+		csignal{instruction::jle_cmpf},
+		csignal{UINT64_C(15)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-5)},
+		csignal{instruction::push},
+		csignal{53.0},
+		csignal{instruction::push},
+		csignal{3.0},
+		csignal{instruction::jle_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].f, 53.0);
+	ASSERT_EQ(o.input->stack[2].f, 3.0);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 22);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
 TEST(reactor_input_validation, valid_pointers) {
 	const auto input = reactor_input{
 		.test_signal_status = &test_signal_status,

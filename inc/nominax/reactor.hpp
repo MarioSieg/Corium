@@ -51,6 +51,5 @@ namespace nominax {
 		std::ptrdiff_t sp_diff{};
 	};
 
-	[[nodiscard]]
-	__attribute__((hot)) extern auto execute_reactor(const reactor_input& input_) -> reactor_output;
+	[[nodiscard]] __attribute__((hot)) extern auto execute_reactor(const reactor_input& input_) -> reactor_output;
 }
