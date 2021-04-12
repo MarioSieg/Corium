@@ -3,7 +3,11 @@
 #include <thread>
 
 #include "../inc/nominax/info.hpp"
+#include "../inc/nominax/memunits.hpp"
+#include "../inc/nominax/os.hpp"
 #include "../inc/nominax/platform.hpp"
+
+namespace nx = nominax;
 
 using std::cout;
 using std::cerr;
@@ -14,10 +18,10 @@ try {
 
 	std::ios_base::sync_with_stdio(false);
 
-	cout << nominax::logo;
-	cout << nominax::info_notice;
+	cout << nx::logo;
+	cout << nx::info_notice;
 
-	cout << "Nominax Version: " << nominax::system_version;
+	cout << "Nominax Version: " << nx::system_version;
 	cout << "\nPlatform: " NOMINAX_OS_NAME " " NOMINAX_ARCH_SIZE_NAME;
 	cout << "\nArch: " << NOMINAX_ARCH_NAME;
 	cout << "\nPosix: " << std::boolalpha << NOMINAX_POSIX;
@@ -27,8 +31,8 @@ try {
 	cout << "\nTID: 0x" << std::hex << std::this_thread::get_id() << std::dec;
 
 	const auto threads = std::thread::hardware_concurrency();
-	cout << "\nThreads: " << threads;
-	cout << "\nMachine class: ";
+	cout << "\nCPU Threads: " << threads;
+	cout << "\nCPU Machine class: ";
 
 	if (threads <= 2) [[unlikely]] {
 		cout << 'F';
@@ -43,7 +47,9 @@ try {
 	} else [[likely]] {
 		cout << 'A';
 	}
-	cout << '\n';
+	
+	cout << "\nTotal RAM: " << nx::b2gb(nx::os::query_system_memory_total()) << " GB";
+	cout << "\nProc RAM: " << nx::b2kb(nx::os::query_process_memory_used()) << " KB";
 }
 catch (const std::exception& ex) {
 	cerr << "[!] Fatal system exception: " << ex.what() << endl;

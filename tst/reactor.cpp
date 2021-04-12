@@ -38,10 +38,10 @@ static reactor_input default_test_input{
 	.user_data = nullptr
 };
 
-static constexpr std::array<signal64, 3> default_test_code = {
-	signal64{instruction::nop}, // first padding
-	signal64{instruction::inter},
-	signal64{INT64_C(5)},
+static constexpr std::array<csignal, 3> default_test_code = {
+	csignal{instruction::nop}, // first padding
+	csignal{instruction::inter},
+	csignal{INT64_C(5)},
 };
 
 TEST(reactor_internals, rol) {
@@ -55,12 +55,12 @@ TEST(reactor_internals, ror) {
 }
 
 TEST(reactor_execution, __int__) {
-	const std::array<signal64, 5> code = {
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::inter},
-		signal64{INT64_C(5)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-12345)},
+	const std::array<csignal, 5> code = {
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::inter},
+		csignal{INT64_C(5)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -94,16 +94,16 @@ TEST(reactor_execution, __int__) {
 }
 
 TEST(reactor_execution, __mov__) {
-	const std::array<signal64, 9> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::sto},
-		signal64{UINT64_C(3)},
-		signal64{3.1415},
-		signal64{instruction::mov},
-		signal64{UINT64_C(8)},
-		signal64{UINT64_C(3)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 9> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::sto},
+		csignal{UINT64_C(3)},
+		csignal{3.1415},
+		csignal{instruction::mov},
+		csignal{UINT64_C(8)},
+		csignal{UINT64_C(3)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -116,16 +116,16 @@ TEST(reactor_execution, __mov__) {
 }
 
 TEST(reactor_execution, __sto__) {
-	const std::array<signal64, 9> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::sto},
-		signal64{UINT64_C(1)},
-		signal64{INT64_C(5657334)},
-		signal64{instruction::sto},
-		signal64{UINT64_C(31)},
-		signal64{3.1415},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 9> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::sto},
+		csignal{UINT64_C(1)},
+		csignal{INT64_C(5657334)},
+		csignal{instruction::sto},
+		csignal{UINT64_C(31)},
+		csignal{3.1415},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -138,14 +138,14 @@ TEST(reactor_execution, __sto__) {
 }
 
 TEST(reactor_execution, __push__) {
-	const std::array<signal64, 7> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(1224)},
-		signal64{instruction::push},
-		signal64{-0.6666},
-		signal64{instruction::inter},
-		signal64{INT64_C(-3)},
+	const std::array<csignal, 7> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(1224)},
+		csignal{instruction::push},
+		csignal{-0.6666},
+		csignal{instruction::inter},
+		csignal{INT64_C(-3)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -164,16 +164,16 @@ TEST(reactor_execution, __push__) {
  */
 
 TEST(reactor_execution, __push_no_stack_overflow__) {
-	const std::array<signal64, 9> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(123)},
-		signal64{instruction::push},
-		signal64{INT64_C(123)},
-		signal64{instruction::push},
-		signal64{INT64_C(123)},
-		signal64{instruction::inter},
-		signal64{INT64_C(0)},
+	const std::array<csignal, 9> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(123)},
+		csignal{instruction::push},
+		csignal{INT64_C(123)},
+		csignal{instruction::push},
+		csignal{INT64_C(123)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<record64, 4> stack{record64::nop_padding()};
@@ -194,18 +194,18 @@ TEST(reactor_execution, __push_no_stack_overflow__) {
 }
 
 TEST(reactor_execution, __push_stack_overflow__) {
-	const std::array<signal64, 11> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(123)},
-		signal64{instruction::push},
-		signal64{INT64_C(123)},
-		signal64{instruction::push},
-		signal64{INT64_C(123)},
-		signal64{instruction::push},
-		signal64{INT64_C(123)},
-		signal64{instruction::inter},
-		signal64{INT64_C(0)},
+	const std::array<csignal, 11> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(123)},
+		csignal{instruction::push},
+		csignal{INT64_C(123)},
+		csignal{instruction::push},
+		csignal{INT64_C(123)},
+		csignal{instruction::push},
+		csignal{INT64_C(123)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<record64, 4> stack{record64::nop_padding()};
@@ -226,15 +226,15 @@ TEST(reactor_execution, __push_stack_overflow__) {
 }
 
 TEST(reactor_execution, __dupl_stack_overflow__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(123)},
-		signal64{instruction::dupl},
-		signal64{instruction::dupl},
-		signal64{instruction::dupl},
-		signal64{instruction::inter},
-		signal64{INT64_C(0)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(123)},
+		csignal{instruction::dupl},
+		csignal{instruction::dupl},
+		csignal{instruction::dupl},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<record64, 4> stack{record64::nop_padding()};
@@ -255,15 +255,15 @@ TEST(reactor_execution, __dupl_stack_overflow__) {
 }
 
 TEST(reactor_execution, __dupl2_stack_overflow__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(123)},
-		signal64{instruction::dupl2},
-		signal64{instruction::dupl2},
-		signal64{instruction::dupl2},
-		signal64{instruction::inter},
-		signal64{INT64_C(0)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(123)},
+		csignal{instruction::dupl2},
+		csignal{instruction::dupl2},
+		csignal{instruction::dupl2},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<record64, 4> stack{record64::nop_padding()};
@@ -284,14 +284,14 @@ TEST(reactor_execution, __dupl2_stack_overflow__) {
 }
 
 TEST(reactor_execution, __pushz_stack_overflow__) {
-	const std::array<signal64, 7> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::pushz},
-		signal64{instruction::pushz},
-		signal64{instruction::pushz},
-		signal64{instruction::pushz},
-		signal64{instruction::inter},
-		signal64{INT64_C(0)},
+	const std::array<csignal, 7> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::pushz},
+		csignal{instruction::pushz},
+		csignal{instruction::pushz},
+		csignal{instruction::pushz},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<record64, 4> stack{record64::nop_padding()};
@@ -312,14 +312,14 @@ TEST(reactor_execution, __pushz_stack_overflow__) {
 }
 
 TEST(reactor_execution, __ipusho_stack_overflow__) {
-	const std::array<signal64, 7> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::ipusho},
-		signal64{instruction::ipusho},
-		signal64{instruction::ipusho},
-		signal64{instruction::ipusho},
-		signal64{instruction::inter},
-		signal64{INT64_C(0)},
+	const std::array<csignal, 7> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::ipusho},
+		csignal{instruction::ipusho},
+		csignal{instruction::ipusho},
+		csignal{instruction::ipusho},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<record64, 4> stack{record64::nop_padding()};
@@ -340,14 +340,14 @@ TEST(reactor_execution, __ipusho_stack_overflow__) {
 }
 
 TEST(reactor_execution, __fpusho_stack_overflow__) {
-	const std::array<signal64, 7> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::fpusho},
-		signal64{instruction::fpusho},
-		signal64{instruction::fpusho},
-		signal64{instruction::fpusho},
-		signal64{instruction::inter},
-		signal64{INT64_C(0)},
+	const std::array<csignal, 7> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::fpusho},
+		csignal{instruction::fpusho},
+		csignal{instruction::fpusho},
+		csignal{instruction::fpusho},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<record64, 4> stack{record64::nop_padding()};
@@ -370,16 +370,16 @@ TEST(reactor_execution, __fpusho_stack_overflow__) {
 #endif
 
 TEST(reactor_execution, __pop__) {
-	std::array<signal64, 9> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(1224)},
-		signal64{instruction::push},
-		signal64{-0.6666F},
-		signal64{instruction::pop},
-		signal64{instruction::pop},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	std::array<csignal, 9> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(1224)},
+		csignal{instruction::push},
+		csignal{-0.6666F},
+		csignal{instruction::pop},
+		csignal{instruction::pop},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -399,15 +399,15 @@ TEST(reactor_execution, __pop__) {
 }
 
 TEST(reactor_execution, __pop2__) {
-	std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{UINT64_C(1224)},
-		signal64{instruction::push},
-		signal64{-0.6666F},
-		signal64{instruction::pop2},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{UINT64_C(1224)},
+		csignal{instruction::push},
+		csignal{-0.6666F},
+		csignal{instruction::pop2},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -421,16 +421,16 @@ TEST(reactor_execution, __pop2__) {
 }
 
 TEST(reactor_execution, __dupl__) {
-	const std::array<signal64, 9> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(5)},
-		signal64{instruction::dupl},
-		signal64{instruction::push},
-		signal64{INT64_C(-2)},
-		signal64{instruction::dupl},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 9> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::dupl},
+		csignal{instruction::push},
+		csignal{INT64_C(-2)},
+		csignal{instruction::dupl},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -445,16 +445,16 @@ TEST(reactor_execution, __dupl__) {
 }
 
 TEST(reactor_execution, __dupl2__) {
-	const std::array<signal64, 9> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(5)},
-		signal64{instruction::dupl2},
-		signal64{instruction::push},
-		signal64{INT64_C(0xFF)},
-		signal64{instruction::dupl2},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 9> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::dupl2},
+		csignal{instruction::push},
+		csignal{INT64_C(0xFF)},
+		csignal{instruction::dupl2},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -471,17 +471,17 @@ TEST(reactor_execution, __dupl2__) {
 }
 
 TEST(reactor_execution, __iinc__) {
-	const std::array<signal64, 10> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(0)},
-		signal64{instruction::iinc},
-		signal64{instruction::iinc},
-		signal64{instruction::iinc},
-		signal64{instruction::iinc},
-		signal64{instruction::iinc},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 10> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(0)},
+		csignal{instruction::iinc},
+		csignal{instruction::iinc},
+		csignal{instruction::iinc},
+		csignal{instruction::iinc},
+		csignal{instruction::iinc},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -495,17 +495,17 @@ TEST(reactor_execution, __iinc__) {
 }
 
 TEST(reactor_execution, __idec__) {
-	const std::array<signal64, 10> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(2)},
-		signal64{instruction::idec},
-		signal64{instruction::idec},
-		signal64{instruction::idec},
-		signal64{instruction::idec},
-		signal64{instruction::idec},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 10> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::idec},
+		csignal{instruction::idec},
+		csignal{instruction::idec},
+		csignal{instruction::idec},
+		csignal{instruction::idec},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -518,13 +518,13 @@ TEST(reactor_execution, __idec__) {
 }
 
 TEST(reactor_execution, __pushz__) {
-	const std::array<signal64, 6> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::pushz},
-		signal64{instruction::pushz},
-		signal64{instruction::pushz},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 6> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::pushz},
+		csignal{instruction::pushz},
+		csignal{instruction::pushz},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -538,13 +538,13 @@ TEST(reactor_execution, __pushz__) {
 }
 
 TEST(reactor_execution, __ipusho__) {
-	const std::array<signal64, 6> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::ipusho},
-		signal64{instruction::pushz},
-		signal64{instruction::ipusho},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 6> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::ipusho},
+		csignal{instruction::pushz},
+		csignal{instruction::ipusho},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -558,15 +558,15 @@ TEST(reactor_execution, __ipusho__) {
 }
 
 TEST(reactor_execution, __iadd__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(2)},
-		signal64{instruction::push},
-		signal64{INT64_C(5)},
-		signal64{instruction::iadd},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::iadd},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -580,15 +580,15 @@ TEST(reactor_execution, __iadd__) {
 }
 
 TEST(reactor_execution, __isub__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(2)},
-		signal64{instruction::push},
-		signal64{INT64_C(5)},
-		signal64{instruction::isub},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::isub},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -602,15 +602,15 @@ TEST(reactor_execution, __isub__) {
 }
 
 TEST(reactor_execution, __imul__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(2)},
-		signal64{instruction::push},
-		signal64{INT64_C(5)},
-		signal64{instruction::imul},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::imul},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -624,15 +624,15 @@ TEST(reactor_execution, __imul__) {
 }
 
 TEST(reactor_execution, __idiv__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(10)},
-		signal64{instruction::push},
-		signal64{INT64_C(5)},
-		signal64{instruction::idiv},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(10)},
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::idiv},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -646,15 +646,15 @@ TEST(reactor_execution, __idiv__) {
 }
 
 TEST(reactor_execution, __imod__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(10)},
-		signal64{instruction::push},
-		signal64{INT64_C(5)},
-		signal64{instruction::imod},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(10)},
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::imod},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -668,15 +668,15 @@ TEST(reactor_execution, __imod__) {
 }
 
 TEST(reactor_execution, __iand__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(0b1101'1101)},
-		signal64{instruction::push},
-		signal64{INT64_C(0b0111'0111)},
-		signal64{instruction::iand},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(0b1101'1101)},
+		csignal{instruction::push},
+		csignal{INT64_C(0b0111'0111)},
+		csignal{instruction::iand},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -690,15 +690,15 @@ TEST(reactor_execution, __iand__) {
 }
 
 TEST(reactor_execution, __ior__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(0b1101'1101)},
-		signal64{instruction::push},
-		signal64{INT64_C(0b0111'0111)},
-		signal64{instruction::ior},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(0b1101'1101)},
+		csignal{instruction::push},
+		csignal{INT64_C(0b0111'0111)},
+		csignal{instruction::ior},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -712,15 +712,15 @@ TEST(reactor_execution, __ior__) {
 }
 
 TEST(reactor_execution, __ixor__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(0b1101'1101)},
-		signal64{instruction::push},
-		signal64{INT64_C(0b0111'0111)},
-		signal64{instruction::ixor},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(0b1101'1101)},
+		csignal{instruction::push},
+		csignal{INT64_C(0b0111'0111)},
+		csignal{instruction::ixor},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -734,13 +734,13 @@ TEST(reactor_execution, __ixor__) {
 }
 
 TEST(reactor_execution, __icom__) {
-	const std::array<signal64, 6> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(0b1101'1101)},
-		signal64{instruction::icom},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 6> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(0b1101'1101)},
+		csignal{instruction::icom},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -753,15 +753,15 @@ TEST(reactor_execution, __icom__) {
 }
 
 TEST(reactor_execution, __isal__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(1)},
-		signal64{instruction::push},
-		signal64{INT64_C(2)},
-		signal64{instruction::isal},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(1)},
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::isal},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -775,15 +775,15 @@ TEST(reactor_execution, __isal__) {
 }
 
 TEST(reactor_execution, __isar__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(1)},
-		signal64{instruction::push},
-		signal64{INT64_C(2)},
-		signal64{instruction::isar},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(1)},
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::isar},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -797,15 +797,15 @@ TEST(reactor_execution, __isar__) {
 }
 
 TEST(reactor_execution, __irol__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(1)},
-		signal64{instruction::push},
-		signal64{INT64_C(2)},
-		signal64{instruction::irol},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(1)},
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::irol},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -819,15 +819,15 @@ TEST(reactor_execution, __irol__) {
 }
 
 TEST(reactor_execution, __iror__) {
-	const std::array<signal64, 8> code = {
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(1)},
-		signal64{instruction::push},
-		signal64{INT64_C(2)},
-		signal64{instruction::iror},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code = {
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(1)},
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::iror},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -841,13 +841,13 @@ TEST(reactor_execution, __iror__) {
 }
 
 TEST(reactor_execution, __ineg__) {
-	const std::array<signal64, 6> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{INT64_C(10)},
-		signal64{instruction::ineg},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 6> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(10)},
+		csignal{instruction::ineg},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -860,15 +860,15 @@ TEST(reactor_execution, __ineg__) {
 }
 
 TEST(reactor_execution, __fadd__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{4.25},
-		signal64{instruction::push},
-		signal64{2.50},
-		signal64{instruction::fadd},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{4.25},
+		csignal{instruction::push},
+		csignal{2.50},
+		csignal{instruction::fadd},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -884,15 +884,15 @@ TEST(reactor_execution, __fadd__) {
 // TODO: FMOD
 
 TEST(reactor_execution, __fsub__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{4.25},
-		signal64{instruction::push},
-		signal64{2.50},
-		signal64{instruction::fsub},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{4.25},
+		csignal{instruction::push},
+		csignal{2.50},
+		csignal{instruction::fsub},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -906,15 +906,15 @@ TEST(reactor_execution, __fsub__) {
 }
 
 TEST(reactor_execution, __fmul__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{4.25},
-		signal64{instruction::push},
-		signal64{2.50},
-		signal64{instruction::fmul},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{4.25},
+		csignal{instruction::push},
+		csignal{2.50},
+		csignal{instruction::fmul},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -928,15 +928,15 @@ TEST(reactor_execution, __fmul__) {
 }
 
 TEST(reactor_execution, __fdiv__) {
-	const std::array<signal64, 8> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{4.25},
-		signal64{instruction::push},
-		signal64{2.50},
-		signal64{instruction::fdiv},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{4.25},
+		csignal{instruction::push},
+		csignal{2.50},
+		csignal{instruction::fdiv},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -950,13 +950,13 @@ TEST(reactor_execution, __fdiv__) {
 }
 
 TEST(reactor_execution, __fneg__) {
-	const std::array<signal64, 6> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{2.25},
-		signal64{instruction::fneg},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 6> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{2.25},
+		csignal{instruction::fneg},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -969,17 +969,17 @@ TEST(reactor_execution, __fneg__) {
 }
 
 TEST(reactor_execution, __finc__) {
-	const std::array<signal64, 10> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{.0},
-		signal64{instruction::finc},
-		signal64{instruction::finc},
-		signal64{instruction::finc},
-		signal64{instruction::finc},
-		signal64{instruction::finc},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 10> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{.0},
+		csignal{instruction::finc},
+		csignal{instruction::finc},
+		csignal{instruction::finc},
+		csignal{instruction::finc},
+		csignal{instruction::finc},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -993,17 +993,17 @@ TEST(reactor_execution, __finc__) {
 }
 
 TEST(reactor_execution, __fdec__) {
-	const std::array<signal64, 10> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::push},
-		signal64{2.},
-		signal64{instruction::fdec},
-		signal64{instruction::fdec},
-		signal64{instruction::fdec},
-		signal64{instruction::fdec},
-		signal64{instruction::fdec},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 10> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{2.},
+		csignal{instruction::fdec},
+		csignal{instruction::fdec},
+		csignal{instruction::fdec},
+		csignal{instruction::fdec},
+		csignal{instruction::fdec},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1017,13 +1017,13 @@ TEST(reactor_execution, __fdec__) {
 }
 
 TEST(reactor_execution, __fpusho__) {
-	const std::array<signal64, 6> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::fpusho},
-		signal64{instruction::pushz},
-		signal64{instruction::fpusho},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
+	const std::array<csignal, 6> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::fpusho},
+		csignal{instruction::pushz},
+		csignal{instruction::fpusho},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1037,16 +1037,16 @@ TEST(reactor_execution, __fpusho__) {
 }
 
 TEST(reactor_execution, __jmp__) {
-	const std::array<signal64, 9> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::jmp},
-		signal64{UINT64_C(5)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::push},
-		signal64{INT64_C(10)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 9> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::jmp},
+		csignal{UINT64_C(5)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::push},
+		csignal{INT64_C(10)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1060,16 +1060,16 @@ TEST(reactor_execution, __jmp__) {
 }
 
 TEST(reactor_execution, __jmprel__) {
-	const std::array<signal64, 9> code{
-		signal64{instruction::nop}, // first padding
-		signal64{instruction::jmprel},
-		signal64{UINT64_C(3)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::push},
-		signal64{INT64_C(10)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 9> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::jmprel},
+		csignal{UINT64_C(3)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::push},
+		csignal{INT64_C(10)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1083,18 +1083,18 @@ TEST(reactor_execution, __jmprel__) {
 }
 
 TEST(reactor_execution, __jz__) {
-	const std::array<signal64, 11> code{
-		signal64{instruction::nop},		// first padding
-		signal64{instruction::pushz},
-		signal64{instruction::jz},
-		signal64{UINT64_C(6)},					// first padding does not count
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::ipusho},
-		signal64{instruction::jz},
-		signal64{UINT64_C(0)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 11> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::pushz},
+		csignal{instruction::jz},
+		csignal{UINT64_C(6)},					// first padding does not count
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::ipusho},
+		csignal{instruction::jz},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1109,18 +1109,18 @@ TEST(reactor_execution, __jz__) {
 }
 
 TEST(reactor_execution, __jnz__) {
-	const std::array<signal64, 11> code{
-		signal64{instruction::nop},		// first padding
-		signal64{instruction::ipusho},
-		signal64{instruction::jnz},
-		signal64{UINT64_C(6)},					// first padding does not count
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::pushz},
-		signal64{instruction::jz},
-		signal64{UINT64_C(9)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 11> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::ipusho},
+		csignal{instruction::jnz},
+		csignal{UINT64_C(6)},					// first padding does not count
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::pushz},
+		csignal{instruction::jz},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1135,18 +1135,18 @@ TEST(reactor_execution, __jnz__) {
 }
 
 TEST(reactor_execution, __jo_cmpi__) {
-	const std::array<signal64, 11> code{
-		signal64{instruction::nop},		// first padding
-		signal64{instruction::ipusho},
-		signal64{instruction::jo_cmpi},
-		signal64{UINT64_C(6)},					// first padding does not count
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::pushz},
-		signal64{instruction::jo_cmpi},
-		signal64{UINT64_C(0)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 11> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::ipusho},
+		csignal{instruction::jo_cmpi},
+		csignal{UINT64_C(6)},					// first padding does not count
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::pushz},
+		csignal{instruction::jo_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1161,18 +1161,18 @@ TEST(reactor_execution, __jo_cmpi__) {
 }
 
 TEST(reactor_execution, __jno_cmpi__) {
-	const std::array<signal64, 11> code{
-		signal64{instruction::nop},		// first padding
-		signal64{instruction::pushz},
-		signal64{instruction::jno_cmpi},
-		signal64{UINT64_C(6)},					// first padding does not count
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::ipusho},
-		signal64{instruction::jno_cmpi},
-		signal64{UINT64_C(0)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 11> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::pushz},
+		csignal{instruction::jno_cmpi},
+		csignal{UINT64_C(6)},					// first padding does not count
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::ipusho},
+		csignal{instruction::jno_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1187,18 +1187,18 @@ TEST(reactor_execution, __jno_cmpi__) {
 }
 
 TEST(reactor_execution, __jo_cmpf__) {
-	const std::array<signal64, 11> code{
-		signal64{instruction::nop},		// first padding
-		signal64{instruction::fpusho},
-		signal64{instruction::jo_cmpf},
-		signal64{UINT64_C(6)},					// first padding does not count
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::pushz},
-		signal64{instruction::jo_cmpf},
-		signal64{UINT64_C(0)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 11> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::fpusho},
+		csignal{instruction::jo_cmpf},
+		csignal{UINT64_C(6)},					// first padding does not count
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::pushz},
+		csignal{instruction::jo_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1213,18 +1213,18 @@ TEST(reactor_execution, __jo_cmpf__) {
 }
 
 TEST(reactor_execution, __jno_cmpf__) {
-	const std::array<signal64, 11> code{
-		signal64{instruction::nop},		// first padding
-		signal64{instruction::pushz},
-		signal64{instruction::jno_cmpf},
-		signal64{UINT64_C(6)},					// first padding does not count
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::fpusho},
-		signal64{instruction::jno_cmpf},
-		signal64{UINT64_C(0)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 11> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::pushz},
+		csignal{instruction::jno_cmpf},
+		csignal{UINT64_C(6)},					// first padding does not count
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::fpusho},
+		csignal{instruction::jno_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1239,23 +1239,23 @@ TEST(reactor_execution, __jno_cmpf__) {
 }
 
 TEST(reactor_execution, __je_cmpi__) {
-	const std::array<signal64, 16> code{
-		signal64{instruction::nop},		// first padding
-		signal64{instruction::push},
-		signal64{INT64_C(12345679)},
-		signal64{instruction::dupl},
-		signal64{instruction::je_cmpi},
-		signal64{UINT64_C(8)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::push},
-		signal64{INT64_C(123424224)},
-		signal64{instruction::push},
-		signal64{INT64_C(0xFF'FF)},
-		signal64{instruction::je_cmpi},
-		signal64{UINT64_C(0)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 16> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{INT64_C(12345679)},
+		csignal{instruction::dupl},
+		csignal{instruction::je_cmpi},
+		csignal{UINT64_C(8)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::push},
+		csignal{INT64_C(123424224)},
+		csignal{instruction::push},
+		csignal{INT64_C(0xFF'FF)},
+		csignal{instruction::je_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1271,23 +1271,23 @@ TEST(reactor_execution, __je_cmpi__) {
 }
 
 TEST(reactor_execution, __je_cmpf__) {
-	const std::array<signal64, 16> code{
-		signal64{instruction::nop},		// first padding
-		signal64{instruction::push},
-		signal64{1234567.0},
-		signal64{instruction::dupl},
-		signal64{instruction::je_cmpf},
-		signal64{UINT64_C(8)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::push},
-		signal64{123424224.0},
-		signal64{instruction::push},
-		signal64{0.22233},
-		signal64{instruction::je_cmpf},
-		signal64{UINT64_C(0)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 16> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{1234567.0},
+		csignal{instruction::dupl},
+		csignal{instruction::je_cmpf},
+		csignal{UINT64_C(8)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::push},
+		csignal{123424224.0},
+		csignal{instruction::push},
+		csignal{0.22233},
+		csignal{instruction::je_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1303,24 +1303,24 @@ TEST(reactor_execution, __je_cmpf__) {
 }
 
 TEST(reactor_execution, __jne_cmpi__) {
-	const std::array<signal64, 17> code{
-		signal64{instruction::nop},		// first padding
-		signal64{instruction::push},
-		signal64{INT64_C(1234567)},
-		signal64{instruction::push},
-		signal64{INT64_C(213131232)},
-		signal64{instruction::jne_cmpi},
-		signal64{UINT64_C(9)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::push},
-		signal64{INT64_C(0xFF'FF)},
-		signal64{instruction::push},
-		signal64{INT64_C(0xFF'FF)},
-		signal64{instruction::jne_cmpi},
-		signal64{UINT64_C(0)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 17> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{INT64_C(1234567)},
+		csignal{instruction::push},
+		csignal{INT64_C(213131232)},
+		csignal{instruction::jne_cmpi},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::push},
+		csignal{INT64_C(0xFF'FF)},
+		csignal{instruction::push},
+		csignal{INT64_C(0xFF'FF)},
+		csignal{instruction::jne_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1336,24 +1336,24 @@ TEST(reactor_execution, __jne_cmpi__) {
 }
 
 TEST(reactor_execution, __jne_cmpf__) {
-	const std::array<signal64, 17> code{
-		signal64{instruction::nop},		// first padding
-		signal64{instruction::push},
-		signal64{1234567.},
-		signal64{instruction::push},
-		signal64{213131232.},
-		signal64{instruction::jne_cmpf},
-		signal64{UINT64_C(9)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-1)},
-		signal64{instruction::push},
-		signal64{3.1415},
-		signal64{instruction::push},
-		signal64{3.1415},
-		signal64{instruction::jne_cmpf},
-		signal64{UINT64_C(0)},
-		signal64{instruction::inter},
-		signal64{INT64_C(-0xFF)},
+	const std::array<csignal, 17> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{1234567.},
+		csignal{instruction::push},
+		csignal{213131232.},
+		csignal{instruction::jne_cmpf},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+		csignal{instruction::push},
+		csignal{3.1415},
+		csignal{instruction::push},
+		csignal{3.1415},
+		csignal{instruction::jne_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1365,6 +1365,294 @@ TEST(reactor_execution, __jne_cmpf__) {
 	ASSERT_EQ(o.input->stack[2].f, 3.1415);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __ja_cmpi__) {
+	const std::array<csignal, 17> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::ja_cmpi},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
+		csignal{instruction::push},
+		csignal{INT64_C(3)},
+		csignal{instruction::push},
+		csignal{INT64_C(53)},
+		csignal{instruction::ja_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 3);
+	ASSERT_EQ(o.input->stack[2].i, 53);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 16);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __ja_cmpf__) {
+	const std::array<csignal, 17> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{5.0},
+		csignal{instruction::push},
+		csignal{2.0},
+		csignal{instruction::ja_cmpf},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
+		csignal{instruction::push},
+		csignal{3.0},
+		csignal{instruction::push},
+		csignal{53.0},
+		csignal{instruction::ja_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].f, 3.0);
+	ASSERT_EQ(o.input->stack[2].f, 53.0);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 16);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jl_cmpi__) {
+	const std::array<csignal, 17> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::jl_cmpi},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
+		csignal{instruction::push},
+		csignal{INT64_C(53)},
+		csignal{instruction::push},
+		csignal{INT64_C(3)},
+		csignal{instruction::jl_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 53);
+	ASSERT_EQ(o.input->stack[2].i, 3);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 16);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jl_cmpf__) {
+	const std::array<csignal, 17> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{2.0},
+		csignal{instruction::push},
+		csignal{5.0},
+		csignal{instruction::jl_cmpf},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
+		csignal{instruction::push},
+		csignal{53.0},
+		csignal{instruction::push},
+		csignal{3.0},
+		csignal{instruction::jl_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].f, 53.0);
+	ASSERT_EQ(o.input->stack[2].f, 3.0);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 16);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jae_cmpi__) {
+	const std::array<csignal, 23> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::jae_cmpi},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-3)},
+		csignal{instruction::ipusho},
+		csignal{instruction::ipusho},
+		csignal{instruction::jae_cmpi},
+		csignal{UINT64_C(15)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-5)},
+		csignal{instruction::push},
+		csignal{INT64_C(3)},
+		csignal{instruction::push},
+		csignal{INT64_C(53)},
+		csignal{instruction::jae_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 3);
+	ASSERT_EQ(o.input->stack[2].i, 53);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 22);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jae_cmpf__) {
+	const std::array<csignal, 23> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{5.0},
+		csignal{instruction::push},
+		csignal{2.0},
+		csignal{instruction::jae_cmpf},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-3)},
+		csignal{instruction::ipusho},
+		csignal{instruction::ipusho},
+		csignal{instruction::jae_cmpf},
+		csignal{UINT64_C(15)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-5)},
+		csignal{instruction::push},
+		csignal{3.0},
+		csignal{instruction::push},
+		csignal{53.0},
+		csignal{instruction::jae_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].f, 3.0);
+	ASSERT_EQ(o.input->stack[2].f, 53.0);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 22);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jle_cmpi__) {
+	const std::array<csignal, 23> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{INT64_C(2)},
+		csignal{instruction::push},
+		csignal{INT64_C(5)},
+		csignal{instruction::jle_cmpi},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-3)},
+		csignal{instruction::ipusho},
+		csignal{instruction::ipusho},
+		csignal{instruction::jle_cmpi},
+		csignal{UINT64_C(15)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-5)},
+		csignal{instruction::push},
+		csignal{INT64_C(53)},
+		csignal{instruction::push},
+		csignal{INT64_C(3)},
+		csignal{instruction::jle_cmpi},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 53);
+	ASSERT_EQ(o.input->stack[2].i, 3);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 22);
+	ASSERT_EQ(o.interrupt, -0xFF);
+}
+
+TEST(reactor_execution, __jle_cmpf__) {
+	const std::array<csignal, 23> code{
+		csignal{instruction::nop},		// first padding
+		csignal{instruction::push},
+		csignal{2.0},
+		csignal{instruction::push},
+		csignal{5.0},
+		csignal{instruction::jle_cmpf},
+		csignal{UINT64_C(9)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-3)},
+		csignal{instruction::ipusho},
+		csignal{instruction::ipusho},
+		csignal{instruction::jle_cmpf},
+		csignal{UINT64_C(15)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-5)},
+		csignal{instruction::push},
+		csignal{53.0},
+		csignal{instruction::push},
+		csignal{3.0},
+		csignal{instruction::jle_cmpf},
+		csignal{UINT64_C(0)},
+		csignal{instruction::inter},
+		csignal{INT64_C(-0xFF)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].f, 53.0);
+	ASSERT_EQ(o.input->stack[2].f, 3.0);
+	ASSERT_EQ(o.sp_diff, 0);
+	ASSERT_EQ(o.ip_diff, 22);
 	ASSERT_EQ(o.interrupt, -0xFF);
 }
 

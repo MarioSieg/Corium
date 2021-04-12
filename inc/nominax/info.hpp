@@ -19,8 +19,8 @@ namespace nominax {
 		.revision = 0,
 	};
 
-	inline auto operator <<(std::ostream& out, const version ver) -> std::ostream& {
-		return out << static_cast<std::uint16_t>(ver.major) << '.' << static_cast<std::uint16_t>(ver.minor) << '.' << static_cast<std::uint16_t>(ver.build) << '.' << static_cast<std::uint16_t>(ver.revision);
+	inline auto operator <<(std::ostream& out, const version ver_) -> std::ostream& {
+		return out << static_cast<std::uint16_t>(ver_.major) << '.' << static_cast<std::uint16_t>(ver_.minor) << '.' << static_cast<std::uint16_t>(ver_.build) << '.' << static_cast<std::uint16_t>(ver_.revision);
 	}
 	
 	constexpr std::string_view info_notice = 

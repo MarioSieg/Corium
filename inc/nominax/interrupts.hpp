@@ -38,8 +38,8 @@ namespace nominax {
 		er_unknown				= -0x7F'FF'FF'FF,	// error
 	};
 
-	[[nodiscard]] constexpr auto get_error_message(const interrupt inter) noexcept -> std::string_view {
-		switch (inter) {
+	[[nodiscard]] constexpr auto get_error_message(const interrupt int_) noexcept -> std::string_view {
+		switch (int_) {
 			case ex_nullptr_deref:		return "NullPointerException [ex_nullptr_deref : 0x00000001]";
 			case ex_io:					return "IOException [ex_io : 0x00000002]";
 			
@@ -52,8 +52,8 @@ namespace nominax {
 		}
 	}
 
-	[[nodiscard]] constexpr auto convert_to_system_interrupt_or_unknown(const interrupt_accumulator x) noexcept -> interrupt {
-		switch (x) {
+	[[nodiscard]] constexpr auto convert_to_system_interrupt_or_unknown(const interrupt_accumulator iac_) noexcept -> interrupt {
+		switch (iac_) {
 			case ex_nullptr_deref:		return ex_nullptr_deref;
 			case ex_io:					return ex_io;
 
@@ -66,11 +66,11 @@ namespace nominax {
 		}
 	}
 	
-	[[nodiscard]] constexpr auto convert_terminate_type(const interrupt_accumulator x) noexcept -> terminate_type {
-		if (x == 0) [[likely]] {
+	[[nodiscard]] constexpr auto convert_terminate_type(const interrupt_accumulator iac_) noexcept -> terminate_type {
+		if (iac_ == 0) [[likely]] {
 			return terminate_type::success;
 		}
-		if (x > 0) [[unlikely]] {
+		if (iac_ > 0) [[unlikely]] {
 			return terminate_type::exception;
 		}
 		return terminate_type::error;

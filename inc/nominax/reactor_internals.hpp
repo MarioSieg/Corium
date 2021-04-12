@@ -11,25 +11,25 @@
 
 namespace nominax {
 	[[nodiscard]]
-	__attribute__((always_inline)) inline auto rol(const u64 n, u64 x) noexcept -> u64 {
-		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
-			return _rotl64(n, x);
+	__attribute__((flatten)) inline auto rol(const u64 n_, const i32 x_) noexcept -> u64 {
+		#if NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32
+			return _rotl64(n_, x_);
 		#else
-			return std::rotl<decltype(x)>(n, x);
+			return std::rotl<decltype(x)>(n_, x_);
 		#endif
 	}
 
 	[[nodiscard]]
-	__attribute__((always_inline)) inline auto ror(const u64 n, u64 x) noexcept -> u64 {
-		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
-				return _rotr64(n, x);
+	__attribute__((flatten)) inline auto ror(const u64 n_, const i32 x_) noexcept -> u64 {
+		#if NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32
+				return _rotr64(n_, x_);
 		#else
-				return std::rotr<decltype(x)>(n, x);
+				return std::rotr<decltype(x)>(n_, x_);
 		#endif
 	}
 
-	__attribute__((always_inline)) inline void operator %=(record64& x, const f64 y) noexcept {
-		x.f = std::fmod(x.f, y);
+	__attribute__((flatten)) inline void operator %=(record64& x_, const f64 y_) noexcept {
+		x_.f = std::fmod(x_.f, y_);
 	}
 
 	__attribute__((always_inline)) inline void breakpoint_interrupt() noexcept {
@@ -48,24 +48,24 @@ namespace nominax {
 	}
 
 	[[noreturn]]
-	__attribute((always_inline)) inline void hard_fault_trap() noexcept {
+	__attribute((flatten)) inline void hard_fault_trap() noexcept {
 		std::abort();
 	}
 
-	__attribute__((always_inline)) inline void read_fence() noexcept {
+	__attribute__((flatten)) inline void read_fence() noexcept {
 		asm volatile("":::"memory");
 	}
 
-	__attribute__((always_inline)) inline void write_fence() noexcept {
+	__attribute__((flatten)) inline void write_fence() noexcept {
 		asm volatile("":::"memory");
 	}
 
-	__attribute__((always_inline)) inline void read_write_fence() noexcept {
+	__attribute__((flatten)) inline void read_write_fence() noexcept {
 		asm volatile("":::"memory");
 	}
 
 	union f32_repr {
-		explicit constexpr f32_repr(f64 x) noexcept;
+		explicit constexpr f32_repr(f64 x_) noexcept;
 		
 		f64 f;
 		i64 i;
@@ -82,21 +82,21 @@ namespace nominax {
 		};
 	};
 
-	__attribute__((always_inline)) constexpr f32_repr::f32_repr(const f64 x) noexcept : f(x) {}
-	__attribute__((always_inline)) constexpr auto f32_repr::is_negative() const noexcept -> bool { return (this->i >> 31) != 0; }
-	__attribute__((always_inline)) constexpr auto f32_repr::raw_mantissa() const noexcept -> std::uint32_t { return this->i & ((1 << 23) - 1); }
-	__attribute__((always_inline)) constexpr auto f32_repr::raw_exponent() const noexcept -> std::uint8_t { return (this->i >> 23) & 0xFF; }
+	__attribute__((flatten)) constexpr f32_repr::f32_repr(const f64 x_) noexcept : f(x_) {}
+	__attribute__((flatten)) constexpr auto f32_repr::is_negative() const noexcept -> bool { return (this->i >> 31) != 0; }
+	__attribute__((flatten)) constexpr auto f32_repr::raw_mantissa() const noexcept -> std::uint32_t { return this->i & ((1 << 23) - 1); }
+	__attribute__((flatten)) constexpr auto f32_repr::raw_exponent() const noexcept -> std::uint8_t { return (this->i >> 23) & 0xFF; }
 
 	#if false
 	[[deprecated("unsafe")]]
 	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto ftoi_fast(const f32 x) noexcept -> i32 {
+	__attribute__((always_inline)) inline auto ftoi_fast(const f32 x_) noexcept -> i32 {
 	#if NOMINAX_ARCH_X86_64 && NOMINAX_NO_SSE
 		i32 r;
 		asm volatile(
 			"fistp %0\n"
 			: "=m"(r)
-			: "t"(x)
+			: "t"(x_)
 			: "st"
 			);
 		return r;
@@ -106,23 +106,23 @@ namespace nominax {
 			"cvtss2si %%xmm0, %%eax\n"
 			"movl %%eax, %0\n"
 			: "=r"(r)
-			: "r"(x)
+			: "r"(x_)
 		);
 	#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && __SSE2__ && !NOMINAX_NO_ARCH_INTRIN
-		return _mm_cvt_ss2si(_mm_set_ss(x));
+		return _mm_cvt_ss2si(_mm_set_ss(x_));
 	#else
-		return static_cast<i32>(x);
+		return static_cast<i32>(x_);
 	#endif
 	}
 	#endif
 
 	[[nodiscard]]
-	inline auto safe_localtime(const std::time_t& time) -> std::tm {
+	inline auto safe_localtime(const std::time_t& time_) -> std::tm {
 		std::tm buf{};
 		#if NOMINAX_POSIX
 			localtime_r(&time, &buf);
 		#elif NOMINAX_OS_WINDOWS
-			localtime_s(&buf, &time);
+			localtime_s(&buf, &time_);
 		#else
 			static std::mutex mtx;
 			std::lock_guard<decltype(mtx)> lock(mtx);
