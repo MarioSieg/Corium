@@ -67,22 +67,22 @@ namespace nominax {
 		opcode op;
 		void* ptr;
 
-		explicit constexpr signal64(record64 x) noexcept;
-		explicit constexpr signal64(instruction x) noexcept;
-		explicit constexpr signal64(void* x) noexcept;
-		explicit constexpr signal64(i64 x) noexcept;
-		explicit constexpr signal64(u64 x) noexcept;
-		explicit constexpr signal64(f64 x) noexcept;
-		explicit constexpr signal64(c32 x) noexcept;
+		explicit constexpr signal64(record64 x_) noexcept;
+		explicit constexpr signal64(instruction x_) noexcept;
+		explicit constexpr signal64(void* x_) noexcept;
+		explicit constexpr signal64(i64 x_) noexcept;
+		explicit constexpr signal64(u64 x_) noexcept;
+		explicit constexpr signal64(f64 x_) noexcept;
+		explicit constexpr signal64(c32 x_) noexcept;
 	};
 
-	constexpr signal64::signal64(const record64 x) noexcept : r64{x} {}
-	constexpr signal64::signal64(const instruction x) noexcept : instr{x} {}
-	constexpr signal64::signal64(void* const x) noexcept : ptr{x} {}
-	constexpr signal64::signal64(const i64 x) noexcept : r64{x} {}
-	constexpr signal64::signal64(const u64 x) noexcept : r64{x} {}
-	constexpr signal64::signal64(const f64 x) noexcept : r64{x} {}
-	constexpr signal64::signal64(const c32 x) noexcept : r64{x} {}
+	constexpr signal64::signal64(const record64 x_) noexcept : r64{x_} {}
+	constexpr signal64::signal64(const instruction x_) noexcept : instr{x_} {}
+	constexpr signal64::signal64(void* const x_) noexcept : ptr{x_} {}
+	constexpr signal64::signal64(const i64 x_) noexcept : r64{x_} {}
+	constexpr signal64::signal64(const u64 x_) noexcept : r64{x_} {}
+	constexpr signal64::signal64(const f64 x_) noexcept : r64{x_} {}
+	constexpr signal64::signal64(const c32 x_) noexcept : r64{x_} {}
 
 	static_assert(std::is_same_v<std::underlying_type_t<instruction>, std::uint64_t>);
 	static_assert(sizeof(instruction) == alignof(u64));

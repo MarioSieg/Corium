@@ -71,10 +71,10 @@ namespace nominax {
 		#define ASM_MARKER(msg)
 	#endif
 
-	auto execute_reactor(const reactor_input& input) -> reactor_output {
-		if (const auto result = input.validate(); result != reactor_validation_result::ok) [[unlikely]] {
+	auto execute_reactor(const reactor_input& input_) -> reactor_output {
+		if (const auto result = input_.validate(); result != reactor_validation_result::ok) [[unlikely]] {
 			return reactor_output{
-				.input = &input,
+				.input = &input_,
 				.validation_result = result,
 			};
 		}
@@ -152,14 +152,14 @@ namespace nominax {
 		
 		ASM_MARKER("#" "reactor begin");
 		
-		interrupt_accumulator								interrupt			{};																/* interrupt id flag        */
-		void*												usr_dat				{input.user_data};												/* user data                */										/* signal status flag       */
-		intrinsic_routine* const* const						intrinsic_table		{input.intrinsic_table};										/* intrinsic table hi       */
-		interrupt_routine* const							interrupt_handler	{input.interrupt_handler};										/* global interrupt routine */
-		const signal64* const __restrict					ip_lo				{input.code_chunk};
-		const signal64* __restrict__						ip					{ip_lo};														/* instruction ptr lo       */
-		record64* __restrict__								sp					{input.stack};													/* stack pointer lo			*/
-		record64* const	__restrict__						sp_hi				{input.stack + input.stack_size - 1};								/* stack pointer hi			*/
+		interrupt_accumulator								interrupt			{};												/* interrupt id flag        */
+		void*												usr_dat				{input_.user_data};								/* user data                */
+		intrinsic_routine* const* const						intrinsic_table		{input_.intrinsic_table};						/* intrinsic table hi       */
+		interrupt_routine* const							interrupt_handler	{input_.interrupt_handler};						/* global interrupt routine */
+		const signal64* const __restrict					ip_lo				{input_.code_chunk};
+		const signal64* __restrict__						ip					{ip_lo};										/* instruction ptr lo       */
+		record64* __restrict__								sp					{input_.stack};									/* stack pointer lo			*/
+		record64* const	__restrict__						sp_hi				{input_.stack + input_.stack_size - 1};			/* stack pointer hi			*/
 
 		ASM_MARKER("reactor exec");
 
@@ -556,7 +556,7 @@ namespace nominax {
 		
 		ASM_MARKER("reactor ret");
 		return {
-			.input = &input,
+			.input = &input_,
 			.validation_result = reactor_validation_result::ok,
 			.terminate_result = convert_terminate_type(interrupt),
 			.system_interrupt = convert_to_system_interrupt_or_unknown(interrupt),
@@ -564,8 +564,8 @@ namespace nominax {
 			.post = post,
 			.duration = post - pre,
 			.interrupt = interrupt,
-			.ip_diff = static_cast<std::ptrdiff_t>(ip - input.code_chunk),
-			.sp_diff = static_cast<std::ptrdiff_t>(sp - input.stack),
+			.ip_diff = static_cast<std::ptrdiff_t>(ip - input_.code_chunk),
+			.sp_diff = static_cast<std::ptrdiff_t>(sp - input_.stack),
 		};
 	}
 }

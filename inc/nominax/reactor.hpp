@@ -52,5 +52,5 @@ namespace nominax {
 	};
 
 	[[nodiscard]]
-	__attribute__((hot)) extern auto execute_reactor(const reactor_input& input) -> reactor_output;
+	__attribute__((hot)) extern auto execute_reactor(const reactor_input& input_) -> reactor_output;
 }

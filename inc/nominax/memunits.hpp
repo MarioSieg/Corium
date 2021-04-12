@@ -33,15 +33,15 @@ namespace nominax {
 		return bytes_ * 1024;
 	}
 
-	constexpr auto operator ""_kb(const unsigned long long int x) noexcept -> unsigned long long int {
-		return x * 1024;
+	constexpr auto operator ""_kb(const unsigned long long int kb_) noexcept -> unsigned long long int {
+		return kb_ * 1024;
 	}
 
-	constexpr auto operator ""_mb(const unsigned long long int x) noexcept -> unsigned long long int {
-		return x * 1024 * 1024;
+	constexpr auto operator ""_mb(const unsigned long long int mb_) noexcept -> unsigned long long int {
+		return mb_ * 1024 * 1024;
 	}
 
-	constexpr auto operator ""_gb(const unsigned long long int x) noexcept -> unsigned long long int {
-		return x * 1024 * 1024 * 1024;
+	constexpr auto operator ""_gb(const unsigned long long int gb_) noexcept -> unsigned long long int {
+		return gb_ * 1024 * 1024 * 1024;
 	}
 }
