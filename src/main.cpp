@@ -21,7 +21,7 @@ try {
 	cout << "\nPlatform: " NOMINAX_OS_NAME " " NOMINAX_ARCH_SIZE_NAME;
 	cout << "\nArch: " << NOMINAX_ARCH_NAME;
 	cout << "\nPosix: " << std::boolalpha << NOMINAX_POSIX;
-	cout << "\nCompiler: " << NOMINAX_COM_NAME;
+	cout << "\nCompiler: " << NOMINAX_COM_NAME " - C++ 20";
 	cout << "\nBooting runtime system...";
 }
 catch (const std::exception& ex) {
