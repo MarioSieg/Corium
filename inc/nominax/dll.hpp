@@ -11,10 +11,10 @@ namespace nominax {
 		explicit dylib_proc(std::nullptr_t) = delete;
 
 		template <typename F> requires std::is_function_v<F>
-			auto operator*() const noexcept -> F&;
+		auto operator*() const noexcept -> F&;
 
-			template <typename F, typename... Ts> requires std::is_function_v<F>&& std::is_invocable_v<F, Ts...>
-				auto operator()(Ts&&... args_) const noexcept -> decltype(F());
+		template <typename F, typename... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
+		auto operator()(Ts&&... args_) const noexcept -> decltype(F(std::forward<Ts...>(args_...)));
 
 	private:
 		void* ptr{nullptr};
@@ -33,7 +33,7 @@ namespace nominax {
 	}
 
 	template <typename F, typename ... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
-	inline auto dylib_proc::operator()(Ts&&... args_) const noexcept -> decltype(F()) {
+	inline auto dylib_proc::operator()(Ts&&... args_) const noexcept -> decltype(F(std::forward<Ts...>(args_...))) {
 		return (*reinterpret_cast<F*>(this->ptr))(std::forward<Ts...>(args_...));
 	}
 
@@ -70,7 +70,7 @@ namespace nominax {
 		return this->handle != nullptr;
 	}
 
-	inline auto dylib::operator[](std::string_view name_) const -> dylib_proc {
+	inline auto dylib::operator[](const std::string_view name_) const -> dylib_proc {
 		return dylib_proc{os::dylib_lookup_symbol(this->handle, name_)};
 	}
 }

@@ -11,8 +11,8 @@
 
 namespace nominax {
 	[[nodiscard]]
-	__attribute__((always_inline)) inline auto rol(const u64 n_, const u64 x_) noexcept -> u64 {
-		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
+	__attribute__((flatten)) inline auto rol(const u64 n_, const i32 x_) noexcept -> u64 {
+		#if NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32
 			return _rotl64(n_, x_);
 		#else
 			return std::rotl<decltype(x)>(n_, x_);
@@ -20,15 +20,15 @@ namespace nominax {
 	}
 
 	[[nodiscard]]
-	__attribute__((always_inline)) inline auto ror(const u64 n_, const u64 x_) noexcept -> u64 {
-		#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && !NOMINAX_NO_ARCH_INTRIN
+	__attribute__((flatten)) inline auto ror(const u64 n_, const i32 x_) noexcept -> u64 {
+		#if NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32
 				return _rotr64(n_, x_);
 		#else
 				return std::rotr<decltype(x)>(n_, x_);
 		#endif
 	}
 
-	__attribute__((always_inline)) inline void operator %=(record64& x_, const f64 y_) noexcept {
+	__attribute__((flatten)) inline void operator %=(record64& x_, const f64 y_) noexcept {
 		x_.f = std::fmod(x_.f, y_);
 	}
 
@@ -48,19 +48,19 @@ namespace nominax {
 	}
 
 	[[noreturn]]
-	__attribute((always_inline)) inline void hard_fault_trap() noexcept {
+	__attribute((flatten)) inline void hard_fault_trap() noexcept {
 		std::abort();
 	}
 
-	__attribute__((always_inline)) inline void read_fence() noexcept {
+	__attribute__((flatten)) inline void read_fence() noexcept {
 		asm volatile("":::"memory");
 	}
 
-	__attribute__((always_inline)) inline void write_fence() noexcept {
+	__attribute__((flatten)) inline void write_fence() noexcept {
 		asm volatile("":::"memory");
 	}
 
-	__attribute__((always_inline)) inline void read_write_fence() noexcept {
+	__attribute__((flatten)) inline void read_write_fence() noexcept {
 		asm volatile("":::"memory");
 	}
 
@@ -82,10 +82,10 @@ namespace nominax {
 		};
 	};
 
-	__attribute__((always_inline)) constexpr f32_repr::f32_repr(const f64 x_) noexcept : f(x_) {}
-	__attribute__((always_inline)) constexpr auto f32_repr::is_negative() const noexcept -> bool { return (this->i >> 31) != 0; }
-	__attribute__((always_inline)) constexpr auto f32_repr::raw_mantissa() const noexcept -> std::uint32_t { return this->i & ((1 << 23) - 1); }
-	__attribute__((always_inline)) constexpr auto f32_repr::raw_exponent() const noexcept -> std::uint8_t { return (this->i >> 23) & 0xFF; }
+	__attribute__((flatten)) constexpr f32_repr::f32_repr(const f64 x_) noexcept : f(x_) {}
+	__attribute__((flatten)) constexpr auto f32_repr::is_negative() const noexcept -> bool { return (this->i >> 31) != 0; }
+	__attribute__((flatten)) constexpr auto f32_repr::raw_mantissa() const noexcept -> std::uint32_t { return this->i & ((1 << 23) - 1); }
+	__attribute__((flatten)) constexpr auto f32_repr::raw_exponent() const noexcept -> std::uint8_t { return (this->i >> 23) & 0xFF; }
 
 	#if false
 	[[deprecated("unsafe")]]

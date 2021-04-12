@@ -26,11 +26,11 @@ namespace nominax {
 		constexpr auto operator >=(record32 rhs_) const noexcept -> bool;
 	};
 
-	__attribute__((always_inline)) constexpr record32::record32() noexcept : u{0} {}
-	__attribute__((always_inline)) constexpr record32::record32(const i32 x_) noexcept : i{x_} {}
-	__attribute__((always_inline)) constexpr record32::record32(const u32 x_) noexcept : u{x_} {}
-	__attribute__((always_inline)) constexpr record32::record32(const f32 x_) noexcept : f{x_} {}
-	__attribute__((always_inline)) constexpr record32::record32(const c32 x_) noexcept : c{x_} {}
+	__attribute__((flatten)) constexpr record32::record32() noexcept : u{0} {}
+	__attribute__((flatten)) constexpr record32::record32(const i32 x_) noexcept : i{x_} {}
+	__attribute__((flatten)) constexpr record32::record32(const u32 x_) noexcept : u{x_} {}
+	__attribute__((flatten)) constexpr record32::record32(const f32 x_) noexcept : f{x_} {}
+	__attribute__((flatten)) constexpr record32::record32(const c32 x_) noexcept : c{x_} {}
 
 	constexpr auto operator""_rec32_u(const unsigned long long int x_) noexcept -> record32 {
 		return record32{static_cast<u32>(x_)};
@@ -44,31 +44,31 @@ namespace nominax {
 		return record32{static_cast<f32>(x_)};
 	}
 
-	__attribute__((always_inline)) constexpr record32::operator bool() const noexcept {
+	__attribute__((flatten)) constexpr record32::operator bool() const noexcept {
 		return static_cast<bool>(this->u);
 	}
 
-	__attribute__((always_inline)) constexpr auto record32::operator ==(const record32 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record32::operator ==(const record32 rhs_) const noexcept -> bool {
 		return this->u == rhs_.u;
 	}
 
-	__attribute__((always_inline)) constexpr auto record32::operator !=(const record32 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record32::operator !=(const record32 rhs_) const noexcept -> bool {
 		return !(*this == rhs_);
 	}
 
-	__attribute__((always_inline)) constexpr auto record32::operator <(const record32 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record32::operator <(const record32 rhs_) const noexcept -> bool {
 		return this->u < rhs_.u;
 	}
 
-	__attribute__((always_inline)) constexpr auto record32::operator >(const record32 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record32::operator >(const record32 rhs_) const noexcept -> bool {
 		return this->u > rhs_.u;
 	}
 
-	__attribute__((always_inline)) constexpr auto record32::operator <=(const record32 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record32::operator <=(const record32 rhs_) const noexcept -> bool {
 		return this->u <= rhs_.u;
 	}
 
-	__attribute__((always_inline)) constexpr auto record32::operator >=(const record32 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record32::operator >=(const record32 rhs_) const noexcept -> bool {
 		return this->u >= rhs_.u;
 	}
 
@@ -103,13 +103,13 @@ namespace nominax {
 		static constexpr auto nop_padding() noexcept -> record64;
 	};
 
-	__attribute__((always_inline)) constexpr record64::record64() noexcept : u{0} {}
-	__attribute__((always_inline)) constexpr record64::record64(const record32 x_) noexcept : r32{x_} {}
-	__attribute__((always_inline)) constexpr record64::record64(void* const x_) noexcept : ptr{x_} {}
-	__attribute__((always_inline)) constexpr record64::record64(const i64 x_) noexcept : i{x_} {}
-	__attribute__((always_inline)) constexpr record64::record64(const u64 x_) noexcept : u{x_} {}
-	__attribute__((always_inline)) constexpr record64::record64(const f64 x_) noexcept : f{x_} {}
-	__attribute__((always_inline)) constexpr record64::record64(const c32 x_) noexcept : c{x_} {}
+	__attribute__((flatten)) constexpr record64::record64() noexcept : u{0} {}
+	__attribute__((flatten)) constexpr record64::record64(const record32 x_) noexcept : r32{x_} {}
+	__attribute__((flatten)) constexpr record64::record64(void* const x_) noexcept : ptr{x_} {}
+	__attribute__((flatten)) constexpr record64::record64(const i64 x_) noexcept : i{x_} {}
+	__attribute__((flatten)) constexpr record64::record64(const u64 x_) noexcept : u{x_} {}
+	__attribute__((flatten)) constexpr record64::record64(const f64 x_) noexcept : f{x_} {}
+	__attribute__((flatten)) constexpr record64::record64(const c32 x_) noexcept : c{x_} {}
 
 	constexpr auto operator""_rec64_u(const unsigned long long int x_) noexcept -> record64 {
 		return record64{static_cast<u64>(x_)};
@@ -123,35 +123,35 @@ namespace nominax {
 		return record64{static_cast<f64>(x_)};
 	}
 
-	__attribute__((always_inline)) constexpr record64::operator bool() const noexcept {
+	__attribute__((flatten)) constexpr record64::operator bool() const noexcept {
 		return static_cast<bool>(this->u);
 	}
 
-	__attribute__((always_inline)) constexpr auto record64::operator ==(const record64 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record64::operator ==(const record64 rhs_) const noexcept -> bool {
 		return this->u == rhs_.u;
 	}
 
-	__attribute__((always_inline)) constexpr auto record64::operator !=(const record64 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record64::operator !=(const record64 rhs_) const noexcept -> bool {
 		return !(*this == rhs_);
 	}
 
-	__attribute__((always_inline)) constexpr auto record64::operator <(const record64 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record64::operator <(const record64 rhs_) const noexcept -> bool {
 		return this->u < rhs_.u;
 	}
 
-	__attribute__((always_inline)) constexpr auto record64::operator >(const record64 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record64::operator >(const record64 rhs_) const noexcept -> bool {
 		return this->u > rhs_.u;
 	}
 
-	__attribute__((always_inline)) constexpr auto record64::operator <=(const record64 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record64::operator <=(const record64 rhs_) const noexcept -> bool {
 		return this->u <= rhs_.u;
 	}
 
-	__attribute__((always_inline)) constexpr auto record64::operator >=(const record64 rhs_) const noexcept -> bool {
+	__attribute__((flatten)) constexpr auto record64::operator >=(const record64 rhs_) const noexcept -> bool {
 		return this->u >= rhs_.u;
 	}
 
-	__attribute__((always_inline)) constexpr auto record64::nop_padding() noexcept -> record64 {
+	__attribute__((flatten)) constexpr auto record64::nop_padding() noexcept -> record64 {
 		return 0xFF'FF'FF'FF'FF'FF'FF'FF_rec64_u;
 	}
 
