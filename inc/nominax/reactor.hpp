@@ -39,7 +39,7 @@ namespace nominax {
 	/// Contains all the output data from the VM reactor.
 	/// </summary>
 	struct reactor_output final {
-		reactor_input input{};
+		const reactor_input* input{nullptr};
 		reactor_validation_result validation_result{};
 		terminate_type terminate_result{};
 		interrupt system_interrupt{};

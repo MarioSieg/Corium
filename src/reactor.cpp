@@ -74,7 +74,7 @@ namespace nominax {
 	auto execute_reactor(const reactor_input& input) -> reactor_output {
 		if (const auto result = input.validate(); result != reactor_validation_result::ok) [[unlikely]] {
 			return reactor_output{
-				.input = input,
+				.input = &input,
 				.validation_result = result,
 			};
 		}
@@ -520,7 +520,7 @@ namespace nominax {
 		
 		ASM_MARKER("reactor ret");
 		return {
-			.input = input,
+			.input = &input,
 			.validation_result = reactor_validation_result::ok,
 			.terminate_result = convert_terminate_type(interrupt),
 			.system_interrupt = convert_to_system_interrupt_or_unknown(interrupt),
