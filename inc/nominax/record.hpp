@@ -4,7 +4,7 @@
 #include <limits>
 #include <type_traits>
 
-#include "rttypes.hpp"
+#include "runtime.hpp"
 
 namespace nominax {
 	union alignas(alignof(i32)) record32 {
@@ -67,7 +67,7 @@ namespace nominax {
 	static_assert(std::is_default_constructible_v<record32>);
 
 	union alignas(alignof(i64)) record64 {
-		record32 rec32;
+		record32 r32;
 		void* ptr;
 		i64 i;
 		u64 u;
@@ -92,7 +92,7 @@ namespace nominax {
 	};
 
 	__attribute__((always_inline)) constexpr record64::record64() noexcept : u{0} {}
-	__attribute__((always_inline)) constexpr record64::record64(const record32 x) noexcept : rec32{x} {}
+	__attribute__((always_inline)) constexpr record64::record64(const record32 x) noexcept : r32{x} {}
 	__attribute__((always_inline)) constexpr record64::record64(void* const x) noexcept : ptr{x} {}
 	__attribute__((always_inline)) constexpr record64::record64(const i64 x) noexcept : i{x} {}
 	__attribute__((always_inline)) constexpr record64::record64(const u64 x) noexcept : u{x} {}

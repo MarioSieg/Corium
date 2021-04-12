@@ -65,9 +65,11 @@ namespace nominax {
 		record64 r64;
 		instruction instr;
 		opcode op;
+		void* ptr;
 
 		explicit constexpr signal64(record64 x) noexcept;
 		explicit constexpr signal64(instruction x) noexcept;
+		explicit constexpr signal64(void* x) noexcept;
 		explicit constexpr signal64(i64 x) noexcept;
 		explicit constexpr signal64(u64 x) noexcept;
 		explicit constexpr signal64(f64 x) noexcept;
@@ -76,6 +78,7 @@ namespace nominax {
 
 	constexpr signal64::signal64(const record64 x) noexcept : r64{x} {}
 	constexpr signal64::signal64(const instruction x) noexcept : instr{x} {}
+	constexpr signal64::signal64(void* const x) noexcept : ptr{x} {}
 	constexpr signal64::signal64(const i64 x) noexcept : r64{x} {}
 	constexpr signal64::signal64(const u64 x) noexcept : r64{x} {}
 	constexpr signal64::signal64(const f64 x) noexcept : r64{x} {}

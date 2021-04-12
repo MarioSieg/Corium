@@ -22,7 +22,7 @@ static constinit std::array<record64, test_stack_size> test_stack{record64::nop_
 
 static constinit volatile std::sig_atomic_t test_signal_status;
 
-static constinit interrupt_routine* test_interrupt_handler{+[](interrupt_accumulator, volatile std::sig_atomic_t&, void*) noexcept -> bool {
+static constinit interrupt_routine* test_interrupt_handler{+[](interrupt_accumulator, void*) noexcept -> bool {
 	return true;
 }};
 
@@ -58,7 +58,7 @@ TEST(reactor_execution, __int__) {
 	const std::array<signal64, 5> code = {
 		signal64{instruction::nop}, // first padding
 		signal64{instruction::inter},
-		signal64{UINT64_C(5)},
+		signal64{INT64_C(5)},
 		signal64{instruction::inter},
 		signal64{INT64_C(-12345)},
 	};
@@ -72,7 +72,7 @@ TEST(reactor_execution, __int__) {
 	static constinit void* usr;
 	static constinit int calls;
 
-	input.interrupt_handler = +[](const interrupt_accumulator x, volatile std::sig_atomic_t&, void* const y) noexcept -> bool {
+	input.interrupt_handler = +[](const interrupt_accumulator x, void* const y) noexcept -> bool {
 		accum = x;
 		usr = y;
 		++calls;
@@ -84,8 +84,8 @@ TEST(reactor_execution, __int__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(calls, 1);
-	ASSERT_EQ(accum, 5);
+	ASSERT_EQ(calls, 2);
+	ASSERT_EQ(accum, -12345);
 	ASSERT_TRUE(usr != nullptr);
 	ASSERT_EQ(*static_cast<int*>(usr), 1234567);
 	ASSERT_EQ(*static_cast<int*>(o.input.user_data), 1234567);

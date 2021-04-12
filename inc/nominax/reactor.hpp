@@ -5,6 +5,7 @@
 #include <cstddef>
 
 #include "bytecode.hpp"
+#include "interrupts.hpp"
 
 namespace nominax {
 	enum class reactor_validation_result {
@@ -38,9 +39,10 @@ namespace nominax {
 	/// Contains all the output data from the VM reactor.
 	/// </summary>
 	struct reactor_output final {
-		reactor_validation_result validation_result{};
 		reactor_input input{};
-		bool status{};
+		reactor_validation_result validation_result{};
+		terminate_type terminate_result{};
+		interrupt system_interrupt{};
 		std::chrono::high_resolution_clock::time_point pre{};
 		std::chrono::high_resolution_clock::time_point post{};
 		std::chrono::high_resolution_clock::duration duration{};
@@ -50,5 +52,5 @@ namespace nominax {
 	};
 
 	[[nodiscard]]
-	extern auto execute_reactor(const reactor_input& input) -> reactor_output;
+	__attribute__((hot)) extern auto execute_reactor(const reactor_input& input) -> reactor_output;
 }
