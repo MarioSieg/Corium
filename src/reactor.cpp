@@ -159,7 +159,7 @@ namespace nominax {
 		const signal64* const __restrict					ip_lo				{input.code_chunk};
 		const signal64* __restrict__						ip					{ip_lo};														/* instruction ptr lo       */
 		record64* __restrict__								sp					{input.stack};													/* stack pointer lo			*/
-		record64* const	__restrict__						sp_hi				{input.stack + input.stack_size};								/* stack pointer hi			*/
+		record64* const	__restrict__						sp_hi				{input.stack + input.stack_size - 1};								/* stack pointer hi			*/
 
 		ASM_MARKER("reactor exec");
 
@@ -214,8 +214,11 @@ namespace nominax {
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__push__:
-		// TODO: CHECK FOR STACK OVERFLOW
 		ASM_MARKER("__push__");
+		if (UNLIKELY(sp == sp_hi)) {
+			interrupt = er_stack_overflow;
+			goto _hard_fault_err_;
+		}
 		*++sp = (*++ip).r64;					// push(imm())
 		goto **(bt + (*++ip).op);				// next_instr()
 
@@ -513,7 +516,8 @@ namespace nominax {
 			--sp;								// pop()
 		}
 		goto **(bt + (*++ip).op);				// next_instr()
-		
+
+	_hard_fault_err_:
 	_terminate_:
 		ASM_MARKER("_terminate_");
 		const auto post = std::chrono::high_resolution_clock::now();
