@@ -21,7 +21,7 @@ add_library("libnominax"
 	"inc/nominax/record.hpp" 
 	"inc/nominax/macrocfg.hpp" 
 	"inc/nominax/runtime.hpp"
-	"inc/nominax/interrupts.hpp" "inc/nominax/info.hpp")
+	"inc/nominax/interrupts.hpp" "inc/nominax/info.hpp" "inc/nominax/os.hpp" "src/os_windows.cpp" "src/os_linux.cpp" "src/os_android.cpp" "src/os_darwin.cpp" "inc/nominax/memunits.hpp")
 
 add_executable("nominax" "src/main.cpp")
 target_link_libraries("nominax" "libnominax")

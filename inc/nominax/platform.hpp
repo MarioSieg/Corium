@@ -45,10 +45,11 @@
 #		undef NOMINAX_OS_ANDROID
 #		define NOMINAX_OS_ANDROID true
 #		define NOMINAX_OS_NAME "Android"
-#	endif
+#	else
 #	undef NOMINAX_OS_LINUX
 #	define NOMINAX_OS_LINUX true
 #	define NOMINAX_OS_NAME "Linux"
+#	endif
 #else
 #	error "platform.hpp: Unknown operating system!"
 #endif
