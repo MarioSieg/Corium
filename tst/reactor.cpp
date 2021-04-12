@@ -157,6 +157,12 @@ TEST(reactor_execution, __push__) {
 	ASSERT_EQ(o.input->stack[2].f, -0.6666);
 }
 
+#if NOMINAX_STACK_OVERFLOW_CHECKS
+
+/*
+ * Jump instruction which push do not required any checks. since they recycle stack space.
+ */
+
 TEST(reactor_execution, __push_no_stack_overflow__) {
 	const std::array<signal64, 9> code{
 		signal64{instruction::nop}, // first padding
@@ -199,7 +205,7 @@ TEST(reactor_execution, __push_stack_overflow__) {
 		signal64{instruction::push},
 		signal64{INT64_C(123)},
 		signal64{instruction::inter},
-		signal64{INT64_C(-3)},
+		signal64{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<record64, 4> stack{record64::nop_padding()};
@@ -218,6 +224,150 @@ TEST(reactor_execution, __push_stack_overflow__) {
 	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
+
+TEST(reactor_execution, __dupl_stack_overflow__) {
+	const std::array<signal64, 8> code{
+		signal64{instruction::nop}, // first padding
+		signal64{instruction::push},
+		signal64{INT64_C(123)},
+		signal64{instruction::dupl},
+		signal64{instruction::dupl},
+		signal64{instruction::dupl},
+		signal64{instruction::inter},
+		signal64{INT64_C(0)},
+	};
+	// only can use 3 elements, 1st is reserved:
+	std::array<record64, 4> stack{record64::nop_padding()};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	input.stack = stack.data();
+	input.stack_size = stack.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 123);
+	ASSERT_EQ(o.input->stack[2].i, 123);
+	ASSERT_EQ(o.input->stack[3].i, 123);
+	ASSERT_EQ(o.sp_diff, 3);
+	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
+	ASSERT_EQ(o.terminate_result, terminate_type::error);
+}
+
+TEST(reactor_execution, __dupl2_stack_overflow__) {
+	const std::array<signal64, 8> code{
+		signal64{instruction::nop}, // first padding
+		signal64{instruction::push},
+		signal64{INT64_C(123)},
+		signal64{instruction::dupl2},
+		signal64{instruction::dupl2},
+		signal64{instruction::dupl2},
+		signal64{instruction::inter},
+		signal64{INT64_C(0)},
+	};
+	// only can use 3 elements, 1st is reserved:
+	std::array<record64, 4> stack{record64::nop_padding()};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	input.stack = stack.data();
+	input.stack_size = stack.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 123);
+	ASSERT_EQ(o.input->stack[2].i, 123);
+	ASSERT_EQ(o.input->stack[3].i, 123);
+	ASSERT_EQ(o.sp_diff, 3);
+	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
+	ASSERT_EQ(o.terminate_result, terminate_type::error);
+}
+
+TEST(reactor_execution, __pushz_stack_overflow__) {
+	const std::array<signal64, 7> code{
+		signal64{instruction::nop}, // first padding
+		signal64{instruction::pushz},
+		signal64{instruction::pushz},
+		signal64{instruction::pushz},
+		signal64{instruction::pushz},
+		signal64{instruction::inter},
+		signal64{INT64_C(0)},
+	};
+	// only can use 3 elements, 1st is reserved:
+	std::array<record64, 4> stack{record64::nop_padding()};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	input.stack = stack.data();
+	input.stack_size = stack.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 0);
+	ASSERT_EQ(o.input->stack[2].i, 0);
+	ASSERT_EQ(o.input->stack[3].i, 0);
+	ASSERT_EQ(o.sp_diff, 3);
+	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
+	ASSERT_EQ(o.terminate_result, terminate_type::error);
+}
+
+TEST(reactor_execution, __ipusho_stack_overflow__) {
+	const std::array<signal64, 7> code{
+		signal64{instruction::nop}, // first padding
+		signal64{instruction::ipusho},
+		signal64{instruction::ipusho},
+		signal64{instruction::ipusho},
+		signal64{instruction::ipusho},
+		signal64{instruction::inter},
+		signal64{INT64_C(0)},
+	};
+	// only can use 3 elements, 1st is reserved:
+	std::array<record64, 4> stack{record64::nop_padding()};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	input.stack = stack.data();
+	input.stack_size = stack.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, 1);
+	ASSERT_EQ(o.input->stack[2].i, 1);
+	ASSERT_EQ(o.input->stack[3].i, 1);
+	ASSERT_EQ(o.sp_diff, 3);
+	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
+	ASSERT_EQ(o.terminate_result, terminate_type::error);
+}
+
+TEST(reactor_execution, __fpusho_stack_overflow__) {
+	const std::array<signal64, 7> code{
+		signal64{instruction::nop}, // first padding
+		signal64{instruction::fpusho},
+		signal64{instruction::fpusho},
+		signal64{instruction::fpusho},
+		signal64{instruction::fpusho},
+		signal64{instruction::inter},
+		signal64{INT64_C(0)},
+	};
+	// only can use 3 elements, 1st is reserved:
+	std::array<record64, 4> stack{record64::nop_padding()};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	input.stack = stack.data();
+	input.stack_size = stack.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].f, 1.0);
+	ASSERT_EQ(o.input->stack[2].f, 1.0);
+	ASSERT_EQ(o.input->stack[3].f, 1.0);
+	ASSERT_EQ(o.sp_diff, 3);
+	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
+	ASSERT_EQ(o.terminate_result, terminate_type::error);
+}
+
+#endif
 
 TEST(reactor_execution, __pop__) {
 	std::array<signal64, 9> code{

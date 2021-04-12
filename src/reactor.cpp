@@ -213,12 +213,14 @@ namespace nominax {
 		}
 		goto **(bt + (*++ip).op);				// next_instr()
 
-	__push__:
+	__push__:							
 		ASM_MARKER("__push__");
-		if (UNLIKELY(sp == sp_hi)) {
-			interrupt = er_stack_overflow;
-			goto _hard_fault_err_;
-		}
+		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
+			if (UNLIKELY(sp == sp_hi)) [[unlikely]] {	// check for stack overflow
+				interrupt = er_stack_overflow;			// hard system fault
+				goto _hard_fault_err_;					// kill
+			}
+		#endif
 		*++sp = (*++ip).r64;					// push(imm())
 		goto **(bt + (*++ip).op);				// next_instr()
 
@@ -234,6 +236,12 @@ namespace nominax {
 
 	__dupl__: {
 			ASM_MARKER("__dupl__");
+			#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
+				if (UNLIKELY(sp == sp_hi)) [[unlikely]] {	// check for stack overflow
+					interrupt = er_stack_overflow;			// hard system fault
+					goto _hard_fault_err_;					// kill
+				}
+			#endif
 			const auto top{*sp};				// peek()
 			*++sp = top;						// push(peek())
 		}
@@ -241,6 +249,12 @@ namespace nominax {
 
 	__dupl2__: {
 			ASM_MARKER("__dupl2__");
+			#if NOMINAX_STACK_OVERFLOW_CHECKS					// push 2 check
+				if (UNLIKELY(sp + 1 >= sp_hi)) [[unlikely]] {	// check for stack overflow
+					interrupt = er_stack_overflow;				// hard system fault
+					goto _hard_fault_err_;						// kill
+				}
+			#endif
 			const auto top{*sp};				// peek
 			*++sp = top;						// push(peek())
 			*++sp = top;						// push(peek())
@@ -253,16 +267,34 @@ namespace nominax {
 
 	__ipushz__:
 		ASM_MARKER("__ipushz__");
+		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
+			if (UNLIKELY(sp == sp_hi)) [[unlikely]] {	// check for stack overflow
+				interrupt = er_stack_overflow;			// hard system fault
+				goto _hard_fault_err_;					// kill
+			}
+		#endif
 		(*++sp).u = 0;							// push(0)
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__ipusho__:
 		ASM_MARKER("__ipusho__");
+		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
+			if (UNLIKELY(sp == sp_hi)) [[unlikely]] {	// check for stack overflow
+				interrupt = er_stack_overflow;			// hard system fault
+				goto _hard_fault_err_;					// kill
+			}
+		#endif
 		(*++sp).u = 1;							// push(1)
 		goto **(bt + (*++ip).op);				// next_instr()
 
 	__fpusho__:
 		ASM_MARKER("__fpusho__");
+		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
+			if (UNLIKELY(sp == sp_hi)) [[unlikely]] {	// check for stack overflow
+				interrupt = er_stack_overflow;			// hard system fault
+				goto _hard_fault_err_;					// kill
+			}
+		#endif
 		(*++sp).f = 1.0;						// push(1)
 		goto **(bt + (*++ip).op);				// next_instr()
 		
