@@ -6,7 +6,7 @@
 
 using namespace nominax;
 
-static constexpr intrinsic_routine* test_intrinsic_routine {+[]() noexcept -> bool {
+static constexpr intrinsic_routine* test_intrinsic_routine {+[]([[maybe_unused]] record64*) noexcept -> bool {
 	return true;
 }};
 
@@ -444,7 +444,7 @@ TEST(reactor_execution, __dupl__) {
 	ASSERT_EQ(o.input->stack[4].i, -2);
 }
 
-TEST(reactor_execution, __cpp_lib_is_swappable__) {
+TEST(reactor_execution, __swap__) {
 	const std::array<csignal, 8> code{
 		csignal{instruction::nop}, // first padding
 		csignal{instruction::push},
@@ -1784,4 +1784,57 @@ TEST(reactor_input_validation, missing_stack_prologue) {
 		.user_data = nullptr
 	};
 	ASSERT_EQ(input.validate(), reactor_validation_result::missing_stack_prologue);
+}
+
+TEST(reactor_execution, __cintrin__) {
+	static constinit int calls;
+	std::array<intrinsic_routine*, 3> custom_intrinsics {
+		+[](record64*) -> bool {
+			++calls;
+			return true;
+		},
+		+[](record64* sp_) -> bool {
+			(*++sp_).f = 3.223;
+			(*++sp_).c = ':';
+			(*++sp_).c = ')';
+			++calls;
+			return true;
+		},
+		+[](record64*) -> bool {
+			++calls;
+			return true;
+		},
+	};
+	const std::array<csignal, 11> code {
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{0.12345},
+		csignal{instruction::cintrin},
+		csignal{UINT64_C(0)},
+		csignal{instruction::cintrin},
+		csignal{UINT64_C(1)},
+		csignal{instruction::cintrin},
+		csignal{UINT64_C(2)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
+	};
+	std::array<record64, 6> stack{record64::nop_padding()};
+	auto input{default_test_input};
+	input.stack = stack.data();
+	input.stack_size = stack.size();
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	input.intrinsic_table = custom_intrinsics.data();
+	input.intrinsic_table_size = custom_intrinsics.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].f, 0.12345);
+	ASSERT_EQ(o.input->stack[2].f, 3.223);
+	ASSERT_EQ(o.input->stack[3].c, ':');
+	ASSERT_EQ(o.input->stack[4].c, ')');
+	ASSERT_EQ(o.sp_diff, 1); // pop all!
+	ASSERT_EQ(o.interrupt, 0);
+	ASSERT_EQ(o.terminate_result, terminate_type::success);
+	ASSERT_EQ(calls, custom_intrinsics.size());
 }

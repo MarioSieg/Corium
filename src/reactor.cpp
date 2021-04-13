@@ -2,6 +2,7 @@
 #include "../inc/nominax/interrupts.hpp"
 #include "../inc/nominax/macrocfg.hpp"
 #include "../inc/nominax/reactor_internals.hpp"
+#include "../inc/nominax/sysintrin.hpp"
 
 namespace nominax {
 	auto reactor_input::validate() const noexcept -> reactor_validation_result {
@@ -48,33 +49,177 @@ namespace nominax {
 	 */
 
 	#if NOMINAX_REACTOR_ASM_MARKERS
-		/* This inserts a comment with the msg into the assembler code.
-		 * Useful for finding the asm code of the instructions.
-		 * These should be disabled when building for release.
-		 * Asm volatile is like a black box and never touched by the compiler so it might affect code generation/ordering!
-		 */
+	 /* This inserts a comment with the msg into the assembler code.
+	  * Useful for finding the asm code of the instructions.
+	  * These should be disabled when building for release.
+	  * Asm volatile is like a black box and never touched by the compiler so it might affect code generation/ordering!
+	  */
 		#define ASM_MARKER(msg) asm volatile("#" msg)
 	#else
 		#define ASM_MARKER(msg)
 	#endif
 
-#if NOMINAX_STACK_OVERFLOW_CHECKS
-	/* Inserts a stack overflow sentinel.
-	 * x is the number of pushes to check for.
-	 * x = 1 -> check for 1 more element
-	 * x = 2 -> check for 2 more elements
-	 * etc..
-	 */
-	#define STO_SENTINEL(x)										\
-		do {													\
-			if (__builtin_expect(sp + ((x) - 1) >= sp_hi, 0)) {	\
-				interrupt = er_stack_overflow;					\
-				goto _hard_fault_err_;							\
-			}													\
-		} while(false)
-#else
-	#define STO_SENTINEL(x)
-#endif
+	#if NOMINAX_STACK_OVERFLOW_CHECKS
+		/* Inserts a stack overflow sentinel.
+		* x is the number of pushes to check for.
+		* x = 1 -> check for 1 more element
+		* x = 2 -> check for 2 more elements
+		* etc..
+		*/
+		#define STO_SENTINEL(x)										\
+			do {													\
+				if (__builtin_expect(sp + ((x) - 1) >= sp_hi, 0)) {	\
+					interrupt = er_stack_overflow;					\
+					goto _hard_fault_err_;							\
+				}													\
+			} while(false)
+	#else
+		#define STO_SENTINEL(x)
+	#endif
+
+	__attribute__((hot)) static void syscall_intrin(record64* const sp_, const u64 id_) {
+		static constexpr const void* __restrict__ bt[static_cast<std::size_t>(intrinsic::count_)] {
+			&&__cos__,
+			&&__sin__,
+			&&__tan__,
+			&&__acos__,
+			&&__asin__,
+			&&__atan__,
+			&&__atan2__,
+			&&__cosh__,
+			&&__sinh__,
+			&&__tanh__,
+			&&__acosh__,
+			&&__asinh__,
+			&&__atanh__,
+			&&__exp__,
+			&&__log__,
+			&&__log10__,
+			&&__exp2__,
+			&&__ilogb__,
+			&&__log2__,
+			&&__pow__,
+			&&__sqrt__,
+			&&__cbrt__,
+			&&__hypot__,
+			&&__ceil__,
+			&&__floor__,
+			&&__round__,
+			&&__rint__,
+			&&__max__,
+			&&__min__,
+			&&__fmax__,
+			&&__fmin__,
+			&&__fdim__,
+			&&__abs__,
+			&&__fabs__
+		};
+
+		goto **(bt + id_);
+		
+	__cos__: __attribute__((hot));
+		(*sp_).f = std::cos((*sp_).f);
+		return;
+	__sin__: __attribute__((hot));
+		(void)0;
+		return;
+	__tan__: __attribute__((hot));
+		(void)0;
+		return;
+	__acos__: __attribute__((hot));
+		(void)0;
+		return;
+	__asin__: __attribute__((hot));
+		(void)0;
+		return;
+	__atan__: __attribute__((hot));
+		(void)0;
+		return;
+	__atan2__: __attribute__((hot));
+		(void)0;
+		return;
+	__cosh__: __attribute__((hot));
+		(void)0;
+		return;
+	__sinh__: __attribute__((hot));
+		(void)0;
+		return;
+	__tanh__: __attribute__((hot));
+		(void)0;
+		return;
+	__acosh__: __attribute__((hot));
+		(void)0;
+		return;
+	__asinh__: __attribute__((hot));
+		(void)0;
+		return;
+	__atanh__: __attribute__((hot));
+		(void)0;
+		return;
+	__exp__: __attribute__((hot));
+		(void)0;
+		return;
+	__log__: __attribute__((hot));
+		(void)0;
+		return;
+	__log10__: __attribute__((hot));
+		(void)0;
+		return;
+	__exp2__: __attribute__((hot));
+		(void)0;
+		return;
+	__ilogb__: __attribute__((hot));
+		(void)0;
+		return;
+	__log2__: __attribute__((hot));
+		(void)0;
+		return;
+	__pow__: __attribute__((hot));
+		(void)0;
+		return;
+	__sqrt__: __attribute__((hot));
+		(void)0;
+		return;
+	__cbrt__: __attribute__((hot));
+		(void)0;
+		return;
+	__hypot__: __attribute__((hot));
+		(void)0;
+		return;
+	__ceil__: __attribute__((hot));
+		(void)0;
+		return;
+	__floor__: __attribute__((hot));
+		(void)0;
+		return;
+	__round__: __attribute__((hot));
+		(void)0;
+		return;
+	__rint__: __attribute__((hot));
+		(void)0;
+		return;
+	__max__: __attribute__((hot));
+		(void)0;
+		return;
+	__min__: __attribute__((hot));
+		(void)0;
+		return;
+	__fmax__: __attribute__((hot));
+		(void)0;
+		return;
+	__fmin__: __attribute__((hot));
+		(void)0;
+		return;
+	__fdim__: __attribute__((hot));
+		(void)0;
+		return;
+	__abs__: __attribute__((hot));
+		(void)0;
+		return;
+	__fabs__: __attribute__((hot));
+		(void)0;
+		return;
+	}
 
 	auto execute_reactor(const reactor_input& input_) -> reactor_output {
 		if (const auto result = input_.validate(); __builtin_expect(result != reactor_validation_result::ok, 0)) {
@@ -89,6 +234,7 @@ namespace nominax {
 		static constexpr const void* __restrict__ const bt[static_cast<std::size_t>(instruction::count_)] {
 			&&__int__,
 			&&__intrin__,
+			&&__cintrin__,
 			&&__call__,
 			&&__ret__,
 			&&__mov__,
@@ -146,7 +292,7 @@ namespace nominax {
 			&&__fmod__,
 			&&__fneg__,
 			&&__finc__,
-			&&__fdec__,
+			&&__fdec__
 		};
 		
 		struct $ {
@@ -190,14 +336,15 @@ namespace nominax {
 		}
 		goto **(bt + (*++ip).op);						// next_instr()
 
-	__intrin__: __attribute__((hot)); {
-			ASM_MARKER("__intrin__");
-			const i64 iid{(*++ip).r64.i};				// imm()
-			if (__builtin_expect(iid < 0, 1)) {
-				// TODO call build-in
-			} else {
-				(**(intrinsic_table + iid))();
-			}
+	__intrin__: __attribute__((hot));
+		ASM_MARKER("__intrin__");
+		syscall_intrin(sp, (*++ip).r64.u);				// syscall(sp, imm())
+		goto **(bt + (*++ip).op);						// next_instr()
+
+	__cintrin__: __attribute__((hot));
+		ASM_MARKER("__cintrin__");
+		if (__builtin_expect(!(**(intrinsic_table + (*++ip).r64.i))(sp), 0)) {
+			goto _terminate_;
 		}
 		goto **(bt + (*++ip).op);						// next_instr()
 
