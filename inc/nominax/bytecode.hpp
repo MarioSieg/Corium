@@ -1,5 +1,8 @@
 #pragma once
 
+#include <array>
+#include <string_view>
+
 #include "record.hpp"
 
 namespace nominax {
@@ -66,10 +69,357 @@ namespace nominax {
 		fneg		= 0x00'00'00'00'00'00'00'39,
 		finc		= 0x00'00'00'00'00'00'00'3A,
 		fdec		= 0x00'00'00'00'00'00'00'3B,
-		
-		count
+
+		/* !no instruction - count of total instructions! */
+		count_
 	};
 
+	/* instruction meta database */
+	namespace idb {
+		struct instruction_data_flags final {
+			enum $ : std::uint8_t {
+				none = 0,
+				i64 = 1 << 0,
+				f64 = 1 << 1,
+				u64 = 1 << 2,
+				c32 = 1 << 3,
+				ref = 1 << 4,
+			};
+		};
+
+		enum class instruction_type : std::uint8_t {
+			control,
+			memory,
+			branching,
+			arithmetic,
+			bitwise
+		};
+
+		struct instruction_info final {
+			const std::string_view mnemonic;
+			const std::string_view description;
+			const instruction_type type;
+			const std::uint8_t push_count;
+			const std::uint8_t pop_count;
+			const std::uint8_t imm_arg_count;
+		};
+		
+		constexpr std::array<const std::string_view, static_cast<std::size_t>(instruction::count_)> mnemonics {
+			"inter",
+			"intrin",
+			"call",
+			"ret",
+			"mov",
+			"sto",
+			"push",
+			"pop",
+			"pop2",
+			"dupl",
+			"dupl2",
+			"swap",
+			"nop",
+			"jmp",
+			"jmprel",
+			"jz",
+			"jnz",
+			"jo_cmpi",
+			"jo_cmpf",
+			"jno_cmpi",
+			"jno_cmpf",
+			"je_cmpi",
+			"je_cmpf",
+			"jne_cmpi",
+			"jne_cmpf",
+			"ja_cmpi",
+			"ja_cmpf",
+			"jl_cmpi",
+			"jl_cmpf",
+			"jae_cmpi",
+			"jae_cmpf",
+			"jle_cmpi",
+			"jle_cmpf",
+			"pushz",
+			"ipusho",
+			"fpusho",
+			"iinc",
+			"idec",
+			"iadd",
+			"isub",
+			"imul",
+			"idiv",
+			"imod",
+			"iand",
+			"ior",
+			"ixor",
+			"icom",
+			"isal",
+			"isar",
+			"irol",
+			"iror",
+			"ineg",
+			"fadd",
+			"fsub",
+			"fmul",
+			"fdiv",
+			"fmod",
+			"fneg",
+			"finc",
+			"fdec"
+		};
+
+		constexpr std::array<const std::string_view, static_cast<std::size_t>(instruction::count_)> descriptions {
+			"interrupt reactor execution",
+			"call intrinsic system routine",
+			"call procedure",
+			"return from procedure",
+			"copy stack slot to stack record",
+			"copy immediate to stack record",
+			"push one stack record onto stack",
+			"pop one stack record from stack",
+			"pop two records from stack",
+			"duplicate stack top",
+			"duplicate stack top two times",
+			"swap the stack top slot with the lower slot",
+			"no operation",
+			"absolute direct unconditional jump",
+			"relative indirect jump unconditional jump",
+			"jump if zero",
+			"jump if not zero",
+			"jump if one - compare as integer",
+			"jump if one - compare as float",
+			"jump if not one - compare as integer",
+			"jump if not one - compare as  integer",
+			"jump if equal as integer",
+			"jump if equal - compare as floating point",
+			"jump if not equal - compare  as integer",
+			"jump if not equal - compare  as floating point",
+			"jump if above - compare  as integer",
+			"jump if above - compare  as floating point",
+			"jump if less - compare as floating point",
+			"jump if less - compare as floating point",
+			"jump if above or equal - compare as integer",
+			"jump if above or equal - compare as floating point",
+			"jump if less or equal - compare as integer",
+			"jump if less or equal - compare as floating point",
+			"push zero as integer",
+			"push one as  integer",
+			"push one as floating point",
+			"integer increment",
+			"integer decrement",
+			"integer addition",
+			"integer subtraction",
+			"integer multiplication",
+			"integer division",
+			"integer remainder",
+			"integer bitwise and",
+			"integer bitwise or",
+			"integer bitwise xor",
+			"integer bitwise complement",
+			"integer bitwise arithmetic left shift",
+			"integer bitwise arithmetic right shift",
+			"integer bitwise rotation left",
+			"integer bitwise right rotation",
+			"integer negation",
+			"floating point addition",
+			"floating point subtraction",
+			"floating point multiplication",
+			"floating point division",
+			"floating point remainder",
+			"floating point negation",
+			"floating point increment",
+			"floating point decrement"
+		};
+
+		constexpr std::array<instruction_type, static_cast<std::size_t>(instruction::count_)> types {
+			instruction_type::control,
+			instruction_type::control,
+			instruction_type::control,
+			instruction_type::control,
+			instruction_type::memory,
+			instruction_type::memory,
+			instruction_type::memory,
+			instruction_type::memory,
+			instruction_type::memory,
+			instruction_type::memory,
+			instruction_type::memory,
+			instruction_type::memory,
+			instruction_type::memory,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::branching,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::bitwise,
+			instruction_type::bitwise,
+			instruction_type::bitwise,
+			instruction_type::bitwise,
+			instruction_type::bitwise,
+			instruction_type::bitwise,
+			instruction_type::bitwise,
+			instruction_type::bitwise,
+			instruction_type::bitwise,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic,
+			instruction_type::arithmetic
+		};
+
+		constexpr std::array<std::uint8_t, static_cast<std::size_t>(instruction::count_)> push_count {
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			1,
+			0,
+			0,
+			1,
+			2,
+			2,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1
+		};
+
+		constexpr std::array<std::uint8_t, static_cast<std::size_t>(instruction::count_)> pop_count {
+			0,
+			0,
+			0,
+			1,
+			0,
+			0,
+			0,
+			1,
+			2,
+			0,
+			0,
+			2,
+			0,
+			0,
+			0,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			0,
+			0,
+			1,
+			1,
+			1,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			1,
+			2,
+			2,
+			2,
+			2,
+			1,
+			2,
+			2,
+			2,
+			2,
+			2,
+			1,
+			1,
+			1
+		};
+	}
+	
 	/* 64-bit byte code signal data contains either an instruction or an immediate value. */
 	union alignas(alignof(opcode)) csignal {
 		record64 r64;
@@ -86,24 +436,24 @@ namespace nominax {
 		explicit constexpr csignal(c32 x_) noexcept;
 	};
 
-	constexpr csignal::csignal(const record64 x_) noexcept : r64{x_} {}
-	constexpr csignal::csignal(const instruction x_) noexcept : instr{x_} {}
-	constexpr csignal::csignal(void* const x_) noexcept : ptr{x_} {}
-	constexpr csignal::csignal(const i64 x_) noexcept : r64{x_} {}
-	constexpr csignal::csignal(const u64 x_) noexcept : r64{x_} {}
-	constexpr csignal::csignal(const f64 x_) noexcept : r64{x_} {}
-	constexpr csignal::csignal(const c32 x_) noexcept : r64{x_} {}
+	constexpr csignal::csignal(const record64 x_) noexcept : r64 {x_} {}
+	constexpr csignal::csignal(const instruction x_) noexcept : instr {x_} {}
+	constexpr csignal::csignal(void* const x_) noexcept : ptr {x_} {}
+	constexpr csignal::csignal(const i64 x_) noexcept : r64 {x_} {}
+	constexpr csignal::csignal(const u64 x_) noexcept : r64 {x_} {}
+	constexpr csignal::csignal(const f64 x_) noexcept : r64 {x_} {}
+	constexpr csignal::csignal(const c32 x_) noexcept : r64 {x_} {}
 
 	constexpr auto operator""_sig_u(const unsigned long long int x_) noexcept -> csignal {
-		return csignal{static_cast<u64>(x_)};
+		return csignal {static_cast<u64>(x_)};
 	}
 
 	constexpr auto operator""_sig_i(const unsigned long long int x_) noexcept -> csignal {
-		return csignal{static_cast<i64>(x_)};
+		return csignal {static_cast<i64>(x_)};
 	}
 
 	constexpr auto operator""_sig_f(const long double x_) noexcept -> csignal {
-		return csignal{static_cast<f64>(x_)};
+		return csignal {static_cast<f64>(x_)};
 	}
 
 	static_assert(std::is_same_v<std::underlying_type_t<instruction>, std::uint64_t>);

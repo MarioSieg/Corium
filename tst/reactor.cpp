@@ -6,11 +6,11 @@
 
 using namespace nominax;
 
-static constexpr intrinsic_routine* test_intrinsic_routine{+[]() noexcept -> bool {
+static constexpr intrinsic_routine* test_intrinsic_routine {+[]() noexcept -> bool {
 	return true;
 }};
 
-static constinit std::array<intrinsic_routine*, 3> test_intrinsic_routine_table{
+static constinit std::array<intrinsic_routine*, 3> test_intrinsic_routine_table {
 	test_intrinsic_routine,
 	test_intrinsic_routine,
 	test_intrinsic_routine
@@ -18,11 +18,11 @@ static constinit std::array<intrinsic_routine*, 3> test_intrinsic_routine_table{
 
 static constexpr auto test_stack_size = 32; // 32 records
 
-static constinit std::array<record64, test_stack_size> test_stack{record64::nop_padding()};
+static constinit std::array<record64, test_stack_size> test_stack {record64::nop_padding()};
 
 static constinit volatile std::sig_atomic_t test_signal_status;
 
-static constinit interrupt_routine* test_interrupt_handler{+[](interrupt_accumulator, void*) noexcept -> bool {
+static constinit interrupt_routine* test_interrupt_handler {+[](interrupt_accumulator, void*) noexcept -> bool {
 	return true;
 }};
 
@@ -442,6 +442,28 @@ TEST(reactor_execution, __dupl__) {
 	ASSERT_EQ(o.input->stack[2].i, 5);
 	ASSERT_EQ(o.input->stack[3].i, -2);
 	ASSERT_EQ(o.input->stack[4].i, -2);
+}
+
+TEST(reactor_execution, __cpp_lib_is_swappable__) {
+	const std::array<csignal, 8> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{INT64_C(3)},
+		csignal{instruction::push},
+		csignal{INT64_C(-666)},
+		csignal{instruction::swap},
+		csignal{instruction::inter},
+		csignal{INT64_C(-1)},
+	};
+	auto input{default_test_input};
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{execute_reactor(input)};
+	ASSERT_EQ(o.input->stack[1].i, -666);
+	ASSERT_EQ(o.input->stack[2].i, 3);
+	ASSERT_EQ(o.sp_diff, 2);
 }
 
 TEST(reactor_execution, __dupl2__) {

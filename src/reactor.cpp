@@ -81,7 +81,7 @@ namespace nominax {
 
 	auto execute_reactor(const reactor_input& input_) -> reactor_output {
 		if (const auto result = input_.validate(); __builtin_expect(result != reactor_validation_result::ok, 0)) {
-			return reactor_output{
+			return {
 				.input = &input_,
 				.validation_result = result,
 			};
@@ -89,7 +89,7 @@ namespace nominax {
 		
 		const auto pre = std::chrono::high_resolution_clock::now();
 
-		static constexpr const void* __restrict__ const bt[static_cast<std::size_t>(instruction::count)]{
+		static constexpr const void* __restrict__ const bt[static_cast<std::size_t>(instruction::count_)] {
 			&&__int__,
 			&&__intrin__,
 			&&__call__,
