@@ -61,6 +61,24 @@ namespace nominax {
 		#define ASM_MARKER(msg)
 	#endif
 
+#if NOMINAX_STACK_OVERFLOW_CHECKS
+	/* Inserts a stack overflow sentinel.
+	 * x is the number of pushes to check for.
+	 * x = 1 -> check for 1 more element
+	 * x = 2 -> check for 2 more elements
+	 * etc..
+	 */
+	#define STO_SENTINEL(x)										\
+		do {													\
+			if (__builtin_expect(sp + ((x) - 1) >= sp_hi, 0)) {	\
+				interrupt = er_stack_overflow;					\
+				goto _hard_fault_err_;							\
+			}													\
+		} while(false)
+#else
+	#define STO_SENTINEL(x)
+#endif
+
 	auto execute_reactor(const reactor_input& input_) -> reactor_output {
 		if (const auto result = input_.validate(); __builtin_expect(result != reactor_validation_result::ok, 0)) {
 			return reactor_output{
@@ -212,12 +230,7 @@ namespace nominax {
 
 	__push__: __attribute__((hot));
 		ASM_MARKER("__push__");
-		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
-			if (__builtin_expect(sp == sp_hi, 0)) {		// check for stack overflow
-				interrupt = er_stack_overflow;			// hard system fault
-				goto _hard_fault_err_;					// kill
-			}
-		#endif
+		STO_SENTINEL(1);
 		*++sp = (*++ip).r64;							// push(imm())
 		goto **(bt + (*++ip).op);						// next_instr()
 
@@ -233,33 +246,26 @@ namespace nominax {
 
 	__dupl__: __attribute__((hot)); {
 			ASM_MARKER("__dupl__");
-			#if NOMINAX_STACK_OVERFLOW_CHECKS			// push 1 check
-				if (__builtin_expect(sp == sp_hi, 0)) {	// check for stack overflow
-					interrupt = er_stack_overflow;		// hard system fault
-					goto _hard_fault_err_;				// kill
-				}
-			#endif
+			STO_SENTINEL(1);
 			const auto top{*sp};						// peek()
 			*++sp = top;								// push(peek())
 		}
 		goto **(bt + (*++ip).op);						// next_instr()
 
 	__dupl2__: __attribute__((hot)); {
-			ASM_MARKER("__dupl2__");
-			#if NOMINAX_STACK_OVERFLOW_CHECKS					// push 2 check
-				if (__builtin_expect(sp + 1 >= sp_hi, 0)) {		// check for stack overflow
-					interrupt = er_stack_overflow;				// hard system fault
-					goto _hard_fault_err_;						// kill
-				}
-			#endif
+			STO_SENTINEL(2);
 			const auto top{*sp};				// peek
 			*++sp = top;						// push(peek())
 			*++sp = top;						// push(peek())
 		}
 		goto **(bt + (*++ip).op);				// next_instr()
 
-	__swap__: __attribute__((cold));
-		ASM_MARKER("__swap__");
+	__swap__: __attribute__((hot)); {
+			ASM_MARKER("__swap__");
+			const auto top = *sp;				// backup = top()
+			*sp = *(sp - 1);					// top() = poke(1)
+			*(sp - 1) = top;					// poke(1) = backup
+		}
 		goto **(bt + (*++ip).op);				// next_instr()
 		
 	__nop__: __attribute__((cold));
