@@ -1,6 +1,3 @@
-#include <algorithm>
-#include <array>
-
 #include "../inc/nominax/reactor.hpp"
 #include "../inc/nominax/interrupts.hpp"
 #include "../inc/nominax/macrocfg.hpp"

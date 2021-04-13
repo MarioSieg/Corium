@@ -76,18 +76,7 @@ namespace nominax {
 
 	/* instruction meta database */
 	namespace idb {
-		struct instruction_data_flags final {
-			enum $ : std::uint8_t {
-				none = 0,
-				i64 = 1 << 0,
-				f64 = 1 << 1,
-				u64 = 1 << 2,
-				c32 = 1 << 3,
-				ref = 1 << 4,
-			};
-		};
-
-		enum class instruction_type : std::uint8_t {
+		enum class instruction_type: std::uint8_t {
 			control,
 			memory,
 			branching,
@@ -95,13 +84,15 @@ namespace nominax {
 			bitwise
 		};
 
-		struct instruction_info final {
-			const std::string_view mnemonic;
-			const std::string_view description;
-			const instruction_type type;
-			const std::uint8_t push_count;
-			const std::uint8_t pop_count;
-			const std::uint8_t imm_arg_count;
+		enum class instruction_imm_arg_type: std::uint8_t {
+			none,
+			i64,
+			f64,
+			u64,
+			i64_u64,
+			i64_u64_f64,
+			rel64,
+			abs64
 		};
 		
 		constexpr std::array<const std::string_view, static_cast<std::size_t>(instruction::count_)> mnemonics {
@@ -293,7 +284,7 @@ namespace nominax {
 			instruction_type::arithmetic
 		};
 
-		constexpr std::array<std::uint8_t, static_cast<std::size_t>(instruction::count_)> push_count {
+		constexpr std::array<std::uint8_t, static_cast<std::size_t>(instruction::count_)> push_counts {
 			0,
 			0,
 			0,
@@ -356,7 +347,7 @@ namespace nominax {
 			1
 		};
 
-		constexpr std::array<std::uint8_t, static_cast<std::size_t>(instruction::count_)> pop_count {
+		constexpr std::array<std::uint8_t, static_cast<std::size_t>(instruction::count_)> pop_counts {
 			0,
 			0,
 			0,
@@ -417,6 +408,186 @@ namespace nominax {
 			1,
 			1,
 			1
+		};
+
+		constexpr std::array<std::uint8_t, static_cast<std::size_t>(instruction::count_)> imm_arg_counts {
+			1,
+			1,
+			1,
+			0,
+			2,
+			2,
+			1,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0
+		};
+
+		constexpr std::size_t max_imm_args {2};
+
+		constexpr std::array<std::array<instruction_imm_arg_type, max_imm_args>, static_cast<std::size_t>(instruction::count_)> imm_arg_types {
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::i64_u64_f64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::i64_u64_f64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::i64_u64_f64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::rel64, instruction_imm_arg_type::rel64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::rel64, instruction_imm_arg_type::i64_u64_f64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::i64_u64_f64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::rel64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {
+				instruction_imm_arg_type::abs64
+			},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
+			std::array<instruction_imm_arg_type, max_imm_args> {},
 		};
 	}
 	
