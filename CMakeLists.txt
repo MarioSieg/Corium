@@ -28,8 +28,6 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}	\
 	-msse2									\
 	-msse3									\
 	-mssse3									\
-	-msse4.1								\
-	-msse4.2								\
 	-msahf									\
 	-mcx16									\
 ")			
