@@ -1,4 +1,5 @@
 #include <array>
+#include <numbers>
 
 #include "tstbase.hpp"
 #include "../inc/nominax/reactor.hpp"
@@ -54,6 +55,18 @@ TEST(reactor_internals, rol) {
 TEST(reactor_internals, ror) {
 	ASSERT_EQ(ror(1, 3), std::rotr<u64>(1, 3));
 }
+
+#if NOMINAX_ARCH_X86_32 || NOMINAX_ARCH_X86_64
+
+TEST(reactor_internals, query_pi64_from_x87fpu) {
+	ASSERT_DOUBLE_EQ(query_pi64_from_x87fpu(), std::numbers::pi);
+}
+
+TEST(reactor_internals, query_pi32_from_x87fpu) {
+	ASSERT_DOUBLE_EQ(query_pi32_from_x87fpu(), std::numbers::pi_v<f32>);
+}
+
+#endif
 
 TEST(reactor_execution, __intrin__$cos) {
 	const std::array<csignal, 7> code = {

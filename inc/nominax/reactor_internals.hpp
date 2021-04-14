@@ -28,6 +28,36 @@ namespace nominax {
 		#endif
 	}
 
+	#if NOMINAX_ARCH_X86_32 || NOMINAX_ARCH_X86_64
+	
+	[[nodiscard]]
+	__attribute__((flatten)) inline auto query_pi64_from_x87fpu() noexcept -> f64 {
+		f64 pi;
+		asm volatile (
+			"fldpi\n"
+			"fstpl %0\n"
+			: "=m"(pi)
+			:
+			:
+		);
+		return pi;
+	}
+
+	[[nodiscard]]
+	__attribute__((flatten)) inline auto query_pi32_from_x87fpu() noexcept -> f32 {
+		f32 pi;
+		asm volatile (
+			"fldpi\n"
+			"fstps %0\n"
+			: "=m"(pi)
+			:
+			:
+		);
+		return pi;
+	}
+
+	#endif
+
 	__attribute__((flatten)) inline void operator %=(record64& x_, const f64 y_) noexcept {
 		x_.f = std::fmod(x_.f, y_);
 	}
@@ -45,11 +75,6 @@ namespace nominax {
 			auto* int3 = reinterpret_cast<int*>(3);
 			*int3 = 3;
 		#endif
-	}
-
-	[[noreturn]]
-	__attribute((flatten)) inline void hard_fault_trap() noexcept {
-		std::abort();
 	}
 
 	__attribute__((flatten)) inline void read_fence() noexcept {
