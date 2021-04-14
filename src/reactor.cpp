@@ -20,6 +20,11 @@ namespace nominax {
 			return reactor_validation_result::missing_code_prologue;
 		}
 
+		// last instruction must be interrupt:
+		if (__builtin_expect(code_chunk_size < 2, 0) || __builtin_expect((code_chunk + code_chunk_size - 2)->instr != instruction::inter, 0)) {
+			return reactor_validation_result::missing_code_prologue;
+		}
+
 		// first stack entry is never used and must be nop-padding:
 		if (__builtin_expect(*stack != record64::nop_padding(), 0)) {
 			return reactor_validation_result::missing_stack_prologue;
@@ -62,8 +67,8 @@ namespace nominax {
 	#if NOMINAX_STACK_OVERFLOW_CHECKS
 		/* Inserts a stack overflow sentinel.
 		* x is the number of pushes to check for.
-		* x = 1 -> check for 1 more element
-		* x = 2 -> check for 2 more elements
+		* x = 1 -> check for 1 more push
+		* x = 2 -> check for 2 more pushes
 		* etc..
 		*/
 		#define STO_SENTINEL(x)										\
@@ -120,104 +125,137 @@ namespace nominax {
 	__cos__: __attribute__((hot));
 		(*sp_).f = std::cos((*sp_).f);
 		return;
+		
 	__sin__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::sin((*sp_).f);
 		return;
+		
 	__tan__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::tan((*sp_).f);
 		return;
+		
 	__acos__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::acos((*sp_).f);
 		return;
+		
 	__asin__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::asin((*sp_).f);
 		return;
+		
 	__atan__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::atan((*sp_).f);
 		return;
+		
 	__atan2__: __attribute__((hot));
-		(void)0;
+		(*(sp_ - 1)).f = std::atan2((*(sp_ - 1)).f, (*sp_).f);
 		return;
+		
 	__cosh__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::cosh((*sp_).f);
 		return;
+		
 	__sinh__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::sinh((*sp_).f);
 		return;
+		
 	__tanh__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::tanh((*sp_).f);
 		return;
+		
 	__acosh__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::acosh((*sp_).f);
 		return;
+		
 	__asinh__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::asinh((*sp_).f);
 		return;
+		
 	__atanh__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::atanh((*sp_).f);
 		return;
+		
 	__exp__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::exp((*sp_).f);
 		return;
+		
 	__log__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::log((*sp_).f);
 		return;
+		
 	__log10__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::log10((*sp_).f);
 		return;
+		
 	__exp2__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::exp2((*sp_).f);
 		return;
+		
 	__ilogb__: __attribute__((hot));
-		(void)0;
+		(*sp_).i = std::ilogb((*sp_).f);
 		return;
+		
 	__log2__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::log2((*sp_).f);
 		return;
+		
 	__pow__: __attribute__((hot));
-		(void)0;
+		(*(sp_ - 1)).f = std::pow((*(sp_ - 1)).f, (*sp_).f);
 		return;
+		
 	__sqrt__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::sqrt((*sp_).f);
 		return;
+		
 	__cbrt__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::cbrt((*sp_).f);
 		return;
+		
 	__hypot__: __attribute__((hot));
-		(void)0;
+		(*(sp_ - 1)).f = std::hypot((*(sp_ - 1)).f, (*sp_).f);
 		return;
+		
 	__ceil__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::ceil((*sp_).f);
 		return;
+		
 	__floor__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::floor((*sp_).f);
 		return;
+		
 	__round__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::round((*sp_).f);
 		return;
+		
 	__rint__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::rint((*sp_).f);
 		return;
+		
 	__max__: __attribute__((hot));
-		(void)0;
+		(*(sp_ - 1)).i = std::max((*(sp_ - 1)).i, (*sp_).i);
 		return;
+		
 	__min__: __attribute__((hot));
-		(void)0;
+		(*(sp_ - 1)).i = std::min((*(sp_ - 1)).i, (*sp_).i);
 		return;
+		
 	__fmax__: __attribute__((hot));
-		(void)0;
+		(*(sp_ - 1)).f = std::max((*(sp_ - 1)).f, (*sp_).f);
 		return;
+		
 	__fmin__: __attribute__((hot));
-		(void)0;
+		(*(sp_ - 1)).f = std::min((*(sp_ - 1)).f, (*sp_).f);
 		return;
+		
 	__fdim__: __attribute__((hot));
-		(void)0;
+		(*(sp_ - 1)).f = std::fdim((*(sp_ - 1)).f, (*sp_).f);
 		return;
+		
 	__abs__: __attribute__((hot));
-		(void)0;
+		(*sp_).i = std::abs((*sp_).i);
 		return;
+		
 	__fabs__: __attribute__((hot));
-		(void)0;
+		(*sp_).f = std::abs((*sp_).f);
 		return;
 	}
 
@@ -433,20 +471,18 @@ namespace nominax {
 	__jz__: __attribute__((hot)); {
 			ASM_MARKER("__jz__");
 			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).u == 0) {
+			if ((*sp--).u == 0) {
 				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
 		}	
 		goto **(bt + (*++ip).op);						// next_instr()
 
 	__jnz__: __attribute__((hot)); {
 			ASM_MARKER("__jnz__");
 			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).u != 0) {
+			if ((*sp--).u != 0) {
 				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
 		}
 		goto **(bt + (*++ip).op);						// next_instr()
 

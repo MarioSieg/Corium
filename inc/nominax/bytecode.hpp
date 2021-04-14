@@ -4,11 +4,10 @@
 #include <string_view>
 
 #include "record.hpp"
+#include "sysintrin.hpp"
 
 namespace nominax {
-	using opcode = std::uint64_t;
-	
-	enum class alignas(alignof(opcode)) instruction: opcode {
+	enum class alignas(alignof(std::uint64_t)) instruction: std::uint64_t {
 		inter		= 0x00'00'00'00'00'00'00'00,
 		intrin		= 0x00'00'00'00'00'00'00'01,
 		cintrin		= 0x00'00'00'00'00'00'00'02,
@@ -603,14 +602,16 @@ namespace nominax {
 	}
 	
 	/* 64-bit byte code signal data contains either an instruction or an immediate value. */
-	union alignas(alignof(opcode)) csignal {
+	union alignas(alignof(std::uint64_t)) csignal {
 		record64 r64;
 		instruction instr;
-		opcode op;
+		intrinsic intrin;
+		std::uint64_t op;
 		void* ptr;
 
 		explicit constexpr csignal(record64 x_) noexcept;
 		explicit constexpr csignal(instruction x_) noexcept;
+		explicit constexpr csignal(intrinsic x_) noexcept;
 		explicit constexpr csignal(void* x_) noexcept;
 		explicit constexpr csignal(i64 x_) noexcept;
 		explicit constexpr csignal(u64 x_) noexcept;
@@ -620,6 +621,7 @@ namespace nominax {
 
 	constexpr csignal::csignal(const record64 x_) noexcept : r64 {x_} {}
 	constexpr csignal::csignal(const instruction x_) noexcept : instr {x_} {}
+	constexpr csignal::csignal(const intrinsic x_) noexcept : intrin{x_} {}
 	constexpr csignal::csignal(void* const x_) noexcept : ptr {x_} {}
 	constexpr csignal::csignal(const i64 x_) noexcept : r64 {x_} {}
 	constexpr csignal::csignal(const u64 x_) noexcept : r64 {x_} {}
