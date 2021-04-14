@@ -22,7 +22,7 @@ namespace nominax {
 
 		// last instruction must be interrupt:
 		if (__builtin_expect(code_chunk_size < 2, 0) || __builtin_expect((code_chunk + code_chunk_size - 2)->instr != instruction::inter, 0)) {
-			return reactor_validation_result::missing_code_prologue;
+			return reactor_validation_result::missing_code_epilogue;
 		}
 
 		// first stack entry is never used and must be nop-padding:

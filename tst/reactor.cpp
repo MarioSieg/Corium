@@ -1058,6 +1058,59 @@ TEST(reactor_execution, __dupl2_stack_overflow__) {
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 
+TEST(reactor_execution, __cintrin__) {
+	static constinit int calls;
+	std::array<intrinsic_routine*, 3> custom_intrinsics{
+		+[](record64*) -> bool {
+			++calls;
+			return true;
+		},
+		+[](record64* sp_) -> bool {
+			(*++sp_).f = 3.223;
+			(*++sp_).c = ':';
+			(*++sp_).c = ')';
+			++calls;
+			return true;
+		},
+		+[](record64*) -> bool {
+			++calls;
+			return true;
+		},
+	};
+	const std::array<csignal, 11> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{0.12345},
+		csignal{instruction::cintrin},
+		csignal{UINT64_C(0)},
+		csignal{instruction::cintrin},
+		csignal{UINT64_C(1)},
+		csignal{instruction::cintrin},
+		csignal{UINT64_C(2)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
+	};
+	std::array<record64, 6> stack{ record64::nop_padding() };
+	auto input{ default_test_input };
+	input.stack = stack.data();
+	input.stack_size = stack.size();
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	input.intrinsic_table = custom_intrinsics.data();
+	input.intrinsic_table_size = custom_intrinsics.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{ execute_reactor(input) };
+	ASSERT_EQ(o.input->stack[1].f, 0.12345);
+	ASSERT_EQ(o.input->stack[2].f, 3.223);
+	ASSERT_EQ(o.input->stack[3].c, ':');
+	ASSERT_EQ(o.input->stack[4].c, ')');
+	ASSERT_EQ(o.sp_diff, 1); // pop all!
+	ASSERT_EQ(o.interrupt, 0);
+	ASSERT_EQ(o.terminate_result, terminate_type::success);
+	ASSERT_EQ(calls, custom_intrinsics.size());
+}
+
 TEST(reactor_execution, __pushz_stack_overflow__) {
 	const std::array<csignal, 7> code{
 		csignal{instruction::nop}, // first padding
@@ -2566,6 +2619,66 @@ TEST(reactor_input_validation, missing_code_prologue) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::missing_code_prologue);
 }
 
+TEST(reactor_input_validation, missing_code_epilogue$1) {
+	constexpr std::array<csignal, 3> code = {
+		csignal{instruction::nop},
+		csignal{instruction::inter},
+		csignal{INT64_C(5)},
+	};
+	
+	const auto input = reactor_input{
+		.test_signal_status = &test_signal_status,
+		.code_chunk = code.data(),
+		.code_chunk_size = code.size(),
+		.intrinsic_table = test_intrinsic_routine_table.data(),
+		.intrinsic_table_size = test_intrinsic_routine_table.size(),
+		.interrupt_handler = test_interrupt_handler,
+		.stack = test_stack.data(),
+		.stack_size = test_stack.size(),
+		.user_data = nullptr
+	};
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+}
+
+TEST(reactor_input_validation, missing_code_epilogue$2) {
+	constexpr std::array<csignal, 1> code = {
+		csignal{instruction::nop},
+	};
+
+	const auto input = reactor_input{
+		.test_signal_status = &test_signal_status,
+		.code_chunk = code.data(),
+		.code_chunk_size = code.size(),
+		.intrinsic_table = test_intrinsic_routine_table.data(),
+		.intrinsic_table_size = test_intrinsic_routine_table.size(),
+		.interrupt_handler = test_interrupt_handler,
+		.stack = test_stack.data(),
+		.stack_size = test_stack.size(),
+		.user_data = nullptr
+	};
+	ASSERT_EQ(input.validate(), reactor_validation_result::missing_code_epilogue);
+}
+
+TEST(reactor_input_validation, missing_code_epilogue$3) {
+	constexpr std::array<csignal, 2> code = {
+		csignal{instruction::nop},
+		csignal{INT64_C(5)},
+	};
+
+	const auto input = reactor_input{
+		.test_signal_status = &test_signal_status,
+		.code_chunk = code.data(),
+		.code_chunk_size = code.size(),
+		.intrinsic_table = test_intrinsic_routine_table.data(),
+		.intrinsic_table_size = test_intrinsic_routine_table.size(),
+		.interrupt_handler = test_interrupt_handler,
+		.stack = test_stack.data(),
+		.stack_size = test_stack.size(),
+		.user_data = nullptr
+	};
+	ASSERT_EQ(input.validate(), reactor_validation_result::missing_code_epilogue);
+}
+
 TEST(reactor_input_validation, missing_stack_prologue) {
 	const auto input = reactor_input{
 		.test_signal_status = reinterpret_cast<volatile std::sig_atomic_t*>(0xFF),
@@ -2579,57 +2692,4 @@ TEST(reactor_input_validation, missing_stack_prologue) {
 		.user_data = nullptr
 	};
 	ASSERT_EQ(input.validate(), reactor_validation_result::missing_stack_prologue);
-}
-
-TEST(reactor_execution, __cintrin__) {
-	static constinit int calls;
-	std::array<intrinsic_routine*, 3> custom_intrinsics {
-		+[](record64*) -> bool {
-			++calls;
-			return true;
-		},
-		+[](record64* sp_) -> bool {
-			(*++sp_).f = 3.223;
-			(*++sp_).c = ':';
-			(*++sp_).c = ')';
-			++calls;
-			return true;
-		},
-		+[](record64*) -> bool {
-			++calls;
-			return true;
-		},
-	};
-	const std::array<csignal, 11> code {
-		csignal{instruction::nop}, // first padding
-		csignal{instruction::push},
-		csignal{0.12345},
-		csignal{instruction::cintrin},
-		csignal{UINT64_C(0)},
-		csignal{instruction::cintrin},
-		csignal{UINT64_C(1)},
-		csignal{instruction::cintrin},
-		csignal{UINT64_C(2)},
-		csignal{instruction::inter},
-		csignal{INT64_C(0)},
-	};
-	std::array<record64, 6> stack{record64::nop_padding()};
-	auto input{default_test_input};
-	input.stack = stack.data();
-	input.stack_size = stack.size();
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	input.intrinsic_table = custom_intrinsics.data();
-	input.intrinsic_table_size = custom_intrinsics.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
-
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 0.12345);
-	ASSERT_EQ(o.input->stack[2].f, 3.223);
-	ASSERT_EQ(o.input->stack[3].c, ':');
-	ASSERT_EQ(o.input->stack[4].c, ')');
-	ASSERT_EQ(o.sp_diff, 1); // pop all!
-	ASSERT_EQ(o.interrupt, 0);
-	ASSERT_EQ(o.terminate_result, terminate_type::success);
-	ASSERT_EQ(calls, custom_intrinsics.size());
 }
