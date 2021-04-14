@@ -65,10 +65,10 @@ namespace nominax {
 	}
 
 	union f32_repr {
-		explicit constexpr f32_repr(f64 x_) noexcept;
+		explicit constexpr f32_repr(f32 x_) noexcept;
 		
-		f64 f;
-		i64 i;
+		f32 f;
+		i32 i;
 
 		[[nodiscard]] constexpr auto is_negative() const noexcept -> bool;
 		[[nodiscard]] constexpr auto raw_mantissa() const noexcept -> std::uint32_t;
@@ -82,7 +82,9 @@ namespace nominax {
 		};
 	};
 
-	__attribute__((flatten)) constexpr f32_repr::f32_repr(const f64 x_) noexcept : f(x_) {}
+	static_assert(sizeof(f32_repr) == 4);
+
+	__attribute__((flatten)) constexpr f32_repr::f32_repr(const f32 x_) noexcept : f(x_) {}
 	__attribute__((flatten)) constexpr auto f32_repr::is_negative() const noexcept -> bool { return (this->i >> 31) != 0; }
 	__attribute__((flatten)) constexpr auto f32_repr::raw_mantissa() const noexcept -> std::uint32_t { return this->i & ((1 << 23) - 1); }
 	__attribute__((flatten)) constexpr auto f32_repr::raw_exponent() const noexcept -> std::uint8_t { return (this->i >> 23) & 0xFF; }

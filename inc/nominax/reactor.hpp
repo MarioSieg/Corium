@@ -13,6 +13,7 @@ namespace nominax {
 		null_ptr,
 		zero_size,
 		missing_code_prologue,
+		missing_code_epilogue,
 		missing_stack_prologue,
 		null_intrinsic_routine
 	};

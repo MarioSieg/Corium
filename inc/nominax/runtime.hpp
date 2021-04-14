@@ -31,6 +31,8 @@ namespace nominax {
 	using c32 = char32_t;
 	static_assert(sizeof(c32) == 4);
 
-	using intrinsic_routine = auto () -> bool;
+	union alignas(alignof(i64)) record64;
+
+	using intrinsic_routine = auto (record64*) -> bool;
 	static_assert(std::is_function_v<intrinsic_routine>);
 }

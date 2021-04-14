@@ -25,6 +25,6 @@ TEST(reactor_aggregates, union_reinterpretation) {
 		instruction::mov
 	};
 	ASSERT_EQ(sig.instr, instruction::mov);
-	ASSERT_EQ(sig.op, static_cast<opcode>(instruction::mov));
+	ASSERT_EQ(sig.op, static_cast<std::uint64_t>(instruction::mov));
 	ASSERT_EQ(sig.r64.u, static_cast<std::uint64_t>(instruction::mov));
 }
