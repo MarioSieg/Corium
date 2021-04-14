@@ -58,6 +58,27 @@ namespace nominax {
 
 	#endif
 
+	enum class stack_growth_direction {
+		upward,
+		downward
+	};
+
+	__attribute__((noinline)) constexpr auto sub_determine_stack_growth_direction(const int* const super_ptr_) noexcept -> stack_growth_direction {
+		const int sub{};
+		return super_ptr_ < &sub ? stack_growth_direction::upward : stack_growth_direction::downward;
+	}
+	
+	/// <summary>
+	/// Might return wrong results, for debugging only.
+	/// The stack may not grow up or down.
+	/// Each stack frame can potentially be allocated at random points inside the heap.
+	/// This is actually done in several OS to try and prevent stack smashing by malicious code.
+	/// </summary>
+	__attribute__((noinline)) constexpr auto determine_stack_growth_direction() noexcept -> stack_growth_direction {
+		const int super{};
+		return sub_determine_stack_growth_direction(&super);
+	}
+
 	__attribute__((flatten)) inline void operator %=(record64& x_, const f64 y_) noexcept {
 		x_.f = std::fmod(x_.f, y_);
 	}
