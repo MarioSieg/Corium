@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bit>
+#include <ctime>
 #include <cmath>
 #include <mutex>
 
@@ -7,24 +9,22 @@
 #include "platform.hpp"
 #include "record.hpp"
 
-#include <ctime>
-
 namespace nominax {
 	[[nodiscard]]
 	__attribute__((flatten, pure)) inline auto rol(const u64 n_, const i32 x_) noexcept -> u64 {
-		#if NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32
+        #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && (NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32)
 			return _rotl64(n_, x_);
 		#else
-			return std::rotl<decltype(x)>(n_, x_);
+            return std::rotl<u64>(n_, x_);
 		#endif
 	}
 
 	[[nodiscard]]
 	__attribute__((flatten, pure)) inline auto ror(const u64 n_, const i32 x_) noexcept -> u64 {
-		#if NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32
+        #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && (NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32)
 				return _rotr64(n_, x_);
 		#else
-				return std::rotr<decltype(x)>(n_, x_);
+                return std::rotr<u64>(n_, x_);
 		#endif
 	}
 
@@ -114,7 +114,7 @@ namespace nominax {
 	inline auto safe_localtime(const std::time_t& time_) -> std::tm {
 		std::tm buf{};
 		#if NOMINAX_POSIX
-			localtime_r(&time, &buf);
+            localtime_r(&time_, &buf);
 		#elif NOMINAX_OS_WINDOWS
 			localtime_s(&buf, &time_);
 		#else

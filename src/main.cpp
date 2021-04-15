@@ -38,13 +38,13 @@ try {
 		cout << 'F';
 	} else if (threads <= 4) [[unlikely]] {
 		cout << 'E';
-	} else if (threads <= 8) [[likely]] {
-		cout << 'D';
+    } else if (threads <= 8) [[likely]] {
+        cout << 'D';
 	} else if (threads <= 16) [[likely]] {
 		cout << 'C';
 	} else if (threads <= 32) [[likely]] {
 		cout << 'B';
-	} else [[likely]] {
+    } else {
 		cout << 'A';
 	}
 	

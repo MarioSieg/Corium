@@ -85,10 +85,8 @@ namespace nominax {
 	}
 
 	static_assert(std::is_same_v<std::underlying_type_t<instruction>, std::uint64_t>);
-	static_assert(sizeof(instruction) == alignof(u64));
-	static_assert(alignof(instruction) == alignof(u64));
-	static_assert(sizeof(csignal) == alignof(u64));
-	static_assert(alignof(csignal) == alignof(u64));
+	static_assert(sizeof(instruction) == sizeof(u64));
+	static_assert(sizeof(csignal) == sizeof(u64));
 	static_assert(std::is_standard_layout_v<csignal>);
 
 	using intrinsic_routine = auto (record64*) -> bool;
@@ -100,16 +98,6 @@ namespace nominax {
 	};
 	
 	template <typename... Ts> overloaded(Ts&&...) -> overloaded<Ts...>;
-
-	template <typename... Ts>
-	concept bytecode_element_rule = requires(Ts&&... xs_) {
-		requires !((sizeof(Ts) + ... + 0) % sizeof(u64)) || !((sizeof(Ts) + ... + 0) % sizeof(u32));
-		requires !((alignof(Ts) + ... + 0) % alignof(u64)) || !((alignof(Ts) + ... + 0) % alignof(u32));
-		requires std::is_trivially_copy_constructible_v<Ts...>;
-		requires std::is_trivially_copy_assignable_v<Ts...>;
-		requires std::is_standard_layout_v<Ts...>;
-		requires std::is_constructible_v<Ts..., Ts...>;
-	};
 
 	template <typename T>
 	concept is_bytecode_element = 
@@ -142,15 +130,15 @@ namespace nominax {
 		[[nodiscard]]
 		explicit constexpr operator csignal() const;
 
-		template <typename T> requires bytecode_element_rule<T> && is_bytecode_element<T>
+        template <typename T> requires is_bytecode_element<T>
 		[[nodiscard]]
 		constexpr auto unwrap() const -> std::optional<T>;
 
-		template <typename T> requires bytecode_element_rule<T> && is_bytecode_element<T>
+        template <typename T> requires is_bytecode_element<T>
 		[[nodiscard]]
 		constexpr auto contains() const noexcept -> bool;
 
-		template <typename T> requires bytecode_element_rule<T> && is_bytecode_element<T>
+        template <typename T> requires is_bytecode_element<T>
 		[[nodiscard]]
 		constexpr auto contains(T&& cmp_) const -> bool;
 		
@@ -166,17 +154,17 @@ namespace nominax {
 	constexpr bytecode_element::bytecode_element(const intrinsic data_) noexcept : data{data_} {}
 	constexpr bytecode_element::bytecode_element(const cintrinsic data_) noexcept : data{data_} {}
 
-	template <typename T> requires bytecode_element_rule<T> && is_bytecode_element<T>
+    template <typename T> requires is_bytecode_element<T>
 	constexpr auto bytecode_element::unwrap() const -> std::optional<T> {
 		return std::holds_alternative<T>(this->data) ? std::optional<T>{std::get<T>(this->data)} : std::nullopt;
 	}
 
-	template <typename T> requires bytecode_element_rule<T> && is_bytecode_element<T>
+    template <typename T> requires is_bytecode_element<T>
 	constexpr auto bytecode_element::contains() const noexcept -> bool {
 		return std::holds_alternative<T>(this->data);
 	}
 
-	template <typename T> requires bytecode_element_rule<T> && is_bytecode_element<T>
+    template <typename T> requires is_bytecode_element<T>
 	constexpr auto bytecode_element::contains(T&& cmp_) const -> bool {
 		return std::holds_alternative<T>(this->data) && std::get<T>(this->data) == cmp_;
 	}

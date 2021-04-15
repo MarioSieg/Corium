@@ -258,7 +258,7 @@ cxx_feature_check(STD_REGEX ${EXTRA_CXX_FLAGS})
 cxx_feature_check(GNU_POSIX_REGEX ${EXTRA_CXX_FLAGS})
 cxx_feature_check(POSIX_REGEX ${EXTRA_CXX_FLAGS})
 if(NOT HAVE_STD_REGEX AND NOT HAVE_GNU_POSIX_REGEX AND NOT HAVE_POSIX_REGEX)
-  message(FATAL_ERROR "Failed to determine the source files for the regular expression backend")
+  #message(FATAL_ERROR "Failed to determine the source files for the regular expression backend")
 endif()
 if (NOT BENCHMARK_ENABLE_EXCEPTIONS AND HAVE_STD_REGEX
         AND NOT HAVE_GNU_POSIX_REGEX AND NOT HAVE_POSIX_REGEX)

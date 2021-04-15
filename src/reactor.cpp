@@ -835,7 +835,7 @@ namespace nominax {
 			.pre = pre,
 			.post = std::chrono::high_resolution_clock::now(),
 			.duration = std::chrono::high_resolution_clock::now() - pre,
-			.interrupt = interrupt,
+            .interrupt_code = interrupt,
 			.ip_diff = static_cast<std::ptrdiff_t>(ip - input_.code_chunk),
 			.sp_diff = static_cast<std::ptrdiff_t>(sp - input_.stack),
 		};

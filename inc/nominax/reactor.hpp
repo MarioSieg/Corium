@@ -47,7 +47,7 @@ namespace nominax {
 		std::chrono::high_resolution_clock::time_point pre{};
 		std::chrono::high_resolution_clock::time_point post{};
 		std::chrono::high_resolution_clock::duration duration{};
-		interrupt_accumulator interrupt{};
+        interrupt_accumulator interrupt_code{};
 		std::ptrdiff_t ip_diff{};
 		std::ptrdiff_t sp_diff{};
 	};
