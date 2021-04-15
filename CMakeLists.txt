@@ -21,6 +21,7 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}	\
 	-Xclang -std=c++20						\
 	-Xclang -Wno-unknown-attributes			\
 	-Xclang -Wno-ignored-attributes			\
+	-Xclang -Wno-deprecated-declarations	\
 	-Xclang -ffast-math						\
 	-Xclang -flto							\
 	-mmmx									\
@@ -47,10 +48,17 @@ add_library("libnominax"
 add_executable("nominax" "src/main.cpp")
 target_link_libraries("nominax" "libnominax")
 
-# tests:
+# test executable:
 file(GLOB "TEST_SRC_FILES" "tst/*.cpp")
 add_subdirectory("tst/googletest/")
 add_executable("nominax_unit_tests" ${TEST_SRC_FILES})
 add_test(NAME "nominax_unit_tests" COMMAND "nominax_unit_tests")
 target_include_directories("nominax_unit_tests" PUBLIC "tst/googletest/googletest/include/gtest")
 target_link_libraries("nominax_unit_tests" "gtest" "libnominax")
+
+# benchmark executable:
+file(GLOB "TEST_SRC_FILES" "bch/*.cpp")
+add_subdirectory("bch/googlebench/")
+add_executable("nominax_benchmark" ${TEST_SRC_FILES})
+target_include_directories("nominax_benchmark" PUBLIC "bch/googlebench/include/benchmark")
+target_link_libraries("nominax_benchmark" "benchmark::benchmark" "libnominax")
