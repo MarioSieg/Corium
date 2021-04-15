@@ -10,7 +10,7 @@ set(CMAKE_C_COMPILER_WORKS true)
 option(NOMINAX_SDK_32_BIT "Build for 32-bit system" OFF)
 option(NOMINAX_SDK_FAST_MATH "Use fast but less correct math" ON)
 option(NOMINAX_BUILD_UNIT_TESTS "Build unit tests" ON)
-option(NOMINAX_BUILD_BENCHMARK "Build a system benchmark" OFF)
+option(NOMINAX_BUILD_BENCHMARKS "Build a system benchmark" ON)
 
 # Linux build info:
 # Requires >= GCC 10!
@@ -43,7 +43,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             -mcx16									\
     ")
     if(NOMINAX_SDK_32_BIT)
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Xclang -m32")
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
     endif()
     if(NOMINAX_SDK_FASH_MATH)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Xclang -ffast-math")
@@ -126,7 +126,7 @@ if(NOMINAX_BUILD_UNIT_TESTS)
 endif()
 
 # benchmark executable:
-if(NOMINAX_BUILD_BENCHMARK)
+if(NOMINAX_BUILD_BENCHMARKS)
     file(GLOB "TEST_SRC_FILES" "bch/*.cpp")
     add_subdirectory("bch/googlebench/")
     add_executable("nominax_benchmark" ${TEST_SRC_FILES})

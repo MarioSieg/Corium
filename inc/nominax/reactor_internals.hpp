@@ -1,8 +1,8 @@
 #pragma once
 
 #include <bit>
-#include <ctime>
 #include <cmath>
+#include <ctime>
 #include <mutex>
 
 #include "macrocfg.hpp"
@@ -12,7 +12,7 @@
 namespace nominax {
 	[[nodiscard]]
 	__attribute__((flatten, pure)) inline auto rol(const u64 n_, const i32 x_) noexcept -> u64 {
-        #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && (NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32)
+		#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && (NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32)
 			return _rotl64(n_, x_);
 		#else
             return std::rotl<u64>(n_, x_);
@@ -21,7 +21,7 @@ namespace nominax {
 
 	[[nodiscard]]
 	__attribute__((flatten, pure)) inline auto ror(const u64 n_, const i32 x_) noexcept -> u64 {
-        #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && (NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32)
+		#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && (NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32)
 				return _rotr64(n_, x_);
 		#else
                 return std::rotr<u64>(n_, x_);
