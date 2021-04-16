@@ -1,4 +1,5 @@
 #include <array>
+#include <numbers>
 
 #include "tstbase.hpp"
 #include "../inc/nominax/reactor.hpp"
@@ -55,6 +56,18 @@ TEST(reactor_internals, ror) {
 	ASSERT_EQ(ror(1, 3), std::rotr<u64>(1, 3));
 }
 
+#if NOMINAX_ARCH_X86_32 || NOMINAX_ARCH_X86_64
+
+TEST(reactor_internals, query_pi64_from_x87fpu) {
+	ASSERT_DOUBLE_EQ(query_pi64_from_x87fpu(), std::numbers::pi);
+}
+
+TEST(reactor_internals, query_pi32_from_x87fpu) {
+	ASSERT_DOUBLE_EQ(query_pi32_from_x87fpu(), std::numbers::pi_v<f32>);
+}
+
+#endif
+
 TEST(reactor_execution, __intrin__$cos) {
 	const std::array<csignal, 7> code = {
 		csignal{instruction::nop}, // first padding
@@ -73,7 +86,7 @@ TEST(reactor_execution, __intrin__$cos) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::cos(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -95,7 +108,7 @@ TEST(reactor_execution, __intrin__$sin) {
 
 	const auto o{ execute_reactor(input) };
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::sin(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -117,7 +130,7 @@ TEST(reactor_execution, __intrin__$tan) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::tan(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -139,7 +152,7 @@ TEST(reactor_execution, __intrin__$acos) {
 
 	const auto o{ execute_reactor(input) };
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::acos(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -161,7 +174,7 @@ TEST(reactor_execution, __intrin__$asin) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::asin(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -183,7 +196,7 @@ TEST(reactor_execution, __intrin__$atan) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::atan(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -208,7 +221,7 @@ TEST(reactor_execution, __intrin__$atan2) {
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::atan2(0.35, 0.15));
 	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
@@ -230,7 +243,7 @@ TEST(reactor_execution, __intrin__$cosh) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::cosh(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -252,7 +265,7 @@ TEST(reactor_execution, __intrin__$sinh) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::sinh(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -274,7 +287,7 @@ TEST(reactor_execution, __intrin__$tanh) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::tanh(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -296,7 +309,7 @@ TEST(reactor_execution, __intrin__$acosh) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::acosh(1.6));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -318,7 +331,7 @@ TEST(reactor_execution, __intrin__$asinh) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::asinh(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -340,7 +353,7 @@ TEST(reactor_execution, __intrin__$atanh) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::atanh(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -362,7 +375,7 @@ TEST(reactor_execution, __intrin__$exp) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::exp(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -384,7 +397,7 @@ TEST(reactor_execution, __intrin__$log) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::log(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -406,7 +419,7 @@ TEST(reactor_execution, __intrin__$log10) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::log10(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -428,7 +441,7 @@ TEST(reactor_execution, __intrin__$exp2) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::exp2(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -450,7 +463,7 @@ TEST(reactor_execution, __intrin__$ilogb) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::ilogb(1.332));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -472,7 +485,7 @@ TEST(reactor_execution, __intrin__$log2) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::log2(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -497,7 +510,7 @@ TEST(reactor_execution, __intrin__$pow) {
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::pow(0.35, 0.15));
 	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
@@ -520,7 +533,7 @@ TEST(reactor_execution, __intrin__$sqrt) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::sqrt(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -542,7 +555,7 @@ TEST(reactor_execution, __intrin__$cbrt) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::cbrt(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -567,7 +580,7 @@ TEST(reactor_execution, __intrin__$hypot) {
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::hypot(0.35, 0.15));
 	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
@@ -589,7 +602,7 @@ TEST(reactor_execution, __intrin__$ceil) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::ceil(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -611,7 +624,7 @@ TEST(reactor_execution, __intrin__$floor) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::floor(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -633,7 +646,7 @@ TEST(reactor_execution, __intrin__$round) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::round(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -655,7 +668,7 @@ TEST(reactor_execution, __intrin__$rint) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::rint(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -680,7 +693,7 @@ TEST(reactor_execution, __intrin__$max) {
 	const auto o{execute_reactor(input)};
 	ASSERT_EQ(o.input->stack[1].i, std::max<i64>(4, 7));
 	ASSERT_EQ(o.input->stack[2].i, 7);
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
@@ -705,7 +718,7 @@ TEST(reactor_execution, __intrin__$min) {
 	const auto o{execute_reactor(input)};
 	ASSERT_EQ(o.input->stack[1].i, std::min<i64>(4, 7));
 	ASSERT_EQ(o.input->stack[2].i, 7);
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
@@ -730,7 +743,7 @@ TEST(reactor_execution, __intrin__$fmax) {
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::max(0.35, 0.15));
 	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
@@ -755,7 +768,7 @@ TEST(reactor_execution, __intrin__$fmin) {
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::fmin(0.35, 0.15));
 	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
@@ -780,7 +793,7 @@ TEST(reactor_execution, __intrin__$fdim) {
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::fdim(0.35, 0.15));
 	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
@@ -803,7 +816,7 @@ TEST(reactor_execution, __intrin__$abs) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_EQ(o.input->stack[1].i, std::abs(223233));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -825,7 +838,7 @@ TEST(reactor_execution, __intrin__$fabs) {
 
 	const auto o{execute_reactor(input)};
 	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::fabs(0.35));
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
@@ -864,7 +877,7 @@ TEST(reactor_execution, __int__) {
 	ASSERT_TRUE(usr != nullptr);
 	ASSERT_EQ(*static_cast<int*>(usr), 1234567);
 	ASSERT_EQ(*static_cast<int*>(o.input->user_data), 1234567);
-	ASSERT_EQ(o.interrupt, -12345);
+    ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.ip_diff, code.size() - 1);
 }
 
@@ -964,7 +977,7 @@ TEST(reactor_execution, __push_no_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].i, 123);
 	ASSERT_EQ(o.input->stack[3].i, 123);
 	ASSERT_EQ(o.sp_diff, 3);
-	ASSERT_EQ(o.interrupt, 0);
+    ASSERT_EQ(o.interrupt_code, 0);
 	ASSERT_EQ(o.terminate_result, terminate_type::success);
 }
 
@@ -996,7 +1009,7 @@ TEST(reactor_execution, __push_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].i, 123);
 	ASSERT_EQ(o.input->stack[3].i, 123);
 	ASSERT_EQ(o.sp_diff, 3);
-	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 
@@ -1025,7 +1038,7 @@ TEST(reactor_execution, __dupl_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].i, 123);
 	ASSERT_EQ(o.input->stack[3].i, 123);
 	ASSERT_EQ(o.sp_diff, 3);
-	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 
@@ -1054,8 +1067,61 @@ TEST(reactor_execution, __dupl2_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].i, 123);
 	ASSERT_EQ(o.input->stack[3].i, 123);
 	ASSERT_EQ(o.sp_diff, 3);
-	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
+}
+
+TEST(reactor_execution, __cintrin__) {
+	static constinit int calls;
+	std::array<intrinsic_routine*, 3> custom_intrinsics{
+		+[](record64*) -> bool {
+			++calls;
+			return true;
+		},
+		+[](record64* sp_) -> bool {
+			(*++sp_).f = 3.223;
+			(*++sp_).c = ':';
+			(*++sp_).c = ')';
+			++calls;
+			return true;
+		},
+		+[](record64*) -> bool {
+			++calls;
+			return true;
+		},
+	};
+	const std::array<csignal, 11> code{
+		csignal{instruction::nop}, // first padding
+		csignal{instruction::push},
+		csignal{0.12345},
+		csignal{instruction::cintrin},
+		csignal{UINT64_C(0)},
+		csignal{instruction::cintrin},
+		csignal{UINT64_C(1)},
+		csignal{instruction::cintrin},
+		csignal{UINT64_C(2)},
+		csignal{instruction::inter},
+		csignal{INT64_C(0)},
+	};
+	std::array<record64, 6> stack{ record64::nop_padding() };
+	auto input{ default_test_input };
+	input.stack = stack.data();
+	input.stack_size = stack.size();
+	input.code_chunk = code.data();
+	input.code_chunk_size = code.size();
+	input.intrinsic_table = custom_intrinsics.data();
+	input.intrinsic_table_size = custom_intrinsics.size();
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+
+	const auto o{ execute_reactor(input) };
+	ASSERT_EQ(o.input->stack[1].f, 0.12345);
+	ASSERT_EQ(o.input->stack[2].f, 3.223);
+	ASSERT_EQ(o.input->stack[3].c, ':');
+	ASSERT_EQ(o.input->stack[4].c, ')');
+	ASSERT_EQ(o.sp_diff, 1); // pop all!
+    ASSERT_EQ(o.interrupt_code, 0);
+	ASSERT_EQ(o.terminate_result, terminate_type::success);
+	ASSERT_EQ(calls, custom_intrinsics.size());
 }
 
 TEST(reactor_execution, __pushz_stack_overflow__) {
@@ -1082,7 +1148,7 @@ TEST(reactor_execution, __pushz_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].i, 0);
 	ASSERT_EQ(o.input->stack[3].i, 0);
 	ASSERT_EQ(o.sp_diff, 3);
-	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 
@@ -1110,7 +1176,7 @@ TEST(reactor_execution, __ipusho_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].i, 1);
 	ASSERT_EQ(o.input->stack[3].i, 1);
 	ASSERT_EQ(o.sp_diff, 3);
-	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 
@@ -1138,7 +1204,7 @@ TEST(reactor_execution, __fpusho_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].f, 1.0);
 	ASSERT_EQ(o.input->stack[3].f, 1.0);
 	ASSERT_EQ(o.sp_diff, 3);
-	ASSERT_EQ(o.interrupt, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 
@@ -1873,7 +1939,7 @@ TEST(reactor_execution, __jmp__) {
 	const auto o{execute_reactor(input)};
 	ASSERT_EQ(o.input->stack[1].i, 10);
 	ASSERT_EQ(o.ip_diff, 8);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jmprel__) {
@@ -1896,7 +1962,7 @@ TEST(reactor_execution, __jmprel__) {
 	const auto o{execute_reactor(input)};
 	ASSERT_EQ(o.input->stack[1].i, 10);
 	ASSERT_EQ(o.ip_diff, 8);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jz__) {
@@ -1922,7 +1988,7 @@ TEST(reactor_execution, __jz__) {
 	ASSERT_EQ(o.input->stack[1].u, 1);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jnz__) {
@@ -1948,7 +2014,7 @@ TEST(reactor_execution, __jnz__) {
 	ASSERT_EQ(o.input->stack[1].u, 0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jo_cmpi__) {
@@ -1974,7 +2040,7 @@ TEST(reactor_execution, __jo_cmpi__) {
 	ASSERT_EQ(o.input->stack[1].u, 0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jno_cmpi__) {
@@ -2000,7 +2066,7 @@ TEST(reactor_execution, __jno_cmpi__) {
 	ASSERT_EQ(o.input->stack[1].u, 1);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jo_cmpf__) {
@@ -2026,7 +2092,7 @@ TEST(reactor_execution, __jo_cmpf__) {
 	ASSERT_EQ(o.input->stack[1].f, 0.F);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jno_cmpf__) {
@@ -2052,7 +2118,7 @@ TEST(reactor_execution, __jno_cmpf__) {
 	ASSERT_EQ(o.input->stack[1].f, 1.0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __je_cmpi__) {
@@ -2084,7 +2150,7 @@ TEST(reactor_execution, __je_cmpi__) {
 	ASSERT_EQ(o.input->stack[2].i, 0xFF'FF);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 15);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __je_cmpf__) {
@@ -2116,7 +2182,7 @@ TEST(reactor_execution, __je_cmpf__) {
 	ASSERT_EQ(o.input->stack[2].f, 0.22233);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 15);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jne_cmpi__) {
@@ -2149,7 +2215,7 @@ TEST(reactor_execution, __jne_cmpi__) {
 	ASSERT_EQ(o.input->stack[2].i, 0xFF'FF);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jne_cmpf__) {
@@ -2182,7 +2248,7 @@ TEST(reactor_execution, __jne_cmpf__) {
 	ASSERT_EQ(o.input->stack[2].f, 3.1415);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __ja_cmpi__) {
@@ -2215,7 +2281,7 @@ TEST(reactor_execution, __ja_cmpi__) {
 	ASSERT_EQ(o.input->stack[2].i, 53);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __ja_cmpf__) {
@@ -2248,7 +2314,7 @@ TEST(reactor_execution, __ja_cmpf__) {
 	ASSERT_EQ(o.input->stack[2].f, 53.0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jl_cmpi__) {
@@ -2281,7 +2347,7 @@ TEST(reactor_execution, __jl_cmpi__) {
 	ASSERT_EQ(o.input->stack[2].i, 3);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jl_cmpf__) {
@@ -2314,7 +2380,7 @@ TEST(reactor_execution, __jl_cmpf__) {
 	ASSERT_EQ(o.input->stack[2].f, 3.0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jae_cmpi__) {
@@ -2353,7 +2419,7 @@ TEST(reactor_execution, __jae_cmpi__) {
 	ASSERT_EQ(o.input->stack[2].i, 53);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 22);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jae_cmpf__) {
@@ -2392,7 +2458,7 @@ TEST(reactor_execution, __jae_cmpf__) {
 	ASSERT_EQ(o.input->stack[2].f, 53.0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 22);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jle_cmpi__) {
@@ -2431,7 +2497,7 @@ TEST(reactor_execution, __jle_cmpi__) {
 	ASSERT_EQ(o.input->stack[2].i, 3);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 22);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jle_cmpf__) {
@@ -2470,7 +2536,7 @@ TEST(reactor_execution, __jle_cmpf__) {
 	ASSERT_EQ(o.input->stack[2].f, 3.0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 22);
-	ASSERT_EQ(o.interrupt, -0xFF);
+    ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_input_validation, valid_pointers) {
@@ -2566,6 +2632,66 @@ TEST(reactor_input_validation, missing_code_prologue) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::missing_code_prologue);
 }
 
+TEST(reactor_input_validation, missing_code_epilogue$1) {
+	constexpr std::array<csignal, 3> code = {
+		csignal{instruction::nop},
+		csignal{instruction::inter},
+		csignal{INT64_C(5)},
+	};
+	
+	const auto input = reactor_input{
+		.test_signal_status = &test_signal_status,
+		.code_chunk = code.data(),
+		.code_chunk_size = code.size(),
+		.intrinsic_table = test_intrinsic_routine_table.data(),
+		.intrinsic_table_size = test_intrinsic_routine_table.size(),
+		.interrupt_handler = test_interrupt_handler,
+		.stack = test_stack.data(),
+		.stack_size = test_stack.size(),
+		.user_data = nullptr
+	};
+	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+}
+
+TEST(reactor_input_validation, missing_code_epilogue$2) {
+	constexpr std::array<csignal, 1> code = {
+		csignal{instruction::nop},
+	};
+
+	const auto input = reactor_input{
+		.test_signal_status = &test_signal_status,
+		.code_chunk = code.data(),
+		.code_chunk_size = code.size(),
+		.intrinsic_table = test_intrinsic_routine_table.data(),
+		.intrinsic_table_size = test_intrinsic_routine_table.size(),
+		.interrupt_handler = test_interrupt_handler,
+		.stack = test_stack.data(),
+		.stack_size = test_stack.size(),
+		.user_data = nullptr
+	};
+	ASSERT_EQ(input.validate(), reactor_validation_result::missing_code_epilogue);
+}
+
+TEST(reactor_input_validation, missing_code_epilogue$3) {
+	constexpr std::array<csignal, 2> code = {
+		csignal{instruction::nop},
+		csignal{INT64_C(5)},
+	};
+
+	const auto input = reactor_input{
+		.test_signal_status = &test_signal_status,
+		.code_chunk = code.data(),
+		.code_chunk_size = code.size(),
+		.intrinsic_table = test_intrinsic_routine_table.data(),
+		.intrinsic_table_size = test_intrinsic_routine_table.size(),
+		.interrupt_handler = test_interrupt_handler,
+		.stack = test_stack.data(),
+		.stack_size = test_stack.size(),
+		.user_data = nullptr
+	};
+	ASSERT_EQ(input.validate(), reactor_validation_result::missing_code_epilogue);
+}
+
 TEST(reactor_input_validation, missing_stack_prologue) {
 	const auto input = reactor_input{
 		.test_signal_status = reinterpret_cast<volatile std::sig_atomic_t*>(0xFF),
@@ -2579,57 +2705,4 @@ TEST(reactor_input_validation, missing_stack_prologue) {
 		.user_data = nullptr
 	};
 	ASSERT_EQ(input.validate(), reactor_validation_result::missing_stack_prologue);
-}
-
-TEST(reactor_execution, __cintrin__) {
-	static constinit int calls;
-	std::array<intrinsic_routine*, 3> custom_intrinsics {
-		+[](record64*) -> bool {
-			++calls;
-			return true;
-		},
-		+[](record64* sp_) -> bool {
-			(*++sp_).f = 3.223;
-			(*++sp_).c = ':';
-			(*++sp_).c = ')';
-			++calls;
-			return true;
-		},
-		+[](record64*) -> bool {
-			++calls;
-			return true;
-		},
-	};
-	const std::array<csignal, 11> code {
-		csignal{instruction::nop}, // first padding
-		csignal{instruction::push},
-		csignal{0.12345},
-		csignal{instruction::cintrin},
-		csignal{UINT64_C(0)},
-		csignal{instruction::cintrin},
-		csignal{UINT64_C(1)},
-		csignal{instruction::cintrin},
-		csignal{UINT64_C(2)},
-		csignal{instruction::inter},
-		csignal{INT64_C(0)},
-	};
-	std::array<record64, 6> stack{record64::nop_padding()};
-	auto input{default_test_input};
-	input.stack = stack.data();
-	input.stack_size = stack.size();
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	input.intrinsic_table = custom_intrinsics.data();
-	input.intrinsic_table_size = custom_intrinsics.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
-
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 0.12345);
-	ASSERT_EQ(o.input->stack[2].f, 3.223);
-	ASSERT_EQ(o.input->stack[3].c, ':');
-	ASSERT_EQ(o.input->stack[4].c, ')');
-	ASSERT_EQ(o.sp_diff, 1); // pop all!
-	ASSERT_EQ(o.interrupt, 0);
-	ASSERT_EQ(o.terminate_result, terminate_type::success);
-	ASSERT_EQ(calls, custom_intrinsics.size());
 }

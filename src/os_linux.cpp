@@ -4,6 +4,7 @@
 #if NOMINAX_OS_LINUX
 
 #include <cstdio>
+#include <dlfcn.h>
 #include <unistd.h>
 
 namespace nominax::os {
@@ -29,7 +30,7 @@ namespace nominax::os {
 	}
 
 	auto dylib_lookup_symbol(void* const handle_, const std::string_view symbol_) -> void* {
-		return ::dlsym(handle_, symbol_);
+        return ::dlsym(handle_, symbol_.data());
 	}
 
 	void dylib_close(void*& handle_) {

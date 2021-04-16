@@ -22,7 +22,7 @@ namespace nominax {
 
 		// last instruction must be interrupt:
 		if (__builtin_expect(code_chunk_size < 2, 0) || __builtin_expect((code_chunk + code_chunk_size - 2)->instr != instruction::inter, 0)) {
-			return reactor_validation_result::missing_code_prologue;
+			return reactor_validation_result::missing_code_epilogue;
 		}
 
 		// first stack entry is never used and must be nop-padding:
@@ -835,7 +835,7 @@ namespace nominax {
 			.pre = pre,
 			.post = std::chrono::high_resolution_clock::now(),
 			.duration = std::chrono::high_resolution_clock::now() - pre,
-			.interrupt = interrupt,
+            .interrupt_code = interrupt,
 			.ip_diff = static_cast<std::ptrdiff_t>(ip - input_.code_chunk),
 			.sp_diff = static_cast<std::ptrdiff_t>(sp - input_.stack),
 		};
