@@ -483,8 +483,8 @@ namespace nominax {
 		void* __restrict__									usr_dat				{input_.user_data};								/* user data                */
 		intrinsic_routine* const* const						intrinsic_table		{input_.intrinsic_table};						/* intrinsic table hi       */
 		interrupt_routine* const							interrupt_handler	{input_.interrupt_handler};						/* global interrupt routine */
-		const csignal* const __restrict						ip_lo				{input_.code_chunk};							/* instruction low ptr      */
-		const csignal* __restrict__							ip					{ip_lo};										/* instruction ptr			*/
+		const rt_signal* const __restrict					ip_lo				{input_.code_chunk};							/* instruction low ptr      */
+		const rt_signal* __restrict__						ip					{ip_lo};										/* instruction ptr			*/
 		record64* __restrict__								sp					{input_.stack};									/* stack pointer lo			*/
 		record64* const	__restrict__						sp_hi				{input_.stack + input_.stack_size - 1};			/* stack pointer hi			*/
 

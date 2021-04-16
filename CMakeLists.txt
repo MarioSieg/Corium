@@ -90,7 +90,6 @@ endif()
 add_library("libnominax" STATIC
 	"inc/nominax/platform.hpp"
 	"inc/nominax/reactor.hpp"
-	
     "inc/nominax/bytecode.hpp"
     "src/reactor.cpp"
 	"inc/nominax/record.hpp" 
@@ -107,7 +106,9 @@ add_library("libnominax" STATIC
     "inc/nominax/dll.hpp"
     "inc/nominax/sysintrin.hpp"
     "inc/nominax/idb.hpp" 
-    "src/interrupts.cpp")
+    "src/interrupts.cpp" 
+    "inc/nominax/validator.hpp"
+    "src/validator.cpp")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries("libnominax" "dl")
