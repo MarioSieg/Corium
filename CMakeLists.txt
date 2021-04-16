@@ -90,7 +90,7 @@ endif()
 add_library("libnominax" STATIC
 	"inc/nominax/platform.hpp"
 	"inc/nominax/reactor.hpp"
-	"inc/nominax/reactor_internals.hpp"
+	
     "inc/nominax/bytecode.hpp"
     "src/reactor.cpp"
 	"inc/nominax/record.hpp" 

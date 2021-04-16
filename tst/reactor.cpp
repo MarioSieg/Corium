@@ -3,7 +3,6 @@
 
 #include "tstbase.hpp"
 #include "../inc/nominax/reactor.hpp"
-#include "../inc/nominax/reactor_internals.hpp"
 #include "../inc/nominax/sysintrin.hpp"
 
 using namespace nominax;
@@ -45,28 +44,6 @@ static constexpr std::array<csignal, 3> default_test_code = {
 	csignal{instruction::inter},
 	csignal{INT64_C(5)},
 };
-
-TEST(reactor_internals, rol) {
-	ASSERT_EQ(rol(3, 1), std::rotl<u64>(3, 1));
-	ASSERT_EQ(rol(0, 0), std::rotl<u64>(0, 0));
-	ASSERT_EQ(rol(1, 1), std::rotl<u64>(1, 1));
-}
-
-TEST(reactor_internals, ror) {
-	ASSERT_EQ(ror(1, 3), std::rotr<u64>(1, 3));
-}
-
-#if NOMINAX_ARCH_X86_32 || NOMINAX_ARCH_X86_64
-
-TEST(reactor_internals, query_pi64_from_x87fpu) {
-	ASSERT_DOUBLE_EQ(query_pi64_from_x87fpu(), std::numbers::pi);
-}
-
-TEST(reactor_internals, query_pi32_from_x87fpu) {
-	ASSERT_DOUBLE_EQ(query_pi32_from_x87fpu(), std::numbers::pi_v<f32>);
-}
-
-#endif
 
 TEST(reactor_execution, __intrin__$cos) {
 	const std::array<csignal, 7> code = {
