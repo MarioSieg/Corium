@@ -9,6 +9,8 @@
  * The biggest difference could affect the code reordering - search for more info.
  */
 
+#include <cmath>
+
 #include "../inc/nominax/reactor.hpp"
 #include "../inc/nominax/interrupts.hpp"
 #include "../inc/nominax/macrocfg.hpp"

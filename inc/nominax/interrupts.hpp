@@ -1,7 +1,9 @@
 #pragma once
 
 #include <csignal>
+#include <limits>
 #include <string_view>
+#include <type_traits>
 
 #include "runtime.hpp"
 

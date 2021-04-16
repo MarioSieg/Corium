@@ -28,8 +28,7 @@ namespace nominax {
 		std::signal(SIGFPE, &com_sig_handler);
 		std::signal(SIGSEGV, &com_sig_handler);
 		std::signal(SIGTERM, &com_sig_handler);
-		std::signal(SIGBREAK, &com_sig_handler);
-		std::signal(SIGABRT_COMPAT, &com_sig_handler);
+        std::signal(SIGABRT, &com_sig_handler);
 	}
 	
 	void sig_uninstall() {
@@ -38,8 +37,7 @@ namespace nominax {
 		std::signal(SIGFPE, SIG_DFL);
 		std::signal(SIGSEGV, SIG_DFL);
 		std::signal(SIGTERM, SIG_DFL);
-		std::signal(SIGBREAK, SIG_DFL);
-		std::signal(SIGABRT_COMPAT, SIG_DFL);
+        std::signal(SIGABRT, SIG_DFL);
 	}
 
 	auto interrupt_enumerator_name(const interrupt int_) noexcept -> std::string_view {
