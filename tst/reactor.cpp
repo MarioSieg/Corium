@@ -21,14 +21,14 @@ static constexpr auto test_stack_size = 32; // 32 records
 
 static constinit std::array<record64, test_stack_size> test_stack {record64::nop_padding()};
 
-static constinit volatile std::sig_atomic_t test_signal_status;
+static constinit volatile std::sig_atomic_t signal_status;
 
 static constinit interrupt_routine* test_interrupt_handler {+[](interrupt_accumulator, void*) noexcept -> bool {
 	return true;
 }};
 
 static reactor_input default_test_input{
-	.test_signal_status = &test_signal_status,
+	.signal_status = &signal_status,
 	.code_chunk = nullptr,
 	.code_chunk_size = 0,
 	.intrinsic_table = test_intrinsic_routine_table.data(),
@@ -2518,7 +2518,7 @@ TEST(reactor_execution, __jle_cmpf__) {
 
 TEST(reactor_input_validation, valid_pointers) {
 	const auto input = reactor_input{
-		.test_signal_status = &test_signal_status,
+		.signal_status = &signal_status,
 		.code_chunk = default_test_code.data(),
 		.code_chunk_size = default_test_code.size(),
 		.intrinsic_table = test_intrinsic_routine_table.data(),
@@ -2533,7 +2533,7 @@ TEST(reactor_input_validation, valid_pointers) {
 
 TEST(reactor_input_validation, null_pointers) {
 	const auto input = reactor_input{
-		.test_signal_status = &test_signal_status,
+		.signal_status = &signal_status,
 		.code_chunk = nullptr,
 		.code_chunk_size = 0,
 		.intrinsic_table = test_intrinsic_routine_table.data(),
@@ -2548,7 +2548,7 @@ TEST(reactor_input_validation, null_pointers) {
 
 TEST(reactor_input_validation, zero_sizes) {
 	const auto input = reactor_input{
-		.test_signal_status = &test_signal_status,
+		.signal_status = &signal_status,
 		.code_chunk = default_test_code.data(),
 		.code_chunk_size = 0,
 		.intrinsic_table = test_intrinsic_routine_table.data(),
@@ -2566,7 +2566,7 @@ TEST(reactor_input_validation, invalid_intrinsic_routines) {
 		nullptr
 	};
 	const auto input = reactor_input{
-		.test_signal_status = &test_signal_status,
+		.signal_status = &signal_status,
 		.code_chunk = default_test_code.data(),
 		.code_chunk_size = default_test_code.size(),
 		.intrinsic_table = intrinsic_routines.data(),
@@ -2581,7 +2581,7 @@ TEST(reactor_input_validation, invalid_intrinsic_routines) {
 
 TEST(reactor_input_validation, valid_intrinsic_routines) {
 	const auto input = reactor_input{
-		.test_signal_status = &test_signal_status,
+		.signal_status = &signal_status,
 		.code_chunk = default_test_code.data(),
 		.code_chunk_size = default_test_code.size(),
 		.intrinsic_table = test_intrinsic_routine_table.data(),
@@ -2596,7 +2596,7 @@ TEST(reactor_input_validation, valid_intrinsic_routines) {
 
 TEST(reactor_input_validation, missing_code_prologue) {
 	const auto input = reactor_input{
-		.test_signal_status = &test_signal_status,
+		.signal_status = &signal_status,
 		.code_chunk = default_test_code.data() + 1,
 		.code_chunk_size = default_test_code.size() - 1,
 		.intrinsic_table = test_intrinsic_routine_table.data(),
@@ -2617,7 +2617,7 @@ TEST(reactor_input_validation, missing_code_epilogue$1) {
 	};
 	
 	const auto input = reactor_input{
-		.test_signal_status = &test_signal_status,
+		.signal_status = &signal_status,
 		.code_chunk = code.data(),
 		.code_chunk_size = code.size(),
 		.intrinsic_table = test_intrinsic_routine_table.data(),
@@ -2636,7 +2636,7 @@ TEST(reactor_input_validation, missing_code_epilogue$2) {
 	};
 
 	const auto input = reactor_input{
-		.test_signal_status = &test_signal_status,
+		.signal_status = &signal_status,
 		.code_chunk = code.data(),
 		.code_chunk_size = code.size(),
 		.intrinsic_table = test_intrinsic_routine_table.data(),
@@ -2656,7 +2656,7 @@ TEST(reactor_input_validation, missing_code_epilogue$3) {
 	};
 
 	const auto input = reactor_input{
-		.test_signal_status = &test_signal_status,
+		.signal_status = &signal_status,
 		.code_chunk = code.data(),
 		.code_chunk_size = code.size(),
 		.intrinsic_table = test_intrinsic_routine_table.data(),
@@ -2671,7 +2671,7 @@ TEST(reactor_input_validation, missing_code_epilogue$3) {
 
 TEST(reactor_input_validation, missing_stack_prologue) {
 	const auto input = reactor_input{
-		.test_signal_status = reinterpret_cast<volatile std::sig_atomic_t*>(0xFF),
+		.signal_status = reinterpret_cast<volatile std::sig_atomic_t*>(0xFF),
 		.code_chunk = default_test_code.data(),
 		.code_chunk_size = default_test_code.size(),
 		.intrinsic_table = test_intrinsic_routine_table.data(),

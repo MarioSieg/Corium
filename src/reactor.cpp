@@ -17,7 +17,7 @@
 namespace nominax {
 	auto reactor_input::validate() const noexcept -> reactor_validation_result {
 		// validate all pointers:
-		if (__builtin_expect(!(this->test_signal_status && this->code_chunk && this->intrinsic_table && this->interrupt_handler && this->stack), 0)) {
+		if (__builtin_expect(!(this->signal_status && this->code_chunk && this->intrinsic_table && this->interrupt_handler && this->stack), 0)) {
 			return reactor_validation_result::null_ptr;
 		}
 
