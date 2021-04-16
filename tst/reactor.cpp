@@ -1009,7 +1009,7 @@ TEST(reactor_execution, __push_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].i, 123);
 	ASSERT_EQ(o.input->stack[3].i, 123);
 	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 
@@ -1038,7 +1038,7 @@ TEST(reactor_execution, __dupl_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].i, 123);
 	ASSERT_EQ(o.input->stack[3].i, 123);
 	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 
@@ -1067,7 +1067,7 @@ TEST(reactor_execution, __dupl2_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].i, 123);
 	ASSERT_EQ(o.input->stack[3].i, 123);
 	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 
@@ -1148,7 +1148,7 @@ TEST(reactor_execution, __pushz_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].i, 0);
 	ASSERT_EQ(o.input->stack[3].i, 0);
 	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 
@@ -1176,7 +1176,7 @@ TEST(reactor_execution, __ipusho_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].i, 1);
 	ASSERT_EQ(o.input->stack[3].i, 1);
 	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 
@@ -1204,7 +1204,7 @@ TEST(reactor_execution, __fpusho_stack_overflow__) {
 	ASSERT_EQ(o.input->stack[2].f, 1.0);
 	ASSERT_EQ(o.input->stack[3].f, 1.0);
 	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::er_stack_overflow);
+    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
 }
 

@@ -71,12 +71,12 @@ namespace nominax {
 		* x = 2 -> check for 2 more pushes
 		* etc..
 		*/
-		#define STO_SENTINEL(x)										\
-			do {													\
-				if (__builtin_expect(sp + ((x) - 1) >= sp_hi, 0)) {	\
-					interrupt = er_stack_overflow;					\
-					goto _hard_fault_err_;							\
-				}													\
+		#define STO_SENTINEL(x)																						\
+			do {																									\
+				if (__builtin_expect(sp + ((x) - 1) >= sp_hi, 0)) {													\
+					interrupt_code = static_cast<decltype(interrupt_code)>(interrupt::stack_overflow);				\
+					goto _hard_fault_err_;																			\
+				}																									\
 			} while(false)
 	#else
 		#define STO_SENTINEL(x)
@@ -350,7 +350,7 @@ namespace nominax {
 		
 		ASM_MARKER("reactor begin");
 		
-		interrupt_accumulator								interrupt			{};												/* interrupt id flag        */
+		interrupt_accumulator								interrupt_code		{};												/* interrupt id flag        */
 		void* __restrict__									usr_dat				{input_.user_data};								/* user data                */
 		intrinsic_routine* const* const						intrinsic_table		{input_.intrinsic_table};						/* intrinsic table hi       */
 		interrupt_routine* const							interrupt_handler	{input_.interrupt_handler};						/* global interrupt routine */
@@ -366,9 +366,9 @@ namespace nominax {
 
 	__int__: __attribute__((cold)); {
 			ASM_MARKER("__int__");
-			interrupt = (*++ip).r64.r32.i;
+			interrupt_code = (*++ip).r64.r32.i;
 			// check if interrupt handler request exit or interrupt is error (interrupt < 0) or success (interrupt == 0)
-			if (__builtin_expect(!interrupt_handler(interrupt, usr_dat) || interrupt <= 0, 0)) {
+			if (__builtin_expect(!interrupt_handler(interrupt_code, usr_dat) || interrupt_code <= 0, 0)) {
 				goto _terminate_;
 			}
 		}
@@ -656,34 +656,19 @@ namespace nominax {
 
 	__ipushz__: __attribute__((hot));
 		ASM_MARKER("__ipushz__");
-		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
-			if (__builtin_expect(sp == sp_hi, 0)) {		// check for stack overflow
-				interrupt = er_stack_overflow;			// hard system fault
-				goto _hard_fault_err_;					// kill
-			}
-		#endif
+		STO_SENTINEL(1);
 		(*++sp).u = 0;									// push(0)
 		goto **(bt + (*++ip).op);						// next_instr()
 
 	__ipusho__: __attribute__((hot));
 		ASM_MARKER("__ipusho__");
-		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
-			if (__builtin_expect(sp == sp_hi, 0)) {		// check for stack overflow
-				interrupt = er_stack_overflow;			// hard system fault
-				goto _hard_fault_err_;					// kill
-			}
-		#endif
+		STO_SENTINEL(1);
 		(*++sp).u = 1;									// push(1)
 		goto **(bt + (*++ip).op);						// next_instr()
 
 	__fpusho__: __attribute__((hot));
 		ASM_MARKER("__fpusho__");
-		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
-			if (__builtin_expect(sp == sp_hi, 0)) {		// check for stack overflow
-				interrupt = er_stack_overflow;			// hard system fault
-				goto _hard_fault_err_;					// kill
-			}
-		#endif
+		STO_SENTINEL(1);
 		(*++sp).f = 1.0;								// push(1)
 		goto **(bt + (*++ip).op);						// next_instr()
 		
@@ -830,12 +815,12 @@ namespace nominax {
 		return {
 			.input = &input_,
 			.validation_result = reactor_validation_result::ok,
-			.terminate_result = convert_terminate_type(interrupt),
-			.system_interrupt = convert_to_system_interrupt_or_unknown(interrupt),
+			.terminate_result = terminate_type_cvt(interrupt_code),
+			.system_interrupt = interrupt_cvt(interrupt_code),
 			.pre = pre,
 			.post = std::chrono::high_resolution_clock::now(),
 			.duration = std::chrono::high_resolution_clock::now() - pre,
-            .interrupt_code = interrupt,
+			.interrupt_code = interrupt_code,
 			.ip_diff = static_cast<std::ptrdiff_t>(ip - input_.code_chunk),
 			.sp_diff = static_cast<std::ptrdiff_t>(sp - input_.stack),
 		};
