@@ -64,15 +64,15 @@ namespace Nominax
 	static_assert(!std::is_trivially_copy_assignable_v<DynamicLibrary>);
 	static_assert(!std::is_trivially_move_assignable_v<DynamicLibrary>);
 
-	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle{OS::dylib_open(filePath)} { }
+	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle{Os::DylibOpen(filePath)} { }
 
 	inline DynamicLibrary::DynamicLibrary(const std::filesystem::path& filePath) : Handle{
-		OS::dylib_open(filePath.string())
+		Os::DylibOpen(filePath.string())
 	} { }
 
 	inline DynamicLibrary::~DynamicLibrary()
 	{
-		OS::dylib_close(this->Handle);
+		Os::DylibClose(this->Handle);
 	}
 
 	inline DynamicLibrary::operator bool() const noexcept
@@ -82,6 +82,6 @@ namespace Nominax
 
 	inline auto DynamicLibrary::operator[](const std::string_view symbolName) const -> DynamicProcedure
 	{
-		return DynamicProcedure{OS::dylib_lookup_symbol(this->Handle, symbolName)};
+		return DynamicProcedure{Os::DylibLookupSymbol(this->Handle, symbolName)};
 	}
 }

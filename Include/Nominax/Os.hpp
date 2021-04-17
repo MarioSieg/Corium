@@ -3,21 +3,21 @@
 #include <cstddef>
 #include <string_view>
 
-namespace Nominax::OS {
+namespace Nominax::Os {
 	[[nodiscard]]
-	extern auto query_system_memory_total() -> std::size_t;
+	extern auto QuerySystemMemoryTotal() -> std::size_t;
 	
 	[[nodiscard]]
-	extern auto query_process_memory_used() -> std::size_t;
+	extern auto QueryProcessMemoryUsed() -> std::size_t;
 
 	[[nodiscard]]
-	extern auto cpu_name() -> std::string;
+	extern auto QueryCpuName() -> std::string;
 
 	[[nodiscard]]
-	extern auto dylib_open(std::string_view file_) -> void*;
+	extern auto DylibOpen(std::string_view filePath) -> void*;
 
 	[[nodiscard]]
-	extern auto dylib_lookup_symbol(void* handle_, std::string_view symbol_) -> void*;
+	extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
 	
-	extern void dylib_close(void*& handle_);
+	extern void DylibClose(void*& handle);
 }

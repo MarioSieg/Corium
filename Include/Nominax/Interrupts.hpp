@@ -14,55 +14,55 @@
  */
 
 namespace Nominax {
-	using abort_handler = void();
-	using sig_handler = void(std::sig_atomic_t);
+	using PanicRoutine = void();
+	using SignalRoutine = void(std::sig_atomic_t);
 
-	[[noreturn]] extern void com_sig_handler(std::sig_atomic_t);
-	[[noreturn]] extern void com_abr_handler();
+	[[noreturn]] extern void DefaultSignalHandler(std::sig_atomic_t);
+	[[noreturn]] extern void DefaultPanicHandler();
 
-	inline constinit abort_handler* sys_abort_handler{&com_abr_handler};
+	inline constinit PanicRoutine* CurrentPanicHandler{&DefaultPanicHandler};
 
-	extern auto sig_status() noexcept -> std::sig_atomic_t;
-	extern void sig_install();
-	extern void sig_uninstall();
+	extern auto QuerySignalStatus() noexcept -> std::sig_atomic_t;
+	extern void InstallSignalHandlers();
+	extern void UninstallSignalHandlers();
 
-	using interrupt_accumulator = std::int32_t;
-	static_assert(std::is_trivial_v<interrupt_accumulator>);
+	using InterruptAccumulator = std::int32_t;
+	static_assert(std::is_trivial_v<InterruptAccumulator>);
 
-	using interrupt_routine = auto (interrupt_accumulator, void*) -> bool;
-	static_assert(std::is_function_v<interrupt_routine>);
+	using InterruptRoutine = auto (InterruptAccumulator, void*) -> bool;
+	static_assert(std::is_function_v<InterruptRoutine>);
 
-	enum class terminate_type {
-		success,
-		exception,
-		error
+	enum class TerminateResult {
+		Success,
+		Exception,
+		Error
 	};
 
-	enum class interrupt: interrupt_accumulator {
-		nullptr_deref		= std::numeric_limits<interrupt_accumulator>::min() + 7,		
-		io					= std::numeric_limits<interrupt_accumulator>::min() + 6,
-		jit_fault			= std::numeric_limits<interrupt_accumulator>::min() + 5,
-		stack_overflow		= std::numeric_limits<interrupt_accumulator>::min() + 4,
-		intrinsic_trap		= std::numeric_limits<interrupt_accumulator>::min() + 3,
-		bad_alloc			= std::numeric_limits<interrupt_accumulator>::min() + 2,
-		internal			= std::numeric_limits<interrupt_accumulator>::min() + 1,
-		unknown				= std::numeric_limits<interrupt_accumulator>::min(),
+	enum class SystemInterrupt: InterruptAccumulator {
+		NullptrDeref		= std::numeric_limits<InterruptAccumulator>::min() + 7,		
+		Io					= std::numeric_limits<InterruptAccumulator>::min() + 6,
+		JitFault			= std::numeric_limits<InterruptAccumulator>::min() + 5,
+		StackOverflow		= std::numeric_limits<InterruptAccumulator>::min() + 4,
+		IntrinsicTrap		= std::numeric_limits<InterruptAccumulator>::min() + 3,
+		BadAlloc			= std::numeric_limits<InterruptAccumulator>::min() + 2,
+		Internal			= std::numeric_limits<InterruptAccumulator>::min() + 1,
+		Unknown				= std::numeric_limits<InterruptAccumulator>::min(),
 
-		min_ = unknown,
-		max_ = nullptr_deref
+		Min = Unknown,
+		Max = NullptrDeref
 	};
 
-	constexpr auto operator ==(const interrupt lhs_, const std::underlying_type_t<interrupt> rhs_) noexcept -> bool {
-		return static_cast<std::underlying_type_t<interrupt>>(lhs_) == rhs_;
+	constexpr auto operator ==(const SystemInterrupt left, const std::underlying_type_t<SystemInterrupt> right) noexcept -> bool {
+		return static_cast<std::underlying_type_t<SystemInterrupt>>(left) == right;
 	}
 
-	constexpr auto operator !=(const interrupt lhs_, const std::underlying_type_t<interrupt> rhs_) noexcept -> bool {
-		return static_cast<std::underlying_type_t<interrupt>>(lhs_) != rhs_;
+	constexpr auto operator !=(const SystemInterrupt left, const std::underlying_type_t<SystemInterrupt> right) noexcept -> bool {
+		return static_cast<std::underlying_type_t<SystemInterrupt>>(left) != right;
 	}
 
-	[[nodiscard]] extern auto interrupt_enumerator_name(interrupt int_) noexcept -> std::string_view;
-	[[nodiscard]] extern auto basic_error_info(interrupt int_) noexcept -> std::string_view;
-	[[nodiscard]] extern auto detailed_error_info(interrupt int_) -> std::string;
-	[[nodiscard]] extern auto interrupt_cvt(interrupt_accumulator iac_) noexcept -> interrupt;
-	[[nodiscard]] extern auto terminate_type_cvt(interrupt_accumulator iac_) noexcept -> terminate_type;
+	[[nodiscard]] extern auto InterruptEnumeratorName(SystemInterrupt interrupt) noexcept -> std::string_view;
+	[[nodiscard]] extern auto BasicErrorInfo(SystemInterrupt interrupt) noexcept -> std::string_view;
+	[[nodiscard]] extern auto DetailedErrorInfo(SystemInterrupt interrupt) -> std::string;
+	[[nodiscard]] extern auto InterruptCvt(InterruptAccumulator interrupt) noexcept -> SystemInterrupt;
+	[[nodiscard]] extern auto TerminateTypeCvt(InterruptAccumulator interrupt) noexcept -> TerminateResult;
 }

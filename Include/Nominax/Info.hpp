@@ -5,30 +5,30 @@
 #include <string_view>
 
 namespace Nominax {
-	struct version final {
-		std::uint8_t major{};
-		std::uint8_t minor{};
-		std::uint8_t build{};
-		std::uint8_t revision{};
+	struct Version final {
+		std::uint8_t Major{};
+		std::uint8_t Minor{};
+		std::uint8_t Build{};
+		std::uint8_t Revision{};
 	};
 
-	constexpr version system_version{
-		.major = 0,
-		.minor = 4,
-		.build = 0,
-		.revision = 0,
+	constexpr Version SYSTEM_VERSION{
+		.Major = 0,
+		.Minor = 4,
+		.Build = 0,
+		.Revision = 0,
 	};
 
-	inline auto operator <<(std::ostream& out, const version ver_) -> std::ostream& {
-		return out << static_cast<std::uint16_t>(ver_.major) << '.' << static_cast<std::uint16_t>(ver_.minor) << '.' << static_cast<std::uint16_t>(ver_.build) << '.' << static_cast<std::uint16_t>(ver_.revision);
+	inline auto operator <<(std::ostream& out, const Version version) -> std::ostream& {
+		return out << static_cast<std::uint16_t>(version.Major) << '.' << static_cast<std::uint16_t>(version.Minor) << '.' << static_cast<std::uint16_t>(version.Build) << '.' << static_cast<std::uint16_t>(version.Revision);
 	}
 	
-	constexpr std::string_view info_notice = 
+	constexpr std::string_view SYSTEM_COPYRIGHT_TEXT = 
 		"(c) Copyright Mario Sieg <pinsrq> mt3000@gmx.de 2019-2021! All rights reserved!\n"
 		"The Nominax runtime system is open source software: https://github.com/MarioSieg/NominaX\n"
 		"See LICENSE file for licensing and copyright information!\n";
 	
-	constexpr std::string_view logo = R"(
+	constexpr std::string_view SYSTEM_LOGO_TEXT = R"(
                                                          #@@#   
                                                       %@@@@@@@@@
                                                      .@@@    (@@

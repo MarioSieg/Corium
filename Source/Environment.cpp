@@ -14,10 +14,10 @@ namespace Nominax {
 		try {
 			std::ios_base::sync_with_stdio(false);
 
-			this->Logger << logo;
-			this->Logger << info_notice;
+			this->Logger << SYSTEM_LOGO_TEXT;
+			this->Logger << SYSTEM_COPYRIGHT_TEXT;
 
-			this->Logger << "Nominax Version: " << system_version;
+			this->Logger << "Nominax Version: " << SYSTEM_VERSION;
 			this->Logger << "\nPlatform: " NOMINAX_OS_NAME " " NOMINAX_ARCH_SIZE_NAME;
 			this->Logger << "\nArch: " << NOMINAX_ARCH_NAME;
 			this->Logger << "\nPosix: " << std::boolalpha << NOMINAX_POSIX;
@@ -26,9 +26,9 @@ namespace Nominax {
 			this->Logger << "\n\nBooting runtime system...";
 
 			this->ThreadCount= std::thread::hardware_concurrency();
-			this->TotalMemory = OS::query_system_memory_total();
-			this->AvailableMemory = OS::query_system_memory_total() - OS::query_process_memory_used();
-			this->CpuName = OS::cpu_name();
+			this->TotalMemory = Os::QuerySystemMemoryTotal();
+			this->AvailableMemory = Os::QuerySystemMemoryTotal() - Os::QueryProcessMemoryUsed();
+			this->CpuName = Os::QueryCpuName();
 
 			this->Logger << "\nTID: 0x" << std::hex << std::this_thread::get_id() << std::dec;
 
@@ -55,8 +55,8 @@ namespace Nominax {
 				this->Logger << 'A';
 			}
 
-			this->Logger << "\nTotal RAM: " << b2gb(this->TotalMemory) << " GB";
-			this->Logger << "\nAvailable RAM: " << b2kb(this->AvailableMemory) << " KB";
+			this->Logger << "\nTotal RAM: " << Bytes2Gigabytes(this->TotalMemory) << " GB";
+			this->Logger << "\nAvailable RAM: " << Bytes2Kilobytes(this->AvailableMemory) << " KB";
 
 			return true;
 		}

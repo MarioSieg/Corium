@@ -8,30 +8,30 @@ namespace {
 }
 
 namespace Nominax {
-	auto sig_status() noexcept -> std::sig_atomic_t {
+	auto QuerySignalStatus() noexcept -> std::sig_atomic_t {
 		return ::signal_status;
 	}
 
-	void com_sig_handler(const std::sig_atomic_t sig_sta_) {
+	void DefaultSignalHandler(const std::sig_atomic_t sig_sta_) {
 		::signal_status = sig_sta_;
-		sys_abort_handler();
+		CurrentPanicHandler();
 		std::abort();
 	}
 
-	void com_abr_handler() {
+	void DefaultPanicHandler() {
 		std::abort();
 	}
 
-	void sig_install() {
-		std::signal(SIGINT, &com_sig_handler);
-		std::signal(SIGILL, &com_sig_handler);
-		std::signal(SIGFPE, &com_sig_handler);
-		std::signal(SIGSEGV, &com_sig_handler);
-		std::signal(SIGTERM, &com_sig_handler);
-        std::signal(SIGABRT, &com_sig_handler);
+	void InstallSignalHandlers() {
+		std::signal(SIGINT, &DefaultSignalHandler);
+		std::signal(SIGILL, &DefaultSignalHandler);
+		std::signal(SIGFPE, &DefaultSignalHandler);
+		std::signal(SIGSEGV, &DefaultSignalHandler);
+		std::signal(SIGTERM, &DefaultSignalHandler);
+        std::signal(SIGABRT, &DefaultSignalHandler);
 	}
 	
-	void sig_uninstall() {
+	void UninstallSignalHandlers() {
 		std::signal(SIGINT, SIG_DFL);
 		std::signal(SIGILL, SIG_DFL);
 		std::signal(SIGFPE, SIG_DFL);
@@ -40,44 +40,44 @@ namespace Nominax {
         std::signal(SIGABRT, SIG_DFL);
 	}
 
-	auto interrupt_enumerator_name(const interrupt int_) noexcept -> std::string_view {
-		switch (int_) {
-			case interrupt::nullptr_deref:			return "interrupt::nullptr_deref";
-			case interrupt::io:						return "interrupt::io";
-			case interrupt::jit_fault:				return "interrupt::jit_fault";
-			case interrupt::stack_overflow:			return "interrupt::stack_overflow";
-			case interrupt::intrinsic_trap:			return "interrupt::intrinsic_trap";
-			case interrupt::bad_alloc:				return "interrupt::bad_alloc";
-			case interrupt::internal:				return "interrupt::internal";
-			default: case interrupt::unknown:		return "interrupt::unknown";
+	auto InterruptEnumeratorName(const SystemInterrupt interrupt) noexcept -> std::string_view {
+		switch (interrupt) {
+			case SystemInterrupt::NullptrDeref:			return "interrupt::nullptr_deref";
+			case SystemInterrupt::Io:						return "interrupt::io";
+			case SystemInterrupt::JitFault:				return "interrupt::jit_fault";
+			case SystemInterrupt::StackOverflow:			return "interrupt::stack_overflow";
+			case SystemInterrupt::IntrinsicTrap:			return "interrupt::intrinsic_trap";
+			case SystemInterrupt::BadAlloc:				return "interrupt::bad_alloc";
+			case SystemInterrupt::Internal:				return "interrupt::internal";
+			default: case SystemInterrupt::Unknown:		return "interrupt::unknown";
 		}
 	}
 
-	auto basic_error_info(const interrupt int_) noexcept -> std::string_view {
-		switch (int_) {
-			case interrupt::nullptr_deref:			return "NullPointerError";
-			case interrupt::io:						return "IOError";
-			case interrupt::jit_fault:				return "JITCompilationError";
-			case interrupt::stack_overflow:			return "StackOverflowError";
-			case interrupt::intrinsic_trap:			return "IntrinsicError";
-			case interrupt::bad_alloc:				return "OutOfMemoryError";
-			case interrupt::internal:				return "InternalError";
-			default: case interrupt::unknown:		return "UnknownError";
+	auto BasicErrorInfo(const SystemInterrupt interrupt) noexcept -> std::string_view {
+		switch (interrupt) {
+			case SystemInterrupt::NullptrDeref:			return "NullPointerError";
+			case SystemInterrupt::Io:						return "IOError";
+			case SystemInterrupt::JitFault:				return "JITCompilationError";
+			case SystemInterrupt::StackOverflow:			return "StackOverflowError";
+			case SystemInterrupt::IntrinsicTrap:			return "IntrinsicError";
+			case SystemInterrupt::BadAlloc:				return "OutOfMemoryError";
+			case SystemInterrupt::Internal:				return "InternalError";
+			default: case SystemInterrupt::Unknown:		return "UnknownError";
 		}
 	}
 
-	auto detailed_error_info(const interrupt int_) -> std::string {
+	auto DetailedErrorInfo(const SystemInterrupt interrupt) -> std::string {
 		std::stringstream ss;
-		ss << basic_error_info(int_) << '\n';
-		ss << interrupt_enumerator_name(int_) << " : " << std::hex << "0x" << static_cast<std::underlying_type_t<decltype(int_)>>(int_) << '\n';
+		ss << BasicErrorInfo(interrupt) << '\n';
+		ss << InterruptEnumeratorName(interrupt) << " : " << std::hex << "0x" << static_cast<std::underlying_type_t<decltype(interrupt)>>(interrupt) << '\n';
 		return ss.str();
 	}
 
-	auto interrupt_cvt(const interrupt_accumulator iac_) noexcept -> interrupt {
-		return static_cast<interrupt>(std::clamp(iac_, static_cast<std::underlying_type_t<interrupt>>(interrupt::min_), static_cast<std::underlying_type_t<interrupt>>(interrupt::max_)));
+	auto InterruptCvt(const InterruptAccumulator interrupt) noexcept -> SystemInterrupt {
+		return static_cast<SystemInterrupt>(std::clamp(interrupt, static_cast<std::underlying_type_t<SystemInterrupt>>(SystemInterrupt::Min), static_cast<std::underlying_type_t<SystemInterrupt>>(SystemInterrupt::Max)));
 	}
 	
-	auto terminate_type_cvt(const interrupt_accumulator iac_) noexcept -> terminate_type {
-		return iac_ == 0 ? terminate_type::success : iac_ < 0 ? terminate_type::error : terminate_type::exception;
+	auto TerminateTypeCvt(const InterruptAccumulator interrupt) noexcept -> TerminateResult {
+		return interrupt == 0 ? TerminateResult::Success : interrupt < 0 ? TerminateResult::Error : TerminateResult::Exception;
 	}
 }

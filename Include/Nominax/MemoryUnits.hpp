@@ -4,44 +4,44 @@
 
 namespace Nominax {
 	[[nodiscard]]
-	constexpr auto b2gb(const std::size_t bytes_) noexcept -> std::size_t {
-		return bytes_ / 1024 / 1024 / 1024;
+	constexpr auto Bytes2Gigabytes(const std::size_t bytes) noexcept -> std::size_t {
+		return bytes / 1024 / 1024 / 1024;
 	}
 
 	[[nodiscard]]
-	constexpr auto b2mb(const std::size_t bytes_) noexcept -> std::size_t {
-		return bytes_ / 1024 / 1024;
+	constexpr auto Bytes2Megabytes(const std::size_t bytes) noexcept -> std::size_t {
+		return bytes / 1024 / 1024;
 	}
 
 	[[nodiscard]]
-	constexpr auto b2kb(const std::size_t bytes_) noexcept -> std::size_t {
-		return bytes_ / 1024;
+	constexpr auto Bytes2Kilobytes(const std::size_t bytes) noexcept -> std::size_t {
+		return bytes / 1024;
 	}
 
 	[[nodiscard]]
-	constexpr auto gb2b(const std::size_t bytes_) noexcept -> std::size_t {
-		return bytes_ * 1024 * 1024 * 1024;
+	constexpr auto Gigabytes2Bytes(const std::size_t gigabytes) noexcept -> std::size_t {
+		return gigabytes * 1024 * 1024 * 1024;
 	}
 
 	[[nodiscard]]
-	constexpr auto mb2b(const std::size_t bytes_) noexcept -> std::size_t {
-		return bytes_ * 1024 * 1024;
+	constexpr auto Megabytes2Bytes(const std::size_t megabytes) noexcept -> std::size_t {
+		return megabytes * 1024 * 1024;
 	}
 
 	[[nodiscard]]
-	constexpr auto kb2b(const std::size_t bytes_) noexcept -> std::size_t {
-		return bytes_ * 1024;
+	constexpr auto Kilobytes2Bytes(const std::size_t kilobytes) noexcept -> std::size_t {
+		return kilobytes * 1024;
 	}
 
-	constexpr auto operator ""_kb(const unsigned long long int kb_) noexcept -> unsigned long long int {
-		return kb_ * 1024;
+	constexpr auto operator ""_kb(const unsigned long long int value) noexcept -> unsigned long long int {
+		return value * 1024;
 	}
 
-	constexpr auto operator ""_mb(const unsigned long long int mb_) noexcept -> unsigned long long int {
-		return mb_ * 1024 * 1024;
+	constexpr auto operator ""_mb(const unsigned long long int value) noexcept -> unsigned long long int {
+		return value * 1024 * 1024;
 	}
 
-	constexpr auto operator ""_gb(const unsigned long long int gb_) noexcept -> unsigned long long int {
-		return gb_ * 1024 * 1024 * 1024;
+	constexpr auto operator ""_gb(const unsigned long long int value) noexcept -> unsigned long long int {
+		return value * 1024 * 1024 * 1024;
 	}
 }

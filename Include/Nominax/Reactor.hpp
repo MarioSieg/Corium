@@ -8,49 +8,49 @@
 #include "Interrupts.hpp"
 
 namespace Nominax {
-	enum class reactor_validation_result {
-		ok = 0,
-		null_ptr,
-		zero_size,
-		missing_code_prologue,
-		missing_code_epilogue,
-		missing_stack_prologue,
-		null_intrinsic_routine
+	enum class ReactorValidationResult {
+		Ok = 0,
+		NullPtr,
+		ZeroSize,
+		MissingCodePrologue,
+		MissingCodeEpilogue,
+		MissingStackPrologue,
+		NullIntrinsicRoutine
 	};
 	
 	/// <summary>
 	/// Contains all input data for the VM reactor.
 	/// </summary>
-	struct reactor_input final {
-		volatile std::sig_atomic_t*		signal_status			{nullptr};
-		const Signal*				code_chunk				{nullptr};
-		std::size_t						code_chunk_size			{0};
-		intrinsic_routine**				intrinsic_table			{nullptr};
-		std::size_t						intrinsic_table_size	{0};
-		interrupt_routine*				interrupt_handler		{nullptr};
-		Record64*						stack					{nullptr};
-		std::size_t						stack_size				{0};
-		void*							user_data				{nullptr};
+	struct ReactorInput final {
+		volatile std::sig_atomic_t*		SignalStatus			{nullptr};
+		const Signal*					CodeChunk				{nullptr};
+		std::size_t						CodeChunkSize			{0};
+		intrinsic_routine**				IntrinsicTable			{nullptr};
+		std::size_t						IntrinsicTableSize		{0};
+		InterruptRoutine*				InterruptHandler		{nullptr};
+		Record64*						Stack					{nullptr};
+		std::size_t						StackSize				{0};
+		void*							UserData				{nullptr};
 
 		[[nodiscard]]
-		auto validate() const noexcept -> reactor_validation_result;
+		auto Validate() const noexcept -> ReactorValidationResult;
 	};
 
 	/// <summary>
 	/// Contains all the output data from the VM reactor.
 	/// </summary>
-	struct reactor_output final {
-		const reactor_input* input{nullptr};
-		reactor_validation_result validation_result{};
-		terminate_type terminate_result{};
-		interrupt system_interrupt{};
-		std::chrono::high_resolution_clock::time_point pre{};
-		std::chrono::high_resolution_clock::time_point post{};
-		std::chrono::high_resolution_clock::duration duration{};
-		interrupt_accumulator interrupt_code{};
-		std::ptrdiff_t ip_diff{};
-		std::ptrdiff_t sp_diff{};
+	struct ReactorOutput final {
+		const ReactorInput* Input{nullptr};
+		ReactorValidationResult ValidationResult{};
+		TerminateResult TerminateResult{};
+		SystemInterrupt SystemInterrupt{};
+		std::chrono::high_resolution_clock::time_point Pre{};
+		std::chrono::high_resolution_clock::time_point Post{};
+		std::chrono::high_resolution_clock::duration Duration{};
+		InterruptAccumulator InterruptCode{};
+		std::ptrdiff_t IpDiff{};
+		std::ptrdiff_t SpDiff{};
 	};
 
-	[[nodiscard]] __attribute__((hot)) extern auto execute_reactor(const reactor_input& input_) -> reactor_output;
+	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const ReactorInput& input) -> ReactorOutput;
 }
