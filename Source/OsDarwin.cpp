@@ -1,5 +1,5 @@
-#include "../inc/nominax/os.hpp"
-#include "../inc/nominax/platform.hpp"
+#include "../Include/Nominax/Os.hpp"
+#include "../Include/Nominax/Platform.hpp"
 
 #if NOMINAX_OS_MAC || NOMINAX_OS_IOS
 
@@ -7,7 +7,7 @@
 #include <mach/mach.h>
 #include <mach/mach_host.h>
 
-namespace nominax::os {
+namespace Nominax::os {
 	auto query_system_memory_total() -> std::size_t {
 		mach_port_t host_port;
 		mach_msg_type_number_t host_size;

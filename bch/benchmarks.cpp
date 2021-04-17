@@ -1,25 +1,25 @@
 #include "benchbase.hpp"
 
 static void loop_1_billion(benchmark::State& state) {
-	const std::vector<rt_signal> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::iinc},
-		rt_signal{instruction::dupl},
-		rt_signal{instruction::push},
-		rt_signal{1'000'000'000_i64},
-		rt_signal{instruction::jl_cmpi},
-		rt_signal{2_u64},
-		rt_signal{instruction::pop},
-		rt_signal{instruction::inter},
-		rt_signal{0_i64},
+	const std::vector<Signal> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::pushz},
+		Signal{Instruction::iinc},
+		Signal{Instruction::dupl},
+		Signal{Instruction::push},
+		Signal{1'000'000'000_std::int64_t},
+		Signal{Instruction::jl_cmpi},
+		Signal{2_std::uint64_t},
+		Signal{Instruction::pop},
+		Signal{Instruction::inter},
+		Signal{0_std::int64_t},
 	};
 
-	std::array<record64, 32> stack = { record64::nop_padding() };
+	std::array<Record64, 32> stack = { Record64::Padding() };
 
 	volatile std::sig_atomic_t sig{};
 	std::array<intrinsic_routine*, 1> intrins{
-		+[](record64*) -> bool { return true; }
+		+[](Record64*) -> bool { return true; }
 	};
 
 	const reactor_input input{
@@ -54,17 +54,17 @@ static void loop_1_billion(benchmark::State& state) {
 			break;
 		}
 
-		if (o.input->stack[1].i != 1'000'000'000_i64) {
+		if (o.input->stack[1].std::int64_t != 1'000'000'000_std::int64_t) {
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (o.input->stack[2].i != 1'000'000'000_i64) {
+		if (o.input->stack[2].std::int64_t != 1'000'000'000_std::int64_t) {
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (o.input->stack[3].i != 1'000'000'000_i64) {
+		if (o.input->stack[3].std::int64_t != 1'000'000'000_std::int64_t) {
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
@@ -74,25 +74,25 @@ static void loop_1_billion(benchmark::State& state) {
 BENCHMARK(loop_1_billion)->Unit(benchmark::TimeUnit::kSecond);
 
 static void loop_5_billion(benchmark::State& state) {
-	const std::vector<rt_signal> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::iinc},
-		rt_signal{instruction::dupl},
-		rt_signal{instruction::push},
-		rt_signal{5'000'000'000_i64},
-		rt_signal{instruction::jl_cmpi},
-		rt_signal{2_u64},
-		rt_signal{instruction::pop},
-		rt_signal{instruction::inter},
-		rt_signal{0_i64},
+	const std::vector<Signal> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::pushz},
+		Signal{Instruction::iinc},
+		Signal{Instruction::dupl},
+		Signal{Instruction::push},
+		Signal{5'000'000'000_std::int64_t},
+		Signal{Instruction::jl_cmpi},
+		Signal{2_std::uint64_t},
+		Signal{Instruction::pop},
+		Signal{Instruction::inter},
+		Signal{0_std::int64_t},
 	};
 
-	std::array<record64, 32> stack = { record64::nop_padding() };
+	std::array<Record64, 32> stack = { Record64::Padding() };
 
 	volatile std::sig_atomic_t sig{};
 	std::array<intrinsic_routine*, 1> intrins{
-		+[](record64*) -> bool { return true; }
+		+[](Record64*) -> bool { return true; }
 	};
 
 	const reactor_input input{
@@ -127,17 +127,17 @@ static void loop_5_billion(benchmark::State& state) {
 			break;
 		}
 
-		if (o.input->stack[1].i != 5'000'000'000_i64) {
+		if (o.input->stack[1].std::int64_t != 5'000'000'000_std::int64_t) {
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (o.input->stack[2].i != 5'000'000'000_i64) {
+		if (o.input->stack[2].std::int64_t != 5'000'000'000_std::int64_t) {
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (o.input->stack[3].i != 5'000'000'000_i64) {
+		if (o.input->stack[3].std::int64_t != 5'000'000'000_std::int64_t) {
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}

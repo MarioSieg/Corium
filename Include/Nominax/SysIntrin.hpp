@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
-namespace nominax {
-	enum class alignas(alignof(std::uint64_t)) intrinsic: std::uint64_t {
+namespace Nominax {
+	enum class alignas(alignof(std::uint64_t)) SystemIntrinsicID: std::uint64_t {
 		cos			= 0x00'00'00'00'00'00'00'00,
 		sin			= 0x00'00'00'00'00'00'00'01,
 		tan			= 0x00'00'00'00'00'00'00'02,

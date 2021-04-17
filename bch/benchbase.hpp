@@ -2,7 +2,7 @@
 
 #include "../inc/nominax/reactor.hpp"
 
-using namespace nominax;
+using namespace Nominax;
 
 #include "benchmark.h"
 

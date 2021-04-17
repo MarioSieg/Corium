@@ -2,9 +2,9 @@
 
 #include <span>
 
-#include "bytecode.hpp"
+#include "Bytecode.hpp"
 
-namespace nominax {
+namespace Nominax {
 	enum class validation_result_error {
 		ok = 0,
 		not_enough_arguments,
@@ -17,5 +17,5 @@ namespace nominax {
 		std::size_t index{};
 	};
 
-	[[nodiscard]] extern auto perform_bytecode_validation_for_instruction(instruction instr_, std::span<dy_signal> args_) -> validation_result_error;
+	[[nodiscard]] extern auto perform_bytecode_validation_for_instruction(Instruction instr_, std::span<DynamicSignal> args_) -> validation_result_error;
 }

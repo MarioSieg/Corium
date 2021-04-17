@@ -11,12 +11,12 @@
 
 #include <cmath>
 
-#include "../inc/nominax/reactor.hpp"
-#include "../inc/nominax/interrupts.hpp"
-#include "../inc/nominax/macrocfg.hpp"
-#include "../inc/nominax/sysintrin.hpp"
+#include "../Include/Nominax/Reactor.hpp"
+#include "../Include/Nominax/Interrupts.hpp"
+#include "../Include/Nominax/MacroCfg.hpp"
+#include "../Include/Nominax/SysIntrin.hpp"
 
-namespace nominax {
+namespace Nominax {
 	auto reactor_input::validate() const noexcept -> reactor_validation_result {
 		// validate all pointers:
 		if (__builtin_expect(!(this->signal_status && this->code_chunk && this->intrinsic_table && this->interrupt_handler && this->stack), 0)) {
@@ -29,17 +29,17 @@ namespace nominax {
 		}
 
 		// first instruction will be skipped and must be NOP:
-		if (__builtin_expect(code_chunk->instr != instruction::nop, 0)) {
+		if (__builtin_expect(code_chunk->Instr != Instruction::nop, 0)) {
 			return reactor_validation_result::missing_code_prologue;
 		}
 
 		// last instruction must be interrupt:
-		if (__builtin_expect(code_chunk_size < 2, 0) || __builtin_expect((code_chunk + code_chunk_size - 2)->instr != instruction::inter, 0)) {
+		if (__builtin_expect(code_chunk_size < 2, 0) || __builtin_expect((code_chunk + code_chunk_size - 2)->Instr != Instruction::inter, 0)) {
 			return reactor_validation_result::missing_code_epilogue;
 		}
 
 		// first stack entry is never used and must be nop-padding:
-		if (__builtin_expect(*stack != record64::nop_padding(), 0)) {
+		if (__builtin_expect(*stack != Record64::Padding(), 0)) {
 			return reactor_validation_result::missing_stack_prologue;
 		}
 
@@ -58,7 +58,7 @@ namespace nominax {
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto rol(u64 n_, const std::uint8_t x_) noexcept -> u64 {
+	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto rol(std::uint64_t n_, const std::uint8_t x_) noexcept -> std::uint64_t {
 		#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
 				return _rotl64(n_, x_);
 		#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
@@ -69,14 +69,14 @@ namespace nominax {
 					);
 				return n_;
 		#else
-				return std::rotl<u64>(n_, x_);
+				return std::rotl<std::uint64_t>(n_, x_);
 		#endif
 	}
 
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto ror(u64 n_, const std::uint8_t x_) noexcept -> u64 {
+	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto ror(std::uint64_t n_, const std::uint8_t x_) noexcept -> std::uint64_t {
 		#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
 				return _rotr64(n_, x_);
 		#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
@@ -87,15 +87,15 @@ namespace nominax {
 					);
 				return n_;
 		#else
-				return std::rotr<u64>(n_, x_);
+				return std::rotr<std::uint64_t>(n_, x_);
 		#endif
 	}
 
 	/// <summary>
 	/// Operator for double precision floating point modulo.
 	/// </summary>
-	__attribute__((always_inline)) static inline void operator %=(record64& x_, const f64 y_) noexcept {
-		x_.f = std::fmod(x_.f, y_);
+	__attribute__((always_inline)) static inline void operator %=(Record64& x_, const double y_) noexcept {
+		x_.F64 = std::fmod(x_.F64, y_);
 	}
 
 	/// <summary>
@@ -198,8 +198,8 @@ namespace nominax {
 	/// So stack[-1] will be overwritten and contains the result.
 	/// stack[0] will still contain arg2.
 	/// </summary>
-	__attribute__((hot)) static void syscall_intrin(record64* const sp_, const u64 id_) {
-		static constexpr const void* __restrict__ bt[static_cast<std::size_t>(intrinsic::count_)] {
+	__attribute__((hot)) static void syscall_intrin(Record64* const sp_, const std::uint64_t id_) {
+		static constexpr const void* __restrict__ bt[static_cast<std::size_t>(SystemIntrinsicID::count_)] {
 			&&__cos__,
 			&&__sin__,
 			&&__tan__,
@@ -254,139 +254,139 @@ namespace nominax {
 		goto **(bt + id_);
 		
 	__cos__: __attribute__((hot));
-		(*sp_).f = std::cos((*sp_).f);
+		(*sp_).F64 = std::cos((*sp_).F64);
 		return;
 		
 	__sin__: __attribute__((hot));
-		(*sp_).f = std::sin((*sp_).f);
+		(*sp_).F64 = std::sin((*sp_).F64);
 		return;
 		
 	__tan__: __attribute__((hot));
-		(*sp_).f = std::tan((*sp_).f);
+		(*sp_).F64 = std::tan((*sp_).F64);
 		return;
 		
 	__acos__: __attribute__((hot));
-		(*sp_).f = std::acos((*sp_).f);
+		(*sp_).F64 = std::acos((*sp_).F64);
 		return;
 		
 	__asin__: __attribute__((hot));
-		(*sp_).f = std::asin((*sp_).f);
+		(*sp_).F64 = std::asin((*sp_).F64);
 		return;
 		
 	__atan__: __attribute__((hot));
-		(*sp_).f = std::atan((*sp_).f);
+		(*sp_).F64 = std::atan((*sp_).F64);
 		return;
 		
 	__atan2__: __attribute__((hot));
-		(*(sp_ - 1)).f = std::atan2((*(sp_ - 1)).f, (*sp_).f);
+		(*(sp_ - 1)).F64 = std::atan2((*(sp_ - 1)).F64, (*sp_).F64);
 		return;
 		
 	__cosh__: __attribute__((hot));
-		(*sp_).f = std::cosh((*sp_).f);
+		(*sp_).F64 = std::cosh((*sp_).F64);
 		return;
 		
 	__sinh__: __attribute__((hot));
-		(*sp_).f = std::sinh((*sp_).f);
+		(*sp_).F64 = std::sinh((*sp_).F64);
 		return;
 		
 	__tanh__: __attribute__((hot));
-		(*sp_).f = std::tanh((*sp_).f);
+		(*sp_).F64 = std::tanh((*sp_).F64);
 		return;
 		
 	__acosh__: __attribute__((hot));
-		(*sp_).f = std::acosh((*sp_).f);
+		(*sp_).F64 = std::acosh((*sp_).F64);
 		return;
 		
 	__asinh__: __attribute__((hot));
-		(*sp_).f = std::asinh((*sp_).f);
+		(*sp_).F64 = std::asinh((*sp_).F64);
 		return;
 		
 	__atanh__: __attribute__((hot));
-		(*sp_).f = std::atanh((*sp_).f);
+		(*sp_).F64 = std::atanh((*sp_).F64);
 		return;
 		
 	__exp__: __attribute__((hot));
-		(*sp_).f = std::exp((*sp_).f);
+		(*sp_).F64 = std::exp((*sp_).F64);
 		return;
 		
 	__log__: __attribute__((hot));
-		(*sp_).f = std::log((*sp_).f);
+		(*sp_).F64 = std::log((*sp_).F64);
 		return;
 		
 	__log10__: __attribute__((hot));
-		(*sp_).f = std::log10((*sp_).f);
+		(*sp_).F64 = std::log10((*sp_).F64);
 		return;
 		
 	__exp2__: __attribute__((hot));
-		(*sp_).f = std::exp2((*sp_).f);
+		(*sp_).F64 = std::exp2((*sp_).F64);
 		return;
 		
 	__ilogb__: __attribute__((hot));
-		(*sp_).i = std::ilogb((*sp_).f);
+		(*sp_).I64 = std::ilogb((*sp_).F64);
 		return;
 		
 	__log2__: __attribute__((hot));
-		(*sp_).f = std::log2((*sp_).f);
+		(*sp_).F64 = std::log2((*sp_).F64);
 		return;
 		
 	__pow__: __attribute__((hot));
-		(*(sp_ - 1)).f = std::pow((*(sp_ - 1)).f, (*sp_).f);
+		(*(sp_ - 1)).F64 = std::pow((*(sp_ - 1)).F64, (*sp_).F64);
 		return;
 		
 	__sqrt__: __attribute__((hot));
-		(*sp_).f = std::sqrt((*sp_).f);
+		(*sp_).F64 = std::sqrt((*sp_).F64);
 		return;
 		
 	__cbrt__: __attribute__((hot));
-		(*sp_).f = std::cbrt((*sp_).f);
+		(*sp_).F64 = std::cbrt((*sp_).F64);
 		return;
 		
 	__hypot__: __attribute__((hot));
-		(*(sp_ - 1)).f = std::hypot((*(sp_ - 1)).f, (*sp_).f);
+		(*(sp_ - 1)).F64 = std::hypot((*(sp_ - 1)).F64, (*sp_).F64);
 		return;
 		
 	__ceil__: __attribute__((hot));
-		(*sp_).f = std::ceil((*sp_).f);
+		(*sp_).F64 = std::ceil((*sp_).F64);
 		return;
 		
 	__floor__: __attribute__((hot));
-		(*sp_).f = std::floor((*sp_).f);
+		(*sp_).F64 = std::floor((*sp_).F64);
 		return;
 		
 	__round__: __attribute__((hot));
-		(*sp_).f = std::round((*sp_).f);
+		(*sp_).F64 = std::round((*sp_).F64);
 		return;
 		
 	__rint__: __attribute__((hot));
-		(*sp_).f = std::rint((*sp_).f);
+		(*sp_).F64 = std::rint((*sp_).F64);
 		return;
 		
 	__max__: __attribute__((hot));
-		(*(sp_ - 1)).i = std::max((*(sp_ - 1)).i, (*sp_).i);
+		(*(sp_ - 1)).I64 = std::max((*(sp_ - 1)).I64, (*sp_).I64);
 		return;
 		
 	__min__: __attribute__((hot));
-		(*(sp_ - 1)).i = std::min((*(sp_ - 1)).i, (*sp_).i);
+		(*(sp_ - 1)).I64 = std::min((*(sp_ - 1)).I64, (*sp_).I64);
 		return;
 		
 	__fmax__: __attribute__((hot));
-		(*(sp_ - 1)).f = std::max((*(sp_ - 1)).f, (*sp_).f);
+		(*(sp_ - 1)).F64 = std::max((*(sp_ - 1)).F64, (*sp_).F64);
 		return;
 		
 	__fmin__: __attribute__((hot));
-		(*(sp_ - 1)).f = std::min((*(sp_ - 1)).f, (*sp_).f);
+		(*(sp_ - 1)).F64 = std::min((*(sp_ - 1)).F64, (*sp_).F64);
 		return;
 		
 	__fdim__: __attribute__((hot));
-		(*(sp_ - 1)).f = std::fdim((*(sp_ - 1)).f, (*sp_).f);
+		(*(sp_ - 1)).F64 = std::fdim((*(sp_ - 1)).F64, (*sp_).F64);
 		return;
 		
 	__abs__: __attribute__((hot));
-		(*sp_).i = std::abs((*sp_).i);
+		(*sp_).I64 = std::abs((*sp_).I64);
 		return;
 		
 	__fabs__: __attribute__((hot));
-		(*sp_).f = std::abs((*sp_).f);
+		(*sp_).F64 = std::abs((*sp_).F64);
 		return;
 	}
 
@@ -400,7 +400,7 @@ namespace nominax {
 		
 		const auto pre = std::chrono::high_resolution_clock::now();
 
-		static constexpr const void* __restrict__ const bt[static_cast<std::size_t>(instruction::count_)] {
+		static constexpr const void* __restrict__ const bt[static_cast<std::size_t>(Instruction::count_)] {
 			&&__int__,
 			&&__intrin__,
 			&&__cintrin__,
@@ -481,464 +481,464 @@ namespace nominax {
 		
 		ASM_MARKER("reactor begin");
 		
-		interrupt_accumulator								interrupt_code		{};												/* interrupt id flag        */
+		interrupt_accumulator								interrupt_code		{};												/* interrupt ID flag        */
 		void* __restrict__									usr_dat				{input_.user_data};								/* user data                */
 		intrinsic_routine* const* const						intrinsic_table		{input_.intrinsic_table};						/* intrinsic table hi       */
 		interrupt_routine* const							interrupt_handler	{input_.interrupt_handler};						/* global interrupt routine */
-		const rt_signal* const __restrict					ip_lo				{input_.code_chunk};							/* instruction low ptr      */
-		const rt_signal* __restrict__						ip					{ip_lo};										/* instruction ptr			*/
-		record64* __restrict__								sp					{input_.stack};									/* stack pointer lo			*/
-		record64* const	__restrict__						sp_hi				{input_.stack + input_.stack_size - 1};			/* stack pointer hi			*/
+		const Signal* const __restrict						ip_lo				{input_.code_chunk};							/* instruction low Ptr      */
+		const Signal* __restrict__							ip					{ip_lo};										/* instruction Ptr			*/
+		Record64* __restrict__								sp					{input_.stack};									/* stack pointer lo			*/
+		Record64* const	__restrict__						sp_hi				{input_.stack + input_.stack_size - 1};			/* stack pointer hi			*/
 
 		ASM_MARKER("reactor exec");
 
 		// exec first:
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__int__: __attribute__((cold)); {
 			ASM_MARKER("__int__");
-			interrupt_code = (*++ip).r64.r32.i;
+			interrupt_code = (*++ip).R64.R32.I32;
 			// check if interrupt handler request exit or interrupt is error (interrupt < 0) or success (interrupt == 0)
 			if (__builtin_expect(!interrupt_handler(interrupt_code, usr_dat) || interrupt_code <= 0, 0)) {
 				goto _terminate_;
 			}
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__intrin__: __attribute__((hot));
 		ASM_MARKER("__intrin__");
-		syscall_intrin(sp, (*++ip).r64.u);				// syscall(sp, imm())
-		goto **(bt + (*++ip).op);						// next_instr()
+		syscall_intrin(sp, (*++ip).R64.U64);				// syscall(sp, imm())
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__cintrin__: __attribute__((hot));
 		ASM_MARKER("__cintrin__");
-		if (__builtin_expect(!(**(intrinsic_table + (*++ip).r64.i))(sp), 0)) {
+		if (__builtin_expect(!(**(intrinsic_table + (*++ip).R64.U64))(sp), 0)) {
 			goto _terminate_;
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__call__: __attribute__((hot)); {
 			ASM_MARKER("__call__");
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__ret__: __attribute__((hot)); {
 			ASM_MARKER("__ret__");
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__mov__: __attribute__((hot)); {
 			ASM_MARKER("__mov__");
-			const u64 dst{(*++ip).r64.u};				// imm() -> arg 1 (reg) - dst
-			*(sp + dst) = *(sp + (*++ip).r64.u);		// poke(dst) = poke(imm())
+			const std::uint64_t dst{(*++ip).R64.U64};		// imm() -> arg 1 (reg) - dst
+			*(sp + dst) = *(sp + (*++ip).R64.U64);			// poke(dst) = poke(imm())
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__sto__: __attribute__((hot)); {
 			ASM_MARKER("__sto__");
-			const u64 dst{(*++ip).r64.u};				// imm() -> arg 1 (reg) - dst
-			(*(sp + dst)).u = (*++ip).r64.u;			// poke(dst) = imm()
+			const std::uint64_t dst{(*++ip).R64.U64 };		// imm() -> arg 1 (reg) - dst
+			(*(sp + dst)).U64 = (*++ip).R64.U64;			// poke(dst) = imm()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__push__: __attribute__((hot));
 		ASM_MARKER("__push__");
 		STO_SENTINEL(1);
-		*++sp = (*++ip).r64;							// push(imm())
-		goto **(bt + (*++ip).op);						// next_instr()
+		*++sp = (*++ip).R64;								// push(imm())
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__pop__: __attribute__((hot));
 		ASM_MARKER("__pop__");
 		--sp;
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__pop2__: __attribute__((hot));
 		ASM_MARKER("__pop2__");
 		sp -= 2;
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__dupl__: __attribute__((hot)); {
 			ASM_MARKER("__dupl__");
 			STO_SENTINEL(1);
-			const auto top{*sp};						// peek()
-			*++sp = top;								// push(peek())
+			const auto top{*sp};							// peek()
+			*++sp = top;									// push(peek())
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__dupl2__: __attribute__((hot)); {
 			STO_SENTINEL(2);
-			const auto top{*sp};				// peek
-			*++sp = top;						// push(peek())
-			*++sp = top;						// push(peek())
+			const auto top{*sp};							// peek
+			*++sp = top;									// push(peek())
+			*++sp = top;									// push(peek())
 		}
-		goto **(bt + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__swap__: __attribute__((hot)); {
 			ASM_MARKER("__swap__");
-			const auto top = *sp;				// backup = top()
-			*sp = *(sp - 1);					// top() = poke(1)
-			*(sp - 1) = top;					// poke(1) = backup
+			const auto top = *sp;							// backup = top()
+			*sp = *(sp - 1);								// top() = poke(1)
+			*(sp - 1) = top;								// poke(1) = backup
 		}
-		goto **(bt + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 		
 	__nop__: __attribute__((cold));
 		ASM_MARKER("__nop__");
-		goto **(bt + (*++ip).op);				// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 		
 	__jmp__: __attribute__((hot)); {
 			ASM_MARKER("__jmp__");
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			ip = ip_lo + abs;							// ip = begin + offset
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			ip = ip_lo + abs;								// ip = begin + offset
 		}
-		goto **(bt + (*ip).op);							// next_instr() -> no inc -> new address
+		goto **(bt + (*ip).OpCode);							// next_instr() -> no inc -> new address
 
 	__jmprel__: __attribute__((hot)); {
 			ASM_MARKER("__jmprel__");
-			const u64 rel{(*++ip).r64.u};				// relative address
-			ip += rel;									// ip +-= rel
+			const std::uint64_t rel{(*++ip).R64.U64};		// relative address
+			ip += rel;										// ip +-= rel
 		}
-		goto **(bt + (*ip).op);							// next_instr() -> no inc -> new address
+		goto **(bt + (*ip).OpCode);							// next_instr() -> no inc -> new address
 
 	__jz__: __attribute__((hot)); {
 			ASM_MARKER("__jz__");
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp--).u == 0) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp--).I64 == 0) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
 		}	
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jnz__: __attribute__((hot)); {
 			ASM_MARKER("__jnz__");
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp--).u != 0) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp--).I64 != 0) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jo_cmpi__: __attribute__((hot)); {
 			ASM_MARKER("__jo_cmpi__");
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp--).i == 1) {						// pop()
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp--).I64 == 1) {							// pop()
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jo_cmpf__: __attribute__((hot)); {
 			ASM_MARKER("__jo_cmpf__");
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp--).f == 1.0) {						// pop()
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp--).F64 == 1.0) {						// pop()
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jno_cmpi__: __attribute__((hot)); {
 			ASM_MARKER("__jno_cmpi__");
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp--).i != 1) {						// pop()
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp--).I64 != 1) {							// pop()
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jno_cmpf__: __attribute__((hot)); {
 			ASM_MARKER("__jno_cmpf__");
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp--).f != 1.0) {						// pop()
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp--).F64 != 1.0) {						// pop()
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 		
 	__je_cmpi__: __attribute__((hot)); {
 			ASM_MARKER("__je_cmpi__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).i == (*(sp + 1)).i) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).I64 == (*(sp + 1)).I64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__je_cmpf__: __attribute__((hot)); {
 			ASM_MARKER("__je_cmpf__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).f == (*(sp + 1)).f) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).F64 == (*(sp + 1)).F64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jne_cmpi__: __attribute__((hot)); {
 			ASM_MARKER("__jne_cmpi__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).i != (*(sp + 1)).i) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).I64 != (*(sp + 1)).I64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jne_cmpf__: __attribute__((hot)); {
 			ASM_MARKER("__jne_cmpf__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).f != (*(sp + 1)).f) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).F64 != (*(sp + 1)).F64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__ja_cmpi__: __attribute__((hot)); {
 			ASM_MARKER("__ja_cmpi__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).i > (*(sp + 1)).i) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).I64 > (*(sp + 1)).I64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__ja_cmpf__: __attribute__((hot)); {
 			ASM_MARKER("__ja_cmpf__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).f > (*(sp + 1)).f) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).F64 > (*(sp + 1)).F64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jl_cmpi__: __attribute__((hot)); {
 			ASM_MARKER("__jl_cmpi__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).i < (*(sp + 1)).i) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).I64 < (*(sp + 1)).I64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jl_cmpf__: __attribute__((hot)); {
 			ASM_MARKER("__jl_cmpf__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).f < (*(sp + 1)).f) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).F64 < (*(sp + 1)).F64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jae_cmpi__: __attribute__((hot)); {
 			ASM_MARKER("__jae_cmpi__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).i >= (*(sp + 1)).i) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).I64 >= (*(sp + 1)).I64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jae_cmpf__: __attribute__((hot)); {
 			ASM_MARKER("__jae_cmpf__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).f >= (*(sp + 1)).f) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).F64 >= (*(sp + 1)).F64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jle_cmpi__: __attribute__((hot)); {
 			ASM_MARKER("__jle_cmpi__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).i <= (*(sp + 1)).i) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).I64 <= (*(sp + 1)).I64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__jle_cmpf__: __attribute__((hot)); {
 			ASM_MARKER("__jle_cmpf__");
-			--sp;										// pop()
-			const u64 abs{(*++ip).r64.u};				// absolute address
-			if ((*sp).f <= (*(sp + 1)).f) {
-				ip = ip_lo + abs - 1;					// ip = begin + offset - 1 (inc stride)
+			--sp;											// pop()
+			const std::uint64_t abs{(*++ip).R64.U64};		// absolute address
+			if ((*sp).F64 <= (*(sp + 1)).F64) {
+				ip = ip_lo + abs - 1;						// ip = begin + offset - 1 (inc stride)
 			}
-			--sp;										// pop()
+			--sp;											// pop()
 		}
-		goto **(bt + (*++ip).op);						// next_instr()
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__ipushz__: __attribute__((hot));
 		ASM_MARKER("__ipushz__");
 		STO_SENTINEL(1);
-		(*++sp).u = 0;									// push(0)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*++sp).I64 = 0;									// push(0)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__ipusho__: __attribute__((hot));
 		ASM_MARKER("__ipusho__");
 		STO_SENTINEL(1);
-		(*++sp).u = 1;									// push(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*++sp).I64 = 1;									// push(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__fpusho__: __attribute__((hot));
 		ASM_MARKER("__fpusho__");
 		STO_SENTINEL(1);
-		(*++sp).f = 1.0;								// push(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*++sp).F64 = 1.0;									// push(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 		
 	__iinc__: __attribute__((hot));
 		ASM_MARKER("__iinc__");
-		++(*sp).i;
-		goto **(bt + (*++ip).op);						// next_instr()
+		++(*sp).I64;
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__idec__: __attribute__((hot));
 		ASM_MARKER("__idec__");
-		--(*sp).i;
-		goto **(bt + (*++ip).op);						// next_instr()
+		--(*sp).I64;
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__iadd__: __attribute__((hot));
 		ASM_MARKER("__iadd__");
 		--sp;											// pop
-		(*sp).i += (*(sp + 1)).i;						// peek() += poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 += (*(sp + 1)).I64;						// peek() += poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__isub__: __attribute__((hot));
 		ASM_MARKER("__isub__");
 		--sp;											// pop
-		(*sp).i -= (*(sp + 1)).i;						// peek() -= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 -= (*(sp + 1)).I64;						// peek() -= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 		
 	__imul__: __attribute__((hot));
 		ASM_MARKER("__imul__");
 		--sp;											// pop
-		(*sp).i *= (*(sp + 1)).i;						// peek() *= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 *= (*(sp + 1)).I64;						// peek() *= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__idiv__: __attribute__((hot));
 		ASM_MARKER("__idiv__");
 		--sp;											// pop
-		(*sp).i /= (*(sp + 1)).i;						// peek() /= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 /= (*(sp + 1)).I64;						// peek() /= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__imod__: __attribute__((hot));
 		ASM_MARKER("__imod__");
 		--sp;											// pop
-		(*sp).i %= (*(sp + 1)).i;						// peek() %= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 %= (*(sp + 1)).I64;						// peek() %= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__iand__: __attribute__((hot));
 		ASM_MARKER("__iand__");
 		--sp;											// pop
-		(*sp).i &= (*(sp + 1)).i;						// peek() &= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 &= (*(sp + 1)).I64;						// peek() &= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__ior__: __attribute__((hot));
 		ASM_MARKER("__ior__");
 		--sp;											// pop
-		(*sp).i |= (*(sp + 1)).i;						// peek() |= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 |= (*(sp + 1)).I64;						// peek() |= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__ixor__: __attribute__((hot));
 		ASM_MARKER("__ixor__");
 		--sp;											// pop
-		(*sp).i ^= (*(sp + 1)).i;						// peek() ^= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 ^= (*(sp + 1)).I64;						// peek() ^= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__icom__: __attribute__((hot));
 		ASM_MARKER("__icom__");
-		(*sp).i = ~(*sp).i;
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 = ~(*sp).I64;
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__isal__: __attribute__((hot));
 		ASM_MARKER("__isal__");
 		--sp;											// pop
-		(*sp).i <<= (*(sp + 1)).i;						// peek() <<= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 <<= (*(sp + 1)).I64;						// peek() <<= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__isar__: __attribute__((hot));
 		ASM_MARKER("__isar__");
 		--sp;											// pop
-		(*sp).i >>= (*(sp + 1)).i;						// peek() >>= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 >>= (*(sp + 1)).I64;						// peek() >>= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__irol__: __attribute__((hot));
 		ASM_MARKER("__irol__");
 		--sp;											// pop
-		(*sp).u = rol((*sp).u, (*(sp + 1)).b);
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).U64 = rol((*sp).U64, (*(sp + 1)).U64);
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__iror__: __attribute__((hot));
 		ASM_MARKER("__iror__");
 		--sp;											// pop
-		(*sp).u = ror((*sp).u, (*(sp + 1)).b);
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).U64 = ror((*sp).U64, (*(sp + 1)).U64);
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__ineg__: __attribute__((hot));
 		ASM_MARKER("__ineg__");
-		(*sp).i = -(*sp).i;
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).I64 = -(*sp).I64;
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__fadd__: __attribute__((hot));
 		ASM_MARKER("__fadd__");
 		--sp;											// pop
-		(*sp).f += (*(sp + 1)).f;						// peek() += poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).F64 += (*(sp + 1)).F64;						// peek() += poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__fsub__: __attribute__((hot));
 		ASM_MARKER("__fsub__");
 		--sp;											// pop
-		(*sp).f -= (*(sp + 1)).f;						// peek() -= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).F64 -= (*(sp + 1)).F64;						// peek() -= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__fmul__: __attribute__((hot));
 		ASM_MARKER("__fmul__");
 		--sp;											// pop
-		(*sp).f *= (*(sp + 1)).f;						// peek() *= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).F64 *= (*(sp + 1)).F64;						// peek() *= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__fdiv__: __attribute__((hot));
 		ASM_MARKER("__fdiv__");
 		--sp;											// pop
-		(*sp).f /= (*(sp + 1)).f;						// peek() /= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).F64 /= (*(sp + 1)).F64;						// peek() /= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__fmod__: __attribute__((hot));
 		ASM_MARKER("__fmod__");
 		--sp;											// pop
-		*sp %= (*(sp + 1)).f;							// peek() %= poke(1)
-		goto **(bt + (*++ip).op);						// next_instr()
+		*sp %= (*(sp + 1)).F64;							// peek() %= poke(1)
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__fneg__: __attribute__((hot));
 		ASM_MARKER("__fneg__");
-		(*sp).f = -(*sp).f;
-		goto **(bt + (*++ip).op);						// next_instr()
+		(*sp).F64 = -(*sp).F64;
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__finc__: __attribute__((hot));
 		ASM_MARKER("__finc__");
-		++sp->f;
-		goto **(bt + (*++ip).op);						// next_instr()
+		++(*sp).F64;
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	__fdec__: __attribute__((hot));
 		ASM_MARKER("__fdec__");
-		--sp->f;
-		goto **(bt + (*++ip).op);						// next_instr()
+		--(*sp).F64;
+		goto **(bt + (*++ip).OpCode);						// next_instr()
 
 	_hard_fault_err_: __attribute__((cold));
 	_terminate_: __attribute__((cold));
@@ -952,8 +952,8 @@ namespace nominax {
 			.post = std::chrono::high_resolution_clock::now(),
 			.duration = std::chrono::high_resolution_clock::now() - pre,
 			.interrupt_code = interrupt_code,
-			.ip_diff = static_cast<std::ptrdiff_t>(ip - input_.code_chunk),
-			.sp_diff = static_cast<std::ptrdiff_t>(sp - input_.stack),
+			.ip_diff = ip - input_.code_chunk,
+			.sp_diff = sp - input_.stack,
 		};
 	}
 }

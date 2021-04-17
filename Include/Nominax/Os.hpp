@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <string_view>
 
-namespace nominax::os {
+namespace Nominax::OS {
 	[[nodiscard]]
 	extern auto query_system_memory_total() -> std::size_t;
 	

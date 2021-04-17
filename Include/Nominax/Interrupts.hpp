@@ -5,8 +5,6 @@
 #include <string_view>
 #include <type_traits>
 
-#include "runtime.hpp"
-
 /*	interrupt < 0 =>
  *		hard error => can not recover => exit program => show error message
  *	interrupt = 0 =>
@@ -15,7 +13,7 @@
  *		throw exception => call interrupt handler => call exception handler => if ok => continue execution else => exit program => show error message
  */
 
-namespace nominax {
+namespace Nominax {
 	using abort_handler = void();
 	using sig_handler = void(std::sig_atomic_t);
 
@@ -28,7 +26,7 @@ namespace nominax {
 	extern void sig_install();
 	extern void sig_uninstall();
 
-	using interrupt_accumulator = i32;
+	using interrupt_accumulator = std::int32_t;
 	static_assert(std::is_trivial_v<interrupt_accumulator>);
 
 	using interrupt_routine = auto (interrupt_accumulator, void*) -> bool;

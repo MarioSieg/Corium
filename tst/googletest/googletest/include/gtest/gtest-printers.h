@@ -618,7 +618,7 @@ void PrintSmartPointer(const Ptr& ptr, std::ostream* os, int) {
   if (ptr == nullptr) {
     *os << "(nullptr)";
   } else {
-    *os << "(ptr = " << (VoidifyPointer)(ptr.get()) << ", value = ";
+    *os << "(Ptr = " << (VoidifyPointer)(ptr.get()) << ", value = ";
     UniversalPrinter<T>::Print(*ptr, os);
     *os << ")";
   }

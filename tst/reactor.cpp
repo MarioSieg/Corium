@@ -6,9 +6,9 @@
 #include "../inc/nominax/reactor.hpp"
 #include "../inc/nominax/sysintrin.hpp"
 
-using namespace nominax;
+using namespace Nominax;
 
-static constexpr intrinsic_routine* test_intrinsic_routine {+[]([[maybe_unused]] record64*) noexcept -> bool {
+static constexpr intrinsic_routine* test_intrinsic_routine {+[]([[maybe_unused]] Record64*) noexcept -> bool {
 	return true;
 }};
 
@@ -20,7 +20,7 @@ static constinit std::array<intrinsic_routine*, 3> test_intrinsic_routine_table 
 
 static constexpr auto test_stack_size = 32; // 32 records
 
-static constinit std::array<record64, test_stack_size> test_stack {record64::nop_padding()};
+static constinit std::array<Record64, test_stack_size> test_stack {Record64::Padding()};
 
 static constinit volatile std::sig_atomic_t signal_status;
 
@@ -40,21 +40,21 @@ static reactor_input default_test_input{
 	.user_data = nullptr
 };
 
-static constexpr std::array<rt_signal, 3> default_test_code = {
-	rt_signal{instruction::nop}, // first padding
-	rt_signal{instruction::inter},
-	rt_signal{INT64_C(5)},
+static constexpr std::array<Signal, 3> default_test_code = {
+	Signal{Instruction::nop}, // first padding
+	Signal{Instruction::inter},
+	Signal{INT64_C(5)},
 };
 
 TEST(reactor_execution, __intrin__$cos) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::cos},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::cos},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -63,20 +63,20 @@ TEST(reactor_execution, __intrin__$cos) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::cos(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::cos(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$sin) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::sin},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::sin},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{ default_test_input };
@@ -85,20 +85,20 @@ TEST(reactor_execution, __intrin__$sin) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{ execute_reactor(input) };
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::sin(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::sin(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$tan) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::tan},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::tan},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -107,20 +107,20 @@ TEST(reactor_execution, __intrin__$tan) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::tan(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::tan(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$acos) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::acos},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::acos},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{ default_test_input };
@@ -129,20 +129,20 @@ TEST(reactor_execution, __intrin__$acos) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{ execute_reactor(input) };
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::acos(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::acos(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$asin) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::asin},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::asin},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -151,20 +151,20 @@ TEST(reactor_execution, __intrin__$asin) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::asin(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::asin(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$atan) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::atan},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::atan},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -173,22 +173,22 @@ TEST(reactor_execution, __intrin__$atan) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::atan(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::atan(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$atan2) {
-	const std::array<rt_signal, 9> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::push},
-		rt_signal{0.15},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::atan2},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 9> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::push},
+		Signal{0.15},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::atan2},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -197,21 +197,21 @@ TEST(reactor_execution, __intrin__$atan2) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::atan2(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::atan2(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
 TEST(reactor_execution, __intrin__$cosh) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::cosh},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::cosh},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -220,20 +220,20 @@ TEST(reactor_execution, __intrin__$cosh) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::cosh(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::cosh(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$sinh) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::sinh},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::sinh},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -242,20 +242,20 @@ TEST(reactor_execution, __intrin__$sinh) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::sinh(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::sinh(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$tanh) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::tanh},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::tanh},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -264,20 +264,20 @@ TEST(reactor_execution, __intrin__$tanh) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::tanh(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::tanh(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$acosh) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{1.6},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::acosh},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{1.6},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::acosh},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -286,20 +286,20 @@ TEST(reactor_execution, __intrin__$acosh) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::acosh(1.6));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::acosh(1.6));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$asinh) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::asinh},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::asinh},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -308,20 +308,20 @@ TEST(reactor_execution, __intrin__$asinh) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::asinh(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::asinh(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$atanh) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::atanh},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::atanh},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -330,20 +330,20 @@ TEST(reactor_execution, __intrin__$atanh) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::atanh(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::atanh(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$exp) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::exp},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::exp},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -352,20 +352,20 @@ TEST(reactor_execution, __intrin__$exp) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::exp(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::exp(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$log) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::log},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::log},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -374,20 +374,20 @@ TEST(reactor_execution, __intrin__$log) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::log(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::log(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$log10) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::log10},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::log10},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -396,20 +396,20 @@ TEST(reactor_execution, __intrin__$log10) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::log10(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::log10(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$exp2) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::exp2},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::exp2},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -418,20 +418,20 @@ TEST(reactor_execution, __intrin__$exp2) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::exp2(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::exp2(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$ilogb) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{1.332},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::ilogb},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{1.332},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::ilogb},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -440,20 +440,20 @@ TEST(reactor_execution, __intrin__$ilogb) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::ilogb(1.332));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::ilogb(1.332));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$log2) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::log2},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::log2},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -462,22 +462,22 @@ TEST(reactor_execution, __intrin__$log2) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::log2(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::log2(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$pow) {
-	const std::array<rt_signal, 9> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::push},
-		rt_signal{0.15},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::pow},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 9> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::push},
+		Signal{0.15},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::pow},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -486,22 +486,22 @@ TEST(reactor_execution, __intrin__$pow) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::pow(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::pow(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
 
 TEST(reactor_execution, __intrin__$sqrt) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::sqrt},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::sqrt},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -510,20 +510,20 @@ TEST(reactor_execution, __intrin__$sqrt) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::sqrt(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::sqrt(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$cbrt) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::cbrt},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::cbrt},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -532,22 +532,22 @@ TEST(reactor_execution, __intrin__$cbrt) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::cbrt(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::cbrt(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$hypot) {
-	const std::array<rt_signal, 9> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::push},
-		rt_signal{0.15},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::hypot},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 9> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::push},
+		Signal{0.15},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::hypot},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -556,21 +556,21 @@ TEST(reactor_execution, __intrin__$hypot) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::hypot(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::hypot(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
 TEST(reactor_execution, __intrin__$ceil) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::ceil},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::ceil},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -579,20 +579,20 @@ TEST(reactor_execution, __intrin__$ceil) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::ceil(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::ceil(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$floor) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::floor},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::floor},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -601,20 +601,20 @@ TEST(reactor_execution, __intrin__$floor) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::floor(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::floor(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$round) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::round},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::round},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -623,20 +623,20 @@ TEST(reactor_execution, __intrin__$round) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::round(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::round(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$rint) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::rint},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::rint},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -645,22 +645,22 @@ TEST(reactor_execution, __intrin__$rint) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::rint(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::rint(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$max) {
-	const std::array<rt_signal, 9> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(4)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(7)},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::max},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 9> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(4)},
+		Signal{Instruction::push},
+		Signal{INT64_C(7)},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::max},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -669,23 +669,23 @@ TEST(reactor_execution, __intrin__$max) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, std::max<i64>(4, 7));
-	ASSERT_EQ(o.input->stack[2].i, 7);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, std::max<std::int64_t>(4, 7));
+	ASSERT_EQ(o.input->stack[2].std::int64_t, 7);
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
 TEST(reactor_execution, __intrin__$min) {
-	const std::array<rt_signal, 9> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(4)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(7)},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::min},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 9> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(4)},
+		Signal{Instruction::push},
+		Signal{INT64_C(7)},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::min},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -694,23 +694,23 @@ TEST(reactor_execution, __intrin__$min) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, std::min<i64>(4, 7));
-	ASSERT_EQ(o.input->stack[2].i, 7);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, std::min<std::int64_t>(4, 7));
+	ASSERT_EQ(o.input->stack[2].std::int64_t, 7);
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
 TEST(reactor_execution, __intrin__$fmax) {
-	const std::array<rt_signal, 9> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::push},
-		rt_signal{0.15},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::fmax},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 9> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::push},
+		Signal{0.15},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::fmax},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -719,23 +719,23 @@ TEST(reactor_execution, __intrin__$fmax) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::max(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::max(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
 TEST(reactor_execution, __intrin__$fmin) {
-	const std::array<rt_signal, 9> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::push},
-		rt_signal{0.15},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::fmin},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 9> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::push},
+		Signal{0.15},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::fmin},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -744,23 +744,23 @@ TEST(reactor_execution, __intrin__$fmin) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::fmin(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::fmin(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
 TEST(reactor_execution, __intrin__$fdim) {
-	const std::array<rt_signal, 9> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::push},
-		rt_signal{0.15},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::fdim},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 9> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::push},
+		Signal{0.15},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::fdim},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -769,22 +769,22 @@ TEST(reactor_execution, __intrin__$fdim) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::fdim(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 0.15);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::fdim(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
 
 TEST(reactor_execution, __intrin__$abs) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(223233)},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::abs},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(223233)},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::abs},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -793,20 +793,20 @@ TEST(reactor_execution, __intrin__$abs) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, std::abs(223233));
+	ASSERT_EQ(o.input->stack[1].std::int64_t, std::abs(223233));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __intrin__$fabs) {
-	const std::array<rt_signal, 7> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{0.35},
-		rt_signal{instruction::intrin},
-		rt_signal{intrinsic::fabs},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 7> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{0.35},
+		Signal{Instruction::intrin},
+		Signal{SystemIntrinsicID::fabs},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -815,18 +815,18 @@ TEST(reactor_execution, __intrin__$fabs) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::fabs(0.35));
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::fabs(0.35));
     ASSERT_EQ(o.interrupt_code, -12345);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __int__) {
-	const std::array<rt_signal, 5> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-12345)},
+	const std::array<Signal, 5> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::inter},
+		Signal{INT64_C(5)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-12345)},
 	};
 
 	auto input{default_test_input};
@@ -860,16 +860,16 @@ TEST(reactor_execution, __int__) {
 }
 
 TEST(reactor_execution, __mov__) {
-	const std::array<rt_signal, 9> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::sto},
-		rt_signal{UINT64_C(3)},
-		rt_signal{3.1415},
-		rt_signal{instruction::mov},
-		rt_signal{UINT64_C(8)},
-		rt_signal{UINT64_C(3)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 9> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::sto},
+		Signal{UINT64_C(3)},
+		Signal{3.1415},
+		Signal{Instruction::mov},
+		Signal{UINT64_C(8)},
+		Signal{UINT64_C(3)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -877,21 +877,21 @@ TEST(reactor_execution, __mov__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[3].f, 3.1415);
-	ASSERT_EQ(o.input->stack[8].f, 3.1415);
+	ASSERT_EQ(o.input->stack[3].double, 3.1415);
+	ASSERT_EQ(o.input->stack[8].double, 3.1415);
 }
 
 TEST(reactor_execution, __sto__) {
-	const std::array<rt_signal, 9> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::sto},
-		rt_signal{UINT64_C(1)},
-		rt_signal{INT64_C(5657334)},
-		rt_signal{instruction::sto},
-		rt_signal{UINT64_C(31)},
-		rt_signal{3.1415},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 9> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::sto},
+		Signal{UINT64_C(1)},
+		Signal{INT64_C(5657334)},
+		Signal{Instruction::sto},
+		Signal{UINT64_C(31)},
+		Signal{3.1415},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -899,19 +899,19 @@ TEST(reactor_execution, __sto__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 5657334);
-	ASSERT_EQ(o.input->stack[31].f, 3.1415);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 5657334);
+	ASSERT_EQ(o.input->stack[31].double, 3.1415);
 }
 
 TEST(reactor_execution, __push__) {
-	const std::array<rt_signal, 7> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(1224)},
-		rt_signal{instruction::push},
-		rt_signal{-0.6666},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-3)},
+	const std::array<Signal, 7> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(1224)},
+		Signal{Instruction::push},
+		Signal{-0.6666},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-3)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -919,8 +919,8 @@ TEST(reactor_execution, __push__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 1224);
-	ASSERT_EQ(o.input->stack[2].f, -0.6666);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 1224);
+	ASSERT_EQ(o.input->stack[2].double, -0.6666);
 }
 
 #if NOMINAX_STACK_OVERFLOW_CHECKS
@@ -951,9 +951,9 @@ TEST(reactor_execution, __push_no_stack_overflow__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 123);
-	ASSERT_EQ(o.input->stack[2].i, 123);
-	ASSERT_EQ(o.input->stack[3].i, 123);
+	ASSERT_EQ(o.input->stack[1].I32, 123);
+	ASSERT_EQ(o.input->stack[2].I32, 123);
+	ASSERT_EQ(o.input->stack[3].I32, 123);
 	ASSERT_EQ(o.sp_diff, 3);
     ASSERT_EQ(o.interrupt_code, 0);
 	ASSERT_EQ(o.terminate_result, terminate_type::success);
@@ -983,9 +983,9 @@ TEST(reactor_execution, __push_stack_overflow__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 123);
-	ASSERT_EQ(o.input->stack[2].i, 123);
-	ASSERT_EQ(o.input->stack[3].i, 123);
+	ASSERT_EQ(o.input->stack[1].I32, 123);
+	ASSERT_EQ(o.input->stack[2].I32, 123);
+	ASSERT_EQ(o.input->stack[3].I32, 123);
 	ASSERT_EQ(o.sp_diff, 3);
     ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
@@ -1012,9 +1012,9 @@ TEST(reactor_execution, __dupl_stack_overflow__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 123);
-	ASSERT_EQ(o.input->stack[2].i, 123);
-	ASSERT_EQ(o.input->stack[3].i, 123);
+	ASSERT_EQ(o.input->stack[1].I32, 123);
+	ASSERT_EQ(o.input->stack[2].I32, 123);
+	ASSERT_EQ(o.input->stack[3].I32, 123);
 	ASSERT_EQ(o.sp_diff, 3);
     ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
@@ -1041,9 +1041,9 @@ TEST(reactor_execution, __dupl2_stack_overflow__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 123);
-	ASSERT_EQ(o.input->stack[2].i, 123);
-	ASSERT_EQ(o.input->stack[3].i, 123);
+	ASSERT_EQ(o.input->stack[1].I32, 123);
+	ASSERT_EQ(o.input->stack[2].I32, 123);
+	ASSERT_EQ(o.input->stack[3].I32, 123);
 	ASSERT_EQ(o.sp_diff, 3);
     ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
@@ -1057,9 +1057,9 @@ TEST(reactor_execution, __cintrin__) {
 			return true;
 		},
 		+[](record64* sp_) -> bool {
-			(*++sp_).f = 3.223;
-			(*++sp_).c = ':';
-			(*++sp_).c = ')';
+			(*++sp_).F32 = 3.223;
+			(*++sp_).C32 = ':';
+			(*++sp_).C32 = ')';
 			++calls;
 			return true;
 		},
@@ -1092,10 +1092,10 @@ TEST(reactor_execution, __cintrin__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{ execute_reactor(input) };
-	ASSERT_EQ(o.input->stack[1].f, 0.12345);
-	ASSERT_EQ(o.input->stack[2].f, 3.223);
-	ASSERT_EQ(o.input->stack[3].c, ':');
-	ASSERT_EQ(o.input->stack[4].c, ')');
+	ASSERT_EQ(o.input->stack[1].F32, 0.12345);
+	ASSERT_EQ(o.input->stack[2].F32, 3.223);
+	ASSERT_EQ(o.input->stack[3].C32, ':');
+	ASSERT_EQ(o.input->stack[4].C32, ')');
 	ASSERT_EQ(o.sp_diff, 1); // pop all!
     ASSERT_EQ(o.interrupt_code, 0);
 	ASSERT_EQ(o.terminate_result, terminate_type::success);
@@ -1122,9 +1122,9 @@ TEST(reactor_execution, __pushz_stack_overflow__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 0);
-	ASSERT_EQ(o.input->stack[2].i, 0);
-	ASSERT_EQ(o.input->stack[3].i, 0);
+	ASSERT_EQ(o.input->stack[1].I32, 0);
+	ASSERT_EQ(o.input->stack[2].I32, 0);
+	ASSERT_EQ(o.input->stack[3].I32, 0);
 	ASSERT_EQ(o.sp_diff, 3);
     ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
@@ -1150,9 +1150,9 @@ TEST(reactor_execution, __ipusho_stack_overflow__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 1);
-	ASSERT_EQ(o.input->stack[2].i, 1);
-	ASSERT_EQ(o.input->stack[3].i, 1);
+	ASSERT_EQ(o.input->stack[1].I32, 1);
+	ASSERT_EQ(o.input->stack[2].I32, 1);
+	ASSERT_EQ(o.input->stack[3].I32, 1);
 	ASSERT_EQ(o.sp_diff, 3);
     ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
@@ -1178,9 +1178,9 @@ TEST(reactor_execution, __fpusho_stack_overflow__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 1.0);
-	ASSERT_EQ(o.input->stack[2].f, 1.0);
-	ASSERT_EQ(o.input->stack[3].f, 1.0);
+	ASSERT_EQ(o.input->stack[1].F32, 1.0);
+	ASSERT_EQ(o.input->stack[2].F32, 1.0);
+	ASSERT_EQ(o.input->stack[3].F32, 1.0);
 	ASSERT_EQ(o.sp_diff, 3);
     ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
 	ASSERT_EQ(o.terminate_result, terminate_type::error);
@@ -1189,16 +1189,16 @@ TEST(reactor_execution, __fpusho_stack_overflow__) {
 #endif
 
 TEST(reactor_execution, __pop__) {
-	std::array<rt_signal, 9> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(1224)},
-		rt_signal{instruction::push},
-		rt_signal{-0.6666},
-		rt_signal{instruction::pop},
-		rt_signal{instruction::pop},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	std::array<Signal, 9> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(1224)},
+		Signal{Instruction::push},
+		Signal{-0.6666},
+		Signal{Instruction::pop},
+		Signal{Instruction::pop},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1206,27 +1206,27 @@ TEST(reactor_execution, __pop__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 1224);
-	ASSERT_EQ(o.input->stack[2].f, -0.6666);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 1224);
+	ASSERT_EQ(o.input->stack[2].double, -0.6666);
 	ASSERT_EQ(o.sp_diff, 0);
 
-	code[6].instr = instruction::nop;
+	code[6].Instr = Instruction::nop;
 	o = execute_reactor(input);
-	ASSERT_EQ(o.input->stack[1].i, 1224);
-	ASSERT_EQ(o.input->stack[2].f, -0.6666);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 1224);
+	ASSERT_EQ(o.input->stack[2].double, -0.6666);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __pop2__) {
-	std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{UINT64_C(1224)},
-		rt_signal{instruction::push},
-		rt_signal{-0.6666},
-		rt_signal{instruction::pop2},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{UINT64_C(1224)},
+		Signal{Instruction::push},
+		Signal{-0.6666},
+		Signal{Instruction::pop2},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1234,22 +1234,22 @@ TEST(reactor_execution, __pop2__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 1224);
-	ASSERT_EQ(o.input->stack[2].f, -0.6666);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 1224);
+	ASSERT_EQ(o.input->stack[2].double, -0.6666);
 	ASSERT_EQ(o.sp_diff, 0);
 }
 
 TEST(reactor_execution, __dupl__) {
-	const std::array<rt_signal, 9> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::dupl},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(-2)},
-		rt_signal{instruction::dupl},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 9> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(5)},
+		Signal{Instruction::dupl},
+		Signal{Instruction::push},
+		Signal{INT64_C(-2)},
+		Signal{Instruction::dupl},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1257,22 +1257,22 @@ TEST(reactor_execution, __dupl__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 5);
-	ASSERT_EQ(o.input->stack[2].i, 5);
-	ASSERT_EQ(o.input->stack[3].i, -2);
-	ASSERT_EQ(o.input->stack[4].i, -2);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 5);
+	ASSERT_EQ(o.input->stack[2].std::int64_t, 5);
+	ASSERT_EQ(o.input->stack[3].std::int64_t, -2);
+	ASSERT_EQ(o.input->stack[4].std::int64_t, -2);
 }
 
 TEST(reactor_execution, __swap__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(3)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(-666)},
-		rt_signal{instruction::swap},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(3)},
+		Signal{Instruction::push},
+		Signal{INT64_C(-666)},
+		Signal{Instruction::swap},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1280,22 +1280,22 @@ TEST(reactor_execution, __swap__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, -666);
-	ASSERT_EQ(o.input->stack[2].i, 3);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, -666);
+	ASSERT_EQ(o.input->stack[2].std::int64_t, 3);
 	ASSERT_EQ(o.sp_diff, 2);
 }
 
 TEST(reactor_execution, __dupl2__) {
-	const std::array<rt_signal, 9> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::dupl2},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0xFF)},
-		rt_signal{instruction::dupl2},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 9> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(5)},
+		Signal{Instruction::dupl2},
+		Signal{Instruction::push},
+		Signal{INT64_C(0xFF)},
+		Signal{Instruction::dupl2},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1303,26 +1303,26 @@ TEST(reactor_execution, __dupl2__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 5);
-	ASSERT_EQ(o.input->stack[2].i, 5);
-	ASSERT_EQ(o.input->stack[3].i, 5);
-	ASSERT_EQ(o.input->stack[4].i, 0xFF);
-	ASSERT_EQ(o.input->stack[5].i, 0xFF);
-	ASSERT_EQ(o.input->stack[6].i, 0xFF);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 5);
+	ASSERT_EQ(o.input->stack[2].std::int64_t, 5);
+	ASSERT_EQ(o.input->stack[3].std::int64_t, 5);
+	ASSERT_EQ(o.input->stack[4].std::int64_t, 0xFF);
+	ASSERT_EQ(o.input->stack[5].std::int64_t, 0xFF);
+	ASSERT_EQ(o.input->stack[6].std::int64_t, 0xFF);
 }
 
 TEST(reactor_execution, __iinc__) {
-	const std::array<rt_signal, 10> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0)},
-		rt_signal{instruction::iinc},
-		rt_signal{instruction::iinc},
-		rt_signal{instruction::iinc},
-		rt_signal{instruction::iinc},
-		rt_signal{instruction::iinc},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 10> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(0)},
+		Signal{Instruction::iinc},
+		Signal{Instruction::iinc},
+		Signal{Instruction::iinc},
+		Signal{Instruction::iinc},
+		Signal{Instruction::iinc},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1330,42 +1330,42 @@ TEST(reactor_execution, __iinc__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[0], record64::nop_padding());
-	ASSERT_EQ(o.input->stack[1].i, 5);
+	ASSERT_EQ(o.input->stack[0], Record64::Padding());
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 5);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __idec__) {
-	const std::array<rt_signal, 10> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::idec},
-		rt_signal{instruction::idec},
-		rt_signal{instruction::idec},
-		rt_signal{instruction::idec},
-		rt_signal{instruction::idec},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 10> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::idec},
+		Signal{Instruction::idec},
+		Signal{Instruction::idec},
+		Signal{Instruction::idec},
+		Signal{Instruction::idec},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
 	input.code_chunk_size = code.size();
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[0], record64::nop_padding());
-	ASSERT_EQ(o.input->stack[1].i, -3);
+	ASSERT_EQ(o.input->stack[0], Record64::Padding());
+	ASSERT_EQ(o.input->stack[1].std::int64_t, -3);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __pushz__) {
-	const std::array<rt_signal, 6> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 6> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::pushz},
+		Signal{Instruction::pushz},
+		Signal{Instruction::pushz},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1373,19 +1373,19 @@ TEST(reactor_execution, __pushz__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 0);
-	ASSERT_EQ(o.input->stack[2].u, 0);
-	ASSERT_EQ(o.input->stack[3].f, 0.0F);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 0);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0);
+	ASSERT_EQ(o.input->stack[3].double, 0.0F);
 }
 
 TEST(reactor_execution, __ipusho__) {
-	const std::array<rt_signal, 6> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 6> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::ipusho},
+		Signal{Instruction::pushz},
+		Signal{Instruction::ipusho},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1393,21 +1393,21 @@ TEST(reactor_execution, __ipusho__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 1);
-	ASSERT_EQ(o.input->stack[2].u, 0);
-	ASSERT_EQ(o.input->stack[3].u, 1);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 1);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0);
+	ASSERT_EQ(o.input->stack[3].std::uint64_t, 1);
 }
 
 TEST(reactor_execution, __iadd__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::iadd},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::push},
+		Signal{INT64_C(5)},
+		Signal{Instruction::iadd},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1415,21 +1415,21 @@ TEST(reactor_execution, __iadd__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 2 + 5);
-	ASSERT_EQ(o.input->stack[2].u, 5);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 2 + 5);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 5);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __isub__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::isub},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::push},
+		Signal{INT64_C(5)},
+		Signal{Instruction::isub},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1437,21 +1437,21 @@ TEST(reactor_execution, __isub__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 2 - 5);
-	ASSERT_EQ(o.input->stack[2].u, 5);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 2 - 5);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 5);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __imul__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::imul},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::push},
+		Signal{INT64_C(5)},
+		Signal{Instruction::imul},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1459,21 +1459,21 @@ TEST(reactor_execution, __imul__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 2 * 5);
-	ASSERT_EQ(o.input->stack[2].u, 5);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 2 * 5);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 5);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __idiv__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(10)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::idiv},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(10)},
+		Signal{Instruction::push},
+		Signal{INT64_C(5)},
+		Signal{Instruction::idiv},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1481,21 +1481,21 @@ TEST(reactor_execution, __idiv__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 10 / 5);
-	ASSERT_EQ(o.input->stack[2].u, 5);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 10 / 5);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 5);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __imod__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(10)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::imod},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(10)},
+		Signal{Instruction::push},
+		Signal{INT64_C(5)},
+		Signal{Instruction::imod},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1503,21 +1503,21 @@ TEST(reactor_execution, __imod__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 10 % 5);
-	ASSERT_EQ(o.input->stack[2].u, 5);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 10 % 5);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 5);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __iand__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0b1101'1101)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0b0111'0111)},
-		rt_signal{instruction::iand},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(0b1101'1101)},
+		Signal{Instruction::push},
+		Signal{INT64_C(0b0111'0111)},
+		Signal{Instruction::iand},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1525,21 +1525,21 @@ TEST(reactor_execution, __iand__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 0b1101'1101 & 0b0111'0111);
-	ASSERT_EQ(o.input->stack[2].u, 0b0111'0111);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 0b1101'1101 & 0b0111'0111);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0b0111'0111);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __ior__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0b1101'1101)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0b0111'0111)},
-		rt_signal{instruction::ior},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(0b1101'1101)},
+		Signal{Instruction::push},
+		Signal{INT64_C(0b0111'0111)},
+		Signal{Instruction::ior},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1547,21 +1547,21 @@ TEST(reactor_execution, __ior__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 0b1101'1101 | 0b0111'0111);
-	ASSERT_EQ(o.input->stack[2].u, 0b0111'0111);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 0b1101'1101 | 0b0111'0111);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0b0111'0111);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __ixor__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0b1101'1101)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0b0111'0111)},
-		rt_signal{instruction::ixor},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(0b1101'1101)},
+		Signal{Instruction::push},
+		Signal{INT64_C(0b0111'0111)},
+		Signal{Instruction::ixor},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1569,19 +1569,19 @@ TEST(reactor_execution, __ixor__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 0b1101'1101 ^ 0b0111'0111);
-	ASSERT_EQ(o.input->stack[2].u, 0b0111'0111);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 0b1101'1101 ^ 0b0111'0111);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0b0111'0111);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __icom__) {
-	const std::array<rt_signal, 6> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0b1101'1101)},
-		rt_signal{instruction::icom},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 6> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(0b1101'1101)},
+		Signal{Instruction::icom},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1589,20 +1589,20 @@ TEST(reactor_execution, __icom__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, ~0b1101'1101);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, ~0b1101'1101);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __isal__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(1)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::isal},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(1)},
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::isal},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1610,21 +1610,21 @@ TEST(reactor_execution, __isal__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 1 << 2);
-	ASSERT_EQ(o.input->stack[2].u, 2);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 1 << 2);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 2);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __isar__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(1)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::isar},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(1)},
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::isar},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1632,21 +1632,21 @@ TEST(reactor_execution, __isar__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 1 >> 2);
-	ASSERT_EQ(o.input->stack[2].u, 2);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 1 >> 2);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 2);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __irol__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(1)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::irol},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(1)},
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::irol},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1654,21 +1654,21 @@ TEST(reactor_execution, __irol__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].u, std::rotl<u64>(1, 2));
-	ASSERT_EQ(o.input->stack[2].u, 2);
+	ASSERT_EQ(o.input->stack[1].std::uint64_t, std::rotl<std::uint64_t>(1, 2));
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 2);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __iror__) {
-	const std::array<rt_signal, 8> code = {
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(1)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::iror},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code = {
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(1)},
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::iror},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1676,19 +1676,19 @@ TEST(reactor_execution, __iror__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].u, std::rotr<u64>(1, 2));
-	ASSERT_EQ(o.input->stack[2].u, 2);
+	ASSERT_EQ(o.input->stack[1].std::uint64_t, std::rotr<std::uint64_t>(1, 2));
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 2);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __ineg__) {
-	const std::array<rt_signal, 6> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(10)},
-		rt_signal{instruction::ineg},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 6> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(10)},
+		Signal{Instruction::ineg},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1696,20 +1696,20 @@ TEST(reactor_execution, __ineg__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, -10);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, -10);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __fadd__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{4.25},
-		rt_signal{instruction::push},
-		rt_signal{2.50},
-		rt_signal{instruction::fadd},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{4.25},
+		Signal{Instruction::push},
+		Signal{2.50},
+		Signal{Instruction::fadd},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1717,21 +1717,21 @@ TEST(reactor_execution, __fadd__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, 6.75);
-	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 2.50);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, 6.75);
+	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 2.50);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __fmod_) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{4.25},
-		rt_signal{instruction::push},
-		rt_signal{2.50},
-		rt_signal{instruction::fmod},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{4.25},
+		Signal{Instruction::push},
+		Signal{2.50},
+		Signal{Instruction::fmod},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1739,21 +1739,21 @@ TEST(reactor_execution, __fmod_) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, std::fmod(4.25, 2.50));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 2.50);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::fmod(4.25, 2.50));
+	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 2.50);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __fsub__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{4.25},
-		rt_signal{instruction::push},
-		rt_signal{2.50},
-		rt_signal{instruction::fsub},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{4.25},
+		Signal{Instruction::push},
+		Signal{2.50},
+		Signal{Instruction::fsub},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1761,21 +1761,21 @@ TEST(reactor_execution, __fsub__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, 1.75);
-	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 2.50);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, 1.75);
+	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 2.50);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __fmul__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{4.25},
-		rt_signal{instruction::push},
-		rt_signal{2.50},
-		rt_signal{instruction::fmul},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{4.25},
+		Signal{Instruction::push},
+		Signal{2.50},
+		Signal{Instruction::fmul},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1783,21 +1783,21 @@ TEST(reactor_execution, __fmul__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, 10.625);
-	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 2.50);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, 10.625);
+	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 2.50);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __fdiv__) {
-	const std::array<rt_signal, 8> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{4.25},
-		rt_signal{instruction::push},
-		rt_signal{2.50},
-		rt_signal{instruction::fdiv},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 8> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{4.25},
+		Signal{Instruction::push},
+		Signal{2.50},
+		Signal{Instruction::fdiv},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1805,19 +1805,19 @@ TEST(reactor_execution, __fdiv__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, 1.7);
-	ASSERT_DOUBLE_EQ(o.input->stack[2].f, 2.50);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, 1.7);
+	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 2.50);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __fneg__) {
-	const std::array<rt_signal, 6> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{2.25},
-		rt_signal{instruction::fneg},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 6> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{2.25},
+		Signal{Instruction::fneg},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1825,22 +1825,22 @@ TEST(reactor_execution, __fneg__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, -2.25);
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, -2.25);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __finc__) {
-	const std::array<rt_signal, 10> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{.0},
-		rt_signal{instruction::finc},
-		rt_signal{instruction::finc},
-		rt_signal{instruction::finc},
-		rt_signal{instruction::finc},
-		rt_signal{instruction::finc},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 10> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{.0},
+		Signal{Instruction::finc},
+		Signal{Instruction::finc},
+		Signal{Instruction::finc},
+		Signal{Instruction::finc},
+		Signal{Instruction::finc},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1848,23 +1848,23 @@ TEST(reactor_execution, __finc__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[0], record64::nop_padding());
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, 5.);
+	ASSERT_EQ(o.input->stack[0], Record64::Padding());
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, 5.);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __fdec__) {
-	const std::array<rt_signal, 10> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::push},
-		rt_signal{2.},
-		rt_signal{instruction::fdec},
-		rt_signal{instruction::fdec},
-		rt_signal{instruction::fdec},
-		rt_signal{instruction::fdec},
-		rt_signal{instruction::fdec},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 10> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::push},
+		Signal{2.},
+		Signal{Instruction::fdec},
+		Signal{Instruction::fdec},
+		Signal{Instruction::fdec},
+		Signal{Instruction::fdec},
+		Signal{Instruction::fdec},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1872,19 +1872,19 @@ TEST(reactor_execution, __fdec__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[0], record64::nop_padding());
-	ASSERT_DOUBLE_EQ(o.input->stack[1].f, -3.);
+	ASSERT_EQ(o.input->stack[0], Record64::Padding());
+	ASSERT_DOUBLE_EQ(o.input->stack[1].double, -3.);
 	ASSERT_EQ(o.sp_diff, 1);
 }
 
 TEST(reactor_execution, __fpusho__) {
-	const std::array<rt_signal, 6> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::fpusho},
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::fpusho},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
+	const std::array<Signal, 6> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::fpusho},
+		Signal{Instruction::pushz},
+		Signal{Instruction::fpusho},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1892,22 +1892,22 @@ TEST(reactor_execution, __fpusho__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 1.);
-	ASSERT_EQ(o.input->stack[2].u, 0);
-	ASSERT_EQ(o.input->stack[3].f, 1.);
+	ASSERT_EQ(o.input->stack[1].double, 1.);
+	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0);
+	ASSERT_EQ(o.input->stack[3].double, 1.);
 }
 
 TEST(reactor_execution, __jmp__) {
-	const std::array<rt_signal, 9> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::jmp},
-		rt_signal{UINT64_C(5)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(10)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 9> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::jmp},
+		Signal{UINT64_C(5)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::push},
+		Signal{INT64_C(10)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1915,22 +1915,22 @@ TEST(reactor_execution, __jmp__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 	
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 10);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 10);
 	ASSERT_EQ(o.ip_diff, 8);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jmprel__) {
-	const std::array<rt_signal, 9> code{
-		rt_signal{instruction::nop}, // first padding
-		rt_signal{instruction::jmprel},
-		rt_signal{UINT64_C(3)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(10)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 9> code{
+		Signal{Instruction::nop}, // first padding
+		Signal{Instruction::jmprel},
+		Signal{UINT64_C(3)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::push},
+		Signal{INT64_C(10)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1938,24 +1938,24 @@ TEST(reactor_execution, __jmprel__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 10);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 10);
 	ASSERT_EQ(o.ip_diff, 8);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jz__) {
-	const std::array<rt_signal, 11> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::jz},
-		rt_signal{UINT64_C(6)},					// first padding does not count
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::jz},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 11> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::pushz},
+		Signal{Instruction::jz},
+		Signal{UINT64_C(6)},					// first padding does not count
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::ipusho},
+		Signal{Instruction::jz},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1963,25 +1963,25 @@ TEST(reactor_execution, __jz__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].u, 1);
+	ASSERT_EQ(o.input->stack[1].std::uint64_t, 1);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jnz__) {
-	const std::array<rt_signal, 11> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::jnz},
-		rt_signal{UINT64_C(6)},					// first padding does not count
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::jz},
-		rt_signal{UINT64_C(9)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 11> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::ipusho},
+		Signal{Instruction::jnz},
+		Signal{UINT64_C(6)},					// first padding does not count
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::pushz},
+		Signal{Instruction::jz},
+		Signal{UINT64_C(9)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -1989,25 +1989,25 @@ TEST(reactor_execution, __jnz__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].u, 0);
+	ASSERT_EQ(o.input->stack[1].std::uint64_t, 0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jo_cmpi__) {
-	const std::array<rt_signal, 11> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::jo_cmpi},
-		rt_signal{UINT64_C(6)},					// first padding does not count
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::jo_cmpi},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 11> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::ipusho},
+		Signal{Instruction::jo_cmpi},
+		Signal{UINT64_C(6)},					// first padding does not count
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::pushz},
+		Signal{Instruction::jo_cmpi},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2015,25 +2015,25 @@ TEST(reactor_execution, __jo_cmpi__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].u, 0);
+	ASSERT_EQ(o.input->stack[1].std::uint64_t, 0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jno_cmpi__) {
-	const std::array<rt_signal, 11> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::jno_cmpi},
-		rt_signal{UINT64_C(6)},					// first padding does not count
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::jno_cmpi},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 11> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::pushz},
+		Signal{Instruction::jno_cmpi},
+		Signal{UINT64_C(6)},					// first padding does not count
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::ipusho},
+		Signal{Instruction::jno_cmpi},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2041,25 +2041,25 @@ TEST(reactor_execution, __jno_cmpi__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].u, 1);
+	ASSERT_EQ(o.input->stack[1].std::uint64_t, 1);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jo_cmpf__) {
-	const std::array<rt_signal, 11> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::fpusho},
-		rt_signal{instruction::jo_cmpf},
-		rt_signal{UINT64_C(6)},					// first padding does not count
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::jo_cmpf},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 11> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::fpusho},
+		Signal{Instruction::jo_cmpf},
+		Signal{UINT64_C(6)},					// first padding does not count
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::pushz},
+		Signal{Instruction::jo_cmpf},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2067,25 +2067,25 @@ TEST(reactor_execution, __jo_cmpf__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 0.F);
+	ASSERT_EQ(o.input->stack[1].double, 0.F);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jno_cmpf__) {
-	const std::array<rt_signal, 11> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::pushz},
-		rt_signal{instruction::jno_cmpf},
-		rt_signal{UINT64_C(6)},					// first padding does not count
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::fpusho},
-		rt_signal{instruction::jno_cmpf},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 11> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::pushz},
+		Signal{Instruction::jno_cmpf},
+		Signal{UINT64_C(6)},					// first padding does not count
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::fpusho},
+		Signal{Instruction::jno_cmpf},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2093,30 +2093,30 @@ TEST(reactor_execution, __jno_cmpf__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 1.0);
+	ASSERT_EQ(o.input->stack[1].double, 1.0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 10);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __je_cmpi__) {
-	const std::array<rt_signal, 16> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(12345679)},
-		rt_signal{instruction::dupl},
-		rt_signal{instruction::je_cmpi},
-		rt_signal{UINT64_C(8)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(123424224)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0xFF'FF)},
-		rt_signal{instruction::je_cmpi},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 16> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(12345679)},
+		Signal{Instruction::dupl},
+		Signal{Instruction::je_cmpi},
+		Signal{UINT64_C(8)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::push},
+		Signal{INT64_C(123424224)},
+		Signal{Instruction::push},
+		Signal{INT64_C(0xFF'FF)},
+		Signal{Instruction::je_cmpi},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2124,31 +2124,31 @@ TEST(reactor_execution, __je_cmpi__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 123424224);
-	ASSERT_EQ(o.input->stack[2].i, 0xFF'FF);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 123424224);
+	ASSERT_EQ(o.input->stack[2].std::int64_t, 0xFF'FF);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 15);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __je_cmpf__) {
-	const std::array<rt_signal, 16> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{1234567.0},
-		rt_signal{instruction::dupl},
-		rt_signal{instruction::je_cmpf},
-		rt_signal{UINT64_C(8)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::push},
-		rt_signal{123424224.0},
-		rt_signal{instruction::push},
-		rt_signal{0.22233},
-		rt_signal{instruction::je_cmpf},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 16> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{1234567.0},
+		Signal{Instruction::dupl},
+		Signal{Instruction::je_cmpf},
+		Signal{UINT64_C(8)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::push},
+		Signal{123424224.0},
+		Signal{Instruction::push},
+		Signal{0.22233},
+		Signal{Instruction::je_cmpf},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2156,32 +2156,32 @@ TEST(reactor_execution, __je_cmpf__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 123424224.0);
-	ASSERT_EQ(o.input->stack[2].f, 0.22233);
+	ASSERT_EQ(o.input->stack[1].double, 123424224.0);
+	ASSERT_EQ(o.input->stack[2].double, 0.22233);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 15);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jne_cmpi__) {
-	const std::array<rt_signal, 17> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(1234567)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(213131232)},
-		rt_signal{instruction::jne_cmpi},
-		rt_signal{UINT64_C(9)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0xFF'FF)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(0xFF'FF)},
-		rt_signal{instruction::jne_cmpi},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 17> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(1234567)},
+		Signal{Instruction::push},
+		Signal{INT64_C(213131232)},
+		Signal{Instruction::jne_cmpi},
+		Signal{UINT64_C(9)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::push},
+		Signal{INT64_C(0xFF'FF)},
+		Signal{Instruction::push},
+		Signal{INT64_C(0xFF'FF)},
+		Signal{Instruction::jne_cmpi},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2189,32 +2189,32 @@ TEST(reactor_execution, __jne_cmpi__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 0xFF'FF);
-	ASSERT_EQ(o.input->stack[2].i, 0xFF'FF);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 0xFF'FF);
+	ASSERT_EQ(o.input->stack[2].std::int64_t, 0xFF'FF);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jne_cmpf__) {
-	const std::array<rt_signal, 17> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{1234567.},
-		rt_signal{instruction::push},
-		rt_signal{213131232.},
-		rt_signal{instruction::jne_cmpf},
-		rt_signal{UINT64_C(9)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-1)},
-		rt_signal{instruction::push},
-		rt_signal{3.1415},
-		rt_signal{instruction::push},
-		rt_signal{3.1415},
-		rt_signal{instruction::jne_cmpf},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 17> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{1234567.},
+		Signal{Instruction::push},
+		Signal{213131232.},
+		Signal{Instruction::jne_cmpf},
+		Signal{UINT64_C(9)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-1)},
+		Signal{Instruction::push},
+		Signal{3.1415},
+		Signal{Instruction::push},
+		Signal{3.1415},
+		Signal{Instruction::jne_cmpf},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2222,32 +2222,32 @@ TEST(reactor_execution, __jne_cmpf__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 3.1415);
-	ASSERT_EQ(o.input->stack[2].f, 3.1415);
+	ASSERT_EQ(o.input->stack[1].double, 3.1415);
+	ASSERT_EQ(o.input->stack[2].double, 3.1415);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __ja_cmpi__) {
-	const std::array<rt_signal, 17> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::ja_cmpi},
-		rt_signal{UINT64_C(9)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(0)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(3)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(53)},
-		rt_signal{instruction::ja_cmpi},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 17> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(5)},
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::ja_cmpi},
+		Signal{UINT64_C(9)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(0)},
+		Signal{Instruction::push},
+		Signal{INT64_C(3)},
+		Signal{Instruction::push},
+		Signal{INT64_C(53)},
+		Signal{Instruction::ja_cmpi},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2255,32 +2255,32 @@ TEST(reactor_execution, __ja_cmpi__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 3);
-	ASSERT_EQ(o.input->stack[2].i, 53);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 3);
+	ASSERT_EQ(o.input->stack[2].std::int64_t, 53);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __ja_cmpf__) {
-	const std::array<rt_signal, 17> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{5.0},
-		rt_signal{instruction::push},
-		rt_signal{2.0},
-		rt_signal{instruction::ja_cmpf},
-		rt_signal{UINT64_C(9)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(0)},
-		rt_signal{instruction::push},
-		rt_signal{3.0},
-		rt_signal{instruction::push},
-		rt_signal{53.0},
-		rt_signal{instruction::ja_cmpf},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 17> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{5.0},
+		Signal{Instruction::push},
+		Signal{2.0},
+		Signal{Instruction::ja_cmpf},
+		Signal{UINT64_C(9)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(0)},
+		Signal{Instruction::push},
+		Signal{3.0},
+		Signal{Instruction::push},
+		Signal{53.0},
+		Signal{Instruction::ja_cmpf},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2288,32 +2288,32 @@ TEST(reactor_execution, __ja_cmpf__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 3.0);
-	ASSERT_EQ(o.input->stack[2].f, 53.0);
+	ASSERT_EQ(o.input->stack[1].double, 3.0);
+	ASSERT_EQ(o.input->stack[2].double, 53.0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jl_cmpi__) {
-	const std::array<rt_signal, 17> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::jl_cmpi},
-		rt_signal{UINT64_C(9)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(0)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(53)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(3)},
-		rt_signal{instruction::jl_cmpi},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 17> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::push},
+		Signal{INT64_C(5)},
+		Signal{Instruction::jl_cmpi},
+		Signal{UINT64_C(9)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(0)},
+		Signal{Instruction::push},
+		Signal{INT64_C(53)},
+		Signal{Instruction::push},
+		Signal{INT64_C(3)},
+		Signal{Instruction::jl_cmpi},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2321,32 +2321,32 @@ TEST(reactor_execution, __jl_cmpi__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 53);
-	ASSERT_EQ(o.input->stack[2].i, 3);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 53);
+	ASSERT_EQ(o.input->stack[2].std::int64_t, 3);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jl_cmpf__) {
-	const std::array<rt_signal, 17> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{2.0},
-		rt_signal{instruction::push},
-		rt_signal{5.0},
-		rt_signal{instruction::jl_cmpf},
-		rt_signal{UINT64_C(9)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(0)},
-		rt_signal{instruction::push},
-		rt_signal{53.0},
-		rt_signal{instruction::push},
-		rt_signal{3.0},
-		rt_signal{instruction::jl_cmpf},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 17> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{2.0},
+		Signal{Instruction::push},
+		Signal{5.0},
+		Signal{Instruction::jl_cmpf},
+		Signal{UINT64_C(9)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(0)},
+		Signal{Instruction::push},
+		Signal{53.0},
+		Signal{Instruction::push},
+		Signal{3.0},
+		Signal{Instruction::jl_cmpf},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2354,38 +2354,38 @@ TEST(reactor_execution, __jl_cmpf__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 53.0);
-	ASSERT_EQ(o.input->stack[2].f, 3.0);
+	ASSERT_EQ(o.input->stack[1].double, 53.0);
+	ASSERT_EQ(o.input->stack[2].double, 3.0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 16);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jae_cmpi__) {
-	const std::array<rt_signal, 23> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::jae_cmpi},
-		rt_signal{UINT64_C(9)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-3)},
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::jae_cmpi},
-		rt_signal{UINT64_C(15)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-5)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(3)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(53)},
-		rt_signal{instruction::jae_cmpi},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 23> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(5)},
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::jae_cmpi},
+		Signal{UINT64_C(9)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-3)},
+		Signal{Instruction::ipusho},
+		Signal{Instruction::ipusho},
+		Signal{Instruction::jae_cmpi},
+		Signal{UINT64_C(15)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-5)},
+		Signal{Instruction::push},
+		Signal{INT64_C(3)},
+		Signal{Instruction::push},
+		Signal{INT64_C(53)},
+		Signal{Instruction::jae_cmpi},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2393,38 +2393,38 @@ TEST(reactor_execution, __jae_cmpi__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 3);
-	ASSERT_EQ(o.input->stack[2].i, 53);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 3);
+	ASSERT_EQ(o.input->stack[2].std::int64_t, 53);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 22);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jae_cmpf__) {
-	const std::array<rt_signal, 23> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{5.0},
-		rt_signal{instruction::push},
-		rt_signal{2.0},
-		rt_signal{instruction::jae_cmpf},
-		rt_signal{UINT64_C(9)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-3)},
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::jae_cmpf},
-		rt_signal{UINT64_C(15)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-5)},
-		rt_signal{instruction::push},
-		rt_signal{3.0},
-		rt_signal{instruction::push},
-		rt_signal{53.0},
-		rt_signal{instruction::jae_cmpf},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 23> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{5.0},
+		Signal{Instruction::push},
+		Signal{2.0},
+		Signal{Instruction::jae_cmpf},
+		Signal{UINT64_C(9)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-3)},
+		Signal{Instruction::ipusho},
+		Signal{Instruction::ipusho},
+		Signal{Instruction::jae_cmpf},
+		Signal{UINT64_C(15)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-5)},
+		Signal{Instruction::push},
+		Signal{3.0},
+		Signal{Instruction::push},
+		Signal{53.0},
+		Signal{Instruction::jae_cmpf},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2432,38 +2432,38 @@ TEST(reactor_execution, __jae_cmpf__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 3.0);
-	ASSERT_EQ(o.input->stack[2].f, 53.0);
+	ASSERT_EQ(o.input->stack[1].double, 3.0);
+	ASSERT_EQ(o.input->stack[2].double, 53.0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 22);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jle_cmpi__) {
-	const std::array<rt_signal, 23> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(2)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(5)},
-		rt_signal{instruction::jle_cmpi},
-		rt_signal{UINT64_C(9)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-3)},
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::jle_cmpi},
-		rt_signal{UINT64_C(15)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-5)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(53)},
-		rt_signal{instruction::push},
-		rt_signal{INT64_C(3)},
-		rt_signal{instruction::jle_cmpi},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 23> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{INT64_C(2)},
+		Signal{Instruction::push},
+		Signal{INT64_C(5)},
+		Signal{Instruction::jle_cmpi},
+		Signal{UINT64_C(9)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-3)},
+		Signal{Instruction::ipusho},
+		Signal{Instruction::ipusho},
+		Signal{Instruction::jle_cmpi},
+		Signal{UINT64_C(15)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-5)},
+		Signal{Instruction::push},
+		Signal{INT64_C(53)},
+		Signal{Instruction::push},
+		Signal{INT64_C(3)},
+		Signal{Instruction::jle_cmpi},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2471,38 +2471,38 @@ TEST(reactor_execution, __jle_cmpi__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].i, 53);
-	ASSERT_EQ(o.input->stack[2].i, 3);
+	ASSERT_EQ(o.input->stack[1].std::int64_t, 53);
+	ASSERT_EQ(o.input->stack[2].std::int64_t, 3);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 22);
     ASSERT_EQ(o.interrupt_code, -0xFF);
 }
 
 TEST(reactor_execution, __jle_cmpf__) {
-	const std::array<rt_signal, 23> code{
-		rt_signal{instruction::nop},		// first padding
-		rt_signal{instruction::push},
-		rt_signal{2.0},
-		rt_signal{instruction::push},
-		rt_signal{5.0},
-		rt_signal{instruction::jle_cmpf},
-		rt_signal{UINT64_C(9)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-3)},
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::ipusho},
-		rt_signal{instruction::jle_cmpf},
-		rt_signal{UINT64_C(15)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-5)},
-		rt_signal{instruction::push},
-		rt_signal{53.0},
-		rt_signal{instruction::push},
-		rt_signal{3.0},
-		rt_signal{instruction::jle_cmpf},
-		rt_signal{UINT64_C(0)},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(-0xFF)},
+	const std::array<Signal, 23> code{
+		Signal{Instruction::nop},		// first padding
+		Signal{Instruction::push},
+		Signal{2.0},
+		Signal{Instruction::push},
+		Signal{5.0},
+		Signal{Instruction::jle_cmpf},
+		Signal{UINT64_C(9)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-3)},
+		Signal{Instruction::ipusho},
+		Signal{Instruction::ipusho},
+		Signal{Instruction::jle_cmpf},
+		Signal{UINT64_C(15)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-5)},
+		Signal{Instruction::push},
+		Signal{53.0},
+		Signal{Instruction::push},
+		Signal{3.0},
+		Signal{Instruction::jle_cmpf},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::inter},
+		Signal{INT64_C(-0xFF)},
 	};
 	auto input{default_test_input};
 	input.code_chunk = code.data();
@@ -2510,8 +2510,8 @@ TEST(reactor_execution, __jle_cmpf__) {
 	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
 
 	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].f, 53.0);
-	ASSERT_EQ(o.input->stack[2].f, 3.0);
+	ASSERT_EQ(o.input->stack[1].double, 53.0);
+	ASSERT_EQ(o.input->stack[2].double, 3.0);
 	ASSERT_EQ(o.sp_diff, 0);
 	ASSERT_EQ(o.ip_diff, 22);
     ASSERT_EQ(o.interrupt_code, -0xFF);
@@ -2611,10 +2611,10 @@ TEST(reactor_input_validation, missing_code_prologue) {
 }
 
 TEST(reactor_input_validation, missing_code_epilogue$1) {
-	constexpr std::array<rt_signal, 3> code = {
-		rt_signal{instruction::nop},
-		rt_signal{instruction::inter},
-		rt_signal{INT64_C(5)},
+	constexpr std::array<Signal, 3> code = {
+		Signal{Instruction::nop},
+		Signal{Instruction::inter},
+		Signal{INT64_C(5)},
 	};
 	
 	const auto input = reactor_input{
@@ -2632,8 +2632,8 @@ TEST(reactor_input_validation, missing_code_epilogue$1) {
 }
 
 TEST(reactor_input_validation, missing_code_epilogue$2) {
-	constexpr std::array<rt_signal, 1> code = {
-		rt_signal{instruction::nop},
+	constexpr std::array<Signal, 1> code = {
+		Signal{Instruction::nop},
 	};
 
 	const auto input = reactor_input{
@@ -2651,9 +2651,9 @@ TEST(reactor_input_validation, missing_code_epilogue$2) {
 }
 
 TEST(reactor_input_validation, missing_code_epilogue$3) {
-	constexpr std::array<rt_signal, 2> code = {
-		rt_signal{instruction::nop},
-		rt_signal{INT64_C(5)},
+	constexpr std::array<Signal, 2> code = {
+		Signal{Instruction::nop},
+		Signal{INT64_C(5)},
 	};
 
 	const auto input = reactor_input{

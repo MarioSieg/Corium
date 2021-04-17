@@ -1,7 +1,7 @@
 #include "tstbase.hpp"
 #include "../inc/nominax/reactor.hpp"
 
-using namespace nominax;
+using namespace Nominax;
 
 TEST(instruction_db, imm_max_arg_count) {
 	const auto max_imm_args = idb::max_imm_args;
@@ -22,78 +22,78 @@ TEST(instruction_db, imm_arg_count) {
 }
 
 TEST(bytecode_elements, instruction_data) {
-	const auto x = dy_signal{instruction::cintrin};
-	ASSERT_TRUE(x.contains<instruction>());
-	ASSERT_TRUE(x.contains(instruction::cintrin));
+	const auto x = DynamicSignal{Instruction::cintrin};
+	ASSERT_TRUE(x.Contains<Instruction>());
+	ASSERT_TRUE(x.Contains(Instruction::cintrin));
 }
 
 TEST(bytecode_elements, intrinsic_data) {
-	const auto x = dy_signal{intrinsic::atan2};
-	ASSERT_TRUE(x.contains<intrinsic>());
-	ASSERT_TRUE(x.contains(intrinsic::atan2));
+	const auto x = DynamicSignal{SystemIntrinsicID::atan2};
+	ASSERT_TRUE(x.Contains<SystemIntrinsicID>());
+	ASSERT_TRUE(x.Contains(SystemIntrinsicID::atan2));
 }
 
 TEST(bytecode_elements, cintrinsic_data) {
-	const auto x = dy_signal{cintrinsic{233113}};
-	ASSERT_TRUE(x.contains<cintrinsic>());
-	ASSERT_TRUE(x.contains(cintrinsic{233113}));
+	const auto x = DynamicSignal{CustomIntrinsicID{233113}};
+	ASSERT_TRUE(x.Contains<CustomIntrinsicID>());
+	ASSERT_TRUE(x.Contains(CustomIntrinsicID{233113}));
 }
 
-TEST(bytecode_elements, u64_data) {
-	const auto x = dy_signal{UINT64_C(12345)};
-	ASSERT_TRUE(x.contains<u64>());
-	ASSERT_TRUE(x.contains(UINT64_C(12345)));
+TEST(bytecode_elements, std::uint64_t_data) {
+	const auto x = DynamicSignal{UINT64_C(12345)};
+	ASSERT_TRUE(x.Contains<std::uint64_t>());
+	ASSERT_TRUE(x.Contains(UINT64_C(12345)));
 }
 
-TEST(bytecode_elements, i64_data) {
-	const auto x = dy_signal{INT64_C(-12345)};
-	ASSERT_TRUE(x.contains<i64>());
-	ASSERT_TRUE(x.contains(INT64_C(-12345)));
+TEST(bytecode_elements, std::int64_t_data) {
+	const auto x = DynamicSignal{INT64_C(-12345)};
+	ASSERT_TRUE(x.Contains<std::int64_t>());
+	ASSERT_TRUE(x.Contains(INT64_C(-12345)));
 }
 
-TEST(bytecode_elements, f64_data) {
-	const auto x = dy_signal{12345.0};
-	ASSERT_TRUE(x.contains<f64>());
-	ASSERT_TRUE(x.contains(12345.0));
+TEST(bytecode_elements, double_data) {
+	const auto x = DynamicSignal{12345.0};
+	ASSERT_TRUE(x.Contains<double>());
+	ASSERT_TRUE(x.Contains(12345.0));
 }
 
 TEST(bytecode_elements, c32_data) {
-	const auto x = dy_signal{static_cast<c32>('A')};
-	ASSERT_TRUE(x.contains<c32>());
-	ASSERT_TRUE(x.contains(static_cast<c32>('A')));
+	const auto x = DynamicSignal{static_cast<c32>('A')};
+	ASSERT_TRUE(x.Contains<c32>());
+	ASSERT_TRUE(x.Contains(static_cast<c32>('A')));
 }
 
 TEST(bytecode_elements, instruction_data_cvt_sig) {
-	const auto x = static_cast<rt_signal>(dy_signal{instruction::cintrin});
-	ASSERT_EQ(x.instr, instruction::cintrin);
+	const auto x = static_cast<Signal>(DynamicSignal{Instruction::cintrin});
+	ASSERT_EQ(x.Instr, Instruction::cintrin);
 }
 
 TEST(bytecode_elements, intrinsic_data_cvt_sig) {
-	const auto x = static_cast<rt_signal>(dy_signal{intrinsic::atan2});
-	ASSERT_EQ(x.intrin, intrinsic::atan2);
+	const auto x = static_cast<Signal>(DynamicSignal{SystemIntrinsicID::atan2});
+	ASSERT_EQ(x.IntrinID, SystemIntrinsicID::atan2);
 }
 
 TEST(bytecode_elements, cintrinsic_data_cvt_sig) {
-	const auto x = static_cast<rt_signal>(dy_signal{cintrinsic{4}});
-	ASSERT_EQ(x.cintrin, cintrinsic{4});
+	const auto x = static_cast<Signal>(DynamicSignal{CustomIntrinsicID{4}});
+	ASSERT_EQ(x.CustomIntrinID, CustomIntrinsicID{4});
 }
 
-TEST(bytecode_elements, u64_data_cvt_sig) {
-	const auto x = static_cast<rt_signal>(dy_signal{UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.r64.u, 0xFF'FF'FF'FF'FF'FF'FF'FF);
+TEST(bytecode_elements, std::uint64_t_data_cvt_sig) {
+	const auto x = static_cast<Signal>(DynamicSignal{UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)});
+	ASSERT_EQ(x.R64.std::uint64_t, 0xFF'FF'FF'FF'FF'FF'FF'FF);
 }
 
-TEST(bytecode_elements, i64_data_cvt_sig) {
-	const auto x = static_cast<rt_signal>(dy_signal{INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.r64.i, -0x80'FF'FF'FF'FF'FF'FF'FF);
+TEST(bytecode_elements, std::int64_t_data_cvt_sig) {
+	const auto x = static_cast<Signal>(DynamicSignal{INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)});
+	ASSERT_EQ(x.R64.std::int64_t, -0x80'FF'FF'FF'FF'FF'FF'FF);
 }
 
-TEST(bytecode_elements, f64_data_cvt_sig) {
-	const auto x = static_cast<rt_signal>(dy_signal{std::numeric_limits<f64>::max()});
-	ASSERT_EQ(x.r64.f, std::numeric_limits<f64>::max());
+TEST(bytecode_elements, double_data_cvt_sig) {
+	const auto x = static_cast<Signal>(DynamicSignal{std::numeric_limits<double>::max()});
+	ASSERT_EQ(x.R64.double, std::numeric_limits<double>::max());
 }
 
 TEST(bytecode_elements, c32_data_cvt_sig) {
-	const auto x = static_cast<rt_signal>(dy_signal{static_cast<c32>('X')});
-	ASSERT_EQ(x.r64.c, 'X');
+	const auto x = static_cast<Signal>(DynamicSignal{static_cast<c32>('X')});
+	ASSERT_EQ(x.R64.C32, 'X');
 }

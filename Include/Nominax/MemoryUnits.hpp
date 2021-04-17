@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-namespace nominax {
+namespace Nominax {
 	[[nodiscard]]
 	constexpr auto b2gb(const std::size_t bytes_) noexcept -> std::size_t {
 		return bytes_ / 1024 / 1024 / 1024;

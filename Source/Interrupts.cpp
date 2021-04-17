@@ -1,4 +1,4 @@
-#include "../inc/nominax/interrupts.hpp"
+#include "../Include/Nominax/Interrupts.hpp"
 
 #include <algorithm>
 #include <sstream>
@@ -7,7 +7,7 @@ namespace {
 	constinit volatile std::sig_atomic_t signal_status{0};
 }
 
-namespace nominax {
+namespace Nominax {
 	auto sig_status() noexcept -> std::sig_atomic_t {
 		return ::signal_status;
 	}

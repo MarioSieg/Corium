@@ -1,6 +1,6 @@
 #pragma once
 
-#include "platform.hpp"
+#include "Platform.hpp"
 
 /*
  * Use architecture specific optimizations such as assembly or intrinsics?

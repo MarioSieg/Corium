@@ -659,7 +659,7 @@ double GetCPUCyclesPerSecond() {
               << knp->data_type << "\n";
     return -1;
   }
-  double clock_hz = knp->value.ui64;
+  double clock_hz = knp->value.ustd::int64_t;
   kstat_close(kc);
   return clock_hz;
 #elif defined (BENCHMARK_OS_QNX)

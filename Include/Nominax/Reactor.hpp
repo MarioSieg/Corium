@@ -4,10 +4,10 @@
 #include <csignal>
 #include <cstddef>
 
-#include "bytecode.hpp"
-#include "interrupts.hpp"
+#include "Bytecode.hpp"
+#include "Interrupts.hpp"
 
-namespace nominax {
+namespace Nominax {
 	enum class reactor_validation_result {
 		ok = 0,
 		null_ptr,
@@ -23,12 +23,12 @@ namespace nominax {
 	/// </summary>
 	struct reactor_input final {
 		volatile std::sig_atomic_t*		signal_status			{nullptr};
-		const rt_signal*				code_chunk				{nullptr};
+		const Signal*				code_chunk				{nullptr};
 		std::size_t						code_chunk_size			{0};
 		intrinsic_routine**				intrinsic_table			{nullptr};
 		std::size_t						intrinsic_table_size	{0};
 		interrupt_routine*				interrupt_handler		{nullptr};
-		record64*						stack					{nullptr};
+		Record64*						stack					{nullptr};
 		std::size_t						stack_size				{0};
 		void*							user_data				{nullptr};
 

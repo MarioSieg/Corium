@@ -1,5 +1,5 @@
-#include "../inc/nominax/os.hpp"
-#include "../inc/nominax/platform.hpp"
+#include "../Include/Nominax/Os.hpp"
+#include "../Include/Nominax/Platform.hpp"
 
 #if NOMINAX_OS_WINDOWS
 
@@ -7,7 +7,7 @@
 #include <Windows.h>
 #include <Psapi.h>
 
-namespace nominax::os {
+namespace Nominax::OS {
 	auto query_system_memory_total() -> std::size_t {
 		MEMORYSTATUSEX status;
 		status.dwLength = sizeof(MEMORYSTATUSEX);

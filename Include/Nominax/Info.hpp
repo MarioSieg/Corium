@@ -4,7 +4,7 @@
 #include <ostream>
 #include <string_view>
 
-namespace nominax {
+namespace Nominax {
 	struct version final {
 		std::uint8_t major{};
 		std::uint8_t minor{};

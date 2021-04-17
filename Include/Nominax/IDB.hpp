@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <string_view>
 
-namespace nominax {
-	enum class alignas(alignof(std::uint64_t)) instruction : std::uint64_t {
+namespace Nominax {
+	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t {
 		inter = 0x00'00'00'00'00'00'00'00,
 		intrin = 0x00'00'00'00'00'00'00'01,
 		cintrin = 0x00'00'00'00'00'00'00'02,
@@ -93,7 +93,7 @@ namespace nominax {
 			intrin64,
 		};
 
-		constexpr std::array<const std::string_view, static_cast<std::size_t>(instruction::count_)> mnemonics{
+		constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::count_)> mnemonics{
 			"inter",
 			"intrin",
 			"cintrin",
@@ -157,7 +157,7 @@ namespace nominax {
 			"fdec"
 		};
 
-		constexpr std::array<const std::string_view, static_cast<std::size_t>(instruction::count_)> descriptions{
+		constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::count_)> descriptions{
 			"interrupt reactor execution",
 			"call intrinsic system routine",
 			"call custom intrinsic routine",
@@ -221,7 +221,7 @@ namespace nominax {
 			"floating point decrement"
 		};
 
-		constexpr std::array<instruction_type, static_cast<std::size_t>(instruction::count_)> types{
+		constexpr std::array<instruction_type, static_cast<std::size_t>(Instruction::count_)> types{
 			instruction_type::control,
 			instruction_type::control,
 			instruction_type::control,
@@ -285,7 +285,7 @@ namespace nominax {
 			instruction_type::arithmetic
 		};
 
-		constexpr std::array<std::uint8_t, static_cast<std::size_t>(instruction::count_)> push_counts{
+		constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::count_)> push_counts{
 			0,
 			0,
 			0,
@@ -349,7 +349,7 @@ namespace nominax {
 			1
 		};
 
-		constexpr std::array<std::uint8_t, static_cast<std::size_t>(instruction::count_)> pop_counts{
+		constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::count_)> pop_counts{
 			0,
 			0,
 			0,
@@ -413,7 +413,7 @@ namespace nominax {
 			1
 		};
 
-		constexpr std::array<std::uint8_t, static_cast<std::size_t>(instruction::count_)> imm_arg_counts{
+		constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::count_)> imm_arg_counts{
 			1,
 			1,
 			1,
@@ -479,7 +479,7 @@ namespace nominax {
 
 		constexpr std::size_t max_imm_args{2};
 
-		constexpr std::array<std::array<instruction_imm_arg_type, max_imm_args>, static_cast<std::size_t>(instruction::count_)> imm_arg_types{
+		constexpr std::array<std::array<instruction_imm_arg_type, max_imm_args>, static_cast<std::size_t>(Instruction::count_)> imm_arg_types{
 			std::array<instruction_imm_arg_type, max_imm_args> {
 				instruction_imm_arg_type::i64_u64_f64
 			},

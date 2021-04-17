@@ -1,12 +1,12 @@
-#include "../inc/nominax/os.hpp"
-#include "../inc/nominax/platform.hpp"
+#include "../Include/Nominax/Os.hpp"
+#include "../Include/Nominax/Platform.hpp"
 
 #if NOMINAX_OS_ANDROID
 
 #include <malloc.h>
 #include <unistd.h>
 
-namespace nominax::os {
+namespace Nominax::os {
 	auto query_system_memory_total() -> std::size_t {
 		const long pages = sysconf(_SC_PHYS_PAGES);
 		const long page_size = sysconf(_SC_PAGE_SIZE);

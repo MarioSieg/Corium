@@ -1,30 +1,30 @@
 #include "tstbase.hpp"
 #include "../inc/nominax/reactor.hpp"
 
-using namespace nominax;
+using namespace Nominax;
 
 TEST(reactor_aggregates, union_reinterpretation) {
-	record64 rec{
+	Record64 rec{
 		UINT64_C(0xFF'FF'FF'FF)
 	};
-	ASSERT_EQ(rec.u, 0xFF'FF'FF'FF);
+	ASSERT_EQ(rec.std::uint64_t, 0xFF'FF'FF'FF);
 	
-	rec.i = -1234;
-	ASSERT_EQ(rec.i, -1234);
+	rec.std::int64_t = -1234;
+	ASSERT_EQ(rec.std::int64_t, -1234);
 	
-	rec.f = 3.14;
-	ASSERT_EQ(rec.f, 3.14);
+	rec.double = 3.14;
+	ASSERT_EQ(rec.double, 3.14);
 
-	rec.c = '!';
-	ASSERT_EQ(rec.c, '!');
+	rec.C32 = '!';
+	ASSERT_EQ(rec.C32, '!');
 
-	rec.ptr = &rec;
-	ASSERT_EQ(rec.ptr, &rec);
+	rec.Ptr = &rec;
+	ASSERT_EQ(rec.Ptr, &rec);
 
-	constexpr rt_signal sig{
-		instruction::mov
+	constexpr Signal sig{
+		Instruction::mov
 	};
-	ASSERT_EQ(sig.instr, instruction::mov);
-	ASSERT_EQ(sig.op, static_cast<std::uint64_t>(instruction::mov));
-	ASSERT_EQ(sig.r64.u, static_cast<std::uint64_t>(instruction::mov));
+	ASSERT_EQ(sig.Instr, Instruction::mov);
+	ASSERT_EQ(sig.OpCode, static_cast<std::uint64_t>(Instruction::mov));
+	ASSERT_EQ(sig.R64.std::uint64_t, static_cast<std::uint64_t>(Instruction::mov));
 }
