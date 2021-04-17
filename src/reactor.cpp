@@ -1,16 +1,29 @@
+/* So in C++ 20 we already have [[likely]] and [[unlikely]].
+ * When I wrote this comment (11.04.2021) LLVM/Clang 11 has no support for [[likely]] and [[unlikely]].
+ * The support will come with LLVM/Clang 12. Until all compiles correctly support [[likely]] and [[unlikely]]
+ * I use the built-in intrinsic "__builtin_expect" like in the Linux kernel. I often use branch hints do indicate expected branches,
+ * but the most performance critical code is the reactor, so it's important that they are noticed by the compiler,
+ * which is not yet the case with [[likely]] and [[unlikely]]!
+ * x86-64 has branch hints - some sources say they are ignored, some say they are not, other say it depends on the company
+ * ARM-64 also has some branch hints
+ * The biggest difference could affect the code reordering - search for more info.
+ */
+
+#include <cmath>
+
 #include "../inc/nominax/reactor.hpp"
 #include "../inc/nominax/interrupts.hpp"
 #include "../inc/nominax/macrocfg.hpp"
-#include "../inc/nominax/reactor_internals.hpp"
 #include "../inc/nominax/sysintrin.hpp"
 
 namespace nominax {
 	auto reactor_input::validate() const noexcept -> reactor_validation_result {
 		// validate all pointers:
-		if (__builtin_expect(!(this->test_signal_status && this->code_chunk && this->intrinsic_table && this->interrupt_handler && this->stack), 0)) {
+		if (__builtin_expect(!(this->signal_status && this->code_chunk && this->intrinsic_table && this->interrupt_handler && this->stack), 0)) {
 			return reactor_validation_result::null_ptr;
 		}
 
+		// validate the size for the corresponding pointers:
 		if (__builtin_expect(!this->code_chunk_size || !this->intrinsic_table_size || !this->stack_size, 0)) {
 			return reactor_validation_result::zero_size;
 		}
@@ -42,46 +55,149 @@ namespace nominax {
 		return reactor_validation_result::ok;
 	}
 
-	/* So in C++ 20 we already have [[likely]] and [[unlikely]].
-	 * When I wrote this comment (11.04.2021) LLVM/Clang 11 has no support for [[likely]] and [[unlikely]].
-	 * The support will come with LLVM/Clang 12. Until all compiles correctly support [[likely]] and [[unlikely]]
-	 * I use the built-in intrinsic "__builtin_expect" like in the Linux kernel. I often use branch hints do indicate expected branches,
-	 * but the most performance critical code is the reactor, so it's important that they are noticed by the compiler,
-	 * which is not yet the case with [[likely]] and [[unlikely]]!
-	 * x86-64 has branch hints - some sources say they are ignored, some say they are not, other say it depends on the company
-	 * ARM-64 also has some branch hints
-	 * The biggest difference could affect the code reordering - search for more info.
-	 */
+	/// <summary>
+	/// Fast, platform dependent implementation for a bitwise left rotation.
+	/// </summary>
+	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto rol(u64 n_, const std::uint8_t x_) noexcept -> u64 {
+		#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
+				return _rotl64(n_, x_);
+		#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
+				asm volatile(
+					"rolq %%cl, %0"
+					: "=r"(n_)
+					: "0" (n_), "c"(x_)
+					);
+				return n_;
+		#else
+				return std::rotl<u64>(n_, x_);
+		#endif
+	}
+
+	/// <summary>
+	/// Fast, platform dependent implementation for a bitwise right rotation.
+	/// </summary>
+	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto ror(u64 n_, const std::uint8_t x_) noexcept -> u64 {
+		#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
+				return _rotr64(n_, x_);
+		#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
+				asm volatile(
+					"rorq %%cl, %0"
+					: "=r"(n_)
+					: "0" (n_), "c"(x_)
+					);
+				return n_;
+		#else
+				return std::rotr<u64>(n_, x_);
+		#endif
+	}
+
+	/// <summary>
+	/// Operator for double precision floating point modulo.
+	/// </summary>
+	__attribute__((always_inline)) static inline void operator %=(record64& x_, const f64 y_) noexcept {
+		x_.f = std::fmod(x_.f, y_);
+	}
+
+	/// <summary>
+	/// Trigger a breakpoint.
+	/// </summary>
+	[[maybe_unused]] __attribute__((always_inline, cold)) static inline void breakpoint_interrupt() noexcept {
+		#if NOMINAX_ARCH_X86_64
+				asm("int $3");
+		#elif NOMINAX_ARCH_ARM_64
+			#if NOMINAX_OS_MAC || NOMINAX_OS_IOS
+					asm("trap");
+			#else
+					asm("bkpt 0");
+			#endif
+		#else
+				auto* int3 = reinterpret_cast<int*>(3);
+				*int3 = 3;
+		#endif
+	}
+
+	/// <summary>
+	/// Insert memory read fence barrier.
+	/// </summary>
+	__attribute__((always_inline)) inline void read_fence() noexcept {
+		asm volatile("":::"memory");
+	}
+
+	/// <summary>
+	/// Insert memory write fence barrier.
+	/// </summary>
+	__attribute__((always_inline)) inline void write_fence() noexcept {
+		asm volatile("":::"memory");
+	}
+
+	/// <summary>
+	/// Insert memory read-write fence barrier.
+	/// </summary>
+	__attribute__((always_inline)) inline void read_write_fence() noexcept {
+		asm volatile("":::"memory");
+	}
 
 	#if NOMINAX_REACTOR_ASM_MARKERS
-	 /* This inserts a comment with the msg into the assembler code.
-	  * Useful for finding the asm code of the instructions.
-	  * These should be disabled when building for release.
-	  * Asm volatile is like a black box and never touched by the compiler so it might affect code generation/ordering!
-	  */
+		/*
+		 * This inserts a comment with the msg into the assembler code.
+		 * Useful for finding the asm code of the instructions.
+		 * These should be disabled when building for release.
+		 * Asm volatile is like a black box and never touched by the compiler so it might affect code generation/ordering!
+		 */
 		#define ASM_MARKER(msg) asm volatile("#" msg)
 	#else
 		#define ASM_MARKER(msg)
 	#endif
 
 	#if NOMINAX_STACK_OVERFLOW_CHECKS
-		/* Inserts a stack overflow sentinel.
-		* x is the number of pushes to check for.
-		* x = 1 -> check for 1 more push
-		* x = 2 -> check for 2 more pushes
-		* etc..
-		*/
-		#define STO_SENTINEL(x)										\
-			do {													\
-				if (__builtin_expect(sp + ((x) - 1) >= sp_hi, 0)) {	\
-					interrupt = er_stack_overflow;					\
-					goto _hard_fault_err_;							\
-				}													\
+		/* Inserts a stack overflow sentinel, which triggers a system interrupt
+		 * of type stack_overflow by setting the interrupt accumulator and jumping to the fault label.
+		 * This of course adds some overhead, but not much.
+		 * If stack overflow sentinels are disabled, a stack overflow will trigger a
+		 * segmentation fault (SIGSEGV), which will be handled by the signal handler
+		 * set in interrupts.hpp
+		 * The
+		 * x is the number of pushes to check for.
+		 * x = 1 -> check for 1 more push
+		 * x = 2 -> check for 2 more pushes
+		 * etc..
+		 */
+		#define STO_SENTINEL(x)																						\
+			do {																									\
+				if (__builtin_expect(sp + ((x) - 1) >= sp_hi, 0)) {													\
+					interrupt_code = static_cast<decltype(interrupt_code)>(interrupt::stack_overflow);				\
+					goto _hard_fault_err_;																			\
+				}																									\
 			} while(false)
 	#else
 		#define STO_SENTINEL(x)
 	#endif
 
+	/// <summary>
+	/// Implementation for the "intrin" instruction.
+	/// This contains a jump table with the implementation of all system intrinsic routines.
+	/// The stack pointer is copied, so all local pushes will be popped automatically when
+	/// returning. Since all local pushes and pops are not updates to the original stack pointer,
+	/// this function can only modify the stack values, but not the original sp.
+	/// For that reason the intrinsic routines requires the caller to push/pop the arguments and the return values.
+	/// This is very important!
+	/// So for single argument intrinsic routines, the intrinsic routine just modifies the stack top:
+	/// For example (pseudo code):
+	/// stack[0] = sin(stack[0])
+	/// If a preserved value is needed, a call to "dupl" is needed before calling "intrin".
+	/// A two argument intrinsic routine will write the result into the previous stack element and use the top as second argument:
+	/// stack[-1] = atan2(stack[-1], stack[0])
+	/// So the stack will be:
+	/// +---+-------+
+	/// |sp | value |
+	/// +---+-------+
+	/// | 0 | 12233 | << top -> stack[0] -> (arg1 and result)
+	/// +---+-------+
+	/// | 1 | 27223 | << top - 1 -> stack[-1] -> (arg2)
+	/// +---+-------+
+	/// So stack[-1] will be overwritten and contains the result.
+	/// stack[0] will still contain arg2.
+	/// </summary>
 	__attribute__((hot)) static void syscall_intrin(record64* const sp_, const u64 id_) {
 		static constexpr const void* __restrict__ bt[static_cast<std::size_t>(intrinsic::count_)] {
 			&&__cos__,
@@ -119,6 +235,21 @@ namespace nominax {
 			&&__abs__,
 			&&__fabs__
 		};
+
+		struct $ {
+			[[nodiscard]]
+			static consteval auto validate_branch_table() noexcept -> bool {
+				const auto* iter = bt;
+				const auto* const end = bt + sizeof bt / sizeof *bt;
+				while (__builtin_expect(iter < end, 1)) {
+					if (__builtin_expect(!(*iter++), 0)) {
+						return false;
+					}
+				}
+				return true;
+			}
+		};
+		static_assert($::validate_branch_table());
 
 		goto **(bt + id_);
 		
@@ -259,7 +390,7 @@ namespace nominax {
 		return;
 	}
 
-	auto execute_reactor(const reactor_input& input_) -> reactor_output {
+	__attribute__((hot)) auto execute_reactor(const reactor_input& input_) -> reactor_output {
 		if (const auto result = input_.validate(); __builtin_expect(result != reactor_validation_result::ok, 0)) {
 			return {
 				.input = &input_,
@@ -350,12 +481,12 @@ namespace nominax {
 		
 		ASM_MARKER("reactor begin");
 		
-		interrupt_accumulator								interrupt			{};												/* interrupt id flag        */
+		interrupt_accumulator								interrupt_code		{};												/* interrupt id flag        */
 		void* __restrict__									usr_dat				{input_.user_data};								/* user data                */
 		intrinsic_routine* const* const						intrinsic_table		{input_.intrinsic_table};						/* intrinsic table hi       */
 		interrupt_routine* const							interrupt_handler	{input_.interrupt_handler};						/* global interrupt routine */
-		const csignal* const __restrict						ip_lo				{input_.code_chunk};							/* instruction low ptr      */
-		const csignal* __restrict__							ip					{ip_lo};										/* instruction ptr			*/
+		const rt_signal* const __restrict					ip_lo				{input_.code_chunk};							/* instruction low ptr      */
+		const rt_signal* __restrict__						ip					{ip_lo};										/* instruction ptr			*/
 		record64* __restrict__								sp					{input_.stack};									/* stack pointer lo			*/
 		record64* const	__restrict__						sp_hi				{input_.stack + input_.stack_size - 1};			/* stack pointer hi			*/
 
@@ -366,9 +497,9 @@ namespace nominax {
 
 	__int__: __attribute__((cold)); {
 			ASM_MARKER("__int__");
-			interrupt = (*++ip).r64.r32.i;
+			interrupt_code = (*++ip).r64.r32.i;
 			// check if interrupt handler request exit or interrupt is error (interrupt < 0) or success (interrupt == 0)
-			if (__builtin_expect(!interrupt_handler(interrupt, usr_dat) || interrupt <= 0, 0)) {
+			if (__builtin_expect(!interrupt_handler(interrupt_code, usr_dat) || interrupt_code <= 0, 0)) {
 				goto _terminate_;
 			}
 		}
@@ -656,34 +787,19 @@ namespace nominax {
 
 	__ipushz__: __attribute__((hot));
 		ASM_MARKER("__ipushz__");
-		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
-			if (__builtin_expect(sp == sp_hi, 0)) {		// check for stack overflow
-				interrupt = er_stack_overflow;			// hard system fault
-				goto _hard_fault_err_;					// kill
-			}
-		#endif
+		STO_SENTINEL(1);
 		(*++sp).u = 0;									// push(0)
 		goto **(bt + (*++ip).op);						// next_instr()
 
 	__ipusho__: __attribute__((hot));
 		ASM_MARKER("__ipusho__");
-		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
-			if (__builtin_expect(sp == sp_hi, 0)) {		// check for stack overflow
-				interrupt = er_stack_overflow;			// hard system fault
-				goto _hard_fault_err_;					// kill
-			}
-		#endif
+		STO_SENTINEL(1);
 		(*++sp).u = 1;									// push(1)
 		goto **(bt + (*++ip).op);						// next_instr()
 
 	__fpusho__: __attribute__((hot));
 		ASM_MARKER("__fpusho__");
-		#if NOMINAX_STACK_OVERFLOW_CHECKS				// push 1 check
-			if (__builtin_expect(sp == sp_hi, 0)) {		// check for stack overflow
-				interrupt = er_stack_overflow;			// hard system fault
-				goto _hard_fault_err_;					// kill
-			}
-		#endif
+		STO_SENTINEL(1);
 		(*++sp).f = 1.0;								// push(1)
 		goto **(bt + (*++ip).op);						// next_instr()
 		
@@ -765,13 +881,13 @@ namespace nominax {
 	__irol__: __attribute__((hot));
 		ASM_MARKER("__irol__");
 		--sp;											// pop
-		(*sp).u = rol((*sp).u, (*(sp + 1)).r32.i);
+		(*sp).u = rol((*sp).u, (*(sp + 1)).b);
 		goto **(bt + (*++ip).op);						// next_instr()
 
 	__iror__: __attribute__((hot));
 		ASM_MARKER("__iror__");
 		--sp;											// pop
-		(*sp).u = ror((*sp).u, (*(sp + 1)).r32.i);
+		(*sp).u = ror((*sp).u, (*(sp + 1)).b);
 		goto **(bt + (*++ip).op);						// next_instr()
 
 	__ineg__: __attribute__((hot));
@@ -830,12 +946,12 @@ namespace nominax {
 		return {
 			.input = &input_,
 			.validation_result = reactor_validation_result::ok,
-			.terminate_result = convert_terminate_type(interrupt),
-			.system_interrupt = convert_to_system_interrupt_or_unknown(interrupt),
+			.terminate_result = terminate_type_cvt(interrupt_code),
+			.system_interrupt = interrupt_cvt(interrupt_code),
 			.pre = pre,
 			.post = std::chrono::high_resolution_clock::now(),
 			.duration = std::chrono::high_resolution_clock::now() - pre,
-            .interrupt_code = interrupt,
+			.interrupt_code = interrupt_code,
 			.ip_diff = static_cast<std::ptrdiff_t>(ip - input_.code_chunk),
 			.sp_diff = static_cast<std::ptrdiff_t>(sp - input_.stack),
 		};

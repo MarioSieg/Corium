@@ -1,6 +1,9 @@
 #pragma once
 
+#include <csignal>
+#include <limits>
 #include <string_view>
+#include <type_traits>
 
 #include "runtime.hpp"
 
@@ -13,6 +16,17 @@
  */
 
 namespace nominax {
+	using abort_handler = void();
+	using sig_handler = void(std::sig_atomic_t);
+
+	[[noreturn]] extern void com_sig_handler(std::sig_atomic_t);
+	[[noreturn]] extern void com_abr_handler();
+
+	inline constinit abort_handler* sys_abort_handler{&com_abr_handler};
+
+	extern auto sig_status() noexcept -> std::sig_atomic_t;
+	extern void sig_install();
+	extern void sig_uninstall();
 
 	using interrupt_accumulator = i32;
 	static_assert(std::is_trivial_v<interrupt_accumulator>);
@@ -26,53 +40,31 @@ namespace nominax {
 		error
 	};
 
-	enum interrupt: interrupt_accumulator {
-		ex_nullptr_deref		= 0x00'00'00'01,	// exception			
-		ex_io					= 0x00'00'00'02,	// exception
+	enum class interrupt: interrupt_accumulator {
+		nullptr_deref		= std::numeric_limits<interrupt_accumulator>::min() + 7,		
+		io					= std::numeric_limits<interrupt_accumulator>::min() + 6,
+		jit_fault			= std::numeric_limits<interrupt_accumulator>::min() + 5,
+		stack_overflow		= std::numeric_limits<interrupt_accumulator>::min() + 4,
+		intrinsic_trap		= std::numeric_limits<interrupt_accumulator>::min() + 3,
+		bad_alloc			= std::numeric_limits<interrupt_accumulator>::min() + 2,
+		internal			= std::numeric_limits<interrupt_accumulator>::min() + 1,
+		unknown				= std::numeric_limits<interrupt_accumulator>::min(),
 
-		er_jit_fault			= -0x7F'FF'FF'FA,	// error
-		er_stack_overflow		= -0x7F'FF'FF'FB,	// error
-		er_intrinsic_trap		= -0x7F'FF'FF'FC,	// error
-		er_bad_alloc			= -0x7F'FF'FF'FD,	// error
-		er_internal				= -0x7F'FF'FF'FE,	// error
-		er_unknown				= -0x7F'FF'FF'FF,	// error
+		min_ = unknown,
+		max_ = nullptr_deref
 	};
 
-	[[nodiscard]] constexpr auto get_error_message(const interrupt int_) noexcept -> std::string_view {
-		switch (int_) {
-			case ex_nullptr_deref:		return "NullPointerException [ex_nullptr_deref : 0x00000001]";
-			case ex_io:					return "IOException [ex_io : 0x00000002]";
-			
-			case er_jit_fault:			return "JITCompilationError [er_jit_fault : -0x7FFFFFFA]";
-			case er_stack_overflow:		return "StackOverflowError [er_stack_overflow : -0x7FFFFFFB]";
-			case er_intrinsic_trap:		return "IntrinsicRoutineTrapError [er_intrinsic_trap : -0x7FFFFFFC]";
-			case er_bad_alloc:			return "OutOfMemoryError [er_bad_alloc : -0x7FFFFFFD]";
-			case er_internal:			return "UnknownInternalError [er_internal : -0x7FFFFFFE]";
-			default: case er_unknown:	return "UnknownError [er_unknown : -0x7FFFFFFF]";
-		}
+	constexpr auto operator ==(const interrupt lhs_, const std::underlying_type_t<interrupt> rhs_) noexcept -> bool {
+		return static_cast<std::underlying_type_t<interrupt>>(lhs_) == rhs_;
 	}
 
-	[[nodiscard]] constexpr auto convert_to_system_interrupt_or_unknown(const interrupt_accumulator iac_) noexcept -> interrupt {
-		switch (iac_) {
-			case ex_nullptr_deref:		return ex_nullptr_deref;
-			case ex_io:					return ex_io;
+	constexpr auto operator !=(const interrupt lhs_, const std::underlying_type_t<interrupt> rhs_) noexcept -> bool {
+		return static_cast<std::underlying_type_t<interrupt>>(lhs_) != rhs_;
+	}
 
-			case er_jit_fault:			return er_jit_fault;
-			case er_stack_overflow:		return er_stack_overflow;
-			case er_intrinsic_trap:		return er_intrinsic_trap;
-			case er_bad_alloc:			return er_bad_alloc;
-			case er_internal:			return er_internal;
-			default: case er_unknown:	return er_unknown;
-		}
-	}
-	
-	[[nodiscard]] constexpr auto convert_terminate_type(const interrupt_accumulator iac_) noexcept -> terminate_type {
-		if (iac_ == 0) [[likely]] {
-			return terminate_type::success;
-		}
-		if (iac_ > 0) [[unlikely]] {
-			return terminate_type::exception;
-		}
-		return terminate_type::error;
-	}
+	[[nodiscard]] extern auto interrupt_enumerator_name(interrupt int_) noexcept -> std::string_view;
+	[[nodiscard]] extern auto basic_error_info(interrupt int_) noexcept -> std::string_view;
+	[[nodiscard]] extern auto detailed_error_info(interrupt int_) -> std::string;
+	[[nodiscard]] extern auto interrupt_cvt(interrupt_accumulator iac_) noexcept -> interrupt;
+	[[nodiscard]] extern auto terminate_type_cvt(interrupt_accumulator iac_) noexcept -> terminate_type;
 }

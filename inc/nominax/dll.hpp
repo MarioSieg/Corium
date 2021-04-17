@@ -17,7 +17,7 @@ namespace nominax {
 		auto operator()(Ts&&... args_) const noexcept -> decltype(F(std::forward<Ts...>(args_...)));
 
 	private:
-		void* ptr{nullptr};
+		void* ptr_{nullptr};
 	};
 
 	static_assert(std::is_copy_constructible_v<dylib_proc>);
@@ -25,16 +25,16 @@ namespace nominax {
 	static_assert(std::is_trivially_copy_assignable_v<dylib_proc>);
 	static_assert(std::is_trivially_move_assignable_v<dylib_proc>);
 
-	constexpr dylib_proc::dylib_proc(void* const ptr_) noexcept : ptr{ptr_} {}
+	constexpr dylib_proc::dylib_proc(void* const ptr_) noexcept : ptr_{ptr_} {}
 
 	template <typename F> requires std::is_function_v<F>
 	inline auto dylib_proc::operator*() const noexcept -> F& {
-		return *reinterpret_cast<F*>(this->ptr);
+		return *reinterpret_cast<F*>(this->ptr_);
 	}
 
 	template <typename F, typename ... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
 	inline auto dylib_proc::operator()(Ts&&... args_) const noexcept -> decltype(F(std::forward<Ts...>(args_...))) {
-		return (*reinterpret_cast<F*>(this->ptr))(std::forward<Ts...>(args_...));
+		return (*reinterpret_cast<F*>(this->ptr_))(std::forward<Ts...>(args_...));
 	}
 
 	/* Represents a dynamically linked library. (.dll, .so) */
@@ -51,7 +51,7 @@ namespace nominax {
 		[[nodiscard]] auto operator [](std::string_view name_) const -> dylib_proc;
 	
 	private:
-		void* handle{nullptr};
+		void* handle_{nullptr};
 	};
 
 	static_assert(!std::is_copy_constructible_v<dylib>);
@@ -59,18 +59,18 @@ namespace nominax {
 	static_assert(!std::is_trivially_copy_assignable_v<dylib>);
 	static_assert(!std::is_trivially_move_assignable_v<dylib>);
 
-	inline dylib::dylib(const std::string_view path_) : handle{os::dylib_open(path_)} { }
-	inline dylib::dylib(const std::filesystem::path& path_) : handle{os::dylib_open(path_.string())} { }
+	inline dylib::dylib(const std::string_view path_) : handle_{os::dylib_open(path_)} { }
+	inline dylib::dylib(const std::filesystem::path& path_) : handle_{os::dylib_open(path_.string())} { }
 	
 	inline dylib::~dylib() {
-		os::dylib_close(this->handle);
+		os::dylib_close(this->handle_);
 	}
 	
 	inline dylib::operator bool() const noexcept {
-		return this->handle != nullptr;
+		return this->handle_ != nullptr;
 	}
 
 	inline auto dylib::operator[](const std::string_view name_) const -> dylib_proc {
-		return dylib_proc{os::dylib_lookup_symbol(this->handle, name_)};
+		return dylib_proc{os::dylib_lookup_symbol(this->handle_, name_)};
 	}
 }

@@ -477,7 +477,7 @@ namespace nominax {
 			0
 		};
 
-		constexpr std::size_t max_imm_args{ 2 };
+		constexpr std::size_t max_imm_args{2};
 
 		constexpr std::array<std::array<instruction_imm_arg_type, max_imm_args>, static_cast<std::size_t>(instruction::count_)> imm_arg_types{
 			std::array<instruction_imm_arg_type, max_imm_args> {

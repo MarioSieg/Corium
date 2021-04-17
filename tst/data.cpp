@@ -21,7 +21,7 @@ TEST(reactor_aggregates, union_reinterpretation) {
 	rec.ptr = &rec;
 	ASSERT_EQ(rec.ptr, &rec);
 
-	constexpr csignal sig{
+	constexpr rt_signal sig{
 		instruction::mov
 	};
 	ASSERT_EQ(sig.instr, instruction::mov);

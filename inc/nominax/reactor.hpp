@@ -22,8 +22,8 @@ namespace nominax {
 	/// Contains all input data for the VM reactor.
 	/// </summary>
 	struct reactor_input final {
-		volatile std::sig_atomic_t*		test_signal_status		{nullptr};
-		const csignal*					code_chunk				{nullptr};
+		volatile std::sig_atomic_t*		signal_status			{nullptr};
+		const rt_signal*				code_chunk				{nullptr};
 		std::size_t						code_chunk_size			{0};
 		intrinsic_routine**				intrinsic_table			{nullptr};
 		std::size_t						intrinsic_table_size	{0};
@@ -47,7 +47,7 @@ namespace nominax {
 		std::chrono::high_resolution_clock::time_point pre{};
 		std::chrono::high_resolution_clock::time_point post{};
 		std::chrono::high_resolution_clock::duration duration{};
-        interrupt_accumulator interrupt_code{};
+		interrupt_accumulator interrupt_code{};
 		std::ptrdiff_t ip_diff{};
 		std::ptrdiff_t sp_diff{};
 	};

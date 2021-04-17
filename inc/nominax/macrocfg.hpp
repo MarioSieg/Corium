@@ -1,5 +1,7 @@
 #pragma once
 
+#include "platform.hpp"
+
 /*
  * Use architecture specific optimizations such as assembly or intrinsics?
  */

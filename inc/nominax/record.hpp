@@ -79,6 +79,7 @@ namespace nominax {
 
 	/* 64-bit memory record. Contains either: record32, void* (be careful), u64, i64, f64 */
 	union alignas(alignof(i64)) record64 {
+		std::uint8_t b;
 		record32 r32;
 		void* ptr;
 		u64 u;

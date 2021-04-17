@@ -11,6 +11,9 @@ namespace nominax::os {
 	extern auto query_process_memory_used() -> std::size_t;
 
 	[[nodiscard]]
+	extern auto cpu_name() -> std::string;
+
+	[[nodiscard]]
 	extern auto dylib_open(std::string_view file_) -> void*;
 
 	[[nodiscard]]
