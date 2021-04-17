@@ -228,14 +228,14 @@ namespace Nominax
 		}
 
 		// first instruction will be skipped and must be NOP:
-		if (__builtin_expect(CodeChunk->Instr != Instruction::Nop, 0))
+		if (__builtin_expect(CodeChunk->Instr != Instruction::NOp, 0))
 		{
 			return ReactorValidationResult::MissingCodePrologue;
 		}
 
 		// last instruction must be interrupt:
 		if (__builtin_expect(CodeChunkSize < 2, 0) || __builtin_expect(
-			(CodeChunk + CodeChunkSize - 2)->Instr != Instruction::Inter, 0))
+			(CodeChunk + CodeChunkSize - 2)->Instr != Instruction::Int, 0))
 		{
 			return ReactorValidationResult::MissingCodeEpilogue;
 		}
@@ -247,8 +247,8 @@ namespace Nominax
 		}
 
 		// validate intrinsic routines:
-		auto**       begin = this->IntrinsicTable;
-		auto** const end   = this->IntrinsicTable + this->IntrinsicTableSize;
+		auto* const*       begin = this->IntrinsicTable;
+		auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
 		while (__builtin_expect(begin < end, 1))
 		{
 			if (__builtin_expect(!*begin++, 0))
@@ -713,7 +713,7 @@ namespace Nominax
 
 		InterruptAccumulator            interruptCode { };                         /* interrupt ID flag        */
 		void* __restrict__              usrDat {input.UserData};                   /* user data                */
-		intrinsic_routine* const* const intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi       */
+		IntrinsicRoutine* const* const	intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi       */
 		InterruptRoutine* const         interruptHandler {input.InterruptHandler}; /* global interrupt routine */
 		const Signal* const __restrict  ipLo {input.CodeChunk};                    /* instruction low Ptr      */
 		const Signal* __restrict__      ip {ipLo};                                 /* instruction Ptr			*/

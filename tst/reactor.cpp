@@ -1,2686 +1,2683 @@
+#include "TestBase.hpp"
+
 #include <array>
 #include <cmath>
 #include <numbers>
 
-#include "tstbase.hpp"
-#include "../inc/nominax/reactor.hpp"
-#include "../inc/nominax/sysintrin.hpp"
-
-using namespace Nominax;
-
-static constexpr intrinsic_routine* test_intrinsic_routine {+[]([[maybe_unused]] Record64*) noexcept -> bool {
+constexpr IntrinsicRoutine* MockIntrinsicRoutine {+[]([[maybe_unused]] Record64*) noexcept -> bool {
 	return true;
 }};
 
-static constinit std::array<intrinsic_routine*, 3> test_intrinsic_routine_table {
-	test_intrinsic_routine,
-	test_intrinsic_routine,
-	test_intrinsic_routine
+constexpr std::array<IntrinsicRoutine*, 3> MockIntrinsicRoutineTable {
+	MockIntrinsicRoutine,
+	MockIntrinsicRoutine,
+	MockIntrinsicRoutine
 };
 
-static constexpr auto test_stack_size = 32; // 32 records
+constexpr auto MockStackSize = 32; // 32 records
 
-static constinit std::array<Record64, test_stack_size> test_stack {Record64::Padding()};
+constinit std::array<Record64, MockStackSize> MockStack {Record64::Padding()};
 
-static constinit volatile std::sig_atomic_t signal_status;
+constinit volatile std::sig_atomic_t MockSignalStatus;
 
-static constinit interrupt_routine* test_interrupt_handler {+[](interrupt_accumulator, void*) noexcept -> bool {
+constexpr InterruptRoutine* MockInterruptHandler {+[](InterruptAccumulator, void*) noexcept -> bool {
 	return true;
 }};
 
-static reactor_input default_test_input{
-	.signal_status = &signal_status,
-	.code_chunk = nullptr,
-	.code_chunk_size = 0,
-	.intrinsic_table = test_intrinsic_routine_table.data(),
-	.intrinsic_table_size = test_intrinsic_routine_table.size(),
-	.interrupt_handler = test_interrupt_handler,
-	.stack = test_stack.data(),
-	.stack_size = test_stack.size(),
-	.user_data = nullptr
+constexpr ReactorInput MockReactorInput {
+	.SignalStatus = &MockSignalStatus,
+	.CodeChunk = nullptr,
+	.CodeChunkSize = 0,
+	.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+	.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
+	.InterruptHandler = MockInterruptHandler,
+	.Stack = MockStack.data(),
+	.StackSize = MockStack.size(),
+	.UserData = nullptr
 };
 
-static constexpr std::array<Signal, 3> default_test_code = {
-	Signal{Instruction::nop}, // first padding
-	Signal{Instruction::inter},
+constexpr std::array<Signal, 3> MockCode {
+	Signal{Instruction::NOp}, // first padding
+	Signal{Instruction::Int},
 	Signal{INT64_C(5)},
 };
 
-TEST(reactor_execution, __intrin__$cos) {
+TEST(ReactorExecution, __Intrin__$cos) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::cos},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Cos},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::cos(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::cos(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$sin) {
+TEST(ReactorExecution, __Intrin__$sin) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::sin},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Sin},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{ default_test_input };
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{ MockReactorInput };
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ execute_reactor(input) };
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::sin(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ ExecuteChecked(input) };
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::sin(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$tan) {
+TEST(ReactorExecution, __Intrin__$tan) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::tan},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Tan},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::tan(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::tan(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$acos) {
+TEST(ReactorExecution, __Intrin__$acos) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::acos},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::ACos},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{ default_test_input };
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{ MockReactorInput };
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ execute_reactor(input) };
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::acos(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ ExecuteChecked(input) };
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::acos(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$asin) {
+TEST(ReactorExecution, __Intrin__$asin) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::asin},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::ASin},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
-
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::asin(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+	
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::asin(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$atan) {
+TEST(ReactorExecution, __Intrin__$atan) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::atan},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::ATan},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::atan(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::atan(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$atan2) {
+TEST(ReactorExecution, __Intrin__$atan2) {
 	const std::array<Signal, 9> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{0.15},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::atan2},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::ATan2},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::atan2(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 2);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::atan2(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 2);
 }
 
-TEST(reactor_execution, __intrin__$cosh) {
+TEST(ReactorExecution, __Intrin__$cosh) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::cosh},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::CosH},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::cosh(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::cosh(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$sinh) {
+TEST(ReactorExecution, __Intrin__$sinh) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::sinh},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::SinH},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::sinh(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::sinh(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$tanh) {
+TEST(ReactorExecution, __Intrin__$tanh) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::tanh},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::TanH},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::tanh(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::tanh(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$acosh) {
+TEST(ReactorExecution, __Intrin__$acosh) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{1.6},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::acosh},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::ACosH},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::acosh(1.6));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::acosh(1.6));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$asinh) {
+TEST(ReactorExecution, __Intrin__$asinh) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::asinh},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::ASinH},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::asinh(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::asinh(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$atanh) {
+TEST(ReactorExecution, __Intrin__$atanh) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::atanh},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::ATanH},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::atanh(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::atanh(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$exp) {
+TEST(ReactorExecution, __Intrin__$exp) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::exp},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Exp},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::exp(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::exp(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$log) {
+TEST(ReactorExecution, __Intrin__$log) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::log},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Log},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::log(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::log(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$log10) {
+TEST(ReactorExecution, __Intrin__$log10) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::log10},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Log10},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::log10(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::log10(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$exp2) {
+TEST(ReactorExecution, __Intrin__$exp2) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::exp2},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Exp2},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::exp2(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::exp2(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$ilogb) {
+TEST(ReactorExecution, __Intrin__$ilogb) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{1.332},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::ilogb},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::ILogB},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::ilogb(1.332));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::ilogb(1.332));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$log2) {
+TEST(ReactorExecution, __Intrin__$log2) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::log2},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Log2},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::log2(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::log2(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$pow) {
+TEST(ReactorExecution, __Intrin__$pow) {
 	const std::array<Signal, 9> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{0.15},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::pow},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Pow},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::pow(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 2);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::pow(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 2);
 }
 
 
-TEST(reactor_execution, __intrin__$sqrt) {
+TEST(ReactorExecution, __Intrin__$sqrt) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::sqrt},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Sqrt},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::sqrt(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::sqrt(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$cbrt) {
+TEST(ReactorExecution, __Intrin__$cbrt) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::cbrt},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Cbrt},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::cbrt(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::cbrt(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$hypot) {
+TEST(ReactorExecution, __Intrin__$hypot) {
 	const std::array<Signal, 9> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{0.15},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::hypot},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Hypot},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::hypot(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 2);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::hypot(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 2);
 }
 
-TEST(reactor_execution, __intrin__$ceil) {
+TEST(ReactorExecution, __Intrin__$ceil) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::ceil},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Ceil},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::ceil(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::ceil(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$floor) {
+TEST(ReactorExecution, __Intrin__$floor) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::floor},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Floor},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::floor(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::floor(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$round) {
+TEST(ReactorExecution, __Intrin__$round) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::round},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Round},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::round(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::round(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$rint) {
+TEST(ReactorExecution, __Intrin__$rint) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::rint},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::RInt},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::rint(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::rint(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$max) {
+TEST(ReactorExecution, __Intrin__$imax) {
 	const std::array<Signal, 9> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(4)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(7)},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::max},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::IMax},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, std::max<std::int64_t>(4, 7));
-	ASSERT_EQ(o.input->stack[2].std::int64_t, 7);
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 2);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, std::max<std::int64_t>(4, 7));
+	ASSERT_EQ(o.Input->Stack[2].I64, 7);
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 2);
 }
 
-TEST(reactor_execution, __intrin__$min) {
+TEST(ReactorExecution, __Intrin__$imin) {
 	const std::array<Signal, 9> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(4)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(7)},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::min},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::IMin},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, std::min<std::int64_t>(4, 7));
-	ASSERT_EQ(o.input->stack[2].std::int64_t, 7);
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 2);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, std::min<std::int64_t>(4, 7));
+	ASSERT_EQ(o.Input->Stack[2].I64, 7);
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 2);
 }
 
-TEST(reactor_execution, __intrin__$fmax) {
+TEST(ReactorExecution, __Intrin__$fmax) {
 	const std::array<Signal, 9> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{0.15},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::fmax},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::FMax},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::max(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 2);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::max(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 2);
 }
 
-TEST(reactor_execution, __intrin__$fmin) {
+TEST(ReactorExecution, __Intrin__$fmin) {
 	const std::array<Signal, 9> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{0.15},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::fmin},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::FMin},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::fmin(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 2);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::fmin(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 2);
 }
 
-TEST(reactor_execution, __intrin__$fdim) {
+TEST(ReactorExecution, __Intrin__$dim) {
 	const std::array<Signal, 9> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{0.15},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::fdim},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::Dim},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::fdim(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 0.15);
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 2);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::fdim(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 2);
 }
 
 
-TEST(reactor_execution, __intrin__$abs) {
+TEST(ReactorExecution, __Intrin__$iabs) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(223233)},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::abs},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::IAbs},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, std::abs(223233));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, std::abs(223233));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __intrin__$fabs) {
+TEST(ReactorExecution, __Intrin__$fabs) {
 	const std::array<Signal, 7> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{0.35},
-		Signal{Instruction::intrin},
-		Signal{SystemIntrinsicID::fabs},
-		Signal{Instruction::inter},
+		Signal{Instruction::Intrin},
+		Signal{SystemIntrinsicId::FAbs},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::fabs(0.35));
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::fabs(0.35));
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __int__) {
+TEST(ReactorExecution, __int__) {
 	const std::array<Signal, 5> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::inter},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Int},
 		Signal{INT64_C(5)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-12345)},
 	};
 
-	auto input{default_test_input};
+	auto input{MockReactorInput};
 
 	int user{1234567};
-	input.user_data = &user;
+	input.UserData = &user;
 
-	static constinit interrupt_accumulator accum;
+	static constinit InterruptAccumulator accumulator;
 	static constinit void* usr;
 	static constinit int calls;
 
-	input.interrupt_handler = +[](const interrupt_accumulator x, void* const y) noexcept -> bool {
-		accum = x;
+	input.InterruptHandler= +[](const InterruptAccumulator x, void* const y) noexcept -> bool {
+		accumulator = x;
 		usr = y;
 		++calls;
 		return true;
 	};
 
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
+	const auto o{ExecuteChecked(input)};
 	ASSERT_EQ(calls, 2);
-	ASSERT_EQ(accum, -12345);
+	ASSERT_EQ(accumulator, -12345);
 	ASSERT_TRUE(usr != nullptr);
 	ASSERT_EQ(*static_cast<int*>(usr), 1234567);
-	ASSERT_EQ(*static_cast<int*>(o.input->user_data), 1234567);
-    ASSERT_EQ(o.interrupt_code, -12345);
-	ASSERT_EQ(o.ip_diff, code.size() - 1);
+	ASSERT_EQ(*static_cast<int*>(o.Input->UserData), 1234567);
+    ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.IpDiff, code.size() - 1);
 }
 
-TEST(reactor_execution, __mov__) {
+TEST(ReactorExecution, __mov__) {
 	const std::array<Signal, 9> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::sto},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Sto},
 		Signal{UINT64_C(3)},
 		Signal{3.1415},
-		Signal{Instruction::mov},
+		Signal{Instruction::Mov},
 		Signal{UINT64_C(8)},
 		Signal{UINT64_C(3)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[3].double, 3.1415);
-	ASSERT_EQ(o.input->stack[8].double, 3.1415);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[3].F64, 3.1415);
+	ASSERT_EQ(o.Input->Stack[8].F64, 3.1415);
 }
 
-TEST(reactor_execution, __sto__) {
+TEST(ReactorExecution, __sto__) {
 	const std::array<Signal, 9> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::sto},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Sto},
 		Signal{UINT64_C(1)},
 		Signal{INT64_C(5657334)},
-		Signal{Instruction::sto},
+		Signal{Instruction::Sto},
 		Signal{UINT64_C(31)},
 		Signal{3.1415},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 5657334);
-	ASSERT_EQ(o.input->stack[31].double, 3.1415);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 5657334);
+	ASSERT_EQ(o.Input->Stack[31].F64, 3.1415);
 }
 
-TEST(reactor_execution, __push__) {
+TEST(ReactorExecution, __Push__) {
 	const std::array<Signal, 7> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(1224)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{-0.6666},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-3)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 1224);
-	ASSERT_EQ(o.input->stack[2].double, -0.6666);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 1224);
+	ASSERT_EQ(o.Input->Stack[2].F64, -0.6666);
 }
 
 #if NOMINAX_STACK_OVERFLOW_CHECKS
 
 /*
- * Jump instruction which push do not required any checks. since they recycle stack space.
+ * Jump Instruction which Push do not required any checks. since they recycle stack space.
  */
 
-TEST(reactor_execution, __push_no_stack_overflow__) {
-	const std::array<csignal, 9> code{
-		csignal{instruction::nop}, // first padding
-		csignal{instruction::push},
-		csignal{INT64_C(123)},
-		csignal{instruction::push},
-		csignal{INT64_C(123)},
-		csignal{instruction::push},
-		csignal{INT64_C(123)},
-		csignal{instruction::inter},
-		csignal{INT64_C(0)},
+TEST(ReactorExecution, __Push_no_stack_overflow__) {
+	const std::array<Signal, 9> code{
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
+		Signal{INT64_C(123)},
+		Signal{Instruction::Push},
+		Signal{INT64_C(123)},
+		Signal{Instruction::Push},
+		Signal{INT64_C(123)},
+		Signal{Instruction::Int},
+		Signal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<record64, 4> stack{record64::nop_padding()};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	input.stack = stack.data();
-	input.stack_size = stack.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	std::array<Record64, 4> stack{Record64::Padding()};
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	input.Stack = stack.data();
+	input.StackSize = stack.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].I32, 123);
-	ASSERT_EQ(o.input->stack[2].I32, 123);
-	ASSERT_EQ(o.input->stack[3].I32, 123);
-	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, 0);
-	ASSERT_EQ(o.terminate_result, terminate_type::success);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 123);
+	ASSERT_EQ(o.Input->Stack[2].I64, 123);
+	ASSERT_EQ(o.Input->Stack[3].I64, 123);
+	ASSERT_EQ(o.SpDiff, 3);
+    ASSERT_EQ(o.InterruptCode, 0);
+	ASSERT_EQ(o.TerminateResult, TerminateResult::Success);
 }
 
-TEST(reactor_execution, __push_stack_overflow__) {
-	const std::array<csignal, 11> code{
-		csignal{instruction::nop}, // first padding
-		csignal{instruction::push},
-		csignal{INT64_C(123)},
-		csignal{instruction::push},
-		csignal{INT64_C(123)},
-		csignal{instruction::push},
-		csignal{INT64_C(123)},
-		csignal{instruction::push},
-		csignal{INT64_C(123)},
-		csignal{instruction::inter},
-		csignal{INT64_C(0)},
+TEST(ReactorExecution, __Push_stack_overflow__) {
+	const std::array<Signal, 11> code{
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
+		Signal{INT64_C(123)},
+		Signal{Instruction::Push},
+		Signal{INT64_C(123)},
+		Signal{Instruction::Push},
+		Signal{INT64_C(123)},
+		Signal{Instruction::Push},
+		Signal{INT64_C(123)},
+		Signal{Instruction::Int},
+		Signal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<record64, 4> stack{record64::nop_padding()};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	input.stack = stack.data();
-	input.stack_size = stack.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	std::array<Record64, 4> stack{Record64::Padding()};
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	input.Stack = stack.data();
+	input.StackSize = stack.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].I32, 123);
-	ASSERT_EQ(o.input->stack[2].I32, 123);
-	ASSERT_EQ(o.input->stack[3].I32, 123);
-	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
-	ASSERT_EQ(o.terminate_result, terminate_type::error);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 123);
+	ASSERT_EQ(o.Input->Stack[2].I64, 123);
+	ASSERT_EQ(o.Input->Stack[3].I64, 123);
+	ASSERT_EQ(o.SpDiff, 3);
+    ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
+	ASSERT_EQ(o.TerminateResult, TerminateResult::Error);
 }
 
-TEST(reactor_execution, __dupl_stack_overflow__) {
-	const std::array<csignal, 8> code{
-		csignal{instruction::nop}, // first padding
-		csignal{instruction::push},
-		csignal{INT64_C(123)},
-		csignal{instruction::dupl},
-		csignal{instruction::dupl},
-		csignal{instruction::dupl},
-		csignal{instruction::inter},
-		csignal{INT64_C(0)},
+TEST(ReactorExecution, __Dupl_stack_overflow__) {
+	const std::array<Signal, 8> code{
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
+		Signal{INT64_C(123)},
+		Signal{Instruction::Dupl},
+		Signal{Instruction::Dupl},
+		Signal{Instruction::Dupl},
+		Signal{Instruction::Int},
+		Signal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<record64, 4> stack{record64::nop_padding()};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	input.stack = stack.data();
-	input.stack_size = stack.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	std::array<Record64, 4> stack{Record64::Padding()};
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	input.Stack = stack.data();
+	input.StackSize = stack.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].I32, 123);
-	ASSERT_EQ(o.input->stack[2].I32, 123);
-	ASSERT_EQ(o.input->stack[3].I32, 123);
-	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
-	ASSERT_EQ(o.terminate_result, terminate_type::error);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 123);
+	ASSERT_EQ(o.Input->Stack[2].I64, 123);
+	ASSERT_EQ(o.Input->Stack[3].I64, 123);
+	ASSERT_EQ(o.SpDiff, 3);
+    ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
+	ASSERT_EQ(o.TerminateResult, TerminateResult::Error);
 }
 
-TEST(reactor_execution, __dupl2_stack_overflow__) {
-	const std::array<csignal, 8> code{
-		csignal{instruction::nop}, // first padding
-		csignal{instruction::push},
-		csignal{INT64_C(123)},
-		csignal{instruction::dupl2},
-		csignal{instruction::dupl2},
-		csignal{instruction::dupl2},
-		csignal{instruction::inter},
-		csignal{INT64_C(0)},
+TEST(ReactorExecution, __Dupl2_stack_overflow__) {
+	const std::array<Signal, 8> code{
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
+		Signal{INT64_C(123)},
+		Signal{Instruction::Dupl2},
+		Signal{Instruction::Dupl2},
+		Signal{Instruction::Dupl2},
+		Signal{Instruction::Int},
+		Signal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<record64, 4> stack{record64::nop_padding()};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	input.stack = stack.data();
-	input.stack_size = stack.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	std::array<Record64, 4> stack{Record64::Padding()};
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	input.Stack = stack.data();
+	input.StackSize = stack.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].I32, 123);
-	ASSERT_EQ(o.input->stack[2].I32, 123);
-	ASSERT_EQ(o.input->stack[3].I32, 123);
-	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
-	ASSERT_EQ(o.terminate_result, terminate_type::error);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 123);
+	ASSERT_EQ(o.Input->Stack[2].I64, 123);
+	ASSERT_EQ(o.Input->Stack[3].I64, 123);
+	ASSERT_EQ(o.SpDiff, 3);
+    ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
+	ASSERT_EQ(o.TerminateResult, TerminateResult::Error);
 }
 
-TEST(reactor_execution, __cintrin__) {
+TEST(ReactorExecution, __CIntrin__) {
 	static constinit int calls;
-	std::array<intrinsic_routine*, 3> custom_intrinsics{
-		+[](record64*) -> bool {
+	std::array<IntrinsicRoutine*, 3> custom_Intrinsics{
+		+[](Record64*) -> bool {
 			++calls;
 			return true;
 		},
-		+[](record64* sp_) -> bool {
-			(*++sp_).F32 = 3.223;
+		+[](Record64* sp_) -> bool {
+			(*++sp_).F64 = 3.223;
 			(*++sp_).C32 = ':';
 			(*++sp_).C32 = ')';
 			++calls;
 			return true;
 		},
-		+[](record64*) -> bool {
+		+[](Record64*) -> bool {
 			++calls;
 			return true;
 		},
 	};
-	const std::array<csignal, 11> code{
-		csignal{instruction::nop}, // first padding
-		csignal{instruction::push},
-		csignal{0.12345},
-		csignal{instruction::cintrin},
-		csignal{UINT64_C(0)},
-		csignal{instruction::cintrin},
-		csignal{UINT64_C(1)},
-		csignal{instruction::cintrin},
-		csignal{UINT64_C(2)},
-		csignal{instruction::inter},
-		csignal{INT64_C(0)},
+	const std::array<Signal, 11> code{
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
+		Signal{0.12345},
+		Signal{Instruction::CIntrin},
+		Signal{UINT64_C(0)},
+		Signal{Instruction::CIntrin},
+		Signal{UINT64_C(1)},
+		Signal{Instruction::CIntrin},
+		Signal{UINT64_C(2)},
+		Signal{Instruction::Int},
+		Signal{INT64_C(0)},
 	};
-	std::array<record64, 6> stack{ record64::nop_padding() };
-	auto input{ default_test_input };
-	input.stack = stack.data();
-	input.stack_size = stack.size();
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	input.intrinsic_table = custom_intrinsics.data();
-	input.intrinsic_table_size = custom_intrinsics.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	std::array<Record64, 6> stack{ Record64::Padding() };
+	auto input{ MockReactorInput };
+	input.Stack = stack.data();
+	input.StackSize = stack.size();
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	input.IntrinsicTable = custom_Intrinsics.data();
+	input.IntrinsicTableSize = custom_Intrinsics.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ execute_reactor(input) };
-	ASSERT_EQ(o.input->stack[1].F32, 0.12345);
-	ASSERT_EQ(o.input->stack[2].F32, 3.223);
-	ASSERT_EQ(o.input->stack[3].C32, ':');
-	ASSERT_EQ(o.input->stack[4].C32, ')');
-	ASSERT_EQ(o.sp_diff, 1); // pop all!
-    ASSERT_EQ(o.interrupt_code, 0);
-	ASSERT_EQ(o.terminate_result, terminate_type::success);
-	ASSERT_EQ(calls, custom_intrinsics.size());
+	const auto o{ ExecuteChecked(input) };
+	ASSERT_EQ(o.Input->Stack[1].F64, 0.12345);
+	ASSERT_EQ(o.Input->Stack[2].F64, 3.223);
+	ASSERT_EQ(o.Input->Stack[3].C32, ':');
+	ASSERT_EQ(o.Input->Stack[4].C32, ')');
+	ASSERT_EQ(o.SpDiff, 1); // Pop all!
+    ASSERT_EQ(o.InterruptCode, 0);
+	ASSERT_EQ(o.TerminateResult, TerminateResult::Success);
+	ASSERT_EQ(calls, custom_Intrinsics.size());
 }
 
-TEST(reactor_execution, __pushz_stack_overflow__) {
-	const std::array<csignal, 7> code{
-		csignal{instruction::nop}, // first padding
-		csignal{instruction::pushz},
-		csignal{instruction::pushz},
-		csignal{instruction::pushz},
-		csignal{instruction::pushz},
-		csignal{instruction::inter},
-		csignal{INT64_C(0)},
+TEST(ReactorExecution, __PushZ_stack_overflow__) {
+	const std::array<Signal, 7> code{
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::PushZ},
+		Signal{Instruction::PushZ},
+		Signal{Instruction::PushZ},
+		Signal{Instruction::PushZ},
+		Signal{Instruction::Int},
+		Signal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<record64, 4> stack{record64::nop_padding()};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	input.stack = stack.data();
-	input.stack_size = stack.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	std::array<Record64, 4> stack{Record64::Padding()};
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	input.Stack = stack.data();
+	input.StackSize = stack.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].I32, 0);
-	ASSERT_EQ(o.input->stack[2].I32, 0);
-	ASSERT_EQ(o.input->stack[3].I32, 0);
-	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
-	ASSERT_EQ(o.terminate_result, terminate_type::error);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 0);
+	ASSERT_EQ(o.Input->Stack[2].I64, 0);
+	ASSERT_EQ(o.Input->Stack[3].I64, 0);
+	ASSERT_EQ(o.SpDiff, 3);
+    ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
+	ASSERT_EQ(o.TerminateResult, TerminateResult::Error);
 }
 
-TEST(reactor_execution, __ipusho_stack_overflow__) {
-	const std::array<csignal, 7> code{
-		csignal{instruction::nop}, // first padding
-		csignal{instruction::ipusho},
-		csignal{instruction::ipusho},
-		csignal{instruction::ipusho},
-		csignal{instruction::ipusho},
-		csignal{instruction::inter},
-		csignal{INT64_C(0)},
+TEST(ReactorExecution, __IPushO_stack_overflow__) {
+	const std::array<Signal, 7> code{
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::IPushO},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::Int},
+		Signal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<record64, 4> stack{record64::nop_padding()};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	input.stack = stack.data();
-	input.stack_size = stack.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	std::array<Record64, 4> stack{Record64::Padding()};
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	input.Stack = stack.data();
+	input.StackSize = stack.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].I32, 1);
-	ASSERT_EQ(o.input->stack[2].I32, 1);
-	ASSERT_EQ(o.input->stack[3].I32, 1);
-	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
-	ASSERT_EQ(o.terminate_result, terminate_type::error);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 1);
+	ASSERT_EQ(o.Input->Stack[2].I64, 1);
+	ASSERT_EQ(o.Input->Stack[3].I64, 1);
+	ASSERT_EQ(o.SpDiff, 3);
+    ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
+	ASSERT_EQ(o.TerminateResult, TerminateResult::Error);
 }
 
-TEST(reactor_execution, __fpusho_stack_overflow__) {
-	const std::array<csignal, 7> code{
-		csignal{instruction::nop}, // first padding
-		csignal{instruction::fpusho},
-		csignal{instruction::fpusho},
-		csignal{instruction::fpusho},
-		csignal{instruction::fpusho},
-		csignal{instruction::inter},
-		csignal{INT64_C(0)},
+TEST(ReactorExecution, __FPushO_stack_overflow__) {
+	const std::array<Signal, 7> code{
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::FPushO},
+		Signal{Instruction::FPushO},
+		Signal{Instruction::FPushO},
+		Signal{Instruction::FPushO},
+		Signal{Instruction::Int},
+		Signal{INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<record64, 4> stack{record64::nop_padding()};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	input.stack = stack.data();
-	input.stack_size = stack.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	std::array<Record64, 4> stack{Record64::Padding()};
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	input.Stack = stack.data();
+	input.StackSize = stack.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].F32, 1.0);
-	ASSERT_EQ(o.input->stack[2].F32, 1.0);
-	ASSERT_EQ(o.input->stack[3].F32, 1.0);
-	ASSERT_EQ(o.sp_diff, 3);
-    ASSERT_EQ(o.interrupt_code, interrupt::stack_overflow);
-	ASSERT_EQ(o.terminate_result, terminate_type::error);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].F64, 1.0);
+	ASSERT_EQ(o.Input->Stack[2].F64, 1.0);
+	ASSERT_EQ(o.Input->Stack[3].F64, 1.0);
+	ASSERT_EQ(o.SpDiff, 3);
+    ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
+	ASSERT_EQ(o.TerminateResult, TerminateResult::Error);
 }
 
 #endif
 
-TEST(reactor_execution, __pop__) {
+TEST(ReactorExecution, __Pop__) {
 	std::array<Signal, 9> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(1224)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{-0.6666},
-		Signal{Instruction::pop},
-		Signal{Instruction::pop},
-		Signal{Instruction::inter},
+		Signal{Instruction::Pop},
+		Signal{Instruction::Pop},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 1224);
-	ASSERT_EQ(o.input->stack[2].double, -0.6666);
-	ASSERT_EQ(o.sp_diff, 0);
+	auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 1224);
+	ASSERT_EQ(o.Input->Stack[2].F64, -0.6666);
+	ASSERT_EQ(o.SpDiff, 0);
 
-	code[6].Instr = Instruction::nop;
-	o = execute_reactor(input);
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 1224);
-	ASSERT_EQ(o.input->stack[2].double, -0.6666);
-	ASSERT_EQ(o.sp_diff, 1);
+	code[6].Instr = Instruction::NOp;
+	o = ExecuteChecked(input);
+	ASSERT_EQ(o.Input->Stack[1].I64, 1224);
+	ASSERT_EQ(o.Input->Stack[2].F64, -0.6666);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __pop2__) {
+TEST(ReactorExecution, __Pop2__) {
 	std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{UINT64_C(1224)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{-0.6666},
-		Signal{Instruction::pop2},
-		Signal{Instruction::inter},
+		Signal{Instruction::Pop2},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 1224);
-	ASSERT_EQ(o.input->stack[2].double, -0.6666);
-	ASSERT_EQ(o.sp_diff, 0);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 1224);
+	ASSERT_EQ(o.Input->Stack[2].F64, -0.6666);
+	ASSERT_EQ(o.SpDiff, 0);
 }
 
-TEST(reactor_execution, __dupl__) {
+TEST(ReactorExecution, __Dupl__) {
 	const std::array<Signal, 9> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(5)},
-		Signal{Instruction::dupl},
-		Signal{Instruction::push},
+		Signal{Instruction::Dupl},
+		Signal{Instruction::Push},
 		Signal{INT64_C(-2)},
-		Signal{Instruction::dupl},
-		Signal{Instruction::inter},
+		Signal{Instruction::Dupl},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 5);
-	ASSERT_EQ(o.input->stack[2].std::int64_t, 5);
-	ASSERT_EQ(o.input->stack[3].std::int64_t, -2);
-	ASSERT_EQ(o.input->stack[4].std::int64_t, -2);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 5);
+	ASSERT_EQ(o.Input->Stack[2].I64, 5);
+	ASSERT_EQ(o.Input->Stack[3].I64, -2);
+	ASSERT_EQ(o.Input->Stack[4].I64, -2);
 }
 
-TEST(reactor_execution, __swap__) {
+TEST(ReactorExecution, __Swap__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(3)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(-666)},
-		Signal{Instruction::swap},
-		Signal{Instruction::inter},
+		Signal{Instruction::Swap},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, -666);
-	ASSERT_EQ(o.input->stack[2].std::int64_t, 3);
-	ASSERT_EQ(o.sp_diff, 2);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, -666);
+	ASSERT_EQ(o.Input->Stack[2].I64, 3);
+	ASSERT_EQ(o.SpDiff, 2);
 }
 
-TEST(reactor_execution, __dupl2__) {
+TEST(ReactorExecution, __Dupl2__) {
 	const std::array<Signal, 9> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(5)},
-		Signal{Instruction::dupl2},
-		Signal{Instruction::push},
+		Signal{Instruction::Dupl2},
+		Signal{Instruction::Push},
 		Signal{INT64_C(0xFF)},
-		Signal{Instruction::dupl2},
-		Signal{Instruction::inter},
+		Signal{Instruction::Dupl2},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 5);
-	ASSERT_EQ(o.input->stack[2].std::int64_t, 5);
-	ASSERT_EQ(o.input->stack[3].std::int64_t, 5);
-	ASSERT_EQ(o.input->stack[4].std::int64_t, 0xFF);
-	ASSERT_EQ(o.input->stack[5].std::int64_t, 0xFF);
-	ASSERT_EQ(o.input->stack[6].std::int64_t, 0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 5);
+	ASSERT_EQ(o.Input->Stack[2].I64, 5);
+	ASSERT_EQ(o.Input->Stack[3].I64, 5);
+	ASSERT_EQ(o.Input->Stack[4].I64, 0xFF);
+	ASSERT_EQ(o.Input->Stack[5].I64, 0xFF);
+	ASSERT_EQ(o.Input->Stack[6].I64, 0xFF);
 }
 
-TEST(reactor_execution, __iinc__) {
+TEST(ReactorExecution, __IInc__) {
 	const std::array<Signal, 10> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(0)},
-		Signal{Instruction::iinc},
-		Signal{Instruction::iinc},
-		Signal{Instruction::iinc},
-		Signal{Instruction::iinc},
-		Signal{Instruction::iinc},
-		Signal{Instruction::inter},
+		Signal{Instruction::IInc},
+		Signal{Instruction::IInc},
+		Signal{Instruction::IInc},
+		Signal{Instruction::IInc},
+		Signal{Instruction::IInc},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[0], Record64::Padding());
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 5);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[0], Record64::Padding());
+	ASSERT_EQ(o.Input->Stack[1].I64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __idec__) {
+TEST(ReactorExecution, __IDec__) {
 	const std::array<Signal, 10> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::idec},
-		Signal{Instruction::idec},
-		Signal{Instruction::idec},
-		Signal{Instruction::idec},
-		Signal{Instruction::idec},
-		Signal{Instruction::inter},
+		Signal{Instruction::IDec},
+		Signal{Instruction::IDec},
+		Signal{Instruction::IDec},
+		Signal{Instruction::IDec},
+		Signal{Instruction::IDec},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[0], Record64::Padding());
-	ASSERT_EQ(o.input->stack[1].std::int64_t, -3);
-	ASSERT_EQ(o.sp_diff, 1);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[0], Record64::Padding());
+	ASSERT_EQ(o.Input->Stack[1].I64, -3);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __pushz__) {
+TEST(ReactorExecution, __PushZ__) {
 	const std::array<Signal, 6> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::pushz},
-		Signal{Instruction::pushz},
-		Signal{Instruction::pushz},
-		Signal{Instruction::inter},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::PushZ},
+		Signal{Instruction::PushZ},
+		Signal{Instruction::PushZ},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 0);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0);
-	ASSERT_EQ(o.input->stack[3].double, 0.0F);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 0);
+	ASSERT_EQ(o.Input->Stack[2].U64, 0);
+	ASSERT_EQ(o.Input->Stack[3].F64, 0.0F);
 }
 
-TEST(reactor_execution, __ipusho__) {
+TEST(ReactorExecution, __IPushO__) {
 	const std::array<Signal, 6> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::ipusho},
-		Signal{Instruction::pushz},
-		Signal{Instruction::ipusho},
-		Signal{Instruction::inter},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::IPushO},
+		Signal{Instruction::PushZ},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 1);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0);
-	ASSERT_EQ(o.input->stack[3].std::uint64_t, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 1);
+	ASSERT_EQ(o.Input->Stack[2].U64, 0);
+	ASSERT_EQ(o.Input->Stack[3].U64, 1);
 }
 
-TEST(reactor_execution, __iadd__) {
+TEST(ReactorExecution, __iadd__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(5)},
-		Signal{Instruction::iadd},
-		Signal{Instruction::inter},
+		Signal{Instruction::IAdd},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 2 + 5);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 5);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 2 + 5);
+	ASSERT_EQ(o.Input->Stack[2].U64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __isub__) {
+TEST(ReactorExecution, __isub__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(5)},
-		Signal{Instruction::isub},
-		Signal{Instruction::inter},
+		Signal{Instruction::ISub},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 2 - 5);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 5);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 2 - 5);
+	ASSERT_EQ(o.Input->Stack[2].U64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __imul__) {
+TEST(ReactorExecution, __imul__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(5)},
-		Signal{Instruction::imul},
-		Signal{Instruction::inter},
+		Signal{Instruction::IMul},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 2 * 5);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 5);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 2 * 5);
+	ASSERT_EQ(o.Input->Stack[2].U64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __idiv__) {
+TEST(ReactorExecution, __idiv__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(10)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(5)},
-		Signal{Instruction::idiv},
-		Signal{Instruction::inter},
+		Signal{Instruction::IDiv},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 10 / 5);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 5);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 10 / 5);
+	ASSERT_EQ(o.Input->Stack[2].U64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __imod__) {
+TEST(ReactorExecution, __imod__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(10)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(5)},
-		Signal{Instruction::imod},
-		Signal{Instruction::inter},
+		Signal{Instruction::IMod},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 10 % 5);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 5);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 10 % 5);
+	ASSERT_EQ(o.Input->Stack[2].U64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __iand__) {
+TEST(ReactorExecution, __iand__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(0b1101'1101)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(0b0111'0111)},
-		Signal{Instruction::iand},
-		Signal{Instruction::inter},
+		Signal{Instruction::IAnd},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 0b1101'1101 & 0b0111'0111);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0b0111'0111);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 0b1101'1101 & 0b0111'0111);
+	ASSERT_EQ(o.Input->Stack[2].U64, 0b0111'0111);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __ior__) {
+TEST(ReactorExecution, __ior__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(0b1101'1101)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(0b0111'0111)},
-		Signal{Instruction::ior},
-		Signal{Instruction::inter},
+		Signal{Instruction::IOr},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 0b1101'1101 | 0b0111'0111);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0b0111'0111);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 0b1101'1101 | 0b0111'0111);
+	ASSERT_EQ(o.Input->Stack[2].U64, 0b0111'0111);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __ixor__) {
+TEST(ReactorExecution, __ixor__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(0b1101'1101)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(0b0111'0111)},
-		Signal{Instruction::ixor},
-		Signal{Instruction::inter},
+		Signal{Instruction::IXor},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 0b1101'1101 ^ 0b0111'0111);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0b0111'0111);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 0b1101'1101 ^ 0b0111'0111);
+	ASSERT_EQ(o.Input->Stack[2].U64, 0b0111'0111);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __icom__) {
+TEST(ReactorExecution, __icom__) {
 	const std::array<Signal, 6> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(0b1101'1101)},
-		Signal{Instruction::icom},
-		Signal{Instruction::inter},
+		Signal{Instruction::ICom},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, ~0b1101'1101);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, ~0b1101'1101);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __isal__) {
+TEST(ReactorExecution, __isal__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(1)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::isal},
-		Signal{Instruction::inter},
+		Signal{Instruction::ISal},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 1 << 2);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 2);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 1 << 2);
+	ASSERT_EQ(o.Input->Stack[2].U64, 2);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __isar__) {
+TEST(ReactorExecution, __isar__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(1)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::isar},
-		Signal{Instruction::inter},
+		Signal{Instruction::ISar},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 1 >> 2);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 2);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 1 >> 2);
+	ASSERT_EQ(o.Input->Stack[2].U64, 2);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __irol__) {
+TEST(ReactorExecution, __irol__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(1)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::irol},
-		Signal{Instruction::inter},
+		Signal{Instruction::IRol},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::uint64_t, std::rotl<std::uint64_t>(1, 2));
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 2);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].U64, std::rotl<std::uint64_t>(1, 2));
+	ASSERT_EQ(o.Input->Stack[2].U64, 2);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __iror__) {
+TEST(ReactorExecution, __iror__) {
 	const std::array<Signal, 8> code = {
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(1)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::iror},
-		Signal{Instruction::inter},
+		Signal{Instruction::IRor},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::uint64_t, std::rotr<std::uint64_t>(1, 2));
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 2);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].U64, std::rotr<std::uint64_t>(1, 2));
+	ASSERT_EQ(o.Input->Stack[2].U64, 2);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __ineg__) {
+TEST(ReactorExecution, __ineg__) {
 	const std::array<Signal, 6> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(10)},
-		Signal{Instruction::ineg},
-		Signal{Instruction::inter},
+		Signal{Instruction::INeg},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, -10);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, -10);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __fadd__) {
+TEST(ReactorExecution, __fadd__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{4.25},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{2.50},
-		Signal{Instruction::fadd},
-		Signal{Instruction::inter},
+		Signal{Instruction::FAdd},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, 6.75);
-	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 2.50);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, 6.75);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 2.50);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __fmod_) {
+TEST(ReactorExecution, __fmod_) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{4.25},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{2.50},
-		Signal{Instruction::fmod},
-		Signal{Instruction::inter},
+		Signal{Instruction::FMod},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, std::fmod(4.25, 2.50));
-	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 2.50);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::fmod(4.25, 2.50));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 2.50);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __fsub__) {
+TEST(ReactorExecution, __fsub__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{4.25},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{2.50},
-		Signal{Instruction::fsub},
-		Signal{Instruction::inter},
+		Signal{Instruction::FSub},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, 1.75);
-	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 2.50);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, 1.75);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 2.50);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __fmul__) {
+TEST(ReactorExecution, __fmul__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{4.25},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{2.50},
-		Signal{Instruction::fmul},
-		Signal{Instruction::inter},
+		Signal{Instruction::FMul},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, 10.625);
-	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 2.50);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, 10.625);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 2.50);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __fdiv__) {
+TEST(ReactorExecution, __fdiv__) {
 	const std::array<Signal, 8> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{4.25},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{2.50},
-		Signal{Instruction::fdiv},
-		Signal{Instruction::inter},
+		Signal{Instruction::FDiv},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, 1.7);
-	ASSERT_DOUBLE_EQ(o.input->stack[2].double, 2.50);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, 1.7);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 2.50);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __fneg__) {
+TEST(ReactorExecution, __fneg__) {
 	const std::array<Signal, 6> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{2.25},
-		Signal{Instruction::fneg},
-		Signal{Instruction::inter},
+		Signal{Instruction::FNeg},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, -2.25);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, -2.25);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __finc__) {
+TEST(ReactorExecution, __FInc__) {
 	const std::array<Signal, 10> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{.0},
-		Signal{Instruction::finc},
-		Signal{Instruction::finc},
-		Signal{Instruction::finc},
-		Signal{Instruction::finc},
-		Signal{Instruction::finc},
-		Signal{Instruction::inter},
+		Signal{Instruction::FInc},
+		Signal{Instruction::FInc},
+		Signal{Instruction::FInc},
+		Signal{Instruction::FInc},
+		Signal{Instruction::FInc},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[0], Record64::Padding());
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, 5.);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[0], Record64::Padding());
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, 5.);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __fdec__) {
+TEST(ReactorExecution, __FDec__) {
 	const std::array<Signal, 10> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Push},
 		Signal{2.},
-		Signal{Instruction::fdec},
-		Signal{Instruction::fdec},
-		Signal{Instruction::fdec},
-		Signal{Instruction::fdec},
-		Signal{Instruction::fdec},
-		Signal{Instruction::inter},
+		Signal{Instruction::FDec},
+		Signal{Instruction::FDec},
+		Signal{Instruction::FDec},
+		Signal{Instruction::FDec},
+		Signal{Instruction::FDec},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[0], Record64::Padding());
-	ASSERT_DOUBLE_EQ(o.input->stack[1].double, -3.);
-	ASSERT_EQ(o.sp_diff, 1);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[0], Record64::Padding());
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, -3.);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(reactor_execution, __fpusho__) {
+TEST(ReactorExecution, __FPushO__) {
 	const std::array<Signal, 6> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::fpusho},
-		Signal{Instruction::pushz},
-		Signal{Instruction::fpusho},
-		Signal{Instruction::inter},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::FPushO},
+		Signal{Instruction::PushZ},
+		Signal{Instruction::FPushO},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].double, 1.);
-	ASSERT_EQ(o.input->stack[2].std::uint64_t, 0);
-	ASSERT_EQ(o.input->stack[3].double, 1.);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].F64, 1.);
+	ASSERT_EQ(o.Input->Stack[2].U64, 0);
+	ASSERT_EQ(o.Input->Stack[3].F64, 1.);
 }
 
-TEST(reactor_execution, __jmp__) {
+TEST(ReactorExecution, __jmp__) {
 	const std::array<Signal, 9> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::jmp},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::Jmp},
 		Signal{UINT64_C(5)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(10)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 	
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 10);
-	ASSERT_EQ(o.ip_diff, 8);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 10);
+	ASSERT_EQ(o.IpDiff, 8);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jmprel__) {
+TEST(ReactorExecution, __jmprel__) {
 	const std::array<Signal, 9> code{
-		Signal{Instruction::nop}, // first padding
-		Signal{Instruction::jmprel},
+		Signal{Instruction::NOp}, // first padding
+		Signal{Instruction::JmpRel},
 		Signal{UINT64_C(3)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(10)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 10);
-	ASSERT_EQ(o.ip_diff, 8);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 10);
+	ASSERT_EQ(o.IpDiff, 8);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jz__) {
+TEST(ReactorExecution, __jz__) {
 	const std::array<Signal, 11> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::pushz},
-		Signal{Instruction::jz},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::PushZ},
+		Signal{Instruction::Jz},
 		Signal{UINT64_C(6)},					// first padding does not count
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::ipusho},
-		Signal{Instruction::jz},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::Jz},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::uint64_t, 1);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 10);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].U64, 1);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jnz__) {
+TEST(ReactorExecution, __jnz__) {
 	const std::array<Signal, 11> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::ipusho},
-		Signal{Instruction::jnz},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::IPushO},
+		Signal{Instruction::Jnz},
 		Signal{UINT64_C(6)},					// first padding does not count
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::pushz},
-		Signal{Instruction::jz},
-		Signal{UINT64_C(9)},
-		Signal{Instruction::inter},
+		Signal{Instruction::PushZ},
+		Signal{Instruction::Jnz},
+		Signal{UINT64_C(1)},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::uint64_t, 0);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 10);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].U64, 0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jo_cmpi__) {
+TEST(ReactorExecution, __jo_cmpi__) {
 	const std::array<Signal, 11> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::ipusho},
-		Signal{Instruction::jo_cmpi},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::IPushO},
+		Signal{Instruction::JoCmpi},
 		Signal{UINT64_C(6)},					// first padding does not count
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::pushz},
-		Signal{Instruction::jo_cmpi},
+		Signal{Instruction::PushZ},
+		Signal{Instruction::JoCmpi},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::uint64_t, 0);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 10);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].U64, 0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jno_cmpi__) {
+TEST(ReactorExecution, __jno_cmpi__) {
 	const std::array<Signal, 11> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::pushz},
-		Signal{Instruction::jno_cmpi},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::PushZ},
+		Signal{Instruction::JnoCmpi},
 		Signal{UINT64_C(6)},					// first padding does not count
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::ipusho},
-		Signal{Instruction::jno_cmpi},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::JnoCmpi},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::uint64_t, 1);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 10);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].U64, 1);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jo_cmpf__) {
+TEST(ReactorExecution, __jo_cmpf__) {
 	const std::array<Signal, 11> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::fpusho},
-		Signal{Instruction::jo_cmpf},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::FPushO},
+		Signal{Instruction::JoCmpf},
 		Signal{UINT64_C(6)},					// first padding does not count
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::pushz},
-		Signal{Instruction::jo_cmpf},
+		Signal{Instruction::PushZ},
+		Signal{Instruction::JoCmpf},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].double, 0.F);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 10);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].F64, 0.F);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jno_cmpf__) {
+TEST(ReactorExecution, __jno_cmpf__) {
 	const std::array<Signal, 11> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::pushz},
-		Signal{Instruction::jno_cmpf},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::PushZ},
+		Signal{Instruction::JnoCmpf},
 		Signal{UINT64_C(6)},					// first padding does not count
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::fpusho},
-		Signal{Instruction::jno_cmpf},
+		Signal{Instruction::FPushO},
+		Signal{Instruction::JnoCmpf},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].double, 1.0);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 10);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].F64, 1.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __je_cmpi__) {
+TEST(ReactorExecution, __je_cmpi__) {
 	const std::array<Signal, 16> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(12345679)},
-		Signal{Instruction::dupl},
-		Signal{Instruction::je_cmpi},
+		Signal{Instruction::Dupl},
+		Signal{Instruction::JeCmpi},
 		Signal{UINT64_C(8)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(123424224)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(0xFF'FF)},
-		Signal{Instruction::je_cmpi},
+		Signal{Instruction::JeCmpi},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 123424224);
-	ASSERT_EQ(o.input->stack[2].std::int64_t, 0xFF'FF);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 15);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 123424224);
+	ASSERT_EQ(o.Input->Stack[2].I64, 0xFF'FF);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 15);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __je_cmpf__) {
+TEST(ReactorExecution, __je_cmpf__) {
 	const std::array<Signal, 16> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{1234567.0},
-		Signal{Instruction::dupl},
-		Signal{Instruction::je_cmpf},
+		Signal{Instruction::Dupl},
+		Signal{Instruction::JeCmpf},
 		Signal{UINT64_C(8)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{123424224.0},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{0.22233},
-		Signal{Instruction::je_cmpf},
+		Signal{Instruction::JeCmpf},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].double, 123424224.0);
-	ASSERT_EQ(o.input->stack[2].double, 0.22233);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 15);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].F64, 123424224.0);
+	ASSERT_EQ(o.Input->Stack[2].F64, 0.22233);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 15);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jne_cmpi__) {
+TEST(ReactorExecution, __jne_cmpi__) {
 	const std::array<Signal, 17> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(1234567)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(213131232)},
-		Signal{Instruction::jne_cmpi},
+		Signal{Instruction::JneCmpi},
 		Signal{UINT64_C(9)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(0xFF'FF)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(0xFF'FF)},
-		Signal{Instruction::jne_cmpi},
+		Signal{Instruction::JneCmpi},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 0xFF'FF);
-	ASSERT_EQ(o.input->stack[2].std::int64_t, 0xFF'FF);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 16);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 0xFF'FF);
+	ASSERT_EQ(o.Input->Stack[2].I64, 0xFF'FF);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jne_cmpf__) {
+TEST(ReactorExecution, __jne_cmpf__) {
 	const std::array<Signal, 17> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{1234567.},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{213131232.},
-		Signal{Instruction::jne_cmpf},
+		Signal{Instruction::JneCmpf},
 		Signal{UINT64_C(9)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-1)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{3.1415},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{3.1415},
-		Signal{Instruction::jne_cmpf},
+		Signal{Instruction::JneCmpf},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].double, 3.1415);
-	ASSERT_EQ(o.input->stack[2].double, 3.1415);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 16);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].F64, 3.1415);
+	ASSERT_EQ(o.Input->Stack[2].F64, 3.1415);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __ja_cmpi__) {
+TEST(ReactorExecution, __ja_cmpi__) {
 	const std::array<Signal, 17> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(5)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::ja_cmpi},
+		Signal{Instruction::JaCmpi},
 		Signal{UINT64_C(9)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(0)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(3)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(53)},
-		Signal{Instruction::ja_cmpi},
+		Signal{Instruction::JaCmpi},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 3);
-	ASSERT_EQ(o.input->stack[2].std::int64_t, 53);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 16);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 3);
+	ASSERT_EQ(o.Input->Stack[2].I64, 53);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __ja_cmpf__) {
+TEST(ReactorExecution, __ja_cmpf__) {
 	const std::array<Signal, 17> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{5.0},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{2.0},
-		Signal{Instruction::ja_cmpf},
+		Signal{Instruction::JaCmpf},
 		Signal{UINT64_C(9)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(0)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{3.0},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{53.0},
-		Signal{Instruction::ja_cmpf},
+		Signal{Instruction::JaCmpf},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].double, 3.0);
-	ASSERT_EQ(o.input->stack[2].double, 53.0);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 16);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].F64, 3.0);
+	ASSERT_EQ(o.Input->Stack[2].F64, 53.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jl_cmpi__) {
+TEST(ReactorExecution, __jl_cmpi__) {
 	const std::array<Signal, 17> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(5)},
-		Signal{Instruction::jl_cmpi},
+		Signal{Instruction::JlCmpi},
 		Signal{UINT64_C(9)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(0)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(53)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(3)},
-		Signal{Instruction::jl_cmpi},
+		Signal{Instruction::JlCmpi},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 53);
-	ASSERT_EQ(o.input->stack[2].std::int64_t, 3);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 16);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 53);
+	ASSERT_EQ(o.Input->Stack[2].I64, 3);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jl_cmpf__) {
+TEST(ReactorExecution, __jl_cmpf__) {
 	const std::array<Signal, 17> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{2.0},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{5.0},
-		Signal{Instruction::jl_cmpf},
+		Signal{Instruction::JlCmpf},
 		Signal{UINT64_C(9)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(0)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{53.0},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{3.0},
-		Signal{Instruction::jl_cmpf},
+		Signal{Instruction::JlCmpf},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].double, 53.0);
-	ASSERT_EQ(o.input->stack[2].double, 3.0);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 16);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].F64, 53.0);
+	ASSERT_EQ(o.Input->Stack[2].F64, 3.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jae_cmpi__) {
+TEST(ReactorExecution, __jae_cmpi__) {
 	const std::array<Signal, 23> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(5)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::jae_cmpi},
+		Signal{Instruction::JaeCmpi},
 		Signal{UINT64_C(9)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-3)},
-		Signal{Instruction::ipusho},
-		Signal{Instruction::ipusho},
-		Signal{Instruction::jae_cmpi},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::JaeCmpi},
 		Signal{UINT64_C(15)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-5)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(3)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(53)},
-		Signal{Instruction::jae_cmpi},
+		Signal{Instruction::JaeCmpi},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 3);
-	ASSERT_EQ(o.input->stack[2].std::int64_t, 53);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 22);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 3);
+	ASSERT_EQ(o.Input->Stack[2].I64, 53);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 22);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jae_cmpf__) {
+TEST(ReactorExecution, __jae_cmpf__) {
 	const std::array<Signal, 23> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{5.0},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{2.0},
-		Signal{Instruction::jae_cmpf},
+		Signal{Instruction::JaeCmpf},
 		Signal{UINT64_C(9)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-3)},
-		Signal{Instruction::ipusho},
-		Signal{Instruction::ipusho},
-		Signal{Instruction::jae_cmpf},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::JaeCmpf},
 		Signal{UINT64_C(15)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-5)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{3.0},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{53.0},
-		Signal{Instruction::jae_cmpf},
+		Signal{Instruction::JaeCmpf},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].double, 3.0);
-	ASSERT_EQ(o.input->stack[2].double, 53.0);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 22);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].F64, 3.0);
+	ASSERT_EQ(o.Input->Stack[2].F64, 53.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 22);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jle_cmpi__) {
+TEST(ReactorExecution, __jle_cmpi__) {
 	const std::array<Signal, 23> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{INT64_C(2)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(5)},
-		Signal{Instruction::jle_cmpi},
+		Signal{Instruction::JleCmpi},
 		Signal{UINT64_C(9)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-3)},
-		Signal{Instruction::ipusho},
-		Signal{Instruction::ipusho},
-		Signal{Instruction::jle_cmpi},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::JleCmpi},
 		Signal{UINT64_C(15)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-5)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(53)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{INT64_C(3)},
-		Signal{Instruction::jle_cmpi},
+		Signal{Instruction::JleCmpi},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].std::int64_t, 53);
-	ASSERT_EQ(o.input->stack[2].std::int64_t, 3);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 22);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].I64, 53);
+	ASSERT_EQ(o.Input->Stack[2].I64, 3);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 22);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_execution, __jle_cmpf__) {
+TEST(ReactorExecution, __jle_cmpf__) {
 	const std::array<Signal, 23> code{
-		Signal{Instruction::nop},		// first padding
-		Signal{Instruction::push},
+		Signal{Instruction::NOp},		// first padding
+		Signal{Instruction::Push},
 		Signal{2.0},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{5.0},
-		Signal{Instruction::jle_cmpf},
+		Signal{Instruction::JleCmpf},
 		Signal{UINT64_C(9)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-3)},
-		Signal{Instruction::ipusho},
-		Signal{Instruction::ipusho},
-		Signal{Instruction::jle_cmpf},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::IPushO},
+		Signal{Instruction::JleCmpf},
 		Signal{UINT64_C(15)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-5)},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{53.0},
-		Signal{Instruction::push},
+		Signal{Instruction::Push},
 		Signal{3.0},
-		Signal{Instruction::jle_cmpf},
+		Signal{Instruction::JleCmpf},
 		Signal{UINT64_C(0)},
-		Signal{Instruction::inter},
+		Signal{Instruction::Int},
 		Signal{INT64_C(-0xFF)},
 	};
-	auto input{default_test_input};
-	input.code_chunk = code.data();
-	input.code_chunk_size = code.size();
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	auto input{MockReactorInput};
+	input.CodeChunk = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{execute_reactor(input)};
-	ASSERT_EQ(o.input->stack[1].double, 53.0);
-	ASSERT_EQ(o.input->stack[2].double, 3.0);
-	ASSERT_EQ(o.sp_diff, 0);
-	ASSERT_EQ(o.ip_diff, 22);
-    ASSERT_EQ(o.interrupt_code, -0xFF);
+	const auto o{ExecuteChecked(input)};
+	ASSERT_EQ(o.Input->Stack[1].F64, 53.0);
+	ASSERT_EQ(o.Input->Stack[2].F64, 3.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 22);
+    ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(reactor_input_validation, valid_pointers) {
-	const auto input = reactor_input{
-		.signal_status = &signal_status,
-		.code_chunk = default_test_code.data(),
-		.code_chunk_size = default_test_code.size(),
-		.intrinsic_table = test_intrinsic_routine_table.data(),
-		.intrinsic_table_size = test_intrinsic_routine_table.size(),
-		.interrupt_handler = test_interrupt_handler,
-		.stack = test_stack.data(),
-		.stack_size = test_stack.size(),
-		.user_data = nullptr
+TEST(ReactorInputValidation, valid_poInts) {
+	const auto input = ReactorInput{
+		.SignalStatus = &MockSignalStatus,
+		.CodeChunk = MockCode.data(),
+		.CodeChunkSize = MockCode.size(),
+		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
+		.InterruptHandler = MockInterruptHandler,
+		.Stack = MockStack.data(),
+		.StackSize = MockStack.size(),
+		.UserData = nullptr
 	};
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 }
 
-TEST(reactor_input_validation, null_pointers) {
-	const auto input = reactor_input{
-		.signal_status = &signal_status,
-		.code_chunk = nullptr,
-		.code_chunk_size = 0,
-		.intrinsic_table = test_intrinsic_routine_table.data(),
-		.intrinsic_table_size = 0,
-		.interrupt_handler = test_interrupt_handler,
-		.stack = test_stack.data(),
-		.stack_size = test_stack.size(),
-		.user_data = nullptr
+TEST(ReactorInputValidation, null_poInts) {
+	const auto input = ReactorInput{
+		.SignalStatus = &MockSignalStatus,
+		.CodeChunk = nullptr,
+		.CodeChunkSize = 0,
+		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+		.IntrinsicTableSize = 0,
+		.InterruptHandler = MockInterruptHandler,
+		.Stack = MockStack.data(),
+		.StackSize = MockStack.size(),
+		.UserData = nullptr
 	};
-	ASSERT_EQ(input.validate(), reactor_validation_result::null_ptr);
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullPtr);
 }
 
-TEST(reactor_input_validation, zero_sizes) {
-	const auto input = reactor_input{
-		.signal_status = &signal_status,
-		.code_chunk = default_test_code.data(),
-		.code_chunk_size = 0,
-		.intrinsic_table = test_intrinsic_routine_table.data(),
-		.intrinsic_table_size = 0,
-		.interrupt_handler = test_interrupt_handler,
-		.stack = test_stack.data(),
-		.stack_size = test_stack.size(),
-		.user_data = nullptr
+TEST(ReactorInputValidation, zero_sizes) {
+	const auto input = ReactorInput{
+		.SignalStatus = &MockSignalStatus,
+		.CodeChunk = MockCode.data(),
+		.CodeChunkSize = 0,
+		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+		.IntrinsicTableSize = 0,
+		.InterruptHandler = MockInterruptHandler,
+		.Stack = MockStack.data(),
+		.StackSize = MockStack.size(),
+		.UserData = nullptr
 	};
-	ASSERT_EQ(input.validate(), reactor_validation_result::zero_size);
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::ZeroSize);
 }
 
-TEST(reactor_input_validation, invalid_intrinsic_routines) {
-	std::array<intrinsic_routine*, 1> intrinsic_routines{
+TEST(ReactorInputValidation, invalid_Intrinsic_routines) {
+	std::array<IntrinsicRoutine*, 1> intrinsicRoutines{
 		nullptr
 	};
-	const auto input = reactor_input{
-		.signal_status = &signal_status,
-		.code_chunk = default_test_code.data(),
-		.code_chunk_size = default_test_code.size(),
-		.intrinsic_table = intrinsic_routines.data(),
-		.intrinsic_table_size = intrinsic_routines.size(),
-		.interrupt_handler = test_interrupt_handler,
-		.stack = test_stack.data(),
-		.stack_size = test_stack.size(),
-		.user_data = nullptr
+	const auto input = ReactorInput{
+		.SignalStatus = &MockSignalStatus,
+		.CodeChunk = MockCode.data(),
+		.CodeChunkSize = MockCode.size(),
+		.IntrinsicTable = intrinsicRoutines.data(),
+		.IntrinsicTableSize = intrinsicRoutines.size(),
+		.InterruptHandler = MockInterruptHandler,
+		.Stack = MockStack.data(),
+		.StackSize = MockStack.size(),
+		.UserData = nullptr
 	};
-	ASSERT_EQ(input.validate(), reactor_validation_result::null_intrinsic_routine);
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullIntrinsicRoutine);
 }
 
-TEST(reactor_input_validation, valid_intrinsic_routines) {
-	const auto input = reactor_input{
-		.signal_status = &signal_status,
-		.code_chunk = default_test_code.data(),
-		.code_chunk_size = default_test_code.size(),
-		.intrinsic_table = test_intrinsic_routine_table.data(),
-		.intrinsic_table_size = test_intrinsic_routine_table.size(),
-		.interrupt_handler = test_interrupt_handler,
-		.stack = test_stack.data(),
-		.stack_size = test_stack.size(),
-		.user_data = nullptr
+TEST(ReactorInputValidation, valid_Intrinsic_routines) {
+	const auto input = ReactorInput{
+		.SignalStatus = &MockSignalStatus,
+		.CodeChunk = MockCode.data(),
+		.CodeChunkSize = MockCode.size(),
+		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
+		.InterruptHandler = MockInterruptHandler,
+		.Stack = MockStack.data(),
+		.StackSize = MockStack.size(),
+		.UserData = nullptr
 	};
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 }
 
-TEST(reactor_input_validation, missing_code_prologue) {
-	const auto input = reactor_input{
-		.signal_status = &signal_status,
-		.code_chunk = default_test_code.data() + 1,
-		.code_chunk_size = default_test_code.size() - 1,
-		.intrinsic_table = test_intrinsic_routine_table.data(),
-		.intrinsic_table_size = test_intrinsic_routine_table.size(),
-		.interrupt_handler = test_interrupt_handler,
-		.stack = test_stack.data(),
-		.stack_size = test_stack.size(),
-		.user_data = nullptr
+TEST(ReactorInputValidation, missing_code_prologue) {
+	const auto input = ReactorInput{
+		.SignalStatus = &MockSignalStatus,
+		.CodeChunk = MockCode.data() + 1,
+		.CodeChunkSize = MockCode.size() - 1,
+		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
+		.InterruptHandler = MockInterruptHandler,
+		.Stack = MockStack.data(),
+		.StackSize = MockStack.size(),
+		.UserData = nullptr
 	};
-	ASSERT_EQ(input.validate(), reactor_validation_result::missing_code_prologue);
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodePrologue);
 }
 
-TEST(reactor_input_validation, missing_code_epilogue$1) {
+TEST(ReactorInputValidation, missing_code_epilogue$1) {
 	constexpr std::array<Signal, 3> code = {
-		Signal{Instruction::nop},
-		Signal{Instruction::inter},
+		Signal{Instruction::NOp},
+		Signal{Instruction::Int},
 		Signal{INT64_C(5)},
 	};
 	
-	const auto input = reactor_input{
-		.signal_status = &signal_status,
-		.code_chunk = code.data(),
-		.code_chunk_size = code.size(),
-		.intrinsic_table = test_intrinsic_routine_table.data(),
-		.intrinsic_table_size = test_intrinsic_routine_table.size(),
-		.interrupt_handler = test_interrupt_handler,
-		.stack = test_stack.data(),
-		.stack_size = test_stack.size(),
-		.user_data = nullptr
+	const auto input = ReactorInput{
+		.SignalStatus = &MockSignalStatus,
+		.CodeChunk = code.data(),
+		.CodeChunkSize = code.size(),
+		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
+		.InterruptHandler = MockInterruptHandler,
+		.Stack = MockStack.data(),
+		.StackSize = MockStack.size(),
+		.UserData = nullptr
 	};
-	ASSERT_EQ(input.validate(), reactor_validation_result::ok);
+	
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 }
 
-TEST(reactor_input_validation, missing_code_epilogue$2) {
+TEST(ReactorInputValidation, missing_code_epilogue$2) {
 	constexpr std::array<Signal, 1> code = {
-		Signal{Instruction::nop},
+		Signal{Instruction::NOp},
 	};
 
-	const auto input = reactor_input{
-		.signal_status = &signal_status,
-		.code_chunk = code.data(),
-		.code_chunk_size = code.size(),
-		.intrinsic_table = test_intrinsic_routine_table.data(),
-		.intrinsic_table_size = test_intrinsic_routine_table.size(),
-		.interrupt_handler = test_interrupt_handler,
-		.stack = test_stack.data(),
-		.stack_size = test_stack.size(),
-		.user_data = nullptr
+	const auto input = ReactorInput{
+		.SignalStatus = &MockSignalStatus,
+		.CodeChunk = code.data(),
+		.CodeChunkSize = code.size(),
+		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
+		.InterruptHandler = MockInterruptHandler,
+		.Stack = MockStack.data(),
+		.StackSize = MockStack.size(),
+		.UserData = nullptr
 	};
-	ASSERT_EQ(input.validate(), reactor_validation_result::missing_code_epilogue);
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
 }
 
-TEST(reactor_input_validation, missing_code_epilogue$3) {
+TEST(ReactorInputValidation, missing_code_epilogue$3) {
 	constexpr std::array<Signal, 2> code = {
-		Signal{Instruction::nop},
+		Signal{Instruction::NOp},
 		Signal{INT64_C(5)},
 	};
 
-	const auto input = reactor_input{
-		.signal_status = &signal_status,
-		.code_chunk = code.data(),
-		.code_chunk_size = code.size(),
-		.intrinsic_table = test_intrinsic_routine_table.data(),
-		.intrinsic_table_size = test_intrinsic_routine_table.size(),
-		.interrupt_handler = test_interrupt_handler,
-		.stack = test_stack.data(),
-		.stack_size = test_stack.size(),
-		.user_data = nullptr
+	const auto input = ReactorInput{
+		.SignalStatus = &MockSignalStatus,
+		.CodeChunk = code.data(),
+		.CodeChunkSize = code.size(),
+		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
+		.InterruptHandler = MockInterruptHandler,
+		.Stack = MockStack.data(),
+		.StackSize = MockStack.size(),
+		.UserData = nullptr
 	};
-	ASSERT_EQ(input.validate(), reactor_validation_result::missing_code_epilogue);
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
 }
 
-TEST(reactor_input_validation, missing_stack_prologue) {
-	const auto input = reactor_input{
-		.signal_status = reinterpret_cast<volatile std::sig_atomic_t*>(0xFF),
-		.code_chunk = default_test_code.data(),
-		.code_chunk_size = default_test_code.size(),
-		.intrinsic_table = test_intrinsic_routine_table.data(),
-		.intrinsic_table_size = test_intrinsic_routine_table.size(),
-		.interrupt_handler = test_interrupt_handler,
-		.stack = test_stack.data() + 1,
-		.stack_size = test_stack.size() - 1,
-		.user_data = nullptr
+TEST(ReactorInputValidation, missing_stack_prologue) {
+	const auto input = ReactorInput{
+		.SignalStatus = &MockSignalStatus,
+		.CodeChunk = MockCode.data(),
+		.CodeChunkSize = MockCode.size(),
+		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
+		.InterruptHandler = MockInterruptHandler,
+		.Stack = MockStack.data() + 1,
+		.StackSize = MockStack.size() - 1,
+		.UserData = nullptr
 	};
-	ASSERT_EQ(input.validate(), reactor_validation_result::missing_stack_prologue);
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingStackPrologue);
 }

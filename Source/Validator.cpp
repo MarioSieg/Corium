@@ -1,6 +1,7 @@
 // File: Validator.cpp
-// Author: 
+// Author: Mario
 // Created: 16.04.2021.12:37
+// Project: NominaxRuntime
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -229,7 +230,8 @@ namespace Nominax
 		}
 
 		// fetch the type table:
-		const std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS>& type_table = INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[instr_idx];
+		const std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>& type_table =
+			INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[instr_idx];
 
 		// this loop checks each submitted operand type with the required operand type.
 		for (std::size_t i = 0; i < args_.size(); ++i)
@@ -255,7 +257,10 @@ namespace Nominax
 				correct_type = arg.Contains<std::uint64_t>();
 				break;
 			case InstructionImmediateArgumentType::SystemIntrinsicId:
-				correct_type = arg.Contains<SystemIntrinsicId>() || arg.Contains<CustomIntrinsicId>();
+				correct_type = arg.Contains<CustomIntrinsicId>();
+				break;
+			case InstructionImmediateArgumentType::CustomIntrinsicId:
+				correct_type = arg.Contains<CustomIntrinsicId>();
 				break;
 			case InstructionImmediateArgumentType::F64:
 				correct_type = arg.Contains<double>();

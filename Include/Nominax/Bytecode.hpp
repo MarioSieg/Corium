@@ -218,9 +218,9 @@ namespace Nominax
 {
 	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
 	{
-		Inter = 0x00'00'00'00'00'00'00'00,
+		Int = 0x00'00'00'00'00'00'00'00,
 		Intrin = 0x00'00'00'00'00'00'00'01,
-		Cintrin = 0x00'00'00'00'00'00'00'02,
+		CIntrin = 0x00'00'00'00'00'00'00'02,
 		Call = 0x00'00'00'00'00'00'00'03,
 		Ret = 0x00'00'00'00'00'00'00'04,
 		Mov = 0x00'00'00'00'00'00'00'05,
@@ -231,7 +231,7 @@ namespace Nominax
 		Dupl = 0x00'00'00'00'00'00'00'0A,
 		Dupl2 = 0x00'00'00'00'00'00'00'0B,
 		Swap = 0x00'00'00'00'00'00'00'0C,
-		Nop = 0x00'00'00'00'00'00'00'0D,
+		NOp = 0x00'00'00'00'00'00'00'0D,
 		Jmp = 0x00'00'00'00'00'00'00'0E,
 		JmpRel = 0x00'00'00'00'00'00'00'0F,
 		Jz = 0x00'00'00'00'00'00'00'10,
@@ -351,7 +351,7 @@ namespace Nominax
 	};
 
 	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS {
-		"inter",
+		"int",
 		"intrin",
 		"cintrin",
 		"call",
@@ -734,124 +734,124 @@ namespace Nominax
 		0
 	};
 
-	constexpr std::size_t MAX_IMMEDIATE_ARGUMENTS {2};
+	constexpr std::size_t INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS {2};
 
 	constexpr std::array INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES {
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::I64OrU64OrF64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::SystemIntrinsicId
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
-			InstructionImmediateArgumentType::SystemIntrinsicId
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+			InstructionImmediateArgumentType::CustomIntrinsicId
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::I64OrU64OrF64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::RelativeJumpAddress64, InstructionImmediateArgumentType::RelativeJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::RelativeJumpAddress64, InstructionImmediateArgumentType::I64OrU64OrF64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::I64OrU64OrF64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::RelativeJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
 	};
 
 	/// <summary>
@@ -907,21 +907,21 @@ namespace Nominax
 	static_assert(sizeof(Signal) == sizeof(std::uint64_t));
 	static_assert(std::is_standard_layout_v<Signal>);
 
-	using intrinsic_routine = auto (Record64*) -> bool;
-	static_assert(std::is_function_v<intrinsic_routine>);
+	using IntrinsicRoutine = auto (Record64*) -> bool;
+	static_assert(std::is_function_v<IntrinsicRoutine>);
 
 	/* std::visit auto overload helper */
 	template <typename... Ts>
-	struct overloaded : Ts...
+	struct Overloaded : Ts...
 	{
 		using Ts::operator()...;
 	};
 
 	template <typename... Ts>
-	overloaded(Ts&&...) -> overloaded<Ts...>;
+	Overloaded(Ts&&...) -> Overloaded<Ts...>;
 
 	template <typename T>
-	concept is_bytecode_element =
+	concept BytecodeElement =
 	std::is_same_v<T, Instruction>
 	|| std::is_same_v<T, SystemIntrinsicId>
 	|| std::is_same_v<T, CustomIntrinsicId>
@@ -953,15 +953,15 @@ namespace Nominax
 		[[nodiscard]]
 		explicit constexpr operator Signal() const;
 
-		template <typename T> requires is_bytecode_element<T>
+		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto Unwrap() const -> std::optional<T>;
 
-		template <typename T> requires is_bytecode_element<T>
+		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto Contains() const noexcept -> bool;
 
-		template <typename T> requires is_bytecode_element<T>
+		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto Contains(T&& compareTo) const -> bool;
 
@@ -977,7 +977,7 @@ namespace Nominax
 	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicId value) noexcept : DataCollection {value} {}
 	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicId value) noexcept : DataCollection {value} {}
 
-	template <typename T> requires is_bytecode_element<T>
+	template <typename T> requires BytecodeElement<T>
 	constexpr auto DynamicSignal::Unwrap() const -> std::optional<T>
 	{
 		return std::holds_alternative<T>(this->DataCollection)
@@ -985,13 +985,13 @@ namespace Nominax
 			       : std::nullopt;
 	}
 
-	template <typename T> requires is_bytecode_element<T>
+	template <typename T> requires BytecodeElement<T>
 	constexpr auto DynamicSignal::Contains() const noexcept -> bool
 	{
 		return std::holds_alternative<T>(this->DataCollection);
 	}
 
-	template <typename T> requires is_bytecode_element<T>
+	template <typename T> requires BytecodeElement<T>
 	constexpr auto DynamicSignal::Contains(T&& compareTo) const -> bool
 	{
 		return std::holds_alternative<T>(this->DataCollection) && std::get<T>(this->DataCollection) == compareTo;
@@ -999,7 +999,7 @@ namespace Nominax
 
 	constexpr DynamicSignal::operator Signal() const
 	{
-		return std::visit(overloaded {
+		return std::visit(Overloaded {
 			                  [](const Instruction value) noexcept
 			                  {
 				                  return Signal {value};

@@ -207,7 +207,7 @@
 
 #include "../Include/Nominax/Environment.hpp"
 #include "../Include/Nominax/Info.hpp"
-#include "../Include/Nominax/MemoryUnits.hpp"
+#include "../Include/Nominax/Utility.hpp"
 #include "../Include/Nominax/Os.hpp"
 
 #include <iostream>

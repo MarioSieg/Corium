@@ -209,7 +209,7 @@
 
 #include <filesystem>
 
-#include "OS.hpp"
+#include "Os.hpp"
 
 namespace Nominax
 {
@@ -225,8 +225,7 @@ namespace Nominax
 		template <typename F, typename... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
 		auto operator()(Ts&&...args) const noexcept -> decltype(F(std::forward<Ts...>(args...)));
 
-	private:
-		void* Ptr {nullptr};
+		void* Ptr;
 	};
 
 	static_assert(std::is_copy_constructible_v<DynamicProcedure>);

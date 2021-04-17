@@ -232,15 +232,15 @@ namespace Nominax
 	/// </summary>
 	struct ReactorInput final
 	{
-		volatile std::sig_atomic_t* SignalStatus {nullptr};
-		const Signal*               CodeChunk {nullptr};
-		std::size_t                 CodeChunkSize {0};
-		intrinsic_routine**         IntrinsicTable {nullptr};
-		std::size_t                 IntrinsicTableSize {0};
-		InterruptRoutine*           InterruptHandler {nullptr};
-		Record64*                   Stack {nullptr};
-		std::size_t                 StackSize {0};
-		void*                       UserData {nullptr};
+		volatile std::sig_atomic_t*		SignalStatus {nullptr};
+		const Signal*					CodeChunk {nullptr};
+		std::size_t						CodeChunkSize {0};
+		IntrinsicRoutine* const*		IntrinsicTable {nullptr};
+		std::size_t						IntrinsicTableSize {0};
+		InterruptRoutine*			InterruptHandler {nullptr};
+		Record64*						Stack {nullptr};
+		std::size_t						StackSize {0};
+		void*							UserData {nullptr};
 
 		[[nodiscard]]
 		auto Validate() const noexcept -> ReactorValidationResult;

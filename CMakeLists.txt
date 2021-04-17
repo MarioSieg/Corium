@@ -96,10 +96,9 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/Interrupts.hpp"
     "Include/Nominax/Info.hpp"
     "Include/Nominax/OS.hpp"
-    "Include/Nominax/MemoryUnits.hpp"
+    "Include/Nominax/Utility.hpp"
     "Include/Nominax/DynamicLibrary.hpp"
-    
-    
+    "Include/Nominax/Nominax.hpp"
     "Include/Nominax/Validator.hpp"
     "Include/Nominax/Environment.hpp" 
 
