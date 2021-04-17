@@ -214,9 +214,7 @@ namespace Nominax
 	auto ReactorInput::Validate() const noexcept -> ReactorValidationResult
 	{
 		// validate all pointers:
-		if (__builtin_expect(
-			!(this->SignalStatus && this->CodeChunk && this->IntrinsicTable && this->InterruptHandler && this->Stack),
-			0))
+		if (__builtin_expect(!(this->SignalStatus && this->CodeChunk && this->IntrinsicTable && this->InterruptHandler && this->Stack), 0))
 		{
 			return ReactorValidationResult::NullPtr;
 		}
@@ -234,8 +232,7 @@ namespace Nominax
 		}
 
 		// last instruction must be interrupt:
-		if (__builtin_expect(CodeChunkSize < 2, 0) || __builtin_expect(
-			(CodeChunk + CodeChunkSize - 2)->Instr != Instruction::Int, 0))
+		if (__builtin_expect(CodeChunkSize < 2, 0) || __builtin_expect((CodeChunk + CodeChunkSize - 2)->Instr != Instruction::Int, 0))
 		{
 			return ReactorValidationResult::MissingCodeEpilogue;
 		}
@@ -327,14 +324,15 @@ namespace Nominax
 #endif
 	}
 
-#define FENCE asm volatile("":::"memory");
+	// @formatter:off
 
 	/// <summary>
 	/// Insert memory read fence barrier.
 	/// </summary>
 	__attribute__((always_inline)) inline auto ReadFence() noexcept -> void
 	{
-		FENCE
+		// ReSharper disable once CppRedundantEmptyStatement
+		asm volatile("":::"memory");
 	}
 
 	/// <summary>
@@ -342,7 +340,8 @@ namespace Nominax
 	/// </summary>
 	__attribute__((always_inline)) inline auto WriteFence() noexcept -> void
 	{
-		FENCE
+		// ReSharper disable once CppRedundantEmptyStatement
+		asm volatile("":::"memory");
 	}
 
 	/// <summary>
@@ -350,10 +349,11 @@ namespace Nominax
 	/// </summary>
 	__attribute__((always_inline)) inline auto ReadWriteFence() noexcept -> void
 	{
-		FENCE
+		// ReSharper disable once CppRedundantEmptyStatement
+		asm volatile("":::"memory");
 	}
 
-#undef FENCE
+	// @formatter:on
 
 #if NOMINAX_REACTOR_ASM_MARKERS
 	/*
@@ -380,7 +380,7 @@ namespace Nominax
 	 * x = 2 -> check for 2 more pushes
 	 * etc..
 	 */
-#define STO_SENTINEL(x)																						\
+#define STO_SENTINEL(x)																								\
 			do {																									\
 				if (__builtin_expect(sp + ((x) - 1) >= spHi, 0)) {													\
 					interruptCode = static_cast<decltype(interruptCode)>(SystemInterrupt::StackOverflow);			\
@@ -693,7 +693,7 @@ namespace Nominax
 		struct $
 		{
 			[[nodiscard]]
-			static consteval auto validate_branch_table() noexcept -> bool
+			static consteval auto ValidateBranchTable() noexcept -> bool
 			{
 				const auto*       current = BRANCH_TABLE;
 				const auto* const end     = BRANCH_TABLE + sizeof BRANCH_TABLE / sizeof *BRANCH_TABLE;
@@ -707,7 +707,7 @@ namespace Nominax
 				return true;
 			}
 		};
-		static_assert($::validate_branch_table());
+		static_assert($::ValidateBranchTable());
 
 		ASM_MARKER("reactor begin");
 
