@@ -108,7 +108,7 @@ add_library("libnominax" STATIC
     "inc/nominax/idb.hpp" 
     "src/interrupts.cpp" 
     "inc/nominax/validator.hpp"
-    "src/validator.cpp")
+    "src/validator.cpp" "inc/nominax/environment.hpp" "src/environment.cpp")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries("libnominax" "dl")

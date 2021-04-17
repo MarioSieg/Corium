@@ -4,6 +4,7 @@
 #if NOMINAX_OS_LINUX
 
 #include <cstdio>
+#include <fstream>
 #include <dlfcn.h>
 #include <unistd.h>
 
@@ -23,6 +24,24 @@ namespace nominax::os {
 		const auto items = fscanf(file, "%*s%ld", &pages);
 		fclose(file);
 		return static_cast<std::size_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
+	}
+
+	auto cpu_name() -> std::string {
+		std::ifstream cpuinfo("/proc/cpuinfo");
+
+		if (!cpuinfo.is_open() || !cpuinfo) [[unlikely]] {
+			return "Unknown";
+		}
+
+		for (std::string line; std::getline(cpuinfo, line); ) [[likely]] {
+			if (line.find("model name") == 0) [[likely]] {
+				const auto colon_id = line.find_first_of(':');
+				const auto nonspace_id = line.find_first_not_of(" \t", colon_id + 1);
+				return line.c_str() + nonspace_id;
+			}
+		}
+
+		return {};
 	}
 
 	auto dylib_open(const std::string_view file_) -> void* {

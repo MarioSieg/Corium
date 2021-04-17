@@ -21,6 +21,20 @@ namespace nominax::os {
 		return static_cast<std::size_t>(pmc.WorkingSetSize);
 	}
 
+	auto cpu_name() -> std::string {
+		HKEY key;
+		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key)) [[unlikely]] {
+			return "Unknown";
+		}
+		char id[64 + 1];
+		DWORD id_len = sizeof id;
+		LPBYTE data = static_cast<LPBYTE>(static_cast<void*>(id));
+		if (RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &id_len)) [[unlikely]] {
+			return "Unknown";
+		}
+		return id;
+	}
+
 	auto dylib_open(const std::string_view file_) -> void* {
 		return static_cast<void*>(::LoadLibraryA(file_.data()));
 	}
