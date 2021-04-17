@@ -1,1 +1,1 @@
-g++-10 -m32 src/reactor.cpp -std=c++2a -c -S -o reactor.asm -fverbose-asm -Ofast  -Wno-unknown-attributes -Wall -Wextra
+g++-10 -m32 ../Source/Reactor.cpp -std=c++2a -c -S -o reactor.asm -fverbose-asm -Ofast  -Wno-unknown-attributes -Wall -Wextra

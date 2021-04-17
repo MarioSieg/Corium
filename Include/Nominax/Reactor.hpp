@@ -224,7 +224,8 @@ namespace Nominax
 		MissingCodePrologue,
 		MissingCodeEpilogue,
 		MissingStackPrologue,
-		NullIntrinsicRoutine
+		NullIntrinsicRoutine,
+		ExecutionAddressMappingError
 	};
 
 	/// <summary>
@@ -233,7 +234,8 @@ namespace Nominax
 	struct ReactorInput final
 	{
 		volatile std::sig_atomic_t* SignalStatus {nullptr};
-		const Signal*               CodeChunk {nullptr};
+		Signal*                     CodeChunk {nullptr};
+		const bool*                 CodeChunkInstructionMap {nullptr};
 		std::size_t                 CodeChunkSize {0};
 		IntrinsicRoutine* const*    IntrinsicTable {nullptr};
 		std::size_t                 IntrinsicTableSize {0};

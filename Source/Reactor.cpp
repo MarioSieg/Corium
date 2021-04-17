@@ -219,6 +219,15 @@ namespace Nominax
 			return ReactorValidationResult::NullPtr;
 		}
 
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+
+		if (__builtin_expect(!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize), 0))
+		{
+			return ReactorValidationResult::NullPtr;
+		}
+
+#endif
+
 		// validate the size for the corresponding pointers:
 		if (__builtin_expect(!this->CodeChunkSize || !this->IntrinsicTableSize || !this->StackSize, 0))
 		{
@@ -260,8 +269,8 @@ namespace Nominax
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto Rol64(
-		std::uint64_t value, const std::uint8_t shift) noexcept -> std::uint64_t
+	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto Rol64(std::uint64_t      value,
+	                                                                            const std::uint8_t shift) noexcept -> std::uint64_t
 	{
 #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
 		return _rotl64(value, shift);
@@ -280,8 +289,8 @@ namespace Nominax
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto Ror64(
-		std::uint64_t value, const std::uint8_t shift) noexcept -> std::uint64_t
+	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto Ror64(std::uint64_t      value,
+	                                                                            const std::uint8_t shift) noexcept -> std::uint64_t
 	{
 #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
 		return _rotr64(value, shift);
@@ -355,16 +364,16 @@ namespace Nominax
 
 	// @formatter:on
 
-#if NOMINAX_REACTOR_ASM_MARKERS
 	/*
 	 * This inserts a comment with the msg into the assembler code.
 	 * Useful for finding the asm code of the instructions.
 	 * These should be disabled when building for release.
 	 * Asm volatile is like a black box and never touched by the compiler so it might affect code generation/ordering!
 	 */
-#define ASM_MARKER(msg) asm volatile("#" msg)
+#if NOMINAX_REACTOR_ASM_MARKERS
+#	define ASM_MARKER(msg) asm volatile("#" msg)
 #else
-		#define ASM_MARKER(msg)
+#	define ASM_MARKER(msg)
 #endif
 
 #if NOMINAX_STACK_OVERFLOW_CHECKS
@@ -390,6 +399,85 @@ namespace Nominax
 #else
 		#define STO_SENTINEL(x)
 #endif
+
+	/// <summary>
+	/// Replaces the op-codes in the bucket with the pointers to the labels.
+	/// This improves performance because no array lookup is needed.
+	/// The jump assembly generated on my machine (x86-64, clang):
+	/// With jump table mapping:
+	/// jmpq	*(%r14)
+	/// Without jump table mapping:
+	/// jmpq	*(%rcx,%rax,8)
+	/// Important: The signal bucket is modified.
+	/// After mapping, each signal which was an instruction now contains a void* to the jump label.
+	/// That means, that the original instructions/opcodes are gone.
+	/// For example, let's say the first instruction was push 32, so the signal was:
+	/// [1] -> 7	[type: instruction]
+	/// [2] -> 32	[type: i64]
+	/// After mapping the content will be:
+	/// [1] -> 0x00D273F27A	[type: void*]
+	/// [2] -> 32			[type: i64]
+	/// Because all opcodes are gone, accessing the bucket and using the opcode values after mapping is not allowed!
+	/// Because the Signal type is not discriminated (like DynamicSignal), we do not know which signal contains an instruction.
+	/// For that we have the instruction map, which must have the same size as the bucket.
+	/// For each bucket entry there is a signal map entry, which is true if the bucket entry at the same index is an instruction else false.
+	/// Example:
+	/// bucket[1] = push	| instructionMap[1] = true
+	/// bucket[2] = 3		| instructionMap[2] = false
+	/// bucket[3] = pushz	| instructionMap[3] = true
+	/// bucket[4] = nop		| instructionMap[4] = true
+	/// </summary>
+	/// <param name="bucket">The byte code bucket to use as mapping target.</param>
+	/// <param name="bucketEnd">The incremented end pointer of the byte code bucket, calculated as: bucket + bucketLength</param>
+	/// <param name="instructionMap">The instruction map. Must have the same size as the byte code bucket.</param>
+	/// <param name="jumpTable">The jump table. Must contain an address for each instruction.</param>
+	/// <returns></returns>
+	auto MapJumpTable(Signal* __restrict__ bucket, const Signal* const __restrict__ bucketEnd, const bool* instructionMap,
+	                  const void* __restrict__ const* __restrict__ const jumpTable) -> bool
+	{
+		if (__builtin_expect(!bucket || !bucketEnd || !instructionMap || !jumpTable || !*jumpTable, 0))
+		{
+			return false;
+		}
+
+		if (__builtin_expect(bucket->Instr != Instruction::NOp || !*instructionMap, 0))
+		{
+			return false;
+		}
+
+		// skip first "nop" padding instruction:
+		++bucket;
+		++instructionMap;
+
+		while (__builtin_expect(bucket < bucketEnd, 1))
+		{
+			if (*instructionMap)
+			{
+				bucket->Ptr = const_cast<void*>(*(jumpTable + bucket->OpCode));
+			}
+
+			++bucket;
+			++instructionMap;
+		}
+
+		return true;
+	}
+
+	[[nodiscard]]
+	static consteval auto ValidateJumpTable(const void* __restrict__ const* __restrict__ const jumpTable,
+	                                        const std::size_t                                  jumpTableSize) noexcept -> bool
+	{
+		const auto*       current = jumpTable;
+		const auto* const end     = jumpTable + jumpTableSize;
+		while (__builtin_expect(current < end, 1))
+		{
+			if (__builtin_expect(!*current++, 0))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/// <summary>
 	/// Implementation for the "intrin" instruction.
@@ -418,7 +506,7 @@ namespace Nominax
 	/// </summary>
 	__attribute__((hot)) static auto SyscallIntrin(Record64* const sp, const std::uint64_t id) -> void
 	{
-		static constexpr const void* __restrict__ BRANCH_TABLE[static_cast<std::size_t>(SystemIntrinsicId::Count)] {
+		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicId::Count)] {
 			&&__cos__,
 			&&__sin__,
 			&&__tan__,
@@ -455,37 +543,23 @@ namespace Nominax
 			&&__fabs__
 		};
 
-		struct $
-		{
-			[[nodiscard]]
-			static consteval auto ValidateBranchTable() noexcept -> bool
-			{
-				const auto*       current = BRANCH_TABLE;
-				const auto* const end     = BRANCH_TABLE + sizeof BRANCH_TABLE / sizeof *BRANCH_TABLE;
-				while (__builtin_expect(current < end, 1))
-				{
-					if (__builtin_expect(!*current++, 0))
-					{
-						return false;
-					}
-				}
-				return true;
-			}
-		};
-		static_assert($::ValidateBranchTable());
+		static_assert(ValidateJumpTable(JUMP_TABLE, sizeof JUMP_TABLE / sizeof *JUMP_TABLE));
 
 		goto
-		**(BRANCH_TABLE + id);
+		**(JUMP_TABLE + id);
 
-	__cos__: __attribute__((hot));
+	__cos__:
+		__attribute__((hot));
 		(*sp).F64 = std::cos((*sp).F64);
 		return;
 
-	__sin__: __attribute__((hot));
+	__sin__:
+		__attribute__((hot));
 		(*sp).F64 = std::sin((*sp).F64);
 		return;
 
-	__tan__: __attribute__((hot));
+	__tan__:
+		__attribute__((hot));
 		(*sp).F64 = std::tan((*sp).F64);
 		return;
 
@@ -493,55 +567,68 @@ namespace Nominax
 		(*sp).F64 = std::acos((*sp).F64);
 		return;
 
-	__asin__: __attribute__((hot));
+	__asin__:
+		__attribute__((hot));
 		(*sp).F64 = std::asin((*sp).F64);
 		return;
 
-	__atan__: __attribute__((hot));
+	__atan__:
+		__attribute__((hot));
 		(*sp).F64 = std::atan((*sp).F64);
 		return;
 
-	__atan2__: __attribute__((hot));
+	__atan2__:
+		__attribute__((hot));
 		(*(sp - 1)).F64 = std::atan2((*(sp - 1)).F64, (*sp).F64);
 		return;
 
-	__cosh__: __attribute__((hot));
+	__cosh__:
+		__attribute__((hot));
 		(*sp).F64 = std::cosh((*sp).F64);
 		return;
 
-	__sinh__: __attribute__((hot));
+	__sinh__:
+		__attribute__((hot));
 		(*sp).F64 = std::sinh((*sp).F64);
 		return;
 
-	__tanh__: __attribute__((hot));
+	__tanh__:
+		__attribute__((hot));
 		(*sp).F64 = std::tanh((*sp).F64);
 		return;
 
-	__acosh__: __attribute__((hot));
+	__acosh__:
+		__attribute__((hot));
 		(*sp).F64 = std::acosh((*sp).F64);
 		return;
 
-	__asinh__: __attribute__((hot));
+	__asinh__:
+		__attribute__((hot));
 		(*sp).F64 = std::asinh((*sp).F64);
 		return;
 
-	__atanh__: __attribute__((hot));
+	__atanh__:
+		__attribute__((hot));
 		(*sp).F64 = std::atanh((*sp).F64);
 		return;
 
-	__exp__: __attribute__((hot));
+	__exp__:
+		__attribute__((hot));
 		(*sp).F64 = std::exp((*sp).F64);
 		return;
 
-	__log__: __attribute__((hot));
+	__log__:
+		__attribute__((hot));
 		(*sp).F64 = std::log((*sp).F64);
 		return;
 
-	__log10__: __attribute__((hot));
+	__log10__:
+		__attribute__((hot));
 		(*sp).F64 = std::log10((*sp).F64);
 		return;
 
-	__exp2__: __attribute__((hot));
+	__exp2__:
+		__attribute__((hot));
 		(*sp).F64 = std::exp2((*sp).F64);
 		return;
 
@@ -549,84 +636,105 @@ namespace Nominax
 		(*sp).I64 = std::ilogb((*sp).F64);
 		return;
 
-	__log2__: __attribute__((hot));
+	__log2__:
+		__attribute__((hot));
 		(*sp).F64 = std::log2((*sp).F64);
 		return;
 
-	__pow__: __attribute__((hot));
+	__pow__:
+		__attribute__((hot));
 		(*(sp - 1)).F64 = std::pow((*(sp - 1)).F64, (*sp).F64);
 		return;
 
-	__sqrt__: __attribute__((hot));
+	__sqrt__:
+		__attribute__((hot));
 		(*sp).F64 = std::sqrt((*sp).F64);
 		return;
 
-	__cbrt__: __attribute__((hot));
+	__cbrt__:
+		__attribute__((hot));
 		(*sp).F64 = std::cbrt((*sp).F64);
 		return;
 
-	__hypot__: __attribute__((hot));
+	__hypot__:
+		__attribute__((hot));
 		(*(sp - 1)).F64 = std::hypot((*(sp - 1)).F64, (*sp).F64);
 		return;
 
-	__ceil__: __attribute__((hot));
+	__ceil__:
+		__attribute__((hot));
 		(*sp).F64 = std::ceil((*sp).F64);
 		return;
 
-	__floor__: __attribute__((hot));
+	__floor__:
+		__attribute__((hot));
 		(*sp).F64 = std::floor((*sp).F64);
 		return;
 
-	__round__: __attribute__((hot));
+	__round__:
+		__attribute__((hot));
 		(*sp).F64 = std::round((*sp).F64);
 		return;
 
-	__rint__: __attribute__((hot));
+	__rint__:
+		__attribute__((hot));
 		(*sp).F64 = std::rint((*sp).F64);
 		return;
 
-	__max__: __attribute__((hot));
+	__max__:
+		__attribute__((hot));
 		(*(sp - 1)).I64 = std::max((*(sp - 1)).I64, (*sp).I64);
 		return;
 
-	__min__: __attribute__((hot));
+	__min__:
+		__attribute__((hot));
 		(*(sp - 1)).I64 = std::min((*(sp - 1)).I64, (*sp).I64);
 		return;
 
-	__fmax__: __attribute__((hot));
+	__fmax__:
+		__attribute__((hot));
 		(*(sp - 1)).F64 = std::max((*(sp - 1)).F64, (*sp).F64);
 		return;
 
-	__fmin__: __attribute__((hot));
+	__fmin__:
+		__attribute__((hot));
 		(*(sp - 1)).F64 = std::min((*(sp - 1)).F64, (*sp).F64);
 		return;
 
-	__fdim__: __attribute__((hot));
+	__fdim__:
+		__attribute__((hot));
 		(*(sp - 1)).F64 = std::fdim((*(sp - 1)).F64, (*sp).F64);
 		return;
 
-	__abs__: __attribute__((hot));
+	__abs__:
+		__attribute__((hot));
 		(*sp).I64 = std::abs((*sp).I64);
 		return;
 
-	__fabs__: __attribute__((hot));
+	__fabs__:
+		__attribute__((hot));
 		(*sp).F64 = std::abs((*sp).F64);
 		return;
 	}
 
 	__attribute__((hot)) auto ExecuteChecked(const ReactorInput& input) -> ReactorOutput
 	{
-		if (const auto result = input.Validate(); __builtin_expect(result != ReactorValidationResult::Ok, 0))
+		auto validationFault = [&input](const ReactorValidationResult result) noexcept -> ReactorOutput
 		{
 			return {
 				.Input = &input,
 				.ValidationResult = result,
 			};
+		};
+
+		if (const auto result = input.Validate(); __builtin_expect(result != ReactorValidationResult::Ok, 0))
+		{
+			return validationFault(result);
 		}
 
 		const auto pre = std::chrono::high_resolution_clock::now();
 
-		static constexpr const void* __restrict__ const BRANCH_TABLE[static_cast<std::size_t>(Instruction::Count)] {
+		static constexpr const void* __restrict__ const JUMP_TABLE[static_cast<std::size_t>(Instruction::Count)] {
 			&&__int__,
 			&&__intrin__,
 			&&__cintrin__,
@@ -690,43 +798,42 @@ namespace Nominax
 			&&__fdec__
 		};
 
-		struct $
-		{
-			[[nodiscard]]
-			static consteval auto ValidateBranchTable() noexcept -> bool
-			{
-				const auto*       current = BRANCH_TABLE;
-				const auto* const end     = BRANCH_TABLE + sizeof BRANCH_TABLE / sizeof *BRANCH_TABLE;
-				while (__builtin_expect(current < end, 1))
-				{
-					if (__builtin_expect(!*current++, 0))
-					{
-						return false;
-					}
-				}
-				return true;
-			}
-		};
-		static_assert($::ValidateBranchTable());
+		static_assert(ValidateJumpTable(JUMP_TABLE, sizeof JUMP_TABLE / sizeof *JUMP_TABLE));
 
 		ASM_MARKER("reactor begin");
 
-		InterruptAccumulator           interruptCode { };                         /* interrupt ID flag        */
-		void* __restrict__             usrDat {input.UserData};                   /* user data                */
-		IntrinsicRoutine* const* const intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi       */
-		InterruptRoutine* const        interruptHandler {input.InterruptHandler}; /* global interrupt routine */
-		const Signal* const __restrict ipLo {input.CodeChunk};                    /* instruction low Ptr      */
-		const Signal* __restrict__     ip {ipLo};                                 /* instruction Ptr			*/
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+		if (!MapJumpTable(input.CodeChunk, input.CodeChunk + input.CodeChunkSize, input.CodeChunkInstructionMap, JUMP_TABLE))
+		{
+			return validationFault(ReactorValidationResult::ExecutionAddressMappingError);
+		}
+#endif
+
+		ASM_MARKER("reactor locals");
+
+		InterruptAccumulator           interruptCode { };                         /* interrupt id flag			*/
+		void* __restrict__             usrDat {input.UserData};                   /* user data					*/
+		IntrinsicRoutine* const* const intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi			*/
+		InterruptRoutine* const        interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
+		const Signal* const __restrict ipLo {input.CodeChunk};                    /* instruction low ptr		*/
+		const Signal* __restrict__     ip {ipLo};                                 /* instruction ptr			*/
 		Record64* __restrict__         sp {input.Stack};                          /* stack pointer lo			*/
 		Record64* const __restrict__   spHi {input.Stack + input.StackSize - 1};  /* stack pointer hi			*/
 
 		ASM_MARKER("reactor exec");
 
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+#	define JMP_PTR() *((*++ip).Ptr)
+#else
+#	define JMP_PTR() **(JUMP_TABLE + (*++ip).OpCode)
+#endif
+
 		// exec first:
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__int__: __attribute__((cold));
+	__int__:
+		__attribute__((cold));
 		{
 			ASM_MARKER("__int__");
 			interruptCode = (*++ip).R64.R32.I32;
@@ -737,75 +844,95 @@ namespace Nominax
 			}
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__intrin__: __attribute__((hot));
+
+	__intrin__:
+		__attribute__((hot));
 		ASM_MARKER("__intrin__");
 		SyscallIntrin(sp, (*++ip).R64.U64); // syscall(sp, imm())
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__cintrin__: __attribute__((hot));
+
+	__cintrin__:
+		__attribute__((hot));
 		ASM_MARKER("__cintrin__");
 		if (__builtin_expect(!(**(intrinsicTable + (*++ip).R64.U64))(sp), 0))
 		{
 			goto _terminate_;
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__call__: __attribute__((hot));
+
+	__call__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__call__");
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__ret__: __attribute__((hot));
+
+	__ret__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__ret__");
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__mov__: __attribute__((hot));
+
+	__mov__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__mov__");
 			const std::uint64_t dst {(*++ip).R64.U64}; // imm() -> arg 1 (reg) - dst
 			*(sp + dst) = *(sp + (*++ip).R64.U64);     // poke(dst) = poke(imm())
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__sto__: __attribute__((hot));
+
+	__sto__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__sto__");
 			const std::uint64_t dst {(*++ip).R64.U64}; // imm() -> arg 1 (reg) - dst
 			(*(sp + dst)).U64 = (*++ip).R64.U64;       // poke(dst) = imm()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__push__: __attribute__((hot));
+
+	__push__:
+		__attribute__((hot));
 		ASM_MARKER("__push__");
 		STO_SENTINEL(1);
 		*++sp = (*++ip).R64; // push(imm())
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__pop__: __attribute__((hot));
+
+	__pop__:
+		__attribute__((hot));
 		ASM_MARKER("__pop__");
 		--sp;
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__pop2__: __attribute__((hot));
+
+	__pop2__:
+		__attribute__((hot));
 		ASM_MARKER("__pop2__");
 		sp -= 2;
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__dupl__: __attribute__((hot));
+
+	__dupl__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__dupl__");
 			STO_SENTINEL(1);
@@ -813,9 +940,11 @@ namespace Nominax
 			*++sp = top;          // push(peek())
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__dupl2__: __attribute__((hot));
+
+	__dupl2__:
+		__attribute__((hot));
 		{
 			STO_SENTINEL(2);
 			const auto top {*sp}; // peek
@@ -823,9 +952,11 @@ namespace Nominax
 			*++sp = top;          // push(peek())
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__swap__: __attribute__((hot));
+
+	__swap__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__swap__");
 			const auto top = *sp;       // backup = top()
@@ -833,32 +964,40 @@ namespace Nominax
 			*(sp - 1)      = top;       // poke(1) = backup
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__nop__: __attribute__((cold));
+
+	__nop__:
+		__attribute__((cold));
 		ASM_MARKER("__nop__");
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jmp__: __attribute__((hot));
+
+	__jmp__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jmp__");
 			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
 			ip = ipLo + abs;                           // ip = begin + offset
 		}
 		goto
-		**(BRANCH_TABLE + (*ip).OpCode); // next_instr() -> no inc -> new address
+		JMP_PTR();
 
-	__jmprel__: __attribute__((hot));
+
+	__jmprel__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jmprel__");
 			const std::uint64_t rel {(*++ip).R64.U64}; // relative address
 			ip += rel;                                 // ip +-= rel
 		}
 		goto
-		**(BRANCH_TABLE + (*ip).OpCode); // next_instr() -> no inc -> new address
+		JMP_PTR();
 
-	__jz__: __attribute__((hot));
+
+	__jz__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jz__");
 			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
@@ -868,9 +1007,11 @@ namespace Nominax
 			}
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jnz__: __attribute__((hot));
+
+	__jnz__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jnz__");
 			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
@@ -880,9 +1021,11 @@ namespace Nominax
 			}
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jo_cmpi__: __attribute__((hot));
+
+	__jo_cmpi__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jo_cmpi__");
 			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
@@ -893,9 +1036,11 @@ namespace Nominax
 			}
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jo_cmpf__: __attribute__((hot));
+
+	__jo_cmpf__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jo_cmpf__");
 			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
@@ -906,9 +1051,11 @@ namespace Nominax
 			}
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jno_cmpi__: __attribute__((hot));
+
+	__jno_cmpi__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jno_cmpi__");
 			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
@@ -919,9 +1066,11 @@ namespace Nominax
 			}
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jno_cmpf__: __attribute__((hot));
+
+	__jno_cmpf__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jno_cmpf__");
 			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
@@ -932,9 +1081,11 @@ namespace Nominax
 			}
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__je_cmpi__: __attribute__((hot));
+
+	__je_cmpi__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__je_cmpi__");
 			--sp;                                      // pop()
@@ -946,9 +1097,11 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__je_cmpf__: __attribute__((hot));
+
+	__je_cmpf__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__je_cmpf__");
 			--sp;                                      // pop()
@@ -960,9 +1113,11 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jne_cmpi__: __attribute__((hot));
+
+	__jne_cmpi__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jne_cmpi__");
 			--sp;                                      // pop()
@@ -974,9 +1129,11 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jne_cmpf__: __attribute__((hot));
+
+	__jne_cmpf__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jne_cmpf__");
 			--sp;                                      // pop()
@@ -988,9 +1145,11 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__ja_cmpi__: __attribute__((hot));
+
+	__ja_cmpi__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__ja_cmpi__");
 			--sp;                                      // pop()
@@ -1002,9 +1161,11 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__ja_cmpf__: __attribute__((hot));
+
+	__ja_cmpf__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__ja_cmpf__");
 			--sp;                                      // pop()
@@ -1016,9 +1177,11 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jl_cmpi__: __attribute__((hot));
+
+	__jl_cmpi__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jl_cmpi__");
 			--sp;                                      // pop()
@@ -1030,9 +1193,11 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jl_cmpf__: __attribute__((hot));
+
+	__jl_cmpf__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jl_cmpf__");
 			--sp;                                      // pop()
@@ -1044,9 +1209,11 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jae_cmpi__: __attribute__((hot));
+
+	__jae_cmpi__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jae_cmpi__");
 			--sp;                                      // pop()
@@ -1058,9 +1225,11 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jae_cmpf__: __attribute__((hot));
+
+	__jae_cmpf__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jae_cmpf__");
 			--sp;                                      // pop()
@@ -1072,9 +1241,11 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jle_cmpi__: __attribute__((hot));
+
+	__jle_cmpi__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jle_cmpi__");
 			--sp;                                      // pop()
@@ -1086,9 +1257,11 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__jle_cmpf__: __attribute__((hot));
+
+	__jle_cmpf__:
+		__attribute__((hot));
 		{
 			ASM_MARKER("__jle_cmpf__");
 			--sp;                                      // pop()
@@ -1100,193 +1273,252 @@ namespace Nominax
 			--sp; // pop()
 		}
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__ipushz__: __attribute__((hot));
+
+	__ipushz__:
+		__attribute__((hot));
 		ASM_MARKER("__ipushz__");
 		STO_SENTINEL(1);
 		(*++sp).I64 = 0; // push(0)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__ipusho__: __attribute__((hot));
+
+	__ipusho__:
+		__attribute__((hot));
 		ASM_MARKER("__ipusho__");
 		STO_SENTINEL(1);
 		(*++sp).I64 = 1; // push(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__fpusho__: __attribute__((hot));
+
+	__fpusho__:
+		__attribute__((hot));
 		ASM_MARKER("__fpusho__");
 		STO_SENTINEL(1);
 		(*++sp).F64 = 1.0; // push(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__iinc__: __attribute__((hot));
+
+	__iinc__:
+		__attribute__((hot));
 		ASM_MARKER("__iinc__");
 		++(*sp).I64;
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__idec__: __attribute__((hot));
+
+	__idec__:
+		__attribute__((hot));
 		ASM_MARKER("__idec__");
 		--(*sp).I64;
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__iadd__: __attribute__((hot));
+
+	__iadd__:
+		__attribute__((hot));
 		ASM_MARKER("__iadd__");
 		--sp;                         // pop
 		(*sp).I64 += (*(sp + 1)).I64; // peek() += poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__isub__: __attribute__((hot));
+
+	__isub__:
+		__attribute__((hot));
 		ASM_MARKER("__isub__");
 		--sp;                         // pop
 		(*sp).I64 -= (*(sp + 1)).I64; // peek() -= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__imul__: __attribute__((hot));
+
+	__imul__:
+		__attribute__((hot));
 		ASM_MARKER("__imul__");
 		--sp;                         // pop
 		(*sp).I64 *= (*(sp + 1)).I64; // peek() *= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__idiv__: __attribute__((hot));
+
+	__idiv__:
+		__attribute__((hot));
 		ASM_MARKER("__idiv__");
 		--sp;                         // pop
 		(*sp).I64 /= (*(sp + 1)).I64; // peek() /= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__imod__: __attribute__((hot));
+
+	__imod__:
+		__attribute__((hot));
 		ASM_MARKER("__imod__");
 		--sp;                         // pop
 		(*sp).I64 %= (*(sp + 1)).I64; // peek() %= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__iand__: __attribute__((hot));
+
+	__iand__:
+		__attribute__((hot));
 		ASM_MARKER("__iand__");
 		--sp;                         // pop
 		(*sp).I64 &= (*(sp + 1)).I64; // peek() &= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__ior__: __attribute__((hot));
+
+	__ior__:
+		__attribute__((hot));
 		ASM_MARKER("__ior__");
 		--sp;                         // pop
 		(*sp).I64 |= (*(sp + 1)).I64; // peek() |= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__ixor__: __attribute__((hot));
+
+	__ixor__:
+		__attribute__((hot));
 		ASM_MARKER("__ixor__");
 		--sp;                         // pop
 		(*sp).I64 ^= (*(sp + 1)).I64; // peek() ^= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__icom__: __attribute__((hot));
+
+	__icom__:
+		__attribute__((hot));
 		ASM_MARKER("__icom__");
 		(*sp).I64 = ~(*sp).I64;
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__isal__: __attribute__((hot));
+
+	__isal__:
+		__attribute__((hot));
 		ASM_MARKER("__isal__");
 		--sp;                          // pop
 		(*sp).I64 <<= (*(sp + 1)).I64; // peek() <<= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__isar__: __attribute__((hot));
+
+	__isar__:
+		__attribute__((hot));
 		ASM_MARKER("__isar__");
 		--sp;                          // pop
 		(*sp).I64 >>= (*(sp + 1)).I64; // peek() >>= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__irol__: __attribute__((hot));
+
+	__irol__:
+		__attribute__((hot));
 		ASM_MARKER("__irol__");
 		--sp; // pop
 		(*sp).U64 = Rol64((*sp).U64, static_cast<std::uint8_t>((*(sp + 1)).U64));
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__iror__: __attribute__((hot));
+
+	__iror__:
+		__attribute__((hot));
 		ASM_MARKER("__iror__");
 		--sp; // pop
 		(*sp).U64 = Ror64((*sp).U64, static_cast<std::uint8_t>((*(sp + 1)).U64));
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__ineg__: __attribute__((hot));
+
+	__ineg__:
+		__attribute__((hot));
 		ASM_MARKER("__ineg__");
 		(*sp).I64 = -(*sp).I64;
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__fadd__: __attribute__((hot));
+
+	__fadd__:
+		__attribute__((hot));
 		ASM_MARKER("__fadd__");
 		--sp;                         // pop
 		(*sp).F64 += (*(sp + 1)).F64; // peek() += poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__fsub__: __attribute__((hot));
+
+	__fsub__:
+		__attribute__((hot));
 		ASM_MARKER("__fsub__");
 		--sp;                         // pop
 		(*sp).F64 -= (*(sp + 1)).F64; // peek() -= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__fmul__: __attribute__((hot));
+
+	__fmul__:
+		__attribute__((hot));
 		ASM_MARKER("__fmul__");
 		--sp;                         // pop
 		(*sp).F64 *= (*(sp + 1)).F64; // peek() *= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__fdiv__: __attribute__((hot));
+
+	__fdiv__:
+		__attribute__((hot));
 		ASM_MARKER("__fdiv__");
 		--sp;                         // pop
 		(*sp).F64 /= (*(sp + 1)).F64; // peek() /= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__fmod__: __attribute__((hot));
+
+	__fmod__:
+		__attribute__((hot));
 		ASM_MARKER("__fmod__");
 		--sp;                   // pop
 		*sp %= (*(sp + 1)).F64; // peek() %= poke(1)
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__fneg__: __attribute__((hot));
+
+	__fneg__:
+		__attribute__((hot));
 		ASM_MARKER("__fneg__");
 		(*sp).F64 = -(*sp).F64;
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__finc__: __attribute__((hot));
+
+	__finc__:
+		__attribute__((hot));
 		ASM_MARKER("__finc__");
 		++(*sp).F64;
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	__fdec__: __attribute__((hot));
+
+	__fdec__:
+		__attribute__((hot));
 		ASM_MARKER("__fdec__");
 		--(*sp).F64;
 		goto
-		**(BRANCH_TABLE + (*++ip).OpCode); // next_instr()
+		JMP_PTR();
 
-	_hard_fault_err_: __attribute__((cold));
-	_terminate_: __attribute__((cold));
+
+	_hard_fault_err_:
+		__attribute__((cold));
+	_terminate_:
+		__attribute__((cold));
+
 		ASM_MARKER("_terminate_");
+
 		return {
 			.Input = &input,
 			.ValidationResult = ReactorValidationResult::Ok,

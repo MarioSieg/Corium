@@ -257,7 +257,7 @@ constexpr std::array<Signal, 3> MockCode {
 
 TEST(ReactorExecution, __Intrin__$cos)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -280,7 +280,7 @@ TEST(ReactorExecution, __Intrin__$cos)
 
 TEST(ReactorExecution, __Intrin__$sin)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -303,7 +303,7 @@ TEST(ReactorExecution, __Intrin__$sin)
 
 TEST(ReactorExecution, __Intrin__$tan)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -326,7 +326,7 @@ TEST(ReactorExecution, __Intrin__$tan)
 
 TEST(ReactorExecution, __Intrin__$acos)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -349,7 +349,7 @@ TEST(ReactorExecution, __Intrin__$acos)
 
 TEST(ReactorExecution, __Intrin__$asin)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -372,7 +372,7 @@ TEST(ReactorExecution, __Intrin__$asin)
 
 TEST(ReactorExecution, __Intrin__$atan)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -395,7 +395,7 @@ TEST(ReactorExecution, __Intrin__$atan)
 
 TEST(ReactorExecution, __Intrin__$atan2)
 {
-	const std::array<Signal, 9> code = {
+	std::array<Signal, 9> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -421,7 +421,7 @@ TEST(ReactorExecution, __Intrin__$atan2)
 
 TEST(ReactorExecution, __Intrin__$cosh)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -444,7 +444,7 @@ TEST(ReactorExecution, __Intrin__$cosh)
 
 TEST(ReactorExecution, __Intrin__$sinh)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -467,7 +467,7 @@ TEST(ReactorExecution, __Intrin__$sinh)
 
 TEST(ReactorExecution, __Intrin__$tanh)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -490,7 +490,7 @@ TEST(ReactorExecution, __Intrin__$tanh)
 
 TEST(ReactorExecution, __Intrin__$acosh)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {1.6},
@@ -513,7 +513,7 @@ TEST(ReactorExecution, __Intrin__$acosh)
 
 TEST(ReactorExecution, __Intrin__$asinh)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -536,7 +536,7 @@ TEST(ReactorExecution, __Intrin__$asinh)
 
 TEST(ReactorExecution, __Intrin__$atanh)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -559,7 +559,7 @@ TEST(ReactorExecution, __Intrin__$atanh)
 
 TEST(ReactorExecution, __Intrin__$exp)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -582,7 +582,7 @@ TEST(ReactorExecution, __Intrin__$exp)
 
 TEST(ReactorExecution, __Intrin__$log)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -605,7 +605,7 @@ TEST(ReactorExecution, __Intrin__$log)
 
 TEST(ReactorExecution, __Intrin__$log10)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -628,7 +628,7 @@ TEST(ReactorExecution, __Intrin__$log10)
 
 TEST(ReactorExecution, __Intrin__$exp2)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -651,7 +651,7 @@ TEST(ReactorExecution, __Intrin__$exp2)
 
 TEST(ReactorExecution, __Intrin__$ilogb)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {1.332},
@@ -674,7 +674,7 @@ TEST(ReactorExecution, __Intrin__$ilogb)
 
 TEST(ReactorExecution, __Intrin__$log2)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -697,7 +697,7 @@ TEST(ReactorExecution, __Intrin__$log2)
 
 TEST(ReactorExecution, __Intrin__$pow)
 {
-	const std::array<Signal, 9> code = {
+	std::array<Signal, 9> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -724,7 +724,7 @@ TEST(ReactorExecution, __Intrin__$pow)
 
 TEST(ReactorExecution, __Intrin__$sqrt)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -747,7 +747,7 @@ TEST(ReactorExecution, __Intrin__$sqrt)
 
 TEST(ReactorExecution, __Intrin__$cbrt)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -770,7 +770,7 @@ TEST(ReactorExecution, __Intrin__$cbrt)
 
 TEST(ReactorExecution, __Intrin__$hypot)
 {
-	const std::array<Signal, 9> code = {
+	std::array<Signal, 9> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -796,7 +796,7 @@ TEST(ReactorExecution, __Intrin__$hypot)
 
 TEST(ReactorExecution, __Intrin__$ceil)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -819,7 +819,7 @@ TEST(ReactorExecution, __Intrin__$ceil)
 
 TEST(ReactorExecution, __Intrin__$floor)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -842,7 +842,7 @@ TEST(ReactorExecution, __Intrin__$floor)
 
 TEST(ReactorExecution, __Intrin__$round)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -865,7 +865,7 @@ TEST(ReactorExecution, __Intrin__$round)
 
 TEST(ReactorExecution, __Intrin__$rint)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -888,7 +888,7 @@ TEST(ReactorExecution, __Intrin__$rint)
 
 TEST(ReactorExecution, __Intrin__$imax)
 {
-	const std::array<Signal, 9> code = {
+	std::array<Signal, 9> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(4)},
@@ -914,7 +914,7 @@ TEST(ReactorExecution, __Intrin__$imax)
 
 TEST(ReactorExecution, __Intrin__$imin)
 {
-	const std::array<Signal, 9> code = {
+	std::array<Signal, 9> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(4)},
@@ -940,7 +940,7 @@ TEST(ReactorExecution, __Intrin__$imin)
 
 TEST(ReactorExecution, __Intrin__$fmax)
 {
-	const std::array<Signal, 9> code = {
+	std::array<Signal, 9> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -966,7 +966,7 @@ TEST(ReactorExecution, __Intrin__$fmax)
 
 TEST(ReactorExecution, __Intrin__$fmin)
 {
-	const std::array<Signal, 9> code = {
+	std::array<Signal, 9> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -992,7 +992,7 @@ TEST(ReactorExecution, __Intrin__$fmin)
 
 TEST(ReactorExecution, __Intrin__$dim)
 {
-	const std::array<Signal, 9> code = {
+	std::array<Signal, 9> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -1019,7 +1019,7 @@ TEST(ReactorExecution, __Intrin__$dim)
 
 TEST(ReactorExecution, __Intrin__$iabs)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(223233)},
@@ -1042,7 +1042,7 @@ TEST(ReactorExecution, __Intrin__$iabs)
 
 TEST(ReactorExecution, __Intrin__$fabs)
 {
-	const std::array<Signal, 7> code = {
+	std::array<Signal, 7> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
@@ -1065,7 +1065,7 @@ TEST(ReactorExecution, __Intrin__$fabs)
 
 TEST(ReactorExecution, __int__)
 {
-	const std::array<Signal, 5> code = {
+	std::array<Signal, 5> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Int},
 		Signal {INT64_C(5)},
@@ -1106,7 +1106,7 @@ TEST(ReactorExecution, __int__)
 
 TEST(ReactorExecution, __mov__)
 {
-	const std::array<Signal, 9> code {
+	std::array<Signal, 9> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Sto},
 		Signal {UINT64_C(3)},
@@ -1129,7 +1129,7 @@ TEST(ReactorExecution, __mov__)
 
 TEST(ReactorExecution, __sto__)
 {
-	const std::array<Signal, 9> code {
+	std::array<Signal, 9> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Sto},
 		Signal {UINT64_C(1)},
@@ -1152,7 +1152,7 @@ TEST(ReactorExecution, __sto__)
 
 TEST(ReactorExecution, __Push__)
 {
-	const std::array<Signal, 7> code {
+	std::array<Signal, 7> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1224)},
@@ -1179,7 +1179,7 @@ TEST(ReactorExecution, __Push__)
 
 TEST(ReactorExecution, __Push_no_stack_overflow__)
 {
-	const std::array<Signal, 9> code {
+	std::array<Signal, 9> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(123)},
@@ -1210,7 +1210,7 @@ TEST(ReactorExecution, __Push_no_stack_overflow__)
 
 TEST(ReactorExecution, __Push_stack_overflow__)
 {
-	const std::array<Signal, 11> code {
+	std::array<Signal, 11> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(123)},
@@ -1243,7 +1243,7 @@ TEST(ReactorExecution, __Push_stack_overflow__)
 
 TEST(ReactorExecution, __Dupl_stack_overflow__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(123)},
@@ -1273,7 +1273,7 @@ TEST(ReactorExecution, __Dupl_stack_overflow__)
 
 TEST(ReactorExecution, __Dupl2_stack_overflow__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(123)},
@@ -1324,7 +1324,7 @@ TEST(ReactorExecution, __CIntrin__)
 			return true;
 		},
 	};
-	const std::array<Signal, 11> code {
+	std::array<Signal, 11> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.12345},
@@ -1360,7 +1360,7 @@ TEST(ReactorExecution, __CIntrin__)
 
 TEST(ReactorExecution, __PushZ_stack_overflow__)
 {
-	const std::array<Signal, 7> code {
+	std::array<Signal, 7> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::PushZ},
 		Signal {Instruction::PushZ},
@@ -1389,7 +1389,7 @@ TEST(ReactorExecution, __PushZ_stack_overflow__)
 
 TEST(ReactorExecution, __IPushO_stack_overflow__)
 {
-	const std::array<Signal, 7> code {
+	std::array<Signal, 7> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::IPushO},
 		Signal {Instruction::IPushO},
@@ -1418,7 +1418,7 @@ TEST(ReactorExecution, __IPushO_stack_overflow__)
 
 TEST(ReactorExecution, __FPushO_stack_overflow__)
 {
-	const std::array<Signal, 7> code {
+	std::array<Signal, 7> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::FPushO},
 		Signal {Instruction::FPushO},
@@ -1502,7 +1502,7 @@ TEST(ReactorExecution, __Pop2__)
 
 TEST(ReactorExecution, __Dupl__)
 {
-	const std::array<Signal, 9> code {
+	std::array<Signal, 9> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(5)},
@@ -1527,7 +1527,7 @@ TEST(ReactorExecution, __Dupl__)
 
 TEST(ReactorExecution, __Swap__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(3)},
@@ -1550,7 +1550,7 @@ TEST(ReactorExecution, __Swap__)
 
 TEST(ReactorExecution, __Dupl2__)
 {
-	const std::array<Signal, 9> code {
+	std::array<Signal, 9> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(5)},
@@ -1577,7 +1577,7 @@ TEST(ReactorExecution, __Dupl2__)
 
 TEST(ReactorExecution, __IInc__)
 {
-	const std::array<Signal, 10> code {
+	std::array<Signal, 10> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(0)},
@@ -1602,7 +1602,7 @@ TEST(ReactorExecution, __IInc__)
 
 TEST(ReactorExecution, __IDec__)
 {
-	const std::array<Signal, 10> code {
+	std::array<Signal, 10> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -1626,7 +1626,7 @@ TEST(ReactorExecution, __IDec__)
 
 TEST(ReactorExecution, __PushZ__)
 {
-	const std::array<Signal, 6> code {
+	std::array<Signal, 6> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::PushZ},
 		Signal {Instruction::PushZ},
@@ -1647,7 +1647,7 @@ TEST(ReactorExecution, __PushZ__)
 
 TEST(ReactorExecution, __IPushO__)
 {
-	const std::array<Signal, 6> code {
+	std::array<Signal, 6> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::IPushO},
 		Signal {Instruction::PushZ},
@@ -1668,7 +1668,7 @@ TEST(ReactorExecution, __IPushO__)
 
 TEST(ReactorExecution, __iadd__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -1691,7 +1691,7 @@ TEST(ReactorExecution, __iadd__)
 
 TEST(ReactorExecution, __isub__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -1714,7 +1714,7 @@ TEST(ReactorExecution, __isub__)
 
 TEST(ReactorExecution, __imul__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -1737,7 +1737,7 @@ TEST(ReactorExecution, __imul__)
 
 TEST(ReactorExecution, __idiv__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(10)},
@@ -1760,7 +1760,7 @@ TEST(ReactorExecution, __idiv__)
 
 TEST(ReactorExecution, __imod__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(10)},
@@ -1783,7 +1783,7 @@ TEST(ReactorExecution, __imod__)
 
 TEST(ReactorExecution, __iand__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(0b1101'1101)},
@@ -1806,7 +1806,7 @@ TEST(ReactorExecution, __iand__)
 
 TEST(ReactorExecution, __ior__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(0b1101'1101)},
@@ -1829,7 +1829,7 @@ TEST(ReactorExecution, __ior__)
 
 TEST(ReactorExecution, __ixor__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(0b1101'1101)},
@@ -1852,7 +1852,7 @@ TEST(ReactorExecution, __ixor__)
 
 TEST(ReactorExecution, __icom__)
 {
-	const std::array<Signal, 6> code {
+	std::array<Signal, 6> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(0b1101'1101)},
@@ -1872,7 +1872,7 @@ TEST(ReactorExecution, __icom__)
 
 TEST(ReactorExecution, __isal__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1)},
@@ -1895,7 +1895,7 @@ TEST(ReactorExecution, __isal__)
 
 TEST(ReactorExecution, __isar__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1)},
@@ -1918,7 +1918,7 @@ TEST(ReactorExecution, __isar__)
 
 TEST(ReactorExecution, __irol__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1)},
@@ -1941,7 +1941,7 @@ TEST(ReactorExecution, __irol__)
 
 TEST(ReactorExecution, __iror__)
 {
-	const std::array<Signal, 8> code = {
+	std::array<Signal, 8> code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1)},
@@ -1964,7 +1964,7 @@ TEST(ReactorExecution, __iror__)
 
 TEST(ReactorExecution, __ineg__)
 {
-	const std::array<Signal, 6> code {
+	std::array<Signal, 6> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(10)},
@@ -1984,7 +1984,7 @@ TEST(ReactorExecution, __ineg__)
 
 TEST(ReactorExecution, __fadd__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {4.25},
@@ -2007,7 +2007,7 @@ TEST(ReactorExecution, __fadd__)
 
 TEST(ReactorExecution, __fmod_)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {4.25},
@@ -2030,7 +2030,7 @@ TEST(ReactorExecution, __fmod_)
 
 TEST(ReactorExecution, __fsub__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {4.25},
@@ -2053,7 +2053,7 @@ TEST(ReactorExecution, __fsub__)
 
 TEST(ReactorExecution, __fmul__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {4.25},
@@ -2076,7 +2076,7 @@ TEST(ReactorExecution, __fmul__)
 
 TEST(ReactorExecution, __fdiv__)
 {
-	const std::array<Signal, 8> code {
+	std::array<Signal, 8> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {4.25},
@@ -2099,7 +2099,7 @@ TEST(ReactorExecution, __fdiv__)
 
 TEST(ReactorExecution, __fneg__)
 {
-	const std::array<Signal, 6> code {
+	std::array<Signal, 6> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {2.25},
@@ -2119,7 +2119,7 @@ TEST(ReactorExecution, __fneg__)
 
 TEST(ReactorExecution, __FInc__)
 {
-	const std::array<Signal, 10> code {
+	std::array<Signal, 10> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {.0},
@@ -2144,7 +2144,7 @@ TEST(ReactorExecution, __FInc__)
 
 TEST(ReactorExecution, __FDec__)
 {
-	const std::array<Signal, 10> code {
+	std::array<Signal, 10> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {2.},
@@ -2169,7 +2169,7 @@ TEST(ReactorExecution, __FDec__)
 
 TEST(ReactorExecution, __FPushO__)
 {
-	const std::array<Signal, 6> code {
+	std::array<Signal, 6> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::FPushO},
 		Signal {Instruction::PushZ},
@@ -2190,7 +2190,7 @@ TEST(ReactorExecution, __FPushO__)
 
 TEST(ReactorExecution, __jmp__)
 {
-	const std::array<Signal, 9> code {
+	std::array<Signal, 9> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Jmp},
 		Signal {UINT64_C(5)},
@@ -2214,7 +2214,7 @@ TEST(ReactorExecution, __jmp__)
 
 TEST(ReactorExecution, __jmprel__)
 {
-	const std::array<Signal, 9> code {
+	std::array<Signal, 9> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::JmpRel},
 		Signal {UINT64_C(3)},
@@ -2238,7 +2238,7 @@ TEST(ReactorExecution, __jmprel__)
 
 TEST(ReactorExecution, __jz__)
 {
-	const std::array<Signal, 11> code {
+	std::array<Signal, 11> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::PushZ},
 		Signal {Instruction::Jz},
@@ -2265,7 +2265,7 @@ TEST(ReactorExecution, __jz__)
 
 TEST(ReactorExecution, __jnz__)
 {
-	const std::array<Signal, 11> code {
+	std::array<Signal, 11> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::IPushO},
 		Signal {Instruction::Jnz},
@@ -2292,7 +2292,7 @@ TEST(ReactorExecution, __jnz__)
 
 TEST(ReactorExecution, __jo_cmpi__)
 {
-	const std::array<Signal, 11> code {
+	std::array<Signal, 11> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::IPushO},
 		Signal {Instruction::JoCmpi},
@@ -2319,7 +2319,7 @@ TEST(ReactorExecution, __jo_cmpi__)
 
 TEST(ReactorExecution, __jno_cmpi__)
 {
-	const std::array<Signal, 11> code {
+	std::array<Signal, 11> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::PushZ},
 		Signal {Instruction::JnoCmpi},
@@ -2346,7 +2346,7 @@ TEST(ReactorExecution, __jno_cmpi__)
 
 TEST(ReactorExecution, __jo_cmpf__)
 {
-	const std::array<Signal, 11> code {
+	std::array<Signal, 11> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::FPushO},
 		Signal {Instruction::JoCmpf},
@@ -2373,7 +2373,7 @@ TEST(ReactorExecution, __jo_cmpf__)
 
 TEST(ReactorExecution, __jno_cmpf__)
 {
-	const std::array<Signal, 11> code {
+	std::array<Signal, 11> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::PushZ},
 		Signal {Instruction::JnoCmpf},
@@ -2400,7 +2400,7 @@ TEST(ReactorExecution, __jno_cmpf__)
 
 TEST(ReactorExecution, __je_cmpi__)
 {
-	const std::array<Signal, 16> code {
+	std::array<Signal, 16> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(12345679)},
@@ -2433,7 +2433,7 @@ TEST(ReactorExecution, __je_cmpi__)
 
 TEST(ReactorExecution, __je_cmpf__)
 {
-	const std::array<Signal, 16> code {
+	std::array<Signal, 16> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {1234567.0},
@@ -2466,7 +2466,7 @@ TEST(ReactorExecution, __je_cmpf__)
 
 TEST(ReactorExecution, __jne_cmpi__)
 {
-	const std::array<Signal, 17> code {
+	std::array<Signal, 17> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1234567)},
@@ -2500,7 +2500,7 @@ TEST(ReactorExecution, __jne_cmpi__)
 
 TEST(ReactorExecution, __jne_cmpf__)
 {
-	const std::array<Signal, 17> code {
+	std::array<Signal, 17> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {1234567.},
@@ -2534,7 +2534,7 @@ TEST(ReactorExecution, __jne_cmpf__)
 
 TEST(ReactorExecution, __ja_cmpi__)
 {
-	const std::array<Signal, 17> code {
+	std::array<Signal, 17> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(5)},
@@ -2568,7 +2568,7 @@ TEST(ReactorExecution, __ja_cmpi__)
 
 TEST(ReactorExecution, __ja_cmpf__)
 {
-	const std::array<Signal, 17> code {
+	std::array<Signal, 17> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {5.0},
@@ -2602,7 +2602,7 @@ TEST(ReactorExecution, __ja_cmpf__)
 
 TEST(ReactorExecution, __jl_cmpi__)
 {
-	const std::array<Signal, 17> code {
+	std::array<Signal, 17> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -2636,7 +2636,7 @@ TEST(ReactorExecution, __jl_cmpi__)
 
 TEST(ReactorExecution, __jl_cmpf__)
 {
-	const std::array<Signal, 17> code {
+	std::array<Signal, 17> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {2.0},
@@ -2670,7 +2670,7 @@ TEST(ReactorExecution, __jl_cmpf__)
 
 TEST(ReactorExecution, __jae_cmpi__)
 {
-	const std::array<Signal, 23> code {
+	std::array<Signal, 23> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(5)},
@@ -2710,7 +2710,7 @@ TEST(ReactorExecution, __jae_cmpi__)
 
 TEST(ReactorExecution, __jae_cmpf__)
 {
-	const std::array<Signal, 23> code {
+	std::array<Signal, 23> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {5.0},
@@ -2750,7 +2750,7 @@ TEST(ReactorExecution, __jae_cmpf__)
 
 TEST(ReactorExecution, __jle_cmpi__)
 {
-	const std::array<Signal, 23> code {
+	std::array<Signal, 23> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -2790,7 +2790,7 @@ TEST(ReactorExecution, __jle_cmpi__)
 
 TEST(ReactorExecution, __jle_cmpf__)
 {
-	const std::array<Signal, 23> code {
+	std::array<Signal, 23> code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {2.0},
