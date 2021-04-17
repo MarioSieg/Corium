@@ -1,4 +1,4 @@
-// File: MemoryUnits.hpp
+// File: Utility.hpp
 // Author: Mario
 // Created: 12.04.2021.09:27
 // Project: NominaxRuntime

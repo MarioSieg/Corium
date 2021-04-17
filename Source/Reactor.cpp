@@ -711,14 +711,14 @@ namespace Nominax
 
 		ASM_MARKER("reactor begin");
 
-		InterruptAccumulator            interruptCode { };                         /* interrupt ID flag        */
-		void* __restrict__              usrDat {input.UserData};                   /* user data                */
-		IntrinsicRoutine* const* const	intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi       */
-		InterruptRoutine* const         interruptHandler {input.InterruptHandler}; /* global interrupt routine */
-		const Signal* const __restrict  ipLo {input.CodeChunk};                    /* instruction low Ptr      */
-		const Signal* __restrict__      ip {ipLo};                                 /* instruction Ptr			*/
-		Record64* __restrict__          sp {input.Stack};                          /* stack pointer lo			*/
-		Record64* const __restrict__    spHi {input.Stack + input.StackSize - 1};  /* stack pointer hi			*/
+		InterruptAccumulator           interruptCode { };                         /* interrupt ID flag        */
+		void* __restrict__             usrDat {input.UserData};                   /* user data                */
+		IntrinsicRoutine* const* const intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi       */
+		InterruptRoutine* const        interruptHandler {input.InterruptHandler}; /* global interrupt routine */
+		const Signal* const __restrict ipLo {input.CodeChunk};                    /* instruction low Ptr      */
+		const Signal* __restrict__     ip {ipLo};                                 /* instruction Ptr			*/
+		Record64* __restrict__         sp {input.Stack};                          /* stack pointer lo			*/
+		Record64* const __restrict__   spHi {input.Stack + input.StackSize - 1};  /* stack pointer hi			*/
 
 		ASM_MARKER("reactor exec");
 
