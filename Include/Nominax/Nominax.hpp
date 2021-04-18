@@ -218,5 +218,4 @@
 #include "Platform.hpp"
 #include "Reactor.hpp"
 #include "Record.hpp"
-#include "Utf32String.hpp"
 #include "Utility.hpp"
