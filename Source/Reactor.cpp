@@ -431,8 +431,9 @@ namespace Nominax
 	/// <param name="bucketEnd">The incremented end pointer of the byte code bucket, calculated as: bucket + bucketLength</param>
 	/// <param name="instructionMap">The instruction map. Must have the same size as the byte code bucket.</param>
 	/// <param name="jumpTable">The jump table. Must contain an address for each instruction.</param>
-	/// <returns></returns>
-	auto MapJumpTable(Signal* __restrict__                               bucket, const Signal* const __restrict__ bucketEnd, const bool* instructionMap,
+	/// <returns>true on success, else false.</returns>
+	[[nodiscard]]
+	static constexpr auto MapJumpTable(Signal* __restrict__ bucket, const Signal* const __restrict__ bucketEnd, const bool* instructionMap,
 	                  const void* __restrict__ const* __restrict__ const jumpTable) -> bool
 	{
 		if (__builtin_expect(!bucket || !bucketEnd || !instructionMap || !jumpTable || !*jumpTable, 0))
@@ -463,15 +464,21 @@ namespace Nominax
 		return true;
 	}
 
-	[[nodiscard]]
+	/// <summary>
+	/// Checks if all pointers inside the jump table are non null.
+	/// Use it with static_assert because it is consteval :)
+	/// </summary>
+	/// <param name="jumpTable">The jump table to check.</param>
+	/// <param name="jumpTableSize">The amount of jump table entries.</param>
+	/// <returns>true if all entries are valid, else false.</returns>
 	static consteval auto ValidateJumpTable(const void* __restrict__ const* __restrict__ const jumpTable,
 	                                        const std::size_t                                  jumpTableSize) noexcept -> bool
 	{
 		const auto*       current = jumpTable;
 		const auto* const end     = jumpTable + jumpTableSize;
-		while (__builtin_expect(current < end, 1))
+		for (; __builtin_expect(current < end, 1); ++current)
 		{
-			if (__builtin_expect(!*current++, 0))
+			if (__builtin_expect(!*current, 0))
 			{
 				return false;
 			}
