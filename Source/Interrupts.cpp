@@ -1,6 +1,6 @@
 // File: Interrupts.cpp
 // Author: Mario
-// Created: 16.04.2021.09:07
+// Created: 16.04.2021 09:07
 // Project: NominaxRuntime
 // 
 //                                  Apache License

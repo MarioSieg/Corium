@@ -1,6 +1,6 @@
-// File: Validator.hpp
+// File: Bytecode.cpp
 // Author: Mario
-// Created: 16.04.2021.12:37
+// Created: 18.04.2021 14:46
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,28 +205,103 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include <span>
-
-#include "Bytecode.hpp"
+#include "../Include/Nominax/ByteCode.hpp"
 
 namespace Nominax
 {
-	enum class validation_result_error
+	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
 	{
-		ok = 0,
-		not_enough_arguments,
-		too_many_arguments,
-		invalid_operand_type
-	};
+		if (input.size() != output.size())
+		[[unlikely]]
+		{
+			return false;
+		}
 
-	struct validation_result final
+		auto       iterator {input.begin()};
+		const auto end {input.end()};
+
+		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
+		[[likely]]
+		{
+			*flag = iterator->Contains<Instruction>();
+		}
+
+		return true;
+	}
+
+	auto ByteCodeValidateSingleInstruction(const Instruction instruction, const std::span<const DynamicSignal> args) -> ByteCodeValidationResult
 	{
-		validation_result_error error { };
-		std::size_t             index { };
-	};
+		const auto         instructionIndex = static_cast<std::size_t>(instruction);
+		const std::uint8_t requiredArgCount = INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[instructionIndex];
 
-	[[nodiscard]] extern auto perform_bytecode_validation_for_instruction(
-		Instruction instr_, std::span<DynamicSignal> args_) -> validation_result_error;
+		// check if we submitted not enough arguments:
+		if (args.size() < requiredArgCount)
+		[[unlikely]]
+		{
+			return ByteCodeValidationResult::NotEnoughArguments;
+		}
+
+		// check if we submitted too many arguments:
+		if (args.size() > requiredArgCount)
+		[[unlikely]]
+		{
+			return ByteCodeValidationResult::TooManyArguments;
+		}
+
+		// fetch the type table:
+		const std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>& type_table =
+			INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[instructionIndex];
+
+		// this loop checks each submitted operand type with the required operand type.
+		for (std::size_t i = 0; i < args.size(); ++i)
+		[[likely]]
+		{
+			// submitted operand:
+			const DynamicSignal& arg = args[i];
+
+			// required operand type:
+			const InstructionImmediateArgumentType requiredType = type_table[i];
+
+			// true if the data types are equal, else false
+			bool correctType;
+
+			switch (requiredType)
+			{
+			case InstructionImmediateArgumentType::I64:
+				correctType = arg.Contains<std::int64_t>();
+				break;
+			case InstructionImmediateArgumentType::U64:
+			case InstructionImmediateArgumentType::RelativeJumpAddress64:
+			case InstructionImmediateArgumentType::AbsoluteJumpAddress64:
+				correctType = arg.Contains<std::uint64_t>();
+				break;
+			case InstructionImmediateArgumentType::SystemIntrinsicId:
+				correctType = arg.Contains<CustomIntrinsicCallId>();
+				break;
+			case InstructionImmediateArgumentType::CustomIntrinsicId:
+				correctType = arg.Contains<CustomIntrinsicCallId>();
+				break;
+			case InstructionImmediateArgumentType::F64:
+				correctType = arg.Contains<double>();
+				break;
+			case InstructionImmediateArgumentType::I64OrU64:
+				correctType = arg.Contains<std::int64_t>() || arg.Contains<std::uint64_t>();
+				break;
+			case InstructionImmediateArgumentType::I64OrU64OrF64:
+				correctType = arg.Contains<std::int64_t>() || arg.Contains<std::uint64_t>() || arg.Contains<double>();
+				break;
+			default:
+				correctType = false;
+			}
+
+			// if the types where not equal, return error:
+			if (!correctType)
+			[[unlikely]]
+			{
+				return ByteCodeValidationResult::InvalidOperandType;
+			}
+		}
+
+		return ByteCodeValidationResult::Ok;
+	}
 }

@@ -1,6 +1,6 @@
 // File: Reactor.hpp
 // Author: Mario
-// Created: 09.04.2021.17:11
+// Created: 09.04.2021 17:11
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -211,7 +211,7 @@
 #include <csignal>
 #include <cstddef>
 
-#include "Bytecode.hpp"
+#include "ByteCode.hpp"
 #include "Interrupts.hpp"
 
 namespace Nominax

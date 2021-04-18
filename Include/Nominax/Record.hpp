@@ -1,6 +1,6 @@
 // File: Record.hpp
 // Author: Mario
-// Created: 09.04.2021.17:11
+// Created: 09.04.2021 17:11
 // Project: NominaxRuntime
 // 
 //                                  Apache License

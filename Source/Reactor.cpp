@@ -1,6 +1,6 @@
 // File: Reactor.cpp
 // Author: Mario
-// Created: 09.04.2021.17:11
+// Created: 09.04.2021 17:11
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -432,7 +432,7 @@ namespace Nominax
 	/// <param name="instructionMap">The instruction map. Must have the same size as the byte code bucket.</param>
 	/// <param name="jumpTable">The jump table. Must contain an address for each instruction.</param>
 	/// <returns></returns>
-	auto MapJumpTable(Signal* __restrict__ bucket, const Signal* const __restrict__ bucketEnd, const bool* instructionMap,
+	auto MapJumpTable(Signal* __restrict__                               bucket, const Signal* const __restrict__ bucketEnd, const bool* instructionMap,
 	                  const void* __restrict__ const* __restrict__ const jumpTable) -> bool
 	{
 		if (__builtin_expect(!bucket || !bucketEnd || !instructionMap || !jumpTable || !*jumpTable, 0))
@@ -506,7 +506,7 @@ namespace Nominax
 	/// </summary>
 	__attribute__((hot)) static auto SyscallIntrin(Record64* const sp, const std::uint64_t id) -> void
 	{
-		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicId::Count)] {
+		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallId::Count)] {
 			&&__cos__,
 			&&__sin__,
 			&&__tan__,
@@ -824,8 +824,10 @@ namespace Nominax
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
 #	define JMP_PTR() *((*++ip).Ptr)
+#	define JMP_PTR_REL() *((*ip).Ptr)
 #else
 #	define JMP_PTR() **(JUMP_TABLE + (*++ip).OpCode)
+#	define JMP_PTR_REL() **(JUMP_TABLE + (*ip).OpCode)
 #endif
 
 		// exec first:
@@ -982,7 +984,7 @@ namespace Nominax
 			ip = ipLo + abs;                           // ip = begin + offset
 		}
 		goto
-		JMP_PTR();
+		JMP_PTR_REL();
 
 
 	__jmprel__:
@@ -993,7 +995,7 @@ namespace Nominax
 			ip += rel;                                 // ip +-= rel
 		}
 		goto
-		JMP_PTR();
+		JMP_PTR_REL();
 
 
 	__jz__:

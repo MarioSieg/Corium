@@ -1,6 +1,6 @@
 // File: OsLinux.cpp
 // Author: Mario
-// Created: 12.04.2021.09:07
+// Created: 12.04.2021 09:07
 // Project: NominaxRuntime
 // 
 //                                  Apache License

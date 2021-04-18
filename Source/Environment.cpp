@@ -1,6 +1,6 @@
 // File: Environment.cpp
 // Author: Mario
-// Created: 17.04.2021.14:32
+// Created: 17.04.2021 14:32
 // Project: NominaxRuntime
 // 
 //                                  Apache License

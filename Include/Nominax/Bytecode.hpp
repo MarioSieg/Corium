@@ -1,6 +1,6 @@
-// File: Bytecode.hpp
+// File: ByteCode.hpp
 // Author: Mario
-// Created: 09.04.2021.17:11
+// Created: 09.04.2021 17:11
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -210,12 +210,16 @@
 #include <array>
 #include <optional>
 #include <string_view>
+#include <span>
 #include <variant>
 
 #include "Record.hpp"
 
 namespace Nominax
 {
+	/// <summary>
+	/// Contains all byte code instructions with opcodes.
+	/// </summary>
 	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
 	{
 		Int = 0x00'00'00'00'00'00'00'00,
@@ -284,9 +288,15 @@ namespace Nominax
 		Count
 	};
 
-	enum class alignas(alignof(std::uint64_t)) CustomIntrinsicId : std::uint64_t;
+	/// <summary>
+	/// Call id for custom intrinsic routine.
+	/// </summary>
+	enum class alignas(alignof(std::uint64_t)) CustomIntrinsicCallId : std::uint64_t;
 
-	enum class alignas(alignof(std::uint64_t)) SystemIntrinsicId : std::uint64_t
+	/// <summary>
+	/// Call id for system intrinsic routine.
+	/// </summary>
+	enum class alignas(alignof(std::uint64_t)) SystemIntrinsicCallId : std::uint64_t
 	{
 		Cos = 0x00'00'00'00'00'00'00'00,
 		Sin = 0x00'00'00'00'00'00'00'01,
@@ -327,7 +337,10 @@ namespace Nominax
 		Count
 	};
 
-	enum class InstructionType : std::uint8_t
+	/// <summary>
+	/// Instruction category.
+	/// </summary>
+	enum class InstructionCategory : std::uint8_t
 	{
 		Control,
 		Memory,
@@ -336,6 +349,9 @@ namespace Nominax
 		BitWise
 	};
 
+	/// <summary>
+	/// All types of immediate arguments a instruction could have.
+	/// </summary>
 	enum class InstructionImmediateArgumentType : std::uint8_t
 	{
 		None,
@@ -350,6 +366,9 @@ namespace Nominax
 		CustomIntrinsicId
 	};
 
+	/// <summary>
+	/// Contains all instruction mnemonics.
+	/// </summary>
 	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS {
 		"int",
 		"intrin",
@@ -414,6 +433,9 @@ namespace Nominax
 		"fdec"
 	};
 
+	/// <summary>
+	/// Contains a short descripion for all instructions.
+	/// </summary>
 	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_DESCRIPTIONS {
 		"interrupt reactor execution",
 		"call intrinsic system routine",
@@ -478,70 +500,76 @@ namespace Nominax
 		"floating point decrement"
 	};
 
-	constexpr std::array INSTRUCTION_TYPES {
-		InstructionType::Control,
-		InstructionType::Control,
-		InstructionType::Control,
-		InstructionType::Control,
-		InstructionType::Control,
-		InstructionType::Memory,
-		InstructionType::Memory,
-		InstructionType::Memory,
-		InstructionType::Memory,
-		InstructionType::Memory,
-		InstructionType::Memory,
-		InstructionType::Memory,
-		InstructionType::Memory,
-		InstructionType::Memory,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Branching,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::BitWise,
-		InstructionType::BitWise,
-		InstructionType::BitWise,
-		InstructionType::BitWise,
-		InstructionType::BitWise,
-		InstructionType::BitWise,
-		InstructionType::BitWise,
-		InstructionType::BitWise,
-		InstructionType::BitWise,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic,
-		InstructionType::Arithmetic
+	/// <summary>
+	/// Contains the categories of all instructions.
+	/// </summary>
+	constexpr std::array INSTRUCTION_CATEGORIES {
+		InstructionCategory::Control,
+		InstructionCategory::Control,
+		InstructionCategory::Control,
+		InstructionCategory::Control,
+		InstructionCategory::Control,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic
 	};
 
+	/// <summary>
+	/// Contains the amount of stack pushes each instruction will perform.
+	/// </summary>
 	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_PUSH_COUNTS {
 		0,
 		0,
@@ -606,6 +634,9 @@ namespace Nominax
 		1
 	};
 
+	/// <summary>
+	/// Contains the amount of stack pops each instruction will perform.
+	/// </summary>
 	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_POP_COUNTS {
 		0,
 		0,
@@ -670,6 +701,9 @@ namespace Nominax
 		1
 	};
 
+	/// <summary>
+	/// Contains the count of required immediate arguments for each instruction.
+	/// </summary>
 	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS {
 		1,
 		1,
@@ -734,8 +768,14 @@ namespace Nominax
 		0
 	};
 
+	/// <summary>
+	/// Defines the maximal amount of immediate arguments.
+	/// </summary>
 	constexpr std::size_t INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS {2};
 
+	/// <summary>
+	/// Contains all immediate argument types for each instruction.
+	/// </summary>
 	constexpr std::array INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES {
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
 			InstructionImmediateArgumentType::I64OrU64OrF64
@@ -859,47 +899,148 @@ namespace Nominax
 	/// </summary>
 	union alignas(alignof(std::uint64_t)) Signal
 	{
-		Record64          R64;
-		Instruction       Instr;
-		SystemIntrinsicId SystemIntrinId;
-		CustomIntrinsicId CustomIntrinId;
-		std::uint64_t     OpCode;
-		void*             Ptr;
+		/// <summary>
+		/// Reinterpret as Record64.
+		/// </summary>
+		Record64 R64;
 
+		/// <summary>
+		/// Reinterpret as instruction.
+		/// </summary>
+		Instruction Instr;
+
+		/// <summary>
+		/// Reinterpret as system intrinsic call id.
+		/// </summary>
+		SystemIntrinsicCallId SystemIntrinId;
+
+		/// <summary>
+		/// Reinterpret as custom intrinsic call id.
+		/// </summary>
+		CustomIntrinsicCallId CustomIntrinId;
+
+		/// <summary>
+		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
+		/// </summary>
+		std::uint64_t OpCode;
+
+		/// <summary>
+		/// Reinterpret as void pointer.
+		/// </summary>
+		void* Ptr;
+
+		/// <summary>
+		/// Construct from record64.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
 		explicit constexpr Signal(Record64 value) noexcept;
+
+		/// <summary>
+		/// Construct from instruction.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
 		explicit constexpr Signal(Instruction value) noexcept;
-		explicit constexpr Signal(SystemIntrinsicId value) noexcept;
-		explicit constexpr Signal(CustomIntrinsicId value) noexcept;
+
+		/// <summary>
+		/// Construct from system intrinsic call id.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr Signal(SystemIntrinsicCallId value) noexcept;
+
+		/// <summary>
+		/// Construct from custom intrinsic call id.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr Signal(CustomIntrinsicCallId value) noexcept;
+
+		/// <summary>
+		/// Construct from void pointer.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
 		explicit constexpr Signal(void* value) noexcept;
+
+		/// <summary>
+		/// Construct from 64-bit signed quadword integer.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
 		explicit constexpr Signal(std::int64_t value) noexcept;
+
+		/// <summary>
+		/// Construct from 64-bit unsigned quadword integer.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
 		explicit constexpr Signal(std::uint64_t value) noexcept;
+
+		/// <summary>
+		/// Construct from 64-bit double precision float.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
 		explicit constexpr Signal(double value) noexcept;
+
+		/// <summary>
+		/// Construct from 32-bit UTF-32 character.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
 		explicit constexpr Signal(char32_t value) noexcept;
 	};
 
 	constexpr Signal::Signal(const Record64 value) noexcept : R64 {value} {}
 	constexpr Signal::Signal(const Instruction value) noexcept : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicId value) noexcept : SystemIntrinId {value} {}
-	constexpr Signal::Signal(const CustomIntrinsicId value) noexcept : CustomIntrinId {value} {}
+	constexpr Signal::Signal(const SystemIntrinsicCallId value) noexcept : SystemIntrinId {value} {}
+	constexpr Signal::Signal(const CustomIntrinsicCallId value) noexcept : CustomIntrinId {value} {}
 	constexpr Signal::Signal(void* const value) noexcept : Ptr {value} {}
 	constexpr Signal::Signal(const std::int64_t value) noexcept : R64 {value} {}
 	constexpr Signal::Signal(const std::uint64_t value) noexcept : R64 {value} {}
 	constexpr Signal::Signal(const double value) noexcept : R64 {value} {}
 	constexpr Signal::Signal(const char32_t value) noexcept : R64 {value} {}
 
+	/// <summary>
+	/// Create signal from unsigned 64-bit quadword.
+	/// </summary>
+	/// <param name="value">The value to convert from.</param>
+	/// <returns>The signal containing the value.</returns>
 	constexpr auto operator""_sig_u(const unsigned long long int value) noexcept -> Signal
 	{
 		return Signal {static_cast<std::uint64_t>(value)};
 	}
 
+	/// <summary>
+	/// Create signal from signed 64-bit quadword.
+	/// </summary>
+	/// <param name="value">The value to convert from.</param>
+	/// <returns>The signal containing the value.</returns>
 	constexpr auto operator""_sig_i(const unsigned long long int value) noexcept -> Signal
 	{
 		return Signal {static_cast<std::int64_t>(value)};
 	}
 
+	/// <summary>
+	/// Create signal from 64-bit double precision float.
+	/// </summary>
+	/// <param name="value">The value to convert from.</param>
+	/// <returns>The signal containing the value.</returns>
 	constexpr auto operator""_sig_f(const long double value) noexcept -> Signal
 	{
 		return Signal {static_cast<double>(value)};
+	}
+
+	/// <summary>
+	/// Create signal from 32-bit UTF-32 character.
+	/// </summary>
+	/// <param name="value">The value to convert from.</param>
+	/// <returns>The signal containing the value.</returns>
+	constexpr auto operator""_sig_c(const unsigned long long int value) noexcept -> Signal
+	{
+		return Signal {static_cast<char32_t>(value)};
 	}
 
 	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, std::uint64_t>);
@@ -907,10 +1048,17 @@ namespace Nominax
 	static_assert(sizeof(Signal) == sizeof(std::uint64_t));
 	static_assert(std::is_standard_layout_v<Signal>);
 
+	/// <summary>
+	/// Custom intrinsic routine function prototype.
+	/// Contains the stack pointer as parameter.
+	/// </summary>
 	using IntrinsicRoutine = auto (Record64*) -> bool;
 	static_assert(std::is_function_v<IntrinsicRoutine>);
 
-	/* std::visit auto overload helper */
+	/// <summary>
+	///  std::visit auto overload helper
+	/// </summary>
+	/// <typeparam name="...Ts">The call types.</typeparam>
 	template <typename... Ts>
 	struct Overloaded : Ts...
 	{
@@ -920,51 +1068,162 @@ namespace Nominax
 	template <typename... Ts>
 	Overloaded(Ts&&...) -> Overloaded<Ts...>;
 
-	template <typename T>
-	concept BytecodeElement =
-	std::is_same_v<T, Instruction>
-	|| std::is_same_v<T, SystemIntrinsicId>
-	|| std::is_same_v<T, CustomIntrinsicId>
-	|| std::is_same_v<T, std::uint64_t>
-	|| std::is_same_v<T, std::int64_t>
-	|| std::is_same_v<T, double>
-	|| std::is_same_v<T, char32_t>;
+	/// <summary>
+	/// Restricts to valid bytecode elements.
+	/// </summary>
+	/// <typeparam name="...Ts">The generic types to perform restriction checks on.</typeparam>
+	template <typename... Ts>
+	concept BytecodeElement = requires
+	{
+		requires (sizeof(Ts) + ... + 0) % sizeof(Record32) == 0 || (sizeof(Ts) + ... + 0) % sizeof(Record64) == 0;
+		requires (alignof(Ts) + ... + 0) % alignof(Record32) == 0 || (alignof(Ts) + ... + 0) % alignof(Record64) == 0;
+		requires
+		std::is_same_v<Ts..., Instruction>
+		|| std::is_same_v<Ts..., SystemIntrinsicCallId>
+		|| std::is_same_v<Ts..., CustomIntrinsicCallId>
+		|| std::is_same_v<Ts..., std::uint64_t>
+		|| std::is_same_v<Ts..., std::int64_t>
+		|| std::is_same_v<Ts..., double>
+		|| std::is_same_v<Ts..., char32_t>;
+	};
 
-	/* Represents an entry in a byte code steam. This get's converted to a signal for execution. */
+	/// <summary>
+	/// Represents an entry in a byte code steam. This get's converted to a signal for execution.
+	/// </summary>
 	struct DynamicSignal final
 	{
-		using Variant = std::variant<Instruction, SystemIntrinsicId, CustomIntrinsicId, std::uint64_t, std::int64_t,
-		                             double, char32_t>;
+		/// <summary>
+		/// Discriminated union.
+		/// </summary>
+		using Variant = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, std::uint64_t, std::int64_t, double, char32_t>;
 
+		/// <summary>
+		/// Construct from data union.
+		/// </summary>
+		/// <param name="data">The initial value.</param>
+		/// <returns></returns>
 		explicit constexpr DynamicSignal(Variant&& data) noexcept;
-		explicit constexpr DynamicSignal(Instruction value) noexcept;
-		explicit constexpr DynamicSignal(std::uint64_t value) noexcept;
-		explicit constexpr DynamicSignal(std::int64_t value) noexcept;
-		explicit constexpr DynamicSignal(double value) noexcept;
-		explicit constexpr DynamicSignal(char32_t value) noexcept;
-		explicit constexpr DynamicSignal(SystemIntrinsicId value) noexcept;
-		explicit constexpr DynamicSignal(CustomIntrinsicId value) noexcept;
-		constexpr          DynamicSignal(const DynamicSignal&) noexcept                = default;
-		constexpr          DynamicSignal(DynamicSignal&&) noexcept                     = default;
-		constexpr auto     operator =(const DynamicSignal&) noexcept -> DynamicSignal& = default;
-		constexpr auto     operator =(DynamicSignal&&) noexcept -> DynamicSignal&      = default;
-		~DynamicSignal()                                                               = default;
 
+		/// <summary>
+		/// Construct from instruction.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(Instruction value) noexcept;
+
+		/// <summary>
+		/// Construct from 64-bit unsigned quadword integer.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(std::uint64_t value) noexcept;
+
+		/// <summary>
+		/// Construct from 64-bit signed quadword integer.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(std::int64_t value) noexcept;
+
+		/// <summary>
+		/// Construct from 64-bit double precision float.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(double value) noexcept;
+
+		/// <summary>
+		/// Construct from 32-bit UTF32 character.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(char32_t value) noexcept;
+
+		/// <summary>
+		/// Construct from system intrinsic call id.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(SystemIntrinsicCallId value) noexcept;
+
+		/// <summary>
+		/// Construct from custom intrinsic call id.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(CustomIntrinsicCallId value) noexcept;
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		constexpr DynamicSignal(const DynamicSignal&) noexcept = default;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		constexpr DynamicSignal(DynamicSignal&&) noexcept = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		constexpr auto operator =(const DynamicSignal&) noexcept -> DynamicSignal& = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		constexpr auto operator =(DynamicSignal&&) noexcept -> DynamicSignal& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~DynamicSignal() = default;
+
+
+		/// <summary>
+		/// Convert to undiscriminated runtime signal.
+		/// </summary>
 		[[nodiscard]]
 		explicit constexpr operator Signal() const;
 
+		/// <summary>
+		/// Try to extract raw data.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto Unwrap() const -> std::optional<T>;
 
+		/// <summary>
+		/// Check if generic T is contained.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto Contains() const noexcept -> bool;
 
+		/// <summary>
+		/// Chgeck if generic T and value is contained.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="compareTo"></param>
+		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto Contains(T&& compareTo) const -> bool;
 
+		/// <summary>
+		/// Raw data variant (discriminated union)
+		/// </summary>
 		Variant DataCollection { };
 	};
 
@@ -974,8 +1233,8 @@ namespace Nominax
 	constexpr DynamicSignal::DynamicSignal(const std::int64_t value) noexcept : DataCollection {value} {}
 	constexpr DynamicSignal::DynamicSignal(const double value) noexcept : DataCollection {value} {}
 	constexpr DynamicSignal::DynamicSignal(const char32_t value) noexcept : DataCollection {value} {}
-	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicId value) noexcept : DataCollection {value} {}
-	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicId value) noexcept : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicCallId value) noexcept : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept : DataCollection {value} {}
 
 	template <typename T> requires BytecodeElement<T>
 	constexpr auto DynamicSignal::Unwrap() const -> std::optional<T>
@@ -1004,11 +1263,11 @@ namespace Nominax
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const SystemIntrinsicId value) noexcept
+			                  [](const SystemIntrinsicCallId value) noexcept
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const CustomIntrinsicId value) noexcept
+			                  [](const CustomIntrinsicCallId value) noexcept
 			                  {
 				                  return Signal {value};
 			                  },
@@ -1030,4 +1289,49 @@ namespace Nominax
 			                  },
 		                  }, this->DataCollection);
 	}
+
+	/// <summary>
+	/// Creates an instruction mapping.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto CreateInstructionMapping(std::span<const DynamicSignal> input, std::span<bool>& output) -> bool;
+
+	/// <summary>
+	/// Contains all byte code validation results.
+	/// </summary>
+	enum class ByteCodeValidationResult
+	{
+		/// <summary>
+		/// Validation did not found any problems.
+		/// </summary>
+		Ok = 0,
+
+		/// <summary>
+		/// An instruction requires more arguments, than given.
+		/// </summary>
+		NotEnoughArguments,
+
+		/// <summary>
+		/// An instruction requires less arguments, than given.
+		/// </summary>
+		TooManyArguments,
+
+		/// <summary>
+		/// The immediate argument type is not correct for the corresponding instruction.
+		/// </summary>
+		InvalidOperandType
+	};
+
+	/// <summary>
+	/// Perform byte code validation on a single instruction.
+	/// This just checks all argument types and values.
+	/// </summary>
+	/// <param name="instruction"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto ByteCodeValidateSingleInstruction(Instruction instruction, std::span<const DynamicSignal> args) -> ByteCodeValidationResult;
 }

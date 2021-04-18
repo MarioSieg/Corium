@@ -1,6 +1,6 @@
 // File: OsWindows.cpp
 // Author: Mario
-// Created: 12.04.2021.08:34
+// Created: 12.04.2021 08:34
 // Project: NominaxRuntime
 // 
 //                                  Apache License

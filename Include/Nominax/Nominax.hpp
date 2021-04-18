@@ -1,6 +1,6 @@
 // File: Nominax.hpp
 // Author: Mario
-// Created: 17.04.2021.19:40
+// Created: 17.04.2021 19:40
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "Bytecode.hpp"
+#include "ByteCode.hpp"
 #include "DynamicLibrary.hpp"
 #include "Environment.hpp"
 #include "Info.hpp"
@@ -218,4 +218,3 @@
 #include "Platform.hpp"
 #include "Reactor.hpp"
 #include "Record.hpp"
-#include "Validator.hpp"

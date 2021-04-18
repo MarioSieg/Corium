@@ -1,6 +1,6 @@
 // File: Reactor.cpp
 // Author: Mario
-// Created: 09.04.2021.17:11
+// Created: 09.04.2021 17:11
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,49 +207,50 @@
 
 #include "TestBase.hpp"
 
-#include <array>
-#include <cmath>
-#include <numbers>
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+#error "These tests must run with NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING disabled!"
+#endif
 
-constexpr IntrinsicRoutine*       MockIntrinsicRoutine {
+constexpr IntrinsicRoutine*       MOCK_INTRINSIC_ROUTINE {
 	+[]([[maybe_unused]] Record64*) noexcept -> bool
 	{
 		return true;
 	}
 };
 
-constexpr std::array<IntrinsicRoutine*, 3> MockIntrinsicRoutineTable {
-	MockIntrinsicRoutine,
-	MockIntrinsicRoutine,
-	MockIntrinsicRoutine
+constexpr std::array MOCK_INTRINSIC_ROUTINE_TABLE {
+	MOCK_INTRINSIC_ROUTINE,
+	MOCK_INTRINSIC_ROUTINE,
+	MOCK_INTRINSIC_ROUTINE
 };
 
-constexpr auto MockStackSize = 32; // 32 records
+constexpr auto MOCK_STACK_SIZE = 32; // 32 records
 
-constinit std::array<Record64, MockStackSize> MockStack {Record64::Padding()};
+constinit std::array<Record64, MOCK_STACK_SIZE> mockStack {Record64::Padding()};
 
-constinit volatile std::sig_atomic_t MockSignalStatus;
+constinit volatile std::sig_atomic_t mockSignalStatus;
 
-constexpr InterruptRoutine* MockInterruptHandler {
+constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER {
 	+[](InterruptAccumulator, void*) noexcept -> bool
 	{
 		return true;
 	}
 };
 
-constexpr ReactorInput MockReactorInput {
-	.SignalStatus = &MockSignalStatus,
+constexpr ReactorInput MOCK_REACTOR_INPUT {
+	.SignalStatus = &mockSignalStatus,
 	.CodeChunk = nullptr,
+	.CodeChunkInstructionMap = nullptr,
 	.CodeChunkSize = 0,
-	.IntrinsicTable = MockIntrinsicRoutineTable.data(),
-	.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
-	.InterruptHandler = MockInterruptHandler,
-	.Stack = MockStack.data(),
-	.StackSize = MockStack.size(),
+	.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+	.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+	.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+	.Stack = mockStack.data(),
+	.StackSize = mockStack.size(),
 	.UserData = nullptr
 };
 
-constexpr std::array<Signal, 3> MockCode {
+std::array mockCode {
 	Signal {Instruction::NOp}, // first padding
 	Signal {Instruction::Int},
 	Signal {INT64_C(5)},
@@ -257,17 +258,17 @@ constexpr std::array<Signal, 3> MockCode {
 
 TEST(ReactorExecution, __Intrin__$cos)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Cos},
+		Signal {SystemIntrinsicCallId::Cos},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -280,17 +281,17 @@ TEST(ReactorExecution, __Intrin__$cos)
 
 TEST(ReactorExecution, __Intrin__$sin)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Sin},
+		Signal {SystemIntrinsicCallId::Sin},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -303,17 +304,17 @@ TEST(ReactorExecution, __Intrin__$sin)
 
 TEST(ReactorExecution, __Intrin__$tan)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Tan},
+		Signal {SystemIntrinsicCallId::Tan},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -326,17 +327,17 @@ TEST(ReactorExecution, __Intrin__$tan)
 
 TEST(ReactorExecution, __Intrin__$acos)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::ACos},
+		Signal {SystemIntrinsicCallId::ACos},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -349,17 +350,17 @@ TEST(ReactorExecution, __Intrin__$acos)
 
 TEST(ReactorExecution, __Intrin__$asin)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::ASin},
+		Signal {SystemIntrinsicCallId::ASin},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -372,17 +373,17 @@ TEST(ReactorExecution, __Intrin__$asin)
 
 TEST(ReactorExecution, __Intrin__$atan)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::ATan},
+		Signal {SystemIntrinsicCallId::ATan},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -395,19 +396,19 @@ TEST(ReactorExecution, __Intrin__$atan)
 
 TEST(ReactorExecution, __Intrin__$atan2)
 {
-	std::array<Signal, 9> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::ATan2},
+		Signal {SystemIntrinsicCallId::ATan2},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -421,17 +422,17 @@ TEST(ReactorExecution, __Intrin__$atan2)
 
 TEST(ReactorExecution, __Intrin__$cosh)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::CosH},
+		Signal {SystemIntrinsicCallId::CosH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -444,17 +445,17 @@ TEST(ReactorExecution, __Intrin__$cosh)
 
 TEST(ReactorExecution, __Intrin__$sinh)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::SinH},
+		Signal {SystemIntrinsicCallId::SinH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -467,17 +468,17 @@ TEST(ReactorExecution, __Intrin__$sinh)
 
 TEST(ReactorExecution, __Intrin__$tanh)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::TanH},
+		Signal {SystemIntrinsicCallId::TanH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -490,17 +491,17 @@ TEST(ReactorExecution, __Intrin__$tanh)
 
 TEST(ReactorExecution, __Intrin__$acosh)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {1.6},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::ACosH},
+		Signal {SystemIntrinsicCallId::ACosH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -513,17 +514,17 @@ TEST(ReactorExecution, __Intrin__$acosh)
 
 TEST(ReactorExecution, __Intrin__$asinh)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::ASinH},
+		Signal {SystemIntrinsicCallId::ASinH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -536,17 +537,17 @@ TEST(ReactorExecution, __Intrin__$asinh)
 
 TEST(ReactorExecution, __Intrin__$atanh)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::ATanH},
+		Signal {SystemIntrinsicCallId::ATanH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -559,17 +560,17 @@ TEST(ReactorExecution, __Intrin__$atanh)
 
 TEST(ReactorExecution, __Intrin__$exp)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Exp},
+		Signal {SystemIntrinsicCallId::Exp},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -582,17 +583,17 @@ TEST(ReactorExecution, __Intrin__$exp)
 
 TEST(ReactorExecution, __Intrin__$log)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Log},
+		Signal {SystemIntrinsicCallId::Log},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -605,17 +606,17 @@ TEST(ReactorExecution, __Intrin__$log)
 
 TEST(ReactorExecution, __Intrin__$log10)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Log10},
+		Signal {SystemIntrinsicCallId::Log10},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -628,17 +629,17 @@ TEST(ReactorExecution, __Intrin__$log10)
 
 TEST(ReactorExecution, __Intrin__$exp2)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Exp2},
+		Signal {SystemIntrinsicCallId::Exp2},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -651,17 +652,17 @@ TEST(ReactorExecution, __Intrin__$exp2)
 
 TEST(ReactorExecution, __Intrin__$ilogb)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {1.332},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::ILogB},
+		Signal {SystemIntrinsicCallId::ILogB},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -674,17 +675,17 @@ TEST(ReactorExecution, __Intrin__$ilogb)
 
 TEST(ReactorExecution, __Intrin__$log2)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Log2},
+		Signal {SystemIntrinsicCallId::Log2},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -697,19 +698,19 @@ TEST(ReactorExecution, __Intrin__$log2)
 
 TEST(ReactorExecution, __Intrin__$pow)
 {
-	std::array<Signal, 9> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Pow},
+		Signal {SystemIntrinsicCallId::Pow},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -724,17 +725,17 @@ TEST(ReactorExecution, __Intrin__$pow)
 
 TEST(ReactorExecution, __Intrin__$sqrt)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Sqrt},
+		Signal {SystemIntrinsicCallId::Sqrt},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -747,17 +748,17 @@ TEST(ReactorExecution, __Intrin__$sqrt)
 
 TEST(ReactorExecution, __Intrin__$cbrt)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Cbrt},
+		Signal {SystemIntrinsicCallId::Cbrt},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -770,19 +771,19 @@ TEST(ReactorExecution, __Intrin__$cbrt)
 
 TEST(ReactorExecution, __Intrin__$hypot)
 {
-	std::array<Signal, 9> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Hypot},
+		Signal {SystemIntrinsicCallId::Hypot},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -796,17 +797,17 @@ TEST(ReactorExecution, __Intrin__$hypot)
 
 TEST(ReactorExecution, __Intrin__$ceil)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Ceil},
+		Signal {SystemIntrinsicCallId::Ceil},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -819,17 +820,17 @@ TEST(ReactorExecution, __Intrin__$ceil)
 
 TEST(ReactorExecution, __Intrin__$floor)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Floor},
+		Signal {SystemIntrinsicCallId::Floor},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -842,17 +843,17 @@ TEST(ReactorExecution, __Intrin__$floor)
 
 TEST(ReactorExecution, __Intrin__$round)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Round},
+		Signal {SystemIntrinsicCallId::Round},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -865,17 +866,17 @@ TEST(ReactorExecution, __Intrin__$round)
 
 TEST(ReactorExecution, __Intrin__$rint)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::RInt},
+		Signal {SystemIntrinsicCallId::RInt},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -888,19 +889,19 @@ TEST(ReactorExecution, __Intrin__$rint)
 
 TEST(ReactorExecution, __Intrin__$imax)
 {
-	std::array<Signal, 9> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(4)},
 		Signal {Instruction::Push},
 		Signal {INT64_C(7)},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::IMax},
+		Signal {SystemIntrinsicCallId::IMax},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -914,19 +915,19 @@ TEST(ReactorExecution, __Intrin__$imax)
 
 TEST(ReactorExecution, __Intrin__$imin)
 {
-	std::array<Signal, 9> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(4)},
 		Signal {Instruction::Push},
 		Signal {INT64_C(7)},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::IMin},
+		Signal {SystemIntrinsicCallId::IMin},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -940,19 +941,19 @@ TEST(ReactorExecution, __Intrin__$imin)
 
 TEST(ReactorExecution, __Intrin__$fmax)
 {
-	std::array<Signal, 9> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::FMax},
+		Signal {SystemIntrinsicCallId::FMax},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -966,19 +967,19 @@ TEST(ReactorExecution, __Intrin__$fmax)
 
 TEST(ReactorExecution, __Intrin__$fmin)
 {
-	std::array<Signal, 9> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::FMin},
+		Signal {SystemIntrinsicCallId::FMin},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -992,19 +993,19 @@ TEST(ReactorExecution, __Intrin__$fmin)
 
 TEST(ReactorExecution, __Intrin__$dim)
 {
-	std::array<Signal, 9> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::Dim},
+		Signal {SystemIntrinsicCallId::Dim},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1019,17 +1020,17 @@ TEST(ReactorExecution, __Intrin__$dim)
 
 TEST(ReactorExecution, __Intrin__$iabs)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(223233)},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::IAbs},
+		Signal {SystemIntrinsicCallId::IAbs},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1042,17 +1043,17 @@ TEST(ReactorExecution, __Intrin__$iabs)
 
 TEST(ReactorExecution, __Intrin__$fabs)
 {
-	std::array<Signal, 7> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicId::FAbs},
+		Signal {SystemIntrinsicCallId::FAbs},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1065,7 +1066,7 @@ TEST(ReactorExecution, __Intrin__$fabs)
 
 TEST(ReactorExecution, __int__)
 {
-	std::array<Signal, 5> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Int},
 		Signal {INT64_C(5)},
@@ -1073,7 +1074,7 @@ TEST(ReactorExecution, __int__)
 		Signal {INT64_C(-12345)},
 	};
 
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 
 	int user {1234567};
 	input.UserData = &user;
@@ -1106,7 +1107,7 @@ TEST(ReactorExecution, __int__)
 
 TEST(ReactorExecution, __mov__)
 {
-	std::array<Signal, 9> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Sto},
 		Signal {UINT64_C(3)},
@@ -1117,7 +1118,7 @@ TEST(ReactorExecution, __mov__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1129,7 +1130,7 @@ TEST(ReactorExecution, __mov__)
 
 TEST(ReactorExecution, __sto__)
 {
-	std::array<Signal, 9> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Sto},
 		Signal {UINT64_C(1)},
@@ -1140,7 +1141,7 @@ TEST(ReactorExecution, __sto__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1152,7 +1153,7 @@ TEST(ReactorExecution, __sto__)
 
 TEST(ReactorExecution, __Push__)
 {
-	std::array<Signal, 7> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1224)},
@@ -1161,7 +1162,7 @@ TEST(ReactorExecution, __Push__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-3)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1179,7 +1180,7 @@ TEST(ReactorExecution, __Push__)
 
 TEST(ReactorExecution, __Push_no_stack_overflow__)
 {
-	std::array<Signal, 9> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(123)},
@@ -1192,7 +1193,7 @@ TEST(ReactorExecution, __Push_no_stack_overflow__)
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MockReactorInput};
+	auto                    input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1210,7 +1211,7 @@ TEST(ReactorExecution, __Push_no_stack_overflow__)
 
 TEST(ReactorExecution, __Push_stack_overflow__)
 {
-	std::array<Signal, 11> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(123)},
@@ -1225,7 +1226,7 @@ TEST(ReactorExecution, __Push_stack_overflow__)
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MockReactorInput};
+	auto                    input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1243,7 +1244,7 @@ TEST(ReactorExecution, __Push_stack_overflow__)
 
 TEST(ReactorExecution, __Dupl_stack_overflow__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(123)},
@@ -1255,7 +1256,7 @@ TEST(ReactorExecution, __Dupl_stack_overflow__)
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MockReactorInput};
+	auto                    input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1273,7 +1274,7 @@ TEST(ReactorExecution, __Dupl_stack_overflow__)
 
 TEST(ReactorExecution, __Dupl2_stack_overflow__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(123)},
@@ -1285,7 +1286,7 @@ TEST(ReactorExecution, __Dupl2_stack_overflow__)
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MockReactorInput};
+	auto                    input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1303,9 +1304,9 @@ TEST(ReactorExecution, __Dupl2_stack_overflow__)
 
 TEST(ReactorExecution, __CIntrin__)
 {
-	static constinit int             calls;
-	std::array<IntrinsicRoutine*, 3> custom_Intrinsics {
-		+[](Record64*                ) -> bool
+	static constinit int calls;
+	std::array           custom_Intrinsics {
+		+[](Record64*    ) -> bool
 		{
 			++calls;
 			return true;
@@ -1324,7 +1325,7 @@ TEST(ReactorExecution, __CIntrin__)
 			return true;
 		},
 	};
-	std::array<Signal, 11> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {0.12345},
@@ -1338,7 +1339,7 @@ TEST(ReactorExecution, __CIntrin__)
 		Signal {INT64_C(0)},
 	};
 	std::array<Record64, 6> stack {Record64::Padding()};
-	auto                    input {MockReactorInput};
+	auto                    input {MOCK_REACTOR_INPUT};
 	input.Stack              = stack.data();
 	input.StackSize          = stack.size();
 	input.CodeChunk          = code.data();
@@ -1360,7 +1361,7 @@ TEST(ReactorExecution, __CIntrin__)
 
 TEST(ReactorExecution, __PushZ_stack_overflow__)
 {
-	std::array<Signal, 7> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::PushZ},
 		Signal {Instruction::PushZ},
@@ -1371,7 +1372,7 @@ TEST(ReactorExecution, __PushZ_stack_overflow__)
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MockReactorInput};
+	auto                    input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1389,7 +1390,7 @@ TEST(ReactorExecution, __PushZ_stack_overflow__)
 
 TEST(ReactorExecution, __IPushO_stack_overflow__)
 {
-	std::array<Signal, 7> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::IPushO},
 		Signal {Instruction::IPushO},
@@ -1400,7 +1401,7 @@ TEST(ReactorExecution, __IPushO_stack_overflow__)
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MockReactorInput};
+	auto                    input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1418,7 +1419,7 @@ TEST(ReactorExecution, __IPushO_stack_overflow__)
 
 TEST(ReactorExecution, __FPushO_stack_overflow__)
 {
-	std::array<Signal, 7> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::FPushO},
 		Signal {Instruction::FPushO},
@@ -1429,7 +1430,7 @@ TEST(ReactorExecution, __FPushO_stack_overflow__)
 	};
 	// only can use 3 elements, 1st is reserved:
 	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MockReactorInput};
+	auto                    input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1449,7 +1450,7 @@ TEST(ReactorExecution, __FPushO_stack_overflow__)
 
 TEST(ReactorExecution, __Pop__)
 {
-	std::array<Signal, 9> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1224)},
@@ -1460,7 +1461,7 @@ TEST(ReactorExecution, __Pop__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1479,7 +1480,7 @@ TEST(ReactorExecution, __Pop__)
 
 TEST(ReactorExecution, __Pop2__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {UINT64_C(1224)},
@@ -1489,7 +1490,7 @@ TEST(ReactorExecution, __Pop2__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1502,7 +1503,7 @@ TEST(ReactorExecution, __Pop2__)
 
 TEST(ReactorExecution, __Dupl__)
 {
-	std::array<Signal, 9> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(5)},
@@ -1513,7 +1514,7 @@ TEST(ReactorExecution, __Dupl__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1527,7 +1528,7 @@ TEST(ReactorExecution, __Dupl__)
 
 TEST(ReactorExecution, __Swap__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(3)},
@@ -1537,7 +1538,7 @@ TEST(ReactorExecution, __Swap__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1550,7 +1551,7 @@ TEST(ReactorExecution, __Swap__)
 
 TEST(ReactorExecution, __Dupl2__)
 {
-	std::array<Signal, 9> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(5)},
@@ -1561,7 +1562,7 @@ TEST(ReactorExecution, __Dupl2__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1577,7 +1578,7 @@ TEST(ReactorExecution, __Dupl2__)
 
 TEST(ReactorExecution, __IInc__)
 {
-	std::array<Signal, 10> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(0)},
@@ -1589,7 +1590,7 @@ TEST(ReactorExecution, __IInc__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1602,7 +1603,7 @@ TEST(ReactorExecution, __IInc__)
 
 TEST(ReactorExecution, __IDec__)
 {
-	std::array<Signal, 10> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -1614,7 +1615,7 @@ TEST(ReactorExecution, __IDec__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1626,7 +1627,7 @@ TEST(ReactorExecution, __IDec__)
 
 TEST(ReactorExecution, __PushZ__)
 {
-	std::array<Signal, 6> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::PushZ},
 		Signal {Instruction::PushZ},
@@ -1634,7 +1635,7 @@ TEST(ReactorExecution, __PushZ__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1647,7 +1648,7 @@ TEST(ReactorExecution, __PushZ__)
 
 TEST(ReactorExecution, __IPushO__)
 {
-	std::array<Signal, 6> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::IPushO},
 		Signal {Instruction::PushZ},
@@ -1655,7 +1656,7 @@ TEST(ReactorExecution, __IPushO__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1668,7 +1669,7 @@ TEST(ReactorExecution, __IPushO__)
 
 TEST(ReactorExecution, __iadd__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -1678,7 +1679,7 @@ TEST(ReactorExecution, __iadd__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1691,7 +1692,7 @@ TEST(ReactorExecution, __iadd__)
 
 TEST(ReactorExecution, __isub__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -1701,7 +1702,7 @@ TEST(ReactorExecution, __isub__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1714,7 +1715,7 @@ TEST(ReactorExecution, __isub__)
 
 TEST(ReactorExecution, __imul__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -1724,7 +1725,7 @@ TEST(ReactorExecution, __imul__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1737,7 +1738,7 @@ TEST(ReactorExecution, __imul__)
 
 TEST(ReactorExecution, __idiv__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(10)},
@@ -1747,7 +1748,7 @@ TEST(ReactorExecution, __idiv__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1760,7 +1761,7 @@ TEST(ReactorExecution, __idiv__)
 
 TEST(ReactorExecution, __imod__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(10)},
@@ -1770,7 +1771,7 @@ TEST(ReactorExecution, __imod__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1783,7 +1784,7 @@ TEST(ReactorExecution, __imod__)
 
 TEST(ReactorExecution, __iand__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(0b1101'1101)},
@@ -1793,7 +1794,7 @@ TEST(ReactorExecution, __iand__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1806,7 +1807,7 @@ TEST(ReactorExecution, __iand__)
 
 TEST(ReactorExecution, __ior__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(0b1101'1101)},
@@ -1816,7 +1817,7 @@ TEST(ReactorExecution, __ior__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1829,7 +1830,7 @@ TEST(ReactorExecution, __ior__)
 
 TEST(ReactorExecution, __ixor__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(0b1101'1101)},
@@ -1839,7 +1840,7 @@ TEST(ReactorExecution, __ixor__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1852,7 +1853,7 @@ TEST(ReactorExecution, __ixor__)
 
 TEST(ReactorExecution, __icom__)
 {
-	std::array<Signal, 6> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(0b1101'1101)},
@@ -1860,7 +1861,7 @@ TEST(ReactorExecution, __icom__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1872,7 +1873,7 @@ TEST(ReactorExecution, __icom__)
 
 TEST(ReactorExecution, __isal__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1)},
@@ -1882,7 +1883,7 @@ TEST(ReactorExecution, __isal__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1895,7 +1896,7 @@ TEST(ReactorExecution, __isal__)
 
 TEST(ReactorExecution, __isar__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1)},
@@ -1905,7 +1906,7 @@ TEST(ReactorExecution, __isar__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1918,7 +1919,7 @@ TEST(ReactorExecution, __isar__)
 
 TEST(ReactorExecution, __irol__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1)},
@@ -1928,7 +1929,7 @@ TEST(ReactorExecution, __irol__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1941,7 +1942,7 @@ TEST(ReactorExecution, __irol__)
 
 TEST(ReactorExecution, __iror__)
 {
-	std::array<Signal, 8> code = {
+	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1)},
@@ -1951,7 +1952,7 @@ TEST(ReactorExecution, __iror__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1964,7 +1965,7 @@ TEST(ReactorExecution, __iror__)
 
 TEST(ReactorExecution, __ineg__)
 {
-	std::array<Signal, 6> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(10)},
@@ -1972,7 +1973,7 @@ TEST(ReactorExecution, __ineg__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -1984,7 +1985,7 @@ TEST(ReactorExecution, __ineg__)
 
 TEST(ReactorExecution, __fadd__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {4.25},
@@ -1994,7 +1995,7 @@ TEST(ReactorExecution, __fadd__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2007,7 +2008,7 @@ TEST(ReactorExecution, __fadd__)
 
 TEST(ReactorExecution, __fmod_)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {4.25},
@@ -2017,7 +2018,7 @@ TEST(ReactorExecution, __fmod_)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2030,7 +2031,7 @@ TEST(ReactorExecution, __fmod_)
 
 TEST(ReactorExecution, __fsub__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {4.25},
@@ -2040,7 +2041,7 @@ TEST(ReactorExecution, __fsub__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2053,7 +2054,7 @@ TEST(ReactorExecution, __fsub__)
 
 TEST(ReactorExecution, __fmul__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {4.25},
@@ -2063,7 +2064,7 @@ TEST(ReactorExecution, __fmul__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2076,7 +2077,7 @@ TEST(ReactorExecution, __fmul__)
 
 TEST(ReactorExecution, __fdiv__)
 {
-	std::array<Signal, 8> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {4.25},
@@ -2086,7 +2087,7 @@ TEST(ReactorExecution, __fdiv__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2099,7 +2100,7 @@ TEST(ReactorExecution, __fdiv__)
 
 TEST(ReactorExecution, __fneg__)
 {
-	std::array<Signal, 6> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {2.25},
@@ -2107,7 +2108,7 @@ TEST(ReactorExecution, __fneg__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2119,7 +2120,7 @@ TEST(ReactorExecution, __fneg__)
 
 TEST(ReactorExecution, __FInc__)
 {
-	std::array<Signal, 10> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {.0},
@@ -2131,7 +2132,7 @@ TEST(ReactorExecution, __FInc__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2144,7 +2145,7 @@ TEST(ReactorExecution, __FInc__)
 
 TEST(ReactorExecution, __FDec__)
 {
-	std::array<Signal, 10> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {2.},
@@ -2156,7 +2157,7 @@ TEST(ReactorExecution, __FDec__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2169,7 +2170,7 @@ TEST(ReactorExecution, __FDec__)
 
 TEST(ReactorExecution, __FPushO__)
 {
-	std::array<Signal, 6> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::FPushO},
 		Signal {Instruction::PushZ},
@@ -2177,7 +2178,7 @@ TEST(ReactorExecution, __FPushO__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-1)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2190,7 +2191,7 @@ TEST(ReactorExecution, __FPushO__)
 
 TEST(ReactorExecution, __jmp__)
 {
-	std::array<Signal, 9> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Jmp},
 		Signal {UINT64_C(5)},
@@ -2201,7 +2202,7 @@ TEST(ReactorExecution, __jmp__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2214,7 +2215,7 @@ TEST(ReactorExecution, __jmp__)
 
 TEST(ReactorExecution, __jmprel__)
 {
-	std::array<Signal, 9> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::JmpRel},
 		Signal {UINT64_C(3)},
@@ -2225,7 +2226,7 @@ TEST(ReactorExecution, __jmprel__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2238,7 +2239,7 @@ TEST(ReactorExecution, __jmprel__)
 
 TEST(ReactorExecution, __jz__)
 {
-	std::array<Signal, 11> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::PushZ},
 		Signal {Instruction::Jz},
@@ -2251,7 +2252,7 @@ TEST(ReactorExecution, __jz__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2265,7 +2266,7 @@ TEST(ReactorExecution, __jz__)
 
 TEST(ReactorExecution, __jnz__)
 {
-	std::array<Signal, 11> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::IPushO},
 		Signal {Instruction::Jnz},
@@ -2278,7 +2279,7 @@ TEST(ReactorExecution, __jnz__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2292,7 +2293,7 @@ TEST(ReactorExecution, __jnz__)
 
 TEST(ReactorExecution, __jo_cmpi__)
 {
-	std::array<Signal, 11> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::IPushO},
 		Signal {Instruction::JoCmpi},
@@ -2305,7 +2306,7 @@ TEST(ReactorExecution, __jo_cmpi__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2319,7 +2320,7 @@ TEST(ReactorExecution, __jo_cmpi__)
 
 TEST(ReactorExecution, __jno_cmpi__)
 {
-	std::array<Signal, 11> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::PushZ},
 		Signal {Instruction::JnoCmpi},
@@ -2332,7 +2333,7 @@ TEST(ReactorExecution, __jno_cmpi__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2346,7 +2347,7 @@ TEST(ReactorExecution, __jno_cmpi__)
 
 TEST(ReactorExecution, __jo_cmpf__)
 {
-	std::array<Signal, 11> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::FPushO},
 		Signal {Instruction::JoCmpf},
@@ -2359,7 +2360,7 @@ TEST(ReactorExecution, __jo_cmpf__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2373,7 +2374,7 @@ TEST(ReactorExecution, __jo_cmpf__)
 
 TEST(ReactorExecution, __jno_cmpf__)
 {
-	std::array<Signal, 11> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::PushZ},
 		Signal {Instruction::JnoCmpf},
@@ -2386,7 +2387,7 @@ TEST(ReactorExecution, __jno_cmpf__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2400,7 +2401,7 @@ TEST(ReactorExecution, __jno_cmpf__)
 
 TEST(ReactorExecution, __je_cmpi__)
 {
-	std::array<Signal, 16> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(12345679)},
@@ -2418,7 +2419,7 @@ TEST(ReactorExecution, __je_cmpi__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2433,7 +2434,7 @@ TEST(ReactorExecution, __je_cmpi__)
 
 TEST(ReactorExecution, __je_cmpf__)
 {
-	std::array<Signal, 16> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {1234567.0},
@@ -2451,7 +2452,7 @@ TEST(ReactorExecution, __je_cmpf__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2466,7 +2467,7 @@ TEST(ReactorExecution, __je_cmpf__)
 
 TEST(ReactorExecution, __jne_cmpi__)
 {
-	std::array<Signal, 17> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(1234567)},
@@ -2485,7 +2486,7 @@ TEST(ReactorExecution, __jne_cmpi__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2500,7 +2501,7 @@ TEST(ReactorExecution, __jne_cmpi__)
 
 TEST(ReactorExecution, __jne_cmpf__)
 {
-	std::array<Signal, 17> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {1234567.},
@@ -2519,7 +2520,7 @@ TEST(ReactorExecution, __jne_cmpf__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2534,7 +2535,7 @@ TEST(ReactorExecution, __jne_cmpf__)
 
 TEST(ReactorExecution, __ja_cmpi__)
 {
-	std::array<Signal, 17> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(5)},
@@ -2553,7 +2554,7 @@ TEST(ReactorExecution, __ja_cmpi__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2568,7 +2569,7 @@ TEST(ReactorExecution, __ja_cmpi__)
 
 TEST(ReactorExecution, __ja_cmpf__)
 {
-	std::array<Signal, 17> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {5.0},
@@ -2587,7 +2588,7 @@ TEST(ReactorExecution, __ja_cmpf__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2602,7 +2603,7 @@ TEST(ReactorExecution, __ja_cmpf__)
 
 TEST(ReactorExecution, __jl_cmpi__)
 {
-	std::array<Signal, 17> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -2621,7 +2622,7 @@ TEST(ReactorExecution, __jl_cmpi__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2636,7 +2637,7 @@ TEST(ReactorExecution, __jl_cmpi__)
 
 TEST(ReactorExecution, __jl_cmpf__)
 {
-	std::array<Signal, 17> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {2.0},
@@ -2655,7 +2656,7 @@ TEST(ReactorExecution, __jl_cmpf__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2670,7 +2671,7 @@ TEST(ReactorExecution, __jl_cmpf__)
 
 TEST(ReactorExecution, __jae_cmpi__)
 {
-	std::array<Signal, 23> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(5)},
@@ -2695,7 +2696,7 @@ TEST(ReactorExecution, __jae_cmpi__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2710,7 +2711,7 @@ TEST(ReactorExecution, __jae_cmpi__)
 
 TEST(ReactorExecution, __jae_cmpf__)
 {
-	std::array<Signal, 23> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {5.0},
@@ -2735,7 +2736,7 @@ TEST(ReactorExecution, __jae_cmpf__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2750,7 +2751,7 @@ TEST(ReactorExecution, __jae_cmpf__)
 
 TEST(ReactorExecution, __jle_cmpi__)
 {
-	std::array<Signal, 23> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {INT64_C(2)},
@@ -2775,7 +2776,7 @@ TEST(ReactorExecution, __jle_cmpi__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2790,7 +2791,7 @@ TEST(ReactorExecution, __jle_cmpi__)
 
 TEST(ReactorExecution, __jle_cmpf__)
 {
-	std::array<Signal, 23> code {
+	std::array code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
 		Signal {2.0},
@@ -2815,7 +2816,7 @@ TEST(ReactorExecution, __jle_cmpf__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(-0xFF)},
 	};
-	auto input {MockReactorInput};
+	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2831,14 +2832,15 @@ TEST(ReactorExecution, __jle_cmpf__)
 TEST(ReactorInputValidation, valid_poInts)
 {
 	const auto input = ReactorInput {
-		.SignalStatus = &MockSignalStatus,
-		.CodeChunk = MockCode.data(),
-		.CodeChunkSize = MockCode.size(),
-		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
-		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
-		.InterruptHandler = MockInterruptHandler,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = mockCode.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
 		.UserData = nullptr
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2847,14 +2849,15 @@ TEST(ReactorInputValidation, valid_poInts)
 TEST(ReactorInputValidation, null_poInts)
 {
 	const auto input = ReactorInput {
-		.SignalStatus = &MockSignalStatus,
+		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = nullptr,
+		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = 0,
-		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = 0,
-		.InterruptHandler = MockInterruptHandler,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
 		.UserData = nullptr
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullPtr);
@@ -2863,14 +2866,15 @@ TEST(ReactorInputValidation, null_poInts)
 TEST(ReactorInputValidation, zero_sizes)
 {
 	const auto input = ReactorInput {
-		.SignalStatus = &MockSignalStatus,
-		.CodeChunk = MockCode.data(),
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data(),
+		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = 0,
-		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = 0,
-		.InterruptHandler = MockInterruptHandler,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
 		.UserData = nullptr
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::ZeroSize);
@@ -2882,14 +2886,15 @@ TEST(ReactorInputValidation, invalid_Intrinsic_routines)
 		nullptr
 	};
 	const auto input = ReactorInput {
-		.SignalStatus = &MockSignalStatus,
-		.CodeChunk = MockCode.data(),
-		.CodeChunkSize = MockCode.size(),
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = mockCode.size(),
 		.IntrinsicTable = intrinsicRoutines.data(),
 		.IntrinsicTableSize = intrinsicRoutines.size(),
-		.InterruptHandler = MockInterruptHandler,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
 		.UserData = nullptr
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullIntrinsicRoutine);
@@ -2898,14 +2903,15 @@ TEST(ReactorInputValidation, invalid_Intrinsic_routines)
 TEST(ReactorInputValidation, valid_Intrinsic_routines)
 {
 	const auto input = ReactorInput {
-		.SignalStatus = &MockSignalStatus,
-		.CodeChunk = MockCode.data(),
-		.CodeChunkSize = MockCode.size(),
-		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
-		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
-		.InterruptHandler = MockInterruptHandler,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = mockCode.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
 		.UserData = nullptr
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -2914,14 +2920,15 @@ TEST(ReactorInputValidation, valid_Intrinsic_routines)
 TEST(ReactorInputValidation, missing_code_prologue)
 {
 	const auto input = ReactorInput {
-		.SignalStatus = &MockSignalStatus,
-		.CodeChunk = MockCode.data() + 1,
-		.CodeChunkSize = MockCode.size() - 1,
-		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
-		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
-		.InterruptHandler = MockInterruptHandler,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data() + 1,
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = mockCode.size() - 1,
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
 		.UserData = nullptr
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodePrologue);
@@ -2929,21 +2936,22 @@ TEST(ReactorInputValidation, missing_code_prologue)
 
 TEST(ReactorInputValidation, missing_code_epilogue$1)
 {
-	constexpr std::array<Signal, 3> code = {
+	std::array code = {
 		Signal {Instruction::NOp},
 		Signal {Instruction::Int},
 		Signal {INT64_C(5)},
 	};
 
 	const auto input = ReactorInput {
-		.SignalStatus = &MockSignalStatus,
+		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = code.data(),
+		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = code.size(),
-		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
-		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
-		.InterruptHandler = MockInterruptHandler,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
 		.UserData = nullptr
 	};
 
@@ -2952,19 +2960,20 @@ TEST(ReactorInputValidation, missing_code_epilogue$1)
 
 TEST(ReactorInputValidation, missing_code_epilogue$2)
 {
-	constexpr std::array<Signal, 1> code = {
+	std::array code = {
 		Signal {Instruction::NOp},
 	};
 
 	const auto input = ReactorInput {
-		.SignalStatus = &MockSignalStatus,
+		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = code.data(),
+		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = code.size(),
-		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
-		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
-		.InterruptHandler = MockInterruptHandler,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
 		.UserData = nullptr
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
@@ -2972,20 +2981,21 @@ TEST(ReactorInputValidation, missing_code_epilogue$2)
 
 TEST(ReactorInputValidation, missing_code_epilogue$3)
 {
-	constexpr std::array<Signal, 2> code = {
+	std::array code = {
 		Signal {Instruction::NOp},
 		Signal {INT64_C(5)},
 	};
 
 	const auto input = ReactorInput {
-		.SignalStatus = &MockSignalStatus,
+		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = code.data(),
+		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = code.size(),
-		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
-		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
-		.InterruptHandler = MockInterruptHandler,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
 		.UserData = nullptr
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
@@ -2994,14 +3004,15 @@ TEST(ReactorInputValidation, missing_code_epilogue$3)
 TEST(ReactorInputValidation, missing_stack_prologue)
 {
 	const auto input = ReactorInput {
-		.SignalStatus = &MockSignalStatus,
-		.CodeChunk = MockCode.data(),
-		.CodeChunkSize = MockCode.size(),
-		.IntrinsicTable = MockIntrinsicRoutineTable.data(),
-		.IntrinsicTableSize = MockIntrinsicRoutineTable.size(),
-		.InterruptHandler = MockInterruptHandler,
-		.Stack = MockStack.data() + 1,
-		.StackSize = MockStack.size() - 1,
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = mockCode.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data() + 1,
+		.StackSize = mockStack.size() - 1,
 		.UserData = nullptr
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingStackPrologue);

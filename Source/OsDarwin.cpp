@@ -1,6 +1,6 @@
 // File: OsDarwin.cpp
 // Author: Mario
-// Created: 12.04.2021.09:17
+// Created: 12.04.2021 09:17
 // Project: NominaxRuntime
 // 
 //                                  Apache License

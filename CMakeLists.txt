@@ -90,7 +90,7 @@ endif()
 add_library("NominaxRuntime" STATIC
     "Include/Nominax/Platform.hpp"
     "Include/Nominax/Reactor.hpp"
-    "Include/Nominax/Bytecode.hpp"
+    "Include/Nominax/ByteCode.hpp"
     "Include/Nominax/Record.hpp" 
     "Include/Nominax/MacroCfg.hpp" 	
     "Include/Nominax/Interrupts.hpp"
@@ -98,8 +98,7 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/OS.hpp"
     "Include/Nominax/Utility.hpp"
     "Include/Nominax/DynamicLibrary.hpp"
-    "Include/Nominax/Nominax.hpp"
-    "Include/Nominax/Validator.hpp"
+    "Include/Nominax/Nominax.hpp" 
     "Include/Nominax/Environment.hpp" 
 
     "Source/Reactor.cpp"
@@ -107,9 +106,9 @@ add_library("NominaxRuntime" STATIC
     "Source/OsLinux.cpp"
     "Source/OsAndroid.cpp"
     "Source/OsDarwin.cpp"
-    "Source/Interrupts.cpp" 
-    "Source/Validator.cpp" 
-    "Source/Environment.cpp")
+    "Source/Interrupts.cpp"  
+    "Source/Environment.cpp"
+    "Source/Bytecode.cpp")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries("NominaxRuntime" "dl")

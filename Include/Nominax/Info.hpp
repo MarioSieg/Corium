@@ -1,6 +1,6 @@
 // File: Info.hpp
 // Author: Mario
-// Created: 12.04.2021.06:39
+// Created: 12.04.2021 06:39
 // Project: NominaxRuntime
 // 
 //                                  Apache License

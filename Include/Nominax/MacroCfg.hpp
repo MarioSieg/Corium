@@ -1,6 +1,6 @@
 // File: MacroCfg.hpp
 // Author: Mario
-// Created: 09.04.2021.17:11
+// Created: 09.04.2021 17:11
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -229,4 +229,4 @@
 /// <summary>
 /// If enabled, the jump table addresses are directly mapped as pointers into the byte-code signals.
 /// </summary>
-#define NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING true
+#define NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING false

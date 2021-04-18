@@ -1,6 +1,6 @@
 // File: Bytecode.cpp
 // Author: Mario
-// Created: 13.04.2021.18:10
+// Created: 13.04.2021 18:10
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -239,16 +239,16 @@ TEST(BytecodeDynamicSignal, InstructionData)
 
 TEST(BytecodeDynamicSignal, IntrinsicData)
 {
-	const auto x = DynamicSignal {SystemIntrinsicId::ATan2};
-	ASSERT_TRUE(x.Contains<SystemIntrinsicId>());
-	ASSERT_TRUE(x.Contains(SystemIntrinsicId::ATan2));
+	const auto x = DynamicSignal {SystemIntrinsicCallId::ATan2};
+	ASSERT_TRUE(x.Contains<SystemIntrinsicCallId>());
+	ASSERT_TRUE(x.Contains(SystemIntrinsicCallId::ATan2));
 }
 
 TEST(BytecodeDynamicSignal, CustomIntrinsicData)
 {
-	const auto x = DynamicSignal {CustomIntrinsicId {233113}};
-	ASSERT_TRUE(x.Contains<CustomIntrinsicId>());
-	ASSERT_TRUE(x.Contains(CustomIntrinsicId{233113}));
+	const auto x = DynamicSignal {CustomIntrinsicCallId {233113}};
+	ASSERT_TRUE(x.Contains<CustomIntrinsicCallId>());
+	ASSERT_TRUE(x.Contains(CustomIntrinsicCallId{233113}));
 }
 
 TEST(BytecodeDynamicSignal, U64Data)
@@ -287,14 +287,14 @@ TEST(BytecodeDynamicSignal, DynamicSignalWithInstructionToSignal)
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithIntrinsicToSignal)
 {
-	const auto x = static_cast<Signal>(DynamicSignal {SystemIntrinsicId::ATan2});
-	ASSERT_EQ(x.SystemIntrinId, SystemIntrinsicId::ATan2);
+	const auto x = static_cast<Signal>(DynamicSignal {SystemIntrinsicCallId::ATan2});
+	ASSERT_EQ(x.SystemIntrinId, SystemIntrinsicCallId::ATan2);
 }
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithCustomIntrinsicToSignal)
 {
-	const auto x = static_cast<Signal>(DynamicSignal {CustomIntrinsicId {4}});
-	ASSERT_EQ(x.CustomIntrinId, CustomIntrinsicId{4});
+	const auto x = static_cast<Signal>(DynamicSignal {CustomIntrinsicCallId {4}});
+	ASSERT_EQ(x.CustomIntrinId, CustomIntrinsicCallId{4});
 }
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithU64ToSignal)

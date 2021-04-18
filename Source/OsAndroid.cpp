@@ -1,6 +1,6 @@
 // File: OsAndroid.cpp
 // Author: Mario
-// Created: 12.04.2021.09:15
+// Created: 12.04.2021 09:15
 // Project: NominaxRuntime
 // 
 //                                  Apache License

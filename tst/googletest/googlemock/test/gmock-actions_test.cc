@@ -1,38 +1,210 @@
-// Copyright 2007, Google Inc.
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-//     * Neither the name of Google Inc. nor the names of its
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// File: gmock-actions_test.cc
+// Author: Mario
+// Created: 16.04.2021 10:37
+// Project: NominaxRuntime
+// 
+//                                  Apache License
+//                            Version 2.0, January 2004
+//                         http://www.apache.org/licenses/
+// 
+//    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+// 
+//    1. Definitions.
+// 
+//       "License" shall mean the terms and conditions for use, reproduction,
+//       and distribution as defined by Sections 1 through 9 of this document.
+// 
+//       "Licensor" shall mean the copyright owner or entity authorized by
+//       the copyright owner that is granting the License.
+// 
+//       "Legal Entity" shall mean the union of the acting entity and all
+//       other entities that control, are controlled by, or are under common
+//       control with that entity. For the purposes of this definition,
+//       "control" means (i) the power, direct or indirect, to cause the
+//       direction or management of such entity, whether by contract or
+//       otherwise, or (ii) ownership of fifty percent (50%) or more of the
+//       outstanding shares, or (iii) beneficial ownership of such entity.
+// 
+//       "You" (or "Your") shall mean an individual or Legal Entity
+//       exercising permissions granted by this License.
+// 
+//       "Source" form shall mean the preferred form for making modifications,
+//       including but not limited to software source code, documentation
+//       source, and configuration files.
+// 
+//       "Object" form shall mean any form resulting from mechanical
+//       transformation or translation of a Source form, including but
+//       not limited to compiled object code, generated documentation,
+//       and conversions to other media types.
+// 
+//       "Work" shall mean the work of authorship, whether in Source or
+//       Object form, made available under the License, as indicated by a
+//       copyright notice that is included in or attached to the work
+//       (an example is provided in the Appendix below).
+// 
+//       "Derivative Works" shall mean any work, whether in Source or Object
+//       form, that is based on (or derived from) the Work and for which the
+//       editorial revisions, annotations, elaborations, or other modifications
+//       represent, as a whole, an original work of authorship. For the purposes
+//       of this License, Derivative Works shall not include works that remain
+//       separable from, or merely link (or bind by name) to the interfaces of,
+//       the Work and Derivative Works thereof.
+// 
+//       "Contribution" shall mean any work of authorship, including
+//       the original version of the Work and any modifications or additions
+//       to that Work or Derivative Works thereof, that is intentionally
+//       submitted to Licensor for inclusion in the Work by the copyright owner
+//       or by an individual or Legal Entity authorized to submit on behalf of
+//       the copyright owner. For the purposes of this definition, "submitted"
+//       means any form of electronic, verbal, or written communication sent
+//       to the Licensor or its representatives, including but not limited to
+//       communication on electronic mailing lists, source code control systems,
+//       and issue tracking systems that are managed by, or on behalf of, the
+//       Licensor for the purpose of discussing and improving the Work, but
+//       excluding communication that is conspicuously marked or otherwise
+//       designated in writing by the copyright owner as "Not a Contribution."
+// 
+//       "Contributor" shall mean Licensor and any individual or Legal Entity
+//       on behalf of whom a Contribution has been received by Licensor and
+//       subsequently incorporated within the Work.
+// 
+//    2. Grant of Copyright License. Subject to the terms and conditions of
+//       this License, each Contributor hereby grants to You a perpetual,
+//       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+//       copyright license to reproduce, prepare Derivative Works of,
+//       publicly display, publicly perform, sublicense, and distribute the
+//       Work and such Derivative Works in Source or Object form.
+// 
+//    3. Grant of Patent License. Subject to the terms and conditions of
+//       this License, each Contributor hereby grants to You a perpetual,
+//       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+//       (except as stated in this section) patent license to make, have made,
+//       use, offer to sell, sell, import, and otherwise transfer the Work,
+//       where such license applies only to those patent claims licensable
+//       by such Contributor that are necessarily infringed by their
+//       Contribution(s) alone or by combination of their Contribution(s)
+//       with the Work to which such Contribution(s) was submitted. If You
+//       institute patent litigation against any entity (including a
+//       cross-claim or counterclaim in a lawsuit) alleging that the Work
+//       or a Contribution incorporated within the Work constitutes direct
+//       or contributory patent infringement, then any patent licenses
+//       granted to You under this License for that Work shall terminate
+//       as of the date such litigation is filed.
+// 
+//    4. Redistribution. You may reproduce and distribute copies of the
+//       Work or Derivative Works thereof in any medium, with or without
+//       modifications, and in Source or Object form, provided that You
+//       meet the following conditions:
+// 
+//       (a) You must give any other recipients of the Work or
+//           Derivative Works a copy of this License; and
+// 
+//       (b) You must cause any modified files to carry prominent notices
+//           stating that You changed the files; and
+// 
+//       (c) You must retain, in the Source form of any Derivative Works
+//           that You distribute, all copyright, patent, trademark, and
+//           attribution notices from the Source form of the Work,
+//           excluding those notices that do not pertain to any part of
+//           the Derivative Works; and
+// 
+//       (d) If the Work includes a "NOTICE" text file as part of its
+//           distribution, then any Derivative Works that You distribute must
+//           include a readable copy of the attribution notices contained
+//           within such NOTICE file, excluding those notices that do not
+//           pertain to any part of the Derivative Works, in at least one
+//           of the following places: within a NOTICE text file distributed
+//           as part of the Derivative Works; within the Source form or
+//           documentation, if provided along with the Derivative Works; or,
+//           within a display generated by the Derivative Works, if and
+//           wherever such third-party notices normally appear. The contents
+//           of the NOTICE file are for informational purposes only and
+//           do not modify the License. You may add Your own attribution
+//           notices within Derivative Works that You distribute, alongside
+//           or as an addendum to the NOTICE text from the Work, provided
+//           that such additional attribution notices cannot be construed
+//           as modifying the License.
+// 
+//       You may add Your own copyright statement to Your modifications and
+//       may provide additional or different license terms and conditions
+//       for use, reproduction, or distribution of Your modifications, or
+//       for any such Derivative Works as a whole, provided Your use,
+//       reproduction, and distribution of the Work otherwise complies with
+//       the conditions stated in this License.
+// 
+//    5. Submission of Contributions. Unless You explicitly state otherwise,
+//       any Contribution intentionally submitted for inclusion in the Work
+//       by You to the Licensor shall be under the terms and conditions of
+//       this License, without any additional terms or conditions.
+//       Notwithstanding the above, nothing herein shall supersede or modify
+//       the terms of any separate license agreement you may have executed
+//       with Licensor regarding such Contributions.
+// 
+//    6. Trademarks. This License does not grant permission to use the trade
+//       names, trademarks, service marks, or product names of the Licensor,
+//       except as required for reasonable and customary use in describing the
+//       origin of the Work and reproducing the content of the NOTICE file.
+// 
+//    7. Disclaimer of Warranty. Unless required by applicable law or
+//       agreed to in writing, Licensor provides the Work (and each
+//       Contributor provides its Contributions) on an "AS IS" BASIS,
+//       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+//       implied, including, without limitation, any warranties or conditions
+//       of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+//       PARTICULAR PURPOSE. You are solely responsible for determining the
+//       appropriateness of using or redistributing the Work and assume any
+//       risks associated with Your exercise of permissions under this License.
+// 
+//    8. Limitation of Liability. In no event and under no legal theory,
+//       whether in tort (including negligence), contract, or otherwise,
+//       unless required by applicable law (such as deliberate and grossly
+//       negligent acts) or agreed to in writing, shall any Contributor be
+//       liable to You for damages, including any direct, indirect, special,
+//       incidental, or consequential damages of any character arising as a
+//       result of this License or out of the use or inability to use the
+//       Work (including but not limited to damages for loss of goodwill,
+//       work stoppage, computer failure or malfunction, or any and all
+//       other commercial damages or losses), even if such Contributor
+//       has been advised of the possibility of such damages.
+// 
+//    9. Accepting Warranty or Additional Liability. While redistributing
+//       the Work or Derivative Works thereof, You may choose to offer,
+//       and charge a fee for, acceptance of support, warranty, indemnity,
+//       or other liability obligations and/or rights consistent with this
+//       License. However, in accepting such obligations, You may act only
+//       on Your own behalf and on Your sole responsibility, not on behalf
+//       of any other Contributor, and only if You agree to indemnify,
+//       defend, and hold each Contributor harmless for any liability
+//       incurred by, or claims asserted against, such Contributor by reason
+//       of your accepting any such warranty or additional liability.
+// 
+//    END OF TERMS AND CONDITIONS
+// 
+//    APPENDIX: How to apply the Apache License to your work.
+// 
+//       To apply the Apache License to your work, attach the following
+//       boilerplate notice, with the fields enclosed by brackets "[]"
+//       replaced with your own identifying information. (Don't include
+//       the brackets!)  The text should be enclosed in the appropriate
+//       comment syntax for the file format. We also recommend that a
+//       file or class name and description of purpose be included on the
+//       same "printed page" as the copyright notice for easier
+//       identification within third-party archives.
+// 
+//    Copyright 2021 Mario Sieg "pinsrq" <mt3000@gmx.de>
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
 
-
-// Google Mock - a framework for writing C++ mock classes.
-//
-// This file tests the built-in actions.
-
-// Silence C4100 (unreferenced formal parameter) for MSVC
 #ifdef _MSC_VER
 #  pragma warning(push)
 #  pragma warning(disable:4100)
@@ -87,14 +259,18 @@ using ::testing::SetErrnoAndReturn;
 #endif
 
 // Tests that BuiltInDefaultValue<T*>::Get() returns NULL.
-TEST(BuiltInDefaultValueTest, IsNullForPointerTypes) {
+auto TEST(BuiltInDefaultValueTest, IsNullForPointerTypes)
+->
+  {
   EXPECT_TRUE(BuiltInDefaultValue<int*>::Get() == nullptr);
   EXPECT_TRUE(BuiltInDefaultValue<const char*>::Get() == nullptr);
   EXPECT_TRUE(BuiltInDefaultValue<void*>::Get() == nullptr);
 }
 
 // Tests that BuiltInDefaultValue<T*>::Exists() return true.
-TEST(BuiltInDefaultValueTest, ExistsForPointerTypes) {
+auto TEST(BuiltInDefaultValueTest, ExistsForPointerTypes)
+->
+  {
   EXPECT_TRUE(BuiltInDefaultValue<int*>::Exists());
   EXPECT_TRUE(BuiltInDefaultValue<const char*>::Exists());
   EXPECT_TRUE(BuiltInDefaultValue<void*>::Exists());
@@ -102,7 +278,9 @@ TEST(BuiltInDefaultValueTest, ExistsForPointerTypes) {
 
 // Tests that BuiltInDefaultValue<T>::Get() returns 0 when T is a
 // built-in numeric type.
-TEST(BuiltInDefaultValueTest, IsZeroForNumericTypes) {
+auto TEST(BuiltInDefaultValueTest, IsZeroForNumericTypes)
+->
+  {
   EXPECT_EQ(0U, BuiltInDefaultValue<unsigned char>::Get());
   EXPECT_EQ(0, BuiltInDefaultValue<signed char>::Get());
   EXPECT_EQ(0, BuiltInDefaultValue<char>::Get());
@@ -131,7 +309,9 @@ TEST(BuiltInDefaultValueTest, IsZeroForNumericTypes) {
 
 // Tests that BuiltInDefaultValue<T>::Exists() returns true when T is a
 // built-in numeric type.
-TEST(BuiltInDefaultValueTest, ExistsForNumericTypes) {
+auto TEST(BuiltInDefaultValueTest, ExistsForNumericTypes)
+->
+  {
   EXPECT_TRUE(BuiltInDefaultValue<unsigned char>::Exists());
   EXPECT_TRUE(BuiltInDefaultValue<signed char>::Exists());
   EXPECT_TRUE(BuiltInDefaultValue<char>::Exists());
@@ -155,30 +335,40 @@ TEST(BuiltInDefaultValueTest, ExistsForNumericTypes) {
 }
 
 // Tests that BuiltInDefaultValue<bool>::Get() returns false.
-TEST(BuiltInDefaultValueTest, IsFalseForBool) {
+auto TEST(BuiltInDefaultValueTest, IsFalseForBool)
+->
+  {
   EXPECT_FALSE(BuiltInDefaultValue<bool>::Get());
 }
 
 // Tests that BuiltInDefaultValue<bool>::Exists() returns true.
-TEST(BuiltInDefaultValueTest, BoolExists) {
+auto TEST(BuiltInDefaultValueTest, BoolExists)
+->
+  {
   EXPECT_TRUE(BuiltInDefaultValue<bool>::Exists());
 }
 
 // Tests that BuiltInDefaultValue<T>::Get() returns "" when T is a
 // string type.
-TEST(BuiltInDefaultValueTest, IsEmptyStringForString) {
-  EXPECT_EQ("", BuiltInDefaultValue< ::std::string>::Get());
+auto TEST(BuiltInDefaultValueTest, IsEmptyStringForString)
+->
+  {
+  EXPECT_EQ("", BuiltInDefaultValue<std::string>::Get());
 }
 
 // Tests that BuiltInDefaultValue<T>::Exists() returns true when T is a
 // string type.
-TEST(BuiltInDefaultValueTest, ExistsForString) {
-  EXPECT_TRUE(BuiltInDefaultValue< ::std::string>::Exists());
+auto TEST(BuiltInDefaultValueTest, ExistsForString)
+->
+  {
+  EXPECT_TRUE(BuiltInDefaultValue<std::string>::Exists());
 }
 
 // Tests that BuiltInDefaultValue<const T>::Get() returns the same
 // value as BuiltInDefaultValue<T>::Get() does.
-TEST(BuiltInDefaultValueTest, WorksForConstTypes) {
+auto TEST(BuiltInDefaultValueTest, WorksForConstTypes)
+->
+  {
   EXPECT_EQ("", BuiltInDefaultValue<const std::string>::Get());
   EXPECT_EQ(0, BuiltInDefaultValue<const int>::Get());
   EXPECT_TRUE(BuiltInDefaultValue<char* const>::Get() == nullptr);
@@ -187,43 +377,55 @@ TEST(BuiltInDefaultValueTest, WorksForConstTypes) {
 
 // A type that's default constructible.
 class MyDefaultConstructible {
- public:
-  MyDefaultConstructible() : value_(42) {}
+public:
+  MyDefaultConstructible()
+    : value_(42) {}
 
-  int value() const { return value_; }
+  auto value() const -> int { return value_; }
 
- private:
+private:
   int value_;
 };
 
 // A type that's not default constructible.
 class MyNonDefaultConstructible {
- public:
+public:
   // Does not have a default ctor.
-  explicit MyNonDefaultConstructible(int a_value) : value_(a_value) {}
+  explicit MyNonDefaultConstructible(int a_value)
+    : value_(a_value) {}
 
-  int value() const { return value_; }
+  auto value() const -> int { return value_; }
 
- private:
+private:
   int value_;
 };
 
 
-TEST(BuiltInDefaultValueTest, ExistsForDefaultConstructibleType) {
+auto TEST(BuiltInDefaultValueTest, ExistsForDefaultConstructibleType)
+->
+  {
   EXPECT_TRUE(BuiltInDefaultValue<MyDefaultConstructible>::Exists());
 }
 
-TEST(BuiltInDefaultValueTest, IsDefaultConstructedForDefaultConstructibleType) {
+auto TEST(BuiltInDefaultValueTest,
+          IsDefaultConstructedForDefaultConstructibleType)
+->
+  {
   EXPECT_EQ(42, BuiltInDefaultValue<MyDefaultConstructible>::Get().value());
 }
 
 
-TEST(BuiltInDefaultValueTest, DoesNotExistForNonDefaultConstructibleType) {
+auto TEST(BuiltInDefaultValueTest,
+          DoesNotExistForNonDefaultConstructibleType)
+->
+  {
   EXPECT_FALSE(BuiltInDefaultValue<MyNonDefaultConstructible>::Exists());
 }
 
 // Tests that BuiltInDefaultValue<T&>::Get() aborts the program.
-TEST(BuiltInDefaultValueDeathTest, IsUndefinedForReferences) {
+auto TEST(BuiltInDefaultValueDeathTest, IsUndefinedForReferences)
+->
+  {
   EXPECT_DEATH_IF_SUPPORTED({
     BuiltInDefaultValue<int&>::Get();
   }, "");
@@ -232,21 +434,28 @@ TEST(BuiltInDefaultValueDeathTest, IsUndefinedForReferences) {
   }, "");
 }
 
-TEST(BuiltInDefaultValueDeathTest, IsUndefinedForNonDefaultConstructibleType) {
+auto TEST(BuiltInDefaultValueDeathTest,
+          IsUndefinedForNonDefaultConstructibleType)
+->
+  {
   EXPECT_DEATH_IF_SUPPORTED({
     BuiltInDefaultValue<MyNonDefaultConstructible>::Get();
   }, "");
 }
 
 // Tests that DefaultValue<T>::IsSet() is false initially.
-TEST(DefaultValueTest, IsInitiallyUnset) {
+auto TEST(DefaultValueTest, IsInitiallyUnset)
+->
+  {
   EXPECT_FALSE(DefaultValue<int>::IsSet());
   EXPECT_FALSE(DefaultValue<MyDefaultConstructible>::IsSet());
   EXPECT_FALSE(DefaultValue<const MyNonDefaultConstructible>::IsSet());
 }
 
 // Tests that DefaultValue<T> can be set and then unset.
-TEST(DefaultValueTest, CanBeSetAndUnset) {
+auto TEST(DefaultValueTest, CanBeSetAndUnset)
+->
+  {
   EXPECT_TRUE(DefaultValue<int>::Exists());
   EXPECT_FALSE(DefaultValue<const MyNonDefaultConstructible>::Exists());
 
@@ -273,7 +482,9 @@ TEST(DefaultValueTest, CanBeSetAndUnset) {
 // Tests that DefaultValue<T>::Get() returns the
 // BuiltInDefaultValue<T>::Get() when DefaultValue<T>::IsSet() is
 // false.
-TEST(DefaultValueDeathTest, GetReturnsBuiltInDefaultValueWhenUnset) {
+auto TEST(DefaultValueDeathTest, GetReturnsBuiltInDefaultValueWhenUnset)
+->
+  {
   EXPECT_FALSE(DefaultValue<int>::IsSet());
   EXPECT_TRUE(DefaultValue<int>::Exists());
   EXPECT_FALSE(DefaultValue<MyNonDefaultConstructible>::IsSet());
@@ -286,11 +497,13 @@ TEST(DefaultValueDeathTest, GetReturnsBuiltInDefaultValueWhenUnset) {
   }, "");
 }
 
-TEST(DefaultValueTest, GetWorksForMoveOnlyIfSet) {
+auto TEST(DefaultValueTest, GetWorksForMoveOnlyIfSet)
+->
+  {
   EXPECT_TRUE(DefaultValue<std::unique_ptr<int>>::Exists());
   EXPECT_TRUE(DefaultValue<std::unique_ptr<int>>::Get() == nullptr);
   DefaultValue<std::unique_ptr<int>>::SetFactory([] {
-    return std::unique_ptr<int>(new int(42));
+    return std::make_unique<int>(42);
   });
   EXPECT_TRUE(DefaultValue<std::unique_ptr<int>>::Exists());
   std::unique_ptr<int> i = DefaultValue<std::unique_ptr<int>>::Get();
@@ -298,28 +511,36 @@ TEST(DefaultValueTest, GetWorksForMoveOnlyIfSet) {
 }
 
 // Tests that DefaultValue<void>::Get() returns void.
-TEST(DefaultValueTest, GetWorksForVoid) {
+auto TEST(DefaultValueTest, GetWorksForVoid)
+->
+  {
   return DefaultValue<void>::Get();
 }
 
 // Tests using DefaultValue with a reference type.
 
 // Tests that DefaultValue<T&>::IsSet() is false initially.
-TEST(DefaultValueOfReferenceTest, IsInitiallyUnset) {
+auto TEST(DefaultValueOfReferenceTest, IsInitiallyUnset)
+->
+  {
   EXPECT_FALSE(DefaultValue<int&>::IsSet());
   EXPECT_FALSE(DefaultValue<MyDefaultConstructible&>::IsSet());
   EXPECT_FALSE(DefaultValue<MyNonDefaultConstructible&>::IsSet());
 }
 
 // Tests that DefaultValue<T&>::Exists is false initiallly.
-TEST(DefaultValueOfReferenceTest, IsInitiallyNotExisting) {
+auto TEST(DefaultValueOfReferenceTest, IsInitiallyNotExisting)
+->
+  {
   EXPECT_FALSE(DefaultValue<int&>::Exists());
   EXPECT_FALSE(DefaultValue<MyDefaultConstructible&>::Exists());
   EXPECT_FALSE(DefaultValue<MyNonDefaultConstructible&>::Exists());
 }
 
 // Tests that DefaultValue<T&> can be set and then unset.
-TEST(DefaultValueOfReferenceTest, CanBeSetAndUnset) {
+auto TEST(DefaultValueOfReferenceTest, CanBeSetAndUnset)
+->
+  {
   int n = 1;
   DefaultValue<const int&>::Set(n);
   MyNonDefaultConstructible x(42);
@@ -328,8 +549,8 @@ TEST(DefaultValueOfReferenceTest, CanBeSetAndUnset) {
   EXPECT_TRUE(DefaultValue<const int&>::Exists());
   EXPECT_TRUE(DefaultValue<MyNonDefaultConstructible&>::Exists());
 
-  EXPECT_EQ(&n, &(DefaultValue<const int&>::Get()));
-  EXPECT_EQ(&x, &(DefaultValue<MyNonDefaultConstructible&>::Get()));
+  EXPECT_EQ(&n, &DefaultValue<const int&>::Get());
+  EXPECT_EQ(&x, &DefaultValue<MyNonDefaultConstructible&>::Get());
 
   DefaultValue<const int&>::Clear();
   DefaultValue<MyNonDefaultConstructible&>::Clear();
@@ -344,7 +565,10 @@ TEST(DefaultValueOfReferenceTest, CanBeSetAndUnset) {
 // Tests that DefaultValue<T&>::Get() returns the
 // BuiltInDefaultValue<T&>::Get() when DefaultValue<T&>::IsSet() is
 // false.
-TEST(DefaultValueOfReferenceDeathTest, GetReturnsBuiltInDefaultValueWhenUnset) {
+auto TEST(DefaultValueOfReferenceDeathTest,
+          GetReturnsBuiltInDefaultValueWhenUnset)
+->
+  {
   EXPECT_FALSE(DefaultValue<int&>::IsSet());
   EXPECT_FALSE(DefaultValue<MyNonDefaultConstructible&>::IsSet());
 
@@ -359,21 +583,25 @@ TEST(DefaultValueOfReferenceDeathTest, GetReturnsBuiltInDefaultValueWhenUnset) {
 // Tests that ActionInterface can be implemented by defining the
 // Perform method.
 
-typedef int MyGlobalFunction(bool, int);
+using MyGlobalFunction = auto(bool, int) -> int;
 
 class MyActionImpl : public ActionInterface<MyGlobalFunction> {
- public:
-  int Perform(const std::tuple<bool, int>& args) override {
+public:
+  auto Perform(const std::tuple<bool, int>& args) const -> int override {
     return std::get<0>(args) ? std::get<1>(args) : 0;
   }
 };
 
-TEST(ActionInterfaceTest, CanBeImplementedByDefiningPerform) {
+auto TEST(ActionInterfaceTest, CanBeImplementedByDefiningPerform)
+->
+  {
   MyActionImpl my_action_impl;
   (void)my_action_impl;
 }
 
-TEST(ActionInterfaceTest, MakeAction) {
+auto TEST(ActionInterfaceTest, MakeAction)
+->
+  {
   Action<MyGlobalFunction> action = MakeAction(new MyActionImpl);
 
   // When exercising the Perform() method of Action<F>, we must pass
@@ -386,12 +614,16 @@ TEST(ActionInterfaceTest, MakeAction) {
 
 // Tests that Action<F> can be contructed from a pointer to
 // ActionInterface<F>.
-TEST(ActionTest, CanBeConstructedFromActionInterface) {
+auto TEST(ActionTest, CanBeConstructedFromActionInterface)
+->
+  {
   Action<MyGlobalFunction> action(new MyActionImpl);
 }
 
 // Tests that Action<F> delegates actual work to ActionInterface<F>.
-TEST(ActionTest, DelegatesWorkToActionInterface) {
+auto TEST(ActionTest, DelegatesWorkToActionInterface)
+->
+  {
   const Action<MyGlobalFunction> action(new MyActionImpl);
 
   EXPECT_EQ(5, action.Perform(std::make_tuple(true, 5)));
@@ -399,7 +631,9 @@ TEST(ActionTest, DelegatesWorkToActionInterface) {
 }
 
 // Tests that Action<F> can be copied.
-TEST(ActionTest, IsCopyable) {
+auto TEST(ActionTest, IsCopyable)
+->
+  {
   Action<MyGlobalFunction> a1(new MyActionImpl);
   Action<MyGlobalFunction> a2(a1);  // Tests the copy constructor.
 
@@ -425,14 +659,17 @@ TEST(ActionTest, IsCopyable) {
 // Tests that an Action<From> object can be converted to a
 // compatible Action<To> object.
 
-class IsNotZero : public ActionInterface<bool(int)> {  // NOLINT
- public:
-  bool Perform(const std::tuple<int>& arg) override {
+class IsNotZero : public ActionInterface<bool(int)> {
+  // NOLINT
+public:
+  auto Perform(const std::tuple<int>& arg) const -> bool override {
     return std::get<0>(arg) != 0;
   }
 };
 
-TEST(ActionTest, CanBeConvertedToOtherActionType) {
+auto TEST(ActionTest, CanBeConvertedToOtherActionType)
+->
+  {
   const Action<bool(int)> a1(new IsNotZero);  // NOLINT
   const Action<int(char)> a2 = Action<int(char)>(a1);  // NOLINT
   EXPECT_EQ(1, a2.Perform(std::make_tuple('a')));
@@ -444,12 +681,12 @@ TEST(ActionTest, CanBeConvertedToOtherActionType) {
 // Implements a polymorphic action that returns the second of the
 // arguments it receives.
 class ReturnSecondArgumentAction {
- public:
+public:
   // We want to verify that MakePolymorphicAction() can work with a
   // polymorphic action whose Perform() method template is either
   // const or not.  This lets us verify the non-const case.
   template <typename Result, typename ArgumentTuple>
-  Result Perform(const ArgumentTuple& args) {
+  auto Perform(const ArgumentTuple& args) -> Result {
     return std::get<1>(args);
   }
 };
@@ -457,7 +694,7 @@ class ReturnSecondArgumentAction {
 // Implements a polymorphic action that can be used in a nullary
 // function to return 0.
 class ReturnZeroFromNullaryFunctionAction {
- public:
+public:
   // For testing that MakePolymorphicAction() works when the
   // implementation class' Perform() method template takes only one
   // template parameter.
@@ -466,7 +703,7 @@ class ReturnZeroFromNullaryFunctionAction {
   // polymorphic action whose Perform() method template is either
   // const or not.  This lets us verify the const case.
   template <typename Result>
-  Result Perform(const std::tuple<>&) const {
+  auto Perform(const std::tuple<>&) const -> Result {
     return 0;
   }
 };
@@ -474,25 +711,30 @@ class ReturnZeroFromNullaryFunctionAction {
 // These functions verify that MakePolymorphicAction() returns a
 // PolymorphicAction<T> where T is the argument's type.
 
-PolymorphicAction<ReturnSecondArgumentAction> ReturnSecondArgument() {
+auto ReturnSecondArgument() -> PolymorphicAction<ReturnSecondArgumentAction> {
   return MakePolymorphicAction(ReturnSecondArgumentAction());
 }
 
-PolymorphicAction<ReturnZeroFromNullaryFunctionAction>
-ReturnZeroFromNullaryFunction() {
+auto ReturnZeroFromNullaryFunction() -> PolymorphicAction<
+  ReturnZeroFromNullaryFunctionAction> {
   return MakePolymorphicAction(ReturnZeroFromNullaryFunctionAction());
 }
 
 // Tests that MakePolymorphicAction() turns a polymorphic action
 // implementation class into a polymorphic action.
-TEST(MakePolymorphicActionTest, ConstructsActionFromImpl) {
+auto TEST(MakePolymorphicActionTest, ConstructsActionFromImpl)
+->
+  {
   Action<int(bool, int, double)> a1 = ReturnSecondArgument();  // NOLINT
   EXPECT_EQ(5, a1.Perform(std::make_tuple(false, 5, 2.0)));
 }
 
 // Tests that MakePolymorphicAction() works when the implementation
 // class' Perform() method template has only one template parameter.
-TEST(MakePolymorphicActionTest, WorksWhenPerformHasOneTemplateParameter) {
+auto TEST(MakePolymorphicActionTest,
+          WorksWhenPerformHasOneTemplateParameter)
+->
+  {
   Action<int()> a1 = ReturnZeroFromNullaryFunction();
   EXPECT_EQ(0, a1.Perform(std::make_tuple()));
 
@@ -502,13 +744,17 @@ TEST(MakePolymorphicActionTest, WorksWhenPerformHasOneTemplateParameter) {
 
 // Tests that Return() works as an action for void-returning
 // functions.
-TEST(ReturnTest, WorksForVoid) {
+auto TEST(ReturnTest, WorksForVoid)
+->
+  {
   const Action<void(int)> ret = Return();  // NOLINT
   return ret.Perform(std::make_tuple(1));
 }
 
 // Tests that Return(v) returns v.
-TEST(ReturnTest, ReturnsGivenValue) {
+auto TEST(ReturnTest, ReturnsGivenValue)
+->
+  {
   Action<int()> ret = Return(1);  // NOLINT
   EXPECT_EQ(1, ret.Perform(std::make_tuple()));
 
@@ -517,7 +763,9 @@ TEST(ReturnTest, ReturnsGivenValue) {
 }
 
 // Tests that Return("string literal") works.
-TEST(ReturnTest, AcceptsStringLiteral) {
+auto TEST(ReturnTest, AcceptsStringLiteral)
+->
+  {
   Action<const char*()> a1 = Return("Hello");
   EXPECT_STREQ("Hello", a1.Perform(std::make_tuple()));
 
@@ -528,34 +776,42 @@ TEST(ReturnTest, AcceptsStringLiteral) {
 // Test struct which wraps a vector of integers. Used in
 // 'SupportsWrapperReturnType' test.
 struct IntegerVectorWrapper {
-  std::vector<int> * v;
-  IntegerVectorWrapper(std::vector<int>& _v) : v(&_v) {}  // NOLINT
+  std::vector<int>* v;
+
+  IntegerVectorWrapper(std::vector<int>& _v)
+    : v(&_v) {} // NOLINT
 };
 
 // Tests that Return() works when return type is a wrapper type.
-TEST(ReturnTest, SupportsWrapperReturnType) {
+auto TEST(ReturnTest, SupportsWrapperReturnType)
+->
+  {
   // Initialize vector of integers.
   std::vector<int> v;
-  for (int i = 0; i < 5; ++i) v.push_back(i);
+  for (int i = 0; i < 5; ++i) {
+    v.push_back(i);
+  }
 
   // Return() called with 'v' as argument. The Action will return the same data
   // as 'v' (copy) but it will be wrapped in an IntegerVectorWrapper.
   Action<IntegerVectorWrapper()> a = Return(v);
-  const std::vector<int>& result = *(a.Perform(std::make_tuple()).v);
+  const std::vector<int>& result = *a.Perform(std::make_tuple()).v;
   EXPECT_THAT(result, ::testing::ElementsAre(0, 1, 2, 3, 4));
 }
 
 // Tests that Return(v) is covaraint.
 
 struct Base {
-  bool operator==(const Base&) { return true; }
+  auto operator==(const Base&) const -> bool { return true; }
 };
 
 struct Derived : public Base {
-  bool operator==(const Derived&) { return true; }
+  auto operator==(const Derived&) const -> bool { return true; }
 };
 
-TEST(ReturnTest, IsCovariant) {
+auto TEST(ReturnTest, IsCovariant)
+->
+  {
   Base base;
   Derived derived;
   Action<Base*()> ret = Return(&base);
@@ -570,21 +826,25 @@ TEST(ReturnTest, IsCovariant) {
 // performed. See comments on testing::internal::ReturnAction in
 // gmock-actions.h for more information.
 class FromType {
- public:
-  explicit FromType(bool* is_converted) : converted_(is_converted) {}
-  bool* converted() const { return converted_; }
+public:
+  explicit FromType(bool* is_converted)
+    : converted_(is_converted) {}
 
- private:
+  auto converted() const -> bool* { return converted_; }
+
+private:
   bool* const converted_;
 };
 
 class ToType {
- public:
+public:
   // Must allow implicit conversion due to use in ImplicitCast_<T>.
-  ToType(const FromType& x) { *x.converted() = true; }  // NOLINT
+  ToType(const FromType& x) { *x.converted() = true; } // NOLINT
 };
 
-TEST(ReturnTest, ConvertsArgumentWhenConverted) {
+auto TEST(ReturnTest, ConvertsArgumentWhenConverted)
+->
+  {
   bool converted = false;
   FromType x(&converted);
   Action<ToType()> action(Return(x));
@@ -599,18 +859,22 @@ TEST(ReturnTest, ConvertsArgumentWhenConverted) {
 class DestinationType {};
 
 class SourceType {
- public:
+public:
   // Note: a non-const typecast operator.
-  operator DestinationType() { return DestinationType(); }
+  operator DestinationType() const { return DestinationType(); }
 };
 
-TEST(ReturnTest, CanConvertArgumentUsingNonConstTypeCastOperator) {
+auto TEST(ReturnTest, CanConvertArgumentUsingNonConstTypeCastOperator)
+->
+  {
   SourceType s;
   Action<DestinationType()> action(Return(s));
 }
 
 // Tests that ReturnNull() returns NULL in a pointer-returning function.
-TEST(ReturnNullTest, WorksInPointerReturningFunction) {
+auto TEST(ReturnNullTest, WorksInPointerReturningFunction)
+->
+  {
   const Action<int*()> a1 = ReturnNull();
   EXPECT_TRUE(a1.Perform(std::make_tuple()) == nullptr);
 
@@ -620,7 +884,9 @@ TEST(ReturnNullTest, WorksInPointerReturningFunction) {
 
 // Tests that ReturnNull() returns NULL for shared_ptr and unique_ptr returning
 // functions.
-TEST(ReturnNullTest, WorksInSmartPointerReturningFunction) {
+auto TEST(ReturnNullTest, WorksInSmartPointerReturningFunction)
+->
+  {
   const Action<std::unique_ptr<const int>()> a1 = ReturnNull();
   EXPECT_TRUE(a1.Perform(std::make_tuple()) == nullptr);
 
@@ -629,7 +895,9 @@ TEST(ReturnNullTest, WorksInSmartPointerReturningFunction) {
 }
 
 // Tests that ReturnRef(v) works for reference types.
-TEST(ReturnRefTest, WorksForReference) {
+auto TEST(ReturnRefTest, WorksForReference)
+->
+  {
   const int n = 0;
   const Action<const int&(bool)> ret = ReturnRef(n);  // NOLINT
 
@@ -637,7 +905,9 @@ TEST(ReturnRefTest, WorksForReference) {
 }
 
 // Tests that ReturnRef(v) is covariant.
-TEST(ReturnRefTest, IsCovariant) {
+auto TEST(ReturnRefTest, IsCovariant)
+->
+  {
   Base base;
   Derived derived;
   Action<Base&()> a = ReturnRef(base);
@@ -648,11 +918,17 @@ TEST(ReturnRefTest, IsCovariant) {
 }
 
 template <typename T, typename = decltype(ReturnRef(std::declval<T&&>()))>
-bool CanCallReturnRef(T&&) { return true; }
-bool CanCallReturnRef(Unused) { return false; }
+auto CanCallReturnRef(T&&) -> bool { return true; }
+
+auto CanCallReturnRef(Unused)
+->
+bool
+{ return false; }
 
 // Tests that ReturnRef(v) is working with non-temporaries (T&)
-TEST(ReturnRefTest, WorksForNonTemporary) {
+auto TEST(ReturnRefTest, WorksForNonTemporary)
+->
+  {
   int scalar_value = 123;
   EXPECT_TRUE(CanCallReturnRef(scalar_value));
 
@@ -667,7 +943,9 @@ TEST(ReturnRefTest, WorksForNonTemporary) {
 }
 
 // Tests that ReturnRef(v) is not working with temporaries (T&&)
-TEST(ReturnRefTest, DoesNotWorkForTemporary) {
+auto TEST(ReturnRefTest, DoesNotWorkForTemporary)
+->
+  {
   auto scalar_value = []()  -> int { return 123; };
   EXPECT_FALSE(CanCallReturnRef(scalar_value()));
 
@@ -683,7 +961,9 @@ TEST(ReturnRefTest, DoesNotWorkForTemporary) {
 }
 
 // Tests that ReturnRefOfCopy(v) works for reference types.
-TEST(ReturnRefOfCopyTest, WorksForReference) {
+auto TEST(ReturnRefOfCopyTest, WorksForReference)
+->
+  {
   int n = 42;
   const Action<const int&()> ret = ReturnRefOfCopy(n);
 
@@ -696,7 +976,9 @@ TEST(ReturnRefOfCopyTest, WorksForReference) {
 }
 
 // Tests that ReturnRefOfCopy(v) is covariant.
-TEST(ReturnRefOfCopyTest, IsCovariant) {
+auto TEST(ReturnRefOfCopyTest, IsCovariant)
+->
+  {
   Base base;
   Derived derived;
   Action<Base&()> a = ReturnRefOfCopy(base);
@@ -707,7 +989,9 @@ TEST(ReturnRefOfCopyTest, IsCovariant) {
 }
 
 // Tests that ReturnRoundRobin(v) works with initializer lists
-TEST(ReturnRoundRobinTest, WorksForInitList) {
+auto TEST(ReturnRoundRobinTest, WorksForInitList)
+->
+  {
   Action<int()> ret = ReturnRoundRobin({1, 2, 3});
 
   EXPECT_EQ(1, ret.Perform(std::make_tuple()));
@@ -719,7 +1003,9 @@ TEST(ReturnRoundRobinTest, WorksForInitList) {
 }
 
 // Tests that ReturnRoundRobin(v) works with vectors
-TEST(ReturnRoundRobinTest, WorksForVector) {
+auto TEST(ReturnRoundRobinTest, WorksForVector)
+->
+  {
   std::vector<double> v = {4.4, 5.5, 6.6};
   Action<double()> ret = ReturnRoundRobin(v);
 
@@ -734,25 +1020,28 @@ TEST(ReturnRoundRobinTest, WorksForVector) {
 // Tests that DoDefault() does the default action for the mock method.
 
 class MockClass {
- public:
+public:
   MockClass() {}
 
-  MOCK_METHOD1(IntFunc, int(bool flag));  // NOLINT
-  MOCK_METHOD0(Foo, MyNonDefaultConstructible());
-  MOCK_METHOD0(MakeUnique, std::unique_ptr<int>());
-  MOCK_METHOD0(MakeUniqueBase, std::unique_ptr<Base>());
-  MOCK_METHOD0(MakeVectorUnique, std::vector<std::unique_ptr<int>>());
-  MOCK_METHOD1(TakeUnique, int(std::unique_ptr<int>));
-  MOCK_METHOD2(TakeUnique,
-               int(const std::unique_ptr<int>&, std::unique_ptr<int>));
+  auto MOCK_METHOD1(IntFunc, int (bool flag)) -> ; // NOLINT
+  auto MOCK_METHOD0(Foo, MyNonDefaultConstructible ()) -> ;
+  auto MOCK_METHOD0(MakeUnique, std::unique_ptr<int> ()) -> ;
+  auto MOCK_METHOD0(MakeUniqueBase, std::unique_ptr<Base> ()) -> ;
+  auto MOCK_METHOD0(MakeVectorUnique, std::vector<std::unique_ptr<int>> ()) -> ;
+  auto MOCK_METHOD1(TakeUnique, int (std::unique_ptr<int>)) -> ;
+  auto MOCK_METHOD2(TakeUnique,
+                    int (const std::unique_ptr<int>&,
+                         std::unique_ptr<int>)) -> ;
 
- private:
-  GTEST_DISALLOW_COPY_AND_ASSIGN_(MockClass);
+private:
+  auto GTEST_DISALLOW_COPY_AND_ASSIGN_(MockClass) -> ;
 };
 
 // Tests that DoDefault() returns the built-in default value for the
 // return type by default.
-TEST(DoDefaultTest, ReturnsBuiltInDefaultValueByDefault) {
+auto TEST(DoDefaultTest, ReturnsBuiltInDefaultValueByDefault)
+->
+  {
   MockClass mock;
   EXPECT_CALL(mock, IntFunc(_))
       .WillOnce(DoDefault());
@@ -761,7 +1050,9 @@ TEST(DoDefaultTest, ReturnsBuiltInDefaultValueByDefault) {
 
 // Tests that DoDefault() throws (when exceptions are enabled) or aborts
 // the process when there is no built-in default value for the return type.
-TEST(DoDefaultDeathTest, DiesForUnknowType) {
+auto TEST(DoDefaultDeathTest, DiesForUnknowType)
+->
+  {
   MockClass mock;
   EXPECT_CALL(mock, Foo())
       .WillRepeatedly(DoDefault());
@@ -777,9 +1068,11 @@ TEST(DoDefaultDeathTest, DiesForUnknowType) {
 // Tests that using DoDefault() inside a composite action leads to a
 // run-time error.
 
-void VoidFunc(bool /* flag */) {}
+auto VoidFunc(bool /* flag */) -> void {}
 
-TEST(DoDefaultDeathTest, DiesIfUsedInCompositeAction) {
+auto TEST(DoDefaultDeathTest, DiesIfUsedInCompositeAction)
+->
+  {
   MockClass mock;
   EXPECT_CALL(mock, IntFunc(_))
       .WillRepeatedly(DoAll(Invoke(VoidFunc),
@@ -796,7 +1089,10 @@ TEST(DoDefaultDeathTest, DiesIfUsedInCompositeAction) {
 
 // Tests that DoDefault() returns the default value set by
 // DefaultValue<T>::Set() when it's not overriden by an ON_CALL().
-TEST(DoDefaultTest, ReturnsUserSpecifiedPerTypeDefaultValueWhenThereIsOne) {
+auto TEST(DoDefaultTest,
+          ReturnsUserSpecifiedPerTypeDefaultValueWhenThereIsOne)
+->
+  {
   DefaultValue<int>::Set(1);
   MockClass mock;
   EXPECT_CALL(mock, IntFunc(_))
@@ -806,7 +1102,9 @@ TEST(DoDefaultTest, ReturnsUserSpecifiedPerTypeDefaultValueWhenThereIsOne) {
 }
 
 // Tests that DoDefault() does the action specified by ON_CALL().
-TEST(DoDefaultTest, DoesWhatOnCallSpecifies) {
+auto TEST(DoDefaultTest, DoesWhatOnCallSpecifies)
+->
+  {
   MockClass mock;
   ON_CALL(mock, IntFunc(_))
       .WillByDefault(Return(2));
@@ -816,7 +1114,9 @@ TEST(DoDefaultTest, DoesWhatOnCallSpecifies) {
 }
 
 // Tests that using DoDefault() in ON_CALL() leads to a run-time failure.
-TEST(DoDefaultTest, CannotBeUsedInOnCall) {
+auto TEST(DoDefaultTest, CannotBeUsedInOnCall)
+->
+  {
   MockClass mock;
   EXPECT_NONFATAL_FAILURE({  // NOLINT
     ON_CALL(mock, IntFunc(_))
@@ -826,8 +1126,10 @@ TEST(DoDefaultTest, CannotBeUsedInOnCall) {
 
 // Tests that SetArgPointee<N>(v) sets the variable pointed to by
 // the N-th (0-based) argument to v.
-TEST(SetArgPointeeTest, SetsTheNthPointee) {
-  typedef void MyFunction(bool, int*, char*);
+auto TEST(SetArgPointeeTest, SetsTheNthPointee)
+->
+  {
+  using MyFunction = auto(bool, int*, char*) -> void;
   Action<MyFunction> a = SetArgPointee<1>(2);
 
   int n = 0;
@@ -845,8 +1147,10 @@ TEST(SetArgPointeeTest, SetsTheNthPointee) {
 }
 
 // Tests that SetArgPointee<N>() accepts a string literal.
-TEST(SetArgPointeeTest, AcceptsStringLiteral) {
-  typedef void MyFunction(std::string*, const char**);
+auto TEST(SetArgPointeeTest, AcceptsStringLiteral)
+->
+  {
+  using MyFunction = auto(std::string*, const char**) -> void;
   Action<MyFunction> a = SetArgPointee<0>("hi");
   std::string str;
   const char* ptr = nullptr;
@@ -861,8 +1165,10 @@ TEST(SetArgPointeeTest, AcceptsStringLiteral) {
   EXPECT_STREQ("world", ptr);
 }
 
-TEST(SetArgPointeeTest, AcceptsWideStringLiteral) {
-  typedef void MyFunction(const wchar_t**);
+auto TEST(SetArgPointeeTest, AcceptsWideStringLiteral)
+->
+  {
+  using MyFunction = auto(const wchar_t**) -> void;
   Action<MyFunction> a = SetArgPointee<0>(L"world");
   const wchar_t* ptr = nullptr;
   a.Perform(std::make_tuple(&ptr));
@@ -880,9 +1186,11 @@ TEST(SetArgPointeeTest, AcceptsWideStringLiteral) {
 }
 
 // Tests that SetArgPointee<N>() accepts a char pointer.
-TEST(SetArgPointeeTest, AcceptsCharPointer) {
-  typedef void MyFunction(bool, std::string*, const char**);
-  const char* const hi = "hi";
+auto TEST(SetArgPointeeTest, AcceptsCharPointer)
+->
+  {
+  using MyFunction = auto(bool, std::string*, const char**) -> void;
+  const auto hi = "hi";
   Action<MyFunction> a = SetArgPointee<1>(hi);
   std::string str;
   const char* ptr = nullptr;
@@ -899,9 +1207,11 @@ TEST(SetArgPointeeTest, AcceptsCharPointer) {
   EXPECT_EQ(world, ptr);
 }
 
-TEST(SetArgPointeeTest, AcceptsWideCharPointer) {
-  typedef void MyFunction(bool, const wchar_t**);
-  const wchar_t* const hi = L"hi";
+auto TEST(SetArgPointeeTest, AcceptsWideCharPointer)
+->
+  {
+  using MyFunction = auto(bool, const wchar_t**) -> void;
+  const auto hi = L"hi";
   Action<MyFunction> a = SetArgPointee<1>(hi);
   const wchar_t* ptr = nullptr;
   a.Perform(std::make_tuple(true, &ptr));
@@ -921,8 +1231,10 @@ TEST(SetArgPointeeTest, AcceptsWideCharPointer) {
 
 // Tests that SetArgumentPointee<N>(v) sets the variable pointed to by
 // the N-th (0-based) argument to v.
-TEST(SetArgumentPointeeTest, SetsTheNthPointee) {
-  typedef void MyFunction(bool, int*, char*);
+auto TEST(SetArgumentPointeeTest, SetsTheNthPointee)
+->
+  {
+  using MyFunction = auto(bool, int*, char*) -> void;
   Action<MyFunction> a = SetArgumentPointee<1>(2);
 
   int n = 0;
@@ -940,48 +1252,52 @@ TEST(SetArgumentPointeeTest, SetsTheNthPointee) {
 }
 
 // Sample functions and functors for testing Invoke() and etc.
-int Nullary() { return 1; }
+auto Nullary() -> int { return 1; }
 
 class NullaryFunctor {
- public:
-  int operator()() { return 2; }
+public:
+  auto operator()() const -> int { return 2; }
 };
 
 bool g_done = false;
-void VoidNullary() { g_done = true; }
+auto VoidNullary() -> void { g_done = true; }
 
 class VoidNullaryFunctor {
- public:
-  void operator()() { g_done = true; }
+public:
+  auto operator()() const -> void { g_done = true; }
 };
 
-short Short(short n) { return n; }  // NOLINT
-char Char(char ch) { return ch; }
+auto Short(short n) -> short { return n; } // NOLINT
+auto Char(char ch) -> char { return ch; }
 
-const char* CharPtr(const char* s) { return s; }
+auto CharPtr(const char* s) -> const char* { return s; }
 
-bool Unary(int x) { return x < 0; }
+auto Unary(int x) -> bool { return x < 0; }
 
-const char* Binary(const char* input, short n) { return input + n; }  // NOLINT
+auto Binary(const char* input, short n) -> const char* { return input + n; }
+// NOLINT
 
-void VoidBinary(int, char) { g_done = true; }
+auto VoidBinary(int, char) -> void { g_done = true; }
 
-int Ternary(int x, char y, short z) { return x + y + z; }  // NOLINT
+auto Ternary(int x, char y, short z) -> int { return x + y + z; } // NOLINT
 
-int SumOf4(int a, int b, int c, int d) { return a + b + c + d; }
+auto SumOf4(int a, int b, int c, int d) -> int { return a + b + c + d; }
 
 class Foo {
- public:
-  Foo() : value_(123) {}
+public:
+  Foo()
+    : value_(123) {}
 
-  int Nullary() const { return value_; }
+  auto Nullary() const -> int { return value_; }
 
- private:
+private:
   int value_;
 };
 
 // Tests InvokeWithoutArgs(function).
-TEST(InvokeWithoutArgsTest, Function) {
+auto TEST(InvokeWithoutArgsTest, Function)
+->
+  {
   // As an action that takes one argument.
   Action<int(int)> a = InvokeWithoutArgs(Nullary);  // NOLINT
   EXPECT_EQ(1, a.Perform(std::make_tuple(2)));
@@ -998,7 +1314,9 @@ TEST(InvokeWithoutArgsTest, Function) {
 }
 
 // Tests InvokeWithoutArgs(functor).
-TEST(InvokeWithoutArgsTest, Functor) {
+auto TEST(InvokeWithoutArgsTest, Functor)
+->
+  {
   // As an action that takes no argument.
   Action<int()> a = InvokeWithoutArgs(NullaryFunctor());  // NOLINT
   EXPECT_EQ(2, a.Perform(std::make_tuple()));
@@ -1016,7 +1334,9 @@ TEST(InvokeWithoutArgsTest, Functor) {
 }
 
 // Tests InvokeWithoutArgs(obj_ptr, method).
-TEST(InvokeWithoutArgsTest, Method) {
+auto TEST(InvokeWithoutArgsTest, Method)
+->
+  {
   Foo foo;
   Action<int(bool, char)> a =  // NOLINT
       InvokeWithoutArgs(&foo, &Foo::Nullary);
@@ -1024,19 +1344,23 @@ TEST(InvokeWithoutArgsTest, Method) {
 }
 
 // Tests using IgnoreResult() on a polymorphic action.
-TEST(IgnoreResultTest, PolymorphicAction) {
+auto TEST(IgnoreResultTest, PolymorphicAction)
+->
+  {
   Action<void(int)> a = IgnoreResult(Return(5));  // NOLINT
   a.Perform(std::make_tuple(1));
 }
 
 // Tests using IgnoreResult() on a monomorphic action.
 
-int ReturnOne() {
+auto ReturnOne() -> int {
   g_done = true;
   return 1;
 }
 
-TEST(IgnoreResultTest, MonomorphicAction) {
+auto TEST(IgnoreResultTest, MonomorphicAction)
+->
+  {
   g_done = false;
   Action<void()> a = IgnoreResult(Invoke(ReturnOne));
   a.Perform(std::make_tuple());
@@ -1045,12 +1369,15 @@ TEST(IgnoreResultTest, MonomorphicAction) {
 
 // Tests using IgnoreResult() on an action that returns a class type.
 
-MyNonDefaultConstructible ReturnMyNonDefaultConstructible(double /* x */) {
+auto ReturnMyNonDefaultConstructible(
+    double /* x */) -> MyNonDefaultConstructible {
   g_done = true;
   return MyNonDefaultConstructible(42);
 }
 
-TEST(IgnoreResultTest, ActionReturningClass) {
+auto TEST(IgnoreResultTest, ActionReturningClass)
+->
+  {
   g_done = false;
   Action<void(int)> a =
       IgnoreResult(Invoke(ReturnMyNonDefaultConstructible));  // NOLINT
@@ -1058,21 +1385,27 @@ TEST(IgnoreResultTest, ActionReturningClass) {
   EXPECT_TRUE(g_done);
 }
 
-TEST(AssignTest, Int) {
+auto TEST(AssignTest, Int)
+->
+  {
   int x = 0;
   Action<void(int)> a = Assign(&x, 5);
   a.Perform(std::make_tuple(0));
   EXPECT_EQ(5, x);
 }
 
-TEST(AssignTest, String) {
-  ::std::string x;
+auto TEST(AssignTest, String)
+->
+  {
+  std::string x;
   Action<void(void)> a = Assign(&x, "Hello, world");
   a.Perform(std::make_tuple());
   EXPECT_EQ("Hello, world", x);
 }
 
-TEST(AssignTest, CompatibleTypes) {
+auto TEST(AssignTest, CompatibleTypes)
+->
+  {
   double x = 0;
   Action<void(int)> a = Assign(&x, 5);
   a.Perform(std::make_tuple(0));
@@ -1081,14 +1414,18 @@ TEST(AssignTest, CompatibleTypes) {
 
 
 // Tests using WithArgs and with an action that takes 1 argument.
-TEST(WithArgsTest, OneArg) {
+auto TEST(WithArgsTest, OneArg)
+->
+  {
   Action<bool(double x, int n)> a = WithArgs<1>(Invoke(Unary));  // NOLINT
   EXPECT_TRUE(a.Perform(std::make_tuple(1.5, -1)));
   EXPECT_FALSE(a.Perform(std::make_tuple(1.5, 1)));
 }
 
 // Tests using WithArgs with an action that takes 2 arguments.
-TEST(WithArgsTest, TwoArgs) {
+auto TEST(WithArgsTest, TwoArgs)
+->
+  {
   Action<const char*(const char* s, double x, short n)> a =  // NOLINT
       WithArgs<0, 2>(Invoke(Binary));
   const char s[] = "Hello";
@@ -1096,15 +1433,18 @@ TEST(WithArgsTest, TwoArgs) {
 }
 
 struct ConcatAll {
-  std::string operator()() const { return {}; }
+  auto operator()() const -> std::string { return { }; }
+
   template <typename... I>
-  std::string operator()(const char* a, I... i) const {
+  auto operator()(const char* a, I ...i) const -> std::string {
     return a + ConcatAll()(i...);
   }
 };
 
 // Tests using WithArgs with an action that takes 10 arguments.
-TEST(WithArgsTest, TenArgs) {
+auto TEST(WithArgsTest, TenArgs)
+->
+  {
   Action<std::string(const char*, const char*, const char*, const char*)> a =
       WithArgs<0, 1, 2, 3, 2, 1, 0, 1, 2, 3>(Invoke(ConcatAll{}));
   EXPECT_EQ("0123210123",
@@ -1114,13 +1454,15 @@ TEST(WithArgsTest, TenArgs) {
 
 // Tests using WithArgs with an action that is not Invoke().
 class SubtractAction : public ActionInterface<int(int, int)> {
- public:
-  int Perform(const std::tuple<int, int>& args) override {
+public:
+  auto Perform(const std::tuple<int, int>& args) const -> int override {
     return std::get<0>(args) - std::get<1>(args);
   }
 };
 
-TEST(WithArgsTest, NonInvokeAction) {
+auto TEST(WithArgsTest, NonInvokeAction)
+->
+  {
   Action<int(const std::string&, int, int)> a =
       WithArgs<2, 1>(MakeAction(new SubtractAction));
   std::tuple<std::string, int, int> dummy =
@@ -1129,21 +1471,27 @@ TEST(WithArgsTest, NonInvokeAction) {
 }
 
 // Tests using WithArgs to pass all original arguments in the original order.
-TEST(WithArgsTest, Identity) {
+auto TEST(WithArgsTest, Identity)
+->
+  {
   Action<int(int x, char y, short z)> a =  // NOLINT
       WithArgs<0, 1, 2>(Invoke(Ternary));
   EXPECT_EQ(123, a.Perform(std::make_tuple(100, Char(20), Short(3))));
 }
 
 // Tests using WithArgs with repeated arguments.
-TEST(WithArgsTest, RepeatedArguments) {
+auto TEST(WithArgsTest, RepeatedArguments)
+->
+  {
   Action<int(bool, int m, int n)> a =  // NOLINT
       WithArgs<1, 1, 1, 1>(Invoke(SumOf4));
   EXPECT_EQ(4, a.Perform(std::make_tuple(false, 1, 10)));
 }
 
 // Tests using WithArgs with reversed argument order.
-TEST(WithArgsTest, ReversedArgumentOrder) {
+auto TEST(WithArgsTest, ReversedArgumentOrder)
+->
+  {
   Action<const char*(short n, const char* input)> a =  // NOLINT
       WithArgs<1, 0>(Invoke(Binary));
   const char s[] = "Hello";
@@ -1151,7 +1499,9 @@ TEST(WithArgsTest, ReversedArgumentOrder) {
 }
 
 // Tests using WithArgs with compatible, but not identical, argument types.
-TEST(WithArgsTest, ArgsOfCompatibleTypes) {
+auto TEST(WithArgsTest, ArgsOfCompatibleTypes)
+->
+  {
   Action<long(short x, char y, double z, char c)> a =  // NOLINT
       WithArgs<0, 1, 3>(Invoke(Ternary));
   EXPECT_EQ(123,
@@ -1159,21 +1509,27 @@ TEST(WithArgsTest, ArgsOfCompatibleTypes) {
 }
 
 // Tests using WithArgs with an action that returns void.
-TEST(WithArgsTest, VoidAction) {
+auto TEST(WithArgsTest, VoidAction)
+->
+  {
   Action<void(double x, char c, int n)> a = WithArgs<2, 1>(Invoke(VoidBinary));
   g_done = false;
   a.Perform(std::make_tuple(1.5, 'a', 3));
   EXPECT_TRUE(g_done);
 }
 
-TEST(WithArgsTest, ReturnReference) {
+auto TEST(WithArgsTest, ReturnReference)
+->
+  {
   Action<int&(int&, void*)> aa = WithArgs<0>([](int& a) -> int& { return a; });
   int i = 0;
   const int& res = aa.Perform(std::forward_as_tuple(i, nullptr));
   EXPECT_EQ(&i, &res);
 }
 
-TEST(WithArgsTest, InnerActionWithConversion) {
+auto TEST(WithArgsTest, InnerActionWithConversion)
+->
+  {
   Action<Derived*()> inner = [] { return nullptr; };
   Action<Base*(double)> a = testing::WithoutArgs(inner);
   EXPECT_EQ(nullptr, a.Perform(std::make_tuple(1.1)));
@@ -1182,25 +1538,36 @@ TEST(WithArgsTest, InnerActionWithConversion) {
 #if !GTEST_OS_WINDOWS_MOBILE
 
 class SetErrnoAndReturnTest : public testing::Test {
- protected:
-  void SetUp() override { errno = 0; }
-  void TearDown() override { errno = 0; }
+protected:
+  auto SetUp() -> void override {
+    errno = 0;
+  }
+
+  auto TearDown() -> void override {
+    errno = 0;
+  }
 };
 
-TEST_F(SetErrnoAndReturnTest, Int) {
+auto TEST_F(SetErrnoAndReturnTest, Int)
+->
+  {
   Action<int(void)> a = SetErrnoAndReturn(ENOTTY, -5);
   EXPECT_EQ(-5, a.Perform(std::make_tuple()));
   EXPECT_EQ(ENOTTY, errno);
 }
 
-TEST_F(SetErrnoAndReturnTest, Ptr) {
+auto TEST_F(SetErrnoAndReturnTest, Ptr)
+->
+  {
   int x;
   Action<int*(void)> a = SetErrnoAndReturn(ENOTTY, &x);
   EXPECT_EQ(&x, a.Perform(std::make_tuple()));
   EXPECT_EQ(ENOTTY, errno);
 }
 
-TEST_F(SetErrnoAndReturnTest, CompatibleTypes) {
+auto TEST_F(SetErrnoAndReturnTest, CompatibleTypes)
+->
+  {
   Action<double()> a = SetErrnoAndReturn(EINVAL, 5);
   EXPECT_DOUBLE_EQ(5.0, a.Perform(std::make_tuple()));
   EXPECT_EQ(EINVAL, errno);
@@ -1211,7 +1578,9 @@ TEST_F(SetErrnoAndReturnTest, CompatibleTypes) {
 // Tests ByRef().
 
 // Tests that the result of ByRef() is copyable.
-TEST(ByRefTest, IsCopyable) {
+auto TEST(ByRefTest, IsCopyable)
+->
+  {
   const std::string s1 = "Hi";
   const std::string s2 = "Hello";
 
@@ -1232,7 +1601,9 @@ TEST(ByRefTest, IsCopyable) {
 }
 
 // Tests using ByRef() on a const value.
-TEST(ByRefTest, ConstValue) {
+auto TEST(ByRefTest, ConstValue)
+->
+  {
   const int n = 0;
   // int& ref = ByRef(n);  // This shouldn't compile - we have a
                            // negative compilation test to catch it.
@@ -1241,7 +1612,9 @@ TEST(ByRefTest, ConstValue) {
 }
 
 // Tests using ByRef() on a non-const value.
-TEST(ByRefTest, NonConstValue) {
+auto TEST(ByRefTest, NonConstValue)
+->
+  {
   int n = 0;
 
   // ByRef(n) can be used as either an int&,
@@ -1254,7 +1627,9 @@ TEST(ByRefTest, NonConstValue) {
 }
 
 // Tests explicitly specifying the type when using ByRef().
-TEST(ByRefTest, ExplicitType) {
+auto TEST(ByRefTest, ExplicitType)
+->
+  {
   int n = 0;
   const int& r1 = ByRef<const int>(n);
   EXPECT_EQ(&n, &r1);
@@ -1283,28 +1658,36 @@ TEST(ByRefTest, ExplicitType) {
 }
 
 // Tests that Google Mock prints expression ByRef(x) as a reference to x.
-TEST(ByRefTest, PrintsCorrectly) {
+auto TEST(ByRefTest, PrintsCorrectly)
+->
+  {
   int n = 42;
-  ::std::stringstream expected, actual;
+  std::stringstream expected, actual;
   testing::internal::UniversalPrinter<const int&>::Print(n, &expected);
   testing::internal::UniversalPrint(ByRef(n), &actual);
   EXPECT_EQ(expected.str(), actual.str());
 }
 
 struct UnaryConstructorClass {
-  explicit UnaryConstructorClass(int v) : value(v) {}
+  explicit UnaryConstructorClass(int v)
+    : value(v) {}
+
   int value;
 };
 
 // Tests using ReturnNew() with a unary constructor.
-TEST(ReturnNewTest, Unary) {
+auto TEST(ReturnNewTest, Unary)
+->
+  {
   Action<UnaryConstructorClass*()> a = ReturnNew<UnaryConstructorClass>(4000);
   UnaryConstructorClass* c = a.Perform(std::make_tuple());
   EXPECT_EQ(4000, c->value);
   delete c;
 }
 
-TEST(ReturnNewTest, UnaryWorksWhenMockMethodHasArgs) {
+auto TEST(ReturnNewTest, UnaryWorksWhenMockMethodHasArgs)
+->
+  {
   Action<UnaryConstructorClass*(bool, int)> a =
       ReturnNew<UnaryConstructorClass>(4000);
   UnaryConstructorClass* c = a.Perform(std::make_tuple(false, 5));
@@ -1312,7 +1695,9 @@ TEST(ReturnNewTest, UnaryWorksWhenMockMethodHasArgs) {
   delete c;
 }
 
-TEST(ReturnNewTest, UnaryWorksWhenMockMethodReturnsPointerToConst) {
+auto TEST(ReturnNewTest, UnaryWorksWhenMockMethodReturnsPointerToConst)
+->
+  {
   Action<const UnaryConstructorClass*()> a =
       ReturnNew<UnaryConstructorClass>(4000);
   const UnaryConstructorClass* c = a.Perform(std::make_tuple());
@@ -1321,15 +1706,18 @@ TEST(ReturnNewTest, UnaryWorksWhenMockMethodReturnsPointerToConst) {
 }
 
 class TenArgConstructorClass {
- public:
+public:
   TenArgConstructorClass(int a1, int a2, int a3, int a4, int a5, int a6, int a7,
                          int a8, int a9, int a10)
-      : value_(a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10) {}
+    : value_(a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10) {}
+
   int value_;
 };
 
 // Tests using ReturnNew() with a 10-argument constructor.
-TEST(ReturnNewTest, ConstructorThatTakes10Arguments) {
+auto TEST(ReturnNewTest, ConstructorThatTakes10Arguments)
+->
+  {
   Action<TenArgConstructorClass*()> a = ReturnNew<TenArgConstructorClass>(
       1000000000, 200000000, 30000000, 4000000, 500000, 60000, 7000, 800, 90,
       0);
@@ -1338,27 +1726,29 @@ TEST(ReturnNewTest, ConstructorThatTakes10Arguments) {
   delete c;
 }
 
-std::unique_ptr<int> UniquePtrSource() {
-  return std::unique_ptr<int>(new int(19));
+auto UniquePtrSource() -> std::unique_ptr<int> {
+  return std::make_unique<int>(19);
 }
 
-std::vector<std::unique_ptr<int>> VectorUniquePtrSource() {
+auto VectorUniquePtrSource() -> std::vector<std::unique_ptr<int>> {
   std::vector<std::unique_ptr<int>> out;
   out.emplace_back(new int(7));
   return out;
 }
 
-TEST(MockMethodTest, CanReturnMoveOnlyValue_Return) {
+auto TEST(MockMethodTest, CanReturnMoveOnlyValue_Return)
+->
+  {
   MockClass mock;
   std::unique_ptr<int> i(new int(19));
   EXPECT_CALL(mock, MakeUnique()).WillOnce(Return(ByMove(std::move(i))));
   EXPECT_CALL(mock, MakeVectorUnique())
       .WillOnce(Return(ByMove(VectorUniquePtrSource())));
-  Derived* d = new Derived;
+  auto d = new Derived;
   EXPECT_CALL(mock, MakeUniqueBase())
       .WillOnce(Return(ByMove(std::unique_ptr<Derived>(d))));
 
-  std::unique_ptr<int> result1 = mock.MakeUnique();
+  const std::unique_ptr<int> result1 = mock.MakeUnique();
   EXPECT_EQ(19, *result1);
 
   std::vector<std::unique_ptr<int>> vresult = mock.MakeVectorUnique();
@@ -1366,11 +1756,13 @@ TEST(MockMethodTest, CanReturnMoveOnlyValue_Return) {
   EXPECT_NE(nullptr, vresult[0]);
   EXPECT_EQ(7, *vresult[0]);
 
-  std::unique_ptr<Base> result2 = mock.MakeUniqueBase();
+  const std::unique_ptr<Base> result2 = mock.MakeUniqueBase();
   EXPECT_EQ(d, result2.get());
 }
 
-TEST(MockMethodTest, CanReturnMoveOnlyValue_DoAllReturn) {
+auto TEST(MockMethodTest, CanReturnMoveOnlyValue_DoAllReturn)
+->
+  {
   testing::MockFunction<void()> mock_function;
   MockClass mock;
   std::unique_ptr<int> i(new int(19));
@@ -1379,16 +1771,18 @@ TEST(MockMethodTest, CanReturnMoveOnlyValue_DoAllReturn) {
       InvokeWithoutArgs(&mock_function, &testing::MockFunction<void()>::Call),
       Return(ByMove(std::move(i)))));
 
-  std::unique_ptr<int> result1 = mock.MakeUnique();
+  const std::unique_ptr<int> result1 = mock.MakeUnique();
   EXPECT_EQ(19, *result1);
 }
 
-TEST(MockMethodTest, CanReturnMoveOnlyValue_Invoke) {
+auto TEST(MockMethodTest, CanReturnMoveOnlyValue_Invoke)
+->
+  {
   MockClass mock;
 
   // Check default value
   DefaultValue<std::unique_ptr<int>>::SetFactory([] {
-    return std::unique_ptr<int>(new int(42));
+    return std::make_unique<int>(42);
   });
   EXPECT_EQ(42, *mock.MakeUnique());
 
@@ -1407,9 +1801,11 @@ TEST(MockMethodTest, CanReturnMoveOnlyValue_Invoke) {
   EXPECT_EQ(7, *vresult[0]);
 }
 
-TEST(MockMethodTest, CanTakeMoveOnlyValue) {
+auto TEST(MockMethodTest, CanTakeMoveOnlyValue)
+->
+  {
   MockClass mock;
-  auto make = [](int i) { return std::unique_ptr<int>(new int(i)); };
+  auto make = [](int i) { return std::make_unique<int>(i); };
 
   EXPECT_CALL(mock, TakeUnique(_)).WillRepeatedly([](std::unique_ptr<int> i) {
     return *i;
@@ -1452,25 +1848,28 @@ TEST(MockMethodTest, CanTakeMoveOnlyValue) {
 
 // Tests for std::function based action.
 
-int Add(int val, int& ref, int* ptr) {  // NOLINT
-  int result = val + ref + *ptr;
+auto Add(int val, int& ref, int* ptr) -> int {
+  // NOLINT
+  const int result = val + ref + *ptr;
   ref = 42;
   *ptr = 43;
   return result;
 }
 
-int Deref(std::unique_ptr<int> ptr) { return *ptr; }
+auto Deref(std::unique_ptr<int> ptr) -> int { return *ptr; }
 
 struct Double {
   template <typename T>
-  T operator()(T t) { return 2 * t; }
+  auto operator()(T t) -> T { return 2 * t; }
 };
 
-std::unique_ptr<int> UniqueInt(int i) {
-  return std::unique_ptr<int>(new int(i));
+auto UniqueInt(int i) -> std::unique_ptr<int> {
+  return std::make_unique<int>(i);
 }
 
-TEST(FunctorActionTest, ActionFromFunction) {
+auto TEST(FunctorActionTest, ActionFromFunction)
+->
+  {
   Action<int(int, int&, int*)> a = &Add;
   int x = 1, y = 2, z = 3;
   EXPECT_EQ(6, a.Perform(std::forward_as_tuple(x, y, &z)));
@@ -1481,7 +1880,9 @@ TEST(FunctorActionTest, ActionFromFunction) {
   EXPECT_EQ(7, a1.Perform(std::make_tuple(UniqueInt(7))));
 }
 
-TEST(FunctorActionTest, ActionFromLambda) {
+auto TEST(FunctorActionTest, ActionFromLambda)
+->
+  {
   Action<int(bool, int)> a1 = [](bool b, int i) { return b ? i : 0; };
   EXPECT_EQ(5, a1.Perform(std::make_tuple(true, 5)));
   EXPECT_EQ(0, a1.Perform(std::make_tuple(false, 5)));
@@ -1494,14 +1895,18 @@ TEST(FunctorActionTest, ActionFromLambda) {
   EXPECT_EQ(5, *saved);
 }
 
-TEST(FunctorActionTest, PolymorphicFunctor) {
+auto TEST(FunctorActionTest, PolymorphicFunctor)
+->
+  {
   Action<int(int)> ai = Double();
   EXPECT_EQ(2, ai.Perform(std::make_tuple(1)));
   Action<double(double)> ad = Double();  // Double? Double double!
   EXPECT_EQ(3.0, ad.Perform(std::make_tuple(1.5)));
 }
 
-TEST(FunctorActionTest, TypeConversion) {
+auto TEST(FunctorActionTest, TypeConversion)
+->
+  {
   // Numeric promotions are allowed.
   const Action<bool(int)> a1 = [](int i) { return i > 1; };
   const Action<int(bool)> a2 = Action<int(bool)>(a1);
@@ -1530,7 +1935,9 @@ TEST(FunctorActionTest, TypeConversion) {
   Action<void(int)>(nullptr);
 }
 
-TEST(FunctorActionTest, UnusedArguments) {
+auto TEST(FunctorActionTest, UnusedArguments)
+->
+  {
   // Verify that users can ignore uninteresting arguments.
   Action<int(int, double y, double z)> a =
       [](int i, Unused, Unused) { return 2 * i; };
@@ -1539,7 +1946,9 @@ TEST(FunctorActionTest, UnusedArguments) {
 }
 
 // Test that basic built-in actions work with move-only arguments.
-TEST(MoveOnlyArgumentsTest, ReturningActions) {
+auto TEST(MoveOnlyArgumentsTest, ReturningActions)
+->
+  {
   Action<int(std::unique_ptr<int>)> a = Return(1);
   EXPECT_EQ(1, a.Perform(std::make_tuple(nullptr)));
 
@@ -1552,11 +1961,13 @@ TEST(MoveOnlyArgumentsTest, ReturningActions) {
   EXPECT_EQ(x, 3);
 }
 
-ACTION(ReturnArity) {
+ACTION (ReturnArity) {
   return std::tuple_size<args_type>::value;
 }
 
-TEST(ActionMacro, LargeArity) {
+auto TEST(ActionMacro, LargeArity)
+->
+  {
   EXPECT_EQ(
       1, testing::Action<int(int)>(ReturnArity()).Perform(std::make_tuple(0)));
   EXPECT_EQ(
@@ -1573,11 +1984,10 @@ TEST(ActionMacro, LargeArity) {
                                    14, 15, 16, 17, 18, 19)));
 }
 
-}  // Unnamed namespace
+} // Unnamed namespace
 
 #ifdef _MSC_VER
 #if _MSC_VER == 1900
 #  pragma warning(pop)
 #endif
 #endif
-

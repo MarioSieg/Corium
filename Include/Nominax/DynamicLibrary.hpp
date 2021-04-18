@@ -1,6 +1,6 @@
 // File: DynamicLibrary.hpp
 // Author: Mario
-// Created: 12.04.2021.09:54
+// Created: 12.04.2021 09:54
 // Project: NominaxRuntime
 // 
 //                                  Apache License
