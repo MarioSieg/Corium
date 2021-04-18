@@ -434,8 +434,8 @@ namespace Nominax
 	/// <returns>true on success, else false.</returns>
 	[[maybe_unused]]
 	[[nodiscard]]
-	static constexpr auto MapJumpTable(Signal* __restrict__ bucket, const Signal* const __restrict__ bucketEnd, const bool* instructionMap,
-	                  const void* __restrict__ const* __restrict__ const jumpTable) -> bool
+	static constexpr auto MapJumpTable(Signal* __restrict__                               bucket, const Signal* const __restrict__ bucketEnd, const bool* instructionMap,
+	                                   const void* __restrict__ const* __restrict__ const jumpTable) -> bool
 	{
 		if (__builtin_expect(!bucket || !bucketEnd || !instructionMap || !jumpTable || !*jumpTable, 0))
 		{

@@ -208,8 +208,9 @@
 #pragma once
 
 #include <cstdint>
-#include <ostream>
 #include <string_view>
+
+#include "Logger.hpp"
 
 namespace Nominax
 {
@@ -228,7 +229,7 @@ namespace Nominax
 		.Revision = 0,
 	};
 
-	inline auto operator <<(std::ostream& out, const Version version) -> std::ostream&
+	inline auto operator <<(Logger& out, const Version version) -> Logger&
 	{
 		return out << static_cast<std::uint16_t>(version.Major) << '.' << static_cast<std::uint16_t>(version.Minor) <<
 			'.' << static_cast<std::uint16_t>(version.Build) << '.' << static_cast<std::uint16_t>(version.Revision);

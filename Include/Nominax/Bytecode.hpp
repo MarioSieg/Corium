@@ -787,7 +787,7 @@ namespace Nominax
 			InstructionImmediateArgumentType::CustomIntrinsicId
 		},
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
-			InstructionImmediateArgumentType::I64OrU64OrF64
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
@@ -1288,6 +1288,26 @@ namespace Nominax
 				                  return Signal {value};
 			                  },
 		                  }, this->DataCollection);
+	}
+
+	constexpr auto operator""_u_dysig(const unsigned long long int value) noexcept -> DynamicSignal
+	{
+		return DynamicSignal {static_cast<std::uint64_t>(value)};
+	}
+
+	constexpr auto operator""_i_dysig(const unsigned long long int value) noexcept -> DynamicSignal
+	{
+		return DynamicSignal {static_cast<std::int64_t>(value)};
+	}
+
+	constexpr auto operator""_f_dysig(const long double value) noexcept -> DynamicSignal
+	{
+		return DynamicSignal {static_cast<double>(value)};
+	}
+
+	constexpr auto operator""_c_dysig(const unsigned long long int value) noexcept -> DynamicSignal
+	{
+		return DynamicSignal {static_cast<char32_t>(value)};
 	}
 
 	/// <summary>

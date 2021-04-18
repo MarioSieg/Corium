@@ -1,6 +1,6 @@
-// File: Bytecode.cpp
+// File: Logger.hpp
 // Author: Mario
-// Created: 18.04.2021 14:46
+// Created: 18.04.2021 17:58
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,111 +205,51 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/ByteCode.hpp"
+#pragma once
+
+#include <sstream>
 
 namespace Nominax
 {
-	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
+	class Logger final
 	{
-		if (input.size() != output.size())
-		[[unlikely]]
-		{
-			return false;
-		}
+		std::stringstream Stream { };
 
-		auto       iterator {input.begin()};
-		const auto end {input.end()};
+	public:
+		inline static constinit bool             EnableLogging {true};
+		inline static constexpr std::string_view FORMAT_STRING {"[%d.%m.%Y %H:%M:%S] "};
 
-		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
-		[[likely]]
-		{
-			*flag = iterator->Contains<Instruction>();
-		}
+		auto Flush() const -> void;
+		auto Clear() -> void;
+		auto TimeStamp() -> Logger&;
+		auto Separator() -> Logger&;
+		auto operator <<(std::string_view message) -> Logger&;
+		auto operator <<(unsigned char value) -> Logger&;
+		auto operator <<(signed char value) -> Logger&;
+		auto operator <<(char value) -> Logger&;
+		auto operator <<(wchar_t value) -> Logger&;
+		auto operator <<(char16_t value) -> Logger&;
+		auto operator <<(char32_t value) -> Logger&;
+		auto operator <<(unsigned short int value) -> Logger&;
+		auto operator <<(signed short int value) -> Logger&;
+		auto operator <<(unsigned int value) -> Logger&;
+		auto operator <<(signed int value) -> Logger&;
+		auto operator <<(unsigned long int value) -> Logger&;
+		auto operator <<(signed long int value) -> Logger&;
+		auto operator <<(unsigned long long int value) -> Logger&;
+		auto operator <<(signed long long int value) -> Logger&;
+		auto operator <<(float value) -> Logger&;
+		auto operator <<(double value) -> Logger&;
+		auto operator <<(long double value) -> Logger&;
+		auto operator <<(void* value) -> Logger&;
+		auto operator <<(const char* value) -> Logger&;
+		auto operator <<(bool value) -> Logger&;
 
-		return true;
-	}
-
-	auto ByteCodeValidateSingleInstruction(const Instruction instruction, const std::span<const DynamicSignal> args) -> ByteCodeValidationResult
-	{
-		const auto         instructionIndex = static_cast<std::size_t>(instruction);
-		const std::uint8_t requiredArgCount = INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[instructionIndex];
-
-		// check if the instruction does not need any immediate arguments:
-		if (args.empty() && requiredArgCount == 0)
-		[[likely]]
-		{
-			return ByteCodeValidationResult::Ok;
-		}
-
-
-		// check if we submitted not enough arguments:
-		if (args.size() < requiredArgCount)
-		[[unlikely]]
-		{
-			return ByteCodeValidationResult::NotEnoughArguments;
-		}
-
-		// check if we submitted too many arguments:
-		if (args.size() > requiredArgCount)
-		[[unlikely]]
-		{
-			return ByteCodeValidationResult::TooManyArguments;
-		}
-
-		// fetch the type table:
-		const std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>& type_table =
-			INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[instructionIndex];
-
-		// this loop checks each submitted operand type with the required operand type.
-		for (std::size_t i = 0; i < args.size(); ++i)
-		[[likely]]
-		{
-			// submitted operand:
-			const DynamicSignal& arg = args[i];
-
-			// required operand type:
-			const InstructionImmediateArgumentType requiredType = type_table[i];
-
-			// true if the data types are equal, else false
-			bool correctType;
-
-			switch (requiredType)
-			{
-			case InstructionImmediateArgumentType::I64:
-				correctType = arg.Contains<std::int64_t>();
-				break;
-			case InstructionImmediateArgumentType::U64:
-			case InstructionImmediateArgumentType::RelativeJumpAddress64:
-			case InstructionImmediateArgumentType::AbsoluteJumpAddress64:
-				correctType = arg.Contains<std::uint64_t>();
-				break;
-			case InstructionImmediateArgumentType::SystemIntrinsicId:
-				correctType = arg.Contains<SystemIntrinsicCallId>();
-				break;
-			case InstructionImmediateArgumentType::CustomIntrinsicId:
-				correctType = arg.Contains<CustomIntrinsicCallId>();
-				break;
-			case InstructionImmediateArgumentType::F64:
-				correctType = arg.Contains<double>();
-				break;
-			case InstructionImmediateArgumentType::I64OrU64:
-				correctType = arg.Contains<std::int64_t>() || arg.Contains<std::uint64_t>();
-				break;
-			case InstructionImmediateArgumentType::I64OrU64OrF64:
-				correctType = arg.Contains<std::int64_t>() || arg.Contains<std::uint64_t>() || arg.Contains<double>();
-				break;
-			default:
-				correctType = false;
-			}
-
-			// if the types where not equal, return error:
-			if (!correctType)
-			[[unlikely]]
-			{
-				return ByteCodeValidationResult::InvalidOperandType;
-			}
-		}
-
-		return ByteCodeValidationResult::Ok;
-	}
+		Logger() noexcept                         = default;
+		Logger(const Logger&)                     = delete;
+		Logger(Logger&&)                          = default;
+		auto operator =(const Logger&) -> Logger& = delete;
+		auto operator =(Logger&&) -> Logger&      = default;
+		~Logger()                                 = default;
+	};
 }

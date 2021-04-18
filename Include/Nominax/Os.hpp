@@ -210,6 +210,8 @@
 #include <cstddef>
 #include <string_view>
 
+#include "Platform.hpp"
+
 namespace Nominax::Os
 {
 	[[nodiscard]]
@@ -228,4 +230,17 @@ namespace Nominax::Os
 	extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
 
 	extern auto DylibClose(void*& handle) -> void;
+
+	struct SystemInfo final
+	{
+		std::string_view OperatingSystemName {NOMINAX_OS_NAME};
+		std::string_view ArchitectureName {NOMINAX_ARCH_NAME};
+		std::string_view CompilerName {NOMINAX_COM_NAME};
+		std::size_t      ThreadCount { };
+		std::string      CpuName { };
+		std::size_t      TotalSystemMemory { };
+		std::size_t      UsedSystemMemory { };
+
+		auto QueryAll() -> void;
+	};
 }

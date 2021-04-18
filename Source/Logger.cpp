@@ -1,6 +1,6 @@
-// File: Bytecode.cpp
+// File: Logger.cpp
 // Author: Mario
-// Created: 18.04.2021 14:46
+// Created: 18.04.2021 17:58
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,111 +205,160 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/ByteCode.hpp"
+#include "../Include/Nominax/Logger.hpp"
+
+#include <iomanip>
+
+#include "../Include/Nominax/Utility.hpp"
+
+#include <iostream>
 
 namespace Nominax
 {
-	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
+	auto Logger::Flush() const -> void
 	{
-		if (input.size() != output.size())
+		if (EnableLogging)
 		[[unlikely]]
 		{
-			return false;
+			std::cout << this->Stream.str();
 		}
-
-		auto       iterator {input.begin()};
-		const auto end {input.end()};
-
-		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
-		[[likely]]
-		{
-			*flag = iterator->Contains<Instruction>();
-		}
-
-		return true;
 	}
 
-	auto ByteCodeValidateSingleInstruction(const Instruction instruction, const std::span<const DynamicSignal> args) -> ByteCodeValidationResult
+	auto Logger::Clear() -> void
 	{
-		const auto         instructionIndex = static_cast<std::size_t>(instruction);
-		const std::uint8_t requiredArgCount = INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[instructionIndex];
+		this->Stream.clear();
+	}
 
-		// check if the instruction does not need any immediate arguments:
-		if (args.empty() && requiredArgCount == 0)
-		[[likely]]
-		{
-			return ByteCodeValidationResult::Ok;
-		}
+	auto Logger::TimeStamp() -> Logger&
+	{
+		const auto tm = SafeLocalTime(std::time(nullptr));
+		this->Stream << std::put_time(&tm, FORMAT_STRING.data());
+		return *this;
+	}
 
+	auto Logger::Separator() -> Logger&
+	{
+		this->Stream << "================================================================\n";
+		return *this;
+	}
 
-		// check if we submitted not enough arguments:
-		if (args.size() < requiredArgCount)
-		[[unlikely]]
-		{
-			return ByteCodeValidationResult::NotEnoughArguments;
-		}
+	auto Logger::operator<<(const std::string_view message) -> Logger&
+	{
+		this->Stream << message;
+		return *this;
+	}
 
-		// check if we submitted too many arguments:
-		if (args.size() > requiredArgCount)
-		[[unlikely]]
-		{
-			return ByteCodeValidationResult::TooManyArguments;
-		}
+	auto Logger::operator<<(const unsigned char value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
 
-		// fetch the type table:
-		const std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>& type_table =
-			INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[instructionIndex];
+	auto Logger::operator<<(const signed char value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
 
-		// this loop checks each submitted operand type with the required operand type.
-		for (std::size_t i = 0; i < args.size(); ++i)
-		[[likely]]
-		{
-			// submitted operand:
-			const DynamicSignal& arg = args[i];
+	auto Logger::operator<<(const char value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
 
-			// required operand type:
-			const InstructionImmediateArgumentType requiredType = type_table[i];
+	auto Logger::operator<<(const wchar_t value) -> Logger&
+	{
+		this->Stream << static_cast<std::uint32_t>(value);
+		return *this;
+	}
 
-			// true if the data types are equal, else false
-			bool correctType;
+	auto Logger::operator<<(const char16_t value) -> Logger&
+	{
+		this->Stream << static_cast<std::uint16_t>(value);
+		return *this;
+	}
 
-			switch (requiredType)
-			{
-			case InstructionImmediateArgumentType::I64:
-				correctType = arg.Contains<std::int64_t>();
-				break;
-			case InstructionImmediateArgumentType::U64:
-			case InstructionImmediateArgumentType::RelativeJumpAddress64:
-			case InstructionImmediateArgumentType::AbsoluteJumpAddress64:
-				correctType = arg.Contains<std::uint64_t>();
-				break;
-			case InstructionImmediateArgumentType::SystemIntrinsicId:
-				correctType = arg.Contains<SystemIntrinsicCallId>();
-				break;
-			case InstructionImmediateArgumentType::CustomIntrinsicId:
-				correctType = arg.Contains<CustomIntrinsicCallId>();
-				break;
-			case InstructionImmediateArgumentType::F64:
-				correctType = arg.Contains<double>();
-				break;
-			case InstructionImmediateArgumentType::I64OrU64:
-				correctType = arg.Contains<std::int64_t>() || arg.Contains<std::uint64_t>();
-				break;
-			case InstructionImmediateArgumentType::I64OrU64OrF64:
-				correctType = arg.Contains<std::int64_t>() || arg.Contains<std::uint64_t>() || arg.Contains<double>();
-				break;
-			default:
-				correctType = false;
-			}
+	auto Logger::operator<<(const char32_t value) -> Logger&
+	{
+		this->Stream << static_cast<std::uint32_t>(value);
+		return *this;
+	}
 
-			// if the types where not equal, return error:
-			if (!correctType)
-			[[unlikely]]
-			{
-				return ByteCodeValidationResult::InvalidOperandType;
-			}
-		}
+	auto Logger::operator<<(const unsigned short value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
 
-		return ByteCodeValidationResult::Ok;
+	auto Logger::operator<<(const short value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
+
+	auto Logger::operator<<(const unsigned value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
+
+	auto Logger::operator<<(const int value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
+
+	auto Logger::operator<<(const unsigned long value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
+
+	auto Logger::operator<<(const long value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
+
+	auto Logger::operator<<(const unsigned long long value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
+
+	auto Logger::operator<<(const long long value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
+
+	auto Logger::operator<<(const float value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
+
+	auto Logger::operator<<(const double value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
+
+	auto Logger::operator<<(const long double value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
+
+	auto Logger::operator<<(const char* const value) -> Logger&
+	{
+		this->Stream << value;
+		return *this;
+	}
+
+	auto Logger::operator<<(const bool value) -> Logger&
+	{
+		this->Stream << (value ? "true" : "false");
+		return *this;
 	}
 }

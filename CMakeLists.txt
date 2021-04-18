@@ -108,7 +108,7 @@ add_library("NominaxRuntime" STATIC
     "Source/OsDarwin.cpp"
     "Source/Interrupts.cpp"  
     "Source/Environment.cpp"
-    "Source/Bytecode.cpp")
+    "Source/Bytecode.cpp" "Source/Os.cpp" "Include/Nominax/Logger.hpp" "Source/Logger.cpp" "Source/Utility.cpp")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries("NominaxRuntime" "dl")
@@ -119,11 +119,11 @@ target_link_libraries("Nominax" "NominaxRuntime")
 
 # test executable:
 if(NOMINAX_BUILD_UNIT_TESTS)
-    file(GLOB "TEST_Source_FILES" "tst/*.cpp")
-    add_subdirectory("tst/googletest/")
+    file(GLOB "TEST_Source_FILES" "Tests/*.cpp")
+    add_subdirectory("Tests/googletest/")
     add_executable("NominaxUnitTests" ${TEST_Source_FILES})
     add_test(NAME "NominaxUnitTests" COMMAND "NominaxUnitTests")
-    target_include_directories("NominaxUnitTests" PUBLIC "tst/googletest/googletest/Includelude/gtest")
+    target_include_directories("NominaxUnitTests" PUBLIC "Tests/googletest/googletest/Includelude/gtest")
     target_link_libraries("NominaxUnitTests" "NominaxRuntime" "gtest")
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         target_link_libraries("NominaxUnitTests" "pthread")
@@ -132,10 +132,10 @@ endif()
 
 # benchmark executable:
 if(NOMINAX_BUILD_BENCHMARKS)
-    file(GLOB "TEST_Source_FILES" "bch/*.cpp")
-    add_subdirectory("bch/googlebench/")
+    file(GLOB "TEST_Source_FILES" "Benchmarks/*.cpp")
+    add_subdirectory("Benchmarks/googlebench/")
     add_executable("NominaxBenchmark" ${TEST_Source_FILES})
-    target_include_directories("NominaxBenchmark" PUBLIC "bch/googlebench/Includelude/benchmark")
+    target_include_directories("NominaxBenchmark" PUBLIC "Benchmarks/googlebench/Includelude/benchmark")
     target_link_libraries("NominaxBenchmark" "benchmark::benchmark" "NominaxRuntime")
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         target_link_libraries("benchmark" "pthread")

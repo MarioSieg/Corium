@@ -207,25 +207,30 @@
 
 #pragma once
 
+#include <algorithm>
+#include <ctime>
 #include <cstddef>
 
 namespace Nominax
 {
 	[[nodiscard]]
-	constexpr auto Bytes2Gigabytes(const std::size_t bytes) noexcept -> std::size_t
+	constexpr auto Bytes2Gigabytes(std::size_t bytes) noexcept -> std::size_t
 	{
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
 		return bytes / 1024 / 1024 / 1024;
 	}
 
 	[[nodiscard]]
-	constexpr auto Bytes2Megabytes(const std::size_t bytes) noexcept -> std::size_t
+	constexpr auto Bytes2Megabytes(std::size_t bytes) noexcept -> std::size_t
 	{
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
 		return bytes / 1024 / 1024;
 	}
 
 	[[nodiscard]]
-	constexpr auto Bytes2Kilobytes(const std::size_t bytes) noexcept -> std::size_t
+	constexpr auto Bytes2Kilobytes(std::size_t bytes) noexcept -> std::size_t
 	{
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
 		return bytes / 1024;
 	}
 
@@ -261,4 +266,7 @@ namespace Nominax
 	{
 		return value * 1024 * 1024 * 1024;
 	}
+
+	[[nodiscard]]
+	extern auto SafeLocalTime(const std::time_t& time) -> std::tm;
 }
