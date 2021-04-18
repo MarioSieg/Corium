@@ -108,7 +108,7 @@ add_library("NominaxRuntime" STATIC
     "Source/OsDarwin.cpp"
     "Source/Interrupts.cpp"  
     "Source/Environment.cpp"
-    "Source/Bytecode.cpp" "Source/Os.cpp" "Include/Nominax/Logger.hpp" "Source/Logger.cpp" "Source/Utility.cpp")
+    "Source/Bytecode.cpp" "Source/Os.cpp" "Include/Nominax/Logger.hpp" "Source/Logger.cpp" "Source/Utility.cpp" "Source/Utf32String.cpp")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries("NominaxRuntime" "dl")
