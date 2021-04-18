@@ -432,6 +432,7 @@ namespace Nominax
 	/// <param name="instructionMap">The instruction map. Must have the same size as the byte code bucket.</param>
 	/// <param name="jumpTable">The jump table. Must contain an address for each instruction.</param>
 	/// <returns>true on success, else false.</returns>
+	[[maybe_unused]]
 	[[nodiscard]]
 	static constexpr auto MapJumpTable(Signal* __restrict__ bucket, const Signal* const __restrict__ bucketEnd, const bool* instructionMap,
 	                  const void* __restrict__ const* __restrict__ const jumpTable) -> bool
