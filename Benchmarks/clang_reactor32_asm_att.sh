@@ -1,0 +1,1 @@
+clang -m32 ../Source/Reactor.cpp -std=c++20 -c -S -o reactor.asm -fverbose-asm -Ofast  -Wno-unknown-attributes -Wall -Wextra

@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
-project("nominax" CXX ASM)
+project("Nominax" CXX ASM)
 
 message("Initializing Nominax SDK")
 
@@ -87,56 +87,60 @@ else()
     message(FATAL_ERROR, "Unknown compiler! Use G++/Clang!")
 endif()
 
-add_library("libnominax" STATIC
-	"inc/nominax/platform.hpp"
-	"inc/nominax/reactor.hpp"
-    "inc/nominax/bytecode.hpp"
-    "src/reactor.cpp"
-	"inc/nominax/record.hpp" 
-	"inc/nominax/macrocfg.hpp" 
-	"inc/nominax/runtime.hpp"
-    "inc/nominax/interrupts.hpp"
-    "inc/nominax/info.hpp"
-    "inc/nominax/os.hpp"
-    "src/os_windows.cpp"
-    "src/os_linux.cpp"
-    "src/os_android.cpp"
-    "src/os_darwin.cpp"
-    "inc/nominax/memunits.hpp"
-    "inc/nominax/dll.hpp"
-    "inc/nominax/sysintrin.hpp"
-    "inc/nominax/idb.hpp" 
-    "src/interrupts.cpp" 
-    "inc/nominax/validator.hpp"
-    "src/validator.cpp" "inc/nominax/environment.hpp" "src/environment.cpp")
+add_library("NominaxRuntime" STATIC
+    "Include/Nominax/Platform.hpp"
+    "Include/Nominax/Reactor.hpp"
+    "Include/Nominax/ByteCode.hpp"
+    "Include/Nominax/Record.hpp" 
+    "Include/Nominax/MacroCfg.hpp" 	
+    "Include/Nominax/Interrupts.hpp"
+    "Include/Nominax/Info.hpp"
+    "Include/Nominax/OS.hpp"
+    "Include/Nominax/Utility.hpp"
+    "Include/Nominax/DynamicLibrary.hpp"
+    "Include/Nominax/Nominax.hpp" 
+    "Include/Nominax/Environment.hpp" 
+    "Include/Nominax/FormatTable.hpp" 
+    "Include/Nominax/Object.hpp"
+
+    "Source/Reactor.cpp"
+    "Source/OsWindows.cpp"
+    "Source/OsLinux.cpp"
+    "Source/OsAndroid.cpp"
+    "Source/OsDarwin.cpp"
+    "Source/Interrupts.cpp"  
+    "Source/Environment.cpp"
+    "Source/Bytecode.cpp" 
+    "Source/Os.cpp" 
+    "Source/Utility.cpp")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_link_libraries("libnominax" "dl")
+    target_link_libraries("NominaxRuntime" "dl")
 endif()
 
-add_executable("nominax" "src/main.cpp")
-target_link_libraries("nominax" "libnominax")
+add_executable("Nominax" "Source/main.cpp")
+target_link_libraries("Nominax" "NominaxRuntime")
 
 # test executable:
 if(NOMINAX_BUILD_UNIT_TESTS)
-    file(GLOB "TEST_SRC_FILES" "tst/*.cpp")
-    add_subdirectory("tst/googletest/")
-    add_executable("nominax_unit_tests" ${TEST_SRC_FILES})
-    add_test(NAME "nominax_unit_tests" COMMAND "nominax_unit_tests")
-    target_include_directories("nominax_unit_tests" PUBLIC "tst/googletest/googletest/include/gtest")
-    target_link_libraries("nominax_unit_tests" "libnominax" "gtest")
+    file(GLOB "TEST_SOURCE_FILES" "Tests/*.cpp")
+    add_subdirectory("Tests/googletest/")
+    add_executable("NominaxUnitTests" ${TEST_SOURCE_FILES})
+    add_test(NAME "NominaxUnitTests" COMMAND "NominaxUnitTests")
+    target_include_directories("NominaxUnitTests" PUBLIC "Tests/googletest/googletest/include/gtest")
+    target_link_libraries("NominaxUnitTests" "NominaxRuntime" "gtest")
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        target_link_libraries("nominax_unit_tests" "pthread")
+        target_link_libraries("NominaxUnitTests" "pthread")
     endif()
 endif()
 
 # benchmark executable:
 if(NOMINAX_BUILD_BENCHMARKS)
-    file(GLOB "TEST_SRC_FILES" "bch/*.cpp")
-    add_subdirectory("bch/googlebench/")
-    add_executable("nominax_benchmark" ${TEST_SRC_FILES})
-    target_include_directories("nominax_benchmark" PUBLIC "bch/googlebench/include/benchmark")
-    target_link_libraries("nominax_benchmark" "benchmark::benchmark" "libnominax")
+    file(GLOB "TEST_Source_FILES" "Benchmarks/*.cpp")
+    add_subdirectory("Benchmarks/googlebench/")
+    add_executable("NominaxBenchmark" ${TEST_Source_FILES})
+    target_include_directories("NominaxBenchmark" PUBLIC "Benchmarks/googlebench/include/benchmark")
+    target_link_libraries("NominaxBenchmark" "benchmark::benchmark" "NominaxRuntime")
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         target_link_libraries("benchmark" "pthread")
     endif()
