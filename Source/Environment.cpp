@@ -205,57 +205,92 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/Environment.hpp"
-#include "../Include/Nominax/Info.hpp"
-#include "../Include/Nominax/Utility.hpp"
-#include "../Include/Nominax/Os.hpp"
+#include <iostream>
+
+#include "../Include/Nominax/Nominax.hpp"
+
+using std::cout;
+using std::cerr;
+using std::endl;
 
 namespace Nominax
 {
-	auto Environment::PrintInfo() -> void
+	static constexpr auto MachineRating(const std::size_t threads) noexcept -> char
 	{
-		auto&       protocol = this->Protocol;
-		const auto& info     = this->SystemInfo;
+		if (threads <= 2)
+		{
+			return 'F';
+		}
+		if (threads <= 4)
+		{
+			return 'E';
+		}
+		if (threads <= 8)
+		{
+			return 'D';
+		}
+		if (threads <= 16)
+		{
+			return 'C';
+		}
+		if (threads <= 32)
+		{
+			return 'B';
+		}
+		return 'A';
+	}
 
-		protocol.TimeStamp() << "\n";
-		protocol << SYSTEM_LOGO_TEXT;
-		protocol << SYSTEM_COPYRIGHT_TEXT;
-		protocol << "Nominax Version: " << SYSTEM_VERSION << '\n';
-		protocol << "Platform: " NOMINAX_OS_NAME " " NOMINAX_ARCH_SIZE_NAME << '\n';
-		protocol << "Arch: " << NOMINAX_ARCH_NAME << '\n';
-		protocol << "Posix: " << NOMINAX_POSIX << '\n';
-		protocol << "Compiler: " << NOMINAX_COM_NAME " - C++ 20" << '\n';
-		protocol << "CPU: " << info.CpuName << '\n';
-		protocol << "CPU Threads: " << info.ThreadCount << '\n';
-		protocol << "CPU Machine class: ";
+	static auto Separator() -> void
+	{
+		cout << "================================================================\n";
+	}
 
-		if (info.ThreadCount <= 2)
-		{
-			protocol << 'F';
-		}
-		else if (info.ThreadCount <= 4)
-		{
-			protocol << 'E';
-		}
-		else if (info.ThreadCount <= 8)
-		{
-			protocol << 'D';
-		}
-		else if (info.ThreadCount <= 16)
-		{
-			protocol << 'C';
-		}
-		else if (info.ThreadCount <= 32)
-		{
-			protocol << 'B';
-		}
-		else
-		{
-			protocol << 'A';
-		}
-		protocol << '\n';
-		protocol << "Total RAM: " << Bytes2Gigabytes(info.TotalSystemMemory) << " GB\n";
-		protocol << "Self Used RAM: " << Bytes2Megabytes(info.UsedSystemMemory) << " MB\n";
+	auto Environment::PrintVersionInfo() const -> void
+	{
+		cout << SYSTEM_LOGO_TEXT;
+		cout << SYSTEM_COPYRIGHT_TEXT;
+		cout << "Nominax Version: " << SYSTEM_VERSION << '\n';
+		cout << "Platform: " NOMINAX_OS_NAME " " NOMINAX_ARCH_SIZE_NAME << '\n';
+		cout << "Arch: " << NOMINAX_ARCH_NAME << '\n';
+		cout << "Posix: " << std::boolalpha << NOMINAX_POSIX << '\n';
+		cout << "Compiler: " << NOMINAX_COM_NAME " - C++ 20" << '\n';
+	}
+
+	auto Environment::PrintMachineInfo() const -> void
+	{
+		const auto&
+		[
+			OperatingSystemName,
+			ArchitectureName,
+			CompilerName,
+			ThreadCount,
+			CpuName,
+			TotalSystemMemory,
+			UsedSystemMemory,
+			ThreadId
+		] = this->SystemInfo;
+
+		cout << "TID: " << "0x" << std::hex << ThreadId << std::dec << '\n';
+		cout << "CPU: " << CpuName << '\n';
+		cout << "CPU Threads: " << ThreadCount << '\n';
+		cout << "CPU Machine class: " << MachineRating(ThreadCount) << '\n';
+		cout << "Total RAM: " << Bytes2Gigabytes(TotalSystemMemory) << " GB\n";
+		cout << "Self Used RAM: " << Bytes2Megabytes(UsedSystemMemory) << " MB\n";
+	}
+
+	auto Environment::PrintTypeTable() const -> void
+	{
+		VariadicTable<std::string_view, std::size_t, std::size_t> table {{"Type", "Size", "Alignment"}};
+		table.AddRow("Record", sizeof(Record), alignof(Record));
+		table.AddRow("Signal", sizeof(Signal), alignof(Signal));
+		table.AddRow("DynamicSignal", sizeof(DynamicSignal), alignof(DynamicSignal));
+		table.AddRow("void*", sizeof(void*), alignof(void*));
+		table.AddRow("(Runtime) int", sizeof(std::int64_t), alignof(std::int64_t));
+		table.AddRow("(Runtime) uint", sizeof(std::uint64_t), alignof(std::uint64_t));
+		table.AddRow("(Runtime) float", sizeof(double), alignof(double));
+		table.AddRow("(Runtime) char", sizeof(char32_t), alignof(char32_t));
+		table.AddRow("(Runtime) bool", sizeof(bool), alignof(bool));
+		table.Print(cout);
 	}
 
 	auto Environment::BootEnvironment() -> bool
@@ -263,23 +298,24 @@ namespace Nominax
 		try
 		{
 			std::ios_base::sync_with_stdio(false);
+			this->PrintVersionInfo();
+			Separator();
 			this->SystemInfo.QueryAll();
-			this->PrintInfo();
-			this->Protocol.Separator();
-			this->Protocol.TimeStamp() << "Booting runtime system...\n";
-			this->Protocol.Flush();
+			this->PrintMachineInfo();
+			Separator();
+			this->PrintTypeTable();
+			Separator();
+			cout.flush();
 			return true;
 		}
 		catch (const std::exception& ex)
 		{
-			this->Protocol << "[!] Fatal system exception: " << ex.what();
-			this->Protocol.Flush();
+			cerr << "[!] Fatal system exception: " << ex.what() << endl;
 			return false;
 		}
 		catch (...)
 		{
-			this->Protocol << "[!] Unknown system error!" << '\n';
-			this->Protocol.Flush();
+			cerr << "[!] Unknown system error!" << endl;
 			return false;
 		}
 	}

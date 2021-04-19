@@ -210,8 +210,6 @@
 #include <cstdint>
 #include <string_view>
 
-#include "Logger.hpp"
-
 namespace Nominax
 {
 	struct Version final
@@ -222,14 +220,15 @@ namespace Nominax
 		std::uint8_t Revision { };
 	};
 
-	constexpr Version SYSTEM_VERSION {
+	constexpr Version SYSTEM_VERSION
+	{
 		.Major = 0,
-		.Minor = 4,
+		.Minor = 5,
 		.Build = 0,
 		.Revision = 0,
 	};
 
-	inline auto operator <<(Logger& out, const Version version) -> Logger&
+	inline auto operator <<(std::ostream& out, const Version version) -> std::ostream&
 	{
 		return out << static_cast<std::uint16_t>(version.Major) << '.' << static_cast<std::uint16_t>(version.Minor) <<
 			'.' << static_cast<std::uint16_t>(version.Build) << '.' << static_cast<std::uint16_t>(version.Revision);

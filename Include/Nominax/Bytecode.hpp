@@ -369,7 +369,8 @@ namespace Nominax
 	/// <summary>
 	/// Contains all instruction mnemonics.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS {
+	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS
+	{
 		"int",
 		"intrin",
 		"cintrin",
@@ -436,7 +437,8 @@ namespace Nominax
 	/// <summary>
 	/// Contains a short descripion for all instructions.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_DESCRIPTIONS {
+	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_DESCRIPTIONS
+	{
 		"interrupt reactor execution",
 		"call intrinsic system routine",
 		"call custom intrinsic routine",
@@ -503,7 +505,8 @@ namespace Nominax
 	/// <summary>
 	/// Contains the categories of all instructions.
 	/// </summary>
-	constexpr std::array INSTRUCTION_CATEGORIES {
+	constexpr std::array INSTRUCTION_CATEGORIES
+	{
 		InstructionCategory::Control,
 		InstructionCategory::Control,
 		InstructionCategory::Control,
@@ -570,7 +573,8 @@ namespace Nominax
 	/// <summary>
 	/// Contains the amount of stack pushes each instruction will perform.
 	/// </summary>
-	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_PUSH_COUNTS {
+	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_PUSH_COUNTS
+	{
 		0,
 		0,
 		0,
@@ -637,7 +641,8 @@ namespace Nominax
 	/// <summary>
 	/// Contains the amount of stack pops each instruction will perform.
 	/// </summary>
-	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_POP_COUNTS {
+	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_POP_COUNTS
+	{
 		0,
 		0,
 		0,
@@ -704,7 +709,8 @@ namespace Nominax
 	/// <summary>
 	/// Contains the count of required immediate arguments for each instruction.
 	/// </summary>
-	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS {
+	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
+	{
 		1,
 		1,
 		1,
@@ -776,27 +782,35 @@ namespace Nominax
 	/// <summary>
 	/// Contains all immediate argument types for each instruction.
 	/// </summary>
-	constexpr std::array INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES {
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+	constexpr std::array INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
+	{
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::I64OrU64OrF64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::SystemIntrinsicId
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::CustomIntrinsicId
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::RelativeJumpAddress64, InstructionImmediateArgumentType::RelativeJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::RelativeJumpAddress64, InstructionImmediateArgumentType::I64OrU64OrF64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::I64OrU64OrF64
 		},
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
@@ -805,64 +819,84 @@ namespace Nominax
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::RelativeJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
-		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> {
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
 			InstructionImmediateArgumentType::AbsoluteJumpAddress64
 		},
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
@@ -902,7 +936,7 @@ namespace Nominax
 		/// <summary>
 		/// Reinterpret as Record64.
 		/// </summary>
-		Record64 R64;
+		Record R64;
 
 		/// <summary>
 		/// Reinterpret as instruction.
@@ -934,7 +968,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(Record64 value) noexcept;
+		explicit constexpr Signal(Record value) noexcept;
 
 		/// <summary>
 		/// Construct from instruction.
@@ -993,7 +1027,7 @@ namespace Nominax
 		explicit constexpr Signal(char32_t value) noexcept;
 	};
 
-	constexpr Signal::Signal(const Record64 value) noexcept : R64 {value} {}
+	constexpr Signal::Signal(const Record value) noexcept : R64 {value} {}
 	constexpr Signal::Signal(const Instruction value) noexcept : Instr {value} {}
 	constexpr Signal::Signal(const SystemIntrinsicCallId value) noexcept : SystemIntrinId {value} {}
 	constexpr Signal::Signal(const CustomIntrinsicCallId value) noexcept : CustomIntrinId {value} {}
@@ -1052,7 +1086,7 @@ namespace Nominax
 	/// Custom intrinsic routine function prototype.
 	/// Contains the stack pointer as parameter.
 	/// </summary>
-	using IntrinsicRoutine = auto (Record64*) -> bool;
+	using IntrinsicRoutine = auto (Record*) -> bool;
 	static_assert(std::is_function_v<IntrinsicRoutine>);
 
 	/// <summary>
@@ -1075,8 +1109,8 @@ namespace Nominax
 	template <typename... Ts>
 	concept BytecodeElement = requires
 	{
-		requires (sizeof(Ts) + ... + 0) % sizeof(Record32) == 0 || (sizeof(Ts) + ... + 0) % sizeof(Record64) == 0;
-		requires (alignof(Ts) + ... + 0) % alignof(Record32) == 0 || (alignof(Ts) + ... + 0) % alignof(Record64) == 0;
+		requires (sizeof(Ts) + ... + 0) % sizeof(std::int32_t) == 0 || (sizeof(Ts) + ... + 0) % sizeof(std::int64_t) == 0;
+		requires (alignof(Ts) + ... + 0) % alignof(std::int32_t) == 0 || (alignof(Ts) + ... + 0) % alignof(std::int64_t) == 0;
 		requires
 		std::is_same_v<Ts..., Instruction>
 		|| std::is_same_v<Ts..., SystemIntrinsicCallId>

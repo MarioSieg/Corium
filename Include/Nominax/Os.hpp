@@ -209,27 +209,31 @@
 
 #include <cstddef>
 #include <string_view>
+#include <thread>
 
 #include "Platform.hpp"
 
-namespace Nominax::Os
+namespace Nominax
 {
-	[[nodiscard]]
-	extern auto QuerySystemMemoryTotal() -> std::size_t;
+	namespace Os
+	{
+		[[nodiscard]]
+		extern auto QuerySystemMemoryTotal() -> std::size_t;
 
-	[[nodiscard]]
-	extern auto QueryProcessMemoryUsed() -> std::size_t;
+		[[nodiscard]]
+		extern auto QueryProcessMemoryUsed() -> std::size_t;
 
-	[[nodiscard]]
-	extern auto QueryCpuName() -> std::string;
+		[[nodiscard]]
+		extern auto QueryCpuName() -> std::string;
 
-	[[nodiscard]]
-	extern auto DylibOpen(std::string_view filePath) -> void*;
+		[[nodiscard]]
+		extern auto DylibOpen(std::string_view filePath) -> void*;
 
-	[[nodiscard]]
-	extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
+		[[nodiscard]]
+		extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
 
-	extern auto DylibClose(void*& handle) -> void;
+		extern auto DylibClose(void*& handle) -> void;
+	}
 
 	struct SystemInfo final
 	{
@@ -240,6 +244,7 @@ namespace Nominax::Os
 		std::string      CpuName { };
 		std::size_t      TotalSystemMemory { };
 		std::size_t      UsedSystemMemory { };
+		std::thread::id  ThreadId { };
 
 		auto QueryAll() -> void;
 	};

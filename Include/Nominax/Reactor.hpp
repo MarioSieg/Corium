@@ -240,7 +240,7 @@ namespace Nominax
 		IntrinsicRoutine* const*    IntrinsicTable {nullptr};
 		std::size_t                 IntrinsicTableSize {0};
 		InterruptRoutine*           InterruptHandler {nullptr};
-		Record64*                   Stack {nullptr};
+		Record*                     Stack {nullptr};
 		std::size_t                 StackSize {0};
 		void*                       UserData {nullptr};
 

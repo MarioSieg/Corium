@@ -209,13 +209,14 @@
 
 #include "../Include/Nominax/Os.hpp"
 
-namespace Nominax::Os
+namespace Nominax
 {
 	auto SystemInfo::QueryAll() -> void
 	{
 		this->ThreadCount       = std::thread::hardware_concurrency();
-		this->CpuName           = QueryCpuName();
-		this->TotalSystemMemory = QuerySystemMemoryTotal();
-		this->UsedSystemMemory  = QueryProcessMemoryUsed();
+		this->ThreadId          = std::this_thread::get_id();
+		this->CpuName           = Os::QueryCpuName();
+		this->TotalSystemMemory = Os::QuerySystemMemoryTotal();
+		this->UsedSystemMemory  = Os::QueryProcessMemoryUsed();
 	}
 }

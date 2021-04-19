@@ -210,6 +210,7 @@
 #include "ByteCode.hpp"
 #include "DynamicLibrary.hpp"
 #include "Environment.hpp"
+#include "FormatTable.hpp"
 #include "Info.hpp"
 #include "Interrupts.hpp"
 #include "MacroCfg.hpp"

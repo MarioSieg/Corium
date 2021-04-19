@@ -110,9 +110,7 @@ add_library("NominaxRuntime" STATIC
     "Source/Environment.cpp"
     "Source/Bytecode.cpp" 
     "Source/Os.cpp" 
-    "Include/Nominax/Logger.hpp" 
-    "Source/Logger.cpp" 
-    "Source/Utility.cpp")
+    "Source/Utility.cpp" "Include/Nominax/FormatTable.hpp")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries("NominaxRuntime" "dl")

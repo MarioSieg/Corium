@@ -207,10 +207,7 @@
 
 #pragma once
 
-#include <filesystem>
-
 #include "Os.hpp"
-#include "Logger.hpp"
 
 namespace Nominax
 {
@@ -219,10 +216,11 @@ namespace Nominax
 	/// </summary>
 	class Environment
 	{
-		Os::SystemInfo SystemInfo { };
-		Logger         Protocol { };
+		SystemInfo SystemInfo { };
 
-		auto PrintInfo() -> void;
+		auto PrintVersionInfo() const -> void;
+		auto PrintMachineInfo() const -> void;
+		auto PrintTypeTable() const -> void;
 
 	public:
 		Environment() noexcept                                 = default;

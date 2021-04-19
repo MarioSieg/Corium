@@ -387,13 +387,13 @@ TEST(BytecodeValidationSingleInstruction, NoArguments)
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::FDec, args), ByteCodeValidationResult::Ok);
 }
 
-TEST(BytecodeValidationSingleInstruction, OneArgumentI64)
+TEST(BytecodeValidationSingleInstruction, OneArgumentsI64)
 {
 	std::vector args
 	{
 		0_i_dysig
 	};
-	
+
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Int, args), ByteCodeValidationResult::Ok);
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Intrin, args), ByteCodeValidationResult::InvalidOperandType);
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::CIntrin, args), ByteCodeValidationResult::InvalidOperandType);
@@ -428,6 +428,77 @@ TEST(BytecodeValidationSingleInstruction, OneArgumentI64)
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JaeCmpf, args), ByteCodeValidationResult::InvalidOperandType);
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JleCmpi, args), ByteCodeValidationResult::InvalidOperandType);
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JleCmpf, args), ByteCodeValidationResult::InvalidOperandType);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::PushZ, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IPushO, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::FPushO, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IInc, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IDec, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IAdd, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::ISub, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IMul, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IDiv, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IMod, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IAnd, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IOr, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IXor, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::ICom, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IRol, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IRor, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::ISal, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::ISar, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::INeg, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::FAdd, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::FSub, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::FMul, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::FDiv, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::FMod, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::FNeg, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::FInc, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::FDec, args), ByteCodeValidationResult::TooManyArguments);
+}
+
+TEST(BytecodeValidationSingleInstruction, TwoArgumentsI64)
+{
+	std::vector args
+	{
+		0_u_dysig,
+		0_i_dysig
+	};
+
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Int, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Intrin, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::CIntrin, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Call, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Ret, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Mov, args), ByteCodeValidationResult::InvalidOperandType);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Sto, args), ByteCodeValidationResult::Ok);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Push, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Pop, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Pop2, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Dupl, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Dupl2, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Swap, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::NOp, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Jmp, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JmpRel, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Jz, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Jnz, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JoCmpi, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JoCmpf, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JnoCmpi, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JnoCmpf, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JeCmpi, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JeCmpf, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JneCmpi, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JneCmpf, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JaCmpi, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JaCmpf, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JlCmpi, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JlCmpf, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JaeCmpi, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JaeCmpf, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JleCmpi, args), ByteCodeValidationResult::TooManyArguments);
+	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::JleCmpf, args), ByteCodeValidationResult::TooManyArguments);
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::PushZ, args), ByteCodeValidationResult::TooManyArguments);
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::IPushO, args), ByteCodeValidationResult::TooManyArguments);
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::FPushO, args), ByteCodeValidationResult::TooManyArguments);

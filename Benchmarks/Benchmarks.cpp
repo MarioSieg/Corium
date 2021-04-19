@@ -247,11 +247,11 @@ auto Loop1Billion(State& state) -> void
 		return;
 	}
 
-	std::array<Record64, 32> stack = {Record64::Padding()};
+	std::array<Record, 32> stack = {Record::Padding()};
 
 	volatile std::sig_atomic_t sig { };
 	constexpr std::array       intrins {
-		+[](Record64*          ) -> bool { return true; }
+		+[](Record*          ) -> bool { return true; }
 	};
 
 	const ReactorInput input {
@@ -350,11 +350,11 @@ auto Loop5Billion(State& state) -> void
 		return;
 	}
 
-	std::array<Record64, 32> stack = { Record64::Padding() };
+	std::array<Record, 32> stack = { Record::Padding() };
 
 	volatile std::sig_atomic_t sig{ };
 	constexpr std::array       intrins{
-		+[](Record64*) -> bool { return true; }
+		+[](Record*) -> bool { return true; }
 	};
 
 	const ReactorInput input{

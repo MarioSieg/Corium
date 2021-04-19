@@ -211,14 +211,16 @@
 #error "These tests must run with NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING disabled!"
 #endif
 
-constexpr IntrinsicRoutine*       MOCK_INTRINSIC_ROUTINE {
-	+[]([[maybe_unused]] Record64*) noexcept -> bool
+constexpr IntrinsicRoutine* MOCK_INTRINSIC_ROUTINE
+{
+	+[]([[maybe_unused]] Record*) noexcept -> bool
 	{
 		return true;
 	}
 };
 
-constexpr std::array MOCK_INTRINSIC_ROUTINE_TABLE {
+constexpr std::array MOCK_INTRINSIC_ROUTINE_TABLE
+{
 	MOCK_INTRINSIC_ROUTINE,
 	MOCK_INTRINSIC_ROUTINE,
 	MOCK_INTRINSIC_ROUTINE
@@ -226,18 +228,20 @@ constexpr std::array MOCK_INTRINSIC_ROUTINE_TABLE {
 
 constexpr auto MOCK_STACK_SIZE = 32; // 32 records
 
-constinit std::array<Record64, MOCK_STACK_SIZE> mockStack {Record64::Padding()};
+constinit std::array<Record, MOCK_STACK_SIZE> mockStack {Record::Padding()};
 
 constinit volatile std::sig_atomic_t mockSignalStatus;
 
-constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER {
+constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
+{
 	+[](InterruptAccumulator, void*) noexcept -> bool
 	{
 		return true;
 	}
 };
 
-constexpr ReactorInput MOCK_REACTOR_INPUT {
+constexpr ReactorInput MOCK_REACTOR_INPUT
+{
 	.SignalStatus = &mockSignalStatus,
 	.CodeChunk = nullptr,
 	.CodeChunkInstructionMap = nullptr,
@@ -250,7 +254,8 @@ constexpr ReactorInput MOCK_REACTOR_INPUT {
 	.UserData = nullptr
 };
 
-std::array mockCode {
+std::array mockCode
+{
 	Signal {Instruction::NOp}, // first padding
 	Signal {Instruction::Int},
 	Signal {INT64_C(5)},
@@ -1192,8 +1197,8 @@ TEST(ReactorExecution, __Push_no_stack_overflow__)
 		Signal {INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MOCK_REACTOR_INPUT};
+	std::array<Record, 4> stack {Record::Padding()};
+	auto                  input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1225,8 +1230,8 @@ TEST(ReactorExecution, __Push_stack_overflow__)
 		Signal {INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MOCK_REACTOR_INPUT};
+	std::array<Record, 4> stack {Record::Padding()};
+	auto                  input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1255,8 +1260,8 @@ TEST(ReactorExecution, __Dupl_stack_overflow__)
 		Signal {INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MOCK_REACTOR_INPUT};
+	std::array<Record, 4> stack {Record::Padding()};
+	auto                  input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1285,8 +1290,8 @@ TEST(ReactorExecution, __Dupl2_stack_overflow__)
 		Signal {INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MOCK_REACTOR_INPUT};
+	std::array<Record, 4> stack {Record::Padding()};
+	auto                  input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1306,12 +1311,12 @@ TEST(ReactorExecution, __CIntrin__)
 {
 	static constinit int calls;
 	std::array           custom_Intrinsics {
-		+[](Record64*    ) -> bool
+		+[](Record*      ) -> bool
 		{
 			++calls;
 			return true;
 		},
-		+[](Record64* sp_) -> bool
+		+[](Record* sp_) -> bool
 		{
 			(*++sp_).F64 = 3.223;
 			(*++sp_).C32 = ':';
@@ -1319,7 +1324,7 @@ TEST(ReactorExecution, __CIntrin__)
 			++calls;
 			return true;
 		},
-		+[](Record64*) -> bool
+		+[](Record*) -> bool
 		{
 			++calls;
 			return true;
@@ -1338,8 +1343,8 @@ TEST(ReactorExecution, __CIntrin__)
 		Signal {Instruction::Int},
 		Signal {INT64_C(0)},
 	};
-	std::array<Record64, 6> stack {Record64::Padding()};
-	auto                    input {MOCK_REACTOR_INPUT};
+	std::array<Record, 6> stack {Record::Padding()};
+	auto                  input {MOCK_REACTOR_INPUT};
 	input.Stack              = stack.data();
 	input.StackSize          = stack.size();
 	input.CodeChunk          = code.data();
@@ -1371,8 +1376,8 @@ TEST(ReactorExecution, __PushZ_stack_overflow__)
 		Signal {INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MOCK_REACTOR_INPUT};
+	std::array<Record, 4> stack {Record::Padding()};
+	auto                  input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1400,8 +1405,8 @@ TEST(ReactorExecution, __IPushO_stack_overflow__)
 		Signal {INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MOCK_REACTOR_INPUT};
+	std::array<Record, 4> stack {Record::Padding()};
+	auto                  input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1429,8 +1434,8 @@ TEST(ReactorExecution, __FPushO_stack_overflow__)
 		Signal {INT64_C(0)},
 	};
 	// only can use 3 elements, 1st is reserved:
-	std::array<Record64, 4> stack {Record64::Padding()};
-	auto                    input {MOCK_REACTOR_INPUT};
+	std::array<Record, 4> stack {Record::Padding()};
+	auto                  input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	input.Stack         = stack.data();
@@ -1596,7 +1601,7 @@ TEST(ReactorExecution, __IInc__)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record64::Padding());
+	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
 	ASSERT_EQ(o.Input->Stack[1].I64, 5);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -1620,7 +1625,7 @@ TEST(ReactorExecution, __IDec__)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record64::Padding());
+	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
 	ASSERT_EQ(o.Input->Stack[1].I64, -3);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -2138,7 +2143,7 @@ TEST(ReactorExecution, __FInc__)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record64::Padding());
+	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, 5.);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -2163,7 +2168,7 @@ TEST(ReactorExecution, __FDec__)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record64::Padding());
+	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, -3.);
 	ASSERT_EQ(o.SpDiff, 1);
 }

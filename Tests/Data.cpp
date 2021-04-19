@@ -209,7 +209,7 @@
 
 TEST(ReactorAggregates, UnionReinterpretation)
 {
-	Record64 rec {
+	Record rec {
 		UINT64_C(0xFF'FF'FF'FF)
 	};
 	ASSERT_EQ(rec.U64, 0xFF'FF'FF'FF);

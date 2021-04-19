@@ -247,7 +247,7 @@ namespace Nominax
 		}
 
 		// first stack entry is never used and must be nop-padding:
-		if (__builtin_expect(*Stack != Record64::Padding(), 0))
+		if (__builtin_expect(*Stack != Record::Padding(), 0))
 		{
 			return ReactorValidationResult::MissingStackPrologue;
 		}
@@ -309,7 +309,7 @@ namespace Nominax
 	/// <summary>
 	/// Operator for double precision floating point modulo.
 	/// </summary>
-	__attribute__((always_inline)) static inline auto operator %=(Record64& self, const double value) noexcept -> void
+	__attribute__((always_inline)) static inline auto operator %=(Record& self, const double value) noexcept -> void
 	{
 		self.F64 = std::fmod(self.F64, value);
 	}
@@ -408,6 +408,7 @@ namespace Nominax
 	/// jmpq	*(%r14)
 	/// Without jump table mapping:
 	/// jmpq	*(%rcx,%rax,8)
+	/// This easily gives some 300-500 milliseconds performance improvement on my machine.
 	/// Important: The signal bucket is modified.
 	/// After mapping, each signal which was an instruction now contains a void* to the jump label.
 	/// That means, that the original instructions/opcodes are gone.
@@ -475,9 +476,8 @@ namespace Nominax
 	static consteval auto ValidateJumpTable(const void* __restrict__ const* __restrict__ const jumpTable,
 	                                        const std::size_t                                  jumpTableSize) noexcept -> bool
 	{
-		const auto*       current = jumpTable;
-		const auto* const end     = jumpTable + jumpTableSize;
-		for (; __builtin_expect(current < end, 1); ++current)
+		const auto* current {jumpTable};
+		for (const auto* const end {jumpTable + jumpTableSize}; __builtin_expect(current < end, 1); ++current)
 		{
 			if (__builtin_expect(!*current, 0))
 			{
@@ -512,7 +512,7 @@ namespace Nominax
 	/// So stack[-1] will be overwritten and contains the result.
 	/// stack[0] will still contain arg2.
 	/// </summary>
-	__attribute__((hot)) static auto SyscallIntrin(Record64* const sp, const std::uint64_t id) -> void
+	__attribute__((hot)) static auto SyscallIntrin(Record* const sp, const std::uint64_t id) -> void
 	{
 		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallId::Count)] {
 			&&__cos__,
@@ -825,8 +825,8 @@ namespace Nominax
 		InterruptRoutine* const        interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
 		const Signal* const __restrict ipLo {input.CodeChunk};                    /* instruction low ptr		*/
 		const Signal* __restrict__     ip {ipLo};                                 /* instruction ptr			*/
-		Record64* __restrict__         sp {input.Stack};                          /* stack pointer lo			*/
-		Record64* const __restrict__   spHi {input.Stack + input.StackSize - 1};  /* stack pointer hi			*/
+		Record* __restrict__           sp {input.Stack};                          /* stack pointer lo			*/
+		Record* const __restrict__     spHi {input.Stack + input.StackSize - 1};  /* stack pointer hi			*/
 
 		ASM_MARKER("reactor exec");
 
@@ -846,7 +846,7 @@ namespace Nominax
 		__attribute__((cold));
 		{
 			ASM_MARKER("__int__");
-			interruptCode = (*++ip).R64.R32.I32;
+			interruptCode = (*++ip).R64.I32;
 			// check if interrupt handler request exit or interrupt is error (interrupt < 0) or success (interrupt == 0)
 			if (__builtin_expect(!interruptHandler(interruptCode, usrDat) || interruptCode <= 0, 0))
 			{
