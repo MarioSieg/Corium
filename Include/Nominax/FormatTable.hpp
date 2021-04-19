@@ -553,25 +553,30 @@ namespace Nominax
 		auto& val = std::get<I>(t);
 
 		// Set the precision
-		if (!Precision.empty()) [[unlikely]]
+		if (!Precision.empty())
+		[[unlikely]]
 		{
 			stream << std::setprecision(Precision[I]);
 		}
 
 		// Set the format
-		if (!ColumnFormat.empty()) [[unlikely]]
+		if (!ColumnFormat.empty())
+		[[unlikely]]
 		{
-			if (ColumnFormat[I] == VariadicTableColumnFormat::Scientific) [[unlikely]]
+			if (ColumnFormat[I] == VariadicTableColumnFormat::Scientific)
+			[[unlikely]]
 			{
 				stream << std::scientific;
 			}
 
-			if (ColumnFormat[I] == VariadicTableColumnFormat::Fixed) [[likely]]
+			if (ColumnFormat[I] == VariadicTableColumnFormat::Fixed)
+			[[likely]]
 			{
 				stream << std::fixed;
 			}
 
-			if (ColumnFormat[I] == VariadicTableColumnFormat::Percent) [[unlikely]]
+			if (ColumnFormat[I] == VariadicTableColumnFormat::Percent)
+			[[unlikely]]
 			{
 				stream << std::fixed << std::setprecision(2);
 			}

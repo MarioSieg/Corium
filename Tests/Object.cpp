@@ -1,6 +1,6 @@
-// File: Object.hpp
+// File: Object.cpp
 // Author: Mario
-// Created: 19.04.2021 17:13
+// Created: 19.04.2021 17:41
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,119 +205,31 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "TestBase.hpp"
 
-#include <memory>
-
-#include "Record.hpp"
-
-namespace Nominax
+TEST(ObjectHeaderReinterpretation, FieldAccess)
 {
-	union ObjectFlagsCompound final
+	ObjectHeader object
 	{
-		struct
-		{
-			bool Flag0 : 1;
-			bool Flag1 : 1;
-			bool Flag2 : 1;
-			bool Flag3 : 1;
-			bool Flag4 : 1;
-			bool Flag5 : 1;
-			bool Flag6 : 1;
-			bool Flag7 : 1;
-			bool Flag8 : 1;
-			bool Flag9 : 1;
-			bool Flag10 : 1;
-			bool Flag11 : 1;
-			bool Flag12 : 1;
-			bool Flag13 : 1;
-			bool Flag14 : 1;
-			bool Flag15 : 1;
-			bool Flag16 : 1;
-			bool Flag17 : 1;
-			bool Flag18 : 1;
-			bool Flag19 : 1;
-			bool Flag20 : 1;
-			bool Flag21 : 1;
-			bool Flag22 : 1;
-			bool Flag23 : 1;
-			bool Flag24 : 1;
-			bool Flag25 : 1;
-			bool Flag26 : 1;
-			bool Flag27 : 1;
-			bool Flag28 : 1;
-			bool Flag29 : 1;
-			bool Flag30 : 1;
-			bool Flag31 : 1;
-		} Flags;
-
-		std::uint32_t Compound;
+		.StrongRefCount = 1234,
+		.WeakRefCount = 0xFF'FF'FF'FF,
+		.TypeId = 666,
+		.FlagVector = {.Compound = 0xFF'FF'FF'AA}
 	};
 
-	static_assert(sizeof(ObjectFlagsCompound) == sizeof(std::uint32_t));
+	std::array<Record, 2> header { };
 
-	/// Every heap allocated object has an object header.
-	/// The object header contains various meta data about the object.
-	/// Each object header field is 32 - bits wide.
-	///
-	/// Offset	   Description	  Size
-	/// +-----------------------+
-	/// | 0 | Strong Ref Count  | 32 Bit
-	/// +-----------------------+
-	/// | 1 | Weak Ref Count    | 32 Bit
-	/// +-----------------------+
-	/// | 2 | Type ID			| 32 Bit
-	/// +-----------------------+
-	/// | 3 | Flag Vector		| 32 Bit
-	/// +-----------------------+
-	/// Total size : 128 Bit(16 Bytes)
-	struct ObjectHeader final
-	{
-		std::uint32_t       StrongRefCount {0};
-		std::uint32_t       WeakRefCount {0};
-		std::uint32_t       TypeId {0};
-		ObjectFlagsCompound FlagVector { };
+	static_assert(sizeof header == sizeof object);
 
-		auto        MapTo(Record* region) const noexcept -> void;
-		auto        MapFrom(const Record* region) noexcept -> void;
-		static auto QueryMapping_StrongRefCount(const Record* region) noexcept -> std::uint32_t;
-		static auto QueryMapping_WeakRefCount(const Record* region) noexcept -> std::uint32_t;
-		static auto QueryMapping_TypeId(const Record* region) noexcept -> std::uint32_t;
-		static auto QueryMapping_FlagVector(const Record* region) noexcept -> ObjectFlagsCompound;
-	};
+	object.MapTo(header.data());
 
-	static_assert(sizeof(ObjectHeader) == 4 * sizeof(std::uint32_t));
-	static_assert(sizeof(ObjectHeader) == 16);
-	static_assert(std::is_standard_layout_v<ObjectHeader>);
-	static_assert(std::is_trivially_copyable_v<ObjectHeader>);
+	ASSERT_EQ(header[0].U32C[0], 1234);
+	ASSERT_EQ(header[0].U32C[1], 0xFF'FF'FF'FF);
+	ASSERT_EQ(header[1].U32C[0], 666);
+	ASSERT_EQ(header[1].U32C[1], 0xFF'FF'FF'AA);
 
-	__attribute__((always_inline)) inline auto ObjectHeader::MapTo(Record* const region) const noexcept -> void
-	{
-		std::memcpy(region, this, sizeof(ObjectHeader));
-	}
-
-	__attribute__((always_inline)) inline auto ObjectHeader::MapFrom(const Record* const region) noexcept -> void
-	{
-		std::memcpy(this, region, sizeof(ObjectHeader));
-	}
-
-	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_StrongRefCount(const Record* const region) noexcept -> std::uint32_t
-	{
-		return *reinterpret_cast<const std::uint32_t*>(region);
-	}
-
-	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_WeakRefCount(const Record* const region) noexcept -> std::uint32_t
-	{
-		return *(reinterpret_cast<const std::uint32_t*>(region) + 1);
-	}
-
-	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_TypeId(const Record* const region) noexcept -> std::uint32_t
-	{
-		return *(reinterpret_cast<const std::uint32_t*>(region) + 2);
-	}
-
-	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_FlagVector(const Record* const region) noexcept -> ObjectFlagsCompound
-	{
-		return *(reinterpret_cast<const ObjectFlagsCompound*>(region) + 3);
-	}
+	ASSERT_EQ(ObjectHeader::QueryMapping_StrongRefCount(header.data()), 1234);
+	ASSERT_EQ(ObjectHeader::QueryMapping_WeakRefCount(header.data()), 0xFF'FF'FF'FF);
+	ASSERT_EQ(ObjectHeader::QueryMapping_TypeId(header.data()), 666);
+	ASSERT_EQ(ObjectHeader::QueryMapping_FlagVector(header.data()).Compound, 0xFF'FF'FF'AA);
 }

@@ -215,6 +215,7 @@
 #include "Interrupts.hpp"
 #include "MacroCfg.hpp"
 #include "Utility.hpp"
+#include "Object.hpp"
 #include "Os.hpp"
 #include "Platform.hpp"
 #include "Reactor.hpp"

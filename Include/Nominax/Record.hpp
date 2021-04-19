@@ -225,6 +225,10 @@ namespace Nominax
 		double        F64;
 		void*         Ptr;
 		char32_t      C32;
+		std::uint32_t U32C[2];
+		std::int32_t  I32C[2];
+		float         F32C[2];
+		char32_t      C32C[2];
 
 		constexpr             Record() noexcept;
 		explicit constexpr    Record(std::int32_t value) noexcept;

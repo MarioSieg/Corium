@@ -100,6 +100,8 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/DynamicLibrary.hpp"
     "Include/Nominax/Nominax.hpp" 
     "Include/Nominax/Environment.hpp" 
+    "Include/Nominax/FormatTable.hpp" 
+    "Include/Nominax/Object.hpp"
 
     "Source/Reactor.cpp"
     "Source/OsWindows.cpp"
@@ -110,7 +112,7 @@ add_library("NominaxRuntime" STATIC
     "Source/Environment.cpp"
     "Source/Bytecode.cpp" 
     "Source/Os.cpp" 
-    "Source/Utility.cpp" "Include/Nominax/FormatTable.hpp" "Include/Nominax/Object.hpp")
+    "Source/Utility.cpp")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries("NominaxRuntime" "dl")
@@ -121,11 +123,11 @@ target_link_libraries("Nominax" "NominaxRuntime")
 
 # test executable:
 if(NOMINAX_BUILD_UNIT_TESTS)
-    file(GLOB "TEST_Source_FILES" "Tests/*.cpp")
+    file(GLOB "TEST_SOURCE_FILES" "Tests/*.cpp")
     add_subdirectory("Tests/googletest/")
-    add_executable("NominaxUnitTests" ${TEST_Source_FILES})
+    add_executable("NominaxUnitTests" ${TEST_SOURCE_FILES})
     add_test(NAME "NominaxUnitTests" COMMAND "NominaxUnitTests")
-    target_include_directories("NominaxUnitTests" PUBLIC "Tests/googletest/googletest/Includelude/gtest")
+    target_include_directories("NominaxUnitTests" PUBLIC "Tests/googletest/googletest/include/gtest")
     target_link_libraries("NominaxUnitTests" "NominaxRuntime" "gtest")
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         target_link_libraries("NominaxUnitTests" "pthread")
@@ -137,7 +139,7 @@ if(NOMINAX_BUILD_BENCHMARKS)
     file(GLOB "TEST_Source_FILES" "Benchmarks/*.cpp")
     add_subdirectory("Benchmarks/googlebench/")
     add_executable("NominaxBenchmark" ${TEST_Source_FILES})
-    target_include_directories("NominaxBenchmark" PUBLIC "Benchmarks/googlebench/Includelude/benchmark")
+    target_include_directories("NominaxBenchmark" PUBLIC "Benchmarks/googlebench/include/benchmark")
     target_link_libraries("NominaxBenchmark" "benchmark::benchmark" "NominaxRuntime")
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         target_link_libraries("benchmark" "pthread")
