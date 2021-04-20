@@ -214,13 +214,13 @@
 
 namespace Nominax
 {
-	[[nodiscard]] 
+	[[nodiscard]]
 	extern auto Xorshift32() noexcept -> std::uint32_t;
 
-	[[nodiscard]] 
+	[[nodiscard]]
 	extern auto Xorshift64() noexcept -> std::uint64_t;
 
-	[[nodiscard]] 
+	[[nodiscard]]
 	extern auto Xorshift128() noexcept -> std::uint32_t;
 
 	[[nodiscard]]
