@@ -455,10 +455,14 @@ namespace Nominax
 	};
 
 	template <typename ... Ts>
-	VariadicTable<Ts...>::VariadicTable(std::vector<std::string>&& headers, const std::size_t staticColumnSize, const std::size_t cellPadding): Headers(std::move(headers)),
-		NumColumns(std::tuple_size<DataTuple>::value),
+	VariadicTable<Ts...>::VariadicTable(std::vector<std::string>&& headers, const std::size_t staticColumnSize, const std::size_t cellPadding):
+		NumColumns(sizeof...(Ts)),
 		StaticColumnSize(staticColumnSize),
-		CellPadding(cellPadding) { }
+		CellPadding(cellPadding)
+	{
+		assert(headers.size() == this->NumColumns);
+		this->Headers = std::move(headers);
+	}
 
 	template <typename ... Ts>
 	template <typename StreamType>
@@ -511,21 +515,15 @@ namespace Nominax
 	template <typename ... Ts>
 	inline auto VariadicTable<Ts...>::SetColumnFormat(const std::vector<VariadicTableColumnFormat>& columnFormat) -> void
 	{
-		if (columnFormat.size() == std::tuple_size<DataTuple>::value)
-		[[likely]]
-		{
-			ColumnFormat = columnFormat;
-		}
+		assert(columnFormat.size() == std::tuple_size<DataTuple>::value);
+		ColumnFormat = columnFormat;
 	}
 
 	template <typename ... Ts>
 	inline auto VariadicTable<Ts...>::SetColumnPrecision(const std::vector<std::size_t>& precision) -> void
 	{
-		if (precision.size() == std::tuple_size<DataTuple>::value)
-		[[unlikely]]
-		{
-			this->Precision = precision;
-		}
+		assert(precision.size() == std::tuple_size<DataTuple>::value);
+		this->Precision = precision;
 	}
 
 	template <typename ... Ts>
@@ -556,6 +554,8 @@ namespace Nominax
 		if (!Precision.empty())
 		[[unlikely]]
 		{
+			assert(Precision.size() ==
+				std::tuple_size<typename std::remove_reference<TupleType>::type>::value);
 			stream << std::setprecision(Precision[I]);
 		}
 
@@ -563,6 +563,10 @@ namespace Nominax
 		if (!ColumnFormat.empty())
 		[[unlikely]]
 		{
+			assert(ColumnFormat.size() ==
+				std::tuple_size<typename std::remove_reference<TupleType>::type>::value);
+
+
 			if (ColumnFormat[I] == VariadicTableColumnFormat::Scientific)
 			[[unlikely]]
 			{

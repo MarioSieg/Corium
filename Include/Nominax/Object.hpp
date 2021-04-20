@@ -207,7 +207,9 @@
 
 #pragma once
 
+#include <cassert>
 #include <memory>
+#include <span>
 
 #include "Record.hpp"
 
@@ -216,48 +218,175 @@ namespace Nominax
 	/// <summary>
 	/// Contains all flags in the flag vector field in the object header.
 	/// </summary>
-	union ObjectFlagsCompound final
+	union ObjectFlagsVectorCompound final
 	{
 		struct
 		{
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag0 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag1 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag2 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag3 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag4 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag5 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag6 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag7 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag8 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag9 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag10 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag11 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag12 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag13 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag14 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag15 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag16 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag17 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag18 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag19 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag20 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag21 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag22 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag23 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag24 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag25 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag26 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag27 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag28 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag29 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag30 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
 			bool Flag31 : 1;
 		} Flags;
 
 		std::uint32_t Compound;
 	};
 
-	static_assert(sizeof(ObjectFlagsCompound) == sizeof(std::uint32_t));
+	static_assert(sizeof(ObjectFlagsVectorCompound) == sizeof(std::uint32_t));
 
 	/// Every heap allocated object has an object header.
 	/// The object header contains various meta data about the object.
@@ -294,7 +423,7 @@ namespace Nominax
 		/// <summary>
 		/// Flag vector for object states.
 		/// </summary>
-		ObjectFlagsCompound FlagVector { };
+		ObjectFlagsVectorCompound FlagVector { };
 
 		/// <summary>
 		/// Maps this record into the specified memory region.
@@ -338,7 +467,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns>The current value of the strong ref count.</returns>
 		[[nodiscard]]
-		static auto QueryMapping_StrongRefCount(const Record* region) noexcept -> std::uint32_t;
+		static constexpr auto ReadMapping_StrongRefCount(const Record* region) noexcept -> std::uint32_t;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the size.
@@ -346,7 +475,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns>The current value of the size field.</returns>
 		[[nodiscard]]
-		static auto QueryMapping_Size(const Record* region) noexcept -> std::uint32_t;
+		static constexpr auto ReadMapping_Size(const Record* region) noexcept -> std::uint32_t;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the type id.
@@ -354,7 +483,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns>The current value of the type id.</returns>
 		[[nodiscard]]
-		static auto QueryMapping_TypeId(const Record* region) noexcept -> std::uint32_t;
+		static constexpr auto ReadMapping_TypeId(const Record* region) noexcept -> std::uint32_t;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the flag vector.
@@ -362,7 +491,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns>The current value of the flag vector.</returns>
 		[[nodiscard ]]
-		static auto QueryMapping_FlagVector(const Record* region) noexcept -> ObjectFlagsCompound;
+		static constexpr auto ReadMapping_FlagVector(const Record* region) noexcept -> ObjectFlagsVectorCompound;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the strong ref count field.
@@ -370,7 +499,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <param name="strongRefCount">The value to write.</param>
 		/// <returns></returns>
-		static auto WriteMapping_StrongRefCount(Record* region, std::uint32_t strongRefCount) noexcept -> void;
+		static constexpr auto WriteMapping_StrongRefCount(Record* region, std::uint32_t strongRefCount) noexcept -> void;
 
 		/// <summary>
 		/// Implicit map the region to an object header and increment the strong reference counter by one.
@@ -378,7 +507,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		static auto WriteMapping_IncrementStrongRefCount(Record* region) noexcept -> void;
+		static constexpr auto WriteMapping_IncrementStrongRefCount(Record* region) noexcept -> void;
 
 		/// <summary>
 		/// Implicit map the region to an object header and decrement the strong reference counter by one.
@@ -386,7 +515,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		static auto WriteMapping_DecrementStrongRefCount(Record* region) noexcept -> void;
+		static constexpr auto WriteMapping_DecrementStrongRefCount(Record* region) noexcept -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the size field.
@@ -394,7 +523,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <param name="size">The value to write.</param>
 		/// <returns></returns>
-		static auto WriteMapping_Size(Record* region, std::uint32_t size) noexcept -> void;
+		static constexpr auto WriteMapping_Size(Record* region, std::uint32_t size) noexcept -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the type id field.
@@ -402,7 +531,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <param name="typeId">The value to write.</param>
 		/// <returns></returns>
-		static auto WriteMapping_TypeId(Record* region, std::uint32_t typeId) noexcept -> void;
+		static constexpr auto WriteMapping_TypeId(Record* region, std::uint32_t typeId) noexcept -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the flag vector field.
@@ -410,7 +539,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <param name="flagVector">The value to write.</param>
 		/// <returns></returns>
-		static auto WriteMapping_FlagVector(Record* region, ObjectFlagsCompound flagVector) noexcept -> void;
+		static constexpr auto WriteMapping_FlagVector(Record* region, ObjectFlagsVectorCompound flagVector) noexcept -> void;
 
 		/// <summary>
 		/// Type-pun a region to an object header
@@ -420,14 +549,34 @@ namespace Nominax
 		/// <returns></returns>
 		[[nodiscard]]
 		static auto RawQueryTypePun(Record* region) -> ObjectHeader&;
+
+		/// <summary>
+		/// The size of each header block field.
+		/// </summary>
+		static constexpr auto STRIDE {sizeof(std::uint32_t)};
+
+		/// <summary>
+		/// The count of header field blocks => 4 (StrongRefCount, Size, TypeId, FlagVector)
+		/// </summary>
+		static constexpr auto BLOCKS {4};
+
+		/// <summary>
+		/// The offset in records from the blob base pointer.
+		/// </summary>
+		static constexpr auto RECORD_OFFSET {STRIDE * BLOCKS / sizeof(Record)};
+
+		/// <summary>
+		/// The amount of records required to store the header.
+		/// </summary>
+		static constexpr auto RECORD_CHUNKS {RECORD_OFFSET};
+
+		static_assert(STRIDE == 4);
+		static_assert(BLOCKS == 4);
 	};
 
-	constexpr auto OBJECT_HEADER_RECORD_OFFSET {sizeof(ObjectHeader) / sizeof(Record)};
-	constexpr auto OBJECT_HEADER_SIZE_IN_RECORDS {OBJECT_HEADER_RECORD_OFFSET};
-
-	static_assert(sizeof(ObjectHeader) == 4 * sizeof(std::uint32_t));
+	static_assert(sizeof(ObjectHeader) == ObjectHeader::BLOCKS * ObjectHeader::STRIDE);
 	static_assert(sizeof(ObjectHeader) == 16);
-	static_assert(sizeof(ObjectHeader) % 4 == 0); // Ok, ok we know the size must be 16 bytes!
+	static_assert(sizeof(ObjectHeader) % ObjectHeader::BLOCKS == 0); // Ok, ok we know the size must be 16 bytes!
 	static_assert(std::is_standard_layout_v<ObjectHeader>);
 	static_assert(std::is_trivially_copyable_v<ObjectHeader>);
 
@@ -459,56 +608,56 @@ namespace Nominax
 		return std::memcpy(this, region.data(), sizeof(ObjectHeader));
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_StrongRefCount(const Record* const region) noexcept -> std::uint32_t
+	__attribute__((always_inline)) constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Record* const region) noexcept -> std::uint32_t
 	{
 		return region[0].U32C[0];
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_Size(const Record* const region) noexcept -> std::uint32_t
+	__attribute__((always_inline)) constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) noexcept -> std::uint32_t
 	{
 		return region[0].U32C[1];
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_TypeId(const Record* const region) noexcept -> std::uint32_t
+	__attribute__((always_inline)) constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) noexcept -> std::uint32_t
 	{
 		return region[1].U32C[0];
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_FlagVector(const Record* const region) noexcept -> ObjectFlagsCompound
+	__attribute__((always_inline)) constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) noexcept -> ObjectFlagsVectorCompound
 	{
-		const auto flags = ObjectFlagsCompound
+		const auto flags = ObjectFlagsVectorCompound
 		{
 			.Compound = region[1].U32C[1]
 		};
 		return flags;
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const std::uint32_t strongRefCount) noexcept -> void
+	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const std::uint32_t strongRefCount) noexcept -> void
 	{
 		region[0].U32C[0] = strongRefCount;
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) noexcept -> void
+	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) noexcept -> void
 	{
 		++region[0].U32C[0];
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) noexcept -> void
+	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) noexcept -> void
 	{
 		--region[0].U32C[0];
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_Size(Record* const region, const std::uint32_t size) noexcept -> void
+	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_Size(Record* const region, const std::uint32_t size) noexcept -> void
 	{
 		region[0].U32C[1] = size;
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_TypeId(Record* const region, const std::uint32_t typeId) noexcept -> void
+	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_TypeId(Record* const region, const std::uint32_t typeId) noexcept -> void
 	{
 		region[1].U32C[0] = typeId;
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagsCompound flagVector) noexcept -> void
+	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagsVectorCompound flagVector) noexcept -> void
 	{
 		region[1].U32C[1] = flagVector.Compound;
 	}
@@ -518,152 +667,315 @@ namespace Nominax
 		return *reinterpret_cast<ObjectHeader*>(region);
 	}
 
+#define MUTATOR
+#define IMMUTATOR
+
 	/// <summary>
 	/// Represents any heap allocated object.
 	/// </summary>
 	struct Object final
 	{
-		Record* Blob;
-
 		/// <summary>
-		/// Get the raw object header pointer.
+		/// Full data blob.
+		/// Array of records which contains the
+		/// object header and the object itself.
+		/// The first two records are always the header,
+		/// so the allocator must always allocate minimum 2 two records
+		/// for the header plus the size in records for the object.
+		/// So the blob length will be: ObjectHeader::RECORD_CHUNKS + sizeInRecords
+		/// This size must be written into the header field "Size"!
 		/// </summary>
-		/// <returns>The object header pointer.</returns>
-		[[nodiscard]]
-		auto RawHeader() const noexcept -> Record*;
-
-		/// <summary>
-		/// Get the object header.
-		/// </summary>
-		/// <returns>The object header.</returns>
-		[[nodiscard]]
-		auto Header() const noexcept -> ObjectHeader;
-
-		/// <summary>
-		/// Get underlying object.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto BeginUnderlyingObjectLane() const noexcept -> Record*;
-
-		/// <summary>
-		/// Get underlying object end iterator.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto EndUnderlyingObjectLane() const noexcept -> Record*;
-
-		/// <summary>
-		/// Checks if the underlying object is null, but the object header is null.
-		/// </summary>
-		/// <returns>True if the underlying object is null, else false.</returns>
-		[[nodiscard]]
-		auto IsUnderlyingObjectNull() const noexcept -> bool;
-
-		/// <summary>
-		/// Checks if the whole data blob (underlying object) and the object header is null.
-		/// </summary>
-		/// <returns>true if the whole data blob (underlying object) and the object header is null, else false.</returns>
-		[[nodiscard]]
-		auto IsBlobNull() const noexcept -> bool;
+		Record* Blob {nullptr};
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The strong reference count field from the object header.</returns>
 		[[nodiscard]]
-		auto StrongReferenceCount() const noexcept -> std::uint32_t;
+		auto IMMUTATOR HeaderRead_StrongReferenceCount() const noexcept -> std::uint32_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>The size field from the object header.</returns>
+		/// <returns>The size of the object in records. The size field from the object header.</returns>
 		[[nodiscard]]
-		auto Size() const noexcept -> std::uint32_t;
+		auto IMMUTATOR HeaderRead_BlockSize() const noexcept -> std::uint32_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The type id field from the object header.</returns>
 		[[nodiscard]]
-		auto TypeId() const noexcept -> std::uint32_t;
+		auto IMMUTATOR HeaderRead_TypeId() const noexcept -> std::uint32_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The flag vector field from the object header.</returns>
 		[[nodiscard]]
-		auto FlagVector() const noexcept -> ObjectFlagsCompound;
+		auto IMMUTATOR Header_ReadFlagVector() const noexcept -> ObjectFlagsVectorCompound;
 
 		/// <summary>
-		/// Raw allocate using placement new.
-		/// This is fine for tests, but for real allocation
-		/// use the system allocator overload.
+		/// Writes the value into the strong ref count header field.
+		/// </summary>
+		/// <param name="strongRefCount">The new value to write.</param>
+		/// <returns></returns>
+		auto MUTATOR HeaderWrite_StrongRefCount(std::uint32_t strongRefCount) const noexcept -> void;
+
+		/// <summary>
+		/// Increments the object header strong reference counter by one.
+		/// </summary>
+		/// <returns></returns>
+		auto MUTATOR HeaderWrite_IncrementStrongRefCount() const noexcept -> void;
+
+		/// <summary>
+		/// Decrements the object header strong reference counter by one.
+		/// </summary>
+		/// <returns></returns>
+		auto MUTATOR HeaderWrite_DecrementStrongRefCount() const noexcept -> void;
+
+		/// <summary>
+		/// Same as HeaderWrite_IncrementStrongRefCount()
+		/// </summary>
+		/// <returns></returns>
+		auto MUTATOR operator ++() const noexcept -> void;
+
+		/// <summary>
+		/// Same as HeaderWrite_DecrementStrongRefCount()
+		/// </summary>
+		/// <returns></returns>
+		auto MUTATOR operator --() const noexcept -> void;
+
+		/// <summary>
+		/// Same as HeaderWrite_IncrementStrongRefCount()
+		/// </summary>
+		/// <returns></returns>
+		auto MUTATOR operator ++(int) const noexcept -> void;
+
+		/// <summary>
+		/// Same as HeaderWrite_DecrementStrongRefCount()
+		/// </summary>
+		/// <returns></returns>
+		auto MUTATOR operator --(int) const noexcept -> void;
+
+		/// <summary>
+		/// Writes the value of size into the Size object header field.
+		/// </summary>
+		/// <param name="size">The new value to write.</param>
+		/// <returns></returns>
+		auto MUTATOR HeaderWrite_Size(std::uint32_t size) const noexcept -> void;
+
+		/// <summary>
+		/// Writes the value of typeId into the TypeId object header field.
+		/// </summary>
+		/// <param name="typeId">The new value to write.</param>
+		/// <returns></returns>
+		auto MUTATOR HeaderWrite_TypeId(std::uint32_t typeId) const noexcept -> void;
+
+		/// <summary>
+		/// Writes the value of flagVector into the ObjectFlags object header field.
+		/// </summary>
+		/// <param name="flagVector">The new value to write.</param>
+		/// <returns></returns>
+		auto MUTATOR HeaderWrite_FlagVector(ObjectFlagsVectorCompound flagVector) const noexcept -> void;
+
+		/// <summary>
+		/// Get the raw object header pointer.
+		/// </summary>
+		/// <returns>The object header pointer.</returns>
+		[[nodiscard]]
+		auto IMMUTATOR QueryRawHeader() const noexcept -> Record*;
+
+		/// <summary>
+		/// Get the object header.
+		/// </summary>
+		/// <returns>The object header.</returns>
+		[[nodiscard]]
+		auto IMMUTATOR QueryHeader() const noexcept -> ObjectHeader;
+
+		/// <summary>
+		/// Get underlying object block.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto IMMUTATOR LookupBlock() const noexcept -> Record*;
+
+		/// <summary>
+		/// Get underlying object block end iterator.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto IMMUTATOR LookupBlockEndIterator() const noexcept -> Record*;
+
+		/// <summary>
+		/// Checks if the underlying object block is null, but the object header is null.
+		/// </summary>
+		/// <returns>True if the underlying object is null, else false.</returns>
+		[[nodiscard]]
+		auto IMMUTATOR IsUnderlyingObjectBlockNull() const noexcept -> bool;
+
+		/// <summary>
+		/// Checks if the whole data blob (underlying object) and the object header is null.
+		/// </summary>
+		/// <returns>true if the whole data blob (underlying object) and the object header is null, else false.</returns>
+		[[nodiscard]]
+		auto IMMUTATOR IsBlobNull() const noexcept -> bool;
+
+		/// <summary>
+		/// The size in records of the whole data blob:
+		/// header + object
+		/// </summary>
+		/// <returns>The size in records of the object header plus the size of object it self.</returns>
+		[[nodiscard]]
+		auto IMMUTATOR BlobSize() const noexcept -> std::size_t;
+
+		/// <summary>
+		/// The size in bytes of the whole data blob:
+		/// header + object
+		/// </summary>
+		/// <returns>The size in bytes of the whole object header plus the whole size of object it self.</returns>
+		[[nodiscard]]
+		auto IMMUTATOR BlobSizeInBytes() const noexcept -> std::size_t;
+
+		/// <summary>
+		/// Deleter for unique objects allocated with std::unique_ptr.
+		/// </summary>
+		struct UniquePtrObjectDeleter final
+		{
+			inline auto operator()(Object* const target) const noexcept -> void
+			{
+				delete[] target->Blob;
+				delete target;
+			}
+		};
+
+		/// <summary>
+		/// Allocates a mock object for use in tests or debug stuff.
+		/// Do not use for real allocation!
 		/// </summary>
 		/// <param name="sizeInRecords">BUG-PRONE The size of the object in RECORDS NOT in BYTES</param>
-		/// <returns>An object. The blob of the object is null when the allocation failed, else not null.</returns>
-		static auto Allocate(std::size_t sizeInRecords) noexcept -> Object;
+		/// <returns>The mock object.</returns>
+		static auto AllocateUnique(std::size_t sizeInRecords) noexcept -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
 	};
 
 	static_assert(sizeof(Object) == sizeof(void*));
 	static_assert(std::is_standard_layout_v<Object>);
 
-	__attribute__((always_inline)) inline auto Object::RawHeader() const noexcept -> Record*
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::QueryRawHeader() const noexcept -> Record*
 	{
+		assert(this->Blob != nullptr);
 		return this->Blob;
 	}
 
-	__attribute__((always_inline)) inline auto Object::Header() const noexcept -> ObjectHeader
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::QueryHeader() const noexcept -> ObjectHeader
 	{
 		ObjectHeader header;
-		header.MapFromRegionUnchecked(this->RawHeader());
+		header.MapFromRegionUnchecked(this->QueryRawHeader());
 		return header;
 	}
 
-	__attribute__((always_inline)) inline auto Object::BeginUnderlyingObjectLane() const noexcept -> Record*
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::LookupBlock() const noexcept -> Record*
 	{
-		return this->Blob + OBJECT_HEADER_RECORD_OFFSET;
+		assert(this->Blob != nullptr);
+		return this->Blob + ObjectHeader::RECORD_OFFSET;
 	}
 
-	__attribute__((always_inline)) inline auto Object::EndUnderlyingObjectLane() const noexcept -> Record*
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::LookupBlockEndIterator() const noexcept -> Record*
 	{
-		return this->BeginUnderlyingObjectLane() + this->Size();
+		assert(this->HeaderRead_BlockSize() > 0);
+		return this->LookupBlock() + this->HeaderRead_BlockSize();
 	}
 
-	__attribute__((always_inline)) inline auto Object::IsUnderlyingObjectNull() const noexcept -> bool
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::IsUnderlyingObjectBlockNull() const noexcept -> bool
 	{
-		return this->BeginUnderlyingObjectLane() == nullptr;
+		return this->LookupBlock() == nullptr;
 	}
 
-	__attribute__((always_inline)) inline auto Object::IsBlobNull() const noexcept -> bool
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::IsBlobNull() const noexcept -> bool
 	{
 		return this->Blob == nullptr;
 	}
 
-	__attribute__((always_inline)) inline auto Object::StrongReferenceCount() const noexcept -> std::uint32_t
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::BlobSize() const noexcept -> std::size_t
 	{
-		return ObjectHeader::QueryMapping_StrongRefCount(this->RawHeader());
+		return ObjectHeader::RECORD_CHUNKS + ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 	}
 
-	__attribute__((always_inline)) inline auto Object::Size() const noexcept -> std::uint32_t
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::BlobSizeInBytes() const noexcept -> std::size_t
 	{
-		return ObjectHeader::QueryMapping_Size(this->RawHeader());
+		return BlobSize() * sizeof(Record);
 	}
 
-	__attribute__((always_inline)) inline auto Object::TypeId() const noexcept -> std::uint32_t
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const noexcept -> std::uint32_t
 	{
-		return ObjectHeader::QueryMapping_TypeId(this->RawHeader());
+		return ObjectHeader::ReadMapping_StrongRefCount(this->QueryRawHeader());
 	}
 
-	__attribute__((always_inline)) inline auto Object::FlagVector() const noexcept -> ObjectFlagsCompound
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::HeaderRead_BlockSize() const noexcept -> std::uint32_t
 	{
-		return ObjectHeader::QueryMapping_FlagVector(this->RawHeader());
+		return ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto Object::Allocate(const std::size_t sizeInRecords) noexcept -> Object
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::HeaderRead_TypeId() const noexcept -> std::uint32_t
 	{
-		const std::size_t        finalObjectSize = OBJECT_HEADER_SIZE_IN_RECORDS + sizeInRecords;
-		auto* __restrict__ const object          = new(std::nothrow) Record[finalObjectSize]();
-		return Object {.Blob = object};
+		return ObjectHeader::ReadMapping_TypeId(this->QueryRawHeader());
 	}
+
+	__attribute__((always_inline)) inline auto IMMUTATOR Object::Header_ReadFlagVector() const noexcept -> ObjectFlagsVectorCompound
+	{
+		return ObjectHeader::ReadMapping_FlagVector(this->QueryRawHeader());
+	}
+
+	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_IncrementStrongRefCount() const noexcept -> void
+	{
+		ObjectHeader::WriteMapping_IncrementStrongRefCount(this->QueryRawHeader());
+	}
+
+	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_DecrementStrongRefCount() const noexcept -> void
+	{
+		ObjectHeader::WriteMapping_DecrementStrongRefCount(this->QueryRawHeader());
+	}
+
+	__attribute__((always_inline)) inline auto MUTATOR Object::operator++() const noexcept -> void
+	{
+		this->HeaderWrite_IncrementStrongRefCount();
+	}
+
+	__attribute__((always_inline)) inline auto MUTATOR Object::operator--() const noexcept -> void
+	{
+		this->HeaderWrite_DecrementStrongRefCount();
+	}
+
+	__attribute__((always_inline)) inline auto MUTATOR Object::operator++(int) const noexcept -> void
+	{
+		this->HeaderWrite_IncrementStrongRefCount();
+	}
+
+	__attribute__((always_inline)) inline auto MUTATOR Object::operator--(int) const noexcept -> void
+	{
+		this->HeaderWrite_DecrementStrongRefCount();
+	}
+
+	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_StrongRefCount(const std::uint32_t strongRefCount) const noexcept -> void
+	{
+		ObjectHeader::WriteMapping_StrongRefCount(this->QueryRawHeader(), strongRefCount);
+	}
+
+	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_Size(const std::uint32_t size) const noexcept -> void
+	{
+		ObjectHeader::WriteMapping_Size(this->QueryRawHeader(), size);
+	}
+
+	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_TypeId(const std::uint32_t typeId) const noexcept -> void
+	{
+		ObjectHeader::WriteMapping_TypeId(this->QueryRawHeader(), typeId);
+	}
+
+	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagsVectorCompound flagVector) const noexcept -> void
+	{
+		ObjectHeader::WriteMapping_FlagVector(this->QueryRawHeader(), flagVector);
+	}
+
+#undef MUTATOR
+#undef IMMUTATOR
 }

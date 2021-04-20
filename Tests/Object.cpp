@@ -228,10 +228,10 @@ TEST(ObjectHeaderReinterpretation, FieldAccess)
 	ASSERT_EQ(header[1].U32C[0], 666);
 	ASSERT_EQ(header[1].U32C[1], 0xFF'FF'FF'AA);
 
-	ASSERT_EQ(ObjectHeader::QueryMapping_StrongRefCount(header.data()), 1234);
-	ASSERT_EQ(ObjectHeader::QueryMapping_Size(header.data()), 0xFF'FF'FF'FF);
-	ASSERT_EQ(ObjectHeader::QueryMapping_TypeId(header.data()), 666);
-	ASSERT_EQ(ObjectHeader::QueryMapping_FlagVector(header.data()).Compound, 0xFF'FF'FF'AA);
+	ASSERT_EQ(ObjectHeader::ReadMapping_StrongRefCount(header.data()), 1234);
+	ASSERT_EQ(ObjectHeader::ReadMapping_Size(header.data()), 0xFF'FF'FF'FF);
+	ASSERT_EQ(ObjectHeader::ReadMapping_TypeId(header.data()), 666);
+	ASSERT_EQ(ObjectHeader::ReadMapping_FlagVector(header.data()).Compound, 0xFF'FF'FF'AA);
 
 	auto& punned = ObjectHeader::RawQueryTypePun(header.data());
 	ASSERT_EQ(punned.StrongRefCount, 1234);
@@ -267,21 +267,21 @@ TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
 	ASSERT_EQ(data[1].U32C[0], 0xFF);
 	ASSERT_EQ(data[1].U32C[1], 1234);
 
-	ASSERT_EQ(ObjectHeader::QueryMapping_StrongRefCount(data), 3);
-	ASSERT_EQ(ObjectHeader::QueryMapping_Size(data), 5);
-	ASSERT_EQ(ObjectHeader::QueryMapping_TypeId(data), 0xFF);
-	ASSERT_EQ(ObjectHeader::QueryMapping_FlagVector(data).Compound, 1234);
+	ASSERT_EQ(ObjectHeader::ReadMapping_StrongRefCount(data), 3);
+	ASSERT_EQ(ObjectHeader::ReadMapping_Size(data), 5);
+	ASSERT_EQ(ObjectHeader::ReadMapping_TypeId(data), 0xFF);
+	ASSERT_EQ(ObjectHeader::ReadMapping_FlagVector(data).Compound, 1234);
 
 	ObjectHeader::WriteMapping_IncrementStrongRefCount(data);
 	ObjectHeader::WriteMapping_IncrementStrongRefCount(data);
 	ObjectHeader::WriteMapping_IncrementStrongRefCount(data);
 	ObjectHeader::WriteMapping_DecrementStrongRefCount(data);
 
-	ASSERT_EQ(ObjectHeader::QueryMapping_StrongRefCount(data), 5);
+	ASSERT_EQ(ObjectHeader::ReadMapping_StrongRefCount(data), 5);
 
 	object.MapFromRegionUnchecked(data);
 	ASSERT_EQ(object.StrongRefCount, 5);
-	ASSERT_EQ(object.Size, 7);
+	ASSERT_EQ(object.Size, 5);
 	ASSERT_EQ(object.TypeId, 0xFF);
 	ASSERT_EQ(object.FlagVector.Compound, 1234);
 }
@@ -293,4 +293,79 @@ TEST(ObjectHeaderReinterpretation, FieldCheckedMapping)
 	std::array<Record, 1> header { };
 	ASSERT_FALSE(object.MapToRegionChecked(header));
 	ASSERT_FALSE(object.MapFromRegionChecked(header));
+}
+
+TEST(Object, Allocation)
+{
+	const auto obj = Object::AllocateUnique(8192);
+	ASSERT_NE(obj, nullptr);
+	ASSERT_NE(obj->Blob, nullptr);
+}
+
+TEST(Object, BlockMappingReadWriteData)
+{
+	const auto obj = Object::AllocateUnique(4);
+	ASSERT_NE(obj, nullptr);
+	ASSERT_NE(obj->Blob, nullptr);
+	ASSERT_EQ(obj->HeaderRead_BlockSize(), 4);
+	ASSERT_EQ(obj->LookupBlock(), obj->Blob + 2);
+	ASSERT_EQ(obj->LookupBlockEndIterator(), obj->Blob + 2 + 4);
+	ASSERT_EQ(obj->LookupBlock(), obj->Blob + ObjectHeader::RECORD_CHUNKS);
+	ASSERT_EQ(obj->LookupBlockEndIterator(), obj->Blob + ObjectHeader::RECORD_CHUNKS + obj->HeaderRead_BlockSize());
+	ASSERT_EQ(obj->BlobSize(), 6);
+	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record));
+	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
+	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
+	ASSERT_EQ(obj->Header_ReadFlagVector().Compound, 0);
+}
+
+TEST(Object, BlockMappingReadWriteHeaderData)
+{
+	auto obj = Object::AllocateUnique(4);
+	ASSERT_NE(obj, nullptr);
+	ASSERT_NE(obj->Blob, nullptr);
+	ASSERT_EQ(obj->HeaderRead_BlockSize(), 4);
+	ASSERT_EQ(obj->LookupBlock(), obj->Blob + 2);
+	ASSERT_EQ(obj->LookupBlockEndIterator(), obj->Blob + 2 + 4);
+	ASSERT_EQ(obj->LookupBlock(), obj->Blob + ObjectHeader::RECORD_CHUNKS);
+	ASSERT_EQ(obj->LookupBlockEndIterator(), obj->Blob + ObjectHeader::RECORD_CHUNKS + obj->HeaderRead_BlockSize());
+	ASSERT_EQ(obj->BlobSize(), 6);
+	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record));
+	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
+	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
+	ASSERT_EQ(obj->Header_ReadFlagVector().Compound, 0);
+
+	ObjectHeader::WriteMapping_StrongRefCount(obj->QueryRawHeader(), 32);
+	ObjectHeader::WriteMapping_Size(obj->QueryRawHeader(), obj->HeaderRead_BlockSize());
+	ObjectHeader::WriteMapping_TypeId(obj->QueryRawHeader(), 0xFF'FF'AA'BB);
+	ObjectHeader::WriteMapping_FlagVector(obj->QueryRawHeader(), ObjectFlagsVectorCompound {.Compound = 0xABC});
+	ObjectHeader::WriteMapping_IncrementStrongRefCount(obj->QueryRawHeader());
+	ObjectHeader::WriteMapping_IncrementStrongRefCount(obj->QueryRawHeader());
+	ObjectHeader::WriteMapping_IncrementStrongRefCount(obj->QueryRawHeader());
+	ObjectHeader::WriteMapping_DecrementStrongRefCount(obj->QueryRawHeader());
+
+	auto& obj2 = *obj;
+	// ReSharper disable once CppDiscardedPostfixOperatorResult
+	obj2++;
+	// ReSharper disable once CppExpressionWithoutSideEffects
+	++obj2;
+	// ReSharper disable once CppDiscardedPostfixOperatorResult
+	obj2--;
+	// ReSharper disable once CppExpressionWithoutSideEffects
+	--obj2;
+
+	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 34);
+	ASSERT_EQ(obj->HeaderRead_BlockSize(), 4);
+	ASSERT_EQ(obj->HeaderRead_TypeId(), 0xFF'FF'AA'BB);
+	ASSERT_EQ(obj->Header_ReadFlagVector().Compound, 0xABC);
+
+	obj->HeaderWrite_StrongRefCount(0);
+	obj->HeaderWrite_Size(0);
+	obj->HeaderWrite_TypeId(0);
+	obj->HeaderWrite_FlagVector(ObjectFlagsVectorCompound { });
+
+	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
+	ASSERT_EQ(obj->HeaderRead_BlockSize(), 0);
+	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
+	ASSERT_EQ(obj->Header_ReadFlagVector().Compound, 0);
 }

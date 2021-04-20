@@ -1,6 +1,6 @@
-// File: Environment.cpp
+// File: Object.cpp
 // Author: Mario
-// Created: 17.04.2021 14:32
+// Created: 20.04.2021 13:10
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,120 +205,39 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <iostream>
-
-#include "../Include/Nominax/Nominax.hpp"
-
-using std::cout;
-using std::cerr;
-using std::endl;
+#include "../Include/Nominax/Object.hpp"
 
 namespace Nominax
 {
-	static constexpr auto MachineRating(const std::size_t threads) noexcept -> char
+	auto Object::AllocateUnique(const std::size_t sizeInRecords) noexcept -> std::unique_ptr<Object, UniquePtrObjectDeleter>
 	{
-		if (threads <= 2)
+		if (__builtin_expect(sizeInRecords == 0, 0))
 		{
-			return 'F';
+			return nullptr;
 		}
-		if (threads <= 4)
+		const std::uint32_t      finalObjectSize = ObjectHeader::RECORD_CHUNKS + sizeInRecords;
+		auto* __restrict__ const object          = new(std::nothrow) Record[finalObjectSize]();
+		if (__builtin_expect(!object, 0))
 		{
-			return 'E';
+			return nullptr;
 		}
-		if (threads <= 8)
-		{
-			return 'D';
-		}
-		if (threads <= 16)
-		{
-			return 'C';
-		}
-		if (threads <= 32)
-		{
-			return 'B';
-		}
-		return 'A';
-	}
+		// Write object header:
+		// No ref count:
+		ObjectHeader::WriteMapping_StrongRefCount(object, 0);
 
-	static auto Separator() -> void
-	{
-		cout << "================================================================\n";
-	}
+		// !! Important !! Write the size:
+		ObjectHeader::WriteMapping_Size(object, sizeInRecords);
 
-	auto Environment::PrintVersionInfo() const -> void
-	{
-		cout << SYSTEM_LOGO_TEXT;
-		cout << SYSTEM_COPYRIGHT_TEXT;
-		cout << "Nominax Version: " << SYSTEM_VERSION << '\n';
-		cout << "Platform: " NOMINAX_OS_NAME " " NOMINAX_ARCH_SIZE_NAME << '\n';
-		cout << "Arch: " << NOMINAX_ARCH_NAME << '\n';
-		cout << "Posix: " << std::boolalpha << NOMINAX_POSIX << '\n';
-		cout << "Compiler: " << NOMINAX_COM_NAME " - C++ 20" << '\n';
-	}
+		// Use pointer as dummy type id:
+		ObjectHeader::WriteMapping_TypeId(object, static_cast<std::uint32_t>(*reinterpret_cast<std::uintptr_t*>(object)));
 
-	auto Environment::PrintMachineInfo() const -> void
-	{
-		const auto&
-		[
-			OperatingSystemName,
-			ArchitectureName,
-			CompilerName,
-			ThreadCount,
-			CpuName,
-			TotalSystemMemory,
-			UsedSystemMemory,
-			ThreadId
-		] = this->SystemInfo;
+		// Write empty flag vector:
+		ObjectHeader::WriteMapping_FlagVector(object, ObjectFlagsVectorCompound { });
 
-		cout << "TID: " << "0x" << std::hex << ThreadId << std::dec << '\n';
-		cout << "CPU: " << CpuName << '\n';
-		cout << "CPU Threads: " << ThreadCount << '\n';
-		cout << "CPU Machine class: " << MachineRating(ThreadCount) << '\n';
-		cout << "Total RAM: " << Bytes2Gigabytes(TotalSystemMemory) << " GB\n";
-		cout << "Self Used RAM: " << Bytes2Megabytes(UsedSystemMemory) << " MB\n";
-	}
-
-	auto Environment::PrintTypeTable() const -> void
-	{
-		VariadicTable<std::string_view, std::size_t, std::size_t> table {{"Type", "Size", "Alignment"}};
-		table.AddRow("Record", sizeof(Record), alignof(Record));
-		table.AddRow("Signal", sizeof(Signal), alignof(Signal));
-		table.AddRow("DynamicSignal", sizeof(DynamicSignal), alignof(DynamicSignal));
-		table.AddRow("Object", sizeof(Object), alignof(Object));
-		table.AddRow("ObjectHeader", sizeof(ObjectHeader), alignof(ObjectHeader));
-		table.AddRow("void*", sizeof(void*), alignof(void*));
-		table.AddRow("(Runtime) int", sizeof(std::int64_t), alignof(std::int64_t));
-		table.AddRow("(Runtime) uint", sizeof(std::uint64_t), alignof(std::uint64_t));
-		table.AddRow("(Runtime) float", sizeof(double), alignof(double));
-		table.AddRow("(Runtime) char", sizeof(char32_t), alignof(char32_t));
-		table.AddRow("(Runtime) bool", sizeof(bool), alignof(bool));
-		table.Print(cout);
-	}
-
-	auto Environment::BootEnvironment() -> bool
-	{
-		try
+		return std::unique_ptr<Object, UniquePtrObjectDeleter>
 		{
-			std::ios_base::sync_with_stdio(false);
-			this->PrintVersionInfo();
-			Separator();
-			this->SystemInfo.QueryAll();
-			this->PrintMachineInfo();
-			Separator();
-			this->PrintTypeTable();
-			Separator();
-			cout.flush();
-			return true;
-		}
-		catch (const std::exception& ex)
-		{
-			cerr << "[!] Fatal system exception: " << ex.what() << endl;
-			return false;
-		}
-		catch (...)
-		{
-			cerr << "[!] Unknown system error!" << endl;
-			return false;
-		}
+			new Object {.Blob = object},
+			UniquePtrObjectDeleter()
+		};
 	}
 }

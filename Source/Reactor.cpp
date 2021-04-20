@@ -206,6 +206,9 @@
 //    limitations under the License.
 
 #include "../Include/Nominax/Reactor.hpp"
+
+#include <cassert>
+
 #include "../Include/Nominax/Interrupts.hpp"
 #include "../Include/Nominax/MacroCfg.hpp"
 
@@ -476,6 +479,8 @@ namespace Nominax
 	static consteval auto ValidateJumpTable(const void* __restrict__ const* __restrict__ const jumpTable,
 	                                        const std::size_t                                  jumpTableSize) noexcept -> bool
 	{
+		assert(jumpTable);
+		assert(jumpTableSize);
 		const auto* current {jumpTable};
 		for (const auto* const end {jumpTable + jumpTableSize}; __builtin_expect(current < end, 1); ++current)
 		{
