@@ -213,6 +213,9 @@
 
 namespace Nominax
 {
+	/// <summary>
+	/// Contains all flags in the flag vector field in the object header.
+	/// </summary>
 	union ObjectFlagsCompound final
 	{
 		struct
@@ -264,7 +267,7 @@ namespace Nominax
 	/// +-----------------------+
 	/// | 0 | Strong Ref Count  | 32 Bit
 	/// +-----------------------+
-	/// | 1 | Weak Ref Count    | 32 Bit
+	/// | 1 |  Size in Records	| 32 Bit
 	/// +-----------------------+
 	/// | 2 | Type ID			| 32 Bit
 	/// +-----------------------+
@@ -273,51 +276,394 @@ namespace Nominax
 	/// Total size : 128 Bit(16 Bytes)
 	struct ObjectHeader final
 	{
-		std::uint32_t       StrongRefCount {0};
-		std::uint32_t       WeakRefCount {0};
-		std::uint32_t       TypeId {0};
+		/// <summary>
+		/// Reference counter for strong references.
+		/// </summary>
+		std::uint32_t StrongRefCount {0};
+
+		/// <summary>
+		/// Object size in records.
+		/// </summary>
+		std::uint32_t Size {0};
+
+		/// <summary>
+		/// Type index for type DB.
+		/// </summary>
+		std::uint32_t TypeId {0};
+
+		/// <summary>
+		/// Flag vector for object states.
+		/// </summary>
 		ObjectFlagsCompound FlagVector { };
 
-		auto        MapTo(Record* region) const noexcept -> void;
-		auto        MapFrom(const Record* region) noexcept -> void;
+		/// <summary>
+		/// Maps this record into the specified memory region.
+		/// ! The region must have at least 2 record entries to write to !
+		/// Safe alternative is the overload using std::span.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns></returns>
+		auto MapToRegionUnchecked(Record* region) const noexcept -> void;
+
+		/// <summary>
+		/// Maps this record into the specified memory region.
+		/// ! The region must have at least 2 record entries to write to !
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
+		[[nodiscard]]
+		auto MapToRegionChecked(std::span<Record> region) const noexcept -> bool;
+
+		/// <summary>
+		/// Maps this record from the specified memory region.
+		/// ! The region must have at least 2 record entries to read from!
+		/// Safe alternative is the overload using std::span.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns></returns>
+		auto MapFromRegionUnchecked(const Record* region) noexcept -> void;
+
+		/// <summary>
+		/// Maps this record from the specified memory region.
+		/// ! The region must have at least 2 record entries to read from!
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
+		[[nodiscard]]
+		auto MapFromRegionChecked(std::span<const Record> region) noexcept -> bool;
+
+		/// <summary>
+		/// Map an object header to the region and return the current value of the strong ref count.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns>The current value of the strong ref count.</returns>
+		[[nodiscard]]
 		static auto QueryMapping_StrongRefCount(const Record* region) noexcept -> std::uint32_t;
-		static auto QueryMapping_WeakRefCount(const Record* region) noexcept -> std::uint32_t;
+
+		/// <summary>
+		/// Map an object header to the region and return the current value of the size.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns>The current value of the size field.</returns>
+		[[nodiscard]]
+		static auto QueryMapping_Size(const Record* region) noexcept -> std::uint32_t;
+
+		/// <summary>
+		/// Map an object header to the region and return the current value of the type id.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns>The current value of the type id.</returns>
+		[[nodiscard]]
 		static auto QueryMapping_TypeId(const Record* region) noexcept -> std::uint32_t;
+
+		/// <summary>
+		/// Map an object header to the region and return the current value of the flag vector.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns>The current value of the flag vector.</returns>
+		[[nodiscard ]]
 		static auto QueryMapping_FlagVector(const Record* region) noexcept -> ObjectFlagsCompound;
+
+		/// <summary>
+		/// Map an object header to the region and writes the value into the strong ref count field.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <param name="strongRefCount">The value to write.</param>
+		/// <returns></returns>
+		static auto WriteMapping_StrongRefCount(Record* region, std::uint32_t strongRefCount) noexcept -> void;
+
+		/// <summary>
+		/// Implicit map the region to an object header and increment the strong reference counter by one.
+		/// The region must have at least 2 record entries to read from!
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns></returns>
+		static auto WriteMapping_IncrementStrongRefCount(Record* region) noexcept -> void;
+
+		/// <summary>
+		/// Implicit map the region to an object header and decrement the strong reference counter by one.
+		/// The region must have at least 2 record entries to read from!
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns></returns>
+		static auto WriteMapping_DecrementStrongRefCount(Record* region) noexcept -> void;
+
+		/// <summary>
+		/// Map an object header to the region and writes the value into the size field.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <param name="size">The value to write.</param>
+		/// <returns></returns>
+		static auto WriteMapping_Size(Record* region, std::uint32_t size) noexcept -> void;
+
+		/// <summary>
+		/// Map an object header to the region and writes the value into the type id field.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <param name="typeId">The value to write.</param>
+		/// <returns></returns>
+		static auto WriteMapping_TypeId(Record* region, std::uint32_t typeId) noexcept -> void;
+
+		/// <summary>
+		/// Map an object header to the region and writes the value into the flag vector field.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <param name="flagVector">The value to write.</param>
+		/// <returns></returns>
+		static auto WriteMapping_FlagVector(Record* region, ObjectFlagsCompound flagVector) noexcept -> void;
+
+		/// <summary>
+		/// Type-pun a region to an object header
+		/// using reinterpret_cast. This is bug prone and unsafe.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto RawQueryTypePun(Record* region) -> ObjectHeader&;
 	};
+
+	constexpr auto OBJECT_HEADER_RECORD_OFFSET {sizeof(ObjectHeader) / sizeof(Record)};
+	constexpr auto OBJECT_HEADER_SIZE_IN_RECORDS {OBJECT_HEADER_RECORD_OFFSET};
 
 	static_assert(sizeof(ObjectHeader) == 4 * sizeof(std::uint32_t));
 	static_assert(sizeof(ObjectHeader) == 16);
+	static_assert(sizeof(ObjectHeader) % 4 == 0); // Ok, ok we know the size must be 16 bytes!
 	static_assert(std::is_standard_layout_v<ObjectHeader>);
 	static_assert(std::is_trivially_copyable_v<ObjectHeader>);
 
-	__attribute__((always_inline)) inline auto ObjectHeader::MapTo(Record* const region) const noexcept -> void
+	__attribute__((always_inline)) inline auto ObjectHeader::MapToRegionUnchecked(Record* const region) const noexcept -> void
 	{
 		std::memcpy(region, this, sizeof(ObjectHeader));
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::MapFrom(const Record* const region) noexcept -> void
+	__attribute__((flatten)) inline auto ObjectHeader::MapToRegionChecked(const std::span<Record> region) const noexcept -> bool
+	{
+		if (__builtin_expect(region.size() < 2, 0))
+		{
+			return false;
+		}
+		return std::memcpy(region.data(), this, sizeof(ObjectHeader));
+	}
+
+	__attribute__((always_inline)) inline auto ObjectHeader::MapFromRegionUnchecked(const Record* const region) noexcept -> void
 	{
 		std::memcpy(this, region, sizeof(ObjectHeader));
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_StrongRefCount(const Record* const region) noexcept -> std::uint32_t
+	__attribute__((flatten)) inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Record> region) noexcept -> bool
 	{
-		return *reinterpret_cast<const std::uint32_t*>(region);
+		if (__builtin_expect(region.size() < 2, 0))
+		{
+			return false;
+		}
+		return std::memcpy(this, region.data(), sizeof(ObjectHeader));
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_WeakRefCount(const Record* const region) noexcept -> std::uint32_t
+	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_StrongRefCount(const Record* const region) noexcept -> std::uint32_t
 	{
-		return *(reinterpret_cast<const std::uint32_t*>(region) + 1);
+		return region[0].U32C[0];
+	}
+
+	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_Size(const Record* const region) noexcept -> std::uint32_t
+	{
+		return region[0].U32C[1];
 	}
 
 	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_TypeId(const Record* const region) noexcept -> std::uint32_t
 	{
-		return *(reinterpret_cast<const std::uint32_t*>(region) + 2);
+		return region[1].U32C[0];
 	}
 
 	__attribute__((always_inline)) inline auto ObjectHeader::QueryMapping_FlagVector(const Record* const region) noexcept -> ObjectFlagsCompound
 	{
-		return *(reinterpret_cast<const ObjectFlagsCompound*>(region) + 3);
+		const auto flags = ObjectFlagsCompound
+		{
+			.Compound = region[1].U32C[1]
+		};
+		return flags;
+	}
+
+	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const std::uint32_t strongRefCount) noexcept -> void
+	{
+		region[0].U32C[0] = strongRefCount;
+	}
+
+	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) noexcept -> void
+	{
+		++region[0].U32C[0];
+	}
+
+	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) noexcept -> void
+	{
+		--region[0].U32C[0];
+	}
+
+	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_Size(Record* const region, const std::uint32_t size) noexcept -> void
+	{
+		region[0].U32C[1] = size;
+	}
+
+	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_TypeId(Record* const region, const std::uint32_t typeId) noexcept -> void
+	{
+		region[1].U32C[0] = typeId;
+	}
+
+	__attribute__((always_inline)) inline auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagsCompound flagVector) noexcept -> void
+	{
+		region[1].U32C[1] = flagVector.Compound;
+	}
+
+	__attribute__((always_inline)) inline auto ObjectHeader::RawQueryTypePun(Record* const region) -> ObjectHeader&
+	{
+		return *reinterpret_cast<ObjectHeader*>(region);
+	}
+
+	/// <summary>
+	/// Represents any heap allocated object.
+	/// </summary>
+	struct Object final
+	{
+		Record* Blob;
+
+		/// <summary>
+		/// Get the raw object header pointer.
+		/// </summary>
+		/// <returns>The object header pointer.</returns>
+		[[nodiscard]]
+		auto RawHeader() const noexcept -> Record*;
+
+		/// <summary>
+		/// Get the object header.
+		/// </summary>
+		/// <returns>The object header.</returns>
+		[[nodiscard]]
+		auto Header() const noexcept -> ObjectHeader;
+
+		/// <summary>
+		/// Get underlying object.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto BeginUnderlyingObjectLane() const noexcept -> Record*;
+
+		/// <summary>
+		/// Get underlying object end iterator.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto EndUnderlyingObjectLane() const noexcept -> Record*;
+
+		/// <summary>
+		/// Checks if the underlying object is null, but the object header is null.
+		/// </summary>
+		/// <returns>True if the underlying object is null, else false.</returns>
+		[[nodiscard]]
+		auto IsUnderlyingObjectNull() const noexcept -> bool;
+
+		/// <summary>
+		/// Checks if the whole data blob (underlying object) and the object header is null.
+		/// </summary>
+		/// <returns>true if the whole data blob (underlying object) and the object header is null, else false.</returns>
+		[[nodiscard]]
+		auto IsBlobNull() const noexcept -> bool;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The strong reference count field from the object header.</returns>
+		[[nodiscard]]
+		auto StrongReferenceCount() const noexcept -> std::uint32_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The size field from the object header.</returns>
+		[[nodiscard]]
+		auto Size() const noexcept -> std::uint32_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The type id field from the object header.</returns>
+		[[nodiscard]]
+		auto TypeId() const noexcept -> std::uint32_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The flag vector field from the object header.</returns>
+		[[nodiscard]]
+		auto FlagVector() const noexcept -> ObjectFlagsCompound;
+
+		/// <summary>
+		/// Raw allocate using placement new.
+		/// This is fine for tests, but for real allocation
+		/// use the system allocator overload.
+		/// </summary>
+		/// <param name="sizeInRecords">BUG-PRONE The size of the object in RECORDS NOT in BYTES</param>
+		/// <returns>An object. The blob of the object is null when the allocation failed, else not null.</returns>
+		static auto Allocate(std::size_t sizeInRecords) noexcept -> Object;
+	};
+
+	static_assert(sizeof(Object) == sizeof(void*));
+	static_assert(std::is_standard_layout_v<Object>);
+
+	__attribute__((always_inline)) inline auto Object::RawHeader() const noexcept -> Record*
+	{
+		return this->Blob;
+	}
+
+	__attribute__((always_inline)) inline auto Object::Header() const noexcept -> ObjectHeader
+	{
+		ObjectHeader header;
+		header.MapFromRegionUnchecked(this->RawHeader());
+		return header;
+	}
+
+	__attribute__((always_inline)) inline auto Object::BeginUnderlyingObjectLane() const noexcept -> Record*
+	{
+		return this->Blob + OBJECT_HEADER_RECORD_OFFSET;
+	}
+
+	__attribute__((always_inline)) inline auto Object::EndUnderlyingObjectLane() const noexcept -> Record*
+	{
+		return this->BeginUnderlyingObjectLane() + this->Size();
+	}
+
+	__attribute__((always_inline)) inline auto Object::IsUnderlyingObjectNull() const noexcept -> bool
+	{
+		return this->BeginUnderlyingObjectLane() == nullptr;
+	}
+
+	__attribute__((always_inline)) inline auto Object::IsBlobNull() const noexcept -> bool
+	{
+		return this->Blob == nullptr;
+	}
+
+	__attribute__((always_inline)) inline auto Object::StrongReferenceCount() const noexcept -> std::uint32_t
+	{
+		return ObjectHeader::QueryMapping_StrongRefCount(this->RawHeader());
+	}
+
+	__attribute__((always_inline)) inline auto Object::Size() const noexcept -> std::uint32_t
+	{
+		return ObjectHeader::QueryMapping_Size(this->RawHeader());
+	}
+
+	__attribute__((always_inline)) inline auto Object::TypeId() const noexcept -> std::uint32_t
+	{
+		return ObjectHeader::QueryMapping_TypeId(this->RawHeader());
+	}
+
+	__attribute__((always_inline)) inline auto Object::FlagVector() const noexcept -> ObjectFlagsCompound
+	{
+		return ObjectHeader::QueryMapping_FlagVector(this->RawHeader());
+	}
+
+	__attribute__((flatten)) inline auto Object::Allocate(const std::size_t sizeInRecords) noexcept -> Object
+	{
+		const std::size_t        finalObjectSize = OBJECT_HEADER_SIZE_IN_RECORDS + sizeInRecords;
+		auto* __restrict__ const object          = new(std::nothrow) Record[finalObjectSize]();
+		return Object {.Blob = object};
 	}
 }

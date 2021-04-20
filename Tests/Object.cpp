@@ -212,7 +212,7 @@ TEST(ObjectHeaderReinterpretation, FieldAccess)
 	ObjectHeader object
 	{
 		.StrongRefCount = 1234,
-		.WeakRefCount = 0xFF'FF'FF'FF,
+		.Size = 0xFF'FF'FF'FF,
 		.TypeId = 666,
 		.FlagVector = {.Compound = 0xFF'FF'FF'AA}
 	};
@@ -221,7 +221,7 @@ TEST(ObjectHeaderReinterpretation, FieldAccess)
 
 	static_assert(sizeof header == sizeof object);
 
-	object.MapTo(header.data());
+	object.MapToRegionUnchecked(header.data());
 
 	ASSERT_EQ(header[0].U32C[0], 1234);
 	ASSERT_EQ(header[0].U32C[1], 0xFF'FF'FF'FF);
@@ -229,7 +229,68 @@ TEST(ObjectHeaderReinterpretation, FieldAccess)
 	ASSERT_EQ(header[1].U32C[1], 0xFF'FF'FF'AA);
 
 	ASSERT_EQ(ObjectHeader::QueryMapping_StrongRefCount(header.data()), 1234);
-	ASSERT_EQ(ObjectHeader::QueryMapping_WeakRefCount(header.data()), 0xFF'FF'FF'FF);
+	ASSERT_EQ(ObjectHeader::QueryMapping_Size(header.data()), 0xFF'FF'FF'FF);
 	ASSERT_EQ(ObjectHeader::QueryMapping_TypeId(header.data()), 666);
 	ASSERT_EQ(ObjectHeader::QueryMapping_FlagVector(header.data()).Compound, 0xFF'FF'FF'AA);
+
+	auto& punned = ObjectHeader::RawQueryTypePun(header.data());
+	ASSERT_EQ(punned.StrongRefCount, 1234);
+	ASSERT_EQ(punned.Size, 0xFF'FF'FF'FF);
+	ASSERT_EQ(punned.TypeId, 666);
+	ASSERT_EQ(punned.FlagVector.Compound, 0xFF'FF'FF'AA);
+}
+
+TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
+{
+	ObjectHeader object
+	{
+		.StrongRefCount = 0,
+		.Size = 0,
+		.TypeId = 666,
+		.FlagVector = {.Compound = 0xFF'FF'FF'AA}
+	};
+
+	std::array<Record, 2> header { };
+	auto*                 data {std::data(header)};
+
+	static_assert(sizeof header == sizeof object);
+
+	object.MapToRegionUnchecked(header.data());
+
+	ObjectHeader::WriteMapping_StrongRefCount(data, 3);
+	ObjectHeader::WriteMapping_Size(data, 5);
+	ObjectHeader::WriteMapping_TypeId(data, 0xFF);
+	ObjectHeader::WriteMapping_FlagVector(data, {.Compound = 1234});
+
+	ASSERT_EQ(data[0].U32C[0], 3);
+	ASSERT_EQ(data[0].U32C[1], 5);
+	ASSERT_EQ(data[1].U32C[0], 0xFF);
+	ASSERT_EQ(data[1].U32C[1], 1234);
+
+	ASSERT_EQ(ObjectHeader::QueryMapping_StrongRefCount(data), 3);
+	ASSERT_EQ(ObjectHeader::QueryMapping_Size(data), 5);
+	ASSERT_EQ(ObjectHeader::QueryMapping_TypeId(data), 0xFF);
+	ASSERT_EQ(ObjectHeader::QueryMapping_FlagVector(data).Compound, 1234);
+
+	ObjectHeader::WriteMapping_IncrementStrongRefCount(data);
+	ObjectHeader::WriteMapping_IncrementStrongRefCount(data);
+	ObjectHeader::WriteMapping_IncrementStrongRefCount(data);
+	ObjectHeader::WriteMapping_DecrementStrongRefCount(data);
+
+	ASSERT_EQ(ObjectHeader::QueryMapping_StrongRefCount(data), 5);
+
+	object.MapFromRegionUnchecked(data);
+	ASSERT_EQ(object.StrongRefCount, 5);
+	ASSERT_EQ(object.Size, 7);
+	ASSERT_EQ(object.TypeId, 0xFF);
+	ASSERT_EQ(object.FlagVector.Compound, 1234);
+}
+
+TEST(ObjectHeaderReinterpretation, FieldCheckedMapping)
+{
+	ObjectHeader object { };
+
+	std::array<Record, 1> header { };
+	ASSERT_FALSE(object.MapToRegionChecked(header));
+	ASSERT_FALSE(object.MapFromRegionChecked(header));
 }

@@ -211,14 +211,14 @@ namespace Nominax
 {
 	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
 	{
-		if (input.size() != output.size())
+		if (std::size(input) != std::size(output))
 		[[unlikely]]
 		{
 			return false;
 		}
 
-		auto       iterator {input.begin()};
-		const auto end {input.end()};
+		auto       iterator {std::begin(input)};
+		const auto end {std::end(input)};
 
 		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
 		[[likely]]
@@ -235,7 +235,7 @@ namespace Nominax
 		const std::uint8_t requiredArgCount = INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[instructionIndex];
 
 		// check if the instruction does not need any immediate arguments:
-		if (args.empty() && requiredArgCount == 0)
+		if (std::empty(args) && requiredArgCount == 0)
 		[[likely]]
 		{
 			return ByteCodeValidationResult::Ok;
@@ -243,14 +243,14 @@ namespace Nominax
 
 
 		// check if we submitted not enough arguments:
-		if (args.size() < requiredArgCount)
+		if (std::size(args) < requiredArgCount)
 		[[unlikely]]
 		{
 			return ByteCodeValidationResult::NotEnoughArguments;
 		}
 
 		// check if we submitted too many arguments:
-		if (args.size() > requiredArgCount)
+		if (std::size(args) > requiredArgCount)
 		[[unlikely]]
 		{
 			return ByteCodeValidationResult::TooManyArguments;
@@ -261,7 +261,7 @@ namespace Nominax
 			INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[instructionIndex];
 
 		// this loop checks each submitted operand type with the required operand type.
-		for (std::size_t i = 0; i < args.size(); ++i)
+		for (std::size_t i = 0; i < std::size(args); ++i)
 		[[likely]]
 		{
 			// submitted operand:
