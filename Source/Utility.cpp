@@ -205,6 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <atomic>
 #include <mutex>
 
 #include "../Include/Nominax/Utility.hpp"
@@ -212,6 +213,66 @@
 
 namespace Nominax
 {
+	auto Xorshift32() noexcept -> std::uint32_t {
+		static constinit std::atomic_uint32_t seed32 { 0x12B9B0A1 };
+		seed32 ^= seed32 << 0xD;
+		seed32 ^= seed32 >> 0x11;
+		seed32 ^= seed32 << 0x5;
+		return seed32;
+	}
+
+	auto Xorshift64() noexcept -> std::uint64_t {
+		static constinit std::atomic_uint64_t seed64 { 0x139408DCBBF7A44 };
+		seed64 ^= seed64 << 0xD;
+		seed64 ^= seed64 >> 0x7;
+		seed64 ^= seed64 << 0x11;
+		return seed64;
+	}
+
+	auto Xorshift128() noexcept -> std::uint32_t {
+		static constinit std::atomic_uint32_t x { 0x75BCD15 };
+		static constinit std::atomic_uint32_t y { 0x159A55E5 };
+		static constinit std::atomic_uint32_t z { 0x1F123BB5 };
+		static constinit std::atomic_uint32_t w { 0x5491333 };
+
+		const uint32_t t = x ^ x << 0xB;
+		x.exchange(y);
+		y.exchange(z);
+		z.exchange(w);
+		w ^= w >> 0xD ^ t ^ t >> 0x8;
+		return w;
+	}
+
+	auto AtomicXorshift32() noexcept -> std::uint32_t {
+		static thread_local constinit std::uint32_t seed32{ 0x12B9B0A1 };
+		seed32 ^= seed32 << 0xD;
+		seed32 ^= seed32 >> 0x11;
+		seed32 ^= seed32 << 0x5;
+		return seed32;
+	}
+
+	auto AtomicXorshift64() noexcept -> std::uint64_t {
+		static thread_local constinit std::uint64_t seed64{ 0x139408DCBBF7A44 };
+		seed64 ^= seed64 << 0xD;
+		seed64 ^= seed64 >> 0x7;
+		seed64 ^= seed64 << 0x11;
+		return seed64;
+	}
+
+	auto AtomicXorshift128() noexcept -> std::uint32_t {
+		static thread_local constinit std::uint32_t x{ 0x75BCD15 };
+		static thread_local constinit std::uint32_t y{ 0x159A55E5 };
+		static thread_local constinit std::uint32_t z{ 0x1F123BB5 };
+		static thread_local constinit std::uint32_t w{ 0x5491333 };
+
+		const uint32_t t = x ^ x << 0xB;
+		x = y;
+		y = z;
+		z = w;
+		w ^= w >> 0xD ^ t ^ t >> 0x8;
+		return w;
+	}
+
 	auto SafeLocalTime(const std::time_t& time) -> std::tm
 	{
 		std::tm buffer { };
