@@ -1532,16 +1532,24 @@ namespace Nominax
 		goto
 		JMP_PTR();
 
+
 	__vpush__:
 		__attribute__((hot));
 		ASM_MARKER("__vpush__");
 		STO_SENTINEL(4);
-		*++sp = (*++ip).R64; // push(imm())
-		*++sp = (*++ip).R64; // push(imm())
-		*++sp = (*++ip).R64; // push(imm())
-		*++sp = (*++ip).R64; // push(imm())
+		/*
+			movupd	(%r15), %xmm0
+			movupd	16(%r15), %xmm1
+			movupd	%xmm1, 16(%rdi)
+			movupd	%xmm0, (%rdi)
+		*/
+		++sp; ++ip;
+		std::memcpy(sp, ip, sizeof(Record) * 4);
+		sp += 3;
+		ip += 3;
 		goto
 		JMP_PTR();
+
 
 	__vpop__:
 		__attribute__((hot));
@@ -1549,9 +1557,23 @@ namespace Nominax
 		sp -= 4;
 		goto
 		JMP_PTR();
+
+
 	__vadd__:
 		__attribute__((hot));
 		ASM_MARKER("__vadd__");
+		/*
+			movupd	-64(%rdi), %xmm0
+			movupd	-48(%rdi), %xmm1
+			movupd	8(%rdi), %xmm2
+			movupd	24(%rdi), %xmm3
+			shufpd	$1, %xmm2, %xmm2
+			addpd	%xmm1, %xmm2
+			movupd	%xmm2, -48(%rdi)
+			shufpd	$1, %xmm3, %xmm3
+			addpd	%xmm0, %xmm3
+			movupd	%xmm3, -64(%rdi)
+		*/
 		(*(sp - 4)).F64 += (*(sp - 0)).F64;
 		(*(sp - 5)).F64 += (*(sp - 1)).F64;
 		(*(sp - 6)).F64 += (*(sp - 2)).F64;
@@ -1560,9 +1582,20 @@ namespace Nominax
 		goto
 		JMP_PTR();
 
+
 	__vsub__:
 		__attribute__((hot));
 		ASM_MARKER("__vsub__");
+		/*
+			movupd	-56(%rdi), %xmm0
+			movupd	-40(%rdi), %xmm1
+			movupd	-24(%rdi), %xmm2
+			subpd	%xmm2, %xmm0
+			movupd	-8(%rdi), %xmm2
+			subpd	%xmm2, %xmm1
+			movupd	%xmm1, -40(%rdi)
+			movupd	%xmm0, -56(%rdi)
+		*/
 		(*(sp - 4)).F64 -= (*(sp - 0)).F64;
 		(*(sp - 5)).F64 -= (*(sp - 1)).F64;
 		(*(sp - 6)).F64 -= (*(sp - 2)).F64;
@@ -1571,9 +1604,20 @@ namespace Nominax
 		goto
 		JMP_PTR();
 
+
 	__vmul__:
 		__attribute__((hot));
 		ASM_MARKER("__vmul__");
+		/*
+			movupd	-56(%rdi), %xmm0
+			movupd	-40(%rdi), %xmm1
+			movupd	-24(%rdi), %xmm2
+			mulpd	%xmm0, %xmm2
+			movupd	-8(%rdi), %xmm0
+			mulpd	%xmm1, %xmm0
+			movupd	%xmm0, -40(%rdi)
+			movupd	%xmm2, -56(%rdi)
+		*/
 		(*(sp - 4)).F64 *= (*(sp - 0)).F64;
 		(*(sp - 5)).F64 *= (*(sp - 1)).F64;
 		(*(sp - 6)).F64 *= (*(sp - 2)).F64;
@@ -1582,9 +1626,20 @@ namespace Nominax
 		goto
 		JMP_PTR();
 
+
 	__vdiv__:
 		__attribute__((hot));
 		ASM_MARKER("__vdiv__");
+		/*
+			movupd	-56(%rdi), %xmm0
+			movupd	-40(%rdi), %xmm1
+			movupd	-24(%rdi), %xmm2
+			divpd	%xmm2, %xmm0
+			movupd	-8(%rdi), %xmm2
+			divpd	%xmm2, %xmm1
+			movupd	%xmm1, -40(%rdi)
+			movupd	%xmm0, -56(%rdi)
+		*/
 		(*(sp - 4)).F64 /= (*(sp - 0)).F64;
 		(*(sp - 5)).F64 /= (*(sp - 1)).F64;
 		(*(sp - 6)).F64 /= (*(sp - 2)).F64;
