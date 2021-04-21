@@ -284,6 +284,8 @@ namespace Nominax
 		table.AddRow("Record", sizeof(Record), alignof(Record));
 		table.AddRow("Signal", sizeof(Signal), alignof(Signal));
 		table.AddRow("DynamicSignal", sizeof(DynamicSignal), alignof(DynamicSignal));
+		table.AddRow("Object", sizeof(Object), alignof(Object));
+		table.AddRow("ObjectHeader", sizeof(ObjectHeader), alignof(ObjectHeader));
 		table.AddRow("void*", sizeof(void*), alignof(void*));
 		table.AddRow("(Runtime) int", sizeof(std::int64_t), alignof(std::int64_t));
 		table.AddRow("(Runtime) uint", sizeof(std::uint64_t), alignof(std::uint64_t));

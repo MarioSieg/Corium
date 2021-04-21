@@ -230,7 +230,7 @@ namespace Nominax
 		float         F32C[2];
 		char32_t      C32C[2];
 
-        constexpr             Record() noexcept = default;
+		constexpr             Record() noexcept = default;
 		explicit constexpr    Record(std::int32_t value) noexcept;
 		explicit constexpr    Record(std::uint32_t value) noexcept;
 		explicit constexpr    Record(float value) noexcept;
@@ -318,6 +318,6 @@ namespace Nominax
 	static_assert(sizeof(Record) == sizeof(std::int64_t));
 	static_assert(alignof(Record) == alignof(std::int64_t));
 	static_assert(std::is_standard_layout_v<Record>);
-    static_assert(std::is_trivial_v<Record>);
+	static_assert(std::is_trivial_v<Record>);
 	static_assert(std::is_default_constructible_v<Record>);
 }

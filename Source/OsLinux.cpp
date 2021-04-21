@@ -218,17 +218,17 @@
 #include <unistd.h>
 
 namespace Nominax::Os {
-    auto QuerySystemMemoryTotal() -> std::size_t
-    {
+	auto QuerySystemMemoryTotal() -> std::size_t
+	{
 		const long pages = sysconf(_SC_PHYS_PAGES);
 		const long page_size = sysconf(_SC_PAGE_SIZE);
 		return static_cast<std::size_t>(pages * page_size);
 	}
 
-    auto QueryProcessMemoryUsed() -> std::size_t {
+	auto QueryProcessMemoryUsed() -> std::size_t {
 		auto* const file = fopen("/proc/self/statm", "r");
-        if (file == nullptr) [[unlikely]]
-        {
+		if (file == nullptr) [[unlikely]]
+		{
 			return 0;
 		}
 		long pages = 0;
@@ -237,19 +237,19 @@ namespace Nominax::Os {
 		return static_cast<std::size_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
 	}
 
-    auto QueryCpuName() -> std::string
-    {
+	auto QueryCpuName() -> std::string
+	{
 		std::ifstream cpuinfo("/proc/cpuinfo");
 
-        if (!cpuinfo.is_open() || !cpuinfo) [[unlikely]]
-        {
+		if (!cpuinfo.is_open() || !cpuinfo) [[unlikely]]
+		{
 			return "Unknown";
 		}
 
-        for (std::string line; std::getline(cpuinfo, line); ) [[likely]]
-        {
-            if (line.find("model name") == 0) [[likely]]
-            {
+		for (std::string line; std::getline(cpuinfo, line); ) [[likely]]
+		{
+			if (line.find("model name") == 0) [[likely]]
+			{
 				const auto colon_id = line.find_first_of(':');
 				const auto nonspace_id = line.find_first_not_of(" \t", colon_id + 1);
 				return line.c_str() + nonspace_id;
@@ -259,18 +259,18 @@ namespace Nominax::Os {
 		return {};
 	}
 
-    auto DylibOpen(const std::string_view file_) -> void*
-    {
+	auto DylibOpen(const std::string_view file_) -> void*
+	{
 		return ::dlopen(file_.data(), RTLD_LOCAL | RTLD_LAZY);
 	}
 
-    auto DylibLookupSymbol(void* const handle_, const std::string_view symbol_) -> void*
-    {
-        return ::dlsym(handle_, symbol_.data());
+	auto DylibLookupSymbol(void* const handle_, const std::string_view symbol_) -> void*
+	{
+		return ::dlsym(handle_, symbol_.data());
 	}
 
-    auto DylibClose(void*& handle_) -> void
-    {
+	auto DylibClose(void*& handle_) -> void
+	{
 		::dlclose(handle_);
 		handle_ = nullptr;
 	}

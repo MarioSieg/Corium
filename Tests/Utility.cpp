@@ -1,6 +1,6 @@
-// File: Bytecode.cpp
+// File: Utility.cpp
 // Author: Mario
-// Created: 18.04.2021 14:46
+// Created: 20.04.2021 19:51
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,111 +205,12 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/ByteCode.hpp"
+#include "TestBase.hpp"
+
+#include <thread>
+#include <mutex>
 
 namespace Nominax
 {
-	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
-	{
-		if (std::size(input) != std::size(output))
-		[[unlikely]]
-		{
-			return false;
-		}
-
-		auto       iterator {std::begin(input)};
-		const auto end {std::end(input)};
-
-		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
-		[[likely]]
-		{
-			*flag = iterator->Contains<Instruction>();
-		}
-
-		return true;
-	}
-
-	auto ByteCodeValidateSingleInstruction(const Instruction instruction, const std::span<const DynamicSignal> args) -> ByteCodeValidationResult
-	{
-		const auto         instructionIndex = static_cast<std::size_t>(instruction);
-		const std::uint8_t requiredArgCount = INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[instructionIndex];
-
-		// check if the instruction does not need any immediate arguments:
-		if (std::empty(args) && requiredArgCount == 0)
-		[[likely]]
-		{
-			return ByteCodeValidationResult::Ok;
-		}
-
-
-		// check if we submitted not enough arguments:
-		if (std::size(args) < requiredArgCount)
-		[[unlikely]]
-		{
-			return ByteCodeValidationResult::NotEnoughArguments;
-		}
-
-		// check if we submitted too many arguments:
-		if (std::size(args) > requiredArgCount)
-		[[unlikely]]
-		{
-			return ByteCodeValidationResult::TooManyArguments;
-		}
-
-		// fetch the type table:
-		const std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>& type_table =
-			INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[instructionIndex];
-
-		// this loop checks each submitted operand type with the required operand type.
-		for (std::size_t i = 0; i < std::size(args); ++i)
-		[[likely]]
-		{
-			// submitted operand:
-			const DynamicSignal& arg = args[i];
-
-			// required operand type:
-			const InstructionImmediateArgumentType requiredType = type_table[i];
-
-			// true if the data types are equal, else false
-			bool correctType;
-
-			switch (requiredType)
-			{
-			case InstructionImmediateArgumentType::I64:
-				correctType = arg.Contains<std::int64_t>();
-				break;
-			case InstructionImmediateArgumentType::U64:
-			case InstructionImmediateArgumentType::RelativeJumpAddress64:
-			case InstructionImmediateArgumentType::AbsoluteJumpAddress64:
-				correctType = arg.Contains<std::uint64_t>();
-				break;
-			case InstructionImmediateArgumentType::SystemIntrinsicId:
-				correctType = arg.Contains<SystemIntrinsicCallId>();
-				break;
-			case InstructionImmediateArgumentType::CustomIntrinsicId:
-				correctType = arg.Contains<CustomIntrinsicCallId>();
-				break;
-			case InstructionImmediateArgumentType::F64:
-				correctType = arg.Contains<double>();
-				break;
-			case InstructionImmediateArgumentType::I64OrU64:
-				correctType = arg.Contains<std::int64_t>() || arg.Contains<std::uint64_t>();
-				break;
-			case InstructionImmediateArgumentType::I64OrU64OrF64:
-				correctType = arg.Contains<std::int64_t>() || arg.Contains<std::uint64_t>() || arg.Contains<double>();
-				break;
-			default:
-				correctType = false;
-			}
-
-			// if the types where not equal, return error:
-			if (!correctType)
-			[[unlikely]]
-			{
-				return ByteCodeValidationResult::InvalidOperandType;
-			}
-		}
-
-		return ByteCodeValidationResult::Ok;
-	}
+	TEST(Utility, ThreadLocalXorShift) { }
 }

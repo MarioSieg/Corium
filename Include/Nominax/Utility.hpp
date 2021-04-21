@@ -209,10 +209,30 @@
 
 #include <algorithm>
 #include <ctime>
+#include <cstdint>
 #include <cstddef>
+#include <ostream>
 
 namespace Nominax
 {
+	[[nodiscard]]
+	extern auto Xorshift32() noexcept -> std::uint32_t;
+
+	[[nodiscard]]
+	extern auto Xorshift64() noexcept -> std::uint64_t;
+
+	[[nodiscard]]
+	extern auto Xorshift128() noexcept -> std::uint32_t;
+
+	[[nodiscard]]
+	extern auto AtomicXorshift32() noexcept -> std::uint32_t;
+
+	[[nodiscard]]
+	extern auto AtomicXorshift64() noexcept -> std::uint64_t;
+
+	[[nodiscard]]
+	extern auto AtomicXorshift128() noexcept -> std::uint32_t;
+
 	[[nodiscard]]
 	constexpr auto Bytes2Gigabytes(std::size_t bytes) noexcept -> std::size_t
 	{
@@ -266,6 +286,8 @@ namespace Nominax
 	{
 		return value * 1024 * 1024 * 1024;
 	}
+
+	extern auto PrettyPrintBytes(std::ostream& out, std::size_t size) -> void;
 
 	[[nodiscard]]
 	extern auto SafeLocalTime(const std::time_t& time) -> std::tm;

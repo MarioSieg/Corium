@@ -206,6 +206,7 @@
 //    limitations under the License.
 
 #include <cmath>
+#include <cassert>
 
 #include "../Include/Nominax/Reactor.hpp"
 #include "../Include/Nominax/Interrupts.hpp"
@@ -478,6 +479,8 @@ namespace Nominax
 	static consteval auto ValidateJumpTable(const void* __restrict__ const* __restrict__ const jumpTable,
 	                                        const std::size_t                                  jumpTableSize) noexcept -> bool
 	{
+		assert(jumpTable);
+		assert(jumpTableSize);
 		const auto* current {jumpTable};
 		for (const auto* const end {jumpTable + jumpTableSize}; __builtin_expect(current < end, 1); ++current)
 		{
@@ -1534,8 +1537,8 @@ namespace Nominax
 		return {
 			.Input = &input,
 			.ValidationResult = ReactorValidationResult::Ok,
-            .ExecutionResult = TerminateTypeCvt(interruptCode),
-            .SysInterrupt = InterruptCvt(interruptCode),
+			.ExecutionResult = TerminateTypeCvt(interruptCode),
+			.Interrupt = InterruptCvt(interruptCode),
 			.Pre = pre,
 			.Post = std::chrono::high_resolution_clock::now(),
 			.InterruptCode = interruptCode,

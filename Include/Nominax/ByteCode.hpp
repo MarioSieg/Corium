@@ -505,8 +505,8 @@ namespace Nominax
 	/// <summary>
 	/// Contains the categories of all instructions.
 	/// </summary>
-    [[maybe_unused]]
-    constexpr std::array INSTRUCTION_CATEGORIES
+	[[maybe_unused]]
+	constexpr std::array INSTRUCTION_CATEGORIES
 	{
 		InstructionCategory::Control,
 		InstructionCategory::Control,
@@ -783,8 +783,8 @@ namespace Nominax
 	/// <summary>
 	/// Contains all immediate argument types for each instruction.
 	/// </summary>
-    [[maybe_unused]]
-    constexpr std::array INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
+	[[maybe_unused]]
+	constexpr std::array INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
 		{
@@ -1108,19 +1108,19 @@ namespace Nominax
 	/// Restricts to valid bytecode elements.
 	/// </summary>
 	/// <typeparam name="...Ts">The generic types to perform restriction checks on.</typeparam>
-    template <typename Ts>
+	template <typename Ts>
 	concept BytecodeElement = requires
 	{
-        requires sizeof(Ts) % sizeof(std::int32_t) == 0 || sizeof(Ts) % sizeof(std::int64_t) == 0;
-        requires alignof(Ts) % alignof(std::int32_t) == 0 || alignof(Ts) % alignof(std::int64_t) == 0;
+		requires sizeof(Ts) % sizeof(std::int32_t) == 0 || sizeof(Ts) % sizeof(std::int64_t) == 0;
+		requires alignof(Ts) % alignof(std::int32_t) == 0 || alignof(Ts) % alignof(std::int64_t) == 0;
 		requires
-        std::is_same_v<Ts, Instruction>
-        || std::is_same_v<Ts, SystemIntrinsicCallId>
-        || std::is_same_v<Ts, CustomIntrinsicCallId>
-        || std::is_same_v<Ts, std::uint64_t>
-        || std::is_same_v<Ts, std::int64_t>
-        || std::is_same_v<Ts, double>
-        || std::is_same_v<Ts, char32_t>;
+		std::is_same_v<Ts, Instruction>
+		|| std::is_same_v<Ts, SystemIntrinsicCallId>
+		|| std::is_same_v<Ts, CustomIntrinsicCallId>
+		|| std::is_same_v<Ts, std::uint64_t>
+		|| std::is_same_v<Ts, std::int64_t>
+		|| std::is_same_v<Ts, double>
+		|| std::is_same_v<Ts, char32_t>;
 	};
 
 	/// <summary>

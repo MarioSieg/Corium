@@ -10,82 +10,13 @@ message("Initializing Nominax SDK")
 set(CMAKE_C_COMPILER_WORKS true)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 
-option(A_NOMINAX_SDK_32_BIT "Build for 32-bit system" OFF)
-option(A_NOMINAX_SDK_FAST_MATH "Use fast but less correct math" ON)
-option(A_NOMINAX_BUILD_UNIT_TESTS "Build unit tests" ON)
-option(A_NOMINAX_BUILD_BENCHMARKS "Build a system benchmark" ON)
+option(ANOMINAX_SDK_32_BIT "Build for 32-bit system" OFF)
+option(ANOMINAX_SDK_FAST_MATH "Use fast but less correct math" ON)
+option(ANOMINAX_BUILD_UNIT_TESTS "Build unit tests" ON)
+option(ANOMINAX_BUILD_BENCHMARKS "Build a system benchmark" ON)
 
 # Linux build info:
 # Requires >= GCC 10!
-
-# See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
-# If your system does not support any of the -m* flags, just remove them!
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    message("Using LLVM Clang!")
-    set(CMAKE_CXX_STANDARD 20)
-    set(CMAKE_CXX_STANDARD_REQUIRED on)
-    set(CMAKE_CXX_EXTENSIONS off)
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
-            -Xclang -Ofast                                                              \
-            -Xclang -Wall                                                               \
-            -Xclang -Wextra                                                             \
-            -Xclang -Werror                                                             \
-            -Xclang -Wno-undef                                                          \
-            -Xclang -std=c++20                                                          \
-            -Xclang -Wno-unknown-attributes                                             \
-            -Xclang -Wno-ignored-attributes                                             \
-            -Xclang -Wno-deprecated-declarations                                        \
-            -Xclang -flto                                                               \
-            -mmmx									                                    \
-            -msse									                                    \
-            -msse2									                                    \
-            -msse3									                                    \
-            -mssse3									                                    \
-            -msahf									                                    \
-            -mcx16									                                    \
-    ")
-    if(A_NOMINAX_SDK_32_BIT)
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
-    endif()
-    if(A_NOMINAX_SDK_FASH_MATH)
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Xclang -ffast-math")
-    endif()
-    set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS}")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    message("Using G++")
-    set(CMAKE_CXX_STANDARD 20)
-    set(CMAKE_CXX_STANDARD_REQUIRED on)
-    set(CMAKE_CXX_EXTENSIONS off)
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
-            -Ofast                                                                      \
-            -Wall                                                                       \
-            -Wextra                                                                     \
-            -Werror                                                                     \
-            -Wno-undef                                                                  \
-            -std=c++2a                                                                  \
-            -Wno-unknown-attributes                                                     \
-            -Wno-ignored-attributes                                                     \
-            -Wno-deprecated-declarations                                                \
-            -ffast-math                                                                 \
-            -flto                                                                       \
-            -mmmx									                                    \
-            -msse									                                    \
-            -msse2									                                    \
-            -msse3									                                    \
-            -mssse3									                                    \
-            -msahf									                                    \
-            -mcx16									                                    \
-    ")
-    if(A_NOMINAX_SDK_32_BIT)
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
-    endif()
-    if(A_NOMINAX_SDK_FASH_MATH)
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffast-math")
-    endif()
-else()
-    message(FATAL_ERROR, "Unknown compiler! Use G++/Clang!")
-endif()
 
 add_library("NominaxRuntime" STATIC
     "Include/Nominax/Platform.hpp"
@@ -112,7 +43,77 @@ add_library("NominaxRuntime" STATIC
     "Source/Environment.cpp"
     "Source/Bytecode.cpp" 
     "Source/Os.cpp" 
-    "Source/Utility.cpp")
+    "Source/Utility.cpp"
+    "Source/Object.cpp")
+
+# See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
+# If your system does not support any of the -m* flags, just remove them!
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    message("Using LLVM Clang!")
+    set(CMAKE_CXX_STANDARD 20)
+    set(CMAKE_CXX_STANDARD_REQUIRED on)
+    set(CMAKE_CXX_EXTENSIONS off)
+    set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
+            -Xclang -Ofast                                                              \
+            -Xclang -Wall                                                               \
+            -Xclang -Wextra                                                             \
+            -Xclang -Werror                                                             \
+            -Xclang -Wno-undef                                                          \
+            -Xclang -std=c++20                                                          \
+            -Xclang -Wno-unknown-attributes                                             \
+            -Xclang -Wno-ignored-attributes                                             \
+            -Xclang -Wno-deprecated-declarations                                        \
+            -Xclang -flto                                                               \
+            -mmmx									                                    \
+            -msse									                                    \
+            -msse2									                                    \
+            -msse3									                                    \
+            -mssse3									                                    \
+            -msahf									                                    \
+            -mcx16									                                    \
+    ")
+    if(ANOMINAX_SDK_32_BIT)
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
+    endif()
+    if(ANOMINAX_SDK_FASH_MATH)
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Xclang -ffast-math")
+    endif()
+    set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS}")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message("Using G++")
+    set(CMAKE_CXX_STANDARD 20)
+    set(CMAKE_CXX_STANDARD_REQUIRED on)
+    set(CMAKE_CXX_EXTENSIONS off)
+    set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
+            -Ofast                                                                      \
+            -Wall                                                                       \
+            -Wextra                                                                     \
+            -Werror                                                                     \
+            -Wno-undef                                                                  \
+            -std=c++2a                                                                  \
+            -Wno-unknown-attributes                                                     \
+            -Wno-ignored-attributes                                                     \
+            -Wno-deprecated-declarations                                                \
+            -ffast-math                                                                 \
+            -flto                                                                       \
+            -mmmx									                                    \
+            -msse									                                    \
+            -msse2									                                    \
+            -msse3									                                    \
+            -mssse3									                                    \
+            -msahf									                                    \
+            -mcx16									                                    \
+    ")
+    if(ANOMINAX_SDK_32_BIT)
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
+    endif()
+    if(ANOMINAX_SDK_FASH_MATH)
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffast-math")
+    endif()
+else()
+    message(FATAL_ERROR, "Unknown compiler! Use G++/Clang!")
+endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries("NominaxRuntime" "dl")
@@ -122,7 +123,8 @@ add_executable("Nominax" "Source/Main.cpp")
 target_link_libraries("Nominax" "NominaxRuntime")
 
 # test executable:
-if(A_NOMINAX_BUILD_UNIT_TESTS)
+# disable BUID_GMOCK in Tests/googletest/CMakeLists.txt if there are weird errors
+if(ANOMINAX_BUILD_UNIT_TESTS)
     file(GLOB "TEST_SOURCE_FILES" "Tests/*.cpp")
     add_subdirectory("Tests/googletest/")
     add_executable("NominaxUnitTests" ${TEST_SOURCE_FILES})
@@ -135,7 +137,7 @@ if(A_NOMINAX_BUILD_UNIT_TESTS)
 endif()
 
 # benchmark executable:
-if(A_NOMINAX_BUILD_BENCHMARKS)
+if(ANOMINAX_BUILD_BENCHMARKS)
     file(GLOB "TEST_Source_FILES" "Benchmarks/*.cpp")
     add_subdirectory("Benchmarks/googlebench/")
     add_executable("NominaxBenchmark" ${TEST_Source_FILES})
