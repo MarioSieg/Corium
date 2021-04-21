@@ -1,3 +1,10 @@
+#include "..\Include\Nominax\Object.hpp"
+#include "..\Include\Nominax\Object.hpp"
+#include "..\Include\Nominax\Object.hpp"
+#include "..\Include\Nominax\Object.hpp"
+#include "..\Include\Nominax\Object.hpp"
+#include "..\Include\Nominax\Object.hpp"
+#include "..\Include\Nominax\Object.hpp"
 // File: Object.cpp
 // Author: Mario
 // Created: 20.04.2021 13:10
@@ -209,6 +216,30 @@
 
 namespace Nominax
 {
+	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) -> bool
+	{
+		if (buffer.size() < this->HeaderRead_BlockSize()) [[unlikely]]
+		{
+			return false;
+		}
+
+		std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
+
+		return true;
+	}
+
+	auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) -> void
+	{
+		buffer.resize(this->HeaderRead_BlockSize());
+		std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
+	}
+
+	auto Object::CopyBlob(std::vector<Record>& buffer) -> void
+	{
+		buffer.resize(this->BlobSize());
+		std::memcpy(buffer.data(), this->Blob, this->BlobSizeInBytes());
+	}
+
 	auto Object::AllocateUnique(const std::size_t sizeInRecords) noexcept -> std::unique_ptr<Object, UniquePtrObjectDeleter>
 	{
 		if (__builtin_expect(sizeInRecords == 0, 0))

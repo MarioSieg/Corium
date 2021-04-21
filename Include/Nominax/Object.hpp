@@ -210,6 +210,7 @@
 #include <cassert>
 #include <memory>
 #include <span>
+#include <vector>
 
 #include "Record.hpp"
 
@@ -580,7 +581,7 @@ namespace Nominax
 	static_assert(std::is_standard_layout_v<ObjectHeader>);
 	static_assert(std::is_trivially_copyable_v<ObjectHeader>);
 
-	__attribute__((always_inline)) inline auto ObjectHeader::MapToRegionUnchecked(Record* const region) const noexcept -> void
+	__attribute__((flatten)) inline auto ObjectHeader::MapToRegionUnchecked(Record* const region) const noexcept -> void
 	{
 		std::memcpy(region, this, sizeof(ObjectHeader));
 	}
@@ -594,7 +595,7 @@ namespace Nominax
 		return std::memcpy(region.data(), this, sizeof(ObjectHeader));
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::MapFromRegionUnchecked(const Record* const region) noexcept -> void
+	__attribute__((flatten)) inline auto ObjectHeader::MapFromRegionUnchecked(const Record* const region) noexcept -> void
 	{
 		std::memcpy(this, region, sizeof(ObjectHeader));
 	}
@@ -608,22 +609,22 @@ namespace Nominax
 		return std::memcpy(this, region.data(), sizeof(ObjectHeader));
 	}
 
-	__attribute__((always_inline)) constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Record* const region) noexcept -> std::uint32_t
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Record* const region) noexcept -> std::uint32_t
 	{
 		return region[0].U32C[0];
 	}
 
-	__attribute__((always_inline)) constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) noexcept -> std::uint32_t
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) noexcept -> std::uint32_t
 	{
 		return region[0].U32C[1];
 	}
 
-	__attribute__((always_inline)) constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) noexcept -> std::uint32_t
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) noexcept -> std::uint32_t
 	{
 		return region[1].U32C[0];
 	}
 
-	__attribute__((always_inline)) constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) noexcept -> ObjectFlagsVectorCompound
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) noexcept -> ObjectFlagsVectorCompound
 	{
 		const auto flags = ObjectFlagsVectorCompound
 		{
@@ -632,37 +633,37 @@ namespace Nominax
 		return flags;
 	}
 
-	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const std::uint32_t strongRefCount) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const std::uint32_t strongRefCount) noexcept -> void
 	{
 		region[0].U32C[0] = strongRefCount;
 	}
 
-	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) noexcept -> void
 	{
 		++region[0].U32C[0];
 	}
 
-	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) noexcept -> void
 	{
 		--region[0].U32C[0];
 	}
 
-	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_Size(Record* const region, const std::uint32_t size) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_Size(Record* const region, const std::uint32_t size) noexcept -> void
 	{
 		region[0].U32C[1] = size;
 	}
 
-	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_TypeId(Record* const region, const std::uint32_t typeId) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_TypeId(Record* const region, const std::uint32_t typeId) noexcept -> void
 	{
 		region[1].U32C[0] = typeId;
 	}
 
-	__attribute__((always_inline)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagsVectorCompound flagVector) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagsVectorCompound flagVector) noexcept -> void
 	{
 		region[1].U32C[1] = flagVector.Compound;
 	}
 
-	__attribute__((always_inline)) inline auto ObjectHeader::RawQueryTypePun(Record* const region) -> ObjectHeader&
+	__attribute__((flatten)) inline auto ObjectHeader::RawQueryTypePun(Record* const region) -> ObjectHeader&
 	{
 		return *reinterpret_cast<ObjectHeader*>(region);
 	}
@@ -798,14 +799,14 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto IMMUTATOR LookupBlock() const noexcept -> Record*;
+		auto IMMUTATOR LookupObjectBlock() const noexcept -> Record*;
 
 		/// <summary>
 		/// Get underlying object block end iterator.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto IMMUTATOR LookupBlockEndIterator() const noexcept -> Record*;
+		auto IMMUTATOR LookupObjectBlockEnd() const noexcept -> Record*;
 
 		/// <summary>
 		/// Checks if the underlying object block is null, but the object header is null.
@@ -838,6 +839,64 @@ namespace Nominax
 		auto IMMUTATOR BlobSizeInBytes() const noexcept -> std::size_t;
 
 		/// <summary>
+		/// Returns the size of the object block in bytes.
+		/// Same as HeaderRead_BlockSize() * sizeof(Record) 
+		/// </summary>
+		/// <returns></returns>
+		auto IMMUTATOR ObjectBlockSizeInBytes() const noexcept -> std::size_t;
+	
+		/// <summary>
+		/// Tries to copy the object block into the buffer.
+		/// The buffer must have the same size or must be larger, if
+		/// not it will return false.
+		/// </summary>
+		/// <param name="buffer">The target buffer.</param>
+		/// <returns>True if the size was large enough, else false.</returns>
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::span<Record> buffer) -> bool;
+
+		/// <summary>
+		/// Resizes the buffer to the size of the object block and copies the whole
+		/// object block into the vector.
+		/// </summary>
+		/// <param name="buffer">The target buffer.</param>
+		/// <returns></returns>
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) -> void;
+
+		/// <summary>
+		/// Resizes the vector to the correct size
+		/// and copies the whole object (header + object block) into it.
+		/// </summary>
+		/// <param name="buffer"></param>
+		/// <returns></returns>
+		auto IMMUTATOR CopyBlob(std::vector<Record>& buffer) -> void;
+
+		/// <summary>
+		/// Lookup object block.
+		/// </summary>
+		/// <returns></returns>
+		auto IMMUTATOR operator *() const noexcept -> Record*;
+
+		/// <summary>
+		/// Lookup object block.
+		/// </summary>
+		/// <returns></returns>
+		auto IMMUTATOR operator ->() const noexcept -> Record*;
+
+		/// <summary>
+		/// Unchecked subscript in object block.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		auto IMMUTATOR operator [](std::size_t idx) noexcept -> Record&;
+
+		/// <summary>
+		/// Unchecked subscript in object block.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		auto IMMUTATOR operator [](std::size_t idx) const noexcept -> Record;
+
+		/// <summary>
 		/// Deleter for unique objects allocated with std::unique_ptr.
 		/// </summary>
 		struct UniquePtrObjectDeleter final
@@ -861,121 +920,170 @@ namespace Nominax
 	static_assert(sizeof(Object) == sizeof(void*));
 	static_assert(std::is_standard_layout_v<Object>);
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::QueryRawHeader() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryRawHeader() const noexcept -> Record*
 	{
 		assert(this->Blob != nullptr);
 		return this->Blob;
 	}
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::QueryHeader() const noexcept -> ObjectHeader
+	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryHeader() const noexcept -> ObjectHeader
 	{
 		ObjectHeader header;
 		header.MapFromRegionUnchecked(this->QueryRawHeader());
 		return header;
 	}
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::LookupBlock() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlock() const noexcept -> Record*
 	{
 		assert(this->Blob != nullptr);
 		return this->Blob + ObjectHeader::RECORD_OFFSET;
 	}
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::LookupBlockEndIterator() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlockEnd() const noexcept -> Record*
 	{
 		assert(this->HeaderRead_BlockSize() > 0);
-		return this->LookupBlock() + this->HeaderRead_BlockSize();
+		return this->LookupObjectBlock() + this->HeaderRead_BlockSize();
 	}
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::IsUnderlyingObjectBlockNull() const noexcept -> bool
+	__attribute__((flatten)) inline auto IMMUTATOR Object::IsUnderlyingObjectBlockNull() const noexcept -> bool
 	{
-		return this->LookupBlock() == nullptr;
+		return this->LookupObjectBlock() == nullptr;
 	}
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::IsBlobNull() const noexcept -> bool
+	__attribute__((flatten)) inline auto IMMUTATOR Object::IsBlobNull() const noexcept -> bool
 	{
 		return this->Blob == nullptr;
 	}
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::BlobSize() const noexcept -> std::size_t
+	__attribute__((flatten)) inline auto IMMUTATOR Object::BlobSize() const noexcept -> std::size_t
 	{
 		return ObjectHeader::RECORD_CHUNKS + ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 	}
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::BlobSizeInBytes() const noexcept -> std::size_t
+	__attribute__((flatten)) inline auto IMMUTATOR Object::BlobSizeInBytes() const noexcept -> std::size_t
 	{
 		return BlobSize() * sizeof(Record);
 	}
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const noexcept -> std::uint32_t
+	__attribute__((flatten)) inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const noexcept -> std::size_t
+	{
+		return this->HeaderRead_BlockSize() * sizeof(Record);
+	}
+
+	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const noexcept -> std::uint32_t
 	{
 		return ObjectHeader::ReadMapping_StrongRefCount(this->QueryRawHeader());
 	}
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::HeaderRead_BlockSize() const noexcept -> std::uint32_t
+	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_BlockSize() const noexcept -> std::uint32_t
 	{
 		return ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 	}
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::HeaderRead_TypeId() const noexcept -> std::uint32_t
+	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_TypeId() const noexcept -> std::uint32_t
 	{
 		return ObjectHeader::ReadMapping_TypeId(this->QueryRawHeader());
 	}
 
-	__attribute__((always_inline)) inline auto IMMUTATOR Object::Header_ReadFlagVector() const noexcept -> ObjectFlagsVectorCompound
+	__attribute__((flatten)) inline auto IMMUTATOR Object::Header_ReadFlagVector() const noexcept -> ObjectFlagsVectorCompound
 	{
 		return ObjectHeader::ReadMapping_FlagVector(this->QueryRawHeader());
 	}
 
-	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_IncrementStrongRefCount() const noexcept -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_IncrementStrongRefCount() const noexcept -> void
 	{
 		ObjectHeader::WriteMapping_IncrementStrongRefCount(this->QueryRawHeader());
 	}
 
-	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_DecrementStrongRefCount() const noexcept -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_DecrementStrongRefCount() const noexcept -> void
 	{
 		ObjectHeader::WriteMapping_DecrementStrongRefCount(this->QueryRawHeader());
 	}
 
-	__attribute__((always_inline)) inline auto MUTATOR Object::operator++() const noexcept -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::operator++() const noexcept -> void
 	{
 		this->HeaderWrite_IncrementStrongRefCount();
 	}
 
-	__attribute__((always_inline)) inline auto MUTATOR Object::operator--() const noexcept -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::operator--() const noexcept -> void
 	{
 		this->HeaderWrite_DecrementStrongRefCount();
 	}
 
-	__attribute__((always_inline)) inline auto MUTATOR Object::operator++(int) const noexcept -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::operator++(int) const noexcept -> void
 	{
 		this->HeaderWrite_IncrementStrongRefCount();
 	}
 
-	__attribute__((always_inline)) inline auto MUTATOR Object::operator--(int) const noexcept -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::operator--(int) const noexcept -> void
 	{
 		this->HeaderWrite_DecrementStrongRefCount();
 	}
 
-	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_StrongRefCount(const std::uint32_t strongRefCount) const noexcept -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_StrongRefCount(const std::uint32_t strongRefCount) const noexcept -> void
 	{
 		ObjectHeader::WriteMapping_StrongRefCount(this->QueryRawHeader(), strongRefCount);
 	}
 
-	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_Size(const std::uint32_t size) const noexcept -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_Size(const std::uint32_t size) const noexcept -> void
 	{
 		ObjectHeader::WriteMapping_Size(this->QueryRawHeader(), size);
 	}
 
-	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_TypeId(const std::uint32_t typeId) const noexcept -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_TypeId(const std::uint32_t typeId) const noexcept -> void
 	{
 		ObjectHeader::WriteMapping_TypeId(this->QueryRawHeader(), typeId);
 	}
 
-	__attribute__((always_inline)) inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagsVectorCompound flagVector) const noexcept -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagsVectorCompound flagVector) const noexcept -> void
 	{
 		ObjectHeader::WriteMapping_FlagVector(this->QueryRawHeader(), flagVector);
 	}
 
+	__attribute__((flatten)) auto IMMUTATOR Object::operator*() const noexcept -> Record*
+	{
+		return this->LookupObjectBlock();
+	}
+
+	__attribute__((flatten)) auto IMMUTATOR Object::operator->() const noexcept -> Record*
+	{
+		return this->LookupObjectBlock();
+	}
+
+	__attribute__((flatten)) auto IMMUTATOR Object::operator[](std::size_t idx) noexcept -> Record&
+	{
+		return *(this->LookupObjectBlock() + idx);
+	}
+
+	__attribute__((flatten)) auto IMMUTATOR Object::operator[](std::size_t idx) const noexcept -> Record
+	{
+		return *(this->LookupObjectBlock() + idx);
+	}
+
 #undef MUTATOR
 #undef IMMUTATOR
+
+	/// <summary>
+	/// STL Compat Overload
+	/// Iterate over object block fields without header.
+	/// Begin iterator.
+	/// </summary>
+	/// <param name="object"></param>
+	/// <returns></returns>
+	__attribute__((flatten)) inline auto begin(const Object object) noexcept -> Record* 
+	{
+		return object.LookupObjectBlock();
+	}
+
+	/// <summary>
+	/// STL Compat Overload
+	/// Iterate over object block fields without header.
+	/// End iterator (one element after the last one)
+	/// </summary>
+	/// <param name="object"></param>
+	/// <returns></returns>
+	__attribute__((flatten)) inline auto end(const Object object) noexcept -> Record*
+	{
+		return object.LookupObjectBlockEnd();
+	}
 }
