@@ -18,6 +18,34 @@ option(ANOMINAX_BUILD_BENCHMARKS "Build a system benchmark" ON)
 # Linux build info:
 # Requires >= GCC 10!
 
+add_library("NominaxRuntime" STATIC
+    "Include/Nominax/Platform.hpp"
+    "Include/Nominax/Reactor.hpp"
+    "Include/Nominax/ByteCode.hpp"
+    "Include/Nominax/Record.hpp" 
+    "Include/Nominax/MacroCfg.hpp" 	
+    "Include/Nominax/Interrupts.hpp"
+    "Include/Nominax/Info.hpp"
+    "Include/Nominax/Os.hpp"
+    "Include/Nominax/Utility.hpp"
+    "Include/Nominax/DynamicLibrary.hpp"
+    "Include/Nominax/Nominax.hpp" 
+    "Include/Nominax/Environment.hpp" 
+    "Include/Nominax/FormatTable.hpp" 
+    "Include/Nominax/Object.hpp"
+
+    "Source/Reactor.cpp"
+    "Source/OsWindows.cpp"
+    "Source/OsLinux.cpp"
+    "Source/OsAndroid.cpp"
+    "Source/OsDarwin.cpp"
+    "Source/Interrupts.cpp"  
+    "Source/Environment.cpp"
+    "Source/Bytecode.cpp" 
+    "Source/Os.cpp" 
+    "Source/Utility.cpp"
+    "Source/Object.cpp")
+
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!
 
@@ -26,7 +54,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED on)
     set(CMAKE_CXX_EXTENSIONS off)
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
+    set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
             -Xclang -Ofast                                                              \
             -Xclang -Wall                                                               \
             -Xclang -Wextra                                                             \
@@ -57,7 +85,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED on)
     set(CMAKE_CXX_EXTENSIONS off)
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
+    set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
             -Ofast                                                                      \
             -Wall                                                                       \
             -Wextra                                                                     \
@@ -87,34 +115,6 @@ else()
     message(FATAL_ERROR, "Unknown compiler! Use G++/Clang!")
 endif()
 
-add_library("NominaxRuntime" STATIC
-    "Include/Nominax/Platform.hpp"
-    "Include/Nominax/Reactor.hpp"
-    "Include/Nominax/ByteCode.hpp"
-    "Include/Nominax/Record.hpp" 
-    "Include/Nominax/MacroCfg.hpp" 	
-    "Include/Nominax/Interrupts.hpp"
-    "Include/Nominax/Info.hpp"
-    "Include/Nominax/Os.hpp"
-    "Include/Nominax/Utility.hpp"
-    "Include/Nominax/DynamicLibrary.hpp"
-    "Include/Nominax/Nominax.hpp" 
-    "Include/Nominax/Environment.hpp" 
-    "Include/Nominax/FormatTable.hpp" 
-    "Include/Nominax/Object.hpp"
-
-    "Source/Reactor.cpp"
-    "Source/OsWindows.cpp"
-    "Source/OsLinux.cpp"
-    "Source/OsAndroid.cpp"
-    "Source/OsDarwin.cpp"
-    "Source/Interrupts.cpp"  
-    "Source/Environment.cpp"
-    "Source/Bytecode.cpp" 
-    "Source/Os.cpp" 
-    "Source/Utility.cpp"
-    "Source/Object.cpp")
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries("NominaxRuntime" "dl")
 endif()
@@ -123,6 +123,7 @@ add_executable("Nominax" "Source/Main.cpp")
 target_link_libraries("Nominax" "NominaxRuntime")
 
 # test executable:
+# disable BUID_GMOCK in Tests/googletest/CMakeLists.txt if there are weird errors
 if(ANOMINAX_BUILD_UNIT_TESTS)
     file(GLOB "TEST_SOURCE_FILES" "Tests/*.cpp")
     add_subdirectory("Tests/googletest/")

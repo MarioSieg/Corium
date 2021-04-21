@@ -224,7 +224,7 @@ TEST(ReactorAggregates, UnionReinterpretation)
 	ASSERT_EQ(rec.C32, '!');
 
 	rec.Ptr = &rec;
-	ASSERT_EQ(rec.Ptr, &rec);
+    ASSERT_EQ(rec.Ptr, &rec);
 
 	constexpr Signal sig {
 		Instruction::Mov
