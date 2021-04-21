@@ -205,10 +205,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/Reactor.hpp"
-
+#include <cmath>
 #include <cassert>
 
+#include "../Include/Nominax/Reactor.hpp"
 #include "../Include/Nominax/Interrupts.hpp"
 #include "../Include/Nominax/MacroCfg.hpp"
 
