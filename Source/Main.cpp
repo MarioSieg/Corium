@@ -205,7 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax//Environment.hpp"
+#include "../Include/Nominax/Environment.hpp"
 
 using namespace Nominax;
 

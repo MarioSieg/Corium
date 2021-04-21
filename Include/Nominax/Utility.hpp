@@ -286,6 +286,8 @@ namespace Nominax
 		return value * 1024 * 1024 * 1024;
 	}
 
+	extern auto PrettyPrintBytes(std::ostream& out, std::size_t size) -> void;
+
 	[[nodiscard]]
 	extern auto SafeLocalTime(const std::time_t& time) -> std::tm;
 }

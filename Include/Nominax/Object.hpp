@@ -207,12 +207,13 @@
 
 #pragma once
 
+#include <atomic>
 #include <cassert>
 #include <memory>
-#include <string>
 #include <span>
 #include <vector>
 
+#include "MacroCfg.hpp"
 #include "Record.hpp"
 
 namespace Nominax
@@ -560,17 +561,17 @@ namespace Nominax
 		/// <summary>
 		/// The count of header field blocks => 4 (StrongRefCount, Size, TypeId, FlagVector)
 		/// </summary>
-		static constexpr auto BLOCKS {4};
+		static constexpr std::size_t BLOCKS {4};
 
 		/// <summary>
 		/// The offset in records from the blob base pointer.
 		/// </summary>
-		static constexpr auto RECORD_OFFSET {STRIDE * BLOCKS / sizeof(Record)};
+		static constexpr std::uintptr_t RECORD_OFFSET {STRIDE * BLOCKS / sizeof(Record)};
 
 		/// <summary>
 		/// The amount of records required to store the header.
 		/// </summary>
-		static constexpr auto RECORD_CHUNKS {RECORD_OFFSET};
+		static constexpr std::uint32_t RECORD_CHUNKS {RECORD_OFFSET};
 
 		static_assert(STRIDE == 4);
 		static_assert(BLOCKS == 4);
@@ -677,6 +678,8 @@ namespace Nominax
 	/// </summary>
 	struct Object final
 	{
+		using BlobBlockType = Record;
+
 		/// <summary>
 		/// Full data blob.
 		/// Array of records which contains the
@@ -687,7 +690,7 @@ namespace Nominax
 		/// So the blob length will be: ObjectHeader::RECORD_CHUNKS + sizeInRecords
 		/// This size must be written into the header field "Size"!
 		/// </summary>
-		Record* Blob {nullptr};
+		BlobBlockType* Blob {nullptr};
 
 		/// <summary>
 		/// 
@@ -786,7 +789,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns>The object header pointer.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR QueryRawHeader() const noexcept -> Record*;
+		auto IMMUTATOR QueryRawHeader() const noexcept -> BlobBlockType*;
 
 		/// <summary>
 		/// Get the object header.
@@ -798,16 +801,16 @@ namespace Nominax
 		/// <summary>
 		/// Get underlying object block.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The begin pointer of the underlying object block.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR LookupObjectBlock() const noexcept -> Record*;
+		auto IMMUTATOR LookupObjectBlock() const noexcept -> BlobBlockType*;
 
 		/// <summary>
 		/// Get underlying object block end iterator.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The end pointer of the underlying object block.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR LookupObjectBlockEnd() const noexcept -> Record*;
+		auto IMMUTATOR LookupObjectBlockEnd() const noexcept -> BlobBlockType*;
 
 		/// <summary>
 		/// Checks if the underlying object block is null, but the object header is null.
@@ -855,7 +858,7 @@ namespace Nominax
 		/// <param name="buffer">The target buffer.</param>
 		/// <returns>True if the size was large enough, else false.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::span<Record> buffer) const -> bool;
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::span<BlobBlockType> buffer) const -> bool;
 
 		/// <summary>
 		/// Resizes the buffer to the size of the object block and copies the whole
@@ -863,7 +866,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="buffer">The target buffer.</param>
 		/// <returns></returns>
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) const -> void;
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<BlobBlockType>& buffer) const -> void;
 
 		/// <summary>
 		/// SLT-Compat
@@ -872,7 +875,7 @@ namespace Nominax
 		/// <returns>Begin iterator.</returns>
 		[[nodiscard]]
 		// ReSharper disable once CppInconsistentNaming
-		auto IMMUTATOR begin() const noexcept -> Record*;
+		auto IMMUTATOR begin() const noexcept -> BlobBlockType*;
 
 		/// <summary>
 		/// SLT-Compat
@@ -881,7 +884,7 @@ namespace Nominax
 		/// <returns>End iterator.</returns>
 		[[nodiscard]]
 		// ReSharper disable once CppInconsistentNaming
-		auto IMMUTATOR end() const noexcept -> Record*;
+		auto IMMUTATOR end() const noexcept -> BlobBlockType*;
 
 		/// <summary>
 		/// Resizes the vector to the correct size
@@ -889,39 +892,39 @@ namespace Nominax
 		/// </summary>
 		/// <param name="buffer"></param>
 		/// <returns></returns>
-		auto IMMUTATOR CopyBlob(std::vector<Record>& buffer) const -> void;
+		auto IMMUTATOR CopyBlob(std::vector<BlobBlockType>& buffer) const -> void;
 
 		/// <summary>
 		/// Lookup object block.
 		/// </summary>
 		/// <returns></returns>
-		auto IMMUTATOR operator *() const noexcept -> Record*;
+		auto IMMUTATOR operator *() const noexcept -> BlobBlockType*;
 
 		/// <summary>
 		/// Lookup object block.
 		/// </summary>
 		/// <returns></returns>
-		auto IMMUTATOR operator ->() const noexcept -> Record*;
+		auto IMMUTATOR operator ->() const noexcept -> BlobBlockType*;
 
 		/// <summary>
 		/// Lookup object block end.
 		/// </summary>
 		/// <returns></returns>
-		auto IMMUTATOR operator ~() const noexcept -> Record*;
+		auto IMMUTATOR operator ~() const noexcept -> BlobBlockType*;
 
 		/// <summary>
 		/// Unchecked subscript in object block.
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto IMMUTATOR operator [](std::size_t idx) noexcept -> Record&;
+		auto IMMUTATOR operator [](std::size_t idx) noexcept -> BlobBlockType&;
 
 		/// <summary>
 		/// Unchecked subscript in object block.
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto IMMUTATOR operator [](std::size_t idx) const noexcept -> Record;
+		auto IMMUTATOR operator [](std::size_t idx) const noexcept -> BlobBlockType;
 
 		/// <summary>
 		/// Sets the object block to zero - all object fields will be zero.
@@ -1044,7 +1047,7 @@ namespace Nominax
 		static auto AllocateUnique(std::uint32_t sizeInRecords) noexcept -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
 	};
 
-	static_assert(sizeof(Object) == sizeof(void*));
+	static_assert(sizeof(Object) == sizeof(Object::BlobBlockType*));
 	static_assert(std::is_standard_layout_v<Object>);
 
 	/// <summary>
@@ -1512,7 +1515,7 @@ namespace Nominax
 		return DeepValueCmp_Less<std::uint64_t>(a, b);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryRawHeader() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryRawHeader() const noexcept -> BlobBlockType*
 	{
 		assert(this->Blob != nullptr);
 		return this->Blob;
@@ -1525,13 +1528,13 @@ namespace Nominax
 		return header;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlock() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlock() const noexcept -> BlobBlockType*
 	{
 		assert(this->Blob != nullptr);
 		return this->Blob + ObjectHeader::RECORD_OFFSET;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlockEnd() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlockEnd() const noexcept -> BlobBlockType*
 	{
 		assert(this->HeaderRead_BlockSize() > 0);
 		return this->LookupObjectBlock() + this->HeaderRead_BlockSize();
@@ -1632,39 +1635,39 @@ namespace Nominax
 		ObjectHeader::WriteMapping_FlagVector(this->QueryRawHeader(), flagVector);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator*() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator*() const noexcept -> BlobBlockType*
 	{
 		return this->LookupObjectBlock();
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator->() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator->() const noexcept -> BlobBlockType*
 	{
 		return this->LookupObjectBlock();
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator~() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator~() const noexcept -> BlobBlockType*
 	{
 		return this->LookupObjectBlockEnd();
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) noexcept -> Record&
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) noexcept -> BlobBlockType&
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) const noexcept -> Record
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) const noexcept -> BlobBlockType
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto IMMUTATOR Object::begin() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::begin() const noexcept -> BlobBlockType*
 	{
 		return this->LookupObjectBlock();
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto IMMUTATOR Object::end() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::end() const noexcept -> BlobBlockType*
 	{
 		return this->LookupObjectBlockEnd();
 	}
@@ -1687,7 +1690,7 @@ namespace Nominax
 	/// <param name="object"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto begin(const Object object) noexcept -> Record*
+	__attribute__((flatten)) inline auto begin(const Object object) noexcept -> Object::BlobBlockType*
 	{
 		return object.LookupObjectBlock();
 	}
@@ -1700,11 +1703,62 @@ namespace Nominax
 	/// <param name="object"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto end(const Object object) noexcept -> Record*
+	__attribute__((flatten)) inline auto end(const Object object) noexcept -> Object::BlobBlockType*
 	{
 		return object.LookupObjectBlockEnd();
 	}
 
 #undef MUTATOR
 #undef IMMUTATOR
+
+	/// <summary>
+	/// Runtime allocator for object instances.
+	/// </summary>
+	class RuntimeObjectAllocator final
+	{
+		inline static constinit std::atomic_size_t AllocatedBlocks {0};
+
+	public:
+		/// <summary>
+		/// Gets the amount of all currently allocated blocks (records).
+		/// </summary>
+		/// <returns>The amount of all currently allocated blocks (records).</returns>
+		static auto GetGlobalAllocatedBlocks() noexcept -> std::size_t;
+
+		/// <summary>
+		/// Gets the amount of bytes of all currently allocated blocks (records).
+		/// </summary>
+		/// <returns>The amount of bytes of all currently allocated blocks (records).</returns>
+		static auto GetGlobalAllocatedBytes() noexcept -> std::size_t;
+
+		/// <summary>
+		/// Allocate and zero raw memory for an object instance, and write the size into the object header.
+		/// The memory is initialized to zero.
+		/// The sizeInRecords value is written into the object header field "Size".
+		/// On fail, nullptr is returned!
+		/// </summary>
+		/// <param name="sizeInRecords">The size of the object in bytes.
+		/// The final object will be larger because of the object header.
+		/// If zero is passed, the allocation will return nullptr.
+		/// </param>
+		/// <returns>The valid memory on success, else nullptr.</returns>
+		static auto RawAllocateAndWriteSize(std::uint32_t sizeInRecords) -> Object::BlobBlockType*;
+
+		/// <summary>
+		/// Deallocate raw memory from an object instance.
+		/// </summary>
+		/// <param name="instance"></param>
+		/// <returns></returns>
+		static auto RawDeallocate(Object::BlobBlockType*& instance) -> void;
+	};
+
+	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBlocks() noexcept -> std::size_t
+	{
+		return AllocatedBlocks;
+	}
+
+	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBytes() noexcept -> std::size_t
+	{
+		return AllocatedBlocks * sizeof(Object::BlobBlockType);
+	}
 }

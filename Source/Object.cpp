@@ -206,6 +206,9 @@
 //    limitations under the License.
 
 #include "../Include/Nominax/Object.hpp"
+#include "../Include/Nominax/Utility.hpp"
+
+#include <iostream>
 
 namespace Nominax
 {
@@ -661,5 +664,83 @@ namespace Nominax
 		}
 
 		return true;
+	}
+
+	auto RuntimeObjectAllocator::RawAllocateAndWriteSize(const std::uint32_t sizeInRecords) -> Object::BlobBlockType*
+	{
+		// debug check
+		assert(sizeInRecords);
+
+		// We cannot allocate an object of size 0.
+		// This would only allocate an object header.
+		if (__builtin_expect(sizeInRecords == 0, 0))
+		{
+			return nullptr;
+		}
+
+		// add space for object header (2 records):
+		const std::uint32_t finalSizeInRecords {sizeInRecords + ObjectHeader::RECORD_CHUNKS};
+
+		// allocate object instance:
+		auto* __restrict__ const instance = new(std::nothrow) Record[finalSizeInRecords]();
+
+		// debug check
+		assert(instance);
+
+		// check if allocation failed:
+		if (__builtin_expect(!instance, 0))
+		{
+			return nullptr;
+		}
+
+		// Write the size of the object, without the header.
+		// The other object header fields shall be written by the caller.
+		ObjectHeader::WriteMapping_Size(instance, sizeInRecords);
+
+		// Update allocation counter:
+		AllocatedBlocks.fetch_add(finalSizeInRecords);
+
+#if NOMINAX_VERBOSE_ALLOCATOR
+		std::cout << "Allocated ";
+		PrettyPrintBytes(std::cout, finalSizeInRecords * sizeof(Record));
+		std::cout << ", Total allocated: ";
+		PrettyPrintBytes(std::cout, AllocatedBlocks * sizeof(Record));
+		std::cout << '\n';
+#endif
+
+		return instance;
+	}
+
+	auto RuntimeObjectAllocator::RawDeallocate(Object::BlobBlockType*& instance) -> void
+	{
+		// debug check
+		assert(instance);
+
+		if (__builtin_expect(!instance, 0))
+		{
+			return;
+		}
+
+		// get the size in records:
+		const auto size = ObjectHeader::ReadMapping_Size(instance);
+
+		// debug check
+		assert(size);
+
+		// Update allocation counter:
+		AllocatedBlocks.fetch_sub(size);
+
+		// Free memory:
+		delete[] instance;
+
+		instance = nullptr;
+
+#if NOMINAX_VERBOSE_ALLOCATOR
+		std::cout << "Deallocated ";
+		PrettyPrintBytes(std::cout, size * sizeof(Record));
+		std::cout << ", Total allocated: ";
+		PrettyPrintBytes(std::cout, AllocatedBlocks * sizeof(Record));
+		std::cout << '\n';
+#endif
 	}
 }

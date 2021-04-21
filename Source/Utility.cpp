@@ -279,6 +279,29 @@ namespace Nominax
 		return w;
 	}
 
+	auto PrettyPrintBytes(std::ostream& out, const std::size_t size) -> void
+	{
+		if (size < 1024)
+		{
+			out << size << " B";
+			return;
+		}
+		if (size < 1024 * 1024)
+		{
+			out << size / 1024 << " KB";
+			return;
+		}
+		if (size < 1024 * 1024 * 1024)
+		{
+			out << size / 1024 / 1024 << " MB";
+			return;
+		}
+		if (size < 1024 * 1024 * 1024 * UINT64_C(1024))
+		{
+			out << size / 1024 / 1024 / 1024 << " GB";
+		}
+	}
+
 	auto SafeLocalTime(const std::time_t& time) -> std::tm
 	{
 		std::tm buffer { };
