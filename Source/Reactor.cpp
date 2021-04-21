@@ -808,7 +808,13 @@ namespace Nominax
 			&&__fmod__,
 			&&__fneg__,
 			&&__finc__,
-			&&__fdec__
+			&&__fdec__,
+			&&__vpush__,
+			&&__vpop__,
+			&&__vadd__,
+			&&__vsub__,
+			&&__vmul__,
+			&&__vdiv__
 		};
 
 		static_assert(ValidateJumpTable(JUMP_TABLE, sizeof JUMP_TABLE / sizeof *JUMP_TABLE));
@@ -1523,6 +1529,67 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__fdec__");
 		--(*sp).F64;
+		goto
+		JMP_PTR();
+
+	__vpush__:
+		__attribute__((hot));
+		ASM_MARKER("__vpush__");
+		STO_SENTINEL(4);
+		*++sp = (*++ip).R64; // push(imm())
+		*++sp = (*++ip).R64; // push(imm())
+		*++sp = (*++ip).R64; // push(imm())
+		*++sp = (*++ip).R64; // push(imm())
+		goto
+		JMP_PTR();
+
+	__vpop__:
+		__attribute__((hot));
+		ASM_MARKER("__vpop__");
+		sp -= 4;
+		goto
+		JMP_PTR();
+	__vadd__:
+		__attribute__((hot));
+		ASM_MARKER("__vadd__");
+		(*(sp - 4)).F64 += (*(sp - 0)).F64;
+		(*(sp - 5)).F64 += (*(sp - 1)).F64;
+		(*(sp - 6)).F64 += (*(sp - 2)).F64;
+		(*(sp - 7)).F64 += (*(sp - 3)).F64;
+		sp -= 4;
+		goto
+		JMP_PTR();
+
+	__vsub__:
+		__attribute__((hot));
+		ASM_MARKER("__vsub__");
+		(*(sp - 4)).F64 -= (*(sp - 0)).F64;
+		(*(sp - 5)).F64 -= (*(sp - 1)).F64;
+		(*(sp - 6)).F64 -= (*(sp - 2)).F64;
+		(*(sp - 7)).F64 -= (*(sp - 3)).F64;
+		sp -= 4;
+		goto
+		JMP_PTR();
+
+	__vmul__:
+		__attribute__((hot));
+		ASM_MARKER("__vmul__");
+		(*(sp - 4)).F64 *= (*(sp - 0)).F64;
+		(*(sp - 5)).F64 *= (*(sp - 1)).F64;
+		(*(sp - 6)).F64 *= (*(sp - 2)).F64;
+		(*(sp - 7)).F64 *= (*(sp - 3)).F64;
+		sp -= 4;
+		goto
+		JMP_PTR();
+
+	__vdiv__:
+		__attribute__((hot));
+		ASM_MARKER("__vdiv__");
+		(*(sp - 4)).F64 /= (*(sp - 0)).F64;
+		(*(sp - 5)).F64 /= (*(sp - 1)).F64;
+		(*(sp - 6)).F64 /= (*(sp - 2)).F64;
+		(*(sp - 7)).F64 /= (*(sp - 3)).F64;
+		sp -= 4;
 		goto
 		JMP_PTR();
 

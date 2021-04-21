@@ -283,6 +283,12 @@ namespace Nominax
 		FNeg = 0x00'00'00'00'00'00'00'3A,
 		FInc = 0x00'00'00'00'00'00'00'3B,
 		FDec = 0x00'00'00'00'00'00'00'3C,
+		VPush = 0x00'00'00'00'00'00'00'3D,
+		VPop = 0x00'00'00'00'00'00'00'3E,
+		VAdd = 0x00'00'00'00'00'00'00'3F,
+		VSub = 0x00'00'00'00'00'00'00'40,
+		VMul = 0x00'00'00'00'00'00'00'41,
+		VDiv = 0x00'00'00'00'00'00'00'42,
 
 		/* !no instruction - count of total instructions! */
 		Count
@@ -431,7 +437,13 @@ namespace Nominax
 		"fmod",
 		"fneg",
 		"finc",
-		"fdec"
+		"fdec",
+		"vpush",
+		"vpop",
+		"vadd",
+		"vsub",
+		"vmul",
+		"vdiv"
 	};
 
 	/// <summary>
@@ -499,7 +511,13 @@ namespace Nominax
 		"floating point remainder",
 		"floating point negation",
 		"floating point increment",
-		"floating point decrement"
+		"floating point decrement",
+		"push quad vector",
+		"pop quad vector",
+		"floating point quad vector addition",
+		"floating point quad vector subtraction",
+		"floating point quad vector multiplication",
+		"floating point quad vector division",
 	};
 
 	/// <summary>
@@ -568,7 +586,13 @@ namespace Nominax
 		InstructionCategory::Arithmetic,
 		InstructionCategory::Arithmetic,
 		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
 	};
 
 	/// <summary>
@@ -636,7 +660,13 @@ namespace Nominax
 		1,
 		1,
 		1,
-		1
+		1,
+		4,
+		0,
+		4,
+		4,
+		4,
+		4
 	};
 
 	/// <summary>
@@ -704,7 +734,13 @@ namespace Nominax
 		2,
 		1,
 		1,
-		1
+		1,
+		0,
+		4,
+		8,
+		8,
+		8,
+		8
 	};
 
 	/// <summary>
@@ -772,13 +808,19 @@ namespace Nominax
 		0,
 		0,
 		0,
+		0,
+		4,
+		0,
+		0,
+		0,
+		0,
 		0
 	};
 
 	/// <summary>
 	/// Defines the maximal amount of immediate arguments.
 	/// </summary>
-	constexpr std::size_t INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS {2};
+	constexpr std::size_t INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS {4};
 
 	/// <summary>
 	/// Contains all immediate argument types for each instruction.
@@ -923,6 +965,18 @@ namespace Nominax
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::F64,
+			InstructionImmediateArgumentType::F64,
+			InstructionImmediateArgumentType::F64,
+			InstructionImmediateArgumentType::F64,
+		},
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
 		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
