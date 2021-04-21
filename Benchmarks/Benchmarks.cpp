@@ -280,7 +280,7 @@ auto Loop1Billion(State& state) -> void
 	{
 		const auto output {ExecuteChecked(input)};
 
-		if (output.TerminateResult != TerminateResult::Success)
+        if (output.ExecutionResult != TerminateResult::Success)
 		{
 			state.SkipWithError("Reactor terminated with error or exception!");
 			break;
@@ -413,7 +413,7 @@ auto Loop5Billion(State& state) -> void
 	{
 		const auto output{ ExecuteChecked(input) };
 
-		if (output.TerminateResult != TerminateResult::Success)
+        if (output.ExecutionResult != TerminateResult::Success)
 		{
 			state.SkipWithError("Reactor terminated with error or exception!");
 			break;
