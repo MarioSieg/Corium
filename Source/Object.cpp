@@ -237,7 +237,7 @@ namespace Nominax
 	auto Object::DeepCmp(const Object a, const Object b) noexcept -> bool
 	{
 		return a.HeaderRead_BlockSize() == b.HeaderRead_BlockSize()
-			       ? std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.BlobSizeInBytes()) == 0
+			       ? std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.ObjectBlockSizeInBytes()) == 0
 			       : false;
 	}
 

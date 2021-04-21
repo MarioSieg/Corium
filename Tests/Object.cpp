@@ -317,6 +317,7 @@ TEST(Object, BlockMappingReadWriteData)
 	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
 	ASSERT_EQ(obj->Header_ReadFlagVector().Compound, 0);
+	ASSERT_EQ(obj->ObjectBlockSizeInBytes(), 4 * sizeof(Record));
 }
 
 TEST(Object, BlockMappingReadWriteHeaderData)
@@ -425,4 +426,32 @@ TEST(Object, BlockCopy)
 	ASSERT_EQ(buffer.at(1).U64, 0);
 	ASSERT_EQ(buffer.at(2).U64, 0);
 	ASSERT_EQ(buffer.at(3).U64, 0);
+}
+
+TEST(Object, ShallowCmp)
+{
+	const auto a = Object::AllocateUnique(4);
+	ASSERT_TRUE(Object::ShallowCmp(*a, *a));
+
+	const auto b = Object::AllocateUnique(4);
+	ASSERT_FALSE(Object::ShallowCmp(*a, *b));
+}
+
+TEST(Object, DeepCmp)
+{
+	const auto a = Object::AllocateUnique(4);
+	ASSERT_TRUE(Object::DeepCmp(*a, *a));
+
+	auto b = Object::AllocateUnique(4);
+	ASSERT_TRUE(Object::DeepCmp(*a, *b));
+
+	b->operator[](0).U64 = 3;
+
+	ASSERT_FALSE(Object::DeepCmp(*a, *b));
+
+	const auto c = Object::AllocateUnique(5);
+	ASSERT_FALSE(Object::DeepCmp(*a, *c));
+
+	b->ZeroObjectBlock();
+	ASSERT_TRUE(Object::DeepCmp(*a, *b));
 }

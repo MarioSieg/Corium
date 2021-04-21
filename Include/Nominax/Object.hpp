@@ -209,6 +209,7 @@
 
 #include <cassert>
 #include <memory>
+#include <string>
 #include <span>
 #include <vector>
 
@@ -611,56 +612,56 @@ namespace Nominax
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Record* const region) noexcept -> std::uint32_t
 	{
-		return region[0].U32C[0];
+		return *(*region).U32C;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) noexcept -> std::uint32_t
 	{
-		return region[0].U32C[1];
+		return *((*region).U32C + 1);
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) noexcept -> std::uint32_t
 	{
-		return region[1].U32C[0];
+		return *(*(region + 1)).U32C;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) noexcept -> ObjectFlagsVectorCompound
 	{
 		const auto flags = ObjectFlagsVectorCompound
 		{
-			.Compound = region[1].U32C[1]
+			.Compound = *((*(region + 1)).U32C + 1)
 		};
 		return flags;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const std::uint32_t strongRefCount) noexcept -> void
 	{
-		region[0].U32C[0] = strongRefCount;
+		*(*region).U32C = strongRefCount;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) noexcept -> void
 	{
-		++region[0].U32C[0];
+		++*(*region).U32C;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) noexcept -> void
 	{
-		--region[0].U32C[0];
+		--*(*region).U32C;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_Size(Record* const region, const std::uint32_t size) noexcept -> void
 	{
-		region[0].U32C[1] = size;
+		*((*region).U32C + 1) = size;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_TypeId(Record* const region, const std::uint32_t typeId) noexcept -> void
 	{
-		region[1].U32C[0] = typeId;
+		*(*(region + 1)).U32C = typeId;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagsVectorCompound flagVector) noexcept -> void
 	{
-		region[1].U32C[1] = flagVector.Compound;
+		*((*(region + 1)).U32C + 1) = flagVector.Compound;
 	}
 
 	__attribute__((flatten)) inline auto ObjectHeader::RawQueryTypePun(Record* const region) -> ObjectHeader&
@@ -843,6 +844,7 @@ namespace Nominax
 		/// Same as HeaderRead_BlockSize() * sizeof(Record) 
 		/// </summary>
 		/// <returns></returns>
+		[[nodiscard]]
 		auto IMMUTATOR ObjectBlockSizeInBytes() const noexcept -> std::size_t;
 
 		/// <summary>
@@ -852,6 +854,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="buffer">The target buffer.</param>
 		/// <returns>True if the size was large enough, else false.</returns>
+		[[nodiscard]]
 		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::span<Record> buffer) const -> bool;
 
 		/// <summary>
@@ -919,7 +922,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns>std::memset return ptr (start of block)</returns>
 		[[nodiscard]]
-		auto MUTATOR ZeroObjectBlock() const -> void*;
+		auto MUTATOR ZeroObjectBlock() const -> void;
 
 		/// <summary>
 		/// Compares the pointer values of a and b.
@@ -929,6 +932,7 @@ namespace Nominax
 		/// <param name="a">The first object.</param>
 		/// <param name="b">The second object to compare to first.</param>
 		/// <returns>True if the two objects point to the same object blob, else false.</returns>
+		[[nodiscard]]
 		static auto ShallowCmp(Object a, Object b) noexcept -> bool;
 
 		/// <summary>
@@ -938,24 +942,80 @@ namespace Nominax
 		/// <param name="a">The first object.</param>
 		/// <param name="b">The second object to compare to first.</param>
 		/// <returns>True if the object block data is equal, else false.</returns>
+		[[nodiscard]]
 		static auto DeepCmp(Object a, Object b) noexcept -> bool;
 
+		/// <summary>
+		/// Compares the values of the object block of the two objects.
+		/// This is overkill for most cases, pointer comparison can be enough.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="a">The first object.</param>
+		/// <param name="b">The second object to compare to first.</param>
+		/// <returns>True if all values of a are equal than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		[[nodiscard]]
 		static auto DeepValueCmp_Equal(Object a, Object b) noexcept -> bool;
 
+
+		/// <summary>
+		/// Compares the values of the object block of the two objects.
+		/// This is overkill for most cases, pointer comparison can be enough.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="a">The first object.</param>
+		/// <param name="b">The second object to compare to first.</param>
+		/// <returns>True if all values of a are not equal than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		[[nodiscard]]
 		static auto DeepValueCmp_NotEqual(Object a, Object b) noexcept -> bool;
 
+		/// <summary>
+		/// Compares the values of the object block of the two objects.
+		/// This is overkill for most cases, pointer comparison can be enough.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="a">The first object.</param>
+		/// <param name="b">The second object to compare to first.</param>
+		/// <returns>True if all values of a are less than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		[[nodiscard]]
 		static auto DeepValueCmp_Less(Object a, Object b) noexcept -> bool;
 
+		/// <summary>
+		/// Compares the values of the object block of the two objects.
+		/// This is overkill for most cases, pointer comparison can be enough.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="a">The first object.</param>
+		/// <param name="b">The second object to compare to first.</param>
+		/// <returns>True if all values of a are less equal than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		[[nodiscard]]
 		static auto DeepValueCmp_LessEqual(Object a, Object b) noexcept -> bool;
 
+		/// <summary>
+		/// Compares the values of the object block of the two objects.
+		/// This is overkill for most cases, pointer comparison can be enough.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="a">The first object.</param>
+		/// <param name="b">The second object to compare to first.</param>
+		/// <returns>True if all values of a are greater than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		[[nodiscard]]
 		static auto DeepValueCmp_Greater(Object a, Object b) noexcept -> bool;
 
+		/// <summary>
+		/// Compares the values of the object block of the two objects.
+		/// This is overkill for most cases, pointer comparison can be enough.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="a">The first object.</param>
+		/// <param name="b">The second object to compare to first.</param>
+		/// <returns>True if all values of a are greater or equal than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		[[nodiscard]]
 		static auto DeepValueCmp_GreaterEqual(Object a, Object b) noexcept -> bool;
 
 		/// <summary>
@@ -999,6 +1059,7 @@ namespace Nominax
 	auto Object::DeepValueCmp_Equal([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
 		static_assert(false);
+		return false;
 	}
 
 	/// <summary>
@@ -1075,6 +1136,7 @@ namespace Nominax
 	inline auto Object::DeepValueCmp_NotEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
 		static_assert(false);
+		return false;
 	}
 
 	/// <summary>
@@ -1154,6 +1216,7 @@ namespace Nominax
 	inline auto Object::DeepValueCmp_Less([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
 		static_assert(false);
+		return false;
 	}
 
 	/// <summary>
@@ -1230,6 +1293,7 @@ namespace Nominax
 	inline auto Object::DeepValueCmp_LessEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
 		static_assert(false);
+		return false;
 	}
 
 	/// <summary>
@@ -1306,6 +1370,7 @@ namespace Nominax
 	inline auto Object::DeepValueCmp_Greater([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
 		static_assert(false);
+		return false;
 	}
 
 	/// <summary>
@@ -1382,6 +1447,7 @@ namespace Nominax
 	inline auto Object::DeepValueCmp_GreaterEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
 		static_assert(false);
+		return false;
 	}
 
 	/// <summary>
@@ -1593,9 +1659,9 @@ namespace Nominax
 		return this->LookupObjectBlockEnd();
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::ZeroObjectBlock() const -> void*
+	__attribute__((flatten)) inline auto MUTATOR Object::ZeroObjectBlock() const -> void
 	{
-		return std::memset(this->LookupObjectBlock(), 0, this->ObjectBlockSizeInBytes());
+		std::memset(this->LookupObjectBlock(), 0, this->ObjectBlockSizeInBytes());
 	}
 
 	__attribute__((flatten)) inline auto Object::ShallowCmp(const Object a, const Object b) noexcept -> bool
