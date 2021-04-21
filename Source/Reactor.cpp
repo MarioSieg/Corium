@@ -1534,14 +1534,13 @@ namespace Nominax
 
 		ASM_MARKER("_terminate_");
 
-		return {
+        return {
 			.Input = &input,
 			.ValidationResult = ReactorValidationResult::Ok,
-			.TerminateResult = TerminateTypeCvt(interruptCode),
-			.SystemInterrupt = InterruptCvt(interruptCode),
+            .ExecutionResult = TerminateTypeCvt(interruptCode),
+            .Interrupt = InterruptCvt(interruptCode),
 			.Pre = pre,
 			.Post = std::chrono::high_resolution_clock::now(),
-			.Duration = std::chrono::high_resolution_clock::now() - pre,
 			.InterruptCode = interruptCode,
 			.IpDiff = ip - input.CodeChunk,
 			.SpDiff = sp - input.Stack,

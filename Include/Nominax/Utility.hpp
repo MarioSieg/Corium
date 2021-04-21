@@ -211,6 +211,7 @@
 #include <ctime>
 #include <cstdint>
 #include <cstddef>
+#include <ostream>
 
 namespace Nominax
 {
