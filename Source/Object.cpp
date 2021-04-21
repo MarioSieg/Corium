@@ -282,11 +282,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (x->U64 != y->U64)
 			{
@@ -308,11 +308,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (x->I64 != y->I64)
 			{
@@ -334,11 +334,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (x->F64 != y->F64)
 			{
@@ -360,11 +360,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->U64 < y->U64))
 			{
@@ -386,11 +386,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->I64 < y->I64))
 			{
@@ -412,11 +412,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->F64 < y->F64))
 			{
@@ -438,11 +438,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->U64 <= y->U64))
 			{
@@ -464,11 +464,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->I64 <= y->I64))
 			{
@@ -490,11 +490,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->F64 <= y->F64))
 			{
@@ -516,11 +516,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->U64 > y->U64))
 			{
@@ -542,11 +542,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->I64 > y->I64))
 			{
@@ -568,11 +568,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->F64 > y->F64))
 			{
@@ -594,11 +594,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->U64 >= y->U64))
 			{
@@ -620,11 +620,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->I64 >= y->I64))
 			{
@@ -646,11 +646,11 @@ namespace Nominax
 			return false;
 		}
 
-		const Record*       x    = *a;
-		const Record* const xEnd = a.LookupObjectBlockEnd();
-		const Record*       y    = *b;
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
 
-		while (x < xEnd)
+		while (x < w)
 		{
 			if (!(x->F64 >= y->F64))
 			{

@@ -26,25 +26,28 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED on)
     set(CMAKE_CXX_EXTENSIONS off)
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
-            -Xclang -Ofast                                                              \
-            -Xclang -Wall                                                               \
-            -Xclang -Wextra                                                             \
-            -Xclang -Werror                                                             \
-            -Xclang -Wno-undef                                                          \
-            -Xclang -std=c++20                                                          \
-            -Xclang -Wno-unknown-attributes                                             \
-            -Xclang -Wno-ignored-attributes                                             \
-            -Xclang -Wno-deprecated-declarations                                        \
-            -Xclang -flto                                                               \
-            -mmmx									                                    \
-            -msse									                                    \
-            -msse2									                                    \
-            -msse3									                                    \
-            -mssse3									                                    \
-            -msahf									                                    \
-            -mcx16									                                    \
-    ")
+    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+        message("Release build! Setting all optimization flags!")
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
+                -Xclang -Ofast                                                              \
+                -Xclang -Wall                                                               \
+                -Xclang -Wextra                                                             \
+                -Xclang -Werror                                                             \
+                -Xclang -Wno-undef                                                          \
+                -Xclang -std=c++20                                                          \
+                -Xclang -Wno-unknown-attributes                                             \
+                -Xclang -Wno-ignored-attributes                                             \
+                -Xclang -Wno-deprecated-declarations                                        \
+                -Xclang -flto                                                               \
+                -mmmx									                                    \
+                -msse									                                    \
+                -msse2									                                    \
+                -msse3									                                    \
+                -mssse3									                                    \
+                -msahf									                                    \
+                -mcx16									                                    \
+        ")
+    endif()
     if(NOMINAX_SDK_32_BIT)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
     endif()
@@ -57,26 +60,29 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED on)
     set(CMAKE_CXX_EXTENSIONS off)
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
-            -Ofast                                                                      \
-            -Wall                                                                       \
-            -Wextra                                                                     \
-            -Werror                                                                     \
-            -Wno-undef                                                                  \
-            -std=c++2a                                                                  \
-            -Wno-unknown-attributes                                                     \
-            -Wno-ignored-attributes                                                     \
-            -Wno-deprecated-declarations                                                \
-            -ffast-math                                                                 \
-            -flto                                                                       \
-            -mmmx									                                    \
-            -msse									                                    \
-            -msse2									                                    \
-            -msse3									                                    \
-            -mssse3									                                    \
-            -msahf									                                    \
-            -mcx16									                                    \
-    ")
+    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+        message("Release build! Setting all optimization flags!")
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
+                -Ofast                                                                      \
+                -Wall                                                                       \
+                -Wextra                                                                     \
+                -Werror                                                                     \
+                -Wno-undef                                                                  \
+                -std=c++2a                                                                  \
+                -Wno-unknown-attributes                                                     \
+                -Wno-ignored-attributes                                                     \
+                -Wno-deprecated-declarations                                                \
+                -ffast-math                                                                 \
+                -flto                                                                       \
+                -mmmx									                                    \
+                -msse									                                    \
+                -msse2									                                    \
+                -msse3									                                    \
+                -mssse3									                                    \
+                -msahf									                                    \
+                -mcx16									                                    \
+        ")
+    endif()
     if(NOMINAX_SDK_32_BIT)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
     endif()

@@ -904,6 +904,12 @@ namespace Nominax
 		auto IMMUTATOR operator ->() const noexcept -> Record*;
 
 		/// <summary>
+		/// Lookup object block end.
+		/// </summary>
+		/// <returns></returns>
+		auto IMMUTATOR operator ~() const noexcept -> Record*;
+
+		/// <summary>
 		/// Unchecked subscript in object block.
 		/// </summary>
 		/// <param name="idx"></param>
@@ -921,7 +927,6 @@ namespace Nominax
 		/// Sets the object block to zero - all object fields will be zero.
 		/// </summary>
 		/// <returns>std::memset return ptr (start of block)</returns>
-		[[nodiscard]]
 		auto MUTATOR ZeroObjectBlock() const -> void;
 
 		/// <summary>
@@ -1635,6 +1640,11 @@ namespace Nominax
 	__attribute__((flatten)) inline auto IMMUTATOR Object::operator->() const noexcept -> Record*
 	{
 		return this->LookupObjectBlock();
+	}
+
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator~() const noexcept -> Record*
+	{
+		return this->LookupObjectBlockEnd();
 	}
 
 	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) noexcept -> Record&
