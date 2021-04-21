@@ -369,3 +369,60 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
 	ASSERT_EQ(obj->Header_ReadFlagVector().Compound, 0);
 }
+
+TEST(Object, BlobCopy)
+{
+	auto obj = Object::AllocateUnique(4);
+	obj->HeaderWrite_IncrementStrongRefCount();
+	obj->HeaderWrite_TypeId(22);
+	obj->HeaderWrite_FlagVector(ObjectFlagsVectorCompound{ .Compound = 0xABC });
+	obj->operator[](0).U64 = 0xFF'FF;
+	obj->operator[](1).F64 = 0.09929292;
+	obj->operator[](2).U64 = 0xABCDEF;
+	obj->operator[](3).I64 = -0xABCDEF;
+	
+	std::vector<Record> buffer{};
+	obj->CopyBlob(buffer);
+
+	ASSERT_EQ(buffer.at(0).U32C[0], 1);
+	ASSERT_EQ(buffer.at(0).U32C[1], 4);
+	ASSERT_EQ(buffer.at(1).U32C[0], 22);
+	ASSERT_EQ(buffer.at(1).U32C[1], 0xABC);
+	
+	ASSERT_EQ(buffer.at(2).U64, 0xFF'FF);
+	ASSERT_DOUBLE_EQ(buffer.at(3).F64, 0.09929292);
+	ASSERT_EQ(buffer.at(4).U64, 0xABCDEF);
+	ASSERT_EQ(buffer.at(5).I64, -0xABCDEF);
+}
+
+TEST(Object, BlockCopy)
+{
+	auto obj = Object::AllocateUnique(4);
+	obj->HeaderWrite_IncrementStrongRefCount();
+	obj->HeaderWrite_TypeId(22);
+	obj->HeaderWrite_FlagVector(ObjectFlagsVectorCompound{ .Compound = 0xABC });
+	obj->operator[](0).U64 = 0xFF'FF;
+	obj->operator[](1).F64 = 0.09929292;
+	obj->operator[](2).U64 = 0xABCDEF;
+	obj->operator[](3).I64 = -0xABCDEF;
+
+	std::vector<Record> buffer{};
+	obj->ShallowCopyObjectBlockToBuffer(buffer);
+
+	ASSERT_EQ(buffer.at(0).U64, 0xFF'FF);
+	ASSERT_DOUBLE_EQ(buffer.at(1).F64, 0.09929292);
+	ASSERT_EQ(buffer.at(2).U64, 0xABCDEF);
+	ASSERT_EQ(buffer.at(3).I64, -0xABCDEF);
+
+	for (Record& rec : *obj)
+	{
+		rec.U64 = 0;
+	}
+
+	obj->ShallowCopyObjectBlockToBuffer(buffer);
+	
+	ASSERT_EQ(buffer.at(0).U64, 0);
+	ASSERT_EQ(buffer.at(1).U64, 0);
+	ASSERT_EQ(buffer.at(2).U64, 0);
+	ASSERT_EQ(buffer.at(3).U64, 0);
+}

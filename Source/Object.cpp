@@ -1,10 +1,3 @@
-#include "..\Include\Nominax\Object.hpp"
-#include "..\Include\Nominax\Object.hpp"
-#include "..\Include\Nominax\Object.hpp"
-#include "..\Include\Nominax\Object.hpp"
-#include "..\Include\Nominax\Object.hpp"
-#include "..\Include\Nominax\Object.hpp"
-#include "..\Include\Nominax\Object.hpp"
 // File: Object.cpp
 // Author: Mario
 // Created: 20.04.2021 13:10
@@ -216,9 +209,10 @@
 
 namespace Nominax
 {
-	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) -> bool
+	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) const -> bool
 	{
-		if (buffer.size() < this->HeaderRead_BlockSize()) [[unlikely]]
+		if (buffer.size() < this->HeaderRead_BlockSize())
+		[[unlikely]]
 		{
 			return false;
 		}
@@ -228,19 +222,26 @@ namespace Nominax
 		return true;
 	}
 
-	auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) -> void
+	auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) const -> void
 	{
 		buffer.resize(this->HeaderRead_BlockSize());
 		std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
 	}
 
-	auto Object::CopyBlob(std::vector<Record>& buffer) -> void
+	auto Object::CopyBlob(std::vector<Record>& buffer) const -> void
 	{
 		buffer.resize(this->BlobSize());
 		std::memcpy(buffer.data(), this->Blob, this->BlobSizeInBytes());
 	}
 
-	auto Object::AllocateUnique(const std::size_t sizeInRecords) noexcept -> std::unique_ptr<Object, UniquePtrObjectDeleter>
+	auto Object::DeepCmp(const Object a, const Object b) noexcept -> bool
+	{
+		return a.HeaderRead_BlockSize() == b.HeaderRead_BlockSize()
+			       ? std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.BlobSizeInBytes()) == 0
+			       : false;
+	}
+
+	auto Object::AllocateUnique(const std::uint32_t sizeInRecords) noexcept -> std::unique_ptr<Object, UniquePtrObjectDeleter>
 	{
 		if (__builtin_expect(sizeInRecords == 0, 0))
 		{
@@ -270,5 +271,395 @@ namespace Nominax
 			new Object {.Blob = object},
 			UniquePtrObjectDeleter()
 		};
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Equal<std::uint64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (x->U64 != y->U64)
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Equal<std::int64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (x->I64 != y->I64)
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Equal<double>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (x->F64 != y->F64)
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Less<std::uint64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->U64 < y->U64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Less<std::int64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->I64 < y->I64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Less<double>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->F64 < y->F64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_LessEqual<std::uint64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->U64 <= y->U64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_LessEqual<std::int64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->I64 <= y->I64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_LessEqual<double>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->F64 <= y->F64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Greater<std::uint64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->U64 > y->U64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Greater<std::int64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->I64 > y->I64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Greater<double>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->F64 > y->F64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_GreaterEqual<std::uint64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->U64 >= y->U64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_GreaterEqual<std::int64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->I64 >= y->I64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_GreaterEqual<double>(const Object a, const Object b) noexcept -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const Record*       x    = *a;
+		const Record* const xEnd = a.LookupObjectBlockEnd();
+		const Record*       y    = *b;
+
+		while (x < xEnd)
+		{
+			if (!(x->F64 >= y->F64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
 	}
 }

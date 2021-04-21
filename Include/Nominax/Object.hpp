@@ -844,7 +844,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		auto IMMUTATOR ObjectBlockSizeInBytes() const noexcept -> std::size_t;
-	
+
 		/// <summary>
 		/// Tries to copy the object block into the buffer.
 		/// The buffer must have the same size or must be larger, if
@@ -852,7 +852,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="buffer">The target buffer.</param>
 		/// <returns>True if the size was large enough, else false.</returns>
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::span<Record> buffer) -> bool;
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::span<Record> buffer) const -> bool;
 
 		/// <summary>
 		/// Resizes the buffer to the size of the object block and copies the whole
@@ -860,7 +860,25 @@ namespace Nominax
 		/// </summary>
 		/// <param name="buffer">The target buffer.</param>
 		/// <returns></returns>
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) -> void;
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) const -> void;
+
+		/// <summary>
+		/// SLT-Compat
+		/// Required for range loops, same as begin(object)
+		/// </summary>
+		/// <returns>Begin iterator.</returns>
+		[[nodiscard]]
+		// ReSharper disable once CppInconsistentNaming
+		auto IMMUTATOR begin() const noexcept -> Record*;
+
+		/// <summary>
+		/// SLT-Compat
+		/// Required for range loops, same as end(object)
+		/// </summary>
+		/// <returns>End iterator.</returns>
+		[[nodiscard]]
+		// ReSharper disable once CppInconsistentNaming
+		auto IMMUTATOR end() const noexcept -> Record*;
 
 		/// <summary>
 		/// Resizes the vector to the correct size
@@ -868,7 +886,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="buffer"></param>
 		/// <returns></returns>
-		auto IMMUTATOR CopyBlob(std::vector<Record>& buffer) -> void;
+		auto IMMUTATOR CopyBlob(std::vector<Record>& buffer) const -> void;
 
 		/// <summary>
 		/// Lookup object block.
@@ -897,6 +915,50 @@ namespace Nominax
 		auto IMMUTATOR operator [](std::size_t idx) const noexcept -> Record;
 
 		/// <summary>
+		/// Sets the object block to zero - all object fields will be zero.
+		/// </summary>
+		/// <returns>std::memset return ptr (start of block)</returns>
+		[[nodiscard]]
+		auto MUTATOR ZeroObjectBlock() const -> void*;
+
+		/// <summary>
+		/// Compares the pointer values of a and b.
+		/// This only compares pointers, not values.
+		/// For value compare, refer to DeepCompare.
+		/// </summary>
+		/// <param name="a">The first object.</param>
+		/// <param name="b">The second object to compare to first.</param>
+		/// <returns>True if the two objects point to the same object blob, else false.</returns>
+		static auto ShallowCmp(Object a, Object b) noexcept -> bool;
+
+		/// <summary>
+		/// Compares the values of the object block of the two objects.
+		/// This is overkill for most cases, pointer comparison can be enough.
+		/// </summary>
+		/// <param name="a">The first object.</param>
+		/// <param name="b">The second object to compare to first.</param>
+		/// <returns>True if the object block data is equal, else false.</returns>
+		static auto DeepCmp(Object a, Object b) noexcept -> bool;
+
+		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		static auto DeepValueCmp_Equal(Object a, Object b) noexcept -> bool;
+
+		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		static auto DeepValueCmp_NotEqual(Object a, Object b) noexcept -> bool;
+
+		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		static auto DeepValueCmp_Less(Object a, Object b) noexcept -> bool;
+
+		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		static auto DeepValueCmp_LessEqual(Object a, Object b) noexcept -> bool;
+
+		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		static auto DeepValueCmp_Greater(Object a, Object b) noexcept -> bool;
+
+		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+		static auto DeepValueCmp_GreaterEqual(Object a, Object b) noexcept -> bool;
+
+		/// <summary>
 		/// Deleter for unique objects allocated with std::unique_ptr.
 		/// </summary>
 		struct UniquePtrObjectDeleter final
@@ -914,11 +976,470 @@ namespace Nominax
 		/// </summary>
 		/// <param name="sizeInRecords">BUG-PRONE The size of the object in RECORDS NOT in BYTES</param>
 		/// <returns>The mock object.</returns>
-		static auto AllocateUnique(std::size_t sizeInRecords) noexcept -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
+		static auto AllocateUnique(std::uint32_t sizeInRecords) noexcept -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
 	};
 
 	static_assert(sizeof(Object) == sizeof(void*));
 	static_assert(std::is_standard_layout_v<Object>);
+
+	/// <summary>
+	/// Prevent using with invalid type.
+	/// Allowed are the record types:
+	/// std::uint64_t
+	/// std::int64_t
+	/// double
+	/// char32_t
+	/// void*
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+	auto Object::DeepValueCmp_Equal([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	{
+		static_assert(false);
+	}
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::uint64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are equal, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Equal<std::uint64_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::int64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are equal, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Equal<std::int64_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of double.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are equal, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Equal<double>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of char32_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are equal, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Equal<char32_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of void*.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are equal, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Equal<void*>(Object a, Object b) noexcept -> bool;
+
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal<char32_t>(const Object a, const Object b) noexcept -> bool
+	{
+		return DeepValueCmp_Equal<std::uint64_t>(a, b);
+	}
+
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal<void*>(const Object a, const Object b) noexcept -> bool
+	{
+		return DeepValueCmp_Equal<std::uint64_t>(a, b);
+	}
+
+	/// <summary>
+	/// Prevent using with invalid type.
+	/// Allowed are the record types:
+	/// std::uint64_t
+	/// std::int64_t
+	/// double
+	/// char32_t
+	/// void*
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+	inline auto Object::DeepValueCmp_NotEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	{
+		static_assert(false);
+	}
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::uint64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all not equal, else false.</returns>
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<std::uint64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		return !DeepValueCmp_Equal<std::uint64_t>(a, b);
+	}
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::int64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all not equal, else false.</returns>
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<std::int64_t>(const Object a, const Object b) noexcept -> bool
+	{
+		return !DeepValueCmp_Equal<std::int64_t>(a, b);
+	}
+
+	/// <summary>
+	/// Specialization for bitwise compare of double.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all not equal, else false.</returns>
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<double>(const Object a, const Object b) noexcept -> bool
+	{
+		return !DeepValueCmp_Equal<double>(a, b);
+	}
+
+	/// <summary>
+	/// Specialization for bitwise compare of char32_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all not equal, else false.</returns>
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<char32_t>(const Object a, const Object b) noexcept -> bool
+	{
+		return !DeepValueCmp_Equal<char32_t>(a, b);
+	}
+
+	/// <summary>
+	/// Specialization for bitwise compare of void*.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all not equal, else false.</returns>
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<void*>(const Object a, const Object b) noexcept -> bool
+	{
+		return !DeepValueCmp_Equal<void*>(a, b);
+	}
+
+	/// <summary>
+	/// Prevent using with invalid type.
+	/// Allowed are the record types:
+	/// std::uint64_t
+	/// std::int64_t
+	/// double
+	/// char32_t
+	/// void*
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+	inline auto Object::DeepValueCmp_Less([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	{
+		static_assert(false);
+	}
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::uint64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Less<std::uint64_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::int64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Less<std::int64_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of double.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Less<double>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of char32_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Less<char32_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of void*.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Less<void*>(Object a, Object b) noexcept -> bool;
+
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Less<char32_t>(const Object a, const Object b) noexcept -> bool
+	{
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
+	}
+
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Less<void*>(const Object a, const Object b) noexcept -> bool
+	{
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
+	}
+
+	/// <summary>
+	/// Prevent using with invalid type.
+	/// Allowed are the record types:
+	/// std::uint64_t
+	/// std::int64_t
+	/// double
+	/// char32_t
+	/// void*
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+	inline auto Object::DeepValueCmp_LessEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	{
+		static_assert(false);
+	}
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::uint64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_LessEqual<std::uint64_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::int64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_LessEqual<std::int64_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of double.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_LessEqual<double>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of char32_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_LessEqual<char32_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of void*.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_LessEqual<void*>(Object a, Object b) noexcept -> bool;
+
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_LessEqual<char32_t>(const Object a, const Object b) noexcept -> bool
+	{
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
+	}
+
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_LessEqual<void*>(const Object a, const Object b) noexcept -> bool
+	{
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
+	}
+
+	/// <summary>
+	/// Prevent using with invalid type.
+	/// Allowed are the record types:
+	/// std::uint64_t
+	/// std::int64_t
+	/// double
+	/// char32_t
+	/// void*
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+	inline auto Object::DeepValueCmp_Greater([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	{
+		static_assert(false);
+	}
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::uint64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Greater<std::uint64_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::int64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Greater<std::int64_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of double.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Greater<double>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of char32_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Greater<char32_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of void*.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_Greater<void*>(Object a, Object b) noexcept -> bool;
+
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Greater<char32_t>(const Object a, const Object b) noexcept -> bool
+	{
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
+	}
+
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Greater<void*>(const Object a, const Object b) noexcept -> bool
+	{
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
+	}
+
+	/// <summary>
+	/// Prevent using with invalid type.
+	/// Allowed are the record types:
+	/// std::uint64_t
+	/// std::int64_t
+	/// double
+	/// char32_t
+	/// void*
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
+	inline auto Object::DeepValueCmp_GreaterEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	{
+		static_assert(false);
+	}
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::uint64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_GreaterEqual<std::uint64_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of std::int64_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_GreaterEqual<std::int64_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of double.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_GreaterEqual<double>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of char32_t.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_GreaterEqual<char32_t>(Object a, Object b) noexcept -> bool;
+
+	/// <summary>
+	/// Specialization for bitwise compare of void*.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are all less, else false.</returns>
+	template <>
+	auto Object::DeepValueCmp_GreaterEqual<void*>(Object a, Object b) noexcept -> bool;
+
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_GreaterEqual<char32_t>(const Object a, const Object b) noexcept -> bool
+	{
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
+	}
+
+	template <>
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_GreaterEqual<void*>(const Object a, const Object b) noexcept -> bool
+	{
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
+	}
 
 	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryRawHeader() const noexcept -> Record*
 	{
@@ -1040,28 +1561,47 @@ namespace Nominax
 		ObjectHeader::WriteMapping_FlagVector(this->QueryRawHeader(), flagVector);
 	}
 
-	__attribute__((flatten)) auto IMMUTATOR Object::operator*() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator*() const noexcept -> Record*
 	{
 		return this->LookupObjectBlock();
 	}
 
-	__attribute__((flatten)) auto IMMUTATOR Object::operator->() const noexcept -> Record*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator->() const noexcept -> Record*
 	{
 		return this->LookupObjectBlock();
 	}
 
-	__attribute__((flatten)) auto IMMUTATOR Object::operator[](std::size_t idx) noexcept -> Record&
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) noexcept -> Record&
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}
 
-	__attribute__((flatten)) auto IMMUTATOR Object::operator[](std::size_t idx) const noexcept -> Record
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) const noexcept -> Record
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}
 
-#undef MUTATOR
-#undef IMMUTATOR
+	// ReSharper disable once CppInconsistentNaming
+	__attribute__((flatten)) inline auto IMMUTATOR Object::begin() const noexcept -> Record*
+	{
+		return this->LookupObjectBlock();
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	__attribute__((flatten)) inline auto IMMUTATOR Object::end() const noexcept -> Record*
+	{
+		return this->LookupObjectBlockEnd();
+	}
+
+	__attribute__((flatten)) inline auto MUTATOR Object::ZeroObjectBlock() const -> void*
+	{
+		return std::memset(this->LookupObjectBlock(), 0, this->ObjectBlockSizeInBytes());
+	}
+
+	__attribute__((flatten)) inline auto Object::ShallowCmp(const Object a, const Object b) noexcept -> bool
+	{
+		return a.Blob == b.Blob;
+	}
 
 	/// <summary>
 	/// STL Compat Overload
@@ -1070,7 +1610,8 @@ namespace Nominax
 	/// </summary>
 	/// <param name="object"></param>
 	/// <returns></returns>
-	__attribute__((flatten)) inline auto begin(const Object object) noexcept -> Record* 
+	// ReSharper disable once CppInconsistentNaming
+	__attribute__((flatten)) inline auto begin(const Object object) noexcept -> Record*
 	{
 		return object.LookupObjectBlock();
 	}
@@ -1082,8 +1623,12 @@ namespace Nominax
 	/// </summary>
 	/// <param name="object"></param>
 	/// <returns></returns>
+	// ReSharper disable once CppInconsistentNaming
 	__attribute__((flatten)) inline auto end(const Object object) noexcept -> Record*
 	{
 		return object.LookupObjectBlockEnd();
 	}
+
+#undef MUTATOR
+#undef IMMUTATOR
 }
