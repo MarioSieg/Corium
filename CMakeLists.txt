@@ -10,10 +10,10 @@ message("Initializing Nominax SDK")
 set(CMAKE_C_COMPILER_WORKS true)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 
-option(NOMINAX_SDK_32_BIT "Build for 32-bit system" OFF)
-option(NOMINAX_SDK_FAST_MATH "Use fast but less correct math" ON)
-option(NOMINAX_BUILD_UNIT_TESTS "Build unit tests" ON)
-option(NOMINAX_BUILD_BENCHMARKS "Build a system benchmark" ON)
+option(ANOMINAX_SDK_32_BIT "Build for 32-bit system" OFF)
+option(ANOMINAX_SDK_FAST_MATH "Use fast but less correct math" ON)
+option(ANOMINAX_BUILD_UNIT_TESTS "Build unit tests" ON)
+option(ANOMINAX_BUILD_BENCHMARKS "Build a system benchmark" ON)
 
 # Linux build info:
 # Requires >= GCC 10!
@@ -26,32 +26,29 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED on)
     set(CMAKE_CXX_EXTENSIONS off)
-    if (CMAKE_BUILD_TYPE STREQUAL "Release")
-        message("Release build! Setting all optimization flags!")
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
-                -Xclang -Ofast                                                              \
-                -Xclang -Wall                                                               \
-                -Xclang -Wextra                                                             \
-                -Xclang -Werror                                                             \
-                -Xclang -Wno-undef                                                          \
-                -Xclang -std=c++20                                                          \
-                -Xclang -Wno-unknown-attributes                                             \
-                -Xclang -Wno-ignored-attributes                                             \
-                -Xclang -Wno-deprecated-declarations                                        \
-                -Xclang -flto                                                               \
-                -mmmx									                                    \
-                -msse									                                    \
-                -msse2									                                    \
-                -msse3									                                    \
-                -mssse3									                                    \
-                -msahf									                                    \
-                -mcx16									                                    \
-        ")
-    endif()
-    if(NOMINAX_SDK_32_BIT)
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
+            -Xclang -Ofast                                                              \
+            -Xclang -Wall                                                               \
+            -Xclang -Wextra                                                             \
+            -Xclang -Werror                                                             \
+            -Xclang -Wno-undef                                                          \
+            -Xclang -std=c++20                                                          \
+            -Xclang -Wno-unknown-attributes                                             \
+            -Xclang -Wno-ignored-attributes                                             \
+            -Xclang -Wno-deprecated-declarations                                        \
+            -Xclang -flto                                                               \
+            -mmmx									                                    \
+            -msse									                                    \
+            -msse2									                                    \
+            -msse3									                                    \
+            -mssse3									                                    \
+            -msahf									                                    \
+            -mcx16									                                    \
+    ")
+    if(ANOMINAX_SDK_32_BIT)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
     endif()
-    if(NOMINAX_SDK_FASH_MATH)
+    if(ANOMINAX_SDK_FASH_MATH)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Xclang -ffast-math")
     endif()
     set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS}")
@@ -60,33 +57,30 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED on)
     set(CMAKE_CXX_EXTENSIONS off)
-    if (CMAKE_BUILD_TYPE STREQUAL "Release")
-        message("Release build! Setting all optimization flags!")
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
-                -Ofast                                                                      \
-                -Wall                                                                       \
-                -Wextra                                                                     \
-                -Werror                                                                     \
-                -Wno-undef                                                                  \
-                -std=c++2a                                                                  \
-                -Wno-unknown-attributes                                                     \
-                -Wno-ignored-attributes                                                     \
-                -Wno-deprecated-declarations                                                \
-                -ffast-math                                                                 \
-                -flto                                                                       \
-                -mmmx									                                    \
-                -msse									                                    \
-                -msse2									                                    \
-                -msse3									                                    \
-                -mssse3									                                    \
-                -msahf									                                    \
-                -mcx16									                                    \
-        ")
-    endif()
-    if(NOMINAX_SDK_32_BIT)
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}                                            \
+            -Ofast                                                                      \
+            -Wall                                                                       \
+            -Wextra                                                                     \
+            -Werror                                                                     \
+            -Wno-undef                                                                  \
+            -std=c++2a                                                                  \
+            -Wno-unknown-attributes                                                     \
+            -Wno-ignored-attributes                                                     \
+            -Wno-deprecated-declarations                                                \
+            -ffast-math                                                                 \
+            -flto                                                                       \
+            -mmmx									                                    \
+            -msse									                                    \
+            -msse2									                                    \
+            -msse3									                                    \
+            -mssse3									                                    \
+            -msahf									                                    \
+            -mcx16									                                    \
+    ")
+    if(ANOMINAX_SDK_32_BIT)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
     endif()
-    if(NOMINAX_SDK_FASH_MATH)
+    if(ANOMINAX_SDK_FASH_MATH)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffast-math")
     endif()
 else()
@@ -101,7 +95,7 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/MacroCfg.hpp" 	
     "Include/Nominax/Interrupts.hpp"
     "Include/Nominax/Info.hpp"
-    "Include/Nominax/OS.hpp"
+    "Include/Nominax/Os.hpp"
     "Include/Nominax/Utility.hpp"
     "Include/Nominax/DynamicLibrary.hpp"
     "Include/Nominax/Nominax.hpp" 
@@ -118,17 +112,17 @@ add_library("NominaxRuntime" STATIC
     "Source/Environment.cpp"
     "Source/Bytecode.cpp" 
     "Source/Os.cpp" 
-    "Source/Utility.cpp"  "Source/Object.cpp")
+    "Source/Utility.cpp")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries("NominaxRuntime" "dl")
 endif()
 
-add_executable("Nominax" "Source/main.cpp")
+add_executable("Nominax" "Source/Main.cpp")
 target_link_libraries("Nominax" "NominaxRuntime")
 
 # test executable:
-if(NOMINAX_BUILD_UNIT_TESTS)
+if(ANOMINAX_BUILD_UNIT_TESTS)
     file(GLOB "TEST_SOURCE_FILES" "Tests/*.cpp")
     add_subdirectory("Tests/googletest/")
     add_executable("NominaxUnitTests" ${TEST_SOURCE_FILES})
@@ -141,7 +135,7 @@ if(NOMINAX_BUILD_UNIT_TESTS)
 endif()
 
 # benchmark executable:
-if(NOMINAX_BUILD_BENCHMARKS)
+if(ANOMINAX_BUILD_BENCHMARKS)
     file(GLOB "TEST_Source_FILES" "Benchmarks/*.cpp")
     add_subdirectory("Benchmarks/googlebench/")
     add_executable("NominaxBenchmark" ${TEST_Source_FILES})
