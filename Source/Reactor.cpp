@@ -205,6 +205,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <cmath>
+
 #include "../Include/Nominax/Reactor.hpp"
 #include "../Include/Nominax/Interrupts.hpp"
 #include "../Include/Nominax/MacroCfg.hpp"
@@ -1532,11 +1534,10 @@ namespace Nominax
 		return {
 			.Input = &input,
 			.ValidationResult = ReactorValidationResult::Ok,
-			.TerminateResult = TerminateTypeCvt(interruptCode),
-			.SystemInterrupt = InterruptCvt(interruptCode),
+            .ExecutionResult = TerminateTypeCvt(interruptCode),
+            .SysInterrupt = InterruptCvt(interruptCode),
 			.Pre = pre,
 			.Post = std::chrono::high_resolution_clock::now(),
-			.Duration = std::chrono::high_resolution_clock::now() - pre,
 			.InterruptCode = interruptCode,
 			.IpDiff = ip - input.CodeChunk,
 			.SpDiff = sp - input.Stack,

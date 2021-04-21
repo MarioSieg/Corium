@@ -208,6 +208,7 @@
 #pragma once
 
 #include <memory>
+#include <cstring>
 
 #include "Record.hpp"
 

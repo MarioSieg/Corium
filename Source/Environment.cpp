@@ -268,7 +268,7 @@ namespace Nominax
 			TotalSystemMemory,
 			UsedSystemMemory,
 			ThreadId
-		] = this->SystemInfo;
+		] = this->SysInfo;
 
 		cout << "TID: " << "0x" << std::hex << ThreadId << std::dec << '\n';
 		cout << "CPU: " << CpuName << '\n';
@@ -300,7 +300,7 @@ namespace Nominax
 			std::ios_base::sync_with_stdio(false);
 			this->PrintVersionInfo();
 			Separator();
-			this->SystemInfo.QueryAll();
+			this->SysInfo.QueryAll();
 			this->PrintMachineInfo();
 			Separator();
 			this->PrintTypeTable();
