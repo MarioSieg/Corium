@@ -1065,8 +1065,7 @@ namespace Nominax
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-    [[deprecated("invalid type for specialization")]]
-    inline auto Object::DeepValueCmp_Equal([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	inline auto Object::DeepValueCmp_Equal([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
 		return false;
 	}
@@ -1142,9 +1141,9 @@ namespace Nominax
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-    inline auto Object::DeepValueCmp_NotEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	inline auto Object::DeepValueCmp_NotEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
-        assert(false);
+		assert(false);
 		return false;
 	}
 
@@ -1222,9 +1221,9 @@ namespace Nominax
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-    inline auto Object::DeepValueCmp_Less([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	inline auto Object::DeepValueCmp_Less([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
-        assert(false);
+		assert(false);
 		return false;
 	}
 
@@ -1299,9 +1298,9 @@ namespace Nominax
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-    inline auto Object::DeepValueCmp_LessEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	inline auto Object::DeepValueCmp_LessEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
-        assert(false);
+		assert(false);
 		return false;
 	}
 
@@ -1376,9 +1375,9 @@ namespace Nominax
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-    inline auto Object::DeepValueCmp_Greater([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	inline auto Object::DeepValueCmp_Greater([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
-        assert(false);
+		assert(false);
 		return false;
 	}
 
@@ -1453,9 +1452,9 @@ namespace Nominax
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-    inline auto Object::DeepValueCmp_GreaterEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
+	inline auto Object::DeepValueCmp_GreaterEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept -> bool
 	{
-        assert(false);
+		assert(false);
 		return false;
 	}
 

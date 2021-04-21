@@ -255,8 +255,8 @@ namespace Nominax
 	{
 		const ReactorInput*                            Input {nullptr};
 		ReactorValidationResult                        ValidationResult { };
-        TerminateResult                                ExecutionResult { };
-        SystemInterrupt                                Interrupt { };
+		TerminateResult                                ExecutionResult { };
+		SystemInterrupt                                Interrupt { };
 		std::chrono::high_resolution_clock::time_point Pre { };
 		std::chrono::high_resolution_clock::time_point Post { };
 		InterruptAccumulator                           InterruptCode { };

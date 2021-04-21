@@ -216,7 +216,7 @@ namespace Nominax
 	/// </summary>
 	class Environment
 	{
-        SystemInfo SysInfo { };
+		SystemInfo SysInfo { };
 
 		auto PrintVersionInfo() const -> void;
 		auto PrintMachineInfo() const -> void;

@@ -1211,7 +1211,7 @@ TEST(ReactorExecution, __Push_no_stack_overflow__)
 	ASSERT_EQ(o.Input->Stack[3].I64, 123);
 	ASSERT_EQ(o.SpDiff, 3);
 	ASSERT_EQ(o.InterruptCode, 0);
-    ASSERT_EQ(o.ExecutionResult, TerminateResult::Success);
+	ASSERT_EQ(o.ExecutionResult, TerminateResult::Success);
 }
 
 TEST(ReactorExecution, __Push_stack_overflow__)
@@ -1244,7 +1244,7 @@ TEST(ReactorExecution, __Push_stack_overflow__)
 	ASSERT_EQ(o.Input->Stack[3].I64, 123);
 	ASSERT_EQ(o.SpDiff, 3);
 	ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
-    ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
+	ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
 }
 
 TEST(ReactorExecution, __Dupl_stack_overflow__)
@@ -1274,7 +1274,7 @@ TEST(ReactorExecution, __Dupl_stack_overflow__)
 	ASSERT_EQ(o.Input->Stack[3].I64, 123);
 	ASSERT_EQ(o.SpDiff, 3);
 	ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
-    ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
+	ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
 }
 
 TEST(ReactorExecution, __Dupl2_stack_overflow__)
@@ -1304,7 +1304,7 @@ TEST(ReactorExecution, __Dupl2_stack_overflow__)
 	ASSERT_EQ(o.Input->Stack[3].I64, 123);
 	ASSERT_EQ(o.SpDiff, 3);
 	ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
-    ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
+	ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
 }
 
 TEST(ReactorExecution, __CIntrin__)
@@ -1360,7 +1360,7 @@ TEST(ReactorExecution, __CIntrin__)
 	ASSERT_EQ(o.Input->Stack[4].C32, ')');
 	ASSERT_EQ(o.SpDiff, 1); // Pop all!
 	ASSERT_EQ(o.InterruptCode, 0);
-    ASSERT_EQ(o.ExecutionResult, TerminateResult::Success);
+	ASSERT_EQ(o.ExecutionResult, TerminateResult::Success);
 	ASSERT_EQ(calls, custom_Intrinsics.size());
 }
 
@@ -1390,7 +1390,7 @@ TEST(ReactorExecution, __PushZ_stack_overflow__)
 	ASSERT_EQ(o.Input->Stack[3].I64, 0);
 	ASSERT_EQ(o.SpDiff, 3);
 	ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
-    ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
+	ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
 }
 
 TEST(ReactorExecution, __IPushO_stack_overflow__)
@@ -1419,7 +1419,7 @@ TEST(ReactorExecution, __IPushO_stack_overflow__)
 	ASSERT_EQ(o.Input->Stack[3].I64, 1);
 	ASSERT_EQ(o.SpDiff, 3);
 	ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
-    ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
+	ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
 }
 
 TEST(ReactorExecution, __FPushO_stack_overflow__)
@@ -1448,7 +1448,7 @@ TEST(ReactorExecution, __FPushO_stack_overflow__)
 	ASSERT_EQ(o.Input->Stack[3].F64, 1.0);
 	ASSERT_EQ(o.SpDiff, 3);
 	ASSERT_EQ(o.InterruptCode, SystemInterrupt::StackOverflow);
-    ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
+	ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
 }
 
 #endif
