@@ -297,7 +297,7 @@ TEST(ObjectHeaderReinterpretation, FieldCheckedMapping)
 
 TEST(Object, Allocation)
 {
-	const auto obj{ Object::AllocateUnique(8192) };
+	const auto obj {Object::AllocateUnique(8192)};
 	ASSERT_NE(obj, nullptr);
 	ASSERT_NE(obj->Blob, nullptr);
 }
@@ -322,7 +322,7 @@ TEST(Object, BlockMappingReadWriteData)
 
 TEST(Object, BlockMappingReadWriteHeaderData)
 {
-	auto obj{ Object::AllocateUnique(4) };
+	auto obj {Object::AllocateUnique(4)};
 	ASSERT_NE(obj, nullptr);
 	ASSERT_NE(obj->Blob, nullptr);
 	ASSERT_EQ(obj->HeaderRead_BlockSize(), 4);
@@ -345,7 +345,7 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 	ObjectHeader::WriteMapping_IncrementStrongRefCount(obj->QueryRawHeader());
 	ObjectHeader::WriteMapping_DecrementStrongRefCount(obj->QueryRawHeader());
 
-	auto& obj2{ *obj };
+	auto& obj2 {*obj};
 	// ReSharper disable once CppDiscardedPostfixOperatorResult
 	obj2++;
 	// ReSharper disable once CppExpressionWithoutSideEffects
@@ -373,7 +373,7 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 
 TEST(Object, BlobCopy)
 {
-	auto obj{ Object::AllocateUnique(4) };
+	auto obj {Object::AllocateUnique(4)};
 	obj->HeaderWrite_IncrementStrongRefCount();
 	obj->HeaderWrite_TypeId(22);
 	obj->HeaderWrite_FlagVector(ObjectFlagsVectorCompound {.Compound = 0xABC});
@@ -398,7 +398,7 @@ TEST(Object, BlobCopy)
 
 TEST(Object, BlockCopy)
 {
-	auto obj{ Object::AllocateUnique(4) };
+	auto obj {Object::AllocateUnique(4)};
 	obj->HeaderWrite_IncrementStrongRefCount();
 	obj->HeaderWrite_TypeId(22);
 	obj->HeaderWrite_FlagVector(ObjectFlagsVectorCompound {.Compound = 0xABC});
@@ -430,17 +430,17 @@ TEST(Object, BlockCopy)
 
 TEST(Object, ShallowCmp)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	ASSERT_TRUE(Object::ShallowCmp(*a, *a));
 	ASSERT_FALSE(Object::ShallowCmp(*a, *b));
 }
 
 TEST(Object, DeepCmp)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	auto b{ Object::AllocateUnique(4) };
-	
+	const auto a {Object::AllocateUnique(4)};
+	auto       b {Object::AllocateUnique(4)};
+
 	ASSERT_TRUE(Object::DeepCmp(*a, *a));
 
 	ASSERT_TRUE(Object::DeepCmp(*a, *b));
@@ -458,8 +458,8 @@ TEST(Object, DeepCmp)
 
 TEST(Object, DeepValueCmp_Equal_U64)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	a->operator[](0).U64 = 0x123456;
 	a->operator[](1).U64 = 0xABCDEF;
 	b->operator[](0).U64 = 0x123456;
@@ -471,8 +471,8 @@ TEST(Object, DeepValueCmp_Equal_U64)
 
 TEST(Object, DeepValueCmp_NotEqual_U64)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	a->operator[](0).U64 = 0x123456;
 	a->operator[](1).U64 = 0xABCDEF;
 	b->operator[](0).U64 = 0x123456;
@@ -501,8 +501,8 @@ TEST(Object, DeepValueCmp_Less_U64)
 
 TEST(Object, DeepValueCmp_Greater_U64)
 {
-	const auto a = Object::AllocateUnique(4);
-	const auto b = Object::AllocateUnique(4);
+	const auto a         = Object::AllocateUnique(4);
+	const auto b         = Object::AllocateUnique(4);
 	b->operator[](0).U64 = 10;
 	b->operator[](1).U64 = 10;
 	b->operator[](2).U64 = 3;
@@ -518,8 +518,8 @@ TEST(Object, DeepValueCmp_Greater_U64)
 
 TEST(Object, DeepValueCmp_LessEqual_U64)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	a->operator[](0).U64 = 20;
 	a->operator[](1).U64 = 10;
 	a->operator[](2).U64 = 3;
@@ -535,8 +535,8 @@ TEST(Object, DeepValueCmp_LessEqual_U64)
 
 TEST(Object, DeepValueCmp_GreaterEqual_U64)
 {
-	const auto a = Object::AllocateUnique(4);
-	const auto b = Object::AllocateUnique(4);
+	const auto a         = Object::AllocateUnique(4);
+	const auto b         = Object::AllocateUnique(4);
 	b->operator[](0).U64 = 20;
 	b->operator[](1).U64 = 20;
 	b->operator[](2).U64 = 3;
@@ -552,8 +552,8 @@ TEST(Object, DeepValueCmp_GreaterEqual_U64)
 
 TEST(Object, DeepValueCmp_Equal_F64)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	a->operator[](0).F64 = 6.0;
 	a->operator[](1).F64 = 6.0;
 	b->operator[](0).F64 = 6.0;
@@ -565,8 +565,8 @@ TEST(Object, DeepValueCmp_Equal_F64)
 
 TEST(Object, DeepValueCmp_NotEqual_F64)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	a->operator[](0).F64 = 6.0;
 	a->operator[](1).F64 = 6.0;
 	b->operator[](0).F64 = 6.0;
@@ -578,8 +578,8 @@ TEST(Object, DeepValueCmp_NotEqual_F64)
 
 TEST(Object, DeepValueCmp_Less_F64)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	a->operator[](0).F64 = 10.0;
 	a->operator[](1).F64 = 10.0;
 	a->operator[](2).F64 = 3.0;
@@ -595,8 +595,8 @@ TEST(Object, DeepValueCmp_Less_F64)
 
 TEST(Object, DeepValueCmp_Greater_F64)
 {
-	const auto a = Object::AllocateUnique(4);
-	const auto b = Object::AllocateUnique(4);
+	const auto a         = Object::AllocateUnique(4);
+	const auto b         = Object::AllocateUnique(4);
 	b->operator[](0).F64 = 10.0;
 	b->operator[](1).F64 = 10.0;
 	b->operator[](2).F64 = 3.0;
@@ -612,8 +612,8 @@ TEST(Object, DeepValueCmp_Greater_F64)
 
 TEST(Object, DeepValueCmp_LessEqual_F64)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	a->operator[](0).F64 = 20.0;
 	a->operator[](1).F64 = 10.0;
 	a->operator[](2).F64 = 3.0;
@@ -629,8 +629,8 @@ TEST(Object, DeepValueCmp_LessEqual_F64)
 
 TEST(Object, DeepValueCmp_GreaterEqual_F64)
 {
-	const auto a = Object::AllocateUnique(4);
-	const auto b = Object::AllocateUnique(4);
+	const auto a         = Object::AllocateUnique(4);
+	const auto b         = Object::AllocateUnique(4);
 	b->operator[](0).F64 = 20.0;
 	b->operator[](1).F64 = 20.0;
 	b->operator[](2).F64 = 3.0;
@@ -646,8 +646,8 @@ TEST(Object, DeepValueCmp_GreaterEqual_F64)
 
 TEST(Object, DeepValueCmp_Equal_I64)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	a->operator[](0).I64 = 0x1234 - 56;
 	a->operator[](1).I64 = 0xABCDEF;
 	b->operator[](0).I64 = 0x1234 - 56;
@@ -659,8 +659,8 @@ TEST(Object, DeepValueCmp_Equal_I64)
 
 TEST(Object, DeepValueCmp_NotEqual_I64)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	a->operator[](0).I64 = 0x1234 - 56;
 	a->operator[](1).I64 = 0xABCDEF;
 	b->operator[](0).I64 = 0x1234 - 56;
@@ -672,8 +672,8 @@ TEST(Object, DeepValueCmp_NotEqual_I64)
 
 TEST(Object, DeepValueCmp_Less_I64)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	a->operator[](0).I64 = -5;
 	a->operator[](1).I64 = -5;
 	a->operator[](2).I64 = -5;
@@ -689,8 +689,8 @@ TEST(Object, DeepValueCmp_Less_I64)
 
 TEST(Object, DeepValueCmp_Greater_I64)
 {
-	const auto a = Object::AllocateUnique(4);
-	const auto b = Object::AllocateUnique(4);
+	const auto a         = Object::AllocateUnique(4);
+	const auto b         = Object::AllocateUnique(4);
 	a->operator[](0).I64 = 10;
 	a->operator[](1).I64 = 10;
 	a->operator[](2).I64 = 3;
@@ -706,8 +706,8 @@ TEST(Object, DeepValueCmp_Greater_I64)
 
 TEST(Object, DeepValueCmp_LessEqual_I64)
 {
-	const auto a{ Object::AllocateUnique(4) };
-	const auto b{ Object::AllocateUnique(4) };
+	const auto a {Object::AllocateUnique(4)};
+	const auto b {Object::AllocateUnique(4)};
 	a->operator[](0).I64 = -20;
 	a->operator[](1).I64 = 10;
 	a->operator[](2).I64 = 3;
@@ -723,8 +723,8 @@ TEST(Object, DeepValueCmp_LessEqual_I64)
 
 TEST(Object, DeepValueCmp_GreaterEqual_I64)
 {
-	const auto a = Object::AllocateUnique(4);
-	const auto b = Object::AllocateUnique(4);
+	const auto a         = Object::AllocateUnique(4);
+	const auto b         = Object::AllocateUnique(4);
 	b->operator[](0).I64 = -20;
 	b->operator[](1).I64 = -20;
 	b->operator[](2).I64 = 3;

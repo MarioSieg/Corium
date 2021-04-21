@@ -314,6 +314,36 @@ auto Loop1Billion(State& state) -> void
 
 BENCHMARK(Loop1Billion)->Unit(kSecond);
 
+auto DeepCmp(State& state) -> void
+{
+	const auto a{ Object::AllocateUnique(16384) };
+	const auto b{ Object::AllocateUnique(16384) };
+
+	for (auto _ : state) {
+		const auto x = Object::DeepCmp(*a, *b);
+		benchmark::DoNotOptimize(x);
+	}
+}
+
+BENCHMARK(DeepCmp)->Unit(kMicrosecond);
+
+auto DeepCmpLess(State& state) -> void
+{
+	const auto a{ Object::AllocateUnique(16384) };
+	const auto b{ Object::AllocateUnique(16384) };
+	for (auto& x : *b)
+	{
+		x.F64 = 10.0;
+	}
+
+	for (auto _ : state) {
+		const auto x = Object::DeepValueCmp_Less<double>(*a, *b);
+		benchmark::DoNotOptimize(x);
+	}
+}
+
+BENCHMARK(DeepCmpLess)->Unit(kMicrosecond);
+
 auto Loop5Billion(State& state) -> void
 {
 	std::vector code{
