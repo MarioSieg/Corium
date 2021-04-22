@@ -212,6 +212,13 @@
 #include "../Include/Nominax/Interrupts.hpp"
 #include "../Include/Nominax/MacroCfg.hpp"
 
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
+// ReSharper disable once CppUnusedIncludeDirective
+#	include <immintrin.h>
+#elif NOMINAX_ARCH_ARM_64 && NOMINAX_USE_ARCH_OPT && defined(__ARM_NEON)
+#	include <arm_neon.h>
+#endif
+
 namespace Nominax
 {
 	auto ReactorInput::Validate() const noexcept -> ReactorValidationResult
@@ -1543,7 +1550,8 @@ namespace Nominax
 			movupd	%xmm1, 16(%rdi)
 			movupd	%xmm0, (%rdi)
 		*/
-		++sp; ++ip;
+		++sp;
+		++ip;
 		std::memcpy(sp, ip, sizeof(Record) * 4);
 		sp += 3;
 		ip += 3;
@@ -1562,6 +1570,28 @@ namespace Nominax
 	__vadd__:
 		__attribute__((hot));
 		ASM_MARKER("__vadd__");
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+		{
+			/*
+				movupd	-56(%rdi), %xmm0
+				movupd	-40(%rdi), %xmm1
+				movupd	-24(%rdi), %xmm2
+				addpd	%xmm0, %xmm2
+				movupd	-8(%rdi), %xmm0
+				addpd	%xmm1, %xmm0
+				movupd	%xmm0, -40(%rdi)
+				movupd	%xmm2, -56(%rdi)
+			 */
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 1));
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 3));
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 5));
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 7));
+			y1 = _mm_add_pd(y1, x1);
+			y2 = _mm_add_pd(y2, x2);
+			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 5), y1);
+			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 7), y2);
+		}
+#else
 		/*
 			movupd	-64(%rdi), %xmm0
 			movupd	-48(%rdi), %xmm1
@@ -1578,6 +1608,7 @@ namespace Nominax
 		(*(sp - 5)).F64 += (*(sp - 1)).F64;
 		(*(sp - 6)).F64 += (*(sp - 2)).F64;
 		(*(sp - 7)).F64 += (*(sp - 3)).F64;
+#endif
 		sp -= 4;
 		goto
 		JMP_PTR();
@@ -1586,6 +1617,32 @@ namespace Nominax
 	__vsub__:
 		__attribute__((hot));
 		ASM_MARKER("__vsub__");
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+		{
+			/* For this the compiler generated the same
+			 * code on my machine but this depends on compiler and optimizations
+			 * so we still have a manually vectorized version.
+			 */
+			/*
+				movupd	-56(%rdi), %xmm0
+				movupd	-40(%rdi), %xmm1
+				movupd	-24(%rdi), %xmm2
+				subpd	%xmm2, %xmm0
+				movupd	-8(%rdi), %xmm2
+				subpd	%xmm2, %xmm1
+				movupd	%xmm1, -40(%rdi)
+				movupd	%xmm0, -56(%rdi)
+			 */
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 1));
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 3));
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 5));
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 7));
+			y1 = _mm_sub_pd(y1, x1);
+			y2 = _mm_sub_pd(y2, x2);
+			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 5), y1);
+			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 7), y2);
+		}
+#else
 		/*
 			movupd	-56(%rdi), %xmm0
 			movupd	-40(%rdi), %xmm1
@@ -1600,6 +1657,7 @@ namespace Nominax
 		(*(sp - 5)).F64 -= (*(sp - 1)).F64;
 		(*(sp - 6)).F64 -= (*(sp - 2)).F64;
 		(*(sp - 7)).F64 -= (*(sp - 3)).F64;
+#endif
 		sp -= 4;
 		goto
 		JMP_PTR();
@@ -1608,6 +1666,32 @@ namespace Nominax
 	__vmul__:
 		__attribute__((hot));
 		ASM_MARKER("__vmul__");
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+		{
+			/* For this the compiler generated the same
+			 * code on my machine but this depends on compiler and optimizations
+			 * so we still have a manually vectorized version.
+			 */
+			/*
+			 	movupd	-56(%rdi), %xmm0
+				movupd	-40(%rdi), %xmm1
+				movupd	-24(%rdi), %xmm2
+				mulpd	%xmm0, %xmm2
+				movupd	-8(%rdi), %xmm0
+				mulpd	%xmm1, %xmm0
+				movupd	%xmm0, -40(%rdi)
+				movupd	%xmm2, -56(%rdi)
+			 */
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 1));
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 3));
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 5));
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 7));
+			y1 = _mm_mul_pd(y1, x1);
+			y2 = _mm_mul_pd(y2, x2);
+			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 5), y1);
+			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 7), y2);
+		}
+#else
 		/*
 			movupd	-56(%rdi), %xmm0
 			movupd	-40(%rdi), %xmm1
@@ -1622,6 +1706,7 @@ namespace Nominax
 		(*(sp - 5)).F64 *= (*(sp - 1)).F64;
 		(*(sp - 6)).F64 *= (*(sp - 2)).F64;
 		(*(sp - 7)).F64 *= (*(sp - 3)).F64;
+#endif
 		sp -= 4;
 		goto
 		JMP_PTR();
@@ -1630,6 +1715,32 @@ namespace Nominax
 	__vdiv__:
 		__attribute__((hot));
 		ASM_MARKER("__vdiv__");
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+		{
+			/* For this the compiler generated the same
+			 * code on my machine but this depends on compiler and optimizations
+			 * so we still have a manually vectorized version.
+			 */
+			/*
+			 	movupd	-56(%rdi), %xmm0
+				movupd	-40(%rdi), %xmm1
+				movupd	-24(%rdi), %xmm2
+				divpd	%xmm2, %xmm0
+				movupd	-8(%rdi), %xmm2
+				divpd	%xmm2, %xmm1
+				movupd	%xmm1, -40(%rdi)
+				movupd	%xmm0, -56(%rdi)
+			 */
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 1));
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 3));
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 5));
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 7));
+			y1 = _mm_div_pd(y1, x1);
+			y2 = _mm_div_pd(y2, x2);
+			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 5), y1);
+			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 7), y2);
+		}
+#else
 		/*
 			movupd	-56(%rdi), %xmm0
 			movupd	-40(%rdi), %xmm1
@@ -1644,6 +1755,7 @@ namespace Nominax
 		(*(sp - 5)).F64 /= (*(sp - 1)).F64;
 		(*(sp - 6)).F64 /= (*(sp - 2)).F64;
 		(*(sp - 7)).F64 /= (*(sp - 3)).F64;
+#endif
 		sp -= 4;
 		goto
 		JMP_PTR();
