@@ -280,19 +280,18 @@ namespace Nominax
 
 	auto Environment::PrintTypeTable() const -> void
 	{
-		VariadicTable<std::string_view, std::size_t, std::size_t> table {{"Type", "Size", "Alignment"}};
-		table.AddRow("Record", sizeof(Record), alignof(Record));
-		table.AddRow("Signal", sizeof(Signal), alignof(Signal));
-		table.AddRow("DynamicSignal", sizeof(DynamicSignal), alignof(DynamicSignal));
-		table.AddRow("Object", sizeof(Object), alignof(Object));
-		table.AddRow("ObjectHeader", sizeof(ObjectHeader), alignof(ObjectHeader));
-		table.AddRow("void*", sizeof(void*), alignof(void*));
-		table.AddRow("(Runtime) int", sizeof(std::int64_t), alignof(std::int64_t));
-		table.AddRow("(Runtime) uint", sizeof(std::uint64_t), alignof(std::uint64_t));
-		table.AddRow("(Runtime) float", sizeof(double), alignof(double));
-		table.AddRow("(Runtime) char", sizeof(char32_t), alignof(char32_t));
-		table.AddRow("(Runtime) bool", sizeof(bool), alignof(bool));
-		table.Print(cout);
+		std::cout << "<Type> <Size> <Alignment>" << '\n';
+		std::cout << "Record " << sizeof(Record) << ' ' << alignof(Record) << '\n';
+		std::cout << "Signal " << sizeof(Signal) << ' ' << alignof(Signal) << '\n';
+		std::cout << "DynamicSignal " << sizeof(DynamicSignal) << ' ' << alignof(DynamicSignal) << '\n';
+		std::cout << "Object " << sizeof(Object) << ' ' << alignof(Object) << '\n';
+		std::cout << "ObjectHeader " << sizeof(ObjectHeader) << ' ' << alignof(ObjectHeader) << '\n';
+		std::cout << "void* " << sizeof(void*) << ' ' << alignof(void*) << '\n';
+		std::cout << "(Runtime) int " << sizeof(std::int64_t) << ' ' << alignof(std::int64_t) << '\n';
+		std::cout << "(Runtime) uint " << sizeof(std::uint64_t) << ' ' << alignof(std::uint64_t) << '\n';
+		std::cout << "(Runtime) float " << sizeof(double) << ' ' << alignof(double) << '\n';
+		std::cout << "(Runtime) char " << sizeof(char32_t) << ' ' << alignof(char32_t) << '\n';
+		std::cout << "(Runtime) bool " << sizeof(bool) << ' ' << alignof(bool) << '\n';
 	}
 
 	auto Environment::BootEnvironment() -> bool
@@ -307,6 +306,19 @@ namespace Nominax
 			Separator();
 			this->PrintTypeTable();
 			Separator();
+
+			Stream stream { };
+			stream << Instruction::NOp;
+			stream << Instruction::VPush;
+			stream << 1.0 << 2.0 << 3.0 << 4.0;
+			stream << Instruction::VPush;
+			stream << 1.0 << 2.0 << 3.0 << 4.0;
+			stream << Instruction::VMul;
+			stream << Instruction::VPop;
+			stream << Instruction::Int << 0LL;
+
+			cout << stream;
+
 			cout.flush();
 			return true;
 		}

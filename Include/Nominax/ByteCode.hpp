@@ -209,9 +209,11 @@
 
 #include <array>
 #include <optional>
+#include <ostream>
 #include <string_view>
 #include <span>
 #include <variant>
+#include <vector>
 
 #include "Record.hpp"
 
@@ -1188,6 +1190,12 @@ namespace Nominax
 		using Variant = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, std::uint64_t, std::int64_t, double, char32_t>;
 
 		/// <summary>
+		/// Default construct an I64(0)
+		/// </summary>
+		/// <returns></returns>
+		constexpr DynamicSignal() noexcept;
+
+		/// <summary>
 		/// Construct from data union.
 		/// </summary>
 		/// <param name="data">The initial value.</param>
@@ -1281,7 +1289,7 @@ namespace Nominax
 		/// Convert to undiscriminated runtime signal.
 		/// </summary>
 		[[nodiscard]]
-		explicit constexpr operator Signal() const;
+		explicit operator Signal() const;
 
 		/// <summary>
 		/// Try to extract raw data.
@@ -1317,6 +1325,7 @@ namespace Nominax
 		Variant DataCollection { };
 	};
 
+	constexpr DynamicSignal::DynamicSignal() noexcept : DataCollection {UINT64_C(0)} {}
 	constexpr DynamicSignal::DynamicSignal(Variant&& data) noexcept : DataCollection {data} {}
 	constexpr DynamicSignal::DynamicSignal(const Instruction value) noexcept : DataCollection {value} {}
 	constexpr DynamicSignal::DynamicSignal(const std::uint64_t value) noexcept : DataCollection {value} {}
@@ -1346,40 +1355,6 @@ namespace Nominax
 		return std::holds_alternative<T>(this->DataCollection) && std::get<T>(this->DataCollection) == compareTo;
 	}
 
-	constexpr DynamicSignal::operator Signal() const
-	{
-		return std::visit(Overloaded {
-			                  [](const Instruction value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const SystemIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const CustomIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::uint64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::int64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const double value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const char32_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-		                  }, this->DataCollection);
-	}
-
 	constexpr auto operator""_u_dysig(const unsigned long long int value) noexcept -> DynamicSignal
 	{
 		return DynamicSignal {static_cast<std::uint64_t>(value)};
@@ -1399,6 +1374,8 @@ namespace Nominax
 	{
 		return DynamicSignal {static_cast<char32_t>(value)};
 	}
+
+	extern auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&;
 
 	/// <summary>
 	/// Creates an instruction mapping.
@@ -1444,4 +1421,369 @@ namespace Nominax
 	/// <returns></returns>
 	[[nodiscard]]
 	extern auto ByteCodeValidateSingleInstruction(Instruction instruction, std::span<const DynamicSignal> args) -> ByteCodeValidationResult;
+
+	/// <summary>
+	/// Dynamic bytecode stream.
+	/// </summary>
+	class Stream final
+	{
+		std::vector<DynamicSignal> Buf { };
+
+	public:
+		/// <summary>
+		/// Construct empty stream.
+		/// </summary>
+		/// <returns></returns>
+		Stream() noexcept = default;
+
+		/// <summary>
+		/// Move construct with buffer.
+		/// </summary>
+		/// <param name="buf"></param>
+		/// <returns></returns>
+		explicit Stream(std::vector<DynamicSignal>&& buf) noexcept;
+
+		/// <summary>
+		/// Copy construct from span.
+		/// </summary>
+		/// <param name="buf"></param>
+		explicit Stream(std::span<const DynamicSignal> buf);
+
+		/// <summary>
+		/// Construct with capacity.
+		/// </summary>
+		/// <param name="cap"></param>
+		explicit Stream(std::size_t cap);
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		Stream(Stream&&) noexcept = default;
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		Stream(const Stream&) noexcept = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		auto operator =(const Stream&) -> Stream& = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		auto operator =(Stream&&) -> Stream& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~Stream() = default;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The vector used as buffer.</returns>
+		[[nodiscard]]
+		auto Buffer() const noexcept -> const std::vector<DynamicSignal>&;
+
+		/// <summary>
+		/// Clears the content of the whole stream.
+		/// </summary>
+		/// <returns></returns>
+		auto Clear() -> void;
+
+		/// <summary>
+		/// Preallocate buffer capacity.
+		/// </summary>
+		/// <param name="cap"></param>
+		/// <returns></returns>
+		auto Reserve(std::size_t cap) -> void;
+
+		/// <summary>
+		/// Resize buffer size.
+		/// </summary>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		auto Resize(std::size_t size) -> void;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The size of the stream.</returns>
+		[[nodiscard]]
+		auto Size() const noexcept -> std::size_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The size of the stream in bytes.</returns>
+		[[nodiscard]]
+		auto SizeInBytes() const noexcept -> std::size_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The capacity of the stream buffer.</returns>
+		[[nodiscard]]
+		auto Capacity() const noexcept -> std::size_t;
+
+		/// <summary>
+		/// Pushes a new signal into the stream.
+		/// </summary>
+		/// <param name="sig"></param>
+		/// <returns></returns>
+		auto PushBack(DynamicSignal&& sig) -> void;
+
+		/// <summary>
+		/// STL iterator compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto begin() noexcept -> std::vector<DynamicSignal>::iterator;
+
+		/// <summary>
+		/// STL iterator compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto end() noexcept -> std::vector<DynamicSignal>::iterator;
+
+		/// <summary>
+		/// STL iterator compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto begin() const noexcept -> std::vector<DynamicSignal>::const_iterator;
+
+		/// <summary>
+		/// STL iterator compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto end() const noexcept -> std::vector<DynamicSignal>::const_iterator;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
+		/// <param name="instr"></param>
+		/// <returns></returns>
+		auto operator <<(Instruction instr) -> Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
+		/// <param name="intrin"></param>
+		/// <returns></returns>
+		auto operator <<(SystemIntrinsicCallId intrin) -> Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
+		/// <param name="intrin"></param>
+		/// <returns></returns>
+		auto operator <<(CustomIntrinsicCallId intrin) -> Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto operator <<(std::uint64_t value) -> Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto operator <<(std::int64_t value) -> Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto operator <<(double value) -> Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto operator <<(char32_t value) -> Stream&;
+	};
+
+	inline Stream::Stream(std::vector<DynamicSignal>&& buf) noexcept : Buf {std::move(buf)} {}
+
+	inline Stream::Stream(const std::span<const DynamicSignal> buf)
+	{
+		Buf.reserve(buf.size());
+		std::copy(std::begin(buf), std::end(buf), std::begin(Buf));
+	}
+
+	inline Stream::Stream(const std::size_t cap) : Buf {cap} { }
+
+	inline auto Stream::Buffer() const noexcept -> const std::vector<DynamicSignal>&
+	{
+		return this->Buf;
+	}
+
+	inline auto Stream::Clear() -> void
+	{
+		this->Buf.clear();
+	}
+
+	inline auto Stream::Reserve(const std::size_t cap) -> void
+	{
+		this->Buf.reserve(cap);
+	}
+
+	inline auto Stream::Resize(const std::size_t size) -> void
+	{
+		this->Buf.resize(size);
+	}
+
+	inline auto Stream::Size() const noexcept -> std::size_t
+	{
+		return this->Buf.size();
+	}
+
+	inline auto Stream::SizeInBytes() const noexcept -> std::size_t
+	{
+		return this->Buf.size() * sizeof(DynamicSignal);
+	}
+
+	inline auto Stream::Capacity() const noexcept -> std::size_t
+	{
+		return this->Buf.capacity();
+	}
+
+	inline auto Stream::PushBack(DynamicSignal&& sig) -> void
+	{
+		this->Buf.emplace_back(sig);
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto Stream::begin() noexcept -> std::vector<DynamicSignal>::iterator
+	{
+		return this->Buf.begin();
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto Stream::end() noexcept -> std::vector<DynamicSignal>::iterator
+	{
+		return this->Buf.end();
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto Stream::begin() const noexcept -> std::vector<DynamicSignal>::const_iterator
+	{
+		return this->Buf.begin();
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto Stream::end() const noexcept -> std::vector<DynamicSignal>::const_iterator
+	{
+		return this->Buf.end();
+	}
+
+	/// <summary>
+	/// STL iterator compat.
+	/// </summary>
+	/// <param name="in"></param>
+	/// <returns></returns>
+	// ReSharper disable once CppInconsistentNaming
+	inline auto begin(Stream& in) noexcept -> std::vector<DynamicSignal>::iterator
+	{
+		return in.begin();
+	}
+
+	/// <summary>
+	/// STL iterator compat.
+	/// </summary>
+	/// <param name="in"></param>
+	/// <returns></returns>
+	// ReSharper disable once CppInconsistentNaming
+	inline auto end(Stream& in) noexcept -> std::vector<DynamicSignal>::iterator
+	{
+		return in.end();
+	}
+
+	/// <summary>
+	/// STL iterator compat.
+	/// </summary>
+	/// <param name="in"></param>
+	/// <returns></returns>
+	// ReSharper disable once CppInconsistentNaming
+	inline auto begin(const Stream& in) noexcept -> std::vector<DynamicSignal>::const_iterator
+	{
+		return in.begin();
+	}
+
+	/// <summary>
+	/// STL iterator compat.
+	/// </summary>
+	/// <param name="in"></param>
+	/// <returns></returns>
+	// ReSharper disable once CppInconsistentNaming
+	inline auto end(const Stream& in) noexcept -> std::vector<DynamicSignal>::const_iterator
+	{
+		return in.end();
+	}
+
+	inline auto Stream::operator <<(const Instruction instr) -> Stream&
+	{
+		this->PushBack(DynamicSignal {instr});
+		return *this;
+	}
+
+	inline auto Stream::operator <<(const SystemIntrinsicCallId intrin) -> Stream&
+	{
+		this->PushBack(DynamicSignal {intrin});
+		return *this;
+	}
+
+	inline auto Stream::operator <<(const CustomIntrinsicCallId intrin) -> Stream&
+	{
+		this->PushBack(DynamicSignal {intrin});
+		return *this;
+	}
+
+	inline auto Stream::operator <<(const std::uint64_t value) -> Stream&
+	{
+		this->PushBack(DynamicSignal {value});
+		return *this;
+	}
+
+	inline auto Stream::operator <<(const std::int64_t value) -> Stream&
+	{
+		this->PushBack(DynamicSignal {value});
+		return *this;
+	}
+
+	inline auto Stream::operator <<(const double value) -> Stream&
+	{
+		this->PushBack(DynamicSignal {value});
+		return *this;
+	}
+
+	inline auto Stream::operator <<(const char32_t value) -> Stream&
+	{
+		this->PushBack(DynamicSignal {value});
+		return *this;
+	}
+
+	extern auto operator <<(std::ostream& out, const Stream& in) -> std::ostream&;
 }

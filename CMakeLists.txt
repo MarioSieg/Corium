@@ -31,7 +31,7 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/DynamicLibrary.hpp"
     "Include/Nominax/Nominax.hpp" 
     "Include/Nominax/Environment.hpp" 
-    "Include/Nominax/FormatTable.hpp" 
+     
     "Include/Nominax/Object.hpp"
 
     "Source/Reactor.cpp"
@@ -41,7 +41,7 @@ add_library("NominaxRuntime" STATIC
     "Source/OsDarwin.cpp"
     "Source/Interrupts.cpp"  
     "Source/Environment.cpp"
-    "Source/Bytecode.cpp" 
+    "Source/ByteCode.cpp" 
     "Source/Os.cpp" 
     "Source/Utility.cpp"
     "Source/Object.cpp")

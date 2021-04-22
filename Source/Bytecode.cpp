@@ -1,4 +1,4 @@
-// File: Bytecode.cpp
+// File: ByteCode.cpp
 // Author: Mario
 // Created: 18.04.2021 14:46
 // Project: NominaxRuntime
@@ -311,5 +311,89 @@ namespace Nominax
 		}
 
 		return ByteCodeValidationResult::Ok;
+	}
+
+	DynamicSignal::operator Signal() const
+	{
+		return std::visit(Overloaded
+		                  {
+			                  [](const Instruction value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const SystemIntrinsicCallId value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const CustomIntrinsicCallId value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const std::uint64_t value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const std::int64_t value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const double value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const char32_t value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+		                  }, this->DataCollection);
+	}
+
+	auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&
+	{
+		std::visit(Overloaded
+		           {
+			           [&](const Instruction value)
+			           {
+				           out << INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<decltype(value)>>(value)];
+			           },
+			           [&](const SystemIntrinsicCallId value)
+			           {
+				           out << std::hex << "#0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
+			           },
+			           [&](const CustomIntrinsicCallId value)
+			           {
+				           out << std::hex << "#0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
+			           },
+			           [&](const std::uint64_t value)
+			           {
+				           out << '#' << value;
+			           },
+			           [&](const std::int64_t value)
+			           {
+				           out << '#' << value;
+			           },
+			           [&](const double value)
+			           {
+				           out << '#' << value;
+			           },
+			           [&](const char32_t value)
+			           {
+				           out << '#' << static_cast<char>(value);
+			           },
+		           }, in.DataCollection);
+		return out;
+	}
+
+	auto operator<<(std::ostream& out, const Stream& in) -> std::ostream&
+	{
+		for (const DynamicSignal& sig : in)
+		{
+			if (sig.Contains<Instruction>())
+			{
+				out << '\n';
+			}
+			out << sig << ' ';
+		}
+		return out;
 	}
 }
