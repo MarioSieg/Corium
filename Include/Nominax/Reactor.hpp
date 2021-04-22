@@ -243,6 +243,7 @@ namespace Nominax
 		Record*                     Stack {nullptr};
 		std::size_t                 StackSize {0};
 		void*                       UserData {nullptr};
+		bool                        LargeStackTrace {false};
 
 		[[nodiscard]]
 		auto Validate() const noexcept -> ReactorValidationResult;

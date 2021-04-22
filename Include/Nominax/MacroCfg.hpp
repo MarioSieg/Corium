@@ -231,4 +231,7 @@
 /// </summary>
 #define NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING false
 
+/// <summary>
+///
+/// </summary>
 #define NOMINAX_VERBOSE_ALLOCATOR NOMINAX_DEBUG

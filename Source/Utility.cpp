@@ -296,7 +296,7 @@ namespace Nominax
 			out << size / 1024 / 1024 << " MB";
 			return;
 		}
-		if (size < 1024 * 1024 * 1024 * UINT64_C(1024))
+		if (static_cast<std::uint64_t>(size) < 1024 * 1024 * 1024 * UINT64_C(1024))
 		{
 			out << size / 1024 / 1024 / 1024 << " GB";
 		}
