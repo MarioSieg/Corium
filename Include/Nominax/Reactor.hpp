@@ -262,6 +262,7 @@ namespace Nominax
 		InterruptAccumulator                           InterruptCode { };
 		std::ptrdiff_t                                 IpDiff { };
 		std::ptrdiff_t                                 SpDiff { };
+		std::ptrdiff_t                                 BpDiff { };
 	};
 
 	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const ReactorInput& input) -> ReactorOutput;

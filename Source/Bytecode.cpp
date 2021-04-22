@@ -205,6 +205,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <fstream>
+#include <iomanip>
+
 #include "../Include/Nominax/ByteCode.hpp"
 
 namespace Nominax
@@ -358,27 +361,27 @@ namespace Nominax
 			           },
 			           [&](const SystemIntrinsicCallId value)
 			           {
-				           out << std::hex << "#0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
+				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
 			           },
 			           [&](const CustomIntrinsicCallId value)
 			           {
-				           out << std::hex << "#0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
+				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
 			           },
 			           [&](const std::uint64_t value)
 			           {
-				           out << '#' << value;
+				           out << Lexemes::IMMEDIATE << value;
 			           },
 			           [&](const std::int64_t value)
 			           {
-				           out << '#' << value;
+				           out << Lexemes::IMMEDIATE << value;
 			           },
 			           [&](const double value)
 			           {
-				           out << '#' << value;
+				           out << Lexemes::IMMEDIATE << value;
 			           },
 			           [&](const char32_t value)
 			           {
-				           out << '#' << static_cast<char>(value);
+				           out << Lexemes::IMMEDIATE << static_cast<char>(value);
 			           },
 		           }, in.DataCollection);
 		return out;
@@ -386,14 +389,27 @@ namespace Nominax
 
 	auto operator<<(std::ostream& out, const Stream& in) -> std::ostream&
 	{
-		for (const DynamicSignal& sig : in)
+		in.DumpToStream(out);
+		return out;
+	}
+
+	auto Stream::DumpToStream(std::ostream& stream, const bool writeAddress) const -> void
+	{
+		stream << Lexemes::COMMENT << " Size: " << this->Size() << ", SizeInBytes: " << this->SizeInBytes() << ", BufferCapacity: " << this->Capacity();
+		for (std::uint64_t address {0}; const DynamicSignal& sig : *this)
 		{
 			if (sig.Contains<Instruction>())
+			[[likely]]
 			{
-				out << '\n';
+				stream << '\n';
+				if (writeAddress)
+				[[likely]]
+				{
+					stream << Lexemes::COMMENT << std::hex << " +0x" << address << ' ' << std::dec << Lexemes::COMMENT << ' ';
+				}
 			}
-			out << sig << ' ';
+			stream << sig << ' ';
+			++address;
 		}
-		return out;
 	}
 }

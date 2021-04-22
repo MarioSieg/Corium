@@ -1,6 +1,6 @@
 // File: Object.cpp
 // Author: Mario
-// Created: 20.04.2021 13:10
+// Created: 21.04.2021 22:21
 // Project: NominaxRuntime
 // 
 //                                  Apache License

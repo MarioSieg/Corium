@@ -206,6 +206,7 @@
 //    limitations under the License.
 
 #include <iostream>
+#include <iomanip>
 
 #include "../Include/Nominax/Nominax.hpp"
 
@@ -240,7 +241,7 @@ namespace Nominax
 		return 'A';
 	}
 
-	static auto Separator() -> void
+	inline static auto Separator() -> void
 	{
 		cout << "================================================================\n";
 	}
@@ -278,20 +279,26 @@ namespace Nominax
 		cout << "Self Used RAM: " << Bytes2Megabytes(UsedSystemMemory) << " MB\n";
 	}
 
+	template <typename T>
+	inline static auto PrintTypeInfo(std::string_view name)
+	{
+		std::cout << std::setw(16) << name << std::right << std::setw(16) << sizeof(T) << std::setw(16) << alignof(T) << '\n';
+	}
+
 	auto Environment::PrintTypeTable() const -> void
 	{
-		std::cout << "<Type> <Size> <Alignment>" << '\n';
-		std::cout << "Record " << sizeof(Record) << ' ' << alignof(Record) << '\n';
-		std::cout << "Signal " << sizeof(Signal) << ' ' << alignof(Signal) << '\n';
-		std::cout << "DynamicSignal " << sizeof(DynamicSignal) << ' ' << alignof(DynamicSignal) << '\n';
-		std::cout << "Object " << sizeof(Object) << ' ' << alignof(Object) << '\n';
-		std::cout << "ObjectHeader " << sizeof(ObjectHeader) << ' ' << alignof(ObjectHeader) << '\n';
-		std::cout << "void* " << sizeof(void*) << ' ' << alignof(void*) << '\n';
-		std::cout << "(Runtime) int " << sizeof(std::int64_t) << ' ' << alignof(std::int64_t) << '\n';
-		std::cout << "(Runtime) uint " << sizeof(std::uint64_t) << ' ' << alignof(std::uint64_t) << '\n';
-		std::cout << "(Runtime) float " << sizeof(double) << ' ' << alignof(double) << '\n';
-		std::cout << "(Runtime) char " << sizeof(char32_t) << ' ' << alignof(char32_t) << '\n';
-		std::cout << "(Runtime) bool " << sizeof(bool) << ' ' << alignof(bool) << '\n';
+		std::cout << std::setw(16) << "Type" << std::right << std::setw(16) << "Size" << std::setw(16) << "Alignment" << "\n\n";
+		PrintTypeInfo<Record>("Record");
+		PrintTypeInfo<Signal>("Signal");
+		PrintTypeInfo<DynamicSignal>("DynamicSignal");
+		PrintTypeInfo<Object>("Object");
+		PrintTypeInfo<ObjectHeader>("ObjectHeader");
+		PrintTypeInfo<std::int64_t>("int");
+		PrintTypeInfo<std::uint64_t>("uint");
+		PrintTypeInfo<double>("float");
+		PrintTypeInfo<char32_t>("char");
+		PrintTypeInfo<bool>("(bool");
+		PrintTypeInfo<void*>("void*");
 	}
 
 	auto Environment::BootEnvironment() -> bool
@@ -308,7 +315,6 @@ namespace Nominax
 			Separator();
 
 			Stream stream { };
-			stream << Instruction::NOp;
 			stream << Instruction::VPush;
 			stream << 1.0 << 2.0 << 3.0 << 4.0;
 			stream << Instruction::VPush;
@@ -317,7 +323,7 @@ namespace Nominax
 			stream << Instruction::VPop;
 			stream << Instruction::Int << 0LL;
 
-			cout << stream;
+			stream.DumpToStream(cout);
 
 			cout.flush();
 			return true;

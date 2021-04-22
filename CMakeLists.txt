@@ -30,8 +30,7 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/Utility.hpp"
     "Include/Nominax/DynamicLibrary.hpp"
     "Include/Nominax/Nominax.hpp" 
-    "Include/Nominax/Environment.hpp" 
-     
+    "Include/Nominax/Environment.hpp"   
     "Include/Nominax/Object.hpp"
 
     "Source/Reactor.cpp"
@@ -54,25 +53,48 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED on)
     set(CMAKE_CXX_EXTENSIONS off)
-    set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
-            -Xclang -Ofast                                                              \
-            -Xclang -Wall                                                               \
-            -Xclang -Wextra                                                             \
-            -Xclang -Werror                                                             \
-            -Xclang -Wno-undef                                                          \
-            -Xclang -std=c++20                                                          \
-            -Xclang -Wno-unknown-attributes                                             \
-            -Xclang -Wno-ignored-attributes                                             \
-            -Xclang -Wno-deprecated-declarations                                        \
-            -Xclang -flto                                                               \
-            -mmmx									                                    \
-            -msse									                                    \
-            -msse2									                                    \
-            -msse3									                                    \
-            -mssse3									                                    \
-            -msahf									                                    \
-            -mcx16									                                    \
-    ")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            message("Debug build!")
+            set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "               \
+                -Xclang -Wall                                                               \
+                -Xclang -Wextra                                                             \
+                -Xclang -Werror                                                             \
+                -Xclang -Wno-undef                                                          \
+                -Xclang -std=c++20                                                          \
+                -Xclang -Wno-unknown-attributes                                             \
+                -Xclang -Wno-ignored-attributes                                             \
+                -Xclang -Wno-deprecated-declarations                                        \
+                -mmmx									                                    \
+                -msse									                                    \
+                -msse2									                                    \
+                -msse3									                                    \
+                -mssse3									                                    \
+                -msahf									                                    \
+                -mcx16									                                    \
+        ")
+    else()
+        message("Release build!")
+        set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
+                -Xclang -Ofast                                                              \
+                -Xclang -Wall                                                               \
+                -Xclang -Wextra                                                             \
+                -Xclang -Werror                                                             \
+                -Xclang -Wno-undef                                                          \
+                -Xclang -std=c++20                                                          \
+                -Xclang -Wno-unknown-attributes                                             \
+                -Xclang -Wno-ignored-attributes                                             \
+                -Xclang -Wno-deprecated-declarations                                        \
+                -Xclang -flto                                                               \
+                -Xclang -fno-rtti                                                           \
+                -mmmx									                                    \
+                -msse									                                    \
+                -msse2									                                    \
+                -msse3									                                    \
+                -mssse3									                                    \
+                -msahf									                                    \
+                -mcx16									                                    \
+        ")
+    endif()
     if(ANOMINAX_SDK_32_BIT)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
     endif()
@@ -85,8 +107,9 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED on)
     set(CMAKE_CXX_EXTENSIONS off)
-    set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
-            -Ofast                                                                      \
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message("Debug build!")
+        set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "               \
             -Wall                                                                       \
             -Wextra                                                                     \
             -Werror                                                                     \
@@ -95,8 +118,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
             -Wno-unknown-attributes                                                     \
             -Wno-ignored-attributes                                                     \
             -Wno-deprecated-declarations                                                \
+            -fno-rtti                                                                   \
             -ffast-math                                                                 \
-            -flto                                                                       \
             -mmmx									                                    \
             -msse									                                    \
             -msse2									                                    \
@@ -104,7 +127,31 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
             -mssse3									                                    \
             -msahf									                                    \
             -mcx16									                                    \
-    ")
+        ")
+    else()
+        message("Release build!")
+        set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
+                -Ofast                                                                      \
+                -Wall                                                                       \
+                -Wextra                                                                     \
+                -Werror                                                                     \
+                -Wno-undef                                                                  \
+                -std=c++2a                                                                  \
+                -Wno-unknown-attributes                                                     \
+                -Wno-ignored-attributes                                                     \
+                -Wno-deprecated-declarations                                                \
+                -fno-rtti                                                                   \
+                -ffast-math                                                                 \
+                -flto                                                                       \
+                -mmmx									                                    \
+                -msse									                                    \
+                -msse2									                                    \
+                -msse3									                                    \
+                -mssse3									                                    \
+                -msahf									                                    \
+                -mcx16									                                    \
+        ")
+    endif()
     if(ANOMINAX_SDK_32_BIT)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
     endif()

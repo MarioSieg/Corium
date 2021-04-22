@@ -843,6 +843,7 @@ namespace Nominax
 		InterruptRoutine* const        interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
 		const Signal* const __restrict ipLo {input.CodeChunk};                    /* instruction low ptr		*/
 		const Signal* __restrict__     ip {ipLo};                                 /* instruction ptr			*/
+		const Signal* __restrict__     bp {nullptr};                              /* base pointer */
 		Record* __restrict__           sp {input.Stack};                          /* stack pointer lo			*/
 		Record* const __restrict__     spHi {input.Stack + input.StackSize - 1};  /* stack pointer hi			*/
 
@@ -898,18 +899,26 @@ namespace Nominax
 		__attribute__((hot));
 		{
 			ASM_MARKER("__call__");
+			// ip + 1 is the procedure to jump to, so
+			// ip + 2 is the next instruction
+			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
+			bp = ip + 1;                               // store the address to return to in the base pointer
+			ip = ipLo + abs;                           // ip = begin + offset
 		}
 		goto
-		JMP_PTR();
+		JMP_PTR_REL();
 
 
 	__ret__:
 		__attribute__((hot));
 		{
 			ASM_MARKER("__ret__");
+			// restore address from last call:
+			assert(bp);
+			ip = bp;
 		}
 		goto
-		JMP_PTR();
+		JMP_PTR_REL();
 
 
 	__mov__:
@@ -1778,6 +1787,7 @@ namespace Nominax
 			.InterruptCode = interruptCode,
 			.IpDiff = ip - input.CodeChunk,
 			.SpDiff = sp - input.Stack,
+			.BpDiff = ip - bp
 		};
 	}
 }

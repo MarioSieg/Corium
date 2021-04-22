@@ -208,6 +208,7 @@
 #pragma once
 
 #include <array>
+#include <filesystem>
 #include <optional>
 #include <ostream>
 #include <string_view>
@@ -1323,6 +1324,20 @@ namespace Nominax
 		/// Raw data variant (discriminated union)
 		/// </summary>
 		Variant DataCollection { };
+
+		/// <summary>
+		/// Common code prologue.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		static constexpr auto CodePrologue() noexcept -> DynamicSignal;
+
+		/// <summary>
+		/// Common code epilogue.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		static constexpr auto CodeEpilogue() noexcept -> std::array<DynamicSignal, 2>;
 	};
 
 	constexpr DynamicSignal::DynamicSignal() noexcept : DataCollection {UINT64_C(0)} {}
@@ -1334,6 +1349,26 @@ namespace Nominax
 	constexpr DynamicSignal::DynamicSignal(const char32_t value) noexcept : DataCollection {value} {}
 	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicCallId value) noexcept : DataCollection {value} {}
 	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept : DataCollection {value} {}
+
+	constexpr auto DynamicSignal::CodePrologue() noexcept -> DynamicSignal
+	{
+		// First instruction is always skipped and should be NOP:
+		return DynamicSignal {Instruction::NOp};
+	}
+
+	constexpr auto DynamicSignal::CodeEpilogue() noexcept -> std::array<DynamicSignal, 2>
+	{
+		// Because the end of a byte code stream is not checked,
+		// we always HAVE to interrupt at the end or we will jump to random memory locations.
+		// The minimum std::int64_t exit code is the reserved final interrupt code,
+		// the program should return before this instruction with it's own exit code.
+		// This is the last trap before going to hell!
+		return
+		{
+			DynamicSignal {Instruction::Int},
+			DynamicSignal {std::numeric_limits<std::int64_t>::min()}
+		};
+	}
 
 	template <typename T> requires BytecodeElement<T>
 	constexpr auto DynamicSignal::Unwrap() const -> std::optional<T>
@@ -1434,20 +1469,7 @@ namespace Nominax
 		/// Construct empty stream.
 		/// </summary>
 		/// <returns></returns>
-		Stream() noexcept = default;
-
-		/// <summary>
-		/// Move construct with buffer.
-		/// </summary>
-		/// <param name="buf"></param>
-		/// <returns></returns>
-		explicit Stream(std::vector<DynamicSignal>&& buf) noexcept;
-
-		/// <summary>
-		/// Copy construct from span.
-		/// </summary>
-		/// <param name="buf"></param>
-		explicit Stream(std::span<const DynamicSignal> buf);
+		Stream();
 
 		/// <summary>
 		/// Construct with capacity.
@@ -1541,7 +1563,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="sig"></param>
 		/// <returns></returns>
-		auto PushBack(DynamicSignal&& sig) -> void;
+		auto Push(DynamicSignal&& sig) -> void;
 
 		/// <summary>
 		/// STL iterator compat
@@ -1623,17 +1645,57 @@ namespace Nominax
 		/// <param name="value"></param>
 		/// <returns></returns>
 		auto operator <<(char32_t value) -> Stream&;
+
+		/// <summary>
+		/// Write the text byte code to a file.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="writeAddress"></param>
+		/// <returns></returns>
+		auto DumpToStream(std::ostream& stream, bool writeAddress = true) const -> void;
+
+		/// <summary>
+		/// Index lookup.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		auto operator [](std::size_t idx) -> DynamicSignal&;
+
+		/// <summary>
+		/// Index lookup.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		auto operator [](std::size_t idx) const -> DynamicSignal;
 	};
 
-	inline Stream::Stream(std::vector<DynamicSignal>&& buf) noexcept : Buf {std::move(buf)} {}
-
-	inline Stream::Stream(const std::span<const DynamicSignal> buf)
+	inline auto Stream::operator[](const std::size_t idx) -> DynamicSignal&
 	{
-		Buf.reserve(buf.size());
-		std::copy(std::begin(buf), std::end(buf), std::begin(Buf));
+		return this->Buf.at(idx);
 	}
 
-	inline Stream::Stream(const std::size_t cap) : Buf {cap} { }
+	inline auto Stream::operator[](const std::size_t idx) const -> DynamicSignal
+	{
+		return this->Buf.at(idx);
+	}
+
+	inline Stream::Stream()
+	{
+		// Reserve buffer:
+		this->Buf.reserve(8);
+
+		// Insert important code prologue.
+		this->Buf.emplace_back(DynamicSignal::CodePrologue());
+	}
+
+	inline Stream::Stream(const std::size_t cap)
+	{
+		// Reserve required space + (prologue + epilogue)
+		this->Buf.reserve(cap + 3);
+
+		// Insert important code prologue.
+		this->Buf.emplace_back(DynamicSignal::CodePrologue());
+	}
 
 	inline auto Stream::Buffer() const noexcept -> const std::vector<DynamicSignal>&
 	{
@@ -1642,7 +1704,7 @@ namespace Nominax
 
 	inline auto Stream::Clear() -> void
 	{
-		this->Buf.clear();
+		this->Buf.resize(1);
 	}
 
 	inline auto Stream::Reserve(const std::size_t cap) -> void
@@ -1670,7 +1732,7 @@ namespace Nominax
 		return this->Buf.capacity();
 	}
 
-	inline auto Stream::PushBack(DynamicSignal&& sig) -> void
+	inline auto Stream::Push(DynamicSignal&& sig) -> void
 	{
 		this->Buf.emplace_back(sig);
 	}
@@ -1745,45 +1807,66 @@ namespace Nominax
 
 	inline auto Stream::operator <<(const Instruction instr) -> Stream&
 	{
-		this->PushBack(DynamicSignal {instr});
+		this->Push(DynamicSignal {instr});
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const SystemIntrinsicCallId intrin) -> Stream&
 	{
-		this->PushBack(DynamicSignal {intrin});
+		this->Push(DynamicSignal {intrin});
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const CustomIntrinsicCallId intrin) -> Stream&
 	{
-		this->PushBack(DynamicSignal {intrin});
+		this->Push(DynamicSignal {intrin});
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const std::uint64_t value) -> Stream&
 	{
-		this->PushBack(DynamicSignal {value});
+		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const std::int64_t value) -> Stream&
 	{
-		this->PushBack(DynamicSignal {value});
+		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const double value) -> Stream&
 	{
-		this->PushBack(DynamicSignal {value});
+		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const char32_t value) -> Stream&
 	{
-		this->PushBack(DynamicSignal {value});
+		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
 	extern auto operator <<(std::ostream& out, const Stream& in) -> std::ostream&;
+
+	/// <summary>
+	/// Contains lexical tokens required to parse and write byte code.
+	/// </summary>
+	namespace Lexemes
+	{
+		/// <summary>
+		/// Specify immediate constant operand.
+		/// </summary>
+		constexpr auto IMMEDIATE {'$'};
+
+		/// <summary>
+		/// Begin or end comment.
+		/// </summary>
+		constexpr auto COMMENT {'%'};
+
+		/// <summary>
+		/// Begin preprocessor directive.
+		/// </summary>
+		constexpr auto PREPROCESSOR {'#'};
+	}
 }
