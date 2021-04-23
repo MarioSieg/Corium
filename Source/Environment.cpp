@@ -307,7 +307,6 @@ namespace Nominax
 		{
 			InstallSignalHandlers();
 			std::ios_base::sync_with_stdio(false);
-			*static_cast<volatile char* volatile>(nullptr) = 0;
 			this->PrintVersionInfo();
 			Separator();
 			this->SysInfo.QueryAll();
