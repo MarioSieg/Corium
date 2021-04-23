@@ -1,6 +1,6 @@
 // File: Interrupts.cpp
 // Author: Mario
-// Created: 16.04.2021 09:07
+// Created: 16.04.2021 9:07 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -206,32 +206,69 @@
 //    limitations under the License.
 
 #include "../Include/Nominax/Interrupts.hpp"
+#include "../Include/Nominax/Reactor.hpp"
 
-#include <algorithm>
 #include <sstream>
 
 namespace
 {
-	constinit volatile std::sig_atomic_t signal_status {0};
+	constinit volatile std::sig_atomic_t signalStatus {0};
 }
 
 namespace Nominax
 {
 	auto QuerySignalStatus() noexcept -> std::sig_atomic_t
 	{
-		return signal_status;
+		return signalStatus;
 	}
 
-	auto DefaultSignalHandler(const std::sig_atomic_t sig_sta_) -> void
+	auto DefaultSignalHandler(const std::sig_atomic_t sigSta) -> void
 	{
-		signal_status = sig_sta_;
-		CurrentPanicHandler();
-		std::abort();
+		signalStatus = sigSta;
+		if (currentPanicHandler)
+		[[likely]]
+		{
+			currentPanicHandler();
+		}
+		else
+		{
+			DefaultPanicHandler();
+		}
 	}
 
 	auto DefaultPanicHandler() -> void
 	{
-		std::abort();
+		std::string_view sigMsg;
+		switch (signalStatus)
+		{
+		case SIGINT:
+			sigMsg = "Signal: Interrupt";
+			break;
+		case SIGILL:
+			sigMsg = "Signal: Illegal instruction - invalid function image!";
+			break;
+		case SIGFPE:
+			sigMsg = "Signal: Floating point exception!";
+			break;
+		case SIGSEGV:
+			sigMsg = "Signal: Segmentation violation!";
+			break;
+		case SIGTERM:
+			sigMsg = "Signal: Kill software termination signal!";
+			break;
+		case SIGABRT:
+			sigMsg = "Signal: Abnormal termination!";
+			break;
+		default:
+			sigMsg = "Unknown signal!";
+			break;
+		}
+		/*
+		 * TODO
+		 * this is not signal safe, undefined behaviour!
+		 * need to replace this with signal safe print calls soon!
+		 */
+		WriteHardFaultReport(nullptr, nullptr, nullptr, 0, 0, sigMsg);
 	}
 
 	auto InstallSignalHandlers() -> void

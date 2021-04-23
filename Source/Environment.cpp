@@ -1,6 +1,6 @@
 // File: Environment.cpp
 // Author: Mario
-// Created: 17.04.2021 14:32
+// Created: 17.04.2021 2:32 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -275,8 +275,8 @@ namespace Nominax
 		cout << "CPU: " << CpuName << '\n';
 		cout << "CPU Threads: " << ThreadCount << '\n';
 		cout << "CPU Machine class: " << MachineRating(ThreadCount) << '\n';
-		cout << "Total RAM: " << Bytes2Gigabytes(TotalSystemMemory) << " GB\n";
-		cout << "Self Used RAM: " << Bytes2Megabytes(UsedSystemMemory) << " MB\n";
+		cout << "System RAM: " << Bytes2Megabytes(TotalSystemMemory) << " MB\n";
+		cout << "Process RAM: " << Bytes2Megabytes(UsedSystemMemory) << " MB\n";
 	}
 
 	template <typename T>
@@ -305,7 +305,9 @@ namespace Nominax
 	{
 		try
 		{
+			InstallSignalHandlers();
 			std::ios_base::sync_with_stdio(false);
+			*static_cast<volatile char* volatile>(nullptr) = 0;
 			this->PrintVersionInfo();
 			Separator();
 			this->SysInfo.QueryAll();

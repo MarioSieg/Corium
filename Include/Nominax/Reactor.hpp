@@ -1,6 +1,6 @@
 // File: Reactor.hpp
 // Author: Mario
-// Created: 09.04.2021 17:11
+// Created: 09.04.2021 5:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -210,6 +210,7 @@
 #include <chrono>
 #include <csignal>
 #include <cstddef>
+#include <string_view>
 
 #include "ByteCode.hpp"
 #include "Interrupts.hpp"
@@ -267,4 +268,56 @@ namespace Nominax
 	};
 
 	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const ReactorInput& input) -> ReactorOutput;
+
+	/// <summary>
+	/// Writes a full error dump into the stream.
+	/// </summary>
+	/// <param name="out"></param>
+	/// <param name="sp"></param>
+	/// <param name="ip"></param>
+	/// <param name="bp"></param>
+	/// <param name="stackSize"></param>
+	/// <param name="codeSize"></param>
+	/// <param name="message"></param>
+	/// <param name="stackDumpSize"></param>
+	/// <param name="codeDumpSize"></param>
+	/// <returns></returns>
+	auto WriteHardFaultReport
+	(
+		std::ostream&    out,
+		const Record*    sp,
+		const Signal*    ip,
+		const Signal*    bp,
+		std::size_t      stackSize,
+		std::size_t      codeSize,
+		std::string_view message       = "",
+		std::size_t      stackDumpSize = 64,
+		std::size_t      codeDumpSize  = 64
+	) -> void;
+
+	/// <summary>
+	/// Writes a full error dump into std::cerr and into a file.
+	/// </summary>
+	/// <param name="sp"></param>
+	/// <param name="ip"></param>
+	/// <param name="bp"></param>
+	/// <param name="stackSize"></param>
+	/// <param name="codeSize"></param>
+	/// <param name="message"></param>
+	/// <param name="stackDumpSize"></param>
+	/// <param name="codeDumpSize"></param>
+	/// <returns></returns>
+	auto WriteHardFaultReport
+	(
+		const Record*    sp,
+		const Signal*    ip,
+		const Signal*    bp,
+		std::size_t      stackSize,
+		std::size_t      codeSize,
+		std::string_view message       = "",
+		std::size_t      stackDumpSize = 64,
+		std::size_t      codeDumpSize  = 64
+	) -> void;
+
+	auto WriteHardFaultReport(std::string_view message) -> void;
 }

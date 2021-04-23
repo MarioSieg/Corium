@@ -1,6 +1,6 @@
 // File: Interrupts.hpp
 // Author: Mario
-// Created: 12.04.2021 04:03
+// Created: 12.04.2021 4:03 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -225,10 +225,10 @@ namespace Nominax
 	using PanicRoutine = void();
 	using SignalRoutine = void(std::sig_atomic_t);
 
-	[[noreturn]] extern auto DefaultSignalHandler(std::sig_atomic_t) -> void;
-	[[noreturn]] extern auto DefaultPanicHandler() -> void;
+	extern auto DefaultSignalHandler(std::sig_atomic_t) -> void;
+	extern auto DefaultPanicHandler() -> void;
 
-	inline constinit PanicRoutine* CurrentPanicHandler {&DefaultPanicHandler};
+	inline constinit PanicRoutine* currentPanicHandler {&DefaultPanicHandler};
 
 	extern auto QuerySignalStatus() noexcept -> std::sig_atomic_t;
 	extern auto InstallSignalHandlers() -> void;
