@@ -1,6 +1,6 @@
 // File: Record.hpp
 // Author: Mario
-// Created: 09.04.2021 17:11
+// Created: 09.04.2021 5:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -258,21 +258,6 @@ namespace Nominax
 	constexpr Record::Record(const double value) noexcept : F64 {value} {}
 	constexpr Record::Record(const char32_t value) noexcept : C32 {value} {}
 
-	constexpr auto operator""_rec64_u(const unsigned long long int value) noexcept -> Record
-	{
-		return Record {static_cast<std::uint64_t>(value)};
-	}
-
-	constexpr auto operator""_rec64_i(const unsigned long long int value) noexcept -> Record
-	{
-		return Record {static_cast<std::int64_t>(value)};
-	}
-
-	constexpr auto operator""_rec64_f(const long double value) noexcept -> Record
-	{
-		return Record {static_cast<double>(value)};
-	}
-
 	constexpr Record::operator bool() const noexcept
 	{
 		return this->U64;
@@ -310,7 +295,7 @@ namespace Nominax
 
 	constexpr auto Record::Padding() noexcept -> Record
 	{
-		return 0xFF'FF'FF'FF'FF'FF'FF'FF_rec64_u;
+		return Record {0xFF'FF'FF'FF'FF'FF'FF'FF};
 	}
 
 	static_assert(sizeof(float) == sizeof(std::int32_t));

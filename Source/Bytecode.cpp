@@ -1,6 +1,6 @@
 // File: ByteCode.cpp
 // Author: Mario
-// Created: 18.04.2021 14:46
+// Created: 18.04.2021 2:46 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,7 +205,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <fstream>
 #include <iomanip>
 
 #include "../Include/Nominax/ByteCode.hpp"
@@ -314,6 +313,19 @@ namespace Nominax
 		}
 
 		return ByteCodeValidationResult::Ok;
+	}
+
+	auto Stream::ExampleStream(Stream& stream) -> void
+	{
+		stream.With(2, [](SvInt x)
+		{
+			x *= 32;
+			x.Another(2, [&](SvInt y)
+			{
+				y *= 2;
+				y <<= 1;
+			});
+		});
 	}
 
 	DynamicSignal::operator Signal() const

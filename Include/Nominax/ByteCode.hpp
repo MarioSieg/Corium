@@ -1,6 +1,6 @@
 // File: ByteCode.hpp
 // Author: Mario
-// Created: 09.04.2021 17:11
+// Created: 09.04.2021 5:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -213,10 +213,13 @@
 #include <ostream>
 #include <string_view>
 #include <span>
+#include <type_traits>
+#include <unordered_map>
 #include <variant>
 #include <vector>
 
 #include "Record.hpp"
+#include "MacroCfg.hpp"
 
 namespace Nominax
 {
@@ -1096,46 +1099,6 @@ namespace Nominax
 	constexpr Signal::Signal(const double value) noexcept : R64 {value} {}
 	constexpr Signal::Signal(const char32_t value) noexcept : R64 {value} {}
 
-	/// <summary>
-	/// Create signal from unsigned 64-bit quadword.
-	/// </summary>
-	/// <param name="value">The value to convert from.</param>
-	/// <returns>The signal containing the value.</returns>
-	constexpr auto operator""_sig_u(const unsigned long long int value) noexcept -> Signal
-	{
-		return Signal {static_cast<std::uint64_t>(value)};
-	}
-
-	/// <summary>
-	/// Create signal from signed 64-bit quadword.
-	/// </summary>
-	/// <param name="value">The value to convert from.</param>
-	/// <returns>The signal containing the value.</returns>
-	constexpr auto operator""_sig_i(const unsigned long long int value) noexcept -> Signal
-	{
-		return Signal {static_cast<std::int64_t>(value)};
-	}
-
-	/// <summary>
-	/// Create signal from 64-bit double precision float.
-	/// </summary>
-	/// <param name="value">The value to convert from.</param>
-	/// <returns>The signal containing the value.</returns>
-	constexpr auto operator""_sig_f(const long double value) noexcept -> Signal
-	{
-		return Signal {static_cast<double>(value)};
-	}
-
-	/// <summary>
-	/// Create signal from 32-bit UTF-32 character.
-	/// </summary>
-	/// <param name="value">The value to convert from.</param>
-	/// <returns>The signal containing the value.</returns>
-	constexpr auto operator""_sig_c(const unsigned long long int value) noexcept -> Signal
-	{
-		return Signal {static_cast<char32_t>(value)};
-	}
-
 	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, std::uint64_t>);
 	static_assert(sizeof(Instruction) == sizeof(std::uint64_t));
 	static_assert(sizeof(Signal) == sizeof(std::uint64_t));
@@ -1390,26 +1353,6 @@ namespace Nominax
 		return std::holds_alternative<T>(this->DataCollection) && std::get<T>(this->DataCollection) == compareTo;
 	}
 
-	constexpr auto operator""_u_dysig(const unsigned long long int value) noexcept -> DynamicSignal
-	{
-		return DynamicSignal {static_cast<std::uint64_t>(value)};
-	}
-
-	constexpr auto operator""_i_dysig(const unsigned long long int value) noexcept -> DynamicSignal
-	{
-		return DynamicSignal {static_cast<std::int64_t>(value)};
-	}
-
-	constexpr auto operator""_f_dysig(const long double value) noexcept -> DynamicSignal
-	{
-		return DynamicSignal {static_cast<double>(value)};
-	}
-
-	constexpr auto operator""_c_dysig(const unsigned long long int value) noexcept -> DynamicSignal
-	{
-		return DynamicSignal {static_cast<char32_t>(value)};
-	}
-
 	extern auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&;
 
 	/// <summary>
@@ -1458,13 +1401,56 @@ namespace Nominax
 	extern auto ByteCodeValidateSingleInstruction(Instruction instruction, std::span<const DynamicSignal> args) -> ByteCodeValidationResult;
 
 	/// <summary>
-	/// Dynamic bytecode stream.
+	/// Construct a runtime integer (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_int(const unsigned long long int value) noexcept -> std::int64_t
+	{
+		return static_cast<std::int64_t>(value);
+	}
+
+	/// <summary>
+	/// Construct a runtime unsigned integer (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_uint(const unsigned long long int value) noexcept -> std::uint64_t
+	{
+		return value;
+	}
+
+	/// <summary>
+	/// Construct a runtime float (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_float(const long double value) noexcept -> double
+	{
+		return static_cast<double>(value);
+	}
+
+	template <typename T>
+	concept StreamScalar = requires
+	{
+		requires std::is_trivial_v<T>;
+		requires std::is_floating_point_v<T> || std::is_integral_v<T>;
+	};
+
+	template <typename T> requires StreamScalar<T>
+	struct StreamVariable;
+
+	/// <summary>
+	/// Dynamic byte code stream.
 	/// </summary>
 	class Stream final
 	{
-		std::vector<DynamicSignal> Buf { };
+		std::vector<DynamicSignal>                   SignalStream { };
+		std::unordered_map<std::string, std::size_t> LabelTable { };
 
 	public:
+		static auto ExampleStream(Stream& stream) -> void;
+
 		/// <summary>
 		/// Construct empty stream.
 		/// </summary>
@@ -1633,6 +1619,13 @@ namespace Nominax
 		auto operator <<(std::int64_t value) -> Stream&;
 
 		/// <summary>
+		/// Push stream entry (casted to std::int64_t)
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto operator <<(int value) -> Stream&;
+
+		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
@@ -1667,98 +1660,136 @@ namespace Nominax
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		auto operator [](std::size_t idx) const -> DynamicSignal;
+
+		/// <summary>
+		/// Insert instruction manually.
+		/// </summary>
+		/// <param name="args"></param>
+		/// <returns></returns>
+		template <Instruction I, typename... Ts>
+		auto Do(Ts&&...args) -> Stream&;
+
+		template <typename F, typename V> requires
+			std::is_trivial_v<V>
+			&& (std::is_floating_point_v<V>
+				|| std::is_integral_v<V>)
+		auto With(V value, F&& functor) -> void;
 	};
+
+	template <Instruction I, typename... Ts>
+	inline auto Stream::Do(Ts&&...args) -> Stream&
+	{
+		static_assert(sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[static_cast<std::size_t>(I)], "Invalid amount of immediate arguments!");
+		*this << I;
+		return (*this << ... << args);
+	}
+
+	template <typename F, typename V> requires
+		std::is_trivial_v<V>
+		&& (std::is_floating_point_v<V>
+			|| std::is_integral_v<V>)
+	inline auto Stream::With(const V value, F&& functor) -> void
+	{
+		if constexpr (std::is_same_v<int, V>)
+		{
+			return functor(StreamVariable<std::int64_t> {*this, static_cast<std::int64_t>(value)});
+		}
+		else
+		{
+			return functor(StreamVariable<V> {*this, value});
+		}
+	}
 
 	inline auto Stream::operator[](const std::size_t idx) -> DynamicSignal&
 	{
-		return this->Buf.at(idx);
+		return this->SignalStream.at(idx);
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) const -> DynamicSignal
 	{
-		return this->Buf.at(idx);
+		return this->SignalStream.at(idx);
 	}
 
 	inline Stream::Stream()
 	{
 		// Reserve buffer:
-		this->Buf.reserve(8);
+		this->SignalStream.reserve(8);
 
 		// Insert important code prologue.
-		this->Buf.emplace_back(DynamicSignal::CodePrologue());
+		this->SignalStream.emplace_back(DynamicSignal::CodePrologue());
 	}
 
 	inline Stream::Stream(const std::size_t cap)
 	{
 		// Reserve required space + (prologue + epilogue)
-		this->Buf.reserve(cap + 3);
+		this->SignalStream.reserve(cap + 3);
 
 		// Insert important code prologue.
-		this->Buf.emplace_back(DynamicSignal::CodePrologue());
+		this->SignalStream.emplace_back(DynamicSignal::CodePrologue());
 	}
 
 	inline auto Stream::Buffer() const noexcept -> const std::vector<DynamicSignal>&
 	{
-		return this->Buf;
+		return this->SignalStream;
 	}
 
 	inline auto Stream::Clear() -> void
 	{
-		this->Buf.resize(1);
+		this->SignalStream.resize(1);
 	}
 
 	inline auto Stream::Reserve(const std::size_t cap) -> void
 	{
-		this->Buf.reserve(cap);
+		this->SignalStream.reserve(cap);
 	}
 
 	inline auto Stream::Resize(const std::size_t size) -> void
 	{
-		this->Buf.resize(size);
+		this->SignalStream.resize(size);
 	}
 
 	inline auto Stream::Size() const noexcept -> std::size_t
 	{
-		return this->Buf.size();
+		return this->SignalStream.size();
 	}
 
 	inline auto Stream::SizeInBytes() const noexcept -> std::size_t
 	{
-		return this->Buf.size() * sizeof(DynamicSignal);
+		return this->SignalStream.size() * sizeof(DynamicSignal);
 	}
 
 	inline auto Stream::Capacity() const noexcept -> std::size_t
 	{
-		return this->Buf.capacity();
+		return this->SignalStream.capacity();
 	}
 
 	inline auto Stream::Push(DynamicSignal&& sig) -> void
 	{
-		this->Buf.emplace_back(sig);
+		this->SignalStream.emplace_back(sig);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::begin() noexcept -> std::vector<DynamicSignal>::iterator
 	{
-		return this->Buf.begin();
+		return this->SignalStream.begin();
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::end() noexcept -> std::vector<DynamicSignal>::iterator
 	{
-		return this->Buf.end();
+		return this->SignalStream.end();
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::begin() const noexcept -> std::vector<DynamicSignal>::const_iterator
 	{
-		return this->Buf.begin();
+		return this->SignalStream.begin();
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::end() const noexcept -> std::vector<DynamicSignal>::const_iterator
 	{
-		return this->Buf.end();
+		return this->SignalStream.end();
 	}
 
 	/// <summary>
@@ -1841,6 +1872,12 @@ namespace Nominax
 		return *this;
 	}
 
+	inline auto Stream::operator<<(int value) -> Stream&
+	{
+		this->Push(DynamicSignal {static_cast<std::int64_t>(value)});
+		return *this;
+	}
+
 	inline auto Stream::operator <<(const char32_t value) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
@@ -1848,6 +1885,867 @@ namespace Nominax
 	}
 
 	extern auto operator <<(std::ostream& out, const Stream& in) -> std::ostream&;
+
+	/// <summary>
+	/// Single stack-bounded variable.
+	/// When created it created a push instruction in the stream,
+	/// when destroyed (RAII) it created a pop instruction.
+	/// </summary>
+	template <typename T> requires StreamScalar<T>
+	struct StreamVariable final
+	{
+		/// <summary>
+		/// Create a variable with specified value.
+		/// </summary>
+		/// <param name="attached"></param>
+		/// <param name="value"></param>
+		StreamVariable(Stream& attached, T value);
+
+		StreamVariable(const StreamVariable&) = delete;
+
+		StreamVariable(StreamVariable&&) = default;
+
+		auto operator =(const StreamVariable&) -> StreamVariable& = delete;
+
+		auto operator =(StreamVariable&&) -> StreamVariable& = delete;
+
+		template <typename F, typename V> requires
+			std::is_trivial_v<V>
+			&& (std::is_floating_point_v<V>
+				|| std::is_integral_v<V>)
+		auto Another(V value, F&& functor) -> void;
+
+		/// <summary>
+		/// Arithmetic addition.
+		/// Implemented for all types.
+		/// self += value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto Add(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Arithmetic addition.
+		/// Implemented for all types.
+		/// self += value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto operator +=(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Arithmetic subtraction.
+		/// Implemented for all types.
+		/// self -= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto Sub(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Arithmetic subtraction.
+		/// Implemented for all types.
+		/// self -= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto operator -=(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Arithmetic multiplication.
+		/// Implemented for all types.
+		/// self *= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto Mul(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Arithmetic multiplication.
+		/// Implemented for all types.
+		/// self *= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto operator *=(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Arithmetic division.
+		/// Implemented for all types.
+		/// self /= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto Div(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Arithmetic division.
+		/// Implemented for all types.
+		/// self /= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto operator /=(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Arithmetic modulo.
+		/// Implemented for all types.
+		/// self %= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto Mod(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Arithmetic modulo.
+		/// Implemented for all types.
+		/// self %= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto operator %=(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise &.
+		/// Implemented for int and uint.
+		/// self &= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto And(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise &.
+		/// Implemented for int and uint.
+		/// self &= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto operator &=(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise &.
+		/// Implemented for int and uint.
+		/// self |= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto Or(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise &.
+		/// Implemented for int and uint.
+		/// self |= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto operator |=(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise ^.
+		/// Implemented for int and uint.
+		/// self ^= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto Xor(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise ^.
+		/// Implemented for int and uint.
+		/// self ^= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto operator ^=(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise <<.
+		/// Implemented for int and uint.
+		/// self <<= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto ShiftLeft(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise <<.
+		/// Implemented for int and uint.
+		/// self <<= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto operator <<=(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise >>.
+		/// Implemented for int and uint.
+		/// self >>= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto ShiftRight(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise >>.
+		/// Implemented for int and uint.
+		/// self >>= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto operator >>=(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise <<<.
+		/// Implemented for int and uint.
+		/// self <<<= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto RotateLeft(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Bitwise >>.
+		/// Implemented for int and uint.
+		/// self >>>= value
+		/// </summary>
+		/// <param name="value">The second operand.</param>
+		/// <returns>self</returns>
+		auto RotateRight(T value) -> StreamVariable&;
+
+		/// <summary>
+		/// Pop variable from stack.
+		/// </summary>
+		~StreamVariable();
+
+	private:
+		auto Push(T value) -> StreamVariable&;
+		auto DoNothing() -> StreamVariable&;
+
+		Stream& Attached;
+	};
+
+	template <typename T> requires StreamScalar<T>
+	template <typename F, typename V> requires
+		std::is_trivial_v<V>
+		&& (std::is_floating_point_v<V>
+			|| std::is_integral_v<V>)
+	inline auto StreamVariable<T>::Another(const V value, F&& functor) -> void
+	{
+		if constexpr (std::is_same_v<int, V>)
+		{
+			return functor(StreamVariable<std::int64_t> {this->Attached, static_cast<std::int64_t>(value)});
+		}
+		else
+		{
+			return functor(StreamVariable<V> {this->Attached, value});
+		}
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<double>::Push(const double value) -> StreamVariable&
+	{
+		if (value == 0.0)
+		{
+			this->Attached.Do<Instruction::PushZ>();
+		}
+		else if (value == 1.0)
+		{
+			this->Attached.Do<Instruction::FPushO>();
+		}
+		else
+		{
+			this->Attached.Do<Instruction::Push>(value);
+		}
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::Push(const std::int64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		{
+			this->Attached.Do<Instruction::PushZ>();
+		}
+		else if (value == 1)
+		{
+			this->Attached.Do<Instruction::IPushO>();
+		}
+		else
+		{
+			this->Attached.Do<Instruction::Push>(value);
+		}
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::DoNothing() -> StreamVariable&
+	{
+#if NOMINAX_DEBUG
+		// ReSharper disable once CppRedundantTemplateKeyword
+		this->Attached.template Do<Instruction::NOp>();
+#endif
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::Push(const std::uint64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		{
+			this->Attached.Do<Instruction::PushZ>();
+		}
+		else if (value == 1)
+		{
+			this->Attached.Do<Instruction::IPushO>();
+		}
+		else
+		{
+			this->Attached.Do<Instruction::Push>(value);
+		}
+		return *this;
+	}
+
+	template <>
+	inline StreamVariable<double>::StreamVariable(Stream& attached, const double value) : Attached {attached}
+	{
+		this->Push(value);
+	}
+
+	template <>
+	inline StreamVariable<std::int64_t>::StreamVariable(Stream& attached, const std::int64_t value) : Attached {attached}
+	{
+		this->Push(value);
+	}
+
+	template <>
+	inline StreamVariable<std::uint64_t>::StreamVariable(Stream& attached, const std::uint64_t value) : Attached {attached}
+	{
+		this->Push(value);
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<double>::Add(const double value) -> StreamVariable&
+	{
+		if (value == 0.0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		if (value == 1.0)
+		{
+			this->Attached.Do<Instruction::FInc>();
+		}
+		else
+		{
+			this->Push(value);
+			this->Attached.Do<Instruction::FAdd>();
+		}
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::Add(const std::int64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		if (value == 1)
+		{
+			this->Attached.Do<Instruction::IInc>();
+		}
+		else
+		{
+			this->Push(value);
+			this->Attached.Do<Instruction::IAdd>();
+		}
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::operator+=(const T value) -> StreamVariable&
+	{
+		return this->Add(value);
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::Add(const std::uint64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		if (value == 1)
+		{
+			this->Attached.Do<Instruction::IInc>();
+		}
+		else
+		{
+			this->Push(value);
+			this->Attached.Do<Instruction::IAdd>();
+		}
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<double>::Sub(const double value) -> StreamVariable&
+	{
+		if (value == 0.0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		if (value == 1.0)
+		{
+			this->Attached.Do<Instruction::FDec>();
+		}
+		else
+		{
+			this->Push(value);
+			this->Attached.Do<Instruction::FSub>();
+		}
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::Sub(const std::int64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		if (value == 1)
+		{
+			this->Attached.Do<Instruction::IDec>();
+		}
+		else
+		{
+			this->Push(value);
+			this->Attached.Do<Instruction::ISub>();
+		}
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::Sub(const std::uint64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		if (value == 1)
+		{
+			this->Attached.Do<Instruction::IDec>();
+		}
+		else
+		{
+			this->Push(value);
+			this->Attached.Do<Instruction::ISub>();
+		}
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::operator-=(const T value) -> StreamVariable&
+	{
+		return this->Add(value);
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<double>::Mul(const double value) -> StreamVariable&
+	{
+		if (value == 0.0 || value == 1.0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::FMul>();
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::operator*=(const T value) -> StreamVariable&
+	{
+		return this->Mul(value);
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::Mul(const std::int64_t value) -> StreamVariable&
+	{
+		if (value == 0 || value == 1)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		if (value % 2 == 0)
+		{
+			// TODO: OPT
+			this->Push(value);
+			this->Attached.Do<Instruction::IMul>();
+		}
+		else
+		{
+			this->Push(value);
+			this->Attached.Do<Instruction::IMul>();
+		}
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::Mul(const std::uint64_t value) -> StreamVariable&
+	{
+		if (value == 0 || value == 1)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		if (value % 2 == 0)
+		{
+			// TODO: OPT
+			this->Push(value);
+			this->Attached.Do<Instruction::IMul>();
+		}
+		else
+		{
+			this->Push(value);
+			this->Attached.Do<Instruction::IMul>();
+		}
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<double>::Div(const double value) -> StreamVariable&
+	{
+		if (value == 1.0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::FDiv>();
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::operator/=(const T value) -> StreamVariable&
+	{
+		return this->Div(value);
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::Div(const std::int64_t value) -> StreamVariable&
+	{
+		if (value == 1)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		if (value % 2 == 0)
+		{
+			// TODO: OPT
+			this->Push(value);
+			this->Attached.Do<Instruction::IDiv>();
+		}
+		else
+		{
+			this->Push(value);
+			this->Attached.Do<Instruction::IDiv>();
+		}
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::Div(const std::uint64_t value) -> StreamVariable&
+	{
+		if (value == 1)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		if (value % 2 == 0)
+		{
+			// TODO: OPT
+			this->Push(value);
+			this->Attached.Do<Instruction::IDiv>();
+		}
+		else
+		{
+			this->Push(value);
+			this->Attached.Do<Instruction::IDiv>();
+		}
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<double>::Mod(const double value) -> StreamVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::FMod>();
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::Mod(const std::int64_t value) -> StreamVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IMod>();
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::Mod(const std::uint64_t value) -> StreamVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IMod>();
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::operator%=(const T value) -> StreamVariable&
+	{
+		return this->Mod(value);
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::And(const std::int64_t value) -> StreamVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IAnd>();
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::And(const std::uint64_t value) -> StreamVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IAnd>();
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::operator&=(const T value) -> StreamVariable&
+	{
+		return this->And(value);
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::Or(const std::int64_t value) -> StreamVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IOr>();
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::operator|=(const T value) -> StreamVariable&
+	{
+		return this->Or(value);
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::Or(const std::uint64_t value) -> StreamVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IOr>();
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::Xor(const std::int64_t value) -> StreamVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IXor>();
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::Xor(const std::uint64_t value) -> StreamVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IXor>();
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::operator^=(const T value) -> StreamVariable&
+	{
+		return this->Xor(value);
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::ShiftLeft(const std::int64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISal>();
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::operator<<=(const T value) -> StreamVariable&
+	{
+		return this->ShiftLeft(value);
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::ShiftLeft(const std::uint64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISal>();
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::ShiftRight(const std::int64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISar>();
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::operator>>=(const T value) -> StreamVariable&
+	{
+		return this->ShiftRight(value);
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::ShiftRight(const std::uint64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISar>();
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::RotateLeft(const std::int64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IRol>();
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::RotateLeft(const std::uint64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IRol>();
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::int64_t>::RotateRight(const std::int64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IRor>();
+		return *this;
+	}
+
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	inline auto StreamVariable<std::uint64_t>::RotateRight(const std::uint64_t value) -> StreamVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IRor>();
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline StreamVariable<T>::~StreamVariable()
+	{
+		Attached.Do<Instruction::Pop>();
+	}
+
+	/// <summary>
+	/// Stream variable with runtime type: int
+	/// </summary>
+	using SvInt = StreamVariable<std::int64_t>;
+
+	/// <summary>
+	/// Stream variable with runtime type: uint
+	/// </summary>
+	using SvUInt = StreamVariable<std::uint64_t>;
+
+	/// <summary>
+	/// Stream variable with runtime type: float
+	/// </summary>
+	using SvFloat = StreamVariable<double>;
 
 	/// <summary>
 	/// Contains lexical tokens required to parse and write byte code.

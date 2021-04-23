@@ -316,15 +316,9 @@ namespace Nominax
 			Separator();
 
 			Stream stream { };
-			stream << Instruction::VPush;
-			stream << 1.0 << 2.0 << 3.0 << 4.0;
-			stream << Instruction::VPush;
-			stream << 1.0 << 2.0 << 3.0 << 4.0;
-			stream << Instruction::VMul;
-			stream << Instruction::VPop;
-			stream << Instruction::Int << 0LL;
+			Stream::ExampleStream(stream);
 
-			stream.DumpToStream(cout);
+			stream.DumpToStream(cout, false);
 
 			cout.flush();
 			return true;
