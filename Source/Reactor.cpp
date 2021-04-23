@@ -521,7 +521,7 @@ namespace Nominax
 		out << "%ZMM16, %ZMM17, %ZMM18, %ZMM19\n";
 		out << "%ZMM20, %ZMM21, %ZMM22, %ZMM23\n";
 		out << "%ZMM24, %ZMM25, %ZMM26, %ZMM27\n";
-		out << "%ZMM28, %ZM29,  %ZMM30, %ZM31\n\n";
+		out << "%ZMM28, %ZMM29, %ZMM30, %ZMM31\n\n";
 
 		out << "%K0, %K1, %K2, %K3\n";
 		out << "%K4, %K5, %K6, %K7\n";
