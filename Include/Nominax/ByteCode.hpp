@@ -2227,22 +2227,30 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// If zero, optimize with special push zero instruction.
 			if (value == 0.0)
 			{
 				this->Attached.Do<Instruction::PushZ>();
 				return *this;
 			}
+
+			// If one, optimize with special push float one instruction.
 			if (value == 1.0)
 			{
 				this->Attached.Do<Instruction::FPushO>();
 				return *this;
 			}
+
+			// If the value is the previous written element in the stream,
+			// we can just duplicate it:
 			if (this->Attached.Back().Contains(value))
 			{
 				this->Attached.Do<Instruction::Dupl>();
 				return *this;
 			}
 		}
+
+		// Else just do a push:
 		this->Attached.Do<Instruction::Push>(value);
 		return *this;
 	}
@@ -2254,22 +2262,30 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// If zero, optimize with special push zero instruction.
 			if (value == 0)
 			{
 				this->Attached.Do<Instruction::PushZ>();
 				return *this;
 			}
+
+			// If one, optimize with special push integer one instruction.
 			if (value == 1)
 			{
 				this->Attached.Do<Instruction::IPushO>();
 				return *this;
 			}
+
+			// If the value is the previous written element in the stream,
+			// we can just duplicate it:
 			if (this->Attached.Back().Contains(value))
 			{
 				this->Attached.Do<Instruction::Dupl>();
 				return *this;
 			}
 		}
+
+		// Else just do a push:
 		this->Attached.Do<Instruction::Push>(value);
 		return *this;
 	}
@@ -2281,22 +2297,29 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// If zero, optimize with special push zero instruction.
 			if (value == 0)
 			{
 				this->Attached.Do<Instruction::PushZ>();
 				return *this;
 			}
+
+			// If one, optimize with special push integer one instruction.
 			if (value == 1)
 			{
 				this->Attached.Do<Instruction::IPushO>();
 				return *this;
 			}
+
+			// If the value is the previous written element in the stream,
+			// we can just duplicate it:
 			if (this->Attached.Back().Contains(value))
 			{
 				this->Attached.Do<Instruction::Dupl>();
 				return *this;
 			}
 		}
+		// Else just do a push:
 		this->Attached.Do<Instruction::Push>(value);
 		return *this;
 	}
@@ -2338,11 +2361,14 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// With 0 it's a no-op
 			if (value == 0.0)
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
+
+			// Optimize to increment:
 			if (value == 1.0)
 			{
 				this->Attached.Do<Instruction::FInc>();
@@ -2361,11 +2387,14 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// With 0 it's a no-op
 			if (value == 0)
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
+
+			// Optimize to increment:
 			if (value == 1)
 			{
 				this->Attached.Do<Instruction::IInc>();
@@ -2390,11 +2419,14 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// With 0 it's a no-op
 			if (value == 0)
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
+
+			// Optimize to increment:
 			if (value == 1)
 			{
 				this->Attached.Do<Instruction::IInc>();
@@ -2413,11 +2445,14 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// With 0 it's a no-op
 			if (value == 0.0)
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
+
+			// Optimize to decrement:
 			if (value == 1.0)
 			{
 				this->Attached.Do<Instruction::FDec>();
@@ -2436,11 +2471,14 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// With 0 it's a no-op
 			if (value == 0)
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
+
+			// Optimize to decrement:
 			if (value == 1)
 			{
 				this->Attached.Do<Instruction::IDec>();
@@ -2459,11 +2497,14 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// With 0 it's a no-op
 			if (value == 0)
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
+
+			// Optimize to decrement:
 			if (value == 1)
 			{
 				this->Attached.Do<Instruction::IDec>();
@@ -2488,6 +2529,7 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// By 0 or 1 is a no-op:
 			if (value == 0.0 || value == 1.0)
 			[[unlikely]]
 			{
@@ -2512,11 +2554,14 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// By 0 or 1 is a no-op:
 			if (value == 0 || value == 1)
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
+
+			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
 				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
@@ -2537,11 +2582,14 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// By 0 or 1 is a no-op:
 			if (value == 0 || value == 1)
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
+
+			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
 				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
@@ -2562,6 +2610,7 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// By 1 is a no-op:
 			if (value == 1.0)
 			[[unlikely]]
 			{
@@ -2586,11 +2635,14 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// By 1 is a no-op:
 			if (value == 1)
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
+
+			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
 				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
@@ -2612,11 +2664,14 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
+			// By 1 is a no-op:
 			if (value == 1)
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
+
+			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
 				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
@@ -2888,12 +2943,12 @@ namespace Nominax
 		/// <summary>
 		/// Specify immediate constant operand.
 		/// </summary>
-		constexpr auto IMMEDIATE {'$'};
+		constexpr auto IMMEDIATE {'%'};
 
 		/// <summary>
 		/// Begin or end comment.
 		/// </summary>
-		constexpr auto COMMENT {'%'};
+		constexpr auto COMMENT {'$'};
 
 		/// <summary>
 		/// Begin preprocessor directive.
