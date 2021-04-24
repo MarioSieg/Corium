@@ -21,7 +21,7 @@ option(ANOMINAX_BUILD_BENCHMARKS "Build a system benchmark" ON)
 add_library("NominaxRuntime" STATIC
     "Include/Nominax/Platform.hpp"
     "Include/Nominax/Reactor.hpp"
-    "Include/Nominax/ByteCode.hpp"
+    "Include/Nominax/ByteCode/ByteCode.hpp"
     "Include/Nominax/Record.hpp" 
     "Include/Nominax/MacroCfg.hpp" 	
     "Include/Nominax/Interrupts.hpp"
@@ -32,6 +32,14 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/Nominax.hpp" 
     "Include/Nominax/Environment.hpp"   
     "Include/Nominax/Object.hpp"
+    "Include/Nominax/ByteCode/Instruction.hpp" 
+    "Include/Nominax/ByteCode/SystemIntrinsicCallId.hpp" 
+    "Include/Nominax/ByteCode/InstructionCategory.hpp" 
+    "Include/Nominax/ByteCode/InstructionImmediateArgumentType.hpp" 
+    "Include/Nominax/ByteCode/CustomIntrinsicCallId.hpp" 
+    "Include/Nominax/ByteCode/Mnemonics.hpp" 
+    "Include/Nominax/ByteCode/Descriptors.hpp" 
+    "Include/Nominax/ByteCode/Categories.hpp"
 
     "Source/Reactor.cpp"
     "Source/OsWindows.cpp"
@@ -43,7 +51,7 @@ add_library("NominaxRuntime" STATIC
     "Source/ByteCode.cpp" 
     "Source/Os.cpp" 
     "Source/Utility.cpp"
-    "Source/Object.cpp")
+    "Source/Object.cpp"  "Include/Nominax/ByteCode/PopCounts.hpp" "Include/Nominax/ByteCode/InstructionImmediateArgumentCounts.hpp" "Include/Nominax/ByteCode/InstructionImmediateArgumentTypes.hpp" "Include/Nominax/ByteCode/Signal.hpp")
 
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!

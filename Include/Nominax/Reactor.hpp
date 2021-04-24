@@ -212,7 +212,7 @@
 #include <cstddef>
 #include <string_view>
 
-#include "ByteCode.hpp"
+#include "ByteCode/ByteCode.hpp"
 #include "Interrupts.hpp"
 
 namespace Nominax
