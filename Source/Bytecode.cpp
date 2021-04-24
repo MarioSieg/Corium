@@ -317,9 +317,9 @@ namespace Nominax
 
 	auto Stream::ExampleStream(Stream& stream) -> void
 	{
-		stream.With(2, [](SvInt x)
+		stream.With(1024, [](SvInt x)
 		{
-			x *= 32;
+			x /= 2;
 			x.Another(2, [&](SvInt y)
 			{
 				y *= 2;

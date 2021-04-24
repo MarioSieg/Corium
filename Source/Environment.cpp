@@ -297,7 +297,7 @@ namespace Nominax
 		PrintTypeInfo<std::uint64_t>("uint");
 		PrintTypeInfo<double>("float");
 		PrintTypeInfo<char32_t>("char");
-		PrintTypeInfo<bool>("(bool");
+		PrintTypeInfo<bool>("bool");
 		PrintTypeInfo<void*>("void*");
 	}
 

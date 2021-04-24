@@ -2387,7 +2387,7 @@ namespace Nominax
 
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::Mul(const std::int64_t value) -> StreamVariable&
+	inline auto StreamVariable<std::int64_t>::Mul(std::int64_t value) -> StreamVariable&
 	{
 		if (value == 0 || value == 1)
 		[[unlikely]]
@@ -2396,9 +2396,9 @@ namespace Nominax
 		}
 		if (value % 2 == 0)
 		{
-			// TODO: OPT
+			value = log(value) / log(2);
 			this->Push(value);
-			this->Attached.Do<Instruction::IMul>();
+			this->Attached.Do<Instruction::ISal>();
 		}
 		else
 		{
@@ -2410,7 +2410,7 @@ namespace Nominax
 
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::Mul(const std::uint64_t value) -> StreamVariable&
+	inline auto StreamVariable<std::uint64_t>::Mul(std::uint64_t value) -> StreamVariable&
 	{
 		if (value == 0 || value == 1)
 		[[unlikely]]
@@ -2419,9 +2419,9 @@ namespace Nominax
 		}
 		if (value % 2 == 0)
 		{
-			// TODO: OPT
+			value = log(value) / log(2);
 			this->Push(value);
-			this->Attached.Do<Instruction::IMul>();
+			this->Attached.Do<Instruction::ISal>();
 		}
 		else
 		{
@@ -2453,7 +2453,7 @@ namespace Nominax
 
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::Div(const std::int64_t value) -> StreamVariable&
+	inline auto StreamVariable<std::int64_t>::Div(std::int64_t value) -> StreamVariable&
 	{
 		if (value == 1)
 		[[unlikely]]
@@ -2462,9 +2462,9 @@ namespace Nominax
 		}
 		if (value % 2 == 0)
 		{
-			// TODO: OPT
+			value = log(value) / log(2);
 			this->Push(value);
-			this->Attached.Do<Instruction::IDiv>();
+			this->Attached.Do<Instruction::ISar>();
 		}
 		else
 		{
@@ -2476,7 +2476,7 @@ namespace Nominax
 
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::Div(const std::uint64_t value) -> StreamVariable&
+	inline auto StreamVariable<std::uint64_t>::Div(std::uint64_t value) -> StreamVariable&
 	{
 		if (value == 1)
 		[[unlikely]]
@@ -2485,9 +2485,9 @@ namespace Nominax
 		}
 		if (value % 2 == 0)
 		{
-			// TODO: OPT
+			value = log(value) / log(2);
 			this->Push(value);
-			this->Attached.Do<Instruction::IDiv>();
+			this->Attached.Do<Instruction::ISar>();
 		}
 		else
 		{
