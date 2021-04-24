@@ -1281,7 +1281,7 @@ namespace Nominax
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Contains(T&& compareTo) const -> bool;
+		constexpr auto Contains(const T compareTo) const -> bool;
 
 		/// <summary>
 		/// Raw data variant (discriminated union)
@@ -1348,7 +1348,7 @@ namespace Nominax
 	}
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains(T&& compareTo) const -> bool
+	constexpr auto DynamicSignal::Contains(const T compareTo) const -> bool
 	{
 		return std::holds_alternative<T>(this->DataCollection) && std::get<T>(this->DataCollection) == compareTo;
 	}
@@ -1430,6 +1430,25 @@ namespace Nominax
 		return static_cast<double>(value);
 	}
 
+	enum class OptimizationLevel
+	{
+		Off = 0,
+		O1 = 1,
+		O2 = 2,
+		O3 = 3
+	};
+
+	consteval auto DefaultOptimizationLevel() noexcept -> OptimizationLevel
+	{
+#if NOMINAX_DEBUG
+		return OptimizationLevel::O3;
+#else
+		return OptimizationLevel::O2;
+#endif
+	}
+
+	inline constinit OptimizationLevel OptLevel {DefaultOptimizationLevel()};
+
 	template <typename T>
 	concept StreamScalar = requires
 	{
@@ -1502,6 +1521,30 @@ namespace Nominax
 		/// <returns>The vector used as buffer.</returns>
 		[[nodiscard]]
 		auto Buffer() const noexcept -> const std::vector<DynamicSignal>&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		auto Front() -> DynamicSignal&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		auto Back() -> DynamicSignal&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		auto Front() const -> const DynamicSignal&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		auto Back() const -> const DynamicSignal&;
 
 		/// <summary>
 		/// Clears the content of the whole stream.
@@ -1698,6 +1741,26 @@ namespace Nominax
 		{
 			return functor(StreamVariable<V> {*this, value});
 		}
+	}
+
+	inline auto Stream::Front() -> DynamicSignal&
+	{
+		return this->SignalStream.front();
+	}
+
+	inline auto Stream::Back() -> DynamicSignal&
+	{
+		return this->SignalStream.back();
+	}
+
+	inline auto Stream::Front() const -> const DynamicSignal&
+	{
+		return this->SignalStream.front();
+	}
+
+	inline auto Stream::Back() const -> const DynamicSignal&
+	{
+		return this->SignalStream.back();
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) -> DynamicSignal&
@@ -2125,6 +2188,21 @@ namespace Nominax
 		Stream& Attached;
 	};
 
+	/// <summary>
+	/// Faster version of (x % 2) == 0
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T>
+	constexpr auto IsPowerOfTwo(const T x) noexcept -> bool
+	{
+		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
+		return !(x & x - 1);
+	}
+
+	inline const double CACHED_LOG2 {std::log(2.0)};
+
 	template <typename T> requires StreamScalar<T>
 	template <typename F, typename V> requires
 		std::is_trivial_v<V>
@@ -2146,18 +2224,26 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<double>::Push(const double value) -> StreamVariable&
 	{
-		if (value == 0.0)
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			this->Attached.Do<Instruction::PushZ>();
+			if (value == 0.0)
+			{
+				this->Attached.Do<Instruction::PushZ>();
+				return *this;
+			}
+			if (value == 1.0)
+			{
+				this->Attached.Do<Instruction::FPushO>();
+				return *this;
+			}
+			if (this->Attached.Back().Contains(value))
+			{
+				this->Attached.Do<Instruction::Dupl>();
+				return *this;
+			}
 		}
-		else if (value == 1.0)
-		{
-			this->Attached.Do<Instruction::FPushO>();
-		}
-		else
-		{
-			this->Attached.Do<Instruction::Push>(value);
-		}
+		this->Attached.Do<Instruction::Push>(value);
 		return *this;
 	}
 
@@ -2165,28 +2251,26 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<std::int64_t>::Push(const std::int64_t value) -> StreamVariable&
 	{
-		if (value == 0)
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			this->Attached.Do<Instruction::PushZ>();
+			if (value == 0)
+			{
+				this->Attached.Do<Instruction::PushZ>();
+				return *this;
+			}
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IPushO>();
+				return *this;
+			}
+			if (this->Attached.Back().Contains(value))
+			{
+				this->Attached.Do<Instruction::Dupl>();
+				return *this;
+			}
 		}
-		else if (value == 1)
-		{
-			this->Attached.Do<Instruction::IPushO>();
-		}
-		else
-		{
-			this->Attached.Do<Instruction::Push>(value);
-		}
-		return *this;
-	}
-
-	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::DoNothing() -> StreamVariable&
-	{
-#if NOMINAX_DEBUG
-		// ReSharper disable once CppRedundantTemplateKeyword
-		this->Attached.template Do<Instruction::NOp>();
-#endif
+		this->Attached.Do<Instruction::Push>(value);
 		return *this;
 	}
 
@@ -2194,17 +2278,37 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<std::uint64_t>::Push(const std::uint64_t value) -> StreamVariable&
 	{
-		if (value == 0)
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			this->Attached.Do<Instruction::PushZ>();
+			if (value == 0)
+			{
+				this->Attached.Do<Instruction::PushZ>();
+				return *this;
+			}
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IPushO>();
+				return *this;
+			}
+			if (this->Attached.Back().Contains(value))
+			{
+				this->Attached.Do<Instruction::Dupl>();
+				return *this;
+			}
 		}
-		else if (value == 1)
+		this->Attached.Do<Instruction::Push>(value);
+		return *this;
+	}
+
+	template <typename T> requires StreamScalar<T>
+	inline auto StreamVariable<T>::DoNothing() -> StreamVariable&
+	{
+		if (OptLevel == OptimizationLevel::Off)
+		[[unlikely]]
 		{
-			this->Attached.Do<Instruction::IPushO>();
-		}
-		else
-		{
-			this->Attached.Do<Instruction::Push>(value);
+			// ReSharper disable once CppRedundantTemplateKeyword
+			this->Attached.template Do<Instruction::NOp>();
 		}
 		return *this;
 	}
@@ -2231,20 +2335,22 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<double>::Add(const double value) -> StreamVariable&
 	{
-		if (value == 0.0)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 0.0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+			if (value == 1.0)
+			{
+				this->Attached.Do<Instruction::FInc>();
+				return *this;
+			}
 		}
-		if (value == 1.0)
-		{
-			this->Attached.Do<Instruction::FInc>();
-		}
-		else
-		{
-			this->Push(value);
-			this->Attached.Do<Instruction::FAdd>();
-		}
+		this->Push(value);
+		this->Attached.Do<Instruction::FAdd>();
 		return *this;
 	}
 
@@ -2252,20 +2358,22 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<std::int64_t>::Add(const std::int64_t value) -> StreamVariable&
 	{
-		if (value == 0)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IInc>();
+				return *this;
+			}
 		}
-		if (value == 1)
-		{
-			this->Attached.Do<Instruction::IInc>();
-		}
-		else
-		{
-			this->Push(value);
-			this->Attached.Do<Instruction::IAdd>();
-		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IAdd>();
 		return *this;
 	}
 
@@ -2279,20 +2387,22 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<std::uint64_t>::Add(const std::uint64_t value) -> StreamVariable&
 	{
-		if (value == 0)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IInc>();
+				return *this;
+			}
 		}
-		if (value == 1)
-		{
-			this->Attached.Do<Instruction::IInc>();
-		}
-		else
-		{
-			this->Push(value);
-			this->Attached.Do<Instruction::IAdd>();
-		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IAdd>();
 		return *this;
 	}
 
@@ -2300,20 +2410,22 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<double>::Sub(const double value) -> StreamVariable&
 	{
-		if (value == 0.0)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 0.0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+			if (value == 1.0)
+			{
+				this->Attached.Do<Instruction::FDec>();
+				return *this;
+			}
 		}
-		if (value == 1.0)
-		{
-			this->Attached.Do<Instruction::FDec>();
-		}
-		else
-		{
-			this->Push(value);
-			this->Attached.Do<Instruction::FSub>();
-		}
+		this->Push(value);
+		this->Attached.Do<Instruction::FSub>();
 		return *this;
 	}
 
@@ -2321,20 +2433,22 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<std::int64_t>::Sub(const std::int64_t value) -> StreamVariable&
 	{
-		if (value == 0)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IDec>();
+				return *this;
+			}
 		}
-		if (value == 1)
-		{
-			this->Attached.Do<Instruction::IDec>();
-		}
-		else
-		{
-			this->Push(value);
-			this->Attached.Do<Instruction::ISub>();
-		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISub>();
 		return *this;
 	}
 
@@ -2342,20 +2456,22 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<std::uint64_t>::Sub(const std::uint64_t value) -> StreamVariable&
 	{
-		if (value == 0)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IDec>();
+				return *this;
+			}
 		}
-		if (value == 1)
-		{
-			this->Attached.Do<Instruction::IDec>();
-		}
-		else
-		{
-			this->Push(value);
-			this->Attached.Do<Instruction::ISub>();
-		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISub>();
 		return *this;
 	}
 
@@ -2369,10 +2485,14 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<double>::Mul(const double value) -> StreamVariable&
 	{
-		if (value == 0.0 || value == 1.0)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 0.0 || value == 1.0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
 		}
 		this->Push(value);
 		this->Attached.Do<Instruction::FMul>();
@@ -2389,22 +2509,24 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<std::int64_t>::Mul(std::int64_t value) -> StreamVariable&
 	{
-		if (value == 0 || value == 1)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 0 || value == 1)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+			if (IsPowerOfTwo(value))
+			{
+				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				this->Push(value);
+				this->Attached.Do<Instruction::ISal>();
+				return *this;
+			}
 		}
-		if (value % 2 == 0)
-		{
-			value = log(value) / log(2);
-			this->Push(value);
-			this->Attached.Do<Instruction::ISal>();
-		}
-		else
-		{
-			this->Push(value);
-			this->Attached.Do<Instruction::IMul>();
-		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IMul>();
 		return *this;
 	}
 
@@ -2412,22 +2534,24 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<std::uint64_t>::Mul(std::uint64_t value) -> StreamVariable&
 	{
-		if (value == 0 || value == 1)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 0 || value == 1)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+			if (IsPowerOfTwo(value))
+			{
+				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				this->Push(value);
+				this->Attached.Do<Instruction::ISal>();
+				return *this;
+			}
 		}
-		if (value % 2 == 0)
-		{
-			value = log(value) / log(2);
-			this->Push(value);
-			this->Attached.Do<Instruction::ISal>();
-		}
-		else
-		{
-			this->Push(value);
-			this->Attached.Do<Instruction::IMul>();
-		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IMul>();
 		return *this;
 	}
 
@@ -2435,10 +2559,14 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<double>::Div(const double value) -> StreamVariable&
 	{
-		if (value == 1.0)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 1.0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
 		}
 		this->Push(value);
 		this->Attached.Do<Instruction::FDiv>();
@@ -2455,22 +2583,25 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<std::int64_t>::Div(std::int64_t value) -> StreamVariable&
 	{
-		if (value == 1)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 1)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+			if (IsPowerOfTwo(value))
+			{
+				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				this->Push(value);
+				this->Attached.Do<Instruction::ISar>();
+				return *this;
+			}
 		}
-		if (value % 2 == 0)
-		{
-			value = log(value) / log(2);
-			this->Push(value);
-			this->Attached.Do<Instruction::ISar>();
-		}
-		else
-		{
-			this->Push(value);
-			this->Attached.Do<Instruction::IDiv>();
-		}
+
+		this->Push(value);
+		this->Attached.Do<Instruction::IDiv>();
 		return *this;
 	}
 
@@ -2478,22 +2609,24 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	inline auto StreamVariable<std::uint64_t>::Div(std::uint64_t value) -> StreamVariable&
 	{
-		if (value == 1)
-		[[unlikely]]
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return this->DoNothing();
+			if (value == 1)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+			if (IsPowerOfTwo(value))
+			{
+				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				this->Push(value);
+				this->Attached.Do<Instruction::ISar>();
+				return *this;
+			}
 		}
-		if (value % 2 == 0)
-		{
-			value = log(value) / log(2);
-			this->Push(value);
-			this->Attached.Do<Instruction::ISar>();
-		}
-		else
-		{
-			this->Push(value);
-			this->Attached.Do<Instruction::IDiv>();
-		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IDiv>();
 		return *this;
 	}
 

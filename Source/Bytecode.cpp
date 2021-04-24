@@ -1,4 +1,4 @@
-// File: ByteCode.cpp
+// File: Bytecode.cpp
 // Author: Mario
 // Created: 18.04.2021 2:46 PM
 // Project: NominaxRuntime
@@ -319,11 +319,12 @@ namespace Nominax
 	{
 		stream.With(1024, [](SvInt x)
 		{
-			x /= 2;
-			x.Another(2, [&](SvInt y)
+			x += 1024;
+			x += 2;
+			x.Another(3, [&](SvInt y)
 			{
+				y *= 3;
 				y *= 2;
-				y <<= 1;
 			});
 		});
 	}
