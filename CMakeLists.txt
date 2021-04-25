@@ -96,19 +96,20 @@ add_library("NominaxRuntime" STATIC
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!
 
+# Clang-CL!
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     message("Using LLVM Clang!")
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
             message("Debug build!")
-            set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "               \
-                -Wall                                                                       \
-                -Wextra                                                                     \
-                -Werror                                                                     \
-                -Wno-undef                                                                  \
-                -std=c++20                                                                  \
-                -Wno-unknown-attributes                                                     \
-                -Wno-ignored-attributes                                                     \
-                -Wno-deprecated-declarations                                                \
+            set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                       \
+                -Xclang -Wall                                                                       \
+                -Xclang -Wextra                                                                     \
+                -Xclang -Werror                                                                     \
+                -Xclang -Wno-undef                                                                  \
+                -Xclang -std=c++20                                                                  \
+                -Xclang -Wno-unknown-attributes                                                     \
+                -Xclang -Wno-ignored-attributes                                                     \
+                -Xclang -Wno-deprecated-declarations                                                \
                 -mmmx									                                    \
                 -msse									                                    \
                 -msse2									                                    \
@@ -120,17 +121,17 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     else()
         message("Release build!")
         set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
-                -Ofast                                                                      \
-                -Wall                                                                       \
-                -Wextra                                                                     \
-                -Werror                                                                     \
-                -Wno-undef                                                                  \
-                -std=c++20                                                                  \
-                -Wno-unknown-attributes                                                     \
-                -Wno-ignored-attributes                                                     \
-                -Wno-deprecated-declarations                                                \
-                -flto                                                                       \
-                -fno-rtti                                                                   \
+               -Xclang -Ofast                                                                      \
+               -Xclang -Wall                                                                       \
+               -Xclang -Wextra                                                                     \
+               -Xclang -Werror                                                                     \
+               -Xclang -Wno-undef                                                                  \
+               -Xclang -std=c++20                                                                  \
+               -Xclang -Wno-unknown-attributes                                                     \
+               -Xclang -Wno-ignored-attributes                                                     \
+               -Xclang -Wno-deprecated-declarations                                                \
+               -Xclang -flto                                                                       \
+               -Xclang -fno-rtti                                                                   \
                 -mmmx									                                    \
                 -msse									                                    \
                 -msse2									                                    \

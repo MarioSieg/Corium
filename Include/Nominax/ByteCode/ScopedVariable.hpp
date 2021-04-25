@@ -446,12 +446,24 @@ namespace Nominax
 		/// </summary>
 		~ScopedVariable();
 
+		/// <summary>
+		/// Returns the attached stream.
+		/// </summary>
+		/// <returns></returns>
+		auto GetAttachedStream() const noexcept -> const Stream&;
+
 	private:
 		auto Push(T value) -> ScopedVariable&;
 		auto DoNothing() -> ScopedVariable&;
 
 		Stream& Attached;
 	};
+
+	template <typename T> requires StreamScalar<T>
+	inline auto ScopedVariable<T>::GetAttachedStream() const noexcept -> const Stream&
+	{
+		return this->Attached;
+	}
 
 	template <typename T> requires StreamScalar<T>
 	template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
