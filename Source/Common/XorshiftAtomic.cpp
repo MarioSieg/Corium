@@ -1,6 +1,6 @@
-// File: SafeLocalTime.cpp
+// File: XorshiftAtomic.cpp
 // Author: Mario
-// Created: 25.04.2021 3:59 PM
+// Created: 25.04.2021 3:50 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,25 +205,42 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Utility/SafeLocalTime.hpp"
-#include "../../Include/Nominax/System/Platform.hpp"
+#include <atomic>
 
-#include <mutex>
+#include "../../Include/Nominax/Common/XorshiftAtomic.hpp"
 
 namespace Nominax
 {
-	auto SafeLocalTime(const std::time_t& time) -> std::tm
+	auto Xorshift32Atomic() noexcept -> std::uint32_t
 	{
-		std::tm buffer { };
-#if NOMINAX_COM_GCC
-		localtime_r(&time, &buffer);
-#elif NOMINAX_OS_WINDOWS
-		localtime_s(&buffer, &time);
-#else
-		static std::mutex mtx;
-		std::lock_guard<std::mutex> lock(mtx);
-		buffer = *std::localtime(&_time);
-#endif
-		return buffer;
+		static constinit std::atomic_uint32_t seed32 {0x12B9B0A1};
+		seed32 ^= seed32 << 0xD;
+		seed32 ^= seed32 >> 0x11;
+		seed32 ^= seed32 << 0x5;
+		return seed32;
+	}
+
+	auto Xorshift64Atomic() noexcept -> std::uint64_t
+	{
+		static constinit std::atomic_uint64_t seed64 {0x139408DCBBF7A44};
+		seed64 ^= seed64 << 0xD;
+		seed64 ^= seed64 >> 0x7;
+		seed64 ^= seed64 << 0x11;
+		return seed64;
+	}
+
+	auto Xorshift128Atomic() noexcept -> std::uint32_t
+	{
+		static constinit std::atomic_uint32_t x {0x75BCD15};
+		static constinit std::atomic_uint32_t y {0x159A55E5};
+		static constinit std::atomic_uint32_t z {0x1F123BB5};
+		static constinit std::atomic_uint32_t w {0x5491333};
+
+		const uint32_t t = x ^ x << 0xB;
+		x.exchange(y);
+		y.exchange(z);
+		z.exchange(w);
+		w ^= w >> 0xD ^ t ^ t >> 0x8;
+		return w;
 	}
 }

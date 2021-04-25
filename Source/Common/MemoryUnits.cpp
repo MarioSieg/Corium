@@ -1,6 +1,6 @@
-// File: XorshiftThreadLocal.cpp
+// File: MemoryUnits.cpp
 // Author: Mario
-// Created: 25.04.2021 3:48 PM
+// Created: 25.04.2021 3:56 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,40 +205,27 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Utility/XorshiftThreadLocal.hpp"
+#include "../../Include/Nominax/Common/MemoryUnits.hpp"
 
 namespace Nominax
 {
-	auto Xorshift32ThreadLocal() noexcept -> std::uint32_t
+	auto PrettyPrintBytes(std::ostream& out, const std::size_t size) -> void
 	{
-		static constinit thread_local std::uint32_t seed32 {0x12B9B0A1};
-		seed32 ^= seed32 << 0xD;
-		seed32 ^= seed32 >> 0x11;
-		seed32 ^= seed32 << 0x5;
-		return seed32;
-	}
+		if (size >= 1024 * 1024 * 1024)
+		{
+			out << size / 1024 / 1024 / 1024 << " GB";
+		}
+		if (size >= 1024 * 1024)
+		{
+			out << size / 1024 / 1024 << " MB";
+			return;
+		}
+		if (size >= 1024)
+		{
+			out << size / 1024 << " KB";
+			return;
+		}
 
-	auto Xorshift64ThreadLocal() noexcept -> std::uint64_t
-	{
-		static constinit thread_local std::uint64_t seed64 {0x139408DCBBF7A44};
-		seed64 ^= seed64 << 0xD;
-		seed64 ^= seed64 >> 0x7;
-		seed64 ^= seed64 << 0x11;
-		return seed64;
-	}
-
-	auto Xorshift128ThreadLocal() noexcept -> std::uint32_t
-	{
-		static constinit thread_local std::uint32_t x {0x75BCD15};
-		static constinit thread_local std::uint32_t y {0x159A55E5};
-		static constinit thread_local std::uint32_t z {0x1F123BB5};
-		static constinit thread_local std::uint32_t w {0x5491333};
-
-		const uint32_t t = x ^ x << 0xB;
-		x                = y;
-		y                = z;
-		z                = w;
-		w ^= w >> 0xD ^ t ^ t >> 0x8;
-		return w;
+		out << size << " B";
 	}
 }

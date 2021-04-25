@@ -225,7 +225,7 @@
 #include "../../Include/Nominax/System/Os.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 
-#include "../../Include/Nominax/Utility/Utility.hpp"
+#include "../../Include/Nominax/Common/Common.hpp"
 
 #if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
 #	include <malloc.h>

@@ -208,7 +208,7 @@
 #include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
 #include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
 #include "../../Include/Nominax/ByteCode/Lexeme.hpp"
-#include "../../Include/Nominax/Utility/VisitOverload.hpp"
+#include "../../Include/Nominax/Common/VisitOverload.hpp"
 
 namespace Nominax
 {

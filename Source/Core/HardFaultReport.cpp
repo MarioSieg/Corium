@@ -219,7 +219,7 @@
 #include "../../Include/Nominax/System/Platform.hpp"
 #include "../../Include/Nominax/System/Os.hpp"
 
-#include "../../Include/Nominax/Utility/Utility.hpp"
+#include "../../Include/Nominax/Common/Common.hpp"
 
 namespace
 {

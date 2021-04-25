@@ -63,12 +63,12 @@ add_library("NominaxRuntime" STATIC
         Include/Nominax/Core/ReactorOutput.hpp
         Include/Nominax/Core/RegisterDump.hpp
         Include/Nominax/Core/Core.hpp
-        Include/Nominax/Utility/VisitOverload.hpp
-        Include/Nominax/Utility/XorshiftThreadLocal.hpp
-        Include/Nominax/Utility/XorshiftAtomic.hpp
-        Include/Nominax/Utility/MemoryUnits.hpp
-        Include/Nominax/Utility/SafeLocalTime.hpp
-        Include/Nominax/Utility/Utility.hpp
+        Include/Nominax/Common/VisitOverload.hpp
+        Include/Nominax/Common/XorshiftThreadLocal.hpp
+        Include/Nominax/Common/XorshiftAtomic.hpp
+        Include/Nominax/Common/MemoryUnits.hpp
+        Include/Nominax/Common/SafeLocalTime.hpp
+        Include/Nominax/Common/Common.hpp
         Include/Nominax/System/System.hpp
 
         Source/Core/Reactor.cpp
@@ -88,10 +88,10 @@ add_library("NominaxRuntime" STATIC
         Source/Core/ReactorInput.cpp
         Source/Core/HardFaultReport.cpp
         Source/Core/RegisterDump.cpp
-        Source/Utility/XorshiftThreadLocal.cpp
-        Source/Utility/XorshiftAtomic.cpp
-        Source/Utility/MemoryUnits.cpp
-        Source/Utility/SafeLocalTime.cpp)
+        Source/Common/XorshiftThreadLocal.cpp
+        Source/Common/XorshiftAtomic.cpp
+        Source/Common/MemoryUnits.cpp
+        Source/Common/SafeLocalTime.cpp)
 
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!
