@@ -229,27 +229,24 @@ namespace Nominax
 	/// when destroyed (RAII) it created a pop instruction.
 	/// </summary>
 	template <typename T> requires StreamScalar<T>
-	struct StreamVariable final
+	struct ScopedVariable final
 	{
 		/// <summary>
 		/// Create a variable with specified value.
 		/// </summary>
 		/// <param name="attached"></param>
 		/// <param name="value"></param>
-		StreamVariable(Stream& attached, T value);
+		ScopedVariable(Stream& attached, T value);
 
-		StreamVariable(const StreamVariable&) = delete;
+		ScopedVariable(const ScopedVariable&) = delete;
 
-		StreamVariable(StreamVariable&&) = default;
+		ScopedVariable(ScopedVariable&&) = default;
 
-		auto operator =(const StreamVariable&) -> StreamVariable& = delete;
+		auto operator =(const ScopedVariable&) -> ScopedVariable& = delete;
 
-		auto operator =(StreamVariable&&) -> StreamVariable& = delete;
+		auto operator =(ScopedVariable&&) -> ScopedVariable& = delete;
 
-		template <typename F, typename V> requires
-			std::is_trivial_v<V>
-			&& (std::is_floating_point_v<V>
-				|| std::is_integral_v<V>)
+		template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
 		auto Another(V value, F&& functor) -> void;
 
 		/// <summary>
@@ -259,7 +256,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto Add(T value) -> StreamVariable&;
+		auto Add(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Arithmetic addition.
@@ -268,7 +265,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto operator +=(T value) -> StreamVariable&;
+		auto operator +=(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Arithmetic subtraction.
@@ -277,7 +274,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto Sub(T value) -> StreamVariable&;
+		auto Sub(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Arithmetic subtraction.
@@ -286,7 +283,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto operator -=(T value) -> StreamVariable&;
+		auto operator -=(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Arithmetic multiplication.
@@ -295,7 +292,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto Mul(T value) -> StreamVariable&;
+		auto Mul(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Arithmetic multiplication.
@@ -304,7 +301,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto operator *=(T value) -> StreamVariable&;
+		auto operator *=(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Arithmetic division.
@@ -313,7 +310,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto Div(T value) -> StreamVariable&;
+		auto Div(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Arithmetic division.
@@ -322,7 +319,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto operator /=(T value) -> StreamVariable&;
+		auto operator /=(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Arithmetic modulo.
@@ -331,7 +328,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto Mod(T value) -> StreamVariable&;
+		auto Mod(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Arithmetic modulo.
@@ -340,7 +337,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto operator %=(T value) -> StreamVariable&;
+		auto operator %=(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise &.
@@ -349,7 +346,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto And(T value) -> StreamVariable&;
+		auto And(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise &.
@@ -358,7 +355,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto operator &=(T value) -> StreamVariable&;
+		auto operator &=(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise &.
@@ -367,7 +364,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto Or(T value) -> StreamVariable&;
+		auto Or(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise &.
@@ -376,7 +373,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto operator |=(T value) -> StreamVariable&;
+		auto operator |=(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise ^.
@@ -385,7 +382,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto Xor(T value) -> StreamVariable&;
+		auto Xor(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise ^.
@@ -394,7 +391,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto operator ^=(T value) -> StreamVariable&;
+		auto operator ^=(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise <<.
@@ -403,7 +400,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto ShiftLeft(T value) -> StreamVariable&;
+		auto ShiftLeft(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise <<.
@@ -412,7 +409,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto operator <<=(T value) -> StreamVariable&;
+		auto operator <<=(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise >>.
@@ -421,7 +418,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto ShiftRight(T value) -> StreamVariable&;
+		auto ShiftRight(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise >>.
@@ -430,7 +427,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto operator >>=(T value) -> StreamVariable&;
+		auto operator >>=(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise <<<.
@@ -439,7 +436,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto RotateLeft(T value) -> StreamVariable&;
+		auto RotateLeft(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Bitwise >>.
@@ -448,158 +445,36 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The second operand.</param>
 		/// <returns>self</returns>
-		auto RotateRight(T value) -> StreamVariable&;
+		auto RotateRight(T value) -> ScopedVariable&;
 
 		/// <summary>
 		/// Pop variable from stack.
 		/// </summary>
-		~StreamVariable();
+		~ScopedVariable();
 
 	private:
-		auto Push(T value) -> StreamVariable&;
-		auto DoNothing() -> StreamVariable&;
+		auto Push(T value) -> ScopedVariable&;
+		auto DoNothing() -> ScopedVariable&;
 
 		Stream& Attached;
 	};
 
-	/// <summary>
-	/// Faster version of (x % 2) == 0
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_integral_v<T>
-	constexpr auto IsPowerOfTwo(const T x) noexcept -> bool
-	{
-		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
-		return !(x & x - 1);
-	}
-
-	inline const double CACHED_LOG2 {std::log(2.0)};
-
 	template <typename T> requires StreamScalar<T>
-	template <typename F, typename V> requires
-		std::is_trivial_v<V>
-		&& (std::is_floating_point_v<V>
-			|| std::is_integral_v<V>)
-	inline auto StreamVariable<T>::Another(const V value, F&& functor) -> void
+	template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
+	inline auto ScopedVariable<T>::Another(const V value, F&& functor) -> void
 	{
 		if constexpr (std::is_same_v<int, V>)
 		{
-			return functor(StreamVariable<std::int64_t> {this->Attached, static_cast<std::int64_t>(value)});
+			return functor(ScopedVariable<std::int64_t> {this->Attached, static_cast<std::int64_t>(value)});
 		}
 		else
 		{
-			return functor(StreamVariable<V> {this->Attached, value});
+			return functor(ScopedVariable<V> {this->Attached, value});
 		}
-	}
-
-	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<double>::Push(const double value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// If zero, optimize with special push zero instruction.
-			if (value == 0.0)
-			{
-				this->Attached.Do<Instruction::PushZ>();
-				return *this;
-			}
-
-			// If one, optimize with special push float one instruction.
-			if (value == 1.0)
-			{
-				this->Attached.Do<Instruction::FPushO>();
-				return *this;
-			}
-
-			// If the value is the previous written element in the stream,
-			// we can just duplicate it:
-			if (this->Attached.Back().Contains(value))
-			{
-				this->Attached.Do<Instruction::Dupl>();
-				return *this;
-			}
-		}
-
-		// Else just do a push:
-		this->Attached.Do<Instruction::Push>(value);
-		return *this;
-	}
-
-	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::Push(const std::int64_t value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// If zero, optimize with special push zero instruction.
-			if (value == 0)
-			{
-				this->Attached.Do<Instruction::PushZ>();
-				return *this;
-			}
-
-			// If one, optimize with special push integer one instruction.
-			if (value == 1)
-			{
-				this->Attached.Do<Instruction::IPushO>();
-				return *this;
-			}
-
-			// If the value is the previous written element in the stream,
-			// we can just duplicate it:
-			if (this->Attached.Back().Contains(value))
-			{
-				this->Attached.Do<Instruction::Dupl>();
-				return *this;
-			}
-		}
-
-		// Else just do a push:
-		this->Attached.Do<Instruction::Push>(value);
-		return *this;
-	}
-
-	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::Push(const std::uint64_t value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// If zero, optimize with special push zero instruction.
-			if (value == 0)
-			{
-				this->Attached.Do<Instruction::PushZ>();
-				return *this;
-			}
-
-			// If one, optimize with special push integer one instruction.
-			if (value == 1)
-			{
-				this->Attached.Do<Instruction::IPushO>();
-				return *this;
-			}
-
-			// If the value is the previous written element in the stream,
-			// we can just duplicate it:
-			if (this->Attached.Back().Contains(value))
-			{
-				this->Attached.Do<Instruction::Dupl>();
-				return *this;
-			}
-		}
-		// Else just do a push:
-		this->Attached.Do<Instruction::Push>(value);
-		return *this;
 	}
 
 	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::DoNothing() -> StreamVariable&
+	inline auto ScopedVariable<T>::DoNothing() -> ScopedVariable&
 	{
 		if (OptLevel == OptimizationLevel::Off)
 		[[unlikely]]
@@ -611,585 +486,178 @@ namespace Nominax
 	}
 
 	template <>
-	inline StreamVariable<double>::StreamVariable(Stream& attached, const double value) : Attached {attached}
+	auto ScopedVariable<double>::Push(double value) -> ScopedVariable&;
+
+	template <>
+	auto ScopedVariable<std::int64_t>::Push(std::int64_t value) -> ScopedVariable&;
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::Push(std::uint64_t value) -> ScopedVariable&;
+
+	template <>
+	inline ScopedVariable<double>::ScopedVariable(Stream& attached, const double value) : Attached {attached}
 	{
 		this->Push(value);
 	}
 
 	template <>
-	inline StreamVariable<std::int64_t>::StreamVariable(Stream& attached, const std::int64_t value) : Attached {attached}
+	inline ScopedVariable<std::int64_t>::ScopedVariable(Stream& attached, const std::int64_t value) : Attached {attached}
 	{
 		this->Push(value);
 	}
 
 	template <>
-	inline StreamVariable<std::uint64_t>::StreamVariable(Stream& attached, const std::uint64_t value) : Attached {attached}
+	inline ScopedVariable<std::uint64_t>::ScopedVariable(Stream& attached, const std::uint64_t value) : Attached {attached}
 	{
 		this->Push(value);
 	}
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<double>::Add(const double value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// With 0 it's a no-op
-			if (value == 0.0)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
-
-			// Optimize to increment:
-			if (value == 1.0)
-			{
-				this->Attached.Do<Instruction::FInc>();
-				return *this;
-			}
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::FAdd>();
-		return *this;
-	}
+	auto ScopedVariable<double>::Add(double value) -> ScopedVariable&;
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::Add(const std::int64_t value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// With 0 it's a no-op
-			if (value == 0)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
+	auto ScopedVariable<std::int64_t>::Add(std::int64_t value) -> ScopedVariable&;
 
-			// Optimize to increment:
-			if (value == 1)
-			{
-				this->Attached.Do<Instruction::IInc>();
-				return *this;
-			}
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::IAdd>();
-		return *this;
-	}
+	template <>
+	auto ScopedVariable<std::uint64_t>::Add(std::uint64_t value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::operator+=(const T value) -> StreamVariable&
+	inline auto ScopedVariable<T>::operator+=(const T value) -> ScopedVariable&
 	{
 		return this->Add(value);
 	}
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::Add(const std::uint64_t value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// With 0 it's a no-op
-			if (value == 0)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
-
-			// Optimize to increment:
-			if (value == 1)
-			{
-				this->Attached.Do<Instruction::IInc>();
-				return *this;
-			}
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::IAdd>();
-		return *this;
-	}
-
+	auto ScopedVariable<double>::Sub(double value) -> ScopedVariable&;
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<double>::Sub(const double value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// With 0 it's a no-op
-			if (value == 0.0)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
-
-			// Optimize to decrement:
-			if (value == 1.0)
-			{
-				this->Attached.Do<Instruction::FDec>();
-				return *this;
-			}
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::FSub>();
-		return *this;
-	}
-
+	auto ScopedVariable<std::int64_t>::Sub(std::int64_t value) -> ScopedVariable&;
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::Sub(const std::int64_t value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// With 0 it's a no-op
-			if (value == 0)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
-
-			// Optimize to decrement:
-			if (value == 1)
-			{
-				this->Attached.Do<Instruction::IDec>();
-				return *this;
-			}
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::ISub>();
-		return *this;
-	}
-
-	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::Sub(const std::uint64_t value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// With 0 it's a no-op
-			if (value == 0)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
-
-			// Optimize to decrement:
-			if (value == 1)
-			{
-				this->Attached.Do<Instruction::IDec>();
-				return *this;
-			}
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::ISub>();
-		return *this;
-	}
+	auto ScopedVariable<std::uint64_t>::Sub(std::uint64_t value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::operator-=(const T value) -> StreamVariable&
+	inline auto ScopedVariable<T>::operator-=(const T value) -> ScopedVariable&
 	{
 		return this->Add(value);
 	}
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<double>::Mul(const double value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// By 0 or 1 is a no-op:
-			if (value == 0.0 || value == 1.0)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::FMul>();
-		return *this;
-	}
+	auto ScopedVariable<double>::Mul(double value) -> ScopedVariable&;
+	template <>
+	auto ScopedVariable<std::int64_t>::Mul(std::int64_t value) -> ScopedVariable&;
+	template <>
+	auto ScopedVariable<std::uint64_t>::Mul(std::uint64_t value) -> ScopedVariable&;
+
 
 	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::operator*=(const T value) -> StreamVariable&
+	inline auto ScopedVariable<T>::operator*=(const T value) -> ScopedVariable&
 	{
 		return this->Mul(value);
 	}
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::Mul(std::int64_t value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// By 0 or 1 is a no-op:
-			if (value == 0 || value == 1)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
-
-			// Optimize with shift:
-			if (IsPowerOfTwo(value))
-			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
-				this->Push(value);
-				this->Attached.Do<Instruction::ISal>();
-				return *this;
-			}
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::IMul>();
-		return *this;
-	}
+	auto ScopedVariable<double>::Div(double value) -> ScopedVariable&;
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::Mul(std::uint64_t value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// By 0 or 1 is a no-op:
-			if (value == 0 || value == 1)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
-
-			// Optimize with shift:
-			if (IsPowerOfTwo(value))
-			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
-				this->Push(value);
-				this->Attached.Do<Instruction::ISal>();
-				return *this;
-			}
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::IMul>();
-		return *this;
-	}
+	auto ScopedVariable<std::int64_t>::Div(std::int64_t value) -> ScopedVariable&;
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<double>::Div(const double value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// By 1 is a no-op:
-			if (value == 1.0)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::FDiv>();
-		return *this;
-	}
+	auto ScopedVariable<std::uint64_t>::Div(std::uint64_t value) -> ScopedVariable&;
+
 
 	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::operator/=(const T value) -> StreamVariable&
+	inline auto ScopedVariable<T>::operator/=(const T value) -> ScopedVariable&
 	{
 		return this->Div(value);
 	}
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::Div(std::int64_t value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// By 1 is a no-op:
-			if (value == 1)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
-
-			// Optimize with shift:
-			if (IsPowerOfTwo(value))
-			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
-				this->Push(value);
-				this->Attached.Do<Instruction::ISar>();
-				return *this;
-			}
-		}
-
-		this->Push(value);
-		this->Attached.Do<Instruction::IDiv>();
-		return *this;
-	}
+	auto ScopedVariable<double>::Mod(double value) -> ScopedVariable&;
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::Div(std::uint64_t value) -> StreamVariable&
-	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
-		{
-			// By 1 is a no-op:
-			if (value == 1)
-			[[unlikely]]
-			{
-				return this->DoNothing();
-			}
-
-			// Optimize with shift:
-			if (IsPowerOfTwo(value))
-			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
-				this->Push(value);
-				this->Attached.Do<Instruction::ISar>();
-				return *this;
-			}
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::IDiv>();
-		return *this;
-	}
+	auto ScopedVariable<std::int64_t>::Mod(std::int64_t value) -> ScopedVariable&;
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<double>::Mod(const double value) -> StreamVariable&
-	{
-		this->Push(value);
-		this->Attached.Do<Instruction::FMod>();
-		return *this;
-	}
-
-	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::Mod(const std::int64_t value) -> StreamVariable&
-	{
-		this->Push(value);
-		this->Attached.Do<Instruction::IMod>();
-		return *this;
-	}
-
-	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::Mod(const std::uint64_t value) -> StreamVariable&
-	{
-		this->Push(value);
-		this->Attached.Do<Instruction::IMod>();
-		return *this;
-	}
+	auto ScopedVariable<std::uint64_t>::Mod(std::uint64_t value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::operator%=(const T value) -> StreamVariable&
+	inline auto ScopedVariable<T>::operator%=(const T value) -> ScopedVariable&
 	{
 		return this->Mod(value);
 	}
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::And(const std::int64_t value) -> StreamVariable&
-	{
-		this->Push(value);
-		this->Attached.Do<Instruction::IAnd>();
-		return *this;
-	}
+	auto ScopedVariable<std::int64_t>::And(std::int64_t value) -> ScopedVariable&;
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::And(const std::uint64_t value) -> StreamVariable&
-	{
-		this->Push(value);
-		this->Attached.Do<Instruction::IAnd>();
-		return *this;
-	}
+	auto ScopedVariable<std::uint64_t>::And(std::uint64_t value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::operator&=(const T value) -> StreamVariable&
+	inline auto ScopedVariable<T>::operator&=(const T value) -> ScopedVariable&
 	{
 		return this->And(value);
 	}
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::Or(const std::int64_t value) -> StreamVariable&
-	{
-		this->Push(value);
-		this->Attached.Do<Instruction::IOr>();
-		return *this;
-	}
+	auto ScopedVariable<std::int64_t>::Or(const std::int64_t value) -> ScopedVariable&;
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::Or(const std::uint64_t value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::operator|=(const T value) -> StreamVariable&
+	inline auto ScopedVariable<T>::operator|=(const T value) -> ScopedVariable&
 	{
 		return this->Or(value);
 	}
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::Or(const std::uint64_t value) -> StreamVariable&
-	{
-		this->Push(value);
-		this->Attached.Do<Instruction::IOr>();
-		return *this;
-	}
+	auto ScopedVariable<std::int64_t>::Xor(const std::int64_t value) -> ScopedVariable&;
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::Xor(const std::int64_t value) -> StreamVariable&
-	{
-		this->Push(value);
-		this->Attached.Do<Instruction::IXor>();
-		return *this;
-	}
-
-	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::Xor(const std::uint64_t value) -> StreamVariable&
-	{
-		this->Push(value);
-		this->Attached.Do<Instruction::IXor>();
-		return *this;
-	}
+	auto ScopedVariable<std::uint64_t>::Xor(const std::uint64_t value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::operator^=(const T value) -> StreamVariable&
+	inline auto ScopedVariable<T>::operator^=(const T value) -> ScopedVariable&
 	{
 		return this->Xor(value);
 	}
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::ShiftLeft(const std::int64_t value) -> StreamVariable&
-	{
-		if (value == 0)
-		[[unlikely]]
-		{
-			return this->DoNothing();
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::ISal>();
-		return *this;
-	}
+	auto ScopedVariable<std::int64_t>::ShiftLeft(const std::int64_t value) -> ScopedVariable&;
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::ShiftLeft(const std::uint64_t value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::operator<<=(const T value) -> StreamVariable&
+	inline auto ScopedVariable<T>::operator<<=(const T value) -> ScopedVariable&
 	{
 		return this->ShiftLeft(value);
 	}
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::ShiftLeft(const std::uint64_t value) -> StreamVariable&
-	{
-		if (value == 0)
-		[[unlikely]]
-		{
-			return this->DoNothing();
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::ISal>();
-		return *this;
-	}
+	auto ScopedVariable<std::int64_t>::ShiftRight(const std::int64_t value) -> ScopedVariable&;
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::ShiftRight(const std::int64_t value) -> StreamVariable&
-	{
-		if (value == 0)
-		[[unlikely]]
-		{
-			return this->DoNothing();
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::ISar>();
-		return *this;
-	}
+	auto ScopedVariable<std::uint64_t>::ShiftRight(const std::uint64_t value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
-	inline auto StreamVariable<T>::operator>>=(const T value) -> StreamVariable&
+	inline auto ScopedVariable<T>::operator>>=(const T value) -> ScopedVariable&
 	{
 		return this->ShiftRight(value);
 	}
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::ShiftRight(const std::uint64_t value) -> StreamVariable&
-	{
-		if (value == 0)
-		[[unlikely]]
-		{
-			return this->DoNothing();
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::ISar>();
-		return *this;
-	}
+	auto ScopedVariable<std::int64_t>::RotateLeft(std::int64_t value) -> ScopedVariable&;
+	template <>
+	auto ScopedVariable<std::uint64_t>::RotateLeft(std::uint64_t value) -> ScopedVariable&;
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::RotateLeft(const std::int64_t value) -> StreamVariable&
-	{
-		if (value == 0)
-		[[unlikely]]
-		{
-			return this->DoNothing();
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::IRol>();
-		return *this;
-	}
+	auto ScopedVariable<std::int64_t>::RotateRight(std::int64_t value) -> ScopedVariable&;
 
 	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::RotateLeft(const std::uint64_t value) -> StreamVariable&
-	{
-		if (value == 0)
-		[[unlikely]]
-		{
-			return this->DoNothing();
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::IRol>();
-		return *this;
-	}
-
-	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::int64_t>::RotateRight(const std::int64_t value) -> StreamVariable&
-	{
-		if (value == 0)
-		[[unlikely]]
-		{
-			return this->DoNothing();
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::IRor>();
-		return *this;
-	}
-
-	template <>
-	// ReSharper disable once CppMemberFunctionMayBeConst
-	inline auto StreamVariable<std::uint64_t>::RotateRight(const std::uint64_t value) -> StreamVariable&
-	{
-		if (value == 0)
-		[[unlikely]]
-		{
-			return this->DoNothing();
-		}
-		this->Push(value);
-		this->Attached.Do<Instruction::IRor>();
-		return *this;
-	}
+	auto ScopedVariable<std::uint64_t>::RotateRight(std::uint64_t value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
-	inline StreamVariable<T>::~StreamVariable()
+	inline ScopedVariable<T>::~ScopedVariable()
 	{
 		Attached.Do<Instruction::Pop>();
 	}
@@ -1197,15 +665,15 @@ namespace Nominax
 	/// <summary>
 	/// Stream variable with runtime type: int
 	/// </summary>
-	using SvInt = StreamVariable<std::int64_t>;
+	using ScopedInt = ScopedVariable<std::int64_t>;
 
 	/// <summary>
 	/// Stream variable with runtime type: uint
 	/// </summary>
-	using SvUInt = StreamVariable<std::uint64_t>;
+	using ScopedUInt = ScopedVariable<std::uint64_t>;
 
 	/// <summary>
 	/// Stream variable with runtime type: float
 	/// </summary>
-	using SvFloat = StreamVariable<double>;
+	using ScopedFloat = ScopedVariable<double>;
 }

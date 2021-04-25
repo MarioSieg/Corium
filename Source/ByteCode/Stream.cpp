@@ -213,11 +213,11 @@ namespace Nominax
 {
 	auto Stream::ExampleStream(Stream& stream) -> void
 	{
-		stream.With(1024, [](SvInt x)
+		stream.With(1024, [](ScopedInt x)
 		{
 			x += 1024;
 			x += 2;
-			x.Another(3, [&](SvInt y)
+			x.Another(3, [&](ScopedInt y)
 			{
 				y *= 3;
 				y *= 2;

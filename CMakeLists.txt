@@ -64,7 +64,7 @@ add_library("NominaxRuntime" STATIC
     "Source/Object.cpp"  
     "Source/ByteCode/DynamicSignal.cpp" 
     "Source/ByteCode/Validator.cpp" 
-    "Source/ByteCode/Stream.cpp")
+    "Source/ByteCode/Stream.cpp" "Source/ByteCode/ScopedVariable.cpp")
 
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!

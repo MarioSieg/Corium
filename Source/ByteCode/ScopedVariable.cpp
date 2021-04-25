@@ -1,6 +1,6 @@
-// File: Stream.hpp
+// File: ScopedVariable.cpp
 // Author: Mario
-// Created: 25.04.2021 12:41 PM
+// Created: 25.04.2021 1:41 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,497 +205,600 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
 
-#include <unordered_map>
-#include <vector>
+namespace
+{
+	/// <summary>
+	/// Returns true if x is a power of two.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T>
+	constexpr auto IsPowerOfTwo(const T x) noexcept -> bool
+	{
+		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
+		return !(x & x - 1);
+	}
 
-#include "DynamicSignal.hpp"
-#include "ImmediateArgumentCounts.hpp"
+	constexpr double CACHED_LOG2 {0.69314718055994529};
+}
 
 namespace Nominax
 {
-	/// <summary>
-	/// Dynamic byte code stream.
-	/// </summary>
-	class Stream final
+	template <>
+	// ReSharper disable once CppMemberFunctionMayBeConst
+	auto ScopedVariable<double>::Push(const double value) -> ScopedVariable&
 	{
-		std::vector<DynamicSignal>                   SignalStream { };
-		std::unordered_map<std::string, std::size_t> LabelTable { };
-
-	public:
-		static auto ExampleStream(Stream& stream) -> void;
-
-		/// <summary>
-		/// Construct empty stream.
-		/// </summary>
-		/// <returns></returns>
-		Stream();
-
-		/// <summary>
-		/// Construct with capacity.
-		/// </summary>
-		/// <param name="cap"></param>
-		explicit Stream(std::size_t cap);
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		Stream(Stream&&) noexcept = default;
-
-		/// <summary>
-		/// Copy constructor.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		Stream(const Stream&) noexcept = default;
-
-		/// <summary>
-		/// Copy assignment operator.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		auto operator =(const Stream&) -> Stream& = default;
-
-		/// <summary>
-		/// Move assignment operator.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		auto operator =(Stream&&) -> Stream& = default;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~Stream() = default;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The vector used as buffer.</returns>
-		[[nodiscard]]
-		auto Buffer() const noexcept -> const std::vector<DynamicSignal>&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		auto Front() -> DynamicSignal&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		auto Back() -> DynamicSignal&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		auto Front() const -> const DynamicSignal&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		auto Back() const -> const DynamicSignal&;
-
-		/// <summary>
-		/// Clears the content of the whole stream.
-		/// </summary>
-		/// <returns></returns>
-		auto Clear() -> void;
-
-		/// <summary>
-		/// Preallocate buffer capacity.
-		/// </summary>
-		/// <param name="cap"></param>
-		/// <returns></returns>
-		auto Reserve(std::size_t cap) -> void;
-
-		/// <summary>
-		/// Resize buffer size.
-		/// </summary>
-		/// <param name="size"></param>
-		/// <returns></returns>
-		auto Resize(std::size_t size) -> void;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The size of the stream.</returns>
-		[[nodiscard]]
-		auto Size() const noexcept -> std::size_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The size of the stream in bytes.</returns>
-		[[nodiscard]]
-		auto SizeInBytes() const noexcept -> std::size_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The capacity of the stream buffer.</returns>
-		[[nodiscard]]
-		auto Capacity() const noexcept -> std::size_t;
-
-		/// <summary>
-		/// Pushes a new signal into the stream.
-		/// </summary>
-		/// <param name="sig"></param>
-		/// <returns></returns>
-		auto Push(DynamicSignal&& sig) -> void;
-
-		/// <summary>
-		/// STL iterator compat
-		/// </summary>
-		/// <returns></returns>
-		// ReSharper disable once CppInconsistentNaming
-		[[nodiscard]]
-		auto begin() noexcept -> std::vector<DynamicSignal>::iterator;
-
-		/// <summary>
-		/// STL iterator compat
-		/// </summary>
-		/// <returns></returns>
-		// ReSharper disable once CppInconsistentNaming
-		[[nodiscard]]
-		auto end() noexcept -> std::vector<DynamicSignal>::iterator;
-
-		/// <summary>
-		/// STL iterator compat
-		/// </summary>
-		/// <returns></returns>
-		// ReSharper disable once CppInconsistentNaming
-		[[nodiscard]]
-		auto begin() const noexcept -> std::vector<DynamicSignal>::const_iterator;
-
-		/// <summary>
-		/// STL iterator compat
-		/// </summary>
-		/// <returns></returns>
-		// ReSharper disable once CppInconsistentNaming
-		[[nodiscard]]
-		auto end() const noexcept -> std::vector<DynamicSignal>::const_iterator;
-
-		/// <summary>
-		/// Push stream entry.
-		/// </summary>
-		/// <param name="instr"></param>
-		/// <returns></returns>
-		auto operator <<(Instruction instr) -> Stream&;
-
-		/// <summary>
-		/// Push stream entry.
-		/// </summary>
-		/// <param name="intrin"></param>
-		/// <returns></returns>
-		auto operator <<(SystemIntrinsicCallId intrin) -> Stream&;
-
-		/// <summary>
-		/// Push stream entry.
-		/// </summary>
-		/// <param name="intrin"></param>
-		/// <returns></returns>
-		auto operator <<(CustomIntrinsicCallId intrin) -> Stream&;
-
-		/// <summary>
-		/// Push stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(std::uint64_t value) -> Stream&;
-
-		/// <summary>
-		/// Push stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(std::int64_t value) -> Stream&;
-
-		/// <summary>
-		/// Push stream entry (casted to std::int64_t)
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(int value) -> Stream&;
-
-		/// <summary>
-		/// Push stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(double value) -> Stream&;
-
-		/// <summary>
-		/// Push stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(char32_t value) -> Stream&;
-
-		/// <summary>
-		/// Write the text byte code to a file.
-		/// </summary>
-		/// <param name="stream"></param>
-		/// <param name="writeAddress"></param>
-		/// <returns></returns>
-		auto DumpToStream(std::ostream& stream, bool writeAddress = true) const -> void;
-
-		/// <summary>
-		/// Index lookup.
-		/// </summary>
-		/// <param name="idx"></param>
-		/// <returns></returns>
-		auto operator [](std::size_t idx) -> DynamicSignal&;
-
-		/// <summary>
-		/// Index lookup.
-		/// </summary>
-		/// <param name="idx"></param>
-		/// <returns></returns>
-		auto operator [](std::size_t idx) const -> DynamicSignal;
-
-		/// <summary>
-		/// Insert instruction manually.
-		/// </summary>
-		/// <param name="args"></param>
-		/// <returns></returns>
-		template <Instruction I, typename... Ts>
-		auto Do(Ts&&...args) -> Stream&;
-
-		template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
-		auto With(V value, F&& functor) -> void;
-	};
-
-	template <Instruction I, typename... Ts>
-	inline auto Stream::Do(Ts&&...args) -> Stream&
-	{
-		static_assert(sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[static_cast<std::size_t>(I)], "Invalid amount of immediate arguments!");
-		*this << I;
-		return (*this << ... << args);
-	}
-
-	template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
-	inline auto Stream::With(const V value, F&& functor) -> void
-	{
-		if constexpr (std::is_same_v<int, V>)
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return functor(ScopedVariable<std::int64_t> {*this, static_cast<std::int64_t>(value)});
+			// If zero, optimize with special push zero instruction.
+			if (value == 0.0)
+			{
+				this->Attached.Do<Instruction::PushZ>();
+				return *this;
+			}
+
+			// If one, optimize with special push float one instruction.
+			if (value == 1.0)
+			{
+				this->Attached.Do<Instruction::FPushO>();
+				return *this;
+			}
+
+			// If the value is the previous written element in the stream,
+			// we can just duplicate it:
+			if (this->Attached.Back().Contains(value))
+			{
+				this->Attached.Do<Instruction::Dupl>();
+				return *this;
+			}
 		}
-		else
+
+		// Else just do a push:
+		this->Attached.Do<Instruction::Push>(value);
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::int64_t>::Push(const std::int64_t value) -> ScopedVariable&
+	{
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
 		{
-			return functor(ScopedVariable<V> {*this, value});
+			// If zero, optimize with special push zero instruction.
+			if (value == 0)
+			{
+				this->Attached.Do<Instruction::PushZ>();
+				return *this;
+			}
+
+			// If one, optimize with special push integer one instruction.
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IPushO>();
+				return *this;
+			}
+
+			// If the value is the previous written element in the stream,
+			// we can just duplicate it:
+			if (this->Attached.Back().Contains(value))
+			{
+				this->Attached.Do<Instruction::Dupl>();
+				return *this;
+			}
 		}
-	}
 
-	inline auto Stream::Front() -> DynamicSignal&
-	{
-		return this->SignalStream.front();
-	}
-
-	inline auto Stream::Back() -> DynamicSignal&
-	{
-		return this->SignalStream.back();
-	}
-
-	inline auto Stream::Front() const -> const DynamicSignal&
-	{
-		return this->SignalStream.front();
-	}
-
-	inline auto Stream::Back() const -> const DynamicSignal&
-	{
-		return this->SignalStream.back();
-	}
-
-	inline auto Stream::operator[](const std::size_t idx) -> DynamicSignal&
-	{
-		return this->SignalStream.at(idx);
-	}
-
-	inline auto Stream::operator[](const std::size_t idx) const -> DynamicSignal
-	{
-		return this->SignalStream.at(idx);
-	}
-
-	inline Stream::Stream()
-	{
-		// Reserve buffer:
-		this->SignalStream.reserve(8);
-
-		// Insert important code prologue.
-		this->SignalStream.emplace_back(DynamicSignal::CodePrologue());
-	}
-
-	inline Stream::Stream(const std::size_t cap)
-	{
-		// Reserve required space + (prologue + epilogue)
-		this->SignalStream.reserve(cap + 3);
-
-		// Insert important code prologue.
-		this->SignalStream.emplace_back(DynamicSignal::CodePrologue());
-	}
-
-	inline auto Stream::Buffer() const noexcept -> const std::vector<DynamicSignal>&
-	{
-		return this->SignalStream;
-	}
-
-	inline auto Stream::Clear() -> void
-	{
-		this->SignalStream.resize(1);
-	}
-
-	inline auto Stream::Reserve(const std::size_t cap) -> void
-	{
-		this->SignalStream.reserve(cap);
-	}
-
-	inline auto Stream::Resize(const std::size_t size) -> void
-	{
-		this->SignalStream.resize(size);
-	}
-
-	inline auto Stream::Size() const noexcept -> std::size_t
-	{
-		return this->SignalStream.size();
-	}
-
-	inline auto Stream::SizeInBytes() const noexcept -> std::size_t
-	{
-		return this->SignalStream.size() * sizeof(DynamicSignal);
-	}
-
-	inline auto Stream::Capacity() const noexcept -> std::size_t
-	{
-		return this->SignalStream.capacity();
-	}
-
-	inline auto Stream::Push(DynamicSignal&& sig) -> void
-	{
-		this->SignalStream.emplace_back(sig);
-	}
-
-	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::begin() noexcept -> std::vector<DynamicSignal>::iterator
-	{
-		return this->SignalStream.begin();
-	}
-
-	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::end() noexcept -> std::vector<DynamicSignal>::iterator
-	{
-		return this->SignalStream.end();
-	}
-
-	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::begin() const noexcept -> std::vector<DynamicSignal>::const_iterator
-	{
-		return this->SignalStream.begin();
-	}
-
-	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::end() const noexcept -> std::vector<DynamicSignal>::const_iterator
-	{
-		return this->SignalStream.end();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <param name="in"></param>
-	/// <returns></returns>
-	// ReSharper disable once CppInconsistentNaming
-	inline auto begin(Stream& in) noexcept -> std::vector<DynamicSignal>::iterator
-	{
-		return in.begin();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <param name="in"></param>
-	/// <returns></returns>
-	// ReSharper disable once CppInconsistentNaming
-	inline auto end(Stream& in) noexcept -> std::vector<DynamicSignal>::iterator
-	{
-		return in.end();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <param name="in"></param>
-	/// <returns></returns>
-	// ReSharper disable once CppInconsistentNaming
-	inline auto begin(const Stream& in) noexcept -> std::vector<DynamicSignal>::const_iterator
-	{
-		return in.begin();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <param name="in"></param>
-	/// <returns></returns>
-	// ReSharper disable once CppInconsistentNaming
-	inline auto end(const Stream& in) noexcept -> std::vector<DynamicSignal>::const_iterator
-	{
-		return in.end();
-	}
-
-	inline auto Stream::operator <<(const Instruction instr) -> Stream&
-	{
-		this->Push(DynamicSignal {instr});
+		// Else just do a push:
+		this->Attached.Do<Instruction::Push>(value);
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const SystemIntrinsicCallId intrin) -> Stream&
+	template <>
+	auto ScopedVariable<std::uint64_t>::Push(const std::uint64_t value) -> ScopedVariable&
 	{
-		this->Push(DynamicSignal {intrin});
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// If zero, optimize with special push zero instruction.
+			if (value == 0)
+			{
+				this->Attached.Do<Instruction::PushZ>();
+				return *this;
+			}
+
+			// If one, optimize with special push integer one instruction.
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IPushO>();
+				return *this;
+			}
+
+			// If the value is the previous written element in the stream,
+			// we can just duplicate it:
+			if (this->Attached.Back().Contains(value))
+			{
+				this->Attached.Do<Instruction::Dupl>();
+				return *this;
+			}
+		}
+		// Else just do a push:
+		this->Attached.Do<Instruction::Push>(value);
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const CustomIntrinsicCallId intrin) -> Stream&
+
+	template <>
+	auto ScopedVariable<double>::Add(const double value) -> ScopedVariable&
 	{
-		this->Push(DynamicSignal {intrin});
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// With 0 it's a no-op
+			if (value == 0.0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+
+			// Optimize to increment:
+			if (value == 1.0)
+			{
+				this->Attached.Do<Instruction::FInc>();
+				return *this;
+			}
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::FAdd>();
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const std::uint64_t value) -> Stream&
+	template <>
+	auto ScopedVariable<std::int64_t>::Add(const std::int64_t value) -> ScopedVariable&
 	{
-		this->Push(DynamicSignal {value});
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// With 0 it's a no-op
+			if (value == 0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+
+			// Optimize to increment:
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IInc>();
+				return *this;
+			}
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IAdd>();
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const std::int64_t value) -> Stream&
+	template <>
+	auto ScopedVariable<std::uint64_t>::Add(const std::uint64_t value) -> ScopedVariable&
 	{
-		this->Push(DynamicSignal {value});
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// With 0 it's a no-op
+			if (value == 0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+
+			// Optimize to increment:
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IInc>();
+				return *this;
+			}
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IAdd>();
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const double value) -> Stream&
+	template <>
+	auto ScopedVariable<double>::Sub(const double value) -> ScopedVariable&
 	{
-		this->Push(DynamicSignal {value});
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// With 0 it's a no-op
+			if (value == 0.0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+
+			// Optimize to decrement:
+			if (value == 1.0)
+			{
+				this->Attached.Do<Instruction::FDec>();
+				return *this;
+			}
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::FSub>();
 		return *this;
 	}
 
-	inline auto Stream::operator<<(int value) -> Stream&
+	template <>
+	auto ScopedVariable<std::int64_t>::Sub(const std::int64_t value) -> ScopedVariable&
 	{
-		this->Push(DynamicSignal {static_cast<std::int64_t>(value)});
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// With 0 it's a no-op
+			if (value == 0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+
+			// Optimize to decrement:
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IDec>();
+				return *this;
+			}
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISub>();
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const char32_t value) -> Stream&
+	template <>
+	auto ScopedVariable<std::uint64_t>::Sub(const std::uint64_t value) -> ScopedVariable&
 	{
-		this->Push(DynamicSignal {value});
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// With 0 it's a no-op
+			if (value == 0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+
+			// Optimize to decrement:
+			if (value == 1)
+			{
+				this->Attached.Do<Instruction::IDec>();
+				return *this;
+			}
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISub>();
 		return *this;
 	}
 
-	extern auto operator <<(std::ostream& out, const Stream& in) -> std::ostream&;
+	template <>
+	auto ScopedVariable<double>::Mul(const double value) -> ScopedVariable&
+	{
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// By 0 or 1 is a no-op:
+			if (value == 0.0 || value == 1.0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::FMul>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::int64_t>::Mul(std::int64_t value) -> ScopedVariable&
+	{
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// By 0 or 1 is a no-op:
+			if (value == 0 || value == 1)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+
+			// Optimize with shift:
+			if (IsPowerOfTwo(value))
+			{
+				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				this->Push(value);
+				this->Attached.Do<Instruction::ISal>();
+				return *this;
+			}
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IMul>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::Mul(std::uint64_t value) -> ScopedVariable&
+	{
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// By 0 or 1 is a no-op:
+			if (value == 0 || value == 1)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+
+			// Optimize with shift:
+			if (IsPowerOfTwo(value))
+			{
+				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				this->Push(value);
+				this->Attached.Do<Instruction::ISal>();
+				return *this;
+			}
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IMul>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<double>::Div(const double value) -> ScopedVariable&
+	{
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// By 1 is a no-op:
+			if (value == 1.0)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::FDiv>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::int64_t>::Div(std::int64_t value) -> ScopedVariable&
+	{
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// By 1 is a no-op:
+			if (value == 1)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+
+			// Optimize with shift:
+			if (IsPowerOfTwo(value))
+			{
+				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				this->Push(value);
+				this->Attached.Do<Instruction::ISar>();
+				return *this;
+			}
+		}
+
+		this->Push(value);
+		this->Attached.Do<Instruction::IDiv>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::Div(std::uint64_t value) -> ScopedVariable&
+	{
+		if (OptLevel >= OptimizationLevel::O1)
+		[[likely]]
+		{
+			// By 1 is a no-op:
+			if (value == 1)
+			[[unlikely]]
+			{
+				return this->DoNothing();
+			}
+
+			// Optimize with shift:
+			if (IsPowerOfTwo(value))
+			{
+				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				this->Push(value);
+				this->Attached.Do<Instruction::ISar>();
+				return *this;
+			}
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IDiv>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<double>::Mod(const double value) -> ScopedVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::FMod>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::int64_t>::Mod(const std::int64_t value) -> ScopedVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IMod>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::Mod(const std::uint64_t value) -> ScopedVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IMod>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::int64_t>::And(const std::int64_t value) -> ScopedVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IAnd>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::And(const std::uint64_t value) -> ScopedVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IAnd>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::int64_t>::Or(const std::int64_t value) -> ScopedVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IOr>();
+		return *this;
+	}
+
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::Or(const std::uint64_t value) -> ScopedVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IOr>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::int64_t>::Xor(const std::int64_t value) -> ScopedVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IXor>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::Xor(const std::uint64_t value) -> ScopedVariable&
+	{
+		this->Push(value);
+		this->Attached.Do<Instruction::IXor>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::int64_t>::ShiftLeft(const std::int64_t value) -> ScopedVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISal>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::ShiftLeft(const std::uint64_t value) -> ScopedVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISal>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::int64_t>::ShiftRight(const std::int64_t value) -> ScopedVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISar>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::ShiftRight(const std::uint64_t value) -> ScopedVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::ISar>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::int64_t>::RotateLeft(const std::int64_t value) -> ScopedVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IRol>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::RotateLeft(const std::uint64_t value) -> ScopedVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IRol>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::int64_t>::RotateRight(const std::int64_t value) -> ScopedVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IRor>();
+		return *this;
+	}
+
+	template <>
+	auto ScopedVariable<std::uint64_t>::RotateRight(const std::uint64_t value) -> ScopedVariable&
+	{
+		if (value == 0)
+		[[unlikely]]
+		{
+			return this->DoNothing();
+		}
+		this->Push(value);
+		this->Attached.Do<Instruction::IRor>();
+		return *this;
+	}
 }
