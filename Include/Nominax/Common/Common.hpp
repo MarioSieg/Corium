@@ -209,6 +209,7 @@
 
 #include "MemoryUnits.hpp"
 #include "SafeLocalTime.hpp"
+#include "F64Comparator.hpp"
 #include "VisitOverload.hpp"
 #include "XorshiftAtomic.hpp"
 #include "XorshiftThreadLocal.hpp"
