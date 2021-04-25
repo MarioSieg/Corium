@@ -19,32 +19,53 @@ option(ANOMINAX_BUILD_BENCHMARKS "Build a system benchmark" ON)
 # Requires >= GCC 10!
 
 add_library("NominaxRuntime" STATIC
-    "Include/Nominax/Platform.hpp"
-    "Include/Nominax/Reactor.hpp"
-    "Include/Nominax/ByteCode.hpp"
-    "Include/Nominax/Record.hpp" 
-    "Include/Nominax/MacroCfg.hpp" 	
-    "Include/Nominax/Interrupts.hpp"
-    "Include/Nominax/Info.hpp"
-    "Include/Nominax/Os.hpp"
-    "Include/Nominax/Utility.hpp"
-    "Include/Nominax/DynamicLibrary.hpp"
+    "Include/Nominax/System/Platform.hpp"
+    "Include/Nominax/Core/Reactor.hpp"
+    "Include/Nominax/ByteCode/ByteCode.hpp"
+    "Include/Nominax/Core/Record.hpp" 
+    "Include/Nominax/System/MacroCfg.hpp" 	
+    "Include/Nominax/Core/Interrupts.hpp"
+    "Include/Nominax/Core/Info.hpp"
+    "Include/Nominax/System/Os.hpp"
+    
+    "Include/Nominax/System/DynamicLibrary.hpp"
     "Include/Nominax/Nominax.hpp" 
-    "Include/Nominax/Environment.hpp" 
-    "Include/Nominax/FormatTable.hpp" 
-    "Include/Nominax/Object.hpp"
+    "Include/Nominax/Core/Environment.hpp"   
+    "Include/Nominax/Core/Object.hpp"
+    "Include/Nominax/ByteCode/Instruction.hpp" 
+    "Include/Nominax/ByteCode/SystemIntrinsic.hpp" 
+    "Include/Nominax/ByteCode/InstructionCategory.hpp" 
+    "Include/Nominax/ByteCode/ImmediateArgumentType.hpp" 
+    "Include/Nominax/ByteCode/CustomIntrinsic.hpp" 
+    "Include/Nominax/ByteCode/Mnemonic.hpp" 
+    "Include/Nominax/ByteCode/Descriptor.hpp" 
+    "Include/Nominax/ByteCode/Category.hpp"
+    "Include/Nominax/ByteCode/PopCount.hpp" 
+    "Include/Nominax/ByteCode/ImmediateArgumentCount.hpp" 
+    "Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp" 
+    "Include/Nominax/ByteCode/Signal.hpp" 
+    "Include/Nominax/ByteCode/DynamicSignal.hpp" 
+    "Include/Nominax/ByteCode/Validator.hpp" 
+    "Include/Nominax/ByteCode/LiteralOp.hpp" 
+    "Include/Nominax/ByteCode/OptBase.hpp" 
+    "Include/Nominax/ByteCode/ScopedVariable.hpp" 
+    "Include/Nominax/ByteCode/Stream.hpp" 
+    "Include/Nominax/ByteCode/Lexeme.hpp" 
 
-    "Source/Reactor.cpp"
-    "Source/OsWindows.cpp"
-    "Source/OsLinux.cpp"
-    "Source/OsAndroid.cpp"
-    "Source/OsDarwin.cpp"
-    "Source/Interrupts.cpp"  
-    "Source/Environment.cpp"
-    "Source/Bytecode.cpp" 
-    "Source/Os.cpp" 
-    "Source/Utility.cpp"
-    "Source/Object.cpp")
+    "Source/Core/Reactor.cpp"
+    "Source/System/OsWindows.cpp"
+    "Source/System/OsLinux.cpp"
+    "Source/System/OsAndroid.cpp"
+    "Source/System/OsDarwin.cpp"
+    "Source/Core/Interrupts.cpp"  
+    "Source/Core/Environment.cpp"
+    "Source/System/Os.cpp" 
+    
+    "Source/Core/Object.cpp"  
+    "Source/ByteCode/DynamicSignal.cpp" 
+    "Source/ByteCode/Validator.cpp" 
+    "Source/ByteCode/Stream.cpp" 
+    "Source/ByteCode/ScopedVariable.cpp" "Include/Nominax/Core/ObjectFlagVector.hpp" "Include/Nominax/Core/ObjectHeader.hpp" "Include/Nominax/Core/ObjectAllocator.hpp" "Source/Core/ObjectAllocator.cpp" "Include/Nominax/Core/HardFaultReport.hpp" "Include/Nominax/Core/ReactorValidationResult.hpp" "Include/Nominax/Core/ReactorInput.hpp" "Source/Core/ReactorInput.cpp" "Include/Nominax/Core/ReactorOutput.hpp" "Source/Core/HardFaultReport.cpp" "Include/Nominax/Core/RegisterDump.hpp" "Source/Core/RegisterDump.cpp" "Include/Nominax/Core/Core.hpp" "Include/Nominax/Utility/VisitOverload.hpp" "Include/Nominax/Utility/XorshiftThreadLocal.hpp" "Source/Utility/XorshiftThreadLocal.cpp" "Include/Nominax/Utility/XorshiftAtomic.hpp" "Source/Utility/XorshiftAtomic.cpp" "Include/Nominax/Utility/MemoryUnits.hpp" "Source/Utility/MemoryUnits.cpp" "Include/Nominax/Utility/SafeLocalTime.hpp" "Source/Utility/SafeLocalTime.cpp" "Include/Nominax/Utility/Utility.hpp" "Include/Nominax/System/System.hpp")
 
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!
@@ -54,25 +75,48 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED on)
     set(CMAKE_CXX_EXTENSIONS off)
-    set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
-            -Xclang -Ofast                                                              \
-            -Xclang -Wall                                                               \
-            -Xclang -Wextra                                                             \
-            -Xclang -Werror                                                             \
-            -Xclang -Wno-undef                                                          \
-            -Xclang -std=c++20                                                          \
-            -Xclang -Wno-unknown-attributes                                             \
-            -Xclang -Wno-ignored-attributes                                             \
-            -Xclang -Wno-deprecated-declarations                                        \
-            -Xclang -flto                                                               \
-            -mmmx									                                    \
-            -msse									                                    \
-            -msse2									                                    \
-            -msse3									                                    \
-            -mssse3									                                    \
-            -msahf									                                    \
-            -mcx16									                                    \
-    ")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            message("Debug build!")
+            set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "               \
+                -Xclang -Wall                                                               \
+                -Xclang -Wextra                                                             \
+                -Xclang -Werror                                                             \
+                -Xclang -Wno-undef                                                          \
+                -Xclang -std=c++20                                                          \
+                -Xclang -Wno-unknown-attributes                                             \
+                -Xclang -Wno-ignored-attributes                                             \
+                -Xclang -Wno-deprecated-declarations                                        \
+                -mmmx									                                    \
+                -msse									                                    \
+                -msse2									                                    \
+                -msse3									                                    \
+                -mssse3									                                    \
+                -msahf									                                    \
+                -mcx16									                                    \
+        ")
+    else()
+        message("Release build!")
+        set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
+                -Xclang -Ofast                                                              \
+                -Xclang -Wall                                                               \
+                -Xclang -Wextra                                                             \
+                -Xclang -Werror                                                             \
+                -Xclang -Wno-undef                                                          \
+                -Xclang -std=c++20                                                          \
+                -Xclang -Wno-unknown-attributes                                             \
+                -Xclang -Wno-ignored-attributes                                             \
+                -Xclang -Wno-deprecated-declarations                                        \
+                -Xclang -flto                                                               \
+                -Xclang -fno-rtti                                                           \
+                -mmmx									                                    \
+                -msse									                                    \
+                -msse2									                                    \
+                -msse3									                                    \
+                -mssse3									                                    \
+                -msahf									                                    \
+                -mcx16									                                    \
+        ")
+    endif()
     if(ANOMINAX_SDK_32_BIT)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
     endif()
@@ -85,8 +129,9 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED on)
     set(CMAKE_CXX_EXTENSIONS off)
-    set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
-            -Ofast                                                                      \
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message("Debug build!")
+        set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "               \
             -Wall                                                                       \
             -Wextra                                                                     \
             -Werror                                                                     \
@@ -95,8 +140,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
             -Wno-unknown-attributes                                                     \
             -Wno-ignored-attributes                                                     \
             -Wno-deprecated-declarations                                                \
+            -fno-rtti                                                                   \
             -ffast-math                                                                 \
-            -flto                                                                       \
             -mmmx									                                    \
             -msse									                                    \
             -msse2									                                    \
@@ -104,7 +149,31 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
             -mssse3									                                    \
             -msahf									                                    \
             -mcx16									                                    \
-    ")
+        ")
+    else()
+        message("Release build!")
+        set_target_properties("NominaxRuntime" PROPERTIES COMPILE_FLAGS "                   \
+                -Ofast                                                                      \
+                -Wall                                                                       \
+                -Wextra                                                                     \
+                -Werror                                                                     \
+                -Wno-undef                                                                  \
+                -std=c++2a                                                                  \
+                -Wno-unknown-attributes                                                     \
+                -Wno-ignored-attributes                                                     \
+                -Wno-deprecated-declarations                                                \
+                -fno-rtti                                                                   \
+                -ffast-math                                                                 \
+                -flto                                                                       \
+                -mmmx									                                    \
+                -msse									                                    \
+                -msse2									                                    \
+                -msse3									                                    \
+                -mssse3									                                    \
+                -msahf									                                    \
+                -mcx16									                                    \
+        ")
+    endif()
     if(ANOMINAX_SDK_32_BIT)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
     endif()
@@ -125,6 +194,7 @@ target_link_libraries("Nominax" "NominaxRuntime")
 # test executable:
 # disable BUID_GMOCK in Tests/googletest/CMakeLists.txt if there are weird errors
 if(ANOMINAX_BUILD_UNIT_TESTS)
+    set(GOOGLETEST_PATH "Tests/googletest/googletest" CACHE PATH "")
     file(GLOB "TEST_SOURCE_FILES" "Tests/*.cpp")
     add_subdirectory("Tests/googletest/")
     add_executable("NominaxUnitTests" ${TEST_SOURCE_FILES})
@@ -138,6 +208,7 @@ endif()
 
 # benchmark executable:
 if(ANOMINAX_BUILD_BENCHMARKS)
+    set(GOOGLETEST_PATH "Tests/googletest/googletest" CACHE PATH "")
     file(GLOB "TEST_Source_FILES" "Benchmarks/*.cpp")
     add_subdirectory("Benchmarks/googlebench/")
     add_executable("NominaxBenchmark" ${TEST_Source_FILES})
