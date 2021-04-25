@@ -219,7 +219,7 @@ namespace
 	constexpr auto IsPowerOfTwo(const T x) noexcept -> bool
 	{
 		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
-		return !(x & x - 1);
+		return !(x & (x - 1));
 	}
 
 	constexpr double CACHED_LOG2 {0.69314718055994529};

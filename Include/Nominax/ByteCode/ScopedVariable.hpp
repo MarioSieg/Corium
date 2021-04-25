@@ -213,16 +213,10 @@
 #include "OptBase.hpp"
 #include "Instruction.hpp"
 #include "Stream.hpp"
+#include "StreamScalar.hpp"
 
 namespace Nominax
 {
-	template <typename T>
-	concept StreamScalar = requires
-	{
-		requires std::is_trivial_v<T>;
-		requires std::is_floating_point_v<T> || std::is_integral_v<T>;
-	};
-
 	/// <summary>
 	/// Single stack-bounded variable.
 	/// When created it created a push instruction in the stream,

@@ -212,9 +212,13 @@
 
 #include "DynamicSignal.hpp"
 #include "ImmediateArgumentCount.hpp"
+#include "StreamScalar.hpp"
 
 namespace Nominax
 {
+    template <typename T> requires StreamScalar<T>
+    struct ScopedVariable;
+
 	/// <summary>
 	/// Dynamic byte code stream.
 	/// </summary>

@@ -209,6 +209,7 @@
 #include <bitset>
 #include <cmath>
 #include <cassert>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -226,7 +227,7 @@
 
 #include "../../Include/Nominax/Utility/Utility.hpp"
 
-#if NOMINAX_OS_WINDOWS
+#if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
 #	include <malloc.h>
 #else
 #	include <alloca.h>
@@ -250,7 +251,7 @@ namespace Nominax
 		const std::uint8_t shift
 	) noexcept -> std::uint64_t
 	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
+#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
 		return _rotl64(value, shift);
 #elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
 		asm volatile(
@@ -273,7 +274,7 @@ namespace Nominax
 		const std::uint8_t shift
 	) noexcept -> std::uint64_t
 	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
+#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
 		return _rotr64(value, shift);
 #elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
 		asm volatile(
@@ -331,7 +332,7 @@ namespace Nominax
 	[[maybe_unused]]
 	__attribute__((always_inline)) auto StackAlloc() -> T*
 	{
-#if NOMINAX_OS_WINDOWS
+#if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
 		return _alloca(sizeof(T) * Count);
 #else
 		return alloca(sizeof(T) * Count);
@@ -1765,14 +1766,14 @@ namespace Nominax
 				movupd	%xmm0, -40(%rdi)
 				movupd	%xmm2, -56(%rdi)
 			 */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 1));
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 3));
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 5));
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 7));
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 1));
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 3));
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 5));
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 7));
 			y1 = _mm_add_pd(y1, x1);
 			y2 = _mm_add_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 5), y1);
-			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 7), y2);
+			_mm_storeu_pd(reinterpret_cast<double*>(sp - 5), y1);
+			_mm_storeu_pd(reinterpret_cast<double*>(sp - 7), y2);
 		}
 #else
 		/*
@@ -1818,14 +1819,14 @@ namespace Nominax
 				movupd	%xmm1, -40(%rdi)
 				movupd	%xmm0, -56(%rdi)
 			 */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 1));
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 3));
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 5));
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 7));
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 1));
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 3));
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 5));
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 7));
 			y1 = _mm_sub_pd(y1, x1);
 			y2 = _mm_sub_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 5), y1);
-			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 7), y2);
+			_mm_storeu_pd(reinterpret_cast<double*>(sp - 5), y1);
+			_mm_storeu_pd(reinterpret_cast<double*>(sp - 7), y2);
 		}
 #else
 		/*
@@ -1869,14 +1870,14 @@ namespace Nominax
 				movupd	%xmm0, -40(%rdi)
 				movupd	%xmm2, -56(%rdi)
 			 */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 1));
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 3));
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 5));
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 7));
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 1));
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 3));
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 5));
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 7));
 			y1 = _mm_mul_pd(y1, x1);
 			y2 = _mm_mul_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 5), y1);
-			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 7), y2);
+			_mm_storeu_pd(reinterpret_cast<double*>(sp - 5), y1);
+			_mm_storeu_pd(reinterpret_cast<double*>(sp - 7), y2);
 		}
 #else
 		/*
@@ -1920,14 +1921,14 @@ namespace Nominax
 				movupd	%xmm1, -40(%rdi)
 				movupd	%xmm0, -56(%rdi)
 			 */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 1));
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 3));
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 5));
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double* const>(sp - 7));
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 1));
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 3));
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 5));
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const double*>(sp - 7));
 			y1 = _mm_div_pd(y1, x1);
 			y2 = _mm_div_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 5), y1);
-			_mm_storeu_pd(reinterpret_cast<double* const>(sp - 7), y2);
+			_mm_storeu_pd(reinterpret_cast<double*>(sp - 5), y1);
+			_mm_storeu_pd(reinterpret_cast<double*>(sp - 7), y2);
 		}
 #else
 		/*
