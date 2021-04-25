@@ -1,6 +1,6 @@
-// File: Mnemonics.hpp
+// File: DynamicSignal.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 24.04.2021 9:48 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -208,83 +208,257 @@
 #pragma once
 
 #include <array>
-#include <string_view>
+#include <cstdint>
+#include <type_traits>
+#include <ostream>
+#include <optional>
+#include <span>
+#include <variant>
 
+#include "Signal.hpp"
 #include "Instruction.hpp"
+#include "SystemIntrinsics.hpp"
+#include "CustomIntrinsics.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Contains all instruction mnemonics.
+	/// Restricts to valid bytecode elements.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS
+	/// <typeparam name="...Ts">The generic types to perform restriction checks on.</typeparam>
+	template <typename Ts>
+	concept BytecodeElement = requires
 	{
-		"int",
-		"intrin",
-		"cintrin",
-		"call",
-		"ret",
-		"mov",
-		"sto",
-		"push",
-		"pop",
-		"pop2",
-		"dupl",
-		"dupl2",
-		"swap",
-		"nop",
-		"jmp",
-		"jmprel",
-		"jz",
-		"jnz",
-		"jo_cmpi",
-		"jo_cmpf",
-		"jno_cmpi",
-		"jno_cmpf",
-		"je_cmpi",
-		"je_cmpf",
-		"jne_cmpi",
-		"jne_cmpf",
-		"ja_cmpi",
-		"ja_cmpf",
-		"jl_cmpi",
-		"jl_cmpf",
-		"jae_cmpi",
-		"jae_cmpf",
-		"jle_cmpi",
-		"jle_cmpf",
-		"pushz",
-		"ipusho",
-		"fpusho",
-		"iinc",
-		"idec",
-		"iadd",
-		"isub",
-		"imul",
-		"idiv",
-		"imod",
-		"iand",
-		"ior",
-		"ixor",
-		"icom",
-		"isal",
-		"isar",
-		"irol",
-		"iror",
-		"ineg",
-		"fadd",
-		"fsub",
-		"fmul",
-		"fdiv",
-		"fmod",
-		"fneg",
-		"finc",
-		"fdec",
-		"vpush",
-		"vpop",
-		"vadd",
-		"vsub",
-		"vmul",
-		"vdiv"
+		requires sizeof(Ts) % sizeof(std::int32_t) == 0 || sizeof(Ts) % sizeof(std::int64_t) == 0;
+		requires alignof(Ts) % alignof(std::int32_t) == 0 || alignof(Ts) % alignof(std::int64_t) == 0;
+		requires
+		std::is_same_v<Ts, Instruction>
+		|| std::is_same_v<Ts, SystemIntrinsicCallId>
+		|| std::is_same_v<Ts, CustomIntrinsicCallId>
+		|| std::is_same_v<Ts, std::uint64_t>
+		|| std::is_same_v<Ts, std::int64_t>
+		|| std::is_same_v<Ts, double>
+		|| std::is_same_v<Ts, char32_t>;
 	};
+
+	/// <summary>
+	/// Represents an entry in a byte code steam. This get's converted to a signal for execution.
+	/// </summary>
+	struct DynamicSignal final
+	{
+		/// <summary>
+		/// Discriminated union.
+		/// </summary>
+		using Variant = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, std::uint64_t, std::int64_t, double, char32_t>;
+
+		/// <summary>
+		/// Default construct an I64(0)
+		/// </summary>
+		/// <returns></returns>
+		constexpr DynamicSignal() noexcept;
+
+		/// <summary>
+		/// Construct from data union.
+		/// </summary>
+		/// <param name="data">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(Variant&& data) noexcept;
+
+		/// <summary>
+		/// Construct from instruction.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(Instruction value) noexcept;
+
+		/// <summary>
+		/// Construct from 64-bit unsigned quadword integer.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(std::uint64_t value) noexcept;
+
+		/// <summary>
+		/// Construct from 64-bit signed quadword integer.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(std::int64_t value) noexcept;
+
+		/// <summary>
+		/// Construct from 64-bit double precision float.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(double value) noexcept;
+
+		/// <summary>
+		/// Construct from 32-bit UTF32 character.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(char32_t value) noexcept;
+
+		/// <summary>
+		/// Construct from system intrinsic call id.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(SystemIntrinsicCallId value) noexcept;
+
+		/// <summary>
+		/// Construct from custom intrinsic call id.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(CustomIntrinsicCallId value) noexcept;
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		constexpr DynamicSignal(const DynamicSignal&) noexcept = default;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		constexpr DynamicSignal(DynamicSignal&&) noexcept = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		constexpr auto operator =(const DynamicSignal&) noexcept -> DynamicSignal& = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		constexpr auto operator =(DynamicSignal&&) noexcept -> DynamicSignal& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~DynamicSignal() = default;
+
+
+		/// <summary>
+		/// Convert to undiscriminated runtime signal.
+		/// </summary>
+		[[nodiscard]]
+		explicit operator Signal() const;
+
+		/// <summary>
+		/// Try to extract raw data.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		template <typename T> requires BytecodeElement<T>
+		[[nodiscard]]
+		constexpr auto Unwrap() const -> std::optional<T>;
+
+		/// <summary>
+		/// Check if generic T is contained.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		template <typename T> requires BytecodeElement<T>
+		[[nodiscard]]
+		constexpr auto Contains() const noexcept -> bool;
+
+		/// <summary>
+		/// Chgeck if generic T and value is contained.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="compareTo"></param>
+		/// <returns></returns>
+		template <typename T> requires BytecodeElement<T>
+		[[nodiscard]]
+		constexpr auto Contains(const T compareTo) const -> bool;
+
+		/// <summary>
+		/// Raw data variant (discriminated union)
+		/// </summary>
+		Variant DataCollection { };
+
+		/// <summary>
+		/// Common code prologue.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		static constexpr auto CodePrologue() noexcept -> DynamicSignal;
+
+		/// <summary>
+		/// Common code epilogue.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		static constexpr auto CodeEpilogue() noexcept -> std::array<DynamicSignal, 2>;
+	};
+
+	constexpr DynamicSignal::DynamicSignal() noexcept : DataCollection {UINT64_C(0)} {}
+	constexpr DynamicSignal::DynamicSignal(Variant&& data) noexcept : DataCollection {data} {}
+	constexpr DynamicSignal::DynamicSignal(const Instruction value) noexcept : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const std::uint64_t value) noexcept : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const std::int64_t value) noexcept : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const double value) noexcept : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const char32_t value) noexcept : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicCallId value) noexcept : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept : DataCollection {value} {}
+
+	constexpr auto DynamicSignal::CodePrologue() noexcept -> DynamicSignal
+	{
+		// First instruction is always skipped and should be NOP:
+		return DynamicSignal {Instruction::NOp};
+	}
+
+	constexpr auto DynamicSignal::CodeEpilogue() noexcept -> std::array<DynamicSignal, 2>
+	{
+		// Because the end of a byte code stream is not checked,
+		// we always HAVE to interrupt at the end or we will jump to random memory locations.
+		// The minimum std::int64_t exit code is the reserved final interrupt code,
+		// the program should return before this instruction with it's own exit code.
+		// This is the last trap before going to hell!
+		return
+		{
+			DynamicSignal {Instruction::Int},
+			DynamicSignal {std::numeric_limits<std::int64_t>::min()}
+		};
+	}
+
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto DynamicSignal::Unwrap() const -> std::optional<T>
+	{
+		return std::holds_alternative<T>(this->DataCollection)
+			       ? std::optional<T> {std::get<T>(this->DataCollection)}
+			       : std::nullopt;
+	}
+
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto DynamicSignal::Contains() const noexcept -> bool
+	{
+		return std::holds_alternative<T>(this->DataCollection);
+	}
+
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto DynamicSignal::Contains(const T compareTo) const -> bool
+	{
+		return std::holds_alternative<T>(this->DataCollection) && std::get<T>(this->DataCollection) == compareTo;
+	}
+
+	extern auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&;
+
+	/// <summary>
+/// Creates an instruction mapping.
+/// </summary>
+/// <param name="input"></param>
+/// <param name="output"></param>
+/// <returns></returns>
+	[[nodiscard]]
+	extern auto CreateInstructionMapping(std::span<const DynamicSignal> input, std::span<bool>& output) -> bool;
 }

@@ -1,6 +1,6 @@
-// File: Mnemonics.hpp
+// File: DynamicSignal.cpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 25.04.2021 1:21 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,86 +205,101 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include <array>
-#include <string_view>
-
-#include "Instruction.hpp"
+#include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
+#include "../../Include/Nominax/ByteCode/Mnemonics.hpp"
+#include "../../Include/Nominax/ByteCode/Lexemes.hpp"
+#include "../../Include/Nominax/Utility.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// Contains all instruction mnemonics.
-	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS
+	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
 	{
-		"int",
-		"intrin",
-		"cintrin",
-		"call",
-		"ret",
-		"mov",
-		"sto",
-		"push",
-		"pop",
-		"pop2",
-		"dupl",
-		"dupl2",
-		"swap",
-		"nop",
-		"jmp",
-		"jmprel",
-		"jz",
-		"jnz",
-		"jo_cmpi",
-		"jo_cmpf",
-		"jno_cmpi",
-		"jno_cmpf",
-		"je_cmpi",
-		"je_cmpf",
-		"jne_cmpi",
-		"jne_cmpf",
-		"ja_cmpi",
-		"ja_cmpf",
-		"jl_cmpi",
-		"jl_cmpf",
-		"jae_cmpi",
-		"jae_cmpf",
-		"jle_cmpi",
-		"jle_cmpf",
-		"pushz",
-		"ipusho",
-		"fpusho",
-		"iinc",
-		"idec",
-		"iadd",
-		"isub",
-		"imul",
-		"idiv",
-		"imod",
-		"iand",
-		"ior",
-		"ixor",
-		"icom",
-		"isal",
-		"isar",
-		"irol",
-		"iror",
-		"ineg",
-		"fadd",
-		"fsub",
-		"fmul",
-		"fdiv",
-		"fmod",
-		"fneg",
-		"finc",
-		"fdec",
-		"vpush",
-		"vpop",
-		"vadd",
-		"vsub",
-		"vmul",
-		"vdiv"
-	};
+		if (std::size(input) != std::size(output))
+		[[unlikely]]
+		{
+			return false;
+		}
+
+		auto       iterator {std::begin(input)};
+		const auto end {std::end(input)};
+
+		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
+		[[likely]]
+		{
+			*flag = iterator->Contains<Instruction>();
+		}
+
+		return true;
+	}
+
+	DynamicSignal::operator Signal() const
+	{
+		return std::visit(Overloaded
+		                  {
+			                  [](const Instruction value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const SystemIntrinsicCallId value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const CustomIntrinsicCallId value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const std::uint64_t value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const std::int64_t value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const double value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+			                  [](const char32_t value) noexcept
+			                  {
+				                  return Signal {value};
+			                  },
+		                  }, this->DataCollection);
+	}
+
+	auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&
+	{
+		std::visit(Overloaded
+		           {
+			           [&](const Instruction value)
+			           {
+				           out << INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<decltype(value)>>(value)];
+			           },
+			           [&](const SystemIntrinsicCallId value)
+			           {
+				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
+			           },
+			           [&](const CustomIntrinsicCallId value)
+			           {
+				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
+			           },
+			           [&](const std::uint64_t value)
+			           {
+				           out << Lexemes::IMMEDIATE << value;
+			           },
+			           [&](const std::int64_t value)
+			           {
+				           out << Lexemes::IMMEDIATE << value;
+			           },
+			           [&](const double value)
+			           {
+				           out << Lexemes::IMMEDIATE << value;
+			           },
+			           [&](const char32_t value)
+			           {
+				           out << Lexemes::IMMEDIATE << static_cast<char>(value);
+			           },
+		           }, in.DataCollection);
+		return out;
+	}
 }

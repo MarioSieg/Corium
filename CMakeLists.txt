@@ -33,13 +33,24 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/Environment.hpp"   
     "Include/Nominax/Object.hpp"
     "Include/Nominax/ByteCode/Instruction.hpp" 
-    "Include/Nominax/ByteCode/SystemIntrinsicCallId.hpp" 
+    "Include/Nominax/ByteCode/SystemIntrinsics.hpp" 
     "Include/Nominax/ByteCode/InstructionCategory.hpp" 
-    "Include/Nominax/ByteCode/InstructionImmediateArgumentType.hpp" 
-    "Include/Nominax/ByteCode/CustomIntrinsicCallId.hpp" 
+    "Include/Nominax/ByteCode/ImmediateArgumentType.hpp" 
+    "Include/Nominax/ByteCode/CustomIntrinsics.hpp" 
     "Include/Nominax/ByteCode/Mnemonics.hpp" 
     "Include/Nominax/ByteCode/Descriptors.hpp" 
     "Include/Nominax/ByteCode/Categories.hpp"
+    "Include/Nominax/ByteCode/PopCounts.hpp" 
+    "Include/Nominax/ByteCode/ImmediateArgumentCounts.hpp" 
+    "Include/Nominax/ByteCode/ImmediateArgumentTypes.hpp" 
+    "Include/Nominax/ByteCode/Signal.hpp" 
+    "Include/Nominax/ByteCode/DynamicSignal.hpp" 
+    "Include/Nominax/ByteCode/Validator.hpp" 
+    "Include/Nominax/ByteCode/LiteralOps.hpp" 
+    "Include/Nominax/ByteCode/OptBase.hpp" 
+    "Include/Nominax/ByteCode/ScopedVariable.hpp" 
+    "Include/Nominax/ByteCode/Stream.hpp" 
+    "Include/Nominax/ByteCode/Lexemes.hpp" 
 
     "Source/Reactor.cpp"
     "Source/OsWindows.cpp"
@@ -48,10 +59,12 @@ add_library("NominaxRuntime" STATIC
     "Source/OsDarwin.cpp"
     "Source/Interrupts.cpp"  
     "Source/Environment.cpp"
-    "Source/ByteCode.cpp" 
     "Source/Os.cpp" 
     "Source/Utility.cpp"
-    "Source/Object.cpp"  "Include/Nominax/ByteCode/PopCounts.hpp" "Include/Nominax/ByteCode/InstructionImmediateArgumentCounts.hpp" "Include/Nominax/ByteCode/InstructionImmediateArgumentTypes.hpp" "Include/Nominax/ByteCode/Signal.hpp")
+    "Source/Object.cpp"  
+    "Source/ByteCode/DynamicSignal.cpp" 
+    "Source/ByteCode/Validator.cpp" 
+    "Source/ByteCode/Stream.cpp")
 
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!

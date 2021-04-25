@@ -1,4 +1,4 @@
-// File: Mnemonics.hpp
+// File: CustomIntrinsics.hpp
 // Author: Mario
 // Created: 24.04.2021 9:46 PM
 // Project: NominaxRuntime
@@ -207,84 +207,21 @@
 
 #pragma once
 
-#include <array>
-#include <string_view>
+#include <cstdint>
 
-#include "Instruction.hpp"
+#include "../Record.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Contains all instruction mnemonics.
+	/// Call id for custom intrinsic routine.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS
-	{
-		"int",
-		"intrin",
-		"cintrin",
-		"call",
-		"ret",
-		"mov",
-		"sto",
-		"push",
-		"pop",
-		"pop2",
-		"dupl",
-		"dupl2",
-		"swap",
-		"nop",
-		"jmp",
-		"jmprel",
-		"jz",
-		"jnz",
-		"jo_cmpi",
-		"jo_cmpf",
-		"jno_cmpi",
-		"jno_cmpf",
-		"je_cmpi",
-		"je_cmpf",
-		"jne_cmpi",
-		"jne_cmpf",
-		"ja_cmpi",
-		"ja_cmpf",
-		"jl_cmpi",
-		"jl_cmpf",
-		"jae_cmpi",
-		"jae_cmpf",
-		"jle_cmpi",
-		"jle_cmpf",
-		"pushz",
-		"ipusho",
-		"fpusho",
-		"iinc",
-		"idec",
-		"iadd",
-		"isub",
-		"imul",
-		"idiv",
-		"imod",
-		"iand",
-		"ior",
-		"ixor",
-		"icom",
-		"isal",
-		"isar",
-		"irol",
-		"iror",
-		"ineg",
-		"fadd",
-		"fsub",
-		"fmul",
-		"fdiv",
-		"fmod",
-		"fneg",
-		"finc",
-		"fdec",
-		"vpush",
-		"vpop",
-		"vadd",
-		"vsub",
-		"vmul",
-		"vdiv"
-	};
+	enum class alignas(alignof(std::uint64_t)) CustomIntrinsicCallId : std::uint64_t;
+
+	/// <summary>
+	/// Custom intrinsic routine function prototype.
+	/// Contains the stack pointer as parameter.
+	/// </summary>
+	using IntrinsicRoutine = auto (Record*) -> bool;
+	static_assert(std::is_function_v<IntrinsicRoutine>);
 }

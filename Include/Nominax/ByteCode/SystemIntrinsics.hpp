@@ -1,4 +1,4 @@
-// File: Mnemonics.hpp
+// File: SystemIntrinsics.hpp
 // Author: Mario
 // Created: 24.04.2021 9:46 PM
 // Project: NominaxRuntime
@@ -207,84 +207,51 @@
 
 #pragma once
 
-#include <array>
-#include <string_view>
-
-#include "Instruction.hpp"
+#include <cstdint>
 
 namespace Nominax
 {
 	/// <summary>
-	/// Contains all instruction mnemonics.
+	/// Call id for system intrinsic routine.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS
+	enum class alignas(alignof(std::uint64_t)) SystemIntrinsicCallId : std::uint64_t
 	{
-		"int",
-		"intrin",
-		"cintrin",
-		"call",
-		"ret",
-		"mov",
-		"sto",
-		"push",
-		"pop",
-		"pop2",
-		"dupl",
-		"dupl2",
-		"swap",
-		"nop",
-		"jmp",
-		"jmprel",
-		"jz",
-		"jnz",
-		"jo_cmpi",
-		"jo_cmpf",
-		"jno_cmpi",
-		"jno_cmpf",
-		"je_cmpi",
-		"je_cmpf",
-		"jne_cmpi",
-		"jne_cmpf",
-		"ja_cmpi",
-		"ja_cmpf",
-		"jl_cmpi",
-		"jl_cmpf",
-		"jae_cmpi",
-		"jae_cmpf",
-		"jle_cmpi",
-		"jle_cmpf",
-		"pushz",
-		"ipusho",
-		"fpusho",
-		"iinc",
-		"idec",
-		"iadd",
-		"isub",
-		"imul",
-		"idiv",
-		"imod",
-		"iand",
-		"ior",
-		"ixor",
-		"icom",
-		"isal",
-		"isar",
-		"irol",
-		"iror",
-		"ineg",
-		"fadd",
-		"fsub",
-		"fmul",
-		"fdiv",
-		"fmod",
-		"fneg",
-		"finc",
-		"fdec",
-		"vpush",
-		"vpop",
-		"vadd",
-		"vsub",
-		"vmul",
-		"vdiv"
+		Cos = 0x00'00'00'00'00'00'00'00,
+		Sin = 0x00'00'00'00'00'00'00'01,
+		Tan = 0x00'00'00'00'00'00'00'02,
+		ACos = 0x00'00'00'00'00'00'00'03,
+		ASin = 0x00'00'00'00'00'00'00'04,
+		ATan = 0x00'00'00'00'00'00'00'05,
+		ATan2 = 0x00'00'00'00'00'00'00'06,
+		CosH = 0x00'00'00'00'00'00'00'07,
+		SinH = 0x00'00'00'00'00'00'00'08,
+		TanH = 0x00'00'00'00'00'00'00'09,
+		ACosH = 0x00'00'00'00'00'00'00'0A,
+		ASinH = 0x00'00'00'00'00'00'00'0B,
+		ATanH = 0x00'00'00'00'00'00'00'0C,
+		Exp = 0x00'00'00'00'00'00'00'0D,
+		Log = 0x00'00'00'00'00'00'00'0E,
+		Log10 = 0x00'00'00'00'00'00'00'0F,
+		Exp2 = 0x00'00'00'00'00'00'00'10,
+		ILogB = 0x00'00'00'00'00'00'00'11,
+		Log2 = 0x00'00'00'00'00'00'00'12,
+		Pow = 0x00'00'00'00'00'00'00'13,
+		Sqrt = 0x00'00'00'00'00'00'00'14,
+		Cbrt = 0x00'00'00'00'00'00'00'15,
+		Hypot = 0x00'00'00'00'00'00'00'16,
+		Ceil = 0x00'00'00'00'00'00'00'17,
+		Floor = 0x00'00'00'00'00'00'00'18,
+		Round = 0x00'00'00'00'00'00'00'19,
+		RInt = 0x00'00'00'00'00'00'00'1A,
+		IMax = 0x00'00'00'00'00'00'00'1B,
+		IMin = 0x00'00'00'00'00'00'00'1C,
+		FMax = 0x00'00'00'00'00'00'00'1D,
+		FMin = 0x00'00'00'00'00'00'00'1E,
+		Dim = 0x00'00'00'00'00'00'00'1F,
+		IAbs = 0x00'00'00'00'00'00'00'20,
+		FAbs = 0x00'00'00'00'00'00'00'21,
+
+		/* !no intrinsic routine - count of total intrinsic routines! */
+		Count
 	};
 }

@@ -1,6 +1,6 @@
-// File: Mnemonics.hpp
+// File: Stream.cpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 25.04.2021 1:24 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,86 +205,51 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include <array>
-#include <string_view>
-
-#include "Instruction.hpp"
+#include "../../Include/Nominax/ByteCode/Stream.hpp"
+#include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
+#include "../../Include/Nominax/ByteCode/Lexemes.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// Contains all instruction mnemonics.
-	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS
+	auto Stream::ExampleStream(Stream& stream) -> void
 	{
-		"int",
-		"intrin",
-		"cintrin",
-		"call",
-		"ret",
-		"mov",
-		"sto",
-		"push",
-		"pop",
-		"pop2",
-		"dupl",
-		"dupl2",
-		"swap",
-		"nop",
-		"jmp",
-		"jmprel",
-		"jz",
-		"jnz",
-		"jo_cmpi",
-		"jo_cmpf",
-		"jno_cmpi",
-		"jno_cmpf",
-		"je_cmpi",
-		"je_cmpf",
-		"jne_cmpi",
-		"jne_cmpf",
-		"ja_cmpi",
-		"ja_cmpf",
-		"jl_cmpi",
-		"jl_cmpf",
-		"jae_cmpi",
-		"jae_cmpf",
-		"jle_cmpi",
-		"jle_cmpf",
-		"pushz",
-		"ipusho",
-		"fpusho",
-		"iinc",
-		"idec",
-		"iadd",
-		"isub",
-		"imul",
-		"idiv",
-		"imod",
-		"iand",
-		"ior",
-		"ixor",
-		"icom",
-		"isal",
-		"isar",
-		"irol",
-		"iror",
-		"ineg",
-		"fadd",
-		"fsub",
-		"fmul",
-		"fdiv",
-		"fmod",
-		"fneg",
-		"finc",
-		"fdec",
-		"vpush",
-		"vpop",
-		"vadd",
-		"vsub",
-		"vmul",
-		"vdiv"
-	};
+		stream.With(1024, [](SvInt x)
+		{
+			x += 1024;
+			x += 2;
+			x.Another(3, [&](SvInt y)
+			{
+				y *= 3;
+				y *= 2;
+				y += 1;
+				y += 0;
+			});
+		});
+	}
+
+	auto operator<<(std::ostream& out, const Stream& in) -> std::ostream&
+	{
+		in.DumpToStream(out);
+		return out;
+	}
+
+	auto Stream::DumpToStream(std::ostream& stream, const bool writeAddress) const -> void
+	{
+		stream << Lexemes::COMMENT << " Size: " << this->Size() << ", SizeInBytes: " << this->SizeInBytes() << ", BufferCapacity: " << this->Capacity();
+		for (std::uint64_t address {0}; const DynamicSignal& sig : *this)
+		{
+			if (sig.Contains<Instruction>())
+			[[likely]]
+			{
+				stream << '\n';
+				if (writeAddress)
+				[[likely]]
+				{
+					stream << Lexemes::COMMENT << std::hex << " +0x" << address << ' ' << std::dec << Lexemes::COMMENT << ' ';
+				}
+			}
+			stream << sig << ' ';
+			++address;
+		}
+	}
 }

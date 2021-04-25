@@ -1,6 +1,6 @@
-// File: Mnemonics.hpp
+// File: LiteralOps.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 24.04.2021 9:54 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,84 +207,37 @@
 
 #pragma once
 
-#include <array>
-#include <string_view>
-
-#include "Instruction.hpp"
+#include <cstdint>
 
 namespace Nominax
 {
 	/// <summary>
-	/// Contains all instruction mnemonics.
+	/// Construct a runtime integer (64-bit).
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_int(const unsigned long long int value) noexcept -> std::int64_t
 	{
-		"int",
-		"intrin",
-		"cintrin",
-		"call",
-		"ret",
-		"mov",
-		"sto",
-		"push",
-		"pop",
-		"pop2",
-		"dupl",
-		"dupl2",
-		"swap",
-		"nop",
-		"jmp",
-		"jmprel",
-		"jz",
-		"jnz",
-		"jo_cmpi",
-		"jo_cmpf",
-		"jno_cmpi",
-		"jno_cmpf",
-		"je_cmpi",
-		"je_cmpf",
-		"jne_cmpi",
-		"jne_cmpf",
-		"ja_cmpi",
-		"ja_cmpf",
-		"jl_cmpi",
-		"jl_cmpf",
-		"jae_cmpi",
-		"jae_cmpf",
-		"jle_cmpi",
-		"jle_cmpf",
-		"pushz",
-		"ipusho",
-		"fpusho",
-		"iinc",
-		"idec",
-		"iadd",
-		"isub",
-		"imul",
-		"idiv",
-		"imod",
-		"iand",
-		"ior",
-		"ixor",
-		"icom",
-		"isal",
-		"isar",
-		"irol",
-		"iror",
-		"ineg",
-		"fadd",
-		"fsub",
-		"fmul",
-		"fdiv",
-		"fmod",
-		"fneg",
-		"finc",
-		"fdec",
-		"vpush",
-		"vpop",
-		"vadd",
-		"vsub",
-		"vmul",
-		"vdiv"
-	};
+		return static_cast<std::int64_t>(value);
+	}
+
+	/// <summary>
+	/// Construct a runtime unsigned integer (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_uint(const unsigned long long int value) noexcept -> std::uint64_t
+	{
+		return value;
+	}
+
+	/// <summary>
+	/// Construct a runtime float (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_float(const long double value) noexcept -> double
+	{
+		return static_cast<double>(value);
+	}
 }

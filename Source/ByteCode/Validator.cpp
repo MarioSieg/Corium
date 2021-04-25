@@ -1,6 +1,6 @@
-// File: Bytecode.cpp
+// File: Validator.cpp
 // Author: Mario
-// Created: 18.04.2021 2:46 PM
+// Created: 25.04.2021 1:22 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,32 +205,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <iomanip>
-
-#include "../Include/Nominax/ByteCode.hpp"
+#include "../../Include/Nominax/ByteCode/Validator.hpp"
+#include "../../Include/Nominax/ByteCode/ImmediateArgumentCounts.hpp"
+#include "../../Include/Nominax/ByteCode/ImmediateArgumentType.hpp"
+#include "../../Include/Nominax/ByteCode/ImmediateArgumentTypes.hpp"
 
 namespace Nominax
 {
-	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
-	{
-		if (std::size(input) != std::size(output))
-		[[unlikely]]
-		{
-			return false;
-		}
-
-		auto       iterator {std::begin(input)};
-		const auto end {std::end(input)};
-
-		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
-		[[likely]]
-		{
-			*flag = iterator->Contains<Instruction>();
-		}
-
-		return true;
-	}
-
 	auto ByteCodeValidateSingleInstruction(const Instruction instruction, const std::span<const DynamicSignal> args) -> ByteCodeValidationResult
 	{
 		const auto         instructionIndex = static_cast<std::size_t>(instruction);
@@ -313,118 +294,5 @@ namespace Nominax
 		}
 
 		return ByteCodeValidationResult::Ok;
-	}
-
-	auto Stream::ExampleStream(Stream& stream) -> void
-	{
-		stream.With(1024, [](SvInt x)
-		{
-			x += 1024;
-			x += 2;
-			x.Another(3, [&](SvInt y)
-			{
-				y *= 3;
-				y *= 2;
-				y += 1;
-				y += 0;
-			});
-		});
-	}
-
-	DynamicSignal::operator Signal() const
-	{
-		return std::visit(Overloaded
-		                  {
-			                  [](const Instruction value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const SystemIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const CustomIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::uint64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::int64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const double value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const char32_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-		                  }, this->DataCollection);
-	}
-
-	auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&
-	{
-		std::visit(Overloaded
-		           {
-			           [&](const Instruction value)
-			           {
-				           out << INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<decltype(value)>>(value)];
-			           },
-			           [&](const SystemIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const CustomIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const std::uint64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const std::int64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const double value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const char32_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << static_cast<char>(value);
-			           },
-		           }, in.DataCollection);
-		return out;
-	}
-
-	auto operator<<(std::ostream& out, const Stream& in) -> std::ostream&
-	{
-		in.DumpToStream(out);
-		return out;
-	}
-
-	auto Stream::DumpToStream(std::ostream& stream, const bool writeAddress) const -> void
-	{
-		stream << Lexemes::COMMENT << " Size: " << this->Size() << ", SizeInBytes: " << this->SizeInBytes() << ", BufferCapacity: " << this->Capacity();
-		for (std::uint64_t address {0}; const DynamicSignal& sig : *this)
-		{
-			if (sig.Contains<Instruction>())
-			[[likely]]
-			{
-				stream << '\n';
-				if (writeAddress)
-				[[likely]]
-				{
-					stream << Lexemes::COMMENT << std::hex << " +0x" << address << ' ' << std::dec << Lexemes::COMMENT << ' ';
-				}
-			}
-			stream << sig << ' ';
-			++address;
-		}
 	}
 }

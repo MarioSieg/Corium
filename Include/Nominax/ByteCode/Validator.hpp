@@ -1,6 +1,6 @@
-// File: Mnemonics.hpp
+// File: Validator.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 24.04.2021 9:51 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,84 +207,46 @@
 
 #pragma once
 
-#include <array>
-#include <string_view>
+#include <span>
 
 #include "Instruction.hpp"
+#include "DynamicSignal.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Contains all instruction mnemonics.
+	/// Contains all byte code validation results.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS
+	enum class ByteCodeValidationResult
 	{
-		"int",
-		"intrin",
-		"cintrin",
-		"call",
-		"ret",
-		"mov",
-		"sto",
-		"push",
-		"pop",
-		"pop2",
-		"dupl",
-		"dupl2",
-		"swap",
-		"nop",
-		"jmp",
-		"jmprel",
-		"jz",
-		"jnz",
-		"jo_cmpi",
-		"jo_cmpf",
-		"jno_cmpi",
-		"jno_cmpf",
-		"je_cmpi",
-		"je_cmpf",
-		"jne_cmpi",
-		"jne_cmpf",
-		"ja_cmpi",
-		"ja_cmpf",
-		"jl_cmpi",
-		"jl_cmpf",
-		"jae_cmpi",
-		"jae_cmpf",
-		"jle_cmpi",
-		"jle_cmpf",
-		"pushz",
-		"ipusho",
-		"fpusho",
-		"iinc",
-		"idec",
-		"iadd",
-		"isub",
-		"imul",
-		"idiv",
-		"imod",
-		"iand",
-		"ior",
-		"ixor",
-		"icom",
-		"isal",
-		"isar",
-		"irol",
-		"iror",
-		"ineg",
-		"fadd",
-		"fsub",
-		"fmul",
-		"fdiv",
-		"fmod",
-		"fneg",
-		"finc",
-		"fdec",
-		"vpush",
-		"vpop",
-		"vadd",
-		"vsub",
-		"vmul",
-		"vdiv"
+		/// <summary>
+		/// Validation did not found any problems.
+		/// </summary>
+		Ok = 0,
+
+		/// <summary>
+		/// An instruction requires more arguments, than given.
+		/// </summary>
+		NotEnoughArguments,
+
+		/// <summary>
+		/// An instruction requires less arguments, than given.
+		/// </summary>
+		TooManyArguments,
+
+		/// <summary>
+		/// The immediate argument type is not correct for the corresponding instruction.
+		/// </summary>
+		InvalidOperandType
 	};
+
+	/// <summary>
+	/// Perform byte code validation on a single instruction.
+	/// This just checks all argument types and values.
+	/// </summary>
+	/// <param name="instruction"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto ByteCodeValidateSingleInstruction(Instruction instruction, std::span<const DynamicSignal> args) -> ByteCodeValidationResult;
 }

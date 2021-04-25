@@ -1,6 +1,6 @@
 // File: Utility.hpp
 // Author: Mario
-// Created: 12.04.2021 09:27
+// Created: 12.04.2021 9:27 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -215,6 +215,19 @@
 
 namespace Nominax
 {
+	/// <summary>
+	///  std::visit auto overload helper
+	/// </summary>
+	/// <typeparam name="...Ts">The call types.</typeparam>
+	template <typename... Ts>
+	struct Overloaded : Ts...
+	{
+		using Ts::operator()...;
+	};
+
+	template <typename... Ts>
+	Overloaded(Ts&&...) -> Overloaded<Ts...>;
+
 	[[nodiscard]]
 	extern auto Xorshift32() noexcept -> std::uint32_t;
 

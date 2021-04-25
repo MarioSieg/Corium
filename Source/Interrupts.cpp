@@ -208,6 +208,7 @@
 #include "../Include/Nominax/Interrupts.hpp"
 #include "../Include/Nominax/Reactor.hpp"
 
+#include <algorithm>
 #include <sstream>
 
 namespace

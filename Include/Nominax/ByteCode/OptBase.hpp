@@ -1,6 +1,6 @@
-// File: Mnemonics.hpp
+// File: OptBase.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 25.04.2021 12:05 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,84 +207,26 @@
 
 #pragma once
 
-#include <array>
-#include <string_view>
-
-#include "Instruction.hpp"
+#include "../Platform.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// Contains all instruction mnemonics.
-	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS
+	enum class OptimizationLevel
 	{
-		"int",
-		"intrin",
-		"cintrin",
-		"call",
-		"ret",
-		"mov",
-		"sto",
-		"push",
-		"pop",
-		"pop2",
-		"dupl",
-		"dupl2",
-		"swap",
-		"nop",
-		"jmp",
-		"jmprel",
-		"jz",
-		"jnz",
-		"jo_cmpi",
-		"jo_cmpf",
-		"jno_cmpi",
-		"jno_cmpf",
-		"je_cmpi",
-		"je_cmpf",
-		"jne_cmpi",
-		"jne_cmpf",
-		"ja_cmpi",
-		"ja_cmpf",
-		"jl_cmpi",
-		"jl_cmpf",
-		"jae_cmpi",
-		"jae_cmpf",
-		"jle_cmpi",
-		"jle_cmpf",
-		"pushz",
-		"ipusho",
-		"fpusho",
-		"iinc",
-		"idec",
-		"iadd",
-		"isub",
-		"imul",
-		"idiv",
-		"imod",
-		"iand",
-		"ior",
-		"ixor",
-		"icom",
-		"isal",
-		"isar",
-		"irol",
-		"iror",
-		"ineg",
-		"fadd",
-		"fsub",
-		"fmul",
-		"fdiv",
-		"fmod",
-		"fneg",
-		"finc",
-		"fdec",
-		"vpush",
-		"vpop",
-		"vadd",
-		"vsub",
-		"vmul",
-		"vdiv"
+		Off = 0,
+		O1 = 1,
+		O2 = 2,
+		O3 = 3
 	};
+
+	consteval auto DefaultOptimizationLevel() noexcept -> OptimizationLevel
+	{
+#if NOMINAX_DEBUG
+		return OptimizationLevel::O3;
+#else
+		return OptimizationLevel::O2;
+#endif
+	}
+
+	inline constinit OptimizationLevel OptLevel {DefaultOptimizationLevel()};
 }
