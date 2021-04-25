@@ -1,4 +1,4 @@
-// File: Categories.hpp
+// File: ImmediateArgumentTypeList.hpp
 // Author: Mario
 // Created: 24.04.2021 9:46 PM
 // Project: NominaxRuntime
@@ -209,82 +209,174 @@
 
 #include <array>
 
-#include "InstructionCategory.hpp"
+#include "ImmediateArgumentType.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Contains the categories of all instructions.
+	/// Defines the maximal amount of immediate arguments.
+	/// </summary>
+	constexpr std::size_t INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS {4};
+
+	/// <summary>
+	/// Contains all immediate argument types for each instruction.
 	/// </summary>
 	[[maybe_unused]]
-	constexpr std::array INSTRUCTION_CATEGORIES
+	constexpr std::array INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
-		InstructionCategory::Control,
-		InstructionCategory::Control,
-		InstructionCategory::Control,
-		InstructionCategory::Control,
-		InstructionCategory::Control,
-		InstructionCategory::Memory,
-		InstructionCategory::Memory,
-		InstructionCategory::Memory,
-		InstructionCategory::Memory,
-		InstructionCategory::Memory,
-		InstructionCategory::Memory,
-		InstructionCategory::Memory,
-		InstructionCategory::Memory,
-		InstructionCategory::Memory,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Branching,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::BitWise,
-		InstructionCategory::BitWise,
-		InstructionCategory::BitWise,
-		InstructionCategory::BitWise,
-		InstructionCategory::BitWise,
-		InstructionCategory::BitWise,
-		InstructionCategory::BitWise,
-		InstructionCategory::BitWise,
-		InstructionCategory::BitWise,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Memory,
-		InstructionCategory::Memory,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::I64OrU64OrF64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::SystemIntrinsicId
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::CustomIntrinsicId
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::RelativeJumpAddress64, InstructionImmediateArgumentType::RelativeJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::RelativeJumpAddress64, InstructionImmediateArgumentType::I64OrU64OrF64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::I64OrU64OrF64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::RelativeJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::AbsoluteJumpAddress64
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>
+		{
+			InstructionImmediateArgumentType::F64,
+			InstructionImmediateArgumentType::F64,
+			InstructionImmediateArgumentType::F64,
+			InstructionImmediateArgumentType::F64,
+		},
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
+		std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS> { },
 	};
 }

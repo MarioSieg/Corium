@@ -1,4 +1,4 @@
-// File: PopCounts.hpp
+// File: SystemIntrinsic.hpp
 // Author: Mario
 // Created: 24.04.2021 9:46 PM
 // Project: NominaxRuntime
@@ -207,83 +207,51 @@
 
 #pragma once
 
-#include <array>
-
-#include "Instruction.hpp"
+#include <cstdint>
 
 namespace Nominax
 {
 	/// <summary>
-	/// Contains the amount of stack pops each instruction will perform.
+	/// Call id for system intrinsic routine.
 	/// </summary>
-	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_POP_COUNTS
+	enum class alignas(alignof(std::uint64_t)) SystemIntrinsicCallId : std::uint64_t
 	{
-		0,
-		0,
-		0,
-		0,
-		1,
-		0,
-		0,
-		0,
-		1,
-		2,
-		0,
-		0,
-		2,
-		0,
-		0,
-		0,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		2,
-		2,
-		2,
-		2,
-		2,
-		2,
-		2,
-		2,
-		2,
-		2,
-		2,
-		2,
-		0,
-		0,
-		1,
-		1,
-		1,
-		2,
-		2,
-		2,
-		2,
-		2,
-		2,
-		2,
-		2,
-		1,
-		2,
-		2,
-		2,
-		2,
-		1,
-		2,
-		2,
-		2,
-		2,
-		2,
-		1,
-		1,
-		1,
-		0,
-		4,
-		8,
-		8,
-		8,
-		8
+		Cos = 0x00'00'00'00'00'00'00'00,
+		Sin = 0x00'00'00'00'00'00'00'01,
+		Tan = 0x00'00'00'00'00'00'00'02,
+		ACos = 0x00'00'00'00'00'00'00'03,
+		ASin = 0x00'00'00'00'00'00'00'04,
+		ATan = 0x00'00'00'00'00'00'00'05,
+		ATan2 = 0x00'00'00'00'00'00'00'06,
+		CosH = 0x00'00'00'00'00'00'00'07,
+		SinH = 0x00'00'00'00'00'00'00'08,
+		TanH = 0x00'00'00'00'00'00'00'09,
+		ACosH = 0x00'00'00'00'00'00'00'0A,
+		ASinH = 0x00'00'00'00'00'00'00'0B,
+		ATanH = 0x00'00'00'00'00'00'00'0C,
+		Exp = 0x00'00'00'00'00'00'00'0D,
+		Log = 0x00'00'00'00'00'00'00'0E,
+		Log10 = 0x00'00'00'00'00'00'00'0F,
+		Exp2 = 0x00'00'00'00'00'00'00'10,
+		ILogB = 0x00'00'00'00'00'00'00'11,
+		Log2 = 0x00'00'00'00'00'00'00'12,
+		Pow = 0x00'00'00'00'00'00'00'13,
+		Sqrt = 0x00'00'00'00'00'00'00'14,
+		Cbrt = 0x00'00'00'00'00'00'00'15,
+		Hypot = 0x00'00'00'00'00'00'00'16,
+		Ceil = 0x00'00'00'00'00'00'00'17,
+		Floor = 0x00'00'00'00'00'00'00'18,
+		Round = 0x00'00'00'00'00'00'00'19,
+		RInt = 0x00'00'00'00'00'00'00'1A,
+		IMax = 0x00'00'00'00'00'00'00'1B,
+		IMin = 0x00'00'00'00'00'00'00'1C,
+		FMax = 0x00'00'00'00'00'00'00'1D,
+		FMin = 0x00'00'00'00'00'00'00'1E,
+		Dim = 0x00'00'00'00'00'00'00'1F,
+		IAbs = 0x00'00'00'00'00'00'00'20,
+		FAbs = 0x00'00'00'00'00'00'00'21,
+
+		/* !no intrinsic routine - count of total intrinsic routines! */
+		Count
 	};
 }

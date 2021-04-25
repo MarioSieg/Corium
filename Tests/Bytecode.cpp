@@ -391,7 +391,7 @@ TEST(BytecodeValidationSingleInstruction, OneArgumentsI64)
 {
 	std::vector args
 	{
-		0_i_dysig
+		DynamicSignal{INT64_C(0)}
 	};
 
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Int, args), ByteCodeValidationResult::Ok);
@@ -461,8 +461,8 @@ TEST(BytecodeValidationSingleInstruction, TwoArgumentsI64)
 {
 	std::vector args
 	{
-		0_u_dysig,
-		0_i_dysig
+		DynamicSignal{UINT64_C(0)},
+		DynamicSignal{INT64_C(0)}
 	};
 
 	ASSERT_EQ(ByteCodeValidateSingleInstruction(Instruction::Int, args), ByteCodeValidationResult::TooManyArguments);

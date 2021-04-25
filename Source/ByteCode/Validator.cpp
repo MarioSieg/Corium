@@ -206,9 +206,9 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentCounts.hpp"
+#include "../../Include/Nominax/ByteCode/ImmediateArgumentCount.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentType.hpp"
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentTypes.hpp"
+#include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 
 namespace Nominax
 {

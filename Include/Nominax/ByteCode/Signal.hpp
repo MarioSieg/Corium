@@ -212,8 +212,8 @@
 
 #include "../Record.hpp"
 
-#include "SystemIntrinsics.hpp"
-#include "CustomIntrinsics.hpp"
+#include "SystemIntrinsic.hpp"
+#include "CustomIntrinsic.hpp"
 #include "Instruction.hpp"
 
 namespace Nominax

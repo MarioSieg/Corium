@@ -207,7 +207,7 @@
 
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
-#include "../../Include/Nominax/ByteCode/Lexemes.hpp"
+#include "../../Include/Nominax/ByteCode/Lexeme.hpp"
 
 namespace Nominax
 {

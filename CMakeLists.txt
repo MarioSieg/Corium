@@ -33,24 +33,24 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/Environment.hpp"   
     "Include/Nominax/Object.hpp"
     "Include/Nominax/ByteCode/Instruction.hpp" 
-    "Include/Nominax/ByteCode/SystemIntrinsics.hpp" 
+    "Include/Nominax/ByteCode/SystemIntrinsic.hpp" 
     "Include/Nominax/ByteCode/InstructionCategory.hpp" 
     "Include/Nominax/ByteCode/ImmediateArgumentType.hpp" 
-    "Include/Nominax/ByteCode/CustomIntrinsics.hpp" 
-    "Include/Nominax/ByteCode/Mnemonics.hpp" 
-    "Include/Nominax/ByteCode/Descriptors.hpp" 
-    "Include/Nominax/ByteCode/Categories.hpp"
-    "Include/Nominax/ByteCode/PopCounts.hpp" 
-    "Include/Nominax/ByteCode/ImmediateArgumentCounts.hpp" 
-    "Include/Nominax/ByteCode/ImmediateArgumentTypes.hpp" 
+    "Include/Nominax/ByteCode/CustomIntrinsic.hpp" 
+    "Include/Nominax/ByteCode/Mnemonic.hpp" 
+    "Include/Nominax/ByteCode/Descriptor.hpp" 
+    "Include/Nominax/ByteCode/Category.hpp"
+    "Include/Nominax/ByteCode/PopCount.hpp" 
+    "Include/Nominax/ByteCode/ImmediateArgumentCount.hpp" 
+    "Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp" 
     "Include/Nominax/ByteCode/Signal.hpp" 
     "Include/Nominax/ByteCode/DynamicSignal.hpp" 
     "Include/Nominax/ByteCode/Validator.hpp" 
-    "Include/Nominax/ByteCode/LiteralOps.hpp" 
+    "Include/Nominax/ByteCode/LiteralOp.hpp" 
     "Include/Nominax/ByteCode/OptBase.hpp" 
     "Include/Nominax/ByteCode/ScopedVariable.hpp" 
     "Include/Nominax/ByteCode/Stream.hpp" 
-    "Include/Nominax/ByteCode/Lexemes.hpp" 
+    "Include/Nominax/ByteCode/Lexeme.hpp" 
 
     "Source/Reactor.cpp"
     "Source/OsWindows.cpp"
@@ -64,7 +64,8 @@ add_library("NominaxRuntime" STATIC
     "Source/Object.cpp"  
     "Source/ByteCode/DynamicSignal.cpp" 
     "Source/ByteCode/Validator.cpp" 
-    "Source/ByteCode/Stream.cpp" "Source/ByteCode/ScopedVariable.cpp")
+    "Source/ByteCode/Stream.cpp" 
+    "Source/ByteCode/ScopedVariable.cpp")
 
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!
@@ -193,6 +194,7 @@ target_link_libraries("Nominax" "NominaxRuntime")
 # test executable:
 # disable BUID_GMOCK in Tests/googletest/CMakeLists.txt if there are weird errors
 if(ANOMINAX_BUILD_UNIT_TESTS)
+    set(GOOGLETEST_PATH "Tests/googletest/googletest" CACHE PATH "")
     file(GLOB "TEST_SOURCE_FILES" "Tests/*.cpp")
     add_subdirectory("Tests/googletest/")
     add_executable("NominaxUnitTests" ${TEST_SOURCE_FILES})
@@ -206,6 +208,7 @@ endif()
 
 # benchmark executable:
 if(ANOMINAX_BUILD_BENCHMARKS)
+    set(GOOGLETEST_PATH "Tests/googletest/googletest" CACHE PATH "")
     file(GLOB "TEST_Source_FILES" "Benchmarks/*.cpp")
     add_subdirectory("Benchmarks/googlebench/")
     add_executable("NominaxBenchmark" ${TEST_Source_FILES})

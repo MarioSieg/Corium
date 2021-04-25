@@ -1,6 +1,6 @@
-// File: PushCounts.hpp
+// File: Lexeme.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 25.04.2021 12:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,83 +207,23 @@
 
 #pragma once
 
-#include <array>
-
-#include "Instruction.hpp"
-
-namespace Nominax
+/// <summary>
+/// Contains lexical tokens required to parse and write byte code.
+/// </summary>
+namespace Nominax::Lexemes
 {
 	/// <summary>
-	/// Contains the amount of stack pushes each instruction will perform.
+	/// Specify immediate constant operand.
 	/// </summary>
-	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_PUSH_COUNTS
-	{
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		1,
-		0,
-		0,
-		1,
-		2,
-		2,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		4,
-		0,
-		4,
-		4,
-		4,
-		4
-	};
+	constexpr auto IMMEDIATE {'%'};
+
+	/// <summary>
+	/// Begin or end comment.
+	/// </summary>
+	constexpr auto COMMENT {'$'};
+
+	/// <summary>
+	/// Begin preprocessor directive.
+	/// </summary>
+	constexpr auto PREPROCESSOR {'#'};
 }

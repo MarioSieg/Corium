@@ -1,6 +1,6 @@
-// File: Lexemes.hpp
+// File: CustomIntrinsic.hpp
 // Author: Mario
-// Created: 25.04.2021 12:43 PM
+// Created: 24.04.2021 9:46 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,23 +207,21 @@
 
 #pragma once
 
-/// <summary>
-/// Contains lexical tokens required to parse and write byte code.
-/// </summary>
-namespace Nominax::Lexemes
+#include <cstdint>
+
+#include "../Record.hpp"
+
+namespace Nominax
 {
 	/// <summary>
-	/// Specify immediate constant operand.
+	/// Call id for custom intrinsic routine.
 	/// </summary>
-	constexpr auto IMMEDIATE {'%'};
+	enum class alignas(alignof(std::uint64_t)) CustomIntrinsicCallId : std::uint64_t;
 
 	/// <summary>
-	/// Begin or end comment.
+	/// Custom intrinsic routine function prototype.
+	/// Contains the stack pointer as parameter.
 	/// </summary>
-	constexpr auto COMMENT {'$'};
-
-	/// <summary>
-	/// Begin preprocessor directive.
-	/// </summary>
-	constexpr auto PREPROCESSOR {'#'};
+	using IntrinsicRoutine = auto (Record*) -> bool;
+	static_assert(std::is_function_v<IntrinsicRoutine>);
 }

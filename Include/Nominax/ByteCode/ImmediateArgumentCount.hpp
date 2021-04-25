@@ -1,6 +1,6 @@
-// File: LiteralOps.hpp
+// File: ImmediateArgumentCount.hpp
 // Author: Mario
-// Created: 24.04.2021 9:54 PM
+// Created: 24.04.2021 9:46 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,37 +207,83 @@
 
 #pragma once
 
-#include <cstdint>
+#include <array>
+
+#include "Instruction.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Construct a runtime integer (64-bit).
+	/// Contains the count of required immediate arguments for each instruction.
 	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator""_int(const unsigned long long int value) noexcept -> std::int64_t
+	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
 	{
-		return static_cast<std::int64_t>(value);
-	}
-
-	/// <summary>
-	/// Construct a runtime unsigned integer (64-bit).
-	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator""_uint(const unsigned long long int value) noexcept -> std::uint64_t
-	{
-		return value;
-	}
-
-	/// <summary>
-	/// Construct a runtime float (64-bit).
-	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator""_float(const long double value) noexcept -> double
-	{
-		return static_cast<double>(value);
-	}
+		1,
+		1,
+		1,
+		1,
+		0,
+		2,
+		2,
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		4,
+		0,
+		0,
+		0,
+		0,
+		0
+	};
 }

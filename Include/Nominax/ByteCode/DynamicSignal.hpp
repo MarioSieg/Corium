@@ -217,8 +217,8 @@
 
 #include "Signal.hpp"
 #include "Instruction.hpp"
-#include "SystemIntrinsics.hpp"
-#include "CustomIntrinsics.hpp"
+#include "SystemIntrinsic.hpp"
+#include "CustomIntrinsic.hpp"
 
 namespace Nominax
 {

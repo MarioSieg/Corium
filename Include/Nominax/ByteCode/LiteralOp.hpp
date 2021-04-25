@@ -1,6 +1,6 @@
-// File: CustomIntrinsics.hpp
+// File: LiteralOp.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 24.04.2021 9:54 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -209,19 +209,35 @@
 
 #include <cstdint>
 
-#include "../Record.hpp"
-
 namespace Nominax
 {
 	/// <summary>
-	/// Call id for custom intrinsic routine.
+	/// Construct a runtime integer (64-bit).
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) CustomIntrinsicCallId : std::uint64_t;
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_int(const unsigned long long int value) noexcept -> std::int64_t
+	{
+		return static_cast<std::int64_t>(value);
+	}
 
 	/// <summary>
-	/// Custom intrinsic routine function prototype.
-	/// Contains the stack pointer as parameter.
+	/// Construct a runtime unsigned integer (64-bit).
 	/// </summary>
-	using IntrinsicRoutine = auto (Record*) -> bool;
-	static_assert(std::is_function_v<IntrinsicRoutine>);
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_uint(const unsigned long long int value) noexcept -> std::uint64_t
+	{
+		return value;
+	}
+
+	/// <summary>
+	/// Construct a runtime float (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_float(const long double value) noexcept -> double
+	{
+		return static_cast<double>(value);
+	}
 }

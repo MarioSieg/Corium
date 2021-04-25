@@ -206,8 +206,8 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
-#include "../../Include/Nominax/ByteCode/Mnemonics.hpp"
-#include "../../Include/Nominax/ByteCode/Lexemes.hpp"
+#include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
+#include "../../Include/Nominax/ByteCode/Lexeme.hpp"
 #include "../../Include/Nominax/Utility.hpp"
 
 namespace Nominax

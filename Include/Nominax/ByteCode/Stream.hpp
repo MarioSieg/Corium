@@ -211,7 +211,7 @@
 #include <vector>
 
 #include "DynamicSignal.hpp"
-#include "ImmediateArgumentCounts.hpp"
+#include "ImmediateArgumentCount.hpp"
 
 namespace Nominax
 {
