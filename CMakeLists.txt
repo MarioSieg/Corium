@@ -27,7 +27,7 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/Core/Interrupts.hpp"
     "Include/Nominax/Core/Info.hpp"
     "Include/Nominax/System/Os.hpp"
-    "Include/Nominax/Utility.hpp"
+    
     "Include/Nominax/System/DynamicLibrary.hpp"
     "Include/Nominax/Nominax.hpp" 
     "Include/Nominax/Core/Environment.hpp"   
@@ -53,19 +53,19 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/ByteCode/Lexeme.hpp" 
 
     "Source/Core/Reactor.cpp"
-    "Source/OsWindows.cpp"
-    "Source/OsLinux.cpp"
-    "Source/OsAndroid.cpp"
-    "Source/OsDarwin.cpp"
+    "Source/System/OsWindows.cpp"
+    "Source/System/OsLinux.cpp"
+    "Source/System/OsAndroid.cpp"
+    "Source/System/OsDarwin.cpp"
     "Source/Core/Interrupts.cpp"  
     "Source/Core/Environment.cpp"
-    "Source/Os.cpp" 
-    "Source/Utility.cpp"
+    "Source/System/Os.cpp" 
+    
     "Source/Core/Object.cpp"  
     "Source/ByteCode/DynamicSignal.cpp" 
     "Source/ByteCode/Validator.cpp" 
     "Source/ByteCode/Stream.cpp" 
-    "Source/ByteCode/ScopedVariable.cpp" "Include/Nominax/Core/ObjectFlagVector.hpp" "Include/Nominax/Core/ObjectHeader.hpp" "Include/Nominax/Core/ObjectAllocator.hpp" "Source/Core/ObjectAllocator.cpp" "Include/Nominax/Core/HardFaultReport.hpp" "Include/Nominax/Core/ReactorValidationResult.hpp" "Include/Nominax/Core/ReactorInput.hpp" "Source/Core/ReactorInput.cpp" "Include/Nominax/Core/ReactorOutput.hpp" "Source/Core/HardFaultReport.cpp" "Include/Nominax/Core/RegisterDump.hpp" "Source/Core/RegisterDump.cpp" "Include/Nominax/Core/Core.hpp")
+    "Source/ByteCode/ScopedVariable.cpp" "Include/Nominax/Core/ObjectFlagVector.hpp" "Include/Nominax/Core/ObjectHeader.hpp" "Include/Nominax/Core/ObjectAllocator.hpp" "Source/Core/ObjectAllocator.cpp" "Include/Nominax/Core/HardFaultReport.hpp" "Include/Nominax/Core/ReactorValidationResult.hpp" "Include/Nominax/Core/ReactorInput.hpp" "Source/Core/ReactorInput.cpp" "Include/Nominax/Core/ReactorOutput.hpp" "Source/Core/HardFaultReport.cpp" "Include/Nominax/Core/RegisterDump.hpp" "Source/Core/RegisterDump.cpp" "Include/Nominax/Core/Core.hpp" "Include/Nominax/Utility/VisitOverload.hpp" "Include/Nominax/Utility/XorshiftThreadLocal.hpp" "Source/Utility/XorshiftThreadLocal.cpp" "Include/Nominax/Utility/XorshiftAtomic.hpp" "Source/Utility/XorshiftAtomic.cpp" "Include/Nominax/Utility/MemoryUnits.hpp" "Source/Utility/MemoryUnits.cpp" "Include/Nominax/Utility/SafeLocalTime.hpp" "Source/Utility/SafeLocalTime.cpp" "Include/Nominax/Utility/Utility.hpp" "Include/Nominax/System/System.hpp")
 
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!

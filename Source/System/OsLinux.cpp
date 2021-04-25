@@ -1,6 +1,6 @@
-// File: Os.cpp
+// File: OsLinux.cpp
 // Author: Mario
-// Created: 18.04.2021 5:40 PM
+// Created: 12.04.2021 9:07 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,18 +205,75 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <thread>
+#include "../../Include/Nominax/System/Os.hpp"
+#include "../../Include/Nominax/System/Platform.hpp"
 
-#include "../Include/Nominax/System/Os.hpp"
+#if NOMINAX_OS_LINUX
 
-namespace Nominax
-{
-	auto SystemInfo::QueryAll() -> void
+#include <cstdio>
+#include <fstream>
+#include <string>
+
+#include <dlfcn.h>
+#include <unistd.h>
+
+namespace Nominax::Os {
+	auto QuerySystemMemoryTotal() -> std::size_t
 	{
-		this->ThreadCount       = std::thread::hardware_concurrency();
-		this->ThreadId          = std::this_thread::get_id();
-		this->CpuName           = Os::QueryCpuName();
-		this->TotalSystemMemory = Os::QuerySystemMemoryTotal();
-		this->UsedSystemMemory  = Os::QueryProcessMemoryUsed();
+		const long pages = sysconf(_SC_PHYS_PAGES);
+		const long page_size = sysconf(_SC_PAGE_SIZE);
+		return static_cast<std::size_t>(pages * page_size);
+	}
+
+	auto QueryProcessMemoryUsed() -> std::size_t {
+		auto* const file = fopen("/proc/self/statm", "r");
+		if (file == nullptr) [[unlikely]]
+		{
+			return 0;
+		}
+		long pages = 0;
+		const auto items = fscanf(file, "%*s%ld", &pages);
+		fclose(file);
+		return static_cast<std::size_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
+	}
+
+	auto QueryCpuName() -> std::string
+	{
+		std::ifstream cpuinfo("/proc/cpuinfo");
+
+		if (!cpuinfo.is_open() || !cpuinfo) [[unlikely]]
+		{
+			return "Unknown";
+		}
+
+		for (std::string line; std::getline(cpuinfo, line); ) [[likely]]
+		{
+			if (line.find("model name") == 0) [[likely]]
+			{
+				const auto colon_id = line.find_first_of(':');
+				const auto nonspace_id = line.find_first_not_of(" \t", colon_id + 1);
+				return line.c_str() + nonspace_id;
+			}
+		}
+
+		return {};
+	}
+
+	auto DylibOpen(const std::string_view file_) -> void*
+	{
+		return ::dlopen(file_.data(), RTLD_LOCAL | RTLD_LAZY);
+	}
+
+	auto DylibLookupSymbol(void* const handle_, const std::string_view symbol_) -> void*
+	{
+		return ::dlsym(handle_, symbol_.data());
+	}
+
+	auto DylibClose(void*& handle_) -> void
+	{
+		::dlclose(handle_);
+		handle_ = nullptr;
 	}
 }
+
+#endif

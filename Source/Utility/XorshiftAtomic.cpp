@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: XorshiftAtomic.cpp
 // Author: Mario
-// Created: 25.04.2021 1:21 PM
+// Created: 25.04.2021 3:50 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,101 +205,42 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
-#include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
-#include "../../Include/Nominax/ByteCode/Lexeme.hpp"
-#include "../../Include/Nominax/Utility/VisitOverload.hpp"
+#include <atomic>
+
+#include "../../Include/Nominax/Utility/XorshiftAtomic.hpp"
 
 namespace Nominax
 {
-	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
+	auto Xorshift32Atomic() noexcept -> std::uint32_t
 	{
-		if (std::size(input) != std::size(output))
-		[[unlikely]]
-		{
-			return false;
-		}
-
-		auto       iterator {std::begin(input)};
-		const auto end {std::end(input)};
-
-		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
-		[[likely]]
-		{
-			*flag = iterator->Contains<Instruction>();
-		}
-
-		return true;
+		static constinit std::atomic_uint32_t seed32 {0x12B9B0A1};
+		seed32 ^= seed32 << 0xD;
+		seed32 ^= seed32 >> 0x11;
+		seed32 ^= seed32 << 0x5;
+		return seed32;
 	}
 
-	DynamicSignal::operator Signal() const
+	auto Xorshift64Atomic() noexcept -> std::uint64_t
 	{
-		return std::visit(Overloaded
-		                  {
-			                  [](const Instruction value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const SystemIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const CustomIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::uint64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::int64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const double value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const char32_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-		                  }, this->DataCollection);
+		static constinit std::atomic_uint64_t seed64 {0x139408DCBBF7A44};
+		seed64 ^= seed64 << 0xD;
+		seed64 ^= seed64 >> 0x7;
+		seed64 ^= seed64 << 0x11;
+		return seed64;
 	}
 
-	auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&
+	auto Xorshift128Atomic() noexcept -> std::uint32_t
 	{
-		std::visit(Overloaded
-		           {
-			           [&](const Instruction value)
-			           {
-				           out << INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<decltype(value)>>(value)];
-			           },
-			           [&](const SystemIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const CustomIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const std::uint64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const std::int64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const double value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const char32_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << static_cast<char>(value);
-			           },
-		           }, in.DataCollection);
-		return out;
+		static constinit std::atomic_uint32_t x {0x75BCD15};
+		static constinit std::atomic_uint32_t y {0x159A55E5};
+		static constinit std::atomic_uint32_t z {0x1F123BB5};
+		static constinit std::atomic_uint32_t w {0x5491333};
+
+		const uint32_t t = x ^ x << 0xB;
+		x.exchange(y);
+		y.exchange(z);
+		z.exchange(w);
+		w ^= w >> 0xD ^ t ^ t >> 0x8;
+		return w;
 	}
 }

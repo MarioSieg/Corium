@@ -1,6 +1,6 @@
-// File: OsLinux.cpp
+// File: OsWindows.cpp
 // Author: Mario
-// Created: 12.04.2021 9:07 AM
+// Created: 12.04.2021 8:34 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,74 +205,66 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/System/Os.hpp"
-#include "../Include/Nominax/System/Platform.hpp"
+#include "../../Include/Nominax/System/Os.hpp"
+#include "../../Include/Nominax/System/Platform.hpp"
 
-#if NOMINAX_OS_LINUX
+#if NOMINAX_OS_WINDOWS
 
-#include <cstdio>
-#include <fstream>
-#include <string>
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <Psapi.h>
 
-#include <dlfcn.h>
-#include <unistd.h>
-
-namespace Nominax::Os {
+namespace Nominax::Os
+{
 	auto QuerySystemMemoryTotal() -> std::size_t
 	{
-		const long pages = sysconf(_SC_PHYS_PAGES);
-		const long page_size = sysconf(_SC_PAGE_SIZE);
-		return static_cast<std::size_t>(pages * page_size);
+		MEMORYSTATUSEX status;
+		status.dwLength = sizeof(MEMORYSTATUSEX);
+		GlobalMemoryStatusEx(&status);
+		return status.ullTotalPhys;
 	}
 
-	auto QueryProcessMemoryUsed() -> std::size_t {
-		auto* const file = fopen("/proc/self/statm", "r");
-		if (file == nullptr) [[unlikely]]
-		{
-			return 0;
-		}
-		long pages = 0;
-		const auto items = fscanf(file, "%*s%ld", &pages);
-		fclose(file);
-		return static_cast<std::size_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
+	auto QueryProcessMemoryUsed() -> std::size_t
+	{
+		PROCESS_MEMORY_COUNTERS pmc;
+		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
+		return pmc.WorkingSetSize;
 	}
 
 	auto QueryCpuName() -> std::string
 	{
-		std::ifstream cpuinfo("/proc/cpuinfo");
-
-		if (!cpuinfo.is_open() || !cpuinfo) [[unlikely]]
+		HKEY key;
+		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
+		[[unlikely]]
 		{
 			return "Unknown";
 		}
-
-		for (std::string line; std::getline(cpuinfo, line); ) [[likely]]
+		char       id[64 + 1];
+		DWORD      id_len = sizeof id;
+		const auto data   = static_cast<LPBYTE>(static_cast<void*>(id));
+		if (RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &id_len))
+		[[unlikely]]
 		{
-			if (line.find("model name") == 0) [[likely]]
-			{
-				const auto colon_id = line.find_first_of(':');
-				const auto nonspace_id = line.find_first_not_of(" \t", colon_id + 1);
-				return line.c_str() + nonspace_id;
-			}
+			return "Unknown";
 		}
-
-		return {};
+		return id;
 	}
 
-	auto DylibOpen(const std::string_view file_) -> void*
+	auto DylibOpen(const std::string_view filePath) -> void*
 	{
-		return ::dlopen(file_.data(), RTLD_LOCAL | RTLD_LAZY);
+		return LoadLibraryA(filePath.data());
 	}
 
-	auto DylibLookupSymbol(void* const handle_, const std::string_view symbol_) -> void*
+	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
 	{
-		return ::dlsym(handle_, symbol_.data());
+		// ReSharper disable once CppRedundantCastExpression
+		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
 	}
 
-	auto DylibClose(void*& handle_) -> void
+	auto DylibClose(void*& handle) -> void
 	{
-		::dlclose(handle_);
-		handle_ = nullptr;
+		FreeLibrary(static_cast<HMODULE>(handle));
+		handle = nullptr;
 	}
 }
 

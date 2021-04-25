@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: XorshiftAtomic.hpp
 // Author: Mario
-// Created: 25.04.2021 1:21 PM
+// Created: 25.04.2021 3:49 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,101 +205,18 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
-#include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
-#include "../../Include/Nominax/ByteCode/Lexeme.hpp"
-#include "../../Include/Nominax/Utility/VisitOverload.hpp"
+#pragma once
+
+#include <cstdint>
 
 namespace Nominax
 {
-	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
-	{
-		if (std::size(input) != std::size(output))
-		[[unlikely]]
-		{
-			return false;
-		}
+	[[nodiscard]]
+	extern auto Xorshift32Atomic() noexcept -> std::uint32_t;
 
-		auto       iterator {std::begin(input)};
-		const auto end {std::end(input)};
+	[[nodiscard]]
+	extern auto Xorshift64Atomic() noexcept -> std::uint64_t;
 
-		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
-		[[likely]]
-		{
-			*flag = iterator->Contains<Instruction>();
-		}
-
-		return true;
-	}
-
-	DynamicSignal::operator Signal() const
-	{
-		return std::visit(Overloaded
-		                  {
-			                  [](const Instruction value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const SystemIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const CustomIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::uint64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::int64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const double value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const char32_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-		                  }, this->DataCollection);
-	}
-
-	auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&
-	{
-		std::visit(Overloaded
-		           {
-			           [&](const Instruction value)
-			           {
-				           out << INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<decltype(value)>>(value)];
-			           },
-			           [&](const SystemIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const CustomIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const std::uint64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const std::int64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const double value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const char32_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << static_cast<char>(value);
-			           },
-		           }, in.DataCollection);
-		return out;
-	}
+	[[nodiscard]]
+	extern auto Xorshift128Atomic() noexcept -> std::uint32_t;
 }

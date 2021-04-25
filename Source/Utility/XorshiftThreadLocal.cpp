@@ -1,6 +1,6 @@
-// File: OsAndroid.cpp
+// File: XorshiftThreadLocal.cpp
 // Author: Mario
-// Created: 12.04.2021 9:15 AM
+// Created: 25.04.2021 3:48 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,38 +205,40 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/System/Os.hpp"
-#include "../Include/Nominax/System/Platform.hpp"
+#include "../../Include/Nominax/Utility/XorshiftThreadLocal.hpp"
 
-#if NOMINAX_OS_ANDROID
-
-#include <malloc.h>
-#include <unistd.h>
-
-namespace Nominax::os {
-	auto query_system_memory_total() -> std::size_t {
-		const long pages = sysconf(_SC_PHYS_PAGES);
-		const long page_size = sysconf(_SC_PAGE_SIZE);
-		return static_cast<std::size_t>(pages * page_size);
+namespace Nominax
+{
+	auto Xorshift32ThreadLocal() noexcept -> std::uint32_t
+	{
+		static constinit thread_local std::uint32_t seed32 {0x12B9B0A1};
+		seed32 ^= seed32 << 0xD;
+		seed32 ^= seed32 >> 0x11;
+		seed32 ^= seed32 << 0x5;
+		return seed32;
 	}
 
-	auto query_process_memory_used() -> std::size_t {
-		const struct mallinfo mi = mallinfo();
-		return mi.uordblks;
+	auto Xorshift64ThreadLocal() noexcept -> std::uint64_t
+	{
+		static constinit thread_local std::uint64_t seed64 {0x139408DCBBF7A44};
+		seed64 ^= seed64 << 0xD;
+		seed64 ^= seed64 >> 0x7;
+		seed64 ^= seed64 << 0x11;
+		return seed64;
 	}
 
-	auto dylib_open(const std::string_view file_) -> void* {
-		return ::dlopen(file_.data(), RTLD_LOCAL | RTLD_LAZY);
-	}
+	auto Xorshift128ThreadLocal() noexcept -> std::uint32_t
+	{
+		static constinit thread_local std::uint32_t x {0x75BCD15};
+		static constinit thread_local std::uint32_t y {0x159A55E5};
+		static constinit thread_local std::uint32_t z {0x1F123BB5};
+		static constinit thread_local std::uint32_t w {0x5491333};
 
-	auto dylib_lookup_symbol(void* const handle_, const std::string_view symbol_) -> void* {
-		return ::dlsym(handle_, symbol_);
-	}
-
-	void dylib_close(void*& handle_) {
-		::dlclose(handle_);
-		handle_ = nullptr;
+		const uint32_t t = x ^ x << 0xB;
+		x                = y;
+		y                = z;
+		z                = w;
+		w ^= w >> 0xD ^ t ^ t >> 0x8;
+		return w;
 	}
 }
-
-#endif

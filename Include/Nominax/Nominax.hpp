@@ -209,10 +209,5 @@
 
 #include "ByteCode/ByteCode.hpp"
 #include "Core/Core.hpp"
-
-#include "System/DynamicLibrary.hpp"
-#include "System/MacroCfg.hpp"
-#include "System/Os.hpp"
-#include "System/Platform.hpp"
-
-#include "Utility.hpp"
+#include "System/System.hpp"
+#include "Utility/Utility.hpp"

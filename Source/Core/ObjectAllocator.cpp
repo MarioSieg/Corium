@@ -209,7 +209,7 @@
 
 #include "../../Include/Nominax/Core/ObjectAllocator.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
-#include "../../Include/Nominax/Utility.hpp"
+#include "../../Include/Nominax/Utility/Utility.hpp"
 
 namespace Nominax
 {

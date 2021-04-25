@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: OsAndroid.cpp
 // Author: Mario
-// Created: 25.04.2021 1:21 PM
+// Created: 12.04.2021 9:15 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,101 +205,38 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
-#include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
-#include "../../Include/Nominax/ByteCode/Lexeme.hpp"
-#include "../../Include/Nominax/Utility/VisitOverload.hpp"
+#include "../../Include/Nominax/System/Os.hpp"
+#include "../../Include/Nominax/System/Platform.hpp"
 
-namespace Nominax
-{
-	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
-	{
-		if (std::size(input) != std::size(output))
-		[[unlikely]]
-		{
-			return false;
-		}
+#if NOMINAX_OS_ANDROID
 
-		auto       iterator {std::begin(input)};
-		const auto end {std::end(input)};
+#include <malloc.h>
+#include <unistd.h>
 
-		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
-		[[likely]]
-		{
-			*flag = iterator->Contains<Instruction>();
-		}
-
-		return true;
+namespace Nominax::os {
+	auto query_system_memory_total() -> std::size_t {
+		const long pages = sysconf(_SC_PHYS_PAGES);
+		const long page_size = sysconf(_SC_PAGE_SIZE);
+		return static_cast<std::size_t>(pages * page_size);
 	}
 
-	DynamicSignal::operator Signal() const
-	{
-		return std::visit(Overloaded
-		                  {
-			                  [](const Instruction value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const SystemIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const CustomIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::uint64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::int64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const double value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const char32_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-		                  }, this->DataCollection);
+	auto query_process_memory_used() -> std::size_t {
+		const struct mallinfo mi = mallinfo();
+		return mi.uordblks;
 	}
 
-	auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&
-	{
-		std::visit(Overloaded
-		           {
-			           [&](const Instruction value)
-			           {
-				           out << INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<decltype(value)>>(value)];
-			           },
-			           [&](const SystemIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const CustomIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const std::uint64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const std::int64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const double value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const char32_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << static_cast<char>(value);
-			           },
-		           }, in.DataCollection);
-		return out;
+	auto dylib_open(const std::string_view file_) -> void* {
+		return ::dlopen(file_.data(), RTLD_LOCAL | RTLD_LAZY);
+	}
+
+	auto dylib_lookup_symbol(void* const handle_, const std::string_view symbol_) -> void* {
+		return ::dlsym(handle_, symbol_);
+	}
+
+	void dylib_close(void*& handle_) {
+		::dlclose(handle_);
+		handle_ = nullptr;
 	}
 }
+
+#endif

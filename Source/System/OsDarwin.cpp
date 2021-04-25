@@ -205,8 +205,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/System/Os.hpp"
-#include "../Include/Nominax/System/Platform.hpp"
+#include "../../Include/Nominax/System/Os.hpp"
+#include "../../Include/Nominax/System/Platform.hpp"
 
 #if NOMINAX_OS_MAC || NOMINAX_OS_IOS
 

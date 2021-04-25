@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: MemoryUnits.hpp
 // Author: Mario
-// Created: 25.04.2021 1:21 PM
+// Created: 25.04.2021 3:53 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,101 +205,67 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
-#include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
-#include "../../Include/Nominax/ByteCode/Lexeme.hpp"
-#include "../../Include/Nominax/Utility/VisitOverload.hpp"
+#pragma once
+
+#include <algorithm>
+#include <cstddef>
+#include <ostream>
 
 namespace Nominax
 {
-	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
+	[[nodiscard]]
+	constexpr auto Bytes2Gigabytes(std::size_t bytes) noexcept -> std::size_t
 	{
-		if (std::size(input) != std::size(output))
-		[[unlikely]]
-		{
-			return false;
-		}
-
-		auto       iterator {std::begin(input)};
-		const auto end {std::end(input)};
-
-		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
-		[[likely]]
-		{
-			*flag = iterator->Contains<Instruction>();
-		}
-
-		return true;
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+		return bytes / 1024 / 1024 / 1024;
 	}
 
-	DynamicSignal::operator Signal() const
+	[[nodiscard]]
+	constexpr auto Bytes2Megabytes(std::size_t bytes) noexcept -> std::size_t
 	{
-		return std::visit(Overloaded
-		                  {
-			                  [](const Instruction value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const SystemIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const CustomIntrinsicCallId value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::uint64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const std::int64_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const double value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const char32_t value) noexcept
-			                  {
-				                  return Signal {value};
-			                  },
-		                  }, this->DataCollection);
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+		return bytes / 1024 / 1024;
 	}
 
-	auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&
+	[[nodiscard]]
+	constexpr auto Bytes2Kilobytes(std::size_t bytes) noexcept -> std::size_t
 	{
-		std::visit(Overloaded
-		           {
-			           [&](const Instruction value)
-			           {
-				           out << INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<decltype(value)>>(value)];
-			           },
-			           [&](const SystemIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const CustomIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const std::uint64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const std::int64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const double value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const char32_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << static_cast<char>(value);
-			           },
-		           }, in.DataCollection);
-		return out;
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+		return bytes / 1024;
 	}
+
+	[[nodiscard]]
+	constexpr auto Gigabytes2Bytes(const std::size_t gigabytes) noexcept -> std::size_t
+	{
+		return gigabytes * 1024 * 1024 * 1024;
+	}
+
+	[[nodiscard]]
+	constexpr auto Megabytes2Bytes(const std::size_t megabytes) noexcept -> std::size_t
+	{
+		return megabytes * 1024 * 1024;
+	}
+
+	[[nodiscard]]
+	constexpr auto Kilobytes2Bytes(const std::size_t kilobytes) noexcept -> std::size_t
+	{
+		return kilobytes * 1024;
+	}
+
+	constexpr auto operator ""_kb(const unsigned long long int value) noexcept -> unsigned long long int
+	{
+		return value * 1024;
+	}
+
+	constexpr auto operator ""_mb(const unsigned long long int value) noexcept -> unsigned long long int
+	{
+		return value * 1024 * 1024;
+	}
+
+	constexpr auto operator ""_gb(const unsigned long long int value) noexcept -> unsigned long long int
+	{
+		return value * 1024 * 1024 * 1024;
+	}
+
+	extern auto PrettyPrintBytes(std::ostream& out, std::size_t size) -> void;
 }

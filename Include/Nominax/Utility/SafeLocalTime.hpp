@@ -1,6 +1,6 @@
-// File: Utility.hpp
+// File: SafeLocalTime.hpp
 // Author: Mario
-// Created: 12.04.2021 9:27 AM
+// Created: 25.04.2021 3:58 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,101 +207,10 @@
 
 #pragma once
 
-#include <algorithm>
 #include <ctime>
-#include <cstdint>
-#include <cstddef>
-#include <ostream>
 
 namespace Nominax
 {
-	/// <summary>
-	///  std::visit auto overload helper
-	/// </summary>
-	/// <typeparam name="...Ts">The call types.</typeparam>
-	template <typename... Ts>
-	struct Overloaded : Ts...
-	{
-		using Ts::operator()...;
-	};
-
-	template <typename... Ts>
-	Overloaded(Ts&&...) -> Overloaded<Ts...>;
-
-	[[nodiscard]]
-	extern auto Xorshift32() noexcept -> std::uint32_t;
-
-	[[nodiscard]]
-	extern auto Xorshift64() noexcept -> std::uint64_t;
-
-	[[nodiscard]]
-	extern auto Xorshift128() noexcept -> std::uint32_t;
-
-	[[nodiscard]]
-	extern auto AtomicXorshift32() noexcept -> std::uint32_t;
-
-	[[nodiscard]]
-	extern auto AtomicXorshift64() noexcept -> std::uint64_t;
-
-	[[nodiscard]]
-	extern auto AtomicXorshift128() noexcept -> std::uint32_t;
-
-	[[nodiscard]]
-	constexpr auto Bytes2Gigabytes(std::size_t bytes) noexcept -> std::size_t
-	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / 1024 / 1024 / 1024;
-	}
-
-	[[nodiscard]]
-	constexpr auto Bytes2Megabytes(std::size_t bytes) noexcept -> std::size_t
-	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / 1024 / 1024;
-	}
-
-	[[nodiscard]]
-	constexpr auto Bytes2Kilobytes(std::size_t bytes) noexcept -> std::size_t
-	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / 1024;
-	}
-
-	[[nodiscard]]
-	constexpr auto Gigabytes2Bytes(const std::size_t gigabytes) noexcept -> std::size_t
-	{
-		return gigabytes * 1024 * 1024 * 1024;
-	}
-
-	[[nodiscard]]
-	constexpr auto Megabytes2Bytes(const std::size_t megabytes) noexcept -> std::size_t
-	{
-		return megabytes * 1024 * 1024;
-	}
-
-	[[nodiscard]]
-	constexpr auto Kilobytes2Bytes(const std::size_t kilobytes) noexcept -> std::size_t
-	{
-		return kilobytes * 1024;
-	}
-
-	constexpr auto operator ""_kb(const unsigned long long int value) noexcept -> unsigned long long int
-	{
-		return value * 1024;
-	}
-
-	constexpr auto operator ""_mb(const unsigned long long int value) noexcept -> unsigned long long int
-	{
-		return value * 1024 * 1024;
-	}
-
-	constexpr auto operator ""_gb(const unsigned long long int value) noexcept -> unsigned long long int
-	{
-		return value * 1024 * 1024 * 1024;
-	}
-
-	extern auto PrettyPrintBytes(std::ostream& out, std::size_t size) -> void;
-
 	[[nodiscard]]
 	extern auto SafeLocalTime(const std::time_t& time) -> std::tm;
 }
