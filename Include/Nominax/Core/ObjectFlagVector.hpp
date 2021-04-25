@@ -1,6 +1,6 @@
-// File: Platform.hpp
+// File: ObjectFlagVector.hpp
 // Author: Mario
-// Created: 09.04.2021 17:11
+// Created: 25.04.2021 2:37 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,101 +207,180 @@
 
 #pragma once
 
-#define NOMINAX_OS_WINDOWS	false
-#define NOMINAX_OS_MAC		false
-#define NOMINAX_OS_LINUX	false
-#define NOMINAX_OS_ANDROID	false
-#define NOMINAX_OS_IOS		false
-#define NOMINAX_ARCH_X86_32	false
-#define NOMINAX_ARCH_X86_64	false
-#define NOMINAX_ARCH_ARM_64	false
-#define NOMINAX_ARCH_ARM_32	false
-#define NOMINAX_RELEASE		false
-#define NOMINAX_DEBUG		false
-#define NOMINAX_COM_GCC		false
-#define NOMINAX_COM_CLANG	false
-#define NOMINAX_COM_MINGW	false
+#include <cstdint>
 
-#if NDEBUG
-#	undef NOMINAX_RELEASE
-#	define NOMINAX_RELEASE true
-#else
-#	undef NOMINAX_DEBUG
-#	define NOMINAX_DEBUG true
-#endif
+namespace Nominax
+{
+	/// <summary>
+	/// Contains all flags in the flag vector field in the object header.
+	/// </summary>
+	union ObjectFlagsVectorCompound final
+	{
+		struct
+		{
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag0 : 1;
 
-#if defined(_WIN32) || defined(_WIN64)
-#	undef NOMINAX_OS_WINDOWS
-#	define NOMINAX_OS_WINDOWS true
-#	define NOMINAX_OS_NAME "Windows"
-#elif defined(__APPLE__)
-#	include <TargetConditionals.h>
-#	if TARGET_OS_MAC
-#		undef NOMINAX_OS_MAC
-#		define NOMINAX_OS_MAC true
-#		define NOMINAX_OS_NAME "MacOS"
-#	elif defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
-#		undef NOMINAX_OS_IOS
-#		define NOMINAX_OS_IOS true
-#		define NOMINAX_OS_NAME "iOS"
-#	else
-#		error "platform.hpp: Unknown Apple OS!"
-#	endif
-#elif defined(__linux__)
-#	ifdef __ANDROID__
-#		undef NOMINAX_OS_ANDROID
-#		define NOMINAX_OS_ANDROID true
-#		define NOMINAX_OS_NAME "Android"
-#	else
-#	undef NOMINAX_OS_LINUX
-#	define NOMINAX_OS_LINUX true
-#	define NOMINAX_OS_NAME "Linux"
-#	endif
-#else
-#	error "platform.hpp: Unknown operating system!"
-#endif
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag1 : 1;
 
-#if defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(_M_X64) || defined(_M_AMD64)
-#	undef NOMINAX_ARCH_X86_64
-#	define NOMINAX_ARCH_X86_64 true
-#	define NOMINAX_ARCH_NAME "x86-64"
-#elif defined(i386) || defined(__i386) || defined(__i386__) || defined(_M_IX86) && !(defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(_M_X64) || defined(_M_AMD64))
-#	undef NOMINAX_ARCH_X86_32
-#	define NOMINAX_ARCH_X86_32 true
-#	define NOMINAX_ARCH_NAME "x86-32"
-#elif (defined(__arm__) || defined(_M_ARM)) && !defined(__aarch64__)
-#	undef NOMINAX_ARCH_ARM_32
-#	define NOMINAX_ARCH_ARM_32 true
-#	define NOMINAX_ARCH_NAME "ARM-32"
-#elif defined(__aarch64__)
-#	undef NOMINAX_ARCH_ARM_64
-#	define NOMINAX_ARCH_ARM_64 true
-#	define NOMINAX_ARCH_NAME "ARM-64"
-#else
-#	error "platform.hpp: Unknown architecture!"
-#endif
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag2 : 1;
 
-#define NOMINAX_32_BIT (NOMINAX_ARCH_X86_32 || NOMINAX_ARCH_ARM_32)
-#define NOMINAX_64_BIT (NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_ARM_64)
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag3 : 1;
 
-#if NOMINAX_32_BIT
-#	define NOMINAX_ARCH_SIZE_NAME "32-Bit"
-#elif NOMINAX_64_BIT
-#	define NOMINAX_ARCH_SIZE_NAME "64-Bit"
-#endif
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag4 : 1;
 
-#define NOMINAX_POSIX (NOMINAX_OS_LINUX || NOMINAX_OS_ANDROID || NOMINAX_OS_MAC || NOMINAX_OS_IOS)
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag5 : 1;
 
-#ifdef __GNUC__
-#	undef NOMINAX_COM_GCC
-#	define NOMINAX_COM_GCC true
-#	define NOMINAX_COM_NAME "GCC"
-#elif defined(__clang__)
-#	undef NOMINAX_COM_CLANG
-#	define NOMINAX_COM_CLANG true
-#	define NOMINAX_COM_NAME "Clang"
-#elif defined(__MINGW32__) || defined(__MINGW32__)
-#	undef NOMINAX_COM_MINGW
-#	define NOMINAX_COM_MINGW true
-#	define NOMINAX_COM_NAME "MinGW"
-#endif
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag6 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag7 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag8 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag9 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag10 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag11 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag12 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag13 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag14 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag15 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag16 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag17 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag18 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag19 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag20 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag21 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag22 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag23 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag24 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag25 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag26 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag27 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag28 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag29 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag30 : 1;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			bool Flag31 : 1;
+		} Flags;
+
+		std::uint32_t Compound;
+	};
+
+	static_assert(sizeof(ObjectFlagsVectorCompound) == sizeof(std::uint32_t));
+}

@@ -1,6 +1,6 @@
-// File: OsWindows.cpp
+// File: MacroCfg.hpp
 // Author: Mario
-// Created: 12.04.2021 8:34 AM
+// Created: 09.04.2021 5:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,67 +205,33 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/System/Os.hpp"
-#include "../Include/Nominax/System/Platform.hpp"
+#pragma once
 
-#if NOMINAX_OS_WINDOWS
+#include "Platform.hpp"
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <Psapi.h>
+/// <summary>
+/// Use architecture specific optimizations such as assembly or intrinsics?
+/// </summary>
+#define NOMINAX_USE_ARCH_OPT true
 
-namespace Nominax::Os
-{
-	auto QuerySystemMemoryTotal() -> std::size_t
-	{
-		MEMORYSTATUSEX status;
-		status.dwLength = sizeof(MEMORYSTATUSEX);
-		GlobalMemoryStatusEx(&status);
-		return status.ullTotalPhys;
-	}
+/// <summary>
+/// If true, explicit checks are inserted - if false stack overflow results in a segmentation fault handled through signals
+/// BTW jump instruction which push cannot trigger a stack overflow because they recycle stack space.
+/// </summary>
+#define NOMINAX_STACK_OVERFLOW_CHECKS true
 
-	auto QueryProcessMemoryUsed() -> std::size_t
-	{
-		PROCESS_MEMORY_COUNTERS pmc;
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
-		return pmc.WorkingSetSize;
-	}
+/// <summary>
+/// Insert assembly comments with the instruction name into the assembler code, to find the section in the compiled output.
+/// Should be disabled when building for release.
+/// </summary>
+#define NOMINAX_REACTOR_ASM_MARKERS true
 
-	auto QueryCpuName() -> std::string
-	{
-		HKEY key;
-		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
-		[[unlikely]]
-		{
-			return "Unknown";
-		}
-		char       id[64 + 1];
-		DWORD      id_len = sizeof id;
-		const auto data   = static_cast<LPBYTE>(static_cast<void*>(id));
-		if (RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &id_len))
-		[[unlikely]]
-		{
-			return "Unknown";
-		}
-		return id;
-	}
+/// <summary>
+/// If enabled, the jump table addresses are directly mapped as pointers into the byte-code signals.
+/// </summary>
+#define NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING false
 
-	auto DylibOpen(const std::string_view filePath) -> void*
-	{
-		return LoadLibraryA(filePath.data());
-	}
-
-	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
-	{
-		// ReSharper disable once CppRedundantCastExpression
-		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
-	}
-
-	auto DylibClose(void*& handle) -> void
-	{
-		FreeLibrary(static_cast<HMODULE>(handle));
-		handle = nullptr;
-	}
-}
-
-#endif
+/// <summary>
+///
+/// </summary>
+#define NOMINAX_VERBOSE_ALLOCATOR NOMINAX_DEBUG

@@ -1,6 +1,6 @@
 // File: Os.cpp
 // Author: Mario
-// Created: 18.04.2021 17:40
+// Created: 18.04.2021 5:40 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,7 +207,7 @@
 
 #include <thread>
 
-#include "../Include/Nominax/Os.hpp"
+#include "../Include/Nominax/System/Os.hpp"
 
 namespace Nominax
 {

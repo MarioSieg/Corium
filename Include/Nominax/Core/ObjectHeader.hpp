@@ -1,6 +1,6 @@
-// File: DynamicLibrary.hpp
+// File: ObjectHeader.hpp
 // Author: Mario
-// Created: 12.04.2021 09:54
+// Created: 25.04.2021 2:37 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,161 +207,290 @@
 
 #pragma once
 
-#include <filesystem>
-#include <optional>
+#include <cstdint>
+#include <cstring>
 
-#include "Os.hpp"
+#include "ObjectFlagVector.hpp"
+#include "Record.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// Represents a procedure address inside a dynamic library.
-	/// </summary>
-	struct DynamicProcedure final
+	/// Every heap allocated object has an object header.
+	/// The object header contains various meta data about the object.
+	/// Each object header field is 32 - bits wide.
+	///
+	/// Offset	   Description	  Size
+	/// +-----------------------+
+	/// | 0 | Strong Ref Count  | 32 Bit
+	/// +-----------------------+
+	/// | 1 |  Size in Records	| 32 Bit
+	/// +-----------------------+
+	/// | 2 | Type ID			| 32 Bit
+	/// +-----------------------+
+	/// | 3 | Flag Vector		| 32 Bit
+	/// +-----------------------+
+	/// Total size : 128 Bit(16 Bytes)
+	struct ObjectHeader final
 	{
 		/// <summary>
-		/// Construct from pointer.
+		/// Reference counter for strong references.
 		/// </summary>
-		/// <param name="value"></param>
+		std::uint32_t StrongRefCount {0};
+
+		/// <summary>
+		/// Object size in records.
+		/// </summary>
+		std::uint32_t Size {0};
+
+		/// <summary>
+		/// Type index for type DB.
+		/// </summary>
+		std::uint32_t TypeId {0};
+
+		/// <summary>
+		/// Flag vector for object states.
+		/// </summary>
+		ObjectFlagsVectorCompound FlagVector { };
+
+		/// <summary>
+		/// Maps this record into the specified memory region.
+		/// ! The region must have at least 2 record entries to write to !
+		/// Safe alternative is the overload using std::span.
+		/// </summary>
+		/// <param name="region"></param>
 		/// <returns></returns>
-		constexpr explicit DynamicProcedure(void* value) noexcept;
+		auto MapToRegionUnchecked(Record* region) const noexcept -> void;
 
 		/// <summary>
-		/// Null pointers forbidden.
+		/// Maps this record into the specified memory region.
+		/// ! The region must have at least 2 record entries to write to !
 		/// </summary>
-		/// <param name=""></param>
-		explicit DynamicProcedure(std::nullptr_t) = delete;
+		/// <param name="region"></param>
+		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
+		[[nodiscard]]
+		auto MapToRegionChecked(std::span<Record> region) const noexcept -> bool;
 
 		/// <summary>
-		/// Cast to function reference.
+		/// Maps this record from the specified memory region.
+		/// ! The region must have at least 2 record entries to read from!
+		/// Safe alternative is the overload using std::span.
 		/// </summary>
-		/// <typeparam name="F">The function signature to cast to. Must be the same as in the dynamic link library!</typeparam>
-		/// <returns>The function ref.</returns>
-		template <typename F> requires std::is_function_v<F>
-		auto operator*() const noexcept -> F&;
-
+		/// <param name="region"></param>
+		/// <returns></returns>
+		auto MapFromRegionUnchecked(const Record* region) noexcept -> void;
 
 		/// <summary>
-		/// Cast to function reference and call function.
+		/// Maps this record from the specified memory region.
+		/// ! The region must have at least 2 record entries to read from!
 		/// </summary>
-		/// <typeparam name="F">The function signature to cast to. Must be the same as in the dynamic link library!</typeparam>
-		/// <typeparam name="...Ts">The arguments to call the function with.</typeparam>
-		/// <param name="...args">The arguments to call the function with.</param>
-		/// <returns>The return value of the called function.</returns>
-		template <typename F, typename... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
-		auto operator()(Ts&&...args) const noexcept -> decltype(F(std::forward<Ts...>(args...)));
+		/// <param name="region"></param>
+		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
+		[[nodiscard]]
+		auto MapFromRegionChecked(std::span<const Record> region) noexcept -> bool;
 
-		void* Ptr;
+		/// <summary>
+		/// Map an object header to the region and return the current value of the strong ref count.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns>The current value of the strong ref count.</returns>
+		[[nodiscard]]
+		static constexpr auto ReadMapping_StrongRefCount(const Record* region) noexcept -> std::uint32_t;
+
+		/// <summary>
+		/// Map an object header to the region and return the current value of the size.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns>The current value of the size field.</returns>
+		[[nodiscard]]
+		static constexpr auto ReadMapping_Size(const Record* region) noexcept -> std::uint32_t;
+
+		/// <summary>
+		/// Map an object header to the region and return the current value of the type id.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns>The current value of the type id.</returns>
+		[[nodiscard]]
+		static constexpr auto ReadMapping_TypeId(const Record* region) noexcept -> std::uint32_t;
+
+		/// <summary>
+		/// Map an object header to the region and return the current value of the flag vector.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns>The current value of the flag vector.</returns>
+		[[nodiscard ]]
+		static constexpr auto ReadMapping_FlagVector(const Record* region) noexcept -> ObjectFlagsVectorCompound;
+
+		/// <summary>
+		/// Map an object header to the region and writes the value into the strong ref count field.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <param name="strongRefCount">The value to write.</param>
+		/// <returns></returns>
+		static constexpr auto WriteMapping_StrongRefCount(Record* region, std::uint32_t strongRefCount) noexcept -> void;
+
+		/// <summary>
+		/// Implicit map the region to an object header and increment the strong reference counter by one.
+		/// The region must have at least 2 record entries to read from!
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns></returns>
+		static constexpr auto WriteMapping_IncrementStrongRefCount(Record* region) noexcept -> void;
+
+		/// <summary>
+		/// Implicit map the region to an object header and decrement the strong reference counter by one.
+		/// The region must have at least 2 record entries to read from!
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns></returns>
+		static constexpr auto WriteMapping_DecrementStrongRefCount(Record* region) noexcept -> void;
+
+		/// <summary>
+		/// Map an object header to the region and writes the value into the size field.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <param name="size">The value to write.</param>
+		/// <returns></returns>
+		static constexpr auto WriteMapping_Size(Record* region, std::uint32_t size) noexcept -> void;
+
+		/// <summary>
+		/// Map an object header to the region and writes the value into the type id field.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <param name="typeId">The value to write.</param>
+		/// <returns></returns>
+		static constexpr auto WriteMapping_TypeId(Record* region, std::uint32_t typeId) noexcept -> void;
+
+		/// <summary>
+		/// Map an object header to the region and writes the value into the flag vector field.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <param name="flagVector">The value to write.</param>
+		/// <returns></returns>
+		static constexpr auto WriteMapping_FlagVector(Record* region, ObjectFlagsVectorCompound flagVector) noexcept -> void;
+
+		/// <summary>
+		/// Type-pun a region to an object header
+		/// using reinterpret_cast. This is bug prone and unsafe.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto RawQueryTypePun(Record* region) -> ObjectHeader&;
+
+		/// <summary>
+		/// The size of each header block field.
+		/// </summary>
+		static constexpr auto STRIDE {sizeof(std::uint32_t)};
+
+		/// <summary>
+		/// The count of header field blocks => 4 (StrongRefCount, Size, TypeId, FlagVector)
+		/// </summary>
+		static constexpr std::size_t BLOCKS {4};
+
+		/// <summary>
+		/// The offset in records from the blob base pointer.
+		/// </summary>
+		static constexpr std::uintptr_t RECORD_OFFSET {STRIDE * BLOCKS / sizeof(Record)};
+
+		/// <summary>
+		/// The amount of records required to store the header.
+		/// </summary>
+		static constexpr std::uint32_t RECORD_CHUNKS {RECORD_OFFSET};
+
+		static_assert(STRIDE == 4);
+		static_assert(BLOCKS == 4);
 	};
 
-	static_assert(std::is_copy_constructible_v<DynamicProcedure>);
-	static_assert(std::is_move_assignable_v<DynamicProcedure>);
-	static_assert(std::is_trivially_copy_assignable_v<DynamicProcedure>);
-	static_assert(std::is_trivially_move_assignable_v<DynamicProcedure>);
+	static_assert(sizeof(ObjectHeader) == ObjectHeader::BLOCKS * ObjectHeader::STRIDE);
+	static_assert(sizeof(ObjectHeader) == 16);
+	static_assert(sizeof(ObjectHeader) % ObjectHeader::BLOCKS == 0); // Ok, ok we know the size must be 16 bytes!
+	static_assert(std::is_standard_layout_v<ObjectHeader>);
+	static_assert(std::is_trivially_copyable_v<ObjectHeader>);
 
-	constexpr DynamicProcedure::DynamicProcedure(void* const value) noexcept : Ptr {value} { }
-
-	template <typename F> requires std::is_function_v<F>
-	auto DynamicProcedure::operator*() const noexcept -> F&
+	__attribute__((flatten)) inline auto ObjectHeader::MapToRegionUnchecked(Record* const region) const noexcept -> void
 	{
-		return *static_cast<F*>(this->Ptr);
+		std::memcpy(region, this, sizeof(ObjectHeader));
 	}
 
-	template <typename F, typename ... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
-	auto DynamicProcedure::operator()(Ts&&...args) const noexcept -> decltype(F(std::forward<Ts...>(args...)))
+	__attribute__((flatten)) inline auto ObjectHeader::MapToRegionChecked(const std::span<Record> region) const noexcept -> bool
 	{
-		return (*static_cast<F*>(this->Ptr))(std::forward<Ts...>(args...));
+		if (__builtin_expect(region.size() < 2, 0))
+		{
+			return false;
+		}
+		return std::memcpy(region.data(), this, sizeof(ObjectHeader));
 	}
 
-	/// <summary>
-	/// Represents a dynamically linked library. (.dll, .so) 
-	/// </summary>
-	struct DynamicLibrary final
+	__attribute__((flatten)) inline auto ObjectHeader::MapFromRegionUnchecked(const Record* const region) noexcept -> void
 	{
-		/// <summary>
-		/// Load from file.
-		/// </summary>
-		/// <param name="filePath">The file path to load from.</param>
-		explicit DynamicLibrary(std::string_view filePath);
-
-		/// <summary>
-		/// Load from file.
-		/// </summary>
-		/// <param name="filePath">The file path to load from.</param>
-		explicit DynamicLibrary(const std::filesystem::path& filePath);
-
-		/// <summary>
-		/// No moving, copying
-		/// </summary>
-		/// <param name=""></param>
-		DynamicLibrary(const DynamicLibrary&) = delete;
-
-		/// <summary>
-		/// No moving, copying
-		/// </summary>
-		/// <param name=""></param>
-		DynamicLibrary(DynamicLibrary&&) = delete;
-
-		/// <summary>
-		/// No moving, copying
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		auto operator =(const DynamicLibrary&) -> DynamicLibrary& = delete;
-
-		/// <summary>
-		/// No moving, copying
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		auto operator =(DynamicLibrary&&) -> DynamicLibrary& = delete;
-
-		/// <summary>
-		/// Destructor, release library handle.
-		/// </summary>
-		~DynamicLibrary();
-
-		/// <summary>
-		/// Check if pointer handle is valid.
-		/// </summary>
-		/// <returns>True if pointer handle is valid, else false.</returns>
-		[[nodiscard]] operator bool() const noexcept;
-
-		/// <summary>
-		/// Perform a symbol lookup.
-		/// </summary>
-		/// <param name="symbolName">The correct name of the dynamic symbol.</param>
-		/// <returns>The corresponding dynamic procedure on success, else std::nullopt.</returns>
-		[[nodiscard]] auto operator [](std::string_view symbolName) const -> std::optional<DynamicProcedure>;
-
-	private:
-		void* Handle {nullptr};
-	};
-
-	static_assert(!std::is_copy_constructible_v<DynamicLibrary>);
-	static_assert(!std::is_move_assignable_v<DynamicLibrary>);
-	static_assert(!std::is_trivially_copy_assignable_v<DynamicLibrary>);
-	static_assert(!std::is_trivially_move_assignable_v<DynamicLibrary>);
-
-	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle {Os::DylibOpen(filePath)} { }
-
-	inline DynamicLibrary::DynamicLibrary(const std::filesystem::path& filePath) : Handle {
-		Os::DylibOpen(filePath.string())
-	} { }
-
-	inline DynamicLibrary::~DynamicLibrary()
-	{
-		Os::DylibClose(this->Handle);
+		std::memcpy(this, region, sizeof(ObjectHeader));
 	}
 
-	inline DynamicLibrary::operator bool() const noexcept
+	__attribute__((flatten)) inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Record> region) noexcept -> bool
 	{
-		return this->Handle != nullptr;
+		if (__builtin_expect(region.size() < 2, 0))
+		{
+			return false;
+		}
+		return std::memcpy(this, region.data(), sizeof(ObjectHeader));
 	}
 
-	inline auto DynamicLibrary::operator[](const std::string_view symbolName) const -> std::optional<DynamicProcedure>
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Record* const region) noexcept -> std::uint32_t
 	{
-		void* const symbolHandle = Os::DylibLookupSymbol(this->Handle, symbolName);
-		return symbolHandle ? std::optional {DynamicProcedure {symbolHandle}} : std::nullopt;
+		return *(*region).U32C;
+	}
+
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) noexcept -> std::uint32_t
+	{
+		return *((*region).U32C + 1);
+	}
+
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) noexcept -> std::uint32_t
+	{
+		return *(*(region + 1)).U32C;
+	}
+
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) noexcept -> ObjectFlagsVectorCompound
+	{
+		const auto flags = ObjectFlagsVectorCompound
+		{
+			.Compound = *((*(region + 1)).U32C + 1)
+		};
+		return flags;
+	}
+
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const std::uint32_t strongRefCount) noexcept -> void
+	{
+		*(*region).U32C = strongRefCount;
+	}
+
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) noexcept -> void
+	{
+		++*(*region).U32C;
+	}
+
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) noexcept -> void
+	{
+		--*(*region).U32C;
+	}
+
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_Size(Record* const region, const std::uint32_t size) noexcept -> void
+	{
+		*((*region).U32C + 1) = size;
+	}
+
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_TypeId(Record* const region, const std::uint32_t typeId) noexcept -> void
+	{
+		*(*(region + 1)).U32C = typeId;
+	}
+
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagsVectorCompound flagVector) noexcept -> void
+	{
+		*((*(region + 1)).U32C + 1) = flagVector.Compound;
+	}
+
+	__attribute__((flatten)) inline auto ObjectHeader::RawQueryTypePun(Record* const region) -> ObjectHeader&
+	{
+		return *reinterpret_cast<ObjectHeader*>(region);
 	}
 }

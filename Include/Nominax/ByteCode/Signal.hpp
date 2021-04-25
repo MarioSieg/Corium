@@ -210,7 +210,7 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "../Record.hpp"
+#include "../Core/Record.hpp"
 
 #include "SystemIntrinsic.hpp"
 #include "CustomIntrinsic.hpp"

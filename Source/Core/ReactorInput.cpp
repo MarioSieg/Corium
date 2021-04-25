@@ -1,6 +1,6 @@
-// File: OsWindows.cpp
+// File: ReactorInput.cpp
 // Author: Mario
-// Created: 12.04.2021 8:34 AM
+// Created: 25.04.2021 3:03 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,67 +205,70 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/System/Os.hpp"
-#include "../Include/Nominax/System/Platform.hpp"
+#include "../../Include/Nominax/Core/ReactorInput.hpp"
+#include "../../Include/Nominax/System/MacroCfg.hpp"
 
-#if NOMINAX_OS_WINDOWS
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <Psapi.h>
-
-namespace Nominax::Os
+namespace Nominax
 {
-	auto QuerySystemMemoryTotal() -> std::size_t
+	auto ReactorInput::Validate() const noexcept -> ReactorValidationResult
 	{
-		MEMORYSTATUSEX status;
-		status.dwLength = sizeof(MEMORYSTATUSEX);
-		GlobalMemoryStatusEx(&status);
-		return status.ullTotalPhys;
-	}
-
-	auto QueryProcessMemoryUsed() -> std::size_t
-	{
-		PROCESS_MEMORY_COUNTERS pmc;
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
-		return pmc.WorkingSetSize;
-	}
-
-	auto QueryCpuName() -> std::string
-	{
-		HKEY key;
-		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
+		// validate all pointers:
+		if (!(this->SignalStatus && this->CodeChunk && this->IntrinsicTable && this->InterruptHandler && this->Stack))
 		[[unlikely]]
 		{
-			return "Unknown";
+			return ReactorValidationResult::NullPtr;
 		}
-		char       id[64 + 1];
-		DWORD      id_len = sizeof id;
-		const auto data   = static_cast<LPBYTE>(static_cast<void*>(id));
-		if (RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &id_len))
-		[[unlikely]]
+
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+
+		if (!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize)) [[unlikely]]
 		{
-			return "Unknown";
+			return ReactorValidationResult::NullPtr;
 		}
-		return id;
-	}
-
-	auto DylibOpen(const std::string_view filePath) -> void*
-	{
-		return LoadLibraryA(filePath.data());
-	}
-
-	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
-	{
-		// ReSharper disable once CppRedundantCastExpression
-		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
-	}
-
-	auto DylibClose(void*& handle) -> void
-	{
-		FreeLibrary(static_cast<HMODULE>(handle));
-		handle = nullptr;
-	}
-}
 
 #endif
+
+		// validate the size for the corresponding pointers:
+		if (!this->CodeChunkSize || !this->IntrinsicTableSize || !this->StackSize)
+		[[unlikely]]
+		{
+			return ReactorValidationResult::ZeroSize;
+		}
+
+		// first instruction will be skipped and must be NOP:
+		if (CodeChunk->Instr != Instruction::NOp)
+		[[unlikely]]
+		{
+			return ReactorValidationResult::MissingCodePrologue;
+		}
+
+		// last instruction must be interrupt:
+		if (CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != Instruction::Int)
+		[[unlikely]]
+		{
+			return ReactorValidationResult::MissingCodeEpilogue;
+		}
+
+		// first stack entry is never used and must be nop-padding:
+		if (*Stack != Record::Padding())
+		[[unlikely]]
+		{
+			return ReactorValidationResult::MissingStackPrologue;
+		}
+
+		// validate intrinsic routines:
+		auto* const*       begin = this->IntrinsicTable;
+		auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
+		while (begin < end)
+		[[unlikely]]
+		{
+			if (!*begin++)
+			[[unlikely]]
+			{
+				return ReactorValidationResult::NullIntrinsicRoutine;
+			}
+		}
+
+		return ReactorValidationResult::Ok;
+	}
+}

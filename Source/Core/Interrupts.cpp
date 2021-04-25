@@ -1,6 +1,6 @@
-// File: OsWindows.cpp
+// File: Interrupts.cpp
 // Author: Mario
-// Created: 12.04.2021 8:34 AM
+// Created: 16.04.2021 9:07 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,67 +205,146 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/System/Os.hpp"
-#include "../Include/Nominax/System/Platform.hpp"
+#include "../../Include/Nominax/Core/Interrupts.hpp"
+#include "../../Include/Nominax/Core/Reactor.hpp"
+#include "../../Include/Nominax/Core/HardFaultReport.hpp"
 
-#if NOMINAX_OS_WINDOWS
+#include <algorithm>
+#include <sstream>
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <Psapi.h>
-
-namespace Nominax::Os
+namespace
 {
-	auto QuerySystemMemoryTotal() -> std::size_t
-	{
-		MEMORYSTATUSEX status;
-		status.dwLength = sizeof(MEMORYSTATUSEX);
-		GlobalMemoryStatusEx(&status);
-		return status.ullTotalPhys;
-	}
-
-	auto QueryProcessMemoryUsed() -> std::size_t
-	{
-		PROCESS_MEMORY_COUNTERS pmc;
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
-		return pmc.WorkingSetSize;
-	}
-
-	auto QueryCpuName() -> std::string
-	{
-		HKEY key;
-		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
-		[[unlikely]]
-		{
-			return "Unknown";
-		}
-		char       id[64 + 1];
-		DWORD      id_len = sizeof id;
-		const auto data   = static_cast<LPBYTE>(static_cast<void*>(id));
-		if (RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &id_len))
-		[[unlikely]]
-		{
-			return "Unknown";
-		}
-		return id;
-	}
-
-	auto DylibOpen(const std::string_view filePath) -> void*
-	{
-		return LoadLibraryA(filePath.data());
-	}
-
-	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
-	{
-		// ReSharper disable once CppRedundantCastExpression
-		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
-	}
-
-	auto DylibClose(void*& handle) -> void
-	{
-		FreeLibrary(static_cast<HMODULE>(handle));
-		handle = nullptr;
-	}
+	constinit volatile std::sig_atomic_t signalStatus {0};
 }
 
-#endif
+namespace Nominax
+{
+	auto QuerySignalStatus() noexcept -> std::sig_atomic_t
+	{
+		return signalStatus;
+	}
+
+	auto DefaultSignalHandler(const std::sig_atomic_t sigSta) -> void
+	{
+		signalStatus = sigSta;
+		if (currentPanicHandler)
+		[[likely]]
+		{
+			currentPanicHandler();
+		}
+		else
+		{
+			DefaultPanicHandler();
+		}
+	}
+
+	auto DefaultPanicHandler() -> void
+	{
+		std::string_view sigMsg;
+		switch (signalStatus)
+		{
+		case SIGINT:
+			sigMsg = "Signal: Interrupt";
+			break;
+		case SIGILL:
+			sigMsg = "Signal: Illegal instruction - invalid function image!";
+			break;
+		case SIGFPE:
+			sigMsg = "Signal: Floating point exception!";
+			break;
+		case SIGSEGV:
+			sigMsg = "Signal: Segmentation violation!";
+			break;
+		case SIGTERM:
+			sigMsg = "Signal: Kill software termination signal!";
+			break;
+		case SIGABRT:
+			sigMsg = "Signal: Abnormal termination!";
+			break;
+		default:
+			sigMsg = "Unknown signal!";
+			break;
+		}
+		/*
+		 * TODO
+		 * this is not signal safe, undefined behaviour!
+		 * need to replace this with signal safe print calls soon!
+		 */
+		WriteHardFaultReport(nullptr, nullptr, nullptr, 0, 0, sigMsg);
+	}
+
+	auto InstallSignalHandlers() -> void
+	{
+		std::signal(SIGINT, &DefaultSignalHandler);
+		std::signal(SIGILL, &DefaultSignalHandler);
+		std::signal(SIGFPE, &DefaultSignalHandler);
+		std::signal(SIGSEGV, &DefaultSignalHandler);
+		std::signal(SIGTERM, &DefaultSignalHandler);
+		std::signal(SIGABRT, &DefaultSignalHandler);
+	}
+
+	auto UninstallSignalHandlers() -> void
+	{
+		std::signal(SIGINT, SIG_DFL);
+		std::signal(SIGILL, SIG_DFL);
+		std::signal(SIGFPE, SIG_DFL);
+		std::signal(SIGSEGV, SIG_DFL);
+		std::signal(SIGTERM, SIG_DFL);
+		std::signal(SIGABRT, SIG_DFL);
+	}
+
+	auto InterruptEnumeratorName(const SystemInterrupt interrupt) noexcept -> std::string_view
+	{
+		switch (interrupt)
+		{
+		case SystemInterrupt::NullptrDeref: return "interrupt::nullptr_deref";
+		case SystemInterrupt::Io: return "interrupt::io";
+		case SystemInterrupt::JitFault: return "interrupt::jit_fault";
+		case SystemInterrupt::StackOverflow: return "interrupt::stack_overflow";
+		case SystemInterrupt::IntrinsicTrap: return "interrupt::intrinsic_trap";
+		case SystemInterrupt::BadAlloc: return "interrupt::bad_alloc";
+		case SystemInterrupt::Internal: return "interrupt::internal";
+		default: case SystemInterrupt::Unknown: return "interrupt::unknown";
+		}
+	}
+
+	auto BasicErrorInfo(const SystemInterrupt interrupt) noexcept -> std::string_view
+	{
+		switch (interrupt)
+		{
+		case SystemInterrupt::NullptrDeref: return "NullPointerError";
+		case SystemInterrupt::Io: return "IOError";
+		case SystemInterrupt::JitFault: return "JITCompilationError";
+		case SystemInterrupt::StackOverflow: return "StackOverflowError";
+		case SystemInterrupt::IntrinsicTrap: return "IntrinsicError";
+		case SystemInterrupt::BadAlloc: return "OutOfMemoryError";
+		case SystemInterrupt::Internal: return "InternalError";
+		default: case SystemInterrupt::Unknown: return "UnknownError";
+		}
+	}
+
+	auto DetailedErrorInfo(const SystemInterrupt interrupt) -> std::string
+	{
+		std::stringstream ss;
+		ss << BasicErrorInfo(interrupt) << '\n';
+		ss << InterruptEnumeratorName(interrupt) << " : " << std::hex << "0x" << static_cast<std::underlying_type_t<
+			decltype(interrupt)>>(interrupt) << '\n';
+		return ss.str();
+	}
+
+	auto InterruptCvt(const InterruptAccumulator interrupt) noexcept -> SystemInterrupt
+	{
+		return static_cast<SystemInterrupt>(std::clamp(
+			interrupt, static_cast<std::underlying_type_t<SystemInterrupt>>(SystemInterrupt::Min),
+			static_cast<std::underlying_type_t<SystemInterrupt>>(SystemInterrupt::Max)));
+	}
+
+	auto TerminateTypeCvt(const InterruptAccumulator interrupt) noexcept -> TerminateResult
+	{
+		return interrupt == 0
+			       ? TerminateResult::Success
+			       : interrupt < 0
+			       ? TerminateResult::Error
+			       : TerminateResult::Exception;
+	}
+}

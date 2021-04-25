@@ -209,7 +209,7 @@
 
 #include <cstdint>
 
-#include "../Record.hpp"
+#include "../Core/Record.hpp"
 
 namespace Nominax
 {

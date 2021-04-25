@@ -213,7 +213,7 @@
 #include "DynamicSignal.hpp"
 #include "ImmediateArgumentCount.hpp"
 #include "ImmediateArgumentType.hpp"
-#include "ImmediateArgumentType.hpp"
+#include "ImmediateArgumentTypeList.hpp"
 #include "Instruction.hpp"
 #include "InstructionCategory.hpp"
 #include "Lexeme.hpp"

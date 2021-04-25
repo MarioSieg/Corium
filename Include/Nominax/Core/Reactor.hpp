@@ -1,6 +1,6 @@
-// File: OsWindows.cpp
+// File: Reactor.hpp
 // Author: Mario
-// Created: 12.04.2021 8:34 AM
+// Created: 09.04.2021 5:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,67 +205,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/System/Os.hpp"
-#include "../Include/Nominax/System/Platform.hpp"
+#pragma once
 
-#if NOMINAX_OS_WINDOWS
+#include "ReactorOutput.hpp"
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <Psapi.h>
-
-namespace Nominax::Os
+namespace Nominax
 {
-	auto QuerySystemMemoryTotal() -> std::size_t
-	{
-		MEMORYSTATUSEX status;
-		status.dwLength = sizeof(MEMORYSTATUSEX);
-		GlobalMemoryStatusEx(&status);
-		return status.ullTotalPhys;
-	}
-
-	auto QueryProcessMemoryUsed() -> std::size_t
-	{
-		PROCESS_MEMORY_COUNTERS pmc;
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
-		return pmc.WorkingSetSize;
-	}
-
-	auto QueryCpuName() -> std::string
-	{
-		HKEY key;
-		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
-		[[unlikely]]
-		{
-			return "Unknown";
-		}
-		char       id[64 + 1];
-		DWORD      id_len = sizeof id;
-		const auto data   = static_cast<LPBYTE>(static_cast<void*>(id));
-		if (RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &id_len))
-		[[unlikely]]
-		{
-			return "Unknown";
-		}
-		return id;
-	}
-
-	auto DylibOpen(const std::string_view filePath) -> void*
-	{
-		return LoadLibraryA(filePath.data());
-	}
-
-	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
-	{
-		// ReSharper disable once CppRedundantCastExpression
-		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
-	}
-
-	auto DylibClose(void*& handle) -> void
-	{
-		FreeLibrary(static_cast<HMODULE>(handle));
-		handle = nullptr;
-	}
+	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const ReactorInput& input) -> ReactorOutput;
 }
-
-#endif

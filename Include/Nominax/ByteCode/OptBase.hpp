@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "../Platform.hpp"
+#include "../System/Platform.hpp"
 
 namespace Nominax
 {

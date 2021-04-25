@@ -1,6 +1,6 @@
-// File: OsWindows.cpp
+// File: ObjectAllocator.cpp
 // Author: Mario
-// Created: 12.04.2021 8:34 AM
+// Created: 25.04.2021 2:41 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,67 +205,89 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/System/Os.hpp"
-#include "../Include/Nominax/System/Platform.hpp"
+#include <iostream>
 
-#if NOMINAX_OS_WINDOWS
+#include "../../Include/Nominax/Core/ObjectAllocator.hpp"
+#include "../../Include/Nominax/System/MacroCfg.hpp"
+#include "../../Include/Nominax/Utility.hpp"
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <Psapi.h>
-
-namespace Nominax::Os
+namespace Nominax
 {
-	auto QuerySystemMemoryTotal() -> std::size_t
+	auto RuntimeObjectAllocator::RawAllocateAndWriteSize(const std::uint32_t sizeInRecords) -> Object::BlobBlockType*
 	{
-		MEMORYSTATUSEX status;
-		status.dwLength = sizeof(MEMORYSTATUSEX);
-		GlobalMemoryStatusEx(&status);
-		return status.ullTotalPhys;
-	}
+		// debug check
+		assert(sizeInRecords);
 
-	auto QueryProcessMemoryUsed() -> std::size_t
-	{
-		PROCESS_MEMORY_COUNTERS pmc;
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
-		return pmc.WorkingSetSize;
-	}
-
-	auto QueryCpuName() -> std::string
-	{
-		HKEY key;
-		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
-		[[unlikely]]
+		// We cannot allocate an object of size 0.
+		// This would only allocate an object header.
+		if (__builtin_expect(sizeInRecords == 0, 0))
 		{
-			return "Unknown";
+			return nullptr;
 		}
-		char       id[64 + 1];
-		DWORD      id_len = sizeof id;
-		const auto data   = static_cast<LPBYTE>(static_cast<void*>(id));
-		if (RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &id_len))
-		[[unlikely]]
+
+		// add space for object header (2 records):
+		const std::uint32_t finalSizeInRecords {sizeInRecords + ObjectHeader::RECORD_CHUNKS};
+
+		// allocate object instance:
+		auto* __restrict__ const instance = new(std::nothrow) Record[finalSizeInRecords]();
+
+		// debug check
+		assert(instance);
+
+		// check if allocation failed:
+		if (__builtin_expect(!instance, 0))
 		{
-			return "Unknown";
+			return nullptr;
 		}
-		return id;
+
+		// Write the size of the object, without the header.
+		// The other object header fields shall be written by the caller.
+		ObjectHeader::WriteMapping_Size(instance, sizeInRecords);
+
+		// Update allocation counter:
+		AllocatedBlocks.fetch_add(finalSizeInRecords);
+
+#if NOMINAX_VERBOSE_ALLOCATOR
+		std::cout << "Allocated ";
+		PrettyPrintBytes(std::cout, finalSizeInRecords * sizeof(Record));
+		std::cout << ", Total allocated: ";
+		PrettyPrintBytes(std::cout, AllocatedBlocks * sizeof(Record));
+		std::cout << '\n';
+#endif
+
+		return instance;
 	}
 
-	auto DylibOpen(const std::string_view filePath) -> void*
+	auto RuntimeObjectAllocator::RawDeallocate(Object::BlobBlockType*& instance) -> void
 	{
-		return LoadLibraryA(filePath.data());
-	}
+		// debug check
+		assert(instance);
 
-	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
-	{
-		// ReSharper disable once CppRedundantCastExpression
-		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
-	}
+		if (__builtin_expect(!instance, 0))
+		{
+			return;
+		}
 
-	auto DylibClose(void*& handle) -> void
-	{
-		FreeLibrary(static_cast<HMODULE>(handle));
-		handle = nullptr;
+		// get the size in records:
+		const auto size = ObjectHeader::ReadMapping_Size(instance);
+
+		// debug check
+		assert(size);
+
+		// Update allocation counter:
+		AllocatedBlocks.fetch_sub(size);
+
+		// Free memory:
+		delete[] instance;
+
+		instance = nullptr;
+
+#if NOMINAX_VERBOSE_ALLOCATOR
+		std::cout << "Deallocated ";
+		PrettyPrintBytes(std::cout, size * sizeof(Record));
+		std::cout << ", Total allocated: ";
+		PrettyPrintBytes(std::cout, AllocatedBlocks * sizeof(Record));
+		std::cout << '\n';
+#endif
 	}
 }
-
-#endif

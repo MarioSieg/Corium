@@ -1,6 +1,6 @@
-// File: Environment.cpp
+// File: Core.hpp
 // Author: Mario
-// Created: 17.04.2021 2:32 PM
+// Created: 25.04.2021 3:17 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,133 +205,20 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <iostream>
-#include <iomanip>
+#pragma once
 
-#include "../Include/Nominax/Nominax.hpp"
-
-using std::cout;
-using std::cerr;
-using std::endl;
-
-namespace Nominax
-{
-	static constexpr auto MachineRating(const std::size_t threads) noexcept -> char
-	{
-		if (threads <= 2)
-		{
-			return 'F';
-		}
-		if (threads <= 4)
-		{
-			return 'E';
-		}
-		if (threads <= 8)
-		{
-			return 'D';
-		}
-		if (threads <= 16)
-		{
-			return 'C';
-		}
-		if (threads <= 32)
-		{
-			return 'B';
-		}
-		return 'A';
-	}
-
-	inline static auto Separator() -> void
-	{
-		cout << "================================================================\n";
-	}
-
-	auto Environment::PrintVersionInfo() const -> void
-	{
-		cout << SYSTEM_LOGO_TEXT;
-		cout << SYSTEM_COPYRIGHT_TEXT;
-		cout << "Nominax Version: " << SYSTEM_VERSION << '\n';
-		cout << "Platform: " NOMINAX_OS_NAME " " NOMINAX_ARCH_SIZE_NAME << '\n';
-		cout << "Arch: " << NOMINAX_ARCH_NAME << '\n';
-		cout << "Posix: " << std::boolalpha << NOMINAX_POSIX << '\n';
-		cout << "Compiler: " << NOMINAX_COM_NAME " - C++ 20" << '\n';
-	}
-
-	auto Environment::PrintMachineInfo() const -> void
-	{
-		const auto&
-		[
-			OperatingSystemName,
-			ArchitectureName,
-			CompilerName,
-			ThreadCount,
-			CpuName,
-			TotalSystemMemory,
-			UsedSystemMemory,
-			ThreadId
-		] = this->SysInfo;
-
-		cout << "TID: " << "0x" << std::hex << ThreadId << std::dec << '\n';
-		cout << "CPU: " << CpuName << '\n';
-		cout << "CPU Threads: " << ThreadCount << '\n';
-		cout << "CPU Machine class: " << MachineRating(ThreadCount) << '\n';
-		cout << "System RAM: " << Bytes2Megabytes(TotalSystemMemory) << " MB\n";
-		cout << "Process RAM: " << Bytes2Megabytes(UsedSystemMemory) << " MB\n";
-	}
-
-	template <typename T>
-	inline static auto PrintTypeInfo(std::string_view name)
-	{
-		std::cout << std::setw(16) << name << std::right << std::setw(16) << sizeof(T) << std::setw(16) << alignof(T) << '\n';
-	}
-
-	auto Environment::PrintTypeTable() const -> void
-	{
-		std::cout << std::setw(16) << "Type" << std::right << std::setw(16) << "Size" << std::setw(16) << "Alignment" << "\n\n";
-		PrintTypeInfo<Record>("Record");
-		PrintTypeInfo<Signal>("Signal");
-		PrintTypeInfo<DynamicSignal>("DynamicSignal");
-		PrintTypeInfo<Object>("Object");
-		PrintTypeInfo<ObjectHeader>("ObjectHeader");
-		PrintTypeInfo<std::int64_t>("int");
-		PrintTypeInfo<std::uint64_t>("uint");
-		PrintTypeInfo<double>("float");
-		PrintTypeInfo<char32_t>("char");
-		PrintTypeInfo<bool>("bool");
-		PrintTypeInfo<void*>("void*");
-	}
-
-	auto Environment::BootEnvironment() -> bool
-	{
-		try
-		{
-			InstallSignalHandlers();
-			std::ios_base::sync_with_stdio(false);
-			this->PrintVersionInfo();
-			Separator();
-			this->SysInfo.QueryAll();
-			this->PrintMachineInfo();
-			Separator();
-			this->PrintTypeTable();
-			Separator();
-
-			Stream stream { };
-			Stream::ExampleStream(stream);
-
-			stream.DumpToStream(cout, false);
-
-			cout.flush();
-			return true;
-		}
-		catch (const std::exception& ex)
-		{
-			cerr << "[!] Fatal system exception: " << ex.what() << endl;
-			return false;
-		}
-		catch (...)
-		{
-			cerr << "[!] Unknown system error!" << endl;
-			return false;
-		}
-	}
-}
+#include "Environment.hpp"
+#include "HardFaultReport.hpp"
+#include "HardFaultReport.hpp"
+#include "Info.hpp"
+#include "Interrupts.hpp"
+#include "Object.hpp"
+#include "ObjectAllocator.hpp"
+#include "ObjectFlagVector.hpp"
+#include "ObjectHeader.hpp"
+#include "Reactor.hpp"
+#include "ReactorInput.hpp"
+#include "ReactorOutput.hpp"
+#include "ReactorValidationResult.hpp"
+#include "Record.hpp"
+#include "RegisterDump.hpp"

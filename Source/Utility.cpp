@@ -1,6 +1,6 @@
 // File: Utility.cpp
 // Author: Mario
-// Created: 18.04.2021 18:18
+// Created: 18.04.2021 6:18 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -209,7 +209,7 @@
 #include <mutex>
 
 #include "../Include/Nominax/Utility.hpp"
-#include "../Include/Nominax/Platform.hpp"
+#include "../Include/Nominax/System/Platform.hpp"
 
 namespace Nominax
 {

@@ -19,19 +19,19 @@ option(ANOMINAX_BUILD_BENCHMARKS "Build a system benchmark" ON)
 # Requires >= GCC 10!
 
 add_library("NominaxRuntime" STATIC
-    "Include/Nominax/Platform.hpp"
-    "Include/Nominax/Reactor.hpp"
+    "Include/Nominax/System/Platform.hpp"
+    "Include/Nominax/Core/Reactor.hpp"
     "Include/Nominax/ByteCode/ByteCode.hpp"
-    "Include/Nominax/Record.hpp" 
-    "Include/Nominax/MacroCfg.hpp" 	
-    "Include/Nominax/Interrupts.hpp"
-    "Include/Nominax/Info.hpp"
-    "Include/Nominax/Os.hpp"
+    "Include/Nominax/Core/Record.hpp" 
+    "Include/Nominax/System/MacroCfg.hpp" 	
+    "Include/Nominax/Core/Interrupts.hpp"
+    "Include/Nominax/Core/Info.hpp"
+    "Include/Nominax/System/Os.hpp"
     "Include/Nominax/Utility.hpp"
-    "Include/Nominax/DynamicLibrary.hpp"
+    "Include/Nominax/System/DynamicLibrary.hpp"
     "Include/Nominax/Nominax.hpp" 
-    "Include/Nominax/Environment.hpp"   
-    "Include/Nominax/Object.hpp"
+    "Include/Nominax/Core/Environment.hpp"   
+    "Include/Nominax/Core/Object.hpp"
     "Include/Nominax/ByteCode/Instruction.hpp" 
     "Include/Nominax/ByteCode/SystemIntrinsic.hpp" 
     "Include/Nominax/ByteCode/InstructionCategory.hpp" 
@@ -52,20 +52,20 @@ add_library("NominaxRuntime" STATIC
     "Include/Nominax/ByteCode/Stream.hpp" 
     "Include/Nominax/ByteCode/Lexeme.hpp" 
 
-    "Source/Reactor.cpp"
+    "Source/Core/Reactor.cpp"
     "Source/OsWindows.cpp"
     "Source/OsLinux.cpp"
     "Source/OsAndroid.cpp"
     "Source/OsDarwin.cpp"
-    "Source/Interrupts.cpp"  
-    "Source/Environment.cpp"
+    "Source/Core/Interrupts.cpp"  
+    "Source/Core/Environment.cpp"
     "Source/Os.cpp" 
     "Source/Utility.cpp"
-    "Source/Object.cpp"  
+    "Source/Core/Object.cpp"  
     "Source/ByteCode/DynamicSignal.cpp" 
     "Source/ByteCode/Validator.cpp" 
     "Source/ByteCode/Stream.cpp" 
-    "Source/ByteCode/ScopedVariable.cpp")
+    "Source/ByteCode/ScopedVariable.cpp" "Include/Nominax/Core/ObjectFlagVector.hpp" "Include/Nominax/Core/ObjectHeader.hpp" "Include/Nominax/Core/ObjectAllocator.hpp" "Source/Core/ObjectAllocator.cpp" "Include/Nominax/Core/HardFaultReport.hpp" "Include/Nominax/Core/ReactorValidationResult.hpp" "Include/Nominax/Core/ReactorInput.hpp" "Source/Core/ReactorInput.cpp" "Include/Nominax/Core/ReactorOutput.hpp" "Source/Core/HardFaultReport.cpp" "Include/Nominax/Core/RegisterDump.hpp" "Source/Core/RegisterDump.cpp" "Include/Nominax/Core/Core.hpp")
 
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!

@@ -1,6 +1,6 @@
-// File: Environment.hpp
+// File: DynamicLibrary.hpp
 // Author: Mario
-// Created: 17.04.2021 14:32
+// Created: 12.04.2021 9:54 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,33 +207,161 @@
 
 #pragma once
 
+#include <filesystem>
+#include <optional>
+
 #include "Os.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Represents the whole runtime environment.
+	/// Represents a procedure address inside a dynamic library.
 	/// </summary>
-	class Environment
+	struct DynamicProcedure final
 	{
-		SystemInfo SysInfo { };
-
-		auto PrintVersionInfo() const -> void;
-		auto PrintMachineInfo() const -> void;
-		auto PrintTypeTable() const -> void;
-
-	public:
-		Environment() noexcept                                 = default;
-		Environment(const Environment&)                        = delete;
-		Environment(Environment&&)                             = delete;
-		auto    operator =(const Environment&) -> Environment& = delete;
-		auto    operator =(Environment&&) -> Environment&      = delete;
-		virtual ~Environment()                                 = default;
+		/// <summary>
+		/// Construct from pointer.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		constexpr explicit DynamicProcedure(void* value) noexcept;
 
 		/// <summary>
-		/// Initialize the environment.
+		/// Null pointers forbidden.
 		/// </summary>
-		/// <returns></returns>
-		auto BootEnvironment() -> bool;
+		/// <param name=""></param>
+		explicit DynamicProcedure(std::nullptr_t) = delete;
+
+		/// <summary>
+		/// Cast to function reference.
+		/// </summary>
+		/// <typeparam name="F">The function signature to cast to. Must be the same as in the dynamic link library!</typeparam>
+		/// <returns>The function ref.</returns>
+		template <typename F> requires std::is_function_v<F>
+		auto operator*() const noexcept -> F&;
+
+
+		/// <summary>
+		/// Cast to function reference and call function.
+		/// </summary>
+		/// <typeparam name="F">The function signature to cast to. Must be the same as in the dynamic link library!</typeparam>
+		/// <typeparam name="...Ts">The arguments to call the function with.</typeparam>
+		/// <param name="...args">The arguments to call the function with.</param>
+		/// <returns>The return value of the called function.</returns>
+		template <typename F, typename... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
+		auto operator()(Ts&&...args) const noexcept -> decltype(F(std::forward<Ts...>(args...)));
+
+		void* Ptr;
 	};
+
+	static_assert(std::is_copy_constructible_v<DynamicProcedure>);
+	static_assert(std::is_move_assignable_v<DynamicProcedure>);
+	static_assert(std::is_trivially_copy_assignable_v<DynamicProcedure>);
+	static_assert(std::is_trivially_move_assignable_v<DynamicProcedure>);
+
+	constexpr DynamicProcedure::DynamicProcedure(void* const value) noexcept : Ptr {value} { }
+
+	template <typename F> requires std::is_function_v<F>
+	auto DynamicProcedure::operator*() const noexcept -> F&
+	{
+		return *static_cast<F*>(this->Ptr);
+	}
+
+	template <typename F, typename ... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
+	auto DynamicProcedure::operator()(Ts&&...args) const noexcept -> decltype(F(std::forward<Ts...>(args...)))
+	{
+		return (*static_cast<F*>(this->Ptr))(std::forward<Ts...>(args...));
+	}
+
+	/// <summary>
+	/// Represents a dynamically linked library. (.dll, .so) 
+	/// </summary>
+	struct DynamicLibrary final
+	{
+		/// <summary>
+		/// Load from file.
+		/// </summary>
+		/// <param name="filePath">The file path to load from.</param>
+		explicit DynamicLibrary(std::string_view filePath);
+
+		/// <summary>
+		/// Load from file.
+		/// </summary>
+		/// <param name="filePath">The file path to load from.</param>
+		explicit DynamicLibrary(const std::filesystem::path& filePath);
+
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name=""></param>
+		DynamicLibrary(const DynamicLibrary&) = delete;
+
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name=""></param>
+		DynamicLibrary(DynamicLibrary&&) = delete;
+
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		auto operator =(const DynamicLibrary&) -> DynamicLibrary& = delete;
+
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		auto operator =(DynamicLibrary&&) -> DynamicLibrary& = delete;
+
+		/// <summary>
+		/// Destructor, release library handle.
+		/// </summary>
+		~DynamicLibrary();
+
+		/// <summary>
+		/// Check if pointer handle is valid.
+		/// </summary>
+		/// <returns>True if pointer handle is valid, else false.</returns>
+		[[nodiscard]] operator bool() const noexcept;
+
+		/// <summary>
+		/// Perform a symbol lookup.
+		/// </summary>
+		/// <param name="symbolName">The correct name of the dynamic symbol.</param>
+		/// <returns>The corresponding dynamic procedure on success, else std::nullopt.</returns>
+		[[nodiscard]] auto operator [](std::string_view symbolName) const -> std::optional<DynamicProcedure>;
+
+	private:
+		void* Handle {nullptr};
+	};
+
+	static_assert(!std::is_copy_constructible_v<DynamicLibrary>);
+	static_assert(!std::is_move_assignable_v<DynamicLibrary>);
+	static_assert(!std::is_trivially_copy_assignable_v<DynamicLibrary>);
+	static_assert(!std::is_trivially_move_assignable_v<DynamicLibrary>);
+
+	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle {Os::DylibOpen(filePath)} { }
+
+	inline DynamicLibrary::DynamicLibrary(const std::filesystem::path& filePath) : Handle {
+		Os::DylibOpen(filePath.string())
+	} { }
+
+	inline DynamicLibrary::~DynamicLibrary()
+	{
+		Os::DylibClose(this->Handle);
+	}
+
+	inline DynamicLibrary::operator bool() const noexcept
+	{
+		return this->Handle != nullptr;
+	}
+
+	inline auto DynamicLibrary::operator[](const std::string_view symbolName) const -> std::optional<DynamicProcedure>
+	{
+		void* const symbolHandle = Os::DylibLookupSymbol(this->Handle, symbolName);
+		return symbolHandle ? std::optional {DynamicProcedure {symbolHandle}} : std::nullopt;
+	}
 }

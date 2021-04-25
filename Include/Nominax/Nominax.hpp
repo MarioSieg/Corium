@@ -208,15 +208,11 @@
 #pragma once
 
 #include "ByteCode/ByteCode.hpp"
-#include "DynamicLibrary.hpp"
-#include "Environment.hpp"
-#include "Info.hpp"
-#include "Interrupts.hpp"
-#include "MacroCfg.hpp"
-#include "Utility.hpp"
-#include "Object.hpp"
-#include "Os.hpp"
-#include "Platform.hpp"
-#include "Reactor.hpp"
-#include "Record.hpp"
+#include "Core/Core.hpp"
+
+#include "System/DynamicLibrary.hpp"
+#include "System/MacroCfg.hpp"
+#include "System/Os.hpp"
+#include "System/Platform.hpp"
+
 #include "Utility.hpp"

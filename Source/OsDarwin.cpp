@@ -1,6 +1,6 @@
 // File: OsDarwin.cpp
 // Author: Mario
-// Created: 12.04.2021 09:17
+// Created: 12.04.2021 9:17 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,8 +205,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/Os.hpp"
-#include "../Include/Nominax/Platform.hpp"
+#include "../Include/Nominax/System/Os.hpp"
+#include "../Include/Nominax/System/Platform.hpp"
 
 #if NOMINAX_OS_MAC || NOMINAX_OS_IOS
 

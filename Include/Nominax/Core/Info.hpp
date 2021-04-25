@@ -1,6 +1,6 @@
-// File: Reactor.hpp
+// File: Info.hpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 12.04.2021 6:39 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,117 +207,66 @@
 
 #pragma once
 
-#include <chrono>
-#include <csignal>
-#include <cstddef>
+#include <cstdint>
 #include <string_view>
-
-#include "ByteCode/ByteCode.hpp"
-#include "Interrupts.hpp"
+#include <ostream>
 
 namespace Nominax
 {
-	enum class ReactorValidationResult
+	struct Version final
 	{
-		Ok = 0,
-		NullPtr,
-		ZeroSize,
-		MissingCodePrologue,
-		MissingCodeEpilogue,
-		MissingStackPrologue,
-		NullIntrinsicRoutine,
-		ExecutionAddressMappingError
+		std::uint8_t Major { };
+		std::uint8_t Minor { };
+		std::uint8_t Build { };
+		std::uint8_t Revision { };
 	};
 
-	/// <summary>
-	/// Contains all input data for the VM reactor.
-	/// </summary>
-	struct ReactorInput final
+	constexpr Version SYSTEM_VERSION
 	{
-		volatile std::sig_atomic_t* SignalStatus {nullptr};
-		Signal*                     CodeChunk {nullptr};
-		const bool*                 CodeChunkInstructionMap {nullptr};
-		std::size_t                 CodeChunkSize {0};
-		IntrinsicRoutine* const*    IntrinsicTable {nullptr};
-		std::size_t                 IntrinsicTableSize {0};
-		InterruptRoutine*           InterruptHandler {nullptr};
-		Record*                     Stack {nullptr};
-		std::size_t                 StackSize {0};
-		void*                       UserData {nullptr};
-		bool                        LargeStackTrace {false};
-
-		[[nodiscard]]
-		auto Validate() const noexcept -> ReactorValidationResult;
+		.Major = 0,
+		.Minor = 5,
+		.Build = 0,
+		.Revision = 0,
 	};
 
-	/// <summary>
-	/// Contains all the output data from the VM reactor.
-	/// </summary>
-	struct ReactorOutput final
+	inline auto operator <<(std::ostream& out, const Version version) -> std::ostream&
 	{
-		const ReactorInput*                            Input {nullptr};
-		ReactorValidationResult                        ValidationResult { };
-		TerminateResult                                ExecutionResult { };
-		SystemInterrupt                                Interrupt { };
-		std::chrono::high_resolution_clock::time_point Pre { };
-		std::chrono::high_resolution_clock::time_point Post { };
-		InterruptAccumulator                           InterruptCode { };
-		std::ptrdiff_t                                 IpDiff { };
-		std::ptrdiff_t                                 SpDiff { };
-		std::ptrdiff_t                                 BpDiff { };
-	};
+		return out << static_cast<std::uint16_t>(version.Major) << '.' << static_cast<std::uint16_t>(version.Minor) <<
+			'.' << static_cast<std::uint16_t>(version.Build) << '.' << static_cast<std::uint16_t>(version.Revision);
+	}
 
-	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const ReactorInput& input) -> ReactorOutput;
+	constexpr std::string_view SYSTEM_COPYRIGHT_TEXT =
+		"(c) Copyright Mario Sieg <pinsrq> mt3000@gmx.de 2019-2021! All rights reserved!\n"
+		"The Nominax runtime system is open source software: https://github.com/MarioSieg/NominaX\n"
+		"See LICENSE file for licensing and copyright information!\n";
 
-	/// <summary>
-	/// Writes a full error dump into the stream.
-	/// </summary>
-	/// <param name="out"></param>
-	/// <param name="sp"></param>
-	/// <param name="ip"></param>
-	/// <param name="bp"></param>
-	/// <param name="stackSize"></param>
-	/// <param name="codeSize"></param>
-	/// <param name="message"></param>
-	/// <param name="stackDumpSize"></param>
-	/// <param name="codeDumpSize"></param>
-	/// <returns></returns>
-	auto WriteHardFaultReport
-	(
-		std::ostream&    out,
-		const Record*    sp,
-		const Signal*    ip,
-		const Signal*    bp,
-		std::size_t      stackSize,
-		std::size_t      codeSize,
-		std::string_view message       = "",
-		std::size_t      stackDumpSize = 64,
-		std::size_t      codeDumpSize  = 64
-	) -> void;
+	constexpr std::string_view SYSTEM_LOGO_TEXT = R"(
+                                                         #@@#   
+                                                      %@@@@@@@@@
+                                                     .@@@    (@@
+                                                            &@@@
+                                                          /@@@  
+                                                         @@@*   
+                                                       @@@@@@@@@
+   @@@@@@@&             /@@@@@@@*           #@@@@@@@            
+  ,@@@@@@@@@/            @@@@@@@@@         @@@@@@@@@            
+  ,@@@@@@@@@@@            *@@@@@@@@@     @@@@@@@@@              
+  ,@@@@@@@@@@@@@            @@@@@@@@@& @@@@@@@@@%               
+  ,@@@@@@@@@@@@@@#            @@@@@@@@@@@@@@@@@                 
+  ,@@@@@@@@@@@@@@@@            .@@@@@@@@@@@@@                   
+  ,@@@@@@@@@@@@@@@@@@            %@@@@@@@@@*                    
+  ,@@@@@@@(  #@@@@@@@@@         (@@@@@@@@@@@,                   
+  ,@@@@@@@(    @@@@@@@@@*      @@@@@@@@@@@@@@@                  
+  ,@@@@@@@(      @@@@@@@@@   @@@@@@@@@@@@@@@@@@@                
+  ,@@@@@@@(       /@@@@@@@@@@@@@@@@@&   @@@@@@@@@(              
+  ,@@@@@@@(         @@@@@@@@@@@@@@@       @@@@@@@@@             
+  ,@@@@@@@(           @@@@@@@@@@@          .@@@@@@@@@           
+                                          
+     _   _  ___  __  __ ___ _   _    _   __  __
+    | \ | |/ _ \|  \/  |_ _| \ | |  / \  \ \/ /
+    |  \| | | | | |\/| || ||  \| | / _ \  \  / 
+    | |\  | |_| | |  | || || |\  |/ ___ \ /  \
+    |_| \_|\___/|_|  |_|___|_| \_/_/   \_/_/\_\
 
-	/// <summary>
-	/// Writes a full error dump into std::cerr and into a file.
-	/// </summary>
-	/// <param name="sp"></param>
-	/// <param name="ip"></param>
-	/// <param name="bp"></param>
-	/// <param name="stackSize"></param>
-	/// <param name="codeSize"></param>
-	/// <param name="message"></param>
-	/// <param name="stackDumpSize"></param>
-	/// <param name="codeDumpSize"></param>
-	/// <returns></returns>
-	auto WriteHardFaultReport
-	(
-		const Record*    sp,
-		const Signal*    ip,
-		const Signal*    bp,
-		std::size_t      stackSize,
-		std::size_t      codeSize,
-		std::string_view message       = "",
-		std::size_t      stackDumpSize = 64,
-		std::size_t      codeDumpSize  = 64
-	) -> void;
-
-	auto WriteHardFaultReport(std::string_view message) -> void;
+)";
 }

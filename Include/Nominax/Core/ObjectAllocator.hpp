@@ -1,6 +1,6 @@
-// File: OsWindows.cpp
+// File: ObjectAllocator.hpp
 // Author: Mario
-// Created: 12.04.2021 8:34 AM
+// Created: 25.04.2021 2:40 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,67 +205,62 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/System/Os.hpp"
-#include "../Include/Nominax/System/Platform.hpp"
+#pragma once
 
-#if NOMINAX_OS_WINDOWS
+#include <atomic>
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <Psapi.h>
+#include "Object.hpp"
 
-namespace Nominax::Os
+namespace Nominax
 {
-	auto QuerySystemMemoryTotal() -> std::size_t
+	/// <summary>
+	/// Runtime allocator for object instances.
+	/// </summary>
+	class RuntimeObjectAllocator final
 	{
-		MEMORYSTATUSEX status;
-		status.dwLength = sizeof(MEMORYSTATUSEX);
-		GlobalMemoryStatusEx(&status);
-		return status.ullTotalPhys;
+		inline static constinit std::atomic_size_t AllocatedBlocks {0};
+
+	public:
+		/// <summary>
+		/// Gets the amount of all currently allocated blocks (records).
+		/// </summary>
+		/// <returns>The amount of all currently allocated blocks (records).</returns>
+		static auto GetGlobalAllocatedBlocks() noexcept -> std::size_t;
+
+		/// <summary>
+		/// Gets the amount of bytes of all currently allocated blocks (records).
+		/// </summary>
+		/// <returns>The amount of bytes of all currently allocated blocks (records).</returns>
+		static auto GetGlobalAllocatedBytes() noexcept -> std::size_t;
+
+		/// <summary>
+		/// Allocate and zero raw memory for an object instance, and write the size into the object header.
+		/// The memory is initialized to zero.
+		/// The sizeInRecords value is written into the object header field "Size".
+		/// On fail, nullptr is returned!
+		/// </summary>
+		/// <param name="sizeInRecords">The size of the object in bytes.
+		/// The final object will be larger because of the object header.
+		/// If zero is passed, the allocation will return nullptr.
+		/// </param>
+		/// <returns>The valid memory on success, else nullptr.</returns>
+		static auto RawAllocateAndWriteSize(std::uint32_t sizeInRecords) -> Object::BlobBlockType*;
+
+		/// <summary>
+		/// Deallocate raw memory from an object instance.
+		/// </summary>
+		/// <param name="instance"></param>
+		/// <returns></returns>
+		static auto RawDeallocate(Object::BlobBlockType*& instance) -> void;
+	};
+
+	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBlocks() noexcept -> std::size_t
+	{
+		return AllocatedBlocks;
 	}
 
-	auto QueryProcessMemoryUsed() -> std::size_t
+	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBytes() noexcept -> std::size_t
 	{
-		PROCESS_MEMORY_COUNTERS pmc;
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
-		return pmc.WorkingSetSize;
-	}
-
-	auto QueryCpuName() -> std::string
-	{
-		HKEY key;
-		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
-		[[unlikely]]
-		{
-			return "Unknown";
-		}
-		char       id[64 + 1];
-		DWORD      id_len = sizeof id;
-		const auto data   = static_cast<LPBYTE>(static_cast<void*>(id));
-		if (RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &id_len))
-		[[unlikely]]
-		{
-			return "Unknown";
-		}
-		return id;
-	}
-
-	auto DylibOpen(const std::string_view filePath) -> void*
-	{
-		return LoadLibraryA(filePath.data());
-	}
-
-	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
-	{
-		// ReSharper disable once CppRedundantCastExpression
-		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
-	}
-
-	auto DylibClose(void*& handle) -> void
-	{
-		FreeLibrary(static_cast<HMODULE>(handle));
-		handle = nullptr;
+		return AllocatedBlocks * sizeof(Object::BlobBlockType);
 	}
 }
-
-#endif

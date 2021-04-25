@@ -1,6 +1,6 @@
-// File: Object.cpp
+// File: Environment.cpp
 // Author: Mario
-// Created: 21.04.2021 22:21
+// Created: 17.04.2021 2:32 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,542 +205,133 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/Object.hpp"
-#include "../Include/Nominax/Utility.hpp"
-
 #include <iostream>
+#include <iomanip>
+
+#include "../../Include/Nominax/Nominax.hpp"
+
+using std::cout;
+using std::cerr;
+using std::endl;
 
 namespace Nominax
 {
-	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) const -> bool
+	static constexpr auto MachineRating(const std::size_t threads) noexcept -> char
 	{
-		if (buffer.size() < this->HeaderRead_BlockSize())
-		[[unlikely]]
+		if (threads <= 2)
 		{
+			return 'F';
+		}
+		if (threads <= 4)
+		{
+			return 'E';
+		}
+		if (threads <= 8)
+		{
+			return 'D';
+		}
+		if (threads <= 16)
+		{
+			return 'C';
+		}
+		if (threads <= 32)
+		{
+			return 'B';
+		}
+		return 'A';
+	}
+
+	inline static auto Separator() -> void
+	{
+		cout << "================================================================\n";
+	}
+
+	auto Environment::PrintVersionInfo() const -> void
+	{
+		cout << SYSTEM_LOGO_TEXT;
+		cout << SYSTEM_COPYRIGHT_TEXT;
+		cout << "Nominax Version: " << SYSTEM_VERSION << '\n';
+		cout << "Platform: " NOMINAX_OS_NAME " " NOMINAX_ARCH_SIZE_NAME << '\n';
+		cout << "Arch: " << NOMINAX_ARCH_NAME << '\n';
+		cout << "Posix: " << std::boolalpha << NOMINAX_POSIX << '\n';
+		cout << "Compiler: " << NOMINAX_COM_NAME " - C++ 20" << '\n';
+	}
+
+	auto Environment::PrintMachineInfo() const -> void
+	{
+		const auto&
+		[
+			OperatingSystemName,
+			ArchitectureName,
+			CompilerName,
+			ThreadCount,
+			CpuName,
+			TotalSystemMemory,
+			UsedSystemMemory,
+			ThreadId
+		] = this->SysInfo;
+
+		cout << "TID: " << "0x" << std::hex << ThreadId << std::dec << '\n';
+		cout << "CPU: " << CpuName << '\n';
+		cout << "CPU Threads: " << ThreadCount << '\n';
+		cout << "CPU Machine class: " << MachineRating(ThreadCount) << '\n';
+		cout << "System RAM: " << Bytes2Megabytes(TotalSystemMemory) << " MB\n";
+		cout << "Process RAM: " << Bytes2Megabytes(UsedSystemMemory) << " MB\n";
+	}
+
+	template <typename T>
+	inline static auto PrintTypeInfo(std::string_view name)
+	{
+		std::cout << std::setw(16) << name << std::right << std::setw(16) << sizeof(T) << std::setw(16) << alignof(T) << '\n';
+	}
+
+	auto Environment::PrintTypeTable() const -> void
+	{
+		std::cout << std::setw(16) << "Type" << std::right << std::setw(16) << "Size" << std::setw(16) << "Alignment" << "\n\n";
+		PrintTypeInfo<Record>("Record");
+		PrintTypeInfo<Signal>("Signal");
+		PrintTypeInfo<DynamicSignal>("DynamicSignal");
+		PrintTypeInfo<Object>("Object");
+		PrintTypeInfo<ObjectHeader>("ObjectHeader");
+		PrintTypeInfo<std::int64_t>("int");
+		PrintTypeInfo<std::uint64_t>("uint");
+		PrintTypeInfo<double>("float");
+		PrintTypeInfo<char32_t>("char");
+		PrintTypeInfo<bool>("bool");
+		PrintTypeInfo<void*>("void*");
+	}
+
+	auto Environment::BootEnvironment() -> bool
+	{
+		try
+		{
+			InstallSignalHandlers();
+			std::ios_base::sync_with_stdio(false);
+			this->PrintVersionInfo();
+			Separator();
+			this->SysInfo.QueryAll();
+			this->PrintMachineInfo();
+			Separator();
+			this->PrintTypeTable();
+			Separator();
+
+			Stream stream { };
+			Stream::ExampleStream(stream);
+
+			stream.DumpToStream(cout, false);
+
+			cout.flush();
+			return true;
+		}
+		catch (const std::exception& ex)
+		{
+			cerr << "[!] Fatal system exception: " << ex.what() << endl;
 			return false;
 		}
-
-		std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
-
-		return true;
-	}
-
-	auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) const -> void
-	{
-		buffer.resize(this->HeaderRead_BlockSize());
-		std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
-	}
-
-	auto Object::CopyBlob(std::vector<Record>& buffer) const -> void
-	{
-		buffer.resize(this->BlobSize());
-		std::memcpy(buffer.data(), this->Blob, this->BlobSizeInBytes());
-	}
-
-	auto Object::DeepCmp(const Object a, const Object b) noexcept -> bool
-	{
-		return a.HeaderRead_BlockSize() == b.HeaderRead_BlockSize()
-			       ? std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.ObjectBlockSizeInBytes()) == 0
-			       : false;
-	}
-
-	auto Object::AllocateUnique(const std::uint32_t sizeInRecords) noexcept -> std::unique_ptr<Object, UniquePtrObjectDeleter>
-	{
-		if (__builtin_expect(sizeInRecords == 0, 0))
+		catch (...)
 		{
-			return nullptr;
-		}
-		const std::uint32_t      finalObjectSize = ObjectHeader::RECORD_CHUNKS + sizeInRecords;
-		auto* __restrict__ const object          = new(std::nothrow) Record[finalObjectSize]();
-		if (__builtin_expect(!object, 0))
-		{
-			return nullptr;
-		}
-		// Write object header:
-		// No ref count:
-		ObjectHeader::WriteMapping_StrongRefCount(object, 0);
-
-		// !! Important !! Write the size:
-		ObjectHeader::WriteMapping_Size(object, sizeInRecords);
-
-		// Use pointer as dummy type id:
-		ObjectHeader::WriteMapping_TypeId(object, static_cast<std::uint32_t>(*reinterpret_cast<std::uintptr_t*>(object)));
-
-		// Write empty flag vector:
-		ObjectHeader::WriteMapping_FlagVector(object, ObjectFlagsVectorCompound { });
-
-		return std::unique_ptr<Object, UniquePtrObjectDeleter>
-		{
-			new Object {.Blob = object},
-			UniquePtrObjectDeleter()
-		};
-	}
-
-	template <>
-	auto Object::DeepValueCmp_Equal<std::uint64_t>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
+			cerr << "[!] Unknown system error!" << endl;
 			return false;
 		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (x->U64 != y->U64)
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_Equal<std::int64_t>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (x->I64 != y->I64)
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_Equal<double>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (x->F64 != y->F64)
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_Less<std::uint64_t>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->U64 < y->U64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_Less<std::int64_t>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->I64 < y->I64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_Less<double>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->F64 < y->F64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_LessEqual<std::uint64_t>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->U64 <= y->U64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_LessEqual<std::int64_t>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->I64 <= y->I64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_LessEqual<double>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->F64 <= y->F64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_Greater<std::uint64_t>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->U64 > y->U64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_Greater<std::int64_t>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->I64 > y->I64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_Greater<double>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->F64 > y->F64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_GreaterEqual<std::uint64_t>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->U64 >= y->U64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_GreaterEqual<std::int64_t>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->I64 >= y->I64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	template <>
-	auto Object::DeepValueCmp_GreaterEqual<double>(const Object a, const Object b) noexcept -> bool
-	{
-		// If their size is not equal, their values cannot be equal too.
-		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-		{
-			return false;
-		}
-
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
-
-		while (x < w)
-		{
-			if (!(x->F64 >= y->F64))
-			{
-				return false;
-			}
-			++x;
-			++y;
-		}
-
-		return true;
-	}
-
-	auto RuntimeObjectAllocator::RawAllocateAndWriteSize(const std::uint32_t sizeInRecords) -> Object::BlobBlockType*
-	{
-		// debug check
-		assert(sizeInRecords);
-
-		// We cannot allocate an object of size 0.
-		// This would only allocate an object header.
-		if (__builtin_expect(sizeInRecords == 0, 0))
-		{
-			return nullptr;
-		}
-
-		// add space for object header (2 records):
-		const std::uint32_t finalSizeInRecords {sizeInRecords + ObjectHeader::RECORD_CHUNKS};
-
-		// allocate object instance:
-		auto* __restrict__ const instance = new(std::nothrow) Record[finalSizeInRecords]();
-
-		// debug check
-		assert(instance);
-
-		// check if allocation failed:
-		if (__builtin_expect(!instance, 0))
-		{
-			return nullptr;
-		}
-
-		// Write the size of the object, without the header.
-		// The other object header fields shall be written by the caller.
-		ObjectHeader::WriteMapping_Size(instance, sizeInRecords);
-
-		// Update allocation counter:
-		AllocatedBlocks.fetch_add(finalSizeInRecords);
-
-#if NOMINAX_VERBOSE_ALLOCATOR
-		std::cout << "Allocated ";
-		PrettyPrintBytes(std::cout, finalSizeInRecords * sizeof(Record));
-		std::cout << ", Total allocated: ";
-		PrettyPrintBytes(std::cout, AllocatedBlocks * sizeof(Record));
-		std::cout << '\n';
-#endif
-
-		return instance;
-	}
-
-	auto RuntimeObjectAllocator::RawDeallocate(Object::BlobBlockType*& instance) -> void
-	{
-		// debug check
-		assert(instance);
-
-		if (__builtin_expect(!instance, 0))
-		{
-			return;
-		}
-
-		// get the size in records:
-		const auto size = ObjectHeader::ReadMapping_Size(instance);
-
-		// debug check
-		assert(size);
-
-		// Update allocation counter:
-		AllocatedBlocks.fetch_sub(size);
-
-		// Free memory:
-		delete[] instance;
-
-		instance = nullptr;
-
-#if NOMINAX_VERBOSE_ALLOCATOR
-		std::cout << "Deallocated ";
-		PrettyPrintBytes(std::cout, size * sizeof(Record));
-		std::cout << ", Total allocated: ";
-		PrettyPrintBytes(std::cout, AllocatedBlocks * sizeof(Record));
-		std::cout << '\n';
-#endif
 	}
 }

@@ -1,6 +1,6 @@
-// File: OsWindows.cpp
+// File: RegisterDump.hpp
 // Author: Mario
-// Created: 12.04.2021 8:34 AM
+// Created: 25.04.2021 3:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,67 +205,85 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/System/Os.hpp"
-#include "../Include/Nominax/System/Platform.hpp"
+#pragma once
 
-#if NOMINAX_OS_WINDOWS
+#include <array>
+#include <ostream>
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <Psapi.h>
+#include "../System/Platform.hpp"
 
-namespace Nominax::Os
+namespace Nominax
 {
-	auto QuerySystemMemoryTotal() -> std::size_t
-	{
-		MEMORYSTATUSEX status;
-		status.dwLength = sizeof(MEMORYSTATUSEX);
-		GlobalMemoryStatusEx(&status);
-		return status.ullTotalPhys;
-	}
+	/// <summary>
+	/// 128 bit vector type for SIMD data
+	/// SSE %XMM registers on x86
+	/// ARM Neon registers on ARM
+	/// </summary>
+	using Vector128 = std::array<std::uint64_t, 2>;
 
-	auto QueryProcessMemoryUsed() -> std::size_t
-	{
-		PROCESS_MEMORY_COUNTERS pmc;
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
-		return pmc.WorkingSetSize;
-	}
+	static_assert(sizeof(Vector128) == 16);
 
-	auto QueryCpuName() -> std::string
-	{
-		HKEY key;
-		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
-		[[unlikely]]
-		{
-			return "Unknown";
-		}
-		char       id[64 + 1];
-		DWORD      id_len = sizeof id;
-		const auto data   = static_cast<LPBYTE>(static_cast<void*>(id));
-		if (RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &id_len))
-		[[unlikely]]
-		{
-			return "Unknown";
-		}
-		return id;
-	}
+	/// <summary>
+	/// 256 bit vector register type.
+	/// AVX %YMM registers on x86
+	/// </summary>
+	using Vector256 = std::array<std::uint64_t, 4>;
 
-	auto DylibOpen(const std::string_view filePath) -> void*
-	{
-		return LoadLibraryA(filePath.data());
-	}
+	static_assert(sizeof(Vector256) == 32);
 
-	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
-	{
-		// ReSharper disable once CppRedundantCastExpression
-		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
-	}
+	/// <summary>
+	/// 512 bit vector register type.
+	/// AVX-512 %ZMM registers on x86
+	/// </summary>
+	using Vector512 = std::array<std::uint64_t, 8>;
 
-	auto DylibClose(void*& handle) -> void
-	{
-		FreeLibrary(static_cast<HMODULE>(handle));
-		handle = nullptr;
-	}
-}
+	static_assert(sizeof(Vector512) == 64);
 
+#if NOMINAX_ARCH_X86_32
+
+	using GprRegisterLane = std::array<std::uint32_t, 8>;
+	using VectorRegisterLane128 = std::array<Vector128, 8>;
+	using VectorRegisterLane256 = std::array<Vector256, 1>;
+
+	/// <summary>
+	/// Read and dump all the register values into the stream.
+	/// </summary>
+	/// <param name="out"></param>
+	/// <param name="gpr"></param>
+	/// <returns></returns>
+	extern auto RegisterDump_X86_32(std::ostream& out, const GprRegisterLane& gpr) -> void;
+
+#elif NOMINAX_ARCH_X86_64
+
+	using GprRegisterLane = std::array<std::uint64_t, 16>;
+	using VectorRegisterLane128 = std::array<Vector128, 16>;
+	using VectorRegisterLane256 = std::array<Vector256, 16>;
+
+	/// <summary>
+	/// Read and dump all the register values into the stream.
+	/// </summary>
+	/// <param name="out"></param>
+	/// <param name="gpr"></param>
+	/// <param name="xmm"></param>
+	/// <param name="ymm"></param>
+	/// <param name="zmm"></param>
+	/// <returns></returns>
+	extern auto RegisterDump_X86_64
+	(
+		std::ostream&                out,
+		const GprRegisterLane&       gpr,
+		const VectorRegisterLane128& xmm,
+		const VectorRegisterLane256& ymm
+	) -> void;
+
+#elif NOMINAX_ARCH_ARM_64
+
+	using GprRegisterLane = std::array<std::uint64_t, 16>;
+	using VectorRegisterLane128 = std::array<Vector128, 16>;
+	using VectorRegisterLane256 = std::array<Vector256, 1>;
+
+#	error "Not yet implemented!"
+#else
+#	error "Unknown arch!"
 #endif
+}
