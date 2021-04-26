@@ -217,13 +217,6 @@ namespace Nominax
 		{
 			x += 1024;
 			x += 2;
-			x.Another(3, [](ScopedInt y)
-			{
-				y *= 3;
-				y *= 2;
-				y += 1;
-				y += 0;
-			});
 		});
 	}
 

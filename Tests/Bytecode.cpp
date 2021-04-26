@@ -599,6 +599,7 @@ TEST(ScopedVariable, StackPushPop)
 
 TEST(ScopedVariable, F64StackPushPopOptScalarZero)
 {
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	{
 		ScopedVariable<double> var {stream, 0.0};
@@ -611,6 +612,7 @@ TEST(ScopedVariable, F64StackPushPopOptScalarZero)
 
 TEST(ScopedVariable, I64StackPushPopOptScalarZero)
 {
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	{
 		ScopedVariable<std::int64_t> var {stream, 0};
@@ -635,6 +637,7 @@ TEST(ScopedVariable, U64StackPushPopOptScalarZero)
 
 TEST(ScopedVariable, F64StackPushPopOptScalarOne)
 {
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	{
 		ScopedVariable<double> var {stream, 1.0};
@@ -647,6 +650,7 @@ TEST(ScopedVariable, F64StackPushPopOptScalarOne)
 
 TEST(ScopedVariable, I64StackPushPopOptScalarOne)
 {
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	{
 		ScopedVariable<std::int64_t> var {stream, 1};
@@ -659,6 +663,7 @@ TEST(ScopedVariable, I64StackPushPopOptScalarOne)
 
 TEST(ScopedVariable, U64StackPushPopOptScalarOne)
 {
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	{
 		ScopedVariable<std::uint64_t> var {stream, 1};
@@ -671,6 +676,7 @@ TEST(ScopedVariable, U64StackPushPopOptScalarOne)
 
 TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
 {
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	stream << 3.5;
 	{
@@ -685,6 +691,7 @@ TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
 
 TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
 {
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	stream << INT64_C(3);
 	{
@@ -699,6 +706,7 @@ TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
 
 TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
 {
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	stream << UINT64_C(3);
 	{

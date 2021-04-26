@@ -235,3 +235,5 @@
 ///
 /// </summary>
 #define NOMINAX_VERBOSE_ALLOCATOR NOMINAX_DEBUG
+
+#define NOMINAX_OPT_USE_ZERO_EPSILON true

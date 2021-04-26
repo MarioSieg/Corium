@@ -225,23 +225,13 @@ namespace Nominax
 	template <typename T> requires StreamScalar<T>
 	struct ScopedVariable final
 	{
-		/// <summary>
-		/// Create a variable with specified value.
-		/// </summary>
-		/// <param name="attached"></param>
-		/// <param name="value"></param>
-		ScopedVariable(Stream& attached, T value);
-
 		ScopedVariable(const ScopedVariable&) = delete;
 
-		ScopedVariable(ScopedVariable&&) = default;
+		ScopedVariable(ScopedVariable&&) = delete;
 
-		auto operator =(const ScopedVariable&) -> ScopedVariable& = delete;
+		auto operator =(const ScopedVariable&)->ScopedVariable & = delete;
 
-		auto operator =(ScopedVariable&&) -> ScopedVariable& = delete;
-
-		template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
-		auto Another(V value, F&& functor) -> void;
+		auto operator =(ScopedVariable&&)->ScopedVariable & = delete;
 
 		/// <summary>
 		/// Arithmetic addition.
@@ -452,7 +442,18 @@ namespace Nominax
 		/// <returns></returns>
 		auto GetAttachedStream() const noexcept -> const Stream&;
 
+		auto Unwrap() const -> T;
+
 	private:
+		friend class Stream;
+		
+		/// <summary>
+		/// Create a variable with specified value.
+		/// </summary>
+		/// <param name="attached"></param>
+		/// <param name="value"></param>
+		ScopedVariable(Stream& attached, T value);
+		
 		auto Push(T value) -> ScopedVariable&;
 		auto DoNothing() -> ScopedVariable&;
 
@@ -460,23 +461,19 @@ namespace Nominax
 	};
 
 	template <typename T> requires StreamScalar<T>
-	inline auto ScopedVariable<T>::GetAttachedStream() const noexcept -> const Stream&
+	inline auto ScopedVariable<T>::Unwrap() const -> T
 	{
-		return this->Attached;
+#if NOMINAX_DEBUG
+		return Attached.Back().Unwrap<T>().value();
+#else
+		return *Attached.Back().Unwrap<T>();
+#endif
 	}
 
 	template <typename T> requires StreamScalar<T>
-	template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
-	inline auto ScopedVariable<T>::Another(const V value, F&& functor) -> void
+	inline auto ScopedVariable<T>::GetAttachedStream() const noexcept -> const Stream&
 	{
-		if constexpr (std::is_same_v<int, V>)
-		{
-			return functor(ScopedVariable<std::int64_t> {this->Attached, static_cast<std::int64_t>(value)});
-		}
-		else
-		{
-			return functor(ScopedVariable<V> {this->Attached, value});
-		}
+		return this->Attached;
 	}
 
 	template <typename T> requires StreamScalar<T>
@@ -535,8 +532,10 @@ namespace Nominax
 
 	template <>
 	auto ScopedVariable<double>::Sub(double value) -> ScopedVariable&;
+
 	template <>
 	auto ScopedVariable<std::int64_t>::Sub(std::int64_t value) -> ScopedVariable&;
+
 	template <>
 	auto ScopedVariable<std::uint64_t>::Sub(std::uint64_t value) -> ScopedVariable&;
 
@@ -548,8 +547,10 @@ namespace Nominax
 
 	template <>
 	auto ScopedVariable<double>::Mul(double value) -> ScopedVariable&;
+
 	template <>
 	auto ScopedVariable<std::int64_t>::Mul(std::int64_t value) -> ScopedVariable&;
+
 	template <>
 	auto ScopedVariable<std::uint64_t>::Mul(std::uint64_t value) -> ScopedVariable&;
 

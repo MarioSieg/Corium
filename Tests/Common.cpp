@@ -1,6 +1,6 @@
-// File: Utility.cpp
+// File: Common.cpp
 // Author: Mario
-// Created: 20.04.2021 19:51
+// Created: 21.04.2021 10:21 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,10 +207,28 @@
 
 #include "TestBase.hpp"
 
-#include <thread>
-#include <mutex>
-
-namespace Nominax
+TEST(F64Comparator, Equals)
 {
-	TEST(Utility, ThreadLocalXorShift) { }
+	ASSERT_TRUE(F64Equals<>(1.0, 1.0));
+	ASSERT_TRUE(F64Equals<>(0.0, 0.0));
+	ASSERT_TRUE(F64Equals<>(0.0000001, 0.0000001));
+	ASSERT_TRUE(F64Equals<>(99.99999999, 99.99999999));
+}
+
+TEST(F64Comparator, NotEquals)
+{
+	ASSERT_FALSE(F64Equals<>(1.0, 1.0000000000001));
+	ASSERT_FALSE(F64Equals<>(0.0, 0.00000000001));
+	ASSERT_FALSE(F64Equals<>(0.00000012, 0.0000001));
+	ASSERT_FALSE(F64Equals<>(99.99999998, 99.99999999));
+}
+
+TEST(F64Comparator, IsZero)
+{
+	ASSERT_TRUE(F64IsZero(0.0));
+	ASSERT_FALSE(F64IsZero(1.0));
+	ASSERT_FALSE(F64IsZero(2.0));
+	ASSERT_FALSE(F64IsZero(0.000001));
+	ASSERT_TRUE(F64IsZero(0.0000001));
+	ASSERT_TRUE(F64IsZero(0.000000009999999999));
 }

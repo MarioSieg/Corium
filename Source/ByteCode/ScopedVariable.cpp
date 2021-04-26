@@ -206,6 +206,8 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
+#include "../../Include/Nominax/System/MacroCfg.hpp"
+#include "../../Include/Nominax/Common/F64Comparator.hpp"
 
 namespace
 {
@@ -216,10 +218,28 @@ namespace
 	/// <param name="x"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T>
-	constexpr auto IsPowerOfTwo(const T x) noexcept -> bool
+	__attribute__((always_inline)) constexpr auto IsPowerOfTwo(const T x) noexcept -> bool
 	{
 		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
 		return !(x & (x - 1));
+	}
+
+	__attribute__((always_inline)) inline auto F64IsZero(const double x) noexcept -> bool
+	{
+#if NOMINAX_OPT_USE_ZERO_EPSILON
+		return Nominax::F64IsZero(x);
+#else
+		return x == 0.0;
+#endif
+	}
+
+	__attribute__((always_inline)) inline auto F64IsOne(const double x) noexcept -> bool
+	{
+#if NOMINAX_OPT_USE_ZERO_EPSILON
+		return Nominax::F64IsOne(x);
+#else
+		return x == 1.0;
+#endif
 	}
 
 	constexpr double CACHED_LOG2 {0.69314718055994529};
@@ -235,14 +255,14 @@ namespace Nominax
 		[[likely]]
 		{
 			// If zero, optimize with special push zero instruction.
-			if (value == 0.0)
+			if (::F64IsZero(value))
 			{
 				this->Attached.Do<Instruction::PushZ>();
 				return *this;
 			}
 
 			// If one, optimize with special push float one instruction.
-			if (value == 1.0)
+			if (::F64IsOne(value))
 			{
 				this->Attached.Do<Instruction::FPushO>();
 				return *this;
@@ -329,7 +349,6 @@ namespace Nominax
 		return *this;
 	}
 
-
 	template <>
 	auto ScopedVariable<double>::Add(const double value) -> ScopedVariable&
 	{
@@ -337,14 +356,14 @@ namespace Nominax
 		[[likely]]
 		{
 			// With 0 it's a no-op
-			if (value == 0.0)
+			if (::F64IsZero(value))
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
 
 			// Optimize to increment:
-			if (value == 1.0)
+			if (::F64IsOne(value))
 			{
 				this->Attached.Do<Instruction::FInc>();
 				return *this;
@@ -405,6 +424,7 @@ namespace Nominax
 		return *this;
 	}
 
+
 	template <>
 	auto ScopedVariable<double>::Sub(const double value) -> ScopedVariable&
 	{
@@ -412,14 +432,14 @@ namespace Nominax
 		[[likely]]
 		{
 			// With 0 it's a no-op
-			if (value == 0.0)
+			if (::F64IsZero(value))
 			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
 
 			// Optimize to decrement:
-			if (value == 1.0)
+			if (::F64IsOne(value))
 			{
 				this->Attached.Do<Instruction::FDec>();
 				return *this;
@@ -487,7 +507,7 @@ namespace Nominax
 		[[likely]]
 		{
 			// By 0 or 1 is a no-op:
-			if (value == 0.0 || value == 1.0)
+			if (::F64IsZero(value) || ::F64IsOne(value))
 			[[unlikely]]
 			{
 				return this->DoNothing();
@@ -559,7 +579,7 @@ namespace Nominax
 		[[likely]]
 		{
 			// By 1 is a no-op:
-			if (value == 1.0)
+			if (::F64IsOne(value))
 			[[unlikely]]
 			{
 				return this->DoNothing();
