@@ -216,8 +216,8 @@
 
 namespace Nominax
 {
-    template <typename T> requires StreamScalar<T>
-    struct ScopedVariable;
+	template <typename T> requires StreamScalar<T>
+	struct ScopedVariable;
 
 	/// <summary>
 	/// Dynamic byte code stream.

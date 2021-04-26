@@ -582,14 +582,10 @@ TEST(ScopedVariable, StackPushPop)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	{
-		const ScopedVariable var {stream, 4.5};
-		ASSERT_EQ(&stream, &var.GetAttachedStream());
-		ASSERT_EQ(stream.Size(), 3);
-		ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-		ASSERT_TRUE(stream[1].Contains(Instruction::Push));
-		ASSERT_TRUE(stream[2].Contains(4.5));
-	}
+	stream.With(4.5, [](auto&& var)
+		{
+
+		});
 	ASSERT_EQ(stream.Size(), 4);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
@@ -601,9 +597,10 @@ TEST(ScopedVariable, F64StackPushPopOptScalarZero)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	{
-		ScopedVariable<double> var {stream, 0.0};
-	}
+	stream.With(0.0, [](auto&& var)
+		{
+
+		});
 	ASSERT_EQ(stream.Size(), 3);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
@@ -614,9 +611,10 @@ TEST(ScopedVariable, I64StackPushPopOptScalarZero)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	{
-		ScopedVariable<std::int64_t> var {stream, 0};
-	}
+	stream.With(0, [](auto&& var)
+		{
+
+		});
 	ASSERT_EQ(stream.Size(), 3);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
@@ -626,9 +624,10 @@ TEST(ScopedVariable, I64StackPushPopOptScalarZero)
 TEST(ScopedVariable, U64StackPushPopOptScalarZero)
 {
 	Stream stream { };
-	{
-		ScopedVariable<std::uint64_t> var {stream, 0};
-	}
+	stream.With(0, [](auto&& var)
+		{
+
+		});
 	ASSERT_EQ(stream.Size(), 3);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
@@ -639,9 +638,10 @@ TEST(ScopedVariable, F64StackPushPopOptScalarOne)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	{
-		ScopedVariable<double> var {stream, 1.0};
-	}
+	stream.With(1.0, [](auto&& var)
+		{
+
+		});
 	ASSERT_EQ(stream.Size(), 3);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::FPushO));
@@ -652,9 +652,10 @@ TEST(ScopedVariable, I64StackPushPopOptScalarOne)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	{
-		ScopedVariable<std::int64_t> var {stream, 1};
-	}
+	stream.With(1, [](auto&& var)
+		{
+
+		});
 	ASSERT_EQ(stream.Size(), 3);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::IPushO));
@@ -665,9 +666,10 @@ TEST(ScopedVariable, U64StackPushPopOptScalarOne)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	{
-		ScopedVariable<std::uint64_t> var {stream, 1};
-	}
+	stream.With(1, [](auto&& var)
+		{
+
+		});
 	ASSERT_EQ(stream.Size(), 3);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::IPushO));
@@ -679,9 +681,10 @@ TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	stream << 3.5;
-	{
-		ScopedVariable<double> var {stream, 3.5};
-	}
+	stream.With(3.5, [](auto&& var)
+		{
+
+		});
 	ASSERT_EQ(stream.Size(), 4);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(3.5));
@@ -694,9 +697,10 @@ TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	stream << INT64_C(3);
-	{
-		ScopedVariable<std::int64_t> var {stream, 3};
-	}
+	stream.With(3, [](auto&& var)
+		{
+
+		});
 	ASSERT_EQ(stream.Size(), 4);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains<std::int64_t>(3));
@@ -709,9 +713,10 @@ TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	stream << UINT64_C(3);
-	{
-		ScopedVariable<std::uint64_t> var {stream, 3};
-	}
+	stream.With(UINT64_C(3), [](auto&& var)
+		{
+
+		});
 	ASSERT_EQ(stream.Size(), 4);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains<std::uint64_t>(3));

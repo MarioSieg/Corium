@@ -1,6 +1,6 @@
-// File: Utility.hpp
+// File: Common.hpp
 // Author: Mario
-// Created: 25.04.2021 4:00 PM
+// Created: 26.04.2021 8:51 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License

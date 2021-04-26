@@ -229,9 +229,9 @@ namespace Nominax
 
 		ScopedVariable(ScopedVariable&&) = delete;
 
-		auto operator =(const ScopedVariable&)->ScopedVariable & = delete;
+		auto operator =(const ScopedVariable&) -> ScopedVariable& = delete;
 
-		auto operator =(ScopedVariable&&)->ScopedVariable & = delete;
+		auto operator =(ScopedVariable&&) -> ScopedVariable& = delete;
 
 		/// <summary>
 		/// Arithmetic addition.
@@ -446,14 +446,14 @@ namespace Nominax
 
 	private:
 		friend class Stream;
-		
+
 		/// <summary>
 		/// Create a variable with specified value.
 		/// </summary>
 		/// <param name="attached"></param>
 		/// <param name="value"></param>
 		ScopedVariable(Stream& attached, T value);
-		
+
 		auto Push(T value) -> ScopedVariable&;
 		auto DoNothing() -> ScopedVariable&;
 
