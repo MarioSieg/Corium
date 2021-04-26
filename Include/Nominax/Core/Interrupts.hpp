@@ -237,7 +237,7 @@ namespace Nominax
 	using InterruptAccumulator = std::int32_t;
 	static_assert(std::is_trivial_v<InterruptAccumulator>);
 
-	using InterruptRoutine = auto (InterruptAccumulator, void*) -> bool;
+	using InterruptRoutine = auto (InterruptAccumulator) -> bool;
 	static_assert(std::is_function_v<InterruptRoutine>);
 
 	enum class TerminateResult

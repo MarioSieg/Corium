@@ -1,6 +1,6 @@
-// File: ReactorInput.cpp
+// File: SystemReactorInput.hpp
 // Author: Mario
-// Created: 25.04.2021 3:03 PM
+// Created: 25.04.2021 3:02 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,70 +205,37 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Core/ReactorInput.hpp"
-#include "../../Include/Nominax/System/MacroCfg.hpp"
+#pragma once
+
+#include <csignal>
+
+#include "../ByteCode/Signal.hpp"
+#include "../ByteCode/CustomIntrinsic.hpp"
+#include "../ByteCode/Signal.hpp"
+
+#include "Interrupts.hpp"
+#include "ReactorValidationResult.hpp"
 
 namespace Nominax
 {
-	auto ReactorInput::Validate() const noexcept -> ReactorValidationResult
+	/// <summary>
+	/// Contains all input data for the VM reactor.
+	/// </summary>
+	struct DetailedReactorDescriptor final
 	{
-		// validate all pointers:
-		if (!(this->SignalStatus && this->CodeChunk && this->IntrinsicTable && this->InterruptHandler && this->Stack))
-		[[unlikely]]
-		{
-			return ReactorValidationResult::NullPtr;
-		}
+		volatile std::sig_atomic_t* SignalStatus {nullptr};
+		Signal*                     CodeChunk {nullptr};
+		const bool*                 CodeChunkInstructionMap {nullptr};
+		std::size_t                 CodeChunkSize {0};
+		IntrinsicRoutine* const*    IntrinsicTable {nullptr};
+		std::size_t                 IntrinsicTableSize {0};
+		InterruptRoutine*           InterruptHandler {nullptr};
+		Record*                     Stack {nullptr};
+		std::size_t                 StackSize {0};
+		void*                       UserData {nullptr};
+		bool                        LargeStackTrace {false};
 
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-
-		if (!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize)) [[unlikely]]
-		{
-			return ReactorValidationResult::NullPtr;
-		}
-
-#endif
-
-		// validate the size for the corresponding pointers:
-		if (!this->CodeChunkSize || !this->IntrinsicTableSize || !this->StackSize)
-		[[unlikely]]
-		{
-			return ReactorValidationResult::ZeroSize;
-		}
-
-		// first instruction will be skipped and must be NOP:
-		if (CodeChunk->Instr != Instruction::NOp)
-		[[unlikely]]
-		{
-			return ReactorValidationResult::MissingCodePrologue;
-		}
-
-		// last instruction must be interrupt:
-		if (CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != Instruction::Int)
-		[[unlikely]]
-		{
-			return ReactorValidationResult::MissingCodeEpilogue;
-		}
-
-		// first stack entry is never used and must be nop-padding:
-		if (*Stack != Record::Padding())
-		[[unlikely]]
-		{
-			return ReactorValidationResult::MissingStackPrologue;
-		}
-
-		// validate intrinsic routines:
-		auto* const*       begin = this->IntrinsicTable;
-		auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
-		while (begin < end)
-		[[unlikely]]
-		{
-			if (!*begin++)
-			[[unlikely]]
-			{
-				return ReactorValidationResult::NullIntrinsicRoutine;
-			}
-		}
-
-		return ReactorValidationResult::Ok;
-	}
+		[[nodiscard]]
+		auto Validate() const noexcept -> ReactorValidationResult;
+	};
 }

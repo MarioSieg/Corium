@@ -1,6 +1,6 @@
-// File: ReactorInput.hpp
+// File: Marker.hpp
 // Author: Mario
-// Created: 25.04.2021 3:02 PM
+// Created: 26.04.2021 6:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,35 +207,5 @@
 
 #pragma once
 
-#include <csignal>
-
-#include "../ByteCode/Signal.hpp"
-#include "../ByteCode/CustomIntrinsic.hpp"
-#include "../ByteCode/Signal.hpp"
-
-#include "Interrupts.hpp"
-#include "ReactorValidationResult.hpp"
-
-namespace Nominax
-{
-	/// <summary>
-	/// Contains all input data for the VM reactor.
-	/// </summary>
-	struct ReactorInput final
-	{
-		volatile std::sig_atomic_t* SignalStatus {nullptr};
-		Signal*                     CodeChunk {nullptr};
-		const bool*                 CodeChunkInstructionMap {nullptr};
-		std::size_t                 CodeChunkSize {0};
-		IntrinsicRoutine* const*    IntrinsicTable {nullptr};
-		std::size_t                 IntrinsicTableSize {0};
-		InterruptRoutine*           InterruptHandler {nullptr};
-		Record*                     Stack {nullptr};
-		std::size_t                 StackSize {0};
-		void*                       UserData {nullptr};
-		bool                        LargeStackTrace {false};
-
-		[[nodiscard]]
-		auto Validate() const noexcept -> ReactorValidationResult;
-	};
-}
+/// Marks a resource which is accessed by the local kernel and it's thread.
+#define __NOMINAX_KERNEL_THREAD_LOCAL__

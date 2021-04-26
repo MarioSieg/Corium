@@ -234,13 +234,13 @@ constinit volatile std::sig_atomic_t mockSignalStatus;
 
 constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
 {
-	+[](InterruptAccumulator, void*) noexcept -> bool
+	+[](InterruptAccumulator) noexcept -> bool
 	{
 		return true;
 	}
 };
 
-constexpr ReactorInput MOCK_REACTOR_INPUT
+constexpr DetailedReactorDescriptor MOCK_REACTOR_INPUT
 {
 	.SignalStatus = &mockSignalStatus,
 	.CodeChunk = nullptr,
@@ -251,7 +251,7 @@ constexpr ReactorInput MOCK_REACTOR_INPUT
 	.InterruptHandler = MOCK_INTERRUPT_HANDLER,
 	.Stack = mockStack.data(),
 	.StackSize = mockStack.size(),
-	.UserData = nullptr
+	
 };
 
 std::array mockCode
@@ -1081,17 +1081,12 @@ TEST(ReactorExecution, __int__)
 
 	auto input {MOCK_REACTOR_INPUT};
 
-	int user {1234567};
-	input.UserData = &user;
-
 	static constinit InterruptAccumulator accumulator;
-	static constinit void*                usr;
 	static constinit int                  calls;
 
-	input.InterruptHandler = +[](const InterruptAccumulator x, void* const y) noexcept -> bool
+	input.InterruptHandler = +[](const InterruptAccumulator x) noexcept -> bool
 	{
 		accumulator = x;
-		usr         = y;
 		++calls;
 		return true;
 	};
@@ -1103,9 +1098,6 @@ TEST(ReactorExecution, __int__)
 	const auto o {ExecuteChecked(input)};
 	ASSERT_EQ(calls, 2);
 	ASSERT_EQ(accumulator, -12345);
-	ASSERT_TRUE(usr != nullptr);
-	ASSERT_EQ(*static_cast<int*>(usr), 1234567);
-	ASSERT_EQ(*static_cast<int*>(o.Input->UserData), 1234567);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.IpDiff, code.size() - 1);
 }
@@ -2889,7 +2881,7 @@ TEST(ReactorExecution, __jle_cmpf__)
 
 TEST(ReactorInputValidation, valid_poInts)
 {
-	const auto input = ReactorInput {
+	const auto input = DetailedReactorDescriptor {
 		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = mockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -2899,14 +2891,14 @@ TEST(ReactorInputValidation, valid_poInts)
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
 		.Stack = mockStack.data(),
 		.StackSize = mockStack.size(),
-		.UserData = nullptr
+		
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 }
 
 TEST(ReactorInputValidation, null_poInts)
 {
-	const auto input = ReactorInput {
+	const auto input = DetailedReactorDescriptor {
 		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = nullptr,
 		.CodeChunkInstructionMap = nullptr,
@@ -2916,14 +2908,14 @@ TEST(ReactorInputValidation, null_poInts)
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
 		.Stack = mockStack.data(),
 		.StackSize = mockStack.size(),
-		.UserData = nullptr
+		
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullPtr);
 }
 
 TEST(ReactorInputValidation, zero_sizes)
 {
-	const auto input = ReactorInput {
+	const auto input = DetailedReactorDescriptor {
 		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = mockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -2933,7 +2925,7 @@ TEST(ReactorInputValidation, zero_sizes)
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
 		.Stack = mockStack.data(),
 		.StackSize = mockStack.size(),
-		.UserData = nullptr
+		
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::ZeroSize);
 }
@@ -2943,7 +2935,7 @@ TEST(ReactorInputValidation, invalid_Intrinsic_routines)
 	std::array<IntrinsicRoutine*, 1> intrinsicRoutines {
 		nullptr
 	};
-	const auto input = ReactorInput {
+	const auto input = DetailedReactorDescriptor {
 		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = mockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -2953,14 +2945,14 @@ TEST(ReactorInputValidation, invalid_Intrinsic_routines)
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
 		.Stack = mockStack.data(),
 		.StackSize = mockStack.size(),
-		.UserData = nullptr
+		
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullIntrinsicRoutine);
 }
 
 TEST(ReactorInputValidation, valid_Intrinsic_routines)
 {
-	const auto input = ReactorInput {
+	const auto input = DetailedReactorDescriptor {
 		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = mockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -2970,14 +2962,14 @@ TEST(ReactorInputValidation, valid_Intrinsic_routines)
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
 		.Stack = mockStack.data(),
 		.StackSize = mockStack.size(),
-		.UserData = nullptr
+		
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 }
 
 TEST(ReactorInputValidation, missing_code_prologue)
 {
-	const auto input = ReactorInput {
+	const auto input = DetailedReactorDescriptor {
 		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = mockCode.data() + 1,
 		.CodeChunkInstructionMap = nullptr,
@@ -2987,7 +2979,7 @@ TEST(ReactorInputValidation, missing_code_prologue)
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
 		.Stack = mockStack.data(),
 		.StackSize = mockStack.size(),
-		.UserData = nullptr
+		
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodePrologue);
 }
@@ -3000,7 +2992,7 @@ TEST(ReactorInputValidation, missing_code_epilogue$1)
 		Signal {INT64_C(5)},
 	};
 
-	const auto input = ReactorInput {
+	const auto input = DetailedReactorDescriptor {
 		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -3010,7 +3002,7 @@ TEST(ReactorInputValidation, missing_code_epilogue$1)
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
 		.Stack = mockStack.data(),
 		.StackSize = mockStack.size(),
-		.UserData = nullptr
+		
 	};
 
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
@@ -3022,7 +3014,7 @@ TEST(ReactorInputValidation, missing_code_epilogue$2)
 		Signal {Instruction::NOp},
 	};
 
-	const auto input = ReactorInput {
+	const auto input = DetailedReactorDescriptor {
 		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -3032,7 +3024,7 @@ TEST(ReactorInputValidation, missing_code_epilogue$2)
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
 		.Stack = mockStack.data(),
 		.StackSize = mockStack.size(),
-		.UserData = nullptr
+		
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
 }
@@ -3044,7 +3036,7 @@ TEST(ReactorInputValidation, missing_code_epilogue$3)
 		Signal {INT64_C(5)},
 	};
 
-	const auto input = ReactorInput {
+	const auto input = DetailedReactorDescriptor {
 		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -3054,14 +3046,14 @@ TEST(ReactorInputValidation, missing_code_epilogue$3)
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
 		.Stack = mockStack.data(),
 		.StackSize = mockStack.size(),
-		.UserData = nullptr
+		
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
 }
 
 TEST(ReactorInputValidation, missing_stack_prologue)
 {
-	const auto input = ReactorInput {
+	const auto input = DetailedReactorDescriptor {
 		.SignalStatus = &mockSignalStatus,
 		.CodeChunk = mockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -3071,7 +3063,7 @@ TEST(ReactorInputValidation, missing_stack_prologue)
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
 		.Stack = mockStack.data() + 1,
 		.StackSize = mockStack.size() - 1,
-		.UserData = nullptr
+		
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingStackPrologue);
 }

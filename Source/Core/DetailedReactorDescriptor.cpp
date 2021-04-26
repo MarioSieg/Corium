@@ -1,6 +1,6 @@
-// File: Reactor.hpp
+// File: DetailedReactorDescriptor.cpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 25.04.2021 3:03 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,11 +205,70 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include "ReactorOutput.hpp"
+#include "../../Include/Nominax/Core/DetailedReactorDescriptor.hpp"
+#include "../../Include/Nominax/System/MacroCfg.hpp"
 
 namespace Nominax
 {
-	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const DetailedReactorDescriptor& input) -> ReactorOutput;
+	auto DetailedReactorDescriptor::Validate() const noexcept -> ReactorValidationResult
+	{
+		// validate all pointers:
+		if (!(this->SignalStatus && this->CodeChunk && this->IntrinsicTable && this->InterruptHandler && this->Stack))
+		[[unlikely]]
+		{
+			return ReactorValidationResult::NullPtr;
+		}
+
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+
+		if (!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize)) [[unlikely]]
+		{
+			return ReactorValidationResult::NullPtr;
+		}
+
+#endif
+
+		// validate the size for the corresponding pointers:
+		if (!this->CodeChunkSize || !this->IntrinsicTableSize || !this->StackSize)
+		[[unlikely]]
+		{
+			return ReactorValidationResult::ZeroSize;
+		}
+
+		// first instruction will be skipped and must be NOP:
+		if (CodeChunk->Instr != Instruction::NOp)
+		[[unlikely]]
+		{
+			return ReactorValidationResult::MissingCodePrologue;
+		}
+
+		// last instruction must be interrupt:
+		if (CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != Instruction::Int)
+		[[unlikely]]
+		{
+			return ReactorValidationResult::MissingCodeEpilogue;
+		}
+
+		// first stack entry is never used and must be nop-padding:
+		if (*Stack != Record::Padding())
+		[[unlikely]]
+		{
+			return ReactorValidationResult::MissingStackPrologue;
+		}
+
+		// validate intrinsic routines:
+		auto* const*       begin = this->IntrinsicTable;
+		auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
+		while (begin < end)
+		[[unlikely]]
+		{
+			if (!*begin++)
+			[[unlikely]]
+			{
+				return ReactorValidationResult::NullIntrinsicRoutine;
+			}
+		}
+
+		return ReactorValidationResult::Ok;
+	}
 }

@@ -839,7 +839,7 @@ namespace Nominax
 		return;
 	}
 
-	__attribute__((hot)) auto ExecuteChecked(const ReactorInput& input) -> ReactorOutput
+	__attribute__((hot)) auto ExecuteChecked(const DetailedReactorDescriptor& input) -> ReactorOutput
 	{
 		auto validationFault = [&input](const ReactorValidationResult result) noexcept -> ReactorOutput
 		{
@@ -942,7 +942,6 @@ namespace Nominax
 		ASM_MARKER("reactor locals");
 
 		InterruptAccumulator           interruptCode { };                         /* interrupt id flag			*/
-		void* __restrict__             usrDat {input.UserData};                   /* user data					*/
 		IntrinsicRoutine* const* const intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi			*/
 		InterruptRoutine* const        interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
 		const Signal* const __restrict ipLo {input.CodeChunk};                    /* instruction low ptr		*/
@@ -976,7 +975,7 @@ namespace Nominax
 
 			interruptCode = (*++ip).R64.I32;
 			// check if interrupt handler request exit or interrupt is error (interrupt < 0) or success (interrupt == 0)
-			if (__builtin_expect(!interruptHandler(interruptCode, usrDat) || interruptCode <= 0, 0))
+			if (__builtin_expect(!interruptHandler(interruptCode) || interruptCode <= 0, 0))
 			{
 				goto _terminate_;
 			}

@@ -254,7 +254,7 @@ auto Loop1Billion(State& state) -> void
 		+[](Record*          ) -> bool { return true; }
 	};
 
-	const ReactorInput input {
+	const DetailedReactorDescriptor input {
 		.SignalStatus = &sig,
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(codeInstructionMap.data()),
@@ -387,7 +387,7 @@ auto Loop5Billion(State& state) -> void
 		+[](Record*) -> bool { return true; }
 	};
 
-	const ReactorInput input{
+	const DetailedReactorDescriptor input{
 		.SignalStatus = &sig,
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(codeInstructionMap.data()),

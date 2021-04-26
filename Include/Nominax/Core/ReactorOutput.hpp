@@ -209,7 +209,7 @@
 
 #include <chrono>
 
-#include "ReactorInput.hpp"
+#include "DetailedReactorDescriptor.hpp"
 
 namespace Nominax
 {
@@ -218,7 +218,7 @@ namespace Nominax
 	/// </summary>
 	struct ReactorOutput final
 	{
-		const ReactorInput*                            Input {nullptr};
+		const DetailedReactorDescriptor*               Input {nullptr};
 		ReactorValidationResult                        ValidationResult { };
 		TerminateResult                                ExecutionResult { };
 		SystemInterrupt                                Interrupt { };

@@ -59,7 +59,7 @@ add_library("NominaxRuntime" STATIC
         Include/Nominax/ByteCode/StreamScalar.hpp
         Include/Nominax/Core/HardFaultReport.hpp
         Include/Nominax/Core/ReactorValidationResult.hpp
-        Include/Nominax/Core/ReactorInput.hpp
+        
         Include/Nominax/Core/ReactorOutput.hpp
         Include/Nominax/Core/RegisterDump.hpp
         Include/Nominax/Core/Core.hpp
@@ -70,6 +70,8 @@ add_library("NominaxRuntime" STATIC
         Include/Nominax/Common/SafeLocalTime.hpp
         Include/Nominax/Common/Common.hpp
         Include/Nominax/System/System.hpp
+        Include/Nominax/Core/Marker.hpp
+        Include/Nominax/Common/F64Comparator.hpp
 
         Source/Core/Reactor.cpp
         Source/System/OsWindows.cpp
@@ -85,14 +87,14 @@ add_library("NominaxRuntime" STATIC
         Source/ByteCode/Stream.cpp
         Source/ByteCode/ScopedVariable.cpp
         Source/Core/ObjectAllocator.cpp
-        Source/Core/ReactorInput.cpp
         Source/Core/HardFaultReport.cpp
         Source/Core/RegisterDump.cpp
         Source/Common/XorshiftThreadLocal.cpp
         Source/Common/XorshiftAtomic.cpp
         Source/Common/MemoryUnits.cpp
         Source/Common/SafeLocalTime.cpp 
-        Include/Nominax/Common/F64Comparator.hpp )
+        Source/Core/BasicReactorDescriptor.cpp
+        Source/Core/DetailedReactorDescriptor.cpp "Include/Nominax/Core/BasicReactorDescriptor.hpp")
 
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!

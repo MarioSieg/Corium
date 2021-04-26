@@ -1,6 +1,6 @@
-// File: Reactor.hpp
+// File: BasicReactorDescriptor.hpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 26.04.2021 6:27 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,9 +207,39 @@
 
 #pragma once
 
-#include "ReactorOutput.hpp"
+#include <span>
+
+#include "DetailedReactorDescriptor.hpp"
 
 namespace Nominax
 {
-	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const DetailedReactorDescriptor& input) -> ReactorOutput;
+	/// <summary>
+	/// A simpler version of the "ReactorInput" struct.
+	/// If you prefer simpler reactor configuration, use this struct.
+	/// </summary>
+	struct BasicReactorDescriptor final
+	{
+		__NOMINAX_KERNEL_THREAD_LOCAL__ std::span<Signal>            CodeChunk;
+		__NOMINAX_KERNEL_THREAD_LOCAL__ std::span<bool>              CodeChunkInstructionMap;
+		__NOMINAX_KERNEL_THREAD_LOCAL__ std::span<IntrinsicRoutine*> IntrinsicTable;
+		__NOMINAX_KERNEL_THREAD_LOCAL__ std::span<Record>            Stack;
+		__NOMINAX_KERNEL_THREAD_LOCAL__ InterruptRoutine&            InterruptHandler;
+		__NOMINAX_KERNEL_THREAD_LOCAL__ volatile std::sig_atomic_t&  SignalStatusFlag;
+
+		/// <summary>
+		/// Will build a detailed descriptor out of this instance and return it.
+		/// </summary>
+		/// <returns>The detailed descriptor, created from this instance.</returns>
+		[[nodiscard]]
+		auto BuildDetailed() const noexcept -> DetailedReactorDescriptor;
+
+		/// <summary>
+		/// Will build a detailed descriptor out of this instance and validate it.
+		/// Because this must create a new detailed descriptor and drop if after validation,
+		/// better use BuildDetailed() if you need the detailed instance afterwards.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Validate() const noexcept -> ReactorValidationResult;
+	};
 }
