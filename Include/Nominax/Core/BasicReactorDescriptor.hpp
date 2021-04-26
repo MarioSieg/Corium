@@ -232,7 +232,7 @@ namespace Nominax
 		/// <returns>The detailed descriptor, created from this instance.</returns>
 		[[nodiscard]]
 		auto BuildDetailed() const noexcept -> DetailedReactorDescriptor;
-
+		
 		/// <summary>
 		/// Will build a detailed descriptor out of this instance and validate it.
 		/// Because this must create a new detailed descriptor and drop if after validation,
