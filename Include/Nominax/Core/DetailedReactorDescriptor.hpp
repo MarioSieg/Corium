@@ -1,4 +1,4 @@
-// File: ReactorInput.hpp
+// File: DetailedReactorDescriptor.hpp
 // Author: Mario
 // Created: 25.04.2021 3:02 PM
 // Project: NominaxRuntime
@@ -219,7 +219,7 @@
 #include "Marker.hpp"
 
 namespace Nominax
-{	
+{
 	/// <summary>
 	/// Contains all input data for the VM reactor.
 	/// </summary>

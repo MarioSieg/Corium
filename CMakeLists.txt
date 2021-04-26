@@ -94,7 +94,7 @@ add_library("NominaxRuntime" STATIC
         Source/Common/MemoryUnits.cpp
         Source/Common/SafeLocalTime.cpp 
         Source/Core/BasicReactorDescriptor.cpp
-        Source/Core/DetailedReactorDescriptor.cpp "Include/Nominax/Core/BasicReactorDescriptor.hpp")
+        Source/Core/DetailedReactorDescriptor.cpp "Include/Nominax/Core/BasicReactorDescriptor.hpp" "Include/Nominax/Core/ThreadLocalStack.hpp"  "Source/Core/ThreadLocalStack.cpp")
 
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!
