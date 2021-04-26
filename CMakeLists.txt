@@ -92,7 +92,7 @@ add_library("NominaxRuntime" STATIC
         Source/Common/XorshiftAtomic.cpp
         Source/Common/MemoryUnits.cpp
         Source/Common/SafeLocalTime.cpp 
-        Include/Nominax/Common/F64Comparator.hpp)
+        Include/Nominax/Common/F64Comparator.hpp )
 
 # See steam hardware survey: https://store.steampowered.com/hwsurvey/Steam-Hardware-Software-Survey-Welcome-to-Steam
 # If your system does not support any of the -m* flags, just remove them!

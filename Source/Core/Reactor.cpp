@@ -240,6 +240,39 @@
 #	include <arm_neon.h>
 #endif
 
+namespace
+{
+	[[maybe_unused]]
+	__attribute__((always_inline, pure)) inline auto F64IsZero(const double x) noexcept -> bool
+	{
+#if NOMINAX_OPT_USE_ZERO_EPSILON
+		return Nominax::F64IsZero(x);
+#else
+		return x == 0.0;
+#endif
+	}
+
+	[[maybe_unused]]
+	__attribute__((always_inline, pure)) inline auto F64IsOne(const double x) noexcept -> bool
+	{
+#if NOMINAX_OPT_USE_ZERO_EPSILON
+		return Nominax::F64IsOne(x);
+#else
+		return x == 1.0;
+#endif
+	}
+
+	[[maybe_unused]]
+	__attribute__((always_inline, pure)) inline auto F64Equals(const double x, const double y) noexcept -> bool
+	{
+#if NOMINAX_OPT_USE_ZERO_EPSILON
+		return Nominax::F64Equals(x, y);
+#else
+		return x == y;
+#endif
+	}
+}
+
 namespace Nominax
 {
 	/// <summary>
@@ -1186,7 +1219,7 @@ namespace Nominax
 			ASM_MARKER("__jo_cmpf__");
 
 			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
-			if ((*sp--).F64 == 1.0)
+			if (::F64IsOne((*sp--).F64))
 			{
 				// pop()
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
@@ -1218,7 +1251,7 @@ namespace Nominax
 			ASM_MARKER("__jno_cmpf__");
 
 			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
-			if ((*sp--).F64 != 1.0)
+			if (!::F64IsOne((*sp--).F64))
 			{
 				// pop()
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
@@ -1252,7 +1285,7 @@ namespace Nominax
 
 			--sp;                                      // pop()
 			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
-			if ((*sp).F64 == (*(sp + 1)).F64)
+			if (::F64Equals((*sp).F64, (*(sp + 1)).F64))
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1286,7 +1319,7 @@ namespace Nominax
 
 			--sp;                                      // pop()
 			const std::uint64_t abs {(*++ip).R64.U64}; // absolute address
-			if ((*sp).F64 != (*(sp + 1)).F64)
+			if (!::F64Equals((*sp).F64, (*(sp + 1)).F64))
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}

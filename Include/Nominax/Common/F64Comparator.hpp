@@ -223,7 +223,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="x">The number to check for zero.</param>
 	/// <returns>True if x is zero, else false.</returns>
-	__attribute__((flatten)) inline auto F64IsZero(const double x) noexcept -> bool
+	__attribute__((flatten, pure)) inline auto F64IsZero(const double x) noexcept -> bool
 	{
 		return std::abs(x) < ZERO_TOLERANCE;
 	}
@@ -233,7 +233,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="x">The number to check for zero.</param>
 	/// <returns>True if x is zero, else false.</returns>
-	__attribute__((flatten)) inline auto F64IsOne(const double x) noexcept -> bool
+	__attribute__((flatten, pure)) inline auto F64IsOne(const double x) noexcept -> bool
 	{
 		return F64IsZero(x - 1.0);
 	}
@@ -281,7 +281,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	__attribute__((flatten)) constexpr auto BitsOf(const double x) noexcept -> std::uint64_t
+	__attribute__((flatten, pure)) constexpr auto BitsOf(const double x) noexcept -> std::uint64_t
 	{
 		static_assert(sizeof(std::uint64_t) == sizeof(double));
 		const union
@@ -295,17 +295,17 @@ namespace Nominax
 		return u.U;
 	}
 
-	__attribute__((flatten)) constexpr auto ExponentBitsOf(const double x) noexcept -> std::uint64_t
+	__attribute__((flatten, pure)) constexpr auto ExponentBitsOf(const double x) noexcept -> std::uint64_t
 	{
 		return EXPONENT_MASK & BitsOf(x);
 	}
 
-	__attribute__((flatten)) constexpr auto FractionBitsOf(const double x) noexcept -> std::uint64_t
+	__attribute__((flatten, pure)) constexpr auto FractionBitsOf(const double x) noexcept -> std::uint64_t
 	{
 		return FRACTION_MASK & BitsOf(x);
 	}
 
-	__attribute__((flatten)) constexpr auto SignBitOf(const double x) noexcept -> std::uint64_t
+	__attribute__((flatten, pure)) constexpr auto SignBitOf(const double x) noexcept -> std::uint64_t
 	{
 		return SIGN_MASK & BitsOf(x);
 	}
@@ -314,7 +314,7 @@ namespace Nominax
 	/// Returns true if x is NAN, else false.
 	/// NAN = Not A Number
 	/// </summary>
-	__attribute__((flatten)) constexpr auto IsNan(const double x) noexcept -> bool
+	__attribute__((flatten, pure)) constexpr auto IsNan(const double x) noexcept -> bool
 	{
 		return ExponentBitsOf(x) == EXPONENT_MASK && FractionBitsOf(x) != 0;
 	}
@@ -323,7 +323,7 @@ namespace Nominax
 	/// Converts an integer from the "sign and magnitude" to the biased representation.
 	/// See https://en.wikipedia.org/wiki/Signed_number_representations for more info.
 	/// </summary>
-	__attribute__((flatten)) constexpr auto SignMagnitudeToBiasedRepresentation(const std::uint64_t bits) noexcept -> std::uint64_t
+	__attribute__((flatten, pure)) constexpr auto SignMagnitudeToBiasedRepresentation(const std::uint64_t bits) noexcept -> std::uint64_t
 	{
 		if (SIGN_MASK & bits)
 		{
@@ -339,7 +339,7 @@ namespace Nominax
 	/// <param name="bitsA">The first bits as biased representation.</param>
 	/// <param name="bitsB">The second bits as biased representation.</param>
 	/// <returns>The unsigned distance.</returns>
-	__attribute__((flatten)) constexpr auto ComputeDistanceBetweenSignAndMagnitude(const std::uint64_t bitsA, const std::uint64_t bitsB) noexcept -> std::uint64_t
+	__attribute__((flatten, pure)) constexpr auto ComputeDistanceBetweenSignAndMagnitude(const std::uint64_t bitsA, const std::uint64_t bitsB) noexcept -> std::uint64_t
 	{
 		const auto biasedA {SignMagnitudeToBiasedRepresentation(bitsA)};
 		const auto biasedB {SignMagnitudeToBiasedRepresentation(bitsB)};
@@ -357,7 +357,7 @@ namespace Nominax
 	/// <param name="y"></param>
 	/// <returns></returns>
 	template <std::uint32_t Ulps = MAX_ULPS>
-	__attribute__((flatten)) constexpr auto F64Equals(const double x, const double y) noexcept -> bool
+	__attribute__((flatten, pure)) constexpr auto F64Equals(const double x, const double y) noexcept -> bool
 	{
 		static_assert(Ulps > 0);
 		// IEEE 754 required that any NAN comparison should yield false.

@@ -218,13 +218,13 @@ namespace
 	/// <param name="x"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T>
-	__attribute__((always_inline)) constexpr auto IsPowerOfTwo(const T x) noexcept -> bool
+	__attribute__((always_inline, pure)) constexpr auto IsPowerOfTwo(const T x) noexcept -> bool
 	{
 		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
 		return !(x & (x - 1));
 	}
 
-	__attribute__((always_inline)) inline auto F64IsZero(const double x) noexcept -> bool
+	__attribute__((always_inline, pure)) inline auto F64IsZero(const double x) noexcept -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return Nominax::F64IsZero(x);
@@ -233,7 +233,7 @@ namespace
 #endif
 	}
 
-	__attribute__((always_inline)) inline auto F64IsOne(const double x) noexcept -> bool
+	__attribute__((always_inline, pure)) inline auto F64IsOne(const double x) noexcept -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return Nominax::F64IsOne(x);
