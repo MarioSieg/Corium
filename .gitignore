@@ -1,5 +1,7 @@
 out/
 .vs/
+.idea/
+Build/
 CMakeSettings.json
 CMakeLists.txt.user
 reactor.asm
