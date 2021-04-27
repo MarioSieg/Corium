@@ -1,6 +1,6 @@
-// File: Lexemes.hpp
+// File: ReactorInputValidation.cpp
 // Author: Mario
-// Created: 27.04.2021 8:59 AM
+// Created: 27.04.2021 3:52 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,78 +205,193 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "ReactorTestHelper.hpp"
 
-#include <array>
-#include <string_view>
-
-#include "Keywords.hpp"
-
-namespace Corium
+TEST(ReactorInputValidation, ValidInput)
 {
-	enum class Lexeme : std::size_t
-	{
-		TypeSeparator,
-		Comment,
-		Assignment,
-		LBracket,
-		RBracket,
-		LParen,
-		RParen,
-		Separator,
-		Add,
-		Sub,
-		Mul,
-		Div,
-		Mod,
-		And,
-		Or,
-		Xor,
-		Compl,
-		Not,
-		Equals,
-		NotEquals,
-		Less,
-		LessEquals,
-		Greater,
-		GreaterEquals,
-		Ellipsis,
-		Accessor,
-		StringLiteral,
-		CharLiteral,
+	const auto input = DetailedReactorDescriptor {
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = mockCode.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
 
-		Count
+	};
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+}
+
+TEST(ReactorInputValidation, NullPointers)
+{
+	const auto input = DetailedReactorDescriptor {
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = nullptr,
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = 0,
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = 0,
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
+
+	};
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullPtr);
+}
+
+TEST(ReactorInputValidation, ZeroMemorySizes)
+{
+	const auto input = DetailedReactorDescriptor {
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = 0,
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = 0,
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
+
+	};
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::ZeroSize);
+}
+
+TEST(ReactorInputValidation, NullPointerIntrinsicRoutines)
+{
+	std::array<IntrinsicRoutine*, 1> intrinsicRoutines {
+		nullptr
+	};
+	const auto input = DetailedReactorDescriptor {
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = mockCode.size(),
+		.IntrinsicTable = intrinsicRoutines.data(),
+		.IntrinsicTableSize = intrinsicRoutines.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
+
+	};
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullIntrinsicRoutine);
+}
+
+TEST(ReactorInputValidation, ValidIntrinsicRoutines)
+{
+	const auto input = DetailedReactorDescriptor {
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = mockCode.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
+
+	};
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+}
+
+TEST(ReactorInputValidation, MissingCodePrologue)
+{
+	const auto input = DetailedReactorDescriptor {
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data() + 1,
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = mockCode.size() - 1,
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
+
+	};
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodePrologue);
+}
+
+TEST(ReactorInputValidation, InvalidMissingCodePrologue1)
+{
+	std::array code = {
+		Signal {Instruction::NOp},
+		Signal {Instruction::Int},
+		Signal {INT64_C(5)},
 	};
 
-	constexpr std::array<std::u32string_view, static_cast<std::size_t>(Lexeme::Count)> LEXEMES
-	{
-		U":",
-		U"#",
-		U"=",
-		U"{",
-		U"}",
-		U"(",
-		U")",
-		U",",
-		U"+",
-		U"-",
-		U"*",
-		U"/",
-		U"%",
-		U"&",
-		U"|",
-		U"^",
-		U"~",
-		U"!",
-		U"==",
-		U"!=",
-		U"<",
-		U"<=",
-		U">",
-		U">=",
-		U"...",
-		U".",
-		U"\"",
-		U"'"
+	const auto input = DetailedReactorDescriptor {
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = code.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = code.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
+
 	};
+
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+}
+
+TEST(ReactorInputValidation, InvalidMissingCodePrologue2)
+{
+	std::array code = {
+		Signal {Instruction::NOp},
+	};
+
+	const auto input = DetailedReactorDescriptor {
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = code.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = code.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
+
+	};
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
+}
+
+TEST(ReactorInputValidation, InvalidMissingCodePrologue3)
+{
+	std::array code = {
+		Signal {Instruction::NOp},
+		Signal {INT64_C(5)},
+	};
+
+	const auto input = DetailedReactorDescriptor {
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = code.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = code.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data(),
+		.StackSize = mockStack.size(),
+
+	};
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
+}
+
+TEST(ReactorInputValidation, MissingStackPrologue)
+{
+	const auto input = DetailedReactorDescriptor {
+		.SignalStatus = &mockSignalStatus,
+		.CodeChunk = mockCode.data(),
+		.CodeChunkInstructionMap = nullptr,
+		.CodeChunkSize = mockCode.size(),
+		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+		.Stack = mockStack.data() + 1,
+		.StackSize = mockStack.size() - 1,
+
+	};
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingStackPrologue);
 }

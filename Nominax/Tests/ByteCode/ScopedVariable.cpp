@@ -1,6 +1,6 @@
-// File: Common.cpp
+// File: ScopedVariable.cpp
 // Author: Mario
-// Created: 21.04.2021 10:21 PM
+// Created: 27.04.2021 3:44 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,30 +205,120 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "TestBase.hpp"
+#include "../TestBase.hpp"
 
-TEST(F64Comparator, Equals)
+TEST(ScopedVariable, StackPushPop)
 {
-	ASSERT_TRUE(F64Equals<>(1.0, 1.0));
-	ASSERT_TRUE(F64Equals<>(0.0, 0.0));
-	ASSERT_TRUE(F64Equals<>(0.0000001, 0.0000001));
-	ASSERT_TRUE(F64Equals<>(99.99999999, 99.99999999));
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
+	Stream                                      stream { };
+	stream.With(4.5, []([[maybe_unused]] auto&& var) { });
+	ASSERT_EQ(stream.Size(), 4);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[2].Contains(4.5));
+	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
 }
 
-TEST(F64Comparator, NotEquals)
+TEST(ScopedVariable, F64StackPushPopOptScalarZero)
 {
-	ASSERT_FALSE(F64Equals<>(1.0, 1.0000000000001));
-	ASSERT_FALSE(F64Equals<>(0.0, 0.00000000001));
-	ASSERT_FALSE(F64Equals<>(0.00000012, 0.0000001));
-	ASSERT_FALSE(F64Equals<>(99.99999998, 99.99999999));
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
+	Stream                                      stream { };
+	stream.With(0.0, []([[maybe_unused]] auto&& var) { });
+	ASSERT_EQ(stream.Size(), 3);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
 }
 
-TEST(F64Comparator, IsZero)
+TEST(ScopedVariable, I64StackPushPopOptScalarZero)
 {
-	ASSERT_TRUE(F64IsZero(0.0));
-	ASSERT_FALSE(F64IsZero(1.0));
-	ASSERT_FALSE(F64IsZero(2.0));
-	ASSERT_FALSE(F64IsZero(0.000001));
-	ASSERT_TRUE(F64IsZero(0.0000001));
-	ASSERT_TRUE(F64IsZero(0.000000009999999999));
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
+	Stream                                    stream { };
+	stream.With(0, []([[maybe_unused]] auto&& var) { });
+	ASSERT_EQ(stream.Size(), 3);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+}
+
+TEST(ScopedVariable, U64StackPushPopOptScalarZero)
+{
+	Stream                                    stream { };
+	stream.With(0, []([[maybe_unused]] auto&& var) { });
+	ASSERT_EQ(stream.Size(), 3);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+}
+
+TEST(ScopedVariable, F64StackPushPopOptScalarOne)
+{
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
+	Stream                                      stream { };
+	stream.With(1.0, []([[maybe_unused]] auto&& var) { });
+	ASSERT_EQ(stream.Size(), 3);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(Instruction::FPushO));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+}
+
+TEST(ScopedVariable, I64StackPushPopOptScalarOne)
+{
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
+	Stream                                    stream { };
+	stream.With(1, []([[maybe_unused]] auto&& var) { });
+	ASSERT_EQ(stream.Size(), 3);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(Instruction::IPushO));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+}
+
+TEST(ScopedVariable, U64StackPushPopOptScalarOne)
+{
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
+	Stream                                    stream { };
+	stream.With(1, []([[maybe_unused]] auto&& var) { });
+	ASSERT_EQ(stream.Size(), 3);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(Instruction::IPushO));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+}
+
+TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
+{
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
+	Stream stream { };
+	stream << 3.5;
+	stream.With(3.5, []([[maybe_unused]] auto&& var) { });
+	ASSERT_EQ(stream.Size(), 4);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(3.5));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Dupl));
+	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
+}
+
+TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
+{
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
+	Stream stream { };
+	stream << INT64_C(3);
+	stream.With(3, []([[maybe_unused]] auto&& var) { });
+	ASSERT_EQ(stream.Size(), 4);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains<std::int64_t>(3));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Dupl));
+	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
+}
+
+TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
+{
+	ASSERT_NE(OptLevel, OptimizationLevel::Off);
+	Stream stream { };
+	stream << UINT64_C(3);
+	stream.With(UINT64_C(3), []([[maybe_unused]] auto&& var) { });
+	ASSERT_EQ(stream.Size(), 4);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains<std::uint64_t>(3));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Dupl));
+	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
 }

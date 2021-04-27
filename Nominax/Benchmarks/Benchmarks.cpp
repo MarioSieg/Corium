@@ -1,6 +1,6 @@
 // File: Benchmarks.cpp
 // Author: Mario
-// Created: 15.04.2021.18:20
+// Created: 15.04.2021 6:20 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -251,7 +251,7 @@ auto Loop1Billion(State& state) -> void
 
 	volatile std::sig_atomic_t sig { };
 	constexpr std::array       intrins {
-		+[](Record*          ) -> bool { return true; }
+		+[](Record*            ) -> bool { return true; }
 	};
 
 	const DetailedReactorDescriptor input {
@@ -279,7 +279,7 @@ auto Loop1Billion(State& state) -> void
 	{
 		const auto output {ExecuteChecked(input)};
 
-        if (output.ExecutionResult != TerminateResult::Success)
+		if (output.ExecutionResult != TerminateResult::Success)
 		{
 			state.SkipWithError("Reactor terminated with error or exception!");
 			break;
@@ -315,12 +315,13 @@ BENCHMARK(Loop1Billion)->Unit(kSecond);
 
 auto DeepCmp(State& state) -> void
 {
-	const auto a{ Object::AllocateUnique(16384) };
-	const auto b{ Object::AllocateUnique(16384) };
+	const auto a {Object::AllocateUnique(16384)};
+	const auto b {Object::AllocateUnique(16384)};
 
-	for (auto _ : state) {
+	for (auto _ : state)
+	{
 		const auto x = Object::DeepCmp(*a, *b);
-		benchmark::DoNotOptimize(x);
+		DoNotOptimize(x);
 	}
 }
 
@@ -328,16 +329,17 @@ BENCHMARK(DeepCmp)->Unit(kMicrosecond);
 
 auto DeepCmpLess(State& state) -> void
 {
-	const auto a{ Object::AllocateUnique(16384) };
-	const auto b{ Object::AllocateUnique(16384) };
+	const auto a {Object::AllocateUnique(16384)};
+	const auto b {Object::AllocateUnique(16384)};
 	for (auto& x : *b)
 	{
 		x.F64 = 10.0;
 	}
 
-	for (auto _ : state) {
+	for (auto _ : state)
+	{
 		const auto x = Object::DeepValueCmp_Less<double>(*a, *b);
-		benchmark::DoNotOptimize(x);
+		DoNotOptimize(x);
 	}
 }
 
@@ -345,7 +347,7 @@ BENCHMARK(DeepCmpLess)->Unit(kMicrosecond);
 
 auto Loop5Billion(State& state) -> void
 {
-	std::vector code{
+	std::vector code {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::PushZ},
 		Signal {Instruction::IInc},
@@ -359,7 +361,7 @@ auto Loop5Billion(State& state) -> void
 		Signal {INT64_C(0)},
 	};
 
-	const std::vector<std::uint8_t> codeInstructionMap{
+	const std::vector<std::uint8_t> codeInstructionMap {
 		true,
 		true,
 		true,
@@ -379,14 +381,14 @@ auto Loop5Billion(State& state) -> void
 		return;
 	}
 
-	std::array<Record, 32> stack = { Record::Padding() };
+	std::array<Record, 32> stack = {Record::Padding()};
 
-	volatile std::sig_atomic_t sig{ };
-	constexpr std::array       intrins{
-		+[](Record*) -> bool { return true; }
+	volatile std::sig_atomic_t sig { };
+	constexpr std::array       intrins {
+		+[](Record*            ) -> bool { return true; }
 	};
 
-	const DetailedReactorDescriptor input{
+	const DetailedReactorDescriptor input {
 		.SignalStatus = &sig,
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(codeInstructionMap.data()),
@@ -409,9 +411,9 @@ auto Loop5Billion(State& state) -> void
 
 	for (auto _ : state)
 	{
-		const auto output{ ExecuteChecked(input) };
+		const auto output {ExecuteChecked(input)};
 
-        if (output.ExecutionResult != TerminateResult::Success)
+		if (output.ExecutionResult != TerminateResult::Success)
 		{
 			state.SkipWithError("Reactor terminated with error or exception!");
 			break;

@@ -1,6 +1,6 @@
-// File: Lexemes.hpp
+// File: F64Comparator.cpp
 // Author: Mario
-// Created: 27.04.2021 8:59 AM
+// Created: 21.04.2021 10:21 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,78 +205,30 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../TestBase.hpp"
 
-#include <array>
-#include <string_view>
-
-#include "Keywords.hpp"
-
-namespace Corium
+TEST(F64Comparator, Equals)
 {
-	enum class Lexeme : std::size_t
-	{
-		TypeSeparator,
-		Comment,
-		Assignment,
-		LBracket,
-		RBracket,
-		LParen,
-		RParen,
-		Separator,
-		Add,
-		Sub,
-		Mul,
-		Div,
-		Mod,
-		And,
-		Or,
-		Xor,
-		Compl,
-		Not,
-		Equals,
-		NotEquals,
-		Less,
-		LessEquals,
-		Greater,
-		GreaterEquals,
-		Ellipsis,
-		Accessor,
-		StringLiteral,
-		CharLiteral,
+	ASSERT_TRUE(F64Equals<>(1.0, 1.0));
+	ASSERT_TRUE(F64Equals<>(0.0, 0.0));
+	ASSERT_TRUE(F64Equals<>(0.0000001, 0.0000001));
+	ASSERT_TRUE(F64Equals<>(99.99999999, 99.99999999));
+}
 
-		Count
-	};
+TEST(F64Comparator, NotEquals)
+{
+	ASSERT_FALSE(F64Equals<>(1.0, 1.0000000000001));
+	ASSERT_FALSE(F64Equals<>(0.0, 0.00000000001));
+	ASSERT_FALSE(F64Equals<>(0.00000012, 0.0000001));
+	ASSERT_FALSE(F64Equals<>(99.99999998, 99.99999999));
+}
 
-	constexpr std::array<std::u32string_view, static_cast<std::size_t>(Lexeme::Count)> LEXEMES
-	{
-		U":",
-		U"#",
-		U"=",
-		U"{",
-		U"}",
-		U"(",
-		U")",
-		U",",
-		U"+",
-		U"-",
-		U"*",
-		U"/",
-		U"%",
-		U"&",
-		U"|",
-		U"^",
-		U"~",
-		U"!",
-		U"==",
-		U"!=",
-		U"<",
-		U"<=",
-		U">",
-		U">=",
-		U"...",
-		U".",
-		U"\"",
-		U"'"
-	};
+TEST(F64Comparator, IsZero)
+{
+	ASSERT_TRUE(F64IsZero(0.0));
+	ASSERT_FALSE(F64IsZero(1.0));
+	ASSERT_FALSE(F64IsZero(2.0));
+	ASSERT_FALSE(F64IsZero(0.000001));
+	ASSERT_TRUE(F64IsZero(0.0000001));
+	ASSERT_TRUE(F64IsZero(0.000000009999999999));
 }

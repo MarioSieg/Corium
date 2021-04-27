@@ -1,6 +1,6 @@
-// File: Data.cpp
+// File: BytecodeStream.cpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 27.04.2021 3:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,31 +205,54 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "TestBase.hpp"
+#include "../TestBase.hpp"
 
-TEST(ReactorAggregates, UnionReinterpretation)
+TEST(BytecodeStream, Constructor)
 {
-	Record rec {
-		UINT64_C(0xFF'FF'FF'FF)
-	};
-	ASSERT_EQ(rec.U64, 0xFF'FF'FF'FF);
+	Stream stream { };
+	ASSERT_EQ(stream.Capacity(), 8);
+	ASSERT_EQ(stream.Size(), 1);
+	ASSERT_EQ(stream.SizeInBytes(), sizeof(DynamicSignal));
+	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
+	ASSERT_TRUE(stream.Buffer()[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
+}
 
-	rec.I64 = -1234;
-	ASSERT_EQ(rec.I64, -1234);
+TEST(BytecodeStream, ConstructorCapacity)
+{
+	Stream stream {128};
+	ASSERT_EQ(stream.Capacity(), 128 + 3);
+	ASSERT_EQ(stream.Size(), 1);
+	ASSERT_EQ(stream.SizeInBytes(), sizeof(DynamicSignal));
+	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
+	ASSERT_TRUE(stream.Buffer()[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
+}
 
-	rec.F64 = 3.14;
-	ASSERT_EQ(rec.F64, 3.14);
+TEST(BytecodeStream, Push)
+{
+	Stream stream { };
+	ASSERT_EQ(stream.Size(), 1);
 
-	rec.C32 = '!';
-	ASSERT_EQ(rec.C32, '!');
+	stream.Push(DynamicSignal { });
+	stream.Push(DynamicSignal {Instruction::NOp});
+	stream << Instruction::Call;
+	stream << SystemIntrinsicCallId::ACos;
+	stream << CustomIntrinsicCallId {3};
+	stream << 3.5;
+	stream << UINT64_C(32);
+	stream << INT64_C(-10);
 
-	rec.Ptr = &rec;
-	ASSERT_EQ(rec.Ptr, &rec);
+	ASSERT_EQ(stream.Size(), 9);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(UINT64_C(0)));
+	ASSERT_TRUE(stream[2].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[3].Contains(Instruction::Call));
+	ASSERT_TRUE(stream[4].Contains(SystemIntrinsicCallId::ACos));
+	ASSERT_TRUE(stream[5].Contains(CustomIntrinsicCallId{ 3 }));
+	ASSERT_TRUE(stream[6].Contains(3.5));
+	ASSERT_TRUE(stream[7].Contains(UINT64_C(32)));
+	ASSERT_TRUE(stream[8].Contains(INT64_C(-10)));
 
-	constexpr Signal sig {
-		Instruction::Mov
-	};
-	ASSERT_EQ(sig.Instr, Instruction::Mov);
-	ASSERT_EQ(sig.OpCode, static_cast<std::uint64_t>(Instruction::Mov));
-	ASSERT_EQ(sig.R64.U64, static_cast<std::uint64_t>(Instruction::Mov));
+	stream.Clear();
+	ASSERT_EQ(stream.Size(), 1);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 }

@@ -1,6 +1,6 @@
-// File: Lexemes.hpp
+// File: InstructionDb.cpp
 // Author: Mario
-// Created: 27.04.2021 8:59 AM
+// Created: 27.04.2021 3:41 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,78 +205,27 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../TestBase.hpp"
 
-#include <array>
-#include <string_view>
-
-#include "Keywords.hpp"
-
-namespace Corium
+TEST(BytecodeInstructionDB, MaximalImmediateArgumentCount)
 {
-	enum class Lexeme : std::size_t
+	const auto max = INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS;
+	for (const auto val : INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS)
 	{
-		TypeSeparator,
-		Comment,
-		Assignment,
-		LBracket,
-		RBracket,
-		LParen,
-		RParen,
-		Separator,
-		Add,
-		Sub,
-		Mul,
-		Div,
-		Mod,
-		And,
-		Or,
-		Xor,
-		Compl,
-		Not,
-		Equals,
-		NotEquals,
-		Less,
-		LessEquals,
-		Greater,
-		GreaterEquals,
-		Ellipsis,
-		Accessor,
-		StringLiteral,
-		CharLiteral,
+		ASSERT_LE(val, max);
+	}
+}
 
-		Count
-	};
-
-	constexpr std::array<std::u32string_view, static_cast<std::size_t>(Lexeme::Count)> LEXEMES
+TEST(BytecodeInstructionDB, ImmediateArgumentCount)
+{
+	ASSERT_EQ(INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS.size(), INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES.size());
+	for (std::size_t i = 0; i < INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS.size(); ++i)
 	{
-		U":",
-		U"#",
-		U"=",
-		U"{",
-		U"}",
-		U"(",
-		U")",
-		U",",
-		U"+",
-		U"-",
-		U"*",
-		U"/",
-		U"%",
-		U"&",
-		U"|",
-		U"^",
-		U"~",
-		U"!",
-		U"==",
-		U"!=",
-		U"<",
-		U"<=",
-		U">",
-		U">=",
-		U"...",
-		U".",
-		U"\"",
-		U"'"
-	};
+		std::uint8_t count = 0;
+		for (const auto x : INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[i])
+		{
+			count += x != InstructionImmediateArgumentType::None;
+		}
+		ASSERT_EQ(count, INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[i]);
+	}
 }

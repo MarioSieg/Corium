@@ -1986,8 +1986,10 @@ namespace Nominax
 
 	_hard_fault_err_: __attribute__((cold));
 		{
+#ifndef NOMINAX_TESTING
 			const std::string_view msg = BasicErrorInfo(InterruptCvt(interruptCode));
 			WriteHardFaultReport(sp, ip, bp, input.StackSize, input.CodeChunkSize, msg);
+#endif
 
 #if !NOMINAX_DEBUG
 			std::abort();

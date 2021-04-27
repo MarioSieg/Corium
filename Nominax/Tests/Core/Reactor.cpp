@@ -205,871 +205,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "TestBase.hpp"
+#include "ReactorTestHelper.hpp"
 
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-#error "These tests must run with NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING disabled!"
-#endif
-
-constexpr IntrinsicRoutine* MOCK_INTRINSIC_ROUTINE
-{
-	+[]([[maybe_unused]] Record*) noexcept -> bool
-	{
-		return true;
-	}
-};
-
-constexpr std::array MOCK_INTRINSIC_ROUTINE_TABLE
-{
-	MOCK_INTRINSIC_ROUTINE,
-	MOCK_INTRINSIC_ROUTINE,
-	MOCK_INTRINSIC_ROUTINE
-};
-
-constexpr auto MOCK_STACK_SIZE = 32; // 32 records
-
-constinit std::array<Record, MOCK_STACK_SIZE> mockStack {Record::Padding()};
-
-constinit volatile std::sig_atomic_t mockSignalStatus;
-
-constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
-{
-	+[](InterruptAccumulator) noexcept -> bool
-	{
-		return true;
-	}
-};
-
-constexpr DetailedReactorDescriptor MOCK_REACTOR_INPUT
-{
-	.SignalStatus = &mockSignalStatus,
-	.CodeChunk = nullptr,
-	.CodeChunkInstructionMap = nullptr,
-	.CodeChunkSize = 0,
-	.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-	.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-	.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-	.Stack = mockStack.data(),
-	.StackSize = mockStack.size(),
-	
-};
-
-std::array mockCode
-{
-	Signal {Instruction::NOp}, // first padding
-	Signal {Instruction::Int},
-	Signal {INT64_C(5)},
-};
-
-TEST(ReactorExecution, __Intrin__$cos)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Cos},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::cos(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$sin)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Sin},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::sin(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$tan)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Tan},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::tan(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$acos)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ACos},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::acos(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$asin)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ASin},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::asin(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$atan)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ATan},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::atan(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$atan2)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ATan2},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::atan2(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
-}
-
-TEST(ReactorExecution, __Intrin__$cosh)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::CosH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::cosh(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$sinh)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::SinH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::sinh(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$tanh)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::TanH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::tanh(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$acosh)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {1.6},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ACosH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::acosh(1.6));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$asinh)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ASinH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::asinh(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$atanh)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ATanH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::atanh(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$exp)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Exp},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::exp(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$log)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Log},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::log(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$log10)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Log10},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::log10(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$exp2)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Exp2},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::exp2(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$ilogb)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {1.332},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ILogB},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::ilogb(1.332));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$log2)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Log2},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::log2(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$pow)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Pow},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::pow(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
-}
-
-
-TEST(ReactorExecution, __Intrin__$sqrt)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Sqrt},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::sqrt(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$cbrt)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Cbrt},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::cbrt(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$hypot)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Hypot},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::hypot(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
-}
-
-TEST(ReactorExecution, __Intrin__$ceil)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Ceil},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::ceil(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$floor)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Floor},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::floor(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$round)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Round},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::round(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$rint)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::RInt},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::rint(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$imax)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(4)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(7)},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::IMax},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].I64, std::max<std::int64_t>(4, 7));
-	ASSERT_EQ(o.Input->Stack[2].I64, 7);
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
-}
-
-TEST(ReactorExecution, __Intrin__$imin)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(4)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(7)},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::IMin},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].I64, std::min<std::int64_t>(4, 7));
-	ASSERT_EQ(o.Input->Stack[2].I64, 7);
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
-}
-
-TEST(ReactorExecution, __Intrin__$fmax)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::FMax},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::max(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
-}
-
-TEST(ReactorExecution, __Intrin__$fmin)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::FMin},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::fmin(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
-}
-
-TEST(ReactorExecution, __Intrin__$dim)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Dim},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::fdim(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].F64, 0.15);
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
-}
-
-
-TEST(ReactorExecution, __Intrin__$iabs)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(223233)},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::IAbs},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].I64, std::abs(223233));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __Intrin__$fabs)
-{
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::FAbs},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
-	};
-
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].F64, std::fabs(0.35));
-	ASSERT_EQ(o.InterruptCode, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
-}
-
-TEST(ReactorExecution, __int__)
+TEST(ReactorExecution, Instruction_Int)
 {
 	std::array code = {
 		Signal {Instruction::NOp}, // first padding
@@ -1102,7 +240,7 @@ TEST(ReactorExecution, __int__)
 	ASSERT_EQ(o.IpDiff, code.size() - 1);
 }
 
-TEST(ReactorExecution, __mov__)
+TEST(ReactorExecution, Instruction_Mov)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1125,7 +263,7 @@ TEST(ReactorExecution, __mov__)
 	ASSERT_EQ(o.Input->Stack[8].F64, 3.1415);
 }
 
-TEST(ReactorExecution, __sto__)
+TEST(ReactorExecution, Instruction_Sto)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1148,7 +286,7 @@ TEST(ReactorExecution, __sto__)
 	ASSERT_EQ(o.Input->Stack[31].F64, 3.1415);
 }
 
-TEST(ReactorExecution, __Push__)
+TEST(ReactorExecution, Instruction_Push)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1170,12 +308,9 @@ TEST(ReactorExecution, __Push__)
 }
 
 #if NOMINAX_STACK_OVERFLOW_CHECKS
+// Jump Instruction which Push do not required any checks. since they recycle stack space.
 
-/*
- * Jump Instruction which Push do not required any checks. since they recycle stack space.
- */
-
-TEST(ReactorExecution, __Push_no_stack_overflow__)
+TEST(ReactorExecution, Instruction_PushNoStackOverflow)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1206,7 +341,7 @@ TEST(ReactorExecution, __Push_no_stack_overflow__)
 	ASSERT_EQ(o.ExecutionResult, TerminateResult::Success);
 }
 
-TEST(ReactorExecution, __Push_stack_overflow__)
+TEST(ReactorExecution, Instruction_PushStackOverflow)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1239,7 +374,7 @@ TEST(ReactorExecution, __Push_stack_overflow__)
 	ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
 }
 
-TEST(ReactorExecution, __Dupl_stack_overflow__)
+TEST(ReactorExecution, Instruction_DuplStackOverflow)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1269,7 +404,7 @@ TEST(ReactorExecution, __Dupl_stack_overflow__)
 	ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
 }
 
-TEST(ReactorExecution, __Dupl2_stack_overflow__)
+TEST(ReactorExecution, Instruction_Dupl2StackOverflow)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1299,7 +434,7 @@ TEST(ReactorExecution, __Dupl2_stack_overflow__)
 	ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
 }
 
-TEST(ReactorExecution, __CIntrin__)
+TEST(ReactorExecution, Instruction_CIntrin)
 {
 	static constinit int calls;
 	std::array           custom_Intrinsics {
@@ -1356,7 +491,7 @@ TEST(ReactorExecution, __CIntrin__)
 	ASSERT_EQ(calls, custom_Intrinsics.size());
 }
 
-TEST(ReactorExecution, __PushZ_stack_overflow__)
+TEST(ReactorExecution, Instruction_PushZStackOverflow)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1385,7 +520,7 @@ TEST(ReactorExecution, __PushZ_stack_overflow__)
 	ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
 }
 
-TEST(ReactorExecution, __IPushO_stack_overflow__)
+TEST(ReactorExecution, Instruction_IPushOStackOverflow)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1414,7 +549,7 @@ TEST(ReactorExecution, __IPushO_stack_overflow__)
 	ASSERT_EQ(o.ExecutionResult, TerminateResult::Error);
 }
 
-TEST(ReactorExecution, __FPushO_stack_overflow__)
+TEST(ReactorExecution, Instruction_FPushOStackOverflow)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1445,7 +580,7 @@ TEST(ReactorExecution, __FPushO_stack_overflow__)
 
 #endif
 
-TEST(ReactorExecution, __Pop__)
+TEST(ReactorExecution, Instruction_Pop)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1475,7 +610,7 @@ TEST(ReactorExecution, __Pop__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __Pop2__)
+TEST(ReactorExecution, Instruction_Pop2)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1498,7 +633,7 @@ TEST(ReactorExecution, __Pop2__)
 	ASSERT_EQ(o.SpDiff, 0);
 }
 
-TEST(ReactorExecution, __Dupl__)
+TEST(ReactorExecution, Instruction_Dupl)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1523,7 +658,7 @@ TEST(ReactorExecution, __Dupl__)
 	ASSERT_EQ(o.Input->Stack[4].I64, -2);
 }
 
-TEST(ReactorExecution, __Swap__)
+TEST(ReactorExecution, Instruction_Swap)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1546,7 +681,7 @@ TEST(ReactorExecution, __Swap__)
 	ASSERT_EQ(o.SpDiff, 2);
 }
 
-TEST(ReactorExecution, __Dupl2__)
+TEST(ReactorExecution, Instruction_Dupl2)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1573,7 +708,7 @@ TEST(ReactorExecution, __Dupl2__)
 	ASSERT_EQ(o.Input->Stack[6].I64, 0xFF);
 }
 
-TEST(ReactorExecution, __IInc__)
+TEST(ReactorExecution, Instruction_IInc)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1598,7 +733,7 @@ TEST(ReactorExecution, __IInc__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __IDec__)
+TEST(ReactorExecution, Instruction_IDec)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1622,7 +757,7 @@ TEST(ReactorExecution, __IDec__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __PushZ__)
+TEST(ReactorExecution, Instruction_PushZ)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1643,7 +778,7 @@ TEST(ReactorExecution, __PushZ__)
 	ASSERT_EQ(o.Input->Stack[3].F64, 0.0F);
 }
 
-TEST(ReactorExecution, __IPushO__)
+TEST(ReactorExecution, Instruction_IPushO)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1664,7 +799,7 @@ TEST(ReactorExecution, __IPushO__)
 	ASSERT_EQ(o.Input->Stack[3].U64, 1);
 }
 
-TEST(ReactorExecution, __iadd__)
+TEST(ReactorExecution, Instruction_IAdd)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1687,7 +822,7 @@ TEST(ReactorExecution, __iadd__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __isub__)
+TEST(ReactorExecution, Instruction_ISub)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1710,7 +845,7 @@ TEST(ReactorExecution, __isub__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __imul__)
+TEST(ReactorExecution, Instruction_IMul)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1733,7 +868,7 @@ TEST(ReactorExecution, __imul__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __idiv__)
+TEST(ReactorExecution, Instruction_IDiv)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1756,7 +891,7 @@ TEST(ReactorExecution, __idiv__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __imod__)
+TEST(ReactorExecution, Instruction_IMod)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1779,7 +914,7 @@ TEST(ReactorExecution, __imod__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __iand__)
+TEST(ReactorExecution, Instruction_IAnd)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1802,7 +937,7 @@ TEST(ReactorExecution, __iand__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __ior__)
+TEST(ReactorExecution, Instruction_IOr)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1825,7 +960,7 @@ TEST(ReactorExecution, __ior__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __ixor__)
+TEST(ReactorExecution, Instruction_IXor)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1848,7 +983,7 @@ TEST(ReactorExecution, __ixor__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __icom__)
+TEST(ReactorExecution, Instruction_ICom)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1868,7 +1003,7 @@ TEST(ReactorExecution, __icom__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __isal__)
+TEST(ReactorExecution, Instruction_ISal)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1891,7 +1026,7 @@ TEST(ReactorExecution, __isal__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __isar__)
+TEST(ReactorExecution, Instruction_ISar)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1914,7 +1049,7 @@ TEST(ReactorExecution, __isar__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __irol__)
+TEST(ReactorExecution, Instruction_IRol)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1937,7 +1072,7 @@ TEST(ReactorExecution, __irol__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __iror__)
+TEST(ReactorExecution, Instruction_IRor)
 {
 	std::array code = {
 		Signal {Instruction::NOp}, // first padding
@@ -1960,7 +1095,7 @@ TEST(ReactorExecution, __iror__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __ineg__)
+TEST(ReactorExecution, Instruction_INeg)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -1980,7 +1115,7 @@ TEST(ReactorExecution, __ineg__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __fadd__)
+TEST(ReactorExecution, Instruction_FAdd)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2003,7 +1138,7 @@ TEST(ReactorExecution, __fadd__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __fmod_)
+TEST(ReactorExecution, Instruction_FMod)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2026,7 +1161,7 @@ TEST(ReactorExecution, __fmod_)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __fsub__)
+TEST(ReactorExecution, Instruction_FSub)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2049,7 +1184,7 @@ TEST(ReactorExecution, __fsub__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __fmul__)
+TEST(ReactorExecution, Instruction_FMul)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2072,7 +1207,7 @@ TEST(ReactorExecution, __fmul__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __fdiv__)
+TEST(ReactorExecution, Instruction_FDiv)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2095,7 +1230,7 @@ TEST(ReactorExecution, __fdiv__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __fneg__)
+TEST(ReactorExecution, Instruction_FNeg)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2115,7 +1250,7 @@ TEST(ReactorExecution, __fneg__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __FInc__)
+TEST(ReactorExecution, Instruction_FInc)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2140,7 +1275,7 @@ TEST(ReactorExecution, __FInc__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __FDec__)
+TEST(ReactorExecution, Instruction_FDec)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2165,7 +1300,7 @@ TEST(ReactorExecution, __FDec__)
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
-TEST(ReactorExecution, __FPushO__)
+TEST(ReactorExecution, Instruction_FPushO)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2186,7 +1321,7 @@ TEST(ReactorExecution, __FPushO__)
 	ASSERT_EQ(o.Input->Stack[3].F64, 1.);
 }
 
-TEST(ReactorExecution, __call__)
+TEST(ReactorExecution, Instruction_Call)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2210,7 +1345,7 @@ TEST(ReactorExecution, __call__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __ret__)
+TEST(ReactorExecution, Instruction_Ret)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2239,7 +1374,7 @@ TEST(ReactorExecution, __ret__)
 	ASSERT_EQ(o.InterruptCode, -0xABCDEF);
 }
 
-TEST(ReactorExecution, __jmp__)
+TEST(ReactorExecution, Instruction_Jmp)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2263,7 +1398,7 @@ TEST(ReactorExecution, __jmp__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jmprel__)
+TEST(ReactorExecution, Instruction_JmpRel)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2287,7 +1422,7 @@ TEST(ReactorExecution, __jmprel__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jz__)
+TEST(ReactorExecution, Instruction_JZ)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2314,7 +1449,7 @@ TEST(ReactorExecution, __jz__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jnz__)
+TEST(ReactorExecution, Instruction_JnZ)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2341,7 +1476,7 @@ TEST(ReactorExecution, __jnz__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jo_cmpi__)
+TEST(ReactorExecution, Instruction_JoCmpI)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2368,7 +1503,7 @@ TEST(ReactorExecution, __jo_cmpi__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jno_cmpi__)
+TEST(ReactorExecution, Instruction_JnoCmpI)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2395,7 +1530,7 @@ TEST(ReactorExecution, __jno_cmpi__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jo_cmpf__)
+TEST(ReactorExecution, Instruction_JoCmpF)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2422,7 +1557,7 @@ TEST(ReactorExecution, __jo_cmpf__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jno_cmpf__)
+TEST(ReactorExecution, Instruction_JnoCmpF)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2449,7 +1584,7 @@ TEST(ReactorExecution, __jno_cmpf__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __je_cmpi__)
+TEST(ReactorExecution, Instruction_JeCmpI)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2482,7 +1617,7 @@ TEST(ReactorExecution, __je_cmpi__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __je_cmpf__)
+TEST(ReactorExecution, Instruction_JeCmpF)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2515,7 +1650,7 @@ TEST(ReactorExecution, __je_cmpf__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jne_cmpi__)
+TEST(ReactorExecution, Instruction_JneCmpI)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2549,7 +1684,7 @@ TEST(ReactorExecution, __jne_cmpi__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jne_cmpf__)
+TEST(ReactorExecution, Instruction_JneCmpF)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2583,7 +1718,7 @@ TEST(ReactorExecution, __jne_cmpf__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __ja_cmpi__)
+TEST(ReactorExecution, Instruction_JaCmpI)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2617,7 +1752,7 @@ TEST(ReactorExecution, __ja_cmpi__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __ja_cmpf__)
+TEST(ReactorExecution, Instruction_JaCmpF)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2651,7 +1786,7 @@ TEST(ReactorExecution, __ja_cmpf__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jl_cmpi__)
+TEST(ReactorExecution, Instruction_JlCmpI)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2685,7 +1820,7 @@ TEST(ReactorExecution, __jl_cmpi__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jl_cmpf__)
+TEST(ReactorExecution, Instruction_JlCmpF)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2719,7 +1854,7 @@ TEST(ReactorExecution, __jl_cmpf__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jae_cmpi__)
+TEST(ReactorExecution, Instruction_JaeCmpI)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2759,7 +1894,7 @@ TEST(ReactorExecution, __jae_cmpi__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jae_cmpf__)
+TEST(ReactorExecution, Instruction_JaeCmpF)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2799,7 +1934,7 @@ TEST(ReactorExecution, __jae_cmpf__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jle_cmpi__)
+TEST(ReactorExecution, Instruction_JleCmpI)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2839,7 +1974,7 @@ TEST(ReactorExecution, __jle_cmpi__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __jle_cmpf__)
+TEST(ReactorExecution, Instruction_JleCmpF)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -2879,196 +2014,7 @@ TEST(ReactorExecution, __jle_cmpf__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorInputValidation, valid_poInts)
-{
-	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &mockSignalStatus,
-		.CodeChunk = mockCode.data(),
-		.CodeChunkInstructionMap = nullptr,
-		.CodeChunkSize = mockCode.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = mockStack.data(),
-		.StackSize = mockStack.size(),
-		
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-}
-
-TEST(ReactorInputValidation, null_poInts)
-{
-	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &mockSignalStatus,
-		.CodeChunk = nullptr,
-		.CodeChunkInstructionMap = nullptr,
-		.CodeChunkSize = 0,
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = 0,
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = mockStack.data(),
-		.StackSize = mockStack.size(),
-		
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullPtr);
-}
-
-TEST(ReactorInputValidation, zero_sizes)
-{
-	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &mockSignalStatus,
-		.CodeChunk = mockCode.data(),
-		.CodeChunkInstructionMap = nullptr,
-		.CodeChunkSize = 0,
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = 0,
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = mockStack.data(),
-		.StackSize = mockStack.size(),
-		
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::ZeroSize);
-}
-
-TEST(ReactorInputValidation, invalid_Intrinsic_routines)
-{
-	std::array<IntrinsicRoutine*, 1> intrinsicRoutines {
-		nullptr
-	};
-	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &mockSignalStatus,
-		.CodeChunk = mockCode.data(),
-		.CodeChunkInstructionMap = nullptr,
-		.CodeChunkSize = mockCode.size(),
-		.IntrinsicTable = intrinsicRoutines.data(),
-		.IntrinsicTableSize = intrinsicRoutines.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = mockStack.data(),
-		.StackSize = mockStack.size(),
-		
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullIntrinsicRoutine);
-}
-
-TEST(ReactorInputValidation, valid_Intrinsic_routines)
-{
-	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &mockSignalStatus,
-		.CodeChunk = mockCode.data(),
-		.CodeChunkInstructionMap = nullptr,
-		.CodeChunkSize = mockCode.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = mockStack.data(),
-		.StackSize = mockStack.size(),
-		
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-}
-
-TEST(ReactorInputValidation, missing_code_prologue)
-{
-	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &mockSignalStatus,
-		.CodeChunk = mockCode.data() + 1,
-		.CodeChunkInstructionMap = nullptr,
-		.CodeChunkSize = mockCode.size() - 1,
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = mockStack.data(),
-		.StackSize = mockStack.size(),
-		
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodePrologue);
-}
-
-TEST(ReactorInputValidation, missing_code_epilogue$1)
-{
-	std::array code = {
-		Signal {Instruction::NOp},
-		Signal {Instruction::Int},
-		Signal {INT64_C(5)},
-	};
-
-	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &mockSignalStatus,
-		.CodeChunk = code.data(),
-		.CodeChunkInstructionMap = nullptr,
-		.CodeChunkSize = code.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = mockStack.data(),
-		.StackSize = mockStack.size(),
-		
-	};
-
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-}
-
-TEST(ReactorInputValidation, missing_code_epilogue$2)
-{
-	std::array code = {
-		Signal {Instruction::NOp},
-	};
-
-	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &mockSignalStatus,
-		.CodeChunk = code.data(),
-		.CodeChunkInstructionMap = nullptr,
-		.CodeChunkSize = code.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = mockStack.data(),
-		.StackSize = mockStack.size(),
-		
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
-}
-
-TEST(ReactorInputValidation, missing_code_epilogue$3)
-{
-	std::array code = {
-		Signal {Instruction::NOp},
-		Signal {INT64_C(5)},
-	};
-
-	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &mockSignalStatus,
-		.CodeChunk = code.data(),
-		.CodeChunkInstructionMap = nullptr,
-		.CodeChunkSize = code.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = mockStack.data(),
-		.StackSize = mockStack.size(),
-		
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
-}
-
-TEST(ReactorInputValidation, missing_stack_prologue)
-{
-	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &mockSignalStatus,
-		.CodeChunk = mockCode.data(),
-		.CodeChunkInstructionMap = nullptr,
-		.CodeChunkSize = mockCode.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = mockStack.data() + 1,
-		.StackSize = mockStack.size() - 1,
-		
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingStackPrologue);
-}
-
-TEST(ReactorExecution, __vpush__)
+TEST(ReactorExecution, Instruction_VPush)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -3096,7 +2042,7 @@ TEST(ReactorExecution, __vpush__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __vpop__)
+TEST(ReactorExecution, Instruction_VPop)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -3125,7 +2071,7 @@ TEST(ReactorExecution, __vpop__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __vadd__)
+TEST(ReactorExecution, Instruction_VAdd)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -3160,7 +2106,7 @@ TEST(ReactorExecution, __vadd__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __vsub__)
+TEST(ReactorExecution, Instruction_VSub)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -3195,7 +2141,7 @@ TEST(ReactorExecution, __vsub__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __vmul__)
+TEST(ReactorExecution, Instruction_VMul)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding
@@ -3230,7 +2176,7 @@ TEST(ReactorExecution, __vmul__)
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
 
-TEST(ReactorExecution, __vdiv__)
+TEST(ReactorExecution, Instruction_VDiv)
 {
 	std::array code {
 		Signal {Instruction::NOp}, // first padding

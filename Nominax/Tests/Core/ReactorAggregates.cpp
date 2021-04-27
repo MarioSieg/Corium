@@ -1,6 +1,6 @@
-// File: Lexemes.hpp
+// File: ReactorAggregates.cpp
 // Author: Mario
-// Created: 27.04.2021 8:59 AM
+// Created: 09.04.2021 5:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,78 +205,31 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../TestBase.hpp"
 
-#include <array>
-#include <string_view>
-
-#include "Keywords.hpp"
-
-namespace Corium
+TEST(ReactorAggregates, UnionReinterpretation)
 {
-	enum class Lexeme : std::size_t
-	{
-		TypeSeparator,
-		Comment,
-		Assignment,
-		LBracket,
-		RBracket,
-		LParen,
-		RParen,
-		Separator,
-		Add,
-		Sub,
-		Mul,
-		Div,
-		Mod,
-		And,
-		Or,
-		Xor,
-		Compl,
-		Not,
-		Equals,
-		NotEquals,
-		Less,
-		LessEquals,
-		Greater,
-		GreaterEquals,
-		Ellipsis,
-		Accessor,
-		StringLiteral,
-		CharLiteral,
-
-		Count
+	Record rec {
+		UINT64_C(0xFF'FF'FF'FF)
 	};
+	ASSERT_EQ(rec.U64, 0xFF'FF'FF'FF);
 
-	constexpr std::array<std::u32string_view, static_cast<std::size_t>(Lexeme::Count)> LEXEMES
-	{
-		U":",
-		U"#",
-		U"=",
-		U"{",
-		U"}",
-		U"(",
-		U")",
-		U",",
-		U"+",
-		U"-",
-		U"*",
-		U"/",
-		U"%",
-		U"&",
-		U"|",
-		U"^",
-		U"~",
-		U"!",
-		U"==",
-		U"!=",
-		U"<",
-		U"<=",
-		U">",
-		U">=",
-		U"...",
-		U".",
-		U"\"",
-		U"'"
+	rec.I64 = -1234;
+	ASSERT_EQ(rec.I64, -1234);
+
+	rec.F64 = 3.14;
+	ASSERT_EQ(rec.F64, 3.14);
+
+	rec.C32 = '!';
+	ASSERT_EQ(rec.C32, '!');
+
+	rec.Ptr = &rec;
+	ASSERT_EQ(rec.Ptr, &rec);
+
+	constexpr Signal sig {
+		Instruction::Mov
 	};
+	ASSERT_EQ(sig.Instr, Instruction::Mov);
+	ASSERT_EQ(sig.OpCode, static_cast<std::uint64_t>(Instruction::Mov));
+	ASSERT_EQ(sig.R64.U64, static_cast<std::uint64_t>(Instruction::Mov));
 }

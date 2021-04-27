@@ -1,6 +1,6 @@
-// File: Lexemes.hpp
+// File: ReactorTestHelper.hpp
 // Author: Mario
-// Created: 27.04.2021 8:59 AM
+// Created: 27.04.2021 3:53 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,78 +205,58 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../TestBase.hpp"
 
-#include <array>
-#include <string_view>
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+#error "These tests must run without NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING!"
+#endif
 
-#include "Keywords.hpp"
-
-namespace Corium
+constexpr IntrinsicRoutine* MOCK_INTRINSIC_ROUTINE
 {
-	enum class Lexeme : std::size_t
+	+[]([[maybe_unused]] Record*) noexcept -> bool
 	{
-		TypeSeparator,
-		Comment,
-		Assignment,
-		LBracket,
-		RBracket,
-		LParen,
-		RParen,
-		Separator,
-		Add,
-		Sub,
-		Mul,
-		Div,
-		Mod,
-		And,
-		Or,
-		Xor,
-		Compl,
-		Not,
-		Equals,
-		NotEquals,
-		Less,
-		LessEquals,
-		Greater,
-		GreaterEquals,
-		Ellipsis,
-		Accessor,
-		StringLiteral,
-		CharLiteral,
+		return true;
+	}
+};
 
-		Count
-	};
+constexpr std::array MOCK_INTRINSIC_ROUTINE_TABLE
+{
+	MOCK_INTRINSIC_ROUTINE,
+	MOCK_INTRINSIC_ROUTINE,
+	MOCK_INTRINSIC_ROUTINE
+};
 
-	constexpr std::array<std::u32string_view, static_cast<std::size_t>(Lexeme::Count)> LEXEMES
+constexpr auto MOCK_STACK_SIZE = 32; // 32 records
+
+inline constinit std::array<Record, MOCK_STACK_SIZE> mockStack {Record::Padding()};
+
+inline constinit volatile std::sig_atomic_t mockSignalStatus;
+
+constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
+{
+	+[](InterruptAccumulator) noexcept -> bool
 	{
-		U":",
-		U"#",
-		U"=",
-		U"{",
-		U"}",
-		U"(",
-		U")",
-		U",",
-		U"+",
-		U"-",
-		U"*",
-		U"/",
-		U"%",
-		U"&",
-		U"|",
-		U"^",
-		U"~",
-		U"!",
-		U"==",
-		U"!=",
-		U"<",
-		U"<=",
-		U">",
-		U">=",
-		U"...",
-		U".",
-		U"\"",
-		U"'"
-	};
-}
+		return true;
+	}
+};
+
+constexpr DetailedReactorDescriptor MOCK_REACTOR_INPUT
+{
+	.SignalStatus = &mockSignalStatus,
+	.CodeChunk = nullptr,
+	.CodeChunkInstructionMap = nullptr,
+	.CodeChunkSize = 0,
+	.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
+	.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+	.InterruptHandler = MOCK_INTERRUPT_HANDLER,
+	.Stack = mockStack.data(),
+	.StackSize = mockStack.size(),
+
+};
+
+inline std::array mockCode
+{
+	Signal {Instruction::NOp}, // first padding
+	Signal {Instruction::Int},
+	Signal {INT64_C(5)},
+};
