@@ -1,6 +1,6 @@
-// File: Main.cpp
+// File: Benchmarks.cpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 15.04.2021.18:20
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,12 +205,244 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/Core/Environment.hpp"
+#include "../Include/Nominax/Nominax.hpp"
+#include "../../SharedTools/googlebench/include/benchmark/benchmark.h"
 
 using namespace Nominax;
+using namespace benchmark;
 
-auto main() -> int
+auto Loop1Billion(State& state) -> void
 {
-	Environment env { };
-	env.BootEnvironment();
+	std::vector code {
+		Signal {Instruction::NOp}, // first padding
+		Signal {Instruction::PushZ},
+		Signal {Instruction::IInc},
+		Signal {Instruction::Dupl},
+		Signal {Instruction::Push},
+		Signal {INT64_C(1'000'000'000)},
+		Signal {Instruction::JlCmpi},
+		Signal {UINT64_C(2)},
+		Signal {Instruction::Pop},
+		Signal {Instruction::Int},
+		Signal {INT64_C(0)},
+	};
+
+	const std::vector<std::uint8_t> codeInstructionMap {
+		true,
+		true,
+		true,
+		true,
+		true,
+		false,
+		true,
+		false,
+		true,
+		true,
+		false
+	};
+
+	if (code.size() != codeInstructionMap.size())
+	{
+		state.SkipWithError("Code bucket and instruction map mismatch!");
+		return;
+	}
+
+	std::array<Record, 32> stack = {Record::Padding()};
+
+	volatile std::sig_atomic_t sig { };
+	constexpr std::array       intrins {
+		+[](Record*          ) -> bool { return true; }
+	};
+
+	const DetailedReactorDescriptor input {
+		.SignalStatus = &sig,
+		.CodeChunk = code.data(),
+		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(codeInstructionMap.data()),
+		.CodeChunkSize = code.size(),
+		.IntrinsicTable = intrins.data(),
+		.IntrinsicTableSize = intrins.size(),
+		.InterruptHandler = +[](InterruptAccumulator) -> bool
+		{
+			return true;
+		},
+		.Stack = stack.data(),
+		.StackSize = stack.size(),
+	};
+
+	if (input.Validate() != ReactorValidationResult::Ok)
+	{
+		state.SkipWithError("Reactor input validation failed!");
+		return;
+	}
+
+	for (auto _ : state)
+	{
+		const auto output {ExecuteChecked(input)};
+
+        if (output.ExecutionResult != TerminateResult::Success)
+		{
+			state.SkipWithError("Reactor terminated with error or exception!");
+			break;
+		}
+
+		if (output.SpDiff != 0)
+		{
+			state.SkipWithError("Not all stack entries were popped!");
+			break;
+		}
+
+		if (output.Input->Stack[1].I64 != 1'000'000'000)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+
+		if (output.Input->Stack[2].I64 != 1'000'000'000)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+
+		if (output.Input->Stack[3].I64 != 1'000'000'000)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+	}
 }
+
+BENCHMARK(Loop1Billion)->Unit(kSecond);
+
+auto DeepCmp(State& state) -> void
+{
+	const auto a{ Object::AllocateUnique(16384) };
+	const auto b{ Object::AllocateUnique(16384) };
+
+	for (auto _ : state) {
+		const auto x = Object::DeepCmp(*a, *b);
+		benchmark::DoNotOptimize(x);
+	}
+}
+
+BENCHMARK(DeepCmp)->Unit(kMicrosecond);
+
+auto DeepCmpLess(State& state) -> void
+{
+	const auto a{ Object::AllocateUnique(16384) };
+	const auto b{ Object::AllocateUnique(16384) };
+	for (auto& x : *b)
+	{
+		x.F64 = 10.0;
+	}
+
+	for (auto _ : state) {
+		const auto x = Object::DeepValueCmp_Less<double>(*a, *b);
+		benchmark::DoNotOptimize(x);
+	}
+}
+
+BENCHMARK(DeepCmpLess)->Unit(kMicrosecond);
+
+auto Loop5Billion(State& state) -> void
+{
+	std::vector code{
+		Signal {Instruction::NOp}, // first padding
+		Signal {Instruction::PushZ},
+		Signal {Instruction::IInc},
+		Signal {Instruction::Dupl},
+		Signal {Instruction::Push},
+		Signal {INT64_C(5'000'000'000)},
+		Signal {Instruction::JlCmpi},
+		Signal {UINT64_C(2)},
+		Signal {Instruction::Pop},
+		Signal {Instruction::Int},
+		Signal {INT64_C(0)},
+	};
+
+	const std::vector<std::uint8_t> codeInstructionMap{
+		true,
+		true,
+		true,
+		true,
+		true,
+		false,
+		true,
+		false,
+		true,
+		true,
+		false
+	};
+
+	if (code.size() != codeInstructionMap.size())
+	{
+		state.SkipWithError("Code bucket and instruction map mismatch!");
+		return;
+	}
+
+	std::array<Record, 32> stack = { Record::Padding() };
+
+	volatile std::sig_atomic_t sig{ };
+	constexpr std::array       intrins{
+		+[](Record*) -> bool { return true; }
+	};
+
+	const DetailedReactorDescriptor input{
+		.SignalStatus = &sig,
+		.CodeChunk = code.data(),
+		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(codeInstructionMap.data()),
+		.CodeChunkSize = code.size(),
+		.IntrinsicTable = intrins.data(),
+		.IntrinsicTableSize = intrins.size(),
+		.InterruptHandler = +[](InterruptAccumulator) -> bool
+		{
+			return true;
+		},
+		.Stack = stack.data(),
+		.StackSize = stack.size(),
+	};
+
+	if (input.Validate() != ReactorValidationResult::Ok)
+	{
+		state.SkipWithError("Reactor input validation failed!");
+		return;
+	}
+
+	for (auto _ : state)
+	{
+		const auto output{ ExecuteChecked(input) };
+
+        if (output.ExecutionResult != TerminateResult::Success)
+		{
+			state.SkipWithError("Reactor terminated with error or exception!");
+			break;
+		}
+
+		if (output.SpDiff != 0)
+		{
+			state.SkipWithError("Not all stack entries were popped!");
+			break;
+		}
+
+		if (output.Input->Stack[1].I64 != 5'000'000'000)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+
+		if (output.Input->Stack[2].I64 != 5'000'000'000)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+
+		if (output.Input->Stack[3].I64 != 5'000'000'000)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+	}
+}
+
+BENCHMARK(Loop5Billion)->Unit(kSecond);
+
+BENCHMARK_MAIN();

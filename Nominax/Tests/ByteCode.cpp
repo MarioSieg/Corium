@@ -582,7 +582,7 @@ TEST(ScopedVariable, StackPushPop)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	stream.With(4.5, [](auto&& var)
+	stream.With(4.5, []([[maybe_unused]] auto&& var)
 		{
 
 		});
@@ -597,7 +597,7 @@ TEST(ScopedVariable, F64StackPushPopOptScalarZero)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	stream.With(0.0, [](auto&& var)
+	stream.With(0.0, []([[maybe_unused]] auto&& var)
 		{
 
 		});
@@ -611,7 +611,7 @@ TEST(ScopedVariable, I64StackPushPopOptScalarZero)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	stream.With(0, [](auto&& var)
+	stream.With(0, []([[maybe_unused]] auto&& var)
 		{
 
 		});
@@ -624,7 +624,7 @@ TEST(ScopedVariable, I64StackPushPopOptScalarZero)
 TEST(ScopedVariable, U64StackPushPopOptScalarZero)
 {
 	Stream stream { };
-	stream.With(0, [](auto&& var)
+	stream.With(0, []([[maybe_unused]] auto&& var)
 		{
 
 		});
@@ -638,7 +638,7 @@ TEST(ScopedVariable, F64StackPushPopOptScalarOne)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	stream.With(1.0, [](auto&& var)
+	stream.With(1.0, []([[maybe_unused]] auto&& var)
 		{
 
 		});
@@ -652,7 +652,7 @@ TEST(ScopedVariable, I64StackPushPopOptScalarOne)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	stream.With(1, [](auto&& var)
+	stream.With(1, []([[maybe_unused]] auto&& var)
 		{
 
 		});
@@ -666,7 +666,7 @@ TEST(ScopedVariable, U64StackPushPopOptScalarOne)
 {
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
-	stream.With(1, [](auto&& var)
+	stream.With(1, []([[maybe_unused]] auto&& var)
 		{
 
 		});
@@ -681,7 +681,7 @@ TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	stream << 3.5;
-	stream.With(3.5, [](auto&& var)
+	stream.With(3.5, []([[maybe_unused]] auto&& var)
 		{
 
 		});
@@ -697,7 +697,7 @@ TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	stream << INT64_C(3);
-	stream.With(3, [](auto&& var)
+	stream.With(3, []([[maybe_unused]] auto&& var)
 		{
 
 		});
@@ -713,7 +713,7 @@ TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream stream { };
 	stream << UINT64_C(3);
-	stream.With(UINT64_C(3), [](auto&& var)
+	stream.With(UINT64_C(3), []([[maybe_unused]] auto&& var)
 		{
 
 		});
