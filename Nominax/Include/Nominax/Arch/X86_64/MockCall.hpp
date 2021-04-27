@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: MockCall.hpp
 // Author: Mario
-// Created: 17.04.2021 7:40 PM
+// Created: 27.04.2021 11:26 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,8 +207,9 @@
 
 #pragma once
 
-#include "Arch/Arch.hpp"
-#include "ByteCode/ByteCode.hpp"
-#include "Core/Core.hpp"
-#include "System/System.hpp"
-#include "Common/Common.hpp"
+#include <cstdint>
+
+namespace Nominax::X86_64
+{
+	extern "C" auto MockCall() -> std::uint64_t;
+}

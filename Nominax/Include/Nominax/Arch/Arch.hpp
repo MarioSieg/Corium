@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: Arch.hpp
 // Author: Mario
-// Created: 17.04.2021 7:40 PM
+// Created: 27.04.2021 11:31 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,8 +207,10 @@
 
 #pragma once
 
-#include "Arch/Arch.hpp"
-#include "ByteCode/ByteCode.hpp"
-#include "Core/Core.hpp"
-#include "System/System.hpp"
-#include "Common/Common.hpp"
+#include "../System/Platform.hpp"
+
+#if NOMINAX_ARCH_X86_64
+
+#include "X86_64/MockCall.hpp"
+
+#endif

@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: MockCall.cpp
 // Author: Mario
-// Created: 17.04.2021 7:40 PM
+// Created: 27.04.2021 11:30 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,10 +205,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../TestBase.hpp"
 
-#include "Arch/Arch.hpp"
-#include "ByteCode/ByteCode.hpp"
-#include "Core/Core.hpp"
-#include "System/System.hpp"
-#include "Common/Common.hpp"
+#if NOMINAX_ARCH_X86_64
+TEST(AssemblyCalls, MockCall)
+{
+	ASSERT_EQ(Nominax::X86_64::MockCall(), 1234);
+}
+#endif
