@@ -213,7 +213,6 @@ namespace Nominax
 	{
 		return
 		{
-			.SignalStatus = &this->SignalStatusFlag,
 			.CodeChunk = this->CodeChunk.data(),
 			.CodeChunkInstructionMap = this->CodeChunkInstructionMap.data(),
 			.CodeChunkSize = this->CodeChunk.size(),

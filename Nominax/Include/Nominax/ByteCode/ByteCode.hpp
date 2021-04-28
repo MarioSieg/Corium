@@ -208,6 +208,7 @@
 #pragma once
 
 #include "Category.hpp"
+#include "Chunk.hpp"
 #include "CustomIntrinsic.hpp"
 #include "Descriptor.hpp"
 #include "DynamicSignal.hpp"

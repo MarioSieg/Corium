@@ -210,7 +210,7 @@
 TEST(ReactorInputValidation, ValidInput)
 {
 	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &MockSignalStatus,
+
 		.CodeChunk = MockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = MockCode.size(),
@@ -227,7 +227,7 @@ TEST(ReactorInputValidation, ValidInput)
 TEST(ReactorInputValidation, NullPointers)
 {
 	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &MockSignalStatus,
+
 		.CodeChunk = nullptr,
 		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = 0,
@@ -244,7 +244,7 @@ TEST(ReactorInputValidation, NullPointers)
 TEST(ReactorInputValidation, ZeroMemorySizes)
 {
 	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &MockSignalStatus,
+
 		.CodeChunk = MockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = 0,
@@ -264,7 +264,7 @@ TEST(ReactorInputValidation, NullPointerIntrinsicRoutines)
 		nullptr
 	};
 	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &MockSignalStatus,
+
 		.CodeChunk = MockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = MockCode.size(),
@@ -281,7 +281,7 @@ TEST(ReactorInputValidation, NullPointerIntrinsicRoutines)
 TEST(ReactorInputValidation, ValidIntrinsicRoutines)
 {
 	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &MockSignalStatus,
+
 		.CodeChunk = MockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = MockCode.size(),
@@ -298,7 +298,7 @@ TEST(ReactorInputValidation, ValidIntrinsicRoutines)
 TEST(ReactorInputValidation, MissingCodePrologue)
 {
 	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &MockSignalStatus,
+
 		.CodeChunk = MockCode.data() + 1,
 		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = MockCode.size() - 1,
@@ -321,7 +321,7 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue1)
 	};
 
 	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &MockSignalStatus,
+
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = code.size(),
@@ -343,7 +343,7 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue2)
 	};
 
 	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &MockSignalStatus,
+
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = code.size(),
@@ -365,7 +365,7 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue3)
 	};
 
 	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &MockSignalStatus,
+
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = code.size(),
@@ -382,7 +382,7 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue3)
 TEST(ReactorInputValidation, MissingStackPrologue)
 {
 	const auto input = DetailedReactorDescriptor {
-		.SignalStatus = &MockSignalStatus,
+
 		.CodeChunk = MockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = MockCode.size(),

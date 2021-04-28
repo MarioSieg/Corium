@@ -1,6 +1,6 @@
-// File: SystemReactorInput.hpp
+// File: FixedStack.hpp
 // Author: Mario
-// Created: 25.04.2021 3:02 PM
+// Created: 28.04.2021 9:46 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,35 +207,11 @@
 
 #pragma once
 
-#include <csignal>
+#include <vector>
 
-#include "../ByteCode/Signal.hpp"
-#include "../ByteCode/CustomIntrinsic.hpp"
-#include "../ByteCode/Signal.hpp"
-
-#include "Interrupts.hpp"
-#include "ReactorValidationResult.hpp"
+#include "Record.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// Contains all input data for the VM reactor.
-	/// </summary>
-	struct DetailedReactorDescriptor final
-	{
-		volatile std::sig_atomic_t* SignalStatus {nullptr};
-		Signal*                     CodeChunk {nullptr};
-		const bool*                 CodeChunkInstructionMap {nullptr};
-		std::size_t                 CodeChunkSize {0};
-		IntrinsicRoutine* const*    IntrinsicTable {nullptr};
-		std::size_t                 IntrinsicTableSize {0};
-		InterruptRoutine*           InterruptHandler {nullptr};
-		Record*                     Stack {nullptr};
-		std::size_t                 StackSize {0};
-		void*                       UserData {nullptr};
-		bool                        LargeStackTrace {false};
-
-		[[nodiscard]]
-		auto Validate() const noexcept -> ReactorValidationResult;
-	};
+	using FixedStack = std::vector<Record>;
 }

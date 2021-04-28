@@ -207,9 +207,133 @@
 
 #pragma once
 
+#include <cstddef>
+
 #include "ReactorOutput.hpp"
+#include "FixedStack.hpp"
+#include "../ByteCode/Chunk.hpp"
+#include "../ByteCode/CustomIntrinsic.hpp"
+#include "../Common/MemoryUnits.hpp"
 
 namespace Nominax
 {
+	/// <summary>
+	/// Small 1 MB stack.
+	/// Contains the size in records, not bytes.
+	/// </summary>
+	constexpr std::size_t FIXED_STACK_SIZE_SMALL {Megabytes2Bytes(1) / sizeof(Record)};
+
+	/// <summary>
+	/// Medium sizes 4 MB stack.
+	/// Contains the size in records, not bytes.
+	/// </summary>
+	constexpr std::size_t FIXED_STACK_SIZE_MEDIUM {Megabytes2Bytes(4) / sizeof(Record)};
+
+	/// <summary>
+	/// Medium sizes 8 MB stack.
+	/// Contains the size in records, not bytes.
+	/// </summary>
+	constexpr std::size_t FIXED_STACK_SIZE_LARGE {Megabytes2Bytes(8) / sizeof(Record)};
+
+	/// <summary>
+	/// Represents a reactor.
+	/// </summary>
+	class Reactor final
+	{
+		FixedStack     Stack;
+		CodeChunk      Chunk;
+		JumpMap        Map;
+		DetailedReactorDescriptor Descriptor;
+		SharedIntrinsicTableView  IntrinsicTable;
+		InterruptRoutine&         InterruptHandler;
+
+	public:
+		/// <summary>
+		/// Basic constructor.
+		/// Intrinsic table will be empty and interrupt routine set to an empty default.
+		/// </summary>
+		/// <param name="stack">The stack. If size is zero, exception will be thrown.</param>
+		/// <param name="chunk">The code chunk. If size is zero, exception will be thrown.</param>
+		/// <param name="jumpMap">The jump map. If size is zero, exception will be thrown.</param>
+		Reactor
+		(
+			FixedStack&&     stack,
+			CodeChunk&& chunk,
+			JumpMap&&   jumpMap
+		);
+
+		/// <summary>
+		/// Detailed constructor.
+		/// </summary>
+		/// <param name="stack">The stack. If size is zero, exception will be thrown.</param>
+		/// <param name="chunk">The code chunk. If size is zero, exception will be thrown.</param>
+		/// <param name="jumpMap">The jump map. If size is zero, exception will be thrown.</param>
+		/// <param name="intrinsicTable">The intrinsic routine table. Size of zero is okay.</param>
+		/// <param name="interruptHandler">The interrupt handler.</param>
+		Reactor
+		(
+			FixedStack&&              stack,
+			CodeChunk&&          chunk,
+			JumpMap&&            jumpMap,
+			SharedIntrinsicTableView intrinsicTable,
+			InterruptRoutine&               interruptHandler
+		);
+
+		/// <summary>
+		/// No copy!
+		/// </summary>
+		Reactor(const Reactor&)                     = delete;
+
+		/// <summary>
+		/// No move!
+		/// </summary>
+		Reactor(Reactor&&)                          = delete;
+
+		/// <summary>
+		/// No copy!
+		/// </summary>
+		auto operator =(const Reactor&) -> Reactor& = delete;
+
+		/// <summary>
+		/// no move!
+		/// </summary>
+		auto operator =(Reactor&&) -> Reactor&      = delete;
+
+		/// <summary>
+		/// Destructs all reactor related resources, such as stack etc..
+		/// </summary>
+		~Reactor()                                  = default;
+
+		auto Execute() -> ReactorOutput;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current stack.</returns>
+		[[nodiscard]]
+		auto GetStack() const noexcept -> const FixedStack&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current code chunk.</returns>
+		[[nodiscard]]
+		auto GetCodeChunk() const noexcept -> const CodeChunk&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current jump map.</returns>
+		[[nodiscard]]
+		auto GetJumpMap() const noexcept -> const JumpMap&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current descriptor of the reactor.</returns>
+		[[nodiscard]]
+		auto GetDescriptor() const noexcept -> const DetailedReactorDescriptor&;
+	};
+
 	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const DetailedReactorDescriptor& input) -> ReactorOutput;
 }

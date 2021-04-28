@@ -1,6 +1,6 @@
-// File: CustomIntrinsic.hpp
+// File: Chunk.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 28.04.2021 9:52 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,24 +207,34 @@
 
 #pragma once
 
-#include <cstdint>
-#include <span>
+#include <vector>
 
-#include "../Core/Record.hpp"
+#include "DynamicSignal.hpp"
+#include "Signal.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Call id for custom intrinsic routine.
+	/// An optimized and ready to execute code chunk.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) CustomIntrinsicCallId : std::uint64_t;
+	using CodeChunk = std::vector<Signal>;
 
 	/// <summary>
-	/// Custom intrinsic routine function prototype.
-	/// Contains the stack pointer as parameter.
+	/// Contains the boolean values for the jump map.
+	/// We cannot use vector<bool> because it's a specialization
+	/// and does not allow pointer to it's elements, because they are stored as bits.
 	/// </summary>
-	using IntrinsicRoutine = auto (Record*) -> bool;
-	static_assert(std::is_function_v<IntrinsicRoutine>);
+	using JumpMap = std::vector<std::uint8_t>;
 
-	using SharedIntrinsicTableView = std::span<IntrinsicRoutine*>;
+	static_assert(sizeof(std::uint8_t) == sizeof(bool));
+	static_assert(alignof(std::uint8_t) == alignof(bool));
+
+	/// <summary>
+	/// Calculates an instruction mapping.
+	/// Input and output must have the same size.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <returns></returns>
+	extern auto CalculateInstructionMapping(std::span<const DynamicSignal> input, std::span<bool>& output) -> bool;
 }

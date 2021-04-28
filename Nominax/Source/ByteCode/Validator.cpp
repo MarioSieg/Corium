@@ -209,6 +209,7 @@
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentCount.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentType.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
+#include "../../Include/Nominax/ByteCode/Stream.hpp"
 
 namespace Nominax
 {
@@ -293,6 +294,18 @@ namespace Nominax
 			}
 		}
 
+		return ByteCodeValidationResult::Ok;
+	}
+
+	auto Build(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ByteCodeValidationResult
+	{
+		output.resize(input.Size());
+		jumpMap.resize(input.Size());
+		for (std::size_t i {0}; i < input.Size(); ++i)
+		{
+			output[i]  = static_cast<Signal>(input[i]);
+			jumpMap[i] = static_cast<std::uint8_t>(input[i].Contains<Instruction>());
+		}
 		return ByteCodeValidationResult::Ok;
 	}
 }

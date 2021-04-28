@@ -280,7 +280,7 @@ namespace Nominax
 	}
 
 	template <typename T>
-	inline static auto PrintTypeInfo(std::string_view name)
+	inline static auto PrintTypeInfo(const std::string_view name)
 	{
 		std::cout << std::setw(16) << name << std::right << std::setw(16) << sizeof(T) << std::setw(16) << alignof(T) << '\n';
 	}
@@ -303,35 +303,55 @@ namespace Nominax
 
 	auto Environment::BootEnvironment() -> bool
 	{
-		try
+		InstallSignalHandlers();
+		std::ios_base::sync_with_stdio(false);
+		this->PrintVersionInfo();
+		Separator();
+		this->SysInfo.QueryAll();
+		this->PrintMachineInfo();
+		Separator();
+		this->PrintTypeTable();
+		Separator();
+
+		Stream stream{ };
+
+		stream.Do<Instruction::CIntrin>(0_uint);
+
+		FixedStack stack{ FIXED_STACK_SIZE_LARGE };
+		stack[0] = Record::Padding();
+
+		CodeChunk chunk{};
+		JumpMap jumpMap{};
+
+		stream.Build(chunk, jumpMap);
+
+		std::vector intrinsics
 		{
-			InstallSignalHandlers();
-			std::ios_base::sync_with_stdio(false);
-			this->PrintVersionInfo();
-			Separator();
-			this->SysInfo.QueryAll();
-			this->PrintMachineInfo();
-			Separator();
-			this->PrintTypeTable();
-			Separator();
+			// Print:
+			+[](Record*) -> bool
+			{
+				std::cout << "\"Hello from Nominax\"\n";
+				return true;
+			}
+		};
 
-			Stream stream { };
-			Stream::ExampleStream(stream);
-
-			stream.DumpToStream(cout, false);
-
-			cout.flush();
+		InterruptRoutine& interrupt{ *+[](const InterruptAccumulator x) -> bool
+		{
+			std::cout << "Reactor Interrupt: " << x << '\n';
 			return true;
-		}
-		catch (const std::exception& ex)
-		{
-			cerr << "[!] Fatal system exception: " << ex.what() << endl;
-			return false;
-		}
-		catch (...)
-		{
-			cerr << "[!] Unknown system error!" << endl;
-			return false;
-		}
+		} };
+
+		stream.DumpToStream(cout, false);
+
+		std::cout << "\nConstructing reactor...\n";
+		Reactor reactor{ std::move(stack), std::move(chunk), std::move(jumpMap), intrinsics, interrupt };
+		
+		std::cout << "Executing...\n";
+		reactor.Execute();
+		
+		std::cout << "\nExecution done!\n";
+
+		cout.flush();
+		return true;
 	}
 }

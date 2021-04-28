@@ -213,6 +213,8 @@
 #include "DynamicSignal.hpp"
 #include "ImmediateArgumentCount.hpp"
 #include "StreamScalar.hpp"
+#include "Chunk.hpp"
+#include "Validator.hpp"
 
 namespace Nominax
 {
@@ -426,7 +428,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(int value) -> Stream&;
+		auto operator <<(signed value) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
@@ -472,8 +474,20 @@ namespace Nominax
 		template <Instruction I, typename... Ts>
 		auto Do(Ts&&...args) -> Stream&;
 
+		/// <summary>
+		/// Map new local variable into the stream.
+		/// It is a scoped variable, which means it is automatically popped,
+		/// when it goes out of the lambda scope.
+		/// </summary>
+		/// <typeparam name="F"></typeparam>
+		/// <typeparam name="V"></typeparam>
+		/// <param name="value"></param>
+		/// <param name="functor"></param>
+		/// <returns></returns>
 		template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
 		auto With(V value, F&& functor) -> void;
+
+		auto Build(CodeChunk& out, JumpMap& outJumpMap) -> ByteCodeValidationResult;
 	};
 
 	template <Instruction I, typename... Ts>
@@ -487,7 +501,7 @@ namespace Nominax
 	template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
 	inline auto Stream::With(const V value, F&& functor) -> void
 	{
-		if constexpr (std::is_same_v<int, V>)
+		if constexpr (std::is_same_v<signed, V>)
 		{
 			return functor(ScopedVariable<std::int64_t> {*this, static_cast<std::int64_t>(value)});
 		}
@@ -689,7 +703,7 @@ namespace Nominax
 		return *this;
 	}
 
-	inline auto Stream::operator<<(int value) -> Stream&
+	inline auto Stream::operator<<(const signed value) -> Stream&
 	{
 		this->Push(DynamicSignal {static_cast<std::int64_t>(value)});
 		return *this;

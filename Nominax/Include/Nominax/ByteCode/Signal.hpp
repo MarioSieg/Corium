@@ -254,6 +254,12 @@ namespace Nominax
 		void* Ptr;
 
 		/// <summary>
+		/// Default constructor.
+		/// </summary>
+		/// <returns></returns>
+		constexpr Signal() noexcept = default;
+
+		/// <summary>
 		/// Construct from record64.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
@@ -327,6 +333,8 @@ namespace Nominax
 	constexpr Signal::Signal(const double value) noexcept : R64 {value} {}
 	constexpr Signal::Signal(const char32_t value) noexcept : R64 {value} {}
 
+	static_assert(std::is_trivial_v<Signal>);
+	static_assert(std::is_default_constructible_v<Signal>);
 	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, std::uint64_t>);
 	static_assert(sizeof(Instruction) == sizeof(std::uint64_t));
 	static_assert(sizeof(Signal) == sizeof(std::uint64_t));

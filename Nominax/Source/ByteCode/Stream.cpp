@@ -245,4 +245,10 @@ namespace Nominax
 			++address;
 		}
 	}
+
+	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) -> ByteCodeValidationResult
+	{
+		*this << Instruction::Int << INT64_C(0);
+		return Nominax::Build(*this, out, outJumpMap);
+	}
 }

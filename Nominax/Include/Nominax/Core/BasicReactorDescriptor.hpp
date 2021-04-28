@@ -220,11 +220,10 @@ namespace Nominax
 	struct BasicReactorDescriptor final
 	{
 		__NOMINAX_KERNEL_THREAD_LOCAL__ std::span<Signal>            CodeChunk;
-		__NOMINAX_KERNEL_THREAD_LOCAL__ std::span<bool>              CodeChunkInstructionMap;
+		__NOMINAX_KERNEL_THREAD_LOCAL__ std::span<const bool>        CodeChunkInstructionMap;
 		__NOMINAX_KERNEL_THREAD_LOCAL__ std::span<IntrinsicRoutine*> IntrinsicTable;
 		__NOMINAX_KERNEL_THREAD_LOCAL__ std::span<Record>            Stack;
 		__NOMINAX_KERNEL_THREAD_LOCAL__ InterruptRoutine&            InterruptHandler;
-		__NOMINAX_KERNEL_THREAD_LOCAL__ volatile std::sig_atomic_t&  SignalStatusFlag;
 
 		/// <summary>
 		/// Will build a detailed descriptor out of this instance and return it.

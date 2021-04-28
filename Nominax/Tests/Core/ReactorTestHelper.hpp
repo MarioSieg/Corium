@@ -232,8 +232,6 @@ constexpr auto MOCK_STACK_SIZE = 32; // 32 records
 
 inline constinit std::array<Record, MOCK_STACK_SIZE> MockStack {Record::Padding()};
 
-inline constinit volatile std::sig_atomic_t MockSignalStatus;
-
 constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
 {
 	+[](InterruptAccumulator) noexcept -> bool
@@ -244,7 +242,6 @@ constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
 
 constexpr DetailedReactorDescriptor MOCK_REACTOR_INPUT
 {
-	.SignalStatus = &MockSignalStatus,
 	.CodeChunk = nullptr,
 	.CodeChunkInstructionMap = nullptr,
 	.CodeChunkSize = 0,

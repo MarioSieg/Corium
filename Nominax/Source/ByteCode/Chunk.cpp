@@ -1,6 +1,6 @@
-// File: CustomIntrinsic.hpp
+// File: Chunk.cpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 28.04.2021 10:02 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,26 +205,27 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include <cstdint>
-#include <span>
-
-#include "../Core/Record.hpp"
+#include "../../Include/Nominax/ByteCode/Chunk.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// Call id for custom intrinsic routine.
-	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) CustomIntrinsicCallId : std::uint64_t;
+	auto CalculateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
+	{
+		if (std::size(input) != std::size(output))
+		[[unlikely]]
+		{
+			return false;
+		}
 
-	/// <summary>
-	/// Custom intrinsic routine function prototype.
-	/// Contains the stack pointer as parameter.
-	/// </summary>
-	using IntrinsicRoutine = auto (Record*) -> bool;
-	static_assert(std::is_function_v<IntrinsicRoutine>);
+		auto       iterator {std::begin(input)};
+		const auto end {std::end(input)};
 
-	using SharedIntrinsicTableView = std::span<IntrinsicRoutine*>;
+		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
+		[[likely]]
+		{
+			*flag = iterator->Contains<Instruction>();
+		}
+
+		return true;
+	}
 }

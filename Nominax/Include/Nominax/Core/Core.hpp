@@ -207,8 +207,10 @@
 
 #pragma once
 
+#include "BasicReactorDescriptor.hpp"
+#include "DetailedReactorDescriptor.hpp"
 #include "Environment.hpp"
-#include "HardFaultReport.hpp"
+#include "FixedStack.hpp"
 #include "HardFaultReport.hpp"
 #include "Info.hpp"
 #include "Interrupts.hpp"
@@ -217,8 +219,6 @@
 #include "ObjectFlagVector.hpp"
 #include "ObjectHeader.hpp"
 #include "Reactor.hpp"
-#include "DetailedReactorDescriptor.hpp"
-#include "BasicReactorDescriptor.hpp"
 #include "ReactorOutput.hpp"
 #include "ReactorValidationResult.hpp"
 #include "Record.hpp"

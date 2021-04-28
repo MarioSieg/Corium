@@ -401,14 +401,58 @@ namespace Nominax
 		static constexpr auto CodeEpilogue() noexcept -> std::array<DynamicSignal, 2>;
 	};
 
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
 	constexpr DynamicSignal::DynamicSignal() noexcept : DataCollection {UINT64_C(0)} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
 	constexpr DynamicSignal::DynamicSignal(Variant&& data) noexcept : DataCollection {data} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
 	constexpr DynamicSignal::DynamicSignal(const Instruction value) noexcept : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
 	constexpr DynamicSignal::DynamicSignal(const std::uint64_t value) noexcept : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
 	constexpr DynamicSignal::DynamicSignal(const std::int64_t value) noexcept : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
 	constexpr DynamicSignal::DynamicSignal(const double value) noexcept : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
 	constexpr DynamicSignal::DynamicSignal(const char32_t value) noexcept : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
 	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicCallId value) noexcept : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
 	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept : DataCollection {value} {}
 
 	constexpr auto DynamicSignal::CodePrologue() noexcept -> DynamicSignal
@@ -452,13 +496,4 @@ namespace Nominax
 	}
 
 	extern auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&;
-
-	/// <summary>
-/// Creates an instruction mapping.
-/// </summary>
-/// <param name="input"></param>
-/// <param name="output"></param>
-/// <returns></returns>
-	[[nodiscard]]
-	extern auto CreateInstructionMapping(std::span<const DynamicSignal> input, std::span<bool>& output) -> bool;
 }
