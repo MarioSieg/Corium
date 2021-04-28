@@ -467,12 +467,19 @@ namespace Nominax
 		auto operator [](std::size_t idx) const -> DynamicSignal;
 
 		/// <summary>
-		/// Insert instruction manually.
+		/// Insert instruction manually with immediate arguments.
 		/// </summary>
 		/// <param name="args"></param>
 		/// <returns></returns>
 		template <Instruction I, typename... Ts>
 		auto Do(Ts&&...args) -> Stream&;
+
+		/// <summary>
+		/// Insert instruction manually without immediate arguments.
+		/// </summary>
+		/// <returns></returns>
+		template <Instruction I>
+		auto Do() -> Stream&;
 
 		/// <summary>
 		/// Map new local variable into the stream.
@@ -494,8 +501,18 @@ namespace Nominax
 	inline auto Stream::Do(Ts&&...args) -> Stream&
 	{
 		static_assert(sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[static_cast<std::size_t>(I)], "Invalid amount of immediate arguments!");
+		static_assert(std::is_trivial_v<std::remove_reference_t<Ts>...>, "Invalid argument types!");
+		static_assert(std::is_integral_v<std::remove_reference_t<Ts>...> || std::is_floating_point_v<std::remove_reference_t<Ts>...>, "Invalid argument types!");
+		static_assert((sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(std::int64_t) == 0 || (sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(std::int32_t) == 0,
+			"Invalid argument types!");
 		*this << I;
 		return (*this << ... << args);
+	}
+
+	template <Instruction I>
+	inline auto Stream::Do() -> Stream&
+	{
+		return *this << I;
 	}
 
 	template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)

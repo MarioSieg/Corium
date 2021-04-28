@@ -207,11 +207,191 @@
 
 #pragma once
 
-#include <vector>
+#include <cstddef>
 
+#include "../Common/MemoryUnits.hpp"
 #include "Record.hpp"
 
 namespace Nominax
 {
-	using FixedStack = std::vector<Record>;
+	/// <summary>
+	/// Represents a stack buffer with fixed size.
+	/// Uses as a thread local reactor stack.
+	/// </summary>
+	class FixedStack final
+	{
+		Record*     Buffer_;
+		std::size_t BufferSize_;
+
+	public:
+		/// <summary>
+		/// Small 1 MB stack.
+		/// Contains the size in records, not bytes.
+		/// </summary>
+		static constexpr std::size_t SIZE_SMALL {Megabytes2Bytes(1) / sizeof(Record)};
+
+		/// <summary>
+		/// Medium sizes 4 MB stack.
+		/// Contains the size in records, not bytes.
+		/// </summary>
+		static constexpr std::size_t SIZE_MEDIUM {Megabytes2Bytes(4) / sizeof(Record)};
+
+		/// <summary>
+		/// Medium sizes 8 MB stack.
+		/// Contains the size in records, not bytes.
+		/// </summary>
+		static constexpr std::size_t SIZE_LARGE {Megabytes2Bytes(8) / sizeof(Record)};
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The memory buffer pointer.</returns>
+		[[nodiscard]]
+		auto Buffer() noexcept(true) -> Record*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The memory buffer pointer.</returns>
+		[[nodiscard]]
+		auto Buffer() const noexcept(true) -> const Record*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The size of the memory buffer in records.</returns>
+		[[nodiscard]]
+		auto Size() const noexcept(true) -> std::size_t;
+
+		/// <summary>
+		/// STL Compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto begin() noexcept(true) -> Record*;
+
+		/// <summary>
+		/// STL Compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto begin() const noexcept(true) -> const Record*;
+
+		/// <summary>
+		/// STL Compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto end() noexcept(true) -> Record*;
+
+		/// <summary>
+		/// STL Compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto end() const noexcept(true) -> const Record*;
+
+		/// <summary>
+		/// Construct with size in records.
+		/// If the size is zero, exception will be thrown.
+		/// It will set the first element to padding, so it allocates one more than specified.
+		/// </summary>
+		/// <param name="sizeInRecords">Size in records. If the size is zero, exception will be thrown.</param>
+		/// <returns></returns>
+		explicit FixedStack(std::size_t sizeInRecords) noexcept(false);
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		FixedStack(const FixedStack&) = delete;
+
+		/// <summary>
+		/// Move allowed.
+		/// </summary>
+		/// <returns></returns>
+		FixedStack(FixedStack&& value) noexcept(true);
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <returns></returns>
+		auto operator =(const FixedStack&) -> FixedStack& = delete;
+
+		/// <summary>
+		/// Move allowed.
+		/// </summary>
+		/// <returns></returns>
+		auto operator =(FixedStack&& value) noexcept(true) -> FixedStack&;
+
+		/// <summary>
+		/// Deallocate stack.
+		/// </summary>
+		~FixedStack();
+	};
+
+	inline auto FixedStack::Buffer() noexcept(true) -> Record*
+	{
+		return this->Buffer_;
+	}
+
+	inline auto FixedStack::Buffer() const noexcept(true) -> const Record*
+	{
+		return this->Buffer_;
+	}
+
+	inline auto FixedStack::Size() const noexcept(true) -> std::size_t
+	{
+		return this->BufferSize_;
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto FixedStack::begin() noexcept(true) -> Record*
+	{
+		return this->Buffer_;
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto FixedStack::begin() const noexcept(true) -> const Record*
+	{
+		return this->Buffer_;
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto FixedStack::end() noexcept(true) -> Record*
+	{
+		return this->Buffer_ + this->BufferSize_;
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto FixedStack::end() const noexcept(true) -> const Record*
+	{
+		return this->Buffer_ + this->BufferSize_;
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto begin(FixedStack& self) noexcept(true) -> Record*
+	{
+		return self.begin();
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto begin(const FixedStack& self) noexcept(true) -> const Record*
+	{
+		return self.begin();
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto end(FixedStack& self) noexcept(true) -> Record*
+	{
+		return self.end();
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto end(const FixedStack& self) noexcept(true) -> const Record*
+	{
+		return self.end();
+	}
 }

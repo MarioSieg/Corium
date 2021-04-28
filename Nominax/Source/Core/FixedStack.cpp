@@ -1,6 +1,6 @@
-// File: Reactor.cpp
+// File: FixedStack.cpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 28.04.2021 1:04 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,111 +205,54 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Core/Reactor.hpp"
-#include "../../Include/Nominax/Core/BasicReactorDescriptor.hpp"
+#include <stdexcept>
 
-namespace
-{
-	using namespace Nominax;
-
-	auto DefaultInterruptRoutine(InterruptAccumulator) -> bool
-	{
-		return true;
-	}
-
-	auto CreateDescriptor
-	(
-		FixedStack&               stack,
-		CodeChunk&                chunk,
-		JumpMap&                  jumpMap,
-		SharedIntrinsicTableView& intrinsicTable,
-		InterruptRoutine&         interruptHandler
-	) noexcept -> DetailedReactorDescriptor
-	{
-		const std::span instrMapTableView
-		{
-			reinterpret_cast<const bool*>(jumpMap.data()),
-			reinterpret_cast<const bool*>(jumpMap.data() + jumpMap.size())
-		};
-		const auto simpleDescriptor = BasicReactorDescriptor
-		{
-			.CodeChunk = chunk,
-			.CodeChunkInstructionMap = instrMapTableView,
-			.IntrinsicTable = intrinsicTable,
-			.Stack = stack,
-			.InterruptHandler = interruptHandler
-		};
-		return simpleDescriptor.BuildDetailed();
-	}
-}
+#include "../../Include/Nominax/Core/FixedStack.hpp"
 
 namespace Nominax
 {
-	Reactor::Reactor(FixedStack&& stack, CodeChunk&& chunk, JumpMap&& jumpMap) noexcept(false)
-		: Stack_ {std::move(stack)},
-		  Chunk_ {std::move(chunk)},
-		  Map_ {std::move(jumpMap)},
-		  InterruptHandler_ {*&DefaultInterruptRoutine}
+	FixedStack::FixedStack(std::size_t sizeInRecords) noexcept(false)
 	{
-		if (!this->Stack_.Size() || this->Chunk_.empty() || this->Map_.empty())
+		if (!sizeInRecords)
 		[[unlikely]]
 		{
-			throw std::runtime_error("Reactor construction failed! Invalid input data!");
+			throw std::runtime_error("Requested fixed stack with zero size!");
 		}
 
-		this->Descriptor_ = CreateDescriptor(this->Stack_, this->Chunk_, this->Map_, this->IntrinsicTable_, this->InterruptHandler_);
+		// Because first padding element.
+		++sizeInRecords;
+		this->BufferSize_ = sizeInRecords;
+		this->Buffer_     = new Record[sizeInRecords]();
+		*this->Buffer_    = Record::Padding();
+	}
 
-		if (const auto result {this->Descriptor_.Validate()}; result != ReactorValidationResult::Ok)
+	FixedStack::FixedStack(FixedStack&& value) noexcept(true) : Buffer_ {value.Buffer_}, BufferSize_ {value.BufferSize_}
+	{
+		value.Buffer_     = nullptr;
+		value.BufferSize_ = 0;
+	}
+
+	auto FixedStack::operator=(FixedStack&& value) noexcept(true) -> FixedStack&
+	{
+		if (this == &value)
 		[[unlikely]]
 		{
-			throw std::runtime_error("Reactor construction failed! Input validation failed with code: " + std::to_string(static_cast<std::underlying_type_t<decltype(result)>>(result)));
-		}
-	}
-
-	Reactor::Reactor(FixedStack&& stack, CodeChunk&& chunk, JumpMap&& jumpMap, SharedIntrinsicTableView intrinsicTable, InterruptRoutine& interruptHandler) noexcept(false)
-		: Stack_ {std::move(stack)},
-		  Chunk_ {std::move(chunk)},
-		  Map_ {std::move(jumpMap)},
-		  IntrinsicTable_ {intrinsicTable},
-		  InterruptHandler_ {*&interruptHandler}
-	{
-		if (!this->Stack_.Size() || this->Chunk_.empty() || this->Map_.empty())
-		[[unlikely]]
-		{
-			throw std::runtime_error("Reactor construction failed! Invalid input data!");
+			return *this;
 		}
 
-		this->Descriptor_ = CreateDescriptor(this->Stack_, this->Chunk_, this->Map_, this->IntrinsicTable_, this->InterruptHandler_);
+		delete[] this->Buffer_;
 
-		if (const auto result {this->Descriptor_.Validate()}; result != ReactorValidationResult::Ok)
-		[[unlikely]]
-		{
-			throw std::runtime_error("Reactor construction failed! Input validation failed with code: " + std::to_string(static_cast<std::underlying_type_t<decltype(result)>>(result)));
-		}
+		this->Buffer_     = value.Buffer_;
+		this->BufferSize_ = value.BufferSize_;
+
+		value.Buffer_     = nullptr;
+		value.BufferSize_ = 0;
+
+		return *this;
 	}
 
-	auto Reactor::Execute() const noexcept(false) -> ReactorOutput
+	FixedStack::~FixedStack()
 	{
-		return ExecuteChecked(this->Descriptor_);
-	}
-
-	auto Reactor::Stack() const noexcept(true) -> const FixedStack&
-	{
-		return this->Stack_;
-	}
-
-	auto Reactor::Chunk() const noexcept(true) -> const CodeChunk&
-	{
-		return this->Chunk_;
-	}
-
-	auto Reactor::Map() const noexcept(true) -> const JumpMap&
-	{
-		return this->Map_;
-	}
-
-	auto Reactor::Descriptor() const noexcept(true) -> const DetailedReactorDescriptor&
-	{
-		return this->Descriptor_;
+		delete[] this->Buffer_;
 	}
 }

@@ -214,6 +214,8 @@ namespace Nominax
 	template <typename T>
 	concept StreamScalar = requires
 	{
+		requires sizeof(T) == 4 || sizeof(T) == 8;
+		requires alignof(T) == 4 || alignof(T) == 8;
 		requires std::is_trivial_v<T>;
 		requires std::is_floating_point_v<T> || std::is_integral_v<T>;
 	};

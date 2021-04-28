@@ -1,6 +1,6 @@
-// File: Reactor.cpp
+// File: ReactorExecutor.cpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 28.04.2021 9:58 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -243,7 +243,7 @@
 namespace
 {
 	[[maybe_unused]]
-	__attribute__((always_inline, pure)) inline auto F64IsZero(const double x) noexcept -> bool
+	__attribute__((always_inline, pure)) inline auto F64IsZero(const double x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return Nominax::F64IsZero(x);
@@ -253,7 +253,7 @@ namespace
 	}
 
 	[[maybe_unused]]
-	__attribute__((always_inline, pure)) inline auto F64IsOne(const double x) noexcept -> bool
+	__attribute__((always_inline, pure)) inline auto F64IsOne(const double x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return Nominax::F64IsOne(x);
@@ -263,7 +263,7 @@ namespace
 	}
 
 	[[maybe_unused]]
-	__attribute__((always_inline, pure)) inline auto F64Equals(const double x, const double y) noexcept -> bool
+	__attribute__((always_inline, pure)) inline auto F64Equals(const double x, const double y) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return Nominax::F64Equals(x, y);
@@ -282,7 +282,7 @@ namespace Nominax
 	(
 		std::uint64_t      value,
 		const std::uint8_t shift
-	) noexcept -> std::uint64_t
+	) noexcept(true) -> std::uint64_t
 	{
 #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
 		return _rotl64(value, shift);
@@ -305,7 +305,7 @@ namespace Nominax
 	(
 		std::uint64_t      value,
 		const std::uint8_t shift
-	) noexcept -> std::uint64_t
+	) noexcept(true) -> std::uint64_t
 	{
 #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
 		return _rotr64(value, shift);
@@ -324,7 +324,7 @@ namespace Nominax
 	/// <summary>
 	/// Operator for double precision floating point modulo.
 	/// </summary>
-	__attribute__((always_inline)) static inline auto operator %=(Record& self, const double value) noexcept -> void
+	__attribute__((always_inline)) static inline auto operator %=(Record& self, const double value) noexcept(true) -> void
 	{
 		self.F64 = std::fmod(self.F64, value);
 	}
@@ -332,7 +332,7 @@ namespace Nominax
 	/// <summary>
 	/// Trigger a breakpoint.
 	/// </summary>
-	[[maybe_unused]] __attribute__((always_inline, cold)) static inline auto BreakpointInterrupt() noexcept -> void
+	[[maybe_unused]] __attribute__((always_inline, cold)) static inline auto BreakpointInterrupt() noexcept(true) -> void
 	{
 #if NOMINAX_ARCH_X86_64
 		asm("int $3");
@@ -363,7 +363,7 @@ namespace Nominax
 	}
 	[[nodiscard]]
 	[[maybe_unused]]
-	__attribute__((always_inline)) auto StackAlloc() -> T*
+	__attribute__((always_inline)) auto StackAlloc() noexcept(true) -> T*
 	{
 #if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
 		return _alloca(sizeof(T) * Count);
@@ -378,7 +378,7 @@ namespace Nominax
 	/// Insert memory read fence barrier.
 	/// </summary>
 	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto ReadFence() noexcept -> void
+	__attribute__((always_inline)) inline auto ReadFence() noexcept(true) -> void
 	{
 		// ReSharper disable once CppRedundantEmptyStatement
 		asm volatile("":::"memory");
@@ -388,7 +388,7 @@ namespace Nominax
 	/// Insert memory write fence barrier.
 	/// </summary>
 	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto WriteFence() noexcept -> void
+	__attribute__((always_inline)) inline auto WriteFence() noexcept(true) -> void
 	{
 		// ReSharper disable once CppRedundantEmptyStatement
 		asm volatile("":::"memory");
@@ -398,7 +398,7 @@ namespace Nominax
 	/// Insert memory read-write fence barrier.
 	/// </summary>
 	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto ReadWriteFence() noexcept -> void
+	__attribute__((always_inline)) inline auto ReadWriteFence() noexcept(true) -> void
 	{
 		// ReSharper disable once CppRedundantEmptyStatement
 		asm volatile("":::"memory");
@@ -480,7 +480,7 @@ namespace Nominax
 	static constexpr auto MapJumpTable(Signal* __restrict__                               bucket,
 	                                   const Signal* const __restrict__                   bucketEnd,
 	                                   const bool*                                        instructionMap,
-	                                   const void* __restrict__ const* __restrict__ const jumpTable) -> bool
+	                                   const void* __restrict__ const* __restrict__ const jumpTable) noexcept(true) -> bool
 	{
 		if (__builtin_expect(!bucket || !bucketEnd || !instructionMap || !jumpTable || !*jumpTable, 0))
 		{
@@ -518,7 +518,7 @@ namespace Nominax
 	/// <param name="jumpTableSize">The amount of jump table entries.</param>
 	/// <returns>true if all entries are valid, else false.</returns>
 	static consteval auto ValidateJumpTable(const void* __restrict__ const* __restrict__ const jumpTable,
-	                                        const std::size_t                                  jumpTableSize) noexcept -> bool
+	                                        const std::size_t                                  jumpTableSize) noexcept(true) -> bool
 	{
 		assert(jumpTable);
 		assert(jumpTableSize);
@@ -558,7 +558,7 @@ namespace Nominax
 	/// So stack[-1] will be overwritten and contains the result.
 	/// stack[0] will still contain arg2.
 	/// </summary>
-	__attribute__((hot)) static auto SyscallIntrin(Record* const sp, const std::uint64_t id) -> void
+	__attribute__((hot)) static auto SyscallIntrin(Record* const sp, const std::uint64_t id) noexcept(true) -> void
 	{
 		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallId::Count)] {
 			&&__cos__,
@@ -839,7 +839,7 @@ namespace Nominax
 		return;
 	}
 
-	__attribute__((hot)) auto ExecuteChecked(const DetailedReactorDescriptor& input) -> ReactorOutput
+	__attribute__((hot)) auto ExecuteChecked(const DetailedReactorDescriptor& input) noexcept(false) -> ReactorOutput
 	{
 		auto validationFault = [&input](const ReactorValidationResult result) noexcept -> ReactorOutput
 		{

@@ -313,42 +313,48 @@ namespace Nominax
 		this->PrintTypeTable();
 		Separator();
 
-		Stream stream{ };
+		Stream stream { };
 
-		stream.Do<Instruction::CIntrin>(0_uint);
+		stream.With(2, [&stream](ScopedInt&& var)
+		{
+			var *= 2;
+			var += 1;
+			stream.Do<Instruction::CIntrin>(0_uint);
+		});
 
-		FixedStack stack{ FIXED_STACK_SIZE_LARGE };
-		stack[0] = Record::Padding();
+		FixedStack stack {FixedStack::SIZE_LARGE};
 
-		CodeChunk chunk{};
-		JumpMap jumpMap{};
+		CodeChunk chunk { };
+		JumpMap   jumpMap { };
 
 		stream.Build(chunk, jumpMap);
 
 		std::vector intrinsics
 		{
 			// Print:
-			+[](Record*) -> bool
+			+[](Record* sp) -> bool
 			{
-				std::cout << "\"Hello from Nominax\"\n";
+				std::cout << "2 * 2 + 1 = " << sp->I64 << '\n';
 				return true;
 			}
 		};
 
-		InterruptRoutine& interrupt{ *+[](const InterruptAccumulator x) -> bool
-		{
-			std::cout << "Reactor Interrupt: " << x << '\n';
-			return true;
-		} };
+		InterruptRoutine&                   interrupt {
+			*+[](const InterruptAccumulator x) -> bool
+			{
+				std::cout << "Reactor Interrupt: " << x << '\n';
+				return true;
+			}
+		};
 
 		stream.DumpToStream(cout, false);
 
 		std::cout << "\nConstructing reactor...\n";
-		Reactor reactor{ std::move(stack), std::move(chunk), std::move(jumpMap), intrinsics, interrupt };
-		
+		const Reactor reactor {std::move(stack), std::move(chunk), std::move(jumpMap), intrinsics, interrupt};
+
 		std::cout << "Executing...\n";
 		reactor.Execute();
-		
+
 		std::cout << "\nExecution done!\n";
 
 		cout.flush();
