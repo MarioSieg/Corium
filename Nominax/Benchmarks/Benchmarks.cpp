@@ -248,14 +248,12 @@ auto Loop1Billion(State& state) -> void
 	}
 
 	std::array<Record, 32> stack = {Record::Padding()};
-
-	volatile std::sig_atomic_t sig { };
+	
 	constexpr std::array       intrins {
 		+[](Record*            ) -> bool { return true; }
 	};
 
 	const DetailedReactorDescriptor input {
-		.SignalStatus = &sig,
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(codeInstructionMap.data()),
 		.CodeChunkSize = code.size(),
@@ -383,13 +381,11 @@ auto Loop5Billion(State& state) -> void
 
 	std::array<Record, 32> stack = {Record::Padding()};
 
-	volatile std::sig_atomic_t sig { };
 	constexpr std::array       intrins {
 		+[](Record*            ) -> bool { return true; }
 	};
 
 	const DetailedReactorDescriptor input {
-		.SignalStatus = &sig,
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(codeInstructionMap.data()),
 		.CodeChunkSize = code.size(),
