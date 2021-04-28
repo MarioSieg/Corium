@@ -210,7 +210,7 @@
 
 namespace Nominax
 {
-	auto DetailedReactorDescriptor::Validate() const noexcept -> ReactorValidationResult
+	auto DetailedReactorDescriptor::Validate() const noexcept(true) -> ReactorValidationResult
 	{
 		// validate all pointers:
 		if (!(this->CodeChunk && this->InterruptHandler && this->Stack))

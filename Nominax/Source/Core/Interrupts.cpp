@@ -219,7 +219,7 @@ namespace
 
 namespace Nominax
 {
-	auto QuerySignalStatus() noexcept -> std::sig_atomic_t
+	auto QuerySignalStatus() noexcept(true) -> std::sig_atomic_t
 	{
 		return signalStatus;
 	}
@@ -293,7 +293,7 @@ namespace Nominax
 		std::signal(SIGABRT, SIG_DFL);
 	}
 
-	auto InterruptEnumeratorName(const SystemInterrupt interrupt) noexcept -> std::string_view
+	auto InterruptEnumeratorName(const SystemInterrupt interrupt) noexcept(true) -> std::string_view
 	{
 		switch (interrupt)
 		{
@@ -308,7 +308,7 @@ namespace Nominax
 		}
 	}
 
-	auto BasicErrorInfo(const SystemInterrupt interrupt) noexcept -> std::string_view
+	auto BasicErrorInfo(const SystemInterrupt interrupt) noexcept(true) -> std::string_view
 	{
 		switch (interrupt)
 		{
@@ -332,14 +332,14 @@ namespace Nominax
 		return ss.str();
 	}
 
-	auto InterruptCvt(const InterruptAccumulator interrupt) noexcept -> SystemInterrupt
+	auto InterruptCvt(const InterruptAccumulator interrupt) noexcept(true) -> SystemInterrupt
 	{
 		return static_cast<SystemInterrupt>(std::clamp(
 			interrupt, static_cast<std::underlying_type_t<SystemInterrupt>>(SystemInterrupt::Min),
 			static_cast<std::underlying_type_t<SystemInterrupt>>(SystemInterrupt::Max)));
 	}
 
-	auto TerminateTypeCvt(const InterruptAccumulator interrupt) noexcept -> TerminateResult
+	auto TerminateTypeCvt(const InterruptAccumulator interrupt) noexcept(true) -> TerminateResult
 	{
 		return interrupt == 0
 			       ? TerminateResult::Success

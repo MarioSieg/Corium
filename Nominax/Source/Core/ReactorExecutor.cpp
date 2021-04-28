@@ -841,7 +841,7 @@ namespace Nominax
 
 	__attribute__((hot)) auto ExecuteChecked(const DetailedReactorDescriptor& input) noexcept(false) -> ReactorOutput
 	{
-		auto validationFault = [&input](const ReactorValidationResult result) noexcept -> ReactorOutput
+		auto validationFault = [&input](const ReactorValidationResult result) noexcept(true) -> ReactorOutput
 		{
 			return
 			{

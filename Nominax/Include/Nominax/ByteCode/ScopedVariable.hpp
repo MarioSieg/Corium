@@ -440,7 +440,7 @@ namespace Nominax
 		/// Returns the attached stream.
 		/// </summary>
 		/// <returns></returns>
-		auto GetAttachedStream() const noexcept -> const Stream&;
+		auto AttachedStream() const noexcept(true) -> const Stream&;
 
 		auto Unwrap() const -> T;
 
@@ -457,7 +457,7 @@ namespace Nominax
 		auto Push(T value) -> ScopedVariable&;
 		auto DoNothing() -> ScopedVariable&;
 
-		Stream& Attached;
+		Stream& Attached_;
 	};
 
 	template <typename T> requires StreamScalar<T>
@@ -466,14 +466,14 @@ namespace Nominax
 #if NOMINAX_DEBUG
 		return Attached.Back().Unwrap<T>().value();
 #else
-		return *Attached.Back().Unwrap<T>();
+		return *Attached_.Back().Unwrap<T>();
 #endif
 	}
 
 	template <typename T> requires StreamScalar<T>
-	inline auto ScopedVariable<T>::GetAttachedStream() const noexcept -> const Stream&
+	inline auto ScopedVariable<T>::AttachedStream() const noexcept(true) -> const Stream&
 	{
-		return this->Attached;
+		return this->Attached_;
 	}
 
 	template <typename T> requires StreamScalar<T>
@@ -483,7 +483,7 @@ namespace Nominax
 		[[unlikely]]
 		{
 			// ReSharper disable once CppRedundantTemplateKeyword
-			this->Attached.template Do<Instruction::NOp>();
+			this->Attached_.template Do<Instruction::NOp>();
 		}
 		return *this;
 	}
@@ -498,19 +498,19 @@ namespace Nominax
 	auto ScopedVariable<std::uint64_t>::Push(std::uint64_t value) -> ScopedVariable&;
 
 	template <>
-	inline ScopedVariable<double>::ScopedVariable(Stream& attached, const double value) : Attached {attached}
+	inline ScopedVariable<double>::ScopedVariable(Stream& attached, const double value) : Attached_ {attached}
 	{
 		this->Push(value);
 	}
 
 	template <>
-	inline ScopedVariable<std::int64_t>::ScopedVariable(Stream& attached, const std::int64_t value) : Attached {attached}
+	inline ScopedVariable<std::int64_t>::ScopedVariable(Stream& attached, const std::int64_t value) : Attached_ {attached}
 	{
 		this->Push(value);
 	}
 
 	template <>
-	inline ScopedVariable<std::uint64_t>::ScopedVariable(Stream& attached, const std::uint64_t value) : Attached {attached}
+	inline ScopedVariable<std::uint64_t>::ScopedVariable(Stream& attached, const std::uint64_t value) : Attached_ {attached}
 	{
 		this->Push(value);
 	}
@@ -666,7 +666,7 @@ namespace Nominax
 	template <typename T> requires StreamScalar<T>
 	inline ScopedVariable<T>::~ScopedVariable()
 	{
-		Attached.Do<Instruction::Pop>();
+		Attached_.Do<Instruction::Pop>();
 	}
 
 	/// <summary>

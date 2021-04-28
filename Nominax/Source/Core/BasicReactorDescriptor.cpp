@@ -209,7 +209,7 @@
 
 namespace Nominax
 {
-	auto BasicReactorDescriptor::BuildDetailed() const noexcept -> DetailedReactorDescriptor
+	auto BasicReactorDescriptor::BuildDetailed() const noexcept(true) -> DetailedReactorDescriptor
 	{
 		return
 		{
@@ -224,7 +224,7 @@ namespace Nominax
 		};
 	}
 
-	auto BasicReactorDescriptor::Validate() const noexcept -> ReactorValidationResult
+	auto BasicReactorDescriptor::Validate() const noexcept(true) -> ReactorValidationResult
 	{
 		return this->BuildDetailed().Validate();
 	}

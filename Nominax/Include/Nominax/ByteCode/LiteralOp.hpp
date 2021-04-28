@@ -216,7 +216,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator""_int(const unsigned long long int value) noexcept -> std::int64_t
+	constexpr auto operator""_int(const unsigned long long int value) noexcept(true) -> std::int64_t
 	{
 		return static_cast<std::int64_t>(value);
 	}
@@ -226,7 +226,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator""_uint(const unsigned long long int value) noexcept -> std::uint64_t
+	constexpr auto operator""_uint(const unsigned long long int value) noexcept(true) -> std::uint64_t
 	{
 		return value;
 	}
@@ -236,7 +236,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator""_float(const long double value) noexcept -> double
+	constexpr auto operator""_float(const long double value) noexcept(true) -> double
 	{
 		return static_cast<double>(value);
 	}

@@ -211,19 +211,19 @@ TEST(Object, Allocation)
 {
 	const auto obj {Object::AllocateUnique(8192)};
 	ASSERT_NE(obj, nullptr);
-	ASSERT_NE(obj->Blob, nullptr);
+	ASSERT_NE(obj->LookupObjectBlock(), nullptr);
 }
 
 TEST(Object, BlockMappingReadWriteData)
 {
 	const auto obj = Object::AllocateUnique(4);
 	ASSERT_NE(obj, nullptr);
-	ASSERT_NE(obj->Blob, nullptr);
+	ASSERT_NE(obj->LookupObjectBlock(), nullptr);
 	ASSERT_EQ(obj->HeaderRead_BlockSize(), 4);
-	ASSERT_EQ(obj->LookupObjectBlock(), obj->Blob + 2);
-	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->Blob + 2 + 4);
-	ASSERT_EQ(obj->LookupObjectBlock(), obj->Blob + ObjectHeader::RECORD_CHUNKS);
-	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->Blob + ObjectHeader::RECORD_CHUNKS + obj->HeaderRead_BlockSize());
+	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + 2);
+	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + 2 + 4);
+	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS);
+	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS + obj->HeaderRead_BlockSize());
 	ASSERT_EQ(obj->BlobSize(), 6);
 	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record));
 	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
@@ -236,12 +236,12 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 {
 	auto obj {Object::AllocateUnique(4)};
 	ASSERT_NE(obj, nullptr);
-	ASSERT_NE(obj->Blob, nullptr);
+	ASSERT_NE(obj->LookupObjectBlock(), nullptr);
 	ASSERT_EQ(obj->HeaderRead_BlockSize(), 4);
-	ASSERT_EQ(obj->LookupObjectBlock(), obj->Blob + 2);
-	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->Blob + 2 + 4);
-	ASSERT_EQ(obj->LookupObjectBlock(), obj->Blob + ObjectHeader::RECORD_CHUNKS);
-	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->Blob + ObjectHeader::RECORD_CHUNKS + obj->HeaderRead_BlockSize());
+	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + 2);
+	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + 2 + 4);
+	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS);
+	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS + obj->HeaderRead_BlockSize());
 	ASSERT_EQ(obj->BlobSize(), 6);
 	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record));
 	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);

@@ -216,31 +216,31 @@ namespace Nominax
 	{
 		return std::visit(Overloaded
 		                  {
-			                  [](const Instruction value) noexcept
+			                  [](const Instruction value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const SystemIntrinsicCallId value) noexcept
+			                  [](const SystemIntrinsicCallId value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const CustomIntrinsicCallId value) noexcept
+			                  [](const CustomIntrinsicCallId value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const std::uint64_t value) noexcept
+			                  [](const std::uint64_t value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const std::int64_t value) noexcept
+			                  [](const std::int64_t value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const double value) noexcept
+			                  [](const double value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const char32_t value) noexcept
+			                  [](const char32_t value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },

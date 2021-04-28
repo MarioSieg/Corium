@@ -230,70 +230,70 @@ namespace Nominax
 		float         F32C[2];
 		char32_t      C32C[2];
 
-		constexpr             Record() noexcept = default;
-		explicit constexpr    Record(std::int32_t value) noexcept;
-		explicit constexpr    Record(std::uint32_t value) noexcept;
-		explicit constexpr    Record(float value) noexcept;
-		explicit constexpr    Record(void* value) noexcept;
-		explicit constexpr    Record(std::int64_t value) noexcept;
-		explicit constexpr    Record(std::uint64_t value) noexcept;
-		explicit constexpr    Record(double value) noexcept;
-		explicit constexpr    Record(char32_t value) noexcept;
-		explicit constexpr    operator bool() const noexcept;
-		constexpr auto        operator ==(Record other) const noexcept -> bool;
-		constexpr auto        operator !=(Record other) const noexcept -> bool;
-		constexpr auto        operator <(Record other) const noexcept -> bool;
-		constexpr auto        operator >(Record other) const noexcept -> bool;
-		constexpr auto        operator <=(Record other) const noexcept -> bool;
-		constexpr auto        operator >=(Record other) const noexcept -> bool;
-		static constexpr auto Padding() noexcept -> Record;
+		constexpr             Record() noexcept(true) = default;
+		explicit constexpr    Record(std::int32_t value) noexcept(true);
+		explicit constexpr    Record(std::uint32_t value) noexcept(true);
+		explicit constexpr    Record(float value) noexcept(true);
+		explicit constexpr    Record(void* value) noexcept(true);
+		explicit constexpr    Record(std::int64_t value) noexcept(true);
+		explicit constexpr    Record(std::uint64_t value) noexcept(true);
+		explicit constexpr    Record(double value) noexcept(true);
+		explicit constexpr    Record(char32_t value) noexcept(true);
+		explicit constexpr    operator bool() const noexcept(true);
+		constexpr auto        operator ==(Record other) const noexcept(true) -> bool;
+		constexpr auto        operator !=(Record other) const noexcept(true) -> bool;
+		constexpr auto        operator <(Record other) const noexcept(true) -> bool;
+		constexpr auto        operator >(Record other) const noexcept(true) -> bool;
+		constexpr auto        operator <=(Record other) const noexcept(true) -> bool;
+		constexpr auto        operator >=(Record other) const noexcept(true) -> bool;
+		static constexpr auto Padding() noexcept(true) -> Record;
 	};
 
-	constexpr Record::Record(const std::int32_t value) noexcept : I32 {value} {}
-	constexpr Record::Record(const std::uint32_t value) noexcept : U32 {value} {}
-	constexpr Record::Record(const float value) noexcept : F32 {value} {}
-	constexpr Record::Record(void* const value) noexcept : Ptr {value} {}
-	constexpr Record::Record(const std::int64_t value) noexcept : I64 {value} {}
-	constexpr Record::Record(const std::uint64_t value) noexcept : U64 {value} {}
-	constexpr Record::Record(const double value) noexcept : F64 {value} {}
-	constexpr Record::Record(const char32_t value) noexcept : C32 {value} {}
+	constexpr Record::Record(const std::int32_t value) noexcept(true) : I32 {value} {}
+	constexpr Record::Record(const std::uint32_t value) noexcept(true) : U32 {value} {}
+	constexpr Record::Record(const float value) noexcept(true) : F32 {value} {}
+	constexpr Record::Record(void* const value) noexcept(true) : Ptr {value} {}
+	constexpr Record::Record(const std::int64_t value) noexcept(true) : I64 {value} {}
+	constexpr Record::Record(const std::uint64_t value) noexcept(true) : U64 {value} {}
+	constexpr Record::Record(const double value) noexcept(true) : F64 {value} {}
+	constexpr Record::Record(const char32_t value) noexcept(true) : C32 {value} {}
 
-	constexpr Record::operator bool() const noexcept
+	constexpr Record::operator bool() const noexcept(true)
 	{
 		return this->U64;
 	}
 
-	constexpr auto Record::operator ==(const Record other) const noexcept -> bool
+	constexpr auto Record::operator ==(const Record other) const noexcept(true) -> bool
 	{
 		return this->U64 == other.U64;
 	}
 
-	constexpr auto Record::operator !=(const Record other) const noexcept -> bool
+	constexpr auto Record::operator !=(const Record other) const noexcept(true) -> bool
 	{
 		return !(*this == other);
 	}
 
-	constexpr auto Record::operator <(const Record other) const noexcept -> bool
+	constexpr auto Record::operator <(const Record other) const noexcept(true) -> bool
 	{
 		return this->U64 < other.U64;
 	}
 
-	constexpr auto Record::operator >(const Record other) const noexcept -> bool
+	constexpr auto Record::operator >(const Record other) const noexcept(true) -> bool
 	{
 		return this->U64 > other.U64;
 	}
 
-	constexpr auto Record::operator <=(const Record other) const noexcept -> bool
+	constexpr auto Record::operator <=(const Record other) const noexcept(true) -> bool
 	{
 		return this->U64 <= other.U64;
 	}
 
-	constexpr auto Record::operator >=(const Record other) const noexcept -> bool
+	constexpr auto Record::operator >=(const Record other) const noexcept(true) -> bool
 	{
 		return this->U64 >= other.U64;
 	}
 
-	constexpr auto Record::Padding() noexcept -> Record
+	constexpr auto Record::Padding() noexcept(true) -> Record
 	{
 		return Record {0xFF'FF'FF'FF'FF'FF'FF'FF};
 	}

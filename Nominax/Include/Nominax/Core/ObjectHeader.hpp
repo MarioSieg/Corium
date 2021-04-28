@@ -259,7 +259,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		auto MapToRegionUnchecked(Record* region) const noexcept -> void;
+		auto MapToRegionUnchecked(Record* region) const noexcept(true) -> void;
 
 		/// <summary>
 		/// Maps this record into the specified memory region.
@@ -268,7 +268,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
 		[[nodiscard]]
-		auto MapToRegionChecked(std::span<Record> region) const noexcept -> bool;
+		auto MapToRegionChecked(std::span<Record> region) const noexcept(true) -> bool;
 
 		/// <summary>
 		/// Maps this record from the specified memory region.
@@ -277,7 +277,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		auto MapFromRegionUnchecked(const Record* region) noexcept -> void;
+		auto MapFromRegionUnchecked(const Record* region) noexcept(true) -> void;
 
 		/// <summary>
 		/// Maps this record from the specified memory region.
@@ -286,7 +286,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
 		[[nodiscard]]
-		auto MapFromRegionChecked(std::span<const Record> region) noexcept -> bool;
+		auto MapFromRegionChecked(std::span<const Record> region) noexcept(true) -> bool;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the strong ref count.
@@ -294,7 +294,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns>The current value of the strong ref count.</returns>
 		[[nodiscard]]
-		static constexpr auto ReadMapping_StrongRefCount(const Record* region) noexcept -> std::uint32_t;
+		static constexpr auto ReadMapping_StrongRefCount(const Record* region) noexcept(true) -> std::uint32_t;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the size.
@@ -302,7 +302,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns>The current value of the size field.</returns>
 		[[nodiscard]]
-		static constexpr auto ReadMapping_Size(const Record* region) noexcept -> std::uint32_t;
+		static constexpr auto ReadMapping_Size(const Record* region) noexcept(true) -> std::uint32_t;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the type id.
@@ -310,7 +310,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns>The current value of the type id.</returns>
 		[[nodiscard]]
-		static constexpr auto ReadMapping_TypeId(const Record* region) noexcept -> std::uint32_t;
+		static constexpr auto ReadMapping_TypeId(const Record* region) noexcept(true) -> std::uint32_t;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the flag vector.
@@ -318,7 +318,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns>The current value of the flag vector.</returns>
 		[[nodiscard ]]
-		static constexpr auto ReadMapping_FlagVector(const Record* region) noexcept -> ObjectFlagsVectorCompound;
+		static constexpr auto ReadMapping_FlagVector(const Record* region) noexcept(true) -> ObjectFlagsVectorCompound;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the strong ref count field.
@@ -326,7 +326,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <param name="strongRefCount">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_StrongRefCount(Record* region, std::uint32_t strongRefCount) noexcept -> void;
+		static constexpr auto WriteMapping_StrongRefCount(Record* region, std::uint32_t strongRefCount) noexcept(true) -> void;
 
 		/// <summary>
 		/// Implicit map the region to an object header and increment the strong reference counter by one.
@@ -334,7 +334,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_IncrementStrongRefCount(Record* region) noexcept -> void;
+		static constexpr auto WriteMapping_IncrementStrongRefCount(Record* region) noexcept(true) -> void;
 
 		/// <summary>
 		/// Implicit map the region to an object header and decrement the strong reference counter by one.
@@ -342,7 +342,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_DecrementStrongRefCount(Record* region) noexcept -> void;
+		static constexpr auto WriteMapping_DecrementStrongRefCount(Record* region) noexcept(true) -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the size field.
@@ -350,7 +350,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <param name="size">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_Size(Record* region, std::uint32_t size) noexcept -> void;
+		static constexpr auto WriteMapping_Size(Record* region, std::uint32_t size) noexcept(true) -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the type id field.
@@ -358,7 +358,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <param name="typeId">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_TypeId(Record* region, std::uint32_t typeId) noexcept -> void;
+		static constexpr auto WriteMapping_TypeId(Record* region, std::uint32_t typeId) noexcept(true) -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the flag vector field.
@@ -366,7 +366,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <param name="flagVector">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_FlagVector(Record* region, ObjectFlagsVectorCompound flagVector) noexcept -> void;
+		static constexpr auto WriteMapping_FlagVector(Record* region, ObjectFlagsVectorCompound flagVector) noexcept(true) -> void;
 
 		/// <summary>
 		/// Type-pun a region to an object header
@@ -375,7 +375,8 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto RawQueryTypePun(Record* region) -> ObjectHeader&;
+		[[deprecated("unsafe")]]
+		static auto RawQueryTypePun(Record* region) noexcept(true) -> ObjectHeader&;
 
 		/// <summary>
 		/// The size of each header block field.
@@ -407,12 +408,12 @@ namespace Nominax
 	static_assert(std::is_standard_layout_v<ObjectHeader>);
 	static_assert(std::is_trivially_copyable_v<ObjectHeader>);
 
-	__attribute__((flatten)) inline auto ObjectHeader::MapToRegionUnchecked(Record* const region) const noexcept -> void
+	__attribute__((flatten)) inline auto ObjectHeader::MapToRegionUnchecked(Record* const region) const noexcept(true) -> void
 	{
 		std::memcpy(region, this, sizeof(ObjectHeader));
 	}
 
-	__attribute__((flatten)) inline auto ObjectHeader::MapToRegionChecked(const std::span<Record> region) const noexcept -> bool
+	__attribute__((flatten)) inline auto ObjectHeader::MapToRegionChecked(const std::span<Record> region) const noexcept(true) -> bool
 	{
 		if (__builtin_expect(region.size() < 2, 0))
 		{
@@ -421,12 +422,12 @@ namespace Nominax
 		return std::memcpy(region.data(), this, sizeof(ObjectHeader));
 	}
 
-	__attribute__((flatten)) inline auto ObjectHeader::MapFromRegionUnchecked(const Record* const region) noexcept -> void
+	__attribute__((flatten)) inline auto ObjectHeader::MapFromRegionUnchecked(const Record* const region) noexcept(true) -> void
 	{
 		std::memcpy(this, region, sizeof(ObjectHeader));
 	}
 
-	__attribute__((flatten)) inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Record> region) noexcept -> bool
+	__attribute__((flatten)) inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Record> region) noexcept(true) -> bool
 	{
 		if (__builtin_expect(region.size() < 2, 0))
 		{
@@ -435,22 +436,22 @@ namespace Nominax
 		return std::memcpy(this, region.data(), sizeof(ObjectHeader));
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Record* const region) noexcept -> std::uint32_t
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Record* const region) noexcept(true) -> std::uint32_t
 	{
 		return *(*region).U32C;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) noexcept -> std::uint32_t
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) noexcept(true) -> std::uint32_t
 	{
 		return *((*region).U32C + 1);
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) noexcept -> std::uint32_t
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) noexcept(true) -> std::uint32_t
 	{
 		return *(*(region + 1)).U32C;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) noexcept -> ObjectFlagsVectorCompound
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) noexcept(true) -> ObjectFlagsVectorCompound
 	{
 		const auto flags = ObjectFlagsVectorCompound
 		{
@@ -459,37 +460,37 @@ namespace Nominax
 		return flags;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const std::uint32_t strongRefCount) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const std::uint32_t strongRefCount) noexcept(true) -> void
 	{
 		*(*region).U32C = strongRefCount;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) noexcept(true) -> void
 	{
 		++*(*region).U32C;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) noexcept(true) -> void
 	{
 		--*(*region).U32C;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_Size(Record* const region, const std::uint32_t size) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_Size(Record* const region, const std::uint32_t size) noexcept(true) -> void
 	{
 		*((*region).U32C + 1) = size;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_TypeId(Record* const region, const std::uint32_t typeId) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_TypeId(Record* const region, const std::uint32_t typeId) noexcept(true) -> void
 	{
 		*(*(region + 1)).U32C = typeId;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagsVectorCompound flagVector) noexcept -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagsVectorCompound flagVector) noexcept(true) -> void
 	{
 		*((*(region + 1)).U32C + 1) = flagVector.Compound;
 	}
 
-	__attribute__((flatten)) inline auto ObjectHeader::RawQueryTypePun(Record* const region) -> ObjectHeader&
+	__attribute__((flatten)) inline auto ObjectHeader::RawQueryTypePun(Record* const region) noexcept(true) -> ObjectHeader&
 	{
 		return *reinterpret_cast<ObjectHeader*>(region);
 	}

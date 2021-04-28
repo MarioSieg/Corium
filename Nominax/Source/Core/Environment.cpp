@@ -216,7 +216,7 @@ using std::endl;
 
 namespace Nominax
 {
-	static constexpr auto MachineRating(const std::size_t threads) noexcept -> char
+	static constexpr auto MachineRating(const std::size_t threads) noexcept(true) -> char
 	{
 		if (threads <= 2)
 		{

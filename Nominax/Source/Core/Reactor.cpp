@@ -224,7 +224,7 @@ namespace
 		JumpMap&                  jumpMap,
 		SharedIntrinsicTableView& intrinsicTable,
 		InterruptRoutine&         interruptHandler
-	) noexcept -> DetailedReactorDescriptor
+	) noexcept(true) -> DetailedReactorDescriptor
 	{
 		const std::span instrMapTableView
 		{

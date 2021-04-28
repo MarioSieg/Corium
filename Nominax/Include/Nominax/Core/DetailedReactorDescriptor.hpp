@@ -235,6 +235,6 @@ namespace Nominax
 		__NOMINAX_KERNEL_THREAD_LOCAL__ std::size_t              StackSize {0};
 
 		[[nodiscard]]
-		auto Validate() const noexcept -> ReactorValidationResult;
+		auto Validate() const noexcept(true) -> ReactorValidationResult;
 	};
 }

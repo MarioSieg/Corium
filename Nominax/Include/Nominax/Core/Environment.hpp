@@ -223,7 +223,7 @@ namespace Nominax
 		auto PrintTypeTable() const -> void;
 
 	public:
-		Environment() noexcept                                 = default;
+		Environment() noexcept(true)                           = default;
 		Environment(const Environment&)                        = delete;
 		Environment(Environment&&)                             = delete;
 		auto    operator =(const Environment&) -> Environment& = delete;

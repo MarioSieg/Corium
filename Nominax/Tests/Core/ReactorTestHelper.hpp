@@ -215,7 +215,7 @@
 
 constexpr IntrinsicRoutine* MOCK_INTRINSIC_ROUTINE
 {
-	+[]([[maybe_unused]] Record*) noexcept -> bool
+	+[]([[maybe_unused]] Record*) noexcept(true) -> bool
 	{
 		return true;
 	}
@@ -234,7 +234,7 @@ inline constinit std::array<Record, MOCK_STACK_SIZE> MockStack {Record::Padding(
 
 constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
 {
-	+[](InterruptAccumulator) noexcept -> bool
+	+[](InterruptAccumulator) noexcept(true) -> bool
 	{
 		return true;
 	}

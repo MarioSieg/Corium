@@ -225,13 +225,13 @@ namespace Nominax
 		/// Gets the amount of all currently allocated blocks (records).
 		/// </summary>
 		/// <returns>The amount of all currently allocated blocks (records).</returns>
-		static auto GetGlobalAllocatedBlocks() noexcept -> std::size_t;
+		static auto GetGlobalAllocatedBlocks() noexcept(true) -> std::size_t;
 
 		/// <summary>
 		/// Gets the amount of bytes of all currently allocated blocks (records).
 		/// </summary>
 		/// <returns>The amount of bytes of all currently allocated blocks (records).</returns>
-		static auto GetGlobalAllocatedBytes() noexcept -> std::size_t;
+		static auto GetGlobalAllocatedBytes() noexcept(true) -> std::size_t;
 
 		/// <summary>
 		/// Allocate and zero raw memory for an object instance, and write the size into the object header.
@@ -254,12 +254,12 @@ namespace Nominax
 		static auto RawDeallocate(Object::BlobBlockType*& instance) -> void;
 	};
 
-	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBlocks() noexcept -> std::size_t
+	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBlocks() noexcept(true) -> std::size_t
 	{
 		return AllocatedBlocks;
 	}
 
-	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBytes() noexcept -> std::size_t
+	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBytes() noexcept(true) -> std::size_t
 	{
 		return AllocatedBlocks * sizeof(Object::BlobBlockType);
 	}
