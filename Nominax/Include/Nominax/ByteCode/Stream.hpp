@@ -208,7 +208,7 @@
 #pragma once
 
 #include <unordered_map>
-#include <vector>
+#include <list>
 
 #include "DynamicSignal.hpp"
 #include "ImmediateArgumentCount.hpp"
@@ -226,8 +226,12 @@ namespace Nominax
 	/// </summary>
 	class Stream final
 	{
-		std::vector<DynamicSignal>                   SignalStream_ { };
-		std::unordered_map<std::string, std::size_t> LabelTable_ { };
+		/// <summary>
+		/// We use a std::list instead of std::forward_list because
+		/// std::list is a double linked list, and we require bidirectional iteration,
+		/// not unidirectional.
+		/// </summary>
+		std::list<DynamicSignal> SignalStream_ { };
 
 	public:
 		static auto ExampleStream(Stream& stream) noexcept(false) -> void;
@@ -237,12 +241,6 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		Stream() noexcept(false);
-
-		/// <summary>
-		/// Construct with capacity.
-		/// </summary>
-		/// <param name="cap"></param>
-		explicit Stream(std::size_t cap) noexcept(false);
 
 		/// <summary>
 		/// Move constructor.
@@ -282,7 +280,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns>The vector used as buffer.</returns>
 		[[nodiscard]]
-		auto Buffer() const noexcept(true) -> const std::vector<DynamicSignal>&;
+		auto Buffer() const noexcept(true) -> const std::list<DynamicSignal>&;
 
 		/// <summary>
 		/// 
@@ -319,13 +317,6 @@ namespace Nominax
 		auto Clear() noexcept(false) -> void;
 
 		/// <summary>
-		/// Preallocate buffer capacity.
-		/// </summary>
-		/// <param name="cap"></param>
-		/// <returns></returns>
-		auto Reserve(std::size_t cap) noexcept(false) -> void;
-
-		/// <summary>
 		/// Resize buffer size.
 		/// </summary>
 		/// <param name="size"></param>
@@ -347,13 +338,6 @@ namespace Nominax
 		auto SizeInBytes() const noexcept(true) -> std::size_t;
 
 		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The capacity of the stream buffer.</returns>
-		[[nodiscard]]
-		auto Capacity() const noexcept(true) -> std::size_t;
-
-		/// <summary>
 		/// Pushes a new signal into the stream.
 		/// </summary>
 		/// <param name="sig"></param>
@@ -366,7 +350,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto begin() noexcept(true) -> std::vector<DynamicSignal>::iterator;
+		auto begin() noexcept(true) -> std::list<DynamicSignal>::iterator;
 
 		/// <summary>
 		/// STL iterator compat
@@ -374,7 +358,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto end() noexcept(true) -> std::vector<DynamicSignal>::iterator;
+		auto end() noexcept(true) -> std::list<DynamicSignal>::iterator;
 
 		/// <summary>
 		/// STL iterator compat
@@ -382,7 +366,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto begin() const noexcept(true) -> std::vector<DynamicSignal>::const_iterator;
+		auto begin() const noexcept(true) -> std::list<DynamicSignal>::const_iterator;
 
 		/// <summary>
 		/// STL iterator compat
@@ -390,7 +374,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto end() const noexcept(true) -> std::vector<DynamicSignal>::const_iterator;
+		auto end() const noexcept(true) -> std::list<DynamicSignal>::const_iterator;
 
 		/// <summary>
 		/// Push stream entry.
@@ -458,6 +442,7 @@ namespace Nominax
 
 		/// <summary>
 		/// Index lookup.
+		/// Slow! O(i)
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
@@ -465,6 +450,7 @@ namespace Nominax
 
 		/// <summary>
 		/// Index lookup.
+		///Slow! O(i)
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
@@ -578,33 +564,21 @@ namespace Nominax
 
 	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> DynamicSignal&
 	{
-		return this->SignalStream_.at(idx);
+		return *std::next(this->SignalStream_.begin(), idx);
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> DynamicSignal
 	{
-		return this->SignalStream_.at(idx);
+		return *std::next(this->SignalStream_.begin(), idx);
 	}
 
 	inline Stream::Stream() noexcept(false)
 	{
-		// Reserve buffer:
-		this->SignalStream_.reserve(8);
-
 		// Insert important code prologue.
 		this->SignalStream_.emplace_back(DynamicSignal::CodePrologue());
 	}
 
-	inline Stream::Stream(const std::size_t cap) noexcept(false)
-	{
-		// Reserve required space + (prologue + epilogue)
-		this->SignalStream_.reserve(cap + 3);
-
-		// Insert important code prologue.
-		this->SignalStream_.emplace_back(DynamicSignal::CodePrologue());
-	}
-
-	inline auto Stream::Buffer() const noexcept(true) -> const std::vector<DynamicSignal>&
+	inline auto Stream::Buffer() const noexcept(true) -> const std::list<DynamicSignal>&
 	{
 		return this->SignalStream_;
 	}
@@ -612,11 +586,6 @@ namespace Nominax
 	inline auto Stream::Clear() noexcept(false) -> void
 	{
 		this->SignalStream_.clear();
-	}
-
-	inline auto Stream::Reserve(const std::size_t cap) noexcept(false) -> void
-	{
-		this->SignalStream_.reserve(cap);
 	}
 
 	inline auto Stream::Resize(const std::size_t size) noexcept(false) -> void
@@ -634,38 +603,33 @@ namespace Nominax
 		return this->SignalStream_.size() * sizeof(DynamicSignal);
 	}
 
-	inline auto Stream::Capacity() const noexcept(true) -> std::size_t
-	{
-		return this->SignalStream_.capacity();
-	}
-
 	inline auto Stream::Push(DynamicSignal&& sig) noexcept(false) -> void
 	{
 		this->SignalStream_.emplace_back(sig);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::begin() noexcept(true) -> std::vector<DynamicSignal>::iterator
+	inline auto Stream::begin() noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
-		return this->SignalStream_.begin();
+		return std::begin(this->SignalStream_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::end() noexcept(true) -> std::vector<DynamicSignal>::iterator
+	inline auto Stream::end() noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
-		return this->SignalStream_.end();
+		return std::end(this->SignalStream_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::begin() const noexcept(true) -> std::vector<DynamicSignal>::const_iterator
+	inline auto Stream::begin() const noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
-		return this->SignalStream_.begin();
+		return std::begin(this->SignalStream_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::end() const noexcept(true) -> std::vector<DynamicSignal>::const_iterator
+	inline auto Stream::end() const noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
-		return this->SignalStream_.end();
+		return std::end(this->SignalStream_);
 	}
 
 	/// <summary>
@@ -674,7 +638,7 @@ namespace Nominax
 	/// <param name="in"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	inline auto begin(Stream& in) noexcept(true) -> std::vector<DynamicSignal>::iterator
+	inline auto begin(Stream& in) noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
 		return in.begin();
 	}
@@ -685,7 +649,7 @@ namespace Nominax
 	/// <param name="in"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	inline auto end(Stream& in) noexcept(true) -> std::vector<DynamicSignal>::iterator
+	inline auto end(Stream& in) noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
 		return in.end();
 	}
@@ -696,7 +660,7 @@ namespace Nominax
 	/// <param name="in"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	inline auto begin(const Stream& in) noexcept(true) -> std::vector<DynamicSignal>::const_iterator
+	inline auto begin(const Stream& in) noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
 		return in.begin();
 	}
@@ -707,7 +671,7 @@ namespace Nominax
 	/// <param name="in"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	inline auto end(const Stream& in) noexcept(true) -> std::vector<DynamicSignal>::const_iterator
+	inline auto end(const Stream& in) noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
 		return in.end();
 	}

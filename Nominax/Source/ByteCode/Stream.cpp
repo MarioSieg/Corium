@@ -319,7 +319,7 @@ namespace Nominax
 
 	auto Stream::PrintIntermediateRepresentation(const bool writeAddress) const noexcept(false) -> void
 	{
-		Print("{} Len: {}, Size: {}B, Cap: {}", Lexemes::COMMENT, this->Size(), this->SizeInBytes(), this->Capacity());
+		Print("{} Len: {}, Size: {}B", Lexemes::COMMENT, this->Size(), this->SizeInBytes());
 		for (std::uint64_t address {0}; const DynamicSignal& sig : *this)
 		{
 			if (sig.Contains<Instruction>())
@@ -346,20 +346,46 @@ namespace Nominax
 
 	auto Stream::Begin() noexcept(false) -> Stream&
 	{
-		if (const auto pro {DynamicSignal::CodePrologue()}; this->Size() >= 1 && *std::begin(*this) != pro)
-		[[unlikely]]
+		constexpr std::array code{ DynamicSignal::CodeEpilogue() };
+		if (auto containsPrologueCode = [&]() -> bool
+			{
+				auto  begin = this->SignalStream_.begin();
+					for (const auto sig : code)
+					{
+						if (sig != *begin) [[unlikely]]
+						{
+							return false;
+						}
+						std::advance(begin, 1);
+					}
+				return true;
+			}; this->Size() >= 2 && !containsPrologueCode())
+			[[unlikely]]
 		{
-			this->SignalStream_.push_back(pro);
+			this->SignalStream_.insert(this->SignalStream_.begin(), std::begin(code), std::end(code));
 		}
 		return *this;
 	}
 
 	auto Stream::End() noexcept(false) -> Stream&
 	{
-		if (constexpr std::array epi {DynamicSignal::CodeEpilogue()}; this->Size() >= 2 && (*std::begin(*this) != epi[0] || *(std::begin(*this) + 1) != epi[0]))
+		constexpr std::array code{ DynamicSignal::CodeEpilogue() };
+		if (auto containsEpilogueCode = [&]() -> bool
+		{
+			auto                 end = this->SignalStream_.end();
+			for (const auto sig : code)
+			{
+				if (sig != *end) [[unlikely]]
+				{
+					return false;
+				}
+				std::advance(end, -1);
+			}
+			return true;
+		}; this->Size() >= 2 && !containsEpilogueCode())
 		[[unlikely]]
 		{
-			this->SignalStream_.insert(this->SignalStream_.end(), std::begin(epi), std::end(epi));
+			this->SignalStream_.insert(this->SignalStream_.end(), std::begin(code), std::end(code));
 		}
 		return *this;
 	}

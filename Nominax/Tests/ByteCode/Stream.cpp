@@ -210,21 +210,19 @@
 TEST(BytecodeStream, Constructor)
 {
 	Stream stream { };
-	ASSERT_EQ(stream.Capacity(), 8);
 	ASSERT_EQ(stream.Size(), 1);
 	ASSERT_EQ(stream.SizeInBytes(), sizeof(DynamicSignal));
 	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
-	ASSERT_TRUE(stream.Buffer()[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
+	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
 }
 
 TEST(BytecodeStream, ConstructorCapacity)
 {
-	Stream stream {128};
-	ASSERT_EQ(stream.Capacity(), 128 + 3);
+	Stream stream {};
 	ASSERT_EQ(stream.Size(), 1);
 	ASSERT_EQ(stream.SizeInBytes(), sizeof(DynamicSignal));
 	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
-	ASSERT_TRUE(stream.Buffer()[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
+	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
 }
 
 TEST(BytecodeStream, Push)
@@ -253,6 +251,5 @@ TEST(BytecodeStream, Push)
 	ASSERT_TRUE(stream[8].Contains(INT64_C(-10)));
 
 	stream.Clear();
-	ASSERT_EQ(stream.Size(), 1);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_EQ(stream.Size(), 0);
 }
