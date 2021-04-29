@@ -332,16 +332,16 @@ namespace Nominax
 			var *= 2;
 			var += 1;
 			var /= 1;
-			stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId{0});
+			stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId {0});
 		}).End();
 
 		stream.PrintIntermediateRepresentation(false);
 
-		CodeChunk chunk{ };
-		JumpMap   jumpMap{ };
+		CodeChunk chunk { };
+		JumpMap   jumpMap { };
 		stream.Build(chunk, jumpMap);
 
-		FixedStack stack{ FixedStack::SIZE_LARGE };
+		FixedStack  stack {FixedStack::SIZE_LARGE};
 		std::vector intrinsics
 		{
 			// Print:

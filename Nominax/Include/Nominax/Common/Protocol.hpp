@@ -224,7 +224,7 @@
 namespace Nominax
 {
 	namespace Fmt = fmt;
-	
+
 	/// <summary>
 	/// Prints out the formatting string and
 	/// formats the arguments into the string if format

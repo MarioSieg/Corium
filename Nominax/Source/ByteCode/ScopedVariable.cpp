@@ -578,15 +578,16 @@ namespace Nominax
 		[[likely]]
 		{
 			// x / x is always 1
-			if (this->Attached_.Back().Contains(value)) [[unlikely]]
+			if (this->Attached_.Back().Contains(value))
+			[[unlikely]]
 			{
 				this->Push(1.0);
 				return *this;
 			}
-			
-				// By 1 it's just the same value.
-				if (::F64IsOne(value))
-					[[unlikely]]
+
+			// By 1 it's just the same value.
+			if (::F64IsOne(value))
+			[[unlikely]]
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
@@ -604,15 +605,16 @@ namespace Nominax
 		[[likely]]
 		{
 			// x / x is always 1
-			if (this->Attached_.Back().Contains(value)) [[unlikely]]
+			if (this->Attached_.Back().Contains(value))
+			[[unlikely]]
 			{
 				this->Push(static_cast<decltype(value)>(1));
 				return *this;
 			}
-			
+
 			// By 1 it's just the same value.
 			if (value == 1)
-					[[unlikely]]
+			[[unlikely]]
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
@@ -640,15 +642,16 @@ namespace Nominax
 		[[likely]]
 		{
 			// x / x is always 1
-			if (this->Attached_.Back().Contains(value)) [[unlikely]]
+			if (this->Attached_.Back().Contains(value))
+			[[unlikely]]
 			{
 				this->Push(static_cast<decltype(value)>(1));
 				return *this;
 			}
-			
-				// By 1 it's just the same value.
-				if (value == 1)
-					[[unlikely]]
+
+			// By 1 it's just the same value.
+			if (value == 1)
+			[[unlikely]]
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
