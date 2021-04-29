@@ -230,7 +230,7 @@ namespace Nominax
 		float         F32C[2];
 		char32_t      C32C[2];
 
-		constexpr             Record() noexcept(true) = default;
+		Record() noexcept(true) = default;
 		explicit constexpr    Record(std::int32_t value) noexcept(true);
 		explicit constexpr    Record(std::uint32_t value) noexcept(true);
 		explicit constexpr    Record(float value) noexcept(true);

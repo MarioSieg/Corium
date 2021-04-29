@@ -251,14 +251,14 @@ namespace
 
 namespace Nominax
 {
-	auto Environment::UnlockNoSyncStdStreams() const -> void 
+	auto Environment::UnlockNoSyncStdStreams() const -> void
 	{
 		std::ios_base::sync_with_stdio(false);
 	}
 
 	auto Environment::InstallSignalHandlers() const -> void
 	{
-		::Nominax::InstallSignalHandlers();
+		Nominax::InstallSignalHandlers();
 	}
 
 	auto Environment::PrintVersionInfo() const -> void
@@ -277,6 +277,7 @@ namespace Nominax
 	{
 		const auto&
 		[
+			ThreadId,
 			OperatingSystemName,
 			ArchitectureName,
 			CompilerName,
@@ -284,18 +285,17 @@ namespace Nominax
 			CpuName,
 			TotalSystemMemory,
 			UsedSystemMemory,
-			ThreadId
+			PageSize
 		] = this->SysInfo;
 
-		const auto clock = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
-		Print("Boot date: {}", std::ctime(&clock));
+		Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
 		Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
 		Print("CPU: {}\n", CpuName);
 		Print("CPU Hardware threads: {}\n", ThreadCount);
 		Print("CPU Machine class: {}\n", MachineRating(ThreadCount));
 		Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
 		Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
+		Print("Page size: {}B\n", PageSize);
 		Print("\n");
 	}
 
@@ -327,46 +327,40 @@ namespace Nominax
 
 		Stream stream { };
 
-		stream.With(2, [&stream](ScopedInt&& var)
+		stream.Begin().With(2, [&stream](ScopedInt&& var)
 		{
 			var *= 2;
 			var += 1;
-			stream.Do<Instruction::CIntrin>(0_uint);
-		});
+			var /= 1;
+			stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId{0});
+		}).End();
 
-		FixedStack stack {FixedStack::SIZE_LARGE};
+		stream.PrintIntermediateRepresentation(false);
 
-		CodeChunk chunk { };
-		JumpMap   jumpMap { };
-
+		CodeChunk chunk{ };
+		JumpMap   jumpMap{ };
 		stream.Build(chunk, jumpMap);
 
+		FixedStack stack{ FixedStack::SIZE_LARGE };
 		std::vector intrinsics
 		{
 			// Print:
 			+[](Record* sp) -> bool
 			{
-				Print("2 * 2 + 1 = {}\n", sp->I64);
+				Print("((2 * 2) + 1) / 1 = {}\n", sp->I64);
 				return true;
 			}
 		};
-
-		InterruptRoutine&                   interrupt {
+		InterruptRoutine&                  interrupt {
 			*+[](const InterruptAccumulator) -> bool
 			{
 				return true;
 			}
 		};
 
-		Print("\n");
-		stream.DumpToStream(cout, false);
-		Print("\n");
-
-		Print("Creating reactor on main thread\n");
 		const Reactor reactor {std::move(stack), std::move(chunk), std::move(jumpMap), intrinsics, interrupt};
 
-		
-		("Used process memory: {}MB\n", Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
+		Print("Used process memory: {}MB\n", Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
 
 		Print("Executing...\n\n");
 		cout.flush();

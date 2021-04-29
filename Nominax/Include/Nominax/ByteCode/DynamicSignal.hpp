@@ -209,21 +209,20 @@
 
 #include <array>
 #include <cstdint>
-#include <type_traits>
-#include <ostream>
 #include <optional>
-#include <span>
 #include <variant>
 
+#include "../Common/Protocol.hpp"
 #include "Signal.hpp"
 #include "Instruction.hpp"
 #include "SystemIntrinsic.hpp"
 #include "CustomIntrinsic.hpp"
+#include "LiteralOp.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Restricts to valid bytecode elements.
+	/// Restricts to valid byte code elements.
 	/// </summary>
 	/// <typeparam name="...Ts">The generic types to perform restriction checks on.</typeparam>
 	template <typename Ts>
@@ -351,7 +350,7 @@ namespace Nominax
 		/// Convert to undiscriminated runtime signal.
 		/// </summary>
 		[[nodiscard]]
-		explicit operator Signal() const;
+		explicit operator Signal() const noexcept(false);
 
 		/// <summary>
 		/// Try to extract raw data.
@@ -360,7 +359,7 @@ namespace Nominax
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Unwrap() const -> std::optional<T>;
+		constexpr auto Unwrap() const noexcept(false)-> std::optional<T>;
 
 		/// <summary>
 		/// Check if generic T is contained.
@@ -372,14 +371,28 @@ namespace Nominax
 		constexpr auto Contains() const noexcept(true) -> bool;
 
 		/// <summary>
-		/// Chgeck if generic T and value is contained.
+		/// Check if generic T and value is contained.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="compareTo"></param>
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Contains(const T compareTo) const -> bool;
+		constexpr auto Contains(T compareTo) const noexcept(false) -> bool;
+
+		/// <summary>
+		/// Equals.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator ==(const DynamicSignal& other) const noexcept(false) -> bool;
+
+		/// <summary>
+		/// Not equals.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator !=(const DynamicSignal & other) const noexcept(false) -> bool;
 
 		/// <summary>
 		/// Raw data variant (discriminated union)
@@ -455,6 +468,26 @@ namespace Nominax
 	/// <returns></returns>
 	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept(true) : DataCollection {value} {}
 
+	/// <summary>
+	/// Equals
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns></returns>
+	constexpr auto DynamicSignal::operator==(const DynamicSignal& other) const noexcept(false) -> bool
+	{
+		return this->DataCollection == other.DataCollection;
+	}
+
+	/// <summary>
+	/// Not equals
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns></returns>
+	constexpr auto DynamicSignal::operator!=(const DynamicSignal& other) const noexcept(false) -> bool
+	{
+		return !(*this == other);
+	}
+
 	constexpr auto DynamicSignal::CodePrologue() noexcept(true) -> DynamicSignal
 	{
 		// First instruction is always skipped and should be NOP:
@@ -463,20 +496,15 @@ namespace Nominax
 
 	constexpr auto DynamicSignal::CodeEpilogue() noexcept(true) -> std::array<DynamicSignal, 2>
 	{
-		// Because the end of a byte code stream is not checked,
-		// we always HAVE to interrupt at the end or we will jump to random memory locations.
-		// The minimum std::int64_t exit code is the reserved final interrupt code,
-		// the program should return before this instruction with it's own exit code.
-		// This is the last trap before going to hell!
 		return
 		{
 			DynamicSignal {Instruction::Int},
-			DynamicSignal {std::numeric_limits<std::int64_t>::min()}
+			DynamicSignal {0_int}
 		};
 	}
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Unwrap() const -> std::optional<T>
+	constexpr auto DynamicSignal::Unwrap() const noexcept(false) -> std::optional<T>
 	{
 		return std::holds_alternative<T>(this->DataCollection)
 			       ? std::optional<T> {std::get<T>(this->DataCollection)}
@@ -490,10 +518,8 @@ namespace Nominax
 	}
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains(const T compareTo) const -> bool
+	constexpr auto DynamicSignal::Contains(const T compareTo) const  noexcept(false)-> bool
 	{
 		return std::holds_alternative<T>(this->DataCollection) && std::get<T>(this->DataCollection) == compareTo;
 	}
-
-	extern auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&;
 }

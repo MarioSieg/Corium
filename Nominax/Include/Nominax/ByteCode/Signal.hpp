@@ -257,7 +257,7 @@ namespace Nominax
 		/// Default constructor.
 		/// </summary>
 		/// <returns></returns>
-		constexpr Signal() noexcept(true) = default;
+		Signal() noexcept(true) = default;
 
 		/// <summary>
 		/// Construct from record64.

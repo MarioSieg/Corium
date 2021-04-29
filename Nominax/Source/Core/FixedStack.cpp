@@ -208,6 +208,7 @@
 #include <stdexcept>
 
 #include "../../Include/Nominax/Core/FixedStack.hpp"
+#include "../../Include/Nominax/Common/Protocol.hpp"
 
 namespace Nominax
 {
@@ -224,6 +225,14 @@ namespace Nominax
 		this->BufferSize_ = sizeInRecords;
 		this->Buffer_     = new Record[sizeInRecords]();
 		*this->Buffer_    = Record::Padding();
+
+		// TLFRS = Thread Local Fixed Reactor Stack
+		Print
+		(
+			"Allocated {}MB TLFRS, Entries: {}\n",
+			Bytes2Megabytes<double>(static_cast<double>(this->BufferSize_) * static_cast<double>(sizeof(Record))),
+			this->BufferSize_
+		);
 	}
 
 	FixedStack::FixedStack(FixedStack&& value) noexcept(true) : Buffer_ {value.Buffer_}, BufferSize_ {value.BufferSize_}
@@ -254,5 +263,7 @@ namespace Nominax
 	FixedStack::~FixedStack()
 	{
 		delete[] this->Buffer_;
+		this->Buffer_     = nullptr;
+		this->BufferSize_ = 0;
 	}
 }

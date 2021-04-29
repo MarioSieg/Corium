@@ -211,12 +211,13 @@
 
 namespace Nominax
 {
-	auto SystemInfo::QueryAll() -> void
+	auto SystemInfo::QueryAll() noexcept(false) -> void
 	{
 		this->ThreadCount       = std::thread::hardware_concurrency();
 		this->ThreadId          = std::this_thread::get_id();
 		this->CpuName           = Os::QueryCpuName();
 		this->TotalSystemMemory = Os::QuerySystemMemoryTotal();
 		this->UsedSystemMemory  = Os::QueryProcessMemoryUsed();
+		this->PageSize          = Os::QueryPageSize();
 	}
 }

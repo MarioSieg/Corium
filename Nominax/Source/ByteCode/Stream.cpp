@@ -208,10 +208,106 @@
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
 #include "../../Include/Nominax/ByteCode/Lexeme.hpp"
+#include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
+#include "../../Include/Nominax/Common/Protocol.hpp"
+#include "../../Include/Nominax/Common/VisitOverload.hpp"
+
+template<> struct Nominax::Fmt::formatter< Nominax::DynamicSignal >
+{
+	template<typename ParseContext>
+	constexpr auto parse(ParseContext & ctx) noexcept(false)
+	{
+		return ctx.begin();
+	}
+
+	template<typename FormatContext>
+	inline auto format(const Nominax::DynamicSignal & sig, FormatContext & ctx) noexcept(false)
+	{
+		using namespace Nominax;
+		decltype(Nominax::Fmt::format_to(ctx.out(), "{}", 0)) result{};
+		std::visit(Overloaded
+			{
+				[&](const Instruction value)
+				{
+					result = Nominax::Fmt::format_to
+					(
+						ctx.out(),
+						"{}",
+						INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<decltype(value)>>(value)]
+					);
+				},
+				[&](const SystemIntrinsicCallId value)
+				{
+					result = Nominax::Fmt::format_to
+					(
+						ctx.out(),
+						" {}{}{:#X}",
+						Lexemes::INTRINSIC_CALL_IMMEDIATE,
+						Lexemes::IMMEDIATE,
+						static_cast<std::underlying_type_t<decltype(value)>>(value)
+					);
+				},
+				[&](const CustomIntrinsicCallId value)
+				{
+					result = Nominax::Fmt::format_to
+					(
+						ctx.out(), " {}{}{:#X}",
+						Lexemes::INTRINSIC_CALL_IMMEDIATE,
+						Lexemes::IMMEDIATE,
+						static_cast<std::underlying_type_t<decltype(value)>>(value)
+					);
+				},
+				[&](const std::uint64_t value)
+				{
+					result = Nominax::Fmt::format_to
+					(
+						ctx.out(), " {}{}{}",
+						Lexemes::IMMEDIATE,
+						value,
+						Lexemes::LITERAL_SUFFIX_UINT
+					);
+				},
+				[&](const std::int64_t value)
+				{
+					result = Nominax::Fmt::format_to
+					(
+						ctx.out(),
+						" {}{}{}",
+						Lexemes::IMMEDIATE,
+						value,
+						Lexemes::LITERAL_SUFFIX_INT
+					);
+				},
+				[&](const double value)
+				{
+					result = Nominax::Fmt::format_to
+					(
+						ctx.out(),
+						" {}{}{}",
+						Lexemes::IMMEDIATE,
+						value,
+						Lexemes::LITERAL_SUFFIX_FLOAT
+					);
+				},
+				[&](const char32_t value)
+				{
+					result = Nominax::Fmt::format_to
+					(
+						ctx.out(),
+						" {}{}{:#X}",
+						Lexemes::IMMEDIATE,
+						static_cast<std::uint32_t>(value),
+						Lexemes::LITERAL_SUFFIX_CHAR
+					);
+				},
+			}, sig.DataCollection);
+		return result;
+	}
+};
 
 namespace Nominax
-{
-	auto Stream::ExampleStream(Stream& stream) -> void
+{	
+	auto Stream::ExampleStream(Stream& stream) noexcept(false) -> void
 	{
 		stream.With(1024, [](ScopedInt x)
 		{
@@ -220,36 +316,48 @@ namespace Nominax
 		});
 	}
 
-	auto operator<<(std::ostream& out, const Stream& in) -> std::ostream&
+	auto Stream::PrintIntermediateRepresentation(const bool writeAddress) const noexcept(false) -> void
 	{
-		in.DumpToStream(out);
-		return out;
-	}
-
-	auto Stream::DumpToStream(std::ostream& stream, const bool writeAddress) const -> void
-	{
-		stream << Lexemes::COMMENT << " Size: " << this->Size() << ", SizeInBytes: " << this->SizeInBytes() << ", BufferCapacity: " << this->Capacity();
+		Print("{} Len: {}, Size: {}B, Cap: {}", Lexemes::COMMENT, this->Size(), this->SizeInBytes(), this->Capacity());
 		for (std::uint64_t address {0}; const DynamicSignal& sig : *this)
 		{
 			if (sig.Contains<Instruction>())
 			[[likely]]
 			{
-				stream << '\n';
+				Print("\n");
 				if (writeAddress)
 				[[likely]]
 				{
-					stream << Lexemes::COMMENT << std::hex << " +0x" << address << ' ' << std::dec << Lexemes::COMMENT << ' ';
+					Print("{} {:#X} {}", Lexemes::COMMENT, address, Lexemes::COMMENT);
 				}
 			}
-			stream << sig << ' ';
+			Print("{}", sig);
 			++address;
 		}
-		stream << '\n';
+		Print("\n\n");
 	}
 
-	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) -> ByteCodeValidationResult
+	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap)noexcept(false) -> ByteCodeValidationResult
 	{
-		*this << Instruction::Int << INT64_C(0);
+		this->End();
 		return Nominax::Build(*this, out, outJumpMap);
+	}
+
+	auto Stream::Begin() noexcept(false) -> Stream&
+	{
+		if (const auto pro{ DynamicSignal::CodePrologue() }; this->Size() >= 1 && *std::begin(*this) != pro) [[unlikely]]
+		{
+			this->SignalStream_.push_back(pro);
+		}
+		return *this;
+	}
+
+	auto Stream::End() noexcept(false) -> Stream&
+	{
+		if (constexpr std::array epi{ DynamicSignal::CodeEpilogue() }; this->Size() >= 2 && (*std::begin(*this) != epi[0] || *(std::begin(*this) + 1) != epi[0])) [[unlikely]]
+		{
+			this->SignalStream_.insert(this->SignalStream_.end(), std::begin(epi), std::end(epi));
+		}
+		return *this;
 	}
 }

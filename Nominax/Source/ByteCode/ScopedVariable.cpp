@@ -208,6 +208,7 @@
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 #include "../../Include/Nominax/Common/F64Comparator.hpp"
+#include "../../Include/Nominax/Common/ILog2.hpp"
 
 namespace
 {
@@ -241,8 +242,6 @@ namespace
 		return x == 1.0;
 #endif
 	}
-
-	constexpr double CACHED_LOG2 {0.69314718055994529};
 }
 
 namespace Nominax
@@ -534,7 +533,7 @@ namespace Nominax
 			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				value = ILog2(value);
 				this->Push(value);
 				this->Attached_.Do<Instruction::ISal>();
 				return *this;
@@ -561,7 +560,7 @@ namespace Nominax
 			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				value = ILog2(value);
 				this->Push(value);
 				this->Attached_.Do<Instruction::ISal>();
 				return *this;
@@ -578,11 +577,19 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
-			// By 1 is a no-op:
-			if (::F64IsOne(value))
-			[[unlikely]]
+			// x / x is always 1
+			if (this->Attached_.Back().Contains(value)) [[unlikely]]
 			{
-				return this->DoNothing();
+				this->Push(1.0);
+				return *this;
+			}
+			
+				// By 1 it's just the same value.
+				if (::F64IsOne(value))
+					[[unlikely]]
+			{
+				this->Attached_.Do<Instruction::Dupl>();
+				return *this;
 			}
 		}
 		this->Push(value);
@@ -596,17 +603,25 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
-			// By 1 is a no-op:
-			if (value == 1)
-			[[unlikely]]
+			// x / x is always 1
+			if (this->Attached_.Back().Contains(value)) [[unlikely]]
 			{
-				return this->DoNothing();
+				this->Push(static_cast<decltype(value)>(1));
+				return *this;
+			}
+			
+			// By 1 it's just the same value.
+			if (value == 1)
+					[[unlikely]]
+			{
+				this->Attached_.Do<Instruction::Dupl>();
+				return *this;
 			}
 
 			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				value = ILog2(value);
 				this->Push(value);
 				this->Attached_.Do<Instruction::ISar>();
 				return *this;
@@ -624,17 +639,25 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
-			// By 1 is a no-op:
-			if (value == 1)
-			[[unlikely]]
+			// x / x is always 1
+			if (this->Attached_.Back().Contains(value)) [[unlikely]]
 			{
-				return this->DoNothing();
+				this->Push(static_cast<decltype(value)>(1));
+				return *this;
+			}
+			
+				// By 1 it's just the same value.
+				if (value == 1)
+					[[unlikely]]
+			{
+				this->Attached_.Do<Instruction::Dupl>();
+				return *this;
 			}
 
 			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				value = ILog2(value);
 				this->Push(value);
 				this->Attached_.Do<Instruction::ISar>();
 				return *this;

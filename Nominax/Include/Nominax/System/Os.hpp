@@ -218,25 +218,29 @@ namespace Nominax
 	namespace Os
 	{
 		[[nodiscard]]
-		extern auto QuerySystemMemoryTotal() -> std::size_t;
+		extern auto QuerySystemMemoryTotal() noexcept(false) -> std::size_t;
 
 		[[nodiscard]]
-		extern auto QueryProcessMemoryUsed() -> std::size_t;
+		extern auto QueryProcessMemoryUsed() noexcept(false) -> std::size_t;
 
 		[[nodiscard]]
-		extern auto QueryCpuName() -> std::string;
+		extern auto QueryCpuName() noexcept(false) -> std::string;
 
 		[[nodiscard]]
-		extern auto DylibOpen(std::string_view filePath) -> void*;
+		extern auto QueryPageSize() noexcept(false) -> std::size_t;
 
 		[[nodiscard]]
-		extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
+		extern auto DylibOpen(std::string_view filePath) noexcept(false) -> void*;
 
-		extern auto DylibClose(void*& handle) -> void;
+		[[nodiscard]]
+		extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) noexcept(false) -> void*;
+
+		extern auto DylibClose(void*& handle) noexcept(false) -> void;
 	}
 
 	struct SystemInfo final
 	{
+		std::thread::id  ThreadId { };
 		std::string_view OperatingSystemName {NOMINAX_OS_NAME};
 		std::string_view ArchitectureName {NOMINAX_ARCH_NAME};
 		std::string_view CompilerName {NOMINAX_COM_NAME};
@@ -244,8 +248,8 @@ namespace Nominax
 		std::string      CpuName { };
 		std::size_t      TotalSystemMemory { };
 		std::size_t      UsedSystemMemory { };
-		std::thread::id  ThreadId { };
+		std::size_t      PageSize { };
 
-		auto QueryAll() -> void;
+		auto QueryAll() noexcept(false) -> void;
 	};
 }

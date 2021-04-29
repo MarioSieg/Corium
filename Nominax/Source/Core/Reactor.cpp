@@ -264,6 +264,11 @@ namespace Nominax
 		{
 			throw std::runtime_error("Reactor construction failed! Input validation failed with code: " + std::to_string(static_cast<std::underlying_type_t<decltype(result)>>(result)));
 		}
+
+		Print
+		(
+			"Created RT Reactor, IntrinsicTable: None, InterruptHandler: Default\n"
+		);
 	}
 
 	Reactor::Reactor(FixedStack&& stack, CodeChunk&& chunk, JumpMap&& jumpMap, SharedIntrinsicTableView intrinsicTable, InterruptRoutine& interruptHandler) noexcept(false)
@@ -286,6 +291,11 @@ namespace Nominax
 		{
 			throw std::runtime_error("Reactor construction failed! Input validation failed with code: " + std::to_string(static_cast<std::underlying_type_t<decltype(result)>>(result)));
 		}
+
+		Print
+		(
+			"Created RT Reactor, IntrinsicTable: Used, InterruptHandler: Used\n"
+		);
 	}
 
 	auto Reactor::Execute() const noexcept(false) -> ReactorOutput
