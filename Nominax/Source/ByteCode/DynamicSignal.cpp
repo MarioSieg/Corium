@@ -206,100 +206,42 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
-#include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
-#include "../../Include/Nominax/ByteCode/Lexeme.hpp"
 #include "../../Include/Nominax/Common/VisitOverload.hpp"
 
 namespace Nominax
 {
-	auto CreateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
-	{
-		if (std::size(input) != std::size(output))
-		[[unlikely]]
-		{
-			return false;
-		}
-
-		auto       iterator {std::begin(input)};
-		const auto end {std::end(input)};
-
-		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
-		[[likely]]
-		{
-			*flag = iterator->Contains<Instruction>();
-		}
-
-		return true;
-	}
-
-	DynamicSignal::operator Signal() const
+	DynamicSignal::operator Signal() const noexcept(false)
 	{
 		return std::visit(Overloaded
 		                  {
-			                  [](const Instruction value) noexcept
+			                  [](const Instruction value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const SystemIntrinsicCallId value) noexcept
+			                  [](const SystemIntrinsicCallId value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const CustomIntrinsicCallId value) noexcept
+			                  [](const CustomIntrinsicCallId value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const std::uint64_t value) noexcept
+			                  [](const std::uint64_t value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const std::int64_t value) noexcept
+			                  [](const std::int64_t value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const double value) noexcept
+			                  [](const double value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const char32_t value) noexcept
+			                  [](const char32_t value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
 		                  }, this->DataCollection);
-	}
-
-	auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&
-	{
-		std::visit(Overloaded
-		           {
-			           [&](const Instruction value)
-			           {
-				           out << INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<decltype(value)>>(value)];
-			           },
-			           [&](const SystemIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const CustomIntrinsicCallId value)
-			           {
-				           out << std::hex << Lexemes::IMMEDIATE << "0x" << static_cast<std::underlying_type_t<decltype(value)>>(value) << std::dec;
-			           },
-			           [&](const std::uint64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const std::int64_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const double value)
-			           {
-				           out << Lexemes::IMMEDIATE << value;
-			           },
-			           [&](const char32_t value)
-			           {
-				           out << Lexemes::IMMEDIATE << static_cast<char>(value);
-			           },
-		           }, in.DataCollection);
-		return out;
 	}
 }

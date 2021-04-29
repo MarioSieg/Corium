@@ -209,21 +209,20 @@
 
 #include <array>
 #include <cstdint>
-#include <type_traits>
-#include <ostream>
 #include <optional>
-#include <span>
 #include <variant>
 
+#include "../Common/Protocol.hpp"
 #include "Signal.hpp"
 #include "Instruction.hpp"
 #include "SystemIntrinsic.hpp"
 #include "CustomIntrinsic.hpp"
+#include "LiteralOp.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Restricts to valid bytecode elements.
+	/// Restricts to valid byte code elements.
 	/// </summary>
 	/// <typeparam name="...Ts">The generic types to perform restriction checks on.</typeparam>
 	template <typename Ts>
@@ -255,91 +254,91 @@ namespace Nominax
 		/// Default construct an I64(0)
 		/// </summary>
 		/// <returns></returns>
-		constexpr DynamicSignal() noexcept;
+		constexpr DynamicSignal() noexcept(true);
 
 		/// <summary>
 		/// Construct from data union.
 		/// </summary>
 		/// <param name="data">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(Variant&& data) noexcept;
+		explicit constexpr DynamicSignal(Variant&& data) noexcept(true);
 
 		/// <summary>
 		/// Construct from instruction.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(Instruction value) noexcept;
+		explicit constexpr DynamicSignal(Instruction value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit unsigned quadword integer.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(std::uint64_t value) noexcept;
+		explicit constexpr DynamicSignal(std::uint64_t value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit signed quadword integer.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(std::int64_t value) noexcept;
+		explicit constexpr DynamicSignal(std::int64_t value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit double precision float.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(double value) noexcept;
+		explicit constexpr DynamicSignal(double value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 32-bit UTF32 character.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(char32_t value) noexcept;
+		explicit constexpr DynamicSignal(char32_t value) noexcept(true);
 
 		/// <summary>
 		/// Construct from system intrinsic call id.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(SystemIntrinsicCallId value) noexcept;
+		explicit constexpr DynamicSignal(SystemIntrinsicCallId value) noexcept(true);
 
 		/// <summary>
 		/// Construct from custom intrinsic call id.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(CustomIntrinsicCallId value) noexcept;
+		explicit constexpr DynamicSignal(CustomIntrinsicCallId value) noexcept(true);
 
 		/// <summary>
 		/// Copy constructor.
 		/// </summary>
 		/// <param name=""></param>
 		/// <returns></returns>
-		constexpr DynamicSignal(const DynamicSignal&) noexcept = default;
+		constexpr DynamicSignal(const DynamicSignal&) noexcept(true) = default;
 
 		/// <summary>
 		/// Move constructor.
 		/// </summary>
 		/// <param name=""></param>
 		/// <returns></returns>
-		constexpr DynamicSignal(DynamicSignal&&) noexcept = default;
+		constexpr DynamicSignal(DynamicSignal&&) noexcept(true) = default;
 
 		/// <summary>
 		/// Copy assignment operator.
 		/// </summary>
 		/// <param name=""></param>
 		/// <returns></returns>
-		constexpr auto operator =(const DynamicSignal&) noexcept -> DynamicSignal& = default;
+		constexpr auto operator =(const DynamicSignal&) noexcept(true) -> DynamicSignal& = default;
 
 		/// <summary>
 		/// Move assignment operator.
 		/// </summary>
 		/// <param name=""></param>
 		/// <returns></returns>
-		constexpr auto operator =(DynamicSignal&&) noexcept -> DynamicSignal& = default;
+		constexpr auto operator =(DynamicSignal&&) noexcept(true) -> DynamicSignal& = default;
 
 		/// <summary>
 		/// Destructor.
@@ -351,7 +350,7 @@ namespace Nominax
 		/// Convert to undiscriminated runtime signal.
 		/// </summary>
 		[[nodiscard]]
-		explicit operator Signal() const;
+		explicit operator Signal() const noexcept(false);
 
 		/// <summary>
 		/// Try to extract raw data.
@@ -360,7 +359,7 @@ namespace Nominax
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Unwrap() const -> std::optional<T>;
+		constexpr auto Unwrap() const noexcept(false) -> std::optional<T>;
 
 		/// <summary>
 		/// Check if generic T is contained.
@@ -369,17 +368,31 @@ namespace Nominax
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Contains() const noexcept -> bool;
+		constexpr auto Contains() const noexcept(true) -> bool;
 
 		/// <summary>
-		/// Chgeck if generic T and value is contained.
+		/// Check if generic T and value is contained.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="compareTo"></param>
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Contains(const T compareTo) const -> bool;
+		constexpr auto Contains(T compareTo) const noexcept(false) -> bool;
+
+		/// <summary>
+		/// Equals.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator ==(const DynamicSignal& other) const noexcept(false) -> bool;
+
+		/// <summary>
+		/// Not equals.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator !=(const DynamicSignal& other) const noexcept(false) -> bool;
 
 		/// <summary>
 		/// Raw data variant (discriminated union)
@@ -391,48 +404,107 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		static constexpr auto CodePrologue() noexcept -> DynamicSignal;
+		static constexpr auto CodePrologue() noexcept(true) -> DynamicSignal;
 
 		/// <summary>
 		/// Common code epilogue.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		static constexpr auto CodeEpilogue() noexcept -> std::array<DynamicSignal, 2>;
+		static constexpr auto CodeEpilogue() noexcept(true) -> std::array<DynamicSignal, 2>;
 	};
 
-	constexpr DynamicSignal::DynamicSignal() noexcept : DataCollection {UINT64_C(0)} {}
-	constexpr DynamicSignal::DynamicSignal(Variant&& data) noexcept : DataCollection {data} {}
-	constexpr DynamicSignal::DynamicSignal(const Instruction value) noexcept : DataCollection {value} {}
-	constexpr DynamicSignal::DynamicSignal(const std::uint64_t value) noexcept : DataCollection {value} {}
-	constexpr DynamicSignal::DynamicSignal(const std::int64_t value) noexcept : DataCollection {value} {}
-	constexpr DynamicSignal::DynamicSignal(const double value) noexcept : DataCollection {value} {}
-	constexpr DynamicSignal::DynamicSignal(const char32_t value) noexcept : DataCollection {value} {}
-	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicCallId value) noexcept : DataCollection {value} {}
-	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept : DataCollection {value} {}
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
+	constexpr DynamicSignal::DynamicSignal() noexcept(true) : DataCollection {UINT64_C(0)} {}
 
-	constexpr auto DynamicSignal::CodePrologue() noexcept -> DynamicSignal
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
+	constexpr DynamicSignal::DynamicSignal(Variant&& data) noexcept(true) : DataCollection {data} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
+	constexpr DynamicSignal::DynamicSignal(const Instruction value) noexcept(true) : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
+	constexpr DynamicSignal::DynamicSignal(const std::uint64_t value) noexcept(true) : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
+	constexpr DynamicSignal::DynamicSignal(const std::int64_t value) noexcept(true) : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
+	constexpr DynamicSignal::DynamicSignal(const double value) noexcept(true) : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
+	constexpr DynamicSignal::DynamicSignal(const char32_t value) noexcept(true) : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
+	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicCallId value) noexcept(true) : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <returns></returns>
+	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept(true) : DataCollection {value} {}
+
+	/// <summary>
+	/// Equals
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns></returns>
+	constexpr auto DynamicSignal::operator==(const DynamicSignal& other) const noexcept(false) -> bool
+	{
+		return this->DataCollection == other.DataCollection;
+	}
+
+	/// <summary>
+	/// Not equals
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns></returns>
+	constexpr auto DynamicSignal::operator!=(const DynamicSignal& other) const noexcept(false) -> bool
+	{
+		return !(*this == other);
+	}
+
+	constexpr auto DynamicSignal::CodePrologue() noexcept(true) -> DynamicSignal
 	{
 		// First instruction is always skipped and should be NOP:
 		return DynamicSignal {Instruction::NOp};
 	}
 
-	constexpr auto DynamicSignal::CodeEpilogue() noexcept -> std::array<DynamicSignal, 2>
+	constexpr auto DynamicSignal::CodeEpilogue() noexcept(true) -> std::array<DynamicSignal, 2>
 	{
-		// Because the end of a byte code stream is not checked,
-		// we always HAVE to interrupt at the end or we will jump to random memory locations.
-		// The minimum std::int64_t exit code is the reserved final interrupt code,
-		// the program should return before this instruction with it's own exit code.
-		// This is the last trap before going to hell!
 		return
 		{
 			DynamicSignal {Instruction::Int},
-			DynamicSignal {std::numeric_limits<std::int64_t>::min()}
+			DynamicSignal {0_int}
 		};
 	}
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Unwrap() const -> std::optional<T>
+	constexpr auto DynamicSignal::Unwrap() const noexcept(false) -> std::optional<T>
 	{
 		return std::holds_alternative<T>(this->DataCollection)
 			       ? std::optional<T> {std::get<T>(this->DataCollection)}
@@ -440,25 +512,14 @@ namespace Nominax
 	}
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains() const noexcept -> bool
+	constexpr auto DynamicSignal::Contains() const noexcept(true) -> bool
 	{
 		return std::holds_alternative<T>(this->DataCollection);
 	}
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains(const T compareTo) const -> bool
+	constexpr auto DynamicSignal::Contains(const T compareTo) const noexcept(false) -> bool
 	{
 		return std::holds_alternative<T>(this->DataCollection) && std::get<T>(this->DataCollection) == compareTo;
 	}
-
-	extern auto operator <<(std::ostream& out, const DynamicSignal& in) -> std::ostream&;
-
-	/// <summary>
-/// Creates an instruction mapping.
-/// </summary>
-/// <param name="input"></param>
-/// <param name="output"></param>
-/// <returns></returns>
-	[[nodiscard]]
-	extern auto CreateInstructionMapping(std::span<const DynamicSignal> input, std::span<bool>& output) -> bool;
 }

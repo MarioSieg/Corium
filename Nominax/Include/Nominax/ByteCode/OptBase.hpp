@@ -219,7 +219,7 @@ namespace Nominax
 		O3 = 3
 	};
 
-	consteval auto DefaultOptimizationLevel() noexcept -> OptimizationLevel
+	consteval auto DefaultOptimizationLevel() noexcept(true) -> OptimizationLevel
 	{
 #if NOMINAX_DEBUG
 		return OptimizationLevel::O3;

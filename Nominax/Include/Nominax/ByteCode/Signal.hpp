@@ -254,79 +254,87 @@ namespace Nominax
 		void* Ptr;
 
 		/// <summary>
+		/// Default constructor.
+		/// </summary>
+		/// <returns></returns>
+		Signal() noexcept(true) = default;
+
+		/// <summary>
 		/// Construct from record64.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(Record value) noexcept;
+		explicit constexpr Signal(Record value) noexcept(true);
 
 		/// <summary>
 		/// Construct from instruction.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(Instruction value) noexcept;
+		explicit constexpr Signal(Instruction value) noexcept(true);
 
 		/// <summary>
 		/// Construct from system intrinsic call id.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(SystemIntrinsicCallId value) noexcept;
+		explicit constexpr Signal(SystemIntrinsicCallId value) noexcept(true);
 
 		/// <summary>
 		/// Construct from custom intrinsic call id.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(CustomIntrinsicCallId value) noexcept;
+		explicit constexpr Signal(CustomIntrinsicCallId value) noexcept(true);
 
 		/// <summary>
 		/// Construct from void pointer.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(void* value) noexcept;
+		explicit constexpr Signal(void* value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit signed quadword integer.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(std::int64_t value) noexcept;
+		explicit constexpr Signal(std::int64_t value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit unsigned quadword integer.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(std::uint64_t value) noexcept;
+		explicit constexpr Signal(std::uint64_t value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit double precision float.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(double value) noexcept;
+		explicit constexpr Signal(double value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 32-bit UTF-32 character.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(char32_t value) noexcept;
+		explicit constexpr Signal(char32_t value) noexcept(true);
 	};
 
-	constexpr Signal::Signal(const Record value) noexcept : R64 {value} {}
-	constexpr Signal::Signal(const Instruction value) noexcept : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicCallId value) noexcept : SystemIntrinId {value} {}
-	constexpr Signal::Signal(const CustomIntrinsicCallId value) noexcept : CustomIntrinId {value} {}
-	constexpr Signal::Signal(void* const value) noexcept : Ptr {value} {}
-	constexpr Signal::Signal(const std::int64_t value) noexcept : R64 {value} {}
-	constexpr Signal::Signal(const std::uint64_t value) noexcept : R64 {value} {}
-	constexpr Signal::Signal(const double value) noexcept : R64 {value} {}
-	constexpr Signal::Signal(const char32_t value) noexcept : R64 {value} {}
+	constexpr Signal::Signal(const Record value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const Instruction value) noexcept(true) : Instr {value} {}
+	constexpr Signal::Signal(const SystemIntrinsicCallId value) noexcept(true) : SystemIntrinId {value} {}
+	constexpr Signal::Signal(const CustomIntrinsicCallId value) noexcept(true) : CustomIntrinId {value} {}
+	constexpr Signal::Signal(void* const value) noexcept(true) : Ptr {value} {}
+	constexpr Signal::Signal(const std::int64_t value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const std::uint64_t value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const double value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
 
+	static_assert(std::is_trivial_v<Signal>);
+	static_assert(std::is_default_constructible_v<Signal>);
 	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, std::uint64_t>);
 	static_assert(sizeof(Instruction) == sizeof(std::uint64_t));
 	static_assert(sizeof(Signal) == sizeof(std::uint64_t));

@@ -207,9 +207,114 @@
 
 #pragma once
 
+#include <cstddef>
+
 #include "ReactorOutput.hpp"
+#include "FixedStack.hpp"
+#include "../ByteCode/Chunk.hpp"
+#include "../ByteCode/CustomIntrinsic.hpp"
 
 namespace Nominax
 {
-	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const DetailedReactorDescriptor& input) -> ReactorOutput;
+	/// <summary>
+	/// Represents a reactor.
+	/// </summary>
+	class Reactor final
+	{
+		FixedStack                Stack_;
+		CodeChunk                 Chunk_;
+		JumpMap                   Map_;
+		DetailedReactorDescriptor Descriptor_;
+		SharedIntrinsicTableView  IntrinsicTable_;
+		InterruptRoutine&         InterruptHandler_;
+
+	public:
+		/// <summary>
+		/// Basic constructor.
+		/// Intrinsic table will be empty and interrupt routine set to an empty default.
+		/// </summary>
+		/// <param name="stack">The stack. If size is zero, exception will be thrown.</param>
+		/// <param name="chunk">The code chunk. If size is zero, exception will be thrown.</param>
+		/// <param name="jumpMap">The jump map. If size is zero, exception will be thrown.</param>
+		Reactor
+		(
+			FixedStack&& stack,
+			CodeChunk&&  chunk,
+			JumpMap&&    jumpMap
+		) noexcept(false);
+
+		/// <summary>
+		/// Detailed constructor.
+		/// </summary>
+		/// <param name="stack">The stack. If size is zero, exception will be thrown.</param>
+		/// <param name="chunk">The code chunk. If size is zero, exception will be thrown.</param>
+		/// <param name="jumpMap">The jump map. If size is zero, exception will be thrown.</param>
+		/// <param name="intrinsicTable">The intrinsic routine table. Size of zero is okay.</param>
+		/// <param name="interruptHandler">The interrupt handler.</param>
+		Reactor
+		(
+			FixedStack&&             stack,
+			CodeChunk&&              chunk,
+			JumpMap&&                jumpMap,
+			SharedIntrinsicTableView intrinsicTable,
+			InterruptRoutine&        interruptHandler
+		) noexcept(false);
+
+		/// <summary>
+		/// No copy!
+		/// </summary>
+		Reactor(const Reactor&) = delete;
+
+		/// <summary>
+		/// No move!
+		/// </summary>
+		Reactor(Reactor&&) = delete;
+
+		/// <summary>
+		/// No copy!
+		/// </summary>
+		auto operator =(const Reactor&) -> Reactor& = delete;
+
+		/// <summary>
+		/// no move!
+		/// </summary>
+		auto operator =(Reactor&&) -> Reactor& = delete;
+
+		/// <summary>
+		/// Destructs all reactor related resources, such as stack etc..
+		/// </summary>
+		~Reactor() = default;
+
+		auto Execute() const noexcept(false) -> ReactorOutput;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current stack.</returns>
+		[[nodiscard]]
+		auto Stack() const noexcept(true) -> const FixedStack&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current code chunk.</returns>
+		[[nodiscard]]
+		auto Chunk() const noexcept(true) -> const CodeChunk&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current jump map.</returns>
+		[[nodiscard]]
+		auto Map() const noexcept(true) -> const JumpMap&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current descriptor of the reactor.</returns>
+		[[nodiscard]]
+		auto Descriptor() const noexcept(true) -> const DetailedReactorDescriptor&;
+	};
+
+	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const DetailedReactorDescriptor& input) noexcept(false) -> ReactorOutput;
 }

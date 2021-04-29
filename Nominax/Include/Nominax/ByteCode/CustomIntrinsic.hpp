@@ -208,6 +208,7 @@
 #pragma once
 
 #include <cstdint>
+#include <span>
 
 #include "../Core/Record.hpp"
 
@@ -224,4 +225,6 @@ namespace Nominax
 	/// </summary>
 	using IntrinsicRoutine = auto (Record*) -> bool;
 	static_assert(std::is_function_v<IntrinsicRoutine>);
+
+	using SharedIntrinsicTableView = std::span<IntrinsicRoutine*>;
 }

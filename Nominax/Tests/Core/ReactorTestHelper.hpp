@@ -205,6 +205,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#pragma once
+
 #include "../TestBase.hpp"
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
@@ -213,7 +215,7 @@
 
 constexpr IntrinsicRoutine* MOCK_INTRINSIC_ROUTINE
 {
-	+[]([[maybe_unused]] Record*) noexcept -> bool
+	+[]([[maybe_unused]] Record*) noexcept(true) -> bool
 	{
 		return true;
 	}
@@ -228,13 +230,11 @@ constexpr std::array MOCK_INTRINSIC_ROUTINE_TABLE
 
 constexpr auto MOCK_STACK_SIZE = 32; // 32 records
 
-inline constinit std::array<Record, MOCK_STACK_SIZE> mockStack {Record::Padding()};
-
-inline constinit volatile std::sig_atomic_t mockSignalStatus;
+inline constinit std::array<Record, MOCK_STACK_SIZE> MockStack {Record::Padding()};
 
 constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
 {
-	+[](InterruptAccumulator) noexcept -> bool
+	+[](InterruptAccumulator) noexcept(true) -> bool
 	{
 		return true;
 	}
@@ -242,19 +242,18 @@ constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
 
 constexpr DetailedReactorDescriptor MOCK_REACTOR_INPUT
 {
-	.SignalStatus = &mockSignalStatus,
 	.CodeChunk = nullptr,
 	.CodeChunkInstructionMap = nullptr,
 	.CodeChunkSize = 0,
 	.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 	.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
 	.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-	.Stack = mockStack.data(),
-	.StackSize = mockStack.size(),
+	.Stack = MockStack.data(),
+	.StackSize = MockStack.size(),
 
 };
 
-inline std::array mockCode
+inline std::array MockCode
 {
 	Signal {Instruction::NOp}, // first padding
 	Signal {Instruction::Int},

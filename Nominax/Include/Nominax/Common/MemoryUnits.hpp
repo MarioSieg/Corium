@@ -213,58 +213,64 @@
 
 namespace Nominax
 {
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Bytes2Gigabytes(std::size_t bytes) noexcept -> std::size_t
+	constexpr auto Bytes2Gigabytes(T bytes) noexcept(true) -> std::size_t
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / 1024 / 1024 / 1024;
+		return bytes / static_cast<T>(1024) / static_cast<T>(1024) / static_cast<T>(1024);
 	}
 
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Bytes2Megabytes(std::size_t bytes) noexcept -> std::size_t
+	constexpr auto Bytes2Megabytes(T bytes) noexcept(true) -> std::size_t
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / 1024 / 1024;
+		return bytes / static_cast<T>(1024) / static_cast<T>(1024);
 	}
 
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Bytes2Kilobytes(std::size_t bytes) noexcept -> std::size_t
+	constexpr auto Bytes2Kilobytes(T bytes) noexcept(true) -> std::size_t
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / 1024;
+		return bytes / static_cast<T>(1024);
 	}
 
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Gigabytes2Bytes(const std::size_t gigabytes) noexcept -> std::size_t
+	constexpr auto Gigabytes2Bytes(const T gigabytes) noexcept(true) -> T
 	{
-		return gigabytes * 1024 * 1024 * 1024;
+		return gigabytes * static_cast<T>(1024) * static_cast<T>(1024) * static_cast<T>(1024);
 	}
 
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Megabytes2Bytes(const std::size_t megabytes) noexcept -> std::size_t
+	constexpr auto Megabytes2Bytes(const T megabytes) noexcept(true) -> T
 	{
-		return megabytes * 1024 * 1024;
+		return megabytes * static_cast<T>(1024) * static_cast<T>(1024);
 	}
 
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Kilobytes2Bytes(const std::size_t kilobytes) noexcept -> std::size_t
+	constexpr auto Kilobytes2Bytes(const T kilobytes) noexcept(true) -> T
 	{
-		return kilobytes * 1024;
+		return kilobytes * static_cast<T>(1024);
 	}
 
-	constexpr auto operator ""_kb(const unsigned long long int value) noexcept -> unsigned long long int
+	constexpr auto operator ""_kb(const unsigned long long int value) noexcept(true) -> unsigned long long int
 	{
-		return value * 1024;
+		return value * UINT64_C(1024);
 	}
 
-	constexpr auto operator ""_mb(const unsigned long long int value) noexcept -> unsigned long long int
+	constexpr auto operator ""_mb(const unsigned long long int value) noexcept(true) -> unsigned long long int
 	{
-		return value * 1024 * 1024;
+		return value * UINT64_C(1024) * UINT64_C(1024);
 	}
 
-	constexpr auto operator ""_gb(const unsigned long long int value) noexcept -> unsigned long long int
+	constexpr auto operator ""_gb(const unsigned long long int value) noexcept(true) -> unsigned long long int
 	{
-		return value * 1024 * 1024 * 1024;
+		return value * UINT64_C(1024) * UINT64_C(1024) * UINT64_C(1024);
 	}
 
 	extern auto PrettyPrintBytes(std::ostream& out, std::size_t size) -> void;

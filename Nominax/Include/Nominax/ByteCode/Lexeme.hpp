@@ -215,15 +215,40 @@ namespace Nominax::Lexemes
 	/// <summary>
 	/// Specify immediate constant operand.
 	/// </summary>
-	constexpr auto IMMEDIATE {'%'};
+	constexpr auto IMMEDIATE {'$'};
+
+	/// <summary>
+	/// Specify immediate constant call id for system or custom intrinsic call.
+	/// </summary>
+	constexpr auto INTRINSIC_CALL_IMMEDIATE {'*'};
 
 	/// <summary>
 	/// Begin or end comment.
 	/// </summary>
-	constexpr auto COMMENT {'$'};
+	constexpr auto COMMENT {'#'};
 
 	/// <summary>
 	/// Begin preprocessor directive.
 	/// </summary>
-	constexpr auto PREPROCESSOR {'#'};
+	constexpr auto PREPROCESSOR {'%'};
+
+	/// <summary>
+	/// Type indicator suffix.
+	/// </summary>
+	constexpr auto LITERAL_SUFFIX_FLOAT {'f'};
+
+	/// <summary>
+	/// Type indicator suffix.
+	/// </summary>
+	constexpr auto LITERAL_SUFFIX_INT {'i'};
+
+	/// <summary>
+	/// Type indicator suffix.
+	/// </summary>
+	constexpr auto LITERAL_SUFFIX_UINT {'u'};
+
+	/// <summary>
+	/// Type indicator char.
+	/// </summary>
+	constexpr auto LITERAL_SUFFIX_CHAR {'c'};
 }

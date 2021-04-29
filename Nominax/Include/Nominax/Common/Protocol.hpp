@@ -1,6 +1,6 @@
-// File: BytecodeStream.cpp
+// File: Protocol.hpp
 // Author: Mario
-// Created: 27.04.2021 3:43 PM
+// Created: 29.04.2021 7:54 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,54 +205,41 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#pragma once
 
-TEST(BytecodeStream, Constructor)
+/* 
+* Currently (29.04.2012) only the MSVC standard library for
+* C++ 20 contains the <format> implementation. Since we use Clang and GCC
+* we use the format libary until the standart implementations are available.
+* For that we have custom prin functions below, do not use fmt::* directly,
+* because then if the standard library is ready, we can just replace the calls
+* inside our custom print function below and remove the fmt library.
+*/
+
+// ReSharper disable CppUnusedIncludeDirective
+
+#include <fmt/format.h>
+#include <fmt/chrono.h>
+
+namespace Nominax
 {
-	Stream stream { };
-	ASSERT_EQ(stream.Capacity(), 8);
-	ASSERT_EQ(stream.Size(), 1);
-	ASSERT_EQ(stream.SizeInBytes(), sizeof(DynamicSignal));
-	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
-	ASSERT_TRUE(stream.Buffer()[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
-}
+	namespace Fmt = fmt;
 
-TEST(BytecodeStream, ConstructorCapacity)
-{
-	Stream stream {128};
-	ASSERT_EQ(stream.Capacity(), 128 + 3);
-	ASSERT_EQ(stream.Size(), 1);
-	ASSERT_EQ(stream.SizeInBytes(), sizeof(DynamicSignal));
-	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
-	ASSERT_TRUE(stream.Buffer()[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
-}
-
-TEST(BytecodeStream, Push)
-{
-	Stream stream { };
-	ASSERT_EQ(stream.Size(), 1);
-
-	stream.Push(DynamicSignal { });
-	stream.Push(DynamicSignal {Instruction::NOp});
-	stream << Instruction::Call;
-	stream << SystemIntrinsicCallId::ACos;
-	stream << CustomIntrinsicCallId {3};
-	stream << 3.5;
-	stream << UINT64_C(32);
-	stream << INT64_C(-10);
-
-	ASSERT_EQ(stream.Size(), 9);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(UINT64_C(0)));
-	ASSERT_TRUE(stream[2].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[3].Contains(Instruction::Call));
-	ASSERT_TRUE(stream[4].Contains(SystemIntrinsicCallId::ACos));
-	ASSERT_TRUE(stream[5].Contains(CustomIntrinsicCallId{ 3 }));
-	ASSERT_TRUE(stream[6].Contains(3.5));
-	ASSERT_TRUE(stream[7].Contains(UINT64_C(32)));
-	ASSERT_TRUE(stream[8].Contains(INT64_C(-10)));
-
-	stream.Clear();
-	ASSERT_EQ(stream.Size(), 1);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	/// <summary>
+	/// Prints out the formatting string and
+	/// formats the arguments into the string if format
+	/// arguments are given.
+	/// The formatting rules follow the C++ 20 <format> convention.
+	/// All printing inside Nominax should be done via this functions
+	/// and friends because it also allows different configurations.
+	/// </summary>
+	/// <typeparam name="Str">The string type.</typeparam>
+	/// <typeparam name="...Args">The argument types.</typeparam>
+	/// <param name="formatString">The format string.</param>
+	/// <param name="args">The arguments to format.</param>
+	template <typename Str, typename... Args>
+	inline auto Print(const Str& formatString, Args&&...args) -> void
+	{
+		Fmt::print(formatString, std::forward<Args>(args)...);
+	}
 }

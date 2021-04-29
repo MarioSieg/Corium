@@ -230,7 +230,7 @@ namespace Nominax
 
 	inline constinit PanicRoutine* currentPanicHandler {&DefaultPanicHandler};
 
-	extern auto QuerySignalStatus() noexcept -> std::sig_atomic_t;
+	extern auto QuerySignalStatus() noexcept(true) -> std::sig_atomic_t;
 	extern auto InstallSignalHandlers() -> void;
 	extern auto UninstallSignalHandlers() -> void;
 
@@ -263,20 +263,20 @@ namespace Nominax
 	};
 
 	constexpr auto operator ==(const SystemInterrupt                         left,
-	                           const std::underlying_type_t<SystemInterrupt> right) noexcept -> bool
+	                           const std::underlying_type_t<SystemInterrupt> right) noexcept(true) -> bool
 	{
 		return static_cast<std::underlying_type_t<SystemInterrupt>>(left) == right;
 	}
 
 	constexpr auto operator !=(const SystemInterrupt                         left,
-	                           const std::underlying_type_t<SystemInterrupt> right) noexcept -> bool
+	                           const std::underlying_type_t<SystemInterrupt> right) noexcept(true) -> bool
 	{
 		return static_cast<std::underlying_type_t<SystemInterrupt>>(left) != right;
 	}
 
-	[[nodiscard]] extern auto InterruptEnumeratorName(SystemInterrupt interrupt) noexcept -> std::string_view;
-	[[nodiscard]] extern auto BasicErrorInfo(SystemInterrupt interrupt) noexcept -> std::string_view;
+	[[nodiscard]] extern auto InterruptEnumeratorName(SystemInterrupt interrupt) noexcept(true) -> std::string_view;
+	[[nodiscard]] extern auto BasicErrorInfo(SystemInterrupt interrupt) noexcept(true) -> std::string_view;
 	[[nodiscard]] extern auto DetailedErrorInfo(SystemInterrupt interrupt) -> std::string;
-	[[nodiscard]] extern auto InterruptCvt(InterruptAccumulator interrupt) noexcept -> SystemInterrupt;
-	[[nodiscard]] extern auto TerminateTypeCvt(InterruptAccumulator interrupt) noexcept -> TerminateResult;
+	[[nodiscard]] extern auto InterruptCvt(InterruptAccumulator interrupt) noexcept(true) -> SystemInterrupt;
+	[[nodiscard]] extern auto TerminateTypeCvt(InterruptAccumulator interrupt) noexcept(true) -> TerminateResult;
 }

@@ -216,7 +216,7 @@
 
 namespace Nominax::Os
 {
-	auto QuerySystemMemoryTotal() -> std::size_t
+	auto QuerySystemMemoryTotal() noexcept(false) -> std::size_t
 	{
 		MEMORYSTATUSEX status;
 		status.dwLength = sizeof(MEMORYSTATUSEX);
@@ -224,14 +224,14 @@ namespace Nominax::Os
 		return status.ullTotalPhys;
 	}
 
-	auto QueryProcessMemoryUsed() -> std::size_t
+	auto QueryProcessMemoryUsed() noexcept(false) -> std::size_t
 	{
 		PROCESS_MEMORY_COUNTERS pmc;
 		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
 		return pmc.WorkingSetSize;
 	}
 
-	auto QueryCpuName() -> std::string
+	auto QueryCpuName() noexcept(false) -> std::string
 	{
 		HKEY key;
 		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
@@ -239,10 +239,9 @@ namespace Nominax::Os
 		{
 			return "Unknown";
 		}
-		char       id[64 + 1];
-		DWORD      id_len = sizeof id;
-		const auto data   = static_cast<LPBYTE>(static_cast<void*>(id));
-		if (RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &id_len))
+		TCHAR id[64 + 1];
+		DWORD idLen = sizeof id;
+		if (const auto data = static_cast<LPBYTE>(static_cast<void*>(id)); RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &idLen))
 		[[unlikely]]
 		{
 			return "Unknown";
@@ -250,18 +249,25 @@ namespace Nominax::Os
 		return id;
 	}
 
-	auto DylibOpen(const std::string_view filePath) -> void*
+	auto QueryPageSize() noexcept(false) -> std::size_t
+	{
+		SYSTEM_INFO sysInfo;
+		GetSystemInfo(&sysInfo);
+		return static_cast<std::size_t>(sysInfo.dwPageSize);
+	}
+
+	auto DylibOpen(const std::string_view filePath) noexcept(false) -> void*
 	{
 		return LoadLibraryA(filePath.data());
 	}
 
-	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
+	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) noexcept(false) -> void*
 	{
 		// ReSharper disable once CppRedundantCastExpression
 		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
 	}
 
-	auto DylibClose(void*& handle) -> void
+	auto DylibClose(void*& handle) noexcept(false) -> void
 	{
 		FreeLibrary(static_cast<HMODULE>(handle));
 		handle = nullptr;

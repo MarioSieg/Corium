@@ -209,11 +209,10 @@
 
 namespace Nominax
 {
-	auto BasicReactorDescriptor::BuildDetailed() const noexcept -> DetailedReactorDescriptor
+	auto BasicReactorDescriptor::BuildDetailed() const noexcept(true) -> DetailedReactorDescriptor
 	{
 		return
 		{
-			.SignalStatus = &this->SignalStatusFlag,
 			.CodeChunk = this->CodeChunk.data(),
 			.CodeChunkInstructionMap = this->CodeChunkInstructionMap.data(),
 			.CodeChunkSize = this->CodeChunk.size(),
@@ -225,7 +224,7 @@ namespace Nominax
 		};
 	}
 
-	auto BasicReactorDescriptor::Validate() const noexcept -> ReactorValidationResult
+	auto BasicReactorDescriptor::Validate() const noexcept(true) -> ReactorValidationResult
 	{
 		return this->BuildDetailed().Validate();
 	}

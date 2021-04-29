@@ -209,7 +209,7 @@
 
 namespace Nominax
 {
-	auto Xorshift32ThreadLocal() noexcept -> std::uint32_t
+	auto Xorshift32ThreadLocal() noexcept(true) -> std::uint32_t
 	{
 		static constinit thread_local std::uint32_t seed32 {0x12B9B0A1};
 		seed32 ^= seed32 << 0xD;
@@ -218,7 +218,7 @@ namespace Nominax
 		return seed32;
 	}
 
-	auto Xorshift64ThreadLocal() noexcept -> std::uint64_t
+	auto Xorshift64ThreadLocal() noexcept(true) -> std::uint64_t
 	{
 		static constinit thread_local std::uint64_t seed64 {0x139408DCBBF7A44};
 		seed64 ^= seed64 << 0xD;
@@ -227,7 +227,7 @@ namespace Nominax
 		return seed64;
 	}
 
-	auto Xorshift128ThreadLocal() noexcept -> std::uint32_t
+	auto Xorshift128ThreadLocal() noexcept(true) -> std::uint32_t
 	{
 		static constinit thread_local std::uint32_t x {0x75BCD15};
 		static constinit thread_local std::uint32_t y {0x159A55E5};

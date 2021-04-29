@@ -210,10 +210,10 @@
 
 namespace Nominax
 {
-	auto DetailedReactorDescriptor::Validate() const noexcept -> ReactorValidationResult
+	auto DetailedReactorDescriptor::Validate() const noexcept(true) -> ReactorValidationResult
 	{
 		// validate all pointers:
-		if (!(this->SignalStatus && this->CodeChunk && this->IntrinsicTable && this->InterruptHandler && this->Stack))
+		if (!(this->CodeChunk && this->InterruptHandler && this->Stack))
 		[[unlikely]]
 		{
 			return ReactorValidationResult::NullPtr;
@@ -229,7 +229,7 @@ namespace Nominax
 #endif
 
 		// validate the size for the corresponding pointers:
-		if (!this->CodeChunkSize || !this->IntrinsicTableSize || !this->StackSize)
+		if (!this->CodeChunkSize || !this->StackSize)
 		[[unlikely]]
 		{
 			return ReactorValidationResult::ZeroSize;
@@ -256,16 +256,20 @@ namespace Nominax
 			return ReactorValidationResult::MissingStackPrologue;
 		}
 
-		// validate intrinsic routines:
-		auto* const*       begin = this->IntrinsicTable;
-		auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
-		while (begin < end)
-		[[unlikely]]
+		if (this->IntrinsicTable)
+		[[likely]]
 		{
-			if (!*begin++)
+			// validate intrinsic routines:
+			auto* const*       begin = this->IntrinsicTable;
+			auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
+			while (begin < end)
 			[[unlikely]]
 			{
-				return ReactorValidationResult::NullIntrinsicRoutine;
+				if (!*begin++)
+				[[unlikely]]
+				{
+					return ReactorValidationResult::NullIntrinsicRoutine;
+				}
 			}
 		}
 

@@ -209,8 +209,9 @@
 
 #include <span>
 
-#include "Instruction.hpp"
+#include "Chunk.hpp"
 #include "DynamicSignal.hpp"
+#include "Instruction.hpp"
 
 namespace Nominax
 {
@@ -249,4 +250,16 @@ namespace Nominax
 	/// <returns></returns>
 	[[nodiscard]]
 	extern auto ByteCodeValidateSingleInstruction(Instruction instruction, std::span<const DynamicSignal> args) -> ByteCodeValidationResult;
+
+	class Stream;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="jumpMap"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto Build(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ByteCodeValidationResult;
 }

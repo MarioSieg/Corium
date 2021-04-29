@@ -224,7 +224,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		constexpr explicit DynamicProcedure(void* value) noexcept;
+		constexpr explicit DynamicProcedure(void* value) noexcept(true);
 
 		/// <summary>
 		/// Null pointers forbidden.
@@ -238,7 +238,7 @@ namespace Nominax
 		/// <typeparam name="F">The function signature to cast to. Must be the same as in the dynamic link library!</typeparam>
 		/// <returns>The function ref.</returns>
 		template <typename F> requires std::is_function_v<F>
-		auto operator*() const noexcept -> F&;
+		auto operator*() const noexcept(true) -> F&;
 
 
 		/// <summary>
@@ -246,10 +246,10 @@ namespace Nominax
 		/// </summary>
 		/// <typeparam name="F">The function signature to cast to. Must be the same as in the dynamic link library!</typeparam>
 		/// <typeparam name="...Ts">The arguments to call the function with.</typeparam>
-		/// <param name="...args">The arguments to call the function with.</param>
+		/// <param name="args">The arguments to call the function with.</param>
 		/// <returns>The return value of the called function.</returns>
 		template <typename F, typename... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
-		auto operator()(Ts&&...args) const noexcept -> decltype(F(std::forward<Ts...>(args...)));
+		auto operator()(Ts&&...args) const noexcept(true) -> decltype(F(std::forward<Ts...>(args...)));
 
 		void* Ptr;
 	};
@@ -259,16 +259,16 @@ namespace Nominax
 	static_assert(std::is_trivially_copy_assignable_v<DynamicProcedure>);
 	static_assert(std::is_trivially_move_assignable_v<DynamicProcedure>);
 
-	constexpr DynamicProcedure::DynamicProcedure(void* const value) noexcept : Ptr {value} { }
+	constexpr DynamicProcedure::DynamicProcedure(void* const value) noexcept(true) : Ptr {value} { }
 
 	template <typename F> requires std::is_function_v<F>
-	auto DynamicProcedure::operator*() const noexcept -> F&
+	inline auto DynamicProcedure::operator*() const noexcept(true) -> F&
 	{
 		return *static_cast<F*>(this->Ptr);
 	}
 
 	template <typename F, typename ... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
-	auto DynamicProcedure::operator()(Ts&&...args) const noexcept -> decltype(F(std::forward<Ts...>(args...)))
+	inline auto DynamicProcedure::operator()(Ts&&...args) const noexcept(true) -> decltype(F(std::forward<Ts...>(args...)))
 	{
 		return (*static_cast<F*>(this->Ptr))(std::forward<Ts...>(args...));
 	}
@@ -325,7 +325,7 @@ namespace Nominax
 		/// Check if pointer handle is valid.
 		/// </summary>
 		/// <returns>True if pointer handle is valid, else false.</returns>
-		[[nodiscard]] operator bool() const noexcept;
+		[[nodiscard]] operator bool() const noexcept(true);
 
 		/// <summary>
 		/// Perform a symbol lookup.
@@ -335,7 +335,7 @@ namespace Nominax
 		[[nodiscard]] auto operator [](std::string_view symbolName) const -> std::optional<DynamicProcedure>;
 
 	private:
-		void* Handle {nullptr};
+		void* Handle_ {nullptr};
 	};
 
 	static_assert(!std::is_copy_constructible_v<DynamicLibrary>);
@@ -343,25 +343,25 @@ namespace Nominax
 	static_assert(!std::is_trivially_copy_assignable_v<DynamicLibrary>);
 	static_assert(!std::is_trivially_move_assignable_v<DynamicLibrary>);
 
-	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle {Os::DylibOpen(filePath)} { }
+	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ {Os::DylibOpen(filePath)} { }
 
-	inline DynamicLibrary::DynamicLibrary(const std::filesystem::path& filePath) : Handle {
+	inline DynamicLibrary::DynamicLibrary(const std::filesystem::path& filePath) : Handle_ {
 		Os::DylibOpen(filePath.string())
 	} { }
 
 	inline DynamicLibrary::~DynamicLibrary()
 	{
-		Os::DylibClose(this->Handle);
+		Os::DylibClose(this->Handle_);
 	}
 
-	inline DynamicLibrary::operator bool() const noexcept
+	inline DynamicLibrary::operator bool() const noexcept(true)
 	{
-		return this->Handle != nullptr;
+		return this->Handle_ != nullptr;
 	}
 
 	inline auto DynamicLibrary::operator[](const std::string_view symbolName) const -> std::optional<DynamicProcedure>
 	{
-		void* const symbolHandle = Os::DylibLookupSymbol(this->Handle, symbolName);
+		void* const symbolHandle = Os::DylibLookupSymbol(this->Handle_, symbolName);
 		return symbolHandle ? std::optional {DynamicProcedure {symbolHandle}} : std::nullopt;
 	}
 }

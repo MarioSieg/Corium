@@ -208,6 +208,7 @@
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 #include "../../Include/Nominax/Common/F64Comparator.hpp"
+#include "../../Include/Nominax/Common/ILog2.hpp"
 
 namespace
 {
@@ -218,13 +219,13 @@ namespace
 	/// <param name="x"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T>
-	__attribute__((always_inline, pure)) constexpr auto IsPowerOfTwo(const T x) noexcept -> bool
+	__attribute__((always_inline, pure)) constexpr auto IsPowerOfTwo(const T x) noexcept(true) -> bool
 	{
 		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
 		return !(x & (x - 1));
 	}
 
-	__attribute__((always_inline, pure)) inline auto F64IsZero(const double x) noexcept -> bool
+	__attribute__((always_inline, pure)) inline auto F64IsZero(const double x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return Nominax::F64IsZero(x);
@@ -233,7 +234,7 @@ namespace
 #endif
 	}
 
-	__attribute__((always_inline, pure)) inline auto F64IsOne(const double x) noexcept -> bool
+	__attribute__((always_inline, pure)) inline auto F64IsOne(const double x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return Nominax::F64IsOne(x);
@@ -241,8 +242,6 @@ namespace
 		return x == 1.0;
 #endif
 	}
-
-	constexpr double CACHED_LOG2 {0.69314718055994529};
 }
 
 namespace Nominax
@@ -257,28 +256,28 @@ namespace Nominax
 			// If zero, optimize with special push zero instruction.
 			if (::F64IsZero(value))
 			{
-				this->Attached.Do<Instruction::PushZ>();
+				this->Attached_.Do<Instruction::PushZ>();
 				return *this;
 			}
 
 			// If one, optimize with special push float one instruction.
 			if (::F64IsOne(value))
 			{
-				this->Attached.Do<Instruction::FPushO>();
+				this->Attached_.Do<Instruction::FPushO>();
 				return *this;
 			}
 
 			// If the value is the previous written element in the stream,
 			// we can just duplicate it:
-			if (this->Attached.Back().Contains(value))
+			if (this->Attached_.Back().Contains(value))
 			{
-				this->Attached.Do<Instruction::Dupl>();
+				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
 			}
 		}
 
 		// Else just do a push:
-		this->Attached.Do<Instruction::Push>(value);
+		this->Attached_.Do<Instruction::Push>(value);
 		return *this;
 	}
 
@@ -291,28 +290,28 @@ namespace Nominax
 			// If zero, optimize with special push zero instruction.
 			if (value == 0)
 			{
-				this->Attached.Do<Instruction::PushZ>();
+				this->Attached_.Do<Instruction::PushZ>();
 				return *this;
 			}
 
 			// If one, optimize with special push integer one instruction.
 			if (value == 1)
 			{
-				this->Attached.Do<Instruction::IPushO>();
+				this->Attached_.Do<Instruction::IPushO>();
 				return *this;
 			}
 
 			// If the value is the previous written element in the stream,
 			// we can just duplicate it:
-			if (this->Attached.Back().Contains(value))
+			if (this->Attached_.Back().Contains(value))
 			{
-				this->Attached.Do<Instruction::Dupl>();
+				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
 			}
 		}
 
 		// Else just do a push:
-		this->Attached.Do<Instruction::Push>(value);
+		this->Attached_.Do<Instruction::Push>(value);
 		return *this;
 	}
 
@@ -325,27 +324,27 @@ namespace Nominax
 			// If zero, optimize with special push zero instruction.
 			if (value == 0)
 			{
-				this->Attached.Do<Instruction::PushZ>();
+				this->Attached_.Do<Instruction::PushZ>();
 				return *this;
 			}
 
 			// If one, optimize with special push integer one instruction.
 			if (value == 1)
 			{
-				this->Attached.Do<Instruction::IPushO>();
+				this->Attached_.Do<Instruction::IPushO>();
 				return *this;
 			}
 
 			// If the value is the previous written element in the stream,
 			// we can just duplicate it:
-			if (this->Attached.Back().Contains(value))
+			if (this->Attached_.Back().Contains(value))
 			{
-				this->Attached.Do<Instruction::Dupl>();
+				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
 			}
 		}
 		// Else just do a push:
-		this->Attached.Do<Instruction::Push>(value);
+		this->Attached_.Do<Instruction::Push>(value);
 		return *this;
 	}
 
@@ -365,12 +364,12 @@ namespace Nominax
 			// Optimize to increment:
 			if (::F64IsOne(value))
 			{
-				this->Attached.Do<Instruction::FInc>();
+				this->Attached_.Do<Instruction::FInc>();
 				return *this;
 			}
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::FAdd>();
+		this->Attached_.Do<Instruction::FAdd>();
 		return *this;
 	}
 
@@ -390,12 +389,12 @@ namespace Nominax
 			// Optimize to increment:
 			if (value == 1)
 			{
-				this->Attached.Do<Instruction::IInc>();
+				this->Attached_.Do<Instruction::IInc>();
 				return *this;
 			}
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::IAdd>();
+		this->Attached_.Do<Instruction::IAdd>();
 		return *this;
 	}
 
@@ -415,12 +414,12 @@ namespace Nominax
 			// Optimize to increment:
 			if (value == 1)
 			{
-				this->Attached.Do<Instruction::IInc>();
+				this->Attached_.Do<Instruction::IInc>();
 				return *this;
 			}
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::IAdd>();
+		this->Attached_.Do<Instruction::IAdd>();
 		return *this;
 	}
 
@@ -441,12 +440,12 @@ namespace Nominax
 			// Optimize to decrement:
 			if (::F64IsOne(value))
 			{
-				this->Attached.Do<Instruction::FDec>();
+				this->Attached_.Do<Instruction::FDec>();
 				return *this;
 			}
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::FSub>();
+		this->Attached_.Do<Instruction::FSub>();
 		return *this;
 	}
 
@@ -466,12 +465,12 @@ namespace Nominax
 			// Optimize to decrement:
 			if (value == 1)
 			{
-				this->Attached.Do<Instruction::IDec>();
+				this->Attached_.Do<Instruction::IDec>();
 				return *this;
 			}
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::ISub>();
+		this->Attached_.Do<Instruction::ISub>();
 		return *this;
 	}
 
@@ -491,12 +490,12 @@ namespace Nominax
 			// Optimize to decrement:
 			if (value == 1)
 			{
-				this->Attached.Do<Instruction::IDec>();
+				this->Attached_.Do<Instruction::IDec>();
 				return *this;
 			}
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::ISub>();
+		this->Attached_.Do<Instruction::ISub>();
 		return *this;
 	}
 
@@ -514,7 +513,7 @@ namespace Nominax
 			}
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::FMul>();
+		this->Attached_.Do<Instruction::FMul>();
 		return *this;
 	}
 
@@ -534,14 +533,14 @@ namespace Nominax
 			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				value = ILog2(value);
 				this->Push(value);
-				this->Attached.Do<Instruction::ISal>();
+				this->Attached_.Do<Instruction::ISal>();
 				return *this;
 			}
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::IMul>();
+		this->Attached_.Do<Instruction::IMul>();
 		return *this;
 	}
 
@@ -561,14 +560,14 @@ namespace Nominax
 			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				value = ILog2(value);
 				this->Push(value);
-				this->Attached.Do<Instruction::ISal>();
+				this->Attached_.Do<Instruction::ISal>();
 				return *this;
 			}
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::IMul>();
+		this->Attached_.Do<Instruction::IMul>();
 		return *this;
 	}
 
@@ -578,15 +577,24 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
-			// By 1 is a no-op:
+			// x / x is always 1
+			if (this->Attached_.Back().Contains(value))
+			[[unlikely]]
+			{
+				this->Push(1.0);
+				return *this;
+			}
+
+			// By 1 it's just the same value.
 			if (::F64IsOne(value))
 			[[unlikely]]
 			{
-				return this->DoNothing();
+				this->Attached_.Do<Instruction::Dupl>();
+				return *this;
 			}
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::FDiv>();
+		this->Attached_.Do<Instruction::FDiv>();
 		return *this;
 	}
 
@@ -596,25 +604,34 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
-			// By 1 is a no-op:
+			// x / x is always 1
+			if (this->Attached_.Back().Contains(value))
+			[[unlikely]]
+			{
+				this->Push(static_cast<decltype(value)>(1));
+				return *this;
+			}
+
+			// By 1 it's just the same value.
 			if (value == 1)
 			[[unlikely]]
 			{
-				return this->DoNothing();
+				this->Attached_.Do<Instruction::Dupl>();
+				return *this;
 			}
 
 			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				value = ILog2(value);
 				this->Push(value);
-				this->Attached.Do<Instruction::ISar>();
+				this->Attached_.Do<Instruction::ISar>();
 				return *this;
 			}
 		}
 
 		this->Push(value);
-		this->Attached.Do<Instruction::IDiv>();
+		this->Attached_.Do<Instruction::IDiv>();
 		return *this;
 	}
 
@@ -624,24 +641,33 @@ namespace Nominax
 		if (OptLevel >= OptimizationLevel::O1)
 		[[likely]]
 		{
-			// By 1 is a no-op:
+			// x / x is always 1
+			if (this->Attached_.Back().Contains(value))
+			[[unlikely]]
+			{
+				this->Push(static_cast<decltype(value)>(1));
+				return *this;
+			}
+
+			// By 1 it's just the same value.
 			if (value == 1)
 			[[unlikely]]
 			{
-				return this->DoNothing();
+				this->Attached_.Do<Instruction::Dupl>();
+				return *this;
 			}
 
 			// Optimize with shift:
 			if (IsPowerOfTwo(value))
 			{
-				value = static_cast<decltype(value)>(std::log(value) / CACHED_LOG2);
+				value = ILog2(value);
 				this->Push(value);
-				this->Attached.Do<Instruction::ISar>();
+				this->Attached_.Do<Instruction::ISar>();
 				return *this;
 			}
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::IDiv>();
+		this->Attached_.Do<Instruction::IDiv>();
 		return *this;
 	}
 
@@ -649,7 +675,7 @@ namespace Nominax
 	auto ScopedVariable<double>::Mod(const double value) -> ScopedVariable&
 	{
 		this->Push(value);
-		this->Attached.Do<Instruction::FMod>();
+		this->Attached_.Do<Instruction::FMod>();
 		return *this;
 	}
 
@@ -657,7 +683,7 @@ namespace Nominax
 	auto ScopedVariable<std::int64_t>::Mod(const std::int64_t value) -> ScopedVariable&
 	{
 		this->Push(value);
-		this->Attached.Do<Instruction::IMod>();
+		this->Attached_.Do<Instruction::IMod>();
 		return *this;
 	}
 
@@ -665,7 +691,7 @@ namespace Nominax
 	auto ScopedVariable<std::uint64_t>::Mod(const std::uint64_t value) -> ScopedVariable&
 	{
 		this->Push(value);
-		this->Attached.Do<Instruction::IMod>();
+		this->Attached_.Do<Instruction::IMod>();
 		return *this;
 	}
 
@@ -673,7 +699,7 @@ namespace Nominax
 	auto ScopedVariable<std::int64_t>::And(const std::int64_t value) -> ScopedVariable&
 	{
 		this->Push(value);
-		this->Attached.Do<Instruction::IAnd>();
+		this->Attached_.Do<Instruction::IAnd>();
 		return *this;
 	}
 
@@ -681,7 +707,7 @@ namespace Nominax
 	auto ScopedVariable<std::uint64_t>::And(const std::uint64_t value) -> ScopedVariable&
 	{
 		this->Push(value);
-		this->Attached.Do<Instruction::IAnd>();
+		this->Attached_.Do<Instruction::IAnd>();
 		return *this;
 	}
 
@@ -689,7 +715,7 @@ namespace Nominax
 	auto ScopedVariable<std::int64_t>::Or(const std::int64_t value) -> ScopedVariable&
 	{
 		this->Push(value);
-		this->Attached.Do<Instruction::IOr>();
+		this->Attached_.Do<Instruction::IOr>();
 		return *this;
 	}
 
@@ -698,7 +724,7 @@ namespace Nominax
 	auto ScopedVariable<std::uint64_t>::Or(const std::uint64_t value) -> ScopedVariable&
 	{
 		this->Push(value);
-		this->Attached.Do<Instruction::IOr>();
+		this->Attached_.Do<Instruction::IOr>();
 		return *this;
 	}
 
@@ -706,7 +732,7 @@ namespace Nominax
 	auto ScopedVariable<std::int64_t>::Xor(const std::int64_t value) -> ScopedVariable&
 	{
 		this->Push(value);
-		this->Attached.Do<Instruction::IXor>();
+		this->Attached_.Do<Instruction::IXor>();
 		return *this;
 	}
 
@@ -714,7 +740,7 @@ namespace Nominax
 	auto ScopedVariable<std::uint64_t>::Xor(const std::uint64_t value) -> ScopedVariable&
 	{
 		this->Push(value);
-		this->Attached.Do<Instruction::IXor>();
+		this->Attached_.Do<Instruction::IXor>();
 		return *this;
 	}
 
@@ -727,7 +753,7 @@ namespace Nominax
 			return this->DoNothing();
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::ISal>();
+		this->Attached_.Do<Instruction::ISal>();
 		return *this;
 	}
 
@@ -740,7 +766,7 @@ namespace Nominax
 			return this->DoNothing();
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::ISal>();
+		this->Attached_.Do<Instruction::ISal>();
 		return *this;
 	}
 
@@ -753,7 +779,7 @@ namespace Nominax
 			return this->DoNothing();
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::ISar>();
+		this->Attached_.Do<Instruction::ISar>();
 		return *this;
 	}
 
@@ -766,7 +792,7 @@ namespace Nominax
 			return this->DoNothing();
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::ISar>();
+		this->Attached_.Do<Instruction::ISar>();
 		return *this;
 	}
 
@@ -779,7 +805,7 @@ namespace Nominax
 			return this->DoNothing();
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::IRol>();
+		this->Attached_.Do<Instruction::IRol>();
 		return *this;
 	}
 
@@ -792,7 +818,7 @@ namespace Nominax
 			return this->DoNothing();
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::IRol>();
+		this->Attached_.Do<Instruction::IRol>();
 		return *this;
 	}
 
@@ -805,7 +831,7 @@ namespace Nominax
 			return this->DoNothing();
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::IRor>();
+		this->Attached_.Do<Instruction::IRor>();
 		return *this;
 	}
 
@@ -818,7 +844,7 @@ namespace Nominax
 			return this->DoNothing();
 		}
 		this->Push(value);
-		this->Attached.Do<Instruction::IRor>();
+		this->Attached_.Do<Instruction::IRor>();
 		return *this;
 	}
 }

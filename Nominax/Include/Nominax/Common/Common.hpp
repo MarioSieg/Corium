@@ -207,9 +207,10 @@
 
 #pragma once
 
-#include "MemoryUnits.hpp"
-#include "SafeLocalTime.hpp"
 #include "F64Comparator.hpp"
+#include "MemoryUnits.hpp"
+#include "Protocol.hpp"
+#include "SafeLocalTime.hpp"
 #include "VisitOverload.hpp"
 #include "XorshiftAtomic.hpp"
 #include "XorshiftThreadLocal.hpp"

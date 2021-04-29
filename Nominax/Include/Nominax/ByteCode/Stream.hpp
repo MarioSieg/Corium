@@ -208,11 +208,13 @@
 #pragma once
 
 #include <unordered_map>
-#include <vector>
+#include <list>
 
 #include "DynamicSignal.hpp"
 #include "ImmediateArgumentCount.hpp"
 #include "StreamScalar.hpp"
+#include "Chunk.hpp"
+#include "Validator.hpp"
 
 namespace Nominax
 {
@@ -224,37 +226,35 @@ namespace Nominax
 	/// </summary>
 	class Stream final
 	{
-		std::vector<DynamicSignal>                   SignalStream { };
-		std::unordered_map<std::string, std::size_t> LabelTable { };
+		/// <summary>
+		/// We use a std::list instead of std::forward_list because
+		/// std::list is a double linked list, and we require bidirectional iteration,
+		/// not unidirectional.
+		/// </summary>
+		std::list<DynamicSignal> SignalStream_ { };
 
 	public:
-		static auto ExampleStream(Stream& stream) -> void;
+		static auto ExampleStream(Stream& stream) noexcept(false) -> void;
 
 		/// <summary>
 		/// Construct empty stream.
 		/// </summary>
 		/// <returns></returns>
-		Stream();
-
-		/// <summary>
-		/// Construct with capacity.
-		/// </summary>
-		/// <param name="cap"></param>
-		explicit Stream(std::size_t cap);
+		Stream() noexcept(false);
 
 		/// <summary>
 		/// Move constructor.
 		/// </summary>
 		/// <param name=""></param>
 		/// <returns></returns>
-		Stream(Stream&&) noexcept = default;
+		Stream(Stream&&) noexcept(true) = default;
 
 		/// <summary>
 		/// Copy constructor.
 		/// </summary>
 		/// <param name=""></param>
 		/// <returns></returns>
-		Stream(const Stream&) noexcept = default;
+		Stream(const Stream&) noexcept(true) = default;
 
 		/// <summary>
 		/// Copy assignment operator.
@@ -280,79 +280,69 @@ namespace Nominax
 		/// </summary>
 		/// <returns>The vector used as buffer.</returns>
 		[[nodiscard]]
-		auto Buffer() const noexcept -> const std::vector<DynamicSignal>&;
+		auto Buffer() const noexcept(true) -> const std::list<DynamicSignal>&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		auto Front() -> DynamicSignal&;
+		[[nodiscard]]
+		auto Front() noexcept(true) -> DynamicSignal&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		auto Back() -> DynamicSignal&;
+		[[nodiscard]]
+		auto Back() noexcept(true) -> DynamicSignal&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		auto Front() const -> const DynamicSignal&;
+		[[nodiscard]]
+		auto Front() const noexcept(true) -> const DynamicSignal&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		auto Back() const -> const DynamicSignal&;
+		[[nodiscard]]
+		auto Back() const noexcept(true) -> const DynamicSignal&;
 
 		/// <summary>
 		/// Clears the content of the whole stream.
 		/// </summary>
 		/// <returns></returns>
-		auto Clear() -> void;
-
-		/// <summary>
-		/// Preallocate buffer capacity.
-		/// </summary>
-		/// <param name="cap"></param>
-		/// <returns></returns>
-		auto Reserve(std::size_t cap) -> void;
+		auto Clear() noexcept(false) -> void;
 
 		/// <summary>
 		/// Resize buffer size.
 		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		auto Resize(std::size_t size) -> void;
+		auto Resize(std::size_t size) noexcept(false) -> void;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the stream.</returns>
 		[[nodiscard]]
-		auto Size() const noexcept -> std::size_t;
+		auto Size() const noexcept(true) -> std::size_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the stream in bytes.</returns>
 		[[nodiscard]]
-		auto SizeInBytes() const noexcept -> std::size_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The capacity of the stream buffer.</returns>
-		[[nodiscard]]
-		auto Capacity() const noexcept -> std::size_t;
+		auto SizeInBytes() const noexcept(true) -> std::size_t;
 
 		/// <summary>
 		/// Pushes a new signal into the stream.
 		/// </summary>
 		/// <param name="sig"></param>
 		/// <returns></returns>
-		auto Push(DynamicSignal&& sig) -> void;
+		auto Push(DynamicSignal&& sig) noexcept(false) -> void;
 
 		/// <summary>
 		/// STL iterator compat
@@ -360,7 +350,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto begin() noexcept -> std::vector<DynamicSignal>::iterator;
+		auto begin() noexcept(true) -> std::list<DynamicSignal>::iterator;
 
 		/// <summary>
 		/// STL iterator compat
@@ -368,7 +358,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto end() noexcept -> std::vector<DynamicSignal>::iterator;
+		auto end() noexcept(true) -> std::list<DynamicSignal>::iterator;
 
 		/// <summary>
 		/// STL iterator compat
@@ -376,7 +366,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto begin() const noexcept -> std::vector<DynamicSignal>::const_iterator;
+		auto begin() const noexcept(true) -> std::list<DynamicSignal>::const_iterator;
 
 		/// <summary>
 		/// STL iterator compat
@@ -384,229 +374,262 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto end() const noexcept -> std::vector<DynamicSignal>::const_iterator;
+		auto end() const noexcept(true) -> std::list<DynamicSignal>::const_iterator;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="instr"></param>
 		/// <returns></returns>
-		auto operator <<(Instruction instr) -> Stream&;
+		auto operator <<(Instruction instr) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
-		auto operator <<(SystemIntrinsicCallId intrin) -> Stream&;
+		auto operator <<(SystemIntrinsicCallId intrin) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
-		auto operator <<(CustomIntrinsicCallId intrin) -> Stream&;
+		auto operator <<(CustomIntrinsicCallId intrin) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(std::uint64_t value) -> Stream&;
+		auto operator <<(std::uint64_t value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(std::int64_t value) -> Stream&;
+		auto operator <<(std::int64_t value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry (casted to std::int64_t)
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(int value) -> Stream&;
+		auto operator <<(signed value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(double value) -> Stream&;
+		auto operator <<(double value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(char32_t value) -> Stream&;
+		auto operator <<(char32_t value) noexcept(false) -> Stream&;
 
 		/// <summary>
-		/// Write the text byte code to a file.
+		/// Print out the ir.
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <param name="writeAddress"></param>
 		/// <returns></returns>
-		auto DumpToStream(std::ostream& stream, bool writeAddress = true) const -> void;
+		auto PrintIntermediateRepresentation(bool writeAddress = true) const noexcept(false) -> void;
 
 		/// <summary>
 		/// Index lookup.
+		/// Slow! O(i)
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) -> DynamicSignal&;
+		auto operator [](std::size_t idx) noexcept(false) -> DynamicSignal&;
 
 		/// <summary>
 		/// Index lookup.
+		///Slow! O(i)
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) const -> DynamicSignal;
+		auto operator [](std::size_t idx) const noexcept(false) -> DynamicSignal;
 
 		/// <summary>
-		/// Insert instruction manually.
+		/// Insert instruction manually with immediate arguments.
 		/// </summary>
 		/// <param name="args"></param>
 		/// <returns></returns>
 		template <Instruction I, typename... Ts>
-		auto Do(Ts&&...args) -> Stream&;
+		auto Do(Ts&&...args) noexcept(false) -> Stream&;
 
+		/// <summary>
+		/// Insert instruction manually without immediate arguments.
+		/// </summary>
+		/// <returns></returns>
+		template <Instruction I>
+		auto Do() noexcept(false) -> Stream&;
+
+		/// <summary>
+		/// Begin stream building.
+		/// Inserts code prologue, if missing.
+		/// </summary>
+		/// <returns></returns>
+		auto Begin() noexcept(false) -> Stream&;
+
+		/// <summary>
+		/// End stream building.
+		/// Inserts code epilogue, if missing.
+		/// </summary>
+		/// <returns></returns>
+		auto End() noexcept(false) -> Stream&;
+
+		/// <summary>
+		/// Map new local variable into the stream.
+		/// It is a scoped variable, which means it is automatically popped,
+		/// when it goes out of the lambda scope.
+		/// </summary>
+		/// <typeparam name="F"></typeparam>
+		/// <typeparam name="V"></typeparam>
+		/// <param name="value"></param>
+		/// <param name="functor"></param>
+		/// <returns>self</returns>
 		template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
-		auto With(V value, F&& functor) -> void;
+		auto With(V value, F&& functor) noexcept(false) -> Stream&;
+
+		/// <summary>
+		/// Validate and build code chunk plus jump map.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="outJumpMap"></param>
+		/// <returns></returns>
+		auto Build(CodeChunk& out, JumpMap& outJumpMap) noexcept(false) -> ByteCodeValidationResult;
 	};
 
 	template <Instruction I, typename... Ts>
-	inline auto Stream::Do(Ts&&...args) -> Stream&
+	inline auto Stream::Do(Ts&&...args) noexcept(false) -> Stream&
 	{
 		static_assert(sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[static_cast<std::size_t>(I)], "Invalid amount of immediate arguments!");
+		static_assert(std::is_trivial_v<std::remove_reference_t<Ts>...>, "Invalid argument types!");
+		static_assert(std::is_integral_v<std::remove_reference_t<Ts>...>
+			|| std::is_floating_point_v<std::remove_reference_t<Ts>...>
+			|| std::is_enum_v<std::remove_reference_t<Ts>...>, "Invalid argument types!");
+		static_assert((sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(std::int64_t) == 0
+			|| (sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(std::int32_t) == 0,
+			"Invalid argument types!");
 		*this << I;
 		return (*this << ... << args);
 	}
 
-	template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
-	inline auto Stream::With(const V value, F&& functor) -> void
+	template <Instruction I>
+	inline auto Stream::Do() noexcept(false) -> Stream&
 	{
-		if constexpr (std::is_same_v<int, V>)
+		return *this << I;
+	}
+
+	template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
+	inline auto Stream::With(const V value, F&& functor) noexcept(false) -> Stream&
+	{
+		if constexpr (std::is_same_v<signed, V>)
 		{
-			return functor(ScopedVariable<std::int64_t> {*this, static_cast<std::int64_t>(value)});
+			functor(ScopedVariable<std::int64_t> {*this, static_cast<std::int64_t>(value)});
 		}
 		else
 		{
-			return functor(ScopedVariable<V> {*this, value});
+			functor(ScopedVariable<V> {*this, value});
 		}
+		return *this;
 	}
 
-	inline auto Stream::Front() -> DynamicSignal&
+	inline auto Stream::Front() noexcept(true) -> DynamicSignal&
 	{
-		return this->SignalStream.front();
+		return this->SignalStream_.front();
 	}
 
-	inline auto Stream::Back() -> DynamicSignal&
+	inline auto Stream::Back() noexcept(true) -> DynamicSignal&
 	{
-		return this->SignalStream.back();
+		return this->SignalStream_.back();
 	}
 
-	inline auto Stream::Front() const -> const DynamicSignal&
+	inline auto Stream::Front() const noexcept(true) -> const DynamicSignal&
 	{
-		return this->SignalStream.front();
+		return this->SignalStream_.front();
 	}
 
-	inline auto Stream::Back() const -> const DynamicSignal&
+	inline auto Stream::Back() const noexcept(true) -> const DynamicSignal&
 	{
-		return this->SignalStream.back();
+		return this->SignalStream_.back();
 	}
 
-	inline auto Stream::operator[](const std::size_t idx) -> DynamicSignal&
+	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> DynamicSignal&
 	{
-		return this->SignalStream.at(idx);
+		return *std::next(this->SignalStream_.begin(), idx);
 	}
 
-	inline auto Stream::operator[](const std::size_t idx) const -> DynamicSignal
+	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> DynamicSignal
 	{
-		return this->SignalStream.at(idx);
+		return *std::next(this->SignalStream_.begin(), idx);
 	}
 
-	inline Stream::Stream()
+	inline Stream::Stream() noexcept(false)
 	{
-		// Reserve buffer:
-		this->SignalStream.reserve(8);
-
 		// Insert important code prologue.
-		this->SignalStream.emplace_back(DynamicSignal::CodePrologue());
+		this->SignalStream_.emplace_back(DynamicSignal::CodePrologue());
 	}
 
-	inline Stream::Stream(const std::size_t cap)
+	inline auto Stream::Buffer() const noexcept(true) -> const std::list<DynamicSignal>&
 	{
-		// Reserve required space + (prologue + epilogue)
-		this->SignalStream.reserve(cap + 3);
-
-		// Insert important code prologue.
-		this->SignalStream.emplace_back(DynamicSignal::CodePrologue());
+		return this->SignalStream_;
 	}
 
-	inline auto Stream::Buffer() const noexcept -> const std::vector<DynamicSignal>&
+	inline auto Stream::Clear() noexcept(false) -> void
 	{
-		return this->SignalStream;
+		this->SignalStream_.clear();
 	}
 
-	inline auto Stream::Clear() -> void
+	inline auto Stream::Resize(const std::size_t size) noexcept(false) -> void
 	{
-		this->SignalStream.resize(1);
+		this->SignalStream_.resize(size);
 	}
 
-	inline auto Stream::Reserve(const std::size_t cap) -> void
+	inline auto Stream::Size() const noexcept(true) -> std::size_t
 	{
-		this->SignalStream.reserve(cap);
+		return this->SignalStream_.size();
 	}
 
-	inline auto Stream::Resize(const std::size_t size) -> void
+	inline auto Stream::SizeInBytes() const noexcept(true) -> std::size_t
 	{
-		this->SignalStream.resize(size);
+		return this->SignalStream_.size() * sizeof(DynamicSignal);
 	}
 
-	inline auto Stream::Size() const noexcept -> std::size_t
+	inline auto Stream::Push(DynamicSignal&& sig) noexcept(false) -> void
 	{
-		return this->SignalStream.size();
-	}
-
-	inline auto Stream::SizeInBytes() const noexcept -> std::size_t
-	{
-		return this->SignalStream.size() * sizeof(DynamicSignal);
-	}
-
-	inline auto Stream::Capacity() const noexcept -> std::size_t
-	{
-		return this->SignalStream.capacity();
-	}
-
-	inline auto Stream::Push(DynamicSignal&& sig) -> void
-	{
-		this->SignalStream.emplace_back(sig);
+		this->SignalStream_.emplace_back(sig);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::begin() noexcept -> std::vector<DynamicSignal>::iterator
+	inline auto Stream::begin() noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
-		return this->SignalStream.begin();
+		return std::begin(this->SignalStream_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::end() noexcept -> std::vector<DynamicSignal>::iterator
+	inline auto Stream::end() noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
-		return this->SignalStream.end();
+		return std::end(this->SignalStream_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::begin() const noexcept -> std::vector<DynamicSignal>::const_iterator
+	inline auto Stream::begin() const noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
-		return this->SignalStream.begin();
+		return std::begin(this->SignalStream_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::end() const noexcept -> std::vector<DynamicSignal>::const_iterator
+	inline auto Stream::end() const noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
-		return this->SignalStream.end();
+		return std::end(this->SignalStream_);
 	}
 
 	/// <summary>
@@ -615,7 +638,7 @@ namespace Nominax
 	/// <param name="in"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	inline auto begin(Stream& in) noexcept -> std::vector<DynamicSignal>::iterator
+	inline auto begin(Stream& in) noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
 		return in.begin();
 	}
@@ -626,7 +649,7 @@ namespace Nominax
 	/// <param name="in"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	inline auto end(Stream& in) noexcept -> std::vector<DynamicSignal>::iterator
+	inline auto end(Stream& in) noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
 		return in.end();
 	}
@@ -637,7 +660,7 @@ namespace Nominax
 	/// <param name="in"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	inline auto begin(const Stream& in) noexcept -> std::vector<DynamicSignal>::const_iterator
+	inline auto begin(const Stream& in) noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
 		return in.begin();
 	}
@@ -648,58 +671,56 @@ namespace Nominax
 	/// <param name="in"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	inline auto end(const Stream& in) noexcept -> std::vector<DynamicSignal>::const_iterator
+	inline auto end(const Stream& in) noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
 		return in.end();
 	}
 
-	inline auto Stream::operator <<(const Instruction instr) -> Stream&
+	inline auto Stream::operator <<(const Instruction instr) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {instr});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const SystemIntrinsicCallId intrin) -> Stream&
+	inline auto Stream::operator <<(const SystemIntrinsicCallId intrin) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {intrin});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const CustomIntrinsicCallId intrin) -> Stream&
+	inline auto Stream::operator <<(const CustomIntrinsicCallId intrin) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {intrin});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const std::uint64_t value) -> Stream&
+	inline auto Stream::operator <<(const std::uint64_t value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const std::int64_t value) -> Stream&
+	inline auto Stream::operator <<(const std::int64_t value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const double value) -> Stream&
+	inline auto Stream::operator <<(const double value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
-	inline auto Stream::operator<<(int value) -> Stream&
+	inline auto Stream::operator<<(const signed value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {static_cast<std::int64_t>(value)});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const char32_t value) -> Stream&
+	inline auto Stream::operator <<(const char32_t value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;
 	}
-
-	extern auto operator <<(std::ostream& out, const Stream& in) -> std::ostream&;
 }
