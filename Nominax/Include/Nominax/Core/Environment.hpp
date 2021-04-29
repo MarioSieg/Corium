@@ -218,6 +218,8 @@ namespace Nominax
 	{
 		SystemInfo SysInfo { };
 
+		auto UnlockNoSyncStdStreams() const -> void;
+		auto InstallSignalHandlers() const -> void;
 		auto PrintVersionInfo() const -> void;
 		auto PrintMachineInfo() const -> void;
 		auto PrintTypeTable() const -> void;

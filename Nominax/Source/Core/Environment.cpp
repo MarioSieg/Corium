@@ -205,6 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <chrono>
 #include <iostream>
 #include <iomanip>
 
@@ -214,9 +215,9 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-namespace Nominax
+namespace
 {
-	static constexpr auto MachineRating(const std::size_t threads) noexcept(true) -> char
+	constexpr auto MachineRating(const std::size_t threads) noexcept(true) -> char
 	{
 		if (threads <= 2)
 		{
@@ -241,20 +242,35 @@ namespace Nominax
 		return 'A';
 	}
 
-	inline static auto Separator() -> void
+	template <typename T>
+	inline auto PrintTypeInfo(const std::string_view name) -> void
 	{
-		cout << "================================================================\n";
+		Nominax::Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
+	}
+}
+
+namespace Nominax
+{
+	auto Environment::UnlockNoSyncStdStreams() const -> void 
+	{
+		std::ios_base::sync_with_stdio(false);
+	}
+
+	auto Environment::InstallSignalHandlers() const -> void
+	{
+		::Nominax::InstallSignalHandlers();
 	}
 
 	auto Environment::PrintVersionInfo() const -> void
 	{
-		cout << SYSTEM_LOGO_TEXT;
-		cout << SYSTEM_COPYRIGHT_TEXT;
-		cout << "Nominax Version: " << SYSTEM_VERSION << '\n';
-		cout << "Platform: " NOMINAX_OS_NAME " " NOMINAX_ARCH_SIZE_NAME << '\n';
-		cout << "Arch: " << NOMINAX_ARCH_NAME << '\n';
-		cout << "Posix: " << std::boolalpha << NOMINAX_POSIX << '\n';
-		cout << "Compiler: " << NOMINAX_COM_NAME " - C++ 20" << '\n';
+		Print(SYSTEM_LOGO_TEXT);
+		Print(SYSTEM_COPYRIGHT_TEXT);
+		Print("\nNominax Version: v.{}.{}\n", SYSTEM_VERSION.Major, SYSTEM_VERSION.Minor);
+		Print("Platform: {} {}\n", NOMINAX_OS_NAME, NOMINAX_ARCH_SIZE_NAME);
+		Print("Arch: {}\n", NOMINAX_ARCH_NAME);
+		Print("IsPosix: {}\n", NOMINAX_IS_POSIX);
+		Print("Compiled with: {} - C++ 20\n", NOMINAX_COM_NAME);
+		Print("\n");
 	}
 
 	auto Environment::PrintMachineInfo() const -> void
@@ -271,23 +287,21 @@ namespace Nominax
 			ThreadId
 		] = this->SysInfo;
 
-		cout << "TID: " << "0x" << std::hex << ThreadId << std::dec << '\n';
-		cout << "CPU: " << CpuName << '\n';
-		cout << "CPU Threads: " << ThreadCount << '\n';
-		cout << "CPU Machine class: " << MachineRating(ThreadCount) << '\n';
-		cout << "System RAM: " << Bytes2Megabytes(TotalSystemMemory) << " MB\n";
-		cout << "Process RAM: " << Bytes2Megabytes(UsedSystemMemory) << " MB\n";
-	}
+		const auto clock = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-	template <typename T>
-	inline static auto PrintTypeInfo(const std::string_view name)
-	{
-		std::cout << std::setw(16) << name << std::right << std::setw(16) << sizeof(T) << std::setw(16) << alignof(T) << '\n';
+		Print("Boot date: {}", std::ctime(&clock));
+		Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
+		Print("CPU: {}\n", CpuName);
+		Print("CPU Hardware threads: {}\n", ThreadCount);
+		Print("CPU Machine class: {}\n", MachineRating(ThreadCount));
+		Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
+		Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
+		Print("\n");
 	}
 
 	auto Environment::PrintTypeTable() const -> void
 	{
-		std::cout << std::setw(16) << "Type" << std::right << std::setw(16) << "Size" << std::setw(16) << "Alignment" << "\n\n";
+		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Size", "Alignment");
 		PrintTypeInfo<Record>("Record");
 		PrintTypeInfo<Signal>("Signal");
 		PrintTypeInfo<DynamicSignal>("DynamicSignal");
@@ -299,19 +313,17 @@ namespace Nominax
 		PrintTypeInfo<char32_t>("char");
 		PrintTypeInfo<bool>("bool");
 		PrintTypeInfo<void*>("void*");
+		Print("\n");
 	}
 
 	auto Environment::BootEnvironment() -> bool
 	{
-		InstallSignalHandlers();
-		std::ios_base::sync_with_stdio(false);
+		this->InstallSignalHandlers();
+		this->UnlockNoSyncStdStreams();
 		this->PrintVersionInfo();
-		Separator();
 		this->SysInfo.QueryAll();
 		this->PrintMachineInfo();
-		Separator();
 		this->PrintTypeTable();
-		Separator();
 
 		Stream stream { };
 
@@ -334,29 +346,38 @@ namespace Nominax
 			// Print:
 			+[](Record* sp) -> bool
 			{
-				std::cout << "2 * 2 + 1 = " << sp->I64 << '\n';
+				Print("2 * 2 + 1 = {}\n", sp->I64);
 				return true;
 			}
 		};
 
 		InterruptRoutine&                   interrupt {
-			*+[](const InterruptAccumulator x) -> bool
+			*+[](const InterruptAccumulator) -> bool
 			{
-				std::cout << "Reactor Interrupt: " << x << '\n';
 				return true;
 			}
 		};
 
+		Print("\n");
 		stream.DumpToStream(cout, false);
+		Print("\n");
 
-		std::cout << "\nConstructing reactor...\n";
+		Print("Creating reactor on main thread\n");
 		const Reactor reactor {std::move(stack), std::move(chunk), std::move(jumpMap), intrinsics, interrupt};
 
-		std::cout << "Executing...\n";
-		reactor.Execute();
+		Print("Used process memory: {}MB\n", Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
 
-		std::cout << "\nExecution done!\n";
+		Print("Executing...\n\n");
+		cout.flush();
 
+		const auto out = reactor.Execute();
+		Print("\nExecution done... {}\n", out.ExecutionResult == TerminateResult::Success ? "Ok" : "Error");
+		Print
+		(
+			"Time: {}, Interrupt: {}\n",
+			std::chrono::duration_cast<std::chrono::milliseconds>(out.Duration),
+			out.InterruptCode
+		);
 		cout.flush();
 		return true;
 	}

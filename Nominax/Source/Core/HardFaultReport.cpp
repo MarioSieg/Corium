@@ -799,7 +799,7 @@ namespace Nominax
 		out << "Nominax Version: " << SYSTEM_VERSION << '\n';
 		out << "Platform: " NOMINAX_OS_NAME " " NOMINAX_ARCH_SIZE_NAME << '\n';
 		out << "Arch: " << NOMINAX_ARCH_NAME << '\n';
-		out << "Posix: " << std::boolalpha << NOMINAX_POSIX << '\n';
+		out << "Posix: " << std::boolalpha << NOMINAX_IS_POSIX << '\n';
 		out << "Compiler: " << NOMINAX_COM_NAME " - C++ 20" << '\n';
 		out << "CPU: " << Os::QueryCpuName() << '\n';
 		out << "CPU Threads: " << std::thread::hardware_concurrency() << '\n';

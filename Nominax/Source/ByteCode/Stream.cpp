@@ -244,6 +244,7 @@ namespace Nominax
 			stream << sig << ' ';
 			++address;
 		}
+		stream << '\n';
 	}
 
 	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) -> ByteCodeValidationResult

@@ -215,15 +215,15 @@ namespace Nominax::Lexemes
 	/// <summary>
 	/// Specify immediate constant operand.
 	/// </summary>
-	constexpr auto IMMEDIATE {'%'};
+	constexpr auto IMMEDIATE {'$'};
 
 	/// <summary>
 	/// Begin or end comment.
 	/// </summary>
-	constexpr auto COMMENT {'$'};
+	constexpr auto COMMENT {'#'};
 
 	/// <summary>
 	/// Begin preprocessor directive.
 	/// </summary>
-	constexpr auto PREPROCESSOR {'#'};
+	constexpr auto PREPROCESSOR {'%'};
 }

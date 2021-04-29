@@ -1073,7 +1073,9 @@ namespace Nominax
 	__pop__:
 		__attribute__((hot));
 		ASM_MARKER("__pop__");
+
 		--sp;
+
 		goto
 		JMP_PTR();
 
@@ -2008,6 +2010,7 @@ namespace Nominax
 			.Interrupt = InterruptCvt(interruptCode),
 			.Pre = pre,
 			.Post = std::chrono::high_resolution_clock::now(),
+			.Duration = std::chrono::high_resolution_clock::now() - pre,
 			.InterruptCode = interruptCode,
 			.IpDiff = ip - input.CodeChunk,
 			.SpDiff = sp - input.Stack,
