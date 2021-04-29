@@ -365,7 +365,8 @@ namespace Nominax
 		Print("Creating reactor on main thread\n");
 		const Reactor reactor {std::move(stack), std::move(chunk), std::move(jumpMap), intrinsics, interrupt};
 
-		Print("Used process memory: {}MB\n", Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
+		
+		("Used process memory: {}MB\n", Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
 
 		Print("Executing...\n\n");
 		cout.flush();
