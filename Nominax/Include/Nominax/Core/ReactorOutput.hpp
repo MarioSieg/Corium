@@ -224,7 +224,7 @@ namespace Nominax
 		SystemInterrupt                                Interrupt { };
 		std::chrono::high_resolution_clock::time_point Pre { };
 		std::chrono::high_resolution_clock::time_point Post { };
-		std::chrono::high_resolution_clock::duration Duration{ };
+		std::chrono::high_resolution_clock::duration   Duration { };
 		InterruptAccumulator                           InterruptCode { };
 		std::ptrdiff_t                                 IpDiff { };
 		std::ptrdiff_t                                 SpDiff { };

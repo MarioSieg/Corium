@@ -220,7 +220,7 @@ namespace Nominax::Lexemes
 	/// <summary>
 	/// Specify immediate constant call id for system or custom intrinsic call.
 	/// </summary>
-	constexpr auto INTRINSIC_CALL_IMMEDIATE{ '*' };
+	constexpr auto INTRINSIC_CALL_IMMEDIATE {'*'};
 
 	/// <summary>
 	/// Begin or end comment.
@@ -235,20 +235,20 @@ namespace Nominax::Lexemes
 	/// <summary>
 	/// Type indicator suffix.
 	/// </summary>
-	constexpr auto LITERAL_SUFFIX_FLOAT{ 'f' };
+	constexpr auto LITERAL_SUFFIX_FLOAT {'f'};
 
 	/// <summary>
 	/// Type indicator suffix.
 	/// </summary>
-	constexpr auto LITERAL_SUFFIX_INT{ 'i' };
+	constexpr auto LITERAL_SUFFIX_INT {'i'};
 
 	/// <summary>
 	/// Type indicator suffix.
 	/// </summary>
-	constexpr auto LITERAL_SUFFIX_UINT{ 'u' };
+	constexpr auto LITERAL_SUFFIX_UINT {'u'};
 
 	/// <summary>
 	/// Type indicator char.
 	/// </summary>
-	constexpr auto LITERAL_SUFFIX_CHAR{ 'c' };
+	constexpr auto LITERAL_SUFFIX_CHAR {'c'};
 }

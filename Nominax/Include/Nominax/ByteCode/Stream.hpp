@@ -289,14 +289,14 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Front() noexcept(true)-> DynamicSignal&;
+		auto Front() noexcept(true) -> DynamicSignal&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Back() noexcept(true)-> DynamicSignal&;
+		auto Back() noexcept(true) -> DynamicSignal&;
 
 		/// <summary>
 		/// 
@@ -358,7 +358,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="sig"></param>
 		/// <returns></returns>
-		auto Push(DynamicSignal&& sig)noexcept(false) -> void;
+		auto Push(DynamicSignal&& sig) noexcept(false) -> void;
 
 		/// <summary>
 		/// STL iterator compat
@@ -397,56 +397,56 @@ namespace Nominax
 		/// </summary>
 		/// <param name="instr"></param>
 		/// <returns></returns>
-		auto operator <<(Instruction instr)noexcept(false)-> Stream&;
+		auto operator <<(Instruction instr) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
-		auto operator <<(SystemIntrinsicCallId intrin)noexcept(false)-> Stream&;
+		auto operator <<(SystemIntrinsicCallId intrin) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
-		auto operator <<(CustomIntrinsicCallId intrin)noexcept(false)-> Stream&;
+		auto operator <<(CustomIntrinsicCallId intrin) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(std::uint64_t value)noexcept(false)-> Stream&;
+		auto operator <<(std::uint64_t value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(std::int64_t value)noexcept(false)-> Stream&;
+		auto operator <<(std::int64_t value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry (casted to std::int64_t)
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(signed value)noexcept(false)-> Stream&;
+		auto operator <<(signed value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(double value)noexcept(false)-> Stream&;
+		auto operator <<(double value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(char32_t value) noexcept(false)-> Stream&;
+		auto operator <<(char32_t value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Print out the ir.
@@ -461,14 +461,14 @@ namespace Nominax
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) noexcept(false)-> DynamicSignal&;
+		auto operator [](std::size_t idx) noexcept(false) -> DynamicSignal&;
 
 		/// <summary>
 		/// Index lookup.
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) const noexcept(false)-> DynamicSignal;
+		auto operator [](std::size_t idx) const noexcept(false) -> DynamicSignal;
 
 		/// <summary>
 		/// Insert instruction manually with immediate arguments.
@@ -476,14 +476,14 @@ namespace Nominax
 		/// <param name="args"></param>
 		/// <returns></returns>
 		template <Instruction I, typename... Ts>
-		auto Do(Ts&&...args) noexcept(false)-> Stream&;
+		auto Do(Ts&&...args) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Insert instruction manually without immediate arguments.
 		/// </summary>
 		/// <returns></returns>
 		template <Instruction I>
-		auto Do() noexcept(false)-> Stream&;
+		auto Do() noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Begin stream building.
@@ -497,7 +497,7 @@ namespace Nominax
 		/// Inserts code epilogue, if missing.
 		/// </summary>
 		/// <returns></returns>
-		auto End() noexcept(false)->Stream&;
+		auto End() noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Map new local variable into the stream.
@@ -510,7 +510,7 @@ namespace Nominax
 		/// <param name="functor"></param>
 		/// <returns>self</returns>
 		template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
-		auto With(V value, F&& functor) noexcept(false)-> Stream&;
+		auto With(V value, F&& functor) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Validate and build code chunk plus jump map.
@@ -526,10 +526,10 @@ namespace Nominax
 	{
 		static_assert(sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[static_cast<std::size_t>(I)], "Invalid amount of immediate arguments!");
 		static_assert(std::is_trivial_v<std::remove_reference_t<Ts>...>, "Invalid argument types!");
-		static_assert(std::is_integral_v<std::remove_reference_t<Ts>...> 
-			|| std::is_floating_point_v<std::remove_reference_t<Ts>...> 
+		static_assert(std::is_integral_v<std::remove_reference_t<Ts>...>
+			|| std::is_floating_point_v<std::remove_reference_t<Ts>...>
 			|| std::is_enum_v<std::remove_reference_t<Ts>...>, "Invalid argument types!");
-		static_assert((sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(std::int64_t) == 0 
+		static_assert((sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(std::int64_t) == 0
 			|| (sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(std::int32_t) == 0,
 			"Invalid argument types!");
 		*this << I;
@@ -537,13 +537,13 @@ namespace Nominax
 	}
 
 	template <Instruction I>
-	inline auto Stream::Do()noexcept(false) -> Stream&
+	inline auto Stream::Do() noexcept(false) -> Stream&
 	{
 		return *this << I;
 	}
 
 	template <typename F, typename V> requires std::is_trivial_v<V> && (std::is_floating_point_v<V> || std::is_integral_v<V>)
-	inline auto Stream::With(const V value, F&& functor)noexcept(false) -> Stream&
+	inline auto Stream::With(const V value, F&& functor) noexcept(false) -> Stream&
 	{
 		if constexpr (std::is_same_v<signed, V>)
 		{
@@ -561,7 +561,7 @@ namespace Nominax
 		return this->SignalStream_.front();
 	}
 
-	inline auto Stream::Back()  noexcept(true)-> DynamicSignal&
+	inline auto Stream::Back() noexcept(true) -> DynamicSignal&
 	{
 		return this->SignalStream_.back();
 	}
@@ -576,12 +576,12 @@ namespace Nominax
 		return this->SignalStream_.back();
 	}
 
-	inline auto Stream::operator[](const std::size_t idx) noexcept(false)-> DynamicSignal&
+	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> DynamicSignal&
 	{
 		return this->SignalStream_.at(idx);
 	}
 
-	inline auto Stream::operator[](const std::size_t idx) const noexcept(false)-> DynamicSignal
+	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> DynamicSignal
 	{
 		return this->SignalStream_.at(idx);
 	}
@@ -614,12 +614,12 @@ namespace Nominax
 		this->SignalStream_.clear();
 	}
 
-	inline auto Stream::Reserve(const std::size_t cap)noexcept(false) -> void
+	inline auto Stream::Reserve(const std::size_t cap) noexcept(false) -> void
 	{
 		this->SignalStream_.reserve(cap);
 	}
 
-	inline auto Stream::Resize(const std::size_t size)noexcept(false) -> void
+	inline auto Stream::Resize(const std::size_t size) noexcept(false) -> void
 	{
 		this->SignalStream_.resize(size);
 	}
@@ -639,7 +639,7 @@ namespace Nominax
 		return this->SignalStream_.capacity();
 	}
 
-	inline auto Stream::Push(DynamicSignal&& sig)noexcept(false) -> void
+	inline auto Stream::Push(DynamicSignal&& sig) noexcept(false) -> void
 	{
 		this->SignalStream_.emplace_back(sig);
 	}
@@ -712,49 +712,49 @@ namespace Nominax
 		return in.end();
 	}
 
-	inline auto Stream::operator <<(const Instruction instr)noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const Instruction instr) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {instr});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const SystemIntrinsicCallId intrin)noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const SystemIntrinsicCallId intrin) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {intrin});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const CustomIntrinsicCallId intrin)noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const CustomIntrinsicCallId intrin) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {intrin});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const std::uint64_t value)noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const std::uint64_t value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const std::int64_t value)noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const std::int64_t value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const double value)noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const double value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
-	inline auto Stream::operator<<(const signed value) noexcept(false)-> Stream&
+	inline auto Stream::operator<<(const signed value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {static_cast<std::int64_t>(value)});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const char32_t value)noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const char32_t value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;

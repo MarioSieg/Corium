@@ -359,7 +359,7 @@ namespace Nominax
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Unwrap() const noexcept(false)-> std::optional<T>;
+		constexpr auto Unwrap() const noexcept(false) -> std::optional<T>;
 
 		/// <summary>
 		/// Check if generic T is contained.
@@ -392,7 +392,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator !=(const DynamicSignal & other) const noexcept(false) -> bool;
+		constexpr auto operator !=(const DynamicSignal& other) const noexcept(false) -> bool;
 
 		/// <summary>
 		/// Raw data variant (discriminated union)
@@ -518,7 +518,7 @@ namespace Nominax
 	}
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains(const T compareTo) const  noexcept(false)-> bool
+	constexpr auto DynamicSignal::Contains(const T compareTo) const noexcept(false) -> bool
 	{
 		return std::holds_alternative<T>(this->DataCollection) && std::get<T>(this->DataCollection) == compareTo;
 	}
