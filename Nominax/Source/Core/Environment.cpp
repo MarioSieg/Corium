@@ -301,7 +301,7 @@ namespace Nominax
 
 	auto Environment::PrintTypeTable() const -> void
 	{
-		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Size", "Alignment");
+		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
 		PrintTypeInfo<Record>("Record");
 		PrintTypeInfo<Signal>("Signal");
 		PrintTypeInfo<DynamicSignal>("DynamicSignal");
@@ -335,7 +335,7 @@ namespace Nominax
 			stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId {0});
 		}).End();
 
-		stream.PrintIntermediateRepresentation(false);
+		stream.PrintIntermediateRepresentation();
 
 		CodeChunk chunk { };
 		JumpMap   jumpMap { };
@@ -362,16 +362,23 @@ namespace Nominax
 
 		Print("Used process memory: {}MB\n", Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
 
-		Print("Executing...\n\n");
+		Print(LogLevel::Warning, "Executing...\n");
+
+		Print("################ APP ################\n\n");
 		cout.flush();
 
-		const auto out = reactor.Execute();
-		Print("\nExecution done... {}\n", out.ExecutionResult == TerminateResult::Success ? "Ok" : "Error");
+		const auto reactorOutput {reactor.Execute()};
+
+		Print("\n################ APP ################\n");
+		cout.flush();
+
+		const bool ok {reactorOutput.ExecutionResult == TerminateResult::Success};
+		Print(ok ? LogLevel::Success : LogLevel::Error, "Execution done... {}\n", ok ? "Ok" : "Error");
 		Print
 		(
 			"Time: {}, Interrupt: {}\n",
-			std::chrono::duration_cast<std::chrono::milliseconds>(out.Duration),
-			out.InterruptCode
+			std::chrono::duration_cast<std::chrono::milliseconds>(reactorOutput.Duration),
+			reactorOutput.InterruptCode
 		);
 		cout.flush();
 		return true;

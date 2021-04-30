@@ -1,4 +1,4 @@
-// File: MemAlign.hpp
+// File: MemoryAlign.hpp
 // Author: Mario
 // Created: 29.04.2021 11:10 AM
 // Project: NominaxRuntime
@@ -211,7 +211,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "ILog.hpp"
+#include "ILog2.hpp"
 
 namespace Nominax
 {
@@ -242,6 +242,18 @@ namespace Nominax
 	}
 
 	/// <summary>
+	/// Checks is the address of the pointer is aligned to specified alignment,
+	/// </summary>
+	/// <param name="ptr">The address to check.</param>
+	/// <param name="alignment">The alignment the address should have.</param>
+	/// <returns>True if valid and corresponding alignment, else false.</returns>
+	[[nodiscard]]
+	constexpr auto IsAlignedTo(const std::uintptr_t ptr, const std::size_t alignment) noexcept(true) -> bool
+	{
+		return IsAlignedTo(std::bit_cast<void*>(ptr), alignment);
+	}
+
+	/// <summary>
 	/// Compute the required offset to align the pointer to the given alignment.
 	/// The specified alignment must be valid, check with IsAlignmentValid() if needed. 
 	/// </summary>
@@ -251,7 +263,7 @@ namespace Nominax
 	constexpr auto ComputeMissingAlignmentOffset(void* const ptr, const std::size_t alignment) noexcept(true) -> std::size_t
 	{
 		const auto misalignment = std::bit_cast<std::uintptr_t>(ptr) & alignment - 1;
-		return misalignment ? alignment - misalignment : 0;
+		return misalignment != 0 ? alignment - misalignment : 0;
 	}
 
 	/// <summary>
@@ -263,8 +275,7 @@ namespace Nominax
 	/// <returns>The required offset.</returns>
 	constexpr auto ComputeMissingAlignmentOffset(const std::uintptr_t ptr, const std::size_t alignment) noexcept(true) -> std::size_t
 	{
-		const auto misalignment = ptr & alignment - 1;
-		return misalignment ? alignment - misalignment : 0;
+		return ComputeMissingAlignmentOffset(std::bit_cast<void*>(ptr), alignment);
 	}
 
 	/// <summary>

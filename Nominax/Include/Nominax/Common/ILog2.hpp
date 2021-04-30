@@ -207,6 +207,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <climits>
 #include <cstdint>
 
@@ -215,10 +216,11 @@ namespace Nominax
 	/// <summary>
 	/// Computes the binary logarithm of log2(2)
 	/// </summary>
-	/// <param name="x"></param>
+	/// <param name="x">Should not be 0!</param>
 	/// <returns></returns>
 	inline auto ILog2(std::uint64_t x) noexcept(true) -> std::uint64_t
 	{
+		assert(x);
 		--x;
 		return sizeof x * CHAR_BIT - __builtin_clzll(x);
 	}

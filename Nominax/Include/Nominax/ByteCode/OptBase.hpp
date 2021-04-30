@@ -222,9 +222,9 @@ namespace Nominax
 	consteval auto DefaultOptimizationLevel() noexcept(true) -> OptimizationLevel
 	{
 #if NOMINAX_DEBUG
-		return OptimizationLevel::O3;
-#else
 		return OptimizationLevel::O2;
+#else
+		return OptimizationLevel::O3;
 #endif
 	}
 

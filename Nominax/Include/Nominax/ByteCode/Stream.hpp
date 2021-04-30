@@ -436,9 +436,9 @@ namespace Nominax
 		/// Print out the ir.
 		/// </summary>
 		/// <param name="stream"></param>
-		/// <param name="writeAddress"></param>
+		/// <param name="detailed"></param>
 		/// <returns></returns>
-		auto PrintIntermediateRepresentation(bool writeAddress = true) const noexcept(false) -> void;
+		auto PrintIntermediateRepresentation(bool detailed = true) const noexcept(false) -> void;
 
 		/// <summary>
 		/// Index lookup.

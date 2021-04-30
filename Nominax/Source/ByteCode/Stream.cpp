@@ -213,7 +213,7 @@
 #include "../../Include/Nominax/Common/VisitOverload.hpp"
 
 template <>
-struct Nominax::Fmt::formatter<Nominax::DynamicSignal>
+struct fmt::formatter<Nominax::DynamicSignal>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false)
@@ -225,12 +225,12 @@ struct Nominax::Fmt::formatter<Nominax::DynamicSignal>
 	inline auto format(const Nominax::DynamicSignal& sig, FormatContext& ctx) noexcept(false)
 	{
 		using namespace Nominax;
-		decltype(Fmt::format_to(ctx.out(), "{}", 0)) result { };
+		decltype(fmt::format_to(ctx.out(), "{}", 0)) result { };
 		std::visit(Overloaded
 		           {
 			           [&](const Instruction value)
 			           {
-				           result = Fmt::format_to
+				           result = fmt::format_to
 				           (
 					           ctx.out(),
 					           "{}",
@@ -239,7 +239,7 @@ struct Nominax::Fmt::formatter<Nominax::DynamicSignal>
 			           },
 			           [&](const SystemIntrinsicCallId value)
 			           {
-				           result = Fmt::format_to
+				           result = fmt::format_to
 				           (
 					           ctx.out(),
 					           " {}{}{:#X}",
@@ -250,7 +250,7 @@ struct Nominax::Fmt::formatter<Nominax::DynamicSignal>
 			           },
 			           [&](const CustomIntrinsicCallId value)
 			           {
-				           result = Fmt::format_to
+				           result = fmt::format_to
 				           (
 					           ctx.out(), " {}{}{:#X}",
 					           Lexemes::INTRINSIC_CALL_IMMEDIATE,
@@ -260,7 +260,7 @@ struct Nominax::Fmt::formatter<Nominax::DynamicSignal>
 			           },
 			           [&](const std::uint64_t value)
 			           {
-				           result = Fmt::format_to
+				           result = fmt::format_to
 				           (
 					           ctx.out(), " {}{}{}",
 					           Lexemes::IMMEDIATE,
@@ -270,7 +270,7 @@ struct Nominax::Fmt::formatter<Nominax::DynamicSignal>
 			           },
 			           [&](const std::int64_t value)
 			           {
-				           result = Fmt::format_to
+				           result = fmt::format_to
 				           (
 					           ctx.out(),
 					           " {}{}{}",
@@ -281,7 +281,7 @@ struct Nominax::Fmt::formatter<Nominax::DynamicSignal>
 			           },
 			           [&](const double value)
 			           {
-				           result = Fmt::format_to
+				           result = fmt::format_to
 				           (
 					           ctx.out(),
 					           " {}{}{}",
@@ -292,7 +292,7 @@ struct Nominax::Fmt::formatter<Nominax::DynamicSignal>
 			           },
 			           [&](const char32_t value)
 			           {
-				           result = Fmt::format_to
+				           result = fmt::format_to
 				           (
 					           ctx.out(),
 					           " {}{}{:#X}",
@@ -317,23 +317,54 @@ namespace Nominax
 		});
 	}
 
-	auto Stream::PrintIntermediateRepresentation(const bool writeAddress) const noexcept(false) -> void
+	auto Stream::PrintIntermediateRepresentation(const bool detailed) const noexcept(false) -> void
 	{
-		Print("{} Len: {}, Size: {}B", Lexemes::COMMENT, this->Size(), this->SizeInBytes());
-		for (std::uint64_t address {0}; const DynamicSignal& sig : *this)
+		Print(TextColors::Green, "{} Len: {}, Size: {}B", Lexemes::COMMENT, this->Size(), this->SizeInBytes());
+		std::size_t moffs {0};
+		for (auto sig {std::begin(*this)}, end {std::end(*this)}; sig != end; std::advance(sig, 1))
 		{
-			if (sig.Contains<Instruction>())
+			if (const std::optional<Instruction> value {sig->Unwrap<Instruction>()}; value)
 			[[likely]]
 			{
 				Print("\n");
-				if (writeAddress)
+
+				if (detailed)
 				[[likely]]
 				{
-					Print("{} {:#X} {}", Lexemes::COMMENT, address, Lexemes::COMMENT);
+					Print(TextColors::Green, "{} &{:X} {:02X} {} ", Lexemes::COMMENT, moffs, static_cast<std::underlying_type_t<std::remove_reference_t<decltype(*value)>>>(*value), Lexemes::COMMENT);
+				}
+				Print(TextColors::Cyan, "{}", *sig);
+
+				// Print interrupt type:
+				if (const auto instr {*value}; instr == Instruction::Int)
+				[[unlikely]]
+				{
+					// Get interrupt code:
+					auto current {sig};
+					std::advance(current, 1);
+					if (const auto interrupt {current->Unwrap<std::int64_t>()}; interrupt)
+					[[likely]]
+					{
+						if (const auto code = *interrupt; code == 0)
+						{
+							Print(TextColors::Green, " {}OKI{}", Lexemes::COMMENT, Lexemes::COMMENT);
+						}
+						else if (code < 0)
+						{
+							Print(TextColors::Red, " {}ERR{}", Lexemes::COMMENT, Lexemes::COMMENT);
+						}
+						else
+						{
+							Print(TextColors::Yellow, " {}EXP{}", Lexemes::COMMENT, Lexemes::COMMENT);
+						}
+					}
 				}
 			}
-			Print("{}", sig);
-			++address;
+			else
+			{
+				Print(TextColors::Magenta, "{}", *sig);
+			}
+			++moffs;
 		}
 		Print("\n\n");
 	}
@@ -346,21 +377,22 @@ namespace Nominax
 
 	auto Stream::Begin() noexcept(false) -> Stream&
 	{
-		constexpr std::array code{ DynamicSignal::CodeEpilogue() };
+		constexpr std::array code {DynamicSignal::CodeEpilogue()};
 		if (auto containsPrologueCode = [&]() -> bool
+		{
+			auto begin = this->SignalStream_.begin();
+			for (const DynamicSignal& sig : code)
 			{
-				auto  begin = this->SignalStream_.begin();
-					for (const auto sig : code)
-					{
-						if (sig != *begin) [[unlikely]]
-						{
-							return false;
-						}
-						std::advance(begin, 1);
-					}
-				return true;
-			}; this->Size() >= 2 && !containsPrologueCode())
-			[[unlikely]]
+				if (sig != *begin)
+				[[unlikely]]
+				{
+					return false;
+				}
+				std::advance(begin, 1);
+			}
+			return true;
+		}; this->Size() >= 2 && !containsPrologueCode())
+		[[unlikely]]
 		{
 			this->SignalStream_.insert(this->SignalStream_.begin(), std::begin(code), std::end(code));
 		}
@@ -369,13 +401,14 @@ namespace Nominax
 
 	auto Stream::End() noexcept(false) -> Stream&
 	{
-		constexpr std::array code{ DynamicSignal::CodeEpilogue() };
+		constexpr std::array code {DynamicSignal::CodeEpilogue()};
 		if (auto containsEpilogueCode = [&]() -> bool
 		{
-			auto                 end = this->SignalStream_.end();
-			for (const auto sig : code)
+			auto end = this->SignalStream_.end();
+			for (const DynamicSignal& sig : code)
 			{
-				if (sig != *end) [[unlikely]]
+				if (sig != *end)
+				[[unlikely]]
 				{
 					return false;
 				}

@@ -207,17 +207,22 @@
 
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <type_traits>
 
 #include "../Core/Record.hpp"
-
 #include "SystemIntrinsic.hpp"
 #include "CustomIntrinsic.hpp"
 #include "Instruction.hpp"
 
 namespace Nominax
 {
+	/// <summary>
+	/// Raw representation of a signal as bytes.
+	/// </summary>
+	using SignalByteBuffer = std::array<std::byte, 8>;
+
 	/// <summary>
 	/// 64-bit byte code signal data contains either an instruction or an immediate value.
 	/// </summary>
@@ -333,6 +338,7 @@ namespace Nominax
 	constexpr Signal::Signal(const double value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
 
+	static_assert(sizeof(SignalByteBuffer) == sizeof(Signal));
 	static_assert(std::is_trivial_v<Signal>);
 	static_assert(std::is_default_constructible_v<Signal>);
 	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, std::uint64_t>);

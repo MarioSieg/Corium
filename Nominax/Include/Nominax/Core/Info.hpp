@@ -237,8 +237,8 @@ namespace Nominax
 
 	constexpr std::string_view SYSTEM_COPYRIGHT_TEXT =
 		"(c) Copyright Mario Sieg <pinsrq> mt3000@gmx.de 2019-2021! All rights reserved!\n"
-		"The Nominax runtime system is open source software: https://github.com/MarioSieg/NominaX\n"
-		"See LICENSE file for licensing and copyright information!\n";
+		"The Corium programming language and the Nominax runtime system is open source software:\nhttps://github.com/MarioSieg/Corium\n"
+		"See the LICENSE file for licensing and copyright information!\n";
 
 	constexpr std::string_view SYSTEM_LOGO_TEXT = R"(
                                                          #@@#   

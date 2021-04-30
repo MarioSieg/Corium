@@ -208,6 +208,8 @@
 #pragma once
 
 #include "F64Comparator.hpp"
+#include "ILog2.hpp"
+#include "MemoryAlign.hpp"
 #include "MemoryUnits.hpp"
 #include "Protocol.hpp"
 #include "SafeLocalTime.hpp"
