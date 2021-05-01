@@ -316,5 +316,5 @@ namespace Nominax
 		auto Descriptor() const noexcept(true) -> const DetailedReactorDescriptor&;
 	};
 
-	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const DetailedReactorDescriptor& input) noexcept(false) -> ReactorOutput;
+	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput;
 }

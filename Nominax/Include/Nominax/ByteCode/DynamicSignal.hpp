@@ -418,7 +418,7 @@ namespace Nominax
 	/// This contains the total number of signals in the prologue + epilogue code.
 	/// Each code chunk must have at least the size of this because prologue and epilogue are required.
 	/// </summary>
-	inline static const std::size_t MANDATORY_CODE_SIZE{ DynamicSignal::CodePrologue().size() + DynamicSignal::CodeEpilogue().size() };
+	inline static const std::size_t MANDATORY_CODE_SIZE {DynamicSignal::CodePrologue().size() + DynamicSignal::CodeEpilogue().size()};
 
 
 	/// <summary>

@@ -212,10 +212,7 @@ namespace
 {
 	using namespace Nominax;
 
-	auto DefaultInterruptRoutine(InterruptAccumulator) -> bool
-	{
-		return true;
-	}
+	auto DefaultInterruptRoutine(InterruptAccumulator) -> void { }
 
 	auto CreateDescriptor
 	(

@@ -1,6 +1,6 @@
-// File: SafeLocalTime.cpp
+// File: Signal.cpp
 // Author: Mario
-// Created: 30.04.2021 10:46 AM
+// Created: 01.05.2021 3:54 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,11 +205,37 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#include "../../Include/Nominax/Common/Signal.hpp"
 
-TEST(Common, SafeLocalTime)
+namespace
 {
-	auto time   = std::time(nullptr);
-	auto result = SafeLocalTime(time);
-	ASSERT_EQ(std::memcmp(std::localtime(&time), &result, sizeof(std::tm)), 0);
+	constinit volatile std::sig_atomic_t SignalStatus {0};
+}
+
+namespace Nominax
+{
+	auto QuerySignalStatus() noexcept(true) -> std::sig_atomic_t
+	{
+		return SignalStatus;
+	}
+
+	auto InstallSignalHandlers(auto (&handler)(std::sig_atomic_t) -> void) -> void
+	{
+		std::signal(SIGINT, &handler);
+		std::signal(SIGILL, &handler);
+		std::signal(SIGFPE, &handler);
+		std::signal(SIGSEGV, &handler);
+		std::signal(SIGTERM, &handler);
+		std::signal(SIGABRT, &handler);
+	}
+
+	auto UninstallSignalHandlers() -> void
+	{
+		std::signal(SIGINT, SIG_DFL);
+		std::signal(SIGILL, SIG_DFL);
+		std::signal(SIGFPE, SIG_DFL);
+		std::signal(SIGSEGV, SIG_DFL);
+		std::signal(SIGTERM, SIG_DFL);
+		std::signal(SIGABRT, SIG_DFL);
+	}
 }

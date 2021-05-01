@@ -215,25 +215,19 @@
 #define NOMINAX_USE_ARCH_OPT true
 
 /// <summary>
-/// If true, explicit checks are inserted - if false stack overflow results in a segmentation fault handled through signals
-/// BTW jump instruction which push cannot trigger a stack overflow because they recycle stack space.
-/// </summary>
-#define NOMINAX_STACK_OVERFLOW_CHECKS true
-
-/// <summary>
 /// Insert assembly comments with the instruction name into the assembler code, to find the section in the compiled output.
 /// Should be disabled when building for release.
 /// </summary>
-#define NOMINAX_REACTOR_ASM_MARKERS true
-
-/// <summary>
-/// If enabled, the jump table addresses are directly mapped as pointers into the byte-code signals.
-/// </summary>
-#define NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING (!NOMINAX_DEBUG)
+#define NOMINAX_REACTOR_ASM_MARKERS NOMINAX_DEBUG
 
 /// <summary>
 ///
 /// </summary>
 #define NOMINAX_VERBOSE_ALLOCATOR NOMINAX_DEBUG
 
-#define NOMINAX_OPT_USE_ZERO_EPSILON true
+#define NOMINAX_OPT_USE_ZERO_EPSILON NOMINAX_DEBUG
+
+/// <summary>
+/// If enabled, the jump table addresses are directly mapped as pointers into the byte-code signals.
+/// </summary>
+#define NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING NOMINAX_RELEASE

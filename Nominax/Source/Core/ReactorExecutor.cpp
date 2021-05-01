@@ -218,7 +218,7 @@
 #include <thread>
 
 #include "../../Include/Nominax/Core/Reactor.hpp"
-#include "../../Include/Nominax/Core/Interrupts.hpp"
+#include "../../Include/Nominax/Core/Interrupt.hpp"
 #include "../../Include/Nominax/Core/Info.hpp"
 #include "../../Include/Nominax/Core/HardFaultReport.hpp"
 
@@ -434,12 +434,12 @@ namespace Nominax
 #define STO_SENTINEL(x)																								\
 			do {																									\
 				if (__builtin_expect(sp + ((x) - 1) >= spHi, 0)) {													\
-					interruptCode = static_cast<decltype(interruptCode)>(SystemInterrupt::StackOverflow);			\
+					interruptCode = INT_CODE_STACK_OVERFLOW;														\
 					goto _hard_fault_err_;																			\
 				}																									\
 			} while(false)
 #else
-		#define STO_SENTINEL(x)
+#define STO_SENTINEL(x)
 #endif
 
 	/// <summary>
@@ -839,7 +839,7 @@ namespace Nominax
 		return;
 	}
 
-	__attribute__((hot)) auto ExecuteChecked(const DetailedReactorDescriptor& input) noexcept(false) -> ReactorOutput
+	__attribute__((hot)) auto ExecuteChecked(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput
 	{
 		auto validationFault = [&input](const ReactorValidationResult result) noexcept(true) -> ReactorOutput
 		{
@@ -941,14 +941,13 @@ namespace Nominax
 
 		ASM_MARKER("reactor locals");
 
-		InterruptAccumulator           interruptCode { };                         /* interrupt id flag			*/
-		IntrinsicRoutine* const* const intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi			*/
-		InterruptRoutine* const        interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
-		const Signal* const __restrict ipLo {input.CodeChunk};                    /* instruction low ptr		*/
-		const Signal*                  ip {ipLo};                                 /* instruction ptr			*/
-		const Signal*                  bp {ipLo};                                 /* base pointer */
-		Record* __restrict__           sp {input.Stack};                          /* stack pointer lo			*/
-		Record* const __restrict__     spHi {input.Stack + input.StackSize - 1};  /* stack pointer hi			*/
+		InterruptAccumulator             interruptCode { };                         /* interrupt id flag			*/
+		IntrinsicRoutine* const* const   intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi			*/
+		InterruptRoutine* const          interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
+		const Signal* const __restrict__ ipLo {input.CodeChunk};                    /* instruction low ptr		*/
+		const Signal*                    ip {ipLo};                                 /* instruction ptr			*/
+		const Signal*                    bp {ipLo};                                 /* base pointer				*/
+		Record* __restrict__             sp {input.Stack};                          /* stack pointer lo			*/
 
 		ASM_MARKER("reactor exec");
 
@@ -974,8 +973,8 @@ namespace Nominax
 			ASM_MARKER("__int__");
 
 			interruptCode = (*++ip).R64.I32;
-			// check if interrupt handler request exit or interrupt is error (interrupt < 0) or success (interrupt == 0)
-			if (__builtin_expect(!interruptHandler(interruptCode) || interruptCode <= 0, 0))
+			interruptHandler(interruptCode);
+			if (__builtin_expect(interruptCode <= 0, 0))
 			{
 				goto _terminate_;
 			}
@@ -998,11 +997,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__cintrin__");
 
-		if (__builtin_expect(!(**(intrinsicTable + (*++ip).R64.U64))(sp), 0))
-		{
-			// Fatal intrinsic error:
-			goto _hard_fault_err_;
-		}
+		(**(intrinsicTable + (*++ip).R64.U64))(sp);
 
 		goto
 		JMP_PTR();
@@ -1062,7 +1057,6 @@ namespace Nominax
 	__push__:
 		__attribute__((hot));
 		ASM_MARKER("__push__");
-		STO_SENTINEL(1);
 
 		*++sp = (*++ip).R64; // push(imm())
 
@@ -1094,8 +1088,6 @@ namespace Nominax
 		__attribute__((hot));
 		{
 			ASM_MARKER("__dupl__");
-			STO_SENTINEL(1);
-
 			const auto top {*sp}; // peek()
 			*++sp = top;          // push(peek())
 		}
@@ -1107,7 +1099,6 @@ namespace Nominax
 		__attribute__((hot));
 		{
 			ASM_MARKER("__dupl2__");
-			STO_SENTINEL(2);
 
 			const auto top {*sp}; // peek
 			*++sp = top;          // push(peek())
@@ -1122,9 +1113,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__swap__");
 
-			const auto top = *sp;       // backup = top()
-			*sp            = *(sp - 1); // top() = poke(1)
-			*(sp - 1)      = top;       // poke(1) = backup
+			const auto top {*sp};  // backup = top()
+			*sp       = *(sp - 1); // top() = poke(1)
+			*(sp - 1) = top;       // poke(1) = backup
 		}
 		goto
 		JMP_PTR();
@@ -1469,7 +1460,6 @@ namespace Nominax
 	__ipushz__:
 		__attribute__((hot));
 		ASM_MARKER("__ipushz__");
-		STO_SENTINEL(1);
 
 		(*++sp).I64 = 0; // push(0)
 
@@ -1480,7 +1470,6 @@ namespace Nominax
 	__ipusho__:
 		__attribute__((hot));
 		ASM_MARKER("__ipusho__");
-		STO_SENTINEL(1);
 
 		(*++sp).I64 = 1; // push(1)
 
@@ -1491,7 +1480,6 @@ namespace Nominax
 	__fpusho__:
 		__attribute__((hot));
 		ASM_MARKER("__fpusho__");
-		STO_SENTINEL(1);
 
 		(*++sp).F64 = 1.0; // push(1)
 
@@ -1757,7 +1745,6 @@ namespace Nominax
 	__vpush__:
 		__attribute__((hot));
 		ASM_MARKER("__vpush__");
-		STO_SENTINEL(4);
 
 		/*
 			movupd	(%r15), %xmm0
@@ -1986,17 +1973,9 @@ namespace Nominax
 		JMP_PTR();
 
 
+		[[maybe_unused]]
 	_hard_fault_err_: __attribute__((cold));
-		{
-#ifndef NOMINAX_TESTING
-			const std::string_view msg = BasicErrorInfo(InterruptCvt(interruptCode));
-			WriteHardFaultReport(sp, ip, bp, input.StackSize, input.CodeChunkSize, msg);
-#endif
-
-#if !NOMINAX_DEBUG
-			std::abort();
-#endif
-		}
+		interruptCode = INT_CODE_FATAL_ERROR;
 
 	_terminate_: __attribute__((cold));
 
@@ -2006,8 +1985,7 @@ namespace Nominax
 		{
 			.Input = &input,
 			.ValidationResult = ReactorValidationResult::Ok,
-			.ExecutionResult = TerminateTypeCvt(interruptCode),
-			.Interrupt = InterruptCvt(interruptCode),
+			.ShutdownReason = DetermineShutdownReason(interruptCode),
 			.Pre = pre,
 			.Post = std::chrono::high_resolution_clock::now(),
 			.Duration = std::chrono::high_resolution_clock::now() - pre,

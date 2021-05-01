@@ -217,7 +217,7 @@ namespace Nominax
 	class Environment
 	{
 		SystemInfo SysInfo_ { };
-		Stream AppCode_{};
+		Stream     AppCode_ { };
 
 		auto UnlockNoSyncStdStreams() const -> void;
 		auto InstallSignalHandlers() const -> void;

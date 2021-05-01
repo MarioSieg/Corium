@@ -1,6 +1,6 @@
-// File: SafeLocalTime.cpp
+// File: Interrupt.hpp
 // Author: Mario
-// Created: 30.04.2021 10:46 AM
+// Created: 01.05.2021 3:58 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,11 +205,20 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#pragma once
 
-TEST(Common, SafeLocalTime)
+#include <cstdint>
+
+namespace Nominax
 {
-	auto time   = std::time(nullptr);
-	auto result = SafeLocalTime(time);
-	ASSERT_EQ(std::memcmp(std::localtime(&time), &result, sizeof(std::tm)), 0);
+	using InterruptAccumulator = std::int32_t;
+	using InterruptRoutine = auto(InterruptAccumulator) -> void;
+
+	constexpr InterruptAccumulator INT_CODE_FATAL_ERROR {std::numeric_limits<InterruptAccumulator>::min()};
+	constexpr InterruptAccumulator INT_CODE_OK {0};
+	constexpr InterruptAccumulator INT_CODE_EXCEPTIONS {std::numeric_limits<InterruptAccumulator>::max()};
+
+#if NOMINAX_STACK_OVERFLOW_CHECKS
+	constexpr InterruptAccumulator INT_CODE_STACK_OVERFLOW{ -0xFF'FF };
+#endif
 }

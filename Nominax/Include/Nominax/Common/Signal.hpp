@@ -1,6 +1,6 @@
-// File: SafeLocalTime.cpp
+// File: Signal.hpp
 // Author: Mario
-// Created: 30.04.2021 10:46 AM
+// Created: 01.05.2021 3:53 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,11 +205,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#pragma once
 
-TEST(Common, SafeLocalTime)
+#include <csignal>
+
+namespace Nominax
 {
-	auto time   = std::time(nullptr);
-	auto result = SafeLocalTime(time);
-	ASSERT_EQ(std::memcmp(std::localtime(&time), &result, sizeof(std::tm)), 0);
+	extern auto QuerySignalStatus() noexcept(true) -> std::sig_atomic_t;
+	extern auto InstallSignalHandlers(auto (&handler)(std::sig_atomic_t) -> void) -> void;
+	extern auto UninstallSignalHandlers() -> void;
 }

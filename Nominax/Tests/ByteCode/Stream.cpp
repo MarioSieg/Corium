@@ -1,4 +1,4 @@
-// File: BytecodeStream.cpp
+// File: Stream.cpp
 // Author: Mario
 // Created: 27.04.2021 3:43 PM
 // Project: NominaxRuntime
@@ -212,17 +212,15 @@ TEST(BytecodeStream, Constructor)
 	Stream stream { };
 	ASSERT_EQ(stream.Size(), 1);
 	ASSERT_EQ(stream.SizeInBytes(), sizeof(DynamicSignal));
-	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
-	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
+	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue()[0].Unwrap<Instruction>().value()));
 }
 
 TEST(BytecodeStream, ConstructorCapacity)
 {
-	Stream stream {};
+	Stream stream { };
 	ASSERT_EQ(stream.Size(), 1);
 	ASSERT_EQ(stream.SizeInBytes(), sizeof(DynamicSignal));
-	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
-	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue().Unwrap<Instruction>().value()));
+	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue()[0].Unwrap<Instruction>().value()));
 }
 
 TEST(BytecodeStream, Push)

@@ -213,7 +213,7 @@
 #include "FixedStack.hpp"
 #include "HardFaultReport.hpp"
 #include "Info.hpp"
-#include "Interrupts.hpp"
+#include "Interrupt.hpp"
 #include "Object.hpp"
 #include "ObjectAllocator.hpp"
 #include "ObjectFlagVector.hpp"

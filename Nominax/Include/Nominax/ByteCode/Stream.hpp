@@ -583,7 +583,7 @@ namespace Nominax
 	inline Stream::Stream() noexcept(false)
 	{
 		// Insert important code prologue.
-		const auto prologue{ DynamicSignal::CodePrologue() };
+		const auto prologue {DynamicSignal::CodePrologue()};
 		this->SignalStream_.insert(std::begin(this->SignalStream_), std::begin(prologue), std::end(prologue));
 	}
 

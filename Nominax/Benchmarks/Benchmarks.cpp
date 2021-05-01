@@ -248,9 +248,9 @@ auto Loop1Billion(State& state) -> void
 	}
 
 	std::array<Record, 32> stack = {Record::Padding()};
-	
-	constexpr std::array       intrins {
-		+[](Record*            ) -> bool { return true; }
+
+	constexpr std::array intrins {
+		+[](Record*      ) -> bool { return true; }
 	};
 
 	const DetailedReactorDescriptor input {
@@ -381,8 +381,8 @@ auto Loop5Billion(State& state) -> void
 
 	std::array<Record, 32> stack = {Record::Padding()};
 
-	constexpr std::array       intrins {
-		+[](Record*            ) -> bool { return true; }
+	constexpr std::array intrins {
+		+[](Record*      ) -> bool { return true; }
 	};
 
 	const DetailedReactorDescriptor input {

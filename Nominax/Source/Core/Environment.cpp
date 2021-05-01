@@ -258,7 +258,7 @@ namespace Nominax
 
 	auto Environment::InstallSignalHandlers() const -> void
 	{
-		Nominax::InstallSignalHandlers();
+		// TODO
 	}
 
 	auto Environment::PrintVersionInfo() const -> void
@@ -318,8 +318,6 @@ namespace Nominax
 
 	Environment::Environment(Stream&& appCode) noexcept(false) : AppCode_ {std::move(appCode)}
 	{
-		if (appCode.Size())
-		
 		this->InstallSignalHandlers();
 		this->UnlockNoSyncStdStreams();
 		this->PrintVersionInfo();
@@ -337,17 +335,13 @@ namespace Nominax
 		std::vector intrinsics
 		{
 			// Print:
-			+[](Record* sp) -> bool
+			+[](Record* sp) -> void
 			{
 				Print("((2 * 2) + 1) / 1 = {}\n", sp->I64);
-				return true;
 			}
 		};
 		InterruptRoutine&                  interrupt {
-			*+[](const InterruptAccumulator) -> bool
-			{
-				return true;
-			}
+			*+[](const InterruptAccumulator) -> void { }
 		};
 
 		const Reactor reactor {std::move(stack), std::move(chunk), std::move(jumpMap), intrinsics, interrupt};
@@ -364,14 +358,8 @@ namespace Nominax
 		Print("\n################ APP ################\n");
 		cout.flush();
 
-		const bool ok {reactorOutput.ExecutionResult == TerminateResult::Success};
-		Print(ok ? LogLevel::Success : LogLevel::Error, "Execution done... {}\n", ok ? "Ok" : "Error");
-		Print
-		(
-			"Time: {}, Interrupt: {}\n",
-			std::chrono::duration_cast<std::chrono::milliseconds>(reactorOutput.Duration),
-			reactorOutput.InterruptCode
-		);
+		PrintShutdownReason(reactorOutput.ShutdownReason, reactorOutput.InterruptCode);
+		Print("Time: {}\n", std::chrono::duration_cast<std::chrono::milliseconds>(reactorOutput.Duration));
 		cout.flush();
 	}
 

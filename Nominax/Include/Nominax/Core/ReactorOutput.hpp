@@ -209,6 +209,7 @@
 
 #include <chrono>
 
+#include "ReactorShutdownReason.hpp"
 #include "DetailedReactorDescriptor.hpp"
 
 namespace Nominax
@@ -220,8 +221,7 @@ namespace Nominax
 	{
 		const DetailedReactorDescriptor*               Input {nullptr};
 		ReactorValidationResult                        ValidationResult { };
-		TerminateResult                                ExecutionResult { };
-		SystemInterrupt                                Interrupt { };
+		ReactorShutdownReason                          ShutdownReason {ReactorShutdownReason::Success};
 		std::chrono::high_resolution_clock::time_point Pre { };
 		std::chrono::high_resolution_clock::time_point Post { };
 		std::chrono::high_resolution_clock::duration   Duration { };
