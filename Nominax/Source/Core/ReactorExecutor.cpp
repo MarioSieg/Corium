@@ -433,7 +433,7 @@ namespace Nominax
 	 */
 #define STO_SENTINEL(x)																								\
 			do {																									\
-				if (__builtin_expect(sp + ((x) - 1) >= spHi, 0)) {													\
+				if (NOMINAX_UNLIKELY(sp + ((x) - 1) >= spHi)) {														\
 					interruptCode = INT_CODE_STACK_OVERFLOW;														\
 					goto _hard_fault_err_;																			\
 				}																									\
@@ -482,12 +482,12 @@ namespace Nominax
 	                                   const bool*                                        instructionMap,
 	                                   const void* __restrict__ const* __restrict__ const jumpTable) noexcept(true) -> bool
 	{
-		if (__builtin_expect(!bucket || !bucketEnd || !instructionMap || !jumpTable || !*jumpTable, 0))
+		if (NOMINAX_UNLIKELY(!bucket || !bucketEnd || !instructionMap || !jumpTable || !*jumpTable))
 		{
 			return false;
 		}
 
-		if (__builtin_expect(bucket->Instr != Instruction::NOp || !*instructionMap, 0))
+		if (NOMINAX_UNLIKELY(bucket->Instr != Instruction::NOp || !*instructionMap))
 		{
 			return false;
 		}
@@ -496,7 +496,7 @@ namespace Nominax
 		++bucket;
 		++instructionMap;
 
-		while (__builtin_expect(bucket < bucketEnd, 1))
+		while (NOMINAX_UNLIKELY(bucket < bucketEnd))
 		{
 			if (*instructionMap)
 			{
@@ -523,9 +523,9 @@ namespace Nominax
 		assert(jumpTable);
 		assert(jumpTableSize);
 		const auto* current {jumpTable};
-		for (const auto* const end {jumpTable + jumpTableSize}; __builtin_expect(current < end, 1); ++current)
+		for (const auto* const end {jumpTable + jumpTableSize}; NOMINAX_LIKELY(current < end); ++current)
 		{
-			if (__builtin_expect(!*current, 0))
+			if (NOMINAX_UNLIKELY(!*current))
 			{
 				return false;
 			}
@@ -850,7 +850,7 @@ namespace Nominax
 			};
 		};
 
-		if (const auto result = input.Validate(); __builtin_expect(result != ReactorValidationResult::Ok, 0))
+		if (const auto result = input.Validate(); NOMINAX_UNLIKELY(result != ReactorValidationResult::Ok))
 		{
 			return validationFault(result);
 		}
@@ -974,7 +974,7 @@ namespace Nominax
 
 			interruptCode = (*++ip).R64.I32;
 			interruptHandler(interruptCode);
-			if (__builtin_expect(interruptCode <= 0, 0))
+			if (NOMINAX_UNLIKELY(interruptCode <= 0))
 			{
 				goto _terminate_;
 			}

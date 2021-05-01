@@ -218,36 +218,36 @@
 namespace
 {
 	using namespace Nominax;
-	
-	inline auto MsgGetIcon(const MessageBoxStyle style) noexcept(true) -> ::UINT
+
+	inline auto MsgGetIcon(const MessageBoxStyle style) noexcept(true) -> UINT
 	{
 		switch (style)
 		{
-			case MessageBoxStyle::Info:
-				return MB_ICONINFORMATION;
-			case MessageBoxStyle::Warning:
-				return MB_ICONWARNING;
-			case MessageBoxStyle::Error:
-				return MB_ICONERROR;
-			case MessageBoxStyle::Question:
-				return MB_ICONQUESTION;
+		case MessageBoxStyle::Info:
+			return MB_ICONINFORMATION;
+		case MessageBoxStyle::Warning:
+			return MB_ICONWARNING;
+		case MessageBoxStyle::Error:
+			return MB_ICONERROR;
+		case MessageBoxStyle::Question:
+			return MB_ICONQUESTION;
 		}
 	}
 
-	inline auto MsgGetButtons(const MessageBoxButtons buttons) noexcept(true) -> ::UINT
+	inline auto MsgGetButtons(const MessageBoxButtons buttons) noexcept(true) -> UINT
 	{
 		switch (buttons)
 		{
-			case MessageBoxButtons::Ok:
-				return MB_OK;
-			case MessageBoxButtons::OkCancel:
-				return MB_OKCANCEL;
-			case MessageBoxButtons::YesNo:
-				return MB_YESNO;
+		case MessageBoxButtons::Ok:
+			return MB_OK;
+		case MessageBoxButtons::OkCancel:
+			return MB_OKCANCEL;
+		case MessageBoxButtons::YesNo:
+			return MB_YESNO;
 		}
 	}
 
-	inline auto MsgGetSelection(const ::INT response) noexcept(true) -> MessageBoxSelection
+	inline auto MsgGetSelection(const INT response) noexcept(true) -> MessageBoxSelection
 	{
 		switch (response)
 		{
@@ -286,14 +286,12 @@ namespace Nominax::Os
 	{
 		HKEY key;
 		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
-		[[unlikely]]
 		{
 			return "Unknown";
 		}
 		TCHAR id[64 + 1];
 		DWORD idLen = sizeof id;
 		if (const auto data = static_cast<LPBYTE>(static_cast<void*>(id)); RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &idLen))
-		[[unlikely]]
 		{
 			return "Unknown";
 		}
@@ -327,9 +325,9 @@ namespace Nominax::Os
 	auto ShowMessageBox(const std::string_view message, const std::string_view caption, const MessageBoxStyle style, const MessageBoxButtons buttons) noexcept(false) -> MessageBoxSelection
 	{
 		UINT flags = MB_TASKMODAL;
-		flags |= ::MsgGetIcon(style);
-		flags |= ::MsgGetButtons(buttons);
-		return ::MsgGetSelection(MessageBox(nullptr, message.data(), caption.data(), flags));
+		flags |= MsgGetIcon(style);
+		flags |= MsgGetButtons(buttons);
+		return MsgGetSelection(MessageBox(nullptr, message.data(), caption.data(), flags));
 	}
 }
 

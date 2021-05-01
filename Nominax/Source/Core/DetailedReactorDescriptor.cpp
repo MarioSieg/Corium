@@ -207,21 +207,21 @@
 
 #include "../../Include/Nominax/Core/DetailedReactorDescriptor.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
 
 namespace Nominax
 {
 	auto DetailedReactorDescriptor::Validate() const noexcept(true) -> ReactorValidationResult
 	{
 		// validate all pointers:
-		if (!(this->CodeChunk && this->InterruptHandler && this->Stack))
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(!(this->CodeChunk && this->InterruptHandler && this->Stack)))
 		{
 			return ReactorValidationResult::NullPtr;
 		}
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
 
-		if (!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize)) [[unlikely]]
+		if (NOMINAX_UNLIKELY(!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize)))
 		{
 			return ReactorValidationResult::NullPtr;
 		}
@@ -229,44 +229,37 @@ namespace Nominax
 #endif
 
 		// validate the size for the corresponding pointers:
-		if (!this->CodeChunkSize || !this->StackSize)
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(!this->CodeChunkSize || !this->StackSize))
 		{
 			return ReactorValidationResult::ZeroSize;
 		}
 
 		// first instruction will be skipped and must be NOP:
-		if (CodeChunk->Instr != Instruction::NOp)
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(CodeChunk->Instr != Instruction::NOp))
 		{
 			return ReactorValidationResult::MissingCodePrologue;
 		}
 
 		// last instruction must be interrupt:
-		if (CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != Instruction::Int)
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != Instruction::Int))
 		{
 			return ReactorValidationResult::MissingCodeEpilogue;
 		}
 
 		// first stack entry is never used and must be nop-padding:
-		if (*Stack != Record::Padding())
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(*Stack != Record::Padding()))
 		{
 			return ReactorValidationResult::MissingStackPrologue;
 		}
 
-		if (this->IntrinsicTable)
-		[[likely]]
+		if (NOMINAX_LIKELY(this->IntrinsicTable))
 		{
 			// validate intrinsic routines:
 			auto* const*       begin = this->IntrinsicTable;
 			auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
-			while (begin < end)
-			[[unlikely]]
+			while (NOMINAX_LIKELY(begin < end))
 			{
-				if (!*begin++)
-				[[unlikely]]
+				if (NOMINAX_UNLIKELY(!*begin++))
 				{
 					return ReactorValidationResult::NullIntrinsicRoutine;
 				}

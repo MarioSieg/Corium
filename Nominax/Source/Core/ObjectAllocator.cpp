@@ -220,7 +220,7 @@ namespace Nominax
 
 		// We cannot allocate an object of size 0.
 		// This would only allocate an object header.
-		if (__builtin_expect(sizeInRecords == 0, 0))
+		if (NOMINAX_UNLIKELY(sizeInRecords == 0))
 		{
 			return nullptr;
 		}
@@ -235,7 +235,7 @@ namespace Nominax
 		assert(instance);
 
 		// check if allocation failed:
-		if (__builtin_expect(!instance, 0))
+		if (NOMINAX_UNLIKELY(!instance))
 		{
 			return nullptr;
 		}
@@ -263,7 +263,7 @@ namespace Nominax
 		// debug check
 		assert(instance);
 
-		if (__builtin_expect(!instance, 0))
+		if (NOMINAX_UNLIKELY(!instance))
 		{
 			return;
 		}

@@ -214,6 +214,7 @@
 #include "Instruction.hpp"
 #include "Stream.hpp"
 #include "StreamScalar.hpp"
+#include "../Common/BranchHint.hpp"
 
 namespace Nominax
 {
@@ -479,8 +480,7 @@ namespace Nominax
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::DoNothing() -> ScopedVariable&
 	{
-		if (OptLevel == OptimizationLevel::Off)
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(OptLevel == OptimizationLevel::Off))
 		{
 			// ReSharper disable once CppRedundantTemplateKeyword
 			this->Attached_.template Do<Instruction::NOp>();

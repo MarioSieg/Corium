@@ -885,8 +885,7 @@ namespace Nominax
 		crashFilePath << CRASH_DIRECTORY;
 		crashFilePath << std::put_time(&tm, "NominaxCrash_%d_%m_%Y_%H_%M_%S.dmp");
 		const std::string crashFilePathStr = crashFilePath.str();
-		if (std::ofstream crashFile {crashFilePathStr}; crashFile)
-		[[likely]]
+		if (std::ofstream crashFile {crashFilePathStr}; NOMINAX_LIKELY(crashFile.is_open()))
 		{
 			crashFile << str;
 			crashFile.flush();

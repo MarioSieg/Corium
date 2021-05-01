@@ -209,6 +209,7 @@
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 #include "../../Include/Nominax/Common/F64Comparator.hpp"
 #include "../../Include/Nominax/Common/ILog2.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
 
 namespace
 {
@@ -250,8 +251,7 @@ namespace Nominax
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	auto ScopedVariable<double>::Push(const double value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// If zero, optimize with special push zero instruction.
 			if (::F64IsZero(value))
@@ -284,8 +284,7 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<std::int64_t>::Push(const std::int64_t value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// If zero, optimize with special push zero instruction.
 			if (value == 0)
@@ -318,8 +317,7 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<std::uint64_t>::Push(const std::uint64_t value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// If zero, optimize with special push zero instruction.
 			if (value == 0)
@@ -351,12 +349,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<double>::Add(const double value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// With 0 it's a no-op
 			if (::F64IsZero(value))
-			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
@@ -376,12 +372,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<std::int64_t>::Add(const std::int64_t value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// With 0 it's a no-op
 			if (value == 0)
-			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
@@ -401,12 +395,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<std::uint64_t>::Add(const std::uint64_t value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// With 0 it's a no-op
 			if (value == 0)
-			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
@@ -427,12 +419,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<double>::Sub(const double value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// With 0 it's a no-op
 			if (::F64IsZero(value))
-			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
@@ -452,12 +442,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<std::int64_t>::Sub(const std::int64_t value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// With 0 it's a no-op
 			if (value == 0)
-			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
@@ -477,12 +465,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<std::uint64_t>::Sub(const std::uint64_t value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// With 0 it's a no-op
 			if (value == 0)
-			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
@@ -502,12 +488,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<double>::Mul(const double value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// By 0 or 1 is a no-op:
 			if (::F64IsZero(value) || ::F64IsOne(value))
-			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
@@ -520,12 +504,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<std::int64_t>::Mul(std::int64_t value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// By 0 or 1 is a no-op:
 			if (value == 0 || value == 1)
-			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
@@ -547,12 +529,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<std::uint64_t>::Mul(std::uint64_t value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// By 0 or 1 is a no-op:
 			if (value == 0 || value == 1)
-			[[unlikely]]
 			{
 				return this->DoNothing();
 			}
@@ -574,12 +554,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<double>::Div(const double value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// x / x is always 1
 			if (this->Attached_.Back().Contains(value))
-			[[unlikely]]
 			{
 				this->Push(1.0);
 				return *this;
@@ -587,7 +565,6 @@ namespace Nominax
 
 			// By 1 it's just the same value.
 			if (::F64IsOne(value))
-			[[unlikely]]
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
@@ -601,12 +578,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<std::int64_t>::Div(std::int64_t value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// x / x is always 1
 			if (this->Attached_.Back().Contains(value))
-			[[unlikely]]
 			{
 				this->Push(static_cast<decltype(value)>(1));
 				return *this;
@@ -614,7 +589,6 @@ namespace Nominax
 
 			// By 1 it's just the same value.
 			if (value == 1)
-			[[unlikely]]
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
@@ -638,12 +612,10 @@ namespace Nominax
 	template <>
 	auto ScopedVariable<std::uint64_t>::Div(std::uint64_t value) -> ScopedVariable&
 	{
-		if (OptLevel >= OptimizationLevel::O1)
-		[[likely]]
+		if (NOMINAX_LIKELY(OptLevel >= OptimizationLevel::O1))
 		{
 			// x / x is always 1
 			if (this->Attached_.Back().Contains(value))
-			[[unlikely]]
 			{
 				this->Push(static_cast<decltype(value)>(1));
 				return *this;
@@ -651,7 +623,6 @@ namespace Nominax
 
 			// By 1 it's just the same value.
 			if (value == 1)
-			[[unlikely]]
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
@@ -748,7 +719,6 @@ namespace Nominax
 	auto ScopedVariable<std::int64_t>::ShiftLeft(const std::int64_t value) -> ScopedVariable&
 	{
 		if (value == 0)
-		[[unlikely]]
 		{
 			return this->DoNothing();
 		}
@@ -761,7 +731,6 @@ namespace Nominax
 	auto ScopedVariable<std::uint64_t>::ShiftLeft(const std::uint64_t value) -> ScopedVariable&
 	{
 		if (value == 0)
-		[[unlikely]]
 		{
 			return this->DoNothing();
 		}
@@ -774,7 +743,6 @@ namespace Nominax
 	auto ScopedVariable<std::int64_t>::ShiftRight(const std::int64_t value) -> ScopedVariable&
 	{
 		if (value == 0)
-		[[unlikely]]
 		{
 			return this->DoNothing();
 		}
@@ -787,7 +755,6 @@ namespace Nominax
 	auto ScopedVariable<std::uint64_t>::ShiftRight(const std::uint64_t value) -> ScopedVariable&
 	{
 		if (value == 0)
-		[[unlikely]]
 		{
 			return this->DoNothing();
 		}
@@ -800,7 +767,6 @@ namespace Nominax
 	auto ScopedVariable<std::int64_t>::RotateLeft(const std::int64_t value) -> ScopedVariable&
 	{
 		if (value == 0)
-		[[unlikely]]
 		{
 			return this->DoNothing();
 		}
@@ -813,7 +779,6 @@ namespace Nominax
 	auto ScopedVariable<std::uint64_t>::RotateLeft(const std::uint64_t value) -> ScopedVariable&
 	{
 		if (value == 0)
-		[[unlikely]]
 		{
 			return this->DoNothing();
 		}
@@ -826,7 +791,6 @@ namespace Nominax
 	auto ScopedVariable<std::int64_t>::RotateRight(const std::int64_t value) -> ScopedVariable&
 	{
 		if (value == 0)
-		[[unlikely]]
 		{
 			return this->DoNothing();
 		}
@@ -839,7 +803,6 @@ namespace Nominax
 	auto ScopedVariable<std::uint64_t>::RotateRight(const std::uint64_t value) -> ScopedVariable&
 	{
 		if (value == 0)
-		[[unlikely]]
 		{
 			return this->DoNothing();
 		}

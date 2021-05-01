@@ -211,6 +211,7 @@
 #include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
 #include "../../Include/Nominax/Common/VisitOverload.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
 
 template <>
 struct fmt::formatter<Nominax::DynamicSignal>
@@ -323,27 +324,23 @@ namespace Nominax
 		std::size_t offset {0};
 		for (auto sig {std::begin(*this)}, end {std::end(*this)}; sig != end; std::advance(sig, 1))
 		{
-			if (const std::optional<Instruction> value {sig->Unwrap<Instruction>()}; value)
-			[[likely]]
+			if (const std::optional<Instruction> value {sig->Unwrap<Instruction>()}; NOMINAX_LIKELY(value.has_value()))
 			{
 				Print("\n");
 
 				if (detailed)
-				[[likely]]
 				{
 					Print(TextColors::Green, "{} &{:X} {:02X} {} ", Lexemes::COMMENT, offset, static_cast<std::underlying_type_t<std::remove_reference_t<decltype(*value)>>>(*value), Lexemes::COMMENT);
 				}
 				Print(TextColors::Cyan, "{}", *sig);
 
 				// Print interrupt type:
-				if (const auto instr {*value}; instr == Instruction::Int)
-				[[unlikely]]
+				if (const auto instr {*value}; NOMINAX_UNLIKELY(instr == Instruction::Int))
 				{
 					// Get interrupt code:
 					auto current {sig};
 					std::advance(current, 1);
-					if (const auto interrupt {current->Unwrap<std::int64_t>()}; interrupt)
-					[[likely]]
+					if (const auto interrupt {current->Unwrap<std::int64_t>()}; NOMINAX_LIKELY(interrupt.has_value()))
 					{
 						if (const auto code = *interrupt; code == 0)
 						{
@@ -383,16 +380,14 @@ namespace Nominax
 			auto begin = this->SignalStream_.begin();
 			for (const DynamicSignal& sig : code)
 			{
-				if (sig != *begin)
-				[[unlikely]]
+				if (NOMINAX_UNLIKELY(sig != *begin))
 				{
 					return false;
 				}
 				std::advance(begin, 1);
 			}
 			return true;
-		}; this->Size() >= 2 && !containsPrologueCode())
-		[[unlikely]]
+		}; NOMINAX_UNLIKELY(this->Size() >= 2 && !containsPrologueCode()))
 		{
 			this->SignalStream_.insert(this->SignalStream_.begin(), std::begin(code), std::end(code));
 		}
@@ -407,16 +402,14 @@ namespace Nominax
 			auto end = this->SignalStream_.end();
 			for (const DynamicSignal& sig : code)
 			{
-				if (sig != *end)
-				[[unlikely]]
+				if (NOMINAX_UNLIKELY(sig != *end))
 				{
 					return false;
 				}
 				std::advance(end, -1);
 			}
 			return true;
-		}; this->Size() >= 2 && !containsEpilogueCode())
-		[[unlikely]]
+		}; NOMINAX_UNLIKELY(this->Size() >= 2 && !containsEpilogueCode()))
 		{
 			this->SignalStream_.insert(this->SignalStream_.end(), std::begin(code), std::end(code));
 		}

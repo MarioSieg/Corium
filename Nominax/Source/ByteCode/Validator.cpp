@@ -210,6 +210,7 @@
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentType.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
 
 namespace Nominax
 {
@@ -219,23 +220,19 @@ namespace Nominax
 		const std::uint8_t requiredArgCount = INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[instructionIndex];
 
 		// check if the instruction does not need any immediate arguments:
-		if (std::empty(args) && requiredArgCount == 0)
-		[[likely]]
+		if (NOMINAX_LIKELY(std::empty(args) && requiredArgCount == 0))
 		{
 			return ByteCodeValidationResult::Ok;
 		}
 
-
 		// check if we submitted not enough arguments:
-		if (std::size(args) < requiredArgCount)
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(std::size(args) < requiredArgCount))
 		{
 			return ByteCodeValidationResult::NotEnoughArguments;
 		}
 
 		// check if we submitted too many arguments:
-		if (std::size(args) > requiredArgCount)
-		[[unlikely]]
+		if (NOMINAX_LIKELY(std::size(args) > requiredArgCount))
 		{
 			return ByteCodeValidationResult::TooManyArguments;
 		}
@@ -245,8 +242,7 @@ namespace Nominax
 			INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[instructionIndex];
 
 		// this loop checks each submitted operand type with the required operand type.
-		for (std::size_t i = 0; i < std::size(args); ++i)
-		[[likely]]
+		for (std::size_t i = 0; NOMINAX_LIKELY(i < std::size(args)); ++i)
 		{
 			// submitted operand:
 			const DynamicSignal& arg = args[i];
@@ -287,8 +283,7 @@ namespace Nominax
 			}
 
 			// if the types where not equal, return error:
-			if (!correctType)
-			[[unlikely]]
+			if (NOMINAX_UNLIKELY(!correctType))
 			{
 				return ByteCodeValidationResult::InvalidOperandType;
 			}

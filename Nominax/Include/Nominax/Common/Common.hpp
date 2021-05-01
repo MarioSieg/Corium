@@ -207,6 +207,7 @@
 
 #pragma once
 
+#include "BranchHint.hpp"
 #include "F64Comparator.hpp"
 #include "ILog2.hpp"
 #include "MemoryAlign.hpp"

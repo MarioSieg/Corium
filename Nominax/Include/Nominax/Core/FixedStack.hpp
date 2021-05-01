@@ -296,10 +296,10 @@ namespace Nominax
 
 		/// <summary>
 		/// Construct with size in records.
-		/// If the size is zero, exception will be thrown.
+		/// If the size is zero, fatal termination.
 		/// It will set the first element to padding, so it allocates one more than specified.
 		/// </summary>
-		/// <param name="sizeInRecords">Size in records. If the size is zero, exception will be thrown.</param>
+		/// <param name="sizeInRecords">Size in records. If the size is zero, fatal termination.</param>
 		/// <returns></returns>
 		explicit FixedStack(std::size_t sizeInRecords) noexcept(false);
 

@@ -213,8 +213,7 @@ namespace Nominax
 {
 	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) const noexcept(true) -> bool
 	{
-		if (buffer.size() < this->HeaderRead_BlockSize())
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(buffer.size() < this->HeaderRead_BlockSize()))
 		{
 			return false;
 		}
@@ -245,18 +244,13 @@ namespace Nominax
 
 	auto Object::AllocateUnique(const std::uint32_t sizeInRecords) noexcept(false) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
 	{
-		if (sizeInRecords == 0)
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(sizeInRecords == 0))
 		{
 			return nullptr;
 		}
 		const std::uint32_t      finalObjectSize = ObjectHeader::RECORD_CHUNKS + sizeInRecords;
 		auto* __restrict__ const object          = new Record[finalObjectSize]();
-		if (!object)
-		[[unlikely]]
-		{
-			return nullptr;
-		}
+		assert(object);
 
 		// Write object header:
 		// No ref count:
@@ -266,7 +260,7 @@ namespace Nominax
 		ObjectHeader::WriteMapping_Size(object, sizeInRecords);
 
 		// Use pointer as dummy type id:
-        ObjectHeader::WriteMapping_TypeId(object, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(object)));
+		ObjectHeader::WriteMapping_TypeId(object, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(object)));
 
 		// Write empty flag vector:
 		ObjectHeader::WriteMapping_FlagVector(object, ObjectFlagsVectorCompound { });

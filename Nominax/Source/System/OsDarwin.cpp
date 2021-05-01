@@ -223,7 +223,7 @@ namespace Nominax::os {
 		host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
 		host_page_size(host_port, &pagesize);
 		vm_statistics_data_t vm_stat;
-		if (host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) [[unlikely]] {
+		if (host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) {
 			return 0;
 		}
 		natural_t mem_used = (vm_stat.active_count + vm_stat.inactive_count + vm_stat.wire_count) * pagesize;
@@ -242,7 +242,7 @@ namespace Nominax::os {
 		mach_msg_type_number_t info_count = TASK_BASIC_INFO_COUNT;
 		const int result = task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&info, &info_count);
 #endif
-		if (result != KERN_SUCCESS) [[unlikely]] {
+		if (result != KERN_SUCCESS) {
 			return 0;
 		}
 
