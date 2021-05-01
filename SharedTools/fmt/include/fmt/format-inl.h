@@ -2657,7 +2657,7 @@ FMT_FUNC void format_system_error(detail::buffer<char>& out, int error_code,
   format_error_code(out, error_code, message);
 }
 
-FMT_FUNC void detail::error_handler::on_error(const char* message) {
+FMT_FUNC void detail::error_handler::on_error([[maybe_unused]] const char* message) {
   FMT_THROW(format_error(message));
 }
 

@@ -250,7 +250,7 @@ auto Loop1Billion(State& state) -> void
 	std::array<Record, 32> stack = {Record::Padding()};
 
 	constexpr std::array intrins {
-		+[](Record*      ) -> bool { return true; }
+		+[](Record*      ) -> void {  }
 	};
 
 	const DetailedReactorDescriptor input {
@@ -259,9 +259,9 @@ auto Loop1Billion(State& state) -> void
 		.CodeChunkSize = code.size(),
 		.IntrinsicTable = intrins.data(),
 		.IntrinsicTableSize = intrins.size(),
-		.InterruptHandler = +[](InterruptAccumulator) -> bool
+		.InterruptHandler = +[](InterruptAccumulator) -> void
 		{
-			return true;
+
 		},
 		.Stack = stack.data(),
 		.StackSize = stack.size(),
@@ -277,7 +277,7 @@ auto Loop1Billion(State& state) -> void
 	{
 		const auto output {ExecuteChecked(input)};
 
-		if (output.ExecutionResult != TerminateResult::Success)
+		if (output.ShutdownReason != ReactorShutdownReason::Success)
 		{
 			state.SkipWithError("Reactor terminated with error or exception!");
 			break;
@@ -382,7 +382,7 @@ auto Loop5Billion(State& state) -> void
 	std::array<Record, 32> stack = {Record::Padding()};
 
 	constexpr std::array intrins {
-		+[](Record*      ) -> bool { return true; }
+		+[](Record*      ) -> void {  }
 	};
 
 	const DetailedReactorDescriptor input {
@@ -391,9 +391,9 @@ auto Loop5Billion(State& state) -> void
 		.CodeChunkSize = code.size(),
 		.IntrinsicTable = intrins.data(),
 		.IntrinsicTableSize = intrins.size(),
-		.InterruptHandler = +[](InterruptAccumulator) -> bool
+		.InterruptHandler = +[](InterruptAccumulator) -> void
 		{
-			return true;
+
 		},
 		.Stack = stack.data(),
 		.StackSize = stack.size(),
@@ -409,7 +409,7 @@ auto Loop5Billion(State& state) -> void
 	{
 		const auto output {ExecuteChecked(input)};
 
-		if (output.ExecutionResult != TerminateResult::Success)
+		if (output.ShutdownReason != ReactorShutdownReason::Success)
 		{
 			state.SkipWithError("Reactor terminated with error or exception!");
 			break;

@@ -211,6 +211,7 @@
 #include "ILog2.hpp"
 #include "MemoryAlign.hpp"
 #include "MemoryUnits.hpp"
+#include "PanicRoutine.hpp"
 #include "Protocol.hpp"
 #include "SafeLocalTime.hpp"
 #include "VisitOverload.hpp"

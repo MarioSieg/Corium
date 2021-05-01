@@ -212,7 +212,58 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <WinUser.h>
 #include <Psapi.h>
+
+namespace
+{
+	using namespace Nominax;
+	
+	inline auto MsgGetIcon(const MessageBoxStyle style) noexcept(true) -> ::UINT
+	{
+		switch (style)
+		{
+			case MessageBoxStyle::Info:
+				return MB_ICONINFORMATION;
+			case MessageBoxStyle::Warning:
+				return MB_ICONWARNING;
+			case MessageBoxStyle::Error:
+				return MB_ICONERROR;
+			case MessageBoxStyle::Question:
+				return MB_ICONQUESTION;
+		}
+	}
+
+	inline auto MsgGetButtons(const MessageBoxButtons buttons) noexcept(true) -> ::UINT
+	{
+		switch (buttons)
+		{
+			case MessageBoxButtons::Ok:
+				return MB_OK;
+			case MessageBoxButtons::OkCancel:
+				return MB_OKCANCEL;
+			case MessageBoxButtons::YesNo:
+				return MB_YESNO;
+		}
+	}
+
+	inline auto MsgGetSelection(const ::INT response) noexcept(true) -> MessageBoxSelection
+	{
+		switch (response)
+		{
+		case IDOK:
+			return MessageBoxSelection::Ok;
+		case IDCANCEL:
+			return MessageBoxSelection::Cancel;
+		case IDYES:
+			return MessageBoxSelection::Yes;
+		case IDNO:
+			return MessageBoxSelection::No;
+		default:
+			return MessageBoxSelection::None;
+		}
+	}
+}
 
 namespace Nominax::Os
 {
@@ -271,6 +322,14 @@ namespace Nominax::Os
 	{
 		FreeLibrary(static_cast<HMODULE>(handle));
 		handle = nullptr;
+	}
+
+	auto ShowMessageBox(const std::string_view message, const std::string_view caption, const MessageBoxStyle style, const MessageBoxButtons buttons) noexcept(false) -> MessageBoxSelection
+	{
+		UINT flags = MB_TASKMODAL;
+		flags |= ::MsgGetIcon(style);
+		flags |= ::MsgGetButtons(buttons);
+		return ::MsgGetSelection(MessageBox(nullptr, message.data(), caption.data(), flags));
 	}
 }
 

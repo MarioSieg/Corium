@@ -211,6 +211,7 @@
 #include <string_view>
 #include <thread>
 
+#include "MessageBox.hpp"
 #include "Platform.hpp"
 
 namespace Nominax
@@ -236,6 +237,8 @@ namespace Nominax
 		extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) noexcept(false) -> void*;
 
 		extern auto DylibClose(void*& handle) noexcept(false) -> void;
+
+		extern auto ShowMessageBox(std::string_view message, std::string_view caption, MessageBoxStyle style, MessageBoxButtons buttons) noexcept(false) -> MessageBoxSelection;
 	}
 
 	struct SystemInfo final
