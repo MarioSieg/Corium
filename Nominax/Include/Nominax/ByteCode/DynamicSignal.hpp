@@ -404,7 +404,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		static constexpr auto CodePrologue() noexcept(true) -> DynamicSignal;
+		static constexpr auto CodePrologue() noexcept(true) -> std::array<DynamicSignal, 1>;
 
 		/// <summary>
 		/// Common code epilogue.
@@ -413,6 +413,13 @@ namespace Nominax
 		[[nodiscard]]
 		static constexpr auto CodeEpilogue() noexcept(true) -> std::array<DynamicSignal, 2>;
 	};
+
+	/// <summary>
+	/// This contains the total number of signals in the prologue + epilogue code.
+	/// Each code chunk must have at least the size of this because prologue and epilogue are required.
+	/// </summary>
+	inline static const std::size_t MANDATORY_CODE_SIZE{ DynamicSignal::CodePrologue().size() + DynamicSignal::CodeEpilogue().size() };
+
 
 	/// <summary>
 	/// Constructor.
@@ -488,10 +495,13 @@ namespace Nominax
 		return !(*this == other);
 	}
 
-	constexpr auto DynamicSignal::CodePrologue() noexcept(true) -> DynamicSignal
+	constexpr auto DynamicSignal::CodePrologue() noexcept(true) -> std::array<DynamicSignal, 1>
 	{
 		// First instruction is always skipped and should be NOP:
-		return DynamicSignal {Instruction::NOp};
+		return
+		{
+			DynamicSignal {Instruction::NOp}
+		};
 	}
 
 	constexpr auto DynamicSignal::CodeEpilogue() noexcept(true) -> std::array<DynamicSignal, 2>

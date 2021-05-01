@@ -331,6 +331,14 @@ namespace Nominax
 		auto Size() const noexcept(true) -> std::size_t;
 
 		/// <summary>
+		/// Returns true if the stream contains
+		/// no code or only prologue and or epilogue.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto IsEmpty() const noexcept(true) -> bool;
+
+		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the stream in bytes.</returns>
@@ -575,7 +583,14 @@ namespace Nominax
 	inline Stream::Stream() noexcept(false)
 	{
 		// Insert important code prologue.
-		this->SignalStream_.emplace_back(DynamicSignal::CodePrologue());
+		const auto prologue{ DynamicSignal::CodePrologue() };
+		this->SignalStream_.insert(std::begin(this->SignalStream_), std::begin(prologue), std::end(prologue));
+	}
+
+
+	inline auto Stream::IsEmpty() const noexcept(true) -> bool
+	{
+		return this->SignalStream_.empty() || this->SignalStream_.size() <= 3;
 	}
 
 	inline auto Stream::Buffer() const noexcept(true) -> const std::list<DynamicSignal>&

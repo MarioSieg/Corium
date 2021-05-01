@@ -320,7 +320,7 @@ namespace Nominax
 	auto Stream::PrintIntermediateRepresentation(const bool detailed) const noexcept(false) -> void
 	{
 		Print(TextColors::Green, "{} Len: {}, Size: {}B", Lexemes::COMMENT, this->Size(), this->SizeInBytes());
-		std::size_t moffs {0};
+		std::size_t offset {0};
 		for (auto sig {std::begin(*this)}, end {std::end(*this)}; sig != end; std::advance(sig, 1))
 		{
 			if (const std::optional<Instruction> value {sig->Unwrap<Instruction>()}; value)
@@ -331,7 +331,7 @@ namespace Nominax
 				if (detailed)
 				[[likely]]
 				{
-					Print(TextColors::Green, "{} &{:X} {:02X} {} ", Lexemes::COMMENT, moffs, static_cast<std::underlying_type_t<std::remove_reference_t<decltype(*value)>>>(*value), Lexemes::COMMENT);
+					Print(TextColors::Green, "{} &{:X} {:02X} {} ", Lexemes::COMMENT, offset, static_cast<std::underlying_type_t<std::remove_reference_t<decltype(*value)>>>(*value), Lexemes::COMMENT);
 				}
 				Print(TextColors::Cyan, "{}", *sig);
 
@@ -364,7 +364,7 @@ namespace Nominax
 			{
 				Print(TextColors::Magenta, "{}", *sig);
 			}
-			++moffs;
+			++offset;
 		}
 		Print("\n\n");
 	}

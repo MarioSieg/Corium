@@ -286,7 +286,7 @@ namespace Nominax
 			TotalSystemMemory,
 			UsedSystemMemory,
 			PageSize
-		] = this->SysInfo;
+		] = this->SysInfo_;
 
 		Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
 		Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
@@ -316,26 +316,18 @@ namespace Nominax
 		Print("\n");
 	}
 
-	auto Environment::BootEnvironment() -> bool
+	Environment::Environment(Stream&& appCode) noexcept(false) : AppCode_ {std::move(appCode)}
 	{
+		if (appCode.Size())
+		
 		this->InstallSignalHandlers();
 		this->UnlockNoSyncStdStreams();
 		this->PrintVersionInfo();
-		this->SysInfo.QueryAll();
+		this->SysInfo_.QueryAll();
 		this->PrintMachineInfo();
 		this->PrintTypeTable();
 
-		Stream stream { };
-
-		stream.Begin().With(2, [&stream](ScopedInt&& var)
-		{
-			var *= 2;
-			var += 1;
-			var /= 1;
-			stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId {0});
-		}).End();
-
-		stream.PrintIntermediateRepresentation();
+		auto& stream = this->AppCode_;
 
 		CodeChunk chunk { };
 		JumpMap   jumpMap { };
@@ -381,6 +373,7 @@ namespace Nominax
 			reactorOutput.InterruptCode
 		);
 		cout.flush();
-		return true;
 	}
+
+	Environment::~Environment() { }
 }
