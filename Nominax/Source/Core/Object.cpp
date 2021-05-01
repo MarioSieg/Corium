@@ -265,11 +265,8 @@ namespace Nominax
 		// !! Important !! Write the size:
 		ObjectHeader::WriteMapping_Size(object, sizeInRecords);
 
-		std::uintptr_t typeId;
-		std::memcpy(&typeId, object, sizeof(Record*));
-
 		// Use pointer as dummy type id:
-		ObjectHeader::WriteMapping_TypeId(object, typeId);
+        ObjectHeader::WriteMapping_TypeId(object, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(object)));
 
 		// Write empty flag vector:
 		ObjectHeader::WriteMapping_FlagVector(object, ObjectFlagsVectorCompound { });

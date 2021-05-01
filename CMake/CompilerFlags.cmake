@@ -28,7 +28,7 @@ ELSE()
 	SET("Using Clang/GCC directly")
 
 	# gcc/clang common flags:
-	SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES} -Wall -Wextra -Werror -Wno-undef -std=c++20 -Wno-unknown-attributes -Wno-ignored-attributes -Wno-deprecated-declarations -Xclang -ffp-exception-behavior=ignore")
+        SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES} -Wall -Wextra -Werror -Wno-undef -std=c++20 -Wno-unknown-attributes -Wno-ignored-attributes -Wno-deprecated-declarations")
 
 	# if release, set more optimization flags:
 	IF(CMAKE_BUILD_TYPE STREQUAL "Release")
