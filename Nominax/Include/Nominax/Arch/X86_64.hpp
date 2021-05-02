@@ -1,6 +1,6 @@
-// File: Arch.hpp
+// File: MockCall.hpp
 // Author: Mario
-// Created: 27.04.2021 11:31 PM
+// Created: 27.04.2021 11:26 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,12 +205,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+// ReSharper disable CppInconsistentNaming
 #pragma once
 
-#include "../System/Platform.hpp"
-
-#if NOMINAX_ARCH_X86_64
-
-#include "X86_64.hpp"
-
-#endif
+#include "X86_64/CpuId.hpp"
+#include "X86_64/MockCall.hpp"

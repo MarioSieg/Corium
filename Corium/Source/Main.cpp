@@ -220,6 +220,5 @@ auto main() -> int
 		stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId {0});
 	}).End();
 
-	stream.PrintIntermediateRepresentation();
 	Environment env {std::move(stream)};
 }

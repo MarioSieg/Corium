@@ -1,6 +1,6 @@
-// File: Arch.hpp
+// File: MockCall.cpp
 // Author: Mario
-// Created: 27.04.2021 11:31 PM
+// Created: 27.04.2021 11:30 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,12 +205,18 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include <bitset>
+#include <iostream>
 
-#include "../System/Platform.hpp"
+#include "../../TestBase.hpp"
 
 #if NOMINAX_ARCH_X86_64
-
-#include "X86_64.hpp"
-
+TEST(AssemblyCalls, CpuId)
+{
+	const QUADWORD result{ X86_64::__CPUID__() };
+	const auto bits = std::bit_cast<X86_64::CpuFeatureBits>(result);
+	bits.PrintFeatures();
+	ASSERT_NE(result, 0);
+	std::cerr << std::bitset<64>(result) << '\n';
+}
 #endif

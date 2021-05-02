@@ -326,7 +326,7 @@ namespace Nominax
 		this->PrintTypeTable();
 
 		auto& stream = this->AppCode_;
-
+		stream.PrintIntermediateRepresentation();
 		CodeChunk chunk { };
 		JumpMap   jumpMap { };
 		stream.Build(chunk, jumpMap);

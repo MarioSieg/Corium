@@ -1,6 +1,6 @@
 # runtime library:
 
-FILE(GLOB_RECURSE "NOMINAX_SOURCES" "Nominax/Source/*.cpp" "Nominax/Source/*.asm" "Include/Nominax/*.hpp")
+FILE(GLOB_RECURSE "NOMINAX_SOURCES" "Nominax/Source/*.cpp" "Nominax/Source/*.S" "Include/Nominax/*.hpp")
 ADD_LIBRARY("Nominax" STATIC "${NOMINAX_SOURCES}")
 
 # extern libraries:
