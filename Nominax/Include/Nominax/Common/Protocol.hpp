@@ -224,7 +224,7 @@
 
 namespace Nominax
 {
-	enum class TextColors: std::underlying_type_t<fmt::terminal_color>
+	enum class TextColor: std::underlying_type_t<fmt::terminal_color>
 	{
 		Black = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::black),
 		Red = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::red),
@@ -290,16 +290,16 @@ namespace Nominax
 	template <typename Str, typename... Args>
 	auto Print(const LogLevel level, const Str& formatString, Args&&...args) -> void
 	{
-		auto color = TextColors::White;
+		auto color = TextColor::White;
 		switch (level)
 		{
-		case LogLevel::Info: color = TextColors::BrightWhite;
+		case LogLevel::Info: color = TextColor::BrightWhite;
 			break;
-		case LogLevel::Warning: color = TextColors::Yellow;
+		case LogLevel::Warning: color = TextColor::Yellow;
 			break;
-		case LogLevel::Error: color = TextColors::BrightRed;
+		case LogLevel::Error: color = TextColor::BrightRed;
 			break;
-		case LogLevel::Success: color = TextColors::BrightGreen;
+		case LogLevel::Success: color = TextColor::BrightGreen;
 			break;
 		}
 		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
@@ -319,7 +319,7 @@ namespace Nominax
 	/// <param name="formatString">The format string.</param>
 	/// <param name="args">The arguments to format.</param>
 	template <typename Str, typename... Args>
-	inline auto Print(const TextColors color, const Str& formatString, Args&&...args) -> void
+	inline auto Print(const TextColor color, const Str& formatString, Args&&...args) -> void
 	{
 		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
 	}

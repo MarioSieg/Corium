@@ -320,7 +320,7 @@ namespace Nominax
 
 	auto Stream::PrintIntermediateRepresentation(const bool detailed) const noexcept(false) -> void
 	{
-		Print(TextColors::Green, "{} Len: {}, Size: {}B", Lexemes::COMMENT, this->Size(), this->SizeInBytes());
+		Print(TextColor::Green, "{} Len: {}, Size: {}B", Lexemes::COMMENT, this->Size(), this->SizeInBytes());
 		std::size_t offset {0};
 		for (auto sig {std::begin(*this)}, end {std::end(*this)}; sig != end; std::advance(sig, 1))
 		{
@@ -330,9 +330,9 @@ namespace Nominax
 
 				if (detailed)
 				{
-					Print(TextColors::Green, "{} &{:X} {:02X} {} ", Lexemes::COMMENT, offset, static_cast<std::underlying_type_t<std::remove_reference_t<decltype(*value)>>>(*value), Lexemes::COMMENT);
+					Print(TextColor::Green, "{} &{:X} {:02X} {} ", Lexemes::COMMENT, offset, static_cast<std::underlying_type_t<std::remove_reference_t<decltype(*value)>>>(*value), Lexemes::COMMENT);
 				}
-				Print(TextColors::Cyan, "{}", *sig);
+				Print(TextColor::Cyan, "{}", *sig);
 
 				// Print interrupt type:
 				if (const auto instr {*value}; NOMINAX_UNLIKELY(instr == Instruction::Int))
@@ -344,22 +344,22 @@ namespace Nominax
 					{
 						if (const auto code = *interrupt; code == 0)
 						{
-							Print(TextColors::Green, " {}OKI{}", Lexemes::COMMENT, Lexemes::COMMENT);
+							Print(TextColor::Green, " {}OKI{}", Lexemes::COMMENT, Lexemes::COMMENT);
 						}
 						else if (code < 0)
 						{
-							Print(TextColors::Red, " {}ERR{}", Lexemes::COMMENT, Lexemes::COMMENT);
+							Print(TextColor::Red, " {}ERR{}", Lexemes::COMMENT, Lexemes::COMMENT);
 						}
 						else
 						{
-							Print(TextColors::Yellow, " {}EXP{}", Lexemes::COMMENT, Lexemes::COMMENT);
+							Print(TextColor::Yellow, " {}EXP{}", Lexemes::COMMENT, Lexemes::COMMENT);
 						}
 					}
 				}
 			}
 			else
 			{
-				Print(TextColors::Magenta, "{}", *sig);
+				Print(TextColor::Magenta, "{}", *sig);
 			}
 			++offset;
 		}

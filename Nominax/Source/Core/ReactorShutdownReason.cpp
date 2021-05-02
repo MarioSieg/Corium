@@ -215,15 +215,15 @@ namespace Nominax
 		switch (reason)
 		{
 		case ReactorShutdownReason::Success:
-			Print(TextColors::BrightGreen, "OK ({:#X})\n", code);
+			Print(TextColor::BrightGreen, "OK ({:#X})\n", code);
 			break;
 
 		case ReactorShutdownReason::Error:
-			Print(TextColors::Red, "Fatal Runtime Error ({:#X})\n", code);
+			Print(TextColor::Red, "Fatal Runtime Error ({:#X})\n", code);
 			break;
 
 		case ReactorShutdownReason::UserException:
-			Print(TextColors::Red, "Exception ({:#X})\n", code);
+			Print(TextColor::Red, "Exception ({:#X})\n", code);
 			break;
 		}
 	}

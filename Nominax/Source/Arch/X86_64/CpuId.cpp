@@ -1,70 +1,90 @@
 #include "../../../Include/Nominax/Arch/X86_64/CpuId.hpp"
 #include "../../../Include/Nominax/Common/Protocol.hpp"
 
+#define PRINT_CPU_FEATURE(name, has) Print(( has ) ? TextColor::BrightGreen : TextColor::Red, "{0: <12} ", name)
+
 namespace Nominax::X86_64
-{
+{	
 	auto CpuFeatureBits::PrintFeatures() const -> void
 	{
-		Print("FPU? {}\n", this->Fpu);
-		Print("VME? {}\n", this->Vme);
-		Print("DE? {}\n", this->De);
-		Print("PSE? {}\n", this->Pse);
-		Print("TSC? {}\n", this->Tsc);
-		Print("MSR? {}\n", this->Msr);
-		Print("PAE? {}\n", this->Pae);
-		Print("MCE? {}\n", this->Mce);
-		Print("CMPXCHG8? {}\n", this->Cx8);
-		Print("APIC? {}\n", this->Apic);
+		PRINT_CPU_FEATURE("FPU", this->Fpu);
+		PRINT_CPU_FEATURE("VME", this->Vme);
+		PRINT_CPU_FEATURE("DE", this->De);
+		PRINT_CPU_FEATURE("PSE", this->Pse);
+		PRINT_CPU_FEATURE("TSC", this->Tsc);
+		PRINT_CPU_FEATURE("MSR", this->Msr);
+		PRINT_CPU_FEATURE("PAE", this->Pae);
+		PRINT_CPU_FEATURE("MCE", this->Mce);
+
+		Print("\n");
 		
-		Print("SEP? {}\n", this->Sep);
-		Print("MTRR? {}\n", this->Mtrr);
-		Print("PGE? {}\n", this->Pge);
-		Print("MCA? {}\n", this->Mca);
-		Print("CMOV? {}\n", this->CMov);
-		Print("PAT? {}\n", this->Pat);
-		Print("PSE36? {}\n", this->Pse36);
-		Print("PSN? {}\n", this->Psn);
-		Print("CLFSH? {}\n", this->Clfsh);
+		PRINT_CPU_FEATURE("CMPXCHG8", this->Cx8);
+		PRINT_CPU_FEATURE("APIC", this->Apic);	
+		PRINT_CPU_FEATURE("SEP", this->Sep);
+		PRINT_CPU_FEATURE("MTRR", this->Mtrr);
+		PRINT_CPU_FEATURE("PGE", this->Pge);
+		PRINT_CPU_FEATURE("MCA", this->Mca);
+		PRINT_CPU_FEATURE("CMOV", this->CMov);
+		PRINT_CPU_FEATURE("PAT", this->Pat);
 
-		Print("DS? {}\n", this->Ds);
-		Print("ACPI? {}\n", this->Acpi);
-		Print("MMX? {}\n", this->Mmx);
-		Print("FXSR? {}\n", this->Fxsr);
-		Print("SSE? {}\n", this->Sse);
-		Print("SSE2? {}\n", this->Sse2);
-		Print("SS? {}\n", this->Ss);
-		Print("HTT? {}\n", this->Htt);
-		Print("TM? {}\n", this->Tm);
-		Print("IA64? {}\n", this->Ia64);
-		Print("PBE? {}\n", this->Pbe);
+		Print("\n");
 
-		Print("SSE3? {}\n", this->Sse3);
-		Print("PCLMULDQD? {}\n", this->PclMulDqd);
-		Print("DTES64? {}\n", this->DTes64);
-		Print("Monitor? {}\n", this->Monitor);
-		Print("DSCPL? {}\n", this->DsCpl);
-		Print("SSE3? {}\n", this->Sse3);
-		Print("CNXTID? {}\n", this->CnxtId);
-		Print("SDBG? {}\n", this->Sdbg);
-		Print("FMA? {}\n", this->Fma);
-		Print("CMPXCHG16? {}\n", this->Cx16);
-		Print("XPTR? {}\n", this->Xtpr);
-		Print("PDCM? {}\n", this->Pdcm);
+		PRINT_CPU_FEATURE("PSE36", this->Pse36);
+		PRINT_CPU_FEATURE("PSN", this->Psn);
+		PRINT_CPU_FEATURE("CLFSH", this->Clfsh);
+		PRINT_CPU_FEATURE("DS", this->Ds);
+		PRINT_CPU_FEATURE("ACPI", this->Acpi);
+		PRINT_CPU_FEATURE("MMX", this->Mmx);
+		PRINT_CPU_FEATURE("FXSR", this->Fxsr);
+		PRINT_CPU_FEATURE("SSE", this->Sse);
 
-		Print("PCID? {}\n", this->Pcid);
-		Print("DCA? {}\n", this->Dca);
-		Print("SSE4.1? {}\n", this->Sse41);
-		Print("SSE4.2? {}\n", this->Sse42);
-		Print("X2APIC? {}\n", this->X2Apic);
-		Print("MOVBE? {}\n", this->MovBe);
-		Print("POPCNT? {}\n", this->PopCnt);
-		Print("TSCDeadline? {}\n", this->TscDeadline);
-		Print("AES? {}\n", this->Aes);
-		Print("XSave? {}\n", this->XSave);
-		Print("OsXSave? {}\n", this->OsXSave);
-		Print("AVX? {}\n", this->Avx);
-		Print("F16C? {}\n", this->F16C);
-		Print("RDRND? {}\n", this->RdRnd);
-		Print("Hypervisor? {}\n", this->Hypervisor);
+		Print("\n");
+
+		PRINT_CPU_FEATURE("SSE2", this->Sse2);
+		PRINT_CPU_FEATURE("SS", this->Ss);
+		PRINT_CPU_FEATURE("HTT", this->Htt);
+		PRINT_CPU_FEATURE("TM", this->Tm);
+		PRINT_CPU_FEATURE("IA64", this->Ia64);
+		PRINT_CPU_FEATURE("PBE", this->Pbe);
+		PRINT_CPU_FEATURE("SSE3", this->Sse3);
+		PRINT_CPU_FEATURE("PCLMULDQD", this->PclMulDqd);
+
+		Print("\n");
+
+		PRINT_CPU_FEATURE("DTES64", this->DTes64);
+		PRINT_CPU_FEATURE("Monitor", this->Monitor);
+		PRINT_CPU_FEATURE("DSCPL", this->DsCpl);
+		PRINT_CPU_FEATURE("SSE3", this->Sse3);
+		PRINT_CPU_FEATURE("CNXTID", this->CnxtId);
+		PRINT_CPU_FEATURE("SDBG", this->Sdbg);
+		PRINT_CPU_FEATURE("FMA", this->Fma);
+		PRINT_CPU_FEATURE("CMPXCHG16", this->Cx16);
+
+		Print("\n");
+
+		PRINT_CPU_FEATURE("XPTR", this->Xtpr);
+		PRINT_CPU_FEATURE("PDCM", this->Pdcm);
+		PRINT_CPU_FEATURE("PCID", this->Pcid);
+		PRINT_CPU_FEATURE("DCA", this->Dca);
+		PRINT_CPU_FEATURE("SSE4.1", this->Sse41);
+		PRINT_CPU_FEATURE("SSE4.2", this->Sse42);
+		PRINT_CPU_FEATURE("X2APIC", this->X2Apic);
+		PRINT_CPU_FEATURE("MOVBE", this->MovBe);
+
+		Print("\n");
+
+		PRINT_CPU_FEATURE("POPCNT", this->PopCnt);
+		PRINT_CPU_FEATURE("TSCDeadline", this->TscDeadline);
+		PRINT_CPU_FEATURE("AES?", this->Aes);
+		PRINT_CPU_FEATURE("XSave", this->XSave);
+		PRINT_CPU_FEATURE("OsXSave", this->OsXSave);
+		PRINT_CPU_FEATURE("AVX", this->Avx);
+		PRINT_CPU_FEATURE("F16C", this->F16C);
+		PRINT_CPU_FEATURE("RDRND", this->RdRnd);
+		PRINT_CPU_FEATURE("Hypervisor", this->Hypervisor);
+
+		Print("\n");
 	}
 }
+
+#undef PRINT_CPU_FEATURE
