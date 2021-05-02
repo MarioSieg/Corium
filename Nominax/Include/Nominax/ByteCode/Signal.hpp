@@ -226,7 +226,7 @@ namespace Nominax
 	/// <summary>
 	/// 64-bit byte code signal data contains either an instruction or an immediate value.
 	/// </summary>
-	union alignas(alignof(std::uint64_t)) Signal
+	union alignas(alignof(U64)) Signal
 	{
 		/// <summary>
 		/// Reinterpret as Record64.
@@ -251,7 +251,7 @@ namespace Nominax
 		/// <summary>
 		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
 		/// </summary>
-		std::uint64_t OpCode;
+		U64 OpCode;
 
 		/// <summary>
 		/// Reinterpret as void pointer.
@@ -304,21 +304,21 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(std::int64_t value) noexcept(true);
+		explicit constexpr Signal(I64 value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit unsigned quadword integer.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(std::uint64_t value) noexcept(true);
+		explicit constexpr Signal(U64 value) noexcept(true);
 
 		/// <summary>
-		/// Construct from 64-bit double precision float.
+		/// Construct from 64-bit F64 precision F32.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(double value) noexcept(true);
+		explicit constexpr Signal(F64 value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 32-bit UTF-32 character.
@@ -333,16 +333,16 @@ namespace Nominax
 	constexpr Signal::Signal(const SystemIntrinsicCallId value) noexcept(true) : SystemIntrinId {value} {}
 	constexpr Signal::Signal(const CustomIntrinsicCallId value) noexcept(true) : CustomIntrinId {value} {}
 	constexpr Signal::Signal(void* const value) noexcept(true) : Ptr {value} {}
-	constexpr Signal::Signal(const std::int64_t value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const std::uint64_t value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const double value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
 
 	static_assert(sizeof(SignalByteBuffer) == sizeof(Signal));
 	static_assert(std::is_trivial_v<Signal>);
 	static_assert(std::is_default_constructible_v<Signal>);
-	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, std::uint64_t>);
-	static_assert(sizeof(Instruction) == sizeof(std::uint64_t));
-	static_assert(sizeof(Signal) == sizeof(std::uint64_t));
+	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, U64>);
+	static_assert(sizeof(Instruction) == sizeof(U64));
+	static_assert(sizeof(Signal) == sizeof(U64));
 	static_assert(std::is_standard_layout_v<Signal>);
 }

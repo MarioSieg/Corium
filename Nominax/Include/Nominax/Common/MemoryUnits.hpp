@@ -210,6 +210,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <ostream>
+#include <type_traits>
+
+#include "RtTypes.hpp"
 
 namespace Nominax
 {

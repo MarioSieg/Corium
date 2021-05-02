@@ -211,7 +211,7 @@ TEST(Common, IsAlignmentValid)
 {
 	ASSERT_TRUE(IsAlignmentValid(alignof(int)));
 	ASSERT_TRUE(IsAlignmentValid(alignof(short)));
-	ASSERT_TRUE(IsAlignmentValid(alignof(float)));
+	ASSERT_TRUE(IsAlignmentValid(alignof(F32)));
 	ASSERT_TRUE(IsAlignmentValid(alignof(long)));
 	ASSERT_TRUE(IsAlignmentValid(alignof(long long)));
 	ASSERT_TRUE(IsAlignmentValid(2));
@@ -221,7 +221,7 @@ TEST(Common, IsAlignmentValid)
 	ASSERT_FALSE(IsAlignmentValid(10));
 	ASSERT_FALSE(IsAlignmentValid(1+alignof(int)));
 	ASSERT_FALSE(IsAlignmentValid(1-alignof(short)));
-	ASSERT_FALSE(IsAlignmentValid(1+alignof(float)));
+	ASSERT_FALSE(IsAlignmentValid(1+alignof(F32)));
 	ASSERT_FALSE(IsAlignmentValid(2+alignof(long)));
 	ASSERT_FALSE(IsAlignmentValid(2-alignof(long long)));
 }

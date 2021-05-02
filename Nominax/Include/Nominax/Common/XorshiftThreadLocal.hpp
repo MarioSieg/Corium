@@ -207,16 +207,16 @@
 
 #pragma once
 
-#include <cstdint>
+#include "../Common/RtTypes.hpp"
 
 namespace Nominax
 {
 	[[nodiscard]]
-	extern auto Xorshift32ThreadLocal() noexcept(true) -> std::uint32_t;
+	extern auto Xorshift32ThreadLocal() noexcept(true) -> U32;
 
 	[[nodiscard]]
-	extern auto Xorshift64ThreadLocal() noexcept(true) -> std::uint64_t;
+	extern auto Xorshift64ThreadLocal() noexcept(true) -> U64;
 
 	[[nodiscard]]
-	extern auto Xorshift128ThreadLocal() noexcept(true) -> std::uint32_t;
+	extern auto Xorshift128ThreadLocal() noexcept(true) -> U32;
 }

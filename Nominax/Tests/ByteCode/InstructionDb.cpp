@@ -221,7 +221,7 @@ TEST(BytecodeInstructionDB, ImmediateArgumentCount)
 	ASSERT_EQ(INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS.size(), INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES.size());
 	for (std::size_t i = 0; i < INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS.size(); ++i)
 	{
-		std::uint8_t count = 0;
+		U8 count = 0;
 		for (const auto x : INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[i])
 		{
 			count += x != InstructionImmediateArgumentType::None;

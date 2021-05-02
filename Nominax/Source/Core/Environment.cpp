@@ -307,9 +307,9 @@ namespace Nominax
 		PrintTypeInfo<DynamicSignal>("DynamicSignal");
 		PrintTypeInfo<Object>("Object");
 		PrintTypeInfo<ObjectHeader>("ObjectHeader");
-		PrintTypeInfo<std::int64_t>("int");
-		PrintTypeInfo<std::uint64_t>("uint");
-		PrintTypeInfo<double>("float");
+		PrintTypeInfo<I64>("int");
+		PrintTypeInfo<U64>("uint");
+		PrintTypeInfo<F64>("F32");
 		PrintTypeInfo<char32_t>("char");
 		PrintTypeInfo<bool>("bool");
 		PrintTypeInfo<void*>("void*");
@@ -337,7 +337,7 @@ namespace Nominax
 			// Print:
 			+[](Record* sp) -> void
 			{
-				Print("((2 * 2) + 1) / 1 = {}\n", sp->I64);
+				Print("((2 * 2) + 1) / 1 = {}\n", sp->Vi64);
 			}
 		};
 		InterruptRoutine&                  interrupt {

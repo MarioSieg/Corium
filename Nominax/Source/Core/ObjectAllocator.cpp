@@ -213,7 +213,7 @@
 
 namespace Nominax
 {
-	auto RuntimeObjectAllocator::RawAllocateAndWriteSize(const std::uint32_t sizeInRecords) -> Object::BlobBlockType*
+	auto RuntimeObjectAllocator::RawAllocateAndWriteSize(const U32 sizeInRecords) -> Object::BlobBlockType*
 	{
 		// debug check
 		assert(sizeInRecords);
@@ -226,7 +226,7 @@ namespace Nominax
 		}
 
 		// add space for object header (2 records):
-		const std::uint32_t finalSizeInRecords {sizeInRecords + ObjectHeader::RECORD_CHUNKS};
+		const U32 finalSizeInRecords {sizeInRecords + ObjectHeader::RECORD_CHUNKS};
 
 		// allocate object instance:
 		auto* __restrict__ const instance = new(std::nothrow) Record[finalSizeInRecords]();

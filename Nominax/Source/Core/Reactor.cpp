@@ -208,6 +208,7 @@
 #include "../../Include/Nominax/Core/Reactor.hpp"
 #include "../../Include/Nominax/Core/BasicReactorDescriptor.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
+#include "../../Include/Nominax/Common/Protocol.hpp"
 
 namespace
 {

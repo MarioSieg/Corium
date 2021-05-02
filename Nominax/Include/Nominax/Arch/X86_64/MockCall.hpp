@@ -211,5 +211,5 @@
 
 namespace Nominax::X86_64
 {
-	extern "C" auto MockCall() -> std::uint64_t;
+	extern "C" auto MockCall() -> U64;
 }

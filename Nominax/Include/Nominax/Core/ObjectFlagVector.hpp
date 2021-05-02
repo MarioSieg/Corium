@@ -379,8 +379,8 @@ namespace Nominax
 			bool Flag31 : 1;
 		} Flags;
 
-		std::uint32_t Compound;
+		U32 Compound;
 	};
 
-	static_assert(sizeof(ObjectFlagsVectorCompound) == sizeof(std::uint32_t));
+	static_assert(sizeof(ObjectFlagsVectorCompound) == sizeof(U32));
 }

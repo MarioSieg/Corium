@@ -213,6 +213,7 @@
 #include <span>
 #include <vector>
 
+#include "../Common/RtTypes.hpp"
 #include "ObjectHeader.hpp"
 
 namespace Nominax
@@ -249,21 +250,21 @@ namespace Nominax
 		/// </summary>
 		/// <returns>The strong reference count field from the object header.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR HeaderRead_StrongReferenceCount() const noexcept(true) -> std::uint32_t;
+		auto IMMUTATOR HeaderRead_StrongReferenceCount() const noexcept(true) -> U32;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the object in records. The size field from the object header.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR HeaderRead_BlockSize() const noexcept(true) -> std::uint32_t;
+		auto IMMUTATOR HeaderRead_BlockSize() const noexcept(true) -> U32;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The type id field from the object header.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR HeaderRead_TypeId() const noexcept(true) -> std::uint32_t;
+		auto IMMUTATOR HeaderRead_TypeId() const noexcept(true) -> U32;
 
 		/// <summary>
 		/// 
@@ -277,7 +278,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="strongRefCount">The new value to write.</param>
 		/// <returns></returns>
-		auto MUTATOR HeaderWrite_StrongRefCount(std::uint32_t strongRefCount) const noexcept(true) -> void;
+		auto MUTATOR HeaderWrite_StrongRefCount(U32 strongRefCount) const noexcept(true) -> void;
 
 		/// <summary>
 		/// Increments the object header strong reference counter by one.
@@ -320,14 +321,14 @@ namespace Nominax
 		/// </summary>
 		/// <param name="size">The new value to write.</param>
 		/// <returns></returns>
-		auto MUTATOR HeaderWrite_Size(std::uint32_t size) const noexcept(true) -> void;
+		auto MUTATOR HeaderWrite_Size(U32 size) const noexcept(true) -> void;
 
 		/// <summary>
 		/// Writes the value of typeId into the TypeId object header field.
 		/// </summary>
 		/// <param name="typeId">The new value to write.</param>
 		/// <returns></returns>
-		auto MUTATOR HeaderWrite_TypeId(std::uint32_t typeId) const noexcept(true) -> void;
+		auto MUTATOR HeaderWrite_TypeId(U32 typeId) const noexcept(true) -> void;
 
 		/// <summary>
 		/// Writes the value of flagVector into the ObjectFlags object header field.
@@ -596,7 +597,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="sizeInRecords">BUG-PRONE The size of the object in RECORDS NOT in BYTES</param>
 		/// <returns>The mock object.</returns>
-		static auto AllocateUnique(std::uint32_t sizeInRecords) noexcept(false) -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
+		static auto AllocateUnique(U32 sizeInRecords) noexcept(false) -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
 	};
 
 	static_assert(sizeof(Object) == sizeof(Object::BlobBlockType*));
@@ -608,9 +609,9 @@ namespace Nominax
 	/// <summary>
 	/// Prevent using with invalid type.
 	/// Allowed are the record types:
-	/// std::uint64_t
-	/// std::int64_t
-	/// double
+	/// U64
+	/// I64
+	/// F64
 	/// char32_t
 	/// void*
 	/// </summary>
@@ -625,31 +626,31 @@ namespace Nominax
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::uint64_t.
+	/// Specialization for bitwise compare of U64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Equal<std::uint64_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Equal<U64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::int64_t.
+	/// Specialization for bitwise compare of I64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Equal<std::int64_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Equal<I64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of double.
+	/// Specialization for bitwise compare of F64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Equal<double>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Equal<F64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -672,21 +673,21 @@ namespace Nominax
 	template <>
 	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal<char32_t>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return DeepValueCmp_Equal<std::uint64_t>(a, b);
+		return DeepValueCmp_Equal<U64>(a, b);
 	}
 
 	template <>
 	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal<void*>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return DeepValueCmp_Equal<std::uint64_t>(a, b);
+		return DeepValueCmp_Equal<U64>(a, b);
 	}
 
 	/// <summary>
 	/// Prevent using with invalid type.
 	/// Allowed are the record types:
-	/// std::uint64_t
-	/// std::int64_t
-	/// double
+	/// U64
+	/// I64
+	/// F64
 	/// char32_t
 	/// void*
 	/// </summary>
@@ -702,39 +703,39 @@ namespace Nominax
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::uint64_t.
+	/// Specialization for bitwise compare of U64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<std::uint64_t>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<U64>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return !DeepValueCmp_Equal<std::uint64_t>(a, b);
+		return !DeepValueCmp_Equal<U64>(a, b);
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::int64_t.
+	/// Specialization for bitwise compare of I64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<std::int64_t>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<I64>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return !DeepValueCmp_Equal<std::int64_t>(a, b);
+		return !DeepValueCmp_Equal<I64>(a, b);
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of double.
+	/// Specialization for bitwise compare of F64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<double>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<F64>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return !DeepValueCmp_Equal<double>(a, b);
+		return !DeepValueCmp_Equal<F64>(a, b);
 	}
 
 	/// <summary>
@@ -764,9 +765,9 @@ namespace Nominax
 	/// <summary>
 	/// Prevent using with invalid type.
 	/// Allowed are the record types:
-	/// std::uint64_t
-	/// std::int64_t
-	/// double
+	/// U64
+	/// I64
+	/// F64
 	/// char32_t
 	/// void*
 	/// </summary>
@@ -782,31 +783,31 @@ namespace Nominax
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::uint64_t.
+	/// Specialization for bitwise compare of U64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Less<std::uint64_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Less<U64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::int64_t.
+	/// Specialization for bitwise compare of I64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Less<std::int64_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Less<I64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of double.
+	/// Specialization for bitwise compare of F64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Less<double>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Less<F64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -829,21 +830,21 @@ namespace Nominax
 	template <>
 	__attribute__((flatten)) inline auto Object::DeepValueCmp_Less<char32_t>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return DeepValueCmp_Less<std::uint64_t>(a, b);
+		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
 	__attribute__((flatten)) inline auto Object::DeepValueCmp_Less<void*>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return DeepValueCmp_Less<std::uint64_t>(a, b);
+		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	/// <summary>
 	/// Prevent using with invalid type.
 	/// Allowed are the record types:
-	/// std::uint64_t
-	/// std::int64_t
-	/// double
+	/// U64
+	/// I64
+	/// F64
 	/// char32_t
 	/// void*
 	/// </summary>
@@ -859,31 +860,31 @@ namespace Nominax
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::uint64_t.
+	/// Specialization for bitwise compare of U64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_LessEqual<std::uint64_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_LessEqual<U64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::int64_t.
+	/// Specialization for bitwise compare of I64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_LessEqual<std::int64_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_LessEqual<I64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of double.
+	/// Specialization for bitwise compare of F64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_LessEqual<double>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_LessEqual<F64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -906,21 +907,21 @@ namespace Nominax
 	template <>
 	__attribute__((flatten)) inline auto Object::DeepValueCmp_LessEqual<char32_t>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return DeepValueCmp_Less<std::uint64_t>(a, b);
+		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
 	__attribute__((flatten)) inline auto Object::DeepValueCmp_LessEqual<void*>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return DeepValueCmp_Less<std::uint64_t>(a, b);
+		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	/// <summary>
 	/// Prevent using with invalid type.
 	/// Allowed are the record types:
-	/// std::uint64_t
-	/// std::int64_t
-	/// double
+	/// U64
+	/// I64
+	/// F64
 	/// char32_t
 	/// void*
 	/// </summary>
@@ -936,31 +937,31 @@ namespace Nominax
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::uint64_t.
+	/// Specialization for bitwise compare of U64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Greater<std::uint64_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Greater<U64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::int64_t.
+	/// Specialization for bitwise compare of I64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Greater<std::int64_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Greater<I64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of double.
+	/// Specialization for bitwise compare of F64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Greater<double>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Greater<F64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -983,21 +984,21 @@ namespace Nominax
 	template <>
 	__attribute__((flatten)) inline auto Object::DeepValueCmp_Greater<char32_t>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return DeepValueCmp_Less<std::uint64_t>(a, b);
+		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
 	__attribute__((flatten)) inline auto Object::DeepValueCmp_Greater<void*>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return DeepValueCmp_Less<std::uint64_t>(a, b);
+		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	/// <summary>
 	/// Prevent using with invalid type.
 	/// Allowed are the record types:
-	/// std::uint64_t
-	/// std::int64_t
-	/// double
+	/// U64
+	/// I64
+	/// F64
 	/// char32_t
 	/// void*
 	/// </summary>
@@ -1013,31 +1014,31 @@ namespace Nominax
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::uint64_t.
+	/// Specialization for bitwise compare of U64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<std::uint64_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_GreaterEqual<U64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of std::int64_t.
+	/// Specialization for bitwise compare of I64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<std::int64_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_GreaterEqual<I64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of double.
+	/// Specialization for bitwise compare of F64.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<double>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_GreaterEqual<F64>(Object a, Object b) noexcept(true) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -1060,13 +1061,13 @@ namespace Nominax
 	template <>
 	__attribute__((flatten)) inline auto Object::DeepValueCmp_GreaterEqual<char32_t>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return DeepValueCmp_Less<std::uint64_t>(a, b);
+		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
 	__attribute__((flatten)) inline auto Object::DeepValueCmp_GreaterEqual<void*>(const Object a, const Object b) noexcept(true) -> bool
 	{
-		return DeepValueCmp_Less<std::uint64_t>(a, b);
+		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryRawHeader() const noexcept(true) -> BlobBlockType*
@@ -1119,17 +1120,17 @@ namespace Nominax
 		return this->HeaderRead_BlockSize() * sizeof(Record);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const noexcept(true) -> std::uint32_t
+	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const noexcept(true) -> U32
 	{
 		return ObjectHeader::ReadMapping_StrongRefCount(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_BlockSize() const noexcept(true) -> std::uint32_t
+	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_BlockSize() const noexcept(true) -> U32
 	{
 		return ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_TypeId() const noexcept(true) -> std::uint32_t
+	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_TypeId() const noexcept(true) -> U32
 	{
 		return ObjectHeader::ReadMapping_TypeId(this->QueryRawHeader());
 	}
@@ -1169,17 +1170,17 @@ namespace Nominax
 		this->HeaderWrite_DecrementStrongRefCount();
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_StrongRefCount(const std::uint32_t strongRefCount) const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_StrongRefCount(const U32 strongRefCount) const noexcept(true) -> void
 	{
 		ObjectHeader::WriteMapping_StrongRefCount(this->QueryRawHeader(), strongRefCount);
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_Size(const std::uint32_t size) const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_Size(const U32 size) const noexcept(true) -> void
 	{
 		ObjectHeader::WriteMapping_Size(this->QueryRawHeader(), size);
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_TypeId(const std::uint32_t typeId) const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_TypeId(const U32 typeId) const noexcept(true) -> void
 	{
 		ObjectHeader::WriteMapping_TypeId(this->QueryRawHeader(), typeId);
 	}

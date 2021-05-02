@@ -227,7 +227,7 @@ namespace Nominax
 		Print
 		(
 			"Allocated {}MB TLFRS, Entries: {}\n",
-			Bytes2Megabytes<double>(static_cast<double>(this->BufferSize_) * static_cast<double>(sizeof(Record))),
+			Bytes2Megabytes<F64>(static_cast<F64>(this->BufferSize_) * static_cast<F64>(sizeof(Record))),
 			this->BufferSize_
 		);
 	}

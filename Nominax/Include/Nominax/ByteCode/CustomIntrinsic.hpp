@@ -217,7 +217,7 @@ namespace Nominax
 	/// <summary>
 	/// Call id for custom intrinsic routine.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) CustomIntrinsicCallId : std::uint64_t;
+	enum class alignas(alignof(U64)) CustomIntrinsicCallId : U64;
 
 	/// <summary>
 	/// Custom intrinsic routine function prototype.

@@ -218,7 +218,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="x">Should not be 0!</param>
 	/// <returns></returns>
-	inline auto ILog2(std::uint64_t x) noexcept(true) -> std::uint64_t
+	inline auto ILog2(U64 x) noexcept(true) -> U64
 	{
 		assert(x);
 		--x;

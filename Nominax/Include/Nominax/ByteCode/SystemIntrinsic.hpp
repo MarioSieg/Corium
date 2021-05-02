@@ -214,7 +214,7 @@ namespace Nominax
 	/// <summary>
 	/// Call id for system intrinsic routine.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) SystemIntrinsicCallId : std::uint64_t
+	enum class alignas(alignof(U64)) SystemIntrinsicCallId : U64
 	{
 		Cos = 0x00'00'00'00'00'00'00'00,
 		Sin = 0x00'00'00'00'00'00'00'01,

@@ -210,9 +210,11 @@
 #include <cstdint>
 #include <limits>
 
+#include "../Common/RtTypes.hpp"
+
 namespace Nominax
 {
-	using InterruptAccumulator = std::int32_t;
+	using InterruptAccumulator = I32;
 	using InterruptRoutine = auto(InterruptAccumulator) -> void;
 
 	constexpr InterruptAccumulator INT_CODE_FATAL_ERROR {std::numeric_limits<InterruptAccumulator>::min()};

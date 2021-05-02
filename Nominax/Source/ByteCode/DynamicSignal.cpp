@@ -226,15 +226,15 @@ namespace Nominax
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const std::uint64_t value) noexcept(true)
+			                  [](const U64 value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const std::int64_t value) noexcept(true)
+			                  [](const I64 value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const double value) noexcept(true)
+			                  [](const F64 value) noexcept(true)
 			                  {
 				                  return Signal {value};
 			                  },

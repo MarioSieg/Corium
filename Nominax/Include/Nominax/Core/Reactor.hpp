@@ -207,8 +207,6 @@
 
 #pragma once
 
-#include <cstddef>
-
 #include "ReactorOutput.hpp"
 #include "FixedStack.hpp"
 #include "../ByteCode/Chunk.hpp"

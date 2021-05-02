@@ -212,12 +212,13 @@
 #include <optional>
 #include <variant>
 
-#include "../Common/Protocol.hpp"
+#include "../Common/RtTypes.hpp"
+#include "../Common/LiteralOp.hpp"
+
 #include "Signal.hpp"
 #include "Instruction.hpp"
 #include "SystemIntrinsic.hpp"
 #include "CustomIntrinsic.hpp"
-#include "LiteralOp.hpp"
 
 namespace Nominax
 {
@@ -228,15 +229,15 @@ namespace Nominax
 	template <typename Ts>
 	concept BytecodeElement = requires
 	{
-		requires sizeof(Ts) % sizeof(std::int32_t) == 0 || sizeof(Ts) % sizeof(std::int64_t) == 0;
-		requires alignof(Ts) % alignof(std::int32_t) == 0 || alignof(Ts) % alignof(std::int64_t) == 0;
+		requires sizeof(Ts) % sizeof(I32) == 0 || sizeof(Ts) % sizeof(I64) == 0;
+		requires alignof(Ts) % alignof(I32) == 0 || alignof(Ts) % alignof(I64) == 0;
 		requires
 		std::is_same_v<Ts, Instruction>
 		|| std::is_same_v<Ts, SystemIntrinsicCallId>
 		|| std::is_same_v<Ts, CustomIntrinsicCallId>
-		|| std::is_same_v<Ts, std::uint64_t>
-		|| std::is_same_v<Ts, std::int64_t>
-		|| std::is_same_v<Ts, double>
+		|| std::is_same_v<Ts, U64>
+		|| std::is_same_v<Ts, I64>
+		|| std::is_same_v<Ts, F64>
 		|| std::is_same_v<Ts, char32_t>;
 	};
 
@@ -248,7 +249,7 @@ namespace Nominax
 		/// <summary>
 		/// Discriminated union.
 		/// </summary>
-		using Variant = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, std::uint64_t, std::int64_t, double, char32_t>;
+		using Variant = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, U64, I64, F64, char32_t>;
 
 		/// <summary>
 		/// Default construct an I64(0)
@@ -275,21 +276,21 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(std::uint64_t value) noexcept(true);
+		explicit constexpr DynamicSignal(U64 value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit signed quadword integer.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(std::int64_t value) noexcept(true);
+		explicit constexpr DynamicSignal(I64 value) noexcept(true);
 
 		/// <summary>
-		/// Construct from 64-bit double precision float.
+		/// Construct from 64-bit F64 precision F32.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(double value) noexcept(true);
+		explicit constexpr DynamicSignal(F64 value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 32-bit UTF32 character.
@@ -443,19 +444,19 @@ namespace Nominax
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const std::uint64_t value) noexcept(true) : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const U64 value) noexcept(true) : DataCollection {value} {}
 
 	/// <summary>
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const std::int64_t value) noexcept(true) : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const I64 value) noexcept(true) : DataCollection {value} {}
 
 	/// <summary>
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const double value) noexcept(true) : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const F64 value) noexcept(true) : DataCollection {value} {}
 
 	/// <summary>
 	/// Constructor.

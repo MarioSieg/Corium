@@ -835,7 +835,7 @@ namespace Nominax
 		out << "=========================\n";
 		for (std::size_t i {0}; i < stackDumpSize && sp; ++i)
 		{
-			out << "0x" << std::hex << i << " = 0x" << std::hex << sp[-i].U64 << '\n';
+			out << "0x" << std::hex << i << " = 0x" << std::hex << sp[-i].Vu64 << '\n';
 		}
 
 		out << std::endl;
@@ -846,7 +846,7 @@ namespace Nominax
 		out << "=========================\n";
 		for (std::size_t i {0}; i < codeDumpSize && ip; ++i)
 		{
-			out << "0x" << std::hex << i << " = 0x" << std::hex << ip[-i].R64.U64 << '\n';
+			out << "0x" << std::hex << i << " = 0x" << std::hex << ip[-i].R64.Vu64 << '\n';
 		}
 		out << std::endl;
 	}

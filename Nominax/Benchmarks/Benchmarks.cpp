@@ -227,7 +227,7 @@ auto Loop1Billion(State& state) -> void
 		Signal {INT64_C(0)},
 	};
 
-	const std::vector<std::uint8_t> codeInstructionMap {
+	const std::vector<U8> codeInstructionMap {
 		true,
 		true,
 		true,
@@ -286,19 +286,19 @@ auto Loop1Billion(State& state) -> void
 			break;
 		}
 
-		if (output.Input->Stack[1].I64 != 1'000'000'000)
+		if (output.Input->Stack[1].Vi64 != 1'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (output.Input->Stack[2].I64 != 1'000'000'000)
+		if (output.Input->Stack[2].Vi64 != 1'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (output.Input->Stack[3].I64 != 1'000'000'000)
+		if (output.Input->Stack[3].Vi64 != 1'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
@@ -328,12 +328,12 @@ auto DeepCmpLess(State& state) -> void
 	const auto b {Object::AllocateUnique(16384)};
 	for (auto& x : *b)
 	{
-		x.F64 = 10.0;
+		x.Vf64 = 10.0;
 	}
 
 	for (auto _ : state)
 	{
-		const auto x = Object::DeepValueCmp_Less<double>(*a, *b);
+		const auto x = Object::DeepValueCmp_Less<F64>(*a, *b);
 		DoNotOptimize(x);
 	}
 }
@@ -356,7 +356,7 @@ auto Loop5Billion(State& state) -> void
 		Signal {INT64_C(0)},
 	};
 
-	const std::vector<std::uint8_t> codeInstructionMap {
+	const std::vector<U8> codeInstructionMap {
 		true,
 		true,
 		true,
@@ -415,19 +415,19 @@ auto Loop5Billion(State& state) -> void
 			break;
 		}
 
-		if (output.Input->Stack[1].I64 != 5'000'000'000)
+		if (output.Input->Stack[1].Vi64 != 5'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (output.Input->Stack[2].I64 != 5'000'000'000)
+		if (output.Input->Stack[2].Vi64 != 5'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (output.Input->Stack[3].I64 != 5'000'000'000)
+		if (output.Input->Stack[3].Vi64 != 5'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;

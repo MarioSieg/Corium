@@ -1,6 +1,6 @@
-// File: ScopedVariable.cpp
+// File: LiteralOp.hpp
 // Author: Mario
-// Created: 27.04.2021 3:44 PM
+// Created: 24.04.2021 9:54 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,120 +205,39 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#pragma once
 
-TEST(ScopedVariable, StackPushPop)
-{
-	ASSERT_NE(OptLevel, OptimizationLevel::Off);
-	Stream                                      stream { };
-	stream.With(4.5, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 4);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
-	ASSERT_TRUE(stream[2].Contains(4.5));
-	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
-}
+#include "../Common/RtTypes.hpp"
 
-TEST(ScopedVariable, F64StackPushPopOptScalarZero)
+namespace Nominax
 {
-	ASSERT_NE(OptLevel, OptimizationLevel::Off);
-	Stream                                      stream { };
-	stream.With(0.0, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// Construct a runtime integer (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_int(const unsigned long long int value) noexcept(true) -> I64
+	{
+		return static_cast<I64>(value);
+	}
 
-TEST(ScopedVariable, I64StackPushPopOptScalarZero)
-{
-	ASSERT_NE(OptLevel, OptimizationLevel::Off);
-	Stream                                    stream { };
-	stream.With(0, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// Construct a runtime unsigned integer (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_uint(const unsigned long long int value) noexcept(true) -> U64
+	{
+		return value;
+	}
 
-TEST(ScopedVariable, U64StackPushPopOptScalarZero)
-{
-	Stream                                    stream { };
-	stream.With(0, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, F64StackPushPopOptScalarOne)
-{
-	ASSERT_NE(OptLevel, OptimizationLevel::Off);
-	Stream                                      stream { };
-	stream.With(1.0, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::FPushO));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, I64StackPushPopOptScalarOne)
-{
-	ASSERT_NE(OptLevel, OptimizationLevel::Off);
-	Stream                                    stream { };
-	stream.With(1, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarOne)
-{
-	ASSERT_NE(OptLevel, OptimizationLevel::Off);
-	Stream                                    stream { };
-	stream.With(1, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
-{
-	ASSERT_NE(OptLevel, OptimizationLevel::Off);
-	Stream stream { };
-	stream << 3.5;
-	stream.With(3.5, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 4);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(3.5));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
-{
-	ASSERT_NE(OptLevel, OptimizationLevel::Off);
-	Stream stream { };
-	stream << INT64_C(3);
-	stream.With(3, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 4);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains<I64>(3));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
-{
-	ASSERT_NE(OptLevel, OptimizationLevel::Off);
-	Stream stream { };
-	stream << UINT64_C(3);
-	stream.With(UINT64_C(3), []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 4);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains<U64>(3));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
+	/// <summary>
+	/// Construct a runtime F32 (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_F32(const long double value) noexcept(true) -> F64
+	{
+		return static_cast<F64>(value);
+	}
 }

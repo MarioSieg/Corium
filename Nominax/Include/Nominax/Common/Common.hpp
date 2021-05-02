@@ -210,6 +210,7 @@
 #include "BranchHint.hpp"
 #include "F64Comparator.hpp"
 #include "ILog2.hpp"
+#include "LiteralOp.hpp"
 #include "MemoryAlign.hpp"
 #include "MemoryUnits.hpp"
 #include "PanicRoutine.hpp"

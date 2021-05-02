@@ -224,10 +224,10 @@ namespace Nominax
 	/// We cannot use vector<bool> because it's a specialization
 	/// and does not allow pointer to it's elements, because they are stored as bits.
 	/// </summary>
-	using JumpMap = std::vector<std::uint8_t>;
+	using JumpMap = std::vector<U8>;
 
-	static_assert(sizeof(std::uint8_t) == sizeof(bool));
-	static_assert(alignof(std::uint8_t) == alignof(bool));
+	static_assert(sizeof(U8) == sizeof(bool));
+	static_assert(alignof(U8) == alignof(bool));
 
 	/// <summary>
 	/// Calculates an instruction mapping.

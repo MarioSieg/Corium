@@ -489,40 +489,40 @@ namespace Nominax
 	}
 
 	template <>
-	auto ScopedVariable<double>::Push(double value) -> ScopedVariable&;
+	auto ScopedVariable<F64>::Push(F64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::int64_t>::Push(std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::Push(I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::Push(std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::Push(U64 value) -> ScopedVariable&;
 
 	template <>
-	inline ScopedVariable<double>::ScopedVariable(Stream& attached, const double value) : Attached_ {attached}
+	inline ScopedVariable<F64>::ScopedVariable(Stream& attached, const F64 value) : Attached_ {attached}
 	{
 		this->Push(value);
 	}
 
 	template <>
-	inline ScopedVariable<std::int64_t>::ScopedVariable(Stream& attached, const std::int64_t value) : Attached_ {attached}
+	inline ScopedVariable<I64>::ScopedVariable(Stream& attached, const I64 value) : Attached_ {attached}
 	{
 		this->Push(value);
 	}
 
 	template <>
-	inline ScopedVariable<std::uint64_t>::ScopedVariable(Stream& attached, const std::uint64_t value) : Attached_ {attached}
+	inline ScopedVariable<U64>::ScopedVariable(Stream& attached, const U64 value) : Attached_ {attached}
 	{
 		this->Push(value);
 	}
 
 	template <>
-	auto ScopedVariable<double>::Add(double value) -> ScopedVariable&;
+	auto ScopedVariable<F64>::Add(F64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::int64_t>::Add(std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::Add(I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::Add(std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::Add(U64 value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::operator+=(const T value) -> ScopedVariable&
@@ -531,13 +531,13 @@ namespace Nominax
 	}
 
 	template <>
-	auto ScopedVariable<double>::Sub(double value) -> ScopedVariable&;
+	auto ScopedVariable<F64>::Sub(F64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::int64_t>::Sub(std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::Sub(I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::Sub(std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::Sub(U64 value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::operator-=(const T value) -> ScopedVariable&
@@ -546,13 +546,13 @@ namespace Nominax
 	}
 
 	template <>
-	auto ScopedVariable<double>::Mul(double value) -> ScopedVariable&;
+	auto ScopedVariable<F64>::Mul(F64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::int64_t>::Mul(std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::Mul(I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::Mul(std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::Mul(U64 value) -> ScopedVariable&;
 
 
 	template <typename T> requires StreamScalar<T>
@@ -562,13 +562,13 @@ namespace Nominax
 	}
 
 	template <>
-	auto ScopedVariable<double>::Div(double value) -> ScopedVariable&;
+	auto ScopedVariable<F64>::Div(F64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::int64_t>::Div(std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::Div(I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::Div(std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::Div(U64 value) -> ScopedVariable&;
 
 
 	template <typename T> requires StreamScalar<T>
@@ -578,13 +578,13 @@ namespace Nominax
 	}
 
 	template <>
-	auto ScopedVariable<double>::Mod(double value) -> ScopedVariable&;
+	auto ScopedVariable<F64>::Mod(F64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::int64_t>::Mod(std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::Mod(I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::Mod(std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::Mod(U64 value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::operator%=(const T value) -> ScopedVariable&
@@ -593,10 +593,10 @@ namespace Nominax
 	}
 
 	template <>
-	auto ScopedVariable<std::int64_t>::And(std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::And(I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::And(std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::And(U64 value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::operator&=(const T value) -> ScopedVariable&
@@ -605,10 +605,10 @@ namespace Nominax
 	}
 
 	template <>
-	auto ScopedVariable<std::int64_t>::Or(const std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::Or(const I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::Or(const std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::Or(const U64 value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::operator|=(const T value) -> ScopedVariable&
@@ -617,10 +617,10 @@ namespace Nominax
 	}
 
 	template <>
-	auto ScopedVariable<std::int64_t>::Xor(const std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::Xor(const I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::Xor(const std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::Xor(const U64 value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::operator^=(const T value) -> ScopedVariable&
@@ -629,10 +629,10 @@ namespace Nominax
 	}
 
 	template <>
-	auto ScopedVariable<std::int64_t>::ShiftLeft(const std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::ShiftLeft(const I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::ShiftLeft(const std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::ShiftLeft(const U64 value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::operator<<=(const T value) -> ScopedVariable&
@@ -641,10 +641,10 @@ namespace Nominax
 	}
 
 	template <>
-	auto ScopedVariable<std::int64_t>::ShiftRight(const std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::ShiftRight(const I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::ShiftRight(const std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::ShiftRight(const U64 value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::operator>>=(const T value) -> ScopedVariable&
@@ -653,15 +653,15 @@ namespace Nominax
 	}
 
 	template <>
-	auto ScopedVariable<std::int64_t>::RotateLeft(std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::RotateLeft(I64 value) -> ScopedVariable&;
 	template <>
-	auto ScopedVariable<std::uint64_t>::RotateLeft(std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::RotateLeft(U64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::int64_t>::RotateRight(std::int64_t value) -> ScopedVariable&;
+	auto ScopedVariable<I64>::RotateRight(I64 value) -> ScopedVariable&;
 
 	template <>
-	auto ScopedVariable<std::uint64_t>::RotateRight(std::uint64_t value) -> ScopedVariable&;
+	auto ScopedVariable<U64>::RotateRight(U64 value) -> ScopedVariable&;
 
 	template <typename T> requires StreamScalar<T>
 	inline ScopedVariable<T>::~ScopedVariable()
@@ -672,15 +672,15 @@ namespace Nominax
 	/// <summary>
 	/// Stream variable with runtime type: int
 	/// </summary>
-	using ScopedInt = ScopedVariable<std::int64_t>;
+	using ScopedInt = ScopedVariable<I64>;
 
 	/// <summary>
 	/// Stream variable with runtime type: uint
 	/// </summary>
-	using ScopedUInt = ScopedVariable<std::uint64_t>;
+	using ScopedUInt = ScopedVariable<U64>;
 
 	/// <summary>
-	/// Stream variable with runtime type: float
+	/// Stream variable with runtime type: F32
 	/// </summary>
-	using ScopedFloat = ScopedVariable<double>;
+	using ScopedF32 = ScopedVariable<F64>;
 }

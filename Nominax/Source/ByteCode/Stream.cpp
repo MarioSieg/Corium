@@ -259,7 +259,7 @@ struct fmt::formatter<Nominax::DynamicSignal>
 					           static_cast<std::underlying_type_t<decltype(value)>>(value)
 				           );
 			           },
-			           [&](const std::uint64_t value)
+			           [&](const U64 value)
 			           {
 				           result = fmt::format_to
 				           (
@@ -269,7 +269,7 @@ struct fmt::formatter<Nominax::DynamicSignal>
 					           Lexemes::LITERAL_SUFFIX_UINT
 				           );
 			           },
-			           [&](const std::int64_t value)
+			           [&](const I64 value)
 			           {
 				           result = fmt::format_to
 				           (
@@ -280,7 +280,7 @@ struct fmt::formatter<Nominax::DynamicSignal>
 					           Lexemes::LITERAL_SUFFIX_INT
 				           );
 			           },
-			           [&](const double value)
+			           [&](const F64 value)
 			           {
 				           result = fmt::format_to
 				           (
@@ -288,7 +288,7 @@ struct fmt::formatter<Nominax::DynamicSignal>
 					           " {}{}{}",
 					           Lexemes::IMMEDIATE,
 					           value,
-					           Lexemes::LITERAL_SUFFIX_FLOAT
+					           Lexemes::LITERAL_SUFFIX_F32
 				           );
 			           },
 			           [&](const char32_t value)
@@ -298,7 +298,7 @@ struct fmt::formatter<Nominax::DynamicSignal>
 					           ctx.out(),
 					           " {}{}{:#X}",
 					           Lexemes::IMMEDIATE,
-					           static_cast<std::uint32_t>(value),
+					           static_cast<U32>(value),
 					           Lexemes::LITERAL_SUFFIX_CHAR
 				           );
 			           },
@@ -340,7 +340,7 @@ namespace Nominax
 					// Get interrupt code:
 					auto current {sig};
 					std::advance(current, 1);
-					if (const auto interrupt {current->Unwrap<std::int64_t>()}; NOMINAX_LIKELY(interrupt.has_value()))
+					if (const auto interrupt {current->Unwrap<I64>()}; NOMINAX_LIKELY(interrupt.has_value()))
 					{
 						if (const auto code = *interrupt; code == 0)
 						{

@@ -214,7 +214,7 @@ namespace Nominax
 	/// <summary>
 	/// Contains all byte code instructions with opcodes.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
+	enum class alignas(alignof(U64)) Instruction : U64
 	{
 		Int = 0x00'00'00'00'00'00'00'00,
 		Intrin = 0x00'00'00'00'00'00'00'01,
