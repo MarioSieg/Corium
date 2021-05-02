@@ -309,7 +309,7 @@ namespace Nominax
 		PrintTypeInfo<ObjectHeader>("ObjectHeader");
 		PrintTypeInfo<I64>("int");
 		PrintTypeInfo<U64>("uint");
-		PrintTypeInfo<F64>("F32");
+		PrintTypeInfo<F64>("float");
 		PrintTypeInfo<char32_t>("char");
 		PrintTypeInfo<bool>("bool");
 		PrintTypeInfo<void*>("void*");

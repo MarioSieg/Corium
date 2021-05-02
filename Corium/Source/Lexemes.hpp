@@ -210,8 +210,6 @@
 #include <array>
 #include <string_view>
 
-#include "Keywords.hpp"
-
 namespace Corium
 {
 	enum class Lexeme : std::size_t
