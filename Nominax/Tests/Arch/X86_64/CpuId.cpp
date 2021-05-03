@@ -213,10 +213,11 @@
 #if NOMINAX_ARCH_X86_64
 TEST(AssemblyCalls, CpuId)
 {
-	const QUADWORD result {X86_64::__CPUID__()};
-	const auto     bits = std::bit_cast<X86_64::CpuFeatureBits>(result);
+	QUADWORD lo {0}, hi {0};
+	X86_64::Asm_CpuId(&lo, &hi);
+	const auto bits = std::bit_cast<X86_64::CpuFeatureBits>(lo);
 	bits.PrintFeatures();
-	ASSERT_NE(result, 0);
-	std::cerr << std::bitset<64>(result) << '\n';
+	ASSERT_NE(lo, 0);
+	std::cerr << std::bitset<64>(lo) << '\n';
 }
 #endif

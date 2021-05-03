@@ -306,5 +306,5 @@ namespace Nominax::X86_64
 	static_assert(sizeof(CpuFeatureBits) == sizeof(QUADWORD));
 	static_assert(std::is_trivially_copyable_v<CpuFeatureBits>);
 
-	extern "C" auto __CPUID__() noexcept -> QUADWORD;
+	extern "C" auto Asm_CpuId(QUADWORD* lo, QUADWORD* hi) noexcept -> void;
 }

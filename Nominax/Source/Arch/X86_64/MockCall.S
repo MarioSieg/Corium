@@ -205,9 +205,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl __MOCK_CALL__
+.globl Asm_MockCall
 
-__MOCK_CALL__:
+Asm_MockCall:
     PUSHQ	%RBP
     MOVQ	%RSP, %RBP
     XORL    %EAX, %EAX

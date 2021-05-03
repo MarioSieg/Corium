@@ -211,5 +211,5 @@
 
 namespace Nominax::X86_64
 {
-	extern "C" auto __MOCK_CALL__() noexcept -> QUADWORD;
+	extern "C" auto Asm_MockCall() noexcept -> QUADWORD;
 }

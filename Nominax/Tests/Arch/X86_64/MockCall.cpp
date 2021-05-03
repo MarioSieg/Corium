@@ -211,9 +211,9 @@
 TEST(AssemblyCalls, MockCall)
 {
 #if NOMINAX_OS_WINDOWS
-	ASSERT_EQ(Nominax::X86_64::__MOCK_CALL__(), 0xFF);
+	ASSERT_EQ(Nominax::X86_64::Asm_MockCall(), 0xFF);
 #else
-	ASSERT_EQ(Nominax::X86_64::__MOCK_CALL__(), 1234);
+	ASSERT_EQ(Nominax::X86_64::MOCK_CALL__(), 1234);
 #endif
 }
 #endif

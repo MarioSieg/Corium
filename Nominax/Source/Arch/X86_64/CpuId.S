@@ -205,19 +205,35 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl __CPUID__
+.globl Asm_CpuId
 
 .equ PROCINF, 1
+.equ MASK, 0xFFFFFFFF
 
-__CPUID__:
+Asm_CpuId:
     PUSHQ   %RBP            # stack frame prologue
     MOVQ    %RSP, %RBP      # stack frame prologue
+#ifdef __WIN__
+    PUSHQ   %RCX            # preserve clobbered rcx
+    PUSHQ   %RDX            # preserve clobbered rdx
+#endif
     XORL    %EAX, %EAX
     MOVB    $PROCINF, %AL   # set eax to 1, cpuid mode = processor info and feature bits
     CPUID                   # call cpuid
     MOVL    %EDX, %EAX      # copy the first feature bit word to return register
+    MOVL    $MASK, %R10D
+    ANDQ    %R10, %RCX
     SALQ    $32, %RCX       # shift the second feature bit word into hiword
     ORQ     %RCX, %RAX      # merge first and second feature bit words into return register
+#ifdef __WIN__
+    POPQ    %RDX            # restore clobbered rdx
+    POPQ    %RCX            # restore clobbered rcx
+    MOVQ    %RAX, (%RCX)    # copy result into output1
+    MOVQ    $0, (%RDX)      # todo
+#else
+    MOVQ    %RAX, (%RDI)    # copy result into output1
+    MOVQ    $0, (%RSI)      # todo
+#endif
     MOVQ    %RBP, %RSP      # stack frame epilogue
     POPQ    %RBP            # stack frame epilogue
     RETQ                    # return
