@@ -229,7 +229,6 @@ namespace Nominax::X86_64
 		bool Apic : 1 {false};
 
 	private:
-		[[maybe_unused]]
 		bool Reserved0_ : 1 {false};
 
 	public:
@@ -244,7 +243,6 @@ namespace Nominax::X86_64
 		bool Clfsh : 1 {false};
 
 	private:
-		[[maybe_unused]]
 		bool Reserved1_ : 1 {false};
 
 	public:
@@ -280,7 +278,6 @@ namespace Nominax::X86_64
 		bool Pdcm : 1 {false};
 
 	private:
-		[[maybe_unused]]
 		bool Reserved3_ : 1 {false};
 
 	public:

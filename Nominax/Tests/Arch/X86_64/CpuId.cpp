@@ -218,6 +218,5 @@ TEST(AssemblyCalls, CpuId)
 	const auto bits = std::bit_cast<X86_64::CpuFeatureBits>(lo);
 	bits.PrintFeatures();
 	ASSERT_NE(lo, 0);
-	std::cerr << std::bitset<64>(lo) << '\n';
 }
 #endif

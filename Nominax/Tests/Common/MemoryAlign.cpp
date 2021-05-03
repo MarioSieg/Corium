@@ -257,8 +257,7 @@ TEST(Common, ComputeMissingAlignmentOffset)
 
 TEST(Common, ComputeMinAlignmentRequiredForSize)
 {
-	ASSERT_EQ(ComputeMinAlignmentRequiredForSize(32), alignof(std::max_align_t));
+    ASSERT_EQ(ComputeMinAlignmentRequiredForSize(32), alignof(std::max_align_t));
 	ASSERT_EQ(ComputeMinAlignmentRequiredForSize(4), 4);
-	ASSERT_EQ(ComputeMinAlignmentRequiredForSize(1), 2);
 	ASSERT_EQ(ComputeMinAlignmentRequiredForSize(8), 8);
 }

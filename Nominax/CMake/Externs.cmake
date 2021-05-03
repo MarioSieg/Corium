@@ -1,2 +1,6 @@
 ADD_SUBDIRECTORY("SharedTools/fmt/")
 TARGET_LINK_LIBRARIES("Nominax" "fmt")
+
+IF (NOT Win32)
+	TARGET_LINK_LIBRARIES("Nominax" "dl")
+ENDIF()

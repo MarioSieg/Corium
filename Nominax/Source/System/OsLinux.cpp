@@ -216,57 +216,6 @@
 
 #include <dlfcn.h>
 #include <unistd.h>
-#include <gtk/gtk.h>
-
-namespace
-{
-	using namespace Nominax;
-
-	inline auto MsgGetIcon(const MessageBoxStyle style) noexcept(true) -> GtkMessageType
-	{
-		switch (style)
-		{
-			case MessageBoxStyle::INFO:
-				return GTK_MESSAGE_INFO;
-			case MessageBoxStyle::WARNING:
-				return GTK_MESSAGE_WARNING;
-			case MessageBoxStyle::ERROR:
-				return GTK_MESSAGE_ERROR;
-			case MessageBoxStyle::QUESTION:
-				return GTK_MESSAGE_INFO;
-		}
-	}
-
-	inline auto MsgGetButtons(const MessageBoxButtons buttons) noexcept(true) -> GtkButtonsType
-	{
-		switch (_buttons)
-		{
-			case MessageBoxButtons::OK:
-				return GTK_BUTTONS_OK;
-			case MessageBoxButtons::OK_CANCEL:
-				return GTK_BUTTONS_OK_CANCEL;
-			case MessageBoxButtons::YES_NO:
-				return GTK_BUTTONS_YES_NO;
-		}
-	}
-
-	inline auto MsgGetSelection(const gint response) noexcept(true) -> MessageBoxSelection
-	{
-		switch (response)
-		{
-			case GTK_RESPONSE_OK:
-				return MessageBoxSelection::OK;
-			case GTK_RESPONSE_CANCEL:
-				return MessageBoxSelection::CANCEL;
-			case GTK_RESPONSE_YES:
-				return MessageBoxSelection::YES;
-			case GTK_RESPONSE_NO:
-				return MessageBoxSelection::NO;
-			default:
-				return MessageBoxSelection::NONE;
-		}
-	}
-}
 
 namespace Nominax::Os {
 	auto QuerySystemMemoryTotal() noexcept(false) -> std::size_t
@@ -331,22 +280,15 @@ namespace Nominax::Os {
 		handle_ = nullptr;
 	}
 
-	auto ShowMessageBox(const std::string_view message, const std::string_view caption, const MessageBoxStyle style, const MessageBoxButtons buttons) noexcept(false) -> MessageBoxSelection
+    auto ShowMessageBox
+    (
+        [[maybe_unused]] const std::string_view message,
+        [[maybe_unused]] const std::string_view caption,
+        [[maybe_unused]] const MessageBoxStyle style,
+        [[maybe_unused]] const MessageBoxButtons buttons
+    ) noexcept(false) -> MessageBoxSelection
 	{
-		if (!gtk_init_check(0, nullptr)) {
-			return MessageBoxSelection::NONE;
-		}
-		auto* const dialog = gtk_message_dialog_new(nullptr,
-			GTK_DIALOG_MODAL,
-			MsgGetIcon(style),
-			MsgGetButtons(buttons),
-			"%s",
-			message.data());
-		gtk_window_set_title(GTK_WINDOW(dialog), caption.data());
-		auto selection = MsgGetSelection(gtk_dialog_run(GTK_DIALOG(dialog)));
-		gtk_widget_destroy(GTK_WIDGET(dialog));
-		while (g_main_context_iteration(nullptr, false));
-		return selection;
+        return MessageBoxSelection::Ok;
 	}
 }
 
