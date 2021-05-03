@@ -16,6 +16,7 @@ OPTION("CORIUM_FAST_MATH" "Use fast but IEEE incompatible math" ON)
 OPTION("CORIUM_BUILD_UNIT_TESTS" "Build the unit tests for all projects" ON)
 OPTION("CORIUM_BUILD_BENCHMARKS" "Build the benchmarks for all projects" ON)
 
+INCLUDE("CMake/Assembly.cmake")
 INCLUDE("CMake/UnitTests.cmake")
 INCLUDE("CMake/Benchmarks.cmake")
 INCLUDE("CMake/CompilerFlags.cmake")

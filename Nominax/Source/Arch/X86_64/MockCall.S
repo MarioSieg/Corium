@@ -210,7 +210,12 @@
 __MOCK_CALL__:
     PUSHQ	%RBP
     MOVQ	%RSP, %RBP
-    MOVQ	$1234, %RAX
+    XORL    %EAX, %EAX
+#ifdef __WIN__
+    MOVB	$0XFF, %AL
+#else
+    MOVW	$1234, %AX
+#endif
     MOVQ	%RBP, %RSP
     POPQ	%RBP
     RETQ

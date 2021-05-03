@@ -212,7 +212,8 @@
 __CPUID__:
     PUSHQ   %RBP            # stack frame prologue
     MOVQ    %RSP, %RBP      # stack frame prologue
-    MOVL    $PROCINF, %EAX  # set eax to 1, cpuid mode = processor info and feature bits
+    XORL    %EAX, %EAX
+    MOVB    $PROCINF, %AL   # set eax to 1, cpuid mode = processor info and feature bits
     CPUID                   # call cpuid
     MOVL    %EDX, %EAX      # copy the first feature bit word to return register
     SALQ    $32, %RCX       # shift the second feature bit word into hiword

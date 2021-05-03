@@ -1,6 +1,6 @@
-// File: MockCall.cpp
+// File: CpuId.cpp
 // Author: Mario
-// Created: 27.04.2021 11:30 PM
+// Created: 02.05.2021 9:16 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -213,8 +213,8 @@
 #if NOMINAX_ARCH_X86_64
 TEST(AssemblyCalls, CpuId)
 {
-	const QUADWORD result{ X86_64::__CPUID__() };
-	const auto bits = std::bit_cast<X86_64::CpuFeatureBits>(result);
+	const QUADWORD result {X86_64::__CPUID__()};
+	const auto     bits = std::bit_cast<X86_64::CpuFeatureBits>(result);
 	bits.PrintFeatures();
 	ASSERT_NE(result, 0);
 	std::cerr << std::bitset<64>(result) << '\n';
