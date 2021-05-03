@@ -209,10 +209,6 @@
 
 #include "../TestBase.hpp"
 
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-#error "These tests must run without NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING!"
-#endif
-
 constexpr IntrinsicRoutine* MOCK_INTRINSIC_ROUTINE
 {
 	+[]([[maybe_unused]] Record*) noexcept(true) -> void { }
