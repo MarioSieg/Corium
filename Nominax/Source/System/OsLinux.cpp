@@ -279,17 +279,6 @@ namespace Nominax::Os {
 		::dlclose(handle_);
 		handle_ = nullptr;
 	}
-
-    auto ShowMessageBox
-    (
-        [[maybe_unused]] const std::string_view message,
-        [[maybe_unused]] const std::string_view caption,
-        [[maybe_unused]] const MessageBoxStyle style,
-        [[maybe_unused]] const MessageBoxButtons buttons
-    ) noexcept(false) -> MessageBoxSelection
-	{
-        return MessageBoxSelection::Ok;
-	}
 }
 
 #endif

@@ -206,13 +206,14 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
+#include "../../Include/Nominax/Common/Protocol.hpp"
 #include "../../Include/Nominax/System/Os.hpp"
 
 namespace Nominax
 {
 	auto Panic(const std::string_view message) -> void
 	{
-		Os::ShowMessageBox(message, "Nominax Runtime Error", MessageBoxStyle::Error, MessageBoxButtons::Ok);
+		Print(TextColor::Red, "\n\nNominax Runtime Error: \n{}\n\n", message);
 		std::abort();
 	}
 }

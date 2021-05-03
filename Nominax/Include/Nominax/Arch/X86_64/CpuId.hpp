@@ -227,11 +227,7 @@ namespace Nominax::X86_64
 		bool Mce : 1 {false};
 		bool Cx8 : 1 {false};
 		bool Apic : 1 {false};
-
-	private:
-		bool Reserved0_ : 1 {false};
-
-	public:
+		bool Reserved0 : 1 {false};
 		bool Sep : 1 {false};
 		bool Mtrr : 1 {false};
 		bool Pge : 1 {false};
@@ -241,11 +237,7 @@ namespace Nominax::X86_64
 		bool Pse36 : 1 {false};
 		bool Psn : 1 {false};
 		bool Clfsh : 1 {false};
-
-	private:
-		bool Reserved1_ : 1 {false};
-
-	public:
+		bool Reserved1 : 1 {false};
 		bool Ds : 1 {false};
 		bool Acpi : 1 {false};
 		bool Mmx : 1 {false};
@@ -276,11 +268,7 @@ namespace Nominax::X86_64
 		bool Cx16 : 1 {false};
 		bool Xtpr : 1 {false};
 		bool Pdcm : 1 {false};
-
-	private:
 		bool Reserved3_ : 1 {false};
-
-	public:
 		bool Pcid : 1 {false};
 		bool Dca : 1 {false};
 		bool Sse41 : 1 {false};
