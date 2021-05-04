@@ -226,7 +226,9 @@ namespace Nominax::X86_64
 		DOUBLEWORD                                    r {Asm_CpuId(chunk[0], chunk[1], chunk[2])};
 		std::memcpy(data.data(), chunk.data(), sizeof(MergedInfoTable) * 3);
 		std::memcpy(data.data() + sizeof(MergedInfoTable) * 3, &r, sizeof(DOUBLEWORD));
-		*this = std::bit_cast<CpuFeatureBits>(data);
+		*this                   = std::bit_cast<CpuFeatureBits>(data);
+		this->AvxSupportByOs    = this->OsXSave ? Asm_IsAvxSupportedByOs() : false;
+		this->Avx512SupportByOs = this->OsXSave ? Asm_IsAvx512SupportedByOs() : false;
 	}
 
 	auto CpuFeatureBits::PrintFeatures() const -> void
@@ -528,6 +530,11 @@ namespace Nominax::X86_64
 		PRINT_CPU_FEATURE("LM", this->LongMode);
 		PRINT_CPU_FEATURE("3DNowExt", this->D3NowExt);
 		PRINT_CPU_FEATURE("3DNow", this->D3Now);
+		PRINT_CPU_FEATURE("AVX OS", this->AvxSupportByOs);
+
+		Print("\n");
+
+		PRINT_CPU_FEATURE("AVX 512 OS", this->Avx512SupportByOs);
 
 		Print("\n");
 	}

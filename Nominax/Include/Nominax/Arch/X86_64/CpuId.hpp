@@ -1214,9 +1214,16 @@ namespace Nominax::X86_64
 		bool MmmxExt : 1 { };
 
 		/// <summary>
-		/// Unused
+		/// Is AVX supported by OS?
+		/// Can only be true if OSXSAVE is supported.
 		/// </summary>
-		U8 Ignored2 : 2{ };
+		bool AvxSupportByOs : 1{ };
+
+		/// <summary>
+		/// Os AVX 512 supported by OS?
+		/// Can only be true if OSXSAVE is supported.
+		/// </summary>
+		bool Avx512SupportByOs : 1{ };
 
 		/// <summary>
 		/// 	FXSAVE/FXRSTOR optimizations
@@ -1284,12 +1291,6 @@ namespace Nominax::X86_64
 	static_assert(std::is_trivially_copyable_v<MergedInfoTable>);
 
 	/// <summary>
-	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
-	/// Implementation: Source/Arch/X86_64.CpuId.S
-	/// </summary>
-	extern "C" auto Asm_IsCpuIdSupported() noexcept -> BYTE;
-
-	/// <summary>
 	/// Assembly routine which calls cpuid
 	/// multiple time to determine all cpu features.
 	/// The first 6 feature tables are returned via
@@ -1306,4 +1307,22 @@ namespace Nominax::X86_64
 		MergedInfoTable& out2,
 		MergedInfoTable& out3
 	) noexcept -> DOUBLEWORD;
+
+	/// <summary>
+	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
+	/// Implementation: Source/Arch/X86_64.CpuId.S
+	/// </summary>
+	extern "C" auto Asm_IsCpuIdSupported() noexcept -> BYTE;
+
+	/// <summary>
+	/// Returns true if the OS supports AVX YMM registers, else false.
+	/// Warning! Check if os supports OSXSAVE first!
+	/// </summary>
+	extern "C" auto Asm_IsAvxSupportedByOs() noexcept -> BYTE;
+
+	/// <summary>
+	/// Returns true if the OS supports AVX512 ZMM registers, else false.
+	/// Warning! Check if os supports OSXSAVE first!
+	/// </summary>
+	extern "C" auto Asm_IsAvx512SupportedByOs() noexcept -> BYTE;
 }
