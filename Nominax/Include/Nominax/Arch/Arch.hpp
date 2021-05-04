@@ -207,10 +207,4 @@
 
 #pragma once
 
-#include "../System/Platform.hpp"
-
-#if NOMINAX_ARCH_X86_64
-
 #include "X86_64.hpp"
-
-#endif

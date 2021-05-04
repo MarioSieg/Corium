@@ -224,7 +224,7 @@ namespace Nominax
 	[[nodiscard]]
 	constexpr auto IsAlignmentValid(const std::size_t alignment) noexcept(true) -> bool
 	{
-        return alignment && !(alignment & (alignment - 1));
+		return alignment && !(alignment & (alignment - 1));
 	}
 
 	static_assert(IsAlignmentValid(alignof(std::max_align_t)), "WTF");
@@ -262,7 +262,7 @@ namespace Nominax
 	/// <returns>The required offset.</returns>
 	constexpr auto ComputeMissingAlignmentOffset(void* const ptr, const std::size_t alignment) noexcept(true) -> std::size_t
 	{
-        const auto misalignment = std::bit_cast<std::uintptr_t>(ptr) & (alignment - 1);
+		const auto misalignment = std::bit_cast<std::uintptr_t>(ptr) & (alignment - 1);
 		return misalignment != 0 ? alignment - misalignment : 0;
 	}
 

@@ -1,4 +1,4 @@
-// File: MockCall.hpp
+// File: X86_64.hpp
 // Author: Mario
 // Created: 27.04.2021 11:26 PM
 // Project: NominaxRuntime
@@ -205,7 +205,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-// ReSharper disable CppInconsistentNaming
 #pragma once
 
 #include "X86_64/CpuId.hpp"

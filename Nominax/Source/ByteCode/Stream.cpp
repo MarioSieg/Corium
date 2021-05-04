@@ -399,10 +399,10 @@ namespace Nominax
 		constexpr std::array code {DynamicSignal::CodeEpilogue()};
 		if (auto containsEpilogueCode = [&]() -> bool
 		{
-            auto end = this->SignalStream_.end();
+			auto end = this->SignalStream_.end();
 			for (const DynamicSignal& sig : code)
 			{
-                std::advance(end, -1);
+				std::advance(end, -1);
 				if (NOMINAX_UNLIKELY(sig != *end))
 				{
 					return false;

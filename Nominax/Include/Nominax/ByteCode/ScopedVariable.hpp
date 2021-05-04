@@ -465,7 +465,7 @@ namespace Nominax
 	inline auto ScopedVariable<T>::Unwrap() const -> T
 	{
 #if NOMINAX_DEBUG
-        return this->Attached_.Back().Unwrap<T>().value();
+		return this->Attached_.Back().template Unwrap<T>().value();
 #else
         return *this->Attached_.Back().Unwrap<T>();
 #endif

@@ -208,6 +208,7 @@
 #pragma once
 
 #include "../Common/RtTypes.hpp"
+#include "../System/Platform.hpp"
 
 namespace Nominax
 {

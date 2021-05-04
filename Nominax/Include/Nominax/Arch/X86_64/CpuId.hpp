@@ -206,204 +206,283 @@
 //    limitations under the License.
 
 #pragma once
-
 #include <type_traits>
 
 #include "../MachInterface.hpp"
 
 namespace Nominax::X86_64
 {
+	/// <summary>
+	/// Contains all feature bits for a x86-64 cpu.
+	/// </summary>
 	struct CpuFeatureBits final
 	{
 		CpuFeatureBits() noexcept(false);
-		
+
 		// QWORD 1 LO
 
-		bool Fpu : 1 {false};
-		bool Vme : 1 {false};
-		bool De : 1 {false};
-		bool Pse : 1 {false};
-		bool Tsc : 1 {false};
-		bool Msr : 1 {false};
-		bool Pae : 1 {false};
-		bool Mce : 1 {false};
-		bool Cx8 : 1 {false};
-		bool Apic : 1 {false};
-		bool Reserved0 : 1 {false};
-		bool Sep : 1 {false};
-		bool Mtrr : 1 {false};
-		bool Pge : 1 {false};
-		bool Mca : 1 {false};
-		bool CMov : 1 {false};
-		bool Pat : 1 {false};
-		bool Pse36 : 1 {false};
-		bool Psn : 1 {false};
-		bool Clfsh : 1 {false};
-		bool Reserved1 : 1 {false};
-		bool Ds : 1 {false};
-		bool Acpi : 1 {false};
-		bool Mmx : 1 {false};
-		bool Fxsr : 1 {false};
-		bool Sse : 1 {false};
-		bool Sse2 : 1 {false};
-		bool Ss : 1 {false};
-		bool Htt : 1 {false};
-		bool Tm : 1 {false};
-		bool Ia64 : 1 {false};
-		bool Pbe : 1 {false};
+		bool Fpu : 1 {};
+		bool Vme : 1 {};
+		bool De : 1 {};
+		bool Pse : 1 {};
+		bool Tsc : 1 {};
+		bool Msr : 1 {};
+		bool Pae : 1 {};
+		bool Mce : 1 {};
+		bool Cx8 : 1 {};
+		bool Apic : 1 {};
+		bool Reserved0 : 1 {};
+		bool Sep : 1 {};
+		bool Mtrr : 1 {};
+		bool Pge : 1 {};
+		bool Mca : 1 {};
+		bool CMov : 1 {};
+		bool Pat : 1 {};
+		bool Pse36 : 1 {};
+		bool Psn : 1 {};
+		bool Clfsh : 1 {};
+		bool Reserved1 : 1 {};
+		bool Ds : 1 {};
+		bool Acpi : 1 {};
+		bool Mmx : 1 {};
+		bool Fxsr : 1 {};
+		bool Sse : 1 {};
+		bool Sse2 : 1 {};
+		bool Ss : 1 {};
+		bool Htt : 1 {};
+		bool Tm : 1 {};
+		bool Ia64 : 1 {};
+		bool Pbe : 1 {};
 
 		// QWORD 1 HI
 
-		bool Sse3 : 1 {false};
-		bool PclMulDqd : 1 {false};
-		bool DTes64 : 1 {false};
-		bool Monitor : 1 {false};
-		bool DsCpl : 1 {false};
-		bool Vmx : 1 {false};
-		bool Smx : 1 {false};
-		bool Est : 1 {false};
-		bool Tm2 : 1 {false};
-		bool Ssse3 : 1 {false};
-		bool CnxtId : 1 {false};
-		bool Sdbg : 1 {false};
-		bool Fma : 1 {false};
-		bool Cx16 : 1 {false};
-		bool Xtpr : 1 {false};
-		bool Pdcm : 1 {false};
-		bool Reserved2 : 1 {false};
-		bool Pcid : 1 {false};
-		bool Dca : 1 {false};
-		bool Sse41 : 1 {false};
-		bool Sse42 : 1 {false};
-		bool X2Apic : 1 {false};
-		bool MovBe : 1 {false};
-		bool PopCnt : 1 {false};
-		bool TscDeadline : 1 {false};
-		bool Aes : 1 {false};
-		bool XSave : 1 {false};
-		bool OsXSave : 1 {false};
-		bool Avx : 1 {false};
-		bool F16C : 1 {false};
-		bool RdRnd : 1 {false};
-		bool HyperVisor : 1 {false};
+		bool Sse3 : 1 {};
+		bool PclMulDqd : 1 {};
+		bool DTes64 : 1 {};
+		bool Monitor : 1 {};
+		bool DsCpl : 1 {};
+		bool Vmx : 1 {};
+		bool Smx : 1 {};
+		bool Est : 1 {};
+		bool Tm2 : 1 {};
+		bool Ssse3 : 1 {};
+		bool CnxtId : 1 {};
+		bool Sdbg : 1 {};
+		bool Fma3 : 1 {};
+		bool Cx16 : 1 {};
+		bool Xtpr : 1 {};
+		bool Pdcm : 1 {};
+		bool Reserved2 : 1 {};
+		bool Pcid : 1 {};
+		bool Dca : 1 {};
+		bool Sse41 : 1 {};
+		bool Sse42 : 1 {};
+		bool X2Apic : 1 {};
+		bool MovBe : 1 {};
+		bool PopCnt : 1 {};
+		bool TscDeadline : 1 {};
+		bool Aes : 1 {};
+		bool XSave : 1 {};
+		bool OsXSave : 1 {};
+		bool Avx : 1 {};
+		bool F16C : 1 {};
+		bool RdRnd : 1 {};
+		bool HyperVisor : 1 {};
 
 		// QWORD 2 LO
 
-		bool FsGsBase : 1 {false};
-		bool TscAdjust : 1 {false};
-		bool Sgx : 1 {false};
-		bool Bmi1 : 1 {false};
-		bool Hle : 1 {false};
-		bool Avx2 : 1 {false};
-		bool FdpExcept : 1 {false};
-		bool Smep : 1 {false};
-		bool Bmi2 : 1 {false};
-		bool Erms : 1 {false};
-		bool InvPcid : 1 {false};
-		bool Rtm : 1 {false};
-		bool Pqm : 1 {false};
-		bool FpuCsDsDepr : 1 {false};
-		bool Mpx : 1 {false};
-		bool Pqe : 1 {false};
-		bool Avx512F : 1 {false};
-		bool Avx512Dq : 1 {false};
-		bool RdSeed : 1 {false};
-		bool Adx : 1 {false};
-		bool SMap : 1 {false};
-		bool Avx512Ifma : 1 {false};
-		bool PCommit : 1 {false};
-		bool ClFlushOpt : 1 {false};
-		bool Clwb : 1 {false};
-		bool IntelPt : 1 {false};
-		bool Avx512Pf : 1 {false};
-		bool Avx512Er : 1 {false};
-		bool Avx512Cd : 1 {false};
-		bool Sha : 1 {false};
-		bool Avx512Bw : 1 {false};
-		bool Avx512Vl : 1 {false};
+		bool FsGsBase : 1 {};
+		bool TscAdjust : 1 {};
+		bool Sgx : 1 {};
+		bool Bmi1 : 1 {};
+		bool Hle : 1 {};
+		bool Avx2 : 1 {};
+		bool FdpExcept : 1 {};
+		bool Smep : 1 {};
+		bool Bmi2 : 1 {};
+		bool Erms : 1 {};
+		bool InvPcid : 1 {};
+		bool Rtm : 1 {};
+		bool Pqm : 1 {};
+		bool FpuCsDsDepr : 1 {};
+		bool Mpx : 1 {};
+		bool Pqe : 1 {};
+		bool Avx512F : 1 {};
+		bool Avx512Dq : 1 {};
+		bool RdSeed : 1 {};
+		bool Adx : 1 {};
+		bool SMap : 1 {};
+		bool Avx512Ifma : 1 {};
+		bool PCommit : 1 {};
+		bool ClFlushOpt : 1 {};
+		bool Clwb : 1 {};
+		bool IntelPt : 1 {};
+		bool Avx512Pf : 1 {};
+		bool Avx512Er : 1 {};
+		bool Avx512Cd : 1 {};
+		bool Sha : 1 {};
+		bool Avx512Bw : 1 {};
+		bool Avx512Vl : 1 {};
 
 		// QWORD 2 HI
 
-		bool PreFetchWt1 : 1 {false};
-		bool Avx512Vbmi : 1 {false};
-		bool Umip : 1 {false};
-		bool Pku : 1 {false};
-		bool OsPke : 1 {false};
-		bool WaitPkg : 1 {false};
-		bool Avx512Vbmi2 : 1 {false};
-		bool CetSS : 1 {false};
-		bool Gfni : 1 {false};
-		bool VAes  : 1 {false};
-		bool VPclMulDqd : 1 {false};
-		bool Avx512Vnni : 1 {false};
-		bool Avx512Bitalg: 1 {false};
-		bool Reserved3 : 1 {false};
-		bool Avx512VPopCntdq : 1 {false};
-		bool Reserved4 : 1 {false};
-		bool Level5Paging : 1 {false};
-		bool MaWau0 : 1 {false};
-		bool MaWau1 : 1 {false};
-		bool MaWau2 : 1 {false};
-		bool MaWau3 : 1 {false};
-		bool MaWau4 : 1 {false};
-		bool RdPid : 1 {false};
-		bool Reserved5 : 1 {false};
-		bool Reserved6 : 1 {false};
-		bool ClDemote : 1 {false};
-		bool Reserved7 : 1 {false};
-		bool MovDiri : 1 {false};
-		bool MovDir64B : 1 {false};
-		bool EnqCmd : 1 {false};
-		bool SgxLc : 1 {false};
-		bool Pks : 1 {false};
+		bool PreFetchWt1 : 1 {};
+		bool Avx512Vbmi : 1 {};
+		bool Umip : 1 {};
+		bool Pku : 1 {};
+		bool OsPke : 1 {};
+		bool WaitPkg : 1 {};
+		bool Avx512Vbmi2 : 1 {};
+		bool CetSS : 1 {};
+		bool Gfni : 1 {};
+		bool VAes : 1 {};
+		bool VPclMulDqd : 1 {};
+		bool Avx512Vnni : 1 {};
+		bool Avx512Bitalg: 1 {};
+		bool Reserved3 : 1 {};
+		bool Avx512VPopCntdq : 1 {};
+		bool Reserved4 : 1 {};
+		bool Level5Paging : 1 {};
+		bool MaWau0 : 1 {};
+		bool MaWau1 : 1 {};
+		bool MaWau2 : 1 {};
+		bool MaWau3 : 1 {};
+		bool MaWau4 : 1 {};
+		bool RdPid : 1 {};
+		bool Reserved5 : 1 {};
+		bool Reserved6 : 1 {};
+		bool ClDemote : 1 {};
+		bool Reserved7 : 1 {};
+		bool MovDiri : 1 {};
+		bool MovDir64B : 1 {};
+		bool EnqCmd : 1 {};
+		bool SgxLc : 1 {};
+		bool Pks : 1 {};
 
 		// QUADWORD 3 LO
-		
-		bool Reserved8 : 1{false};
-		bool Reserved9 : 1{false};
-		bool Avx5124Vnniw: 1{false};
-		bool Avx5124FMaps: 1{false};
-		bool Fsrm : 1{false};
-		bool Reserved10 : 1{false};
-		bool Reserved11 : 1{false};
-		bool Reserved12 : 1{false};
-		bool Avx512Vp2Intersect: 1{false};
-		bool SrbdsCtrl: 1{false};
-		bool MdClear : 1{false};
-		bool Reserved13: 1{false};
-		bool Reserved14: 1{false};
-		bool TsxForceAbort: 1{false};
-		bool Serialize: 1{false};
-		bool Hybrid: 1{false};
-		bool Tsxldtrk: 1{false};
-		bool Reserved15 : 1{false};
-		bool PConfig : 1{false};
-		bool Lbr : 1{false};
-		bool CetIbt : 1{false};
-		bool Reserved16 : 1{false};
-		bool AmxBf16 : 1{false};
-		bool Reserved17 : 1{false};
-		bool AmxTile : 1{false};
-		bool AmxInt8 : 1{false};
-		bool SpecCtrl : 1{false};
-		bool Stibp : 1{false};
-		bool L1DFlush : 1{false};
-		bool Ia32ArchCompat : 1{false};
-		bool Ia32CoreCompat : 1{false};
-		bool Ssbd : 1{false};
 
-		U32 Pad{0};
-		
+		bool Reserved8 : 1{};
+		bool Reserved9 : 1{};
+		bool Avx5124Vnniw: 1{};
+		bool Avx5124FMaps: 1{};
+		bool Fsrm : 1{};
+		bool Reserved10 : 1{};
+		bool Reserved11 : 1{};
+		bool Reserved12 : 1{};
+		bool Avx512Vp2Intersect: 1{};
+		bool SrbdsCtrl: 1{};
+		bool MdClear : 1{};
+		bool Reserved13: 1{};
+		bool Reserved14: 1{};
+		bool TsxForceAbort: 1{};
+		bool Serialize: 1{};
+		bool Hybrid: 1{};
+		bool Tsxldtrk: 1{};
+		bool Reserved15 : 1{};
+		bool PConfig : 1{};
+		bool Lbr : 1{};
+		bool CetIbt : 1{};
+		bool Reserved16 : 1{};
+		bool AmxBf16 : 1{};
+		bool Reserved17 : 1{};
+		bool AmxTile : 1{};
+		bool AmxInt8 : 1{};
+		bool SpecCtrl : 1{};
+		bool Stibp : 1{};
+		bool L1DFlush : 1{};
+		bool Ia32ArchCompat : 1{};
+		bool Ia32CoreCompat : 1{};
+		bool Ssbd : 1{};
+
+		// QUADWORD 3 HI
+
+		bool LahfLm : 1{};
+		bool CmpLegacy : 1 {};
+		bool Svm : 1 {};
+		bool ExtApic: 1 {};
+		bool Cr8Legacy: 1 {};
+		bool Abm: 1 {};
+		bool Sse4a : 1 {};
+		bool MisAlignSse: 1 {};
+		bool D3NowPrefetch : 1 {};
+		bool OsVw : 1 {};
+		bool Ibs : 1 {};
+		bool Xop : 1 {};
+		bool SkInit : 1 {};
+		bool Wdt : 1 {};
+		bool Reserved18 : 1 {};
+		bool Lwp : 1 {};
+		bool Fma4 : 1 {};
+		bool Tce : 1 {};
+		bool Reserved19 : 1 {};
+		bool NodeIdMsr : 1 {};
+		bool Reserved20 : 1 {};
+		bool Tbm : 1 {};
+		bool TopoExt : 1 {};
+		bool PerfCtrCore : 1 {};
+		bool PerCtrNb: 1 {};
+		bool Reserved21 : 1 {};
+		bool Dbx: 1 {};
+		bool PerfTsc: 1 {};
+		bool PcxL2i : 1 {};
+		bool Reserved22 : 1 {};
+		bool Reserved23 : 1 {};
+		bool Reserved24 : 1 {};
+
+		// DWORD RET
+
+		U16 Ignored0 : 11 { };
+		bool SysCall : 1 {};
+		U8 Ignored1 : 7 { };
+		bool Mp : 1 {};
+		bool Nx : 1 {};
+		bool Reserved25 : 1 {};
+		bool MmmxExt : 1 {};
+		U8 Ignored2 : 2{ };
+		bool FxsrOpt : 1 {};
+		bool Pdpe1Gb : 1 {};
+		bool Rdtscp : 1 {};
+		bool Reserved26 : 1 {};
+		bool LongMode : 1 {};
+		bool D3NowExt : 1 {};
+		bool D3Now : 1 {};
+
 		auto PrintFeatures() const -> void;
 	};
 
-	static_assert(sizeof(CpuFeatureBits) == 24);
+	static_assert(sizeof(CpuFeatureBits) == 30);
 	static_assert(std::is_trivially_copyable_v<CpuFeatureBits>);
 
+	/// <summary>
+	/// Contains merged info table.
+	/// One 64-bit instance contains two 32-bit info tables.
+	/// </summary>
+	union MergedInfoTable
+	{
+		QUADWORD Merged{};
+		struct
+		{
+			DOUBLEWORD Table1;
+			DOUBLEWORD Table2;
+		};
+	};
+
+	static_assert(sizeof(MergedInfoTable) == 8);
+
+	/// <summary>
+	/// Assembly routine which calls cpuid
+	/// multiple time to determine all cpu features.
+	/// The first 6 feature tables are returned via
+	/// out1, out2 and out3. Each contains two info tables.
+	/// (See MergedInfoTable). The last info table is returned
+	/// as return value. Do not use this function, better use
+	/// CpuFeatureBits instead, which calls this function in the
+	/// constructor.
+	/// </summary>
 	extern "C" auto Asm_CpuId
 	(
-		QUADWORD& out1,
-		QUADWORD& out2,
-		QUADWORD& out3
-	) noexcept -> void;
+		MergedInfoTable& out1,
+		MergedInfoTable& out2,
+		MergedInfoTable& out3
+	) noexcept -> DOUBLEWORD;
 }

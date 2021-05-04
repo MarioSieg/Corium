@@ -213,7 +213,7 @@
 #if NOMINAX_ARCH_X86_64
 TEST(AssemblyCalls, CpuId)
 {
-	X86_64::CpuFeatureBits bits{};
+	const X86_64::CpuFeatureBits bits { };
 	bits.PrintFeatures();
 	ASSERT_TRUE(bits.Fpu);
 	ASSERT_TRUE(bits.Mmx);
