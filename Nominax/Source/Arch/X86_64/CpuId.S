@@ -206,6 +206,7 @@
 #    limitations under the License.
 
 .globl Asm_CpuId
+.globl Asm_IsCpuIdSupported
 
 Asm_CpuId:
     PUSHQ   %RBP                # stack frame prologue
@@ -266,6 +267,25 @@ Asm_CpuId:
     ORQ     %RCX, (%RDX)        # store result into output3
 #endif
     MOVL    %EDX, %EAX          # copy dword return value to return reg
+    MOVQ    %RBP, %RSP          # stack frame epilogue
+    POPQ    %RBP                # stack frame epilogue
+    RETQ                        # return
+
+Asm_IsCpuIdSupported:
+    PUSHQ   %RBP                # stack frame prologue
+    MOVQ    %RSP, %RBP          # stack frame prologue
+    PUSHFQ                      # backup flags
+    PUSHFQ                      # store flags
+    XORL    $0x00200000, (%RSP) # invert id bit in flags
+    POPFQ                       # load stored eflags with inverted id bit
+    PUSHFQ                      # store flags again with maybe inverted id bit
+    POPQ    %RAX                # store flags into rax with maybe inverted id bit
+    XORQ    (%RSP), %RAX        # store changed bits in rax
+    POPFQ                       # restore original flags from backup
+    MOVL    %EAX, %EBX          # backup eax into ebx
+    XORL    %EAX, %EAX          # clear eax
+    TESTL   %EBX, %EBX          # test if ebx is non zero
+    SETNEB  %AL                 # set al to 1 if ebx was non zero, else 0
     MOVQ    %RBP, %RSP          # stack frame epilogue
     POPQ    %RBP                # stack frame epilogue
     RETQ                        # return

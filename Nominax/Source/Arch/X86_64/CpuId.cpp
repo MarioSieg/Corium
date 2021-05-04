@@ -210,6 +210,7 @@
 
 #include "../../../Include/Nominax/Arch/X86_64/CpuId.hpp"
 #include "../../../Include/Nominax/Common/Protocol.hpp"
+#include "../../../Include/Nominax/Common/PanicRoutine.hpp"
 
 #define PRINT_CPU_FEATURE(name, has) Print(( has ) ? TextColor::BrightGreen : TextColor::Red, "{0: <18} ", name)
 
@@ -217,8 +218,11 @@ namespace Nominax::X86_64
 {
 	CpuFeatureBits::CpuFeatureBits() noexcept(false)
 	{
+		// check if cpuid is supported on system
+		NOMINAX_PANIC_ASSERT_TRUE(Asm_IsCpuIdSupported(), "CPUID instruction is not supported on system!");
+
 		std::array<std::byte, sizeof(CpuFeatureBits)> data { };
-		std::array<MergedInfoTable, 3>                       chunk { };
+		std::array<MergedInfoTable, 3>                chunk { };
 		DOUBLEWORD                                    r {Asm_CpuId(chunk[0], chunk[1], chunk[2])};
 		std::memcpy(data.data(), chunk.data(), sizeof(MergedInfoTable) * 3);
 		std::memcpy(data.data() + sizeof(MergedInfoTable) * 3, &r, sizeof(DOUBLEWORD));

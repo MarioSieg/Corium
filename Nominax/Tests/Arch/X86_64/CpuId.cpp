@@ -211,6 +211,13 @@
 #include "../../TestBase.hpp"
 
 #if NOMINAX_ARCH_X86_64
+
+TEST(AssemblyCalls, IsCpudIdSupported)
+{
+	const auto supported {X86_64::Asm_IsCpuIdSupported()};
+	ASSERT_TRUE(supported);
+}
+
 TEST(AssemblyCalls, CpuId)
 {
 	const X86_64::CpuFeatureBits bits { };
@@ -222,4 +229,5 @@ TEST(AssemblyCalls, CpuId)
 	ASSERT_TRUE(bits.Sse3);
 	ASSERT_TRUE(bits.Ssse3);
 }
+
 #endif
