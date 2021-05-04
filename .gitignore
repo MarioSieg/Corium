@@ -5,4 +5,3 @@ Build/
 CMakeSettings.json
 CMakeLists.txt.user
 reactor.asm
-SharedTools/* linguist-vendored=true
