@@ -206,6 +206,7 @@
 //    limitations under the License.
 
 #pragma once
+
 #include <type_traits>
 
 #include "../MachInterface.hpp"
@@ -459,20 +460,20 @@ namespace Nominax::X86_64
 	/// </summary>
 	union MergedInfoTable
 	{
-		QUADWORD Merged { };
-
+		U64 Merged { };
 		struct
 		{
-			DOUBLEWORD Table1;
-			DOUBLEWORD Table2;
+			U32 Table1;
+			U32 Table2;
 		};
 	};
 
 	static_assert(sizeof(MergedInfoTable) == 8);
+	static_assert(std::is_trivially_copyable_v<MergedInfoTable>);
 
 	/// <summary>
-	/// Returns 1 if the current CPU supports the CPUID instruction,
-	/// else 0.
+	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
+	/// Implementation: Source/Arch/X86_64.CpuId.S
 	/// </summary>
 	extern "C" auto Asm_IsCpuIdSupported() noexcept -> BYTE;
 
@@ -485,6 +486,7 @@ namespace Nominax::X86_64
 	/// as return value. Do not use this function, better use
 	/// CpuFeatureBits instead, which calls this function in the
 	/// constructor.
+	/// Implementation: Source/Arch/X86_64.CpuId.S
 	/// </summary>
 	extern "C" auto Asm_CpuId
 	(

@@ -208,6 +208,7 @@
 .globl Asm_CpuId
 .globl Asm_IsCpuIdSupported
 
+# Header: Arch/X86_64/CpuId.hpp
 Asm_CpuId:
     PUSHQ   %RBP                # stack frame prologue
     MOVQ    %RSP, %RBP          # stack frame prologue
@@ -271,6 +272,7 @@ Asm_CpuId:
     POPQ    %RBP                # stack frame epilogue
     RETQ                        # return
 
+# Header: Arch/X86_64/CpuId.hpp
 Asm_IsCpuIdSupported:
     PUSHQ   %RBP                # stack frame prologue
     MOVQ    %RSP, %RBP          # stack frame prologue
