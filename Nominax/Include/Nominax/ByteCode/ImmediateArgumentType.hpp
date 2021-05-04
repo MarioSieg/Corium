@@ -214,7 +214,7 @@ namespace Nominax
 	/// <summary>
 	/// All types of immediate arguments a instruction could have.
 	/// </summary>
-	enum class InstructionImmediateArgumentType : std::uint8_t
+	enum class InstructionImmediateArgumentType : U8
 	{
 		None,
 		I64,

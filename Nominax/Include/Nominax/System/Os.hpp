@@ -211,6 +211,7 @@
 #include <string_view>
 #include <thread>
 
+#include "MessageBox.hpp"
 #include "Platform.hpp"
 
 namespace Nominax

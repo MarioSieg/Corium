@@ -216,7 +216,8 @@ namespace Nominax
 	/// </summary>
 	class Environment
 	{
-		SystemInfo SysInfo { };
+		SystemInfo SysInfo_ { };
+		Stream     AppCode_ { };
 
 		auto UnlockNoSyncStdStreams() const -> void;
 		auto InstallSignalHandlers() const -> void;
@@ -225,17 +226,11 @@ namespace Nominax
 		auto PrintTypeTable() const -> void;
 
 	public:
-		Environment() noexcept(true)                           = default;
+		explicit Environment(Stream&& appCode) noexcept(false);
 		Environment(const Environment&)                        = delete;
 		Environment(Environment&&)                             = delete;
 		auto    operator =(const Environment&) -> Environment& = delete;
 		auto    operator =(Environment&&) -> Environment&      = delete;
-		virtual ~Environment()                                 = default;
-
-		/// <summary>
-		/// Initialize the environment.
-		/// </summary>
-		/// <returns></returns>
-		auto BootEnvironment() -> bool;
+		virtual ~Environment();
 	};
 }

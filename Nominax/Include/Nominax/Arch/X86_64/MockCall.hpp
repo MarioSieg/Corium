@@ -1,6 +1,6 @@
 // File: MockCall.hpp
 // Author: Mario
-// Created: 27.04.2021 11:26 PM
+// Created: 02.05.2021 9:21 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,9 +207,9 @@
 
 #pragma once
 
-#include <cstdint>
+#include "../MachInterface.hpp"
 
 namespace Nominax::X86_64
 {
-	extern "C" auto MockCall() -> std::uint64_t;
+	extern "C" auto Asm_MockCall() noexcept -> QUADWORD;
 }

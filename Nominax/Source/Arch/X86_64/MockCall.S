@@ -110,7 +110,7 @@
 # 
 #       (d) If the Work includes a "NOTICE" text file as part of its
 #           distribution, then any Derivative Works that You distribute must
-#           include a readable copy of the attribution notices contained
+#          _include a readable copy of the attribution notices contained
 #           within such NOTICE file, excluding those notices that do not
 #           pertain to any part of the Derivative Works, in at least one
 #           of the following places: within a NOTICE text file distributed
@@ -205,12 +205,18 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl MockCall
+.globl Asm_MockCall
 
-MockCall:
-pushq	%rbp
-movq	%rsp, %rbp
-movq	$1234, %rax
-movq	%rbp, %rsp
-popq	%rbp
-retq
+# Header: Arch/X86_64/CpuId.hpp
+Asm_MockCall:
+    PUSHQ	%RBP
+    MOVQ	%RSP, %RBP
+    XORL    %EAX, %EAX
+#ifdef __WIN__
+    MOVB	$0XFF, %AL
+#else
+    MOVW	$1234, %AX
+#endif
+    MOVQ	%RBP, %RSP
+    POPQ	%RBP
+    RETQ

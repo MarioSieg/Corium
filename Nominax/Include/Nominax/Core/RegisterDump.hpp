@@ -210,6 +210,7 @@
 #include <array>
 #include <ostream>
 
+#include "../Common/RtTypes.hpp"
 #include "../System/Platform.hpp"
 
 namespace Nominax
@@ -219,7 +220,7 @@ namespace Nominax
 	/// SSE %XMM registers on x86
 	/// ARM Neon registers on ARM
 	/// </summary>
-	using Vector128 = std::array<std::uint64_t, 2>;
+	using Vector128 = std::array<U64, 2>;
 
 	static_assert(sizeof(Vector128) == 16);
 
@@ -227,7 +228,7 @@ namespace Nominax
 	/// 256 bit vector register type.
 	/// AVX %YMM registers on x86
 	/// </summary>
-	using Vector256 = std::array<std::uint64_t, 4>;
+	using Vector256 = std::array<U64, 4>;
 
 	static_assert(sizeof(Vector256) == 32);
 
@@ -235,13 +236,13 @@ namespace Nominax
 	/// 512 bit vector register type.
 	/// AVX-512 %ZMM registers on x86
 	/// </summary>
-	using Vector512 = std::array<std::uint64_t, 8>;
+	using Vector512 = std::array<U64, 8>;
 
 	static_assert(sizeof(Vector512) == 64);
 
 #if NOMINAX_ARCH_X86_32
 
-	using GprRegisterLane = std::array<std::uint32_t, 8>;
+	using GprRegisterLane = std::array<U32, 8>;
 	using VectorRegisterLane128 = std::array<Vector128, 8>;
 	using VectorRegisterLane256 = std::array<Vector256, 1>;
 
@@ -255,7 +256,7 @@ namespace Nominax
 
 #elif NOMINAX_ARCH_X86_64
 
-	using GprRegisterLane = std::array<std::uint64_t, 16>;
+	using GprRegisterLane = std::array<U64, 16>;
 	using VectorRegisterLane128 = std::array<Vector128, 16>;
 	using VectorRegisterLane256 = std::array<Vector256, 16>;
 
@@ -278,7 +279,7 @@ namespace Nominax
 
 #elif NOMINAX_ARCH_ARM_64
 
-	using GprRegisterLane = std::array<std::uint64_t, 16>;
+	using GprRegisterLane = std::array<U64, 16>;
 	using VectorRegisterLane128 = std::array<Vector128, 16>;
 	using VectorRegisterLane256 = std::array<Vector256, 1>;
 

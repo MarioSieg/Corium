@@ -227,7 +227,7 @@ namespace Nominax::Os {
 
 	auto QueryProcessMemoryUsed() noexcept(false) -> std::size_t {
 		auto* const file = fopen("/proc/self/statm", "r");
-		if (file == nullptr) [[unlikely]]
+		if (file == nullptr)
 		{
 			return 0;
 		}
@@ -241,14 +241,14 @@ namespace Nominax::Os {
 	{
 		std::ifstream cpuinfo("/proc/cpuinfo");
 
-		if (!cpuinfo.is_open() || !cpuinfo) [[unlikely]]
+		if (!cpuinfo.is_open() || !cpuinfo)
 		{
 			return "Unknown";
 		}
 
-		for (std::string line; std::getline(cpuinfo, line); ) [[likely]]
+		for (std::string line; std::getline(cpuinfo, line); )
 		{
-			if (line.find("model name") == 0) [[likely]]
+			if (line.find("model name") == 0)
 			{
 				const auto colon_id = line.find_first_of(':');
 				const auto nonspace_id = line.find_first_not_of(" \t", colon_id + 1);

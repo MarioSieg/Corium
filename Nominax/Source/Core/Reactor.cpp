@@ -207,15 +207,14 @@
 
 #include "../../Include/Nominax/Core/Reactor.hpp"
 #include "../../Include/Nominax/Core/BasicReactorDescriptor.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
+#include "../../Include/Nominax/Common/Protocol.hpp"
 
 namespace
 {
 	using namespace Nominax;
 
-	auto DefaultInterruptRoutine(InterruptAccumulator) -> bool
-	{
-		return true;
-	}
+	auto DefaultInterruptRoutine(InterruptAccumulator) -> void { }
 
 	auto CreateDescriptor
 	(
@@ -251,19 +250,13 @@ namespace Nominax
 		  Map_ {std::move(jumpMap)},
 		  InterruptHandler_ {*&DefaultInterruptRoutine}
 	{
-		if (!this->Stack_.Size() || this->Chunk_.empty() || this->Map_.empty())
-		[[unlikely]]
-		{
-			throw std::runtime_error("Reactor construction failed! Invalid input data!");
-		}
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Stack_.Size(), "Zero sized stack was given to reactor!");
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Chunk_.size(), "Zero sized chunk was given to reactor!");
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Map_.size(), "Zero sized instruction map was given to reactor!");
 
 		this->Descriptor_ = CreateDescriptor(this->Stack_, this->Chunk_, this->Map_, this->IntrinsicTable_, this->InterruptHandler_);
 
-		if (const auto result {this->Descriptor_.Validate()}; result != ReactorValidationResult::Ok)
-		[[unlikely]]
-		{
-			throw std::runtime_error("Reactor construction failed! Input validation failed with code: " + std::to_string(static_cast<std::underlying_type_t<decltype(result)>>(result)));
-		}
+		NOMINAX_PANIC_ASSERT_EQ(this->Descriptor_.Validate(), ReactorValidationResult::Ok, "Reactor validation failed!");
 
 		Print
 		(
@@ -278,19 +271,13 @@ namespace Nominax
 		  IntrinsicTable_ {intrinsicTable},
 		  InterruptHandler_ {*&interruptHandler}
 	{
-		if (!this->Stack_.Size() || this->Chunk_.empty() || this->Map_.empty())
-		[[unlikely]]
-		{
-			throw std::runtime_error("Reactor construction failed! Invalid input data!");
-		}
+		NOMINAX_PANIC_ASSERT_TRUE(this->Stack_.Size(), "Zero sized stack was given to reactor!");
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Chunk_.size(), "Zero sized chunk was given to reactor!");
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Map_.size(), "Zero sized instruction map was given to reactor!");
 
 		this->Descriptor_ = CreateDescriptor(this->Stack_, this->Chunk_, this->Map_, this->IntrinsicTable_, this->InterruptHandler_);
 
-		if (const auto result {this->Descriptor_.Validate()}; result != ReactorValidationResult::Ok)
-		[[unlikely]]
-		{
-			throw std::runtime_error("Reactor construction failed! Input validation failed with code: " + std::to_string(static_cast<std::underlying_type_t<decltype(result)>>(result)));
-		}
+		NOMINAX_PANIC_ASSERT_EQ(this->Descriptor_.Validate(), ReactorValidationResult::Ok, "Reactor validation failed!");
 
 		Print
 		(

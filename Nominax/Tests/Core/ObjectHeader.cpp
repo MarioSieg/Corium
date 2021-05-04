@@ -223,10 +223,10 @@ TEST(ObjectHeaderReinterpretation, FieldAccess)
 
 	object.MapToRegionUnchecked(header.data());
 
-	ASSERT_EQ(header[0].U32C[0], 1234);
-	ASSERT_EQ(header[0].U32C[1], 0xFF'FF'FF'FF);
-	ASSERT_EQ(header[1].U32C[0], 666);
-	ASSERT_EQ(header[1].U32C[1], 0xFF'FF'FF'AA);
+	ASSERT_EQ(header[0].Vu32A[0], 1234);
+	ASSERT_EQ(header[0].Vu32A[1], 0xFF'FF'FF'FF);
+	ASSERT_EQ(header[1].Vu32A[0], 666);
+	ASSERT_EQ(header[1].Vu32A[1], 0xFF'FF'FF'AA);
 
 	ASSERT_EQ(ObjectHeader::ReadMapping_StrongRefCount(header.data()), 1234);
 	ASSERT_EQ(ObjectHeader::ReadMapping_Size(header.data()), 0xFF'FF'FF'FF);
@@ -262,10 +262,10 @@ TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
 	ObjectHeader::WriteMapping_TypeId(data, 0xFF);
 	ObjectHeader::WriteMapping_FlagVector(data, {.Compound = 1234});
 
-	ASSERT_EQ(data[0].U32C[0], 3);
-	ASSERT_EQ(data[0].U32C[1], 5);
-	ASSERT_EQ(data[1].U32C[0], 0xFF);
-	ASSERT_EQ(data[1].U32C[1], 1234);
+	ASSERT_EQ(data[0].Vu32A[0], 3);
+	ASSERT_EQ(data[0].Vu32A[1], 5);
+	ASSERT_EQ(data[1].Vu32A[0], 0xFF);
+	ASSERT_EQ(data[1].Vu32A[1], 1234);
 
 	ASSERT_EQ(ObjectHeader::ReadMapping_StrongRefCount(data), 3);
 	ASSERT_EQ(ObjectHeader::ReadMapping_Size(data), 5);

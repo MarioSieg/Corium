@@ -207,8 +207,6 @@
 
 #pragma once
 
-#include <cstddef>
-
 #include "ReactorOutput.hpp"
 #include "FixedStack.hpp"
 #include "../ByteCode/Chunk.hpp"
@@ -233,9 +231,9 @@ namespace Nominax
 		/// Basic constructor.
 		/// Intrinsic table will be empty and interrupt routine set to an empty default.
 		/// </summary>
-		/// <param name="stack">The stack. If size is zero, exception will be thrown.</param>
-		/// <param name="chunk">The code chunk. If size is zero, exception will be thrown.</param>
-		/// <param name="jumpMap">The jump map. If size is zero, exception will be thrown.</param>
+		/// <param name="stack">The stack. If size is zero, panic.</param>
+		/// <param name="chunk">The code chunk. If size is zero, panic.</param>
+		/// <param name="jumpMap">The jump map. If size is zero, panic.</param>
 		Reactor
 		(
 			FixedStack&& stack,
@@ -246,9 +244,9 @@ namespace Nominax
 		/// <summary>
 		/// Detailed constructor.
 		/// </summary>
-		/// <param name="stack">The stack. If size is zero, exception will be thrown.</param>
-		/// <param name="chunk">The code chunk. If size is zero, exception will be thrown.</param>
-		/// <param name="jumpMap">The jump map. If size is zero, exception will be thrown.</param>
+		/// <param name="stack">The stack. If size is zero, panic.</param>
+		/// <param name="chunk">The code chunk. If size is zero, panic.</param>
+		/// <param name="jumpMap">The jump map. If size is zero, panic.</param>
 		/// <param name="intrinsicTable">The intrinsic routine table. Size of zero is okay.</param>
 		/// <param name="interruptHandler">The interrupt handler.</param>
 		Reactor
@@ -316,5 +314,5 @@ namespace Nominax
 		auto Descriptor() const noexcept(true) -> const DetailedReactorDescriptor&;
 	};
 
-	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const DetailedReactorDescriptor& input) noexcept(false) -> ReactorOutput;
+	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput;
 }

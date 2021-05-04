@@ -213,20 +213,20 @@
 
 namespace Nominax
 {
-	auto RuntimeObjectAllocator::RawAllocateAndWriteSize(const std::uint32_t sizeInRecords) -> Object::BlobBlockType*
+	auto RuntimeObjectAllocator::RawAllocateAndWriteSize(const U32 sizeInRecords) -> Object::BlobBlockType*
 	{
 		// debug check
 		assert(sizeInRecords);
 
 		// We cannot allocate an object of size 0.
 		// This would only allocate an object header.
-		if (__builtin_expect(sizeInRecords == 0, 0))
+		if (NOMINAX_UNLIKELY(sizeInRecords == 0))
 		{
 			return nullptr;
 		}
 
 		// add space for object header (2 records):
-		const std::uint32_t finalSizeInRecords {sizeInRecords + ObjectHeader::RECORD_CHUNKS};
+		const U32 finalSizeInRecords {sizeInRecords + ObjectHeader::RECORD_CHUNKS};
 
 		// allocate object instance:
 		auto* __restrict__ const instance = new(std::nothrow) Record[finalSizeInRecords]();
@@ -235,7 +235,7 @@ namespace Nominax
 		assert(instance);
 
 		// check if allocation failed:
-		if (__builtin_expect(!instance, 0))
+		if (NOMINAX_UNLIKELY(!instance))
 		{
 			return nullptr;
 		}
@@ -263,7 +263,7 @@ namespace Nominax
 		// debug check
 		assert(instance);
 
-		if (__builtin_expect(!instance, 0))
+		if (NOMINAX_UNLIKELY(!instance))
 		{
 			return;
 		}

@@ -206,13 +206,13 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/ByteCode/Chunk.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
 
 namespace Nominax
 {
 	auto CalculateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
 	{
-		if (std::size(input) != std::size(output))
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(std::size(input) != std::size(output)))
 		{
 			return false;
 		}
@@ -220,8 +220,7 @@ namespace Nominax
 		auto       iterator {std::begin(input)};
 		const auto end {std::end(input)};
 
-		for (bool* flag = &output[0]; iterator < end; ++iterator, ++flag)
-		[[likely]]
+		for (bool* flag = &output[0]; NOMINAX_LIKELY(iterator < end); ++iterator, ++flag)
 		{
 			*flag = iterator->Contains<Instruction>();
 		}

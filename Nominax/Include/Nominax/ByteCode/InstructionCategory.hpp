@@ -209,12 +209,14 @@
 
 #include <cstdint>
 
+#include "../Common/RtTypes.hpp"
+
 namespace Nominax
 {
 	/// <summary>
 	/// Instruction category.
 	/// </summary>
-	enum class InstructionCategory : std::uint8_t
+	enum class InstructionCategory : U8
 	{
 		Control,
 		Memory,

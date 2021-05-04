@@ -1,6 +1,6 @@
-// File: MemAlign.hpp
+// File: CpuId.hpp
 // Author: Mario
-// Created: 29.04.2021 11:10 AM
+// Created: 02.05.2021 9:22 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,74 +207,292 @@
 
 #pragma once
 
-#include <bit>
-#include <cstddef>
-#include <cstdint>
+#include <type_traits>
 
-#include "ILog.hpp"
+#include "../MachInterface.hpp"
 
-namespace Nominax
+namespace Nominax::X86_64
 {
 	/// <summary>
-	/// Returns true if the alignment is valid,
-	/// which means it is a power of two and not zero.
+	/// Contains all feature bits for a x86-64 cpu.
 	/// </summary>
-	/// <param name="alignment"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	constexpr auto IsAlignmentValid(const std::size_t alignment) noexcept(true) -> bool
+	struct CpuFeatureBits final
 	{
-		return alignment && !(alignment & alignment - 1);
-	}
+		CpuFeatureBits() noexcept(false);
 
-	static_assert(IsAlignmentValid(alignof(std::max_align_t)), "WTF");
+		// QWORD 1 LO
+
+		bool Fpu : 1 { };
+		bool Vme : 1 { };
+		bool De : 1 { };
+		bool Pse : 1 { };
+		bool Tsc : 1 { };
+		bool Msr : 1 { };
+		bool Pae : 1 { };
+		bool Mce : 1 { };
+		bool Cx8 : 1 { };
+		bool Apic : 1 { };
+		bool Reserved0 : 1 { };
+		bool Sep : 1 { };
+		bool Mtrr : 1 { };
+		bool Pge : 1 { };
+		bool Mca : 1 { };
+		bool CMov : 1 { };
+		bool Pat : 1 { };
+		bool Pse36 : 1 { };
+		bool Psn : 1 { };
+		bool Clfsh : 1 { };
+		bool Reserved1 : 1 { };
+		bool Ds : 1 { };
+		bool Acpi : 1 { };
+		bool Mmx : 1 { };
+		bool Fxsr : 1 { };
+		bool Sse : 1 { };
+		bool Sse2 : 1 { };
+		bool Ss : 1 { };
+		bool Htt : 1 { };
+		bool Tm : 1 { };
+		bool Ia64 : 1 { };
+		bool Pbe : 1 { };
+
+		// QWORD 1 HI
+
+		bool Sse3 : 1 { };
+		bool PclMulDqd : 1 { };
+		bool DTes64 : 1 { };
+		bool Monitor : 1 { };
+		bool DsCpl : 1 { };
+		bool Vmx : 1 { };
+		bool Smx : 1 { };
+		bool Est : 1 { };
+		bool Tm2 : 1 { };
+		bool Ssse3 : 1 { };
+		bool CnxtId : 1 { };
+		bool Sdbg : 1 { };
+		bool Fma3 : 1 { };
+		bool Cx16 : 1 { };
+		bool Xtpr : 1 { };
+		bool Pdcm : 1 { };
+		bool Reserved2 : 1 { };
+		bool Pcid : 1 { };
+		bool Dca : 1 { };
+		bool Sse41 : 1 { };
+		bool Sse42 : 1 { };
+		bool X2Apic : 1 { };
+		bool MovBe : 1 { };
+		bool PopCnt : 1 { };
+		bool TscDeadline : 1 { };
+		bool Aes : 1 { };
+		bool XSave : 1 { };
+		bool OsXSave : 1 { };
+		bool Avx : 1 { };
+		bool F16C : 1 { };
+		bool RdRnd : 1 { };
+		bool HyperVisor : 1 { };
+
+		// QWORD 2 LO
+
+		bool FsGsBase : 1 { };
+		bool TscAdjust : 1 { };
+		bool Sgx : 1 { };
+		bool Bmi1 : 1 { };
+		bool Hle : 1 { };
+		bool Avx2 : 1 { };
+		bool FdpExcept : 1 { };
+		bool Smep : 1 { };
+		bool Bmi2 : 1 { };
+		bool Erms : 1 { };
+		bool InvPcid : 1 { };
+		bool Rtm : 1 { };
+		bool Pqm : 1 { };
+		bool FpuCsDsDepr : 1 { };
+		bool Mpx : 1 { };
+		bool Pqe : 1 { };
+		bool Avx512F : 1 { };
+		bool Avx512Dq : 1 { };
+		bool RdSeed : 1 { };
+		bool Adx : 1 { };
+		bool SMap : 1 { };
+		bool Avx512Ifma : 1 { };
+		bool PCommit : 1 { };
+		bool ClFlushOpt : 1 { };
+		bool Clwb : 1 { };
+		bool IntelPt : 1 { };
+		bool Avx512Pf : 1 { };
+		bool Avx512Er : 1 { };
+		bool Avx512Cd : 1 { };
+		bool Sha : 1 { };
+		bool Avx512Bw : 1 { };
+		bool Avx512Vl : 1 { };
+
+		// QWORD 2 HI
+
+		bool PreFetchWt1 : 1 { };
+		bool Avx512Vbmi : 1 { };
+		bool Umip : 1 { };
+		bool Pku : 1 { };
+		bool OsPke : 1 { };
+		bool WaitPkg : 1 { };
+		bool Avx512Vbmi2 : 1 { };
+		bool CetSS : 1 { };
+		bool Gfni : 1 { };
+		bool VAes : 1 { };
+		bool VPclMulDqd : 1 { };
+		bool Avx512Vnni : 1 { };
+		bool Avx512Bitalg: 1 { };
+		bool Reserved3 : 1 { };
+		bool Avx512VPopCntdq : 1 { };
+		bool Reserved4 : 1 { };
+		bool Level5Paging : 1 { };
+		bool MaWau0 : 1 { };
+		bool MaWau1 : 1 { };
+		bool MaWau2 : 1 { };
+		bool MaWau3 : 1 { };
+		bool MaWau4 : 1 { };
+		bool RdPid : 1 { };
+		bool Reserved5 : 1 { };
+		bool Reserved6 : 1 { };
+		bool ClDemote : 1 { };
+		bool Reserved7 : 1 { };
+		bool MovDiri : 1 { };
+		bool MovDir64B : 1 { };
+		bool EnqCmd : 1 { };
+		bool SgxLc : 1 { };
+		bool Pks : 1 { };
+
+		// QUADWORD 3 LO
+
+		bool Reserved8 : 1{ };
+		bool Reserved9 : 1{ };
+		bool Avx5124Vnniw: 1{ };
+		bool Avx5124FMaps: 1{ };
+		bool Fsrm : 1{ };
+		bool Reserved10 : 1{ };
+		bool Reserved11 : 1{ };
+		bool Reserved12 : 1{ };
+		bool Avx512Vp2Intersect: 1{ };
+		bool SrbdsCtrl: 1{ };
+		bool MdClear : 1{ };
+		bool Reserved13: 1{ };
+		bool Reserved14: 1{ };
+		bool TsxForceAbort: 1{ };
+		bool Serialize: 1{ };
+		bool Hybrid: 1{ };
+		bool Tsxldtrk: 1{ };
+		bool Reserved15 : 1{ };
+		bool PConfig : 1{ };
+		bool Lbr : 1{ };
+		bool CetIbt : 1{ };
+		bool Reserved16 : 1{ };
+		bool AmxBf16 : 1{ };
+		bool Reserved17 : 1{ };
+		bool AmxTile : 1{ };
+		bool AmxInt8 : 1{ };
+		bool SpecCtrl : 1{ };
+		bool Stibp : 1{ };
+		bool L1DFlush : 1{ };
+		bool Ia32ArchCompat : 1{ };
+		bool Ia32CoreCompat : 1{ };
+		bool Ssbd : 1{ };
+
+		// QUADWORD 3 HI
+
+		bool LahfLm : 1{ };
+		bool CmpLegacy : 1 { };
+		bool Svm : 1 { };
+		bool ExtApic: 1 { };
+		bool Cr8Legacy: 1 { };
+		bool Abm: 1 { };
+		bool Sse4a : 1 { };
+		bool MisAlignSse: 1 { };
+		bool D3NowPrefetch : 1 { };
+		bool OsVw : 1 { };
+		bool Ibs : 1 { };
+		bool Xop : 1 { };
+		bool SkInit : 1 { };
+		bool Wdt : 1 { };
+		bool Reserved18 : 1 { };
+		bool Lwp : 1 { };
+		bool Fma4 : 1 { };
+		bool Tce : 1 { };
+		bool Reserved19 : 1 { };
+		bool NodeIdMsr : 1 { };
+		bool Reserved20 : 1 { };
+		bool Tbm : 1 { };
+		bool TopoExt : 1 { };
+		bool PerfCtrCore : 1 { };
+		bool PerCtrNb: 1 { };
+		bool Reserved21 : 1 { };
+		bool Dbx: 1 { };
+		bool PerfTsc: 1 { };
+		bool PcxL2i : 1 { };
+		bool Reserved22 : 1 { };
+		bool Reserved23 : 1 { };
+		bool Reserved24 : 1 { };
+
+		// DWORD RET
+
+		U16 Ignored0 : 11 { };
+		bool SysCall : 1 { };
+		U8 Ignored1 : 7 { };
+		bool Mp : 1 { };
+		bool Nx : 1 { };
+		bool Reserved25 : 1 { };
+		bool MmmxExt : 1 { };
+		U8 Ignored2 : 2{ };
+		bool FxsrOpt : 1 { };
+		bool Pdpe1Gb : 1 { };
+		bool Rdtscp : 1 { };
+		bool Reserved26 : 1 { };
+		bool LongMode : 1 { };
+		bool D3NowExt : 1 { };
+		bool D3Now : 1 { };
+
+		auto PrintFeatures() const -> void;
+	};
+
+	static_assert(sizeof(CpuFeatureBits) == 30);
+	static_assert(std::is_trivially_copyable_v<CpuFeatureBits>);
 
 	/// <summary>
-	/// Checks is the address of the pointer is aligned to specified alignment,
+	/// Contains merged info table.
+	/// One 64-bit instance contains two 32-bit info tables.
 	/// </summary>
-	/// <param name="ptr">The address to check.</param>
-	/// <param name="alignment">The alignment the address should have.</param>
-	/// <returns>True if valid and corresponding alignment, else false.</returns>
-	[[nodiscard]]
-	constexpr auto IsAlignedTo(void* const ptr, const std::size_t alignment) noexcept(true) -> bool
+	union MergedInfoTable
 	{
-		return std::bit_cast<std::uintptr_t>(ptr) % alignment == 0 && IsAlignmentValid(alignment);
-	}
+		U64 Merged { };
+
+		struct
+		{
+			U32 Table1;
+			U32 Table2;
+		};
+	};
+
+	static_assert(sizeof(MergedInfoTable) == 8);
+	static_assert(std::is_trivially_copyable_v<MergedInfoTable>);
 
 	/// <summary>
-	/// Compute the required offset to align the pointer to the given alignment.
-	/// The specified alignment must be valid, check with IsAlignmentValid() if needed. 
+	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
+	/// Implementation: Source/Arch/X86_64.CpuId.S
 	/// </summary>
-	/// <param name="ptr">The pointer address. Can be nullptr!</param>
-	/// <param name="alignment">The alignment, which must be valid.</param>
-	/// <returns>The required offset.</returns>
-	constexpr auto ComputeMissingAlignmentOffset(void* const ptr, const std::size_t alignment) noexcept(true) -> std::size_t
-	{
-		const auto misalignment = std::bit_cast<std::uintptr_t>(ptr) & alignment - 1;
-		return misalignment ? alignment - misalignment : 0;
-	}
+	extern "C" auto Asm_IsCpuIdSupported() noexcept -> BYTE;
 
 	/// <summary>
-	/// Compute the required offset to align the pointer to the given alignment.
-	/// The specified alignment must be valid, check with IsAlignmentValid() if needed. 
+	/// Assembly routine which calls cpuid
+	/// multiple time to determine all cpu features.
+	/// The first 6 feature tables are returned via
+	/// out1, out2 and out3. Each contains two info tables.
+	/// (See MergedInfoTable). The last info table is returned
+	/// as return value. Do not use this function, better use
+	/// CpuFeatureBits instead, which calls this function in the
+	/// constructor.
+	/// Implementation: Source/Arch/X86_64.CpuId.S
 	/// </summary>
-	/// <param name="ptr">The pointer address. Can be nullptr!</param>
-	/// <param name="alignment">The alignment, which must be valid.</param>
-	/// <returns>The required offset.</returns>
-	constexpr auto ComputeMissingAlignmentOffset(const std::uintptr_t ptr, const std::size_t alignment) noexcept(true) -> std::size_t
-	{
-		const auto misalignment = ptr & alignment - 1;
-		return misalignment ? alignment - misalignment : 0;
-	}
-
-	/// <summary>
-	/// Computes the minimum required alignment for an
-	/// object of the specified size.
-	/// </summary>
-	/// <param name="size"></param>
-	/// <returns></returns>
-	inline auto ComputeMinAlignmentRequiredForSize(const std::size_t size) noexcept(true) -> std::size_t
-	{
-		return size >= alignof(std::max_align_t) ? alignof(std::max_align_t) : static_cast<std::size_t>(1) << ILog2(size);
-	}
+	extern "C" auto Asm_CpuId
+	(
+		MergedInfoTable& out1,
+		MergedInfoTable& out2,
+		MergedInfoTable& out3
+	) noexcept -> DOUBLEWORD;
 }

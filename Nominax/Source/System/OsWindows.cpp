@@ -212,6 +212,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <WinUser.h>
 #include <Psapi.h>
 
 namespace Nominax::Os
@@ -235,14 +236,12 @@ namespace Nominax::Os
 	{
 		HKEY key;
 		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
-		[[unlikely]]
 		{
 			return "Unknown";
 		}
 		TCHAR id[64 + 1];
 		DWORD idLen = sizeof id;
 		if (const auto data = static_cast<LPBYTE>(static_cast<void*>(id)); RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &idLen))
-		[[unlikely]]
 		{
 			return "Unknown";
 		}

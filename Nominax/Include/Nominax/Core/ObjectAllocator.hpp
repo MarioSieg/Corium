@@ -244,7 +244,7 @@ namespace Nominax
 		/// If zero is passed, the allocation will return nullptr.
 		/// </param>
 		/// <returns>The valid memory on success, else nullptr.</returns>
-		static auto RawAllocateAndWriteSize(std::uint32_t sizeInRecords) -> Object::BlobBlockType*;
+		static auto RawAllocateAndWriteSize(U32 sizeInRecords) -> Object::BlobBlockType*;
 
 		/// <summary>
 		/// Deallocate raw memory from an object instance.

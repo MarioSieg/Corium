@@ -216,7 +216,7 @@ namespace Nominax
 	/// <summary>
 	/// Contains the amount of stack pushes each instruction will perform.
 	/// </summary>
-	constexpr std::array<std::uint8_t, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_PUSH_COUNTS
+	constexpr std::array<U8, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_PUSH_COUNTS
 	{
 		0,
 		0,

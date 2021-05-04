@@ -1,6 +1,6 @@
-// File: LiteralOp.hpp
+// File: RtTypes.hpp
 // Author: Mario
-// Created: 24.04.2021 9:54 PM
+// Created: 02.05.2021 1:19 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -212,32 +212,63 @@
 namespace Nominax
 {
 	/// <summary>
-	/// Construct a runtime integer (64-bit).
+	/// 8 bit unsigned integer.
 	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator""_int(const unsigned long long int value) noexcept(true) -> std::int64_t
-	{
-		return static_cast<std::int64_t>(value);
-	}
+	using U8 = std::uint8_t;
 
 	/// <summary>
-	/// Construct a runtime unsigned integer (64-bit).
+	/// 8 bit signed integer.
 	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator""_uint(const unsigned long long int value) noexcept(true) -> std::uint64_t
-	{
-		return value;
-	}
+	using I8 = std::int8_t;
 
 	/// <summary>
-	/// Construct a runtime float (64-bit).
+	/// 16 bit unsigned integer.
 	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator""_float(const long double value) noexcept(true) -> double
-	{
-		return static_cast<double>(value);
-	}
+	using U16 = std::uint16_t;
+
+	/// <summary>
+	/// 16 bit signed integer.
+	/// </summary>
+	using I16 = std::int16_t;
+
+	/// <summary>
+	/// 32 bit unsigned integer.
+	/// </summary>
+	using U32 = std::uint32_t;
+
+	/// <summary>
+	/// 32 bit signed integer.
+	/// </summary>
+	using I32 = std::int32_t;
+
+	/// <summary>
+	/// 64 bit unsigned integer.
+	/// </summary>
+	using U64 = std::uint64_t;
+
+	/// <summary>
+	/// 64 bit signed integer.
+	/// </summary>
+	using I64 = std::int64_t;
+
+	/// <summary>
+	/// 32 bit single precision float
+	/// </summary>
+	using F32 = float;
+
+	/// <summary>
+	/// 64 bit double precision float
+	/// </summary>
+	using F64 = double;
+
+	static_assert(sizeof(U8) == 1);
+	static_assert(sizeof(I8) == 1);
+	static_assert(sizeof(U16) == 2);
+	static_assert(sizeof(I16) == 2);
+	static_assert(sizeof(U32) == 4);
+	static_assert(sizeof(I32) == 4);
+	static_assert(sizeof(U64) == 8);
+	static_assert(sizeof(I64) == 8);
+	static_assert(sizeof(F32) == 4);
+	static_assert(sizeof(F64) == 8);
 }

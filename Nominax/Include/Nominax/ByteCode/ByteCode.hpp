@@ -218,7 +218,6 @@
 #include "Instruction.hpp"
 #include "InstructionCategory.hpp"
 #include "Lexeme.hpp"
-#include "LiteralOp.hpp"
 #include "Mnemonic.hpp"
 #include "OptBase.hpp"
 #include "PopCount.hpp"

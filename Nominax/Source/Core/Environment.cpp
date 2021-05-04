@@ -258,7 +258,7 @@ namespace Nominax
 
 	auto Environment::InstallSignalHandlers() const -> void
 	{
-		Nominax::InstallSignalHandlers();
+		// TODO
 	}
 
 	auto Environment::PrintVersionInfo() const -> void
@@ -286,7 +286,7 @@ namespace Nominax
 			TotalSystemMemory,
 			UsedSystemMemory,
 			PageSize
-		] = this->SysInfo;
+		] = this->SysInfo_;
 
 		Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
 		Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
@@ -301,42 +301,32 @@ namespace Nominax
 
 	auto Environment::PrintTypeTable() const -> void
 	{
-		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Size", "Alignment");
+		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
 		PrintTypeInfo<Record>("Record");
 		PrintTypeInfo<Signal>("Signal");
 		PrintTypeInfo<DynamicSignal>("DynamicSignal");
 		PrintTypeInfo<Object>("Object");
 		PrintTypeInfo<ObjectHeader>("ObjectHeader");
-		PrintTypeInfo<std::int64_t>("int");
-		PrintTypeInfo<std::uint64_t>("uint");
-		PrintTypeInfo<double>("float");
+		PrintTypeInfo<I64>("int");
+		PrintTypeInfo<U64>("uint");
+		PrintTypeInfo<F64>("float");
 		PrintTypeInfo<char32_t>("char");
 		PrintTypeInfo<bool>("bool");
 		PrintTypeInfo<void*>("void*");
 		Print("\n");
 	}
 
-	auto Environment::BootEnvironment() -> bool
+	Environment::Environment(Stream&& appCode) noexcept(false) : AppCode_ {std::move(appCode)}
 	{
 		this->InstallSignalHandlers();
 		this->UnlockNoSyncStdStreams();
 		this->PrintVersionInfo();
-		this->SysInfo.QueryAll();
+		this->SysInfo_.QueryAll();
 		this->PrintMachineInfo();
 		this->PrintTypeTable();
 
-		Stream stream { };
-
-		stream.Begin().With(2, [&stream](ScopedInt&& var)
-		{
-			var *= 2;
-			var += 1;
-			var /= 1;
-			stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId {0});
-		}).End();
-
-		stream.PrintIntermediateRepresentation(false);
-
+		auto& stream = this->AppCode_;
+		stream.PrintIntermediateRepresentation();
 		CodeChunk chunk { };
 		JumpMap   jumpMap { };
 		stream.Build(chunk, jumpMap);
@@ -345,35 +335,33 @@ namespace Nominax
 		std::vector intrinsics
 		{
 			// Print:
-			+[](Record* sp) -> bool
+			+[](Record* sp) -> void
 			{
-				Print("((2 * 2) + 1) / 1 = {}\n", sp->I64);
-				return true;
+				Print("((2 * 2) + 1) / 1 = {}\n", sp->Vi64);
 			}
 		};
 		InterruptRoutine&                  interrupt {
-			*+[](const InterruptAccumulator) -> bool
-			{
-				return true;
-			}
+			*+[](const InterruptAccumulator) -> void { }
 		};
 
 		const Reactor reactor {std::move(stack), std::move(chunk), std::move(jumpMap), intrinsics, interrupt};
 
 		Print("Used process memory: {}MB\n", Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
 
-		Print("Executing...\n\n");
+		Print(LogLevel::Warning, "Executing...\n");
+
+		Print("################ APP ################\n\n");
 		cout.flush();
 
-		const auto out = reactor.Execute();
-		Print("\nExecution done... {}\n", out.ExecutionResult == TerminateResult::Success ? "Ok" : "Error");
-		Print
-		(
-			"Time: {}, Interrupt: {}\n",
-			std::chrono::duration_cast<std::chrono::milliseconds>(out.Duration),
-			out.InterruptCode
-		);
+		const auto reactorOutput {reactor.Execute()};
+
+		Print("\n################ APP ################\n");
 		cout.flush();
-		return true;
+
+		PrintShutdownReason(reactorOutput.ShutdownReason, reactorOutput.InterruptCode);
+		Print("Time: {}\n", std::chrono::duration_cast<std::chrono::milliseconds>(reactorOutput.Duration));
+		cout.flush();
 	}
+
+	Environment::~Environment() { }
 }

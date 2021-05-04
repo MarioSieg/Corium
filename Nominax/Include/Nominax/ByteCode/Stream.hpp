@@ -228,7 +228,7 @@ namespace Nominax
 	{
 		/// <summary>
 		/// We use a std::list instead of std::forward_list because
-		/// std::list is a double linked list, and we require bidirectional iteration,
+		/// std::list is a F64 linked list, and we require bidirectional iteration,
 		/// not unidirectional.
 		/// </summary>
 		std::list<DynamicSignal> SignalStream_ { };
@@ -331,6 +331,14 @@ namespace Nominax
 		auto Size() const noexcept(true) -> std::size_t;
 
 		/// <summary>
+		/// Returns true if the stream contains
+		/// no code or only prologue and or epilogue.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto IsEmpty() const noexcept(true) -> bool;
+
+		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the stream in bytes.</returns>
@@ -402,17 +410,17 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(std::uint64_t value) noexcept(false) -> Stream&;
+		auto operator <<(U64 value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(std::int64_t value) noexcept(false) -> Stream&;
+		auto operator <<(I64 value) noexcept(false) -> Stream&;
 
 		/// <summary>
-		/// Push stream entry (casted to std::int64_t)
+		/// Push stream entry (casted to I64)
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
@@ -423,7 +431,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(double value) noexcept(false) -> Stream&;
+		auto operator <<(F64 value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
@@ -436,9 +444,9 @@ namespace Nominax
 		/// Print out the ir.
 		/// </summary>
 		/// <param name="stream"></param>
-		/// <param name="writeAddress"></param>
+		/// <param name="detailed"></param>
 		/// <returns></returns>
-		auto PrintIntermediateRepresentation(bool writeAddress = true) const noexcept(false) -> void;
+		auto PrintIntermediateRepresentation(bool detailed = true) const noexcept(false) -> void;
 
 		/// <summary>
 		/// Index lookup.
@@ -515,8 +523,8 @@ namespace Nominax
 		static_assert(std::is_integral_v<std::remove_reference_t<Ts>...>
 			|| std::is_floating_point_v<std::remove_reference_t<Ts>...>
 			|| std::is_enum_v<std::remove_reference_t<Ts>...>, "Invalid argument types!");
-		static_assert((sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(std::int64_t) == 0
-			|| (sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(std::int32_t) == 0,
+		static_assert((sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(I64) == 0
+			|| (sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(I32) == 0,
 			"Invalid argument types!");
 		*this << I;
 		return (*this << ... << args);
@@ -533,7 +541,7 @@ namespace Nominax
 	{
 		if constexpr (std::is_same_v<signed, V>)
 		{
-			functor(ScopedVariable<std::int64_t> {*this, static_cast<std::int64_t>(value)});
+			functor(ScopedVariable<I64> {*this, static_cast<I64>(value)});
 		}
 		else
 		{
@@ -575,7 +583,14 @@ namespace Nominax
 	inline Stream::Stream() noexcept(false)
 	{
 		// Insert important code prologue.
-		this->SignalStream_.emplace_back(DynamicSignal::CodePrologue());
+		const auto prologue {DynamicSignal::CodePrologue()};
+		this->SignalStream_.insert(std::begin(this->SignalStream_), std::begin(prologue), std::end(prologue));
+	}
+
+
+	inline auto Stream::IsEmpty() const noexcept(true) -> bool
+	{
+		return this->SignalStream_.empty() || this->SignalStream_.size() <= 3;
 	}
 
 	inline auto Stream::Buffer() const noexcept(true) -> const std::list<DynamicSignal>&
@@ -694,19 +709,19 @@ namespace Nominax
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const std::uint64_t value) noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const U64 value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const std::int64_t value) noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const I64 value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const double value) noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const F64 value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;
@@ -714,7 +729,7 @@ namespace Nominax
 
 	inline auto Stream::operator<<(const signed value) noexcept(false) -> Stream&
 	{
-		this->Push(DynamicSignal {static_cast<std::int64_t>(value)});
+		this->Push(DynamicSignal {static_cast<I64>(value)});
 		return *this;
 	}
 

@@ -217,13 +217,13 @@ namespace Nominax
 	/// <summary>
 	/// Call id for custom intrinsic routine.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) CustomIntrinsicCallId : std::uint64_t;
+	enum class alignas(alignof(U64)) CustomIntrinsicCallId : U64;
 
 	/// <summary>
 	/// Custom intrinsic routine function prototype.
 	/// Contains the stack pointer as parameter.
 	/// </summary>
-	using IntrinsicRoutine = auto (Record*) -> bool;
+	using IntrinsicRoutine = auto (Record*) -> void;
 	static_assert(std::is_function_v<IntrinsicRoutine>);
 
 	using SharedIntrinsicTableView = std::span<IntrinsicRoutine*>;

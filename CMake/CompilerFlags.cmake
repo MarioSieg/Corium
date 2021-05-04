@@ -16,7 +16,7 @@ IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STR
 	
 	# if release, set more optimization flags:
 	IF(CMAKE_BUILD_TYPE STREQUAL "Release")
-		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -Xclang -Ofast -Xclang -flto -Xclang -fno-rtti")
+		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -Xclang -Ofast -Xclang -flto -Xclang -fno-rtti -Xclang -ffp-exception-behavior=ignore /EHsc /D_HAS_EXCEPTIONS=0")
 	ENDIF()
 
 	# if fast math is enabled, add flags:
@@ -28,11 +28,11 @@ ELSE()
 	SET("Using Clang/GCC directly")
 
 	# gcc/clang common flags:
-	SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES} -Wall -Wextra -Werror -Wno-undef -std=c++20 -Wno-unknown-attributes -Wno-ignored-attributes -Wno-deprecated-declarations")
+        SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES} -Wall -Wextra -Werror -Wno-undef -std=c++20 -Wno-unknown-attributes -Wno-ignored-attributes -Wno-deprecated-declarations")
 
 	# if release, set more optimization flags:
 	IF(CMAKE_BUILD_TYPE STREQUAL "Release")
-		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -Ofast -flto -fno-rtti")
+		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -Ofast -flto -fno-rtti -fno-exceptions")
 	ENDIF()
 
 	# if fast math is enabled, add flags:

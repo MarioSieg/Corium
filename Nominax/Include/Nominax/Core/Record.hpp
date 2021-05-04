@@ -209,35 +209,37 @@
 
 #include <type_traits>
 
+#include "../Common/RtTypes.hpp"
+
 namespace Nominax
 {
 	/// <summary>
 	/// 64-bit memory record.
 	/// Contains either: Record32, void*, U64, I64, F64
 	/// </summary>
-	union alignas(alignof(std::int64_t)) Record
+	union alignas(alignof(I64)) Record
 	{
-		std::uint32_t U32;
-		std::int32_t  I32;
-		float         F32;
-		std::uint64_t U64;
-		std::int64_t  I64;
-		double        F64;
-		void*         Ptr;
-		char32_t      C32;
-		std::uint32_t U32C[2];
-		std::int32_t  I32C[2];
-		float         F32C[2];
-		char32_t      C32C[2];
+		U32      Vu32;
+		I32      Vi32;
+		F32      Vf32;
+		U64      Vu64;
+		I64      Vi64;
+		F64      Vf64;
+		void*    VPtr;
+		char32_t Vc32;
+		U32      Vu32A[2];
+		I32      Vi32A[2];
+		F32      Vf32A[2];
+		char32_t Vc32A[2];
 
 		Record() noexcept(true) = default;
-		explicit constexpr    Record(std::int32_t value) noexcept(true);
-		explicit constexpr    Record(std::uint32_t value) noexcept(true);
-		explicit constexpr    Record(float value) noexcept(true);
+		explicit constexpr    Record(I32 value) noexcept(true);
+		explicit constexpr    Record(U32 value) noexcept(true);
+		explicit constexpr    Record(F32 value) noexcept(true);
 		explicit constexpr    Record(void* value) noexcept(true);
-		explicit constexpr    Record(std::int64_t value) noexcept(true);
-		explicit constexpr    Record(std::uint64_t value) noexcept(true);
-		explicit constexpr    Record(double value) noexcept(true);
+		explicit constexpr    Record(I64 value) noexcept(true);
+		explicit constexpr    Record(U64 value) noexcept(true);
+		explicit constexpr    Record(F64 value) noexcept(true);
 		explicit constexpr    Record(char32_t value) noexcept(true);
 		explicit constexpr    operator bool() const noexcept(true);
 		constexpr auto        operator ==(Record other) const noexcept(true) -> bool;
@@ -249,23 +251,23 @@ namespace Nominax
 		static constexpr auto Padding() noexcept(true) -> Record;
 	};
 
-	constexpr Record::Record(const std::int32_t value) noexcept(true) : I32 {value} {}
-	constexpr Record::Record(const std::uint32_t value) noexcept(true) : U32 {value} {}
-	constexpr Record::Record(const float value) noexcept(true) : F32 {value} {}
-	constexpr Record::Record(void* const value) noexcept(true) : Ptr {value} {}
-	constexpr Record::Record(const std::int64_t value) noexcept(true) : I64 {value} {}
-	constexpr Record::Record(const std::uint64_t value) noexcept(true) : U64 {value} {}
-	constexpr Record::Record(const double value) noexcept(true) : F64 {value} {}
-	constexpr Record::Record(const char32_t value) noexcept(true) : C32 {value} {}
+	constexpr Record::Record(const I32 value) noexcept(true) : Vi32 {value} {}
+	constexpr Record::Record(const U32 value) noexcept(true) : Vu32 {value} {}
+	constexpr Record::Record(const F32 value) noexcept(true) : Vf32 {value} {}
+	constexpr Record::Record(void* const value) noexcept(true) : VPtr {value} {}
+	constexpr Record::Record(const I64 value) noexcept(true) : Vi64 {value} {}
+	constexpr Record::Record(const U64 value) noexcept(true) : Vu64 {value} {}
+	constexpr Record::Record(const F64 value) noexcept(true) : Vf64 {value} {}
+	constexpr Record::Record(const char32_t value) noexcept(true) : Vc32 {value} {}
 
 	constexpr Record::operator bool() const noexcept(true)
 	{
-		return this->U64;
+		return this->Vu64;
 	}
 
 	constexpr auto Record::operator ==(const Record other) const noexcept(true) -> bool
 	{
-		return this->U64 == other.U64;
+		return this->Vu64 == other.Vu64;
 	}
 
 	constexpr auto Record::operator !=(const Record other) const noexcept(true) -> bool
@@ -275,22 +277,22 @@ namespace Nominax
 
 	constexpr auto Record::operator <(const Record other) const noexcept(true) -> bool
 	{
-		return this->U64 < other.U64;
+		return this->Vu64 < other.Vu64;
 	}
 
 	constexpr auto Record::operator >(const Record other) const noexcept(true) -> bool
 	{
-		return this->U64 > other.U64;
+		return this->Vu64 > other.Vu64;
 	}
 
 	constexpr auto Record::operator <=(const Record other) const noexcept(true) -> bool
 	{
-		return this->U64 <= other.U64;
+		return this->Vu64 <= other.Vu64;
 	}
 
 	constexpr auto Record::operator >=(const Record other) const noexcept(true) -> bool
 	{
-		return this->U64 >= other.U64;
+		return this->Vu64 >= other.Vu64;
 	}
 
 	constexpr auto Record::Padding() noexcept(true) -> Record
@@ -298,10 +300,10 @@ namespace Nominax
 		return Record {0xFF'FF'FF'FF'FF'FF'FF'FF};
 	}
 
-	static_assert(sizeof(float) == sizeof(std::int32_t));
-	static_assert(sizeof(double) == sizeof(std::int64_t));
-	static_assert(sizeof(Record) == sizeof(std::int64_t));
-	static_assert(alignof(Record) == alignof(std::int64_t));
+	static_assert(sizeof(F32) == sizeof(I32));
+	static_assert(sizeof(F64) == sizeof(I64));
+	static_assert(sizeof(Record) == sizeof(I64));
+	static_assert(alignof(Record) == alignof(I64));
 	static_assert(std::is_standard_layout_v<Record>);
 	static_assert(std::is_trivial_v<Record>);
 	static_assert(std::is_default_constructible_v<Record>);

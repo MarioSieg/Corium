@@ -207,7 +207,7 @@
 
 #include "../TestBase.hpp"
 
-TEST(F64Comparator, Equals)
+TEST(Common, F64ComparatorEquals)
 {
 	ASSERT_TRUE(F64Equals<>(1.0, 1.0));
 	ASSERT_TRUE(F64Equals<>(0.0, 0.0));
@@ -215,7 +215,7 @@ TEST(F64Comparator, Equals)
 	ASSERT_TRUE(F64Equals<>(99.99999999, 99.99999999));
 }
 
-TEST(F64Comparator, NotEquals)
+TEST(Common, F64ComparatorNotEquals)
 {
 	ASSERT_FALSE(F64Equals<>(1.0, 1.0000000000001));
 	ASSERT_FALSE(F64Equals<>(0.0, 0.00000000001));
@@ -223,7 +223,7 @@ TEST(F64Comparator, NotEquals)
 	ASSERT_FALSE(F64Equals<>(99.99999998, 99.99999999));
 }
 
-TEST(F64Comparator, IsZero)
+TEST(Common, F64ComparatorIsZero)
 {
 	ASSERT_TRUE(F64IsZero(0.0));
 	ASSERT_FALSE(F64IsZero(1.0));

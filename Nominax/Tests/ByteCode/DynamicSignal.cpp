@@ -231,21 +231,21 @@ TEST(BytecodeDynamicSignal, CustomIntrinsicData)
 TEST(BytecodeDynamicSignal, U64Data)
 {
 	const auto x = DynamicSignal {UINT64_C(12345)};
-	ASSERT_TRUE(x.Contains<std::uint64_t>());
+	ASSERT_TRUE(x.Contains<U64>());
 	ASSERT_TRUE(x.Contains(UINT64_C(12345)));
 }
 
 TEST(BytecodeDynamicSignal, I64Data)
 {
 	const auto x = DynamicSignal {INT64_C(-12345)};
-	ASSERT_TRUE(x.Contains<std::int64_t>());
+	ASSERT_TRUE(x.Contains<I64>());
 	ASSERT_TRUE(x.Contains(INT64_C(-12345)));
 }
 
 TEST(BytecodeDynamicSignal, F64Data)
 {
 	const auto x = DynamicSignal {12345.0};
-	ASSERT_TRUE(x.Contains<double>());
+	ASSERT_TRUE(x.Contains<F64>());
 	ASSERT_TRUE(x.Contains(12345.0));
 }
 
@@ -277,23 +277,23 @@ TEST(BytecodeDynamicSignal, DynamicSignalWithCustomIntrinsicToSignal)
 TEST(BytecodeDynamicSignal, DynamicSignalWithU64ToSignal)
 {
 	const auto x = static_cast<Signal>(DynamicSignal {UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.U64, 0xFF'FF'FF'FF'FF'FF'FF'FF);
+	ASSERT_EQ(x.R64.Vu64, 0xFF'FF'FF'FF'FF'FF'FF'FF);
 }
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithI64ToSignal)
 {
 	const auto x = static_cast<Signal>(DynamicSignal {INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.I64, -0x80'FF'FF'FF'FF'FF'FF'FF);
+	ASSERT_EQ(x.R64.Vi64, -0x80'FF'FF'FF'FF'FF'FF'FF);
 }
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithF64ToSignal)
 {
-	const auto x = static_cast<Signal>(DynamicSignal {std::numeric_limits<double>::max()});
-	ASSERT_EQ(x.R64.F64, std::numeric_limits<double>::max());
+	const auto x = static_cast<Signal>(DynamicSignal {std::numeric_limits<F64>::max()});
+	ASSERT_EQ(x.R64.Vf64, std::numeric_limits<F64>::max());
 }
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithC32ToSignal)
 {
 	const auto x = static_cast<Signal>(DynamicSignal {static_cast<char32_t>('X')});
-	ASSERT_EQ(x.R64.C32, 'X');
+	ASSERT_EQ(x.R64.Vc32, 'X');
 }

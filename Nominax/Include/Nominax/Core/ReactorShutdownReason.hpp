@@ -1,6 +1,6 @@
-// File: Interrupts.hpp
+// File: ReactorShutdownReason.hpp
 // Author: Mario
-// Created: 12.04.2021 4:03 AM
+// Created: 01.05.2021 5:17 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,76 +207,29 @@
 
 #pragma once
 
-#include <csignal>
 #include <limits>
-#include <string_view>
-#include <type_traits>
 
-/*	interrupt < 0 =>
- *		hard error => can not recover => exit program => show error message
- *	interrupt = 0 =>
- *		success => exit program
- *	interrupt > 0 =>
- *		throw exception => call interrupt handler => call exception handler => if ok => continue execution else => exit program => show error message
- */
+#include "Interrupt.hpp"
+#include "../System/MacroCfg.hpp"
 
 namespace Nominax
 {
-	using PanicRoutine = void();
-	using SignalRoutine = void(std::sig_atomic_t);
-
-	extern auto DefaultSignalHandler(std::sig_atomic_t) -> void;
-	extern auto DefaultPanicHandler() -> void;
-
-	inline constinit PanicRoutine* currentPanicHandler {&DefaultPanicHandler};
-
-	extern auto QuerySignalStatus() noexcept(true) -> std::sig_atomic_t;
-	extern auto InstallSignalHandlers() -> void;
-	extern auto UninstallSignalHandlers() -> void;
-
-	using InterruptAccumulator = std::int32_t;
-	static_assert(std::is_trivial_v<InterruptAccumulator>);
-
-	using InterruptRoutine = auto (InterruptAccumulator) -> bool;
-	static_assert(std::is_function_v<InterruptRoutine>);
-
-	enum class TerminateResult
+	enum class ReactorShutdownReason
 	{
-		Success,
-		Exception,
-		Error
+		Success = 0,
+		Error,
+		UserException,
+
+#if NOMINAX_STACK_OVERFLOW_CHECKS
+		StackOverFlow
+#endif
 	};
 
-	enum class SystemInterrupt: InterruptAccumulator
+	[[nodiscard]]
+	constexpr auto DetermineShutdownReason(const InterruptAccumulator x) noexcept(true) -> ReactorShutdownReason
 	{
-		NullptrDeref = std::numeric_limits<InterruptAccumulator>::min() + 7,
-		Io = std::numeric_limits<InterruptAccumulator>::min() + 6,
-		JitFault = std::numeric_limits<InterruptAccumulator>::min() + 5,
-		StackOverflow = std::numeric_limits<InterruptAccumulator>::min() + 4,
-		IntrinsicTrap = std::numeric_limits<InterruptAccumulator>::min() + 3,
-		BadAlloc = std::numeric_limits<InterruptAccumulator>::min() + 2,
-		Internal = std::numeric_limits<InterruptAccumulator>::min() + 1,
-		Unknown = std::numeric_limits<InterruptAccumulator>::min(),
-
-		Min = Unknown,
-		Max = NullptrDeref
-	};
-
-	constexpr auto operator ==(const SystemInterrupt                         left,
-	                           const std::underlying_type_t<SystemInterrupt> right) noexcept(true) -> bool
-	{
-		return static_cast<std::underlying_type_t<SystemInterrupt>>(left) == right;
+		return x == INT_CODE_OK ? ReactorShutdownReason::Success : x < INT_CODE_OK ? ReactorShutdownReason::Error : ReactorShutdownReason::UserException;
 	}
 
-	constexpr auto operator !=(const SystemInterrupt                         left,
-	                           const std::underlying_type_t<SystemInterrupt> right) noexcept(true) -> bool
-	{
-		return static_cast<std::underlying_type_t<SystemInterrupt>>(left) != right;
-	}
-
-	[[nodiscard]] extern auto InterruptEnumeratorName(SystemInterrupt interrupt) noexcept(true) -> std::string_view;
-	[[nodiscard]] extern auto BasicErrorInfo(SystemInterrupt interrupt) noexcept(true) -> std::string_view;
-	[[nodiscard]] extern auto DetailedErrorInfo(SystemInterrupt interrupt) -> std::string;
-	[[nodiscard]] extern auto InterruptCvt(InterruptAccumulator interrupt) noexcept(true) -> SystemInterrupt;
-	[[nodiscard]] extern auto TerminateTypeCvt(InterruptAccumulator interrupt) noexcept(true) -> TerminateResult;
+	extern auto PrintShutdownReason(ReactorShutdownReason reason, InterruptAccumulator code = std::numeric_limits<InterruptAccumulator>::min()) noexcept(false) -> void;
 }

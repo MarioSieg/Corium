@@ -213,8 +213,7 @@ namespace Nominax
 {
 	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) const noexcept(true) -> bool
 	{
-		if (buffer.size() < this->HeaderRead_BlockSize())
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(buffer.size() < this->HeaderRead_BlockSize()))
 		{
 			return false;
 		}
@@ -243,20 +242,15 @@ namespace Nominax
 			       : false;
 	}
 
-	auto Object::AllocateUnique(const std::uint32_t sizeInRecords) noexcept(false) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
+	auto Object::AllocateUnique(const U32 sizeInRecords) noexcept(false) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
 	{
-		if (sizeInRecords == 0)
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(sizeInRecords == 0))
 		{
 			return nullptr;
 		}
-		const std::uint32_t      finalObjectSize = ObjectHeader::RECORD_CHUNKS + sizeInRecords;
+		const U32                finalObjectSize = ObjectHeader::RECORD_CHUNKS + sizeInRecords;
 		auto* __restrict__ const object          = new Record[finalObjectSize]();
-		if (!object)
-		[[unlikely]]
-		{
-			return nullptr;
-		}
+		assert(object);
 
 		// Write object header:
 		// No ref count:
@@ -265,11 +259,8 @@ namespace Nominax
 		// !! Important !! Write the size:
 		ObjectHeader::WriteMapping_Size(object, sizeInRecords);
 
-		std::uintptr_t typeId;
-		std::memcpy(&typeId, object, sizeof(Record*));
-
 		// Use pointer as dummy type id:
-		ObjectHeader::WriteMapping_TypeId(object, typeId);
+		ObjectHeader::WriteMapping_TypeId(object, 0);
 
 		// Write empty flag vector:
 		ObjectHeader::WriteMapping_FlagVector(object, ObjectFlagsVectorCompound { });
@@ -282,7 +273,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Equal<std::uint64_t>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Equal<U64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -296,7 +287,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (x->U64 != y->U64)
+			if (x->Vu64 != y->Vu64)
 			{
 				return false;
 			}
@@ -308,7 +299,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Equal<std::int64_t>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Equal<I64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -322,7 +313,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (x->I64 != y->I64)
+			if (x->Vi64 != y->Vi64)
 			{
 				return false;
 			}
@@ -334,7 +325,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Equal<double>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Equal<F64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -348,7 +339,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (x->F64 != y->F64)
+			if (x->Vf64 != y->Vf64)
 			{
 				return false;
 			}
@@ -360,7 +351,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Less<std::uint64_t>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Less<U64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -374,7 +365,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->U64 < y->U64))
+			if (!(x->Vu64 < y->Vu64))
 			{
 				return false;
 			}
@@ -386,7 +377,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Less<std::int64_t>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Less<I64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -400,7 +391,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->I64 < y->I64))
+			if (!(x->Vi64 < y->Vi64))
 			{
 				return false;
 			}
@@ -412,7 +403,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Less<double>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Less<F64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -426,7 +417,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->F64 < y->F64))
+			if (!(x->Vf64 < y->Vf64))
 			{
 				return false;
 			}
@@ -438,7 +429,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_LessEqual<std::uint64_t>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_LessEqual<U64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -452,7 +443,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->U64 <= y->U64))
+			if (!(x->Vu64 <= y->Vu64))
 			{
 				return false;
 			}
@@ -464,7 +455,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_LessEqual<std::int64_t>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_LessEqual<I64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -478,7 +469,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->I64 <= y->I64))
+			if (!(x->Vi64 <= y->Vi64))
 			{
 				return false;
 			}
@@ -490,7 +481,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_LessEqual<double>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_LessEqual<F64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -504,7 +495,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->F64 <= y->F64))
+			if (!(x->Vf64 <= y->Vf64))
 			{
 				return false;
 			}
@@ -516,7 +507,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Greater<std::uint64_t>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Greater<U64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -530,7 +521,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->U64 > y->U64))
+			if (!(x->Vu64 > y->Vu64))
 			{
 				return false;
 			}
@@ -542,7 +533,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Greater<std::int64_t>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Greater<I64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -556,7 +547,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->I64 > y->I64))
+			if (!(x->Vi64 > y->Vi64))
 			{
 				return false;
 			}
@@ -568,7 +559,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Greater<double>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Greater<F64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -582,7 +573,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->F64 > y->F64))
+			if (!(x->Vf64 > y->Vf64))
 			{
 				return false;
 			}
@@ -594,7 +585,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<std::uint64_t>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_GreaterEqual<U64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -608,7 +599,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->U64 >= y->U64))
+			if (!(x->Vu64 >= y->Vu64))
 			{
 				return false;
 			}
@@ -620,7 +611,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<std::int64_t>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_GreaterEqual<I64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -634,7 +625,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->I64 >= y->I64))
+			if (!(x->Vi64 >= y->Vi64))
 			{
 				return false;
 			}
@@ -646,7 +637,7 @@ namespace Nominax
 	}
 
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<double>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_GreaterEqual<F64>(const Object a, const Object b) noexcept(true) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -660,7 +651,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->F64 >= y->F64))
+			if (!(x->Vf64 >= y->Vf64))
 			{
 				return false;
 			}

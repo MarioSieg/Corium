@@ -209,16 +209,13 @@
 
 #include "../../Include/Nominax/Core/FixedStack.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
 namespace Nominax
 {
 	FixedStack::FixedStack(std::size_t sizeInRecords) noexcept(false)
 	{
-		if (!sizeInRecords)
-		[[unlikely]]
-		{
-			throw std::runtime_error("Requested fixed stack with zero size!");
-		}
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(sizeInRecords, "TLFRS with zero size was requested!");
 
 		// Because first padding element.
 		++sizeInRecords;
@@ -230,7 +227,7 @@ namespace Nominax
 		Print
 		(
 			"Allocated {}MB TLFRS, Entries: {}\n",
-			Bytes2Megabytes<double>(static_cast<double>(this->BufferSize_) * static_cast<double>(sizeof(Record))),
+			Bytes2Megabytes<F64>(static_cast<F64>(this->BufferSize_) * static_cast<F64>(sizeof(Record))),
 			this->BufferSize_
 		);
 	}
@@ -243,8 +240,7 @@ namespace Nominax
 
 	auto FixedStack::operator=(FixedStack&& value) noexcept(true) -> FixedStack&
 	{
-		if (this == &value)
-		[[unlikely]]
+		if (NOMINAX_UNLIKELY(this == &value))
 		{
 			return *this;
 		}

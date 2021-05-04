@@ -211,7 +211,7 @@
 * Currently (29.04.2012) only the MSVC standard library for
 * C++ 20 contains the <format> implementation. Since we use Clang and GCC
 * we use the format libary until the standart implementations are available.
-* For that we have custom prin functions below, do not use fmt::* directly,
+* For that we have custom print functions below, do not use fmt::* directly,
 * because then if the standard library is ready, we can just replace the calls
 * inside our custom print function below and remove the fmt library.
 */
@@ -220,10 +220,29 @@
 
 #include <fmt/format.h>
 #include <fmt/chrono.h>
+#include <fmt/color.h>
 
 namespace Nominax
 {
-	namespace Fmt = fmt;
+	enum class TextColor: std::underlying_type_t<fmt::terminal_color>
+	{
+		Black = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::black),
+		Red = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::red),
+		Green = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::green),
+		Yellow = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::yellow),
+		Blue = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::blue),
+		Magenta = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::magenta),
+		Cyan = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::cyan),
+		White = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::white),
+		BrightBlack = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_black),
+		BrightRed = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_red),
+		BrightGreen = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_green),
+		BrightYellow = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_yellow),
+		BrightBlue = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_blue),
+		BrightMagenta = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_magenta),
+		BrightCyan = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_cyan),
+		BrightWhite = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_white)
+	};
 
 	/// <summary>
 	/// Prints out the formatting string and
@@ -240,6 +259,68 @@ namespace Nominax
 	template <typename Str, typename... Args>
 	inline auto Print(const Str& formatString, Args&&...args) -> void
 	{
-		Fmt::print(formatString, std::forward<Args>(args)...);
+		fmt::print(formatString, std::forward<Args>(args)...);
+	}
+
+	/// <summary>
+	/// Contains all log levels.
+	/// </summary>
+	enum class LogLevel
+	{
+		Info,
+		Warning,
+		Error,
+		Success
+	};
+
+	/// <summary>
+	/// Prints out the formatting string and
+	/// formats the arguments into the string if format
+	/// arguments are given.
+	/// The formatting rules follow the C++ 20 <format> convention.
+	/// All printing inside Nominax should be done via this functions
+	/// and friends because it also allows different configurations.
+	/// The logging level can be specified, which prints in different colors.
+	/// </summary>
+	/// <typeparam name="Str">The string type.</typeparam>
+	/// <typeparam name="...Args">The argument types.</typeparam>
+	/// <param name="level"> The logging level can be specified, which prints in different colors.</param>
+	/// <param name="formatString">The format string.</param>
+	/// <param name="args">The arguments to format.</param>
+	template <typename Str, typename... Args>
+	auto Print(const LogLevel level, const Str& formatString, Args&&...args) -> void
+	{
+		auto color = TextColor::White;
+		switch (level)
+		{
+		case LogLevel::Info: color = TextColor::BrightWhite;
+			break;
+		case LogLevel::Warning: color = TextColor::Yellow;
+			break;
+		case LogLevel::Error: color = TextColor::BrightRed;
+			break;
+		case LogLevel::Success: color = TextColor::BrightGreen;
+			break;
+		}
+		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
+	}
+
+	/// <summary>
+	/// Prints out the formatting string and
+	/// formats the arguments into the string if format
+	/// arguments are given.
+	/// The formatting rules follow the C++ 20 <format> convention.
+	/// All printing inside Nominax should be done via this functions
+	/// and friends because it also allows different configurations.
+	/// </summary>
+	/// <typeparam name="Str">The string type.</typeparam>
+	/// <typeparam name="...Args">The argument types.</typeparam>
+	/// <param name="color">The foreground color of the text.</param>
+	/// <param name="formatString">The format string.</param>
+	/// <param name="args">The arguments to format.</param>
+	template <typename Str, typename... Args>
+	inline auto Print(const TextColor color, const Str& formatString, Args&&...args) -> void
+	{
+		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
 	}
 }

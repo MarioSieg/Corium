@@ -305,3 +305,5 @@
 #	define NOMINAX_COM_MINGW true
 #	define NOMINAX_COM_NAME "MinGW"
 #endif
+
+#include "../Common/RtTypes.hpp"

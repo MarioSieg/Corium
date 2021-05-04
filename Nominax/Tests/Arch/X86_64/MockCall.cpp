@@ -210,6 +210,10 @@
 #if NOMINAX_ARCH_X86_64
 TEST(AssemblyCalls, MockCall)
 {
-	ASSERT_EQ(Nominax::X86_64::MockCall(), 1234);
+#if NOMINAX_OS_WINDOWS
+	ASSERT_EQ(Nominax::X86_64::Asm_MockCall(), 0xFF);
+#else
+	ASSERT_EQ(Nominax::X86_64::Asm_MockCall(), 1234);
+#endif
 }
 #endif

@@ -209,30 +209,30 @@
 
 namespace Nominax
 {
-	auto Xorshift32ThreadLocal() noexcept(true) -> std::uint32_t
+	auto Xorshift32ThreadLocal() noexcept(true) -> U32
 	{
-		static constinit thread_local std::uint32_t seed32 {0x12B9B0A1};
+		static constinit thread_local U32 seed32 {0x12B9B0A1};
 		seed32 ^= seed32 << 0xD;
 		seed32 ^= seed32 >> 0x11;
 		seed32 ^= seed32 << 0x5;
 		return seed32;
 	}
 
-	auto Xorshift64ThreadLocal() noexcept(true) -> std::uint64_t
+	auto Xorshift64ThreadLocal() noexcept(true) -> U64
 	{
-		static constinit thread_local std::uint64_t seed64 {0x139408DCBBF7A44};
+		static constinit thread_local U64 seed64 {0x139408DCBBF7A44};
 		seed64 ^= seed64 << 0xD;
 		seed64 ^= seed64 >> 0x7;
 		seed64 ^= seed64 << 0x11;
 		return seed64;
 	}
 
-	auto Xorshift128ThreadLocal() noexcept(true) -> std::uint32_t
+	auto Xorshift128ThreadLocal() noexcept(true) -> U32
 	{
-		static constinit thread_local std::uint32_t x {0x75BCD15};
-		static constinit thread_local std::uint32_t y {0x159A55E5};
-		static constinit thread_local std::uint32_t z {0x1F123BB5};
-		static constinit thread_local std::uint32_t w {0x5491333};
+		static constinit thread_local U32 x {0x75BCD15};
+		static constinit thread_local U32 y {0x159A55E5};
+		static constinit thread_local U32 z {0x1F123BB5};
+		static constinit thread_local U32 w {0x5491333};
 
 		const uint32_t t = x ^ x << 0xB;
 		x                = y;

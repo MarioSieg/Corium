@@ -214,7 +214,7 @@
 #include "../ByteCode/CustomIntrinsic.hpp"
 #include "../ByteCode/Signal.hpp"
 
-#include "Interrupts.hpp"
+#include "Interrupt.hpp"
 #include "ReactorValidationResult.hpp"
 #include "Marker.hpp"
 
