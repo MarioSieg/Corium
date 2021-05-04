@@ -461,6 +461,7 @@ namespace Nominax::X86_64
 	union MergedInfoTable
 	{
 		U64 Merged { };
+
 		struct
 		{
 			U32 Table1;
