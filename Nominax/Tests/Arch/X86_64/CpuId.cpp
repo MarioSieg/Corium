@@ -213,10 +213,13 @@
 #if NOMINAX_ARCH_X86_64
 TEST(AssemblyCalls, CpuId)
 {
-	QUADWORD lo {0}, hi {0};
-	X86_64::Asm_CpuId(&lo, &hi);
-	const auto bits = std::bit_cast<X86_64::CpuFeatureBits>(lo);
+	X86_64::CpuFeatureBits bits{};
 	bits.PrintFeatures();
-	ASSERT_NE(lo, 0);
+	ASSERT_TRUE(bits.Fpu);
+	ASSERT_TRUE(bits.Mmx);
+	ASSERT_TRUE(bits.Sse);
+	ASSERT_TRUE(bits.Sse2);
+	ASSERT_TRUE(bits.Sse3);
+	ASSERT_TRUE(bits.Ssse3);
 }
 #endif

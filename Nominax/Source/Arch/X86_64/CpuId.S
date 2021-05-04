@@ -207,32 +207,50 @@
 
 .globl Asm_CpuId
 
-.equ PROCINF, 1
-.equ MASK, 0xFFFFFFFF
-
 Asm_CpuId:
     PUSHQ   %RBP            # stack frame prologue
     MOVQ    %RSP, %RBP      # stack frame prologue
+    MOVL    $0xFFFFFFFF, %R10D
 #ifdef __WIN__
-    PUSHQ   %RCX            # preserve clobbered rcx
     PUSHQ   %RDX            # preserve clobbered rdx
+    PUSHQ   %RCX            # preserve clobbered rcx
+#else
+    PUSHQ   %RDX
 #endif
     XORL    %EAX, %EAX
-    MOVB    $PROCINF, %AL   # set eax to 1, cpuid mode = processor info and feature bits
+    MOVB    $1, %AL         # set eax to cpuid mode
     CPUID                   # call cpuid
-    MOVL    %EDX, %EAX      # copy the first feature bit word to return register
-    MOVL    $MASK, %R10D
+    MOVL    %EDX, %EAX      # copy result 1 to eax
     ANDQ    %R10, %RCX
-    SALQ    $32, %RCX       # shift the second feature bit word into hiword
-    ORQ     %RCX, %RAX      # merge first and second feature bit words into return register
+    SALQ    $32, %RCX       # shift into hiword
+    ORQ     %RCX, %RAX      # merge first and second feature dwords
 #ifdef __WIN__
-    POPQ    %RDX            # restore clobbered rdx
     POPQ    %RCX            # restore clobbered rcx
     MOVQ    %RAX, (%RCX)    # copy result into output1
-    MOVQ    $0, (%RDX)      # todo
+    PUSHQ   %RCX            # preserve clobbered rcx
 #else
     MOVQ    %RAX, (%RDI)    # copy result into output1
-    MOVQ    $0, (%RSI)      # todo
+#endif
+    XORL    %EAX, %EAX      # clear eax
+    MOVB    $7, %AL         # set cpuid mode
+    XORL    %ECX, %ECX      # set cpuid modes
+    CPUID                   # call cpuid
+    MOVL    %EBX, %EAX      # copy result 1 to eax
+    ANDQ    %R10, %RCX      # truncate result 1 in rcx
+    SALQ    $32, %RCX       # shift into hiword
+    ORQ     %RCX, %RAX      # merge first and second feature dwords
+    ANDQ    %R10, %RDX      # mask off result 2 dword in rdx
+    MOVQ    $-1, %RDX       # fake features
+#ifdef __WIN__
+    MOVQ    %RDX, (%R8)     # copy result into output 3
+    POPQ    %RCX            # restore clobbered rcx
+    POPQ    %RDX            # restore clobbered rdx
+    MOVQ    %RAX, (%RDX)    # copy result into output2
+#else
+    MOVQ    %RAX, (%RSI)    # copy result into output2
+    MOVQ    %RDX, %R9       # backup result 3 into r9
+    POPQ    %RDX            # restore output3
+    MOVQ    %R9, (%RDX)     # copy result into output3
 #endif
     MOVQ    %RBP, %RSP      # stack frame epilogue
     POPQ    %RBP            # stack frame epilogue

@@ -215,7 +215,9 @@ namespace Nominax::X86_64
 {
 	struct CpuFeatureBits final
 	{
-		// DWORD LO
+		CpuFeatureBits() noexcept(false);
+		
+		// QWORD 1 LO
 
 		bool Fpu : 1 {false};
 		bool Vme : 1 {false};
@@ -250,7 +252,7 @@ namespace Nominax::X86_64
 		bool Ia64 : 1 {false};
 		bool Pbe : 1 {false};
 
-		// DWORD HI
+		// QWORD 1 HI
 
 		bool Sse3 : 1 {false};
 		bool PclMulDqd : 1 {false};
@@ -268,7 +270,7 @@ namespace Nominax::X86_64
 		bool Cx16 : 1 {false};
 		bool Xtpr : 1 {false};
 		bool Pdcm : 1 {false};
-		bool Reserved3_ : 1 {false};
+		bool Reserved2 : 1 {false};
 		bool Pcid : 1 {false};
 		bool Dca : 1 {false};
 		bool Sse41 : 1 {false};
@@ -285,11 +287,123 @@ namespace Nominax::X86_64
 		bool RdRnd : 1 {false};
 		bool HyperVisor : 1 {false};
 
+		// QWORD 2 LO
+
+		bool FsGsBase : 1 {false};
+		bool TscAdjust : 1 {false};
+		bool Sgx : 1 {false};
+		bool Bmi1 : 1 {false};
+		bool Hle : 1 {false};
+		bool Avx2 : 1 {false};
+		bool FdpExcept : 1 {false};
+		bool Smep : 1 {false};
+		bool Bmi2 : 1 {false};
+		bool Erms : 1 {false};
+		bool InvPcid : 1 {false};
+		bool Rtm : 1 {false};
+		bool Pqm : 1 {false};
+		bool FpuCsDsDepr : 1 {false};
+		bool Mpx : 1 {false};
+		bool Pqe : 1 {false};
+		bool Avx512F : 1 {false};
+		bool Avx512Dq : 1 {false};
+		bool RdSeed : 1 {false};
+		bool Adx : 1 {false};
+		bool SMap : 1 {false};
+		bool Avx512Ifma : 1 {false};
+		bool PCommit : 1 {false};
+		bool ClFlushOpt : 1 {false};
+		bool Clwb : 1 {false};
+		bool IntelPt : 1 {false};
+		bool Avx512Pf : 1 {false};
+		bool Avx512Er : 1 {false};
+		bool Avx512Cd : 1 {false};
+		bool Sha : 1 {false};
+		bool Avx512Bw : 1 {false};
+		bool Avx512Vl : 1 {false};
+
+		// QWORD 2 HI
+
+		bool PreFetchWt1 : 1 {false};
+		bool Avx512Vbmi : 1 {false};
+		bool Umip : 1 {false};
+		bool Pku : 1 {false};
+		bool OsPke : 1 {false};
+		bool WaitPkg : 1 {false};
+		bool Avx512Vbmi2 : 1 {false};
+		bool CetSS : 1 {false};
+		bool Gfni : 1 {false};
+		bool VAes  : 1 {false};
+		bool VPclMulDqd : 1 {false};
+		bool Avx512Vnni : 1 {false};
+		bool Avx512Bitalg: 1 {false};
+		bool Reserved3 : 1 {false};
+		bool Avx512VPopCntdq : 1 {false};
+		bool Reserved4 : 1 {false};
+		bool Level5Paging : 1 {false};
+		bool MaWau0 : 1 {false};
+		bool MaWau1 : 1 {false};
+		bool MaWau2 : 1 {false};
+		bool MaWau3 : 1 {false};
+		bool MaWau4 : 1 {false};
+		bool RdPid : 1 {false};
+		bool Reserved5 : 1 {false};
+		bool Reserved6 : 1 {false};
+		bool ClDemote : 1 {false};
+		bool Reserved7 : 1 {false};
+		bool MovDiri : 1 {false};
+		bool MovDir64B : 1 {false};
+		bool EnqCmd : 1 {false};
+		bool SgxLc : 1 {false};
+		bool Pks : 1 {false};
+
+		// QUADWORD 3 LO
+		
+		bool Reserved8 : 1{false};
+		bool Reserved9 : 1{false};
+		bool Avx5124Vnniw: 1{false};
+		bool Avx5124FMaps: 1{false};
+		bool Fsrm : 1{false};
+		bool Reserved10 : 1{false};
+		bool Reserved11 : 1{false};
+		bool Reserved12 : 1{false};
+		bool Avx512Vp2Intersect: 1{false};
+		bool SrbdsCtrl: 1{false};
+		bool MdClear : 1{false};
+		bool Reserved13: 1{false};
+		bool Reserved14: 1{false};
+		bool TsxForceAbort: 1{false};
+		bool Serialize: 1{false};
+		bool Hybrid: 1{false};
+		bool Tsxldtrk: 1{false};
+		bool Reserved15 : 1{false};
+		bool PConfig : 1{false};
+		bool Lbr : 1{false};
+		bool CetIbt : 1{false};
+		bool Reserved16 : 1{false};
+		bool AmxBf16 : 1{false};
+		bool Reserved17 : 1{false};
+		bool AmxTile : 1{false};
+		bool AmxInt8 : 1{false};
+		bool SpecCtrl : 1{false};
+		bool Stibp : 1{false};
+		bool L1DFlush : 1{false};
+		bool Ia32ArchCompat : 1{false};
+		bool Ia32CoreCompat : 1{false};
+		bool Ssbd : 1{false};
+
+		U32 Pad{0};
+		
 		auto PrintFeatures() const -> void;
 	};
 
-	static_assert(sizeof(CpuFeatureBits) == sizeof(QUADWORD));
+	static_assert(sizeof(CpuFeatureBits) == 24);
 	static_assert(std::is_trivially_copyable_v<CpuFeatureBits>);
 
-	extern "C" auto Asm_CpuId(QUADWORD* lo, QUADWORD* hi) noexcept -> void;
+	extern "C" auto Asm_CpuId
+	(
+		QUADWORD& out1,
+		QUADWORD& out2,
+		QUADWORD& out3
+	) noexcept -> void;
 }
