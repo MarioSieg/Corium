@@ -1214,16 +1214,9 @@ namespace Nominax::X86_64
 		bool MmmxExt : 1 { };
 
 		/// <summary>
-		/// Is AVX supported by OS?
-		/// Can only be true if OSXSAVE is supported.
+		/// Unused
 		/// </summary>
-		bool AvxSupportByOs : 1{ };
-
-		/// <summary>
-		/// Os AVX 512 supported by OS?
-		/// Can only be true if OSXSAVE is supported.
-		/// </summary>
-		bool Avx512SupportByOs : 1{ };
+		U8 Ignored2 : 2 { };
 
 		/// <summary>
 		/// 	FXSAVE/FXRSTOR optimizations

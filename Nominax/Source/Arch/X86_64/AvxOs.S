@@ -213,10 +213,10 @@ Asm_IsAvxSupportedByOs:
     MOVQ    %RSP, %RBP          # stack frame prologue
     XORL    %ECX, %ECX
     XGETBV
-    ANDL    $6, %EAX
+    ANDL    $0x6, %EAX
     MOVL    %EAX, %EBX
     XORL    %EAX, %EAX
-    CMPL    $6, %EBX
+    CMPL    $0x6, %EBX
     SETE    %AL
     MOVQ    %RBP, %RSP          # stack frame epilogue
     POPQ    %RBP                # stack frame epilogue
