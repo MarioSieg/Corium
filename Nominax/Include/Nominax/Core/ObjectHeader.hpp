@@ -456,7 +456,7 @@ namespace Nominax
 	{
 		const auto flags = ObjectFlagsVectorCompound
 		{
-			.Compound = region[1].Vu32A[1]
+			.Merged = region[1].Vu32A[1]
 		};
 		return flags;
 	}
@@ -488,7 +488,7 @@ namespace Nominax
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagsVectorCompound flagVector) noexcept(true) -> void
 	{
-		region[1].Vu32A[1] = flagVector.Compound;
+		region[1].Vu32A[1] = flagVector.Merged;
 	}
 
 	__attribute__((flatten)) inline auto ObjectHeader::RawQueryTypePun(Record* const region) noexcept(true) -> ObjectHeader&

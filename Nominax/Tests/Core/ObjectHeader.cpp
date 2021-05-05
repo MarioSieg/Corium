@@ -214,7 +214,7 @@ TEST(ObjectHeaderReinterpretation, FieldAccess)
 		.StrongRefCount = 1234,
 		.Size = 0xFF'FF'FF'FF,
 		.TypeId = 666,
-		.FlagVector = {.Compound = 0xFF'FF'FF'AA}
+		.FlagVector = {.Merged = 0xFF'FF'FF'AA}
 	};
 
 	std::array<Record, 2> header { };
@@ -231,13 +231,13 @@ TEST(ObjectHeaderReinterpretation, FieldAccess)
 	ASSERT_EQ(ObjectHeader::ReadMapping_StrongRefCount(header.data()), 1234);
 	ASSERT_EQ(ObjectHeader::ReadMapping_Size(header.data()), 0xFF'FF'FF'FF);
 	ASSERT_EQ(ObjectHeader::ReadMapping_TypeId(header.data()), 666);
-	ASSERT_EQ(ObjectHeader::ReadMapping_FlagVector(header.data()).Compound, 0xFF'FF'FF'AA);
+	ASSERT_EQ(ObjectHeader::ReadMapping_FlagVector(header.data()).Merged, 0xFF'FF'FF'AA);
 
 	auto& punned = ObjectHeader::RawQueryTypePun(header.data());
 	ASSERT_EQ(punned.StrongRefCount, 1234);
 	ASSERT_EQ(punned.Size, 0xFF'FF'FF'FF);
 	ASSERT_EQ(punned.TypeId, 666);
-	ASSERT_EQ(punned.FlagVector.Compound, 0xFF'FF'FF'AA);
+	ASSERT_EQ(punned.FlagVector.Merged, 0xFF'FF'FF'AA);
 }
 
 TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
@@ -247,7 +247,7 @@ TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
 		.StrongRefCount = 0,
 		.Size = 0,
 		.TypeId = 666,
-		.FlagVector = {.Compound = 0xFF'FF'FF'AA}
+		.FlagVector = {.Merged = 0xFF'FF'FF'AA}
 	};
 
 	std::array<Record, 2> header { };
@@ -260,7 +260,7 @@ TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
 	ObjectHeader::WriteMapping_StrongRefCount(data, 3);
 	ObjectHeader::WriteMapping_Size(data, 5);
 	ObjectHeader::WriteMapping_TypeId(data, 0xFF);
-	ObjectHeader::WriteMapping_FlagVector(data, {.Compound = 1234});
+	ObjectHeader::WriteMapping_FlagVector(data, {.Merged = 1234});
 
 	ASSERT_EQ(data[0].Vu32A[0], 3);
 	ASSERT_EQ(data[0].Vu32A[1], 5);
@@ -270,7 +270,7 @@ TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
 	ASSERT_EQ(ObjectHeader::ReadMapping_StrongRefCount(data), 3);
 	ASSERT_EQ(ObjectHeader::ReadMapping_Size(data), 5);
 	ASSERT_EQ(ObjectHeader::ReadMapping_TypeId(data), 0xFF);
-	ASSERT_EQ(ObjectHeader::ReadMapping_FlagVector(data).Compound, 1234);
+	ASSERT_EQ(ObjectHeader::ReadMapping_FlagVector(data).Merged, 1234);
 
 	ObjectHeader::WriteMapping_IncrementStrongRefCount(data);
 	ObjectHeader::WriteMapping_IncrementStrongRefCount(data);
@@ -283,7 +283,7 @@ TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
 	ASSERT_EQ(object.StrongRefCount, 5);
 	ASSERT_EQ(object.Size, 5);
 	ASSERT_EQ(object.TypeId, 0xFF);
-	ASSERT_EQ(object.FlagVector.Compound, 1234);
+	ASSERT_EQ(object.FlagVector.Merged, 1234);
 }
 
 TEST(ObjectHeaderReinterpretation, FieldCheckedMapping)

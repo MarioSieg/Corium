@@ -213,81 +213,25 @@
 
 namespace Nominax
 {
-	auto RuntimeObjectAllocator::RawAllocateAndWriteSize(const U32 sizeInRecords) -> Object::BlobBlockType*
+	auto RuntimeObjectAllocator::RawAllocate(const U32 sizeInRecords) noexcept(!NOMINAX_DEBUG) -> Object
 	{
-		// debug check
 		assert(sizeInRecords);
-
-		// We cannot allocate an object of size 0.
-		// This would only allocate an object header.
-		if (NOMINAX_UNLIKELY(sizeInRecords == 0))
-		{
-			return nullptr;
-		}
-
-		// add space for object header (2 records):
-		const U32 finalSizeInRecords {sizeInRecords + ObjectHeader::RECORD_CHUNKS};
-
-		// allocate object instance:
-		auto* __restrict__ const instance = new(std::nothrow) Record[finalSizeInRecords]();
-
-		// debug check
-		assert(instance);
-
-		// check if allocation failed:
-		if (NOMINAX_UNLIKELY(!instance))
-		{
-			return nullptr;
-		}
-
-		// Write the size of the object, without the header.
-		// The other object header fields shall be written by the caller.
-		ObjectHeader::WriteMapping_Size(instance, sizeInRecords);
-
-		// Update allocation counter:
-		AllocatedBlocks.fetch_add(finalSizeInRecords);
-
-#if NOMINAX_VERBOSE_ALLOCATOR
-		std::cout << "Allocated ";
-		PrettyPrintBytes(std::cout, finalSizeInRecords * sizeof(Record));
-		std::cout << ", Total allocated: ";
-		PrettyPrintBytes(std::cout, AllocatedBlocks * sizeof(Record));
-		std::cout << '\n';
+		static_assert(ObjectHeader::RECORD_CHUNKS == 2);
+		auto* const __restrict__ object = new(std::nothrow) Object::BlobBlockType[ObjectHeader::RECORD_CHUNKS + sizeInRecords]();
+		assert(object);
+		ObjectHeader::WriteMapping_Size(object, sizeInRecords);
+#if NOMINAX_DEBUG
+		Print(TextColor::BrightGreen, "Allocated object: {}, RecSize: {}\n", static_cast<void*>(object), sizeInRecords);
 #endif
-
-		return instance;
+		return Object {object};
 	}
 
-	auto RuntimeObjectAllocator::RawDeallocate(Object::BlobBlockType*& instance) -> void
+	auto RuntimeObjectAllocator::RawDeallocate(const Object object) noexcept(!NOMINAX_DEBUG) -> void
 	{
-		// debug check
-		assert(instance);
-
-		if (NOMINAX_UNLIKELY(!instance))
-		{
-			return;
-		}
-
-		// get the size in records:
-		const auto size = ObjectHeader::ReadMapping_Size(instance);
-
-		// debug check
-		assert(size);
-
-		// Update allocation counter:
-		AllocatedBlocks.fetch_sub(size);
-
-		// Free memory:
-		delete[] instance;
-
-		instance = nullptr;
-
-#if NOMINAX_VERBOSE_ALLOCATOR
-		std::cout << "Deallocated ";
-		PrettyPrintBytes(std::cout, size * sizeof(Record));
-		std::cout << ", Total allocated: ";
-		PrettyPrintBytes(std::cout, AllocatedBlocks * sizeof(Record));
-		std::cout << '\n';
+		assert(object.Blob_);
+#if NOMINAX_DEBUG
+		Print(TextColor::Red, "Deallocated object: {}, RecSize: {}\n", static_cast<void*>(object.Blob_), object.HeaderRead_BlockSize());
 #endif
+		delete[] object.Blob_;
 	}
 }

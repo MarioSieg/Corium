@@ -207,8 +207,9 @@
 
 #pragma once
 
-#include <atomic>
+#include <cassert>
 
+#include "../System/Platform.hpp"
 #include "Object.hpp"
 
 namespace Nominax
@@ -218,49 +219,22 @@ namespace Nominax
 	/// </summary>
 	class RuntimeObjectAllocator final
 	{
-		inline static constinit std::atomic_size_t AllocatedBlocks {0};
-
 	public:
-		/// <summary>
-		/// Gets the amount of all currently allocated blocks (records).
-		/// </summary>
-		/// <returns>The amount of all currently allocated blocks (records).</returns>
-		static auto GetGlobalAllocatedBlocks() noexcept(true) -> std::size_t;
+		RuntimeObjectAllocator() = delete;
 
 		/// <summary>
-		/// Gets the amount of bytes of all currently allocated blocks (records).
+		/// Raw allocates an object with specified size and writes the size
+		/// into the object header.
 		/// </summary>
-		/// <returns>The amount of bytes of all currently allocated blocks (records).</returns>
-		static auto GetGlobalAllocatedBytes() noexcept(true) -> std::size_t;
-
-		/// <summary>
-		/// Allocate and zero raw memory for an object instance, and write the size into the object header.
-		/// The memory is initialized to zero.
-		/// The sizeInRecords value is written into the object header field "Size".
-		/// On fail, nullptr is returned!
-		/// </summary>
-		/// <param name="sizeInRecords">The size of the object in bytes.
-		/// The final object will be larger because of the object header.
-		/// If zero is passed, the allocation will return nullptr.
-		/// </param>
-		/// <returns>The valid memory on success, else nullptr.</returns>
-		static auto RawAllocateAndWriteSize(U32 sizeInRecords) -> Object::BlobBlockType*;
-
-		/// <summary>
-		/// Deallocate raw memory from an object instance.
-		/// </summary>
-		/// <param name="instance"></param>
+		/// <param name="sizeInRecords"></param>
 		/// <returns></returns>
-		static auto RawDeallocate(Object::BlobBlockType*& instance) -> void;
+		static auto RawAllocate(U32 sizeInRecords) noexcept(!NOMINAX_DEBUG) -> Object;
+
+		/// <summary>
+		/// Raw deallocate the specified object.
+		/// </summary>
+		/// <param name="object"></param>
+		/// <returns></returns>
+		static auto RawDeallocate(Object object) noexcept(!NOMINAX_DEBUG) -> void;
 	};
-
-	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBlocks() noexcept(true) -> std::size_t
-	{
-		return AllocatedBlocks;
-	}
-
-	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBytes() noexcept(true) -> std::size_t
-	{
-		return AllocatedBlocks * sizeof(Object::BlobBlockType);
-	}
 }

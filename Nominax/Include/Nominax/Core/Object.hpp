@@ -230,6 +230,8 @@ namespace Nominax
 		using BlobBlockType = Record;
 
 	private:
+		friend class RuntimeObjectAllocator;
+
 		/// <summary>
 		/// Full data blob.
 		/// Array of records which contains the
@@ -419,7 +421,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="buffer">The target buffer.</param>
 		/// <returns></returns>
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<BlobBlockType>& buffer) const noexcept(true) -> void;
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<BlobBlockType>& buffer) const noexcept(false) -> void;
 
 		/// <summary>
 		/// SLT-Compat
@@ -445,7 +447,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="buffer"></param>
 		/// <returns></returns>
-		auto IMMUTATOR CopyBlob(std::vector<BlobBlockType>& buffer) const noexcept(true) -> void;
+		auto IMMUTATOR CopyBlob(std::vector<BlobBlockType>& buffer) const noexcept(false) -> void;
 
 		/// <summary>
 		/// Lookup object block.
@@ -484,6 +486,13 @@ namespace Nominax
 		/// </summary>
 		/// <returns>std::memset return ptr (start of block)</returns>
 		auto MUTATOR ZeroObjectBlock() const -> void;
+
+		/// <summary>
+		/// Returns true if the blob pointer is null.
+		/// </summary>
+		/// <returns>True if the blob ptr is null, else false.</returns>
+		[[nodiscard]]
+		auto IMMUTATOR IsNull() const noexcept(true) -> bool;
 
 		/// <summary>
 		/// Compares the pointer values of a and b.
@@ -1230,6 +1239,11 @@ namespace Nominax
 	__attribute__((flatten)) inline auto MUTATOR Object::ZeroObjectBlock() const -> void
 	{
 		std::memset(this->LookupObjectBlock(), 0, this->ObjectBlockSizeInBytes());
+	}
+
+	__attribute__((flatten)) inline auto Object::IsNull() const noexcept(true) -> bool
+	{
+		return this->Blob_ == nullptr;
 	}
 
 	__attribute__((flatten)) inline auto Object::ShallowCmp(const Object a, const Object b) noexcept(true) -> bool

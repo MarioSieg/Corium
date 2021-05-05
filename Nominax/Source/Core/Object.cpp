@@ -223,13 +223,13 @@ namespace Nominax
 		return true;
 	}
 
-	auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) const noexcept(true) -> void
+	auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) const noexcept(false) -> void
 	{
 		buffer.resize(this->HeaderRead_BlockSize());
 		std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
 	}
 
-	auto Object::CopyBlob(std::vector<Record>& buffer) const noexcept(true) -> void
+	auto Object::CopyBlob(std::vector<Record>& buffer) const noexcept(false) -> void
 	{
 		buffer.resize(this->BlobSize());
 		std::memcpy(buffer.data(), this->Blob_, this->BlobSizeInBytes());

@@ -372,22 +372,38 @@ namespace Nominax
 		return Nominax::Build(*this, out, outJumpMap);
 	}
 
+	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
+	{
+		auto begin = this->SignalStream_.begin();
+		for (const DynamicSignal& sig : *this)
+		{
+			if (NOMINAX_UNLIKELY(sig != *begin))
+			{
+				return false;
+			}
+			std::advance(begin, 1);
+		}
+		return true;
+	}
+
+	auto Stream::ContainsPrologue() const noexcept(false) -> bool
+	{
+		auto end = this->SignalStream_.end();
+		for (const DynamicSignal& sig : *this)
+		{
+			std::advance(end, -1);
+			if (NOMINAX_UNLIKELY(sig != *end))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
 	auto Stream::Begin() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		if (auto containsPrologueCode = [&]() -> bool
-		{
-			auto begin = this->SignalStream_.begin();
-			for (const DynamicSignal& sig : code)
-			{
-				if (NOMINAX_UNLIKELY(sig != *begin))
-				{
-					return false;
-				}
-				std::advance(begin, 1);
-			}
-			return true;
-		}; NOMINAX_UNLIKELY(this->Size() >= 2 && !containsPrologueCode()))
+		if (NOMINAX_UNLIKELY(this->Size() >= 2 && !this->ContainsEpilogue()))
 		{
 			this->SignalStream_.insert(this->SignalStream_.begin(), std::begin(code), std::end(code));
 		}
@@ -397,19 +413,7 @@ namespace Nominax
 	auto Stream::End() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		if (auto containsEpilogueCode = [&]() -> bool
-		{
-			auto end = this->SignalStream_.end();
-			for (const DynamicSignal& sig : code)
-			{
-				std::advance(end, -1);
-				if (NOMINAX_UNLIKELY(sig != *end))
-				{
-					return false;
-				}
-			}
-			return true;
-		}; NOMINAX_UNLIKELY(this->Size() >= 2 && !containsEpilogueCode()))
+		if (NOMINAX_UNLIKELY(this->Size() >= 2 && !this->ContainsEpilogue()))
 		{
 			this->SignalStream_.insert(this->SignalStream_.end(), std::begin(code), std::end(code));
 		}

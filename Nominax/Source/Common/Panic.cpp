@@ -205,6 +205,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <iostream>
+
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
 #include "../../Include/Nominax/System/Os.hpp"
@@ -214,6 +216,7 @@ namespace Nominax
 	auto Panic(const std::string_view message) -> void
 	{
 		Print(TextColor::Red, "\n\nNominax Runtime Error: \n{}\n\n", message);
+		std::cout.flush();
 		std::abort();
 	}
 }

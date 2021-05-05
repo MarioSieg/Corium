@@ -379,7 +379,7 @@ namespace Nominax
 			bool Flag31 : 1;
 		} Flags;
 
-		U32 Compound;
+		U32 Merged;
 	};
 
 	static_assert(sizeof(ObjectFlagsVectorCompound) == sizeof(U32));

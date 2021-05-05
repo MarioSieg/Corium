@@ -480,6 +480,18 @@ namespace Nominax
 		auto Do() noexcept(false) -> Stream&;
 
 		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if the current stream contains required epilogue code, else false.</returns>
+		auto ContainsEpilogue() const noexcept(false) -> bool;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if the current stream contains required prologue code, else false.</returns>
+		auto ContainsPrologue() const noexcept(false) -> bool;
+
+		/// <summary>
 		/// Begin stream building.
 		/// Inserts code prologue, if missing.
 		/// </summary>

@@ -228,7 +228,7 @@ TEST(Object, BlockMappingReadWriteData)
 	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record));
 	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
-	ASSERT_EQ(obj->Header_ReadFlagVector().Compound, 0);
+	ASSERT_EQ(obj->Header_ReadFlagVector().Merged, 0);
 	ASSERT_EQ(obj->ObjectBlockSizeInBytes(), 4 * sizeof(Record));
 }
 
@@ -246,12 +246,12 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record));
 	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
-	ASSERT_EQ(obj->Header_ReadFlagVector().Compound, 0);
+	ASSERT_EQ(obj->Header_ReadFlagVector().Merged, 0);
 
 	ObjectHeader::WriteMapping_StrongRefCount(obj->QueryRawHeader(), 32);
 	ObjectHeader::WriteMapping_Size(obj->QueryRawHeader(), obj->HeaderRead_BlockSize());
 	ObjectHeader::WriteMapping_TypeId(obj->QueryRawHeader(), 0xFF'FF'AA'BB);
-	ObjectHeader::WriteMapping_FlagVector(obj->QueryRawHeader(), ObjectFlagsVectorCompound {.Compound = 0xABC});
+	ObjectHeader::WriteMapping_FlagVector(obj->QueryRawHeader(), ObjectFlagsVectorCompound {.Merged = 0xABC});
 	ObjectHeader::WriteMapping_IncrementStrongRefCount(obj->QueryRawHeader());
 	ObjectHeader::WriteMapping_IncrementStrongRefCount(obj->QueryRawHeader());
 	ObjectHeader::WriteMapping_IncrementStrongRefCount(obj->QueryRawHeader());
@@ -270,7 +270,7 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 34);
 	ASSERT_EQ(obj->HeaderRead_BlockSize(), 4);
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0xFF'FF'AA'BB);
-	ASSERT_EQ(obj->Header_ReadFlagVector().Compound, 0xABC);
+	ASSERT_EQ(obj->Header_ReadFlagVector().Merged, 0xABC);
 
 	obj->HeaderWrite_StrongRefCount(0);
 	obj->HeaderWrite_Size(0);
@@ -280,7 +280,7 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
 	ASSERT_EQ(obj->HeaderRead_BlockSize(), 0);
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
-	ASSERT_EQ(obj->Header_ReadFlagVector().Compound, 0);
+	ASSERT_EQ(obj->Header_ReadFlagVector().Merged, 0);
 }
 
 TEST(Object, BlobCopy)
@@ -288,7 +288,7 @@ TEST(Object, BlobCopy)
 	auto obj {Object::AllocateUnique(4)};
 	obj->HeaderWrite_IncrementStrongRefCount();
 	obj->HeaderWrite_TypeId(22);
-	obj->HeaderWrite_FlagVector(ObjectFlagsVectorCompound {.Compound = 0xABC});
+	obj->HeaderWrite_FlagVector(ObjectFlagsVectorCompound {.Merged = 0xABC});
 	obj->operator[](0).Vu64 = 0xFF'FF;
 	obj->operator[](1).Vf64 = 0.09929292;
 	obj->operator[](2).Vu64 = 0xABCDEF;
@@ -313,7 +313,7 @@ TEST(Object, BlockCopy)
 	auto obj {Object::AllocateUnique(4)};
 	obj->HeaderWrite_IncrementStrongRefCount();
 	obj->HeaderWrite_TypeId(22);
-	obj->HeaderWrite_FlagVector(ObjectFlagsVectorCompound {.Compound = 0xABC});
+	obj->HeaderWrite_FlagVector(ObjectFlagsVectorCompound {.Merged = 0xABC});
 	obj->operator[](0).Vu64 = 0xFF'FF;
 	obj->operator[](1).Vf64 = 0.09929292;
 	obj->operator[](2).Vu64 = 0xABCDEF;
