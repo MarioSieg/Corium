@@ -372,7 +372,7 @@ namespace Nominax
 		return Nominax::Build(*this, out, outJumpMap);
 	}
 
-	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
+	auto Stream::ContainsPrologue() const noexcept(false) -> bool
 	{
 		auto begin = this->SignalStream_.begin();
 		for (const DynamicSignal& sig : *this)
@@ -386,7 +386,7 @@ namespace Nominax
 		return true;
 	}
 
-	auto Stream::ContainsPrologue() const noexcept(false) -> bool
+	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
 	{
 		auto end = this->SignalStream_.end();
 		for (const DynamicSignal& sig : *this)
@@ -403,7 +403,7 @@ namespace Nominax
 	auto Stream::Begin() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		if (NOMINAX_UNLIKELY(this->Size() >= 2 && !this->ContainsEpilogue()))
+		if (NOMINAX_UNLIKELY(this->Size() >= 2 && !this->ContainsPrologue()))
 		{
 			this->SignalStream_.insert(this->SignalStream_.begin(), std::begin(code), std::end(code));
 		}

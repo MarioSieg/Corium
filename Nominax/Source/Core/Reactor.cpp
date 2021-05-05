@@ -253,6 +253,8 @@ namespace Nominax
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Stack_.Size(), "Zero sized stack was given to reactor!");
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Chunk_.size(), "Zero sized chunk was given to reactor!");
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Map_.size(), "Zero sized instruction map was given to reactor!");
+		NOMINAX_PANIC_ASSERT_EQ(this->Chunk_.end()[0].R64.Vi64, 0, "Missing code chunk epilogue!");
+		NOMINAX_PANIC_ASSERT_EQ(this->Chunk_.end()[-1].Instr, Instruction::Int, "Missing code chunk epilogue!");
 
 		this->Descriptor_ = CreateDescriptor(this->Stack_, this->Chunk_, this->Map_, this->IntrinsicTable_, this->InterruptHandler_);
 
