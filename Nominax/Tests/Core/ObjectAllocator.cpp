@@ -229,3 +229,20 @@ TEST(ObjectAllocator, FaultyPtrDealloc)
 	const Object obj {nullptr};
 	ASSERT_DEATH(RuntimeObjectAllocator::RawDeallocate(obj), "");
 }
+
+TEST(ObjectAllocator, AllocateType)
+{
+	const Type type
+	{
+		.TypeId = 1,
+		.Size = 0xFF'FF,
+		.InitialFlags = { }
+	};
+
+	const Object instance {New(type)};
+	ASSERT_EQ(instance.HeaderRead_BlockSize(), 0xFF'FF);
+	ASSERT_EQ(instance.HeaderRead_TypeId(), 1);
+	ASSERT_EQ(instance.Header_ReadFlagVector().Merged, 0);
+	ASSERT_EQ(instance.BlobSize(), 0xFF'FF + 2);
+	Delete(instance);
+}

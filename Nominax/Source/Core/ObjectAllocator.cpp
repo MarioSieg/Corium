@@ -208,31 +208,54 @@
 #include <cstdlib>
 
 #include "../../Include/Nominax/Core/ObjectAllocator.hpp"
+#include "../../Include/Nominax/Core/Heap.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 #include "../../Include/Nominax/Common/Common.hpp"
 
 namespace Nominax
 {
-	auto RuntimeObjectAllocator::RawAllocate(const U32 sizeInRecords) noexcept(!NOMINAX_DEBUG) -> Object
+	auto RuntimeObjectAllocator::Allocate(const Type& type) noexcept(!NOMINAX_DEBUG) -> Object
 	{
-		assert(sizeInRecords);
 		static_assert(ObjectHeader::RECORD_CHUNKS == 2);
 		static_assert(std::is_trivial_v<Object::BlobBlockType>);
-		auto* const __restrict__ object = static_cast<Object::BlobBlockType*>(std::calloc(ObjectHeader::RECORD_CHUNKS + sizeInRecords, sizeof(Object::BlobBlockType)));
-		assert(object);
+
+		NOMINAX_DEBUG_ONLY(assert(type.Size));
+
+		auto* const __restrict__ object = HEAP_ALLOC(type.Size);
+
+		NOMINAX_DEBUG_ONLY(assert(object));
+
+		ObjectHeader::WriteMapping_Size(object, type.Size);
+		ObjectHeader::WriteMapping_TypeId(object, type.TypeId);
+		ObjectHeader::WriteMapping_FlagVector(object, type.InitialFlags);
+
+		NOMINAX_DEBUG_ONLY(PROTO_ALLOC_INFO(object, type.Size));
+
+		return Object {object};
+	}
+
+	auto RuntimeObjectAllocator::RawAllocate(const U32 sizeInRecords) noexcept(!NOMINAX_DEBUG) -> Object
+	{
+		static_assert(ObjectHeader::RECORD_CHUNKS == 2);
+		static_assert(std::is_trivial_v<Object::BlobBlockType>);
+
+		NOMINAX_DEBUG_ONLY(assert(sizeInRecords));
+
+		auto* const __restrict__ object = HEAP_ALLOC(sizeInRecords);
+
+		NOMINAX_DEBUG_ONLY(assert(object));
+
 		ObjectHeader::WriteMapping_Size(object, sizeInRecords);
-#if NOMINAX_DEBUG
-		Print(TextColor::BrightGreen, "Allocated object: {}, RecSize: {}\n", static_cast<void*>(object), sizeInRecords);
-#endif
+
+		NOMINAX_DEBUG_ONLY(PROTO_ALLOC_INFO(object, sizeInRecords));
+
 		return Object {object};
 	}
 
 	auto RuntimeObjectAllocator::RawDeallocate(const Object object) noexcept(!NOMINAX_DEBUG) -> void
 	{
-		assert(object.Blob_);
-#if NOMINAX_DEBUG
-		Print(TextColor::Red, "Deallocated object: {}, RecSize: {}\n", static_cast<void*>(object.Blob_), object.HeaderRead_BlockSize());
-#endif
-		std::free(object.Blob_);
+		NOMINAX_DEBUG_ONLY(assert(*object));
+		NOMINAX_DEBUG_ONLY(PROTO_DEALLOC_INFO(*object, object.HeaderRead_BlockSize()));
+		HEAP_DEALLOC(object);
 	}
 }

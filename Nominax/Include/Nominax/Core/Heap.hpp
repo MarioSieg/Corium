@@ -1,6 +1,6 @@
-// File: ObjectAllocator.hpp
+// File: Heap.hpp
 // Author: Mario
-// Created: 25.04.2021 2:40 PM
+// Created: 05.05.2021 2:45 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,61 +207,27 @@
 
 #pragma once
 
-#include "../System/Platform.hpp"
+#include <cstdlib>
+
 #include "Object.hpp"
-#include "Type.hpp"
 
-namespace Nominax
-{
-	/// <summary>
-	/// Runtime allocator for object instances.
-	/// </summary>
-	class RuntimeObjectAllocator final
-	{
-	public:
-		RuntimeObjectAllocator() = delete;
+#define HEAP_ALLOC(size) static_cast<Object::BlobBlockType*>(std::calloc(ObjectHeader::RECORD_CHUNKS + ( size ), sizeof(Object::BlobBlockType)))
+#define HEAP_DEALLOC(obj) std::free(( obj ).Blob_)
 
-		/// <summary>
-		/// Allocates an instance of the specified type.
-		/// Writes full object header and return the object instance.
-		/// </summary>
-		/// <param name="type"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		static auto Allocate(const Type& type) noexcept(!NOMINAX_DEBUG) -> Object;
+#define PROTO_ALLOC_INFO(raw, size)					\
+	Print											\
+	(												\
+		TextColor::Green,							\
+		"Allocated object: {}, RecSize: {}\n",		\
+		static_cast<void*>( raw ),					\
+		( size ) 									\
+	)
 
-		/// <summary>
-		/// Raw allocates an object with specified size and writes the size
-		/// into the object header.
-		/// </summary>
-		/// <param name="sizeInRecords"></param>
-		/// <returns></returns>
-		static auto RawAllocate(U32 sizeInRecords) noexcept(!NOMINAX_DEBUG) -> Object;
-
-		/// <summary>
-		/// Raw deallocate the specified object.
-		/// </summary>
-		/// <param name="object"></param>
-		/// <returns></returns>
-		static auto RawDeallocate(Object object) noexcept(!NOMINAX_DEBUG) -> void;
-	};
-
-	/// <summary>
-	/// Same as RuntimeObjectAllocator::Allocate(type)
-	/// but shorter and clearer to write.
-	/// </summary>
-	[[nodiscard]]
-	__attribute__((always_inline)) inline auto New(const Type& type) noexcept(!NOMINAX_DEBUG) -> Object
-	{
-		return RuntimeObjectAllocator::Allocate(type);
-	}
-
-	/// <summary>
-	/// RuntimeObjectAllocator::RawDeallocate(object)
-	/// but shorter and clearer to write.
-	/// </summary>
-	__attribute__((always_inline)) inline auto Delete(const Object object) noexcept(!NOMINAX_DEBUG) -> void
-	{
-		RuntimeObjectAllocator::RawDeallocate(object);
-	}
-}
+#define PROTO_DEALLOC_INFO(raw, size)				\
+	Print											\
+	(												\
+		TextColor::Red,								\
+		"Deallocated object: {}, RecSize: {}\n",	\
+		static_cast<void*>( raw ),					\
+		( size ) 									\
+	)

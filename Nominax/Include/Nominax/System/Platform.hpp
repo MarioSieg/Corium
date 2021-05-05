@@ -225,9 +225,11 @@
 #if NDEBUG
 #	undef NOMINAX_RELEASE
 #	define NOMINAX_RELEASE true
+#	define NOMINAX_IF_DEBUG(expr)
 #else
 #	undef NOMINAX_DEBUG
 #	define NOMINAX_DEBUG true
+#	define NOMINAX_DEBUG_ONLY(expr) expr
 #endif
 
 #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)

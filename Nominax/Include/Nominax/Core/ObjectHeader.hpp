@@ -251,7 +251,7 @@ namespace Nominax
 		/// <summary>
 		/// Flag vector for object states.
 		/// </summary>
-		ObjectFlagsVectorCompound FlagVector { };
+		ObjectFlagVector FlagVector { };
 
 		/// <summary>
 		/// Maps this record into the specified memory region.
@@ -319,7 +319,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <returns>The current value of the flag vector.</returns>
 		[[nodiscard ]]
-		static constexpr auto ReadMapping_FlagVector(const Record* region) noexcept(true) -> ObjectFlagsVectorCompound;
+		static constexpr auto ReadMapping_FlagVector(const Record* region) noexcept(true) -> ObjectFlagVector;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the strong ref count field.
@@ -367,7 +367,7 @@ namespace Nominax
 		/// <param name="region"></param>
 		/// <param name="flagVector">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_FlagVector(Record* region, ObjectFlagsVectorCompound flagVector) noexcept(true) -> void;
+		static constexpr auto WriteMapping_FlagVector(Record* region, ObjectFlagVector flagVector) noexcept(true) -> void;
 
 		/// <summary>
 		/// Type-pun a region to an object header
@@ -452,9 +452,9 @@ namespace Nominax
 		return *region[1].Vu32A;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) noexcept(true) -> ObjectFlagsVectorCompound
+	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) noexcept(true) -> ObjectFlagVector
 	{
-		const auto flags = ObjectFlagsVectorCompound
+		const auto flags = ObjectFlagVector
 		{
 			.Merged = region[1].Vu32A[1]
 		};
@@ -486,7 +486,7 @@ namespace Nominax
 		*region[1].Vu32A = typeId;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagsVectorCompound flagVector) noexcept(true) -> void
+	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagVector flagVector) noexcept(true) -> void
 	{
 		region[1].Vu32A[1] = flagVector.Merged;
 	}

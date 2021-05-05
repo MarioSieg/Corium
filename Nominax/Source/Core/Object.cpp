@@ -263,7 +263,7 @@ namespace Nominax
 		ObjectHeader::WriteMapping_TypeId(object, 0);
 
 		// Write empty flag vector:
-		ObjectHeader::WriteMapping_FlagVector(object, ObjectFlagsVectorCompound { });
+		ObjectHeader::WriteMapping_FlagVector(object, ObjectFlagVector { });
 
 		return std::unique_ptr<Object, UniquePtrObjectDeleter>
 		{

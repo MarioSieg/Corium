@@ -273,7 +273,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns>The flag vector field from the object header.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR Header_ReadFlagVector() const noexcept(true) -> ObjectFlagsVectorCompound;
+		auto IMMUTATOR Header_ReadFlagVector() const noexcept(true) -> ObjectFlagVector;
 
 		/// <summary>
 		/// Writes the value into the strong ref count header field.
@@ -337,7 +337,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="flagVector">The new value to write.</param>
 		/// <returns></returns>
-		auto MUTATOR HeaderWrite_FlagVector(ObjectFlagsVectorCompound flagVector) const noexcept(true) -> void;
+		auto MUTATOR HeaderWrite_FlagVector(ObjectFlagVector flagVector) const noexcept(true) -> void;
 
 		/// <summary>
 		/// Get the raw object header pointer.
@@ -486,13 +486,6 @@ namespace Nominax
 		/// </summary>
 		/// <returns>std::memset return ptr (start of block)</returns>
 		auto MUTATOR ZeroObjectBlock() const -> void;
-
-		/// <summary>
-		/// Returns true if the blob pointer is null.
-		/// </summary>
-		/// <returns>True if the blob ptr is null, else false.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR IsNull() const noexcept(true) -> bool;
 
 		/// <summary>
 		/// Compares the pointer values of a and b.
@@ -1144,7 +1137,7 @@ namespace Nominax
 		return ObjectHeader::ReadMapping_TypeId(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::Header_ReadFlagVector() const noexcept(true) -> ObjectFlagsVectorCompound
+	__attribute__((flatten)) inline auto IMMUTATOR Object::Header_ReadFlagVector() const noexcept(true) -> ObjectFlagVector
 	{
 		return ObjectHeader::ReadMapping_FlagVector(this->QueryRawHeader());
 	}
@@ -1194,7 +1187,7 @@ namespace Nominax
 		ObjectHeader::WriteMapping_TypeId(this->QueryRawHeader(), typeId);
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagsVectorCompound flagVector) const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagVector flagVector) const noexcept(true) -> void
 	{
 		ObjectHeader::WriteMapping_FlagVector(this->QueryRawHeader(), flagVector);
 	}
@@ -1239,11 +1232,6 @@ namespace Nominax
 	__attribute__((flatten)) inline auto MUTATOR Object::ZeroObjectBlock() const -> void
 	{
 		std::memset(this->LookupObjectBlock(), 0, this->ObjectBlockSizeInBytes());
-	}
-
-	__attribute__((flatten)) inline auto Object::IsNull() const noexcept(true) -> bool
-	{
-		return this->Blob_ == nullptr;
 	}
 
 	__attribute__((flatten)) inline auto Object::ShallowCmp(const Object a, const Object b) noexcept(true) -> bool
