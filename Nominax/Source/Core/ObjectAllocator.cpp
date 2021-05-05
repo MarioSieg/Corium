@@ -205,7 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <iostream>
+#include <cstdlib>
 
 #include "../../Include/Nominax/Core/ObjectAllocator.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
@@ -217,7 +217,8 @@ namespace Nominax
 	{
 		assert(sizeInRecords);
 		static_assert(ObjectHeader::RECORD_CHUNKS == 2);
-		auto* const __restrict__ object = new(std::nothrow) Object::BlobBlockType[ObjectHeader::RECORD_CHUNKS + sizeInRecords]();
+		static_assert(std::is_trivial_v<Object::BlobBlockType>);
+		auto* const __restrict__ object = static_cast<Object::BlobBlockType*>(std::calloc(ObjectHeader::RECORD_CHUNKS + sizeInRecords, sizeof(Object::BlobBlockType)));
 		assert(object);
 		ObjectHeader::WriteMapping_Size(object, sizeInRecords);
 #if NOMINAX_DEBUG
@@ -232,6 +233,6 @@ namespace Nominax
 #if NOMINAX_DEBUG
 		Print(TextColor::Red, "Deallocated object: {}, RecSize: {}\n", static_cast<void*>(object.Blob_), object.HeaderRead_BlockSize());
 #endif
-		delete[] object.Blob_;
+		std::free(object.Blob_);
 	}
 }
