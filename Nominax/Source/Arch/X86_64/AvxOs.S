@@ -211,6 +211,7 @@
 Asm_IsAvxSupportedByOs:
     PUSHQ   %RBP                # stack frame prologue
     MOVQ    %RSP, %RBP          # stack frame prologue
+    PUSHQ   %RBX
     XORL    %ECX, %ECX
     XGETBV
     ANDL    $0x6, %EAX
@@ -218,6 +219,7 @@ Asm_IsAvxSupportedByOs:
     XORL    %EAX, %EAX
     CMPL    $0x6, %EBX
     SETE    %AL
+    POPQ    %RBX
     MOVQ    %RBP, %RSP          # stack frame epilogue
     POPQ    %RBP                # stack frame epilogue
     RETQ                        # return

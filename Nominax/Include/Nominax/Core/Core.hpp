@@ -215,7 +215,6 @@
 #include "Info.hpp"
 #include "Interrupt.hpp"
 #include "Object.hpp"
-#include "ObjectAllocator.hpp"
 #include "ObjectFlagVector.hpp"
 #include "ObjectHeader.hpp"
 #include "Reactor.hpp"
