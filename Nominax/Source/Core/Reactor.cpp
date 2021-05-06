@@ -248,6 +248,7 @@ namespace Nominax
 		: Stack_ {std::move(stack)},
 		  Chunk_ {std::move(chunk)},
 		  Map_ {std::move(jumpMap)},
+		  IntrinsicTable_ { },
 		  InterruptHandler_ {*&DefaultInterruptRoutine}
 	{
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Stack_.Size(), "Zero sized stack was given to reactor!");

@@ -1299,23 +1299,23 @@ namespace Nominax::X86_64
 		MergedInfoTable& out1,
 		MergedInfoTable& out2,
 		MergedInfoTable& out3
-	) noexcept -> DOUBLEWORD;
+	) noexcept(true) -> DOUBLEWORD;
 
 	/// <summary>
 	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
 	/// Implementation: Source/Arch/X86_64.CpuId.S
 	/// </summary>
-	extern "C" auto Asm_IsCpuIdSupported() noexcept -> BYTE;
+	extern "C" auto Asm_IsCpuIdSupported() noexcept(true) -> BYTE;
 
 	/// <summary>
 	/// Returns true if the OS supports AVX YMM registers, else false.
 	/// Warning! Check if os supports OSXSAVE first!
 	/// </summary>
-	extern "C" auto Asm_IsAvxSupportedByOs() noexcept -> BYTE;
+	extern "C" auto Asm_IsAvxSupportedByOs() noexcept(true) -> BYTE;
 
 	/// <summary>
 	/// Returns true if the OS supports AVX512 ZMM registers, else false.
 	/// Warning! Check if os supports OSXSAVE first!
 	/// </summary>
-	extern "C" auto Asm_IsAvx512SupportedByOs() noexcept -> BYTE;
+	extern "C" auto Asm_IsAvx512SupportedByOs() noexcept(true) -> BYTE;
 }

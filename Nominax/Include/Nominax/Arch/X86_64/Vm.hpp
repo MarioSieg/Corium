@@ -1,6 +1,6 @@
-// File: MockCall.hpp
+// File: Vm.hpp
 // Author: Mario
-// Created: 02.05.2021 9:21 PM
+// Created: 06.05.2021 7:02 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -211,5 +211,16 @@
 
 namespace Nominax::X86_64
 {
-	extern "C" auto Asm_MockCall() noexcept(true) -> QUADWORD;
+	/// <summary>
+	/// Tries to detect a VM using time stamp counter.
+	/// </summary>
+	extern "C" auto Asm_VmDetector() noexcept(true) -> BYTE;
+
+	/// <summary>
+	/// Detects vm ware using a port read action.
+	/// Warning! Do not use this! On most systems it will crash
+	/// because the in instruction cannot get executed from userspace.
+	/// </summary>
+	[[deprecated("Crashes because of privileged instruction!")]]
+	extern "C" auto Asm_VmWareDetector() noexcept(true) -> BYTE;
 }

@@ -209,18 +209,10 @@
 
 # Header: Arch/X86_64/CpuId.hpp
 Asm_IsAvxSupportedByOs:
-    PUSHQ   %RBP                # stack frame prologue
-    MOVQ    %RSP, %RBP          # stack frame prologue
-    PUSHQ   %RBX
-    XORL    %ECX, %ECX
-    XGETBV
-    ANDL    $0x6, %EAX
-    MOVL    %EAX, %EBX
-    XORL    %EAX, %EAX
-    CMPL    $0x6, %EBX
-    SETE    %AL
-    POPQ    %RBX
-    MOVQ    %RBP, %RSP          # stack frame epilogue
-    POPQ    %RBP                # stack frame epilogue
-    RETQ                        # return
+    XORL    %ECX, %ECX              # clear ecx
+    XGETBV                          # read value from extended control register into %EDX:%EAX
+    ANDB    $0b00000110, %AL        # mask out avx bits
+    CMPB    $0b00000110, %AL        # compare value
+    SETE    %AL                     # if equals & supported, set al to 1 else 0
+    RETQ                            # return
     

@@ -1,6 +1,6 @@
-// File: MockCall.hpp
+// File: CpuFeatureDetector.cpp
 // Author: Mario
-// Created: 02.05.2021 9:21 PM
+// Created: 06.05.2021 7:20 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,11 +205,28 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../Include/Nominax/System/CpuFeatureDetector.hpp"
+#include "../../Include/Nominax/Common/Protocol.hpp"
 
-#include "../MachInterface.hpp"
-
-namespace Nominax::X86_64
+namespace
 {
-	extern "C" auto Asm_MockCall() noexcept(true) -> QUADWORD;
+	inline auto IsVm() noexcept(true) -> bool
+	{
+#if NOMINAX_ARCH_X86_64
+		return Nominax::X86_64::Asm_VmDetector();
+#else
+		return false;
+#endif
+	}
+}
+
+namespace Nominax
+{
+	CpuFeatureDetector::CpuFeatureDetector() noexcept(false) : Features_ { }, InsideVm_ {IsVm()} {}
+
+	auto CpuFeatureDetector::PrintFeatures() const -> void
+	{
+		this->Features_.PrintFeatures();
+		Print(this->InsideVm_ ? TextColor::Green : TextColor::Red, "\nInsideVM\n", this->InsideVm_);
+	}
 }

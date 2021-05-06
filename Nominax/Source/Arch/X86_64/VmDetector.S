@@ -205,14 +205,17 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl Asm_MockCall
+.globl Asm_VmDetector
 
-# Header: Arch/X86_64/CpuId.hpp
-Asm_MockCall:
-    XORL    %EAX, %EAX
-#ifdef __WIN__
-    MOVB	$0XFF, %AL
-#else
-    MOVW	$1234, %AX
-#endif
-    RETQ
+Asm_VmDetector:
+    RDTSC                   # read time stamp counter into %EDX:%EAX
+    SALQ    $32, %RDX       # shift into hiword
+    ORQ     %RDX, %RAX      # merge
+    MOVQ    %RAX, %RCX      # backup into rcx
+    RDTSC                   # read time stamp counter into %EDX:%EAX
+    SALQ    $32, %RDX       # shift into hiword
+    ORQ     %RDX, %RAX      # merge
+    SUBQ    %RAX, %RCX      # subtract the two timestamps
+    CMPQ    $500, %RAX      # compare time between instructions
+    SETE    %AL             # we might be inside a vm
+    RETQ                    # return
