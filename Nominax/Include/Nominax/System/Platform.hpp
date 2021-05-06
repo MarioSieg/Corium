@@ -212,10 +212,8 @@
 #define NOMINAX_OS_LINUX	false
 #define NOMINAX_OS_ANDROID	false
 #define NOMINAX_OS_IOS		false
-#define NOMINAX_ARCH_X86_32	false
 #define NOMINAX_ARCH_X86_64	false
 #define NOMINAX_ARCH_ARM_64	false
-#define NOMINAX_ARCH_ARM_32	false
 #define NOMINAX_RELEASE		false
 #define NOMINAX_DEBUG		false
 #define NOMINAX_COM_GCC		false
@@ -232,7 +230,7 @@
 #	define NOMINAX_DEBUG_ONLY(expr) expr
 #endif
 
-#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
+#if defined(_WIN64) || defined(__CYGWIN__)
 #	undef NOMINAX_OS_WINDOWS
 #	define NOMINAX_OS_WINDOWS true
 #	define NOMINAX_OS_NAME "Windows"
@@ -268,13 +266,9 @@
 #	define NOMINAX_ARCH_X86_64 true
 #	define NOMINAX_ARCH_NAME "x86-64"
 #elif defined(i386) || defined(__i386) || defined(__i386__) || defined(_M_IX86) && !(defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(_M_X64) || defined(_M_AMD64))
-#	undef NOMINAX_ARCH_X86_32
-#	define NOMINAX_ARCH_X86_32 true
-#	define NOMINAX_ARCH_NAME "x86-32"
+#       error "32 bit is not supported - neither x86-32 or ARM 32!"
 #elif (defined(__arm__) || defined(_M_ARM)) && !defined(__aarch64__)
-#	undef NOMINAX_ARCH_ARM_32
-#	define NOMINAX_ARCH_ARM_32 true
-#	define NOMINAX_ARCH_NAME "ARM-32"
+#       error "32 bit is not supported - neither x86-32 or ARM 32"
 #elif defined(__aarch64__)
 #	undef NOMINAX_ARCH_ARM_64
 #	define NOMINAX_ARCH_ARM_64 true
@@ -283,14 +277,7 @@
 #	error "platform.hpp: Unknown architecture!"
 #endif
 
-#define NOMINAX_32_BIT (NOMINAX_ARCH_X86_32 || NOMINAX_ARCH_ARM_32)
-#define NOMINAX_64_BIT (NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_ARM_64)
-
-#if NOMINAX_32_BIT
-#	define NOMINAX_ARCH_SIZE_NAME "32-Bit"
-#elif NOMINAX_64_BIT
 #	define NOMINAX_ARCH_SIZE_NAME "64-Bit"
-#endif
 
 #define NOMINAX_IS_POSIX (NOMINAX_OS_LINUX || NOMINAX_OS_ANDROID || NOMINAX_OS_MAC || NOMINAX_OS_IOS)
 

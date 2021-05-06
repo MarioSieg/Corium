@@ -316,13 +316,20 @@ namespace Nominax
 		Print("\n");
 	}
 
-	Environment::Environment(Stream&& appCode) noexcept(false) : AppCode_ {std::move(appCode)}
+    auto Environment::PrintCpuFeatures() const -> void
+    {
+        this->CpuFeatures_.PrintFeatures();
+        Print("\n");
+    }
+
+    Environment::Environment(Stream&& appCode) noexcept(false) : SysInfo_{}, CpuFeatures_{}, AppCode_ {std::move(appCode)}
 	{
 		this->InstallSignalHandlers();
 		this->UnlockNoSyncStdStreams();
 		this->PrintVersionInfo();
 		this->SysInfo_.QueryAll();
 		this->PrintMachineInfo();
+        this->PrintCpuFeatures();
 		this->PrintTypeTable();
 
 		auto& stream = this->AppCode_;
