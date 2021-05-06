@@ -213,5 +213,5 @@ Asm_IsAvx512SupportedByOs:
     XGETBV                      # read value from extended control register into %EDX:%EAX
     ANDB    $0b11100000, %AL    # mask out avx512 bit
     CMPB    $0b11100000, %AL    # compare bits
-    SETE    %AL                 # if equals & supported, set al to 1 else 0
+    SETEB   %AL                 # if equals & supported, set al to 1 else 0
     RETQ                        # return

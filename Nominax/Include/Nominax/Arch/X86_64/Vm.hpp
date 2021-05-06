@@ -221,6 +221,5 @@ namespace Nominax::X86_64
 	/// Warning! Do not use this! On most systems it will crash
 	/// because the in instruction cannot get executed from userspace.
 	/// </summary>
-	[[deprecated("Crashes because of privileged instruction!")]]
 	extern "C" auto Asm_VmWareDetector() noexcept(true) -> BYTE;
 }

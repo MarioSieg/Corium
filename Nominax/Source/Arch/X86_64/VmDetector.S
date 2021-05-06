@@ -217,5 +217,5 @@ Asm_VmDetector:
     ORQ     %RDX, %RAX      # merge
     SUBQ    %RAX, %RCX      # subtract the two timestamps
     CMPQ    $500, %RAX      # compare time between instructions
-    SETE    %AL             # we might be inside a vm
+    SETGB   %AL            # we might be inside a vm
     RETQ                    # return
