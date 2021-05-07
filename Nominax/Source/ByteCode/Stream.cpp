@@ -381,7 +381,7 @@ namespace Nominax
 		{
 			return false;
 		}
-		auto begin = this->SignalStream_.begin();
+		auto begin = this->List_.begin();
 		for (const DynamicSignal& sig : CODE)
 		{
 			if (NOMINAX_UNLIKELY(sig != *begin))
@@ -400,7 +400,7 @@ namespace Nominax
 		{
 			return false;
 		}
-		auto end = this->SignalStream_.end();
+		auto end = this->List_.end();
 		for (const DynamicSignal& sig : code | std::ranges::views::reverse)
 		{
 			std::advance(end, -1);
@@ -415,14 +415,14 @@ namespace Nominax
 	auto Stream::Prologue() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodePrologue()};
-		this->SignalStream_.insert(this->SignalStream_.begin(), std::begin(code), std::end(code));
+		this->List_.insert(this->List_.begin(), std::begin(code), std::end(code));
 		return *this;
 	}
 
 	auto Stream::Epilogue() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		this->SignalStream_.insert(this->SignalStream_.end(), std::begin(code), std::end(code));
+		this->List_.insert(this->List_.end(), std::begin(code), std::end(code));
 		return *this;
 	}
 }

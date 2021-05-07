@@ -207,11 +207,11 @@
 
 #pragma once
 
-#include <unordered_map>
 #include <list>
 
 #include "DynamicSignal.hpp"
 #include "ImmediateArgumentCount.hpp"
+#include "OptBase.hpp"
 #include "StreamScalar.hpp"
 #include "Chunk.hpp"
 #include "Validator.hpp"
@@ -231,7 +231,12 @@ namespace Nominax
 		/// std::list is a F64 linked list, and we require bidirectional iteration,
 		/// not unidirectional.
 		/// </summary>
-		std::list<DynamicSignal> SignalStream_ { };
+		std::list<DynamicSignal> List_ { };
+
+		/// <summary>
+		/// Optimization level used for stream.
+		/// </summary>
+		OptimizationLevel OptimizationLevel_ {DefaultOptimizationLevel()};
 
 	public:
 		static auto ExampleStream(Stream& stream) noexcept(false) -> void;
@@ -240,7 +245,29 @@ namespace Nominax
 		/// Construct empty stream.
 		/// </summary>
 		/// <returns></returns>
-		Stream() noexcept(false) = default;
+		Stream() noexcept(true) = default;
+
+		/// <summary>
+		/// Construct with data.
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		explicit Stream(std::list<DynamicSignal>&& data) noexcept(true);
+
+		/// <summary>
+		/// Construct with specific optimization level.
+		/// </summary>
+		/// <param name="optimizationLevel"></param>
+		/// <returns></returns>
+		explicit Stream(OptimizationLevel optimizationLevel) noexcept(true);
+
+		/// <summary>
+		/// Construct with data and specific optimization level.
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="optimizationLevel"></param>
+		/// <returns></returns>
+		explicit Stream(std::list<DynamicSignal>&& data, OptimizationLevel optimizationLevel) noexcept(true);
 
 		/// <summary>
 		/// Move constructor.
@@ -525,7 +552,37 @@ namespace Nominax
 		/// <param name="outJumpMap"></param>
 		/// <returns></returns>
 		auto Build(CodeChunk& out, JumpMap& outJumpMap) noexcept(false) -> ByteCodeValidationResult;
+
+		/// <summary>
+		/// Get current optimization level.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetOptimizationLevel() const noexcept(true) -> OptimizationLevel;
+
+		/// <summary>
+		/// Set current optimization level.
+		/// </summary>
+		/// <param name="optimizationLevel"></param>
+		/// <returns></returns>
+		auto SetOptimizationLevel(OptimizationLevel optimizationLevel) noexcept(true) -> void;
 	};
+
+	inline Stream::Stream(std::list<DynamicSignal>&& data) noexcept(true) : List_ {std::move(data)} { }
+
+	inline Stream::Stream(const OptimizationLevel optimizationLevel) noexcept(true) : OptimizationLevel_ {optimizationLevel} { }
+
+	inline Stream::Stream(std::list<DynamicSignal>&& data, const OptimizationLevel optimizationLevel) noexcept(true) : List_ {std::move(data)}, OptimizationLevel_ {optimizationLevel} {}
+
+	inline auto Stream::GetOptimizationLevel() const noexcept(true) -> OptimizationLevel
+	{
+		return this->OptimizationLevel_;
+	}
+
+	inline auto Stream::SetOptimizationLevel(const OptimizationLevel optimizationLevel) noexcept(true) -> void
+	{
+		this->OptimizationLevel_ = optimizationLevel;
+	}
 
 	template <Instruction I, typename... Ts>
 	inline auto Stream::Do(Ts&&...args) noexcept(false) -> Stream&
@@ -564,91 +621,91 @@ namespace Nominax
 
 	inline auto Stream::Front() noexcept(true) -> DynamicSignal&
 	{
-		return this->SignalStream_.front();
+		return this->List_.front();
 	}
 
 	inline auto Stream::Back() noexcept(true) -> DynamicSignal&
 	{
-		return this->SignalStream_.back();
+		return this->List_.back();
 	}
 
 	inline auto Stream::Front() const noexcept(true) -> const DynamicSignal&
 	{
-		return this->SignalStream_.front();
+		return this->List_.front();
 	}
 
 	inline auto Stream::Back() const noexcept(true) -> const DynamicSignal&
 	{
-		return this->SignalStream_.back();
+		return this->List_.back();
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> DynamicSignal&
 	{
-		return *std::next(this->SignalStream_.begin(), idx);
+		return *std::next(this->List_.begin(), idx);
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> DynamicSignal
 	{
-		return *std::next(this->SignalStream_.begin(), idx);
+		return *std::next(this->List_.begin(), idx);
 	}
 
 	inline auto Stream::IsEmpty() const noexcept(true) -> bool
 	{
-		return this->SignalStream_.empty() || this->SignalStream_.size() <= 3;
+		return this->List_.empty() || this->List_.size() <= 3;
 	}
 
 	inline auto Stream::Buffer() const noexcept(true) -> const std::list<DynamicSignal>&
 	{
-		return this->SignalStream_;
+		return this->List_;
 	}
 
 	inline auto Stream::Clear() noexcept(false) -> void
 	{
-		this->SignalStream_.clear();
+		this->List_.clear();
 	}
 
 	inline auto Stream::Resize(const std::size_t size) noexcept(false) -> void
 	{
-		this->SignalStream_.resize(size);
+		this->List_.resize(size);
 	}
 
 	inline auto Stream::Size() const noexcept(true) -> std::size_t
 	{
-		return this->SignalStream_.size();
+		return this->List_.size();
 	}
 
 	inline auto Stream::SizeInBytes() const noexcept(true) -> std::size_t
 	{
-		return this->SignalStream_.size() * sizeof(DynamicSignal);
+		return this->List_.size() * sizeof(DynamicSignal);
 	}
 
 	inline auto Stream::Push(DynamicSignal&& sig) noexcept(false) -> void
 	{
-		this->SignalStream_.emplace_back(sig);
+		this->List_.emplace_back(sig);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::begin() noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
-		return std::begin(this->SignalStream_);
+		return std::begin(this->List_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::end() noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
-		return std::end(this->SignalStream_);
+		return std::end(this->List_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::begin() const noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
-		return std::begin(this->SignalStream_);
+		return std::begin(this->List_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::end() const noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
-		return std::end(this->SignalStream_);
+		return std::end(this->List_);
 	}
 
 	/// <summary>

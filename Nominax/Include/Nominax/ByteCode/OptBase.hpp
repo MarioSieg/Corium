@@ -227,6 +227,4 @@ namespace Nominax
 		return OptimizationLevel::O3;
 #endif
 	}
-
-	inline constinit OptimizationLevel OptLevel {DefaultOptimizationLevel()};
 }
