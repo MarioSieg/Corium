@@ -470,7 +470,6 @@ namespace Nominax
 		/// <summary>
 		/// Print out the ir.
 		/// </summary>
-		/// <param name="stream"></param>
 		/// <param name="detailed"></param>
 		/// <returns></returns>
 		auto PrintIntermediateRepresentation(bool detailed = true) const noexcept(false) -> void;
@@ -510,12 +509,14 @@ namespace Nominax
 		/// 
 		/// </summary>
 		/// <returns>True if the current stream contains required epilogue code, else false.</returns>
+		[[nodiscard]]
 		auto ContainsEpilogue() const noexcept(false) -> bool;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>True if the current stream contains required prologue code, else false.</returns>
+		[[nodiscard]]
 		auto ContainsPrologue() const noexcept(false) -> bool;
 
 		/// <summary>
@@ -551,7 +552,7 @@ namespace Nominax
 		/// <param name="out"></param>
 		/// <param name="outJumpMap"></param>
 		/// <returns></returns>
-		auto Build(CodeChunk& out, JumpMap& outJumpMap) noexcept(false) -> ByteCodeValidationResult;
+		auto Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult;
 
 		/// <summary>
 		/// Get current optimization level.
@@ -582,6 +583,21 @@ namespace Nominax
 	inline auto Stream::SetOptimizationLevel(const OptimizationLevel optimizationLevel) noexcept(true) -> void
 	{
 		this->OptimizationLevel_ = optimizationLevel;
+	}
+
+	inline auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult
+	{
+		return Nominax::Build(*this, out, outJumpMap);
+	}
+
+	inline auto Stream::ContainsPrologue() const noexcept(false) -> bool
+	{
+		return Nominax::ContainsPrologue(this->List_.size(), this->List_.begin());
+	}
+
+	inline auto Stream::ContainsEpilogue() const noexcept(false) -> bool
+	{
+		return Nominax::ContainsEpilogue(this->List_.size(), this->List_.end());
 	}
 
 	template <Instruction I, typename... Ts>

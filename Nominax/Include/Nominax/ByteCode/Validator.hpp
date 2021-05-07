@@ -207,11 +207,13 @@
 
 #pragma once
 
+#include <ranges>
 #include <span>
 
 #include "Chunk.hpp"
 #include "DynamicSignal.hpp"
 #include "Instruction.hpp"
+#include "../Common/BranchHint.hpp"
 
 namespace Nominax
 {
@@ -250,6 +252,60 @@ namespace Nominax
 	/// <returns></returns>
 	[[nodiscard]]
 	extern auto ByteCodeValidateSingleInstruction(Instruction instruction, std::span<const DynamicSignal> args) -> ByteCodeValidationResult;
+
+	/// <summary>
+	/// Returns true if the iterator range begins with
+	/// prologue code, else false.
+	/// </summary>
+	/// <typeparam name="Iterator"></typeparam>
+	/// <param name="size"></param>
+	/// <param name="begin"></param>
+	/// <returns></returns>
+	template <typename Iterator>
+	inline auto ContainsPrologue(const std::size_t size, Iterator begin) noexcept(false) -> bool
+	{
+		constexpr std::array code {DynamicSignal::CodePrologue()};
+		if (NOMINAX_UNLIKELY(size < code.size()))
+		{
+			return false;
+		}
+		for (const DynamicSignal& sig : code)
+		{
+			if (NOMINAX_UNLIKELY(sig != *begin))
+			{
+				return false;
+			}
+			std::advance(begin, 1);
+		}
+		return true;
+	}
+
+	/// <summary>
+	/// Returns true if the iterator range end with
+	/// epilogue code, else false.
+	/// </summary>
+	/// <typeparam name="Iterator"></typeparam>
+	/// <param name="size"></param>
+	/// <param name="end"></param>
+	/// <returns></returns>
+	template <typename Iterator>
+	inline auto ContainsEpilogue(const std::size_t size, Iterator end) noexcept(false) -> bool
+	{
+		constexpr std::array code {DynamicSignal::CodeEpilogue()};
+		if (NOMINAX_UNLIKELY(size < code.size()))
+		{
+			return false;
+		}
+		for (const DynamicSignal& sig : code | std::ranges::views::reverse)
+		{
+			std::advance(end, -1);
+			if (NOMINAX_UNLIKELY(sig != *end))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 
 	class Stream;
 

@@ -368,50 +368,6 @@ namespace Nominax
 		Print("\n\n");
 	}
 
-	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) noexcept(false) -> ByteCodeValidationResult
-	{
-		this->Epilogue();
-		return Nominax::Build(*this, out, outJumpMap);
-	}
-
-	auto Stream::ContainsPrologue() const noexcept(false) -> bool
-	{
-		constexpr std::array CODE {DynamicSignal::CodePrologue()};
-		if (NOMINAX_UNLIKELY(this->Size() < CODE.size()))
-		{
-			return false;
-		}
-		auto begin = this->List_.begin();
-		for (const DynamicSignal& sig : CODE)
-		{
-			if (NOMINAX_UNLIKELY(sig != *begin))
-			{
-				return false;
-			}
-			std::advance(begin, 1);
-		}
-		return true;
-	}
-
-	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
-	{
-		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		if (NOMINAX_UNLIKELY(this->Size() < code.size()))
-		{
-			return false;
-		}
-		auto end = this->List_.end();
-		for (const DynamicSignal& sig : code | std::ranges::views::reverse)
-		{
-			std::advance(end, -1);
-			if (NOMINAX_UNLIKELY(sig != *end))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
 	auto Stream::Prologue() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodePrologue()};
