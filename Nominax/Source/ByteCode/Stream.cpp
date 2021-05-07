@@ -205,6 +205,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <ranges>
+
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
 #include "../../Include/Nominax/ByteCode/Lexeme.hpp"
@@ -368,14 +370,19 @@ namespace Nominax
 
 	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) noexcept(false) -> ByteCodeValidationResult
 	{
-		this->End();
+		this->Epilogue();
 		return Nominax::Build(*this, out, outJumpMap);
 	}
 
 	auto Stream::ContainsPrologue() const noexcept(false) -> bool
 	{
+		constexpr std::array CODE {DynamicSignal::CodePrologue()};
+		if (NOMINAX_UNLIKELY(this->Size() < CODE.size()))
+		{
+			return false;
+		}
 		auto begin = this->SignalStream_.begin();
-		for (const DynamicSignal& sig : *this)
+		for (const DynamicSignal& sig : CODE)
 		{
 			if (NOMINAX_UNLIKELY(sig != *begin))
 			{
@@ -388,8 +395,13 @@ namespace Nominax
 
 	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
 	{
+		constexpr std::array code {DynamicSignal::CodeEpilogue()};
+		if (NOMINAX_UNLIKELY(this->Size() < code.size()))
+		{
+			return false;
+		}
 		auto end = this->SignalStream_.end();
-		for (const DynamicSignal& sig : *this)
+		for (const DynamicSignal& sig : code | std::ranges::views::reverse)
 		{
 			std::advance(end, -1);
 			if (NOMINAX_UNLIKELY(sig != *end))
@@ -400,23 +412,17 @@ namespace Nominax
 		return true;
 	}
 
-	auto Stream::Begin() noexcept(false) -> Stream&
+	auto Stream::Prologue() noexcept(false) -> Stream&
 	{
-		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		if (NOMINAX_UNLIKELY(this->Size() >= 2 && !this->ContainsPrologue()))
-		{
-			this->SignalStream_.insert(this->SignalStream_.begin(), std::begin(code), std::end(code));
-		}
+		constexpr std::array code {DynamicSignal::CodePrologue()};
+		this->SignalStream_.insert(this->SignalStream_.begin(), std::begin(code), std::end(code));
 		return *this;
 	}
 
-	auto Stream::End() noexcept(false) -> Stream&
+	auto Stream::Epilogue() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		if (NOMINAX_UNLIKELY(this->Size() >= 2 && !this->ContainsEpilogue()))
-		{
-			this->SignalStream_.insert(this->SignalStream_.end(), std::begin(code), std::end(code));
-		}
+		this->SignalStream_.insert(this->SignalStream_.end(), std::begin(code), std::end(code));
 		return *this;
 	}
 }

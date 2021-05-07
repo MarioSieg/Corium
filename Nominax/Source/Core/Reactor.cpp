@@ -279,8 +279,9 @@ namespace Nominax
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Map_.size(), "Zero sized instruction map was given to reactor!");
 
 		this->Descriptor_ = CreateDescriptor(this->Stack_, this->Chunk_, this->Map_, this->IntrinsicTable_, this->InterruptHandler_);
+		const auto result {this->Descriptor_.Validate()};
 
-		NOMINAX_PANIC_ASSERT_EQ(this->Descriptor_.Validate(), ReactorValidationResult::Ok, "Reactor validation failed!");
+		NOMINAX_PANIC_ASSERT_EQ(result, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(result)]);
 
 		Print
 		(

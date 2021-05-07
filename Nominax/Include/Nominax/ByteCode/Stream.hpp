@@ -240,7 +240,7 @@ namespace Nominax
 		/// Construct empty stream.
 		/// </summary>
 		/// <returns></returns>
-		Stream() noexcept(false);
+		Stream() noexcept(false) = default;
 
 		/// <summary>
 		/// Move constructor.
@@ -496,14 +496,14 @@ namespace Nominax
 		/// Inserts code prologue, if missing.
 		/// </summary>
 		/// <returns></returns>
-		auto Begin() noexcept(false) -> Stream&;
+		auto Prologue() noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// End stream building.
 		/// Inserts code epilogue, if missing.
 		/// </summary>
 		/// <returns></returns>
-		auto End() noexcept(false) -> Stream&;
+		auto Epilogue() noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Map new local variable into the stream.
@@ -591,14 +591,6 @@ namespace Nominax
 	{
 		return *std::next(this->SignalStream_.begin(), idx);
 	}
-
-	inline Stream::Stream() noexcept(false)
-	{
-		// Insert important code prologue.
-		const auto prologue {DynamicSignal::CodePrologue()};
-		this->SignalStream_.insert(std::begin(this->SignalStream_), std::begin(prologue), std::end(prologue));
-	}
-
 
 	inline auto Stream::IsEmpty() const noexcept(true) -> bool
 	{

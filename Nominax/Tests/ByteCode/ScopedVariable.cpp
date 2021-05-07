@@ -212,11 +212,10 @@ TEST(ScopedVariable, StackPushPop)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream                                      stream { };
 	stream.With(4.5, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 4);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
-	ASSERT_TRUE(stream[2].Contains(4.5));
-	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
+	ASSERT_EQ(stream.Size(), 3);
+	ASSERT_TRUE(stream[0].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[1].Contains(4.5));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
 }
 
 TEST(ScopedVariable, F64StackPushPopOptScalarZero)
@@ -224,10 +223,9 @@ TEST(ScopedVariable, F64StackPushPopOptScalarZero)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream                                      stream { };
 	stream.With(0.0, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	ASSERT_EQ(stream.Size(), 2);
+	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
 }
 
 TEST(ScopedVariable, I64StackPushPopOptScalarZero)
@@ -235,20 +233,18 @@ TEST(ScopedVariable, I64StackPushPopOptScalarZero)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream                                    stream { };
 	stream.With(0, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	ASSERT_EQ(stream.Size(), 2);
+	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
 }
 
 TEST(ScopedVariable, U64StackPushPopOptScalarZero)
 {
 	Stream                                    stream { };
 	stream.With(0, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	ASSERT_EQ(stream.Size(), 2);
+	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
 }
 
 TEST(ScopedVariable, F64StackPushPopOptScalarOne)
@@ -256,10 +252,9 @@ TEST(ScopedVariable, F64StackPushPopOptScalarOne)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream                                      stream { };
 	stream.With(1.0, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::FPushO));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	ASSERT_EQ(stream.Size(), 2);
+	ASSERT_TRUE(stream[0].Contains(Instruction::FPushO));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
 }
 
 TEST(ScopedVariable, I64StackPushPopOptScalarOne)
@@ -267,10 +262,9 @@ TEST(ScopedVariable, I64StackPushPopOptScalarOne)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream                                    stream { };
 	stream.With(1, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	ASSERT_EQ(stream.Size(), 2);
+	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
 }
 
 TEST(ScopedVariable, U64StackPushPopOptScalarOne)
@@ -278,10 +272,9 @@ TEST(ScopedVariable, U64StackPushPopOptScalarOne)
 	ASSERT_NE(OptLevel, OptimizationLevel::Off);
 	Stream                                    stream { };
 	stream.With(1, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	ASSERT_EQ(stream.Size(), 2);
+	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
 }
 
 TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
@@ -290,11 +283,10 @@ TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
 	Stream stream { };
 	stream << 3.5;
 	stream.With(3.5, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 4);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(3.5));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
+	ASSERT_EQ(stream.Size(), 3);
+	ASSERT_TRUE(stream[0].Contains(3.5));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
 }
 
 TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
@@ -303,11 +295,10 @@ TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
 	Stream stream { };
 	stream << INT64_C(3);
 	stream.With(3, []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 4);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains<I64>(3));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
+	ASSERT_EQ(stream.Size(), 3);
+	ASSERT_TRUE(stream[0].Contains<I64>(3));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
 }
 
 TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
@@ -316,9 +307,8 @@ TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
 	Stream stream { };
 	stream << UINT64_C(3);
 	stream.With(UINT64_C(3), []([[maybe_unused]] auto&& var) { });
-	ASSERT_EQ(stream.Size(), 4);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains<U64>(3));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[3].Contains(Instruction::Pop));
+	ASSERT_EQ(stream.Size(), 3);
+	ASSERT_TRUE(stream[0].Contains<U64>(3));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
 }
