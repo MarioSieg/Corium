@@ -237,11 +237,6 @@ namespace Nominax
 		/// </summary>
 		const FeatureBits Features_;
 
-		/// <summary>
-		/// Are we inside a virtual machine?
-		/// </summary>
-		const bool InsideVm_ {false};
-
 	public:
 		/// <summary>
 		/// Construct new instance and query cpu feature
@@ -288,15 +283,6 @@ namespace Nominax
 		/// Prints all the architecture dependent features in different colors.
 		/// </summary>
 		auto PrintFeatures() const -> void;
-
-		/// <summary>
-		/// Are we running in a VM?
-		/// The implementation is not a perfect solution,
-		/// so the answer might be incorrect.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto IsVirtualized() const noexcept(true) -> bool;
 	};
 
 	inline auto CpuFeatureDetector::operator ->() const noexcept(true) -> const FeatureBits&
@@ -307,10 +293,5 @@ namespace Nominax
 	inline auto CpuFeatureDetector::operator *() const noexcept(true) -> const FeatureBits&
 	{
 		return this->Features_;
-	}
-
-	inline auto CpuFeatureDetector::IsVirtualized() const noexcept(true) -> bool
-	{
-		return this->InsideVm_;
 	}
 }

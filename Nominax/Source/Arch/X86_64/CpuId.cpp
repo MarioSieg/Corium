@@ -226,13 +226,13 @@ namespace Nominax::X86_64
 		std::array<MergedInfoTable, 3>                chunk { };
 
 		// Call cpuid assembly routine:
-		DOUBLEWORD r {Asm_CpuId(chunk[0], chunk[1], chunk[2])};
+		U32 r {Asm_CpuId(chunk[0], chunk[1], chunk[2])};
 
 		// Copy parameter output quads
 		std::memcpy(data.data(), chunk.data(), sizeof(MergedInfoTable) * 3);
 
 		// Copy return value:
-		std::memcpy(data.data() + sizeof(MergedInfoTable) * 3, &r, sizeof(DOUBLEWORD));
+		std::memcpy(data.data() + sizeof(MergedInfoTable) * 3, &r, sizeof(U32));
 
 		// Update this
 		*this = std::bit_cast<CpuFeatureBits>(data);

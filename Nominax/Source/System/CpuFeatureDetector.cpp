@@ -206,27 +206,13 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/System/CpuFeatureDetector.hpp"
-#include "../../Include/Nominax/Common/Protocol.hpp"
-
-namespace
-{
-	inline auto IsVm() noexcept(true) -> bool
-	{
-#if NOMINAX_ARCH_X86_64
-		return Nominax::X86_64::Asm_VmDetector();
-#else
-		return false;
-#endif
-	}
-}
 
 namespace Nominax
 {
-	CpuFeatureDetector::CpuFeatureDetector() noexcept(false) : Features_ { }, InsideVm_ {IsVm()} {}
+	CpuFeatureDetector::CpuFeatureDetector() noexcept(false) : Features_ { } {}
 
 	auto CpuFeatureDetector::PrintFeatures() const -> void
 	{
 		this->Features_.PrintFeatures();
-		Print(this->InsideVm_ ? TextColor::Green : TextColor::Red, "\nInsideVM\n", this->InsideVm_);
 	}
 }

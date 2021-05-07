@@ -207,9 +207,9 @@
 
 #pragma once
 
-#include "../MachInterface.hpp"
+#include "../../Common/RtTypes.hpp"
 
 namespace Nominax::X86_64
 {
-	extern "C" auto Asm_MockCall() noexcept(true) -> QUADWORD;
+	extern "C" auto Asm_MockCall() noexcept(true) -> U64;
 }
