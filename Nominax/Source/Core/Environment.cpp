@@ -246,9 +246,9 @@ namespace Nominax
 		Print("Creating {} reactors...\n", reactorCount);
 		
 		ReactorPool.reserve(reactorCount);
-		for (std::size_t i{0}; i  < reactorCount; ++i)
+		for (std::size_t i{1}; i  <= reactorCount; ++i)
 		{
-			Print("Creating reactor {} of {}\n", i + 1, reactorCount);
+			Print("Creating reactor {} of {}\n", i, reactorCount);
 			ReactorPool.emplace_back(Reactor{ FixedStack::SIZE_LARGE });
 		}
 

@@ -215,15 +215,16 @@ namespace Nominax
 {
 	FixedStack::FixedStack(std::size_t sizeInRecords) noexcept(false)
 	{
+		// TLFRS = Thread Local Fixed Reactor Stack
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(sizeInRecords, "TLFRS with zero size was requested!");
 
 		// Because first padding element.
 		++sizeInRecords;
 		this->BufferSize_ = sizeInRecords;
-		this->Buffer_     = new Record[sizeInRecords]();
+		this->Buffer_     = new(std::nothrow) Record[sizeInRecords]();
+		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Buffer_, "Allocation of TLFRS failed!");		
 		*this->Buffer_    = Record::Padding();
 
-		// TLFRS = Thread Local Fixed Reactor Stack
 		Print
 		(
 			"Allocated {}MB TLFRS, Entries: {}\n",

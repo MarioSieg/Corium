@@ -260,6 +260,7 @@ namespace Nominax
 		/// </summary>
 		~Reactor() = default;
 
+		[[nodiscard]]
 		auto Execute() const noexcept(false) -> ReactorOutput;
 
 		/// <summary>
