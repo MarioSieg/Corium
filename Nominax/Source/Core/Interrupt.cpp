@@ -1,6 +1,6 @@
-// File: Environment.hpp
+// File: Interrupt.cpp
 // Author: Mario
-// Created: 17.04.2021 2:32 PM
+// Created: 08.05.2021 8:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,26 +205,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../Include/Nominax/Core/Interrupt.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// Represents the whole runtime environment.
-	/// </summary>
-	class Environment
-	{
-		struct Kernel;
-		Kernel* __restrict__ Env_ {nullptr};
-
-	public:
-		explicit Environment() noexcept(false)                 = default;
-		Environment(const Environment&)                        = delete;
-		Environment(Environment&&)                             = delete;
-		auto    operator =(const Environment&) -> Environment& = delete;
-		auto    operator =(Environment&&) -> Environment&      = delete;
-		virtual ~Environment()                                 = default;
-
-		auto Boot() noexcept(false) -> void;
-	};
+	auto DefaultInterruptRoutine(InterruptAccumulator) -> void { }
 }

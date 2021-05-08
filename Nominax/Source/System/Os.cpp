@@ -260,25 +260,25 @@ namespace Nominax
 	auto SystemInfo::Print() const noexcept(false) -> void
 	{
 		const auto&
-			[
-				ThreadId,
-				OperatingSystemName,
-				ArchitectureName,
-				CompilerName,
-				ThreadCount,
-				CpuName,
-				TotalSystemMemory,
-				UsedSystemMemory,
-				PageSize
-			] = *this;
+		[
+			ThreadId,
+			OperatingSystemName,
+			ArchitectureName,
+			CompilerName,
+			ThreadCount,
+			CpuName,
+			TotalSystemMemory,
+			UsedSystemMemory,
+			PageSize
+		] = *this;
 
-		::Nominax::Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
-		::Nominax::Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
-		::Nominax::Print("CPU: {}\n", CpuName);
-		::Nominax::Print("CPU Hardware threads: {}\n", ThreadCount);
-		::Nominax::Print("CPU Machine class: {}\n", MachineRating(ThreadCount));
-		::Nominax::Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
-		::Nominax::Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
-		::Nominax::Print("Page size: {}B\n", PageSize);
+		Nominax::Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
+		Nominax::Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
+		Nominax::Print("CPU: {}\n", CpuName);
+		Nominax::Print("CPU Hardware threads: {}\n", ThreadCount);
+		Nominax::Print("CPU Machine class: {}\n", MachineRating(ThreadCount));
+		Nominax::Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
+		Nominax::Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
+		Nominax::Print("Page size: {}B\n", PageSize);
 	}
 }

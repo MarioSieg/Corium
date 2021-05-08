@@ -221,7 +221,6 @@ namespace Nominax
 	constexpr InterruptAccumulator INT_CODE_OK {0};
 	constexpr InterruptAccumulator INT_CODE_EXCEPTIONS {std::numeric_limits<InterruptAccumulator>::max()};
 
-#if NOMINAX_STACK_OVERFLOW_CHECKS
-	constexpr InterruptAccumulator INT_CODE_STACK_OVERFLOW{ -0xFF'FF };
-#endif
+	[[maybe_unused]]
+	extern auto DefaultInterruptRoutine(InterruptAccumulator) -> void;
 }

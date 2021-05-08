@@ -1,6 +1,6 @@
-// File: Environment.hpp
+// File: ReactorClass.cpp
 // Author: Mario
-// Created: 17.04.2021 2:32 PM
+// Created: 08.05.2021 8:02 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,26 +205,84 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "ReactorTestHelper.hpp"
 
-namespace Nominax
+TEST(ReactorClass, Valid)
 {
-	/// <summary>
-	/// Represents the whole runtime environment.
-	/// </summary>
-	class Environment
+	const Reactor reactor {4};
+	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
+	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(std::get<1>(reactor.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(reactor.GetInterruptHandler(), &DefaultInterruptRoutine);
+}
+
+TEST(ReactorClass, MoveConstruct)
+{
+	Reactor reactor {4};
+	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
+	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(std::get<1>(reactor.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(reactor.GetInterruptHandler(), &DefaultInterruptRoutine);
+
+	const Reactor reactor2 {std::move(reactor)};
+	ASSERT_EQ(reactor2.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor2.GetIntrinsicTable().size(), 0);
+	ASSERT_EQ(std::get<0>(reactor2.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(std::get<1>(reactor2.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(reactor2.GetInterruptHandler(), &DefaultInterruptRoutine);
+}
+
+TEST(ReactorClass, ZeroStackSizeFault)
+{
+	ASSERT_DEATH_IF_SUPPORTED([]()
+	                          {
+	                          [[maybe_unused]]
+	                          auto bad{ Reactor{ 0 } };
+	                          }(), "");
+}
+
+TEST(ReactorClass, InterruptHandler)
+{
+	auto* const   interrupt = +[](InterruptAccumulator) { };
+	const Reactor reactor {4, { }, interrupt};
+	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor.GetInterruptHandler(), interrupt);
+}
+
+TEST(ReactorClass, TryExecuteValid)
+{
+	Stream                                   stream {OptimizationLevel::Off};
+	stream.Prologue().With(2, [](ScopedInt&& var)
 	{
-		struct Kernel;
-		Kernel* __restrict__ Env_ {nullptr};
+		var *= 2;
+		var += 1;
+		var /= 1;
+	}).Epilogue();
+	AppCodeBundle out { };
+	stream.Build(out);
+	Reactor     reactor {FixedStack::SIZE_LARGE};
+	const auto& output {reactor.Execute(std::move(out))};
+	ASSERT_EQ(output.ShutdownReason, ReactorShutdownReason::Success);
+	ASSERT_EQ(output.InterruptCode, 0);
+	ASSERT_EQ(output.ValidationResult, ReactorValidationResult::Ok);
+	ASSERT_EQ(output.Input, &reactor.GetInputDescriptor());
+}
 
-	public:
-		explicit Environment() noexcept(false)                 = default;
-		Environment(const Environment&)                        = delete;
-		Environment(Environment&&)                             = delete;
-		auto    operator =(const Environment&) -> Environment& = delete;
-		auto    operator =(Environment&&) -> Environment&      = delete;
-		virtual ~Environment()                                 = default;
-
-		auto Boot() noexcept(false) -> void;
-	};
+TEST(ReactorClass, TryExecuteInValidZeroCode)
+{
+	ASSERT_DEATH_IF_SUPPORTED
+	(
+		[]()
+		{
+		const Stream stream{ OptimizationLevel::Off };
+		AppCodeBundle out{};
+		ASSERT_EQ(stream.Build(out), ByteCodeValidationResult::Ok);
+		Reactor reactor{ FixedStack::SIZE_LARGE };
+		[[maybe_unused]]
+		const auto& result{ reactor.Execute(std::move(out)) };
+		}(),
+		""
+	);
 }

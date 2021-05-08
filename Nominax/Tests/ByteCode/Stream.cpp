@@ -286,3 +286,52 @@ TEST(BytecodeStream, ExampleStream)
 	Stream::ExampleStream(str);
 	ASSERT_TRUE(str.Size() != 0);
 }
+
+TEST(BytecodeStream, CodeGenerationNoOpt)
+{
+	Stream                                   stream {OptimizationLevel::Off};
+	stream.Prologue().With(2, [](ScopedInt&& var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	}).Epilogue();
+	ASSERT_EQ(stream.Size(), 15);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[2].Contains<I64>(2));
+	ASSERT_TRUE(stream[3].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[4].Contains<I64>(2));
+	ASSERT_TRUE(stream[5].Contains(Instruction::IMul));
+	ASSERT_TRUE(stream[6].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[7].Contains<I64>(1));
+	ASSERT_TRUE(stream[8].Contains(Instruction::IAdd));
+	ASSERT_TRUE(stream[9].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[10].Contains<I64>(1));
+	ASSERT_TRUE(stream[11].Contains(Instruction::IDiv));
+	ASSERT_TRUE(stream[12].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[13].Contains(Instruction::Int));
+	ASSERT_TRUE(stream[14].Contains<I64>(0));
+}
+
+TEST(BytecodeStream, CodeGenerationOpt3)
+{
+	Stream                                   stream {OptimizationLevel::O3};
+	stream.Prologue().With(2, [](ScopedInt&& var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	}).Epilogue();
+	ASSERT_EQ(stream.Size(), 10);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[2].Contains<I64>(2));
+	ASSERT_TRUE(stream[3].Contains(Instruction::IPushO));
+	ASSERT_TRUE(stream[4].Contains(Instruction::ISal));
+	ASSERT_TRUE(stream[5].Contains(Instruction::IInc));
+	ASSERT_TRUE(stream[6].Contains(Instruction::Dupl));
+	ASSERT_TRUE(stream[7].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[8].Contains(Instruction::Int));
+	ASSERT_TRUE(stream[9].Contains<I64>(0));
+}

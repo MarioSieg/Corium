@@ -223,33 +223,33 @@ namespace Nominax
 {
 	struct Environment::Kernel final
 	{
-		SystemInfo         SysInfo;
-		CpuFeatureDetector CpuFeatures;
-		Stream             AppCode;
+		SystemInfo           SysInfo;
+		CpuFeatureDetector   CpuFeatures;
+		Stream               AppCode;
 		std::vector<Reactor> ReactorPool;
 
 		explicit Kernel(std::size_t reactorCount) noexcept(false);
-		Kernel(const Kernel&) = delete;
-		Kernel(Kernel&&) = delete;
-		auto operator =(const Kernel&)->Kernel & = delete;
-		auto operator =(Kernel&&)->Kernel & = delete;
-		~Kernel() = default;
+		Kernel(const Kernel&)                     = delete;
+		Kernel(Kernel&&)                          = delete;
+		auto operator =(const Kernel&) -> Kernel& = delete;
+		auto operator =(Kernel&&) -> Kernel&      = delete;
+		~Kernel()                                 = default;
 	};
 
 	Environment::Kernel::Kernel(const std::size_t reactorCount) noexcept(false)
-		: SysInfo{}, CpuFeatures{}, AppCode{}, ReactorPool{}
+		: SysInfo { }, CpuFeatures { }, AppCode { }, ReactorPool { }
 	{
 		PrintMachineInfo(this->SysInfo, this->CpuFeatures);
-		
+
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Kernel with zero reactors was requested!");
 
 		Print("Creating {} reactors...\n", reactorCount);
-		
+
 		ReactorPool.reserve(reactorCount);
-		for (std::size_t i{1}; i  <= reactorCount; ++i)
+		for (std::size_t i {1}; i <= reactorCount; ++i)
 		{
 			Print("Creating reactor {} of {}\n", i, reactorCount);
-			ReactorPool.emplace_back(Reactor{ FixedStack::SIZE_LARGE });
+			ReactorPool.emplace_back(Reactor {FixedStack::SIZE_LARGE});
 		}
 
 		Print("\n");
@@ -259,15 +259,15 @@ namespace Nominax
 	{
 		std::ios_base::sync_with_stdio(false);
 		PrintSystemInfo();
-		Print("Booting runtime environment...\n");		
-		const auto tik{ std::chrono::high_resolution_clock::now() };
-		const auto reactorCount{ std::thread::hardware_concurrency() };
-		
+		Print("Booting runtime environment...\n");
+		const auto tik {std::chrono::high_resolution_clock::now()};
+		const auto reactorCount {std::thread::hardware_concurrency()};
+
 		this->Env_ = new(std::nothrow) Kernel(reactorCount);
-		
-		const auto tok{ std::chrono::high_resolution_clock::now()};
-		const auto ms{ std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik) };
-		
+
+		const auto tok {std::chrono::high_resolution_clock::now()};
+		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
+
 		Print("Runtime environment online! Boot time: {}\n", ms);
 		Print("Currently used environment memory: {}MB\n", Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
 	}

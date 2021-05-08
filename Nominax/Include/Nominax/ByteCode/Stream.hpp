@@ -222,6 +222,11 @@ namespace Nominax
 	struct ScopedVariable;
 
 	/// <summary>
+	/// Execution ready byte code and jump map.
+	/// </summary>
+	using AppCodeBundle = std::tuple<CodeChunk, JumpMap>;
+
+	/// <summary>
 	/// Dynamic byte code stream.
 	/// </summary>
 	class Stream final
@@ -555,6 +560,13 @@ namespace Nominax
 		auto Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult;
 
 		/// <summary>
+		/// Validate and build code chunk plus jump map into app code bundle.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <returns></returns>
+		auto Build(AppCodeBundle& out) const noexcept(false) -> ByteCodeValidationResult;
+
+		/// <summary>
 		/// Get current optimization level.
 		/// </summary>
 		/// <returns></returns>
@@ -588,6 +600,11 @@ namespace Nominax
 	inline auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult
 	{
 		return Nominax::Build(*this, out, outJumpMap);
+	}
+
+	inline auto Stream::Build(AppCodeBundle& out) const noexcept(false) -> ByteCodeValidationResult
+	{
+		return Nominax::Build(*this, std::get<0>(out), std::get<1>(out));
 	}
 
 	inline auto Stream::ContainsPrologue() const noexcept(false) -> bool

@@ -215,9 +215,6 @@ namespace
 	using namespace Nominax;
 
 	[[maybe_unused]]
-	auto DefaultInterruptRoutine(InterruptAccumulator) -> void { }
-
-	[[maybe_unused]]
 	auto CreateDescriptor
 	(
 		FixedStack&               stack,
@@ -246,41 +243,39 @@ namespace
 
 namespace Nominax
 {
-	Reactor::Reactor(const std::size_t recordStackSize) noexcept(false)
-		: Stack_{recordStackSize}, Chunk_{}, Map_{}, IntrinsicTable_{}, InterruptHandler_{*&DefaultInterruptRoutine}
-	{
-		
-	}
+	Reactor::Reactor
+	(
+		const std::size_t          stackSize,
+		SharedIntrinsicTableView&& intrinsicTable,
+		InterruptRoutine*          interruptHandler
+	) noexcept(false) :
+		Input_ { },
+		Output_ { },
+		Stack_ {stackSize},
+		IntrinsicTable_ {intrinsicTable},
+		InterruptHandler_ {interruptHandler ? interruptHandler : &DefaultInterruptRoutine} { }
 
-	Reactor::Reactor(Reactor&& other) noexcept(true)
-		: Stack_{std::move(other.Stack_)}, Chunk_{std::move(other.Chunk_)},
-	IntrinsicTable_{std::move(other.IntrinsicTable_)}, InterruptHandler_{std::move(other.InterruptHandler_)}
-	{
-		
-	}
+	Reactor::Reactor(Reactor&& other) noexcept(true) :
+		Input_ {other.Input_},
+		Output_ {other.Output_},
+		Stack_ {std::move(other.Stack_)},
+		IntrinsicTable_ {other.IntrinsicTable_},
+		InterruptHandler_ {other.InterruptHandler_} { }
 
-	auto Reactor::Execute() const noexcept(false) -> ReactorOutput
+	auto Reactor::Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
 	{
-		return ExecuteChecked(this->Descriptor_);
-	}
-
-	auto Reactor::Stack() const noexcept(true) -> const FixedStack&
-	{
-		return this->Stack_;
-	}
-
-	auto Reactor::Chunk() const noexcept(true) -> const CodeChunk&
-	{
-		return this->Chunk_;
-	}
-
-	auto Reactor::Map() const noexcept(true) -> const JumpMap&
-	{
-		return this->Map_;
-	}
-
-	auto Reactor::Descriptor() const noexcept(true) -> const DetailedReactorDescriptor&
-	{
-		return this->Descriptor_;
+		this->AppCode_ = std::move(bundle);
+		this->Input_   = CreateDescriptor
+		(
+			this->Stack_,
+			std::get<0>(this->AppCode_),
+			std::get<1>(this->AppCode_),
+			this->IntrinsicTable_,
+			*this->InterruptHandler_
+		);
+		NOMINAX_PANIC_ASSERT_EQ(this->Input_.Validate(), ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(this->Output_.ValidationResult)]);
+		this->Output_ = ExecuteChecked(this->Input_); // TODO Remove second validate?!
+		NOMINAX_PANIC_ASSERT_EQ(this->Output_.ValidationResult, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(this->Output_.ValidationResult)]);
+		return this->Output_;
 	}
 }

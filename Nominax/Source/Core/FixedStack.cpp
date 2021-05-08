@@ -222,8 +222,8 @@ namespace Nominax
 		++sizeInRecords;
 		this->BufferSize_ = sizeInRecords;
 		this->Buffer_     = new(std::nothrow) Record[sizeInRecords]();
-		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Buffer_, "Allocation of TLFRS failed!");		
-		*this->Buffer_    = Record::Padding();
+		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Buffer_, "Allocation of TLFRS failed!");
+		*this->Buffer_ = Record::Padding();
 
 		Print
 		(
