@@ -209,166 +209,65 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../../Include/Nominax/Nominax.hpp"
+#include "../../Include/Nominax/Common/Protocol.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
+#include "../../Include/Nominax/Core/Environment.hpp"
+#include "../../Include/Nominax/Core/Reactor.hpp"
+#include "../../Include/Nominax/ByteCode/Stream.hpp"
+#include "../../Include/Nominax/System/CpuFeatureDetector.hpp"
+#include "../../Include/Nominax/System/Os.hpp"
 
-using std::cout;
-using std::cerr;
-using std::endl;
-
-namespace
-{
-	constexpr auto MachineRating(const std::size_t threads) noexcept(true) -> char
-	{
-		if (threads <= 2)
-		{
-			return 'F';
-		}
-		if (threads <= 4)
-		{
-			return 'E';
-		}
-		if (threads <= 8)
-		{
-			return 'D';
-		}
-		if (threads <= 16)
-		{
-			return 'C';
-		}
-		if (threads <= 32)
-		{
-			return 'B';
-		}
-		return 'A';
-	}
-
-	template <typename T>
-	inline auto PrintTypeInfo(const std::string_view name) -> void
-	{
-		Nominax::Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
-	}
-}
+#include "EnvironmentUtils.hpp"
 
 namespace Nominax
 {
-	auto Environment::UnlockNoSyncStdStreams() const -> void
+	struct Environment::Kernel final
+	{
+		SystemInfo         SysInfo;
+		CpuFeatureDetector CpuFeatures;
+		Stream             AppCode;
+		std::vector<Reactor> ReactorPool;
+
+		explicit Kernel(std::size_t reactorCount) noexcept(false);
+		Kernel(const Kernel&) = delete;
+		Kernel(Kernel&&) = delete;
+		auto operator =(const Kernel&)->Kernel & = delete;
+		auto operator =(Kernel&&)->Kernel & = delete;
+		~Kernel() = default;
+	};
+
+	Environment::Kernel::Kernel(const std::size_t reactorCount) noexcept(false)
+		: SysInfo{}, CpuFeatures{}, AppCode{}, ReactorPool{}
+	{
+		PrintMachineInfo(this->SysInfo, this->CpuFeatures);
+		
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Kernel with zero reactors was requested!");
+
+		Print("Creating {} reactors...\n", reactorCount);
+		
+		ReactorPool.reserve(reactorCount);
+		for (std::size_t i{0}; i  < reactorCount; ++i)
+		{
+			Print("Creating reactor {} of {}\n", i + 1, reactorCount);
+			ReactorPool.emplace_back(Reactor{ FixedStack::SIZE_LARGE });
+		}
+
+		Print("\n");
+	}
+
+	auto Environment::Boot() noexcept(false) -> void
 	{
 		std::ios_base::sync_with_stdio(false);
+		PrintSystemInfo();
+		Print("Booting runtime environment...\n");		
+		const auto tik{ std::chrono::high_resolution_clock::now() };
+		const auto reactorCount{ std::thread::hardware_concurrency() };
+		
+		this->Env_ = new(std::nothrow) Kernel(reactorCount);
+		
+		const auto tok{ std::chrono::high_resolution_clock::now()};
+		const auto ms{ std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik) };
+		
+		Print("Runtime environment online! Boot time: {}\n", ms);
 	}
-
-	auto Environment::InstallSignalHandlers() const -> void
-	{
-		// TODO
-	}
-
-	auto Environment::PrintVersionInfo() const -> void
-	{
-		Print(SYSTEM_LOGO_TEXT);
-		Print(SYSTEM_COPYRIGHT_TEXT);
-		Print("\nNominax Version: v.{}.{}\n", SYSTEM_VERSION.Major, SYSTEM_VERSION.Minor);
-		Print("Platform: {} {}\n", NOMINAX_OS_NAME, NOMINAX_ARCH_SIZE_NAME);
-		Print("Arch: {}\n", NOMINAX_ARCH_NAME);
-		Print("IsPosix: {}\n", NOMINAX_IS_POSIX);
-		Print("Compiled with: {} - C++ 20\n", NOMINAX_COM_NAME);
-		Print("\n");
-	}
-
-	auto Environment::PrintMachineInfo() const -> void
-	{
-		const auto&
-		[
-			ThreadId,
-			OperatingSystemName,
-			ArchitectureName,
-			CompilerName,
-			ThreadCount,
-			CpuName,
-			TotalSystemMemory,
-			UsedSystemMemory,
-			PageSize
-		] = this->SysInfo_;
-
-		Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
-		Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
-		Print("CPU: {}\n", CpuName);
-		Print("CPU Hardware threads: {}\n", ThreadCount);
-		Print("CPU Machine class: {}\n", MachineRating(ThreadCount));
-		Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
-		Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
-		Print("Page size: {}B\n", PageSize);
-		Print("\n");
-	}
-
-	auto Environment::PrintTypeTable() const -> void
-	{
-		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
-		PrintTypeInfo<Record>("Record");
-		PrintTypeInfo<Signal>("Signal");
-		PrintTypeInfo<DynamicSignal>("DynamicSignal");
-		PrintTypeInfo<Object>("Object");
-		PrintTypeInfo<ObjectHeader>("ObjectHeader");
-		PrintTypeInfo<I64>("int");
-		PrintTypeInfo<U64>("uint");
-		PrintTypeInfo<F64>("float");
-		PrintTypeInfo<char32_t>("char");
-		PrintTypeInfo<bool>("bool");
-		PrintTypeInfo<void*>("void*");
-		Print("\n");
-	}
-
-	auto Environment::PrintCpuFeatures() const -> void
-	{
-		this->CpuFeatures_.PrintFeatures();
-		Print("\n");
-	}
-
-	Environment::Environment(Stream&& appCode) noexcept(false) : SysInfo_ { }, CpuFeatures_ { }, AppCode_ {std::move(appCode)}
-	{
-		this->InstallSignalHandlers();
-		this->UnlockNoSyncStdStreams();
-		this->PrintVersionInfo();
-		this->SysInfo_.QueryAll();
-		this->PrintMachineInfo();
-		this->PrintCpuFeatures();
-		this->PrintTypeTable();
-
-		auto& stream = this->AppCode_;
-		stream.PrintIntermediateRepresentation();
-		CodeChunk chunk { };
-		JumpMap   jumpMap { };
-		stream.Build(chunk, jumpMap);
-
-		FixedStack  stack {FixedStack::SIZE_LARGE};
-		std::vector intrinsics
-		{
-			// Print:
-			+[](Record* sp) -> void
-			{
-				Print("((2 * 2) + 1) / 1 = {}\n", sp->Vi64);
-			}
-		};
-		InterruptRoutine&                  interrupt {
-			*+[](const InterruptAccumulator) -> void { }
-		};
-
-		const Reactor reactor {std::move(stack), std::move(chunk), std::move(jumpMap), intrinsics, interrupt};
-
-		Print("Used process memory: {}MB\n", Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
-
-		Print(LogLevel::Warning, "Executing...\n");
-
-		Print("################ APP ################\n\n");
-		cout.flush();
-
-		const auto reactorOutput {reactor.Execute()};
-
-		Print("\n################ APP ################\n");
-		cout.flush();
-
-		PrintShutdownReason(reactorOutput.ShutdownReason, reactorOutput.InterruptCode);
-		Print("Time: {}\n", std::chrono::duration_cast<std::chrono::milliseconds>(reactorOutput.Duration));
-		cout.flush();
-	}
-
-	Environment::~Environment() { }
 }

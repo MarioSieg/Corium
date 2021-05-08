@@ -214,8 +214,10 @@ namespace
 {
 	using namespace Nominax;
 
+	[[maybe_unused]]
 	auto DefaultInterruptRoutine(InterruptAccumulator) -> void { }
 
+	[[maybe_unused]]
 	auto CreateDescriptor
 	(
 		FixedStack&               stack,
@@ -244,49 +246,17 @@ namespace
 
 namespace Nominax
 {
-	Reactor::Reactor(FixedStack&& stack, CodeChunk&& chunk, JumpMap&& jumpMap) noexcept(false)
-		: Stack_ {std::move(stack)},
-		  Chunk_ {std::move(chunk)},
-		  Map_ {std::move(jumpMap)},
-		  IntrinsicTable_ { },
-		  InterruptHandler_ {*&DefaultInterruptRoutine}
+	Reactor::Reactor(const std::size_t recordStackSize) noexcept(false)
+		: Stack_{recordStackSize}, Chunk_{}, Map_{}, IntrinsicTable_{}, InterruptHandler_{*&DefaultInterruptRoutine}
 	{
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Stack_.Size(), "Zero sized stack was given to reactor!");
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Chunk_.size(), "Zero sized chunk was given to reactor!");
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Map_.size(), "Zero sized instruction map was given to reactor!");
-		NOMINAX_PANIC_ASSERT_EQ(this->Chunk_.end()[0].R64.Vi64, 0, "Missing code chunk epilogue!");
-		NOMINAX_PANIC_ASSERT_EQ(this->Chunk_.end()[-1].Instr, Instruction::Int, "Missing code chunk epilogue!");
-
-		this->Descriptor_ = CreateDescriptor(this->Stack_, this->Chunk_, this->Map_, this->IntrinsicTable_, this->InterruptHandler_);
-
-		NOMINAX_PANIC_ASSERT_EQ(this->Descriptor_.Validate(), ReactorValidationResult::Ok, "Reactor validation failed!");
-
-		Print
-		(
-			"Created RT Reactor, IntrinsicTable: None, InterruptHandler: Default\n"
-		);
+		
 	}
 
-	Reactor::Reactor(FixedStack&& stack, CodeChunk&& chunk, JumpMap&& jumpMap, SharedIntrinsicTableView intrinsicTable, InterruptRoutine& interruptHandler) noexcept(false)
-		: Stack_ {std::move(stack)},
-		  Chunk_ {std::move(chunk)},
-		  Map_ {std::move(jumpMap)},
-		  IntrinsicTable_ {intrinsicTable},
-		  InterruptHandler_ {*&interruptHandler}
+	Reactor::Reactor(Reactor&& other) noexcept(true)
+		: Stack_{std::move(other.Stack_)}, Chunk_{std::move(other.Chunk_)},
+	IntrinsicTable_{std::move(other.IntrinsicTable_)}, InterruptHandler_{std::move(other.InterruptHandler_)}
 	{
-		NOMINAX_PANIC_ASSERT_TRUE(this->Stack_.Size(), "Zero sized stack was given to reactor!");
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Chunk_.size(), "Zero sized chunk was given to reactor!");
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Map_.size(), "Zero sized instruction map was given to reactor!");
-
-		this->Descriptor_ = CreateDescriptor(this->Stack_, this->Chunk_, this->Map_, this->IntrinsicTable_, this->InterruptHandler_);
-		const auto result {this->Descriptor_.Validate()};
-
-		NOMINAX_PANIC_ASSERT_EQ(result, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(result)]);
-
-		Print
-		(
-			"Created RT Reactor, IntrinsicTable: Used, InterruptHandler: Used\n"
-		);
+		
 	}
 
 	auto Reactor::Execute() const noexcept(false) -> ReactorOutput

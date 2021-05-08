@@ -211,7 +211,7 @@ namespace Nominax
 {
 	CpuFeatureDetector::CpuFeatureDetector() noexcept(false) : Features_ { } {}
 
-	auto CpuFeatureDetector::PrintFeatures() const -> void
+	auto CpuFeatureDetector::Print() const -> void
 	{
 		this->Features_.PrintFeatures();
 	}

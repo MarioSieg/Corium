@@ -208,9 +208,45 @@
 #include <thread>
 
 #include "../../Include/Nominax/System/Os.hpp"
+#include "../../Include/Nominax/Common/Protocol.hpp"
+#include "../../Include/Nominax/Common/MemoryUnits.hpp"
+#include "../../Include/Nominax/Common/SafeLocalTime.hpp"
+
+namespace
+{
+	auto MachineRating(const std::size_t threads) noexcept(true) -> char
+	{
+		if (threads <= 2)
+		{
+			return 'F';
+		}
+		if (threads <= 4)
+		{
+			return 'E';
+		}
+		if (threads <= 8)
+		{
+			return 'D';
+		}
+		if (threads <= 16)
+		{
+			return 'C';
+		}
+		if (threads <= 32)
+		{
+			return 'B';
+		}
+		return 'A';
+	}
+}
 
 namespace Nominax
 {
+	SystemInfo::SystemInfo() noexcept(false)
+	{
+		this->QueryAll();
+	}
+
 	auto SystemInfo::QueryAll() noexcept(false) -> void
 	{
 		this->ThreadCount       = std::thread::hardware_concurrency();
@@ -219,5 +255,30 @@ namespace Nominax
 		this->TotalSystemMemory = Os::QuerySystemMemoryTotal();
 		this->UsedSystemMemory  = Os::QueryProcessMemoryUsed();
 		this->PageSize          = Os::QueryPageSize();
+	}
+
+	auto SystemInfo::Print() const noexcept(false) -> void
+	{
+		const auto&
+			[
+				ThreadId,
+				OperatingSystemName,
+				ArchitectureName,
+				CompilerName,
+				ThreadCount,
+				CpuName,
+				TotalSystemMemory,
+				UsedSystemMemory,
+				PageSize
+			] = *this;
+
+		::Nominax::Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
+		::Nominax::Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
+		::Nominax::Print("CPU: {}\n", CpuName);
+		::Nominax::Print("CPU Hardware threads: {}\n", ThreadCount);
+		::Nominax::Print("CPU Machine class: {}\n", MachineRating(ThreadCount));
+		::Nominax::Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
+		::Nominax::Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
+		::Nominax::Print("Page size: {}B\n", PageSize);
 	}
 }

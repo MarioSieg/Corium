@@ -251,6 +251,9 @@ namespace Nominax
 		std::size_t      UsedSystemMemory { };
 		std::size_t      PageSize { };
 
+		SystemInfo() noexcept(false);
+
 		auto QueryAll() noexcept(false) -> void;
+		auto Print() const noexcept(false) -> void;
 	};
 }

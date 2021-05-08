@@ -207,9 +207,6 @@
 
 #pragma once
 
-#include "../System/Os.hpp"
-#include "../System/CpuFeatureDetector.hpp"
-
 namespace Nominax
 {
 	/// <summary>
@@ -217,23 +214,17 @@ namespace Nominax
 	/// </summary>
 	class Environment
 	{
-		SystemInfo         SysInfo_;
-		CpuFeatureDetector CpuFeatures_;
-		Stream             AppCode_;
-
-		auto UnlockNoSyncStdStreams() const -> void;
-		auto InstallSignalHandlers() const -> void;
-		auto PrintVersionInfo() const -> void;
-		auto PrintMachineInfo() const -> void;
-		auto PrintTypeTable() const -> void;
-		auto PrintCpuFeatures() const -> void;
+		struct Kernel;
+		Kernel* __restrict__ Env_{nullptr};
 
 	public:
-		explicit Environment(Stream&& appCode) noexcept(false);
+		explicit Environment() noexcept(false) = default;
 		Environment(const Environment&)                        = delete;
 		Environment(Environment&&)                             = delete;
 		auto    operator =(const Environment&) -> Environment& = delete;
 		auto    operator =(Environment&&) -> Environment&      = delete;
-		virtual ~Environment();
+		virtual ~Environment() = default;
+
+		auto Boot() noexcept(false) -> void;
 	};
 }

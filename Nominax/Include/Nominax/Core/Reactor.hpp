@@ -224,39 +224,16 @@ namespace Nominax
 		JumpMap                   Map_;
 		DetailedReactorDescriptor Descriptor_;
 		SharedIntrinsicTableView  IntrinsicTable_;
+		[[maybe_unused]]
 		InterruptRoutine&         InterruptHandler_;
 
 	public:
 		/// <summary>
-		/// Basic constructor.
-		/// Intrinsic table will be empty and interrupt routine set to an empty default.
+		/// Create deferred reactor with fixed stack size.
 		/// </summary>
-		/// <param name="stack">The stack. If size is zero, panic.</param>
-		/// <param name="chunk">The code chunk. If size is zero, panic.</param>
-		/// <param name="jumpMap">The jump map. If size is zero, panic.</param>
-		Reactor
-		(
-			FixedStack&& stack,
-			CodeChunk&&  chunk,
-			JumpMap&&    jumpMap
-		) noexcept(false);
-
-		/// <summary>
-		/// Detailed constructor.
-		/// </summary>
-		/// <param name="stack">The stack. If size is zero, panic.</param>
-		/// <param name="chunk">The code chunk. If size is zero, panic.</param>
-		/// <param name="jumpMap">The jump map. If size is zero, panic.</param>
-		/// <param name="intrinsicTable">The intrinsic routine table. Size of zero is okay.</param>
-		/// <param name="interruptHandler">The interrupt handler.</param>
-		Reactor
-		(
-			FixedStack&&             stack,
-			CodeChunk&&              chunk,
-			JumpMap&&                jumpMap,
-			SharedIntrinsicTableView intrinsicTable,
-			InterruptRoutine&        interruptHandler
-		) noexcept(false);
+		/// <param name="recordStackSize"></param>
+		/// <returns></returns>
+		explicit Reactor(std::size_t recordStackSize) noexcept(false);
 
 		/// <summary>
 		/// No copy!
@@ -264,9 +241,9 @@ namespace Nominax
 		Reactor(const Reactor&) = delete;
 
 		/// <summary>
-		/// No move!
+		/// Move constructing okay.
 		/// </summary>
-		Reactor(Reactor&&) = delete;
+		Reactor(Reactor&&) noexcept(true);
 
 		/// <summary>
 		/// No copy!

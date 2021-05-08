@@ -282,7 +282,7 @@ namespace Nominax
 		/// <summary>
 		/// Prints all the architecture dependent features in different colors.
 		/// </summary>
-		auto PrintFeatures() const -> void;
+		auto Print() const -> void;
 	};
 
 	inline auto CpuFeatureDetector::operator ->() const noexcept(true) -> const FeatureBits&

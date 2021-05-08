@@ -220,5 +220,8 @@ auto main() -> int
 		stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId {0});
 	}).Epilogue();
 
-	Environment env {std::move(stream)};
+	Environment env {};
+	env.Boot();
+
+	for (;;);
 }

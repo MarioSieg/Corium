@@ -211,6 +211,8 @@
 #include <string_view>
 #include <ostream>
 
+#include "../Common/RtTypes.hpp"
+
 namespace Nominax
 {
 	struct Version final
