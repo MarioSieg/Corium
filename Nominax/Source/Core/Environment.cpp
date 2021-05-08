@@ -269,5 +269,6 @@ namespace Nominax
 		const auto ms{ std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik) };
 		
 		Print("Runtime environment online! Boot time: {}\n", ms);
+		Print("Currently used environment memory: {}MB\n", Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
 	}
 }
