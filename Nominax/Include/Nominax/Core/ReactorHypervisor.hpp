@@ -1,6 +1,6 @@
-// File: Reactor.hpp
+// File: ReactorHypervisor.hpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 09.05.2021 6:10 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,167 +207,33 @@
 
 #pragma once
 
-#include <tuple>
-#include <optional>
-
+#include "../System/Platform.hpp"
+#include "../System/CpuFeatureDetector.hpp"
+#include "DetailedReactorDescriptor.hpp"
 #include "ReactorOutput.hpp"
-#include "FixedStack.hpp"
-#include "../ByteCode/CustomIntrinsic.hpp"
-#include "../ByteCode/Stream.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Represents a reactor.
+	/// Generic fallback implementation, for all architectures.
 	/// </summary>
-	class [[nodiscard]] Reactor final
-	{
-		/// <summary>
-		/// The reactor input descriptor build
-		/// when Execute() is called.
-		/// </summary>
-		DetailedReactorDescriptor Input_;
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <returns></returns>
+	__attribute__((hot)) extern auto ReactorCore_Fallback(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
 
-		/// <summary>
-		/// The reactor output from previous executions.
-		/// </summary>
-		ReactorOutput Output_;
+#if NOMINAX_ARCH_X86_64
 
-		/// <summary>
-		/// The thread local fixed reactor stack (TLFRS)
-		/// </summary>
-		FixedStack Stack_;
 
-		/// <summary>
-		/// Current app code bundle.
-		/// </summary>
-		AppCodeBundle AppCode_;
+	/// <summary>
+	/// Specialized implementation compiled with AVX, which uses 256-bit YMM registers.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <returns></returns>
+	__attribute__((hot)) extern auto ReactorCore_Avx(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
 
-		/// <summary>
-		/// The table of custom intrinsic routines.
-		/// </summary>
-		SharedIntrinsicTableView IntrinsicTable_;
+#endif
 
-		/// <summary>
-		/// The interrupt routine using for reactor interrupts.
-		/// </summary>
-		InterruptRoutine* InterruptHandler_;
-
-	public:
-		/// <summary>
-		/// Create reactor with fixed stack size. If zero, panic!
-		/// </summary>
-		/// <param name="stackSize">The of the local reactor stack in records. If zero, panic!</param>
-		/// <param name="intrinsicTable">Table of custom intrinsic routines. If none, just pass an empty.</param>
-		/// <param name="interruptHandler">Interrupt handler. If default should be used, pass nullptr!</param>
-		explicit Reactor
-		(
-			std::size_t                stackSize,
-			SharedIntrinsicTableView&& intrinsicTable   = { },
-			InterruptRoutine*          interruptHandler = nullptr
-		) noexcept(false);
-
-		/// <summary>
-		/// No copy!
-		/// </summary>
-		Reactor(const Reactor&) = delete;
-
-		/// <summary>
-		/// Move constructing okay.
-		/// </summary>
-		Reactor(Reactor&&) noexcept(true);
-
-		/// <summary>
-		/// No copy!
-		/// </summary>
-		auto operator =(const Reactor&) -> Reactor& = delete;
-
-		/// <summary>
-		/// no move!
-		/// </summary>
-		auto operator =(Reactor&&) -> Reactor& = delete;
-
-		/// <summary>
-		/// Destructs all reactor related resources, such as stack etc..
-		/// </summary>
-		~Reactor() = default;
-
-		[[nodiscard]]
-		auto Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current descriptor of the reactor.</returns>
-		[[nodiscard]]
-		auto GetInputDescriptor() const noexcept(true) -> const DetailedReactorDescriptor&;
-
-		/// <summary>
-		/// Returns the reactor output of any previous
-		/// execution or the default value.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto GetOutput() const noexcept(true) -> const ReactorOutput&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current stack.</returns>
-		[[nodiscard]]
-		auto GetStack() const noexcept(true) -> const FixedStack&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current app code bundle.</returns>
-		[[nodiscard]]
-		auto GetCodeBundle() const noexcept(true) -> const AppCodeBundle&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto GetIntrinsicTable() const noexcept(true) -> const SharedIntrinsicTableView&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto GetInterruptHandler() const noexcept(true) -> InterruptRoutine*;
-	};
-
-	inline auto Reactor::GetStack() const noexcept(true) -> const FixedStack&
-	{
-		return this->Stack_;
-	}
-
-	inline auto Reactor::GetIntrinsicTable() const noexcept(true) -> const SharedIntrinsicTableView&
-	{
-		return this->IntrinsicTable_;
-	}
-
-	inline auto Reactor::GetInterruptHandler() const noexcept(true) -> InterruptRoutine*
-	{
-		return this->InterruptHandler_;
-	}
-
-	inline auto Reactor::GetInputDescriptor() const noexcept(true) -> const DetailedReactorDescriptor&
-	{
-		return this->Input_;
-	}
-
-	inline auto Reactor::GetOutput() const noexcept(true) -> const ReactorOutput&
-	{
-		return this->Output_;
-	}
-
-	inline auto Reactor::GetCodeBundle() const noexcept(true) -> const AppCodeBundle&
-	{
-		return this->AppCode_;
-	}
-
-	[[nodiscard]] extern auto ExecuteOnce(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput;
+	extern auto ExecuteReactorAutoDispatchBackend(const CpuFeatureDetector& cpuFeatures, const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
 }

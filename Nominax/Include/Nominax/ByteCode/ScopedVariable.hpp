@@ -467,7 +467,7 @@ namespace Nominax
 #if NOMINAX_DEBUG
 		return this->Attached_.Back().template Unwrap<T>().value();
 #else
-        return *this->Attached_.Back().Unwrap<T>();
+		return *this->Attached_.Back().template Unwrap<T>();
 #endif
 	}
 

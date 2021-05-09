@@ -207,6 +207,7 @@
 
 #include "../../Include/Nominax/Core/Reactor.hpp"
 #include "../../Include/Nominax/Core/BasicReactorDescriptor.hpp"
+#include "../../Include/Nominax/Core/ReactorHypervisor.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
 
@@ -275,7 +276,14 @@ namespace Nominax
 		);
 		const auto validationResult {this->Input_.Validate()};
 		NOMINAX_PANIC_ASSERT_EQ(validationResult, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]);
-		this->Output_ = ExecuteUnchecked(this->Input_); // TODO Remove second validate?!
+		this->Output_ = ExecuteOnce(this->Input_); // TODO Remove second validate?!
 		return this->Output_;
+	}
+
+	auto ExecuteOnce(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput
+	{
+		ReactorOutput output {.Input = input};
+		ExecuteReactorAutoDispatchBackend(CpuFeatureDetector { }, input, output);
+		return output;
 	}
 }

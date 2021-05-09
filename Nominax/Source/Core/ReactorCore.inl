@@ -1,6 +1,6 @@
-// File: ReactorExecutor.cpp
+// File: ReactorCore.inl
 // Author: Mario
-// Created: 28.04.2021 9:58 AM
+// Created: 09.05.2021 5:50 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -217,15 +217,7 @@
 #include <string_view>
 #include <thread>
 
-#include "../../Include/Nominax/Core/Reactor.hpp"
-#include "../../Include/Nominax/Core/Interrupt.hpp"
-#include "../../Include/Nominax/Core/Info.hpp"
-#include "../../Include/Nominax/Core/HardFaultReport.hpp"
-
-#include "../../Include/Nominax/System/Os.hpp"
-#include "../../Include/Nominax/System/MacroCfg.hpp"
-
-#include "../../Include/Nominax/Common/Common.hpp"
+#include "../../Include/Nominax/Nominax.hpp"
 
 #if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
 #	include <malloc.h>
@@ -234,7 +226,6 @@
 #endif
 
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
-// ReSharper disable once CppUnusedIncludeDirective
 #	include <immintrin.h>
 #elif NOMINAX_ARCH_ARM_64 && NOMINAX_USE_ARCH_OPT && defined(__ARM_NEON)
 #	include <arm_neon.h>
@@ -419,18 +410,18 @@ namespace Nominax
 #endif
 
 #if NOMINAX_STACK_OVERFLOW_CHECKS
-	/* Inserts a stack overflow sentinel, which triggers a system interrupt
-	 * of type stack_overflow by setting the interrupt accumulator and jumping to the fault label.
-	 * This of course adds some overhead, but not much.
-	 * If stack overflow sentinels are disabled, a stack overflow will trigger a
-	 * segmentation fault (SIGSEGV), which will be handled by the signal handler
-	 * set in interrupts.hpp
-	 * The
-	 * x is the number of pushes to check for.
-	 * x = 1 -> check for 1 more push
-	 * x = 2 -> check for 2 more pushes
-	 * etc..
-	 */
+	 /* Inserts a stack overflow sentinel, which triggers a system interrupt
+	  * of type stack_overflow by setting the interrupt accumulator and jumping to the fault label.
+	  * This of course adds some overhead, but not much.
+	  * If stack overflow sentinels are disabled, a stack overflow will trigger a
+	  * segmentation fault (SIGSEGV), which will be handled by the signal handler
+	  * set in interrupts.hpp
+	  * The
+	  * x is the number of pushes to check for.
+	  * x = 1 -> check for 1 more push
+	  * x = 2 -> check for 2 more pushes
+	  * etc..
+	  */
 #define STO_SENTINEL(x)																								\
 			do {																									\
 				if (NOMINAX_UNLIKELY(sp + ((x) - 1) >= spHi)) {														\
@@ -517,8 +508,11 @@ namespace Nominax
 	/// <param name="jumpTable">The jump table to check.</param>
 	/// <param name="jumpTableSize">The amount of jump table entries.</param>
 	/// <returns>true if all entries are valid, else false.</returns>
-	static consteval auto ValidateJumpTable(const void* __restrict__ const* __restrict__ const jumpTable,
-	                                        const std::size_t                                  jumpTableSize) noexcept(true) -> bool
+	static consteval auto ValidateJumpTable
+	(
+		const void* __restrict__ const* __restrict__ const jumpTable,
+		const std::size_t                                  jumpTableSize
+	) noexcept(true) -> bool
 	{
 		assert(jumpTable);
 		assert(jumpTableSize);
@@ -561,43 +555,43 @@ namespace Nominax
 	__attribute__((hot)) static auto SyscallIntrin(Record* __restrict__ const sp, const U64 id) noexcept(true) -> void
 	{
 		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallId::Count)] {
-			&&__cos__,
-			&&__sin__,
-			&&__tan__,
-			&&__acos__,
-			&&__asin__,
-			&&__atan__,
-			&&__atan2__,
-			&&__cosh__,
-			&&__sinh__,
-			&&__tanh__,
-			&&__acosh__,
-			&&__asinh__,
-			&&__atanh__,
-			&&__exp__,
-			&&__log__,
-			&&__log10__,
-			&&__exp2__,
-			&&__ilogb__,
-			&&__log2__,
-			&&__pow__,
-			&&__sqrt__,
-			&&__cbrt__,
-			&&__hypot__,
-			&&__ceil__,
-			&&__floor__,
-			&&__round__,
-			&&__rint__,
-			&&__max__,
-			&&__min__,
-			&&__fmax__,
-			&&__fmin__,
-			&&__fdim__,
-			&&__abs__,
-			&&__fabs__,
-			&&__io_port_write_cluster__,
-			&&__io_port_read_cluster__,
-			&&__io_port_flush__
+			&& __cos__,
+			&& __sin__,
+			&& __tan__,
+			&& __acos__,
+			&& __asin__,
+			&& __atan__,
+			&& __atan2__,
+			&& __cosh__,
+			&& __sinh__,
+			&& __tanh__,
+			&& __acosh__,
+			&& __asinh__,
+			&& __atanh__,
+			&& __exp__,
+			&& __log__,
+			&& __log10__,
+			&& __exp2__,
+			&& __ilogb__,
+			&& __log2__,
+			&& __pow__,
+			&& __sqrt__,
+			&& __cbrt__,
+			&& __hypot__,
+			&& __ceil__,
+			&& __floor__,
+			&& __round__,
+			&& __rint__,
+			&& __max__,
+			&& __min__,
+			&& __fmax__,
+			&& __fmin__,
+			&& __fdim__,
+			&& __abs__,
+			&& __fabs__,
+			&& __io_port_write_cluster__,
+			&& __io_port_read_cluster__,
+			&& __io_port_flush__
 		};
 
 		static_assert(ValidateJumpTable(JUMP_TABLE, sizeof JUMP_TABLE / sizeof *JUMP_TABLE));
@@ -865,79 +859,79 @@ namespace Nominax
 		return;
 	}
 
-	__attribute__((hot)) auto ExecuteUnchecked(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput
+	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 
 		static constexpr const void* __restrict__ const JUMP_TABLE[static_cast<std::size_t>(Instruction::Count)]
 		{
-			&&__int__,
-			&&__intrin__,
-			&&__cintrin__,
-			&&__call__,
-			&&__ret__,
-			&&__mov__,
-			&&__sto__,
-			&&__push__,
-			&&__pop__,
-			&&__pop2__,
-			&&__dupl__,
-			&&__dupl2__,
-			&&__swap__,
-			&&__nop__,
-			&&__jmp__,
-			&&__jmprel__,
-			&&__jz__,
-			&&__jnz__,
-			&&__jo_cmpi__,
-			&&__jo_cmpf__,
-			&&__jno_cmpi__,
-			&&__jno_cmpf__,
-			&&__je_cmpi__,
-			&&__je_cmpf__,
-			&&__jne_cmpi__,
-			&&__jne_cmpf__,
-			&&__ja_cmpi__,
-			&&__ja_cmpf__,
-			&&__jl_cmpi__,
-			&&__jl_cmpf__,
-			&&__jae_cmpi__,
-			&&__jae_cmpf__,
-			&&__jle_cmpi__,
-			&&__jle_cmpf__,
-			&&__ipushz__,
-			&&__ipusho__,
-			&&__fpusho__,
-			&&__iinc__,
-			&&__idec__,
-			&&__iadd__,
-			&&__isub__,
-			&&__imul__,
-			&&__idiv__,
-			&&__imod__,
-			&&__iand__,
-			&&__ior__,
-			&&__ixor__,
-			&&__icom__,
-			&&__isal__,
-			&&__isar__,
-			&&__irol__,
-			&&__iror__,
-			&&__ineg__,
-			&&__fadd__,
-			&&__fsub__,
-			&&__fmul__,
-			&&__fdiv__,
-			&&__fmod__,
-			&&__fneg__,
-			&&__finc__,
-			&&__fdec__,
-			&&__vpush__,
-			&&__vpop__,
-			&&__vadd__,
-			&&__vsub__,
-			&&__vmul__,
-			&&__vdiv__
+			&& __int__,
+			&& __intrin__,
+			&& __cintrin__,
+			&& __call__,
+			&& __ret__,
+			&& __mov__,
+			&& __sto__,
+			&& __push__,
+			&& __pop__,
+			&& __pop2__,
+			&& __dupl__,
+			&& __dupl2__,
+			&& __swap__,
+			&& __nop__,
+			&& __jmp__,
+			&& __jmprel__,
+			&& __jz__,
+			&& __jnz__,
+			&& __jo_cmpi__,
+			&& __jo_cmpf__,
+			&& __jno_cmpi__,
+			&& __jno_cmpf__,
+			&& __je_cmpi__,
+			&& __je_cmpf__,
+			&& __jne_cmpi__,
+			&& __jne_cmpf__,
+			&& __ja_cmpi__,
+			&& __ja_cmpf__,
+			&& __jl_cmpi__,
+			&& __jl_cmpf__,
+			&& __jae_cmpi__,
+			&& __jae_cmpf__,
+			&& __jle_cmpi__,
+			&& __jle_cmpf__,
+			&& __ipushz__,
+			&& __ipusho__,
+			&& __fpusho__,
+			&& __iinc__,
+			&& __idec__,
+			&& __iadd__,
+			&& __isub__,
+			&& __imul__,
+			&& __idiv__,
+			&& __imod__,
+			&& __iand__,
+			&& __ior__,
+			&& __ixor__,
+			&& __icom__,
+			&& __isal__,
+			&& __isar__,
+			&& __irol__,
+			&& __iror__,
+			&& __ineg__,
+			&& __fadd__,
+			&& __fsub__,
+			&& __fmul__,
+			&& __fdiv__,
+			&& __fmod__,
+			&& __fneg__,
+			&& __finc__,
+			&& __fdec__,
+			&& __vpush__,
+			&& __vpop__,
+			&& __vadd__,
+			&& __vsub__,
+			&& __vmul__,
+			&& __vdiv__
 		};
 
 		static_assert(ValidateJumpTable(JUMP_TABLE, sizeof JUMP_TABLE / sizeof *JUMP_TABLE));
@@ -947,11 +941,8 @@ namespace Nominax
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
 		if (NOMINAX_UNLIKELY(!MapJumpTable(input.CodeChunk, input.CodeChunk + input.CodeChunkSize, input.CodeChunkInstructionMap, JUMP_TABLE)))
 		{
-			return
-			{
-				.Input = input,
-				.ShutdownReason = ReactorShutdownReason::Error
-			};
+			output.ShutdownReason = ReactorShutdownReason::Error;
+			return;
 		}
 #endif
 
@@ -1791,7 +1782,14 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__vadd__");
 
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+		{
+			__m256 x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
+			__m256 y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+			y = _mm256_add_pd(y, x);
+			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
+		}
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
 		{
 			/*
 				movupd	-56(%rdi), %xmm0
@@ -1803,10 +1801,10 @@ namespace Nominax
 				movupd	%xmm0, -40(%rdi)
 				movupd	%xmm2, -56(%rdi)
 			 */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1));
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3));
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5));
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7));
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1)); // 2 records
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 2 records
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5)); // 2 records
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 2 records
 			y1 = _mm_add_pd(y1, x1);
 			y2 = _mm_add_pd(y2, x2);
 			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 5), y1);
@@ -1840,26 +1838,33 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__vsub__");
 
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+		{
+			__m256 x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
+			__m256 y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+			y = _mm256_sub_pd(y, x);
+			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
+		}
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__) && !defined(__AVX__)
 		{
 			/* For this the compiler generated the same
 			 * code on my machine but this depends on compiler and optimizations
 			 * so we still have a manually vectorized version.
 			 */
-			/*
-				movupd	-56(%rdi), %xmm0
-				movupd	-40(%rdi), %xmm1
-				movupd	-24(%rdi), %xmm2
-				subpd	%xmm2, %xmm0
-				movupd	-8(%rdi), %xmm2
-				subpd	%xmm2, %xmm1
-				movupd	%xmm1, -40(%rdi)
-				movupd	%xmm0, -56(%rdi)
-			 */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1));
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3));
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5));
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7));
+			 /*
+				 movupd	-56(%rdi), %xmm0
+				 movupd	-40(%rdi), %xmm1
+				 movupd	-24(%rdi), %xmm2
+				 subpd	%xmm2, %xmm0
+				 movupd	-8(%rdi), %xmm2
+				 subpd	%xmm2, %xmm1
+				 movupd	%xmm1, -40(%rdi)
+				 movupd	%xmm0, -56(%rdi)
+			  */
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1)); // 2 records
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 2 records
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5)); // 2 records
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 2 records
 			y1 = _mm_sub_pd(y1, x1);
 			y2 = _mm_sub_pd(y2, x2);
 			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 5), y1);
@@ -1891,26 +1896,33 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__vmul__");
 
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+		{
+			__m256 x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
+			__m256 y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+			y = _mm256_mul_pd(y, x);
+			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
+		}
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__) && !defined(__AVX__)
 		{
 			/* For this the compiler generated the same
 			 * code on my machine but this depends on compiler and optimizations
 			 * so we still have a manually vectorized version.
 			 */
-			/*
-			 	movupd	-56(%rdi), %xmm0
-				movupd	-40(%rdi), %xmm1
-				movupd	-24(%rdi), %xmm2
-				mulpd	%xmm0, %xmm2
-				movupd	-8(%rdi), %xmm0
-				mulpd	%xmm1, %xmm0
-				movupd	%xmm0, -40(%rdi)
-				movupd	%xmm2, -56(%rdi)
-			 */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1));
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3));
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5));
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7));
+			 /*
+				 movupd	-56(%rdi), %xmm0
+				 movupd	-40(%rdi), %xmm1
+				 movupd	-24(%rdi), %xmm2
+				 mulpd	%xmm0, %xmm2
+				 movupd	-8(%rdi), %xmm0
+				 mulpd	%xmm1, %xmm0
+				 movupd	%xmm0, -40(%rdi)
+				 movupd	%xmm2, -56(%rdi)
+			  */
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1)); // 2 records
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 2 records
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5)); // 2 records
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 2 records
 			y1 = _mm_mul_pd(y1, x1);
 			y2 = _mm_mul_pd(y2, x2);
 			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 5), y1);
@@ -1941,27 +1953,33 @@ namespace Nominax
 	__vdiv__:
 		__attribute__((hot));
 		ASM_MARKER("__vdiv__");
-
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+		{
+			__m256 x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
+			__m256 y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+			y = _mm256_div_pd(y, x);
+			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
+		}
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__) && !defined(__AVX__)
 		{
 			/* For this the compiler generated the same
 			 * code on my machine but this depends on compiler and optimizations
 			 * so we still have a manually vectorized version.
 			 */
-			/*
-			 	movupd	-56(%rdi), %xmm0
-				movupd	-40(%rdi), %xmm1
-				movupd	-24(%rdi), %xmm2
-				divpd	%xmm2, %xmm0
-				movupd	-8(%rdi), %xmm2
-				divpd	%xmm2, %xmm1
-				movupd	%xmm1, -40(%rdi)
-				movupd	%xmm0, -56(%rdi)
-			 */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1));
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3));
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5));
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7));
+			 /*
+				 movupd	-56(%rdi), %xmm0
+				 movupd	-40(%rdi), %xmm1
+				 movupd	-24(%rdi), %xmm2
+				 divpd	%xmm2, %xmm0
+				 movupd	-8(%rdi), %xmm2
+				 divpd	%xmm2, %xmm1
+				 movupd	%xmm1, -40(%rdi)
+				 movupd	%xmm0, -56(%rdi)
+			  */
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1)); // 2 records
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 2 records
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5)); // 2 records
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 2 records
 			y1 = _mm_div_pd(y1, x1);
 			y2 = _mm_div_pd(y2, x2);
 			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 5), y1);
@@ -1997,17 +2015,13 @@ namespace Nominax
 
 		ASM_MARKER("_terminate_");
 
-		return
-		{
-			.Input = input,
-			.ShutdownReason = DetermineShutdownReason(interruptCode),
-			.Pre = pre,
-			.Post = std::chrono::high_resolution_clock::now(),
-			.Duration = std::chrono::high_resolution_clock::now() - pre,
-			.InterruptCode = interruptCode,
-			.IpDiff = ip - input.CodeChunk,
-			.SpDiff = sp - input.Stack,
-			.BpDiff = ip - bp
-		};
+		output.ShutdownReason = DetermineShutdownReason(interruptCode);
+		output.Pre            = pre;
+		output.Post           = std::chrono::high_resolution_clock::now();
+		output.Duration       = std::chrono::high_resolution_clock::now() - pre;
+		output.InterruptCode  = interruptCode;
+		output.IpDiff         = ip - input.CodeChunk;
+		output.SpDiff         = sp - input.Stack;
+		output.BpDiff         = ip - bp;
 	}
 }

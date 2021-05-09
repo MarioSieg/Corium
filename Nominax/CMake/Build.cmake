@@ -11,3 +11,6 @@ INCLUDE("Nominax/CMake/UnitTests.cmake")
 
 # benchmark:
 INCLUDE("Nominax/CMake/Benchmark.cmake")
+
+# Set more optimizations for special reactors:
+SET_SOURCE_FILES_PROPERTIES("Nominax/Source/Core/ReactorCore_Avx.cpp" PROPERTIES COMPILE_FLAGS "-mavx")
