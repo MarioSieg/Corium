@@ -214,6 +214,7 @@
 #include "FixedStack.hpp"
 #include "../ByteCode/CustomIntrinsic.hpp"
 #include "../ByteCode/Stream.hpp"
+#include "../System/CpuFeatureDetector.hpp"
 
 namespace Nominax
 {
@@ -369,5 +370,5 @@ namespace Nominax
 		return this->AppCode_;
 	}
 
-	[[nodiscard]] extern auto ExecuteOnce(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput;
+	[[nodiscard]] extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& cpuFeatureDetector = {}) noexcept(true) -> ReactorOutput;
 }

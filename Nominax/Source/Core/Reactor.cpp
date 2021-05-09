@@ -280,10 +280,10 @@ namespace Nominax
 		return this->Output_;
 	}
 
-	auto ExecuteOnce(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput
+	auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorOutput
 	{
 		ReactorOutput output {.Input = input};
-		ExecuteReactorAutoDispatchBackend(CpuFeatureDetector { }, input, output);
+		ExecuteReactorAutoDispatchBackend(cpuFeatureDetector, input, output);
 		return output;
 	}
 }
