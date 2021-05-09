@@ -264,10 +264,11 @@ namespace Nominax
 		const auto reactorCount {std::thread::hardware_concurrency()};
 
 		this->Env_ = new(std::nothrow) Kernel(reactorCount);
+		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Env_, "Kernel allocation failed!");
 
 		const auto tok {std::chrono::high_resolution_clock::now()};
 		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
 
-		Print("Runtime environment online! Boot time: {}, Memory: {}\n", ms, Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
+		Print("Runtime environment online! Boot time: {}, Memory: {}MB\n", ms, Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
 	}
 }

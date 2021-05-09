@@ -521,7 +521,7 @@ namespace Nominax::X86_64
 
 		Print("\n");
 
-		PRINT_CPU_FEATURE("3DNowPrefetech", this->D3NowPrefetch);
+		PRINT_CPU_FEATURE("3DNowPrefetch", this->D3NowPrefetch);
 		PRINT_CPU_FEATURE("OSVW", this->OsVw);
 		PRINT_CPU_FEATURE("IBS", this->Ibs);
 		PRINT_CPU_FEATURE("XOP", this->Xop);
