@@ -844,12 +844,12 @@ namespace Nominax
 
 	__io_port_read_cluster__:
 		__attribute__((hot));
-
-		// this reads until space, but we want to read until newline (at the moment):
-		// fread(&sp->AsUtf8, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
-        [[maybe_unused]] // throw runtime exception
-        auto _ {std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin)};
-
+		{
+			// this reads until space, but we want to read until newline (at the moment):
+			// fread(&sp->AsUtf8, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
+			[[maybe_unused]] // throw runtime exception
+			auto _{ std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin) };
+		}
 		return;
 
 	__io_port_flush__:
