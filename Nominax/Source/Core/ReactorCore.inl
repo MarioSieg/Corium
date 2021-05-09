@@ -1781,7 +1781,7 @@ namespace Nominax
 	__vadd__:
 		__attribute__((hot));
 		ASM_MARKER("__vadd__");
-
+		
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 		{
 			__m256 x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records

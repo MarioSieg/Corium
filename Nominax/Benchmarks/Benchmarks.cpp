@@ -297,7 +297,9 @@ auto Loop1BillionVectorsNoAvx(State& state) -> void
 
 	for (auto _ : state)
 	{
-		const auto output {ExecuteOnce(input)};
+		CpuFeatureDetector features { };
+		const_cast<FeatureBits&>(*features).Avx = false; // Manually disable avx
+		const auto output {ExecuteOnce(input, features)};
 
 		if (output.ShutdownReason != ReactorShutdownReason::Success)
 		{
@@ -419,9 +421,7 @@ auto Loop1BillionVectorsAvxIfSupported(State& state) -> void
 
 	for (auto _ : state)
 	{
-		CpuFeatureDetector features { };
-		const_cast<FeatureBits&>(*features).Avx = false; // Manually disable avx
-		const auto output {ExecuteOnce(input, features)};
+		const auto output {ExecuteOnce(input)};
 
 		if (output.ShutdownReason != ReactorShutdownReason::Success)
 		{
