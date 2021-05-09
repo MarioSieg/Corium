@@ -250,6 +250,9 @@ namespace Nominax
 		Dim = 0x00'00'00'00'00'00'00'1F,
 		IAbs = 0x00'00'00'00'00'00'00'20,
 		FAbs = 0x00'00'00'00'00'00'00'21,
+		IoPortWriteCluster = 0x00'00'00'00'00'00'00'22,
+		IoPortReadCluster = 0x00'00'00'00'00'00'00'23,
+		IoPortFlush = 0x00'00'00'00'00'00'00'24,
 
 		/* !no intrinsic routine - count of total intrinsic routines! */
 		Count

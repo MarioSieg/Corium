@@ -326,7 +326,7 @@ namespace Nominax
 	/// </summary>
 	__attribute__((always_inline)) static inline auto operator %=(Record& self, const F64 value) noexcept(true) -> void
 	{
-		self.Vf64 = std::fmod(self.Vf64, value);
+		self.AsF64 = std::fmod(self.AsF64, value);
 	}
 
 	/// <summary>
@@ -558,7 +558,7 @@ namespace Nominax
 	/// So stack[-1] will be overwritten and contains the result.
 	/// stack[0] will still contain arg2.
 	/// </summary>
-	__attribute__((hot)) static auto SyscallIntrin(Record* const sp, const U64 id) noexcept(true) -> void
+	__attribute__((hot)) static auto SyscallIntrin(Record* __restrict__ const sp, const U64 id) noexcept(true) -> void
 	{
 		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallId::Count)] {
 			&&__cos__,
@@ -594,7 +594,10 @@ namespace Nominax
 			&&__fmin__,
 			&&__fdim__,
 			&&__abs__,
-			&&__fabs__
+			&&__fabs__,
+			&&__io_port_write_cluster__,
+			&&__io_port_read_cluster__,
+			&&__io_port_flush__
 		};
 
 		static_assert(ValidateJumpTable(JUMP_TABLE, sizeof JUMP_TABLE / sizeof *JUMP_TABLE));
@@ -605,256 +608,265 @@ namespace Nominax
 	__cos__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::cos((*sp).Vf64);
+		(*sp).AsF64 = std::cos((*sp).AsF64);
 
 		return;
 
 	__sin__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::sin((*sp).Vf64);
+		(*sp).AsF64 = std::sin((*sp).AsF64);
 
 		return;
 
 	__tan__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::tan((*sp).Vf64);
+		(*sp).AsF64 = std::tan((*sp).AsF64);
 
 		return;
 
 	__acos__: __attribute__((hot));
 
-		(*sp).Vf64 = std::acos((*sp).Vf64);
+		(*sp).AsF64 = std::acos((*sp).AsF64);
 
 		return;
 
 	__asin__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::asin((*sp).Vf64);
+		(*sp).AsF64 = std::asin((*sp).AsF64);
 
 		return;
 
 	__atan__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::atan((*sp).Vf64);
+		(*sp).AsF64 = std::atan((*sp).AsF64);
 
 		return;
 
 	__atan2__:
 		__attribute__((hot));
 
-		(*(sp - 1)).Vf64 = std::atan2((*(sp - 1)).Vf64, (*sp).Vf64);
+		(*(sp - 1)).AsF64 = std::atan2((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__cosh__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::cosh((*sp).Vf64);
+		(*sp).AsF64 = std::cosh((*sp).AsF64);
 
 		return;
 
 	__sinh__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::sinh((*sp).Vf64);
+		(*sp).AsF64 = std::sinh((*sp).AsF64);
 
 		return;
 
 	__tanh__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::tanh((*sp).Vf64);
+		(*sp).AsF64 = std::tanh((*sp).AsF64);
 
 		return;
 
 	__acosh__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::acosh((*sp).Vf64);
+		(*sp).AsF64 = std::acosh((*sp).AsF64);
 
 		return;
 
 	__asinh__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::asinh((*sp).Vf64);
+		(*sp).AsF64 = std::asinh((*sp).AsF64);
 
 		return;
 
 	__atanh__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::atanh((*sp).Vf64);
+		(*sp).AsF64 = std::atanh((*sp).AsF64);
 
 		return;
 
 	__exp__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::exp((*sp).Vf64);
+		(*sp).AsF64 = std::exp((*sp).AsF64);
 
 		return;
 
 	__log__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::log((*sp).Vf64);
+		(*sp).AsF64 = std::log((*sp).AsF64);
 
 		return;
 
 	__log10__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::log10((*sp).Vf64);
+		(*sp).AsF64 = std::log10((*sp).AsF64);
 
 		return;
 
 	__exp2__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::exp2((*sp).Vf64);
+		(*sp).AsF64 = std::exp2((*sp).AsF64);
 
 		return;
 
 	__ilogb__: __attribute__((hot));
 
-		(*sp).Vi64 = std::ilogb((*sp).Vf64);
+		(*sp).AsI64 = std::ilogb((*sp).AsF64);
 
 		return;
 
 	__log2__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::log2((*sp).Vf64);
+		(*sp).AsF64 = std::log2((*sp).AsF64);
 
 		return;
 
 	__pow__:
 		__attribute__((hot));
 
-		(*(sp - 1)).Vf64 = std::pow((*(sp - 1)).Vf64, (*sp).Vf64);
+		(*(sp - 1)).AsF64 = std::pow((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__sqrt__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::sqrt((*sp).Vf64);
+		(*sp).AsF64 = std::sqrt((*sp).AsF64);
 
 		return;
 
 	__cbrt__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::cbrt((*sp).Vf64);
+		(*sp).AsF64 = std::cbrt((*sp).AsF64);
 
 		return;
 
 	__hypot__:
 		__attribute__((hot));
 
-		(*(sp - 1)).Vf64 = std::hypot((*(sp - 1)).Vf64, (*sp).Vf64);
+		(*(sp - 1)).AsF64 = std::hypot((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__ceil__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::ceil((*sp).Vf64);
+		(*sp).AsF64 = std::ceil((*sp).AsF64);
 
 		return;
 
 	__floor__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::floor((*sp).Vf64);
+		(*sp).AsF64 = std::floor((*sp).AsF64);
 
 		return;
 
 	__round__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::round((*sp).Vf64);
+		(*sp).AsF64 = std::round((*sp).AsF64);
 
 		return;
 
 	__rint__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::rint((*sp).Vf64);
+		(*sp).AsF64 = std::rint((*sp).AsF64);
 
 		return;
 
 	__max__:
 		__attribute__((hot));
 
-		(*(sp - 1)).Vi64 = std::max((*(sp - 1)).Vi64, (*sp).Vi64);
+		(*(sp - 1)).AsI64 = std::max((*(sp - 1)).AsI64, (*sp).AsI64);
 
 		return;
 
 	__min__:
 		__attribute__((hot));
 
-		(*(sp - 1)).Vi64 = std::min((*(sp - 1)).Vi64, (*sp).Vi64);
+		(*(sp - 1)).AsI64 = std::min((*(sp - 1)).AsI64, (*sp).AsI64);
 
 		return;
 
 	__fmax__:
 		__attribute__((hot));
 
-		(*(sp - 1)).Vf64 = std::max((*(sp - 1)).Vf64, (*sp).Vf64);
+		(*(sp - 1)).AsF64 = std::max((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__fmin__:
 		__attribute__((hot));
 
-		(*(sp - 1)).Vf64 = std::min((*(sp - 1)).Vf64, (*sp).Vf64);
+		(*(sp - 1)).AsF64 = std::min((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__fdim__:
 		__attribute__((hot));
 
-		(*(sp - 1)).Vf64 = std::fdim((*(sp - 1)).Vf64, (*sp).Vf64);
+		(*(sp - 1)).AsF64 = std::fdim((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__abs__:
 		__attribute__((hot));
 
-		(*sp).Vi64 = std::abs((*sp).Vi64);
+		(*sp).AsI64 = std::abs((*sp).AsI64);
 
 		return;
 
 	__fabs__:
 		__attribute__((hot));
 
-		(*sp).Vf64 = std::abs((*sp).Vf64);
+		(*sp).AsF64 = std::abs((*sp).AsF64);
+
+		return;
+
+	__io_port_write_cluster__:
+		__attribute__((hot));
+
+		std::fwrite(sp, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdout);
+
+		return;
+
+	__io_port_read_cluster__:
+		__attribute__((hot));
+
+		// this reads until space, but we want to read until newline (at the moment):
+		// fread(&sp->AsUtf8, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
+		std::fgets(reinterpret_cast<char* const>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
+
+		return;
+
+	__io_port_flush__:
+		__attribute__((hot));
+
+		std::fflush(stdout);
 
 		return;
 	}
 
-	__attribute__((hot)) auto ExecuteChecked(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput
+	__attribute__((hot)) auto ExecuteUnchecked(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput
 	{
-		auto validationFault = [&input](const ReactorValidationResult result) noexcept(true) -> ReactorOutput
-		{
-			return
-			{
-				.Input = &input,
-				.ValidationResult = result,
-			};
-		};
-
-		if (const auto result = input.Validate(); NOMINAX_UNLIKELY(result != ReactorValidationResult::Ok))
-		{
-			return validationFault(result);
-		}
-
 		const auto pre = std::chrono::high_resolution_clock::now();
 
 		static constexpr const void* __restrict__ const JUMP_TABLE[static_cast<std::size_t>(Instruction::Count)]
@@ -933,9 +945,13 @@ namespace Nominax
 		ASM_MARKER("reactor begin");
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-		if (!MapJumpTable(input.CodeChunk, input.CodeChunk + input.CodeChunkSize, input.CodeChunkInstructionMap, JUMP_TABLE))
+		if (NOMINAX_UNLIKELY(!MapJumpTable(input.CodeChunk, input.CodeChunk + input.CodeChunkSize, input.CodeChunkInstructionMap, JUMP_TABLE)))
 		{
-			return validationFault(ReactorValidationResult::ExecutionAddressMappingError);
+			return
+			{
+				.Input = input,
+				.ShutdownReason = ReactorShutdownReason::Error
+			};
 		}
 #endif
 
@@ -972,7 +988,7 @@ namespace Nominax
 		{
 			ASM_MARKER("__int__");
 
-			interruptCode = (*++ip).R64.Vi32;
+			interruptCode = (*++ip).R64.AsI32;
 			interruptHandler(interruptCode);
 			if (NOMINAX_UNLIKELY(interruptCode <= 0))
 			{
@@ -987,7 +1003,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__intrin__");
 
-		SyscallIntrin(sp, (*++ip).R64.Vu64); // syscall(sp, imm())
+		SyscallIntrin(sp, (*++ip).R64.AsU64); // syscall(sp, imm())
 
 		goto
 		JMP_PTR();
@@ -997,7 +1013,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__cintrin__");
 
-		(**(intrinsicTable + (*++ip).R64.Vu64))(sp);
+		(**(intrinsicTable + (*++ip).R64.AsU64))(sp);
 
 		goto
 		JMP_PTR();
@@ -1010,9 +1026,9 @@ namespace Nominax
 
 			// ip + 1 is the procedure to jump to, so
 			// ip + 2 is the next instruction
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			bp = ip + 1;                      // store the address to return to in the base pointer
-			ip = ipLo + abs;                  // ip = begin + offset
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			bp = ip + 1;                       // store the address to return to in the base pointer
+			ip = ipLo + abs;                   // ip = begin + offset
 		}
 		goto
 		JMP_PTR_REL();
@@ -1035,8 +1051,8 @@ namespace Nominax
 		{
 			ASM_MARKER("__mov__");
 
-			const U64 dst {(*++ip).R64.Vu64};       // imm() -> arg 1 (reg) - dst
-			*(sp + dst) = *(sp + (*++ip).R64.Vu64); // poke(dst) = poke(imm())
+			const U64 dst {(*++ip).R64.AsU64};       // imm() -> arg 1 (reg) - dst
+			*(sp + dst) = *(sp + (*++ip).R64.AsU64); // poke(dst) = poke(imm())
 		}
 		goto
 		JMP_PTR();
@@ -1047,8 +1063,8 @@ namespace Nominax
 		{
 			ASM_MARKER("__sto__");
 
-			const U64 dst {(*++ip).R64.Vu64};      // imm() -> arg 1 (reg) - dst
-			(*(sp + dst)).Vu64 = (*++ip).R64.Vu64; // poke(dst) = imm()
+			const U64 dst {(*++ip).R64.AsU64};       // imm() -> arg 1 (reg) - dst
+			(*(sp + dst)).AsU64 = (*++ip).R64.AsU64; // poke(dst) = imm()
 		}
 		goto
 		JMP_PTR();
@@ -1140,8 +1156,8 @@ namespace Nominax
 		{
 			ASM_MARKER("__jmp__");
 
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			ip = ipLo + abs;                  // ip = begin + offset
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			ip = ipLo + abs;                   // ip = begin + offset
 		}
 		goto
 		JMP_PTR_REL();
@@ -1152,8 +1168,8 @@ namespace Nominax
 		{
 			ASM_MARKER("__jmprel__");
 
-			const U64 rel {(*++ip).R64.Vu64}; // relative address
-			ip += rel;                        // ip +-= rel
+			const U64 rel {(*++ip).R64.AsU64}; // relative address
+			ip += rel;                         // ip +-= rel
 		}
 		goto
 		JMP_PTR_REL();
@@ -1164,8 +1180,8 @@ namespace Nominax
 		{
 			ASM_MARKER("__jz__");
 
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp--).Vi64 == 0)
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp--).AsI64 == 0)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1179,8 +1195,8 @@ namespace Nominax
 		{
 			ASM_MARKER("__jnz__");
 
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp--).Vi64 != 0)
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp--).AsI64 != 0)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1194,8 +1210,8 @@ namespace Nominax
 		{
 			ASM_MARKER("__jo_cmpi__");
 
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp--).Vi64 == 1)
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp--).AsI64 == 1)
 			{
 				// pop()
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
@@ -1210,8 +1226,8 @@ namespace Nominax
 		{
 			ASM_MARKER("__jo_cmpf__");
 
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if (::F64IsOne((*sp--).Vf64))
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if (::F64IsOne((*sp--).AsF64))
 			{
 				// pop()
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
@@ -1226,8 +1242,8 @@ namespace Nominax
 		{
 			ASM_MARKER("__jno_cmpi__");
 
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp--).Vi64 != 1)
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp--).AsI64 != 1)
 			{
 				// pop()
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
@@ -1242,8 +1258,8 @@ namespace Nominax
 		{
 			ASM_MARKER("__jno_cmpf__");
 
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if (!::F64IsOne((*sp--).Vf64))
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if (!::F64IsOne((*sp--).AsF64))
 			{
 				// pop()
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
@@ -1258,9 +1274,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__je_cmpi__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp).Vi64 == (*(sp + 1)).Vi64)
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp).AsI64 == (*(sp + 1)).AsI64)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1275,9 +1291,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__je_cmpf__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if (::F64Equals((*sp).Vf64, (*(sp + 1)).Vf64))
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if (::F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1292,9 +1308,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__jne_cmpi__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp).Vi64 != (*(sp + 1)).Vi64)
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp).AsI64 != (*(sp + 1)).AsI64)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1309,9 +1325,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__jne_cmpf__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if (!::F64Equals((*sp).Vf64, (*(sp + 1)).Vf64))
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if (!::F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1326,9 +1342,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__ja_cmpi__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp).Vi64 > (*(sp + 1)).Vi64)
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp).AsI64 > (*(sp + 1)).AsI64)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1343,9 +1359,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__ja_cmpf__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp).Vf64 > (*(sp + 1)).Vf64)
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp).AsF64 > (*(sp + 1)).AsF64)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1360,9 +1376,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__jl_cmpi__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp).Vi64 < (*(sp + 1)).Vi64)
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp).AsI64 < (*(sp + 1)).AsI64)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1377,9 +1393,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__jl_cmpf__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp).Vf64 < (*(sp + 1)).Vf64)
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp).AsF64 < (*(sp + 1)).AsF64)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1394,9 +1410,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__jae_cmpi__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp).Vi64 >= (*(sp + 1)).Vi64)
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp).AsI64 >= (*(sp + 1)).AsI64)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1411,9 +1427,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__jae_cmpf__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp).Vf64 >= (*(sp + 1)).Vf64)
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp).AsF64 >= (*(sp + 1)).AsF64)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1428,9 +1444,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__jle_cmpi__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp).Vi64 <= (*(sp + 1)).Vi64)
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp).AsI64 <= (*(sp + 1)).AsI64)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1445,9 +1461,9 @@ namespace Nominax
 		{
 			ASM_MARKER("__jle_cmpf__");
 
-			--sp;                             // pop()
-			const U64 abs {(*++ip).R64.Vu64}; // absolute address
-			if ((*sp).Vf64 <= (*(sp + 1)).Vf64)
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			if ((*sp).AsF64 <= (*(sp + 1)).AsF64)
 			{
 				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
 			}
@@ -1461,7 +1477,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__ipushz__");
 
-		(*++sp).Vi64 = 0; // push(0)
+		(*++sp).AsI64 = 0; // push(0)
 
 		goto
 		JMP_PTR();
@@ -1471,7 +1487,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__ipusho__");
 
-		(*++sp).Vi64 = 1; // push(1)
+		(*++sp).AsI64 = 1; // push(1)
 
 		goto
 		JMP_PTR();
@@ -1481,7 +1497,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__fpusho__");
 
-		(*++sp).Vf64 = 1.0; // push(1)
+		(*++sp).AsF64 = 1.0; // push(1)
 
 		goto
 		JMP_PTR();
@@ -1491,7 +1507,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__iinc__");
 
-		++(*sp).Vi64;
+		++(*sp).AsI64;
 
 		goto
 		JMP_PTR();
@@ -1501,7 +1517,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__idec__");
 
-		--(*sp).Vi64;
+		--(*sp).AsI64;
 
 		goto
 		JMP_PTR();
@@ -1511,8 +1527,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__iadd__");
 
-		--sp;                           // pop
-		(*sp).Vi64 += (*(sp + 1)).Vi64; // peek() += poke(1)
+		--sp;                             // pop
+		(*sp).AsI64 += (*(sp + 1)).AsI64; // peek() += poke(1)
 
 		goto
 		JMP_PTR();
@@ -1522,8 +1538,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__isub__");
 
-		--sp;                           // pop
-		(*sp).Vi64 -= (*(sp + 1)).Vi64; // peek() -= poke(1)
+		--sp;                             // pop
+		(*sp).AsI64 -= (*(sp + 1)).AsI64; // peek() -= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1533,8 +1549,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__imul__");
 
-		--sp;                           // pop
-		(*sp).Vi64 *= (*(sp + 1)).Vi64; // peek() *= poke(1)
+		--sp;                             // pop
+		(*sp).AsI64 *= (*(sp + 1)).AsI64; // peek() *= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1544,8 +1560,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__idiv__");
 
-		--sp;                           // pop
-		(*sp).Vi64 /= (*(sp + 1)).Vi64; // peek() /= poke(1)
+		--sp;                             // pop
+		(*sp).AsI64 /= (*(sp + 1)).AsI64; // peek() /= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1555,8 +1571,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__imod__");
 
-		--sp;                           // pop
-		(*sp).Vi64 %= (*(sp + 1)).Vi64; // peek() %= poke(1)
+		--sp;                             // pop
+		(*sp).AsI64 %= (*(sp + 1)).AsI64; // peek() %= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1565,8 +1581,8 @@ namespace Nominax
 	__iand__:
 		__attribute__((hot));
 		ASM_MARKER("__iand__");
-		--sp;                           // pop
-		(*sp).Vi64 &= (*(sp + 1)).Vi64; // peek() &= poke(1)
+		--sp;                             // pop
+		(*sp).AsI64 &= (*(sp + 1)).AsI64; // peek() &= poke(1)
 		goto
 		JMP_PTR();
 
@@ -1575,8 +1591,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__ior__");
 
-		--sp;                           // pop
-		(*sp).Vi64 |= (*(sp + 1)).Vi64; // peek() |= poke(1)
+		--sp;                             // pop
+		(*sp).AsI64 |= (*(sp + 1)).AsI64; // peek() |= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1586,8 +1602,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__ixor__");
 
-		--sp;                           // pop
-		(*sp).Vi64 ^= (*(sp + 1)).Vi64; // peek() ^= poke(1)
+		--sp;                             // pop
+		(*sp).AsI64 ^= (*(sp + 1)).AsI64; // peek() ^= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1597,7 +1613,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__icom__");
 
-		(*sp).Vi64 = ~(*sp).Vi64;
+		(*sp).AsI64 = ~(*sp).AsI64;
 
 		goto
 		JMP_PTR();
@@ -1607,8 +1623,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__isal__");
 
-		--sp;                            // pop
-		(*sp).Vi64 <<= (*(sp + 1)).Vi64; // peek() <<= poke(1)
+		--sp;                              // pop
+		(*sp).AsI64 <<= (*(sp + 1)).AsI64; // peek() <<= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1618,8 +1634,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__isar__");
 
-		--sp;                            // pop
-		(*sp).Vi64 >>= (*(sp + 1)).Vi64; // peek() >>= poke(1)
+		--sp;                              // pop
+		(*sp).AsI64 >>= (*(sp + 1)).AsI64; // peek() >>= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1630,7 +1646,7 @@ namespace Nominax
 		ASM_MARKER("__irol__");
 
 		--sp; // pop
-		(*sp).Vu64 = Rol64((*sp).Vu64, static_cast<U8>((*(sp + 1)).Vu64));
+		(*sp).AsU64 = Rol64((*sp).AsU64, static_cast<U8>((*(sp + 1)).AsU64));
 
 		goto
 		JMP_PTR();
@@ -1641,7 +1657,7 @@ namespace Nominax
 		ASM_MARKER("__iror__");
 
 		--sp; // pop
-		(*sp).Vu64 = Ror64((*sp).Vu64, static_cast<U8>((*(sp + 1)).Vu64));
+		(*sp).AsU64 = Ror64((*sp).AsU64, static_cast<U8>((*(sp + 1)).AsU64));
 
 		goto
 		JMP_PTR();
@@ -1651,7 +1667,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__ineg__");
 
-		(*sp).Vi64 = -(*sp).Vi64;
+		(*sp).AsI64 = -(*sp).AsI64;
 
 		goto
 		JMP_PTR();
@@ -1661,8 +1677,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__fadd__");
 
-		--sp;                           // pop
-		(*sp).Vf64 += (*(sp + 1)).Vf64; // peek() += poke(1)
+		--sp;                             // pop
+		(*sp).AsF64 += (*(sp + 1)).AsF64; // peek() += poke(1)
 
 		goto
 		JMP_PTR();
@@ -1672,8 +1688,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__fsub__");
 
-		--sp;                           // pop
-		(*sp).Vf64 -= (*(sp + 1)).Vf64; // peek() -= poke(1)
+		--sp;                             // pop
+		(*sp).AsF64 -= (*(sp + 1)).AsF64; // peek() -= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1683,8 +1699,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__fmul__");
 
-		--sp;                           // pop
-		(*sp).Vf64 *= (*(sp + 1)).Vf64; // peek() *= poke(1)
+		--sp;                             // pop
+		(*sp).AsF64 *= (*(sp + 1)).AsF64; // peek() *= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1694,8 +1710,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__fdiv__");
 
-		--sp;                           // pop
-		(*sp).Vf64 /= (*(sp + 1)).Vf64; // peek() /= poke(1)
+		--sp;                             // pop
+		(*sp).AsF64 /= (*(sp + 1)).AsF64; // peek() /= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1705,8 +1721,8 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__fmod__");
 
-		--sp;                    // pop
-		*sp %= (*(sp + 1)).Vf64; // peek() %= poke(1)
+		--sp;                     // pop
+		*sp %= (*(sp + 1)).AsF64; // peek() %= poke(1)
 
 		goto
 		JMP_PTR();
@@ -1716,7 +1732,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__fneg__");
 
-		(*sp).Vf64 = -(*sp).Vf64;
+		(*sp).AsF64 = -(*sp).AsF64;
 
 		goto
 		JMP_PTR();
@@ -1726,7 +1742,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__finc__");
 
-		++(*sp).Vf64;
+		++(*sp).AsF64;
 
 		goto
 		JMP_PTR();
@@ -1736,7 +1752,7 @@ namespace Nominax
 		__attribute__((hot));
 		ASM_MARKER("__fdec__");
 
-		--(*sp).Vf64;
+		--(*sp).AsF64;
 
 		goto
 		JMP_PTR();
@@ -1809,10 +1825,10 @@ namespace Nominax
 			addpd	%xmm0, %xmm3
 			movupd	%xmm3, -64(%rdi)
 		*/
-		(*(sp - 4)).Vf64 += (*(sp - 0)).Vf64;
-		(*(sp - 5)).Vf64 += (*(sp - 1)).Vf64;
-		(*(sp - 6)).Vf64 += (*(sp - 2)).Vf64;
-		(*(sp - 7)).Vf64 += (*(sp - 3)).Vf64;
+		(*(sp - 4)).AsF64 += (*(sp - 0)).AsF64;
+		(*(sp - 5)).AsF64 += (*(sp - 1)).AsF64;
+		(*(sp - 6)).AsF64 += (*(sp - 2)).AsF64;
+		(*(sp - 7)).AsF64 += (*(sp - 3)).AsF64;
 #endif
 		sp -= 4;
 
@@ -1860,10 +1876,10 @@ namespace Nominax
 			movupd	%xmm1, -40(%rdi)
 			movupd	%xmm0, -56(%rdi)
 		*/
-		(*(sp - 4)).Vf64 -= (*(sp - 0)).Vf64;
-		(*(sp - 5)).Vf64 -= (*(sp - 1)).Vf64;
-		(*(sp - 6)).Vf64 -= (*(sp - 2)).Vf64;
-		(*(sp - 7)).Vf64 -= (*(sp - 3)).Vf64;
+		(*(sp - 4)).AsF64 -= (*(sp - 0)).AsF64;
+		(*(sp - 5)).AsF64 -= (*(sp - 1)).AsF64;
+		(*(sp - 6)).AsF64 -= (*(sp - 2)).AsF64;
+		(*(sp - 7)).AsF64 -= (*(sp - 3)).AsF64;
 #endif
 		sp -= 4;
 
@@ -1911,10 +1927,10 @@ namespace Nominax
 			movupd	%xmm0, -40(%rdi)
 			movupd	%xmm2, -56(%rdi)
 		*/
-		(*(sp - 4)).Vf64 *= (*(sp - 0)).Vf64;
-		(*(sp - 5)).Vf64 *= (*(sp - 1)).Vf64;
-		(*(sp - 6)).Vf64 *= (*(sp - 2)).Vf64;
-		(*(sp - 7)).Vf64 *= (*(sp - 3)).Vf64;
+		(*(sp - 4)).AsF64 *= (*(sp - 0)).AsF64;
+		(*(sp - 5)).AsF64 *= (*(sp - 1)).AsF64;
+		(*(sp - 6)).AsF64 *= (*(sp - 2)).AsF64;
+		(*(sp - 7)).AsF64 *= (*(sp - 3)).AsF64;
 #endif
 		sp -= 4;
 
@@ -1962,10 +1978,10 @@ namespace Nominax
 			movupd	%xmm1, -40(%rdi)
 			movupd	%xmm0, -56(%rdi)
 		*/
-		(*(sp - 4)).Vf64 /= (*(sp - 0)).Vf64;
-		(*(sp - 5)).Vf64 /= (*(sp - 1)).Vf64;
-		(*(sp - 6)).Vf64 /= (*(sp - 2)).Vf64;
-		(*(sp - 7)).Vf64 /= (*(sp - 3)).Vf64;
+		(*(sp - 4)).AsF64 /= (*(sp - 0)).AsF64;
+		(*(sp - 5)).AsF64 /= (*(sp - 1)).AsF64;
+		(*(sp - 6)).AsF64 /= (*(sp - 2)).AsF64;
+		(*(sp - 7)).AsF64 /= (*(sp - 3)).AsF64;
 #endif
 		sp -= 4;
 
@@ -1983,8 +1999,7 @@ namespace Nominax
 
 		return
 		{
-			.Input = &input,
-			.ValidationResult = ReactorValidationResult::Ok,
+			.Input = input,
 			.ShutdownReason = DetermineShutdownReason(interruptCode),
 			.Pre = pre,
 			.Post = std::chrono::high_resolution_clock::now(),

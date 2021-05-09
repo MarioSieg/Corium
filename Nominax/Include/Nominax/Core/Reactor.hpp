@@ -369,5 +369,5 @@ namespace Nominax
 		return this->AppCode_;
 	}
 
-	[[nodiscard]] __attribute__((hot)) extern auto ExecuteChecked(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput;
+	[[nodiscard]] __attribute__((hot)) extern auto ExecuteUnchecked(const DetailedReactorDescriptor& input) noexcept(true) -> ReactorOutput;
 }

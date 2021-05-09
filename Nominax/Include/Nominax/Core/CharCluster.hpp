@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: CharCluster.hpp
 // Author: Mario
-// Created: 27.04.2021 3:41 PM
+// Created: 09.05.2021 1:13 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,95 +205,94 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#pragma once
 
-TEST(BytecodeDynamicSignal, InstructionData)
-{
-	const auto x = DynamicSignal {Instruction::CIntrin};
-	ASSERT_TRUE(x.Contains<Instruction>());
-	ASSERT_TRUE(x.Contains(Instruction::CIntrin));
-}
+#include <array>
+#include <algorithm>
 
-TEST(BytecodeDynamicSignal, IntrinsicData)
-{
-	const auto x = DynamicSignal {SystemIntrinsicCallId::ATan2};
-	ASSERT_TRUE(x.Contains<SystemIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(SystemIntrinsicCallId::ATan2));
-}
+#include "../Common/RtTypes.hpp"
 
-TEST(BytecodeDynamicSignal, CustomIntrinsicData)
+namespace Nominax
 {
-	const auto x = DynamicSignal {CustomIntrinsicCallId {233113}};
-	ASSERT_TRUE(x.Contains<CustomIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(CustomIntrinsicCallId{ 233113 }));
-}
+	/// <summary>
+	/// Utf-8 character constant without null terminator.
+	/// </summary>
+	union CharClusterUtf8
+	{
+		std::array<char8_t, 8> Chars;
+		U64                    Merged;
+	};
 
-TEST(BytecodeDynamicSignal, U64Data)
-{
-	const auto x = DynamicSignal {UINT64_C(12345)};
-	ASSERT_TRUE(x.Contains<U64>());
-	ASSERT_TRUE(x.Contains(UINT64_C(12345)));
-}
+	inline auto operator ==(const CharClusterUtf8 left, const CharClusterUtf8 right) noexcept(true) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
 
-TEST(BytecodeDynamicSignal, I64Data)
-{
-	const auto x = DynamicSignal {INT64_C(-12345)};
-	ASSERT_TRUE(x.Contains<I64>());
-	ASSERT_TRUE(x.Contains(INT64_C(-12345)));
-}
+	inline auto operator !=(const CharClusterUtf8 left, const CharClusterUtf8 right) noexcept(true) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
 
-TEST(BytecodeDynamicSignal, F64Data)
-{
-	const auto x = DynamicSignal {12345.0};
-	ASSERT_TRUE(x.Contains<F64>());
-	ASSERT_TRUE(x.Contains(12345.0));
-}
+	/// <summary>
+	/// Writes the string literal into the char clusters.
+	/// If the string literal is longer than 8 chars, only the first 8 chars are written.
+	/// Null terminators are not written, so it's possible to use the full 8 chars, without using the 8th as null terminator.
+	/// </summary>
+	/// <param name="data"></param>
+	/// <param name="count"></param>
+	/// <returns></returns>
+	constexpr auto operator "" _cluster(const char8_t* const data, const std::size_t count) noexcept(true) -> CharClusterUtf8
+	{
+		CharClusterUtf8 result { };
+		for (std::size_t i {0}; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
+		{
+			result.Chars[i] = data[i];
+		}
+		return result;
+	}
 
-TEST(BytecodeDynamicSignal, C32Data)
-{
-	const auto x = DynamicSignal {CharClusterUtf8 {.Chars = {'A'}}};
-	ASSERT_TRUE(x.Contains<CharClusterUtf8>());
-	ASSERT_TRUE(x.Contains(CharClusterUtf8{ .Chars = {'A'} }));
-}
+	static_assert(sizeof(CharClusterUtf8) == sizeof(U64));
+	static_assert(sizeof(char) == sizeof(char8_t));
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithInstructionToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {Instruction::CIntrin});
-	ASSERT_EQ(x.Instr, Instruction::CIntrin);
-}
+	/// <summary>
+	/// Utf-16 character constant without null terminator.
+	/// </summary>
+	union CharClusterUtf16
+	{
+		std::array<char16_t, 4> Chars;
+		U64                     Merged;
+	};
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {SystemIntrinsicCallId::ATan2});
-	ASSERT_EQ(x.SystemIntrinId, SystemIntrinsicCallId::ATan2);
-}
+	inline auto operator ==(const CharClusterUtf16 left, const CharClusterUtf16 right) noexcept(true) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithCustomIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CustomIntrinsicCallId {4}});
-	ASSERT_EQ(x.CustomIntrinId, CustomIntrinsicCallId{ 4 });
-}
+	inline auto operator !=(const CharClusterUtf16 left, const CharClusterUtf16 right) noexcept(true) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithU64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsU64, 0xFF'FF'FF'FF'FF'FF'FF'FF);
-}
+	static_assert(sizeof(CharClusterUtf16) == sizeof(U64));
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithI64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsI64, -0x80'FF'FF'FF'FF'FF'FF'FF);
-}
+	/// <summary>
+	/// Utf-32 character constant without null terminator.
+	/// </summary>
+	union CharClusterUtf32
+	{
+		std::array<char32_t, 2> Chars;
+		U64                     Merged;
+	};
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithF64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {std::numeric_limits<F64>::max()});
-	ASSERT_EQ(x.R64.AsF64, std::numeric_limits<F64>::max());
-}
+	inline auto operator ==(const CharClusterUtf32 left, const CharClusterUtf32 right) noexcept(true) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithChar8ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CharClusterUtf8 {.Chars = {'X'}}});
-	ASSERT_EQ(x.R64.AsChar8, 'X');
+	inline auto operator !=(const CharClusterUtf32 left, const CharClusterUtf32 right) noexcept(true) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
+
+	static_assert(sizeof(CharClusterUtf32) == sizeof(U64));
 }

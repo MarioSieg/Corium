@@ -219,8 +219,7 @@ namespace Nominax
 	/// </summary>
 	struct ReactorOutput final
 	{
-		const DetailedReactorDescriptor*               Input {nullptr};
-		ReactorValidationResult                        ValidationResult { };
+		DetailedReactorDescriptor                      Input;
 		ReactorShutdownReason                          ShutdownReason {ReactorShutdownReason::Success};
 		std::chrono::high_resolution_clock::time_point Pre { };
 		std::chrono::high_resolution_clock::time_point Post { };

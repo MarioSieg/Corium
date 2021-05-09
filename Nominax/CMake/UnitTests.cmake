@@ -11,4 +11,6 @@ IF (${CORIUM_BUILD_UNIT_TESTS})
 	IF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         TARGET_LINK_LIBRARIES("NominaxUnitTests" "pthread")
     ENDIF()
+
+	CONFIGURE_FILE("Nominax/Tests/MockInput.txt" "${CMAKE_CURRENT_BINARY_DIR}/MockInput.txt" COPYONLY)
 ENDIF()

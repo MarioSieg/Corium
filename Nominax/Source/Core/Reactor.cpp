@@ -250,7 +250,7 @@ namespace Nominax
 		InterruptRoutine*          interruptHandler
 	) noexcept(false) :
 		Input_ { },
-		Output_ { },
+		Output_ {Input_},
 		Stack_ {stackSize},
 		IntrinsicTable_ {intrinsicTable},
 		InterruptHandler_ {interruptHandler ? interruptHandler : &DefaultInterruptRoutine} { }
@@ -273,9 +273,9 @@ namespace Nominax
 			this->IntrinsicTable_,
 			*this->InterruptHandler_
 		);
-		NOMINAX_PANIC_ASSERT_EQ(this->Input_.Validate(), ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(this->Output_.ValidationResult)]);
-		this->Output_ = ExecuteChecked(this->Input_); // TODO Remove second validate?!
-		NOMINAX_PANIC_ASSERT_EQ(this->Output_.ValidationResult, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(this->Output_.ValidationResult)]);
+		const auto validationResult {this->Input_.Validate()};
+		NOMINAX_PANIC_ASSERT_EQ(validationResult, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]);
+		this->Output_ = ExecuteUnchecked(this->Input_); // TODO Remove second validate?!
 		return this->Output_;
 	}
 }

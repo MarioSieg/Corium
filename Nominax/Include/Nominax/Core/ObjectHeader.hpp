@@ -439,56 +439,56 @@ namespace Nominax
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Record* const region) noexcept(true) -> U32
 	{
-		return *(*region).Vu32A;
+		return (*region).AsU32S[0];
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) noexcept(true) -> U32
 	{
-		return (*region).Vu32A[1];
+		return (*region).AsU32S[1];
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) noexcept(true) -> U32
 	{
-		return *region[1].Vu32A;
+		return region[1].AsU32S[0];
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) noexcept(true) -> ObjectFlagVector
 	{
 		const auto flags = ObjectFlagVector
 		{
-			.Merged = region[1].Vu32A[1]
+			.Merged = region[1].AsU32S[1]
 		};
 		return flags;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const U32 strongRefCount) noexcept(true) -> void
 	{
-		*(*region).Vu32A = strongRefCount;
+		(*region).AsU32S[0] = strongRefCount;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) noexcept(true) -> void
 	{
-		++*(*region).Vu32A;
+		++(*region).AsU32S[0];
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) noexcept(true) -> void
 	{
-		--*(*region).Vu32A;
+		--(*region).AsU32S[0];
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_Size(Record* const region, const U32 size) noexcept(true) -> void
 	{
-		(*region).Vu32A[1] = size;
+		(*region).AsU32S[1] = size;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_TypeId(Record* const region, const U32 typeId) noexcept(true) -> void
 	{
-		*region[1].Vu32A = typeId;
+		region[1].AsU32S[0] = typeId;
 	}
 
 	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagVector flagVector) noexcept(true) -> void
 	{
-		region[1].Vu32A[1] = flagVector.Merged;
+		region[1].AsU32S[1] = flagVector.Merged;
 	}
 
 	__attribute__((flatten)) inline auto ObjectHeader::RawQueryTypePun(Record* const region) noexcept(true) -> ObjectHeader&

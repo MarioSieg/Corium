@@ -272,7 +272,7 @@ auto Loop1Billion(State& state) -> void
 
 	for (auto _ : state)
 	{
-		const auto output {ExecuteChecked(input)};
+		const auto output {ExecuteUnchecked(input)};
 
 		if (output.ShutdownReason != ReactorShutdownReason::Success)
 		{
@@ -286,19 +286,19 @@ auto Loop1Billion(State& state) -> void
 			break;
 		}
 
-		if (output.Input->Stack[1].Vi64 != 1'000'000'000)
+		if (output.Input->Stack[1].AsI64 != 1'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (output.Input->Stack[2].Vi64 != 1'000'000'000)
+		if (output.Input->Stack[2].AsI64 != 1'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (output.Input->Stack[3].Vi64 != 1'000'000'000)
+		if (output.Input->Stack[3].AsI64 != 1'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
@@ -328,7 +328,7 @@ auto DeepCmpLess(State& state) -> void
 	const auto b {Object::AllocateUnique(16384)};
 	for (auto& x : *b)
 	{
-		x.Vf64 = 10.0;
+		x.AsF64 = 10.0;
 	}
 
 	for (auto _ : state)
@@ -401,7 +401,7 @@ auto Loop5Billion(State& state) -> void
 
 	for (auto _ : state)
 	{
-		const auto output {ExecuteChecked(input)};
+		const auto output {ExecuteUnchecked(input)};
 
 		if (output.ShutdownReason != ReactorShutdownReason::Success)
 		{
@@ -415,19 +415,19 @@ auto Loop5Billion(State& state) -> void
 			break;
 		}
 
-		if (output.Input->Stack[1].Vi64 != 5'000'000'000)
+		if (output.Input->Stack[1].AsI64 != 5'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (output.Input->Stack[2].Vi64 != 5'000'000'000)
+		if (output.Input->Stack[2].AsI64 != 5'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (output.Input->Stack[3].Vi64 != 5'000'000'000)
+		if (output.Input->Stack[3].AsI64 != 5'000'000'000)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;

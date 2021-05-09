@@ -222,6 +222,4 @@ auto main() -> int
 
 	Environment env {};
 	env.Boot();
-
-	for (;;);
 }

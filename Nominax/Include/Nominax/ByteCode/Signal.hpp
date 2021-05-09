@@ -321,6 +321,13 @@ namespace Nominax
 		explicit constexpr Signal(F64 value) noexcept(true);
 
 		/// <summary>
+		/// Construct from UTF-8 char cluster.
+		/// </summary>
+		/// <param name="cluster"></param>
+		/// <returns></returns>
+		explicit constexpr Signal(CharClusterUtf8 cluster) noexcept(true);
+
+		/// <summary>
 		/// Construct from 32-bit UTF-32 character.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
@@ -336,6 +343,7 @@ namespace Nominax
 	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
 	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
 
 	static_assert(sizeof(SignalByteBuffer) == sizeof(Signal));

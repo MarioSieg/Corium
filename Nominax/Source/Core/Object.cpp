@@ -287,7 +287,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (x->Vu64 != y->Vu64)
+			if (x->AsU64 != y->AsU64)
 			{
 				return false;
 			}
@@ -313,7 +313,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (x->Vi64 != y->Vi64)
+			if (x->AsI64 != y->AsI64)
 			{
 				return false;
 			}
@@ -339,7 +339,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (x->Vf64 != y->Vf64)
+			if (x->AsF64 != y->AsF64)
 			{
 				return false;
 			}
@@ -365,7 +365,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vu64 < y->Vu64))
+			if (!(x->AsU64 < y->AsU64))
 			{
 				return false;
 			}
@@ -391,7 +391,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vi64 < y->Vi64))
+			if (!(x->AsI64 < y->AsI64))
 			{
 				return false;
 			}
@@ -417,7 +417,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vf64 < y->Vf64))
+			if (!(x->AsF64 < y->AsF64))
 			{
 				return false;
 			}
@@ -443,7 +443,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vu64 <= y->Vu64))
+			if (!(x->AsU64 <= y->AsU64))
 			{
 				return false;
 			}
@@ -469,7 +469,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vi64 <= y->Vi64))
+			if (!(x->AsI64 <= y->AsI64))
 			{
 				return false;
 			}
@@ -495,7 +495,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vf64 <= y->Vf64))
+			if (!(x->AsF64 <= y->AsF64))
 			{
 				return false;
 			}
@@ -521,7 +521,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vu64 > y->Vu64))
+			if (!(x->AsU64 > y->AsU64))
 			{
 				return false;
 			}
@@ -547,7 +547,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vi64 > y->Vi64))
+			if (!(x->AsI64 > y->AsI64))
 			{
 				return false;
 			}
@@ -573,7 +573,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vf64 > y->Vf64))
+			if (!(x->AsF64 > y->AsF64))
 			{
 				return false;
 			}
@@ -599,7 +599,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vu64 >= y->Vu64))
+			if (!(x->AsU64 >= y->AsU64))
 			{
 				return false;
 			}
@@ -625,7 +625,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vi64 >= y->Vi64))
+			if (!(x->AsI64 >= y->AsI64))
 			{
 				return false;
 			}
@@ -651,7 +651,7 @@ namespace Nominax
 
 		while (x < w)
 		{
-			if (!(x->Vf64 >= y->Vf64))
+			if (!(x->AsF64 >= y->AsF64))
 			{
 				return false;
 			}

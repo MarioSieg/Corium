@@ -238,9 +238,9 @@ namespace Nominax
 			                  {
 				                  return Signal {value};
 			                  },
-			                  [](const char32_t value) noexcept(true)
+			                  [](const CharClusterUtf8 value) noexcept(true)
 			                  {
-				                  return Signal {value};
+				                  return Signal {value.Merged};
 			                  },
 		                  }, this->DataCollection);
 	}

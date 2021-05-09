@@ -470,7 +470,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(char32_t value) noexcept(false) -> Stream&;
+		auto operator <<(CharClusterUtf8 value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Print out the ir.
@@ -827,7 +827,7 @@ namespace Nominax
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const char32_t value) noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const CharClusterUtf8 value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;

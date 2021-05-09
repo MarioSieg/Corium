@@ -224,8 +224,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Cos)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::cos(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::cos(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -247,8 +247,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Sin)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::sin(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::sin(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -270,8 +270,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Tan)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::tan(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::tan(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -293,8 +293,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ACos)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::acos(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::acos(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -316,8 +316,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ASin)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::asin(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::asin(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -339,8 +339,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::atan(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::atan(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -364,9 +364,9 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan2)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::atan2(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 0.15);
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::atan2(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -388,8 +388,8 @@ TEST(ReactorExecution, IntrinsicRoutine_CosH)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::cosh(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::cosh(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -411,8 +411,8 @@ TEST(ReactorExecution, IntrinsicRoutine_SinH)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::sinh(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::sinh(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -434,8 +434,8 @@ TEST(ReactorExecution, IntrinsicRoutine_TanH)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::tanh(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::tanh(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -457,8 +457,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ACosH)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::acosh(1.6));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::acosh(1.6));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -480,8 +480,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ASinH)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::asinh(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::asinh(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -503,8 +503,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ATanH)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::atanh(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::atanh(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -526,8 +526,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::exp(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::exp(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -549,8 +549,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Log)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::log(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::log(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -572,8 +572,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Log10)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::log10(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::log10(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -595,8 +595,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp2)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::exp2(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::exp2(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -618,8 +618,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ILogB)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::ilogb(1.332));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::ilogb(1.332));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -641,8 +641,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Log2)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::log2(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::log2(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -666,9 +666,9 @@ TEST(ReactorExecution, IntrinsicRoutine_Pow)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::pow(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 0.15);
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::pow(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -691,8 +691,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Sqrt)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::sqrt(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::sqrt(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -714,8 +714,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Cbrt)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::cbrt(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::cbrt(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -739,9 +739,9 @@ TEST(ReactorExecution, IntrinsicRoutine_Hypot)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::hypot(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 0.15);
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::hypot(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -763,8 +763,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Ceil)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::ceil(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::ceil(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -786,8 +786,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Floor)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::floor(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::floor(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -809,8 +809,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Round)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::round(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::round(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -832,8 +832,8 @@ TEST(ReactorExecution, IntrinsicRoutine_RInt)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::rint(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::rint(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -857,9 +857,9 @@ TEST(ReactorExecution, IntrinsicRoutine_IMax)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, std::max<I64>(4, 7));
-	ASSERT_EQ(o.Input->Stack[2].Vi64, 7);
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, std::max<I64>(4, 7));
+	ASSERT_EQ(o.Input.Stack[2].AsI64, 7);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -883,9 +883,9 @@ TEST(ReactorExecution, IntrinsicRoutine_IMin)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, std::min<I64>(4, 7));
-	ASSERT_EQ(o.Input->Stack[2].Vi64, 7);
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, std::min<I64>(4, 7));
+	ASSERT_EQ(o.Input.Stack[2].AsI64, 7);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -909,9 +909,9 @@ TEST(ReactorExecution, IntrinsicRoutine_FMax)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::max(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 0.15);
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::max(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -935,9 +935,9 @@ TEST(ReactorExecution, IntrinsicRoutine_FMin)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::fmin(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 0.15);
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::fmin(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -961,9 +961,9 @@ TEST(ReactorExecution, IntrinsicRoutine_Dim)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::fdim(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 0.15);
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::fdim(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -986,8 +986,8 @@ TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, std::abs(223233));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, std::abs(223233));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -1009,8 +1009,81 @@ TEST(ReactorExecution, IntrinsicRoutine_FAbs)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::fabs(0.35));
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::fabs(0.35));
+	ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
+}
+
+TEST(ReactorExecution, IntrinsicRoutine_IOPortWrite)
+{
+	std::array code = {
+		Signal {Instruction::NOp}, // first padding
+		Signal {Instruction::Push},
+		Signal {u8"Hey =)\n"_cluster},
+		Signal {Instruction::Intrin},
+		Signal {SystemIntrinsicCallId::IoPortWriteCluster},
+		Signal {Instruction::Int},
+		Signal {INT64_C(-12345)},
+	};
+
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
+	ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
+}
+
+TEST(ReactorExecution, IntrinsicRoutine_IOPortRead)
+{
+	freopen("MockInput.txt", "r", stdin);
+	std::array code = {
+		Signal {Instruction::NOp}, // first padding
+		Signal {Instruction::Push},
+		Signal {0_uint},
+		Signal {Instruction::Intrin},
+		Signal {SystemIntrinsicCallId::IoPortReadCluster},
+		Signal {Instruction::Int},
+		Signal {INT64_C(-12345)},
+	};
+
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+	const auto o {ExecuteUnchecked(input)};
+
+	ASSERT_EQ(o.Input.Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
+	ASSERT_EQ(o.InterruptCode, -12345);
+	ASSERT_EQ(o.SpDiff, 1);
+}
+
+TEST(ReactorExecution, IntrinsicRoutine_IOPortFlush)
+{
+	std::array code = {
+		Signal {Instruction::NOp}, // first padding
+		Signal {Instruction::Push},
+		Signal {u8"Hey =)\n"_cluster},
+		Signal {Instruction::Intrin},
+		Signal {SystemIntrinsicCallId::IoPortWriteCluster},
+		Signal {Instruction::Intrin},
+		Signal {SystemIntrinsicCallId::IoPortFlush},
+		Signal {Instruction::Int},
+		Signal {INT64_C(-12345)},
+	};
+
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
+	input.CodeChunkSize = code.size();
+	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+	const auto o {ExecuteUnchecked(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }

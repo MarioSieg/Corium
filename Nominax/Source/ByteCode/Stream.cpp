@@ -293,14 +293,21 @@ struct fmt::formatter<Nominax::DynamicSignal>
 					           Lexemes::LITERAL_SUFFIX_F32
 				           );
 			           },
-			           [&](const char32_t value)
+			           [&](const CharClusterUtf8 value)
 			           {
 				           result = fmt::format_to
 				           (
 					           ctx.out(),
-					           " {}{}{:#X}",
+					           " {}{}{}{}{}{}{}{}{}{}",
 					           Lexemes::IMMEDIATE,
-					           static_cast<U32>(value),
+					           static_cast<char>(value.Chars[0]),
+					           static_cast<char>(value.Chars[1]),
+					           static_cast<char>(value.Chars[2]),
+					           static_cast<char>(value.Chars[3]),
+					           static_cast<char>(value.Chars[4]),
+					           static_cast<char>(value.Chars[5]),
+					           static_cast<char>(value.Chars[6]),
+					           static_cast<char>(value.Chars[7]),
 					           Lexemes::LITERAL_SUFFIX_CHAR
 				           );
 			           },
