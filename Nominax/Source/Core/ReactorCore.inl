@@ -847,7 +847,8 @@ namespace Nominax
 
 		// this reads until space, but we want to read until newline (at the moment):
 		// fread(&sp->AsUtf8, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
-		std::fgets(reinterpret_cast<char* const>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
+        [[maybe_unused]] // throw runtime exception
+        auto _ {std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin)};
 
 		return;
 
@@ -1784,8 +1785,8 @@ namespace Nominax
 		
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 		{
-			__m256 x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
-			__m256 y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
+            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
 			y = _mm256_add_pd(y, x);
 			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
 		}
@@ -1840,8 +1841,8 @@ namespace Nominax
 
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 		{
-			__m256 x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
-			__m256 y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
+            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
 			y = _mm256_sub_pd(y, x);
 			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
 		}
@@ -1898,8 +1899,8 @@ namespace Nominax
 
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 		{
-			__m256 x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
-			__m256 y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
+            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
 			y = _mm256_mul_pd(y, x);
 			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
 		}
@@ -1955,8 +1956,8 @@ namespace Nominax
 		ASM_MARKER("__vdiv__");
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 		{
-			__m256 x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
-			__m256 y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
+            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
 			y = _mm256_div_pd(y, x);
 			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
 		}

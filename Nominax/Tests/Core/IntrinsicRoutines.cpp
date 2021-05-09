@@ -1040,7 +1040,8 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortWrite)
 
 TEST(ReactorExecution, IntrinsicRoutine_IOPortRead)
 {
-	freopen("MockInput.txt", "r", stdin);
+    [[maybe_unused]]
+    auto _ {freopen("MockInput.txt", "r", stdin)};
 	std::array code = {
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::Push},
