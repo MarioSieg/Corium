@@ -211,8 +211,23 @@
 using namespace Nominax;
 using namespace benchmark;
 
+auto DeepCmp(State& state) -> void
+{
+	const auto a{ Object::AllocateUnique(16384) };
+	const auto b{ Object::AllocateUnique(16384) };
+
+	for (auto _ : state)
+	{
+		const auto x = Object::DeepCmp(*a, *b);
+		DoNotOptimize(x);
+	}
+}
+
+BENCHMARK(DeepCmp)->Unit(kMicrosecond);
+
 auto Loop1BillionVectorsNoAvx(State& state) -> void
 {
+	Print("\n");
 	std::array code
 	{
 		Signal {Instruction::NOp}, // first padding
@@ -337,6 +352,7 @@ BENCHMARK(Loop1BillionVectorsNoAvx)->Unit(kSecond);
 
 auto Loop1BillionVectorsAvxIfSupported(State& state) -> void
 {
+	Print("\n");
 	std::array code
 	{
 		Signal {Instruction::NOp}, // first padding
@@ -459,6 +475,7 @@ BENCHMARK(Loop1BillionVectorsAvxIfSupported)->Unit(kSecond);
 
 auto Loop1Billion(State& state) -> void
 {
+	Print("\n");
 	std::array code
 	{
 		Signal {Instruction::NOp}, // first padding
@@ -556,20 +573,6 @@ auto Loop1Billion(State& state) -> void
 
 BENCHMARK(Loop1Billion)->Unit(kSecond);
 
-auto DeepCmp(State& state) -> void
-{
-	const auto a {Object::AllocateUnique(16384)};
-	const auto b {Object::AllocateUnique(16384)};
-
-	for (auto _ : state)
-	{
-		const auto x = Object::DeepCmp(*a, *b);
-		DoNotOptimize(x);
-	}
-}
-
-BENCHMARK(DeepCmp)->Unit(kMicrosecond);
-
 auto DeepCmpLess(State& state) -> void
 {
 	const auto a {Object::AllocateUnique(16384)};
@@ -590,6 +593,7 @@ BENCHMARK(DeepCmpLess)->Unit(kMicrosecond);
 
 auto Loop5Billion(State& state) -> void
 {
+	Print("\n");
 	std::array code
 	{
 		Signal {Instruction::NOp}, // first padding
