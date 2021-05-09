@@ -293,13 +293,13 @@ namespace Nominax
 		auto color = TextColor::White;
 		switch (level)
 		{
-		case LogLevel::Info: color = TextColor::BrightWhite;
+		case LogLevel::Info: color = TextColor::White;
 			break;
 		case LogLevel::Warning: color = TextColor::Yellow;
 			break;
-		case LogLevel::Error: color = TextColor::BrightRed;
+		case LogLevel::Error: color = TextColor::Red;
 			break;
-		case LogLevel::Success: color = TextColor::BrightGreen;
+		case LogLevel::Success: color = TextColor::Green;
 			break;
 		}
 		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
