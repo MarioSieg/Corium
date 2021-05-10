@@ -269,10 +269,10 @@ namespace Nominax
 	[[nodiscard]]
 	extern auto MapJumpTable
 	(
-		Signal* __restrict__             bucket,
-		const Signal* const __restrict__ bucketEnd,
-		const bool*                      jumpAddressMap,
-		JumpTable                        jumpTable
+		Signal* __restrict__       bucket,
+		const Signal* __restrict__ bucketEnd,
+		const bool*                jumpAddressMap,
+		JumpTable                  jumpTable
 	) noexcept(false) -> bool;
 
 	/// <summary>
