@@ -205,8 +205,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <ranges>
-
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
 #include "../../Include/Nominax/ByteCode/Lexeme.hpp"
@@ -257,6 +255,16 @@ struct fmt::formatter<Nominax::DynamicSignal>
 				           (
 					           ctx.out(), " {}{}{:#X}",
 					           Lexemes::INTRINSIC_CALL_IMMEDIATE,
+					           Lexemes::IMMEDIATE,
+					           static_cast<std::underlying_type_t<decltype(value)>>(value)
+				           );
+			           },
+			           [&](const JumpAddress value)
+			           {
+				           result = fmt::format_to
+				           (
+					           ctx.out(), " {}{}{:#X}",
+					           Lexemes::JUMP_ADDRESS,
 					           Lexemes::IMMEDIATE,
 					           static_cast<std::underlying_type_t<decltype(value)>>(value)
 				           );

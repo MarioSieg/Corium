@@ -1,6 +1,6 @@
-// File: Signal.hpp
+// File: ExecutionAddressMapping.cpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 10.05.2021 4:57 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,165 +205,42 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include <array>
-#include <cstdint>
-#include <type_traits>
-
-#include "../Core/Record.hpp"
-#include "SystemIntrinsic.hpp"
-#include "CustomIntrinsic.hpp"
-#include "Instruction.hpp"
+#include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// Raw representation of a signal as bytes.
-	/// </summary>
-	using SignalByteBuffer = std::array<std::byte, 8>;
-
-	/// <summary>
-	/// 64-bit byte code signal data contains either an instruction or an immediate value.
-	/// </summary>
-	union alignas(alignof(U64)) Signal
+	auto MapJumpTable
+	(
+		Signal* __restrict__             bucket,
+		const Signal* const __restrict__ bucketEnd,
+		const bool*                      jumpAddressMap,
+		JumpTable                        jumpTable
+	) noexcept(false) -> bool
 	{
-		/// <summary>
-		/// Reinterpret as Record64.
-		/// </summary>
-		Record R64;
+		NOMINAX_PANIC_ASSERT_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(bucketEnd, "Code chunk bucket table end was nullptr!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(jumpAddressMap, "Jump address map was nullptr!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(jumpTable, "Jump table was nullptr!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(*jumpTable, "First element of jump table was nullptr!");
+		NOMINAX_PANIC_ASSERT_TRUE(*jumpAddressMap, "First element of jump address map was false, but should be true because of code prologue!");
+		NOMINAX_PANIC_ASSERT_EQ(bucket->Instr, Instruction::NOp, "Missing code prologue in code bucket!");
 
-		/// <summary>
-		/// Reinterpret as instruction.
-		/// </summary>
-		Instruction Instr;
+		// skip first "nop" padding instruction:
+		++bucket;
+		++jumpAddressMap;
 
-		/// <summary>
-		/// Reinterpret as system intrinsic call id.
-		/// </summary>
-		SystemIntrinsicCallId SystemIntrinId;
+		while (NOMINAX_UNLIKELY(bucket < bucketEnd))
+		{
+			if (*jumpAddressMap)
+			{
+				bucket->Ptr = const_cast<void*>(*(jumpTable + bucket->OpCode));
+			}
 
-		/// <summary>
-		/// Reinterpret as custom intrinsic call id.
-		/// </summary>
-		CustomIntrinsicCallId CustomIntrinId;
+			++bucket;
+			++jumpAddressMap;
+		}
 
-		/// <summary>
-		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
-		/// </summary>
-		U64 OpCode;
-
-		/// <summary>
-		/// Reinterpret as void pointer.
-		/// </summary>
-		void* Ptr;
-
-		/// <summary>
-		/// Reinterpret as jump target.
-		/// </summary>
-		JumpAddress JumpTarget;
-
-		/// <summary>
-		/// Default constructor.
-		/// </summary>
-		/// <returns></returns>
-		Signal() noexcept(true) = default;
-
-		/// <summary>
-		/// Construct from record64.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(Record value) noexcept(true);
-
-		/// <summary>
-		/// Construct from instruction.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(Instruction value) noexcept(true);
-
-		/// <summary>
-		/// Construct from system intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(SystemIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from custom intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(CustomIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from void pointer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(void* value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit signed quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(I64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit unsigned quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(U64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit F64 precision F32.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(F64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from UTF-8 char cluster.
-		/// </summary>
-		/// <param name="cluster"></param>
-		/// <returns></returns>
-		explicit constexpr Signal(CharClusterUtf8 cluster) noexcept(true);
-
-		/// <summary>
-		/// Construct from 32-bit UTF-32 character.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(char32_t value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64 bit jump address.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Signal(JumpAddress value) noexcept(true);
-	};
-
-	constexpr Signal::Signal(const Record value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const Instruction value) noexcept(true) : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicCallId value) noexcept(true) : SystemIntrinId {value} {}
-	constexpr Signal::Signal(const CustomIntrinsicCallId value) noexcept(true) : CustomIntrinId {value} {}
-	constexpr Signal::Signal(void* const value) noexcept(true) : Ptr {value} {}
-	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JumpTarget {value} {}
-
-	static_assert(sizeof(SignalByteBuffer) == sizeof(Signal));
-	static_assert(std::is_trivial_v<Signal>);
-	static_assert(std::is_default_constructible_v<Signal>);
-	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, U64>);
-	static_assert(sizeof(Instruction) == sizeof(U64));
-	static_assert(sizeof(Signal) == sizeof(U64));
-	static_assert(std::is_standard_layout_v<Signal>);
+		return true;
+	}
 }

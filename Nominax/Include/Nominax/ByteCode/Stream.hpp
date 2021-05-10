@@ -382,7 +382,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="sig"></param>
 		/// <returns></returns>
-		auto Push(DynamicSignal&& sig) noexcept(false) -> void;
+		auto Push(const DynamicSignal& sig) noexcept(false) -> void;
 
 		/// <summary>
 		/// STL iterator compat
@@ -419,6 +419,13 @@ namespace Nominax
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
+		/// <param name="sig"></param>
+		/// <returns></returns>
+		auto operator <<(const DynamicSignal& sig) noexcept(false) -> Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
 		/// <param name="instr"></param>
 		/// <returns></returns>
 		auto operator <<(Instruction instr) noexcept(false) -> Stream&;
@@ -436,6 +443,13 @@ namespace Nominax
 		/// <param name="intrin"></param>
 		/// <returns></returns>
 		auto operator <<(CustomIntrinsicCallId intrin) noexcept(false) -> Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
+		/// <param name="address"></param>
+		/// <returns></returns>
+		auto operator <<(JumpAddress address) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
@@ -599,12 +613,12 @@ namespace Nominax
 
 	inline auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult
 	{
-		return Nominax::Build(*this, out, outJumpMap);
+		return GenerateChunkAndJumpMap(*this, out, outJumpMap);
 	}
 
 	inline auto Stream::Build(AppCodeBundle& out) const noexcept(false) -> ByteCodeValidationResult
 	{
-		return Nominax::Build(*this, std::get<0>(out), std::get<1>(out));
+		return GenerateChunkAndJumpMap(*this, std::get<0>(out), std::get<1>(out));
 	}
 
 	inline auto Stream::ContainsPrologue() const noexcept(false) -> bool
@@ -712,9 +726,9 @@ namespace Nominax
 		return this->List_.size() * sizeof(DynamicSignal);
 	}
 
-	inline auto Stream::Push(DynamicSignal&& sig) noexcept(false) -> void
+	inline auto Stream::Push(const DynamicSignal& sig) noexcept(false) -> void
 	{
-		this->List_.emplace_back(sig);
+		this->List_.push_back(sig);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
@@ -785,6 +799,12 @@ namespace Nominax
 		return in.end();
 	}
 
+	inline auto Stream::operator<<(const DynamicSignal& sig) noexcept(false) -> Stream&
+	{
+		this->Push(sig);
+		return *this;
+	}
+
 	inline auto Stream::operator <<(const Instruction instr) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {instr});
@@ -800,6 +820,12 @@ namespace Nominax
 	inline auto Stream::operator <<(const CustomIntrinsicCallId intrin) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {intrin});
+		return *this;
+	}
+
+	inline auto Stream::operator<<(const JumpAddress address) noexcept(false) -> Stream&
+	{
+		this->Push(DynamicSignal {address});
 		return *this;
 	}
 

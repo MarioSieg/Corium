@@ -211,6 +211,8 @@
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/System/MacroCfg.hpp"
+#include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 
 namespace Nominax
 {
@@ -292,14 +294,26 @@ namespace Nominax
 		return ByteCodeValidationResult::Ok;
 	}
 
-	auto Build(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ByteCodeValidationResult
+	auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ByteCodeValidationResult
 	{
 		output.resize(input.Size());
 		jumpMap.resize(input.Size());
+
 		for (std::size_t i {0}; i < input.Size(); ++i)
 		{
-			output[i]  = static_cast<Signal>(input[i]);
-			jumpMap[i] = static_cast<U8>(input[i].Contains<Instruction>());
+			const auto& in {input[i]};
+			auto&       out {output[i]};
+
+			out = static_cast<Signal>(in);
+
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+			if (in.Contains<JumpAddress>())
+			{
+				// minus one because the address is incremented by the reactor before jumped
+				out.Ptr = ComputeRelativeJumpAddress(output.data(), out.JumpTarget);
+			}
+#endif
+			jumpMap[i] = static_cast<U8>(in.Contains<Instruction>());
 		}
 		return ByteCodeValidationResult::Ok;
 	}

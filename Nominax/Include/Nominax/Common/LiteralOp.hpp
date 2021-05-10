@@ -236,7 +236,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator""_F32(const long double value) noexcept(true) -> F64
+	constexpr auto operator""_float(const long double value) noexcept(true) -> F64
 	{
 		return static_cast<F64>(value);
 	}

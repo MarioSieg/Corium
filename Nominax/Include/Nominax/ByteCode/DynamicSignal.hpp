@@ -241,7 +241,7 @@ namespace Nominax
 		/// <summary>
 		/// Discriminated union.
 		/// </summary>
-		using Variant = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, U64, I64, F64, CharClusterUtf8>;
+		using Variant = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, JumpAddress, U64, I64, F64, CharClusterUtf8>;
 
 		/// <summary>
 		/// Default construct an I64(0)
@@ -262,6 +262,27 @@ namespace Nominax
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
 		explicit constexpr DynamicSignal(Instruction value) noexcept(true);
+
+		/// <summary>
+		/// Construct from system intrinsic call id.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(SystemIntrinsicCallId value) noexcept(true);
+
+		/// <summary>
+		/// Construct from custom intrinsic call id.
+		/// </summary>
+		/// <param name="value">The initial value.</param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(CustomIntrinsicCallId value) noexcept(true);
+
+		/// <summary>
+		/// Construct from jump address.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr DynamicSignal(JumpAddress value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit unsigned quadword integer.
@@ -290,20 +311,6 @@ namespace Nominax
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
 		explicit constexpr DynamicSignal(CharClusterUtf8 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from system intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(SystemIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from custom intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(CustomIntrinsicCallId value) noexcept(true);
 
 		/// <summary>
 		/// Copy constructor.
@@ -467,6 +474,13 @@ namespace Nominax
 	/// </summary>
 	/// <returns></returns>
 	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept(true) : DataCollection {value} {}
+
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr DynamicSignal::DynamicSignal(const JumpAddress value) noexcept(true) : DataCollection {value} { }
 
 	/// <summary>
 	/// Equals

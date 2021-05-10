@@ -409,124 +409,6 @@ namespace Nominax
 #	define ASM_MARKER(msg)
 #endif
 
-#if NOMINAX_STACK_OVERFLOW_CHECKS
-	 /* Inserts a stack overflow sentinel, which triggers a system interrupt
-	  * of type stack_overflow by setting the interrupt accumulator and jumping to the fault label.
-	  * This of course adds some overhead, but not much.
-	  * If stack overflow sentinels are disabled, a stack overflow will trigger a
-	  * segmentation fault (SIGSEGV), which will be handled by the signal handler
-	  * set in interrupts.hpp
-	  * The
-	  * x is the number of pushes to check for.
-	  * x = 1 -> check for 1 more push
-	  * x = 2 -> check for 2 more pushes
-	  * etc..
-	  */
-#define STO_SENTINEL(x)																								\
-			do {																									\
-				if (NOMINAX_UNLIKELY(sp + ((x) - 1) >= spHi)) {														\
-					interruptCode = INT_CODE_STACK_OVERFLOW;														\
-					goto _hard_fault_err_;																			\
-				}																									\
-			} while(false)
-#else
-#define STO_SENTINEL(x)
-#endif
-
-	/// <summary>
-	/// Replaces the op-codes in the bucket with the pointers to the labels.
-	/// This improves performance because no array lookup is needed.
-	/// The jump assembly generated on my machine (x86-64, clang):
-	/// With jump table mapping:
-	/// jmpq	*(%r14)
-	/// Without jump table mapping:
-	/// jmpq	*(%rcx,%rax,8)
-	/// This easily gives some 300-500 milliseconds performance improvement on my machine.
-	/// Important: The signal bucket is modified.
-	/// After mapping, each signal which was an instruction now contains a void* to the jump label.
-	/// That means, that the original instructions/opcodes are gone.
-	/// For example, let's say the first instruction was push 32, so the signal was:
-	/// [1] -> 7	[type: instruction]
-	/// [2] -> 32	[type: i64]
-	/// After mapping the content will be:
-	/// [1] -> 0x00D273F27A	[type: void*]
-	/// [2] -> 32			[type: i64]
-	/// Because all opcodes are gone, accessing the bucket and using the opcode values after mapping is not allowed!
-	/// Because the Signal type is not discriminated (like DynamicSignal), we do not know which signal contains an instruction.
-	/// For that we have the instruction map, which must have the same size as the bucket.
-	/// For each bucket entry there is a signal map entry, which is true if the bucket entry at the same index is an instruction else false.
-	/// Example:
-	/// bucket[1] = push	| instructionMap[1] = true
-	/// bucket[2] = 3		| instructionMap[2] = false
-	/// bucket[3] = pushz	| instructionMap[3] = true
-	/// bucket[4] = nop		| instructionMap[4] = true
-	/// </summary>
-	/// <param name="bucket">The byte code bucket to use as mapping target.</param>
-	/// <param name="bucketEnd">The incremented end pointer of the byte code bucket, calculated as: bucket + bucketLength</param>
-	/// <param name="instructionMap">The instruction map. Must have the same size as the byte code bucket.</param>
-	/// <param name="jumpTable">The jump table. Must contain an address for each instruction.</param>
-	/// <returns>true on success, else false.</returns>
-	[[maybe_unused]]
-	[[nodiscard]]
-	static constexpr auto MapJumpTable(Signal* __restrict__                               bucket,
-	                                   const Signal* const __restrict__                   bucketEnd,
-	                                   const bool*                                        instructionMap,
-	                                   const void* __restrict__ const* __restrict__ const jumpTable) noexcept(true) -> bool
-	{
-		if (NOMINAX_UNLIKELY(!bucket || !bucketEnd || !instructionMap || !jumpTable || !*jumpTable))
-		{
-			return false;
-		}
-
-		if (NOMINAX_UNLIKELY(bucket->Instr != Instruction::NOp || !*instructionMap))
-		{
-			return false;
-		}
-
-		// skip first "nop" padding instruction:
-		++bucket;
-		++instructionMap;
-
-		while (NOMINAX_UNLIKELY(bucket < bucketEnd))
-		{
-			if (*instructionMap)
-			{
-				bucket->Ptr = const_cast<void*>(*(jumpTable + bucket->OpCode));
-			}
-
-			++bucket;
-			++instructionMap;
-		}
-
-		return true;
-	}
-
-	/// <summary>
-	/// Checks if all pointers inside the jump table are non null.
-	/// Use it with static_assert because it is consteval :)
-	/// </summary>
-	/// <param name="jumpTable">The jump table to check.</param>
-	/// <param name="jumpTableSize">The amount of jump table entries.</param>
-	/// <returns>true if all entries are valid, else false.</returns>
-	static consteval auto ValidateJumpTable
-	(
-		const void* __restrict__ const* __restrict__ const jumpTable,
-		const std::size_t                                  jumpTableSize
-	) noexcept(true) -> bool
-	{
-		assert(jumpTable);
-		assert(jumpTableSize);
-		const auto* current {jumpTable};
-		for (const auto* const end {jumpTable + jumpTableSize}; NOMINAX_LIKELY(current < end); ++current)
-		{
-			if (NOMINAX_UNLIKELY(!*current))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
 	/// <summary>
 	/// Implementation for the "intrin" instruction.
 	/// This contains a jump table with the implementation of all system intrinsic routines.
@@ -949,8 +831,8 @@ namespace Nominax
 
 		ASM_MARKER("reactor locals");
 
-		InterruptAccumulator             interruptCode { };                         /* interrupt id flag			*/
-		IntrinsicRoutine* const* const   intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi			*/
+		InterruptAccumulator             interruptCode { };                         /* interrupt id flag		*/
+		IntrinsicRoutine* const* const   intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi		*/
 		InterruptRoutine* const          interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
 		const Signal* const __restrict__ ipLo {input.CodeChunk};                    /* instruction low ptr		*/
 		const Signal*                    ip {ipLo};                                 /* instruction ptr			*/
@@ -961,17 +843,21 @@ namespace Nominax
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
 
-#	define JMP_PTR() *((*++ip).Ptr)
-#	define JMP_PTR_REL() *((*ip).Ptr)
+#	define JMP_PTR()		*((*++ip).Ptr)
+#	define JMP_PTR_REL()	*((*ip).Ptr)
+#	define UPDATE_IP()		ip = reinterpret_cast<const Signal*>(abs)
 
 #else
-
-#	define JMP_PTR() **(JUMP_TABLE + (*++ip).OpCode)
-#	define JMP_PTR_REL() **(JUMP_TABLE + (*ip).OpCode)
-
+		
+#	define JMP_PTR()		**(JUMP_TABLE + (*++ip).OpCode)
+#	define JMP_PTR_REL()	**(JUMP_TABLE + (*ip).OpCode)
+#	define UPDATE_IP()		ip = ipLo + abs - 1
 #endif
 
-#define VEC_MOFFS(x) (sp - ((x) + 1))
+		/*
+		 * Compute vector memory offset relative to %sp
+		 */
+#define VEC_MOFFS(x) (sp - (( x ) + 1))
 
 		// exec first:
 		goto
@@ -1151,7 +1037,11 @@ namespace Nominax
 			ASM_MARKER("__jmp__");
 
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+			ip = reinterpret_cast<const Signal*>(abs);
+#else
 			ip = ipLo + abs;                   // ip = begin + offset
+#endif
 		}
 		goto
 		JMP_PTR_REL();
@@ -1163,7 +1053,11 @@ namespace Nominax
 			ASM_MARKER("__jmprel__");
 
 			const U64 rel {(*++ip).R64.AsU64}; // relative address
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+			ip = reinterpret_cast<const Signal*>(rel);
+#else
 			ip += rel;                         // ip +-= rel
+#endif
 		}
 		goto
 		JMP_PTR_REL();
@@ -1177,7 +1071,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp--).AsI64 == 0)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
@@ -1192,7 +1086,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp--).AsI64 != 0)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
@@ -1208,7 +1102,7 @@ namespace Nominax
 			if ((*sp--).AsI64 == 1)
 			{
 				// pop()
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
@@ -1224,7 +1118,7 @@ namespace Nominax
 			if (::F64IsOne((*sp--).AsF64))
 			{
 				// pop()
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
@@ -1240,7 +1134,7 @@ namespace Nominax
 			if ((*sp--).AsI64 != 1)
 			{
 				// pop()
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
@@ -1256,7 +1150,7 @@ namespace Nominax
 			if (!::F64IsOne((*sp--).AsF64))
 			{
 				// pop()
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
@@ -1272,7 +1166,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 == (*(sp + 1)).AsI64)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1289,7 +1183,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if (::F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1306,7 +1200,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 != (*(sp + 1)).AsI64)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1323,7 +1217,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if (!::F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1340,7 +1234,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 > (*(sp + 1)).AsI64)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1357,7 +1251,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsF64 > (*(sp + 1)).AsF64)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1374,7 +1268,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 < (*(sp + 1)).AsI64)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1391,7 +1285,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsF64 < (*(sp + 1)).AsF64)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1408,7 +1302,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 >= (*(sp + 1)).AsI64)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1425,7 +1319,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsF64 >= (*(sp + 1)).AsF64)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1442,7 +1336,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 <= (*(sp + 1)).AsI64)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1459,7 +1353,7 @@ namespace Nominax
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsF64 <= (*(sp + 1)).AsF64)
 			{
-				ip = ipLo + abs - 1; // ip = begin + offset - 1 (inc stride)
+				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
@@ -1767,11 +1661,11 @@ namespace Nominax
 				vmovupd 8(%rdi), %ymm0
 				vmovupd %ymm0, 8(%rbx)
 		*/
-		++sp;
-		++ip;
-		std::memcpy(sp, ip, sizeof(Record) * 4);
-		sp += 3;
-		ip += 3;
+		std::memcpy(sp + 1, ip + 1, sizeof(Record) * 4);
+
+		sp += 4;
+		ip += 4;
+
 		goto
 		JMP_PTR();
 

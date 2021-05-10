@@ -226,6 +226,10 @@ namespace Nominax
 			                  {
 				                  return Signal {value};
 			                  },
+			                  [](const JumpAddress value) noexcept(true)
+			                  {
+				                  return Signal {value};
+			                  },
 			                  [](const U64 value) noexcept(true)
 			                  {
 				                  return Signal {value};

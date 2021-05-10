@@ -1,6 +1,6 @@
-// File: Signal.hpp
+// File: ExecutionAddressMapping.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 10.05.2021 4:45 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,163 +207,100 @@
 
 #pragma once
 
-#include <array>
-#include <cstdint>
-#include <type_traits>
-
-#include "../Core/Record.hpp"
-#include "SystemIntrinsic.hpp"
-#include "CustomIntrinsic.hpp"
-#include "Instruction.hpp"
+#include "../ByteCode/Signal.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Raw representation of a signal as bytes.
+	/// Compute relative jump address.
 	/// </summary>
-	using SignalByteBuffer = std::array<std::byte, 8>;
+	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(Signal* const base, const JumpAddress address) noexcept(true) -> void*
+	{
+		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
+	}
 
 	/// <summary>
-	/// 64-bit byte code signal data contains either an instruction or an immediate value.
+	/// 2D jump table pointer type.
 	/// </summary>
-	union alignas(alignof(U64)) Signal
+	using JumpTable = const void* __restrict__ const* __restrict__ const;
+
+	/// <summary>
+	/// Replaces the op-codes in the bucket with the pointers to the labels.
+	/// This improves performance because no array lookup is needed.
+	/// The jump assembly generated on my machine (x86-64, clang):
+	/// With jump table mapping:
+	/// jmpq	*(%r14)
+	/// Without jump table mapping:
+	/// jmpq	*(%rcx,%rax,8)
+	/// This easily gives some 300-500 milliseconds performance improvement on my machine.
+	/// Important: The signal bucket is modified.
+	/// After mapping, each signal which was an instruction now contains a void* to the jump label.
+	/// That means, that the original instructions/opcodes are gone.
+	/// For example, let's say the first instruction was push 32, so the signal was:
+	/// [1] -> 7	[type: instruction]
+	/// [2] -> 32	[type: i64]
+	/// After mapping the content will be:
+	/// [1] -> 0x00D273F27A	[type: void*]
+	/// [2] -> 32			[type: i64]
+	/// Because all opcodes are gone, accessing the bucket and using the opcode values after mapping is not allowed!
+	/// Because the Signal type is not discriminated (like DynamicSignal), we do not know which signal contains an instruction.
+	/// For that we have the instruction map, which must have the same size as the bucket.
+	/// For each bucket entry there is a signal map entry, which is true if the bucket entry at the same index is an instruction else false.
+	/// Example:
+	/// bucket[1] = push	| instructionMap[1] = true
+	/// bucket[2] = 3		| instructionMap[2] = false
+	/// bucket[3] = pushz	| instructionMap[3] = true
+	/// bucket[4] = nop		| instructionMap[4] = true
+	///
+	/// ** Update 10.05.2021 **
+	/// For further optimization jump target addresses are not also converted to pointers.
+	/// When you specify a branch like
+	/// jz 3
+	/// the byte code position of 3 will be replaced by the real pointer value,
+	/// to avoid more calculation.
+	/// But this mapping is done in the byte code builder, not here because it does not require the jump table.
+	/// </summary>
+	/// <param name="bucket">The byte code bucket to use as mapping target.</param>
+	/// <param name="bucketEnd">The incremented end pointer of the byte code bucket, calculated as: bucket + bucketLength</param>
+	/// <param name="jumpAddressMap">The instruction map. Must have the same size as the byte code bucket.</param>
+	/// <param name="jumpTable">The jump table. Must contain an address for each instruction.</param>
+	/// <returns>true on success, else false.</returns>
+	[[maybe_unused]]
+	[[nodiscard]]
+	extern auto MapJumpTable
+	(
+		Signal* __restrict__             bucket,
+		const Signal* const __restrict__ bucketEnd,
+		const bool*                      jumpAddressMap,
+		JumpTable                        jumpTable
+	) noexcept(false) -> bool;
+
+	/// <summary>
+	/// Checks if all pointers inside the jump table are non null.
+	/// Use it with static_assert because it is consteval :)
+	/// </summary>
+	/// <param name="jumpTable">The jump table to check.</param>
+	/// <param name="jumpTableSize">The amount of jump table entries.</param>
+	/// <returns>true if all entries are valid, else false.</returns>
+	consteval auto ValidateJumpTable
+	(
+		JumpTable         jumpTable,
+		const std::size_t jumpTableSize
+	) noexcept(true) -> bool
 	{
-		/// <summary>
-		/// Reinterpret as Record64.
-		/// </summary>
-		Record R64;
+		if (!jumpTable || !jumpTableSize)
+		{
+			return false;
+		}
 
-		/// <summary>
-		/// Reinterpret as instruction.
-		/// </summary>
-		Instruction Instr;
-
-		/// <summary>
-		/// Reinterpret as system intrinsic call id.
-		/// </summary>
-		SystemIntrinsicCallId SystemIntrinId;
-
-		/// <summary>
-		/// Reinterpret as custom intrinsic call id.
-		/// </summary>
-		CustomIntrinsicCallId CustomIntrinId;
-
-		/// <summary>
-		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
-		/// </summary>
-		U64 OpCode;
-
-		/// <summary>
-		/// Reinterpret as void pointer.
-		/// </summary>
-		void* Ptr;
-
-		/// <summary>
-		/// Reinterpret as jump target.
-		/// </summary>
-		JumpAddress JumpTarget;
-
-		/// <summary>
-		/// Default constructor.
-		/// </summary>
-		/// <returns></returns>
-		Signal() noexcept(true) = default;
-
-		/// <summary>
-		/// Construct from record64.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(Record value) noexcept(true);
-
-		/// <summary>
-		/// Construct from instruction.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(Instruction value) noexcept(true);
-
-		/// <summary>
-		/// Construct from system intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(SystemIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from custom intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(CustomIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from void pointer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(void* value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit signed quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(I64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit unsigned quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(U64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit F64 precision F32.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(F64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from UTF-8 char cluster.
-		/// </summary>
-		/// <param name="cluster"></param>
-		/// <returns></returns>
-		explicit constexpr Signal(CharClusterUtf8 cluster) noexcept(true);
-
-		/// <summary>
-		/// Construct from 32-bit UTF-32 character.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(char32_t value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64 bit jump address.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Signal(JumpAddress value) noexcept(true);
-	};
-
-	constexpr Signal::Signal(const Record value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const Instruction value) noexcept(true) : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicCallId value) noexcept(true) : SystemIntrinId {value} {}
-	constexpr Signal::Signal(const CustomIntrinsicCallId value) noexcept(true) : CustomIntrinId {value} {}
-	constexpr Signal::Signal(void* const value) noexcept(true) : Ptr {value} {}
-	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JumpTarget {value} {}
-
-	static_assert(sizeof(SignalByteBuffer) == sizeof(Signal));
-	static_assert(std::is_trivial_v<Signal>);
-	static_assert(std::is_default_constructible_v<Signal>);
-	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, U64>);
-	static_assert(sizeof(Instruction) == sizeof(U64));
-	static_assert(sizeof(Signal) == sizeof(U64));
-	static_assert(std::is_standard_layout_v<Signal>);
+		const auto* current {jumpTable};
+		for (const auto* const end {jumpTable + jumpTableSize}; current < end; ++current)
+		{
+			if (!*current)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 }

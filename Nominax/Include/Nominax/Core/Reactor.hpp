@@ -370,5 +370,5 @@ namespace Nominax
 		return this->AppCode_;
 	}
 
-	[[nodiscard]] extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& cpuFeatureDetector = {}) noexcept(true) -> ReactorOutput;
+	[[nodiscard]] extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& cpuFeatureDetector = { }) noexcept(true) -> ReactorOutput;
 }

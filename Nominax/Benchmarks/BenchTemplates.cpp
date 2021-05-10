@@ -1,6 +1,6 @@
-// File: Signal.hpp
+// File: BenchTemplates.cpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 10.05.2021 4:16 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,165 +205,106 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "BenchTemplates.hpp"
 
-#include <array>
-#include <cstdint>
-#include <type_traits>
-
-#include "../Core/Record.hpp"
-#include "SystemIntrinsic.hpp"
-#include "CustomIntrinsic.hpp"
-#include "Instruction.hpp"
-
-namespace Nominax
+auto LoopBenchmark
+(
+	State&                            state,
+	const std::vector<DynamicSignal>& loopBody,
+	I64                               count,
+	const bool                        enableAvxReactor
+) -> void
 {
-	/// <summary>
-	/// Raw representation of a signal as bytes.
-	/// </summary>
-	using SignalByteBuffer = std::array<std::byte, 8>;
+	Print("\n");
 
-	/// <summary>
-	/// 64-bit byte code signal data contains either an instruction or an immediate value.
-	/// </summary>
-	union alignas(alignof(U64)) Signal
+	Stream stream
 	{
-		/// <summary>
-		/// Reinterpret as Record64.
-		/// </summary>
-		Record R64;
-
-		/// <summary>
-		/// Reinterpret as instruction.
-		/// </summary>
-		Instruction Instr;
-
-		/// <summary>
-		/// Reinterpret as system intrinsic call id.
-		/// </summary>
-		SystemIntrinsicCallId SystemIntrinId;
-
-		/// <summary>
-		/// Reinterpret as custom intrinsic call id.
-		/// </summary>
-		CustomIntrinsicCallId CustomIntrinId;
-
-		/// <summary>
-		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
-		/// </summary>
-		U64 OpCode;
-
-		/// <summary>
-		/// Reinterpret as void pointer.
-		/// </summary>
-		void* Ptr;
-
-		/// <summary>
-		/// Reinterpret as jump target.
-		/// </summary>
-		JumpAddress JumpTarget;
-
-		/// <summary>
-		/// Default constructor.
-		/// </summary>
-		/// <returns></returns>
-		Signal() noexcept(true) = default;
-
-		/// <summary>
-		/// Construct from record64.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(Record value) noexcept(true);
-
-		/// <summary>
-		/// Construct from instruction.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(Instruction value) noexcept(true);
-
-		/// <summary>
-		/// Construct from system intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(SystemIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from custom intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(CustomIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from void pointer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(void* value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit signed quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(I64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit unsigned quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(U64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit F64 precision F32.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(F64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from UTF-8 char cluster.
-		/// </summary>
-		/// <param name="cluster"></param>
-		/// <returns></returns>
-		explicit constexpr Signal(CharClusterUtf8 cluster) noexcept(true);
-
-		/// <summary>
-		/// Construct from 32-bit UTF-32 character.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal(char32_t value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64 bit jump address.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Signal(JumpAddress value) noexcept(true);
+		{
+			DynamicSignal {Instruction::NOp}, // first padding
+			DynamicSignal {Instruction::PushZ},
+			DynamicSignal {Instruction::IInc},
+			DynamicSignal {Instruction::Dupl},
+			DynamicSignal {Instruction::Push},
+			DynamicSignal {count},
+		}
 	};
 
-	constexpr Signal::Signal(const Record value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const Instruction value) noexcept(true) : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicCallId value) noexcept(true) : SystemIntrinId {value} {}
-	constexpr Signal::Signal(const CustomIntrinsicCallId value) noexcept(true) : CustomIntrinId {value} {}
-	constexpr Signal::Signal(void* const value) noexcept(true) : Ptr {value} {}
-	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JumpTarget {value} {}
+	for (const auto& sig : loopBody)
+	{
+		stream << sig;
+	}
 
-	static_assert(sizeof(SignalByteBuffer) == sizeof(Signal));
-	static_assert(std::is_trivial_v<Signal>);
-	static_assert(std::is_default_constructible_v<Signal>);
-	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, U64>);
-	static_assert(sizeof(Instruction) == sizeof(U64));
-	static_assert(sizeof(Signal) == sizeof(U64));
-	static_assert(std::is_standard_layout_v<Signal>);
+	stream << Instruction::JlCmpi;
+	stream << JumpAddress {2};
+	stream << Instruction::Pop;
+	stream << Instruction::Int;
+	stream << 0_int;
+
+	CodeChunk chunk { };
+	JumpMap   map { };
+
+	if (stream.Build(chunk, map) != ByteCodeValidationResult::Ok)
+	{
+		state.SkipWithError("Byte code validation failed!");
+	}
+
+	FixedStack stack {FixedStack::SIZE_LARGE};
+
+	constexpr std::array intrinsics {
+		+[](Record*      ) -> void {}
+	};
+
+	const DetailedReactorDescriptor input {
+		.CodeChunk = chunk.data(),
+		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(map.data()),
+		.CodeChunkSize = chunk.size(),
+		.IntrinsicTable = intrinsics.data(),
+		.IntrinsicTableSize = intrinsics.size(),
+		.InterruptHandler = +[](InterruptAccumulator) -> void {},
+		.Stack = stack.Buffer(),
+		.StackSize = stack.Size(),
+	};
+
+	if (input.Validate() != ReactorValidationResult::Ok)
+	{
+		state.SkipWithError("Reactor input validation failed!");
+		return;
+	}
+
+	for (auto _ : state)
+	{
+		CpuFeatureDetector features { };
+		const_cast<FeatureBits&>(*features).Avx = enableAvxReactor; // Manually disable avx
+		const auto output {ExecuteOnce(input, features)};
+
+		if (output.ShutdownReason != ReactorShutdownReason::Success)
+		{
+			state.SkipWithError("Reactor terminated with error or exception!");
+			break;
+		}
+
+		if (output.SpDiff != 0)
+		{
+			state.SkipWithError("Not all stack entries were popped!");
+			break;
+		}
+
+		if (output.Input.Stack[1].AsI64 != count)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+
+		if (output.Input.Stack[2].AsI64 != count)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+
+		if (output.Input.Stack[3].AsI64 != count)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+	}
 }

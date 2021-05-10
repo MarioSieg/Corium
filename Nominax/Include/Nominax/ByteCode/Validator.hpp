@@ -317,5 +317,5 @@ namespace Nominax
 	/// <param name="jumpMap"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto Build(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ByteCodeValidationResult;
+	extern auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ByteCodeValidationResult;
 }

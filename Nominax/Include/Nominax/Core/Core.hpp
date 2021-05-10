@@ -208,8 +208,10 @@
 #pragma once
 
 #include "BasicReactorDescriptor.hpp"
+#include "CharCluster.hpp"
 #include "DetailedReactorDescriptor.hpp"
 #include "Environment.hpp"
+#include "ExecutionAddressMapping.hpp"
 #include "FixedStack.hpp"
 #include "HardFaultReport.hpp"
 #include "Info.hpp"
