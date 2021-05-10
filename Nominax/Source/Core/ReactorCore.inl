@@ -848,7 +848,7 @@ namespace Nominax
 			// this reads until space, but we want to read until newline (at the moment):
 			// fread(&sp->AsUtf8, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
 			[[maybe_unused]] // throw runtime exception
-			auto _{ std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin) };
+				auto _ {std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin)};
 		}
 		return;
 
@@ -970,6 +970,8 @@ namespace Nominax
 #	define JMP_PTR_REL() **(JUMP_TABLE + (*ip).OpCode)
 
 #endif
+
+#define VEC_MOFFS(x) (sp - ((x) + 1))
 
 		// exec first:
 		goto
@@ -1755,10 +1757,15 @@ namespace Nominax
 		ASM_MARKER("__vpush__");
 
 		/*
-			movupd	(%r15), %xmm0
-			movupd	16(%r15), %xmm1
-			movupd	%xmm1, 16(%rdi)
-			movupd	%xmm0, (%rdi)
+			SSE:
+				movupd	(%r15), %xmm0
+				movupd	16(%r15), %xmm1
+				movupd	%xmm1, 16(%rdi)
+				movupd	%xmm0, (%rdi)
+				
+			AVX:
+				vmovupd 8(%rdi), %ymm0
+				vmovupd %ymm0, 8(%rbx)
 		*/
 		++sp;
 		++ip;
@@ -1778,17 +1785,21 @@ namespace Nominax
 		goto
 		JMP_PTR();
 
-
 	__vadd__:
 		__attribute__((hot));
 		ASM_MARKER("__vadd__");
-		
+
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 		{
-            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
-            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+			/*
+				 vmovupd	-0x18(%rbx), %ymm0
+				 vaddpd		-0x38(%rbx), %ymm0, %ymm0
+				 vmovupd	%ymm0, -0x38(%rbx)
+			 */
+            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 4 records
+            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 4 records
 			y = _mm256_add_pd(y, x);
-			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
+			_mm256_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y);
 		}
 #elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
 		{
@@ -1802,14 +1813,14 @@ namespace Nominax
 				movupd	%xmm0, -40(%rdi)
 				movupd	%xmm2, -56(%rdi)
 			 */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1)); // 2 records
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 2 records
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5)); // 2 records
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 2 records
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(0))); // 2 records
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 2 records
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(4))); // 2 records
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 2 records
 			y1 = _mm_add_pd(y1, x1);
 			y2 = _mm_add_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 5), y1);
-			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 7), y2);
+			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(4)), y1);
+			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y2);
 		}
 #else
 		/*
@@ -1841,10 +1852,15 @@ namespace Nominax
 
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 		{
-            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
-            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+			/*
+				 vmovupd	-0x18(%rbx), %ymm0
+				 vsubpd		-0x38(%rbx), %ymm0, %ymm0
+				 vmovupd	%ymm0, -0x38(%rbx)
+			 */
+            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 4 records
+            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 4 records
 			y = _mm256_sub_pd(y, x);
-			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
+			_mm256_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y);
 		}
 #elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__) && !defined(__AVX__)
 		{
@@ -1862,14 +1878,14 @@ namespace Nominax
 				 movupd	%xmm1, -40(%rdi)
 				 movupd	%xmm0, -56(%rdi)
 			  */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1)); // 2 records
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 2 records
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5)); // 2 records
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 2 records
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(0))); // 2 records
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 2 records
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(4))); // 2 records
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 2 records
 			y1 = _mm_sub_pd(y1, x1);
 			y2 = _mm_sub_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 5), y1);
-			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 7), y2);
+			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(4)), y1);
+			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y2);
 		}
 #else
 		/*
@@ -1899,10 +1915,15 @@ namespace Nominax
 
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 		{
-            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
-            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+			/*
+				 vmovupd	-0x18(%rbx), %ymm0
+				 vmulpd		-0x38(%rbx), %ymm0,%ymm0
+				 vmovupd	%ymm0, -0x38(%rbx)
+			 */
+            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 4 records
+            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 4 records
 			y = _mm256_mul_pd(y, x);
-			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
+			_mm256_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y);
 		}
 #elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__) && !defined(__AVX__)
 		{
@@ -1920,14 +1941,14 @@ namespace Nominax
 				 movupd	%xmm0, -40(%rdi)
 				 movupd	%xmm2, -56(%rdi)
 			  */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1)); // 2 records
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 2 records
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5)); // 2 records
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 2 records
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(0))); // 2 records
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 2 records
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(4))); // 2 records
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 2 records
 			y1 = _mm_mul_pd(y1, x1);
 			y2 = _mm_mul_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 5), y1);
-			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 7), y2);
+			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(4)), y1);
+			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y2);
 		}
 #else
 		/*
@@ -1956,10 +1977,15 @@ namespace Nominax
 		ASM_MARKER("__vdiv__");
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 		{
-            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 4 records
-            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 4 records
+			/*
+				 vmovupd	-0x18(%rbx), %ymm0
+				 vdivpd		-0x38(%rbx), %ymm0, %ymm0
+				 vmovupd	%ymm0, -0x38(%rbx)
+			 */
+            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 4 records
+            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 4 records
 			y = _mm256_div_pd(y, x);
-			_mm256_storeu_pd(reinterpret_cast<F64*>(sp - 7), y);
+			_mm256_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y);
 		}
 #elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__) && !defined(__AVX__)
 		{
@@ -1977,14 +2003,14 @@ namespace Nominax
 				 movupd	%xmm1, -40(%rdi)
 				 movupd	%xmm0, -56(%rdi)
 			  */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 1)); // 2 records
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 3)); // 2 records
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 5)); // 2 records
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(sp - 7)); // 2 records
+			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(0))); // 2 records
+			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 2 records
+			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(4))); // 2 records
+			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 2 records
 			y1 = _mm_div_pd(y1, x1);
 			y2 = _mm_div_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 5), y1);
-			_mm_storeu_pd(reinterpret_cast<F64*>(sp - 7), y2);
+			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(4)), y1);
+			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y2);
 		}
 #else
 		/*
