@@ -212,7 +212,7 @@
 #include "../../../Include/Nominax/Common/Protocol.hpp"
 #include "../../../Include/Nominax/Common/PanicRoutine.hpp"
 
-#define PRINT_CPU_FEATURE(name, has) Print(( has ) ? TextColor::BrightGreen : TextColor::Red, "{0: <18} ", name)
+#define PRINT_CPU_FEATURE(name, has) Print(( has ) ? TextColor::Green : TextColor::Red, "{0: <18} ", name)
 
 namespace Nominax::X86_64
 {
@@ -221,14 +221,50 @@ namespace Nominax::X86_64
 		// check if cpuid is supported on system
 		NOMINAX_PANIC_ASSERT_TRUE(Asm_IsCpuIdSupported(), "CPUID instruction is not supported on system!");
 
+		// Raw DATA.
 		std::array<std::byte, sizeof(CpuFeatureBits)> data { };
 		std::array<MergedInfoTable, 3>                chunk { };
-		DOUBLEWORD                                    r {Asm_CpuId(chunk[0], chunk[1], chunk[2])};
+
+		// Call cpuid assembly routine:
+		U32 r {Asm_CpuId(chunk[0], chunk[1], chunk[2])};
+
+		// Copy parameter output quads
 		std::memcpy(data.data(), chunk.data(), sizeof(MergedInfoTable) * 3);
-		std::memcpy(data.data() + sizeof(MergedInfoTable) * 3, &r, sizeof(DOUBLEWORD));
-		*this                   = std::bit_cast<CpuFeatureBits>(data);
-		this->AvxSupportByOs    = this->OsXSave ? Asm_IsAvxSupportedByOs() : false;
-		this->Avx512SupportByOs = this->OsXSave ? Asm_IsAvx512SupportedByOs() : false;
+
+		// Copy return value:
+		std::memcpy(data.data() + sizeof(MergedInfoTable) * 3, &r, sizeof(U32));
+
+		// Update this
+		*this = std::bit_cast<CpuFeatureBits>(data);
+
+		// Validate OS support and update flags for AVX:
+		const bool avxOsSupport = this->OsXSave ? Asm_IsAvxSupportedByOs() : false;
+
+		// Update flags requiring os support for AVX:
+		this->Avx &= avxOsSupport;
+		this->Avx2 &= avxOsSupport;
+		this->F16C &= avxOsSupport;
+		this->Avx2 &= avxOsSupport;
+
+		// Validate OS support and update flags for AVX 512:
+		const bool avx512OsSupport = this->OsXSave ? avxOsSupport && Asm_IsAvx512SupportedByOs() : false;
+
+		// Update flags requiring OS support for AVX 512:
+		this->Avx512F &= avx512OsSupport;
+		this->Avx512Dq &= avx512OsSupport;
+		this->Avx512Ifma &= avx512OsSupport;
+		this->Avx512Pf &= avx512OsSupport;
+		this->Avx512Er &= avx512OsSupport;
+		this->Avx512Cd &= avx512OsSupport;
+		this->Avx512Bw &= avx512OsSupport;
+		this->Avx512Vl &= avx512OsSupport;
+		this->Avx512Vbmi &= avx512OsSupport;
+		this->Avx512Vbmi2 &= avx512OsSupport;
+		this->Avx512Vnni &= avx512OsSupport;
+		this->Avx512Bitalg &= avx512OsSupport;
+		this->Avx512VPopCntdq &= avx512OsSupport;
+		this->Avx5124FMaps &= avx512OsSupport;
+		this->Avx5124Vnniw &= avx512OsSupport;
 	}
 
 	auto CpuFeatureBits::PrintFeatures() const -> void
@@ -485,7 +521,7 @@ namespace Nominax::X86_64
 
 		Print("\n");
 
-		PRINT_CPU_FEATURE("3DNowPrefetech", this->D3NowPrefetch);
+		PRINT_CPU_FEATURE("3DNowPrefetch", this->D3NowPrefetch);
 		PRINT_CPU_FEATURE("OSVW", this->OsVw);
 		PRINT_CPU_FEATURE("IBS", this->Ibs);
 		PRINT_CPU_FEATURE("XOP", this->Xop);
@@ -530,11 +566,6 @@ namespace Nominax::X86_64
 		PRINT_CPU_FEATURE("LM", this->LongMode);
 		PRINT_CPU_FEATURE("3DNowExt", this->D3NowExt);
 		PRINT_CPU_FEATURE("3DNow", this->D3Now);
-		PRINT_CPU_FEATURE("AVX OS", this->AvxSupportByOs);
-
-		Print("\n");
-
-		PRINT_CPU_FEATURE("AVX 512 OS", this->Avx512SupportByOs);
 
 		Print("\n");
 	}

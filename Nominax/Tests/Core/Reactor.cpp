@@ -232,7 +232,7 @@ TEST(ReactorExecution, Instruction_Int)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
+	const auto o {ExecuteOnce(input)};
 	ASSERT_EQ(calls, 2);
 	ASSERT_EQ(accumulator, -12345);
 	ASSERT_EQ(o.InterruptCode, -12345);
@@ -257,9 +257,9 @@ TEST(ReactorExecution, Instruction_Mov)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[3].Vf64, 3.1415);
-	ASSERT_EQ(o.Input->Stack[8].Vf64, 3.1415);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[3].AsF64, 3.1415);
+	ASSERT_EQ(o.Input.Stack[8].AsF64, 3.1415);
 }
 
 TEST(ReactorExecution, Instruction_Sto)
@@ -280,9 +280,9 @@ TEST(ReactorExecution, Instruction_Sto)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 5657334);
-	ASSERT_EQ(o.Input->Stack[31].Vf64, 3.1415);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 5657334);
+	ASSERT_EQ(o.Input.Stack[31].AsF64, 3.1415);
 }
 
 TEST(ReactorExecution, Instruction_Push)
@@ -301,9 +301,9 @@ TEST(ReactorExecution, Instruction_Push)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 1224);
-	ASSERT_EQ(o.Input->Stack[2].Vf64, -0.6666);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 1224);
+	ASSERT_EQ(o.Input.Stack[2].AsF64, -0.6666);
 }
 
 TEST(ReactorExecution, Instruction_Pop)
@@ -324,15 +324,15 @@ TEST(ReactorExecution, Instruction_Pop)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 1224);
-	ASSERT_EQ(o.Input->Stack[2].Vf64, -0.6666);
+	auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 1224);
+	ASSERT_EQ(o.Input.Stack[2].AsF64, -0.6666);
 	ASSERT_EQ(o.SpDiff, 0);
 
 	code[6].Instr = Instruction::NOp;
-	o             = ExecuteChecked(input);
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 1224);
-	ASSERT_EQ(o.Input->Stack[2].Vf64, -0.6666);
+	o             = ExecuteOnce(input);
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 1224);
+	ASSERT_EQ(o.Input.Stack[2].AsF64, -0.6666);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -353,9 +353,9 @@ TEST(ReactorExecution, Instruction_Pop2)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 1224);
-	ASSERT_EQ(o.Input->Stack[2].Vf64, -0.6666);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 1224);
+	ASSERT_EQ(o.Input.Stack[2].AsF64, -0.6666);
 	ASSERT_EQ(o.SpDiff, 0);
 }
 
@@ -377,11 +377,11 @@ TEST(ReactorExecution, Instruction_Dupl)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 5);
-	ASSERT_EQ(o.Input->Stack[2].Vi64, 5);
-	ASSERT_EQ(o.Input->Stack[3].Vi64, -2);
-	ASSERT_EQ(o.Input->Stack[4].Vi64, -2);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 5);
+	ASSERT_EQ(o.Input.Stack[2].AsI64, 5);
+	ASSERT_EQ(o.Input.Stack[3].AsI64, -2);
+	ASSERT_EQ(o.Input.Stack[4].AsI64, -2);
 }
 
 TEST(ReactorExecution, Instruction_Swap)
@@ -401,9 +401,9 @@ TEST(ReactorExecution, Instruction_Swap)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, -666);
-	ASSERT_EQ(o.Input->Stack[2].Vi64, 3);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, -666);
+	ASSERT_EQ(o.Input.Stack[2].AsI64, 3);
 	ASSERT_EQ(o.SpDiff, 2);
 }
 
@@ -425,13 +425,13 @@ TEST(ReactorExecution, Instruction_Dupl2)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 5);
-	ASSERT_EQ(o.Input->Stack[2].Vi64, 5);
-	ASSERT_EQ(o.Input->Stack[3].Vi64, 5);
-	ASSERT_EQ(o.Input->Stack[4].Vi64, 0xFF);
-	ASSERT_EQ(o.Input->Stack[5].Vi64, 0xFF);
-	ASSERT_EQ(o.Input->Stack[6].Vi64, 0xFF);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 5);
+	ASSERT_EQ(o.Input.Stack[2].AsI64, 5);
+	ASSERT_EQ(o.Input.Stack[3].AsI64, 5);
+	ASSERT_EQ(o.Input.Stack[4].AsI64, 0xFF);
+	ASSERT_EQ(o.Input.Stack[5].AsI64, 0xFF);
+	ASSERT_EQ(o.Input.Stack[6].AsI64, 0xFF);
 }
 
 TEST(ReactorExecution, Instruction_IInc)
@@ -453,9 +453,9 @@ TEST(ReactorExecution, Instruction_IInc)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 5);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[0], Record::Padding());
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 5);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -477,9 +477,9 @@ TEST(ReactorExecution, Instruction_IDec)
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
-	ASSERT_EQ(o.Input->Stack[1].Vi64, -3);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[0], Record::Padding());
+	ASSERT_EQ(o.Input.Stack[1].AsI64, -3);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -498,10 +498,10 @@ TEST(ReactorExecution, Instruction_PushZ)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 0);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 0);
-	ASSERT_EQ(o.Input->Stack[3].Vf64, 0.0F);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 0);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 0);
+	ASSERT_EQ(o.Input.Stack[3].AsF64, 0.0F);
 }
 
 TEST(ReactorExecution, Instruction_IPushO)
@@ -519,10 +519,10 @@ TEST(ReactorExecution, Instruction_IPushO)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 1);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 0);
-	ASSERT_EQ(o.Input->Stack[3].Vu64, 1);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 1);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 0);
+	ASSERT_EQ(o.Input.Stack[3].AsU64, 1);
 }
 
 TEST(ReactorExecution, Instruction_IAdd)
@@ -542,9 +542,9 @@ TEST(ReactorExecution, Instruction_IAdd)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 2 + 5);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 5);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 2 + 5);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 5);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -565,9 +565,9 @@ TEST(ReactorExecution, Instruction_ISub)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 2 - 5);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 5);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 2 - 5);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 5);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -588,9 +588,9 @@ TEST(ReactorExecution, Instruction_IMul)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 2 * 5);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 5);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 2 * 5);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 5);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -611,9 +611,9 @@ TEST(ReactorExecution, Instruction_IDiv)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 10 / 5);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 5);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 10 / 5);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 5);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -634,9 +634,9 @@ TEST(ReactorExecution, Instruction_IMod)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 10 % 5);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 5);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 10 % 5);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 5);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -657,9 +657,9 @@ TEST(ReactorExecution, Instruction_IAnd)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 0b1101'1101 & 0b0111'0111);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 0b0111'0111);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 0b1101'1101 & 0b0111'0111);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 0b0111'0111);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -680,9 +680,9 @@ TEST(ReactorExecution, Instruction_IOr)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 0b1101'1101 | 0b0111'0111);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 0b0111'0111);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 0b1101'1101 | 0b0111'0111);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 0b0111'0111);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -703,9 +703,9 @@ TEST(ReactorExecution, Instruction_IXor)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 0b1101'1101 ^ 0b0111'0111);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 0b0111'0111);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 0b1101'1101 ^ 0b0111'0111);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 0b0111'0111);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -724,8 +724,8 @@ TEST(ReactorExecution, Instruction_ICom)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, ~0b1101'1101);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, ~0b1101'1101);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -746,9 +746,9 @@ TEST(ReactorExecution, Instruction_ISal)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 1 << 2);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 2);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 1 << 2);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 2);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -769,9 +769,9 @@ TEST(ReactorExecution, Instruction_ISar)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 1 >> 2);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 2);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 1 >> 2);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 2);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -792,9 +792,9 @@ TEST(ReactorExecution, Instruction_IRol)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vu64, std::rotl<U64>(1, 2));
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 2);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsU64, std::rotl<U64>(1, 2));
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 2);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -815,9 +815,9 @@ TEST(ReactorExecution, Instruction_IRor)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vu64, std::rotr<U64>(1, 2));
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 2);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsU64, std::rotr<U64>(1, 2));
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 2);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -836,8 +836,8 @@ TEST(ReactorExecution, Instruction_INeg)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, -10);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, -10);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -858,9 +858,9 @@ TEST(ReactorExecution, Instruction_FAdd)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, 6.75);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 2.50);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, 6.75);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 2.50);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -881,9 +881,9 @@ TEST(ReactorExecution, Instruction_FMod)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, std::fmod(4.25, 2.50));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 2.50);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::fmod(4.25, 2.50));
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 2.50);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -904,9 +904,9 @@ TEST(ReactorExecution, Instruction_FSub)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, 1.75);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 2.50);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, 1.75);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 2.50);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -927,9 +927,9 @@ TEST(ReactorExecution, Instruction_FMul)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, 10.625);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 2.50);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, 10.625);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 2.50);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -950,9 +950,9 @@ TEST(ReactorExecution, Instruction_FDiv)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, 1.7);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 2.50);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, 1.7);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 2.50);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -971,8 +971,8 @@ TEST(ReactorExecution, Instruction_FNeg)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, -2.25);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, -2.25);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -995,9 +995,9 @@ TEST(ReactorExecution, Instruction_FInc)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, 5.);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[0], Record::Padding());
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, 5.);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -1020,9 +1020,9 @@ TEST(ReactorExecution, Instruction_FDec)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, -3.);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[0], Record::Padding());
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, -3.);
 	ASSERT_EQ(o.SpDiff, 1);
 }
 
@@ -1041,10 +1041,10 @@ TEST(ReactorExecution, Instruction_FPushO)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vf64, 1.);
-	ASSERT_EQ(o.Input->Stack[2].Vu64, 0);
-	ASSERT_EQ(o.Input->Stack[3].Vf64, 1.);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsF64, 1.);
+	ASSERT_EQ(o.Input.Stack[2].AsU64, 0);
+	ASSERT_EQ(o.Input.Stack[3].AsF64, 1.);
 }
 
 TEST(ReactorExecution, Instruction_Call)
@@ -1065,8 +1065,8 @@ TEST(ReactorExecution, Instruction_Call)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 10);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 10);
 	ASSERT_EQ(o.IpDiff, 8);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
@@ -1092,9 +1092,9 @@ TEST(ReactorExecution, Instruction_Ret)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 10);
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 10);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 10);
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 10);
 	ASSERT_EQ(o.IpDiff, 6);
 	ASSERT_EQ(o.BpDiff, 3);
 	ASSERT_EQ(o.InterruptCode, -0xABCDEF);
@@ -1118,8 +1118,8 @@ TEST(ReactorExecution, Instruction_Jmp)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 10);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 10);
 	ASSERT_EQ(o.IpDiff, 8);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
@@ -1142,8 +1142,8 @@ TEST(ReactorExecution, Instruction_JmpRel)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 10);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 10);
 	ASSERT_EQ(o.IpDiff, 8);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
@@ -1168,8 +1168,8 @@ TEST(ReactorExecution, Instruction_JZ)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vu64, 1);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsU64, 1);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 10);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1195,8 +1195,8 @@ TEST(ReactorExecution, Instruction_JnZ)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vu64, 0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsU64, 0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 10);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1222,8 +1222,8 @@ TEST(ReactorExecution, Instruction_JoCmpI)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vu64, 0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsU64, 0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 10);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1249,8 +1249,8 @@ TEST(ReactorExecution, Instruction_JnoCmpI)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vu64, 1);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsU64, 1);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 10);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1276,8 +1276,8 @@ TEST(ReactorExecution, Instruction_JoCmpF)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vf64, 0.F);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsF64, 0.F);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 10);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1303,8 +1303,8 @@ TEST(ReactorExecution, Instruction_JnoCmpF)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vf64, 1.0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsF64, 1.0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 10);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1335,9 +1335,9 @@ TEST(ReactorExecution, Instruction_JeCmpI)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 123424224);
-	ASSERT_EQ(o.Input->Stack[2].Vi64, 0xFF'FF);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 123424224);
+	ASSERT_EQ(o.Input.Stack[2].AsI64, 0xFF'FF);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 15);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1368,9 +1368,9 @@ TEST(ReactorExecution, Instruction_JeCmpF)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vf64, 123424224.0);
-	ASSERT_EQ(o.Input->Stack[2].Vf64, 0.22233);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsF64, 123424224.0);
+	ASSERT_EQ(o.Input.Stack[2].AsF64, 0.22233);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 15);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1402,9 +1402,9 @@ TEST(ReactorExecution, Instruction_JneCmpI)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 0xFF'FF);
-	ASSERT_EQ(o.Input->Stack[2].Vi64, 0xFF'FF);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 0xFF'FF);
+	ASSERT_EQ(o.Input.Stack[2].AsI64, 0xFF'FF);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 16);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1436,9 +1436,9 @@ TEST(ReactorExecution, Instruction_JneCmpF)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vf64, 3.1415);
-	ASSERT_EQ(o.Input->Stack[2].Vf64, 3.1415);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsF64, 3.1415);
+	ASSERT_EQ(o.Input.Stack[2].AsF64, 3.1415);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 16);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1470,9 +1470,9 @@ TEST(ReactorExecution, Instruction_JaCmpI)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 3);
-	ASSERT_EQ(o.Input->Stack[2].Vi64, 53);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 3);
+	ASSERT_EQ(o.Input.Stack[2].AsI64, 53);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 16);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1504,9 +1504,9 @@ TEST(ReactorExecution, Instruction_JaCmpF)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vf64, 3.0);
-	ASSERT_EQ(o.Input->Stack[2].Vf64, 53.0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsF64, 3.0);
+	ASSERT_EQ(o.Input.Stack[2].AsF64, 53.0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 16);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1538,9 +1538,9 @@ TEST(ReactorExecution, Instruction_JlCmpI)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 53);
-	ASSERT_EQ(o.Input->Stack[2].Vi64, 3);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 53);
+	ASSERT_EQ(o.Input.Stack[2].AsI64, 3);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 16);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1572,9 +1572,9 @@ TEST(ReactorExecution, Instruction_JlCmpF)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vf64, 53.0);
-	ASSERT_EQ(o.Input->Stack[2].Vf64, 3.0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsF64, 53.0);
+	ASSERT_EQ(o.Input.Stack[2].AsF64, 3.0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 16);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1612,9 +1612,9 @@ TEST(ReactorExecution, Instruction_JaeCmpI)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 3);
-	ASSERT_EQ(o.Input->Stack[2].Vi64, 53);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 3);
+	ASSERT_EQ(o.Input.Stack[2].AsI64, 53);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 22);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1652,9 +1652,9 @@ TEST(ReactorExecution, Instruction_JaeCmpF)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vf64, 3.0);
-	ASSERT_EQ(o.Input->Stack[2].Vf64, 53.0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsF64, 3.0);
+	ASSERT_EQ(o.Input.Stack[2].AsF64, 53.0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 22);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1692,9 +1692,9 @@ TEST(ReactorExecution, Instruction_JleCmpI)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vi64, 53);
-	ASSERT_EQ(o.Input->Stack[2].Vi64, 3);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsI64, 53);
+	ASSERT_EQ(o.Input.Stack[2].AsI64, 3);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 22);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1732,9 +1732,9 @@ TEST(ReactorExecution, Instruction_JleCmpF)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_EQ(o.Input->Stack[1].Vf64, 53.0);
-	ASSERT_EQ(o.Input->Stack[2].Vf64, 3.0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_EQ(o.Input.Stack[1].AsF64, 53.0);
+	ASSERT_EQ(o.Input.Stack[2].AsF64, 3.0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 22);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1758,11 +1758,11 @@ TEST(ReactorExecution, Instruction_VPush)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].Vf64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].Vf64, 4.0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[3].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[4].AsF64, 4.0);
 	ASSERT_EQ(o.SpDiff, 4);
 	ASSERT_EQ(o.IpDiff, 7);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1787,11 +1787,11 @@ TEST(ReactorExecution, Instruction_VPop)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].Vf64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].Vf64, 4.0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[3].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[4].AsF64, 4.0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 8);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1822,11 +1822,11 @@ TEST(ReactorExecution, Instruction_VAdd)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, 7.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 10.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].Vf64, 13.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].Vf64, 16.0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, 7.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 10.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[3].AsF64, 13.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[4].AsF64, 16.0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 14);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1857,11 +1857,11 @@ TEST(ReactorExecution, Instruction_VSub)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, -1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, -1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].Vf64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].Vf64, 0.0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, -1.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, -1.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[3].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[4].AsF64, 0.0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 14);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1892,11 +1892,11 @@ TEST(ReactorExecution, Instruction_VMul)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].Vf64, 9.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].Vf64, 16.0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[3].AsF64, 9.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[4].AsF64, 16.0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 14);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
@@ -1927,11 +1927,11 @@ TEST(ReactorExecution, Instruction_VDiv)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {ExecuteChecked(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].Vf64, 0.25);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].Vf64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].Vf64, 6.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].Vf64, 2.0);
+	const auto o {ExecuteOnce(input)};
+	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, 0.25);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[3].AsF64, 6.0);
+	ASSERT_DOUBLE_EQ(o.Input.Stack[4].AsF64, 2.0);
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.IpDiff, 14);
 	ASSERT_EQ(o.InterruptCode, -0xFF);

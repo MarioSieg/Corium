@@ -1,6 +1,6 @@
-// File: ObjectAllocator.hpp
+// File: ReactorHypervisor.hpp
 // Author: Mario
-// Created: 25.04.2021 2:40 PM
+// Created: 09.05.2021 6:10 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,60 +207,33 @@
 
 #pragma once
 
-#include <atomic>
-
-#include "Object.hpp"
+#include "../System/Platform.hpp"
+#include "../System/CpuFeatureDetector.hpp"
+#include "DetailedReactorDescriptor.hpp"
+#include "ReactorOutput.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Runtime allocator for object instances.
+	/// Generic fallback implementation, for all architectures.
 	/// </summary>
-	class RuntimeObjectAllocator final
-	{
-		inline static constinit std::atomic_size_t AllocatedBlocks {0};
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <returns></returns>
+	__attribute__((hot)) extern auto ReactorCore_Fallback(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
 
-	public:
-		/// <summary>
-		/// Gets the amount of all currently allocated blocks (records).
-		/// </summary>
-		/// <returns>The amount of all currently allocated blocks (records).</returns>
-		static auto GetGlobalAllocatedBlocks() noexcept(true) -> std::size_t;
+#if NOMINAX_ARCH_X86_64
 
-		/// <summary>
-		/// Gets the amount of bytes of all currently allocated blocks (records).
-		/// </summary>
-		/// <returns>The amount of bytes of all currently allocated blocks (records).</returns>
-		static auto GetGlobalAllocatedBytes() noexcept(true) -> std::size_t;
 
-		/// <summary>
-		/// Allocate and zero raw memory for an object instance, and write the size into the object header.
-		/// The memory is initialized to zero.
-		/// The sizeInRecords value is written into the object header field "Size".
-		/// On fail, nullptr is returned!
-		/// </summary>
-		/// <param name="sizeInRecords">The size of the object in bytes.
-		/// The final object will be larger because of the object header.
-		/// If zero is passed, the allocation will return nullptr.
-		/// </param>
-		/// <returns>The valid memory on success, else nullptr.</returns>
-		static auto RawAllocateAndWriteSize(U32 sizeInRecords) -> Object::BlobBlockType*;
+	/// <summary>
+	/// Specialized implementation compiled with AVX, which uses 256-bit YMM registers.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <returns></returns>
+	__attribute__((hot)) extern auto ReactorCore_Avx(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
 
-		/// <summary>
-		/// Deallocate raw memory from an object instance.
-		/// </summary>
-		/// <param name="instance"></param>
-		/// <returns></returns>
-		static auto RawDeallocate(Object::BlobBlockType*& instance) -> void;
-	};
+#endif
 
-	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBlocks() noexcept(true) -> std::size_t
-	{
-		return AllocatedBlocks;
-	}
-
-	inline auto RuntimeObjectAllocator::GetGlobalAllocatedBytes() noexcept(true) -> std::size_t
-	{
-		return AllocatedBlocks * sizeof(Object::BlobBlockType);
-	}
+	extern auto ExecuteReactorAutoDispatchBackend(const CpuFeatureDetector& cpuFeatures, const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
 }

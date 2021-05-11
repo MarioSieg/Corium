@@ -209,7 +209,7 @@
 
 #include <type_traits>
 
-#include "../MachInterface.hpp"
+#include "../../Common/RtTypes.hpp"
 
 namespace Nominax::X86_64
 {
@@ -849,7 +849,7 @@ namespace Nominax::X86_64
 		/// </summary>
 		bool Pks : 1 { };
 
-		// QUADWORD 3 LO
+		// U64 3 LO
 
 		/// <summary>
 		/// Unused
@@ -1014,7 +1014,7 @@ namespace Nominax::X86_64
 		/// </summary>
 		bool Ssbd : 1{ };
 
-		// QUADWORD 3 HI
+		// U64 3 HI
 
 		/// <summary>
 		/// LAHF/SAHF in long mode
@@ -1214,16 +1214,9 @@ namespace Nominax::X86_64
 		bool MmmxExt : 1 { };
 
 		/// <summary>
-		/// Is AVX supported by OS?
-		/// Can only be true if OSXSAVE is supported.
+		/// Unused
 		/// </summary>
-		bool AvxSupportByOs : 1{ };
-
-		/// <summary>
-		/// Os AVX 512 supported by OS?
-		/// Can only be true if OSXSAVE is supported.
-		/// </summary>
-		bool Avx512SupportByOs : 1{ };
+		U8 Ignored2 : 2 { };
 
 		/// <summary>
 		/// 	FXSAVE/FXRSTOR optimizations
@@ -1306,23 +1299,23 @@ namespace Nominax::X86_64
 		MergedInfoTable& out1,
 		MergedInfoTable& out2,
 		MergedInfoTable& out3
-	) noexcept -> DOUBLEWORD;
+	) noexcept(true) -> U32;
 
 	/// <summary>
 	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
 	/// Implementation: Source/Arch/X86_64.CpuId.S
 	/// </summary>
-	extern "C" auto Asm_IsCpuIdSupported() noexcept -> BYTE;
+	extern "C" auto Asm_IsCpuIdSupported() noexcept(true) -> U8;
 
 	/// <summary>
 	/// Returns true if the OS supports AVX YMM registers, else false.
 	/// Warning! Check if os supports OSXSAVE first!
 	/// </summary>
-	extern "C" auto Asm_IsAvxSupportedByOs() noexcept -> BYTE;
+	extern "C" auto Asm_IsAvxSupportedByOs() noexcept(true) -> U8;
 
 	/// <summary>
 	/// Returns true if the OS supports AVX512 ZMM registers, else false.
 	/// Warning! Check if os supports OSXSAVE first!
 	/// </summary>
-	extern "C" auto Asm_IsAvx512SupportedByOs() noexcept -> BYTE;
+	extern "C" auto Asm_IsAvx512SupportedByOs() noexcept(true) -> U8;
 }

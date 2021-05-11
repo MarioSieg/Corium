@@ -205,108 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/Nominax.hpp"
-#include "../../SharedTools/googlebench/include/benchmark/benchmark.h"
-
-using namespace Nominax;
-using namespace benchmark;
-
-auto Loop1Billion(State& state) -> void
-{
-	std::vector code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::IInc},
-		Signal {Instruction::Dupl},
-		Signal {Instruction::Push},
-		Signal {INT64_C(1'000'000'000)},
-		Signal {Instruction::JlCmpi},
-		Signal {UINT64_C(2)},
-		Signal {Instruction::Pop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(0)},
-	};
-
-	const std::vector<U8> codeInstructionMap {
-		true,
-		true,
-		true,
-		true,
-		true,
-		false,
-		true,
-		false,
-		true,
-		true,
-		false
-	};
-
-	if (code.size() != codeInstructionMap.size())
-	{
-		state.SkipWithError("Code bucket and instruction map mismatch!");
-		return;
-	}
-
-	std::array<Record, 32> stack = {Record::Padding()};
-
-	constexpr std::array intrins {
-		+[](Record*      ) -> void { }
-	};
-
-	const DetailedReactorDescriptor input {
-		.CodeChunk = code.data(),
-		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(codeInstructionMap.data()),
-		.CodeChunkSize = code.size(),
-		.IntrinsicTable = intrins.data(),
-		.IntrinsicTableSize = intrins.size(),
-		.InterruptHandler = +[](InterruptAccumulator) -> void { },
-		.Stack = stack.data(),
-		.StackSize = stack.size(),
-	};
-
-	if (input.Validate() != ReactorValidationResult::Ok)
-	{
-		state.SkipWithError("Reactor input validation failed!");
-		return;
-	}
-
-	for (auto _ : state)
-	{
-		const auto output {ExecuteChecked(input)};
-
-		if (output.ShutdownReason != ReactorShutdownReason::Success)
-		{
-			state.SkipWithError("Reactor terminated with error or exception!");
-			break;
-		}
-
-		if (output.SpDiff != 0)
-		{
-			state.SkipWithError("Not all stack entries were popped!");
-			break;
-		}
-
-		if (output.Input->Stack[1].Vi64 != 1'000'000'000)
-		{
-			state.SkipWithError("Expected different value on stack!");
-			break;
-		}
-
-		if (output.Input->Stack[2].Vi64 != 1'000'000'000)
-		{
-			state.SkipWithError("Expected different value on stack!");
-			break;
-		}
-
-		if (output.Input->Stack[3].Vi64 != 1'000'000'000)
-		{
-			state.SkipWithError("Expected different value on stack!");
-			break;
-		}
-	}
-}
-
-BENCHMARK(Loop1Billion)->Unit(kSecond);
+#include "BenchTemplates.hpp"
 
 auto DeepCmp(State& state) -> void
 {
@@ -322,13 +221,67 @@ auto DeepCmp(State& state) -> void
 
 BENCHMARK(DeepCmp)->Unit(kMicrosecond);
 
+auto Loop1BillionVectorsNoAvx(State& state) -> void
+{
+	const std::vector loopBody
+	{
+		DynamicSignal {Instruction::VPush},
+		DynamicSignal {1.5_float},
+		DynamicSignal {2.5_float},
+		DynamicSignal {3.5_float},
+		DynamicSignal {4.5_float},
+		DynamicSignal {Instruction::VPush},
+		DynamicSignal {-1.5_float},
+		DynamicSignal {-2.5_float},
+		DynamicSignal {-3.5_float},
+		DynamicSignal {-4.5_float},
+		DynamicSignal {Instruction::VAdd},
+		DynamicSignal {Instruction::VPop}
+	};
+
+	LoopBenchmark(state, loopBody, 1'000'000'000, false);
+}
+
+BENCHMARK(Loop1BillionVectorsNoAvx)->Unit(kSecond);
+
+auto Loop1BillionVectorsAvxIfSupported(State& state) -> void
+{
+	Print("\n");
+	const std::vector loopBody
+	{
+		DynamicSignal {Instruction::VPush},
+		DynamicSignal {1.5_float},
+		DynamicSignal {2.5_float},
+		DynamicSignal {3.5_float},
+		DynamicSignal {4.5_float},
+		DynamicSignal {Instruction::VPush},
+		DynamicSignal {-1.5_float},
+		DynamicSignal {-2.5_float},
+		DynamicSignal {-3.5_float},
+		DynamicSignal {-4.5_float},
+		DynamicSignal {Instruction::VAdd},
+		DynamicSignal {Instruction::VPop}
+	};
+
+	LoopBenchmark(state, loopBody, 1'000'000'000, true);
+}
+
+BENCHMARK(Loop1BillionVectorsAvxIfSupported)->Unit(kSecond);
+
+auto Loop1Billion(State& state) -> void
+{
+	LoopBenchmark(state, { }, 1'000'000'000);
+}
+
+BENCHMARK(Loop1Billion)->Unit(kSecond);
+
 auto DeepCmpLess(State& state) -> void
 {
 	const auto a {Object::AllocateUnique(16384)};
 	const auto b {Object::AllocateUnique(16384)};
 	for (auto& x : *b)
 	{
-		x.Vf64 = 10.0;
+		x.AsF64 = 10.0;
 	}
 
 	for (auto _ : state)
@@ -342,97 +295,7 @@ BENCHMARK(DeepCmpLess)->Unit(kMicrosecond);
 
 auto Loop5Billion(State& state) -> void
 {
-	std::vector code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::IInc},
-		Signal {Instruction::Dupl},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5'000'000'000)},
-		Signal {Instruction::JlCmpi},
-		Signal {UINT64_C(2)},
-		Signal {Instruction::Pop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(0)},
-	};
-
-	const std::vector<U8> codeInstructionMap {
-		true,
-		true,
-		true,
-		true,
-		true,
-		false,
-		true,
-		false,
-		true,
-		true,
-		false
-	};
-
-	if (code.size() != codeInstructionMap.size())
-	{
-		state.SkipWithError("Code bucket and instruction map mismatch!");
-		return;
-	}
-
-	std::array<Record, 32> stack = {Record::Padding()};
-
-	constexpr std::array intrins {
-		+[](Record*      ) -> void { }
-	};
-
-	const DetailedReactorDescriptor input {
-		.CodeChunk = code.data(),
-		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(codeInstructionMap.data()),
-		.CodeChunkSize = code.size(),
-		.IntrinsicTable = intrins.data(),
-		.IntrinsicTableSize = intrins.size(),
-		.InterruptHandler = +[](InterruptAccumulator) -> void { },
-		.Stack = stack.data(),
-		.StackSize = stack.size(),
-	};
-
-	if (input.Validate() != ReactorValidationResult::Ok)
-	{
-		state.SkipWithError("Reactor input validation failed!");
-		return;
-	}
-
-	for (auto _ : state)
-	{
-		const auto output {ExecuteChecked(input)};
-
-		if (output.ShutdownReason != ReactorShutdownReason::Success)
-		{
-			state.SkipWithError("Reactor terminated with error or exception!");
-			break;
-		}
-
-		if (output.SpDiff != 0)
-		{
-			state.SkipWithError("Not all stack entries were popped!");
-			break;
-		}
-
-		if (output.Input->Stack[1].Vi64 != 5'000'000'000)
-		{
-			state.SkipWithError("Expected different value on stack!");
-			break;
-		}
-
-		if (output.Input->Stack[2].Vi64 != 5'000'000'000)
-		{
-			state.SkipWithError("Expected different value on stack!");
-			break;
-		}
-
-		if (output.Input->Stack[3].Vi64 != 5'000'000'000)
-		{
-			state.SkipWithError("Expected different value on stack!");
-			break;
-		}
-	}
+	LoopBenchmark(state, { }, 5'000'000'000);
 }
 
 BENCHMARK(Loop5Billion)->Unit(kSecond);

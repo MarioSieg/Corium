@@ -467,7 +467,7 @@ namespace Nominax
 #if NOMINAX_DEBUG
 		return this->Attached_.Back().template Unwrap<T>().value();
 #else
-        return *this->Attached_.Back().Unwrap<T>();
+		return *this->Attached_.Back().template Unwrap<T>();
 #endif
 	}
 
@@ -480,7 +480,7 @@ namespace Nominax
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::DoNothing() -> ScopedVariable&
 	{
-		if (NOMINAX_UNLIKELY(OptLevel == OptimizationLevel::Off))
+		if (NOMINAX_UNLIKELY(this->Attached_.GetOptimizationLevel() == OptimizationLevel::Off))
 		{
 			// ReSharper disable once CppRedundantTemplateKeyword
 			this->Attached_.template Do<Instruction::NOp>();

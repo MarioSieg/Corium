@@ -223,6 +223,11 @@ namespace Nominax::Lexemes
 	constexpr auto INTRINSIC_CALL_IMMEDIATE {'*'};
 
 	/// <summary>
+	/// Specify relative or absolute jump address.
+	/// </summary>
+	constexpr auto JUMP_ADDRESS {'&'};
+
+	/// <summary>
 	/// Begin or end comment.
 	/// </summary>
 	constexpr auto COMMENT {'#'};

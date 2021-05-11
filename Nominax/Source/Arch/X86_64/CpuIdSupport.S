@@ -211,6 +211,7 @@
 Asm_IsCpuIdSupported:
     PUSHQ   %RBP                # stack frame prologue
     MOVQ    %RSP, %RBP          # stack frame prologue
+    PUSHQ   %RBX
     PUSHFQ                      # backup flags
     PUSHFQ                      # store flags
     XORL    $0x00200000, (%RSP) # invert id bit in flags
@@ -223,6 +224,7 @@ Asm_IsCpuIdSupported:
     XORL    %EAX, %EAX          # clear eax
     TESTL   %EBX, %EBX          # test if ebx is non zero
     SETNEB  %AL                 # set al to 1 if ebx was non zero, else 0
+    POPQ    %RBX
     MOVQ    %RBP, %RSP          # stack frame epilogue
     POPQ    %RBP                # stack frame epilogue
     RETQ                        # return

@@ -209,14 +209,10 @@
 
 # Header: Arch/X86_64/CpuId.hpp
 Asm_MockCall:
-    PUSHQ	%RBP
-    MOVQ	%RSP, %RBP
     XORL    %EAX, %EAX
 #ifdef __WIN__
     MOVB	$0XFF, %AL
 #else
     MOVW	$1234, %AX
 #endif
-    MOVQ	%RBP, %RSP
-    POPQ	%RBP
     RETQ

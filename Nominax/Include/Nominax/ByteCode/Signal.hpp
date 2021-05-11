@@ -259,6 +259,11 @@ namespace Nominax
 		void* Ptr;
 
 		/// <summary>
+		/// Reinterpret as jump target.
+		/// </summary>
+		JumpAddress JumpTarget;
+
+		/// <summary>
 		/// Default constructor.
 		/// </summary>
 		/// <returns></returns>
@@ -321,11 +326,25 @@ namespace Nominax
 		explicit constexpr Signal(F64 value) noexcept(true);
 
 		/// <summary>
+		/// Construct from UTF-8 char cluster.
+		/// </summary>
+		/// <param name="cluster"></param>
+		/// <returns></returns>
+		explicit constexpr Signal(CharClusterUtf8 cluster) noexcept(true);
+
+		/// <summary>
 		/// Construct from 32-bit UTF-32 character.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
 		explicit constexpr Signal(char32_t value) noexcept(true);
+
+		/// <summary>
+		/// Construct from 64 bit jump address.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Signal(JumpAddress value) noexcept(true);
 	};
 
 	constexpr Signal::Signal(const Record value) noexcept(true) : R64 {value} {}
@@ -336,7 +355,9 @@ namespace Nominax
 	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
 	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JumpTarget {value} {}
 
 	static_assert(sizeof(SignalByteBuffer) == sizeof(Signal));
 	static_assert(std::is_trivial_v<Signal>);

@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: ExecutionAddressMapping.cpp
 // Author: Mario
-// Created: 27.04.2021 3:41 PM
+// Created: 10.05.2021 4:57 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,95 +205,42 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
-TEST(BytecodeDynamicSignal, InstructionData)
+namespace Nominax
 {
-	const auto x = DynamicSignal {Instruction::CIntrin};
-	ASSERT_TRUE(x.Contains<Instruction>());
-	ASSERT_TRUE(x.Contains(Instruction::CIntrin));
-}
+	auto MapJumpTable
+	(
+		Signal* __restrict__             bucket,
+		const Signal* const __restrict__ bucketEnd,
+		const bool*                      jumpAddressMap,
+		JumpTable                        jumpTable
+	) noexcept(false) -> bool
+	{
+		NOMINAX_PANIC_ASSERT_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(bucketEnd, "Code chunk bucket table end was nullptr!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(jumpAddressMap, "Jump address map was nullptr!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(jumpTable, "Jump table was nullptr!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(*jumpTable, "First element of jump table was nullptr!");
+		NOMINAX_PANIC_ASSERT_TRUE(*jumpAddressMap, "First element of jump address map was false, but should be true because of code prologue!");
+		NOMINAX_PANIC_ASSERT_EQ(bucket->Instr, Instruction::NOp, "Missing code prologue in code bucket!");
 
-TEST(BytecodeDynamicSignal, IntrinsicData)
-{
-	const auto x = DynamicSignal {SystemIntrinsicCallId::ATan2};
-	ASSERT_TRUE(x.Contains<SystemIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(SystemIntrinsicCallId::ATan2));
-}
+		// skip first "nop" padding instruction:
+		++bucket;
+		++jumpAddressMap;
 
-TEST(BytecodeDynamicSignal, CustomIntrinsicData)
-{
-	const auto x = DynamicSignal {CustomIntrinsicCallId {233113}};
-	ASSERT_TRUE(x.Contains<CustomIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(CustomIntrinsicCallId{ 233113 }));
-}
+		while (NOMINAX_UNLIKELY(bucket < bucketEnd))
+		{
+			if (*jumpAddressMap)
+			{
+				bucket->Ptr = const_cast<void*>(*(jumpTable + bucket->OpCode));
+			}
 
-TEST(BytecodeDynamicSignal, U64Data)
-{
-	const auto x = DynamicSignal {UINT64_C(12345)};
-	ASSERT_TRUE(x.Contains<U64>());
-	ASSERT_TRUE(x.Contains(UINT64_C(12345)));
-}
+			++bucket;
+			++jumpAddressMap;
+		}
 
-TEST(BytecodeDynamicSignal, I64Data)
-{
-	const auto x = DynamicSignal {INT64_C(-12345)};
-	ASSERT_TRUE(x.Contains<I64>());
-	ASSERT_TRUE(x.Contains(INT64_C(-12345)));
-}
-
-TEST(BytecodeDynamicSignal, F64Data)
-{
-	const auto x = DynamicSignal {12345.0};
-	ASSERT_TRUE(x.Contains<F64>());
-	ASSERT_TRUE(x.Contains(12345.0));
-}
-
-TEST(BytecodeDynamicSignal, C32Data)
-{
-	const auto x = DynamicSignal {CharClusterUtf8 {.Chars = {'A'}}};
-	ASSERT_TRUE(x.Contains<CharClusterUtf8>());
-	ASSERT_TRUE(x.Contains(CharClusterUtf8{ .Chars = {'A'} }));
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithInstructionToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {Instruction::CIntrin});
-	ASSERT_EQ(x.Instr, Instruction::CIntrin);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {SystemIntrinsicCallId::ATan2});
-	ASSERT_EQ(x.SystemIntrinId, SystemIntrinsicCallId::ATan2);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithCustomIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CustomIntrinsicCallId {4}});
-	ASSERT_EQ(x.CustomIntrinId, CustomIntrinsicCallId{ 4 });
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithU64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsU64, 0xFF'FF'FF'FF'FF'FF'FF'FF);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithI64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsI64, -0x80'FF'FF'FF'FF'FF'FF'FF);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithF64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {std::numeric_limits<F64>::max()});
-	ASSERT_EQ(x.R64.AsF64, std::numeric_limits<F64>::max());
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithChar8ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CharClusterUtf8 {.Chars = {'X'}}});
-	ASSERT_EQ(x.R64.AsChar8, 'X');
+		return true;
+	}
 }

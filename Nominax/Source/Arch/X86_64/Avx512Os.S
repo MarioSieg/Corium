@@ -209,13 +209,9 @@
 
 # Header: Arch/X86_64/CpuId.hpp
 Asm_IsAvx512SupportedByOs:
-    PUSHQ   %RBP                # stack frame prologue
-    MOVQ    %RSP, %RBP          # stack frame prologue
-    XORL    %ECX, %ECX
-    XGETBV
-    ANDB    $0xE0, %AL
-    CMPB    $0xE0, %AL
-    SETE    %AL
-    MOVQ    %RBP, %RSP          # stack frame epilogue
-    POPQ    %RBP                # stack frame epilogue
+    XORL    %ECX, %ECX          # clear ecx
+    XGETBV                      # read value from extended control register into %EDX:%EAX
+    ANDB    $0b11100000, %AL    # mask out avx512 bit
+    CMPB    $0b11100000, %AL    # compare bits
+    SETEB   %AL                 # if equals & supported, set al to 1 else 0
     RETQ                        # return

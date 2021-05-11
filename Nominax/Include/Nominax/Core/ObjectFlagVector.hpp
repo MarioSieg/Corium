@@ -214,7 +214,7 @@ namespace Nominax
 	/// <summary>
 	/// Contains all flags in the flag vector field in the object header.
 	/// </summary>
-	union ObjectFlagsVectorCompound final
+	union ObjectFlagVector final
 	{
 		struct
 		{
@@ -379,8 +379,8 @@ namespace Nominax
 			bool Flag31 : 1;
 		} Flags;
 
-		U32 Compound;
+		U32 Merged;
 	};
 
-	static_assert(sizeof(ObjectFlagsVectorCompound) == sizeof(U32));
+	static_assert(sizeof(ObjectFlagVector) == sizeof(U32));
 }

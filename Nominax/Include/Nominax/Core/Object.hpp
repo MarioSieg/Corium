@@ -230,6 +230,8 @@ namespace Nominax
 		using BlobBlockType = Record;
 
 	private:
+		friend class RuntimeObjectAllocator;
+
 		/// <summary>
 		/// Full data blob.
 		/// Array of records which contains the
@@ -271,7 +273,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns>The flag vector field from the object header.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR Header_ReadFlagVector() const noexcept(true) -> ObjectFlagsVectorCompound;
+		auto IMMUTATOR Header_ReadFlagVector() const noexcept(true) -> ObjectFlagVector;
 
 		/// <summary>
 		/// Writes the value into the strong ref count header field.
@@ -335,7 +337,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="flagVector">The new value to write.</param>
 		/// <returns></returns>
-		auto MUTATOR HeaderWrite_FlagVector(ObjectFlagsVectorCompound flagVector) const noexcept(true) -> void;
+		auto MUTATOR HeaderWrite_FlagVector(ObjectFlagVector flagVector) const noexcept(true) -> void;
 
 		/// <summary>
 		/// Get the raw object header pointer.
@@ -419,7 +421,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="buffer">The target buffer.</param>
 		/// <returns></returns>
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<BlobBlockType>& buffer) const noexcept(true) -> void;
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<BlobBlockType>& buffer) const noexcept(false) -> void;
 
 		/// <summary>
 		/// SLT-Compat
@@ -445,7 +447,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="buffer"></param>
 		/// <returns></returns>
-		auto IMMUTATOR CopyBlob(std::vector<BlobBlockType>& buffer) const noexcept(true) -> void;
+		auto IMMUTATOR CopyBlob(std::vector<BlobBlockType>& buffer) const noexcept(false) -> void;
 
 		/// <summary>
 		/// Lookup object block.
@@ -1135,7 +1137,7 @@ namespace Nominax
 		return ObjectHeader::ReadMapping_TypeId(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::Header_ReadFlagVector() const noexcept(true) -> ObjectFlagsVectorCompound
+	__attribute__((flatten)) inline auto IMMUTATOR Object::Header_ReadFlagVector() const noexcept(true) -> ObjectFlagVector
 	{
 		return ObjectHeader::ReadMapping_FlagVector(this->QueryRawHeader());
 	}
@@ -1185,7 +1187,7 @@ namespace Nominax
 		ObjectHeader::WriteMapping_TypeId(this->QueryRawHeader(), typeId);
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagsVectorCompound flagVector) const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagVector flagVector) const noexcept(true) -> void
 	{
 		ObjectHeader::WriteMapping_FlagVector(this->QueryRawHeader(), flagVector);
 	}

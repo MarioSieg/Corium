@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: EnvironmentUtils.cpp
 // Author: Mario
-// Created: 27.04.2021 3:41 PM
+// Created: 08.05.2021 3:14 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,95 +205,65 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#include <string_view>
+#include <thread>
 
-TEST(BytecodeDynamicSignal, InstructionData)
+#include "EnvironmentUtils.hpp"
+#include "../../Include/Nominax/Core/Info.hpp"
+#include "../../Include/Nominax/Core/Record.hpp"
+#include "../../Include/Nominax/Core/Object.hpp"
+#include "../../Include/Nominax/Common/Protocol.hpp"
+#include "../../Include/Nominax/System/CpuFeatureDetector.hpp"
+#include "../../Include/Nominax/System/Platform.hpp"
+#include "../../Include/Nominax/System/Os.hpp"
+#include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
+
+namespace
 {
-	const auto x = DynamicSignal {Instruction::CIntrin};
-	ASSERT_TRUE(x.Contains<Instruction>());
-	ASSERT_TRUE(x.Contains(Instruction::CIntrin));
+	template <typename T>
+	inline auto PrintTypeInfo(const std::string_view name) -> void
+	{
+		Nominax::Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
+	}
 }
 
-TEST(BytecodeDynamicSignal, IntrinsicData)
+namespace Nominax
 {
-	const auto x = DynamicSignal {SystemIntrinsicCallId::ATan2};
-	ASSERT_TRUE(x.Contains<SystemIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(SystemIntrinsicCallId::ATan2));
-}
+	auto PrintSystemInfo() -> void
+	{
+		Print(SYSTEM_LOGO_TEXT);
+		Print(SYSTEM_COPYRIGHT_TEXT);
+		Print("\nNominax Version: v.{}.{}\n", SYSTEM_VERSION.Major, SYSTEM_VERSION.Minor);
+		Print("Platform: {} {}\n", NOMINAX_OS_NAME, NOMINAX_ARCH_SIZE_NAME);
+		Print("Arch: {}\n", NOMINAX_ARCH_NAME);
+		Print("IsPosix: {}\n", NOMINAX_IS_POSIX);
+		Print("Compiled with: {} - C++ 20\n", NOMINAX_COM_NAME);
+		Print("\n");
+	}
 
-TEST(BytecodeDynamicSignal, CustomIntrinsicData)
-{
-	const auto x = DynamicSignal {CustomIntrinsicCallId {233113}};
-	ASSERT_TRUE(x.Contains<CustomIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(CustomIntrinsicCallId{ 233113 }));
-}
+	auto PrintTypeInfoTable() -> void
+	{
+		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
+		PrintTypeInfo<Record>("Record");
+		PrintTypeInfo<Signal>("Signal");
+		PrintTypeInfo<DynamicSignal>("DynamicSignal");
+		PrintTypeInfo<Object>("Object");
+		PrintTypeInfo<ObjectHeader>("ObjectHeader");
+		PrintTypeInfo<I64>("int");
+		PrintTypeInfo<U64>("uint");
+		PrintTypeInfo<F64>("float");
+		PrintTypeInfo<char32_t>("char");
+		PrintTypeInfo<bool>("bool");
+		PrintTypeInfo<void*>("void*");
+	}
 
-TEST(BytecodeDynamicSignal, U64Data)
-{
-	const auto x = DynamicSignal {UINT64_C(12345)};
-	ASSERT_TRUE(x.Contains<U64>());
-	ASSERT_TRUE(x.Contains(UINT64_C(12345)));
-}
-
-TEST(BytecodeDynamicSignal, I64Data)
-{
-	const auto x = DynamicSignal {INT64_C(-12345)};
-	ASSERT_TRUE(x.Contains<I64>());
-	ASSERT_TRUE(x.Contains(INT64_C(-12345)));
-}
-
-TEST(BytecodeDynamicSignal, F64Data)
-{
-	const auto x = DynamicSignal {12345.0};
-	ASSERT_TRUE(x.Contains<F64>());
-	ASSERT_TRUE(x.Contains(12345.0));
-}
-
-TEST(BytecodeDynamicSignal, C32Data)
-{
-	const auto x = DynamicSignal {CharClusterUtf8 {.Chars = {'A'}}};
-	ASSERT_TRUE(x.Contains<CharClusterUtf8>());
-	ASSERT_TRUE(x.Contains(CharClusterUtf8{ .Chars = {'A'} }));
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithInstructionToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {Instruction::CIntrin});
-	ASSERT_EQ(x.Instr, Instruction::CIntrin);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {SystemIntrinsicCallId::ATan2});
-	ASSERT_EQ(x.SystemIntrinId, SystemIntrinsicCallId::ATan2);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithCustomIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CustomIntrinsicCallId {4}});
-	ASSERT_EQ(x.CustomIntrinId, CustomIntrinsicCallId{ 4 });
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithU64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsU64, 0xFF'FF'FF'FF'FF'FF'FF'FF);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithI64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsI64, -0x80'FF'FF'FF'FF'FF'FF'FF);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithF64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {std::numeric_limits<F64>::max()});
-	ASSERT_EQ(x.R64.AsF64, std::numeric_limits<F64>::max());
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithChar8ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CharClusterUtf8 {.Chars = {'X'}}});
-	ASSERT_EQ(x.R64.AsChar8, 'X');
+	auto PrintMachineInfo(const SystemInfo& sysInfo, const CpuFeatureDetector& cpuInfo) -> void
+	{
+		sysInfo.Print();
+		Print("\n");
+		PrintTypeInfoTable();
+		Print("\n");
+		cpuInfo.Print();
+		Print("\n");
+	}
 }

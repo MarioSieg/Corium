@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: BenchTemplates.cpp
 // Author: Mario
-// Created: 27.04.2021 3:41 PM
+// Created: 10.05.2021 4:16 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,95 +205,106 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#include "BenchTemplates.hpp"
 
-TEST(BytecodeDynamicSignal, InstructionData)
+auto LoopBenchmark
+(
+	State&                            state,
+	const std::vector<DynamicSignal>& loopBody,
+	I64                               count,
+	const bool                        enableAvxReactor
+) -> void
 {
-	const auto x = DynamicSignal {Instruction::CIntrin};
-	ASSERT_TRUE(x.Contains<Instruction>());
-	ASSERT_TRUE(x.Contains(Instruction::CIntrin));
-}
+	Print("\n");
 
-TEST(BytecodeDynamicSignal, IntrinsicData)
-{
-	const auto x = DynamicSignal {SystemIntrinsicCallId::ATan2};
-	ASSERT_TRUE(x.Contains<SystemIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(SystemIntrinsicCallId::ATan2));
-}
+	Stream stream
+	{
+		{
+			DynamicSignal {Instruction::NOp}, // first padding
+			DynamicSignal {Instruction::PushZ},
+			DynamicSignal {Instruction::IInc},
+			DynamicSignal {Instruction::Dupl},
+			DynamicSignal {Instruction::Push},
+			DynamicSignal {count},
+		}
+	};
 
-TEST(BytecodeDynamicSignal, CustomIntrinsicData)
-{
-	const auto x = DynamicSignal {CustomIntrinsicCallId {233113}};
-	ASSERT_TRUE(x.Contains<CustomIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(CustomIntrinsicCallId{ 233113 }));
-}
+	for (const auto& sig : loopBody)
+	{
+		stream << sig;
+	}
 
-TEST(BytecodeDynamicSignal, U64Data)
-{
-	const auto x = DynamicSignal {UINT64_C(12345)};
-	ASSERT_TRUE(x.Contains<U64>());
-	ASSERT_TRUE(x.Contains(UINT64_C(12345)));
-}
+	stream << Instruction::JlCmpi;
+	stream << JumpAddress {2};
+	stream << Instruction::Pop;
+	stream << Instruction::Int;
+	stream << 0_int;
 
-TEST(BytecodeDynamicSignal, I64Data)
-{
-	const auto x = DynamicSignal {INT64_C(-12345)};
-	ASSERT_TRUE(x.Contains<I64>());
-	ASSERT_TRUE(x.Contains(INT64_C(-12345)));
-}
+	CodeChunk chunk { };
+	JumpMap   map { };
 
-TEST(BytecodeDynamicSignal, F64Data)
-{
-	const auto x = DynamicSignal {12345.0};
-	ASSERT_TRUE(x.Contains<F64>());
-	ASSERT_TRUE(x.Contains(12345.0));
-}
+	if (stream.Build(chunk, map) != ByteCodeValidationResult::Ok)
+	{
+		state.SkipWithError("Byte code validation failed!");
+	}
 
-TEST(BytecodeDynamicSignal, C32Data)
-{
-	const auto x = DynamicSignal {CharClusterUtf8 {.Chars = {'A'}}};
-	ASSERT_TRUE(x.Contains<CharClusterUtf8>());
-	ASSERT_TRUE(x.Contains(CharClusterUtf8{ .Chars = {'A'} }));
-}
+	FixedStack stack {FixedStack::SIZE_LARGE};
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithInstructionToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {Instruction::CIntrin});
-	ASSERT_EQ(x.Instr, Instruction::CIntrin);
-}
+	constexpr std::array intrinsics {
+		+[](Record*      ) -> void {}
+	};
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {SystemIntrinsicCallId::ATan2});
-	ASSERT_EQ(x.SystemIntrinId, SystemIntrinsicCallId::ATan2);
-}
+	const DetailedReactorDescriptor input {
+		.CodeChunk = chunk.data(),
+		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(map.data()),
+		.CodeChunkSize = chunk.size(),
+		.IntrinsicTable = intrinsics.data(),
+		.IntrinsicTableSize = intrinsics.size(),
+		.InterruptHandler = +[](InterruptAccumulator) -> void {},
+		.Stack = stack.Buffer(),
+		.StackSize = stack.Size(),
+	};
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithCustomIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CustomIntrinsicCallId {4}});
-	ASSERT_EQ(x.CustomIntrinId, CustomIntrinsicCallId{ 4 });
-}
+	if (input.Validate() != ReactorValidationResult::Ok)
+	{
+		state.SkipWithError("Reactor input validation failed!");
+		return;
+	}
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithU64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsU64, 0xFF'FF'FF'FF'FF'FF'FF'FF);
-}
+	for (auto _ : state)
+	{
+		CpuFeatureDetector features { };
+		const_cast<FeatureBits&>(*features).Avx = enableAvxReactor; // Manually disable avx
+		const auto output {ExecuteOnce(input, features)};
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithI64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsI64, -0x80'FF'FF'FF'FF'FF'FF'FF);
-}
+		if (output.ShutdownReason != ReactorShutdownReason::Success)
+		{
+			state.SkipWithError("Reactor terminated with error or exception!");
+			break;
+		}
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithF64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {std::numeric_limits<F64>::max()});
-	ASSERT_EQ(x.R64.AsF64, std::numeric_limits<F64>::max());
-}
+		if (output.SpDiff != 0)
+		{
+			state.SkipWithError("Not all stack entries were popped!");
+			break;
+		}
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithChar8ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CharClusterUtf8 {.Chars = {'X'}}});
-	ASSERT_EQ(x.R64.AsChar8, 'X');
+		if (output.Input.Stack[1].AsI64 != count)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+
+		if (output.Input.Stack[2].AsI64 != count)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+
+		if (output.Input.Stack[3].AsI64 != count)
+		{
+			state.SkipWithError("Expected different value on stack!");
+			break;
+		}
+	}
 }

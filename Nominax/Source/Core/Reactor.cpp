@@ -207,6 +207,7 @@
 
 #include "../../Include/Nominax/Core/Reactor.hpp"
 #include "../../Include/Nominax/Core/BasicReactorDescriptor.hpp"
+#include "../../Include/Nominax/Core/ReactorHypervisor.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
 
@@ -214,8 +215,7 @@ namespace
 {
 	using namespace Nominax;
 
-	auto DefaultInterruptRoutine(InterruptAccumulator) -> void { }
-
+	[[maybe_unused]]
 	auto CreateDescriptor
 	(
 		FixedStack&               stack,
@@ -244,69 +244,46 @@ namespace
 
 namespace Nominax
 {
-	Reactor::Reactor(FixedStack&& stack, CodeChunk&& chunk, JumpMap&& jumpMap) noexcept(false)
-		: Stack_ {std::move(stack)},
-		  Chunk_ {std::move(chunk)},
-		  Map_ {std::move(jumpMap)},
-		  InterruptHandler_ {*&DefaultInterruptRoutine}
+	Reactor::Reactor
+	(
+		const std::size_t          stackSize,
+		SharedIntrinsicTableView&& intrinsicTable,
+		InterruptRoutine*          interruptHandler
+	) noexcept(false) :
+		Input_ { },
+		Output_ {Input_},
+		Stack_ {stackSize},
+		IntrinsicTable_ {intrinsicTable},
+		InterruptHandler_ {interruptHandler ? interruptHandler : &DefaultInterruptRoutine} { }
+
+	Reactor::Reactor(Reactor&& other) noexcept(true) :
+		Input_ {other.Input_},
+		Output_ {other.Output_},
+		Stack_ {std::move(other.Stack_)},
+		IntrinsicTable_ {other.IntrinsicTable_},
+		InterruptHandler_ {other.InterruptHandler_} { }
+
+	auto Reactor::Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
 	{
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Stack_.Size(), "Zero sized stack was given to reactor!");
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Chunk_.size(), "Zero sized chunk was given to reactor!");
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Map_.size(), "Zero sized instruction map was given to reactor!");
-
-		this->Descriptor_ = CreateDescriptor(this->Stack_, this->Chunk_, this->Map_, this->IntrinsicTable_, this->InterruptHandler_);
-
-		NOMINAX_PANIC_ASSERT_EQ(this->Descriptor_.Validate(), ReactorValidationResult::Ok, "Reactor validation failed!");
-
-		Print
+		this->AppCode_ = std::move(bundle);
+		this->Input_   = CreateDescriptor
 		(
-			"Created RT Reactor, IntrinsicTable: None, InterruptHandler: Default\n"
+			this->Stack_,
+			std::get<0>(this->AppCode_),
+			std::get<1>(this->AppCode_),
+			this->IntrinsicTable_,
+			*this->InterruptHandler_
 		);
+		const auto validationResult {this->Input_.Validate()};
+		NOMINAX_PANIC_ASSERT_EQ(validationResult, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]);
+		this->Output_ = ExecuteOnce(this->Input_); // TODO Remove second validate?!
+		return this->Output_;
 	}
 
-	Reactor::Reactor(FixedStack&& stack, CodeChunk&& chunk, JumpMap&& jumpMap, SharedIntrinsicTableView intrinsicTable, InterruptRoutine& interruptHandler) noexcept(false)
-		: Stack_ {std::move(stack)},
-		  Chunk_ {std::move(chunk)},
-		  Map_ {std::move(jumpMap)},
-		  IntrinsicTable_ {intrinsicTable},
-		  InterruptHandler_ {*&interruptHandler}
+	auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorOutput
 	{
-		NOMINAX_PANIC_ASSERT_TRUE(this->Stack_.Size(), "Zero sized stack was given to reactor!");
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Chunk_.size(), "Zero sized chunk was given to reactor!");
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(this->Map_.size(), "Zero sized instruction map was given to reactor!");
-
-		this->Descriptor_ = CreateDescriptor(this->Stack_, this->Chunk_, this->Map_, this->IntrinsicTable_, this->InterruptHandler_);
-
-		NOMINAX_PANIC_ASSERT_EQ(this->Descriptor_.Validate(), ReactorValidationResult::Ok, "Reactor validation failed!");
-
-		Print
-		(
-			"Created RT Reactor, IntrinsicTable: Used, InterruptHandler: Used\n"
-		);
-	}
-
-	auto Reactor::Execute() const noexcept(false) -> ReactorOutput
-	{
-		return ExecuteChecked(this->Descriptor_);
-	}
-
-	auto Reactor::Stack() const noexcept(true) -> const FixedStack&
-	{
-		return this->Stack_;
-	}
-
-	auto Reactor::Chunk() const noexcept(true) -> const CodeChunk&
-	{
-		return this->Chunk_;
-	}
-
-	auto Reactor::Map() const noexcept(true) -> const JumpMap&
-	{
-		return this->Map_;
-	}
-
-	auto Reactor::Descriptor() const noexcept(true) -> const DetailedReactorDescriptor&
-	{
-		return this->Descriptor_;
+		ReactorOutput output {.Input = input};
+		ExecuteReactorAutoDispatchBackend(cpuFeatureDetector, input, output);
+		return output;
 	}
 }

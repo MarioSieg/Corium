@@ -211,6 +211,7 @@
 Asm_CpuId:
     PUSHQ   %RBP                # stack frame prologue
     MOVQ    %RSP, %RBP          # stack frame prologue
+    PUSHQ   %RBX
     MOVL    $0xFFFFFFFF, %R10D
 #ifdef __WIN__
     PUSHQ   %RDX                # preserve clobbered rdx
@@ -267,6 +268,7 @@ Asm_CpuId:
     ORQ     %RCX, (%RDX)        # store result into output3
 #endif
     MOVL    %EDX, %EAX          # copy dword return value to return reg
+    POPQ    %RBX
     MOVQ    %RBP, %RSP          # stack frame epilogue
     POPQ    %RBP                # stack frame epilogue
     RETQ                        # return

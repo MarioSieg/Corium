@@ -209,24 +209,15 @@
 
 TEST(BytecodeStream, Constructor)
 {
-	Stream stream { };
-	ASSERT_EQ(stream.Size(), 1);
-	ASSERT_EQ(stream.SizeInBytes(), sizeof(DynamicSignal));
-	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue()[0].Unwrap<Instruction>().value()));
-}
-
-TEST(BytecodeStream, ConstructorCapacity)
-{
-	Stream stream { };
-	ASSERT_EQ(stream.Size(), 1);
-	ASSERT_EQ(stream.SizeInBytes(), sizeof(DynamicSignal));
-	ASSERT_TRUE(stream[0].Contains(DynamicSignal::CodePrologue()[0].Unwrap<Instruction>().value()));
+	const Stream stream { };
+	ASSERT_EQ(stream.Size(), 0);
+	ASSERT_EQ(stream.SizeInBytes(), 0);
 }
 
 TEST(BytecodeStream, Push)
 {
 	Stream stream { };
-	ASSERT_EQ(stream.Size(), 1);
+	ASSERT_EQ(stream.Size(), 0);
 
 	stream.Push(DynamicSignal { });
 	stream.Push(DynamicSignal {Instruction::NOp});
@@ -237,17 +228,110 @@ TEST(BytecodeStream, Push)
 	stream << UINT64_C(32);
 	stream << INT64_C(-10);
 
-	ASSERT_EQ(stream.Size(), 9);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(UINT64_C(0)));
-	ASSERT_TRUE(stream[2].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[3].Contains(Instruction::Call));
-	ASSERT_TRUE(stream[4].Contains(SystemIntrinsicCallId::ACos));
-	ASSERT_TRUE(stream[5].Contains(CustomIntrinsicCallId{ 3 }));
-	ASSERT_TRUE(stream[6].Contains(3.5));
-	ASSERT_TRUE(stream[7].Contains(UINT64_C(32)));
-	ASSERT_TRUE(stream[8].Contains(INT64_C(-10)));
+	ASSERT_EQ(stream.Size(), 8);
+	ASSERT_TRUE(stream[0].Contains(UINT64_C(0)));
+	ASSERT_TRUE(stream[1].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[2].Contains(Instruction::Call));
+	ASSERT_TRUE(stream[3].Contains(SystemIntrinsicCallId::ACos));
+	ASSERT_TRUE(stream[4].Contains(CustomIntrinsicCallId{ 3 }));
+	ASSERT_TRUE(stream[5].Contains(3.5));
+	ASSERT_TRUE(stream[6].Contains(UINT64_C(32)));
+	ASSERT_TRUE(stream[7].Contains(INT64_C(-10)));
 
 	stream.Clear();
 	ASSERT_EQ(stream.Size(), 0);
+}
+
+TEST(BytecodeStream, CodePrologue)
+{
+	Stream stream { };
+	ASSERT_EQ(stream.Size(), 0);
+	ASSERT_TRUE(stream.IsEmpty());
+	stream.Prologue();
+	const auto prologue {DynamicSignal::CodePrologue()};
+	ASSERT_EQ(stream.Size(), prologue.size());
+	for (auto i {std::begin(stream)}; const auto& sig : prologue)
+	{
+		ASSERT_EQ(sig, *i);
+		std::advance(i, 1);
+	}
+	ASSERT_TRUE(stream.ContainsPrologue());
+	ASSERT_FALSE(stream.ContainsEpilogue());
+	stream.Clear();
+	ASSERT_FALSE(stream.ContainsPrologue());
+}
+
+TEST(BytecodeStream, CodeEpilogue)
+{
+	Stream stream { };
+	ASSERT_EQ(stream.Size(), 0);
+	ASSERT_TRUE(stream.IsEmpty());
+	stream.Epilogue();
+	const auto epilogue {DynamicSignal::CodeEpilogue()};
+	ASSERT_EQ(stream.Size(), epilogue.size());
+	for (auto i {std::begin(stream)}; const auto& sig : epilogue)
+	{
+		ASSERT_EQ(sig, *i);
+		std::advance(i, 1);
+	}
+	ASSERT_TRUE(stream.ContainsEpilogue());
+	ASSERT_FALSE(stream.ContainsPrologue());
+	stream.Clear();
+	ASSERT_FALSE(stream.ContainsEpilogue());
+}
+
+TEST(BytecodeStream, ExampleStream)
+{
+	Stream str { };
+	Stream::ExampleStream(str);
+	ASSERT_TRUE(str.Size() != 0);
+}
+
+TEST(BytecodeStream, CodeGenerationNoOpt)
+{
+	Stream                                   stream {OptimizationLevel::Off};
+	stream.Prologue().With(2, [](ScopedInt&& var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	}).Epilogue();
+	ASSERT_EQ(stream.Size(), 15);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[2].Contains<I64>(2));
+	ASSERT_TRUE(stream[3].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[4].Contains<I64>(2));
+	ASSERT_TRUE(stream[5].Contains(Instruction::IMul));
+	ASSERT_TRUE(stream[6].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[7].Contains<I64>(1));
+	ASSERT_TRUE(stream[8].Contains(Instruction::IAdd));
+	ASSERT_TRUE(stream[9].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[10].Contains<I64>(1));
+	ASSERT_TRUE(stream[11].Contains(Instruction::IDiv));
+	ASSERT_TRUE(stream[12].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[13].Contains(Instruction::Int));
+	ASSERT_TRUE(stream[14].Contains<I64>(0));
+}
+
+TEST(BytecodeStream, CodeGenerationOpt3)
+{
+	Stream                                   stream {OptimizationLevel::O3};
+	stream.Prologue().With(2, [](ScopedInt&& var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	}).Epilogue();
+	ASSERT_EQ(stream.Size(), 10);
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
+	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[2].Contains<I64>(2));
+	ASSERT_TRUE(stream[3].Contains(Instruction::IPushO));
+	ASSERT_TRUE(stream[4].Contains(Instruction::ISal));
+	ASSERT_TRUE(stream[5].Contains(Instruction::IInc));
+	ASSERT_TRUE(stream[6].Contains(Instruction::Dupl));
+	ASSERT_TRUE(stream[7].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[8].Contains(Instruction::Int));
+	ASSERT_TRUE(stream[9].Contains<I64>(0));
 }

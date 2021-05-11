@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: ExecutionAddressMapping.hpp
 // Author: Mario
-// Created: 27.04.2021 3:41 PM
+// Created: 10.05.2021 4:45 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,95 +205,102 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#pragma once
 
-TEST(BytecodeDynamicSignal, InstructionData)
-{
-	const auto x = DynamicSignal {Instruction::CIntrin};
-	ASSERT_TRUE(x.Contains<Instruction>());
-	ASSERT_TRUE(x.Contains(Instruction::CIntrin));
-}
+#include "../ByteCode/Signal.hpp"
 
-TEST(BytecodeDynamicSignal, IntrinsicData)
+namespace Nominax
 {
-	const auto x = DynamicSignal {SystemIntrinsicCallId::ATan2};
-	ASSERT_TRUE(x.Contains<SystemIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(SystemIntrinsicCallId::ATan2));
-}
+	/// <summary>
+	/// Compute relative jump address.
+	/// </summary>
+	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(Signal* const base, const JumpAddress address) noexcept(true) -> void*
+	{
+		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
+	}
 
-TEST(BytecodeDynamicSignal, CustomIntrinsicData)
-{
-	const auto x = DynamicSignal {CustomIntrinsicCallId {233113}};
-	ASSERT_TRUE(x.Contains<CustomIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(CustomIntrinsicCallId{ 233113 }));
-}
+	/// <summary>
+	/// 2D jump table pointer type.
+	/// </summary>
+	using JumpTable = const void* __restrict__ const* __restrict__ const;
 
-TEST(BytecodeDynamicSignal, U64Data)
-{
-	const auto x = DynamicSignal {UINT64_C(12345)};
-	ASSERT_TRUE(x.Contains<U64>());
-	ASSERT_TRUE(x.Contains(UINT64_C(12345)));
-}
+	/// <summary>
+	/// Replaces the op-codes in the bucket with the pointers to the labels.
+	/// This improves performance because no array lookup is needed.
+	/// The jump assembly generated on my machine (x86-64, clang):
+	/// With jump table mapping:
+	/// jmpq	*(%r14)
+	/// Without jump table mapping:
+	/// jmpq	*(%rcx,%rax,8)
+	/// This easily gives some 300-500 milliseconds performance improvement on my machine.
+	/// Important: The signal bucket is modified.
+	/// After mapping, each signal which was an instruction now contains a void* to the jump label.
+	/// That means, that the original instructions/opcodes are gone.
+	/// For example, let's say the first instruction was push 32, so the signal was:
+	/// [1] -> 7	[type: instruction]
+	/// [2] -> 32	[type: i64]
+	/// After mapping the content will be:
+	/// [1] -> 0x00D273F27A	[type: void*]
+	/// [2] -> 32			[type: i64]
+	/// Because all opcodes are gone, accessing the bucket and using the opcode values after mapping is not allowed!
+	/// Because the Signal type is not discriminated (like DynamicSignal), we do not know which signal contains an instruction.
+	/// For that we have the instruction map, which must have the same size as the bucket.
+	/// For each bucket entry there is a signal map entry, which is true if the bucket entry at the same index is an instruction else false.
+	/// Example:
+	/// bucket[1] = push	| instructionMap[1] = true
+	/// bucket[2] = 3		| instructionMap[2] = false
+	/// bucket[3] = pushz	| instructionMap[3] = true
+	/// bucket[4] = nop		| instructionMap[4] = true
+	///
+	/// ** Update 10.05.2021 **
+	/// For further optimization jump target addresses are not also converted to pointers.
+	/// When you specify a branch like
+	/// jz 3
+	/// the byte code position of 3 will be replaced by the real pointer value,
+	/// to avoid more calculation.
+	/// But this mapping is done in the byte code builder, not here because it does not require the jump table.
+	/// </summary>
+	/// <param name="bucket">The byte code bucket to use as mapping target.</param>
+	/// <param name="bucketEnd">The incremented end pointer of the byte code bucket, calculated as: bucket + bucketLength</param>
+	/// <param name="jumpAddressMap">The instruction map. Must have the same size as the byte code bucket.</param>
+	/// <param name="jumpTable">The jump table. Must contain an address for each instruction.</param>
+	/// <returns>true on success, else false.</returns>
+	[[maybe_unused]]
+	[[nodiscard]]
+	extern auto MapJumpTable
+	(
+		Signal* __restrict__       bucket,
+		const Signal* __restrict__ bucketEnd,
+		const bool*                jumpAddressMap,
+		JumpTable                  jumpTable
+	) noexcept(false) -> bool;
 
-TEST(BytecodeDynamicSignal, I64Data)
-{
-	const auto x = DynamicSignal {INT64_C(-12345)};
-	ASSERT_TRUE(x.Contains<I64>());
-	ASSERT_TRUE(x.Contains(INT64_C(-12345)));
-}
+	/// <summary>
+	/// Checks if all pointers inside the jump table are non null.
+	/// Use it with static_assert because it is consteval :)
+	/// </summary>
+	/// <param name="jumpTable">The jump table to check.</param>
+	/// <param name="jumpTableSize">The amount of jump table entries.</param>
+	/// <returns>true if all entries are valid, else false.</returns>
+	consteval auto ValidateJumpTable
+	(
+		JumpTable         jumpTable,
+		const std::size_t jumpTableSize
+	) noexcept(true) -> bool
+	{
+		if (!jumpTable || !jumpTableSize)
+		{
+			return false;
+		}
 
-TEST(BytecodeDynamicSignal, F64Data)
-{
-	const auto x = DynamicSignal {12345.0};
-	ASSERT_TRUE(x.Contains<F64>());
-	ASSERT_TRUE(x.Contains(12345.0));
-}
-
-TEST(BytecodeDynamicSignal, C32Data)
-{
-	const auto x = DynamicSignal {CharClusterUtf8 {.Chars = {'A'}}};
-	ASSERT_TRUE(x.Contains<CharClusterUtf8>());
-	ASSERT_TRUE(x.Contains(CharClusterUtf8{ .Chars = {'A'} }));
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithInstructionToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {Instruction::CIntrin});
-	ASSERT_EQ(x.Instr, Instruction::CIntrin);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {SystemIntrinsicCallId::ATan2});
-	ASSERT_EQ(x.SystemIntrinId, SystemIntrinsicCallId::ATan2);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithCustomIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CustomIntrinsicCallId {4}});
-	ASSERT_EQ(x.CustomIntrinId, CustomIntrinsicCallId{ 4 });
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithU64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsU64, 0xFF'FF'FF'FF'FF'FF'FF'FF);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithI64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsI64, -0x80'FF'FF'FF'FF'FF'FF'FF);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithF64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {std::numeric_limits<F64>::max()});
-	ASSERT_EQ(x.R64.AsF64, std::numeric_limits<F64>::max());
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithChar8ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CharClusterUtf8 {.Chars = {'X'}}});
-	ASSERT_EQ(x.R64.AsChar8, 'X');
+		const auto* current {jumpTable};
+		for (const auto* const end {jumpTable + jumpTableSize}; current < end; ++current)
+		{
+			if (!*current)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 }

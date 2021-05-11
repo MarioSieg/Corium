@@ -1,6 +1,6 @@
-// File: ObjectAllocator.cpp
+// File: EnvironmentUtils.hpp
 // Author: Mario
-// Created: 25.04.2021 2:41 PM
+// Created: 08.05.2021 3:14 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,89 +205,18 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <iostream>
+#pragma once
 
-#include "../../Include/Nominax/Core/ObjectAllocator.hpp"
-#include "../../Include/Nominax/System/MacroCfg.hpp"
-#include "../../Include/Nominax/Common/Common.hpp"
+#include <cstddef>
 
 namespace Nominax
 {
-	auto RuntimeObjectAllocator::RawAllocateAndWriteSize(const U32 sizeInRecords) -> Object::BlobBlockType*
-	{
-		// debug check
-		assert(sizeInRecords);
+	struct SystemInfo;
+	class CpuFeatureDetector;
 
-		// We cannot allocate an object of size 0.
-		// This would only allocate an object header.
-		if (NOMINAX_UNLIKELY(sizeInRecords == 0))
-		{
-			return nullptr;
-		}
+	extern auto PrintSystemInfo() -> void;
 
-		// add space for object header (2 records):
-		const U32 finalSizeInRecords {sizeInRecords + ObjectHeader::RECORD_CHUNKS};
+	extern auto PrintTypeInfoTable() -> void;
 
-		// allocate object instance:
-		auto* __restrict__ const instance = new(std::nothrow) Record[finalSizeInRecords]();
-
-		// debug check
-		assert(instance);
-
-		// check if allocation failed:
-		if (NOMINAX_UNLIKELY(!instance))
-		{
-			return nullptr;
-		}
-
-		// Write the size of the object, without the header.
-		// The other object header fields shall be written by the caller.
-		ObjectHeader::WriteMapping_Size(instance, sizeInRecords);
-
-		// Update allocation counter:
-		AllocatedBlocks.fetch_add(finalSizeInRecords);
-
-#if NOMINAX_VERBOSE_ALLOCATOR
-		std::cout << "Allocated ";
-		PrettyPrintBytes(std::cout, finalSizeInRecords * sizeof(Record));
-		std::cout << ", Total allocated: ";
-		PrettyPrintBytes(std::cout, AllocatedBlocks * sizeof(Record));
-		std::cout << '\n';
-#endif
-
-		return instance;
-	}
-
-	auto RuntimeObjectAllocator::RawDeallocate(Object::BlobBlockType*& instance) -> void
-	{
-		// debug check
-		assert(instance);
-
-		if (NOMINAX_UNLIKELY(!instance))
-		{
-			return;
-		}
-
-		// get the size in records:
-		const auto size = ObjectHeader::ReadMapping_Size(instance);
-
-		// debug check
-		assert(size);
-
-		// Update allocation counter:
-		AllocatedBlocks.fetch_sub(size);
-
-		// Free memory:
-		delete[] instance;
-
-		instance = nullptr;
-
-#if NOMINAX_VERBOSE_ALLOCATOR
-		std::cout << "Deallocated ";
-		PrettyPrintBytes(std::cout, size * sizeof(Record));
-		std::cout << ", Total allocated: ";
-		PrettyPrintBytes(std::cout, AllocatedBlocks * sizeof(Record));
-		std::cout << '\n';
-#endif
-	}
+	extern auto PrintMachineInfo(const SystemInfo& sysInfo, const CpuFeatureDetector& cpuInfo) -> void;
 }

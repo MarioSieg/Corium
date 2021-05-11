@@ -259,6 +259,16 @@ struct fmt::formatter<Nominax::DynamicSignal>
 					           static_cast<std::underlying_type_t<decltype(value)>>(value)
 				           );
 			           },
+			           [&](const JumpAddress value)
+			           {
+				           result = fmt::format_to
+				           (
+					           ctx.out(), " {}{}{:#X}",
+					           Lexemes::JUMP_ADDRESS,
+					           Lexemes::IMMEDIATE,
+					           static_cast<std::underlying_type_t<decltype(value)>>(value)
+				           );
+			           },
 			           [&](const U64 value)
 			           {
 				           result = fmt::format_to
@@ -291,14 +301,21 @@ struct fmt::formatter<Nominax::DynamicSignal>
 					           Lexemes::LITERAL_SUFFIX_F32
 				           );
 			           },
-			           [&](const char32_t value)
+			           [&](const CharClusterUtf8 value)
 			           {
 				           result = fmt::format_to
 				           (
 					           ctx.out(),
-					           " {}{}{:#X}",
+					           " {}{}{}{}{}{}{}{}{}{}",
 					           Lexemes::IMMEDIATE,
-					           static_cast<U32>(value),
+					           static_cast<char>(value.Chars[0]),
+					           static_cast<char>(value.Chars[1]),
+					           static_cast<char>(value.Chars[2]),
+					           static_cast<char>(value.Chars[3]),
+					           static_cast<char>(value.Chars[4]),
+					           static_cast<char>(value.Chars[5]),
+					           static_cast<char>(value.Chars[6]),
+					           static_cast<char>(value.Chars[7]),
 					           Lexemes::LITERAL_SUFFIX_CHAR
 				           );
 			           },
@@ -366,53 +383,17 @@ namespace Nominax
 		Print("\n\n");
 	}
 
-	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) noexcept(false) -> ByteCodeValidationResult
+	auto Stream::Prologue() noexcept(false) -> Stream&
 	{
-		this->End();
-		return Nominax::Build(*this, out, outJumpMap);
-	}
-
-	auto Stream::Begin() noexcept(false) -> Stream&
-	{
-		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		if (auto containsPrologueCode = [&]() -> bool
-		{
-			auto begin = this->SignalStream_.begin();
-			for (const DynamicSignal& sig : code)
-			{
-				if (NOMINAX_UNLIKELY(sig != *begin))
-				{
-					return false;
-				}
-				std::advance(begin, 1);
-			}
-			return true;
-		}; NOMINAX_UNLIKELY(this->Size() >= 2 && !containsPrologueCode()))
-		{
-			this->SignalStream_.insert(this->SignalStream_.begin(), std::begin(code), std::end(code));
-		}
+		constexpr std::array code {DynamicSignal::CodePrologue()};
+		this->List_.insert(this->List_.begin(), std::begin(code), std::end(code));
 		return *this;
 	}
 
-	auto Stream::End() noexcept(false) -> Stream&
+	auto Stream::Epilogue() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		if (auto containsEpilogueCode = [&]() -> bool
-		{
-			auto end = this->SignalStream_.end();
-			for (const DynamicSignal& sig : code)
-			{
-				std::advance(end, -1);
-				if (NOMINAX_UNLIKELY(sig != *end))
-				{
-					return false;
-				}
-			}
-			return true;
-		}; NOMINAX_UNLIKELY(this->Size() >= 2 && !containsEpilogueCode()))
-		{
-			this->SignalStream_.insert(this->SignalStream_.end(), std::begin(code), std::end(code));
-		}
+		this->List_.insert(this->List_.end(), std::begin(code), std::end(code));
 		return *this;
 	}
 }

@@ -207,11 +207,11 @@
 
 #pragma once
 
-#include <unordered_map>
 #include <list>
 
 #include "DynamicSignal.hpp"
 #include "ImmediateArgumentCount.hpp"
+#include "OptBase.hpp"
 #include "StreamScalar.hpp"
 #include "Chunk.hpp"
 #include "Validator.hpp"
@@ -220,6 +220,11 @@ namespace Nominax
 {
 	template <typename T> requires StreamScalar<T>
 	struct ScopedVariable;
+
+	/// <summary>
+	/// Execution ready byte code and jump map.
+	/// </summary>
+	using AppCodeBundle = std::tuple<CodeChunk, JumpMap>;
 
 	/// <summary>
 	/// Dynamic byte code stream.
@@ -231,7 +236,12 @@ namespace Nominax
 		/// std::list is a F64 linked list, and we require bidirectional iteration,
 		/// not unidirectional.
 		/// </summary>
-		std::list<DynamicSignal> SignalStream_ { };
+		std::list<DynamicSignal> List_ { };
+
+		/// <summary>
+		/// Optimization level used for stream.
+		/// </summary>
+		OptimizationLevel OptimizationLevel_ {DefaultOptimizationLevel()};
 
 	public:
 		static auto ExampleStream(Stream& stream) noexcept(false) -> void;
@@ -240,7 +250,29 @@ namespace Nominax
 		/// Construct empty stream.
 		/// </summary>
 		/// <returns></returns>
-		Stream() noexcept(false);
+		Stream() noexcept(true) = default;
+
+		/// <summary>
+		/// Construct with data.
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		explicit Stream(std::list<DynamicSignal>&& data) noexcept(true);
+
+		/// <summary>
+		/// Construct with specific optimization level.
+		/// </summary>
+		/// <param name="optimizationLevel"></param>
+		/// <returns></returns>
+		explicit Stream(OptimizationLevel optimizationLevel) noexcept(true);
+
+		/// <summary>
+		/// Construct with data and specific optimization level.
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="optimizationLevel"></param>
+		/// <returns></returns>
+		explicit Stream(std::list<DynamicSignal>&& data, OptimizationLevel optimizationLevel) noexcept(true);
 
 		/// <summary>
 		/// Move constructor.
@@ -350,7 +382,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="sig"></param>
 		/// <returns></returns>
-		auto Push(DynamicSignal&& sig) noexcept(false) -> void;
+		auto Push(const DynamicSignal& sig) noexcept(false) -> void;
 
 		/// <summary>
 		/// STL iterator compat
@@ -387,6 +419,13 @@ namespace Nominax
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
+		/// <param name="sig"></param>
+		/// <returns></returns>
+		auto operator <<(const DynamicSignal& sig) noexcept(false) -> Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
 		/// <param name="instr"></param>
 		/// <returns></returns>
 		auto operator <<(Instruction instr) noexcept(false) -> Stream&;
@@ -404,6 +443,13 @@ namespace Nominax
 		/// <param name="intrin"></param>
 		/// <returns></returns>
 		auto operator <<(CustomIntrinsicCallId intrin) noexcept(false) -> Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
+		/// <param name="address"></param>
+		/// <returns></returns>
+		auto operator <<(JumpAddress address) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
@@ -438,12 +484,11 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(char32_t value) noexcept(false) -> Stream&;
+		auto operator <<(CharClusterUtf8 value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Print out the ir.
 		/// </summary>
-		/// <param name="stream"></param>
 		/// <param name="detailed"></param>
 		/// <returns></returns>
 		auto PrintIntermediateRepresentation(bool detailed = true) const noexcept(false) -> void;
@@ -480,18 +525,32 @@ namespace Nominax
 		auto Do() noexcept(false) -> Stream&;
 
 		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if the current stream contains required epilogue code, else false.</returns>
+		[[nodiscard]]
+		auto ContainsEpilogue() const noexcept(false) -> bool;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if the current stream contains required prologue code, else false.</returns>
+		[[nodiscard]]
+		auto ContainsPrologue() const noexcept(false) -> bool;
+
+		/// <summary>
 		/// Begin stream building.
 		/// Inserts code prologue, if missing.
 		/// </summary>
 		/// <returns></returns>
-		auto Begin() noexcept(false) -> Stream&;
+		auto Prologue() noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// End stream building.
 		/// Inserts code epilogue, if missing.
 		/// </summary>
 		/// <returns></returns>
-		auto End() noexcept(false) -> Stream&;
+		auto Epilogue() noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Map new local variable into the stream.
@@ -512,8 +571,65 @@ namespace Nominax
 		/// <param name="out"></param>
 		/// <param name="outJumpMap"></param>
 		/// <returns></returns>
-		auto Build(CodeChunk& out, JumpMap& outJumpMap) noexcept(false) -> ByteCodeValidationResult;
+		auto Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult;
+
+		/// <summary>
+		/// Validate and build code chunk plus jump map into app code bundle.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <returns></returns>
+		auto Build(AppCodeBundle& out) const noexcept(false) -> ByteCodeValidationResult;
+
+		/// <summary>
+		/// Get current optimization level.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetOptimizationLevel() const noexcept(true) -> OptimizationLevel;
+
+		/// <summary>
+		/// Set current optimization level.
+		/// </summary>
+		/// <param name="optimizationLevel"></param>
+		/// <returns></returns>
+		auto SetOptimizationLevel(OptimizationLevel optimizationLevel) noexcept(true) -> void;
 	};
+
+	inline Stream::Stream(std::list<DynamicSignal>&& data) noexcept(true) : List_ {std::move(data)} { }
+
+	inline Stream::Stream(const OptimizationLevel optimizationLevel) noexcept(true) : OptimizationLevel_ {optimizationLevel} { }
+
+	inline Stream::Stream(std::list<DynamicSignal>&& data, const OptimizationLevel optimizationLevel) noexcept(true) : List_ {std::move(data)}, OptimizationLevel_ {optimizationLevel} {}
+
+	inline auto Stream::GetOptimizationLevel() const noexcept(true) -> OptimizationLevel
+	{
+		return this->OptimizationLevel_;
+	}
+
+	inline auto Stream::SetOptimizationLevel(const OptimizationLevel optimizationLevel) noexcept(true) -> void
+	{
+		this->OptimizationLevel_ = optimizationLevel;
+	}
+
+	inline auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult
+	{
+		return GenerateChunkAndJumpMap(*this, out, outJumpMap);
+	}
+
+	inline auto Stream::Build(AppCodeBundle& out) const noexcept(false) -> ByteCodeValidationResult
+	{
+		return GenerateChunkAndJumpMap(*this, std::get<0>(out), std::get<1>(out));
+	}
+
+	inline auto Stream::ContainsPrologue() const noexcept(false) -> bool
+	{
+		return Nominax::ContainsPrologue(this->List_.size(), this->List_.begin());
+	}
+
+	inline auto Stream::ContainsEpilogue() const noexcept(false) -> bool
+	{
+		return Nominax::ContainsEpilogue(this->List_.size(), this->List_.end());
+	}
 
 	template <Instruction I, typename... Ts>
 	inline auto Stream::Do(Ts&&...args) noexcept(false) -> Stream&
@@ -552,99 +668,91 @@ namespace Nominax
 
 	inline auto Stream::Front() noexcept(true) -> DynamicSignal&
 	{
-		return this->SignalStream_.front();
+		return this->List_.front();
 	}
 
 	inline auto Stream::Back() noexcept(true) -> DynamicSignal&
 	{
-		return this->SignalStream_.back();
+		return this->List_.back();
 	}
 
 	inline auto Stream::Front() const noexcept(true) -> const DynamicSignal&
 	{
-		return this->SignalStream_.front();
+		return this->List_.front();
 	}
 
 	inline auto Stream::Back() const noexcept(true) -> const DynamicSignal&
 	{
-		return this->SignalStream_.back();
+		return this->List_.back();
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> DynamicSignal&
 	{
-		return *std::next(this->SignalStream_.begin(), idx);
+		return *std::next(this->List_.begin(), idx);
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> DynamicSignal
 	{
-		return *std::next(this->SignalStream_.begin(), idx);
+		return *std::next(this->List_.begin(), idx);
 	}
-
-	inline Stream::Stream() noexcept(false)
-	{
-		// Insert important code prologue.
-		const auto prologue {DynamicSignal::CodePrologue()};
-		this->SignalStream_.insert(std::begin(this->SignalStream_), std::begin(prologue), std::end(prologue));
-	}
-
 
 	inline auto Stream::IsEmpty() const noexcept(true) -> bool
 	{
-		return this->SignalStream_.empty() || this->SignalStream_.size() <= 3;
+		return this->List_.empty() || this->List_.size() <= 3;
 	}
 
 	inline auto Stream::Buffer() const noexcept(true) -> const std::list<DynamicSignal>&
 	{
-		return this->SignalStream_;
+		return this->List_;
 	}
 
 	inline auto Stream::Clear() noexcept(false) -> void
 	{
-		this->SignalStream_.clear();
+		this->List_.clear();
 	}
 
 	inline auto Stream::Resize(const std::size_t size) noexcept(false) -> void
 	{
-		this->SignalStream_.resize(size);
+		this->List_.resize(size);
 	}
 
 	inline auto Stream::Size() const noexcept(true) -> std::size_t
 	{
-		return this->SignalStream_.size();
+		return this->List_.size();
 	}
 
 	inline auto Stream::SizeInBytes() const noexcept(true) -> std::size_t
 	{
-		return this->SignalStream_.size() * sizeof(DynamicSignal);
+		return this->List_.size() * sizeof(DynamicSignal);
 	}
 
-	inline auto Stream::Push(DynamicSignal&& sig) noexcept(false) -> void
+	inline auto Stream::Push(const DynamicSignal& sig) noexcept(false) -> void
 	{
-		this->SignalStream_.emplace_back(sig);
+		this->List_.push_back(sig);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::begin() noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
-		return std::begin(this->SignalStream_);
+		return std::begin(this->List_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::end() noexcept(true) -> std::list<DynamicSignal>::iterator
 	{
-		return std::end(this->SignalStream_);
+		return std::end(this->List_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::begin() const noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
-		return std::begin(this->SignalStream_);
+		return std::begin(this->List_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::end() const noexcept(true) -> std::list<DynamicSignal>::const_iterator
 	{
-		return std::end(this->SignalStream_);
+		return std::end(this->List_);
 	}
 
 	/// <summary>
@@ -691,6 +799,12 @@ namespace Nominax
 		return in.end();
 	}
 
+	inline auto Stream::operator<<(const DynamicSignal& sig) noexcept(false) -> Stream&
+	{
+		this->Push(sig);
+		return *this;
+	}
+
 	inline auto Stream::operator <<(const Instruction instr) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {instr});
@@ -706,6 +820,12 @@ namespace Nominax
 	inline auto Stream::operator <<(const CustomIntrinsicCallId intrin) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {intrin});
+		return *this;
+	}
+
+	inline auto Stream::operator<<(const JumpAddress address) noexcept(false) -> Stream&
+	{
+		this->Push(DynamicSignal {address});
 		return *this;
 	}
 
@@ -733,7 +853,7 @@ namespace Nominax
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const char32_t value) noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const CharClusterUtf8 value) noexcept(false) -> Stream&
 	{
 		this->Push(DynamicSignal {value});
 		return *this;

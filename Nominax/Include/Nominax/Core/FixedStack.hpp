@@ -218,7 +218,7 @@ namespace Nominax
 	/// Represents a stack buffer with fixed size.
 	/// Uses as a thread local reactor stack.
 	/// </summary>
-	class FixedStack final
+	class [[nodiscard]] FixedStack final
 	{
 		Record*     Buffer_;
 		std::size_t BufferSize_;

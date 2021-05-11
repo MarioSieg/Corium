@@ -205,14 +205,23 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl Asm_IsAvxSupportedByOs
+.globl Asm_VmWareDetector
 
-# Header: Arch/X86_64/CpuId.hpp
-Asm_IsAvxSupportedByOs:
-    XORL    %ECX, %ECX              # clear ecx
-    XGETBV                          # read value from extended control register into %EDX:%EAX
-    ANDB    $0b00000110, %AL        # mask out avx bits
-    CMPB    $0b00000110, %AL        # compare value
-    SETEB   %AL                     # if equals & supported, set al to 1 else 0
-    RETQ                            # return
-    
+.equ HYPERVISOR, 0x564D5868     # "VMXh"
+.equ PORT, 0x5658               # "VX"  
+
+Asm_VmWareDetector:
+    PUSHQ   %RBP
+    MOVQ    %RSP, %RBP
+    PUSHQ   %RBX
+    MOVL    $HYPERVISOR, %EAX
+    MOVL    $-1, %EBX
+    MOVL    $10, %ECX
+    MOVL    $PORT, %EDX
+    INL     %DX, %EAX
+    CMPL    $HYPERVISOR, %EBX
+    SETZ    %AL
+    POPQ    %RBX
+    MOVQ    %RBP, %RSP
+    POPQ    %RBP
+    RETQ

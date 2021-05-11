@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: ReactorClass.cpp
 // Author: Mario
-// Created: 27.04.2021 3:41 PM
+// Created: 08.05.2021 8:02 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,95 +205,83 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#include "ReactorTestHelper.hpp"
 
-TEST(BytecodeDynamicSignal, InstructionData)
+TEST(ReactorClass, Valid)
 {
-	const auto x = DynamicSignal {Instruction::CIntrin};
-	ASSERT_TRUE(x.Contains<Instruction>());
-	ASSERT_TRUE(x.Contains(Instruction::CIntrin));
+	const Reactor reactor {4};
+	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
+	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(std::get<1>(reactor.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(reactor.GetInterruptHandler(), &DefaultInterruptRoutine);
 }
 
-TEST(BytecodeDynamicSignal, IntrinsicData)
+TEST(ReactorClass, MoveConstruct)
 {
-	const auto x = DynamicSignal {SystemIntrinsicCallId::ATan2};
-	ASSERT_TRUE(x.Contains<SystemIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(SystemIntrinsicCallId::ATan2));
+	Reactor reactor {4};
+	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
+	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(std::get<1>(reactor.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(reactor.GetInterruptHandler(), &DefaultInterruptRoutine);
+
+	const Reactor reactor2 {std::move(reactor)};
+	ASSERT_EQ(reactor2.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor2.GetIntrinsicTable().size(), 0);
+	ASSERT_EQ(std::get<0>(reactor2.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(std::get<1>(reactor2.GetCodeBundle()).size(), 0);
+	ASSERT_EQ(reactor2.GetInterruptHandler(), &DefaultInterruptRoutine);
 }
 
-TEST(BytecodeDynamicSignal, CustomIntrinsicData)
+TEST(ReactorClass, ZeroStackSizeFault)
 {
-	const auto x = DynamicSignal {CustomIntrinsicCallId {233113}};
-	ASSERT_TRUE(x.Contains<CustomIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(CustomIntrinsicCallId{ 233113 }));
+	ASSERT_DEATH_IF_SUPPORTED([]()
+	                          {
+	                          [[maybe_unused]]
+	                          auto bad{ Reactor{ 0 } };
+	                          }(), "");
 }
 
-TEST(BytecodeDynamicSignal, U64Data)
+TEST(ReactorClass, InterruptHandler)
 {
-	const auto x = DynamicSignal {UINT64_C(12345)};
-	ASSERT_TRUE(x.Contains<U64>());
-	ASSERT_TRUE(x.Contains(UINT64_C(12345)));
+	auto* const   interrupt = +[](InterruptAccumulator) { };
+	const Reactor reactor {4, { }, interrupt};
+	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor.GetInterruptHandler(), interrupt);
 }
 
-TEST(BytecodeDynamicSignal, I64Data)
+TEST(ReactorClass, TryExecuteValid)
 {
-	const auto x = DynamicSignal {INT64_C(-12345)};
-	ASSERT_TRUE(x.Contains<I64>());
-	ASSERT_TRUE(x.Contains(INT64_C(-12345)));
+	Stream                                   stream {OptimizationLevel::Off};
+	stream.Prologue().With(2, [](ScopedInt&& var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	}).Epilogue();
+	AppCodeBundle out { };
+	stream.Build(out);
+	Reactor     reactor {FixedStack::SIZE_LARGE};
+	const auto& output {reactor.Execute(std::move(out))};
+	ASSERT_EQ(output.ShutdownReason, ReactorShutdownReason::Success);
+	ASSERT_EQ(output.InterruptCode, 0);
+	ASSERT_EQ(std::memcmp(&output.Input, &reactor.GetInputDescriptor(), sizeof(decltype(output.Input))), 0);
 }
 
-TEST(BytecodeDynamicSignal, F64Data)
+TEST(ReactorClass, TryExecuteInValidZeroCode)
 {
-	const auto x = DynamicSignal {12345.0};
-	ASSERT_TRUE(x.Contains<F64>());
-	ASSERT_TRUE(x.Contains(12345.0));
-}
-
-TEST(BytecodeDynamicSignal, C32Data)
-{
-	const auto x = DynamicSignal {CharClusterUtf8 {.Chars = {'A'}}};
-	ASSERT_TRUE(x.Contains<CharClusterUtf8>());
-	ASSERT_TRUE(x.Contains(CharClusterUtf8{ .Chars = {'A'} }));
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithInstructionToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {Instruction::CIntrin});
-	ASSERT_EQ(x.Instr, Instruction::CIntrin);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {SystemIntrinsicCallId::ATan2});
-	ASSERT_EQ(x.SystemIntrinId, SystemIntrinsicCallId::ATan2);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithCustomIntrinsicToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CustomIntrinsicCallId {4}});
-	ASSERT_EQ(x.CustomIntrinId, CustomIntrinsicCallId{ 4 });
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithU64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsU64, 0xFF'FF'FF'FF'FF'FF'FF'FF);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithI64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)});
-	ASSERT_EQ(x.R64.AsI64, -0x80'FF'FF'FF'FF'FF'FF'FF);
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithF64ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {std::numeric_limits<F64>::max()});
-	ASSERT_EQ(x.R64.AsF64, std::numeric_limits<F64>::max());
-}
-
-TEST(BytecodeDynamicSignal, DynamicSignalWithChar8ToSignal)
-{
-	const auto x = static_cast<Signal>(DynamicSignal {CharClusterUtf8 {.Chars = {'X'}}});
-	ASSERT_EQ(x.R64.AsChar8, 'X');
+	ASSERT_DEATH_IF_SUPPORTED
+	(
+		[]()
+		{
+		const Stream stream{ OptimizationLevel::Off };
+		AppCodeBundle out{};
+		ASSERT_EQ(stream.Build(out), ByteCodeValidationResult::Ok);
+		Reactor reactor{ FixedStack::SIZE_LARGE };
+		[[maybe_unused]]
+		const auto& result{ reactor.Execute(std::move(out)) };
+		}(),
+		""
+	);
 }

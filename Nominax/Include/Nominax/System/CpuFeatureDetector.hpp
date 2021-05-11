@@ -1,6 +1,6 @@
-// File: MachInterface.hpp
+// File: CpuFeatureDetector.hpp
 // Author: Mario
-// Created: 02.05.2021 8:55 PM
+// Created: 06.05.2021 4:28 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,36 +207,91 @@
 
 #pragma once
 
-#include "../Common/RtTypes.hpp"
-#include "../System/Platform.hpp"
+#include "Platform.hpp"
+
+#if NOMINAX_ARCH_X86_64
+#   include "../Arch/X86_64.hpp"
+#endif
 
 namespace Nominax
 {
+#if NOMINAX_ARCH_X86_64
 	/// <summary>
-	/// 8 bit unsigned integer.
-	/// Use for assembly interfaces only.
+	/// Architecture dependent cpu feature flags.
 	/// </summary>
-	// ReSharper disable once CppInconsistentNaming
-	using BYTE = U8;
+	using FeatureBits = X86_64::CpuFeatureBits;
+#else
+    using FeatureBits = void;
+#   error "ARM is not yet implemented!"
+#endif
+
+	static_assert(std::is_default_constructible_v<FeatureBits>);
 
 	/// <summary>
-	/// 16 bit unsigned integer.
-	/// Use for assembly interfaces only.
+	/// Detects architecture dependent cpu features.
 	/// </summary>
-	// ReSharper disable once CppInconsistentNaming
-	using WORD = U16;
+	class CpuFeatureDetector final
+	{
+		/// <summary>
+		/// Architecture dependent bits.
+		/// </summary>
+		const FeatureBits Features_;
 
-	/// <summary>
-	/// 32 bit unsigned integer.
-	/// Use for assembly interfaces only.
-	/// </summary>
-	// ReSharper disable once CppInconsistentNaming
-	using DOUBLEWORD = U32;
+	public:
+		/// <summary>
+		/// Construct new instance and query cpu feature
+		/// using architecture dependent routines.
+		/// </summary>
+		CpuFeatureDetector() noexcept(false);
 
-	/// <summary>
-	/// 64 bit unsigned integer.
-	/// Use for assembly interfaces only.
-	/// </summary>
-	// ReSharper disable once CppInconsistentNaming
-	using QUADWORD = U64;
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		CpuFeatureDetector(const CpuFeatureDetector&) = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		CpuFeatureDetector(CpuFeatureDetector&&) = delete;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		auto operator =(const CpuFeatureDetector&) -> CpuFeatureDetector& = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		auto operator =(CpuFeatureDetector&&) -> CpuFeatureDetector& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~CpuFeatureDetector() = default;
+
+		/// <summary>
+		/// Access the architecture dependent feature bits directly.
+		/// </summary>
+		auto operator ->() const noexcept(true) -> const FeatureBits&;
+
+		/// <summary>
+		/// Access the architecture dependent feature bits directly.
+		/// </summary>
+		auto operator *() const noexcept(true) -> const FeatureBits&;
+
+		/// <summary>
+		/// Prints all the architecture dependent features in different colors.
+		/// </summary>
+		auto Print() const -> void;
+	};
+
+	inline auto CpuFeatureDetector::operator ->() const noexcept(true) -> const FeatureBits&
+	{
+		return this->Features_;
+	}
+
+	inline auto CpuFeatureDetector::operator *() const noexcept(true) -> const FeatureBits&
+	{
+		return this->Features_;
+	}
 }

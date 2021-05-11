@@ -212,13 +212,14 @@ using namespace Nominax;
 auto main() -> int
 {
 	Stream stream { };
-	stream.Begin().With(2, [&stream](ScopedInt&& var)
+	stream.Prologue().With(2, [&stream](ScopedInt&& var)
 	{
 		var *= 2;
 		var += 1;
 		var /= 1;
 		stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId {0});
-	}).End();
+	}).Epilogue();
 
-	Environment env {std::move(stream)};
+	Environment env {};
+	env.Boot();
 }
