@@ -237,3 +237,17 @@ TEST(ValidationKit, ValidateSystemIntrinsicCall)
 	ASSERT_FALSE(ValidateSystemIntrinsicCall(SystemIntrinsicCallId::Count));
 	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<SystemIntrinsicCallId>(-1)));
 }
+
+TEST(ValidationKit, ValidateCustomIntrinsicCall)
+{
+	std::vector<IntrinsicRoutine*> proc
+	{
+		nullptr,
+		nullptr
+	};
+
+	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallId{ 0 }));
+	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallId{ 1 }));
+	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallId{ 2 }));
+	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallId{ 3 }));
+}

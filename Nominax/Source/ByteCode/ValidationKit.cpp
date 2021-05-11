@@ -225,14 +225,15 @@ namespace Nominax
 
 	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallId id) noexcept(true) -> bool
 	{
-		constexpr auto min {std::numeric_limits<std::underlying_type_t<SystemIntrinsicCallId>>::min()};
-		constexpr auto max {static_cast<std::underlying_type_t<SystemIntrinsicCallId>>(SystemIntrinsicCallId::Count) - 1};
-		const auto     value {static_cast<std::underlying_type_t<SystemIntrinsicCallId>>(id)};
-		return value >= min && value <= max;
+		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallId::Count) - 1};
+		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
+		static_assert(std::is_unsigned_v<decltype(value)>);
+		return value <= max;
 	}
 
 	auto ValidateUserIntrinsicCall(const SharedIntrinsicTableView& routines, CustomIntrinsicCallId id) noexcept(true) -> bool
 	{
-		return static_cast<std::size_t>(id) < routines.size();
+		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
+		return static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size();
 	}
 }
