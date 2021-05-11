@@ -7,7 +7,7 @@
 <h4>
 Corium is a modern scripting language for all platforms.<br>
 The goal is to have a safe, clean and easy to write scripting language,<br>
-which is still very fast, so it can be used for AI, server or game development.<br>
+which is still very fast, so it can be used for AI, HPC or game development.<br>
 The final features of the language are:<br><br>
  
 * Easy to learn
