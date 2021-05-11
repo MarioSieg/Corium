@@ -31,5 +31,5 @@ Nominax is the runtime environment for Corium.<br>
 It supports heavy parallelism, JIT compiling and garbage collection out of the box.<br>
   
 The source code is in the [Nominax](https://github.com/MarioSieg/Corium/tree/master/Nominax) directory.
-For more technical information, check out the Nominax Readme.
+For more technical information, check out the Nominax [ReadMe](https://github.com/MarioSieg/Corium/blob/dev/Nominax/README.md).
 </h4>
