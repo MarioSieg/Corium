@@ -1,6 +1,6 @@
-// File: ScopedVariable.cpp
+// File: BaseTypes.hpp
 // Author: Mario
-// Created: 27.04.2021 3:44 PM
+// Created: 02.05.2021 1:19 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,101 +205,70 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#pragma once
 
-TEST(ScopedVariable, StackPushPop)
-{
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(4.5, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::Push));
-	ASSERT_TRUE(stream[1].Contains(4.5));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
+#include <cstdint>
 
-TEST(ScopedVariable, F64StackPushPopOptScalarZero)
+namespace Nominax
 {
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(0.0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// 8 bit unsigned integer.
+	/// </summary>
+	using U8 = std::uint8_t;
 
-TEST(ScopedVariable, I64StackPushPopOptScalarZero)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// 8 bit signed integer.
+	/// </summary>
+	using I8 = std::int8_t;
 
-TEST(ScopedVariable, U64StackPushPopOptScalarZero)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// 16 bit unsigned integer.
+	/// </summary>
+	using U16 = std::uint16_t;
 
-TEST(ScopedVariable, F64StackPushPopOptScalarOne)
-{
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(1.0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::FPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// 16 bit signed integer.
+	/// </summary>
+	using I16 = std::int16_t;
 
-TEST(ScopedVariable, I64StackPushPopOptScalarOne)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(1, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// 32 bit unsigned integer.
+	/// </summary>
+	using U32 = std::uint32_t;
 
-TEST(ScopedVariable, U64StackPushPopOptScalarOne)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(1, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// 32 bit signed integer.
+	/// </summary>
+	using I32 = std::int32_t;
 
-TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << 3.5;
-	stream.With(3.5, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(3.5));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// 64 bit unsigned integer.
+	/// </summary>
+	using U64 = std::uint64_t;
 
-TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << INT64_C(3);
-	stream.With(3, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<I64>(3));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// 64 bit signed integer.
+	/// </summary>
+	using I64 = std::int64_t;
 
-TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << UINT64_C(3);
-	stream.With(UINT64_C(3), []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<U64>(3));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	/// <summary>
+	/// 32 bit single precision float
+	/// </summary>
+	using F32 = float;
+
+	/// <summary>
+	/// 64 bit double precision float
+	/// </summary>
+	using F64 = double;
+
+	static_assert(sizeof(U8) == 1);
+	static_assert(sizeof(I8) == 1);
+	static_assert(sizeof(U16) == 2);
+	static_assert(sizeof(I16) == 2);
+	static_assert(sizeof(U32) == 4);
+	static_assert(sizeof(I32) == 4);
+	static_assert(sizeof(U64) == 8);
+	static_assert(sizeof(I64) == 8);
+	static_assert(sizeof(F32) == 4);
+	static_assert(sizeof(F64) == 8);
 }

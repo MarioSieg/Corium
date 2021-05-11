@@ -209,10 +209,10 @@
 
 using namespace Nominax;
 
-auto main() -> int
+auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
 {
 	Stream stream { };
-	stream.Prologue().With(2, [&stream](ScopedInt&& var)
+	stream.Prologue().With(2, [&stream](ScopedInt var)
 	{
 		var *= 2;
 		var += 1;

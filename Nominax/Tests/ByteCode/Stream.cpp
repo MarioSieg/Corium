@@ -280,13 +280,6 @@ TEST(BytecodeStream, CodeEpilogue)
 	ASSERT_FALSE(stream.ContainsEpilogue());
 }
 
-TEST(BytecodeStream, ExampleStream)
-{
-	Stream str { };
-	Stream::ExampleStream(str);
-	ASSERT_TRUE(str.Size() != 0);
-}
-
 TEST(BytecodeStream, CodeGenerationNoOpt)
 {
 	Stream                                   stream {OptimizationLevel::Off};

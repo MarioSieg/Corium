@@ -326,15 +326,6 @@ struct fmt::formatter<Nominax::DynamicSignal>
 
 namespace Nominax
 {
-	auto Stream::ExampleStream(Stream& stream) noexcept(false) -> void
-	{
-		stream.With(1024, [](ScopedInt x)
-		{
-			x += 1024;
-			x += 2;
-		});
-	}
-
 	auto Stream::PrintIntermediateRepresentation(const bool detailed) const noexcept(false) -> void
 	{
 		Print(TextColor::Green, "{} Len: {}, Size: {}B", Lexemes::COMMENT, this->Size(), this->SizeInBytes());
@@ -386,14 +377,14 @@ namespace Nominax
 	auto Stream::Prologue() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodePrologue()};
-		this->List_.insert(this->List_.begin(), std::begin(code), std::end(code));
+		this->Signals_.insert(this->Signals_.begin(), std::begin(code), std::end(code));
 		return *this;
 	}
 
 	auto Stream::Epilogue() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		this->List_.insert(this->List_.end(), std::begin(code), std::end(code));
+		this->Signals_.insert(this->Signals_.end(), std::begin(code), std::end(code));
 		return *this;
 	}
 }

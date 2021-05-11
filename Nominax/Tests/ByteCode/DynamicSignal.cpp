@@ -258,42 +258,42 @@ TEST(BytecodeDynamicSignal, C32Data)
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithInstructionToSignal)
 {
-	const auto x = static_cast<Signal>(DynamicSignal {Instruction::CIntrin});
+	const auto x = DynamicSignal {Instruction::CIntrin}.Transform();
 	ASSERT_EQ(x.Instr, Instruction::CIntrin);
 }
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithIntrinsicToSignal)
 {
-	const auto x = static_cast<Signal>(DynamicSignal {SystemIntrinsicCallId::ATan2});
+	const auto x = DynamicSignal {SystemIntrinsicCallId::ATan2}.Transform();
 	ASSERT_EQ(x.SystemIntrinId, SystemIntrinsicCallId::ATan2);
 }
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithCustomIntrinsicToSignal)
 {
-	const auto x = static_cast<Signal>(DynamicSignal {CustomIntrinsicCallId {4}});
+	const auto x = DynamicSignal {CustomIntrinsicCallId {4}}.Transform();
 	ASSERT_EQ(x.CustomIntrinId, CustomIntrinsicCallId{ 4 });
 }
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithU64ToSignal)
 {
-	const auto x = static_cast<Signal>(DynamicSignal {UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)});
+	const auto x = DynamicSignal {UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)}.Transform();
 	ASSERT_EQ(x.R64.AsU64, 0xFF'FF'FF'FF'FF'FF'FF'FF);
 }
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithI64ToSignal)
 {
-	const auto x = static_cast<Signal>(DynamicSignal {INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)});
+	const auto x = DynamicSignal {INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)}.Transform();
 	ASSERT_EQ(x.R64.AsI64, -0x80'FF'FF'FF'FF'FF'FF'FF);
 }
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithF64ToSignal)
 {
-	const auto x = static_cast<Signal>(DynamicSignal {std::numeric_limits<F64>::max()});
+	const auto x = DynamicSignal {std::numeric_limits<F64>::max()}.Transform();
 	ASSERT_EQ(x.R64.AsF64, std::numeric_limits<F64>::max());
 }
 
 TEST(BytecodeDynamicSignal, DynamicSignalWithChar8ToSignal)
 {
-	const auto x = static_cast<Signal>(DynamicSignal {CharClusterUtf8 {.Chars = {'X'}}});
+	const auto x = DynamicSignal {CharClusterUtf8 {.Chars = {'X'}}}.Transform();
 	ASSERT_EQ(x.R64.AsChar8, 'X');
 }

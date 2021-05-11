@@ -1,6 +1,6 @@
 // File: DynamicSignal.cpp
 // Author: Mario
-// Created: 25.04.2021 1:21 PM
+// Created: 11.05.2021 9:07 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -206,46 +206,45 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
-#include "../../Include/Nominax/Common/VisitOverload.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
 namespace Nominax
 {
-	DynamicSignal::operator Signal() const noexcept(false)
+	auto DynamicSignal::Transform() const noexcept(true) -> Signal
 	{
-		return std::visit(Overloaded
-		                  {
-			                  [](const Instruction value) noexcept(true)
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const SystemIntrinsicCallId value) noexcept(true)
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const CustomIntrinsicCallId value) noexcept(true)
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const JumpAddress value) noexcept(true)
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const U64 value) noexcept(true)
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const I64 value) noexcept(true)
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const F64 value) noexcept(true)
-			                  {
-				                  return Signal {value};
-			                  },
-			                  [](const CharClusterUtf8 value) noexcept(true)
-			                  {
-				                  return Signal {value.Merged};
-			                  },
-		                  }, this->DataCollection);
+		if (const auto* const x = std::get_if<Instruction>(&this->DataCollection))
+		{
+			return Signal {*x};
+		}
+		if (const auto* const x = std::get_if<SystemIntrinsicCallId>(&this->DataCollection))
+		{
+			return Signal {*x};
+		}
+		if (const auto* const x = std::get_if<CustomIntrinsicCallId>(&this->DataCollection))
+		{
+			return Signal {*x};
+		}
+		if (const auto* const x = std::get_if<JumpAddress>(&this->DataCollection))
+		{
+			return Signal {*x};
+		}
+		if (const auto* const x = std::get_if<U64>(&this->DataCollection))
+		{
+			return Signal {*x};
+		}
+		if (const auto* const x = std::get_if<I64>(&this->DataCollection))
+		{
+			return Signal {*x};
+		}
+		if (const auto* const x = std::get_if<F64>(&this->DataCollection))
+		{
+			return Signal {*x};
+		}
+		if (const auto* const x = std::get_if<CharClusterUtf8>(&this->DataCollection))
+		{
+			return Signal {*x};
+		}
+
+		Panic("Dynamic signal transformation failed!");
 	}
 }

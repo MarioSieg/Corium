@@ -212,7 +212,7 @@
 #include <ostream>
 #include <type_traits>
 
-#include "RtTypes.hpp"
+#include "BaseTypes.hpp"
 
 namespace Nominax
 {

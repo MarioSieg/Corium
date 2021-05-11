@@ -284,15 +284,7 @@ namespace Nominax
 	__attribute__((flatten, pure)) constexpr auto BitsOf(const F64 x) noexcept(true) -> U64
 	{
 		static_assert(sizeof(U64) == sizeof(F64));
-		const union
-		{
-			F64 F;
-			U64 U;
-		}       u
-			{
-				.F = x
-			};
-		return u.U;
+		return std::bit_cast<U64>(x);
 	}
 
 	__attribute__((flatten, pure)) constexpr auto ExponentBitsOf(const F64 x) noexcept(true) -> U64

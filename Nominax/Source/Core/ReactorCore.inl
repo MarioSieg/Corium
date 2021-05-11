@@ -848,7 +848,7 @@ namespace Nominax
 #	define UPDATE_IP()		ip = reinterpret_cast<const Signal*>(abs)
 
 #else
-		
+
 #	define JMP_PTR()		**(JUMP_TABLE + (*++ip).OpCode)
 #	define JMP_PTR_REL()	**(JUMP_TABLE + (*ip).OpCode)
 #	define UPDATE_IP()		ip = ipLo + abs - 1
@@ -1040,7 +1040,7 @@ namespace Nominax
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
 			ip = reinterpret_cast<const Signal*>(abs);
 #else
-			ip = ipLo + abs;                   // ip = begin + offset
+			ip = ipLo + abs; // ip = begin + offset
 #endif
 		}
 		goto
@@ -1056,7 +1056,7 @@ namespace Nominax
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
 			ip = reinterpret_cast<const Signal*>(rel);
 #else
-			ip += rel;                         // ip +-= rel
+			ip += rel; // ip +-= rel
 #endif
 		}
 		goto

@@ -226,4 +226,5 @@
 #include "Signal.hpp"
 #include "Stream.hpp"
 #include "SystemIntrinsic.hpp"
+#include "ValidationKit.hpp"
 #include "Validator.hpp"

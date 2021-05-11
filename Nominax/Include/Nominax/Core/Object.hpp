@@ -213,7 +213,7 @@
 #include <span>
 #include <vector>
 
-#include "../Common/RtTypes.hpp"
+#include "../Common/BaseTypes.hpp"
 #include "ObjectHeader.hpp"
 
 namespace Nominax

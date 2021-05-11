@@ -1,6 +1,6 @@
-// File: ScopedVariable.cpp
+// File: ValidationKit.cpp
 // Author: Mario
-// Created: 27.04.2021 3:44 PM
+// Created: 11.05.2021 8:20 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,99 +207,33 @@
 
 #include "../TestBase.hpp"
 
-TEST(ScopedVariable, StackPushPop)
+TEST(ValidationKit, ValidateJumpAddressValid)
 {
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(4.5, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::Push));
-	ASSERT_TRUE(stream[1].Contains(4.5));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	const std::vector bucket
+	{
+		DynamicSignal {Instruction::Dupl},
+		DynamicSignal {2.2_float},
+		DynamicSignal {-2_int},
+		DynamicSignal {0xFF_uint},
+		DynamicSignal {Instruction::FAdd},
+		DynamicSignal {3_int}
+	};
+
+	ASSERT_TRUE(ValidateJumpAddress(bucket, JumpAddress{0}));
+	ASSERT_FALSE(ValidateJumpAddress(bucket, JumpAddress{ 1 }));
+	ASSERT_FALSE(ValidateJumpAddress(bucket, JumpAddress{ 2 }));
+	ASSERT_FALSE(ValidateJumpAddress(bucket, JumpAddress{ 3 }));
+	ASSERT_TRUE(ValidateJumpAddress(bucket, JumpAddress{ 4 }));
+	ASSERT_FALSE(ValidateJumpAddress(bucket, JumpAddress{ 5 }));
+	ASSERT_FALSE(ValidateJumpAddress(bucket, JumpAddress{ 6 }));
+	ASSERT_FALSE(ValidateJumpAddress(bucket, JumpAddress{ 7 }));
+	ASSERT_FALSE(ValidateJumpAddress(bucket, JumpAddress{ 8 }));
 }
 
-TEST(ScopedVariable, F64StackPushPopOptScalarZero)
+TEST(ValidationKit, ValidateSystemIntrinsicCall)
 {
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(0.0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, I64StackPushPopOptScalarZero)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarZero)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, F64StackPushPopOptScalarOne)
-{
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(1.0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::FPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, I64StackPushPopOptScalarOne)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(1, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarOne)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(1, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << 3.5;
-	stream.With(3.5, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(3.5));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << INT64_C(3);
-	stream.With(3, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<I64>(3));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << UINT64_C(3);
-	stream.With(UINT64_C(3), []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<U64>(3));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallId::ACos));
+	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallId::IoPortWriteCluster));
+	ASSERT_FALSE(ValidateSystemIntrinsicCall(SystemIntrinsicCallId::Count));
+	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<SystemIntrinsicCallId>(-1)));
 }

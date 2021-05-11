@@ -304,7 +304,7 @@ namespace Nominax
 			const auto& in {input[i]};
 			auto&       out {output[i]};
 
-			out = static_cast<Signal>(in);
+			out = in.Transform();
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
 			if (in.Contains<JumpAddress>())

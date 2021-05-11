@@ -209,6 +209,7 @@
 
 #include <ranges>
 #include <span>
+#include <vector>
 
 #include "Chunk.hpp"
 #include "DynamicSignal.hpp"

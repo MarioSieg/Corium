@@ -212,13 +212,15 @@
 #include <optional>
 #include <variant>
 
-#include "../Common/RtTypes.hpp"
+#include "../Common/BaseTypes.hpp"
 #include "../Common/LiteralOp.hpp"
+#include "../Common/F64Comparator.hpp"
 
 #include "Signal.hpp"
 #include "Instruction.hpp"
 #include "SystemIntrinsic.hpp"
 #include "CustomIntrinsic.hpp"
+#include "JumpAddress.hpp"
 
 namespace Nominax
 {
@@ -227,10 +229,14 @@ namespace Nominax
 	/// </summary>
 	/// <typeparam name="...Ts">The generic types to perform restriction checks on.</typeparam>
 	template <typename T>
-	concept BytecodeElement = requires
+	concept BytecodeElement = requires(T x)
 	{
 		// Type size must either be 32 or 64 bits
-		requires sizeof(T) == 4 || sizeof(T) == 8;
+		sizeof(T) == 4 || sizeof(T) == 8;
+		alignof(T) == 4 || alignof(T) == 8;
+		x == x;
+		x != x;
+		std::is_trivial_v<T>;
 	};
 
 	/// <summary>
@@ -345,12 +351,11 @@ namespace Nominax
 		/// </summary>
 		~DynamicSignal() = default;
 
-
 		/// <summary>
 		/// Convert to undiscriminated runtime signal.
 		/// </summary>
 		[[nodiscard]]
-		explicit operator Signal() const noexcept(false);
+		auto Transform() const noexcept(true) -> Signal;
 
 		/// <summary>
 		/// Try to extract raw data.
@@ -374,11 +379,11 @@ namespace Nominax
 		/// Check if generic T and value is contained.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
-		/// <param name="compareTo"></param>
+		/// <param name="other"></param>
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Contains(T compareTo) const noexcept(false) -> bool;
+		constexpr auto Contains(T other) const noexcept(true) -> bool;
 
 		/// <summary>
 		/// Equals.
@@ -523,9 +528,8 @@ namespace Nominax
 	template <typename T> requires BytecodeElement<T>
 	constexpr auto DynamicSignal::Unwrap() const noexcept(false) -> std::optional<T>
 	{
-		return std::holds_alternative<T>(this->DataCollection)
-			       ? std::optional<T> {std::get<T>(this->DataCollection)}
-			       : std::nullopt;
+		const auto* const val {std::get_if<T>(&this->DataCollection)};
+		return val ? std::optional<T> {*val} : std::optional<T> {std::nullopt};
 	}
 
 	template <typename T> requires BytecodeElement<T>
@@ -535,8 +539,13 @@ namespace Nominax
 	}
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains(const T compareTo) const noexcept(false) -> bool
+	constexpr auto DynamicSignal::Contains(const T other) const noexcept(true) -> bool
 	{
-		return std::holds_alternative<T>(this->DataCollection) && std::get<T>(this->DataCollection) == compareTo;
+		const auto* const val {std::get_if<T>(&this->DataCollection)};
+		if constexpr (std::is_floating_point_v<T>)
+		{
+			return val && F64Equals(*val, other);
+		}
+		return val && *val == other;
 	}
 }

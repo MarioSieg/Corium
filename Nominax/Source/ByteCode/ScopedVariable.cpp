@@ -269,7 +269,7 @@ namespace Nominax
 
 			// If the value is the previous written element in the stream,
 			// we can just duplicate it:
-			if (this->Attached_.Back().Contains(value))
+			if (!this->Attached_.IsEmpty() && this->Attached_.Back().Contains(value))
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
@@ -302,7 +302,7 @@ namespace Nominax
 
 			// If the value is the previous written element in the stream,
 			// we can just duplicate it:
-			if (this->Attached_.Back().Contains(value))
+			if (!this->Attached_.IsEmpty() && this->Attached_.Back().Contains(value))
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
@@ -335,7 +335,7 @@ namespace Nominax
 
 			// If the value is the previous written element in the stream,
 			// we can just duplicate it:
-			if (this->Attached_.Back().Contains(value))
+			if (!this->Attached_.IsEmpty() && this->Attached_.Back().Contains(value))
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;

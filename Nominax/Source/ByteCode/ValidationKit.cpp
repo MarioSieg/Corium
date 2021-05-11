@@ -1,6 +1,6 @@
-// File: ScopedVariable.cpp
+// File: ValidationKit.cpp
 // Author: Mario
-// Created: 27.04.2021 3:44 PM
+// Created: 11.05.2021 8:18 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,101 +205,34 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#include "../../Include/Nominax/ByteCode/ValidationKit.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
 
-TEST(ScopedVariable, StackPushPop)
+namespace Nominax
 {
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(4.5, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::Push));
-	ASSERT_TRUE(stream[1].Contains(4.5));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
+	auto ValidateJumpAddress(const ValidationBucket& bucket, const JumpAddress address) noexcept(true) -> bool
+	{
+		const auto idx {static_cast<std::size_t>(address)};
 
-TEST(ScopedVariable, F64StackPushPopOptScalarZero)
-{
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(0.0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+		// validate that jump address is inside the range of the bucket:
+		if (NOMINAX_UNLIKELY(bucket.size() < idx))
+		{
+			return false;
+		}
 
-TEST(ScopedVariable, I64StackPushPopOptScalarZero)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+		return std::get_if<Instruction>(&bucket[idx].DataCollection);
+	}
 
-TEST(ScopedVariable, U64StackPushPopOptScalarZero)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallId id) noexcept(true) -> bool
+	{
+		constexpr auto min {std::numeric_limits<std::underlying_type_t<SystemIntrinsicCallId>>::min()};
+		constexpr auto max {static_cast<std::underlying_type_t<SystemIntrinsicCallId>>(SystemIntrinsicCallId::Count) - 1};
+		const auto     value {static_cast<std::underlying_type_t<SystemIntrinsicCallId>>(id)};
+		return value >= min && value <= max;
+	}
 
-TEST(ScopedVariable, F64StackPushPopOptScalarOne)
-{
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(1.0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::FPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, I64StackPushPopOptScalarOne)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(1, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarOne)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(1, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << 3.5;
-	stream.With(3.5, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(3.5));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << INT64_C(3);
-	stream.With(3, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<I64>(3));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << UINT64_C(3);
-	stream.With(UINT64_C(3), []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<U64>(3));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	auto ValidateUserIntrinsicCall(const SharedIntrinsicTableView& routines, CustomIntrinsicCallId id) noexcept(true) -> bool
+	{
+		return static_cast<std::size_t>(id) < routines.size();
+	}
 }

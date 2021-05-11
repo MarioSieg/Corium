@@ -1,6 +1,6 @@
-// File: ScopedVariable.cpp
+// File: ValidationKit.hpp
 // Author: Mario
-// Created: 27.04.2021 3:44 PM
+// Created: 11.05.2021 8:18 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,101 +205,41 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#pragma once
 
-TEST(ScopedVariable, StackPushPop)
-{
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(4.5, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::Push));
-	ASSERT_TRUE(stream[1].Contains(4.5));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
+#include <vector>
 
-TEST(ScopedVariable, F64StackPushPopOptScalarZero)
-{
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(0.0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+#include "DynamicSignal.hpp"
 
-TEST(ScopedVariable, I64StackPushPopOptScalarZero)
+namespace Nominax
 {
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+	using ValidationBucket = std::vector<DynamicSignal>;
 
-TEST(ScopedVariable, U64StackPushPopOptScalarZero)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// Validates a jump address. To be valid the jump address must be:
+	/// 1. Inside the range of the bucket addresses
+	/// 2. The target must be a instruction
+	/// </summary>
+	/// <param name="bucket"></param>
+	/// <param name="address"></param>
+	/// <returns></returns>
+	extern auto ValidateJumpAddress(const ValidationBucket& bucket, JumpAddress address) noexcept(true) -> bool;
 
-TEST(ScopedVariable, F64StackPushPopOptScalarOne)
-{
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(1.0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::FPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
+	/// <summary>
+	/// Validates a system intrinsic call id. To be valid the call id must be:
+	/// 1. Inside the range of the system intrinsic call ids
+	/// </summary>
+	/// <param name="id"></param>
+	/// <returns></returns>
+	extern auto ValidateSystemIntrinsicCall(SystemIntrinsicCallId id) noexcept(true) -> bool;
 
-TEST(ScopedVariable, I64StackPushPopOptScalarOne)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(1, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarOne)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(1, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << 3.5;
-	stream.With(3.5, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(3.5));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << INT64_C(3);
-	stream.With(3, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<I64>(3));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << UINT64_C(3);
-	stream.With(UINT64_C(3), []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<U64>(3));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	/// <summary>
+	/// Validates a user intrinsic call id. To be valid the call id must be:
+	/// 1. Inside the range of the shared intrinsic table view.
+	/// 2. Non null, but this is not checked here, because it's overkill to check it in each occurrence.
+	/// </summary>
+	/// <param name="routines"></param>
+	/// <param name="id"></param>
+	/// <returns></returns>
+	extern auto ValidateUserIntrinsicCall(const SharedIntrinsicTableView& routines, CustomIntrinsicCallId id) noexcept(true) -> bool;
 }

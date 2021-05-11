@@ -224,8 +224,33 @@ namespace Nominax
 	/// when destroyed (RAII) it created a pop instruction.
 	/// </summary>
 	template <typename T> requires StreamScalar<T>
-	struct ScopedVariable final
+	class ScopedVariable final
 	{
+		friend class Stream;
+
+		/// <summary>
+		/// Create a variable with specified value.
+		/// </summary>
+		/// <param name="attached"></param>
+		/// <param name="value"></param>
+		ScopedVariable(Stream& attached, T value);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto Push(T value) -> ScopedVariable&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		auto DoNothing() -> ScopedVariable&;
+
+		Stream& Attached_;
+
+	public:
 		ScopedVariable(const ScopedVariable&) = delete;
 
 		ScopedVariable(ScopedVariable&&) = delete;
@@ -444,21 +469,6 @@ namespace Nominax
 		auto AttachedStream() const noexcept(true) -> const Stream&;
 
 		auto Unwrap() const -> T;
-
-	private:
-		friend class Stream;
-
-		/// <summary>
-		/// Create a variable with specified value.
-		/// </summary>
-		/// <param name="attached"></param>
-		/// <param name="value"></param>
-		ScopedVariable(Stream& attached, T value);
-
-		auto Push(T value) -> ScopedVariable&;
-		auto DoNothing() -> ScopedVariable&;
-
-		Stream& Attached_;
 	};
 
 	template <typename T> requires StreamScalar<T>

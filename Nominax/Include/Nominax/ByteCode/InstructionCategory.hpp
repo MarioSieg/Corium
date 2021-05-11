@@ -209,7 +209,7 @@
 
 #include <cstdint>
 
-#include "../Common/RtTypes.hpp"
+#include "../Common/BaseTypes.hpp"
 
 namespace Nominax
 {
