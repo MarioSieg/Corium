@@ -251,3 +251,88 @@ TEST(ValidationKit, ValidateCustomIntrinsicCall)
 	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallId{ 2 }));
 	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallId{ 3 }));
 }
+
+TEST(ValidationKit, ValidateInstructionArguments_Int)
+{
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3_int} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3.0_float} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3_uint} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3_int}, {} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Int, {{}}));
+}
+
+TEST(ValidationKit, ValidateInstructionArguments_Intrin)
+{
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3_int} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3.0_float} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3_uint} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3_int}, {} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Intrin, { {} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicCallId::ASin}, DynamicSignal{SystemIntrinsicCallId::ASin} }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicCallId::ASin} }));
+}
+
+
+TEST(ValidationKit, ValidateInstructionArguments_CIntrin)
+{
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_int} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3.0_float} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_uint} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_int}, {} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::CIntrin, { {} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{CustomIntrinsicCallId{3}}, DynamicSignal{CustomIntrinsicCallId{3}} }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{CustomIntrinsicCallId{3}} }));
+}
+
+TEST(ValidationKit, ValidateInstructionArguments_None)
+{
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::NOp, { {} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::NOp, { {}, {} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::NOp, { DynamicSignal{3_int} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::NOp, { DynamicSignal{3_uint} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::NOp, { DynamicSignal{ 3.0_float } }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::NOp, std::vector<DynamicSignal>{}));
+}
+
+TEST(ValidationKit, ValidateInstructionArguments_Push_Combined)
+{
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Push, { {}, {} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Push, std::vector<DynamicSignal>{}));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3_int} }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3_uint} }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3.0_float} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{SystemIntrinsicCallId::ASin} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{CustomIntrinsicCallId{3}} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{JumpAddress{2}} }));
+}
+
+TEST(ValidationKit, ValidateInstructionArguments_Sto_Combined)
+{
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::Sto, { {}, {} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Sto, std::vector<DynamicSignal>{}));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint}, DynamicSignal{3_int} }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{3_uint} }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{3.0_float} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_int}, DynamicSignal{3_int} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3.0_float},DynamicSignal{3_uint} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3.0_float},DynamicSignal{3.0_float} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{SystemIntrinsicCallId::ASin} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{CustomIntrinsicCallId{3}} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{JumpAddress{2}} }));
+}
+
+TEST(ValidationKit, ValidateInstructionArguments_Push)
+{
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{}));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::VPush, {{}}));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::VPush, { {}, {} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::VPush, { {}, {}, {} }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::VPush, { {}, {}, {}, {} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::VPush, { {}, {}, {}, {}, {} }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0_int}, DynamicSignal{1_int}, DynamicSignal{2_int}, DynamicSignal{3_int} }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0_uint}, DynamicSignal{1_uint}, DynamicSignal{2_uint}, DynamicSignal{3_uint} }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0.0_float}, DynamicSignal{1.0_float}, DynamicSignal{2.0_float}, DynamicSignal{3.0_float} }));
+	ASSERT_TRUE(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0.0_float}, DynamicSignal{1_uint}, DynamicSignal{2_int}, DynamicSignal{3.0_float} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0.0_float}, DynamicSignal{1_uint}, DynamicSignal{2_int}, DynamicSignal{3.0_float}, DynamicSignal{1_uint} }));
+	ASSERT_FALSE(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0.0_float}, DynamicSignal{1_uint}, DynamicSignal{2_int}, DynamicSignal{3.0_float}, DynamicSignal{3.0_float} }));
+}

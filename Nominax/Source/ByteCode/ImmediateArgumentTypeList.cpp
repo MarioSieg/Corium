@@ -1,6 +1,6 @@
-// File: VisitOverload.hpp
+// File: ImmediateArgumentTypeList.cpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 12.05.2021 4:27 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,20 +205,83 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	///  std::visit auto overload helper
-	/// </summary>
-	/// <typeparam name="...Ts">The call types.</typeparam>
-	template <typename... Ts>
-	struct Overloaded : Ts...
+	const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
-		using Ts::operator()...;
+		PerInstructionArgTypes {{DySigIdx<I64>()}},                               // int
+		{{DySigIdx<SystemIntrinsicCallId>()}},                                    // intrin
+		{{DySigIdx<CustomIntrinsicCallId>()}},                                    // cintrin
+		{{DySigIdx<U64>()}},                                                      // call
+		{ },                                                                      // ret
+		{{DySigIdx<U64>()}, {DySigIdx<U64>()}},                                   // mov
+		{{DySigIdx<U64>()}, {DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()}}, // sto
+		{{DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()}},                    // push
+		{ },                                                                      // pop
+		{ },                                                                      // pop2
+		{ },                                                                      // dupl
+		{ },                                                                      // dupl2
+		{ },                                                                      // swap
+		{ },                                                                      // nop
+		{{DySigIdx<JumpAddress>()}},                                              // jmp
+		{{DySigIdx<JumpAddress>()}},                                              // jmprel
+		{{DySigIdx<JumpAddress>()}},                                              // jz
+		{{DySigIdx<JumpAddress>()}},                                              // jnz
+		{{DySigIdx<JumpAddress>()}},                                              // jo_cmpi
+		{{DySigIdx<JumpAddress>()}},                                              // jo_cmpf
+		{{DySigIdx<JumpAddress>()}},                                              // jno_cmpi
+		{{DySigIdx<JumpAddress>()}},                                              // jno_cmpf
+		{{DySigIdx<JumpAddress>()}},                                              // je_cmpi
+		{{DySigIdx<JumpAddress>()}},                                              // je_cmpf
+		{{DySigIdx<JumpAddress>()}},                                              // jne_cmpi
+		{{DySigIdx<JumpAddress>()}},                                              // jne_cmpf
+		{{DySigIdx<JumpAddress>()}},                                              // ja_cmpi
+		{{DySigIdx<JumpAddress>()}},                                              // ja_cmpf
+		{{DySigIdx<JumpAddress>()}},                                              // jl_cmpi
+		{{DySigIdx<JumpAddress>()}},                                              // jl_cmpf
+		{{DySigIdx<JumpAddress>()}},                                              // jae_cmpi
+		{{DySigIdx<JumpAddress>()}},                                              // jae_cmpf
+		{{DySigIdx<JumpAddress>()}},                                              // jle_cmpi
+		{{DySigIdx<JumpAddress>()}},                                              // jle_cmpf
+		{ },                                                                      // pushz
+		{ },                                                                      // ipusho
+		{ },                                                                      // fpusho
+		{ },                                                                      // iinc
+		{ },                                                                      // idec
+		{ },                                                                      // iadd
+		{ },                                                                      // isub
+		{ },                                                                      // imul
+		{ },                                                                      // idiv
+		{ },                                                                      // imod
+		{ },                                                                      // iand
+		{ },                                                                      // ior
+		{ },                                                                      // ixor
+		{ },                                                                      // icom
+		{ },                                                                      // isal
+		{ },                                                                      // isar
+		{ },                                                                      // irol
+		{ },                                                                      // iror
+		{ },                                                                      // ineg
+		{ },                                                                      // fadd
+		{ },                                                                      // fsub
+		{ },                                                                      // fmul
+		{ },                                                                      // fdiv
+		{ },                                                                      // fmod
+		{ },                                                                      // fneg
+		{ },                                                                      // finc
+		{ },                                                                      // fdec
+		{
+			{DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()},
+			{DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()},
+			{DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()},
+			{DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()}
+		},   // vpush
+		{ }, // vpop
+		{ }, // vadd
+		{ }, // vsub
+		{ }, // vmul
+		{ }  // vdiv
 	};
-
-	template <typename... Ts>
-	Overloaded(Ts&&...) -> Overloaded<Ts...>;
 }

@@ -1,6 +1,6 @@
-// File: ImmediateArgumentType.hpp
+// File: VariantTools.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 26.04.2021 8:51 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,24 +207,38 @@
 
 #pragma once
 
-#include <cstdint>
+#include <type_traits>
+#include <variant>
 
 namespace Nominax
 {
 	/// <summary>
-	/// All types of immediate arguments a instruction could have.
+	///  std::visit auto overload helper
 	/// </summary>
-	enum class InstructionImmediateArgumentType : U8
+	/// <typeparam name="...Ts">The call types.</typeparam>
+	template <typename... Ts>
+	struct Overloaded : Ts...
 	{
-		None,
-		I64,
-		F64,
-		U64,
-		I64OrU64,
-		I64OrU64OrF64,
-		RelativeJumpAddress64,
-		AbsoluteJumpAddress64,
-		SystemIntrinsicId,
-		CustomIntrinsicId
+		using Ts::operator()...;
 	};
+
+	template <typename... Ts>
+	Overloaded(Ts&&...) -> Overloaded<Ts...>;
+
+	template <typename VariantType, typename T, std::size_t index = 0>
+	constexpr auto VariantIndexOf() noexcept(true) -> std::size_t
+	{
+		if constexpr (index == std::variant_size_v<VariantType>)
+		{
+			return index;
+		}
+		else if constexpr (std::is_same_v<std::variant_alternative_t<index, VariantType>, T>)
+		{
+			return index;
+		}
+		else
+		{
+			return VariantIndexOf<VariantType, T, index + 1>();
+		}
+	}
 }

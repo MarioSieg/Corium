@@ -205,7 +205,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <ranges>
+
 #include "../../Include/Nominax/ByteCode/ValidationKit.hpp"
+#include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
 namespace Nominax
@@ -220,7 +223,7 @@ namespace Nominax
 			return false;
 		}
 
-		return std::get_if<Instruction>(&bucket[idx].DataCollection);
+		return NOMINAX_LIKELY(std::get_if<Instruction>(&bucket[idx].Storage));
 	}
 
 	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallId id) noexcept(true) -> bool
@@ -228,12 +231,43 @@ namespace Nominax
 		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallId::Count) - 1};
 		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
 		static_assert(std::is_unsigned_v<decltype(value)>);
-		return value <= max;
+		return NOMINAX_LIKELY(value <= max);
 	}
 
 	auto ValidateUserIntrinsicCall(const SharedIntrinsicTableView& routines, CustomIntrinsicCallId id) noexcept(true) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
-		return static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size();
+		return NOMINAX_LIKELY(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size());
+	}
+
+	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> bool
+	{
+		// First check if the argument count is correct:
+		[[maybe_unused]]
+			int y = LookupInstructionArgumentCount(instruction);
+		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) != args.size()))
+		{
+			return false;
+		}
+
+		for (std::size_t i {0}; i < args.size(); ++i)
+		{
+			const DynamicSignal& arg {args[i]};
+
+			const std::size_t givenIdx {arg.Storage.index()};
+
+			// Check if our given type index is within the required indices:
+
+			const TypeIndexTable& required {LookupInstructionArgumentTypes(instruction)[i]};
+			const bool            isWithinAllowedIndices {std::find(std::begin(required), std::end(required), givenIdx) != std::end(required)};
+
+			if (NOMINAX_UNLIKELY(!isWithinAllowedIndices))
+			{
+				// if not, validation failed:
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

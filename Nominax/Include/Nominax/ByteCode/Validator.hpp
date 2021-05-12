@@ -245,16 +245,6 @@ namespace Nominax
 	};
 
 	/// <summary>
-	/// Perform byte code validation on a single instruction.
-	/// This just checks all argument types and values.
-	/// </summary>
-	/// <param name="instruction"></param>
-	/// <param name="args"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	extern auto ByteCodeValidateSingleInstruction(Instruction instruction, std::span<const DynamicSignal> args) -> ByteCodeValidationResult;
-
-	/// <summary>
 	/// Returns true if the iterator range begins with
 	/// prologue code, else false.
 	/// </summary>

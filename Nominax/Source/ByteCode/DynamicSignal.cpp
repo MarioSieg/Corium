@@ -212,35 +212,35 @@ namespace Nominax
 {
 	auto DynamicSignal::Transform() const noexcept(true) -> Signal
 	{
-		if (const auto* const x = std::get_if<Instruction>(&this->DataCollection))
+		if (const auto* const x = std::get_if<Instruction>(&this->Storage))
 		{
 			return Signal {*x};
 		}
-		if (const auto* const x = std::get_if<SystemIntrinsicCallId>(&this->DataCollection))
+		if (const auto* const x = std::get_if<SystemIntrinsicCallId>(&this->Storage))
 		{
 			return Signal {*x};
 		}
-		if (const auto* const x = std::get_if<CustomIntrinsicCallId>(&this->DataCollection))
+		if (const auto* const x = std::get_if<CustomIntrinsicCallId>(&this->Storage))
 		{
 			return Signal {*x};
 		}
-		if (const auto* const x = std::get_if<JumpAddress>(&this->DataCollection))
+		if (const auto* const x = std::get_if<JumpAddress>(&this->Storage))
 		{
 			return Signal {*x};
 		}
-		if (const auto* const x = std::get_if<U64>(&this->DataCollection))
+		if (const auto* const x = std::get_if<U64>(&this->Storage))
 		{
 			return Signal {*x};
 		}
-		if (const auto* const x = std::get_if<I64>(&this->DataCollection))
+		if (const auto* const x = std::get_if<I64>(&this->Storage))
 		{
 			return Signal {*x};
 		}
-		if (const auto* const x = std::get_if<F64>(&this->DataCollection))
+		if (const auto* const x = std::get_if<F64>(&this->Storage))
 		{
 			return Signal {*x};
 		}
-		if (const auto* const x = std::get_if<CharClusterUtf8>(&this->DataCollection))
+		if (const auto* const x = std::get_if<CharClusterUtf8>(&this->Storage))
 		{
 			return Signal {*x};
 		}

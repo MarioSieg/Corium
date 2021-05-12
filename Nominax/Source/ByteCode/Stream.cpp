@@ -210,7 +210,7 @@
 #include "../../Include/Nominax/ByteCode/Lexeme.hpp"
 #include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
-#include "../../Include/Nominax/Common/VisitOverload.hpp"
+#include "../../Include/Nominax/Common/VariantTools.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
 template <>
@@ -319,7 +319,7 @@ struct fmt::formatter<Nominax::DynamicSignal>
 					           Lexemes::LITERAL_SUFFIX_CHAR
 				           );
 			           },
-		           }, sig.DataCollection);
+		           }, sig.Storage);
 		return result;
 	}
 };

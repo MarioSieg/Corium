@@ -207,7 +207,6 @@
 
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentCount.hpp"
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentType.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
@@ -216,84 +215,6 @@
 
 namespace Nominax
 {
-	auto ByteCodeValidateSingleInstruction(const Instruction instruction, const std::span<const DynamicSignal> args) -> ByteCodeValidationResult
-	{
-		const auto instructionIndex = static_cast<std::size_t>(instruction);
-		const U8   requiredArgCount = INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[instructionIndex];
-
-		// check if the instruction does not need any immediate arguments:
-		if (NOMINAX_LIKELY(std::empty(args) && requiredArgCount == 0))
-		{
-			return ByteCodeValidationResult::Ok;
-		}
-
-		// check if we submitted not enough arguments:
-		if (NOMINAX_UNLIKELY(std::size(args) < requiredArgCount))
-		{
-			return ByteCodeValidationResult::NotEnoughArguments;
-		}
-
-		// check if we submitted too many arguments:
-		if (NOMINAX_LIKELY(std::size(args) > requiredArgCount))
-		{
-			return ByteCodeValidationResult::TooManyArguments;
-		}
-
-		// fetch the type table:
-		const std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>& type_table =
-			INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[instructionIndex];
-
-		// this loop checks each submitted operand type with the required operand type.
-		for (std::size_t i = 0; NOMINAX_LIKELY(i < std::size(args)); ++i)
-		{
-			// submitted operand:
-			const DynamicSignal& arg = args[i];
-
-			// required operand type:
-			const InstructionImmediateArgumentType requiredType = type_table[i];
-
-			// true if the data types are equal, else false
-			bool correctType;
-
-			switch (requiredType)
-			{
-			case InstructionImmediateArgumentType::I64:
-				correctType = arg.Contains<I64>();
-				break;
-			case InstructionImmediateArgumentType::U64:
-			case InstructionImmediateArgumentType::RelativeJumpAddress64:
-			case InstructionImmediateArgumentType::AbsoluteJumpAddress64:
-				correctType = arg.Contains<U64>();
-				break;
-			case InstructionImmediateArgumentType::SystemIntrinsicId:
-				correctType = arg.Contains<SystemIntrinsicCallId>();
-				break;
-			case InstructionImmediateArgumentType::CustomIntrinsicId:
-				correctType = arg.Contains<CustomIntrinsicCallId>();
-				break;
-			case InstructionImmediateArgumentType::F64:
-				correctType = arg.Contains<F64>();
-				break;
-			case InstructionImmediateArgumentType::I64OrU64:
-				correctType = arg.Contains<I64>() || arg.Contains<U64>();
-				break;
-			case InstructionImmediateArgumentType::I64OrU64OrF64:
-				correctType = arg.Contains<I64>() || arg.Contains<U64>() || arg.Contains<F64>();
-				break;
-			default:
-				correctType = false;
-			}
-
-			// if the types where not equal, return error:
-			if (NOMINAX_UNLIKELY(!correctType))
-			{
-				return ByteCodeValidationResult::InvalidOperandType;
-			}
-		}
-
-		return ByteCodeValidationResult::Ok;
-	}
-
 	auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ByteCodeValidationResult
 	{
 		output.resize(input.Size());

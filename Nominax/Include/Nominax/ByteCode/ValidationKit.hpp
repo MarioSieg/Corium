@@ -207,6 +207,7 @@
 
 #pragma once
 
+#include <span>
 #include <vector>
 
 #include "DynamicSignal.hpp"
@@ -223,6 +224,7 @@ namespace Nominax
 	/// <param name="bucket"></param>
 	/// <param name="address"></param>
 	/// <returns></returns>
+	[[nodiscard]]
 	extern auto ValidateJumpAddress(const ValidationBucket& bucket, JumpAddress address) noexcept(true) -> bool;
 
 	/// <summary>
@@ -231,6 +233,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="id"></param>
 	/// <returns></returns>
+	[[nodiscard]]
 	extern auto ValidateSystemIntrinsicCall(SystemIntrinsicCallId id) noexcept(true) -> bool;
 
 	/// <summary>
@@ -241,5 +244,27 @@ namespace Nominax
 	/// <param name="routines"></param>
 	/// <param name="id"></param>
 	/// <returns></returns>
+	[[nodiscard]]
 	extern auto ValidateUserIntrinsicCall(const SharedIntrinsicTableView& routines, CustomIntrinsicCallId id) noexcept(true) -> bool;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="instruction"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto ValidateInstructionArguments(Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> bool;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="instruction"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto ValidateInstructionArguments(const Instruction instruction, std::vector<DynamicSignal>&& args) noexcept(true) -> bool
+	{
+		return ValidateInstructionArguments(instruction, args);
+	}
 }

@@ -247,7 +247,7 @@ namespace Nominax
 		/// <summary>
 		/// Discriminated union.
 		/// </summary>
-		using Variant = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, JumpAddress, U64, I64, F64, CharClusterUtf8>;
+		using StorageType = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, JumpAddress, U64, I64, F64, CharClusterUtf8>;
 
 		/// <summary>
 		/// Default construct an I64(0)
@@ -260,7 +260,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="data">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(Variant&& data) noexcept(true);
+		explicit constexpr DynamicSignal(StorageType&& data) noexcept(true);
 
 		/// <summary>
 		/// Construct from instruction.
@@ -402,7 +402,7 @@ namespace Nominax
 		/// <summary>
 		/// Raw data variant (discriminated union)
 		/// </summary>
-		Variant DataCollection { };
+		StorageType Storage { };
 
 		/// <summary>
 		/// Common code prologue.
@@ -430,62 +430,62 @@ namespace Nominax
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal() noexcept(true) : DataCollection {UINT64_C(0)} {}
+	constexpr DynamicSignal::DynamicSignal() noexcept(true) : Storage {UINT64_C(0)} {}
 
 	/// <summary>
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(Variant&& data) noexcept(true) : DataCollection {data} {}
+	constexpr DynamicSignal::DynamicSignal(StorageType&& data) noexcept(true) : Storage {data} {}
 
 	/// <summary>
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const Instruction value) noexcept(true) : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const Instruction value) noexcept(true) : Storage {value} {}
 
 	/// <summary>
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const U64 value) noexcept(true) : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const U64 value) noexcept(true) : Storage {value} {}
 
 	/// <summary>
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const I64 value) noexcept(true) : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const I64 value) noexcept(true) : Storage {value} {}
 
 	/// <summary>
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const F64 value) noexcept(true) : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const F64 value) noexcept(true) : Storage {value} {}
 
 	/// <summary>
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const CharClusterUtf8 value) noexcept(true) : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const CharClusterUtf8 value) noexcept(true) : Storage {value} {}
 
 	/// <summary>
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicCallId value) noexcept(true) : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicCallId value) noexcept(true) : Storage {value} {}
 
 	/// <summary>
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept(true) : DataCollection {value} {}
+	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept(true) : Storage {value} {}
 
 	/// <summary>
 	/// Constructor.
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const JumpAddress value) noexcept(true) : DataCollection {value} { }
+	constexpr DynamicSignal::DynamicSignal(const JumpAddress value) noexcept(true) : Storage {value} { }
 
 	/// <summary>
 	/// Equals
@@ -494,7 +494,7 @@ namespace Nominax
 	/// <returns></returns>
 	constexpr auto DynamicSignal::operator==(const DynamicSignal& other) const noexcept(false) -> bool
 	{
-		return this->DataCollection == other.DataCollection;
+		return this->Storage == other.Storage;
 	}
 
 	/// <summary>
@@ -528,20 +528,20 @@ namespace Nominax
 	template <typename T> requires BytecodeElement<T>
 	constexpr auto DynamicSignal::Unwrap() const noexcept(false) -> std::optional<T>
 	{
-		const auto* const val {std::get_if<T>(&this->DataCollection)};
+		const auto* const val {std::get_if<T>(&this->Storage)};
 		return val ? std::optional<T> {*val} : std::optional<T> {std::nullopt};
 	}
 
 	template <typename T> requires BytecodeElement<T>
 	constexpr auto DynamicSignal::Contains() const noexcept(true) -> bool
 	{
-		return std::holds_alternative<T>(this->DataCollection);
+		return std::holds_alternative<T>(this->Storage);
 	}
 
 	template <typename T> requires BytecodeElement<T>
 	constexpr auto DynamicSignal::Contains(const T other) const noexcept(true) -> bool
 	{
-		const auto* const val {std::get_if<T>(&this->DataCollection)};
+		const auto* const val {std::get_if<T>(&this->Storage)};
 		if constexpr (std::is_floating_point_v<T>)
 		{
 			return val && F64Equals(*val, other);
