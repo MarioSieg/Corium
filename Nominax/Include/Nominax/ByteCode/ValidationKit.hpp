@@ -245,7 +245,7 @@ namespace Nominax
 	/// <param name="id"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateUserIntrinsicCall(const SharedIntrinsicTableView& routines, CustomIntrinsicCallId id) noexcept(true) -> bool;
+	extern auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, CustomIntrinsicCallId id) noexcept(true) -> bool;
 
 	/// <summary>
 	/// 

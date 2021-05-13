@@ -208,6 +208,7 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
 
 #include "../Common/MemoryUnits.hpp"
 #include "Record.hpp"
@@ -220,8 +221,8 @@ namespace Nominax
 	/// </summary>
 	class [[nodiscard]] FixedStack final
 	{
-		Record*     Buffer_;
-		std::size_t BufferSize_;
+		std::unique_ptr<Record[]> Buffer_;
+		std::size_t               BufferSize_;
 
 	public:
 		/// <summary>
@@ -334,12 +335,12 @@ namespace Nominax
 
 	inline auto FixedStack::Buffer() noexcept(true) -> Record*
 	{
-		return this->Buffer_;
+		return this->Buffer_.get();
 	}
 
 	inline auto FixedStack::Buffer() const noexcept(true) -> const Record*
 	{
-		return this->Buffer_;
+		return this->Buffer_.get();
 	}
 
 	inline auto FixedStack::Size() const noexcept(true) -> std::size_t
@@ -350,25 +351,25 @@ namespace Nominax
 	// ReSharper disable once CppInconsistentNaming
 	inline auto FixedStack::begin() noexcept(true) -> Record*
 	{
-		return this->Buffer_;
+		return this->Buffer_.get();
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto FixedStack::begin() const noexcept(true) -> const Record*
 	{
-		return this->Buffer_;
+		return this->Buffer_.get();
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto FixedStack::end() noexcept(true) -> Record*
 	{
-		return this->Buffer_ + this->BufferSize_;
+		return this->Buffer_.get() + this->BufferSize_;
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto FixedStack::end() const noexcept(true) -> const Record*
 	{
-		return this->Buffer_ + this->BufferSize_;
+		return this->Buffer_.get() + this->BufferSize_;
 	}
 
 	// ReSharper disable once CppInconsistentNaming

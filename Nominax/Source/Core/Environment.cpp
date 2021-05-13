@@ -209,26 +209,19 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../../Include/Nominax/Common/Protocol.hpp"
-#include "../../Include/Nominax/Common/PanicRoutine.hpp"
-#include "../../Include/Nominax/Core/Environment.hpp"
-#include "../../Include/Nominax/Core/Reactor.hpp"
-#include "../../Include/Nominax/ByteCode/Stream.hpp"
-#include "../../Include/Nominax/System/CpuFeatureDetector.hpp"
-#include "../../Include/Nominax/System/Os.hpp"
-
+#include "../../Include/Nominax/Nominax.hpp"
 #include "EnvironmentUtils.hpp"
 
 namespace Nominax
 {
 	struct Environment::Kernel final
 	{
-		SystemInfo           SysInfo;
-		CpuFeatureDetector   CpuFeatures;
-		Stream               AppCode;
-		std::vector<Reactor> ReactorPool;
+		SystemInfo         SysInfo;
+		CpuFeatureDetector CpuFeatures;
+		Stream             AppCode;
+		ReactorPool        CorePool;
 
-		explicit Kernel(std::size_t reactorCount) noexcept(false);
+		explicit Kernel() noexcept(false);
 		Kernel(const Kernel&)                     = delete;
 		Kernel(Kernel&&)                          = delete;
 		auto operator =(const Kernel&) -> Kernel& = delete;
@@ -236,34 +229,22 @@ namespace Nominax
 		~Kernel()                                 = default;
 	};
 
-	Environment::Kernel::Kernel(const std::size_t reactorCount) noexcept(false)
-		: SysInfo { }, CpuFeatures { }, AppCode { }, ReactorPool { }
-	{
-		PrintMachineInfo(this->SysInfo, this->CpuFeatures);
-
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Kernel with zero reactors was requested!");
-
-		Print("Creating {} reactors...\n", reactorCount);
-
-		ReactorPool.reserve(reactorCount);
-		for (std::size_t i {1}; i <= reactorCount; ++i)
-		{
-			Print("Creating reactor {} of {}\n", i, reactorCount);
-			ReactorPool.emplace_back(Reactor {FixedStack::SIZE_LARGE});
-		}
-
-		Print("\n");
-	}
+	Environment::Kernel::Kernel() noexcept(false)
+		: SysInfo { }, CpuFeatures { }, AppCode { }, CorePool {ReactorPool::SmartQueryReactorCount(), ReactorSpawnConfig::Default()} { }
 
 	auto Environment::Boot() noexcept(false) -> void
 	{
+		if (NOMINAX_UNLIKELY(this->Env_))
+		{
+			return;
+		}
+
 		std::ios_base::sync_with_stdio(false);
 		PrintSystemInfo();
 		Print("Booting runtime environment...\n");
 		const auto tik {std::chrono::high_resolution_clock::now()};
-		const auto reactorCount {std::thread::hardware_concurrency()};
 
-		this->Env_ = new(std::nothrow) Kernel(reactorCount);
+		this->Env_ = new(std::nothrow) Kernel();
 		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Env_, "Kernel allocation failed!");
 
 		const auto tok {std::chrono::high_resolution_clock::now()};

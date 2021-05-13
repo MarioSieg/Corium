@@ -1,6 +1,6 @@
-// File: ValidationKit.cpp
+// File: ReactorPool.hpp
 // Author: Mario
-// Created: 11.05.2021 8:18 PM
+// Created: 13.05.2021 8:30 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,69 +205,117 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <ranges>
+#pragma once
 
-#include "../../Include/Nominax/ByteCode/ValidationKit.hpp"
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include <vector>
+
+#include "Reactor.hpp"
+#include "../Common/PanicRoutine.hpp"
 
 namespace Nominax
 {
-	auto ValidateJumpAddress(const ValidationBucket& bucket, const JumpAddress address) noexcept(true) -> bool
+	/// <summary>
+	/// A pool holding all existing reactors.
+	/// </summary>
+	class [[nodiscard]] ReactorPool final
 	{
-		const auto idx {static_cast<std::size_t>(address)};
+		std::vector<Reactor> Pool_ { };
+		ReactorSpawnConfig   ReactorConfig_ { };
 
-		// validate that jump address is inside the range of the bucket:
-		if (NOMINAX_UNLIKELY(bucket.size() < idx))
-		{
-			return false;
-		}
+	public:
+		/// <summary>
+		/// Calculates the best and correct reactor count.
+		/// </summary>
+		/// <param name="hint">How many reactors the user requested. If zero, logical cpu count will be used.</param>
+		/// <returns>The best reactor count for the current system.</returns>
+		static auto SmartQueryReactorCount(std::size_t hint = 0) noexcept(false) -> std::size_t;
 
-		return NOMINAX_LIKELY(std::get_if<Instruction>(&bucket[idx].Storage));
+		/// <summary>
+		/// Minimal one reactor is required.
+		/// </summary>
+		static constexpr std::size_t MIN_REACTOR_COUNT {1};
+
+		/// <summary>
+		/// Fallback reactor count.
+		/// </summary>
+		static constexpr std::size_t FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
+
+		/// <summary>
+		/// Construct and initialize all new reactors.
+		/// If the reactor count is zero, panic!
+		/// </summary>
+		ReactorPool(std::size_t reactorCount, const ReactorSpawnConfig& config) noexcept(false);
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		ReactorPool(const ReactorPool&) = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		ReactorPool(ReactorPool&&) noexcept(true) = delete;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		auto operator =(const ReactorPool&) -> ReactorPool& = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		auto operator =(ReactorPool&&) -> ReactorPool& = delete;
+
+		~ReactorPool() = default;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Returns the pool pointer.</returns>
+		[[nodiscard]]
+		auto GetBuffer() const noexcept(true) -> const Reactor*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Returns the size of the pool.</returns>
+		[[nodiscard]]
+		auto GetSize() const noexcept(true) -> std::size_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Returns the config used to create each reactor.</returns>
+		[[nodiscard]]
+		auto GetSpawnConfig() const noexcept(true) -> const ReactorSpawnConfig&;
+
+		/// <summary>
+		/// Returns the reactor at index.
+		/// </summary>
+		/// <param name="reactorIndex"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetReactor(std::size_t reactorIndex) const noexcept(false) -> const Reactor&;
+	};
+
+	inline auto ReactorPool::GetBuffer() const noexcept(true) -> const Reactor*
+	{
+		return this->Pool_.data();
 	}
 
-	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallId id) noexcept(true) -> bool
+	inline auto ReactorPool::GetSize() const noexcept(true) -> std::size_t
 	{
-		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallId::Count) - 1};
-		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
-		static_assert(std::is_unsigned_v<decltype(value)>);
-		return NOMINAX_LIKELY(value <= max);
+		return this->Pool_.size();
 	}
 
-	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, CustomIntrinsicCallId id) noexcept(true) -> bool
+	inline auto ReactorPool::GetSpawnConfig() const noexcept(true) -> const ReactorSpawnConfig&
 	{
-		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
-		return NOMINAX_LIKELY(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size());
+		return this->ReactorConfig_;
 	}
 
-	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> bool
+	inline auto ReactorPool::GetReactor(const std::size_t reactorIndex) const noexcept(false) -> const Reactor&
 	{
-		// First check if the argument count is correct:
-		[[maybe_unused]]
-			int y = LookupInstructionArgumentCount(instruction);
-		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) != args.size()))
-		{
-			return false;
-		}
-
-		for (std::size_t i {0}; i < args.size(); ++i)
-		{
-			const DynamicSignal& arg {args[i]};
-
-			const std::size_t givenIdx {arg.Storage.index()};
-
-			// Check if our given type index is within the required indices:
-
-			const TypeIndexTable& required {LookupInstructionArgumentTypes(instruction)[i]};
-			const bool            isWithinAllowedIndices {std::find(std::begin(required), std::end(required), givenIdx) != std::end(required)};
-
-			if (NOMINAX_UNLIKELY(!isWithinAllowedIndices))
-			{
-				// if not, validation failed:
-				return false;
-			}
-		}
-
-		return true;
+		NOMINAX_PANIC_ASSERT_L(reactorIndex, this->Pool_.size(), "Reactor with invalid index was requested from pool!");
+		return this->Pool_[reactorIndex];
 	}
 }

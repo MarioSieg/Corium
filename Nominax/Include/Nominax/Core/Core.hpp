@@ -221,6 +221,7 @@
 #include "ObjectHeader.hpp"
 #include "Reactor.hpp"
 #include "ReactorOutput.hpp"
+#include "ReactorPool.hpp"
 #include "ReactorValidationResult.hpp"
 #include "Record.hpp"
 #include "RegisterDump.hpp"

@@ -209,7 +209,13 @@
 
 TEST(ReactorClass, Valid)
 {
-	const Reactor reactor {4};
+	const Reactor reactor
+	{
+		ReactorSpawnConfig
+		{
+			.StackSize = 4
+		}
+	};
 	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
 	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
@@ -219,7 +225,13 @@ TEST(ReactorClass, Valid)
 
 TEST(ReactorClass, MoveConstruct)
 {
-	Reactor reactor {4};
+	Reactor reactor
+	{
+		ReactorSpawnConfig
+		{
+			.StackSize = 4
+		}
+	};
 	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
 	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
@@ -239,14 +251,22 @@ TEST(ReactorClass, ZeroStackSizeFault)
 	ASSERT_DEATH_IF_SUPPORTED([]()
 	                          {
 	                          [[maybe_unused]]
-	                          auto bad{ Reactor{ 0 } };
+	                          auto bad{ Reactor{ ReactorSpawnConfig {.StackSize = 0} } };
 	                          }(), "");
 }
 
 TEST(ReactorClass, InterruptHandler)
 {
 	auto* const   interrupt = +[](InterruptAccumulator) { };
-	const Reactor reactor {4, { }, interrupt};
+	const Reactor reactor
+	{
+		ReactorSpawnConfig
+		{
+			.StackSize = 4,
+			.SharedIntrinsicTable = { },
+			.InterruptHandler = interrupt
+		}
+	};
 	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor.GetInterruptHandler(), interrupt);
 }
@@ -262,7 +282,13 @@ TEST(ReactorClass, TryExecuteValid)
 	}).Epilogue();
 	AppCodeBundle out { };
 	stream.Build(out);
-	Reactor     reactor {FixedStack::SIZE_LARGE};
+	Reactor reactor
+	{
+		ReactorSpawnConfig
+		{
+			.StackSize = FixedStack::SIZE_LARGE
+		}
+	};
 	const auto& output {reactor.Execute(std::move(out))};
 	ASSERT_EQ(output.ShutdownReason, ReactorShutdownReason::Success);
 	ASSERT_EQ(output.InterruptCode, 0);
@@ -278,7 +304,13 @@ TEST(ReactorClass, TryExecuteInValidZeroCode)
 		const Stream stream{ OptimizationLevel::Off };
 		AppCodeBundle out{};
 		ASSERT_EQ(stream.Build(out), ByteCodeValidationResult::Ok);
-		Reactor reactor{ FixedStack::SIZE_LARGE };
+		Reactor reactor
+		{
+		ReactorSpawnConfig
+		{
+		.StackSize = FixedStack::SIZE_LARGE
+		}
+		};
 		[[maybe_unused]]
 		const auto& result{ reactor.Execute(std::move(out)) };
 		}(),

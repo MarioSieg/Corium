@@ -212,7 +212,7 @@ namespace Nominax
 	/// <summary>
 	/// Represents the whole runtime environment.
 	/// </summary>
-	class Environment
+	class [[nodiscard]] Environment
 	{
 		struct Kernel;
 		Kernel* __restrict__ Env_ {nullptr};

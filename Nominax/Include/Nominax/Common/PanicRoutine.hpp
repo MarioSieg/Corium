@@ -207,20 +207,24 @@
 
 #pragma once
 
-#include <string_view>
+#include <iostream>
 
+#include "Protocol.hpp"
 #include "BranchHint.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// Shows a message error box with the specified message and calls std::abort.
-	/// This function never returns because the program will be terminated.
-	/// </summary>
-	/// <param name="message"></param>
-	/// <returns></returns>
+	template <typename Str, typename... Args>
 	[[noreturn]]
-	extern auto Panic(std::string_view message) -> void;
+	inline auto Panic(const Str& formatString, const char* const file = nullptr, const signed line = 0, Args&&...args) -> void
+	{
+		Print(TextColor::Red, "\n!! FATAL NOMINAX RUNTIME ERROR !!\n");
+		Print(TextColor::Red, "Source File: {}, Source Line: {}\n", file ? file : "?", line);
+		Print(TextColor::Red, formatString, std::forward<Args>(args)...);
+		Print(TextColor::Red, "\n!! FATAL NOMINAX RUNTIME ERROR !!\n");
+		std::cout.flush();
+		std::abort();
+	}
 }
 
 #define NOMINAX_PANIC_ASSERT_TRUE(x, msg)			\
@@ -228,7 +232,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(!( x )))				\
 		{											\
-			Panic(( msg ));							\
+			Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -238,7 +242,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(( x )))				\
 		{											\
-			Panic(( msg ));							\
+			Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -260,7 +264,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(( x ) != ( y )))		\
 		{											\
-			Panic(( msg ));							\
+			Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -271,7 +275,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(( x ) == ( y )))		\
 		{											\
-			Panic(( msg ));							\
+			Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -281,7 +285,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) < ( y ))))		\
 		{											\
-			Panic(( msg ));							\
+			Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -291,7 +295,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) <= ( y ))))	\
 		{											\
-			Panic(( msg ));							\
+			Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -301,7 +305,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) > ( y ))))		\
 		{											\
-			Panic(( msg ));							\
+			Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -311,7 +315,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) >= ( y ))))	\
 		{											\
-			Panic(( msg ));							\
+			Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)

@@ -218,11 +218,11 @@ namespace
 	[[maybe_unused]]
 	auto CreateDescriptor
 	(
-		FixedStack&               stack,
-		CodeChunk&                chunk,
-		JumpMap&                  jumpMap,
-		SharedIntrinsicTableView& intrinsicTable,
-		InterruptRoutine&         interruptHandler
+		FixedStack&                   stack,
+		CodeChunk&                    chunk,
+		JumpMap&                      jumpMap,
+		UserIntrinsicRoutineRegistry& intrinsicTable,
+		InterruptRoutine&             interruptHandler
 	) noexcept(true) -> DetailedReactorDescriptor
 	{
 		const std::span instrMapTableView
@@ -244,17 +244,12 @@ namespace
 
 namespace Nominax
 {
-	Reactor::Reactor
-	(
-		const std::size_t          stackSize,
-		SharedIntrinsicTableView&& intrinsicTable,
-		InterruptRoutine*          interruptHandler
-	) noexcept(false) :
+	Reactor::Reactor(const ReactorSpawnConfig& config) noexcept(false) :
 		Input_ { },
 		Output_ {Input_},
-		Stack_ {stackSize},
-		IntrinsicTable_ {intrinsicTable},
-		InterruptHandler_ {interruptHandler ? interruptHandler : &DefaultInterruptRoutine} { }
+		Stack_ {config.StackSize},
+		IntrinsicTable_ {config.SharedIntrinsicTable},
+		InterruptHandler_ {config.InterruptHandler ? config.InterruptHandler : &DefaultInterruptRoutine} { }
 
 	Reactor::Reactor(Reactor&& other) noexcept(true) :
 		Input_ {other.Input_},

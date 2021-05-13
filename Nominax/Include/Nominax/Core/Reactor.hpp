@@ -219,6 +219,39 @@
 namespace Nominax
 {
 	/// <summary>
+	/// Contains information to create a reactor.
+	/// </summary>
+	struct ReactorSpawnConfig final
+	{
+		/// <summary>
+		/// The stack size in records.
+		/// </summary>
+		std::size_t StackSize { };
+
+		/// <summary>
+		/// The intrinsic routines.
+		/// </summary>
+		UserIntrinsicRoutineRegistry SharedIntrinsicTable { };
+
+		/// <summary>
+		/// Interrupt handler.
+		/// </summary>
+		InterruptRoutine* InterruptHandler { };
+
+		static constexpr auto Default() noexcept(true) -> ReactorSpawnConfig;
+	};
+
+	constexpr auto ReactorSpawnConfig::Default() noexcept(true) -> ReactorSpawnConfig
+	{
+		return ReactorSpawnConfig
+		{
+			.StackSize = FixedStack::SIZE_LARGE,
+			.SharedIntrinsicTable = { },
+			.InterruptHandler = nullptr
+		};
+	}
+
+	/// <summary>
 	/// Represents a reactor.
 	/// </summary>
 	class [[nodiscard]] Reactor final
@@ -247,7 +280,7 @@ namespace Nominax
 		/// <summary>
 		/// The table of custom intrinsic routines.
 		/// </summary>
-		SharedIntrinsicTableView IntrinsicTable_;
+		UserIntrinsicRoutineRegistry IntrinsicTable_;
 
 		/// <summary>
 		/// The interrupt routine using for reactor interrupts.
@@ -258,15 +291,7 @@ namespace Nominax
 		/// <summary>
 		/// Create reactor with fixed stack size. If zero, panic!
 		/// </summary>
-		/// <param name="stackSize">The of the local reactor stack in records. If zero, panic!</param>
-		/// <param name="intrinsicTable">Table of custom intrinsic routines. If none, just pass an empty.</param>
-		/// <param name="interruptHandler">Interrupt handler. If default should be used, pass nullptr!</param>
-		explicit Reactor
-		(
-			std::size_t                stackSize,
-			SharedIntrinsicTableView&& intrinsicTable   = { },
-			InterruptRoutine*          interruptHandler = nullptr
-		) noexcept(false);
+		explicit Reactor(const ReactorSpawnConfig& config) noexcept(false);
 
 		/// <summary>
 		/// No copy!
@@ -293,6 +318,11 @@ namespace Nominax
 		/// </summary>
 		~Reactor() = default;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="bundle"></param>
+		/// <returns></returns>
 		[[nodiscard]]
 		auto Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
 
@@ -330,7 +360,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetIntrinsicTable() const noexcept(true) -> const SharedIntrinsicTableView&;
+		auto GetIntrinsicTable() const noexcept(true) -> const UserIntrinsicRoutineRegistry&;
 
 		/// <summary>
 		/// 
@@ -345,7 +375,7 @@ namespace Nominax
 		return this->Stack_;
 	}
 
-	inline auto Reactor::GetIntrinsicTable() const noexcept(true) -> const SharedIntrinsicTableView&
+	inline auto Reactor::GetIntrinsicTable() const noexcept(true) -> const UserIntrinsicRoutineRegistry&
 	{
 		return this->IntrinsicTable_;
 	}
