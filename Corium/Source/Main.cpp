@@ -209,9 +209,9 @@
 
 using namespace Nominax;
 
-auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
+auto main(const signed argc, const char* const* const argv) -> signed
 {
-	Stream stream { };
+	Stream                                        stream { };
 	stream.Prologue().With(2, [&stream](ScopedInt var)
 	{
 		var *= 2;
@@ -220,6 +220,14 @@ auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const
 		stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId {0});
 	}).Epilogue();
 
-	Environment env {};
-	env.Boot();
+	EnvironmentDescriptor descriptor
+	{
+		.ArgC = argc,
+		.ArgV = argv,
+		.AppName = U"Corium"
+	};
+
+	Environment env { };
+	env.Boot(descriptor);
+	env.Shutdown();
 }

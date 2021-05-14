@@ -246,17 +246,17 @@ namespace
 
 namespace Nominax
 {
-	Reactor::Reactor(const ReactorSpawnConfig& config, const std::size_t poolIdx) noexcept(false) :
+	Reactor::Reactor(const ReactorSpawnDescriptor& descriptor, const std::size_t poolIdx) noexcept(false) :
 		Id_ {Xorshift128ThreadLocal()},
 		PoolIndex_ {poolIdx},
 		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
-		PowerPreference_ {config.PowerPref},
+		PowerPreference_ {descriptor.PowerPref},
 		SpawnProcessMemorySnapshot {Os::QueryProcessMemoryUsed()},
 		Input_ { },
 		Output_ {Input_},
-		Stack_ {config.StackSize},
-		IntrinsicTable_ {config.SharedIntrinsicTable},
-		InterruptHandler_ {config.InterruptHandler ? config.InterruptHandler : &DefaultInterruptRoutine}
+		Stack_ {descriptor.StackSize},
+		IntrinsicTable_ {descriptor.SharedIntrinsicTable},
+		InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : &DefaultInterruptRoutine}
 	{
 		Print
 		(

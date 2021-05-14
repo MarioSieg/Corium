@@ -211,7 +211,7 @@ TEST(ReactorClass, Valid)
 {
 	const Reactor reactor
 	{
-		ReactorSpawnConfig
+		ReactorSpawnDescriptor
 		{
 			.StackSize = 4
 		}
@@ -227,7 +227,7 @@ TEST(ReactorClass, MoveConstruct)
 {
 	Reactor reactor
 	{
-		ReactorSpawnConfig
+		ReactorSpawnDescriptor
 		{
 			.StackSize = 4
 		}
@@ -251,7 +251,7 @@ TEST(ReactorClass, ZeroStackSizeFault)
 	ASSERT_DEATH_IF_SUPPORTED([]()
 	                          {
 	                          [[maybe_unused]]
-	                          auto bad{ Reactor{ ReactorSpawnConfig {.StackSize = 0} } };
+	                          auto bad{ Reactor{ ReactorSpawnDescriptor {.StackSize = 0} } };
 	                          }(), "");
 }
 
@@ -260,7 +260,7 @@ TEST(ReactorClass, InterruptHandler)
 	auto* const   interrupt = +[](InterruptAccumulator) { };
 	const Reactor reactor
 	{
-		ReactorSpawnConfig
+		ReactorSpawnDescriptor
 		{
 			.StackSize = 4,
 			.SharedIntrinsicTable = { },
@@ -284,7 +284,7 @@ TEST(ReactorClass, TryExecuteValid)
 	stream.Build(out);
 	Reactor reactor
 	{
-		ReactorSpawnConfig
+		ReactorSpawnDescriptor
 		{
 			.StackSize = FixedStack::SIZE_LARGE
 		}
@@ -306,7 +306,7 @@ TEST(ReactorClass, TryExecuteInValidZeroCode)
 		ASSERT_EQ(stream.Build(out), ByteCodeValidationResult::Ok);
 		Reactor reactor
 		{
-		ReactorSpawnConfig
+		ReactorSpawnDescriptor
 		{
 		.StackSize = FixedStack::SIZE_LARGE
 		}

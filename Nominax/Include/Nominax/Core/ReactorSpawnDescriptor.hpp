@@ -1,6 +1,6 @@
-// File: MemoryUnits.hpp
+// File: ReactorSpawnDescriptor.hpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 14.05.2021 3:05 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,71 +207,74 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cstddef>
-#include <ostream>
+#include "FixedStack.hpp"
+#include "Interrupt.hpp"
+
+#include "../ByteCode/CustomIntrinsic.hpp"
+#include "../System/Platform.hpp"
 
 namespace Nominax
 {
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Bytes2Gigabytes(T bytes) noexcept(true) -> std::size_t
+	/// <summary>
+	/// Power preference for a VM reactor.
+	/// </summary>
+	enum class PowerPreference
 	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(1024) / static_cast<T>(1024) / static_cast<T>(1024);
-	}
+		/// <summary>
+		/// Prefer faster performance but more power usage (desktop, server)
+		/// </summary>
+		HighPerformance,
 
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Bytes2Megabytes(T bytes) noexcept(true) -> std::size_t
+		/// <summary>
+		/// Prefer low power usage but slower performance (mobile, tablet, laptop)
+		/// </summary>
+		LowPowerUsage
+	};
+
+	/// <summary>
+	/// Contains information to create a reactor.
+	/// </summary>
+	struct ReactorSpawnDescriptor final
 	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(1024) / static_cast<T>(1024);
-	}
+		/// <summary>
+		/// The stack size in records.
+		/// </summary>
+		std::size_t StackSize { };
 
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Bytes2Kilobytes(T bytes) noexcept(true) -> std::size_t
+		/// <summary>
+		/// The intrinsic routines.
+		/// </summary>
+		UserIntrinsicRoutineRegistry SharedIntrinsicTable { };
+
+		/// <summary>
+		/// Interrupt handler.
+		/// </summary>
+		InterruptRoutine* InterruptHandler { };
+
+		/// <summary>
+		/// Reactor power preference.
+		/// </summary>
+		PowerPreference PowerPref {PowerPreference::HighPerformance};
+
+		/// <summary>
+		/// Get platform dependent default configuration.
+		/// </summary>
+		/// <returns></returns>
+		static constexpr auto Default() noexcept(true) -> ReactorSpawnDescriptor;
+	};
+
+	constexpr auto ReactorSpawnDescriptor::Default() noexcept(true) -> ReactorSpawnDescriptor
 	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(1024);
+		return ReactorSpawnDescriptor
+		{
+			.StackSize = FixedStack::SIZE_LARGE,
+			.SharedIntrinsicTable = { },
+			.InterruptHandler = nullptr,
+#if NOMINAX_ARCH_ARM_64
+			.PowerPref = PowerPreference::LowPowerUsage
+#else
+			.PowerPref = PowerPreference::HighPerformance
+#endif
+		};
 	}
-
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Gigabytes2Bytes(const T gigabytes) noexcept(true) -> T
-	{
-		return gigabytes * static_cast<T>(1024) * static_cast<T>(1024) * static_cast<T>(1024);
-	}
-
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Megabytes2Bytes(const T megabytes) noexcept(true) -> T
-	{
-		return megabytes * static_cast<T>(1024) * static_cast<T>(1024);
-	}
-
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Kilobytes2Bytes(const T kilobytes) noexcept(true) -> T
-	{
-		return kilobytes * static_cast<T>(1024);
-	}
-
-	constexpr auto operator ""_kb(const unsigned long long int value) noexcept(true) -> unsigned long long int
-	{
-		return value * UINT64_C(1024);
-	}
-
-	constexpr auto operator ""_mb(const unsigned long long int value) noexcept(true) -> unsigned long long int
-	{
-		return value * UINT64_C(1024) * UINT64_C(1024);
-	}
-
-	constexpr auto operator ""_gb(const unsigned long long int value) noexcept(true) -> unsigned long long int
-	{
-		return value * UINT64_C(1024) * UINT64_C(1024) * UINT64_C(1024);
-	}
-
-	extern auto PrettyPrintBytes(std::ostream& out, std::size_t size) -> void;
 }

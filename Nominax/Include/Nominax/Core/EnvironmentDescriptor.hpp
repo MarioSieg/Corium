@@ -1,6 +1,6 @@
-// File: EnvironmentUtils.hpp
+// File: EnvironmentDescriptor.hpp
 // Author: Mario
-// Created: 08.05.2021 3:14 PM
+// Created: 14.05.2021 3:04 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -208,15 +208,40 @@
 #pragma once
 
 #include <cstddef>
+#include <string_view>
+
+#include "ReactorSpawnDescriptor.hpp"
 
 namespace Nominax
 {
-	struct SystemSnapshot;
-	class CpuFeatureDetector;
+	/// <summary>
+	/// Config descriptor for an environment.
+	/// </summary>
+	struct EnvironmentDescriptor final
+	{
+		/// <summary>
+		/// Argument count.
+		/// </summary>
+		signed ArgC {0};
 
-	extern auto PrintSystemInfo() -> void;
+		/// <summary>
+		/// Argument vector.
+		/// </summary>
+		const char* const* ArgV {nullptr};
 
-	extern auto PrintTypeInfoTable() -> void;
+		/// <summary>
+		/// The name of the app.
+		/// </summary>
+		std::u32string_view AppName {U"Untitled App"};
 
-	extern auto PrintMachineInfo(const SystemSnapshot& sysInfo, const CpuFeatureDetector& cpuInfo) -> void;
+		/// <summary>
+/// The size of the system memory pool size.
+/// </summary>
+		std::size_t SystemPoolSize {Megabytes2Bytes(16)};
+
+		/// <summary>
+		/// The reactor spawn config.
+		/// </summary>
+		ReactorSpawnDescriptor ReactorDescriptor {ReactorSpawnDescriptor::Default()};
+	};
 }

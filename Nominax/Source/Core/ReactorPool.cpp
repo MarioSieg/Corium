@@ -223,7 +223,7 @@ namespace Nominax
 		return std::clamp(hint, MIN_REACTOR_COUNT, threads);
 	}
 
-	ReactorPool::ReactorPool(const std::size_t reactorCount, const ReactorSpawnConfig& config) noexcept(false)
+	ReactorPool::ReactorPool(const std::size_t reactorCount, const ReactorSpawnDescriptor& config) noexcept(false)
 	{
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 

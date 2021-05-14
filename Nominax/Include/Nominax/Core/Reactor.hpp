@@ -209,79 +209,17 @@
 
 #include <chrono>
 #include <tuple>
-#include <optional>
 
 #include "ReactorOutput.hpp"
 #include "FixedStack.hpp"
+#include "ReactorSpawnDescriptor.hpp"
+
 #include "../ByteCode/CustomIntrinsic.hpp"
 #include "../ByteCode/Stream.hpp"
 #include "../System/CpuFeatureDetector.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// Power preference for a VM reactor.
-	/// </summary>
-	enum class PowerPreference
-	{
-		/// <summary>
-		/// Prefer faster performance but more power usage (desktop, server)
-		/// </summary>
-		HighPerformance,
-
-		/// <summary>
-		/// Prefer low power usage but slower performance (mobile, tablet, laptop)
-		/// </summary>
-		LowPowerUsage
-	};
-
-	/// <summary>
-	/// Contains information to create a reactor.
-	/// </summary>
-	struct ReactorSpawnConfig final
-	{
-		/// <summary>
-		/// The stack size in records.
-		/// </summary>
-		std::size_t StackSize { };
-
-		/// <summary>
-		/// The intrinsic routines.
-		/// </summary>
-		UserIntrinsicRoutineRegistry SharedIntrinsicTable { };
-
-		/// <summary>
-		/// Interrupt handler.
-		/// </summary>
-		InterruptRoutine* InterruptHandler { };
-
-		/// <summary>
-		/// Reactor power preference.
-		/// </summary>
-		PowerPreference PowerPref {PowerPreference::HighPerformance};
-
-		/// <summary>
-		/// Get platform dependent default configuration.
-		/// </summary>
-		/// <returns></returns>
-		static constexpr auto Default() noexcept(true) -> ReactorSpawnConfig;
-	};
-
-	constexpr auto ReactorSpawnConfig::Default() noexcept(true) -> ReactorSpawnConfig
-	{
-		return ReactorSpawnConfig
-		{
-			.StackSize = FixedStack::SIZE_LARGE,
-			.SharedIntrinsicTable = { },
-			.InterruptHandler = nullptr,
-#if NOMINAX_ARCH_ARM_64
-			.PowerPref = PowerPreference::LowPowerUsage
-#else
-			.PowerPref = PowerPreference::HighPerformance
-#endif
-		};
-	}
-
 	/// <summary>
 	/// Represents a reactor.
 	/// </summary>
@@ -347,7 +285,7 @@ namespace Nominax
 		/// <summary>
 		/// Create reactor with fixed stack size. If zero, panic!
 		/// </summary>
-		explicit Reactor(const ReactorSpawnConfig& config, std::size_t poolIdx = 0) noexcept(false);
+		explicit Reactor(const ReactorSpawnDescriptor& descriptor, std::size_t poolIdx = 0) noexcept(false);
 
 		/// <summary>
 		/// No copy!

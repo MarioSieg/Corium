@@ -219,8 +219,8 @@ namespace Nominax
 	/// </summary>
 	class [[nodiscard]] ReactorPool final
 	{
-		std::vector<Reactor> Pool_ { };
-		ReactorSpawnConfig   ReactorConfig_ { };
+		std::vector<Reactor>   Pool_ { };
+		ReactorSpawnDescriptor ReactorConfig_ { };
 
 	public:
 		/// <summary>
@@ -244,7 +244,7 @@ namespace Nominax
 		/// Construct and initialize all new reactors.
 		/// If the reactor count is zero, panic!
 		/// </summary>
-		ReactorPool(std::size_t reactorCount, const ReactorSpawnConfig& config) noexcept(false);
+		ReactorPool(std::size_t reactorCount, const ReactorSpawnDescriptor& config) noexcept(false);
 
 		/// <summary>
 		/// No copy.
@@ -290,7 +290,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns>Returns the config used to create each reactor.</returns>
 		[[nodiscard]]
-		auto GetSpawnConfig() const noexcept(true) -> const ReactorSpawnConfig&;
+		auto GetSpawnConfig() const noexcept(true) -> const ReactorSpawnDescriptor&;
 
 		/// <summary>
 		/// Returns the reactor at index.
@@ -311,7 +311,7 @@ namespace Nominax
 		return this->Pool_.size();
 	}
 
-	inline auto ReactorPool::GetSpawnConfig() const noexcept(true) -> const ReactorSpawnConfig&
+	inline auto ReactorPool::GetSpawnConfig() const noexcept(true) -> const ReactorSpawnDescriptor&
 	{
 		return this->ReactorConfig_;
 	}
