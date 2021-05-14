@@ -207,6 +207,8 @@
 
 #pragma once
 
+#include <memory>
+
 namespace Nominax
 {
 	/// <summary>
@@ -214,8 +216,29 @@ namespace Nominax
 	/// </summary>
 	class [[nodiscard]] Environment
 	{
+		/// <summary>
+		/// Pimpl.
+		/// </summary>
 		struct Kernel;
-		Kernel* __restrict__ Env_ {nullptr};
+
+		/// <summary>
+		/// Kernel deallocator.
+		/// </summary>
+		struct KernelDeleter final
+		{
+			auto operator()(Kernel* kernel) const noexcept(true) -> void;
+		};
+
+		/// <summary>
+		/// Pimpl ptr.
+		/// </summary>
+		std::unique_ptr<Kernel, KernelDeleter> Env_ {nullptr};
+
+	protected:
+		virtual auto OnPreBootHook() -> bool;
+		virtual auto OnPostBootHook() -> bool;
+		virtual auto OnPreShutdownHook() -> bool;
+		virtual auto OnPostShutdownHook() -> bool;
 
 	public:
 		explicit Environment() noexcept(false)                 = default;

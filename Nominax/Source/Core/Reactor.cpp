@@ -247,11 +247,11 @@ namespace
 namespace Nominax
 {
 	Reactor::Reactor(const ReactorSpawnConfig& config, const std::size_t poolIdx) noexcept(false) :
-		Id_{Xorshift128ThreadLocal()},
-		PoolIndex_{poolIdx},
-		SpawnStamp_{std::chrono::high_resolution_clock::now()},
-		PowerPreference_{config.PowerPref},
-		SpawnProcessMemorySnapshot{Os::QueryProcessMemoryUsed()},
+		Id_ {Xorshift128ThreadLocal()},
+		PoolIndex_ {poolIdx},
+		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
+		PowerPreference_ {config.PowerPref},
+		SpawnProcessMemorySnapshot {Os::QueryProcessMemoryUsed()},
 		Input_ { },
 		Output_ {Input_},
 		Stack_ {config.StackSize},
@@ -260,15 +260,14 @@ namespace Nominax
 	{
 		Print
 		(
-			"Reactor {:010X} online: "
-			"STA: {} MB "		// stack
-			"{} KRE, "			// kilo records
-			"INTR: {}, "		// intrinsics
-			"INT: {}, "			// interrupt
-			"PPF: {}, "			// power preference
-			"PIDX: {:02X}, "	// pool index
-			"STAP: {:X}, "		// time stamp
-			"MEM: {:02} MB\n",	// memory snapshot
+			"Reactor {:010X} "
+			"Stack: {} MB-"           // stack
+			"{} KR, "                 // kilo records
+			"Intrinsics: {}, "        // intrinsics
+			"Interrupt Routine: {}, " // interrupt
+			"Power: {}, "             // power preference
+			"Pool: {:02}, "           // pool index
+			"Snapshot: {:02} MB\n",   // memory snapshot
 			this->Id_,
 			Bytes2Megabytes(this->Stack_.Size() * sizeof(Record)),
 			this->Stack_.Size() / 1000,
@@ -276,7 +275,6 @@ namespace Nominax
 			this->InterruptHandler_ == &DefaultInterruptRoutine ? "Def" : "Usr",
 			this->PowerPreference_ == PowerPreference::HighPerformance ? "Perf" : "Safe",
 			this->PoolIndex_,
-			this->SpawnStamp_.time_since_epoch().count(),
 			Bytes2Megabytes(this->SpawnProcessMemorySnapshot)
 		);
 	}

@@ -234,12 +234,12 @@ namespace Nominax
 		/// </summary>
 		LowPowerUsage
 	};
-	
+
 	/// <summary>
 	/// Contains information to create a reactor.
 	/// </summary>
 	struct ReactorSpawnConfig final
-	{	
+	{
 		/// <summary>
 		/// The stack size in records.
 		/// </summary>
@@ -258,7 +258,7 @@ namespace Nominax
 		/// <summary>
 		/// Reactor power preference.
 		/// </summary>
-		PowerPreference PowerPref{PowerPreference::HighPerformance};
+		PowerPreference PowerPref {PowerPreference::HighPerformance};
 
 		/// <summary>
 		/// Get platform dependent default configuration.
@@ -311,7 +311,7 @@ namespace Nominax
 		/// Process memory in bytes when reactor was created.
 		/// </summary>
 		std::size_t SpawnProcessMemorySnapshot;
-		
+
 		/// <summary>
 		/// The reactor input descriptor build
 		/// when Execute() is called.
@@ -387,36 +387,36 @@ namespace Nominax
 		/// </summary>
 		/// <returns>The unique reactor id.</returns>
 		[[nodiscard]]
-		auto GetId() const noexcept(true)->std::uint32_t;
+		auto GetId() const noexcept(true) -> std::uint32_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The index of this rector in the hosting reactor pool</returns>
 		[[nodiscard]]
-		auto GetPoolIndex() const noexcept(true)->std::size_t;
+		auto GetPoolIndex() const noexcept(true) -> std::size_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The time stamp when the reactor was spawned.</returns>
 		[[nodiscard]]
-		auto GetSpawnStamp() const noexcept(true)->std::chrono::high_resolution_clock::time_point;
+		auto GetSpawnStamp() const noexcept(true) -> std::chrono::high_resolution_clock::time_point;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The power preference of this reactor.</returns>
 		[[nodiscard]]
-		auto GetPowerPreference() const noexcept(true)->PowerPreference;
+		auto GetPowerPreference() const noexcept(true) -> PowerPreference;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The process memory snapshot in mb when the reactor was spawned.</returns>
 		[[nodiscard]]
-		auto GetSpawnMemorySnapshot() const noexcept(true)->std::size_t;
-		
+		auto GetSpawnMemorySnapshot() const noexcept(true) -> std::size_t;
+
 		/// <summary>
 		/// 
 		/// </summary>

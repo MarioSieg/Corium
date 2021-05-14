@@ -219,7 +219,7 @@ namespace
 	auto InitSysInfo() noexcept(false) -> SystemSnapshot
 	{
 		Print("\n");
-		SystemSnapshot snapshot{};
+		SystemSnapshot snapshot { };
 		snapshot.Print();
 		return snapshot;
 	}
@@ -227,18 +227,30 @@ namespace
 	auto InitCpuFeatures() noexcept(false) -> CpuFeatureDetector
 	{
 		Print("\n");
-		CpuFeatureDetector cpuFeatureDetector{};
+		CpuFeatureDetector cpuFeatureDetector { };
 		cpuFeatureDetector.Print();
 		Print("\n");
 		return cpuFeatureDetector;
 	}
+
+#define DISPATCH_HOOK(method)						\
+	do												\
+	{												\
+		Print("Dispatching hook: " #method "\n");	\
+		NOMINAX_PANIC_ASSERT_TRUE					\
+		(											\
+			this-> method (),						\
+			#method "returned false!"				\
+		);											\
+	}												\
+	while(false)
 }
 
 namespace Nominax
 {
 	struct Environment::Kernel final
 	{
-		SystemSnapshot         SysInfo;
+		SystemSnapshot     SysInfo;
 		CpuFeatureDetector CpuFeatures;
 		Stream             AppCode;
 		ReactorPool        CorePool;
@@ -252,10 +264,35 @@ namespace Nominax
 	};
 
 	Environment::Kernel::Kernel() noexcept(false)
-		: SysInfo { ::InitSysInfo() },
-		CpuFeatures { ::InitCpuFeatures() },
-		AppCode { },
-		CorePool {ReactorPool::SmartQueryReactorCount(), ReactorSpawnConfig::Default()} { }
+		: SysInfo {InitSysInfo()},
+		  CpuFeatures {InitCpuFeatures()},
+		  AppCode { },
+		  CorePool {ReactorPool::SmartQueryReactorCount(), ReactorSpawnConfig::Default()} { }
+
+	auto Environment::KernelDeleter::operator()(Kernel* const kernel) const noexcept(true) -> void
+	{
+		delete kernel;
+	}
+
+	auto Environment::OnPreBootHook() -> bool
+	{
+		return true;
+	}
+
+	auto Environment::OnPostBootHook() -> bool
+	{
+		return true;
+	}
+
+	auto Environment::OnPreShutdownHook() -> bool
+	{
+		return true;
+	}
+
+	auto Environment::OnPostShutdownHook() -> bool
+	{
+		return true;
+	}
 
 	Environment::~Environment()
 	{
@@ -269,13 +306,22 @@ namespace Nominax
 			return;
 		}
 
+		// Basic setup:
 		std::ios_base::sync_with_stdio(false);
 		PrintSystemInfo();
 		Print("Booting runtime environment...\n");
 		const auto tik {std::chrono::high_resolution_clock::now()};
 
-		this->Env_ = new(std::nothrow) Kernel();
+		// Invoke hook:
+		DISPATCH_HOOK(OnPreBootHook);
+
+		// No, we cannot use std::make_unique because we want it noexcept!
+		// ReSharper disable once CppSmartPointerVsMakeFunction
+		this->Env_ = std::unique_ptr<Kernel, KernelDeleter>(new(std::nothrow) Kernel());
 		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Env_, "Kernel allocation failed!");
+
+		// Invoke hook:
+		DISPATCH_HOOK(OnPostBootHook);
 
 		const auto tok {std::chrono::high_resolution_clock::now()};
 		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
@@ -285,10 +331,18 @@ namespace Nominax
 
 	auto Environment::Shutdown() noexcept(false) -> void
 	{
-		if (NOMINAX_LIKELY(this->Env_))
+		if (NOMINAX_UNLIKELY(!this->Env_))
 		{
-			delete this->Env_;
-			this->Env_ = nullptr;
+			return;
 		}
+
+		// Invoke hook:
+		DISPATCH_HOOK(OnPreShutdownHook);
+
+		this->Env_.reset();
+		this->Env_ = nullptr;
+
+		// Invoke hook:
+		DISPATCH_HOOK(OnPostShutdownHook);
 	}
 }

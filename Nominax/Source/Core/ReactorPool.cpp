@@ -229,7 +229,7 @@ namespace Nominax
 
 		Print("Initializing reactor pool...\n", reactorCount);
 		Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT, FALLBACK_REACTOR_COUNT, reactorCount);
-		
+
 		this->Pool_.reserve(reactorCount);
 		for (std::size_t i {0}; i < reactorCount; ++i)
 		{
@@ -241,7 +241,7 @@ namespace Nominax
 
 	ReactorPool::~ReactorPool()
 	{
-		const auto size{ this->Pool_.size() };
+		const auto size {this->Pool_.size()};
 		this->Pool_.clear();
 		Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
 	}

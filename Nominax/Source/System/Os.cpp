@@ -254,7 +254,7 @@ namespace Nominax
 		this->ThreadId          = std::this_thread::get_id();
 		this->CpuName           = Os::QueryCpuName();
 		this->TotalSystemMemory = Os::QuerySystemMemoryTotal();
-		this->ProcessMemory  = Os::QueryProcessMemoryUsed();
+		this->ProcessMemory     = Os::QueryProcessMemoryUsed();
 		this->PageSize          = Os::QueryPageSize();
 	}
 
