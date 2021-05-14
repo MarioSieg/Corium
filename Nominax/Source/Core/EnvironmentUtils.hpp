@@ -211,12 +211,12 @@
 
 namespace Nominax
 {
-	struct SystemInfo;
+	struct SystemSnapshot;
 	class CpuFeatureDetector;
 
 	extern auto PrintSystemInfo() -> void;
 
 	extern auto PrintTypeInfoTable() -> void;
 
-	extern auto PrintMachineInfo(const SystemInfo& sysInfo, const CpuFeatureDetector& cpuInfo) -> void;
+	extern auto PrintMachineInfo(const SystemSnapshot& sysInfo, const CpuFeatureDetector& cpuInfo) -> void;
 }

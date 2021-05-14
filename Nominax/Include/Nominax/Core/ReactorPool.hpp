@@ -266,7 +266,10 @@ namespace Nominax
 		/// </summary>
 		auto operator =(ReactorPool&&) -> ReactorPool& = delete;
 
-		~ReactorPool() = default;
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~ReactorPool();
 
 		/// <summary>
 		/// 

@@ -216,7 +216,7 @@ namespace Nominax
 {
 	struct Environment::Kernel final
 	{
-		SystemInfo         SysInfo;
+		SystemSnapshot         SysInfo;
 		CpuFeatureDetector CpuFeatures;
 		Stream             AppCode;
 		ReactorPool        CorePool;
@@ -231,6 +231,11 @@ namespace Nominax
 
 	Environment::Kernel::Kernel() noexcept(false)
 		: SysInfo { }, CpuFeatures { }, AppCode { }, CorePool {ReactorPool::SmartQueryReactorCount(), ReactorSpawnConfig::Default()} { }
+
+	Environment::~Environment()
+	{
+		Shutdown();
+	}
 
 	auto Environment::Boot() noexcept(false) -> void
 	{
@@ -250,6 +255,15 @@ namespace Nominax
 		const auto tok {std::chrono::high_resolution_clock::now()};
 		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
 
-		Print("Runtime environment online! Boot time: {}, Memory: {}MB\n", ms, Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
+		Print("Runtime environment online! Boot Time: {}, Memory Snapshot: {}MB\n", ms, Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
+	}
+
+	auto Environment::Shutdown() noexcept(false) -> void
+	{
+		if (NOMINAX_LIKELY(this->Env_))
+		{
+			delete this->Env_;
+			this->Env_ = nullptr;
+		}
 	}
 }

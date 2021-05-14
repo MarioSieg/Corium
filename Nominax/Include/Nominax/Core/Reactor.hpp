@@ -207,6 +207,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <tuple>
 #include <optional>
 
@@ -219,10 +220,26 @@
 namespace Nominax
 {
 	/// <summary>
+	/// Power preference for a VM reactor.
+	/// </summary>
+	enum class PowerPreference
+	{
+		/// <summary>
+		/// Prefer faster performance but more power usage (desktop, server)
+		/// </summary>
+		HighPerformance,
+
+		/// <summary>
+		/// Prefer low power usage but slower performance (mobile, tablet, laptop)
+		/// </summary>
+		LowPowerUsage
+	};
+	
+	/// <summary>
 	/// Contains information to create a reactor.
 	/// </summary>
 	struct ReactorSpawnConfig final
-	{
+	{	
 		/// <summary>
 		/// The stack size in records.
 		/// </summary>
@@ -238,6 +255,15 @@ namespace Nominax
 		/// </summary>
 		InterruptRoutine* InterruptHandler { };
 
+		/// <summary>
+		/// Reactor power preference.
+		/// </summary>
+		PowerPreference PowerPref{PowerPreference::HighPerformance};
+
+		/// <summary>
+		/// Get platform dependent default configuration.
+		/// </summary>
+		/// <returns></returns>
 		static constexpr auto Default() noexcept(true) -> ReactorSpawnConfig;
 	};
 
@@ -247,7 +273,12 @@ namespace Nominax
 		{
 			.StackSize = FixedStack::SIZE_LARGE,
 			.SharedIntrinsicTable = { },
-			.InterruptHandler = nullptr
+			.InterruptHandler = nullptr,
+#if NOMINAX_ARCH_ARM_64
+			.PowerPref = PowerPreference::LowPowerUsage
+#else
+			.PowerPref = PowerPreference::HighPerformance
+#endif
 		};
 	}
 
@@ -256,6 +287,31 @@ namespace Nominax
 	/// </summary>
 	class [[nodiscard]] Reactor final
 	{
+		/// <summary>
+		/// Unique reactor id.
+		/// </summary>
+		std::uint32_t Id_;
+
+		/// <summary>
+		/// The reactor pool index of this reactor.
+		/// </summary>
+		std::size_t PoolIndex_;
+
+		/// <summary>
+		/// Time stamp when the reactor was spawned.
+		/// </summary>
+		std::chrono::high_resolution_clock::time_point SpawnStamp_;
+
+		/// <summary>
+		/// Reactor power preference.
+		/// </summary>
+		PowerPreference PowerPreference_;
+
+		/// <summary>
+		/// Process memory in bytes when reactor was created.
+		/// </summary>
+		std::size_t SpawnProcessMemorySnapshot;
+		
 		/// <summary>
 		/// The reactor input descriptor build
 		/// when Execute() is called.
@@ -291,7 +347,7 @@ namespace Nominax
 		/// <summary>
 		/// Create reactor with fixed stack size. If zero, panic!
 		/// </summary>
-		explicit Reactor(const ReactorSpawnConfig& config) noexcept(false);
+		explicit Reactor(const ReactorSpawnConfig& config, std::size_t poolIdx = 0) noexcept(false);
 
 		/// <summary>
 		/// No copy!
@@ -301,7 +357,7 @@ namespace Nominax
 		/// <summary>
 		/// Move constructing okay.
 		/// </summary>
-		Reactor(Reactor&&) noexcept(true);
+		Reactor(Reactor&&) noexcept(true) = default;
 
 		/// <summary>
 		/// No copy!
@@ -326,6 +382,41 @@ namespace Nominax
 		[[nodiscard]]
 		auto Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The unique reactor id.</returns>
+		[[nodiscard]]
+		auto GetId() const noexcept(true)->std::uint32_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The index of this rector in the hosting reactor pool</returns>
+		[[nodiscard]]
+		auto GetPoolIndex() const noexcept(true)->std::size_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The time stamp when the reactor was spawned.</returns>
+		[[nodiscard]]
+		auto GetSpawnStamp() const noexcept(true)->std::chrono::high_resolution_clock::time_point;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The power preference of this reactor.</returns>
+		[[nodiscard]]
+		auto GetPowerPreference() const noexcept(true)->PowerPreference;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The process memory snapshot in mb when the reactor was spawned.</returns>
+		[[nodiscard]]
+		auto GetSpawnMemorySnapshot() const noexcept(true)->std::size_t;
+		
 		/// <summary>
 		/// 
 		/// </summary>
@@ -369,6 +460,31 @@ namespace Nominax
 		[[nodiscard]]
 		auto GetInterruptHandler() const noexcept(true) -> InterruptRoutine*;
 	};
+
+	inline auto Reactor::GetId() const noexcept(true) -> std::uint32_t
+	{
+		return this->Id_;
+	}
+
+	inline auto Reactor::GetPoolIndex() const noexcept(true) -> std::size_t
+	{
+		return this->PoolIndex_;
+	}
+
+	inline auto Reactor::GetSpawnStamp() const noexcept(true) -> std::chrono::high_resolution_clock::time_point
+	{
+		return this->SpawnStamp_;
+	}
+
+	inline auto Reactor::GetPowerPreference() const noexcept(true) -> PowerPreference
+	{
+		return this->PowerPreference_;
+	}
+
+	inline auto Reactor::GetSpawnMemorySnapshot() const noexcept(true) -> std::size_t
+	{
+		return this->SpawnProcessMemorySnapshot;
+	}
 
 	inline auto Reactor::GetStack() const noexcept(true) -> const FixedStack&
 	{

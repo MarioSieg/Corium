@@ -217,7 +217,7 @@ namespace Nominax
 	{
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(sizeInRecords, "Fixed stack with zero size was requested!");
 
-		// Because first padding element.
+		// because first padding element.
 		++sizeInRecords;
 		this->BufferSize_ = sizeInRecords;
 
@@ -225,14 +225,8 @@ namespace Nominax
 		this->Buffer_ = std::unique_ptr<Record[]>(new(std::nothrow) Record[sizeInRecords]());
 		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Buffer_, "Allocation of TLFRS failed!");
 
+		// insert padding:
 		*this->Buffer_.get() = Record::Padding();
-
-		Print
-		(
-			"Allocated {}MB fixed stack with {} entries!\n",
-			Bytes2Megabytes<F64>(static_cast<F64>(this->BufferSize_) * static_cast<F64>(sizeof(Record))),
-			this->BufferSize_
-		);
 	}
 
 	FixedStack::FixedStack(FixedStack&& value) noexcept(true) : Buffer_ {std::move(value.Buffer_)}, BufferSize_ {value.BufferSize_} { }

@@ -223,8 +223,9 @@ namespace Nominax
 		Environment(Environment&&)                             = delete;
 		auto    operator =(const Environment&) -> Environment& = delete;
 		auto    operator =(Environment&&) -> Environment&      = delete;
-		virtual ~Environment()                                 = default;
+		virtual ~Environment();
 
 		auto Boot() noexcept(false) -> void;
+		auto Shutdown() noexcept(false) -> void;
 	};
 }

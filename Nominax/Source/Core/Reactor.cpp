@@ -210,6 +210,8 @@
 #include "../../Include/Nominax/Core/ReactorHypervisor.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
+#include "../../Include/Nominax/Common/XorshiftThreadLocal.hpp"
+#include "../../Include/Nominax/System/Os.hpp"
 
 namespace
 {
@@ -244,19 +246,40 @@ namespace
 
 namespace Nominax
 {
-	Reactor::Reactor(const ReactorSpawnConfig& config) noexcept(false) :
+	Reactor::Reactor(const ReactorSpawnConfig& config, const std::size_t poolIdx) noexcept(false) :
+		Id_{Xorshift128ThreadLocal()},
+		PoolIndex_{poolIdx},
+		SpawnStamp_{std::chrono::high_resolution_clock::now()},
+		PowerPreference_{config.PowerPref},
+		SpawnProcessMemorySnapshot{Os::QueryProcessMemoryUsed()},
 		Input_ { },
 		Output_ {Input_},
 		Stack_ {config.StackSize},
 		IntrinsicTable_ {config.SharedIntrinsicTable},
-		InterruptHandler_ {config.InterruptHandler ? config.InterruptHandler : &DefaultInterruptRoutine} { }
-
-	Reactor::Reactor(Reactor&& other) noexcept(true) :
-		Input_ {other.Input_},
-		Output_ {other.Output_},
-		Stack_ {std::move(other.Stack_)},
-		IntrinsicTable_ {other.IntrinsicTable_},
-		InterruptHandler_ {other.InterruptHandler_} { }
+		InterruptHandler_ {config.InterruptHandler ? config.InterruptHandler : &DefaultInterruptRoutine}
+	{
+		Print
+		(
+			"Reactor {:010X} online: "
+			"STA: {} MB "		// stack
+			"{} KRE, "			// kilo records
+			"INTR: {}, "		// intrinsics
+			"INT: {}, "			// interrupt
+			"PPF: {}, "			// power preference
+			"PIDX: {:02X}, "	// pool index
+			"STAP: {:X}, "		// time stamp
+			"MEM: {:02} MB\n",	// memory snapshot
+			this->Id_,
+			Bytes2Megabytes(this->Stack_.Size() * sizeof(Record)),
+			this->Stack_.Size() / 1000,
+			this->IntrinsicTable_.size(),
+			this->InterruptHandler_ == &DefaultInterruptRoutine ? "Def" : "Usr",
+			this->PowerPreference_ == PowerPreference::HighPerformance ? "Perf" : "Safe",
+			this->PoolIndex_,
+			this->SpawnStamp_.time_since_epoch().count(),
+			Bytes2Megabytes(this->SpawnProcessMemorySnapshot)
+		);
+	}
 
 	auto Reactor::Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
 	{
@@ -271,7 +294,7 @@ namespace Nominax
 		);
 		const auto validationResult {this->Input_.Validate()};
 		NOMINAX_PANIC_ASSERT_EQ(validationResult, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]);
-		this->Output_ = ExecuteOnce(this->Input_); // TODO Remove second validate?!
+		this->Output_ = ExecuteOnce(this->Input_);
 		return this->Output_;
 	}
 

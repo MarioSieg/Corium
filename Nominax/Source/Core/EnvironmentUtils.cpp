@@ -257,7 +257,7 @@ namespace Nominax
 		PrintTypeInfo<void*>("void*");
 	}
 
-	auto PrintMachineInfo(const SystemInfo& sysInfo, const CpuFeatureDetector& cpuInfo) -> void
+	auto PrintMachineInfo(const SystemSnapshot& sysInfo, const CpuFeatureDetector& cpuInfo) -> void
 	{
 		sysInfo.Print();
 		Print("\n");

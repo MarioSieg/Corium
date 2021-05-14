@@ -239,7 +239,7 @@ namespace Nominax
 		extern auto DylibClose(void*& handle) noexcept(false) -> void;
 	}
 
-	struct SystemInfo final
+	struct SystemSnapshot final
 	{
 		std::thread::id  ThreadId { };
 		std::string_view OperatingSystemName {NOMINAX_OS_NAME};
@@ -248,10 +248,10 @@ namespace Nominax
 		std::size_t      ThreadCount { };
 		std::string      CpuName { };
 		std::size_t      TotalSystemMemory { };
-		std::size_t      UsedSystemMemory { };
+		std::size_t      ProcessMemory { };
 		std::size_t      PageSize { };
 
-		SystemInfo() noexcept(false);
+		SystemSnapshot() noexcept(false);
 
 		auto QueryAll() noexcept(false) -> void;
 		auto Print() const noexcept(false) -> void;

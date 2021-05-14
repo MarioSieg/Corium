@@ -227,11 +227,22 @@ namespace Nominax
 	{
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 
+		Print("Initializing reactor pool...\n", reactorCount);
+		Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT, FALLBACK_REACTOR_COUNT, reactorCount);
+		
 		this->Pool_.reserve(reactorCount);
-		for (std::size_t i {1}; i <= reactorCount; ++i)
+		for (std::size_t i {0}; i < reactorCount; ++i)
 		{
-			Print(LogLevel::Warning, "Creating reactor {} of {}...\n", i, reactorCount);
-			this->Pool_.emplace_back(Reactor {config});
+			this->Pool_.emplace_back(Reactor {config, i});
 		}
+
+		Print("\n");
+	}
+
+	ReactorPool::~ReactorPool()
+	{
+		const auto size{ this->Pool_.size() };
+		this->Pool_.clear();
+		Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
 	}
 }
