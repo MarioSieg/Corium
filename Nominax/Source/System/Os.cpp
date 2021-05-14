@@ -211,6 +211,7 @@
 #include "../../Include/Nominax/Common/Protocol.hpp"
 #include "../../Include/Nominax/Common/MemoryUnits.hpp"
 #include "../../Include/Nominax/Common/SafeLocalTime.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
 
 namespace
 {

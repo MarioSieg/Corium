@@ -212,6 +212,28 @@
 #include "../../Include/Nominax/Nominax.hpp"
 #include "EnvironmentUtils.hpp"
 
+namespace
+{
+	using namespace Nominax;
+
+	auto InitSysInfo() noexcept(false) -> SystemSnapshot
+	{
+		Print("\n");
+		SystemSnapshot snapshot{};
+		snapshot.Print();
+		return snapshot;
+	}
+
+	auto InitCpuFeatures() noexcept(false) -> CpuFeatureDetector
+	{
+		Print("\n");
+		CpuFeatureDetector cpuFeatureDetector{};
+		cpuFeatureDetector.Print();
+		Print("\n");
+		return cpuFeatureDetector;
+	}
+}
+
 namespace Nominax
 {
 	struct Environment::Kernel final
@@ -230,7 +252,10 @@ namespace Nominax
 	};
 
 	Environment::Kernel::Kernel() noexcept(false)
-		: SysInfo { }, CpuFeatures { }, AppCode { }, CorePool {ReactorPool::SmartQueryReactorCount(), ReactorSpawnConfig::Default()} { }
+		: SysInfo { ::InitSysInfo() },
+		CpuFeatures { ::InitCpuFeatures() },
+		AppCode { },
+		CorePool {ReactorPool::SmartQueryReactorCount(), ReactorSpawnConfig::Default()} { }
 
 	Environment::~Environment()
 	{

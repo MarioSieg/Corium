@@ -252,7 +252,7 @@ namespace Nominax
 		/// <summary>
 		/// No move.
 		/// </summary>
-		CpuFeatureDetector(CpuFeatureDetector&&) = delete;
+		CpuFeatureDetector(CpuFeatureDetector&&) = default;
 
 		/// <summary>
 		/// No copy.
