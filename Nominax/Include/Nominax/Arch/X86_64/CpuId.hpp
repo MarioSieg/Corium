@@ -1296,9 +1296,9 @@ namespace Nominax::X86_64
 	/// </summary>
 	extern "C" auto Asm_CpuId
 	(
-		MergedInfoTable& out1,
-		MergedInfoTable& out2,
-		MergedInfoTable& out3
+		MergedInfoTable* out1,
+		MergedInfoTable* out2,
+		MergedInfoTable* out3
 	) noexcept(true) -> U32;
 
 	/// <summary>

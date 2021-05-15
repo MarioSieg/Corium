@@ -295,10 +295,33 @@ namespace Nominax
 		/// <summary>
 		/// Returns the reactor at index.
 		/// </summary>
-		/// <param name="reactorIndex"></param>
+		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetReactor(std::size_t reactorIndex) const noexcept(false) -> const Reactor&;
+		auto GetReactor(std::size_t idx) const noexcept(false) -> const Reactor&;
+
+
+		/// <summary>
+		/// Returns the reactor at index.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator [](std::size_t idx) const noexcept(true) -> const Reactor&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The first reactor in the pool running on the main thread.</returns>
+		[[nodiscard]]
+		auto GetAlphaReactor() const noexcept(true) -> const Reactor&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The first reactor in the pool running on the main thread.</returns>
+		[[nodiscard]]
+		auto operator *() const noexcept(true) -> const Reactor&;
 	};
 
 	inline auto ReactorPool::GetBuffer() const noexcept(true) -> const Reactor*
@@ -316,9 +339,24 @@ namespace Nominax
 		return this->ReactorConfig_;
 	}
 
-	inline auto ReactorPool::GetReactor(const std::size_t reactorIndex) const noexcept(false) -> const Reactor&
+	inline auto ReactorPool::GetReactor(const std::size_t idx) const noexcept(false) -> const Reactor&
 	{
-		NOMINAX_PANIC_ASSERT_L(reactorIndex, this->Pool_.size(), "Reactor with invalid index was requested from pool!");
-		return this->Pool_[reactorIndex];
+		NOMINAX_PANIC_ASSERT_L(idx, this->Pool_.size(), "Reactor with invalid index was requested from pool!");
+		return this->Pool_[idx];
+	}
+
+	inline auto ReactorPool::operator[](const std::size_t idx) const noexcept(true) -> const Reactor&
+	{
+		return this->GetReactor(idx);
+	}
+
+	inline auto ReactorPool::GetAlphaReactor() const noexcept(true) -> const Reactor&
+	{
+		return this->Pool_.front();
+	}
+
+	inline auto ReactorPool::operator*() const noexcept(true) -> const Reactor&
+	{
+		return this->Pool_.front();
 	}
 }
