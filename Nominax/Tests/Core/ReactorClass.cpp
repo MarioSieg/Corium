@@ -292,7 +292,7 @@ TEST(ReactorClass, TryExecuteValid)
 	const auto& output {reactor.Execute(std::move(out))};
 	ASSERT_EQ(output.ShutdownReason, ReactorShutdownReason::Success);
 	ASSERT_EQ(output.InterruptCode, 0);
-	ASSERT_EQ(std::memcmp(&output.Input, &reactor.GetInputDescriptor(), sizeof(decltype(output.Input))), 0);
+	ASSERT_EQ(std::memcmp(output.Input, &reactor.GetInputDescriptor(), sizeof(decltype(*output.Input))), 0);
 }
 
 TEST(ReactorClass, TryExecuteInValidZeroCode)

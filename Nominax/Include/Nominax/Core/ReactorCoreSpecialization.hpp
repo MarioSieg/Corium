@@ -1,6 +1,6 @@
-// File: ReactorPool.hpp
+// File: ReactorCoreSpecialization.hpp
 // Author: Mario
-// Created: 13.05.2021 8:30 PM
+// Created: 14.05.2021 6:49 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,118 +207,51 @@
 
 #pragma once
 
-#include <vector>
+#include <cstddef>
+#include <string_view>
 
-#include "Reactor.hpp"
-#include "../Common/PanicRoutine.hpp"
+#include "../System/Platform.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// A pool holding all existing reactors.
+	/// Contains all sub implementations for the reactor core.
 	/// </summary>
-	class [[nodiscard]] ReactorPool final
+	enum class ReactorCoreSpecialization: std::size_t
 	{
-		std::vector<Reactor>   Pool_ { };
-		ReactorSpawnDescriptor ReactorConfig_ { };
+		Fallback,
 
-	public:
-		/// <summary>
-		/// Calculates the best and correct reactor count.
-		/// </summary>
-		/// <param name="hint">How many reactors the user requested. If zero, logical cpu count will be used.</param>
-		/// <returns>The best reactor count for the current system.</returns>
-		static auto SmartQueryReactorCount(std::size_t hint = 0) noexcept(false) -> std::size_t;
+#if NOMINAX_ARCH_X86_64
 
-		/// <summary>
-		/// Minimal one reactor is required.
-		/// </summary>
-		static constexpr std::size_t MIN_REACTOR_COUNT {1};
+		X86_64_AVX,
+		X86_64_AVX512F,
 
-		/// <summary>
-		/// Fallback reactor count.
-		/// </summary>
-		static constexpr std::size_t FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
+#elif NOMINAX_ARCH_ARM_64
+#	error "ARM64 not yet supported!"
+#endif
 
-		/// <summary>
-		/// Construct and initialize all new reactors.
-		/// If the reactor count is zero, panic!
-		/// </summary>
-		ReactorPool(std::size_t reactorCount, const ReactorSpawnDescriptor& config, const std::optional<ReactorRoutineLink>& routineLink = std::nullopt) noexcept(false);
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		ReactorPool(const ReactorPool&) = delete;
-
-		/// <summary>
-		/// No move.
-		/// </summary>
-		ReactorPool(ReactorPool&&) noexcept(true) = delete;
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		auto operator =(const ReactorPool&) -> ReactorPool& = delete;
-
-		/// <summary>
-		/// No move.
-		/// </summary>
-		auto operator =(ReactorPool&&) -> ReactorPool& = delete;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~ReactorPool();
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>Returns the pool pointer.</returns>
-		[[nodiscard]]
-		auto GetBuffer() const noexcept(true) -> const Reactor*;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>Returns the size of the pool.</returns>
-		[[nodiscard]]
-		auto GetSize() const noexcept(true) -> std::size_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>Returns the config used to create each reactor.</returns>
-		[[nodiscard]]
-		auto GetSpawnConfig() const noexcept(true) -> const ReactorSpawnDescriptor&;
-
-		/// <summary>
-		/// Returns the reactor at index.
-		/// </summary>
-		/// <param name="reactorIndex"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto GetReactor(std::size_t reactorIndex) const noexcept(false) -> const Reactor&;
+		Count
 	};
 
-	inline auto ReactorPool::GetBuffer() const noexcept(true) -> const Reactor*
+	/// <summary>
+	/// Get string representations of a specialization target.
+	/// </summary>
+	/// <param name="target"></param>
+	/// <returns></returns>
+	constexpr auto GetReactorCoreSpecializationName(const ReactorCoreSpecialization target) noexcept(true) -> std::string_view
 	{
-		return this->Pool_.data();
-	}
-
-	inline auto ReactorPool::GetSize() const noexcept(true) -> std::size_t
-	{
-		return this->Pool_.size();
-	}
-
-	inline auto ReactorPool::GetSpawnConfig() const noexcept(true) -> const ReactorSpawnDescriptor&
-	{
-		return this->ReactorConfig_;
-	}
-
-	inline auto ReactorPool::GetReactor(const std::size_t reactorIndex) const noexcept(false) -> const Reactor&
-	{
-		NOMINAX_PANIC_ASSERT_L(reactorIndex, this->Pool_.size(), "Reactor with invalid index was requested from pool!");
-		return this->Pool_[reactorIndex];
+#if NOMINAX_ARCH_X86_64
+		switch (target)
+		{
+		case ReactorCoreSpecialization::X86_64_AVX:
+			return "X86-64 AVX";
+		case ReactorCoreSpecialization::X86_64_AVX512F:
+			return "X86-64 AVX512F";
+		default:
+			return "Generic Fallback";
+		}
+#elif NOMINAX_ARCH_ARM_64
+#	error "ARM64 not yet supported!"
+#endif
 	}
 }

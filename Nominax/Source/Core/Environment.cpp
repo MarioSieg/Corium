@@ -294,6 +294,7 @@ namespace Nominax
 		std::chrono::milliseconds                      BootTime;
 		SystemSnapshot                                 SysInfoSnapshot;
 		CpuFeatureDetector                             CpuFeatures;
+		ReactorRoutineLink                             OptimalReactorRoutine;
 		Stream                                         AppCode;
 		ReactorPool                                    CorePool;
 
@@ -324,8 +325,9 @@ namespace Nominax
 		BootTime { },
 		SysInfoSnapshot {InitSysInfo()},
 		CpuFeatures {InitCpuFeatures()},
+		OptimalReactorRoutine {GetOptimalReactorRoutine(CpuFeatures)},
 		AppCode { },
-		CorePool {ReactorPool::SmartQueryReactorCount(), descriptor.ReactorDescriptor}
+		CorePool {ReactorPool::SmartQueryReactorCount(), descriptor.ReactorDescriptor, OptimalReactorRoutine}
 	{
 		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
 		{

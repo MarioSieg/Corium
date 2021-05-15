@@ -272,7 +272,7 @@ namespace Nominax
 		/// <summary>
 		/// Access the architecture dependent feature bits directly.
 		/// </summary>
-		auto operator ->() const noexcept(true) -> const FeatureBits&;
+		auto operator ->() const noexcept(true) -> const FeatureBits*;
 
 		/// <summary>
 		/// Access the architecture dependent feature bits directly.
@@ -285,9 +285,9 @@ namespace Nominax
 		auto Print() const -> void;
 	};
 
-	inline auto CpuFeatureDetector::operator ->() const noexcept(true) -> const FeatureBits&
+	inline auto CpuFeatureDetector::operator ->() const noexcept(true) -> const FeatureBits*
 	{
-		return this->Features_;
+		return &this->Features_;
 	}
 
 	inline auto CpuFeatureDetector::operator *() const noexcept(true) -> const FeatureBits&

@@ -1,4 +1,4 @@
-// File: ReactorCore_Avx.cpp
+// File: ReactorCore_AVX.cpp
 // Author: Mario
 // Created: 09.05.2021 6:24 PM
 // Project: NominaxRuntime
@@ -208,10 +208,10 @@
 #include "../../Include/Nominax/System/Platform.hpp"
 
 #if NOMINAX_ARCH_X86_64
-#	if !defined(__AVX__) || __AVX__ == 0
+#	if !defined(__AVX__) || !__AVX__
 #		error "This reactore core requires AVX!"
 #	endif
-#	define NOMINAX_REACTOR_IMPL_NAME ReactorCore_Avx
+#	define NOMINAX_REACTOR_IMPL_NAME ReactorCore_AVX
 #		include "ReactorCore.inl"
 #	undef NOMINAX_REACTOR_IMPL_NAME
 #endif

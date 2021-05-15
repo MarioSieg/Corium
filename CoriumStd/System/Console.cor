@@ -1,10 +1,8 @@
-static class Console {
-    // Prints the message into the console without a new line.
-    static extern Print(message string)
+// Prints the message into the console without a new line.
+static extern Print(message string)
 
-    // Prints the message into the console and appends a new line.
-    static extern PrintLn(message string)
+// Prints the message into the console and appends a new line.
+static extern PrintLn(message string)
 
-    // Prints the character into the console.
-    static extern PutChar(value char)
-}
+// Prints the character into the console.
+static extern PutChar(value char)

@@ -289,19 +289,19 @@ auto LoopBenchmark
 			break;
 		}
 
-		if (output.Input.Stack[1].AsI64 != count)
+		if (output.Input->Stack[1].AsI64 != count)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (output.Input.Stack[2].AsI64 != count)
+		if (output.Input->Stack[2].AsI64 != count)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;
 		}
 
-		if (output.Input.Stack[3].AsI64 != count)
+		if (output.Input->Stack[3].AsI64 != count)
 		{
 			state.SkipWithError("Expected different value on stack!");
 			break;

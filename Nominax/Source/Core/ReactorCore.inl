@@ -278,11 +278,12 @@ namespace Nominax
 #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
 		return _rotl64(value, shift);
 #elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
-		asm volatile(
+		asm volatile
+		(
 			"rolq %%cl, %0"
 			: "=r"(value)
 			: "0" (value), "c"(shift)
-			);
+		);
 		return value;
 #else
 		return std::rotl<U64>(value, shift);
@@ -301,11 +302,12 @@ namespace Nominax
 #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
 		return _rotr64(value, shift);
 #elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
-		asm volatile(
+		asm volatile
+		(
 			"rorq %%cl, %0"
 			: "=r"(value)
 			: "0" (value), "c"(shift)
-			);
+		);
 		return value;
 #else
 		return std::rotr<U64>(value, shift);

@@ -246,17 +246,27 @@ namespace
 
 namespace Nominax
 {
-	Reactor::Reactor(const ReactorSpawnDescriptor& descriptor, const std::size_t poolIdx) noexcept(false) :
+	Reactor::Reactor(const ReactorSpawnDescriptor& descriptor, const std::optional<ReactorRoutineLink>& routineLink, const std::size_t poolIdx) noexcept(false) :
 		Id_ {Xorshift128ThreadLocal()},
 		PoolIndex_ {poolIdx},
 		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
 		PowerPreference_ {descriptor.PowerPref},
 		SpawnProcessMemorySnapshot {Os::QueryProcessMemoryUsed()},
 		Input_ { },
-		Output_ {Input_},
+		Output_ {&Input_},
 		Stack_ {descriptor.StackSize},
 		IntrinsicTable_ {descriptor.SharedIntrinsicTable},
-		InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : &DefaultInterruptRoutine}
+		InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : &DefaultInterruptRoutine},
+		RoutineLink_ {
+			[&routineLink]() noexcept(true) -> ReactorRoutineLink
+			{
+				if (NOMINAX_UNLIKELY(!routineLink))
+				{
+					Print(LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
+				}
+				return routineLink ? *routineLink : GetOptimalReactorRoutine({ });
+			}()
+		}
 	{
 		Print
 		(
@@ -292,14 +302,16 @@ namespace Nominax
 		);
 		const auto validationResult {this->Input_.Validate()};
 		NOMINAX_PANIC_ASSERT_EQ(validationResult, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]);
-		this->Output_ = ExecuteOnce(this->Input_);
+		auto* const routine = std::get<1>(this->RoutineLink_);
+		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");
+		(*routine)(this->Input_, this->Output_);
 		return this->Output_;
 	}
 
-	auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorOutput
+	auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& target) noexcept(true) -> ReactorOutput
 	{
-		ReactorOutput output {.Input = input};
-		ExecuteReactorAutoDispatchBackend(cpuFeatureDetector, input, output);
+		ReactorOutput output {.Input = &input};
+		ExecuteOnce(input, output, target);
 		return output;
 	}
 }

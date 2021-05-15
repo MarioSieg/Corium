@@ -209,10 +209,12 @@
 
 #include <chrono>
 #include <tuple>
+#include <optional>
 
 #include "ReactorOutput.hpp"
 #include "FixedStack.hpp"
 #include "ReactorSpawnDescriptor.hpp"
+#include "ReactorHypervisor.hpp"
 
 #include "../ByteCode/CustomIntrinsic.hpp"
 #include "../ByteCode/Stream.hpp"
@@ -281,11 +283,16 @@ namespace Nominax
 		/// </summary>
 		InterruptRoutine* InterruptHandler_;
 
+		/// <summary>
+		/// Contains the reactor routine.
+		/// </summary>
+		ReactorRoutineLink RoutineLink_;
+
 	public:
 		/// <summary>
 		/// Create reactor with fixed stack size. If zero, panic!
 		/// </summary>
-		explicit Reactor(const ReactorSpawnDescriptor& descriptor, std::size_t poolIdx = 0) noexcept(false);
+		explicit Reactor(const ReactorSpawnDescriptor& descriptor, const std::optional<ReactorRoutineLink>& routineLink = std::nullopt, std::size_t poolIdx = 0) noexcept(false);
 
 		/// <summary>
 		/// No copy!
@@ -454,5 +461,5 @@ namespace Nominax
 		return this->AppCode_;
 	}
 
-	[[nodiscard]] extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& cpuFeatureDetector = { }) noexcept(true) -> ReactorOutput;
+	extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& target = { }) noexcept(true) -> ReactorOutput;
 }

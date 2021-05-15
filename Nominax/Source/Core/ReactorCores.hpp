@@ -1,6 +1,6 @@
-// File: ReactorPool.hpp
+// File: ReactorCores.hpp
 // Author: Mario
-// Created: 13.05.2021 8:30 PM
+// Created: 14.05.2021 6:46 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,118 +207,38 @@
 
 #pragma once
 
-#include <vector>
-
-#include "Reactor.hpp"
-#include "../Common/PanicRoutine.hpp"
+#include "../../Include/Nominax/System/Platform.hpp"
 
 namespace Nominax
 {
+	struct ReactorOutput;
+	struct DetailedReactorDescriptor;
+
 	/// <summary>
-	/// A pool holding all existing reactors.
+	/// Generic fallback implementation, for all architectures.
 	/// </summary>
-	class [[nodiscard]] ReactorPool final
-	{
-		std::vector<Reactor>   Pool_ { };
-		ReactorSpawnDescriptor ReactorConfig_ { };
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <returns></returns>
+	__attribute__((hot)) extern auto ReactorCore_Fallback(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
 
-	public:
-		/// <summary>
-		/// Calculates the best and correct reactor count.
-		/// </summary>
-		/// <param name="hint">How many reactors the user requested. If zero, logical cpu count will be used.</param>
-		/// <returns>The best reactor count for the current system.</returns>
-		static auto SmartQueryReactorCount(std::size_t hint = 0) noexcept(false) -> std::size_t;
+#if NOMINAX_ARCH_X86_64
 
-		/// <summary>
-		/// Minimal one reactor is required.
-		/// </summary>
-		static constexpr std::size_t MIN_REACTOR_COUNT {1};
+	/// <summary>
+	/// Specialized implementation compiled with AVX, which uses 256-bit YMM registers.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <returns></returns>
+	__attribute__((hot)) extern auto ReactorCore_AVX(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
 
-		/// <summary>
-		/// Fallback reactor count.
-		/// </summary>
-		static constexpr std::size_t FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
+	/// <summary>
+	/// Specialized implementation compiled with AVX, which uses 512-bit ZMM registers.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <returns></returns>
+	__attribute__((hot)) extern auto ReactorCore_AVX512F(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
 
-		/// <summary>
-		/// Construct and initialize all new reactors.
-		/// If the reactor count is zero, panic!
-		/// </summary>
-		ReactorPool(std::size_t reactorCount, const ReactorSpawnDescriptor& config, const std::optional<ReactorRoutineLink>& routineLink = std::nullopt) noexcept(false);
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		ReactorPool(const ReactorPool&) = delete;
-
-		/// <summary>
-		/// No move.
-		/// </summary>
-		ReactorPool(ReactorPool&&) noexcept(true) = delete;
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		auto operator =(const ReactorPool&) -> ReactorPool& = delete;
-
-		/// <summary>
-		/// No move.
-		/// </summary>
-		auto operator =(ReactorPool&&) -> ReactorPool& = delete;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~ReactorPool();
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>Returns the pool pointer.</returns>
-		[[nodiscard]]
-		auto GetBuffer() const noexcept(true) -> const Reactor*;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>Returns the size of the pool.</returns>
-		[[nodiscard]]
-		auto GetSize() const noexcept(true) -> std::size_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>Returns the config used to create each reactor.</returns>
-		[[nodiscard]]
-		auto GetSpawnConfig() const noexcept(true) -> const ReactorSpawnDescriptor&;
-
-		/// <summary>
-		/// Returns the reactor at index.
-		/// </summary>
-		/// <param name="reactorIndex"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto GetReactor(std::size_t reactorIndex) const noexcept(false) -> const Reactor&;
-	};
-
-	inline auto ReactorPool::GetBuffer() const noexcept(true) -> const Reactor*
-	{
-		return this->Pool_.data();
-	}
-
-	inline auto ReactorPool::GetSize() const noexcept(true) -> std::size_t
-	{
-		return this->Pool_.size();
-	}
-
-	inline auto ReactorPool::GetSpawnConfig() const noexcept(true) -> const ReactorSpawnDescriptor&
-	{
-		return this->ReactorConfig_;
-	}
-
-	inline auto ReactorPool::GetReactor(const std::size_t reactorIndex) const noexcept(false) -> const Reactor&
-	{
-		NOMINAX_PANIC_ASSERT_L(reactorIndex, this->Pool_.size(), "Reactor with invalid index was requested from pool!");
-		return this->Pool_[reactorIndex];
-	}
+#endif
 }

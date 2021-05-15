@@ -207,33 +207,67 @@
 
 #pragma once
 
-#include "../System/Platform.hpp"
-#include "../System/CpuFeatureDetector.hpp"
-#include "DetailedReactorDescriptor.hpp"
-#include "ReactorOutput.hpp"
+#include "ReactorCoreSpecialization.hpp"
 
 namespace Nominax
 {
+	struct ReactorOutput;
+	struct DetailedReactorDescriptor;
+	class CpuFeatureDetector;
+
 	/// <summary>
-	/// Generic fallback implementation, for all architectures.
+	/// Signature of the reactor core execution routine.
 	/// </summary>
+	using ReactorCoreExecutionRoutine = auto(const DetailedReactorDescriptor&, ReactorOutput&) -> void;
+
+	/// <summary>
+	/// Contains a reactor execution routine and info.
+	/// </summary>
+	using ReactorRoutineLink = std::tuple<ReactorCoreSpecialization, ReactorCoreExecutionRoutine*>;
+
+	/// <summary>
+	/// Contains all available reactor implementations for the current platform.
+	/// </summary>
+	using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)>;
+
+	/// <summary>
+	/// Returns the reactor specialization based on the cpu features available.
+	/// </summary>
+	/// <param name="cpuFeatureDetector"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto SmartSelectReactor(const CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns>The current reactor registry.</returns>
+	[[nodiscard]]
+	extern auto GetReactorRegistry() noexcept(true) -> const ReactorRegistry&;
+
+	/// <summary>
+	/// Returns the reactor routine of the corresponding target.
+	/// </summary>
+	/// <param name="target"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*;
+
+	/// <summary>
+	/// Selects the best reactor routine matching the cpu features and saves it.
+	/// </summary>
+	/// <param name="features"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto GetOptimalReactorRoutine(const CpuFeatureDetector& features) -> ReactorRoutineLink;
+
+	/// <summary>
+	/// Helpers to quickly execute a reactor with specified cpu features.
+	/// Good for testing and debugging.
+	/// </summary>
+	/// <param name="target"></param>
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <returns></returns>
-	__attribute__((hot)) extern auto ReactorCore_Fallback(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
-
-#if NOMINAX_ARCH_X86_64
-
-
-	/// <summary>
-	/// Specialized implementation compiled with AVX, which uses 256-bit YMM registers.
-	/// </summary>
-	/// <param name="input"></param>
-	/// <param name="output"></param>
-	/// <returns></returns>
-	__attribute__((hot)) extern auto ReactorCore_Avx(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
-
-#endif
-
-	extern auto ExecuteReactorAutoDispatchBackend(const CpuFeatureDetector& cpuFeatures, const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
+	extern auto ExecuteOnce(const DetailedReactorDescriptor& input, ReactorOutput& output, const CpuFeatureDetector& target) noexcept(true) -> void;
 }
