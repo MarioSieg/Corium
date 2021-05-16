@@ -286,7 +286,7 @@ namespace Nominax
 {
 	struct Environment::Kernel final
 	{
-		std::unique_ptr<U8>                                      Buffer;
+		std::unique_ptr<U8[]>                                    Buffer;
 		std::size_t                                              BufferSize;
 		std::pmr::monotonic_buffer_resource                      BufferResource;
 		std::pmr::vector<std::pmr::string>                       Arguments;
@@ -297,7 +297,6 @@ namespace Nominax
 		SystemSnapshot                                           SysInfoSnapshot;
 		CpuFeatureDetector                                       CpuFeatures;
 		ReactorRoutineLink                                       OptimalReactorRoutine;
-		Stream                                                   AppCode;
 		ReactorPool                                              CorePool;
 
 		explicit Kernel(const EnvironmentDescriptor& descriptor) noexcept(false);
@@ -311,16 +310,16 @@ namespace Nominax
 	Environment::Kernel::Kernel(const EnvironmentDescriptor& descriptor) noexcept(false)
 		: Buffer
 		  {
-			  [size = descriptor.SystemPoolSize]() noexcept(false) -> std::unique_ptr<U8>
+			  [size = descriptor.SystemPoolSize]() noexcept(false) -> std::unique_ptr<U8[]>
 			  {
-				  NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "System pool with zero size reauested!");
-				  std::unique_ptr<U8> mem {new(std::nothrow) U8[size]()};
+				  NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "System pool with zero size requested!");
+				  std::unique_ptr<U8[]> mem {new(std::nothrow) U8[size]()};
 				  NOMINAX_PANIC_ASSERT_NOT_NULL(mem.get(), "System pool allocation failed!");
 				  return mem;
 			  }()
 		  },
 		  BufferSize {descriptor.SystemPoolSize},
-		  BufferResource {&*Buffer, BufferSize},
+		  BufferResource {Buffer.get(), BufferSize},
 		  Arguments {&BufferResource},
 		  AppName {&BufferResource},
 		  ExecutionTimeHistory {&BufferResource},
@@ -328,9 +327,8 @@ namespace Nominax
 		  BootTime { },
 		  SysInfoSnapshot {InitSysInfo()},
 		  CpuFeatures {InitCpuFeatures()},
-          OptimalReactorRoutine {descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)},
-		  AppCode { },
-		  CorePool {ReactorPool::SmartQueryReactorCount(), descriptor.ReactorDescriptor, OptimalReactorRoutine}
+		  OptimalReactorRoutine {descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)},
+		  CorePool {BufferResource, ReactorPool::SmartQueryReactorCount(), descriptor.ReactorDescriptor, OptimalReactorRoutine}
 	{
 		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
 		{
@@ -390,7 +388,7 @@ namespace Nominax
 		}
 
 		// Basic setup:
-        std::ios_base::sync_with_stdio(true); // TODO switch this off when execution the runtime app
+		std::ios_base::sync_with_stdio(true); // TODO switch this off when execution the runtime app
 		PrintSystemInfo();
 		Print("Booting runtime environment...\n");
 		const auto tik {std::chrono::high_resolution_clock::now()};
@@ -433,7 +431,7 @@ namespace Nominax
 
 		// Info
 		Print(LogLevel::Warning, "Executing... Code size: {}\n", std::get<0>(appCode).size());
-        std::cout.flush();
+		std::cout.flush();
 
 		// Execute on alpha reactor:
 		const auto& result {(*this->Env_->CorePool)(std::move(appCode))};
@@ -445,7 +443,7 @@ namespace Nominax
 		// Print exec info:
 		const auto level {result.ShutdownReason == ReactorShutdownReason::Success ? LogLevel::Success : LogLevel::Error};
 		Print(level, "Execution #{} done! Runtime {:.04}\n", this->Env_->ExecutionTimeHistory.size(), std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros));
-        std::cout.flush();
+		std::cout.flush();
 
 		// Invoke hook:
 		DISPATCH_HOOK(OnPostExecutionHook,);

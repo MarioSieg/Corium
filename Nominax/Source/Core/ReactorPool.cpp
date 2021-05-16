@@ -225,10 +225,11 @@ namespace Nominax
 
 	ReactorPool::ReactorPool
 	(
+		std::pmr::memory_resource&               resource,
 		const std::size_t                        reactorCount,
 		const ReactorSpawnDescriptor&            config,
 		const std::optional<ReactorRoutineLink>& routineLink
-	) noexcept(false)
+	) noexcept(false) : Pool_ {&resource}
 	{
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 

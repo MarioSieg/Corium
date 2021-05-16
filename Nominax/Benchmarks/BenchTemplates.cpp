@@ -209,26 +209,26 @@
 
 namespace
 {
-    // First environment with optimizations on:
-    std::unique_ptr<Nominax::Environment> Env
-    {
-        []() -> auto
-        {
-            auto env {std::make_unique<Nominax::Environment>()};
-            EnvironmentDescriptor descriptor {};
-            env->Boot(descriptor);
-            return env;
-        }()
-    };
+	// First environment with optimizations on:
+	std::unique_ptr<Environment> Env
+	{
+		[]() -> auto
+		{
+			auto                  env {std::make_unique<Environment>()};
+			EnvironmentDescriptor descriptor { };
+			env->Boot(descriptor);
+			return env;
+		}()
+	};
 }
 
 auto LoopBenchmark
 (
-	State&                            state,
-	const std::vector<DynamicSignal>& loopBody,
-    I64                               count,
-    [[maybe_unused]]
-	const bool                        enableAvxReactor
+	State&                          state,
+	const std::span<DynamicSignal>& loopBody,
+	const I64                       count,
+	[[maybe_unused]]
+	const bool enableAvxReactor
 ) -> void
 {
 	Print("\n");
@@ -256,13 +256,13 @@ auto LoopBenchmark
 	stream << Instruction::Int;
 	stream << 0_int;
 
-    auto& env{*::Env};
+	auto& env {*Env};
 
-    AppCodeBundle out{};
-    stream.Build(out);
+	AppCodeBundle out { };
+	stream.Build(out);
 
 	for (auto _ : state)
 	{
-        env.Execute(std::move(out));
+		env.Execute(std::move(out));
 	}
 }

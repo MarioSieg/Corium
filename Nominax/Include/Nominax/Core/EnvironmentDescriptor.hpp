@@ -239,12 +239,12 @@ namespace Nominax
         /// </summary>
 		std::size_t SystemPoolSize {Megabytes2Bytes(16)};
 
-        /// <summary>
-        /// If true, the fallback reactor implementation
-        /// will be used for all reactors, not the
-        /// runtime selected one (based on CPU features).
-        /// </summary>
-        bool ForceFallback {false};
+		/// <summary>
+		/// If true, the fallback reactor implementation
+		/// will be used for all reactors, not the
+		/// runtime selected one (based on CPU features).
+		/// </summary>
+		bool ForceFallback {false};
 
 		/// <summary>
 		/// The reactor spawn config.

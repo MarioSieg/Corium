@@ -207,9 +207,12 @@
 
 #include "ReactorTestHelper.hpp"
 
+std::vector<std::byte>              Buffer {1024 * 4};
+std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
+
 TEST(ReactorPool, Construct)
 {
-	const ReactorPool pool {4, ReactorSpawnDescriptor::Default()};
+	const ReactorPool pool {Resource, 4, ReactorSpawnDescriptor::Default()};
 	ASSERT_EQ((*pool).GetId(), pool[0].GetId());
 	ASSERT_EQ((*pool).GetSpawnStamp(), pool[0].GetSpawnStamp());
 	ASSERT_EQ(pool.GetSize(), 4);
@@ -232,13 +235,13 @@ TEST(ReactorPool, ZeroSizeFault)
 	ASSERT_DEATH_IF_SUPPORTED([]()
 	                          {
 	                          [[maybe_unused]]
-	                          ReactorPool x(0, ReactorSpawnDescriptor::Default());
+	                          ReactorPool x(Resource, 0, ReactorSpawnDescriptor::Default());
 	                          }(), "");
 }
 
 TEST(ReactorPool, OutOfRangeReactorGet)
 {
-	const ReactorPool pool {4, ReactorSpawnDescriptor::Default()};
+	const ReactorPool pool {Resource, 4, ReactorSpawnDescriptor::Default()};
 	ASSERT_EQ(pool.GetSize(), 4);
 	ASSERT_EQ(&pool.GetReactor(3), pool.GetBuffer() + 3);
 	ASSERT_DEATH_IF_SUPPORTED([&pool]()
