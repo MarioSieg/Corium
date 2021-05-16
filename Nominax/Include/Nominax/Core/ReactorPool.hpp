@@ -245,8 +245,13 @@ namespace Nominax
 		/// Construct and initialize all new reactors.
 		/// If the reactor count is zero, panic!
 		/// </summary>
-		ReactorPool(std::pmr::memory_resource&               resource, std::size_t reactorCount, const ReactorSpawnDescriptor& config,
-		            const std::optional<ReactorRoutineLink>& routineLink = std::nullopt) noexcept(false);
+		ReactorPool
+		(
+			std::pmr::memory_resource& resource, 
+			std::size_t reactorCount, 
+			const ReactorSpawnDescriptor& config,
+			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt
+		) noexcept(false);
 
 		/// <summary>
 		/// No copy.

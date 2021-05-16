@@ -286,11 +286,11 @@ namespace Nominax
 {
 	struct Environment::Kernel final
 	{
-		std::unique_ptr<U8[]>                                    Buffer;
-		std::size_t                                              BufferSize;
-		std::pmr::monotonic_buffer_resource                      BufferResource;
+		std::unique_ptr<U8[]>                                    SystemPool;
+		std::size_t                                              SystemPoolSize;
+		std::pmr::monotonic_buffer_resource                      MonotonicResource;
 		std::pmr::vector<std::pmr::string>                       Arguments;
-		std::pmr::u32string                                      AppName;
+		std::pmr::string										 AppName;
 		std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
 		std::chrono::high_resolution_clock::time_point           BootStamp;
 		std::chrono::milliseconds                                BootTime;
@@ -308,7 +308,7 @@ namespace Nominax
 	};
 
 	Environment::Kernel::Kernel(const EnvironmentDescriptor& descriptor) noexcept(false)
-		: Buffer
+		: SystemPool
 		  {
 			  [size = descriptor.SystemPoolSize]() noexcept(false) -> std::unique_ptr<U8[]>
 			  {
@@ -318,17 +318,17 @@ namespace Nominax
 				  return mem;
 			  }()
 		  },
-		  BufferSize {descriptor.SystemPoolSize},
-		  BufferResource {Buffer.get(), BufferSize},
-		  Arguments {&BufferResource},
-		  AppName {&BufferResource},
-		  ExecutionTimeHistory {&BufferResource},
+		  SystemPoolSize {std::clamp(descriptor.SystemPoolSize, FALLBACK_SYSTEM_POOL_SIZE, MAX_SYSTEM_POOL_SIZE) },
+		  MonotonicResource {SystemPool.get(), SystemPoolSize},
+		  Arguments {&MonotonicResource},
+		  AppName {&MonotonicResource},
+		  ExecutionTimeHistory {&MonotonicResource},
 		  BootStamp {std::chrono::high_resolution_clock::now()},
 		  BootTime { },
 		  SysInfoSnapshot {InitSysInfo()},
 		  CpuFeatures {InitCpuFeatures()},
 		  OptimalReactorRoutine {descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)},
-		  CorePool {BufferResource, ReactorPool::SmartQueryReactorCount(), descriptor.ReactorDescriptor, OptimalReactorRoutine}
+		  CorePool {MonotonicResource, ReactorPool::SmartQueryReactorCount(), descriptor.ReactorDescriptor, OptimalReactorRoutine}
 	{
 		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
 		{
@@ -380,7 +380,7 @@ namespace Nominax
 		Shutdown();
 	}
 
-	auto Environment::Boot(EnvironmentDescriptor& descriptor) noexcept(false) -> void
+	auto Environment::Boot(const EnvironmentDescriptor& descriptor) noexcept(false) -> void
 	{
 		if (NOMINAX_UNLIKELY(this->Env_))
 		{
@@ -388,9 +388,9 @@ namespace Nominax
 		}
 
 		// Basic setup:
-		std::ios_base::sync_with_stdio(true); // TODO switch this off when execution the runtime app
+		std::ios_base::sync_with_stdio(!descriptor.FastHostIoSync);
 		PrintSystemInfo();
-		Print("Booting runtime environment...\n");
+		Print("Booting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
 		const auto tik {std::chrono::high_resolution_clock::now()};
 
 		// Invoke hook:
@@ -404,7 +404,6 @@ namespace Nominax
 			Bytes2Kilobytes(FALLBACK_SYSTEM_POOL_SIZE),
 			Bytes2Megabytes(MAX_SYSTEM_POOL_SIZE)
 		);
-		descriptor.SystemPoolSize = std::clamp(descriptor.SystemPoolSize, FALLBACK_SYSTEM_POOL_SIZE, MAX_SYSTEM_POOL_SIZE);
 
 		// No, we cannot use std::make_unique because we want it noexcept!
 		// ReSharper disable once CppSmartPointerVsMakeFunction
@@ -416,10 +415,33 @@ namespace Nominax
 
 		const auto tok {std::chrono::high_resolution_clock::now()};
 		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
-
+		
 		this->Env_->BootTime = ms;
 
-		Print("Runtime environment online! Boot Time: {}, Memory Snapshot: {}MB\n", ms, Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
+		// Get memory snapshot:
+		const std::size_t memSnapshot{ Os::QueryProcessMemoryUsed() };
+		const F32 memUsagePercent{ static_cast<F32>(memSnapshot) * 100.F / static_cast<F32>(this->Env_->SysInfoSnapshot.TotalSystemMemory) };
+
+		// Allocate one byte to get current needle:
+		const U8* const needle{ static_cast<U8*>(this->Env_->MonotonicResource.allocate(sizeof(U8), alignof(U8))) };
+		const std::ptrdiff_t offset{ needle - this->Env_->SystemPool.get() }; // compute allocation offset
+		const F32 poolUsagePercent{ static_cast<F32>(offset) * 100.F / static_cast<F32>(this->Env_->SystemPoolSize) }; // compute percent usage
+
+		Print
+		(
+			"Runtime environment online!\n"
+			"Boot time: {}\n"
+			"Process memory snapshot: {:.02f} % [{} MB / {} MB]\n"
+			"Monotonic pool snapshot: {:.02f} % [{} KB / {} KB]\n"
+			"\n",
+			ms,
+			memUsagePercent,
+			Bytes2Megabytes(memSnapshot),
+			Bytes2Megabytes(this->Env_->SysInfoSnapshot.TotalSystemMemory),
+			poolUsagePercent,
+			Bytes2Kilobytes(offset),
+			Bytes2Kilobytes(this->Env_->SystemPoolSize)
+		);
 	}
 
 	auto Environment::Execute(AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&
@@ -514,7 +536,7 @@ namespace Nominax
 		return this->Env_->CpuFeatures;
 	}
 
-	auto Environment::GetAppName() const noexcept(false) -> const std::pmr::u32string&
+	auto Environment::GetAppName() const noexcept(false) -> const std::pmr::string&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Env_->AppName;
@@ -523,7 +545,7 @@ namespace Nominax
 	auto Environment::GetMonotonicSystemPoolSize() const noexcept(false) -> std::size_t
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Env_->BufferSize;
+		return this->Env_->SystemPoolSize;
 	}
 
 	auto Environment::GetExecutionCount() const noexcept(false) -> std::size_t

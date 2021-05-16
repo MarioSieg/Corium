@@ -210,12 +210,14 @@
 namespace
 {
 	// First environment with optimizations on:
-	std::unique_ptr<Environment> Env
+	std::unique_ptr Env
 	{
 		[]() -> auto
 		{
 			auto                  env {std::make_unique<Environment>()};
-			EnvironmentDescriptor descriptor { };
+			EnvironmentDescriptor descriptor{};
+			descriptor.AppName = "NominaxBenchmark";
+			descriptor.FastHostIoSync = false;
 			env->Boot(descriptor);
 			return env;
 		}()

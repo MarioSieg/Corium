@@ -229,7 +229,7 @@ auto main(const signed argc, const char* const* const argv) -> signed
 	{
 		.ArgC = argc,
 		.ArgV = argv,
-		.AppName = U"Corium"
+		.AppName = "Corium"
 	};
 
 	Environment env{ };

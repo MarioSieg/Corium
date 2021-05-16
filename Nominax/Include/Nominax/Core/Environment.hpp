@@ -284,12 +284,12 @@ namespace Nominax
 		/// <summary>
 		/// Size in bytes of the system pool, if the given count was invalid.
 		/// </summary>
-		static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {Kilobytes2Bytes(512)};
+		static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {Kilobytes2Bytes(8)};
 
 		/// <summary>
 		/// Maximal recommended size of system pool.
 		/// </summary>
-		static constexpr std::size_t MAX_SYSTEM_POOL_SIZE {Megabytes2Bytes(1024)};
+		static constexpr std::size_t MAX_SYSTEM_POOL_SIZE {Megabytes2Bytes(16)};
 
 		static_assert(FALLBACK_SYSTEM_POOL_SIZE);
 		static_assert(MAX_SYSTEM_POOL_SIZE);
@@ -337,7 +337,7 @@ namespace Nominax
 		/// Will panic if fatal errors are encountered.
 		/// </summary>
 		/// <returns></returns>
-		auto Boot(EnvironmentDescriptor& descriptor) noexcept(false) -> void;
+		auto Boot(const EnvironmentDescriptor& descriptor) noexcept(false) -> void;
 
 		/// <summary>
 		/// Execute code on alpha reactor.
@@ -428,7 +428,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns>The app name for which the environment is hosted for.</returns>
 		[[nodiscard]]
-		auto GetAppName() const noexcept(false) -> const std::pmr::u32string&;
+		auto GetAppName() const noexcept(false) -> const std::pmr::string&;
 
 		/// <summary>
 		/// 

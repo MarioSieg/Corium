@@ -897,7 +897,7 @@ namespace Nominax::X86_64
 		bool Avx512Vp2Intersect: 1{ };
 
 		/// <summary>
-		/// Special Register Buffer Data Sampling Mitigations
+		/// Special Register SystemBumpPool Data Sampling Mitigations
 		/// </summary>
 		bool SrbdsCtrl: 1{ };
 

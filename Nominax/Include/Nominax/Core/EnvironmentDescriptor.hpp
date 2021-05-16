@@ -232,19 +232,27 @@ namespace Nominax
 		/// <summary>
 		/// The name of the app.
 		/// </summary>
-		std::u32string_view AppName {U"Untitled App"};
-
-		/// <summary>
-        /// The size of the system memory pool size.
-        /// </summary>
-		std::size_t SystemPoolSize {Megabytes2Bytes(16)};
+		std::string_view AppName {"Untitled App"};
 
 		/// <summary>
 		/// If true, the fallback reactor implementation
 		/// will be used for all reactors, not the
 		/// runtime selected one (based on CPU features).
 		/// </summary>
-		bool ForceFallback {false};
+		bool ForceFallback{ false };
+
+		/// <summary>
+		/// If true, synchronization between
+		/// C++ io-streams (cout, err, cin) and C io-streams (stdout, stdin)
+		/// is deactivated, which makes printing faster.
+		/// This should be activated in most cases when executing code.
+		/// </summary>
+		bool FastHostIoSync{ true };
+
+		/// <summary>
+        /// The size of the system memory pool size.
+        /// </summary>
+		std::size_t SystemPoolSize {8_mb};
 
 		/// <summary>
 		/// The reactor spawn config.
