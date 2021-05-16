@@ -213,6 +213,7 @@
 #include <memory_resource>
 
 #include "EnvironmentDescriptor.hpp"
+#include "ReactorOutput.hpp"
 
 namespace Nominax
 {
@@ -254,6 +255,18 @@ namespace Nominax
 		/// </summary>
 		/// <returns>True on success, panic on false.</returns>
 		virtual auto OnPostBootHook() -> bool;
+
+		/// <summary>
+		/// This hook is executed before any code execution.
+		/// </summary>
+		/// <returns>True on success, panic on false.</returns>
+		virtual auto OnPreExecutionHook(const AppCodeBundle& appCodeBundle) -> bool;
+
+		/// <summary>
+		/// This hook is executed after any code execution.
+		/// </summary>
+		/// <returns>True on success, panic on false.</returns>
+		virtual auto OnPostExecutionHook() -> bool;
 
 		/// <summary>
 		/// This hook is executed before the environment shuts down.
@@ -327,6 +340,34 @@ namespace Nominax
 		auto Boot(EnvironmentDescriptor& descriptor) noexcept(false) -> void;
 
 		/// <summary>
+		/// Execute code on alpha reactor.
+		/// </summary>
+		/// <param name="appCode"></param>
+		/// <returns></returns>
+		auto Execute(AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="appCode"></param>
+		/// <returns></returns>
+		auto Execute(Stream&& appCode) noexcept(false) -> const ReactorOutput&;
+
+		/// <summary>
+		/// Execute code on alpha reactor.
+		/// </summary>
+		/// <param name="appCode"></param>
+		/// <returns></returns>
+		auto operator()(AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="appCode"></param>
+		/// <returns></returns>
+		auto operator()(Stream&& appCode) noexcept(false) -> const ReactorOutput&;
+
+		/// <summary>
 		/// Shutdown runtime environment.
 		/// Will panic if fatal errors are encountered.
 		/// </summary>
@@ -352,48 +393,72 @@ namespace Nominax
 		/// </summary>
 		/// <returns>The boot time stamp.</returns>
 		[[nodiscard]]
-		auto GetBootStamp() const noexcept(true) -> std::chrono::high_resolution_clock::time_point;
+		auto GetBootStamp() const noexcept(false) -> std::chrono::high_resolution_clock::time_point;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The boot time in milliseconds.</returns>
 		[[nodiscard]]
-		auto GetBootTime() const noexcept(true) -> std::chrono::milliseconds;
+		auto GetBootTime() const noexcept(false) -> std::chrono::milliseconds;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The console arguments from argc and argv without the self path.</returns>
 		[[nodiscard]]
-		auto GetInputArguments() const noexcept(true) -> const std::pmr::vector<std::pmr::string>&;
+		auto GetInputArguments() const noexcept(false) -> const std::pmr::vector<std::pmr::string>&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The system stat snapshot.</returns>
 		[[nodiscard]]
-		auto GetSystemSnapshot() const noexcept(true) -> const SystemSnapshot&;
+		auto GetSystemSnapshot() const noexcept(false) -> const SystemSnapshot&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The cpu feature detector.</returns>
 		[[nodiscard]]
-		auto GetProcessorFeatureSnapshot() const noexcept(true) -> const CpuFeatureDetector&;
+		auto GetProcessorFeatureSnapshot() const noexcept(false) -> const CpuFeatureDetector&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The app name for which the environment is hosted for.</returns>
 		[[nodiscard]]
-		auto GetAppName() const noexcept(true) -> const std::pmr::u32string&;
+		auto GetAppName() const noexcept(false) -> const std::pmr::u32string&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the system pool in bytes.</returns>
 		[[nodiscard]]
-		auto GetMonotonicSystemPoolSize() const noexcept(true) -> std::size_t;
+		auto GetMonotonicSystemPoolSize() const noexcept(false) -> std::size_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The count of reactor executions so far.</returns>
+		[[nodiscard]]
+		auto GetExecutionCount() const noexcept(false) -> std::size_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The history of execution times.</returns>
+		[[nodiscard]]
+		auto GetExecutionTimeHistory() const noexcept(false) -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
 	};
+
+	inline auto Environment::operator()(AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&
+	{
+		return this->Execute(std::move(appCode));
+	}
+
+	inline auto Environment::operator()(Stream&& appCode) noexcept(false) -> const ReactorOutput&
+	{
+		return this->Execute(std::move(appCode));
+	}
 }

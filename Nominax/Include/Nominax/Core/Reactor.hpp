@@ -320,12 +320,20 @@ namespace Nominax
 		~Reactor() = default;
 
 		/// <summary>
-		/// 
+		/// Execute reactor with specified application code bundle.
 		/// </summary>
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
 		auto Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
+
+		/// <summary>
+		/// Execute reactor with specified application code bundle.
+		/// </summary>
+		/// <param name="bundle"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator ()(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
 
 		/// <summary>
 		/// 
@@ -459,6 +467,11 @@ namespace Nominax
 	inline auto Reactor::GetCodeBundle() const noexcept(true) -> const AppCodeBundle&
 	{
 		return this->AppCode_;
+	}
+
+	inline auto Reactor::operator()(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
+	{
+		return this->Execute(std::move(bundle));
 	}
 
 	extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& target = { }) noexcept(true) -> ReactorOutput;

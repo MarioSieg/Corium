@@ -266,16 +266,16 @@ namespace
 		Print("\n");
 	}
 
-#define DISPATCH_HOOK(method)						\
-	do												\
-	{												\
-		Print("Dispatching hook: " #method "\n");	\
-		NOMINAX_PANIC_ASSERT_TRUE					\
-		(											\
-			this-> method (),						\
-			#method "returned false!"				\
-		);											\
-	}												\
+#define DISPATCH_HOOK(method, ...)						\
+	do													\
+	{													\
+		Print("Dispatching hook: " #method "\n");		\
+		NOMINAX_PANIC_ASSERT_TRUE						\
+		(												\
+			this-> method (__VA_ARGS__),				\
+			#method "returned false!"					\
+		);												\
+	}													\
 	while(false)
 
 #define VALIDATE_ONLINE_BOOT_STATE() NOMINAX_PANIC_ASSERT_TRUE(this->IsOnline(), "Environment is offline!")
@@ -285,18 +285,19 @@ namespace Nominax
 {
 	struct Environment::Kernel final
 	{
-		std::unique_ptr<std::byte>                     Buffer;
-		std::size_t                                    BufferSize;
-		std::pmr::monotonic_buffer_resource            BufferResource;
-		std::pmr::vector<std::pmr::string>             Arguments;
-		std::pmr::u32string                            AppName;
-		std::chrono::high_resolution_clock::time_point BootStamp;
-		std::chrono::milliseconds                      BootTime;
-		SystemSnapshot                                 SysInfoSnapshot;
-		CpuFeatureDetector                             CpuFeatures;
-		ReactorRoutineLink                             OptimalReactorRoutine;
-		Stream                                         AppCode;
-		ReactorPool                                    CorePool;
+		std::unique_ptr<U8>                                      Buffer;
+		std::size_t                                              BufferSize;
+		std::pmr::monotonic_buffer_resource                      BufferResource;
+		std::pmr::vector<std::pmr::string>                       Arguments;
+		std::pmr::u32string                                      AppName;
+		std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
+		std::chrono::high_resolution_clock::time_point           BootStamp;
+		std::chrono::milliseconds                                BootTime;
+		SystemSnapshot                                           SysInfoSnapshot;
+		CpuFeatureDetector                                       CpuFeatures;
+		ReactorRoutineLink                                       OptimalReactorRoutine;
+		Stream                                                   AppCode;
+		ReactorPool                                              CorePool;
 
 		explicit Kernel(const EnvironmentDescriptor& descriptor) noexcept(false);
 		Kernel(const Kernel&)                     = delete;
@@ -307,27 +308,28 @@ namespace Nominax
 	};
 
 	Environment::Kernel::Kernel(const EnvironmentDescriptor& descriptor) noexcept(false)
-		:
-		Buffer {
-			[size = descriptor.SystemPoolSize]() noexcept(false) -> std::unique_ptr<std::byte>
-			{
-				NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "System pool with zero size reauested!");
-				std::unique_ptr<std::byte> mem {new(std::nothrow) std::byte[size]()};
-				NOMINAX_PANIC_ASSERT_NOT_NULL(mem.get(), "System pool allocation failed!");
-				return mem;
-			}()
-		},
-		BufferSize {descriptor.SystemPoolSize},
-		BufferResource {&*Buffer, BufferSize},
-		Arguments {&BufferResource},
-		AppName {&BufferResource},
-		BootStamp {std::chrono::high_resolution_clock::now()},
-		BootTime { },
-		SysInfoSnapshot {InitSysInfo()},
-		CpuFeatures {InitCpuFeatures()},
-		OptimalReactorRoutine {GetOptimalReactorRoutine(CpuFeatures)},
-		AppCode { },
-		CorePool {ReactorPool::SmartQueryReactorCount(), descriptor.ReactorDescriptor, OptimalReactorRoutine}
+		: Buffer
+		  {
+			  [size = descriptor.SystemPoolSize]() noexcept(false) -> std::unique_ptr<U8>
+			  {
+				  NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "System pool with zero size reauested!");
+				  std::unique_ptr<U8> mem {new(std::nothrow) U8[size]()};
+				  NOMINAX_PANIC_ASSERT_NOT_NULL(mem.get(), "System pool allocation failed!");
+				  return mem;
+			  }()
+		  },
+		  BufferSize {descriptor.SystemPoolSize},
+		  BufferResource {&*Buffer, BufferSize},
+		  Arguments {&BufferResource},
+		  AppName {&BufferResource},
+		  ExecutionTimeHistory {&BufferResource},
+		  BootStamp {std::chrono::high_resolution_clock::now()},
+		  BootTime { },
+		  SysInfoSnapshot {InitSysInfo()},
+		  CpuFeatures {InitCpuFeatures()},
+		  OptimalReactorRoutine {GetOptimalReactorRoutine(CpuFeatures)},
+		  AppCode { },
+		  CorePool {ReactorPool::SmartQueryReactorCount(), descriptor.ReactorDescriptor, OptimalReactorRoutine}
 	{
 		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
 		{
@@ -350,6 +352,16 @@ namespace Nominax
 	}
 
 	auto Environment::OnPostBootHook() -> bool
+	{
+		return true;
+	}
+
+	auto Environment::OnPreExecutionHook([[maybe_unused]] const AppCodeBundle& appCodeBundle) -> bool
+	{
+		return true;
+	}
+
+	auto Environment::OnPostExecutionHook() -> bool
 	{
 		return true;
 	}
@@ -383,11 +395,16 @@ namespace Nominax
 		const auto tik {std::chrono::high_resolution_clock::now()};
 
 		// Invoke hook:
-		DISPATCH_HOOK(OnPreBootHook);
+		DISPATCH_HOOK(OnPreBootHook,);
 
 		// Clamp system pool size:
-		Print("Monotonic system pool size: {} MB, Fallback: {} KB, Max: {} MB\n", Bytes2Megabytes(descriptor.SystemPoolSize), Bytes2Kilobytes(FALLBACK_SYSTEM_POOL_SIZE),
-		      Bytes2Megabytes(MAX_SYSTEM_POOL_SIZE));
+		Print
+		(
+			"Monotonic system pool size: {} MB, Fallback: {} KB, Max: {} MB\n",
+			Bytes2Megabytes(descriptor.SystemPoolSize),
+			Bytes2Kilobytes(FALLBACK_SYSTEM_POOL_SIZE),
+			Bytes2Megabytes(MAX_SYSTEM_POOL_SIZE)
+		);
 		descriptor.SystemPoolSize = std::clamp(descriptor.SystemPoolSize, FALLBACK_SYSTEM_POOL_SIZE, MAX_SYSTEM_POOL_SIZE);
 
 		// No, we cannot use std::make_unique because we want it noexcept!
@@ -396,7 +413,7 @@ namespace Nominax
 		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Env_, "Kernel allocation failed!");
 
 		// Invoke hook:
-		DISPATCH_HOOK(OnPostBootHook);
+		DISPATCH_HOOK(OnPostBootHook,);
 
 		const auto tok {std::chrono::high_resolution_clock::now()};
 		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
@@ -404,6 +421,39 @@ namespace Nominax
 		this->Env_->BootTime = ms;
 
 		Print("Runtime environment online! Boot Time: {}, Memory Snapshot: {}MB\n", ms, Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
+	}
+
+	auto Environment::Execute(AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+
+		// Invoke hook:
+		DISPATCH_HOOK(OnPreExecutionHook, appCode);
+
+		// Info
+		Print(LogLevel::Warning, "Executing... Code size: {}\n", std::get<0>(appCode).size());
+
+		// Execute on alpha reactor:
+		const auto& result {(*this->Env_->CorePool)(std::move(appCode))};
+
+		// Add execution time:
+		const auto micros {std::chrono::duration_cast<std::chrono::duration<F64, std::micro>>(result.Duration)};
+		this->Env_->ExecutionTimeHistory.push_back(micros);
+
+		// Print exec info:
+		const auto level {result.ShutdownReason == ReactorShutdownReason::Success ? LogLevel::Success : LogLevel::Error};
+		Print(level, "Execution #{} done! Runtime {:.04}\n", this->Env_->ExecutionTimeHistory.size(), std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros));
+
+		// Invoke hook:
+		DISPATCH_HOOK(OnPostExecutionHook,);
+		return result;
+	}
+
+	auto Environment::Execute(Stream&& appCode) noexcept(false) -> const ReactorOutput&
+	{
+		AppCodeBundle appCodeBundle { };
+		appCode.Build(appCodeBundle);
+		return (*this)(std::move(appCodeBundle));
 	}
 
 	auto Environment::Shutdown() noexcept(false) -> void
@@ -414,13 +464,13 @@ namespace Nominax
 		}
 
 		// Invoke hook:
-		DISPATCH_HOOK(OnPreShutdownHook);
+		DISPATCH_HOOK(OnPreShutdownHook,);
 
 		this->Env_.reset();
 		this->Env_ = nullptr;
 
 		// Invoke hook:
-		DISPATCH_HOOK(OnPostShutdownHook);
+		DISPATCH_HOOK(OnPostShutdownHook,);
 	}
 
 	auto Environment::IsOnline() const noexcept(true) -> bool
@@ -433,45 +483,57 @@ namespace Nominax
 		return this->Env_.get();
 	}
 
-	auto Environment::GetBootStamp() const noexcept(true) -> std::chrono::high_resolution_clock::time_point
+	auto Environment::GetBootStamp() const noexcept(false) -> std::chrono::high_resolution_clock::time_point
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Env_->BootStamp;
 	}
 
-	auto Environment::GetBootTime() const noexcept(true) -> std::chrono::milliseconds
+	auto Environment::GetBootTime() const noexcept(false) -> std::chrono::milliseconds
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Env_->BootTime;
 	}
 
-	auto Environment::GetInputArguments() const noexcept(true) -> const std::pmr::vector<std::pmr::string>&
+	auto Environment::GetInputArguments() const noexcept(false) -> const std::pmr::vector<std::pmr::string>&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Env_->Arguments;
 	}
 
-	auto Environment::GetSystemSnapshot() const noexcept(true) -> const SystemSnapshot&
+	auto Environment::GetSystemSnapshot() const noexcept(false) -> const SystemSnapshot&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Env_->SysInfoSnapshot;
 	}
 
-	auto Environment::GetProcessorFeatureSnapshot() const noexcept(true) -> const CpuFeatureDetector&
+	auto Environment::GetProcessorFeatureSnapshot() const noexcept(false) -> const CpuFeatureDetector&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Env_->CpuFeatures;
 	}
 
-	auto Environment::GetAppName() const noexcept(true) -> const std::pmr::u32string&
+	auto Environment::GetAppName() const noexcept(false) -> const std::pmr::u32string&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Env_->AppName;
 	}
 
-	auto Environment::GetMonotonicSystemPoolSize() const noexcept(true) -> std::size_t
+	auto Environment::GetMonotonicSystemPoolSize() const noexcept(false) -> std::size_t
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Env_->BufferSize;
+	}
+
+	auto Environment::GetExecutionCount() const noexcept(false) -> std::size_t
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+		return this->Env_->ExecutionTimeHistory.size();
+	}
+
+	auto Environment::GetExecutionTimeHistory() const noexcept(false) -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+		return this->Env_->ExecutionTimeHistory;
 	}
 }

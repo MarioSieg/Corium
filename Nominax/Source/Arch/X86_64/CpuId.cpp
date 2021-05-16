@@ -223,7 +223,7 @@ namespace Nominax::X86_64
 
 		// Raw DATA.
 		std::array<U8, sizeof(CpuFeatureBits)> data { };
-		std::array<MergedInfoTable, 3>                chunk { };
+		std::array<MergedInfoTable, 3>         chunk { };
 
 		// Call cpuid assembly routine:
 		U32 r {Asm_CpuId(&chunk[0], &chunk[1], &chunk[2])};

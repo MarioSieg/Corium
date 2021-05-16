@@ -225,8 +225,8 @@ namespace Nominax
 
 	ReactorPool::ReactorPool
 	(
-		const std::size_t reactorCount, 
-		const ReactorSpawnDescriptor& config, 
+		const std::size_t                        reactorCount,
+		const ReactorSpawnDescriptor&            config,
 		const std::optional<ReactorRoutineLink>& routineLink
 	) noexcept(false)
 	{

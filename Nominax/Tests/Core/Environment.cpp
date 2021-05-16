@@ -299,6 +299,30 @@ TEST(Environent, ConstructOfflineAccessDeath_GetMonotonicSystemPoolSize)
 	                          }(), "");
 }
 
+TEST(Environent, ConstructOfflineAccessDeath_GetExecutionCount)
+{
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	                          {
+	                          [[maybe_unused]]
+	                          const auto& x{ env.GetExecutionCount() };
+	                          }(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_GetExecutionTimeHistory)
+{
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	                          {
+	                          [[maybe_unused]]
+	                          const auto& x{ env.GetExecutionTimeHistory() };
+	                          }(), "");
+}
+
 TEST(Environment, Boot)
 {
 	Environment env { };
@@ -309,6 +333,7 @@ TEST(Environment, Boot)
 
 	};
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_EQ(env.GetExecutionCount(), 0);
 	ASSERT_NE(env.GetKernel(), nullptr);
 	ASSERT_TRUE(env.IsOnline());
 	ASSERT_NE(env.GetBootTime().count(), 0);
@@ -475,4 +500,138 @@ TEST(Environment, PoolSizeZeroMax)
 	ASSERT_EQ(env.GetInputArguments()[0], "Hey");
 	ASSERT_EQ(env.GetInputArguments()[1], "Ho");
 	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::MAX_SYSTEM_POOL_SIZE);
+}
+
+TEST(Environment, Execution)
+{
+	Stream                                 stream { };
+	stream.Prologue().With(2, [](ScopedInt var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	});
+	stream.Epilogue();
+
+	EnvironmentDescriptor descriptor { };
+
+	Environment env { };
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_EQ(env.GetExecutionCount(), 0);
+	ASSERT_NO_FATAL_FAILURE(env.Execute(std::move(stream)));
+	ASSERT_EQ(env.GetExecutionCount(), 1);
+	ASSERT_EQ(env.GetExecutionTimeHistory().size(), 1);
+	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
+}
+
+TEST(Environment, ExecutionMissingPrologue)
+{
+	Stream                      stream { };
+	stream.With(2, [](ScopedInt var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	});
+	stream.Epilogue();
+
+	EnvironmentDescriptor descriptor { };
+
+	Environment env { };
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
+	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
+}
+
+TEST(Environment, ExecutionMissingEpilogue)
+{
+	Stream                                 stream { };
+	stream.Prologue().With(2, [](ScopedInt var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	});
+
+	EnvironmentDescriptor descriptor { };
+
+	Environment env { };
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
+	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
+}
+
+TEST(Environment, ExecutionHooks)
+{
+	Stream                                 stream { };
+	stream.Prologue().With(2, [](ScopedInt var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	});
+	stream.Epilogue();
+
+	const auto ssize {stream.Size()};
+
+	static std::size_t streamSize;
+	static int         counter;
+
+	EnvironmentDescriptor descriptor { };
+
+	class MyEnvironment : public Environment
+	{
+		auto OnPreExecutionHook(const AppCodeBundle& appCodeBundle) -> bool override
+		{
+			streamSize = std::get<1>(appCodeBundle).size();
+			++counter;
+			return true;
+		}
+
+		auto OnPostExecutionHook() -> bool override
+		{
+			++counter;
+			return true;
+		}
+	};
+	MyEnvironment env { };
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_EQ(env.GetExecutionCount(), 0);
+	ASSERT_NO_FATAL_FAILURE(env.Execute(std::move(stream)));
+	ASSERT_EQ(env.GetExecutionCount(), 1);
+	ASSERT_EQ(counter, 2);
+	ASSERT_EQ(streamSize, ssize);
+	ASSERT_EQ(env.GetExecutionTimeHistory().size(), 1);
+	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
+}
+
+TEST(Environment, ExecutionHooksBad)
+{
+	Stream                                 stream { };
+	stream.Prologue().With(2, [](ScopedInt var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	});
+	stream.Epilogue();
+
+	EnvironmentDescriptor descriptor { };
+
+	class MyEnvironment : public Environment
+	{
+		auto OnPreExecutionHook([[maybe_unused]] const AppCodeBundle& appCodeBundle) -> bool override
+		{
+			return false;
+		}
+
+		auto OnPostExecutionHook() -> bool override
+		{
+			return true;
+		}
+	};
+	MyEnvironment env { };
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_EQ(env.GetExecutionCount(), 0);
+	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
 }

@@ -307,7 +307,21 @@ namespace Nominax
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator [](std::size_t idx) const noexcept(true) -> const Reactor&;
+		auto operator [](std::size_t idx) const noexcept(false) -> const Reactor&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The first reactor in the pool running on the main thread.</returns>
+		[[nodiscard]]
+		auto GetAlphaReactor() noexcept(true) -> Reactor&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The first reactor in the pool running on the main thread.</returns>
+		[[nodiscard]]
+		auto operator *() noexcept(true) -> Reactor&;
 
 		/// <summary>
 		/// 
@@ -345,9 +359,19 @@ namespace Nominax
 		return this->Pool_[idx];
 	}
 
-	inline auto ReactorPool::operator[](const std::size_t idx) const noexcept(true) -> const Reactor&
+	inline auto ReactorPool::operator[](const std::size_t idx) const noexcept(false) -> const Reactor&
 	{
 		return this->GetReactor(idx);
+	}
+
+	inline auto ReactorPool::GetAlphaReactor() noexcept(true) -> Reactor&
+	{
+		return this->Pool_.front();
+	}
+
+	inline auto ReactorPool::operator*() noexcept(true) -> Reactor&
+	{
+		return this->Pool_.front();
 	}
 
 	inline auto ReactorPool::GetAlphaReactor() const noexcept(true) -> const Reactor&

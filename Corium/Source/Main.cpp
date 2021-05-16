@@ -211,14 +211,16 @@ using namespace Nominax;
 
 auto main(const signed argc, const char* const* const argv) -> signed
 {
-	Stream                                        stream { };
-	stream.Prologue().With(2, [&stream](ScopedInt var)
+	Stream stream{ };
+	stream.Prologue().With(2, [](ScopedInt var)
 	{
 		var *= 2;
 		var += 1;
 		var /= 1;
-		stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId {0});
-	}).Epilogue();
+	});
+	stream << Instruction::Push << u8"Hello:)\n"_cluster;
+	stream << Instruction::Intrin << SystemIntrinsicCallId::IoPortWriteCluster;
+	stream.Epilogue();
 
 	EnvironmentDescriptor descriptor
 	{
@@ -227,7 +229,8 @@ auto main(const signed argc, const char* const* const argv) -> signed
 		.AppName = U"Corium"
 	};
 
-	Environment env { };
+	Environment env{ };
 	env.Boot(descriptor);
+	env.Execute(std::move(stream));
 	env.Shutdown();
 }
