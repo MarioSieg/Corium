@@ -377,14 +377,14 @@ namespace Nominax
 	auto Stream::Prologue() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodePrologue()};
-		this->Signals_.insert(this->Signals_.begin(), std::begin(code), std::end(code));
+		this->Storage_.insert(this->Storage_.begin(), std::begin(code), std::end(code));
 		return *this;
 	}
 
 	auto Stream::Epilogue() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		this->Signals_.insert(this->Signals_.end(), std::begin(code), std::end(code));
+		this->Storage_.insert(this->Storage_.end(), std::begin(code), std::end(code));
 		return *this;
 	}
 }

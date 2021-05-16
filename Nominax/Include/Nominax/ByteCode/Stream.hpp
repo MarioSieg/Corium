@@ -269,7 +269,7 @@ namespace Nominax
 		/// std::list is a F64 linked list, and we require bidirectional iteration,
 		/// not unidirectional.
 		/// </summary>
-		StorageType Signals_ { };
+		StorageType Storage_ { };
 
 		/// <summary>
 		/// Optimization level used for stream.
@@ -385,6 +385,13 @@ namespace Nominax
 		/// <param name="size"></param>
 		/// <returns></returns>
 		auto Resize(std::size_t size) noexcept(false) -> void;
+
+		/// <summary>
+		/// Reserve buffer size.
+		/// </summary>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		auto Reserve(std::size_t size) noexcept(false) -> void;
 
 		/// <summary>
 		/// 
@@ -626,11 +633,11 @@ namespace Nominax
 		auto SetOptimizationLevel(OptimizationLevel optimizationLevel) noexcept(true) -> void;
 	};
 
-	inline Stream::Stream(StorageType&& data) noexcept(true) : Signals_ {std::move(data)} { }
+	inline Stream::Stream(StorageType&& data) noexcept(true) : Storage_ {std::move(data)} { }
 
 	inline Stream::Stream(const OptimizationLevel optimizationLevel) noexcept(true) : OptimizationLevel_ {optimizationLevel} { }
 
-	inline Stream::Stream(StorageType&& data, const OptimizationLevel optimizationLevel) noexcept(true) : Signals_ {std::move(data)}, OptimizationLevel_ {optimizationLevel} {}
+	inline Stream::Stream(StorageType&& data, const OptimizationLevel optimizationLevel) noexcept(true) : Storage_ {std::move(data)}, OptimizationLevel_ {optimizationLevel} {}
 
 	inline auto Stream::GetOptimizationLevel() const noexcept(true) -> OptimizationLevel
 	{
@@ -654,12 +661,12 @@ namespace Nominax
 
 	inline auto Stream::ContainsPrologue() const noexcept(false) -> bool
 	{
-		return Nominax::ContainsPrologue(this->Signals_.size(), this->Signals_.begin());
+		return Nominax::ContainsPrologue(this->Storage_.size(), this->Storage_.begin());
 	}
 
 	inline auto Stream::ContainsEpilogue() const noexcept(false) -> bool
 	{
-		return Nominax::ContainsEpilogue(this->Signals_.size(), this->Signals_.end());
+		return Nominax::ContainsEpilogue(this->Storage_.size(), this->Storage_.end());
 	}
 
 	template <Instruction I, typename... Ts>
@@ -699,91 +706,96 @@ namespace Nominax
 
 	inline auto Stream::Front() noexcept(true) -> DynamicSignal&
 	{
-		return this->Signals_.front();
+		return this->Storage_.front();
 	}
 
 	inline auto Stream::Back() noexcept(true) -> DynamicSignal&
 	{
-		return this->Signals_.back();
+		return this->Storage_.back();
 	}
 
 	inline auto Stream::Front() const noexcept(true) -> const DynamicSignal&
 	{
-		return this->Signals_.front();
+		return this->Storage_.front();
 	}
 
 	inline auto Stream::Back() const noexcept(true) -> const DynamicSignal&
 	{
-		return this->Signals_.back();
+		return this->Storage_.back();
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> DynamicSignal&
 	{
-		return *std::next(this->Signals_.begin(), idx);
+		return *std::next(this->Storage_.begin(), idx);
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> DynamicSignal
 	{
-		return *std::next(this->Signals_.begin(), idx);
+		return *std::next(this->Storage_.begin(), idx);
 	}
 
 	inline auto Stream::IsEmpty() const noexcept(true) -> bool
 	{
-		return this->Signals_.empty();
+		return this->Storage_.empty();
 	}
 
 	inline auto Stream::Buffer() const noexcept(true) -> const StorageType&
 	{
-		return this->Signals_;
+		return this->Storage_;
 	}
 
 	inline auto Stream::Clear() noexcept(false) -> void
 	{
-		this->Signals_.clear();
+		this->Storage_.clear();
 	}
 
 	inline auto Stream::Resize(const std::size_t size) noexcept(false) -> void
 	{
-		this->Signals_.resize(size);
+		this->Storage_.resize(size);
+	}
+
+	inline auto Stream::Reserve(const std::size_t size) noexcept(false) -> void
+	{
+		this->Storage_.reserve(size);
 	}
 
 	inline auto Stream::Size() const noexcept(true) -> std::size_t
 	{
-		return this->Signals_.size();
+		return this->Storage_.size();
 	}
 
 	inline auto Stream::SizeInBytes() const noexcept(true) -> std::size_t
 	{
-		return this->Signals_.size() * sizeof(DynamicSignal);
+		return this->Storage_.size() * sizeof(DynamicSignal);
 	}
 
 	inline auto Stream::Push(const DynamicSignal& sig) noexcept(false) -> void
 	{
-		this->Signals_.push_back(sig);
+		this->Storage_.push_back(sig);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::begin() noexcept(true) -> StorageType::iterator
 	{
-		return std::begin(this->Signals_);
+		return std::begin(this->Storage_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::end() noexcept(true) -> StorageType::iterator
 	{
-		return std::end(this->Signals_);
+		return std::end(this->Storage_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::begin() const noexcept(true) -> StorageType::const_iterator
 	{
-		return std::begin(this->Signals_);
+		return std::begin(this->Storage_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
 	inline auto Stream::end() const noexcept(true) -> StorageType::const_iterator
 	{
-		return std::end(this->Signals_);
+		return std::end(this->Storage_);
 	}
 
 	/// <summary>

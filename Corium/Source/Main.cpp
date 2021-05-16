@@ -211,13 +211,16 @@ using namespace Nominax;
 
 auto main(const signed argc, const char* const* const argv) -> signed
 {
-	Stream stream{ };
-	stream.Prologue().With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	});
+	Stream stream{ OptimizationLevel::Off };
+	stream.Prologue();
+
+	stream.With(2, [](ScopedInt var)
+		{
+			var *= 2;
+			var += 1;
+			var /= 1;
+		});
+	
 	stream << Instruction::Push << u8"Hello:)\n"_cluster;
 	stream << Instruction::Intrin << SystemIntrinsicCallId::IoPortWriteCluster;
 	stream.Epilogue();
