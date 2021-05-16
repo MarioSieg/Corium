@@ -265,6 +265,11 @@ namespace Nominax
 		return REACTOR_REGISTRY;
 	}
 
+    auto GetFallbackRoutineLink() noexcept(true) -> ReactorRoutineLink
+    {
+        return std::make_tuple(ReactorCoreSpecialization::Fallback, GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback));
+    }
+
 	auto GetReactorRoutineFromRegistryByTarget(const ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*
 	{
 		ReactorCoreExecutionRoutine* routine {REACTOR_REGISTRY[static_cast<std::underlying_type_t<decltype(target)>>(target)]};

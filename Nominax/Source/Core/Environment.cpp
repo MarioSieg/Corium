@@ -206,6 +206,7 @@
 //    limitations under the License.
 
 #include <iomanip>
+#include <iostream>
 
 #include "../../Include/Nominax/Nominax.hpp"
 
@@ -327,7 +328,7 @@ namespace Nominax
 		  BootTime { },
 		  SysInfoSnapshot {InitSysInfo()},
 		  CpuFeatures {InitCpuFeatures()},
-		  OptimalReactorRoutine {GetOptimalReactorRoutine(CpuFeatures)},
+          OptimalReactorRoutine {descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)},
 		  AppCode { },
 		  CorePool {ReactorPool::SmartQueryReactorCount(), descriptor.ReactorDescriptor, OptimalReactorRoutine}
 	{
@@ -389,7 +390,7 @@ namespace Nominax
 		}
 
 		// Basic setup:
-		std::ios_base::sync_with_stdio(false);
+        std::ios_base::sync_with_stdio(true); // TODO switch this off when execution the runtime app
 		PrintSystemInfo();
 		Print("Booting runtime environment...\n");
 		const auto tik {std::chrono::high_resolution_clock::now()};
@@ -432,6 +433,7 @@ namespace Nominax
 
 		// Info
 		Print(LogLevel::Warning, "Executing... Code size: {}\n", std::get<0>(appCode).size());
+        std::cout.flush();
 
 		// Execute on alpha reactor:
 		const auto& result {(*this->Env_->CorePool)(std::move(appCode))};
@@ -443,6 +445,7 @@ namespace Nominax
 		// Print exec info:
 		const auto level {result.ShutdownReason == ReactorShutdownReason::Success ? LogLevel::Success : LogLevel::Error};
 		Print(level, "Execution #{} done! Runtime {:.04}\n", this->Env_->ExecutionTimeHistory.size(), std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros));
+        std::cout.flush();
 
 		// Invoke hook:
 		DISPATCH_HOOK(OnPostExecutionHook,);

@@ -230,6 +230,14 @@ namespace Nominax
 	/// </summary>
 	using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)>;
 
+    /// <summary>
+    /// Returns the fallback reactor routine with no platform specific optimizations,
+    /// available on all platforms and all CPUs.
+    /// </summary>
+    /// <returns></returns>
+    [[nodiscard]]
+    extern auto GetFallbackRoutineLink() noexcept(true) -> ReactorRoutineLink;
+
 	/// <summary>
 	/// Returns the reactor specialization based on the cpu features available.
 	/// </summary>
