@@ -368,11 +368,11 @@ namespace Nominax
 		SystemPoolSize{ ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.ReactorDescriptor.StackSize) },
 		SystemPool
 		{
-			[size = SystemPoolSize]() noexcept(false) -> auto
+			[size = SystemPoolSize]() noexcept(false) -> auto*
 			{
 				Print("Allocating system pool with size: {}MB\n", Bytes2Megabytes(size));
-				std::unique_ptr<U8[]> mem {new(std::nothrow) U8[size]};
-				NOMINAX_PANIC_ASSERT_NOT_NULL(mem.get(), "System pool allocation failed!");
+				auto* const mem {new(std::nothrow) U8[size]};
+				NOMINAX_PANIC_ASSERT_NOT_NULL(mem, "System pool allocation failed!");
 				return mem;
 			}()
 		},
