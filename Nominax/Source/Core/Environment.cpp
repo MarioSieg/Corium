@@ -315,16 +315,16 @@ namespace
 	/// Z = reactor stack size
 	/// R = sizeof(Record)
 	/// </summary>
-	/// <param name=""></param>
+	/// <param name="desiredSize"></param>
 	/// <param name="reactorCount"></param>
 	/// <param name="reactorStackSize"></param>
 	/// <returns></returns>
 	constexpr auto ComputePoolSize
 	(
-		std::size_t desiredSize,
+		std::size_t       desiredSize,
 		const std::size_t reactorCount,
 		const std::size_t reactorStackSize
-	) 
+	)
 	noexcept(true) -> std::size_t
 	{
 		desiredSize = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
@@ -341,12 +341,12 @@ namespace Nominax
 	/// <returns></returns>
 	struct Environment::Context final
 	{
-		const std::size_t										 ReactorCount;
-		const std::size_t										 SystemPoolSize;
+		const std::size_t                                        ReactorCount;
+		const std::size_t                                        SystemPoolSize;
 		std::unique_ptr<U8[]>                                    SystemPool;
 		std::pmr::monotonic_buffer_resource                      MonotonicResource;
 		std::pmr::vector<std::pmr::string>                       Arguments;
-		std::pmr::string										 AppName;
+		std::pmr::string                                         AppName;
 		std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
 		std::chrono::high_resolution_clock::time_point           BootStamp;
 		std::chrono::milliseconds                                BootTime;
@@ -360,12 +360,12 @@ namespace Nominax
 		Context(Context&&)                          = delete;
 		auto operator =(const Context&) -> Context& = delete;
 		auto operator =(Context&&) -> Context&      = delete;
-		~Context()                                 = default;
+		~Context()                                  = default;
 	};
 
 	Environment::Context::Context(const EnvironmentDescriptor& descriptor) noexcept(false) :
-		ReactorCount { ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount) },
-		SystemPoolSize{ ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.ReactorDescriptor.StackSize) },
+		ReactorCount {ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount)},
+		SystemPoolSize {ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.ReactorDescriptor.StackSize)},
 		SystemPool
 		{
 			[size = SystemPoolSize]() noexcept(false) -> auto*
@@ -471,17 +471,17 @@ namespace Nominax
 
 		const auto tok {std::chrono::high_resolution_clock::now()};
 		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
-		
+
 		this->Context_->BootTime = ms;
 
 		// Get memory snapshot:
-		const std::size_t memSnapshot{ Os::QueryProcessMemoryUsed() };
-		const F32 memUsagePercent{ static_cast<F32>(memSnapshot) * 100.F / static_cast<F32>(this->Context_->SysInfoSnapshot.TotalSystemMemory) };
+		const std::size_t memSnapshot {Os::QueryProcessMemoryUsed()};
+		const F32         memUsagePercent {static_cast<F32>(memSnapshot) * 100.F / static_cast<F32>(this->Context_->SysInfoSnapshot.TotalSystemMemory)};
 
 		// Allocate one byte to get current needle:
-		const U8* const needle{ static_cast<U8*>(this->Context_->MonotonicResource.allocate(sizeof(U8), alignof(U8))) };
-		const std::ptrdiff_t offset{ needle - this->Context_->SystemPool.get() }; // compute allocation offset
-		const F32 poolUsagePercent{ static_cast<F32>(offset) * 100.F / static_cast<F32>(this->Context_->SystemPoolSize) }; // compute percent usage
+		const U8* const      needle {static_cast<U8*>(this->Context_->MonotonicResource.allocate(sizeof(U8), alignof(U8)))};
+		const std::ptrdiff_t offset {needle - this->Context_->SystemPool.get()};                                                     // compute allocation offset
+		const F32            poolUsagePercent {static_cast<F32>(offset) * 100.F / static_cast<F32>(this->Context_->SystemPoolSize)}; // compute percent usage
 
 		Print
 		(

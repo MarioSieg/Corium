@@ -225,7 +225,7 @@ namespace Nominax
 	{
 	public:
 		using StorageType = std::pmr::vector<Record>;
-		
+
 	private:
 		StorageType Buffer_;
 
@@ -274,7 +274,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto begin() noexcept(true) ->StorageType::iterator;
+		auto begin() noexcept(true) -> StorageType::iterator;
 
 		/// <summary>
 		/// STL Compat

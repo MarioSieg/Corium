@@ -215,8 +215,8 @@ namespace
 		[]() -> auto
 		{
 			auto                  env {std::make_unique<Environment>()};
-			EnvironmentDescriptor descriptor{};
-			descriptor.AppName = "NominaxBenchmark";
+			EnvironmentDescriptor descriptor { };
+			descriptor.AppName        = "NominaxBenchmark";
 			descriptor.FastHostIoSync = false;
 			env->Boot(descriptor);
 			return env;

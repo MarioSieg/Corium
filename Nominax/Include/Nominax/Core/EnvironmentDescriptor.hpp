@@ -239,7 +239,7 @@ namespace Nominax
 		/// will be used for all reactors, not the
 		/// runtime selected one (based on CPU features).
 		/// </summary>
-		bool ForceFallback{ false };
+		bool ForceFallback {false};
 
 		/// <summary>
 		/// If true, synchronization between
@@ -247,7 +247,7 @@ namespace Nominax
 		/// is deactivated, which makes printing faster.
 		/// This should be activated in most cases when executing code.
 		/// </summary>
-		bool FastHostIoSync{ true };
+		bool FastHostIoSync {true};
 
 		/// <summary>
         /// The size of the system memory pool size.
@@ -258,7 +258,7 @@ namespace Nominax
 		/// The count of reactors.
 		/// If 0, the system will use the number of CPU threads.
 		/// </summary>
-		std::size_t ReactorCount{ 0 };
+		std::size_t ReactorCount {0};
 
 		/// <summary>
 		/// The reactor spawn config.

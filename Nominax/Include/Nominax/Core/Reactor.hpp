@@ -290,10 +290,10 @@ namespace Nominax
 		/// </summary>
 		explicit Reactor
 		(
-			std::pmr::memory_resource& allocator,
-			const ReactorSpawnDescriptor& descriptor, 
-			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt, 
-			std::size_t poolIdx = 0
+			std::pmr::memory_resource&               allocator,
+			const ReactorSpawnDescriptor&            descriptor,
+			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt,
+			std::size_t                              poolIdx     = 0
 		) noexcept(false);
 
 		/// <summary>

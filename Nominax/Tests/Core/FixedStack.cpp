@@ -209,8 +209,8 @@
 
 namespace
 {
-	std::array<U8, 1024> Buffer{};
-	std::pmr::monotonic_buffer_resource Resource{ std::data(Buffer), std::size(Buffer) };
+	std::array<U8, 1024>                Buffer { };
+	std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
 }
 
 TEST(Common, FixedStackConstructAllocateValid)
@@ -236,11 +236,11 @@ TEST(Common, FixedStackConstructMoveConstructor)
 
 TEST(Common, FixedStackConstructMoveAssignment)
 {
-	FixedStack a { Resource, 32};
+	FixedStack a {Resource, 32};
 	ASSERT_EQ(a.Size(), 33);
 	a.begin()[1].AsI32 = -10;
 
-	FixedStack b { Resource, 3};
+	FixedStack b {Resource, 3};
 	b = std::move(a);
 	ASSERT_EQ(b.Size(), 33);
 	ASSERT_EQ(b.begin()[1].AsI32, -10);

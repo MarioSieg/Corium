@@ -328,7 +328,7 @@ TEST(Environment, Boot)
 	Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	EnvironmentDescriptor descriptor
+	const EnvironmentDescriptor descriptor
 	{
 
 	};
@@ -345,7 +345,7 @@ TEST(Environment, BootShutdown)
 	Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	EnvironmentDescriptor descriptor
+	const EnvironmentDescriptor descriptor
 	{
 
 	};
@@ -393,7 +393,7 @@ TEST(Environment, BootShutdownHooks)
 	MyEnvironment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	EnvironmentDescriptor descriptor
+	const EnvironmentDescriptor descriptor
 	{
 
 	};
@@ -439,7 +439,7 @@ TEST(Environment, BootShutdownHooksBad)
 	MyEnvironment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	EnvironmentDescriptor descriptor
+	const EnvironmentDescriptor descriptor
 	{
 
 	};
@@ -448,9 +448,9 @@ TEST(Environment, BootShutdownHooksBad)
 
 TEST(Environment, SystemConfig)
 {
-	Environment           env { };
-	const char*           args[3] {"Ignored", "Hey", "Ho"};
-	EnvironmentDescriptor descriptor
+	Environment                 env { };
+	const char*                 args[3] {"Ignored", "Hey", "Ho"};
+	const EnvironmentDescriptor descriptor
 	{
 		.ArgC = sizeof args / sizeof*args,
 		.ArgV = args,
@@ -466,9 +466,9 @@ TEST(Environment, SystemConfig)
 
 TEST(Environment, PoolSizeZero)
 {
-	Environment           env { };
-	const char*           args[3] {"Ignored", "Hey", "Ho"};
-	EnvironmentDescriptor descriptor
+	Environment                 env { };
+	const char*                 args[3] {"Ignored", "Hey", "Ho"};
+	const EnvironmentDescriptor descriptor
 	{
 		.ArgC = sizeof args / sizeof *args,
 		.ArgV = args,
@@ -495,7 +495,7 @@ TEST(Environment, Execution)
 	});
 	stream.Epilogue();
 
-	EnvironmentDescriptor descriptor { };
+	const EnvironmentDescriptor descriptor { };
 
 	Environment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
@@ -517,7 +517,7 @@ TEST(Environment, ExecutionMissingPrologue)
 	});
 	stream.Epilogue();
 
-	EnvironmentDescriptor descriptor { };
+	const EnvironmentDescriptor descriptor { };
 
 	Environment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
@@ -535,7 +535,7 @@ TEST(Environment, ExecutionMissingEpilogue)
 		var /= 1;
 	});
 
-	EnvironmentDescriptor descriptor { };
+	const EnvironmentDescriptor descriptor { };
 
 	Environment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
@@ -559,7 +559,7 @@ TEST(Environment, ExecutionHooks)
 	static std::size_t streamSize;
 	static int         counter;
 
-	EnvironmentDescriptor descriptor { };
+	const EnvironmentDescriptor descriptor { };
 
 	class MyEnvironment : public Environment
 	{
@@ -598,7 +598,7 @@ TEST(Environment, ExecutionHooksBad)
 	});
 	stream.Epilogue();
 
-	EnvironmentDescriptor descriptor { };
+	const EnvironmentDescriptor descriptor { };
 
 	class MyEnvironment : public Environment
 	{

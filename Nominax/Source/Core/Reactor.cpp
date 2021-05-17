@@ -248,10 +248,10 @@ namespace Nominax
 {
 	Reactor::Reactor
 	(
-		std::pmr::memory_resource& allocator,
-		const ReactorSpawnDescriptor& descriptor, 
+		std::pmr::memory_resource&               allocator,
+		const ReactorSpawnDescriptor&            descriptor,
 		const std::optional<ReactorRoutineLink>& routineLink,
-		const std::size_t poolIdx
+		const std::size_t                        poolIdx
 	) noexcept(false) :
 		Id_ {Xorshift128ThreadLocal()},
 		PoolIndex_ {poolIdx},
@@ -262,7 +262,7 @@ namespace Nominax
 		Stack_ {allocator, descriptor.StackSize},
 		IntrinsicTable_ {descriptor.SharedIntrinsicTable},
 		InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : &DefaultInterruptRoutine},
-		RoutineLink_ 
+		RoutineLink_
 		{
 			[&routineLink]() noexcept(true) -> ReactorRoutineLink
 			{

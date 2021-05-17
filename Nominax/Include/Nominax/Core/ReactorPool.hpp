@@ -247,9 +247,9 @@ namespace Nominax
 		/// </summary>
 		ReactorPool
 		(
-			std::pmr::memory_resource& resource, 
-			std::size_t reactorCount, 
-			const ReactorSpawnDescriptor& config,
+			std::pmr::memory_resource&               resource,
+			std::size_t                              reactorCount,
+			const ReactorSpawnDescriptor&            config,
 			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt
 		) noexcept(false);
 

@@ -1,7 +1,9 @@
 # runtime library:
 
+SET(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 FILE(GLOB_RECURSE "NOMINAX_SOURCES" "Nominax/Source/*.cpp" "Nominax/Source/*.S" "Include/Nominax/*.hpp")
-ADD_LIBRARY("Nominax" STATIC "${NOMINAX_SOURCES}")
+ADD_LIBRARY("Nominax" SHARED "${NOMINAX_SOURCES}")
 
 # extern libraries:
 INCLUDE("Nominax/CMake/Externs.cmake")

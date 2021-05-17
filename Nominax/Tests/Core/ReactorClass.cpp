@@ -209,8 +209,8 @@
 
 namespace
 {
-	std::vector<std::byte> Buffer{1024 * 1024};
-	std::pmr::monotonic_buffer_resource Resource{ std::data(Buffer), std::size(Buffer) };
+	std::vector<std::byte>              Buffer {1024 * 1024};
+	std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
 }
 
 TEST(ReactorClass, Valid)
@@ -261,7 +261,7 @@ TEST(ReactorClass, ZeroStackSizeFault)
 		[]()
 		{
 			[[maybe_unused]]
-			Reactor bad{Resource, ReactorSpawnDescriptor {.StackSize = 0} };
+				Reactor bad {Resource, ReactorSpawnDescriptor {.StackSize = 0}};
 		}
 	};
 	ASSERT_DEATH_IF_SUPPORTED(exec(), "");
@@ -315,8 +315,8 @@ TEST(ReactorClass, TryExecuteInvalidZeroCode)
 	{
 		[]()
 		{
-			const Stream stream{ OptimizationLevel::Off };
-			AppCodeBundle out{};
+			const Stream  stream {OptimizationLevel::Off};
+			AppCodeBundle out { };
 			ASSERT_EQ(stream.Build(out), ByteCodeValidationResult::Ok);
 			Reactor reactor
 			{
@@ -327,7 +327,7 @@ TEST(ReactorClass, TryExecuteInvalidZeroCode)
 				}
 			};
 			[[maybe_unused]]
-			const auto& result{ reactor.Execute(std::move(out)) };
+				const auto& result {reactor.Execute(std::move(out))};
 		}
 	};
 	ASSERT_DEATH_IF_SUPPORTED
