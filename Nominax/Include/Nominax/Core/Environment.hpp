@@ -228,20 +228,20 @@ namespace Nominax
 		/// <summary>
 		/// Pimpl.
 		/// </summary>
-		struct Kernel;
+		struct Context;
 
 		/// <summary>
-		/// Kernel deallocator.
+		/// Context deallocator.
 		/// </summary>
-		struct KernelDeleter final
+		struct ContextDeleter final
 		{
-			auto operator()(Kernel* kernel) const noexcept(true) -> void;
+			auto operator()(Context* kernel) const noexcept(true) -> void;
 		};
 
 		/// <summary>
 		/// Pimpl ptr.
 		/// </summary>
-		std::unique_ptr<Kernel, KernelDeleter> Env_ {nullptr};
+		std::unique_ptr<Context, ContextDeleter> Context_ {nullptr};
 
 	protected:
 		/// <summary>

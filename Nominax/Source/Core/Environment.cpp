@@ -339,7 +339,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="descriptor"></param>
 	/// <returns></returns>
-	struct Environment::Kernel final
+	struct Environment::Context final
 	{
 		const std::size_t										 ReactorCount;
 		const std::size_t										 SystemPoolSize;
@@ -355,15 +355,15 @@ namespace Nominax
 		ReactorRoutineLink                                       OptimalReactorRoutine;
 		ReactorPool                                              CorePool;
 
-		explicit Kernel(const EnvironmentDescriptor& descriptor) noexcept(false);
-		Kernel(const Kernel&)                     = delete;
-		Kernel(Kernel&&)                          = delete;
-		auto operator =(const Kernel&) -> Kernel& = delete;
-		auto operator =(Kernel&&) -> Kernel&      = delete;
-		~Kernel()                                 = default;
+		explicit Context(const EnvironmentDescriptor& descriptor) noexcept(false);
+		Context(const Context&)                     = delete;
+		Context(Context&&)                          = delete;
+		auto operator =(const Context&) -> Context& = delete;
+		auto operator =(Context&&) -> Context&      = delete;
+		~Context()                                 = default;
 	};
 
-	Environment::Kernel::Kernel(const EnvironmentDescriptor& descriptor) noexcept(false) :
+	Environment::Context::Context(const EnvironmentDescriptor& descriptor) noexcept(false) :
 		ReactorCount { ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount) },
 		SystemPoolSize{ ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.ReactorDescriptor.StackSize) },
 		SystemPool
@@ -397,7 +397,7 @@ namespace Nominax
 		this->AppName = descriptor.AppName;
 	}
 
-	auto Environment::KernelDeleter::operator()(Kernel* const kernel) const noexcept(true) -> void
+	auto Environment::ContextDeleter::operator()(Context* const kernel) const noexcept(true) -> void
 	{
 		delete kernel;
 	}
@@ -439,7 +439,7 @@ namespace Nominax
 
 	auto Environment::Boot(const EnvironmentDescriptor& descriptor) noexcept(false) -> void
 	{
-		if (NOMINAX_UNLIKELY(this->Env_))
+		if (NOMINAX_UNLIKELY(this->Context_))
 		{
 			return;
 		}
@@ -463,8 +463,8 @@ namespace Nominax
 
 		// No, we cannot use std::make_unique because we want it noexcept!
 		// ReSharper disable once CppSmartPointerVsMakeFunction
-		this->Env_ = std::unique_ptr<Kernel, KernelDeleter>(new(std::nothrow) Kernel(descriptor));
-		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Env_, "Kernel allocation failed!");
+		this->Context_ = std::unique_ptr<Context, ContextDeleter>(new(std::nothrow) Context(descriptor));
+		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Context_, "Context allocation failed!");
 
 		// Invoke hook:
 		DISPATCH_HOOK(OnPostBootHook,);
@@ -472,16 +472,16 @@ namespace Nominax
 		const auto tok {std::chrono::high_resolution_clock::now()};
 		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
 		
-		this->Env_->BootTime = ms;
+		this->Context_->BootTime = ms;
 
 		// Get memory snapshot:
 		const std::size_t memSnapshot{ Os::QueryProcessMemoryUsed() };
-		const F32 memUsagePercent{ static_cast<F32>(memSnapshot) * 100.F / static_cast<F32>(this->Env_->SysInfoSnapshot.TotalSystemMemory) };
+		const F32 memUsagePercent{ static_cast<F32>(memSnapshot) * 100.F / static_cast<F32>(this->Context_->SysInfoSnapshot.TotalSystemMemory) };
 
 		// Allocate one byte to get current needle:
-		const U8* const needle{ static_cast<U8*>(this->Env_->MonotonicResource.allocate(sizeof(U8), alignof(U8))) };
-		const std::ptrdiff_t offset{ needle - this->Env_->SystemPool.get() }; // compute allocation offset
-		const F32 poolUsagePercent{ static_cast<F32>(offset) * 100.F / static_cast<F32>(this->Env_->SystemPoolSize) }; // compute percent usage
+		const U8* const needle{ static_cast<U8*>(this->Context_->MonotonicResource.allocate(sizeof(U8), alignof(U8))) };
+		const std::ptrdiff_t offset{ needle - this->Context_->SystemPool.get() }; // compute allocation offset
+		const F32 poolUsagePercent{ static_cast<F32>(offset) * 100.F / static_cast<F32>(this->Context_->SystemPoolSize) }; // compute percent usage
 
 		Print
 		(
@@ -493,10 +493,10 @@ namespace Nominax
 			ms,
 			memUsagePercent,
 			Bytes2Megabytes(memSnapshot),
-			Bytes2Megabytes(this->Env_->SysInfoSnapshot.TotalSystemMemory),
+			Bytes2Megabytes(this->Context_->SysInfoSnapshot.TotalSystemMemory),
 			poolUsagePercent,
 			Bytes2Megabytes(offset),
-			Bytes2Megabytes(this->Env_->SystemPoolSize)
+			Bytes2Megabytes(this->Context_->SystemPoolSize)
 		);
 	}
 
@@ -512,15 +512,15 @@ namespace Nominax
 		std::cout.flush();
 
 		// Execute on alpha reactor:
-		const auto& result {(*this->Env_->CorePool)(std::move(appCode))};
+		const auto& result {(*this->Context_->CorePool)(std::move(appCode))};
 
 		// Add execution time:
 		const auto micros {std::chrono::duration_cast<std::chrono::duration<F64, std::micro>>(result.Duration)};
-		this->Env_->ExecutionTimeHistory.push_back(micros);
+		this->Context_->ExecutionTimeHistory.push_back(micros);
 
 		// Print exec info:
 		const auto level {result.ShutdownReason == ReactorShutdownReason::Success ? LogLevel::Success : LogLevel::Error};
-		Print(level, "Execution #{} done! Runtime {:.04}\n", this->Env_->ExecutionTimeHistory.size(), std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros));
+		Print(level, "Execution #{} done! Runtime {:.04}\n", this->Context_->ExecutionTimeHistory.size(), std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros));
 		std::cout.flush();
 
 		// Invoke hook:
@@ -537,7 +537,7 @@ namespace Nominax
 
 	auto Environment::Shutdown() noexcept(false) -> void
 	{
-		if (NOMINAX_UNLIKELY(!this->Env_))
+		if (NOMINAX_UNLIKELY(!this->Context_))
 		{
 			return;
 		}
@@ -545,8 +545,8 @@ namespace Nominax
 		// Invoke hook:
 		DISPATCH_HOOK(OnPreShutdownHook,);
 
-		this->Env_.reset();
-		this->Env_ = nullptr;
+		this->Context_.reset();
+		this->Context_ = nullptr;
 
 		// Invoke hook:
 		DISPATCH_HOOK(OnPostShutdownHook,);
@@ -554,65 +554,65 @@ namespace Nominax
 
 	auto Environment::IsOnline() const noexcept(true) -> bool
 	{
-		return this->Env_ != nullptr;
+		return this->Context_ != nullptr;
 	}
 
 	auto Environment::GetKernel() const noexcept(true) -> const void*
 	{
-		return this->Env_.get();
+		return this->Context_.get();
 	}
 
 	auto Environment::GetBootStamp() const noexcept(false) -> std::chrono::high_resolution_clock::time_point
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Env_->BootStamp;
+		return this->Context_->BootStamp;
 	}
 
 	auto Environment::GetBootTime() const noexcept(false) -> std::chrono::milliseconds
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Env_->BootTime;
+		return this->Context_->BootTime;
 	}
 
 	auto Environment::GetInputArguments() const noexcept(false) -> const std::pmr::vector<std::pmr::string>&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Env_->Arguments;
+		return this->Context_->Arguments;
 	}
 
 	auto Environment::GetSystemSnapshot() const noexcept(false) -> const SystemSnapshot&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Env_->SysInfoSnapshot;
+		return this->Context_->SysInfoSnapshot;
 	}
 
 	auto Environment::GetProcessorFeatureSnapshot() const noexcept(false) -> const CpuFeatureDetector&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Env_->CpuFeatures;
+		return this->Context_->CpuFeatures;
 	}
 
 	auto Environment::GetAppName() const noexcept(false) -> const std::pmr::string&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Env_->AppName;
+		return this->Context_->AppName;
 	}
 
 	auto Environment::GetMonotonicSystemPoolSize() const noexcept(false) -> std::size_t
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Env_->SystemPoolSize;
+		return this->Context_->SystemPoolSize;
 	}
 
 	auto Environment::GetExecutionCount() const noexcept(false) -> std::size_t
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Env_->ExecutionTimeHistory.size();
+		return this->Context_->ExecutionTimeHistory.size();
 	}
 
 	auto Environment::GetExecutionTimeHistory() const noexcept(false) -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Env_->ExecutionTimeHistory;
+		return this->Context_->ExecutionTimeHistory;
 	}
 }
