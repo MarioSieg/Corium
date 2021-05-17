@@ -257,9 +257,11 @@ namespace Nominax
 	/// <param name="formatString">The format string.</param>
 	/// <param name="args">The arguments to format.</param>
 	template <typename Str, typename... Args>
-	inline auto Print(const Str& formatString, Args&&...args) -> void
+	inline auto Print([[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
 	{
+#ifndef NOMINAX_TEST
 		fmt::print(formatString, std::forward<Args>(args)...);
+#endif
 	}
 
 	/// <summary>
@@ -288,8 +290,9 @@ namespace Nominax
 	/// <param name="formatString">The format string.</param>
 	/// <param name="args">The arguments to format.</param>
 	template <typename Str, typename... Args>
-	auto Print(const LogLevel level, const Str& formatString, Args&&...args) -> void
+	auto Print([[maybe_unused]] const LogLevel level, [[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
 	{
+#ifndef NOMINAX_TEST
 		auto color = TextColor::White;
 		switch (level)
 		{
@@ -303,6 +306,7 @@ namespace Nominax
 			break;
 		}
 		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
+#endif
 	}
 
 	/// <summary>
@@ -319,8 +323,10 @@ namespace Nominax
 	/// <param name="formatString">The format string.</param>
 	/// <param name="args">The arguments to format.</param>
 	template <typename Str, typename... Args>
-	inline auto Print(const TextColor color, const Str& formatString, Args&&...args) -> void
+	inline auto Print([[maybe_unused]] const TextColor color, [[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
 	{
+#ifndef NOMINAX_TEST
 		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
+#endif
 	}
 }

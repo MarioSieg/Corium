@@ -225,9 +225,14 @@
 /// </summary>
 #define NOMINAX_VERBOSE_ALLOCATOR NOMINAX_DEBUG
 
+
 #define NOMINAX_OPT_USE_ZERO_EPSILON NOMINAX_DEBUG
 
 /// <summary>
 /// If enabled, the jump table addresses are directly mapped as pointers into the byte-code signals.
 /// </summary>
-#define NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING NOMINAX_RELEASE
+#if NOMINAX_RELEASE && !defined(NOMINAX_TEST)
+#	define NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING true
+#else
+#	define NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING false
+#endif

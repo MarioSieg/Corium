@@ -15,8 +15,9 @@ IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STR
 	SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES}  -Xclang -Wall  -Xclang -Wextra  -Xclang -Werror -Xclang -Wno-undef -Xclang -std=c++20 -Xclang -Wno-unknown-attributes -Xclang -Wno-ignored-attributes -Xclang -Wno-deprecated-declarations")
 	
 	# if release, set more optimization flags:
+	# -Xclang -fno-rtti
 	IF(CMAKE_BUILD_TYPE STREQUAL "Release")
-		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -Xclang -Ofast -Xclang -flto -Xclang -fno-rtti -Xclang -ffp-exception-behavior=ignore /EHsc /D_HAS_EXCEPTIONS=0")
+		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -Xclang -Ofast -Xclang -flto -Xclang -ffp-exception-behavior=ignore /EHsc /D_HAS_EXCEPTIONS=0")
 	ENDIF()
 
 	# if fast math is enabled, add flags:
@@ -31,9 +32,10 @@ ELSE()
         SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES} -Wall -Wextra -Werror -Wno-undef -std=c++20 -Wno-unknown-attributes -Wno-ignored-attributes -Wno-deprecated-declarations")
 
 	# if release, set more optimization flags:
+	# -fno-rtti
 	# why does -flto give linker errors?!
 	IF(CMAKE_BUILD_TYPE STREQUAL "Release")
-		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -Ofast -fno-rtti -fno-exceptions")
+		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -Ofast -fno-exceptions")
 	ENDIF()
 
 	# if fast math is enabled, add flags:
