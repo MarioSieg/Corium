@@ -213,14 +213,9 @@
 
 namespace Nominax
 {
-	auto ReactorPool::SmartQueryReactorCount(std::size_t hint) noexcept(false) -> std::size_t
+	auto ReactorPool::SmartQueryReactorCount(const std::size_t desired) noexcept(false) -> std::size_t
 	{
-		const std::size_t threads {std::thread::hardware_concurrency()};
-		if (hint == 0)
-		{
-			hint = threads;
-		}
-		return std::clamp(hint, MIN_REACTOR_COUNT, threads);
+		return desired < MIN_REACTOR_COUNT ? std::thread::hardware_concurrency() : desired;
 	}
 
 	ReactorPool::ReactorPool

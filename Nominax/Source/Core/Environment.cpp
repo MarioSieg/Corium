@@ -286,8 +286,8 @@ namespace Nominax
 {
 	struct Environment::Kernel final
 	{
-		std::unique_ptr<U8[]>                                    SystemPool;
 		std::size_t                                              SystemPoolSize;
+		std::unique_ptr<U8[]>                                    SystemPool;
 		std::pmr::monotonic_buffer_resource                      MonotonicResource;
 		std::pmr::vector<std::pmr::string>                       Arguments;
 		std::pmr::string										 AppName;
@@ -308,17 +308,17 @@ namespace Nominax
 	};
 
 	Environment::Kernel::Kernel(const EnvironmentDescriptor& descriptor) noexcept(false)
-		: SystemPool
+		:
+		SystemPoolSize{ std::clamp(descriptor.SystemPoolSize, FALLBACK_SYSTEM_POOL_SIZE, MAX_SYSTEM_POOL_SIZE) },
+		SystemPool
 		  {
-			  [size = descriptor.SystemPoolSize]() noexcept(false) -> std::unique_ptr<U8[]>
+			  [size = SystemPoolSize]() noexcept(false) -> std::unique_ptr<U8[]>
 			  {
-				  NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "System pool with zero size requested!");
 				  std::unique_ptr<U8[]> mem {new(std::nothrow) U8[size]()};
 				  NOMINAX_PANIC_ASSERT_NOT_NULL(mem.get(), "System pool allocation failed!");
 				  return mem;
 			  }()
 		  },
-		  SystemPoolSize {std::clamp(descriptor.SystemPoolSize, FALLBACK_SYSTEM_POOL_SIZE, MAX_SYSTEM_POOL_SIZE) },
 		  MonotonicResource {SystemPool.get(), SystemPoolSize},
 		  Arguments {&MonotonicResource},
 		  AppName {&MonotonicResource},
@@ -328,7 +328,7 @@ namespace Nominax
 		  SysInfoSnapshot {InitSysInfo()},
 		  CpuFeatures {InitCpuFeatures()},
 		  OptimalReactorRoutine {descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)},
-		  CorePool {MonotonicResource, ReactorPool::SmartQueryReactorCount(), descriptor.ReactorDescriptor, OptimalReactorRoutine}
+		  CorePool {MonotonicResource, ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount), descriptor.ReactorDescriptor, OptimalReactorRoutine}
 	{
 		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
 		{

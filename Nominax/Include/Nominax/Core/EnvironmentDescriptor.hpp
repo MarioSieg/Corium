@@ -255,6 +255,12 @@ namespace Nominax
 		std::size_t SystemPoolSize {8_mb};
 
 		/// <summary>
+		/// The count of reactors.
+		/// If 0, the system will use the number of CPU threads.
+		/// </summary>
+		std::size_t ReactorCount{ 0 };
+
+		/// <summary>
 		/// The reactor spawn config.
 		/// </summary>
 		ReactorSpawnDescriptor ReactorDescriptor {ReactorSpawnDescriptor::Default()};

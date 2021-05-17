@@ -219,34 +219,11 @@ namespace Nominax
 
 		// because first padding element.
 		++sizeInRecords;
-		this->BufferSize_ = sizeInRecords;
 
 		// allocate:
-		this->Buffer_ = std::unique_ptr<Record[]>(new(std::nothrow) Record[sizeInRecords]());
-		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Buffer_, "Allocation of TLFRS failed!");
+		this->Buffer_.resize(sizeInRecords);
 
 		// insert padding:
-		*this->Buffer_.get() = Record::Padding();
-	}
-
-	FixedStack::FixedStack(FixedStack&& value) noexcept(true) : Buffer_ {std::move(value.Buffer_)}, BufferSize_ {value.BufferSize_} { }
-
-	auto FixedStack::operator=(FixedStack&& value) noexcept(true) -> FixedStack&
-	{
-		if (NOMINAX_UNLIKELY(this == &value))
-		{
-			return *this;
-		}
-
-		this->Buffer_     = std::move(value.Buffer_);
-		this->BufferSize_ = value.BufferSize_;
-		value.BufferSize_ = 0;
-
-		return *this;
-	}
-
-	FixedStack::~FixedStack()
-	{
-		this->BufferSize_ = 0;
+		this->Buffer_.front() = Record::Padding();
 	}
 }

@@ -227,9 +227,9 @@ namespace Nominax
 		/// <summary>
 		/// Calculates the best and correct reactor count.
 		/// </summary>
-		/// <param name="hint">How many reactors the user requested. If zero, logical cpu count will be used.</param>
+		/// <param name="desired">How many reactors the user requested. If zero, logical cpu count will be used.</param>
 		/// <returns>The best reactor count for the current system.</returns>
-		static auto SmartQueryReactorCount(std::size_t hint = 0) noexcept(false) -> std::size_t;
+		static auto SmartQueryReactorCount(std::size_t desired = 0) noexcept(false) -> std::size_t;
 
 		/// <summary>
 		/// Minimal one reactor is required.

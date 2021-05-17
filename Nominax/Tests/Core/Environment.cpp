@@ -454,12 +454,12 @@ TEST(Environment, SystemConfig)
 	{
 		.ArgC = sizeof args / sizeof*args,
 		.ArgV = args,
-		.AppName = U"Hey:)",
+		.AppName = "Hey:)",
 		.SystemPoolSize = 0
 	};
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
-	ASSERT_EQ(env.GetAppName(), U"Hey:)");
+	ASSERT_EQ(env.GetAppName(), "Hey:)");
 	ASSERT_EQ(env.GetInputArguments()[0], "Hey");
 	ASSERT_EQ(env.GetInputArguments()[1], "Ho");
 }
@@ -472,12 +472,12 @@ TEST(Environment, PoolSizeZero)
 	{
 		.ArgC = sizeof args / sizeof *args,
 		.ArgV = args,
-		.AppName = U"Hey:)",
+		.AppName = "Hey:)",
 		.SystemPoolSize = 0
 	};
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
-	ASSERT_EQ(env.GetAppName(), U"Hey:)");
+	ASSERT_EQ(env.GetAppName(), "Hey:)");
 	ASSERT_EQ(env.GetInputArguments()[0], "Hey");
 	ASSERT_EQ(env.GetInputArguments()[1], "Ho");
 	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::FALLBACK_SYSTEM_POOL_SIZE);
@@ -491,12 +491,12 @@ TEST(Environment, PoolSizeZeroMax)
 	{
 		.ArgC = sizeof args / sizeof *args,
 		.ArgV = args,
-		.AppName = U"Hey:)",
+		.AppName = "Hey:)",
 		.SystemPoolSize = Environment::MAX_SYSTEM_POOL_SIZE + 100
 	};
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
-	ASSERT_EQ(env.GetAppName(), U"Hey:)");
+	ASSERT_EQ(env.GetAppName(), "Hey:)");
 	ASSERT_EQ(env.GetInputArguments()[0], "Hey");
 	ASSERT_EQ(env.GetInputArguments()[1], "Ho");
 	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::MAX_SYSTEM_POOL_SIZE);
