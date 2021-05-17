@@ -209,6 +209,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <memory_resource>
 #include <vector>
 
 #include "../Common/MemoryUnits.hpp"
@@ -223,7 +224,7 @@ namespace Nominax
 	class [[nodiscard]] FixedStack final
 	{
 	public:
-		using StorageType = std::vector<Record>;
+		using StorageType = std::pmr::vector<Record>;
 		
 	private:
 		StorageType Buffer_;
@@ -233,19 +234,19 @@ namespace Nominax
 		/// Small 1 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_SMALL {Megabytes2Bytes(1) / sizeof(Record)};
+		static constexpr std::size_t SIZE_SMALL {1_mb / sizeof(Record)};
 
 		/// <summary>
 		/// Medium sizes 4 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_MEDIUM {Megabytes2Bytes(4) / sizeof(Record)};
+		static constexpr std::size_t SIZE_MEDIUM {4_mb / sizeof(Record)};
 
 		/// <summary>
 		/// Medium sizes 8 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_LARGE {Megabytes2Bytes(8) / sizeof(Record)};
+		static constexpr std::size_t SIZE_LARGE {8_mb / sizeof(Record)};
 		/// <summary>
 		/// 
 		/// </summary>
@@ -306,7 +307,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="sizeInRecords">Size in records. If the size is zero, fatal termination.</param>
 		/// <returns></returns>
-		explicit FixedStack(std::size_t sizeInRecords) noexcept(false);
+		explicit FixedStack(std::pmr::memory_resource& allocator, std::size_t sizeInRecords) noexcept(false);
 
 		/// <summary>
 		/// No copy.

@@ -239,7 +239,7 @@ namespace Nominax
 		/// <summary>
 		/// The stack size in records.
 		/// </summary>
-		std::size_t StackSize { };
+		std::size_t StackSize { FixedStack::SIZE_LARGE };
 
 		/// <summary>
 		/// The intrinsic routines.

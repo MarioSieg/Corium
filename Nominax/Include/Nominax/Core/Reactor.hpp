@@ -210,6 +210,7 @@
 #include <chrono>
 #include <tuple>
 #include <optional>
+#include <memory_resource>
 
 #include "ReactorOutput.hpp"
 #include "FixedStack.hpp"
@@ -246,11 +247,6 @@ namespace Nominax
 		/// Reactor power preference.
 		/// </summary>
 		PowerPreference PowerPreference_;
-
-		/// <summary>
-		/// Process memory in bytes when reactor was created.
-		/// </summary>
-		std::size_t SpawnProcessMemorySnapshot;
 
 		/// <summary>
 		/// The reactor input descriptor build
@@ -292,7 +288,13 @@ namespace Nominax
 		/// <summary>
 		/// Create reactor with fixed stack size. If zero, panic!
 		/// </summary>
-		explicit Reactor(const ReactorSpawnDescriptor& descriptor, const std::optional<ReactorRoutineLink>& routineLink = std::nullopt, std::size_t poolIdx = 0) noexcept(false);
+		explicit Reactor
+		(
+			std::pmr::memory_resource& allocator,
+			const ReactorSpawnDescriptor& descriptor, 
+			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt, 
+			std::size_t poolIdx = 0
+		) noexcept(false);
 
 		/// <summary>
 		/// No copy!
@@ -432,11 +434,6 @@ namespace Nominax
 	inline auto Reactor::GetPowerPreference() const noexcept(true) -> PowerPreference
 	{
 		return this->PowerPreference_;
-	}
-
-	inline auto Reactor::GetSpawnMemorySnapshot() const noexcept(true) -> std::size_t
-	{
-		return this->SpawnProcessMemorySnapshot;
 	}
 
 	inline auto Reactor::GetStack() const noexcept(true) -> const FixedStack&

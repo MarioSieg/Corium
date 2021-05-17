@@ -214,6 +214,10 @@ namespace
 {
 	using namespace Nominax;
 
+	/// <summary>
+	/// Query and print machine info.
+	/// </summary>
+	/// <returns></returns>
 	auto InitSysInfo() noexcept(false) -> SystemSnapshot
 	{
 		Print("\n");
@@ -222,6 +226,10 @@ namespace
 		return snapshot;
 	}
 
+	/// <summary>
+	/// Query and print cpu features.
+	/// </summary>
+	/// <returns></returns>
 	auto InitCpuFeatures() noexcept(false) -> CpuFeatureDetector
 	{
 		Print("\n");
@@ -231,12 +239,23 @@ namespace
 		return cpuFeatureDetector;
 	}
 
+	/// <summary>
+	/// Prints the info of one type.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="name"></param>
+	/// <returns></returns>
 	template <typename T>
 	inline auto PrintTypeInfo(const std::string_view name) -> void
 	{
 		Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
 	}
 
+	/// <summary>
+	/// Print size and alignment of common types.
+	/// </summary>
+	/// <param name="threads"></param>
+	/// <returns></returns>
 	auto PrintTypeInfoTable() -> void
 	{
 		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
@@ -253,6 +272,10 @@ namespace
 		PrintTypeInfo<void*>("void*");
 	}
 
+	/// <summary>
+	/// Print Nominax runtime info.
+	/// </summary>
+	/// <returns></returns>
 	auto PrintSystemInfo() -> void
 	{
 		Print(SYSTEM_LOGO_TEXT);
@@ -280,13 +303,46 @@ namespace
 	while(false)
 
 #define VALIDATE_ONLINE_BOOT_STATE() NOMINAX_PANIC_ASSERT_TRUE(this->IsOnline(), "Environment is offline!")
+
+	/// <summary>
+	/// Compute the final size of the system pool.
+	/// If the desired size is 0, fallback size is used.
+	/// Y = Y != 0 + F
+	/// S = Y + (C * (Z * R))
+	/// Y = desired size
+	/// S = final size
+	/// C = reactor count
+	/// Z = reactor stack size
+	/// R = sizeof(Record)
+	/// </summary>
+	/// <param name=""></param>
+	/// <param name="reactorCount"></param>
+	/// <param name="reactorStackSize"></param>
+	/// <returns></returns>
+	constexpr auto ComputePoolSize
+	(
+		std::size_t desiredSize,
+		const std::size_t reactorCount,
+		const std::size_t reactorStackSize
+	) 
+	noexcept(true) -> std::size_t
+	{
+		desiredSize = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
+		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
+	}
 }
 
 namespace Nominax
 {
+	/// <summary>
+	/// Contains all the runtime variables required for the runtime system.
+	/// </summary>
+	/// <param name="descriptor"></param>
+	/// <returns></returns>
 	struct Environment::Kernel final
 	{
-		std::size_t                                              SystemPoolSize;
+		const std::size_t										 ReactorCount;
+		const std::size_t										 SystemPoolSize;
 		std::unique_ptr<U8[]>                                    SystemPool;
 		std::pmr::monotonic_buffer_resource                      MonotonicResource;
 		std::pmr::vector<std::pmr::string>                       Arguments;
@@ -307,28 +363,29 @@ namespace Nominax
 		~Kernel()                                 = default;
 	};
 
-	Environment::Kernel::Kernel(const EnvironmentDescriptor& descriptor) noexcept(false)
-		:
-		SystemPoolSize{ std::clamp(descriptor.SystemPoolSize, FALLBACK_SYSTEM_POOL_SIZE, MAX_SYSTEM_POOL_SIZE) },
+	Environment::Kernel::Kernel(const EnvironmentDescriptor& descriptor) noexcept(false) :
+		ReactorCount { ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount) },
+		SystemPoolSize{ ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.ReactorDescriptor.StackSize) },
 		SystemPool
-		  {
-			  [size = SystemPoolSize]() noexcept(false) -> std::unique_ptr<U8[]>
-			  {
-				  std::unique_ptr<U8[]> mem {new(std::nothrow) U8[size]()};
-				  NOMINAX_PANIC_ASSERT_NOT_NULL(mem.get(), "System pool allocation failed!");
-				  return mem;
-			  }()
-		  },
-		  MonotonicResource {SystemPool.get(), SystemPoolSize},
-		  Arguments {&MonotonicResource},
-		  AppName {&MonotonicResource},
-		  ExecutionTimeHistory {&MonotonicResource},
-		  BootStamp {std::chrono::high_resolution_clock::now()},
-		  BootTime { },
-		  SysInfoSnapshot {InitSysInfo()},
-		  CpuFeatures {InitCpuFeatures()},
-		  OptimalReactorRoutine {descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)},
-		  CorePool {MonotonicResource, ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount), descriptor.ReactorDescriptor, OptimalReactorRoutine}
+		{
+			[size = SystemPoolSize]() noexcept(false) -> auto
+			{
+				Print("Allocating system pool with size: {}MB\n", Bytes2Megabytes(size));
+				std::unique_ptr<U8[]> mem {new(std::nothrow) U8[size]};
+				NOMINAX_PANIC_ASSERT_NOT_NULL(mem.get(), "System pool allocation failed!");
+				return mem;
+			}()
+		},
+		MonotonicResource {SystemPool.get(), SystemPoolSize},
+		Arguments {&MonotonicResource},
+		AppName {&MonotonicResource},
+		ExecutionTimeHistory {&MonotonicResource},
+		BootStamp {std::chrono::high_resolution_clock::now()},
+		BootTime { },
+		SysInfoSnapshot {InitSysInfo()},
+		CpuFeatures {InitCpuFeatures()},
+		OptimalReactorRoutine {descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)},
+		CorePool {MonotonicResource, ReactorCount, descriptor.ReactorDescriptor, OptimalReactorRoutine}
 	{
 		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
 		{
@@ -399,10 +456,9 @@ namespace Nominax
 		// Clamp system pool size:
 		Print
 		(
-			"Monotonic system pool size: {} MB, Fallback: {} KB, Max: {} MB\n",
+			"Monotonic system pool fixed size: {} MB, Fallback: {} MB\n",
 			Bytes2Megabytes(descriptor.SystemPoolSize),
-			Bytes2Kilobytes(FALLBACK_SYSTEM_POOL_SIZE),
-			Bytes2Megabytes(MAX_SYSTEM_POOL_SIZE)
+			Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
 		);
 
 		// No, we cannot use std::make_unique because we want it noexcept!
@@ -432,15 +488,15 @@ namespace Nominax
 			"Runtime environment online!\n"
 			"Boot time: {}\n"
 			"Process memory snapshot: {:.02f} % [{} MB / {} MB]\n"
-			"Monotonic pool snapshot: {:.02f} % [{} KB / {} KB]\n"
+			"Monotonic pool snapshot: {:.02f} % [{} MB / {} MB]\n"
 			"\n",
 			ms,
 			memUsagePercent,
 			Bytes2Megabytes(memSnapshot),
 			Bytes2Megabytes(this->Env_->SysInfoSnapshot.TotalSystemMemory),
 			poolUsagePercent,
-			Bytes2Kilobytes(offset),
-			Bytes2Kilobytes(this->Env_->SystemPoolSize)
+			Bytes2Megabytes(offset),
+			Bytes2Megabytes(this->Env_->SystemPoolSize)
 		);
 	}
 

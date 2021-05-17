@@ -246,18 +246,24 @@ namespace
 
 namespace Nominax
 {
-	Reactor::Reactor(const ReactorSpawnDescriptor& descriptor, const std::optional<ReactorRoutineLink>& routineLink, const std::size_t poolIdx) noexcept(false) :
+	Reactor::Reactor
+	(
+		std::pmr::memory_resource& allocator,
+		const ReactorSpawnDescriptor& descriptor, 
+		const std::optional<ReactorRoutineLink>& routineLink,
+		const std::size_t poolIdx
+	) noexcept(false) :
 		Id_ {Xorshift128ThreadLocal()},
 		PoolIndex_ {poolIdx},
 		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
 		PowerPreference_ {descriptor.PowerPref},
-		SpawnProcessMemorySnapshot {Os::QueryProcessMemoryUsed()},
 		Input_ { },
 		Output_ {&Input_},
-		Stack_ {descriptor.StackSize},
+		Stack_ {allocator, descriptor.StackSize},
 		IntrinsicTable_ {descriptor.SharedIntrinsicTable},
 		InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : &DefaultInterruptRoutine},
-		RoutineLink_ {
+		RoutineLink_ 
+		{
 			[&routineLink]() noexcept(true) -> ReactorRoutineLink
 			{
 				if (NOMINAX_UNLIKELY(!routineLink))
@@ -276,16 +282,14 @@ namespace Nominax
 			"Intrinsics: {}, "        // intrinsics
 			"Interrupt Routine: {}, " // interrupt
 			"Power: {}, "             // power preference
-			"Pool: {:02}, "           // pool index
-			"Snapshot: {:02} MB\n",   // memory snapshot
+			"Pool: {:02}\n",          // pool index
 			this->Id_,
 			Bytes2Megabytes(this->Stack_.Size() * sizeof(Record)),
 			this->Stack_.Size() / 1000,
 			this->IntrinsicTable_.size(),
 			this->InterruptHandler_ == &DefaultInterruptRoutine ? "Def" : "Usr",
 			this->PowerPreference_ == PowerPreference::HighPerformance ? "Perf" : "Safe",
-			this->PoolIndex_,
-			Bytes2Megabytes(this->SpawnProcessMemorySnapshot)
+			this->PoolIndex_
 		);
 	}
 

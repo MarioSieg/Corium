@@ -473,33 +473,15 @@ TEST(Environment, PoolSizeZero)
 		.ArgC = sizeof args / sizeof *args,
 		.ArgV = args,
 		.AppName = "Hey:)",
-		.SystemPoolSize = 0
+		.SystemPoolSize = 0,
+		.ReactorCount = 2
 	};
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
 	ASSERT_EQ(env.GetAppName(), "Hey:)");
 	ASSERT_EQ(env.GetInputArguments()[0], "Hey");
 	ASSERT_EQ(env.GetInputArguments()[1], "Ho");
-	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::FALLBACK_SYSTEM_POOL_SIZE);
-}
-
-TEST(Environment, PoolSizeZeroMax)
-{
-	Environment           env { };
-	const char*           args[3] {"Ignored", "Hey", "Ho"};
-	EnvironmentDescriptor descriptor
-	{
-		.ArgC = sizeof args / sizeof *args,
-		.ArgV = args,
-		.AppName = "Hey:)",
-		.SystemPoolSize = Environment::MAX_SYSTEM_POOL_SIZE + 100
-	};
-	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-
-	ASSERT_EQ(env.GetAppName(), "Hey:)");
-	ASSERT_EQ(env.GetInputArguments()[0], "Hey");
-	ASSERT_EQ(env.GetInputArguments()[1], "Ho");
-	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::MAX_SYSTEM_POOL_SIZE);
+	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::FALLBACK_SYSTEM_POOL_SIZE + descriptor.ReactorCount * (descriptor.ReactorDescriptor.StackSize * sizeof(Record)));
 }
 
 TEST(Environment, Execution)

@@ -220,11 +220,11 @@ namespace Nominax
 
 	ReactorPool::ReactorPool
 	(
-		std::pmr::memory_resource&               resource,
+		std::pmr::memory_resource&               allocator,
 		const std::size_t                        reactorCount,
 		const ReactorSpawnDescriptor&            config,
 		const std::optional<ReactorRoutineLink>& routineLink
-	) noexcept(false) : Pool_ {&resource}
+	) noexcept(false) : Pool_ {&allocator}
 	{
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 
@@ -238,7 +238,7 @@ namespace Nominax
 			{
 				Print(LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
 			}
-			this->Pool_.emplace_back(Reactor {config, routineLink ? *routineLink : GetOptimalReactorRoutine({ }), i});
+			this->Pool_.emplace_back(Reactor {allocator, config, routineLink ? *routineLink : GetOptimalReactorRoutine({ }), i});
 		}
 
 		Print("\n");

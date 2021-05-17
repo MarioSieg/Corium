@@ -207,10 +207,17 @@
 
 #include "ReactorTestHelper.hpp"
 
+namespace
+{
+	std::vector<std::byte> Buffer{1024 * 1024};
+	std::pmr::monotonic_buffer_resource Resource{ std::data(Buffer), std::size(Buffer) };
+}
+
 TEST(ReactorClass, Valid)
 {
 	const Reactor reactor
 	{
+		Resource,
 		ReactorSpawnDescriptor
 		{
 			.StackSize = 4
@@ -227,6 +234,7 @@ TEST(ReactorClass, MoveConstruct)
 {
 	Reactor reactor
 	{
+		Resource,
 		ReactorSpawnDescriptor
 		{
 			.StackSize = 4
@@ -248,11 +256,15 @@ TEST(ReactorClass, MoveConstruct)
 
 TEST(ReactorClass, ZeroStackSizeFault)
 {
-	ASSERT_DEATH_IF_SUPPORTED([]()
-	                          {
-	                          [[maybe_unused]]
-	                          auto bad{ Reactor{ ReactorSpawnDescriptor {.StackSize = 0} } };
-	                          }(), "");
+	auto exec
+	{
+		[]()
+		{
+			[[maybe_unused]]
+			Reactor bad{Resource, ReactorSpawnDescriptor {.StackSize = 0} };
+		}
+	};
+	ASSERT_DEATH_IF_SUPPORTED(exec(), "");
 }
 
 TEST(ReactorClass, InterruptHandler)
@@ -260,6 +272,7 @@ TEST(ReactorClass, InterruptHandler)
 	auto* const   interrupt = +[](InterruptAccumulator) { };
 	const Reactor reactor
 	{
+		Resource,
 		ReactorSpawnDescriptor
 		{
 			.StackSize = 4,
@@ -284,6 +297,7 @@ TEST(ReactorClass, TryExecuteValid)
 	stream.Build(out);
 	Reactor reactor
 	{
+		Resource,
 		ReactorSpawnDescriptor
 		{
 			.StackSize = FixedStack::SIZE_LARGE
@@ -295,25 +309,30 @@ TEST(ReactorClass, TryExecuteValid)
 	ASSERT_EQ(std::memcmp(output.Input, &reactor.GetInputDescriptor(), sizeof(decltype(*output.Input))), 0);
 }
 
-TEST(ReactorClass, TryExecuteInValidZeroCode)
+TEST(ReactorClass, TryExecuteInvalidZeroCode)
 {
-	ASSERT_DEATH_IF_SUPPORTED
-	(
+	auto exec
+	{
 		[]()
 		{
-		const Stream stream{ OptimizationLevel::Off };
-		AppCodeBundle out{};
-		ASSERT_EQ(stream.Build(out), ByteCodeValidationResult::Ok);
-		Reactor reactor
-		{
-		ReactorSpawnDescriptor
-		{
-		.StackSize = FixedStack::SIZE_LARGE
+			const Stream stream{ OptimizationLevel::Off };
+			AppCodeBundle out{};
+			ASSERT_EQ(stream.Build(out), ByteCodeValidationResult::Ok);
+			Reactor reactor
+			{
+				Resource,
+				ReactorSpawnDescriptor
+				{
+					.StackSize = FixedStack::SIZE_LARGE
+				}
+			};
+			[[maybe_unused]]
+			const auto& result{ reactor.Execute(std::move(out)) };
 		}
-		};
-		[[maybe_unused]]
-		const auto& result{ reactor.Execute(std::move(out)) };
-		}(),
+	};
+	ASSERT_DEATH_IF_SUPPORTED
+	(
+		exec(),
 		""
 	);
 }

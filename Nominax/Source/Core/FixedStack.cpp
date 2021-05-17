@@ -213,7 +213,7 @@
 
 namespace Nominax
 {
-	FixedStack::FixedStack(std::size_t sizeInRecords) noexcept(false)
+	FixedStack::FixedStack(std::pmr::memory_resource& allocator, std::size_t sizeInRecords) noexcept(false) : Buffer_ {&allocator}
 	{
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(sizeInRecords, "Fixed stack with zero size was requested!");
 

@@ -284,15 +284,9 @@ namespace Nominax
 		/// <summary>
 		/// Size in bytes of the system pool, if the given count was invalid.
 		/// </summary>
-		static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {Kilobytes2Bytes(8)};
-
-		/// <summary>
-		/// Maximal recommended size of system pool.
-		/// </summary>
-		static constexpr std::size_t MAX_SYSTEM_POOL_SIZE {Megabytes2Bytes(16)};
+		static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {2_mb};
 
 		static_assert(FALLBACK_SYSTEM_POOL_SIZE);
-		static_assert(MAX_SYSTEM_POOL_SIZE);
 
 		/// <summary>
 		/// Default constructor. Does not initialize the environment.
