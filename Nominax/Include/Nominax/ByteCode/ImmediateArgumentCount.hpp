@@ -286,4 +286,17 @@ namespace Nominax
 		0,
 		0
 	};
+
+	consteval auto FindMaxImmediateArgumentCount() noexcept(true) -> U8
+	{
+		U8 max {0};
+		for (const U8 x : INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS)
+		{
+			max = std::max(max, x);
+		}
+		return max;
+	}
+
+	constexpr U8 MAX_IMMEDIATE_ARGUMENTS {FindMaxImmediateArgumentCount()};
+	static_assert(MAX_IMMEDIATE_ARGUMENTS);
 }

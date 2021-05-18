@@ -1,6 +1,6 @@
-// File: DynamicSignal.hpp
+// File: Environment.cpp
 // Author: Mario
-// Created: 24.04.2021 9:48 PM
+// Created: 14.05.2021 3:29 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,366 +205,415 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../TestBase.hpp"
 
-#include <array>
-#include <cstdint>
-#include <optional>
-#include <variant>
-
-#include "../Common/BaseTypes.hpp"
-#include "../Common/LiteralOp.hpp"
-#include "../Common/F64Comparator.hpp"
-
-#include "Signal.hpp"
-#include "Instruction.hpp"
-#include "SystemIntrinsic.hpp"
-#include "CustomIntrinsic.hpp"
-#include "JumpAddress.hpp"
-
-namespace Nominax
+TEST(Environent, Construct)
 {
-	/// <summary>
-	/// Restricts to valid byte code elements.
-	/// </summary>
-	/// <typeparam name="...Ts">The generic types to perform restriction checks on.</typeparam>
-	template <typename T>
-	concept BytecodeElement = requires(T x)
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_GetBootStamp)
+{
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	                          {
+	                          [[maybe_unused]]
+	                          auto x{ env.GetBootStamp() };
+	                          }(), "");
+}
+
+
+TEST(Environent, ConstructOfflineAccessDeath_GetBootTime)
+{
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	                          {
+	                          [[maybe_unused]]
+	                          auto x{ env.GetBootTime() };
+	                          }(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_GetInputArguments)
+{
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	                          {
+	                          [[maybe_unused]]
+	                          const auto& x{ env.GetInputArguments() };
+	                          }(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_GetSystemSnapshot)
+{
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	                          {
+	                          [[maybe_unused]]
+	                          const auto& x{ env.GetSystemSnapshot() };
+	                          }(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_GetProcessorFeatureSnapshot)
+{
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	                          {
+	                          [[maybe_unused]]
+	                          const auto& x{ env.GetProcessorFeatureSnapshot() };
+	                          }(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_GetAppName)
+{
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	                          {
+	                          [[maybe_unused]]
+	                          const auto& x{ env.GetAppName() };
+	                          }(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_GetMonotonicSystemPoolSize)
+{
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	                          {
+	                          [[maybe_unused]]
+	                          const auto& x{ env.GetMonotonicSystemPoolSize() };
+	                          }(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_GetExecutionCount)
+{
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	                          {
+	                          [[maybe_unused]]
+	                          const auto& x{ env.GetExecutionCount() };
+	                          }(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_GetExecutionTimeHistory)
+{
+	const Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	                          {
+	                          [[maybe_unused]]
+	                          const auto& x{ env.GetExecutionTimeHistory() };
+	                          }(), "");
+}
+
+TEST(Environment, Boot)
+{
+	Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	const EnvironmentDescriptor descriptor
 	{
-		// Type size must either be 32 or 64 bits
-		sizeof(T) == 4 || sizeof(T) == 8;
-		alignof(T) == 4 || alignof(T) == 8;
-		x == x;
-		x != x;
-		std::is_trivial_v<T>;
+
 	};
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_EQ(env.GetExecutionCount(), 0);
+	ASSERT_NE(env.GetKernel(), nullptr);
+	ASSERT_TRUE(env.IsOnline());
+	ASSERT_NE(env.GetBootTime().count(), 0);
+	ASSERT_NE(env.GetBootStamp().time_since_epoch().count(), 0);
+}
 
-	/// <summary>
-	/// Represents an entry in a byte code steam. This get's converted to a signal for execution.
-	/// </summary>
-	struct DynamicSignal final
+TEST(Environment, BootShutdown)
+{
+	Environment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	const EnvironmentDescriptor descriptor
 	{
-		/// <summary>
-		/// Discriminated union.
-		/// </summary>
-		using StorageType = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, JumpAddress, U64, I64, F64, CharClusterUtf8>;
 
-		/// <summary>
-		/// Default construct an I64(0)
-		/// </summary>
-		/// <returns></returns>
-		constexpr DynamicSignal() noexcept(true);
-
-		/// <summary>
-		/// Construct from data union.
-		/// </summary>
-		/// <param name="data">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(StorageType&& data) noexcept(true);
-
-		/// <summary>
-		/// Construct from instruction.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(Instruction value) noexcept(true);
-
-		/// <summary>
-		/// Construct from system intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(SystemIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from custom intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(CustomIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from jump address.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(JumpAddress value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit unsigned quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(U64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit signed quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(I64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit F64 precision F32.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(F64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 32-bit UTF32 character.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(CharClusterUtf8 value) noexcept(true);
-
-		/// <summary>
-		/// Copy constructor.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr DynamicSignal(const DynamicSignal&) noexcept(true) = default;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr DynamicSignal(DynamicSignal&&) noexcept(true) = default;
-
-		/// <summary>
-		/// Copy assignment operator.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr auto operator =(const DynamicSignal&) noexcept(true) -> DynamicSignal& = default;
-
-		/// <summary>
-		/// Move assignment operator.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr auto operator =(DynamicSignal&&) noexcept(true) -> DynamicSignal& = default;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~DynamicSignal() = default;
-
-		/// <summary>
-		/// Convert to undiscriminated runtime signal.
-		/// </summary>
-		[[nodiscard]]
-		auto Transform() const noexcept(true) -> Signal;
-
-		/// <summary>
-		/// Try to extract raw data.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		template <typename T> requires BytecodeElement<T>
-		[[nodiscard]]
-		constexpr auto Unwrap() const noexcept(false) -> std::optional<T>;
-
-		/// <summary>
-		/// Try to extract raw data but unchecked.
-		/// This is dangerous, only use if you 100% know the type!
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		template <typename T> requires BytecodeElement<T>
-		[[nodiscard]]
-		constexpr auto UnwrapUnchecked() const noexcept(false) -> T;
-
-		/// <summary>
-		/// Check if generic T is contained.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		template <typename T> requires BytecodeElement<T>
-		[[nodiscard]]
-		constexpr auto Contains() const noexcept(true) -> bool;
-
-		/// <summary>
-		/// Check if generic T and value is contained.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		template <typename T> requires BytecodeElement<T>
-		[[nodiscard]]
-		constexpr auto Contains(T other) const noexcept(true) -> bool;
-
-		/// <summary>
-		/// Equals.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator ==(const DynamicSignal& other) const noexcept(false) -> bool;
-
-		/// <summary>
-		/// Not equals.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator !=(const DynamicSignal& other) const noexcept(false) -> bool;
-
-		/// <summary>
-		/// Raw data variant (discriminated union)
-		/// </summary>
-		StorageType Storage { };
-
-		/// <summary>
-		/// Common code prologue.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		static constexpr auto CodePrologue() noexcept(true) -> const std::array<DynamicSignal, 1>&;
-
-		/// <summary>
-		/// Common code epilogue.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		static constexpr auto CodeEpilogue() noexcept(true) -> const std::array<DynamicSignal, 2>&;
 	};
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_NE(env.GetKernel(), nullptr);
+	ASSERT_TRUE(env.IsOnline());
+	ASSERT_NE(env.GetBootTime().count(), 0);
+	ASSERT_NE(env.GetBootStamp().time_since_epoch().count(), 0);
+	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+}
 
-	/// <summary>
-	/// This contains the total number of signals in the prologue + epilogue code.
-	/// Each code chunk must have at least the size of this because prologue and epilogue are required.
-	/// </summary>
-	inline static const std::size_t MANDATORY_CODE_SIZE {DynamicSignal::CodePrologue().size() + DynamicSignal::CodeEpilogue().size()};
+TEST(Environment, BootShutdownHooks)
+{
+	static constinit int x;
 
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal() noexcept(true) : Storage {UINT64_C(0)} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(StorageType&& data) noexcept(true) : Storage {data} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const Instruction value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const U64 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const I64 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const F64 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const CharClusterUtf8 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicCallId value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const JumpAddress value) noexcept(true) : Storage {value} { }
-
-	/// <summary>
-	/// Equals
-	/// </summary>
-	/// <param name="other"></param>
-	/// <returns></returns>
-	constexpr auto DynamicSignal::operator==(const DynamicSignal& other) const noexcept(false) -> bool
+	class MyEnvironment : public Environment
 	{
-		return this->Storage == other.Storage;
-	}
-
-	/// <summary>
-	/// Not equals
-	/// </summary>
-	/// <param name="other"></param>
-	/// <returns></returns>
-	constexpr auto DynamicSignal::operator!=(const DynamicSignal& other) const noexcept(false) -> bool
-	{
-		return !(*this == other);
-	}
-
-	constexpr std::array PROLOGUE_DATA
-	{
-		DynamicSignal {Instruction::NOp}
-	};
-
-	constexpr auto DynamicSignal::CodePrologue() noexcept(true) -> const std::array<DynamicSignal, 1>&
-	{
-		return PROLOGUE_DATA;
-	}
-
-	constexpr std::array EPILOGUE_DATA
-	{
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
-
-	constexpr auto DynamicSignal::CodeEpilogue() noexcept(true) -> const std::array<DynamicSignal, 2>&
-	{
-		return EPILOGUE_DATA;
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Unwrap() const noexcept(false) -> std::optional<T>
-	{
-		const auto* const val {std::get_if<T>(&this->Storage)};
-		return val ? std::optional<T> {*val} : std::optional<T> {std::nullopt};
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::UnwrapUnchecked() const noexcept(false) -> T
-	{
-		return *std::get_if<T>(&this->Storage);
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains() const noexcept(true) -> bool
-	{
-		return std::holds_alternative<T>(this->Storage);
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains(const T other) const noexcept(true) -> bool
-	{
-		const auto* const val {std::get_if<T>(&this->Storage)};
-		if constexpr (std::is_floating_point_v<T>)
+		auto OnPostBootHook() -> bool override
 		{
-			return val && F64Equals(*val, other);
+			++x;
+			return true;
 		}
-		return val && *val == other;
-	}
+
+		auto OnPostShutdownHook() -> bool override
+		{
+			++x;
+			return true;
+		}
+
+		auto OnPreBootHook() -> bool override
+		{
+			++x;
+			return true;
+		}
+
+		auto OnPreShutdownHook() -> bool override
+		{
+			++x;
+			return true;
+		}
+	};
+
+	MyEnvironment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	const EnvironmentDescriptor descriptor
+	{
+
+	};
+	ASSERT_EQ(x, 0);
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_EQ(x, 2);
+	ASSERT_NE(env.GetKernel(), nullptr);
+	ASSERT_TRUE(env.IsOnline());
+	ASSERT_NE(env.GetBootTime().count(), 0);
+	ASSERT_NE(env.GetBootStamp().time_since_epoch().count(), 0);
+	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
+	ASSERT_EQ(x, 4);
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+}
+
+TEST(Environment, BootShutdownHooksBad)
+{
+	class MyEnvironment : public Environment
+	{
+	protected:
+		auto OnPreBootHook() -> bool override
+		{
+			return false;
+		}
+
+		auto OnPostBootHook() -> bool override
+		{
+			return false;
+		}
+
+		auto OnPreShutdownHook() -> bool override
+		{
+			return false;
+		}
+
+		auto OnPostShutdownHook() -> bool override
+		{
+			return false;
+		}
+	};
+
+	MyEnvironment env { };
+	ASSERT_FALSE(env.IsOnline());
+	ASSERT_EQ(env.GetKernel(), nullptr);
+	const EnvironmentDescriptor descriptor
+	{
+
+	};
+	ASSERT_DEATH_IF_SUPPORTED(env.Boot(descriptor), "");
+}
+
+TEST(Environment, SystemConfig)
+{
+	Environment                 env { };
+	const char*                 args[3] {"Ignored", "Hey", "Ho"};
+	const EnvironmentDescriptor descriptor
+	{
+		.ArgC = sizeof args / sizeof*args,
+		.ArgV = args,
+		.AppName = "Hey:)",
+		.SystemPoolSize = 0
+	};
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+
+	ASSERT_EQ(env.GetAppName(), "Hey:)");
+	ASSERT_EQ(env.GetInputArguments()[0], "Hey");
+	ASSERT_EQ(env.GetInputArguments()[1], "Ho");
+}
+
+TEST(Environment, PoolSizeZero)
+{
+	Environment                 env { };
+	const char*                 args[3] {"Ignored", "Hey", "Ho"};
+	const EnvironmentDescriptor descriptor
+	{
+		.ArgC = sizeof args / sizeof *args,
+		.ArgV = args,
+		.AppName = "Hey:)",
+		.SystemPoolSize = 0,
+		.ReactorCount = 2
+	};
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+
+	ASSERT_EQ(env.GetAppName(), "Hey:)");
+	ASSERT_EQ(env.GetInputArguments()[0], "Hey");
+	ASSERT_EQ(env.GetInputArguments()[1], "Ho");
+	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::FALLBACK_SYSTEM_POOL_SIZE + descriptor.ReactorCount * (descriptor.ReactorDescriptor.StackSize * sizeof(Record)));
+}
+
+TEST(Environment, Execution)
+{
+	Stream                                 stream { };
+	stream.Prologue().With(2, [](ScopedInt var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	});
+	stream.Epilogue();
+
+	const EnvironmentDescriptor descriptor { };
+
+	Environment env { };
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_EQ(env.GetExecutionCount(), 0);
+	ASSERT_NO_FATAL_FAILURE(env.Execute(std::move(stream)));
+	ASSERT_EQ(env.GetExecutionCount(), 1);
+	ASSERT_EQ(env.GetExecutionTimeHistory().size(), 1);
+	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
+}
+
+TEST(Environment, ExecutionMissingPrologue)
+{
+	Stream                      stream { };
+	stream.With(2, [](ScopedInt var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	});
+	stream.Epilogue();
+
+	const EnvironmentDescriptor descriptor { };
+
+	Environment env { };
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
+	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
+}
+
+TEST(Environment, ExecutionMissingEpilogue)
+{
+	Stream                                 stream { };
+	stream.Prologue().With(2, [](ScopedInt var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	});
+
+	const EnvironmentDescriptor descriptor { };
+
+	Environment env { };
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
+	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
+}
+
+TEST(Environment, ExecutionHooks)
+{
+	Stream                                 stream { };
+	stream.Prologue().With(2, [](ScopedInt var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	});
+	stream.Epilogue();
+
+	const auto ssize {stream.Size()};
+
+	static std::size_t streamSize;
+	static int         counter;
+
+	const EnvironmentDescriptor descriptor { };
+
+	class MyEnvironment : public Environment
+	{
+		auto OnPreExecutionHook(const AppCodeBundle& appCodeBundle) -> bool override
+		{
+			streamSize = std::get<1>(appCodeBundle).size();
+			++counter;
+			return true;
+		}
+
+		auto OnPostExecutionHook() -> bool override
+		{
+			++counter;
+			return true;
+		}
+	};
+	MyEnvironment env { };
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_EQ(env.GetExecutionCount(), 0);
+	ASSERT_NO_FATAL_FAILURE(env.Execute(std::move(stream)));
+	ASSERT_EQ(env.GetExecutionCount(), 1);
+	ASSERT_EQ(counter, 2);
+	ASSERT_EQ(streamSize, ssize);
+	ASSERT_EQ(env.GetExecutionTimeHistory().size(), 1);
+	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
+}
+
+TEST(Environment, ExecutionHooksBad)
+{
+	Stream                                 stream { };
+	stream.Prologue().With(2, [](ScopedInt var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+	});
+	stream.Epilogue();
+
+	const EnvironmentDescriptor descriptor { };
+
+	class MyEnvironment : public Environment
+	{
+		auto OnPreExecutionHook([[maybe_unused]] const AppCodeBundle& appCodeBundle) -> bool override
+		{
+			return false;
+		}
+
+		auto OnPostExecutionHook() -> bool override
+		{
+			return true;
+		}
+	};
+	MyEnvironment env { };
+	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
+	ASSERT_EQ(env.GetExecutionCount(), 0);
+	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
 }

@@ -210,15 +210,12 @@
 #include <algorithm>
 #include <cstddef>
 #include <ostream>
-#include <type_traits>
-
-#include "RtTypes.hpp"
 
 namespace Nominax
 {
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Bytes2Gigabytes(T bytes) noexcept(true) -> std::size_t
+	constexpr auto Bytes2Gigabytes(T bytes) noexcept(true) -> T
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
 		return bytes / static_cast<T>(1024) / static_cast<T>(1024) / static_cast<T>(1024);
@@ -226,7 +223,7 @@ namespace Nominax
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Bytes2Megabytes(T bytes) noexcept(true) -> std::size_t
+	constexpr auto Bytes2Megabytes(T bytes) noexcept(true) -> T
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
 		return bytes / static_cast<T>(1024) / static_cast<T>(1024);
@@ -234,7 +231,7 @@ namespace Nominax
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Bytes2Kilobytes(T bytes) noexcept(true) -> std::size_t
+	constexpr auto Bytes2Kilobytes(T bytes) noexcept(true) -> T
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
 		return bytes / static_cast<T>(1024);
@@ -263,17 +260,17 @@ namespace Nominax
 
 	constexpr auto operator ""_kb(const unsigned long long int value) noexcept(true) -> unsigned long long int
 	{
-		return value * UINT64_C(1024);
+		return Kilobytes2Bytes<decltype(value)>(value);
 	}
 
 	constexpr auto operator ""_mb(const unsigned long long int value) noexcept(true) -> unsigned long long int
 	{
-		return value * UINT64_C(1024) * UINT64_C(1024);
+		return Megabytes2Bytes<decltype(value)>(value);
 	}
 
 	constexpr auto operator ""_gb(const unsigned long long int value) noexcept(true) -> unsigned long long int
 	{
-		return value * UINT64_C(1024) * UINT64_C(1024) * UINT64_C(1024);
+		return Gigabytes2Bytes<decltype(value)>(value);
 	}
 
 	extern auto PrettyPrintBytes(std::ostream& out, std::size_t size) -> void;

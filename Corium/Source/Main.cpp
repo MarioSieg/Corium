@@ -209,17 +209,31 @@
 
 using namespace Nominax;
 
-auto main() -> int
+auto main(const signed argc, const char* const* const argv) -> signed
 {
-	Stream stream { };
-	stream.Prologue().With(2, [&stream](ScopedInt&& var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-		stream.Do<Instruction::CIntrin>(CustomIntrinsicCallId {0});
-	}).Epilogue();
+	Stream stream{ OptimizationLevel::Off };
+	stream.Prologue();
 
-	Environment env {};
-	env.Boot();
+	stream.With(2, [](ScopedInt var)
+		{
+			var *= 2;
+			var += 1;
+			var /= 1;
+		});
+	
+	stream << Instruction::Push << u8"Hello:)\n"_cluster;
+	stream << Instruction::Intrin << SystemIntrinsicCallId::IoPortWriteCluster;
+	stream.Epilogue();
+
+	EnvironmentDescriptor descriptor
+	{
+		.ArgC = argc,
+		.ArgV = argv,
+		.AppName = "Corium"
+	};
+
+	Environment env{ };
+	env.Boot(descriptor);
+	env.Execute(std::move(stream));
+	env.Shutdown();
 }

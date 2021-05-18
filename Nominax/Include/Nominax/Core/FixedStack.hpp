@@ -208,6 +208,9 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
+#include <memory_resource>
+#include <vector>
 
 #include "../Common/MemoryUnits.hpp"
 #include "Record.hpp"
@@ -220,27 +223,30 @@ namespace Nominax
 	/// </summary>
 	class [[nodiscard]] FixedStack final
 	{
-		Record*     Buffer_;
-		std::size_t BufferSize_;
+	public:
+		using StorageType = std::pmr::vector<Record>;
+
+	private:
+		StorageType Buffer_;
 
 	public:
 		/// <summary>
 		/// Small 1 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_SMALL {Megabytes2Bytes(1) / sizeof(Record)};
+		static constexpr std::size_t SIZE_SMALL {1_mb / sizeof(Record)};
 
 		/// <summary>
 		/// Medium sizes 4 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_MEDIUM {Megabytes2Bytes(4) / sizeof(Record)};
+		static constexpr std::size_t SIZE_MEDIUM {4_mb / sizeof(Record)};
 
 		/// <summary>
 		/// Medium sizes 8 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_LARGE {Megabytes2Bytes(8) / sizeof(Record)};
+		static constexpr std::size_t SIZE_LARGE {8_mb / sizeof(Record)};
 		/// <summary>
 		/// 
 		/// </summary>
@@ -268,7 +274,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto begin() noexcept(true) -> Record*;
+		auto begin() noexcept(true) -> StorageType::iterator;
 
 		/// <summary>
 		/// STL Compat
@@ -276,7 +282,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto begin() const noexcept(true) -> const Record*;
+		auto begin() const noexcept(true) -> StorageType::const_iterator;
 
 		/// <summary>
 		/// STL Compat
@@ -284,7 +290,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto end() noexcept(true) -> Record*;
+		auto end() noexcept(true) -> StorageType::iterator;
 
 		/// <summary>
 		/// STL Compat
@@ -292,7 +298,7 @@ namespace Nominax
 		/// <returns></returns>
 		// ReSharper disable once CppInconsistentNaming
 		[[nodiscard]]
-		auto end() const noexcept(true) -> const Record*;
+		auto end() const noexcept(true) -> StorageType::const_iterator;
 
 		/// <summary>
 		/// Construct with size in records.
@@ -301,7 +307,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="sizeInRecords">Size in records. If the size is zero, fatal termination.</param>
 		/// <returns></returns>
-		explicit FixedStack(std::size_t sizeInRecords) noexcept(false);
+		explicit FixedStack(std::pmr::memory_resource& allocator, std::size_t sizeInRecords) noexcept(false);
 
 		/// <summary>
 		/// No copy.
@@ -312,7 +318,7 @@ namespace Nominax
 		/// Move allowed.
 		/// </summary>
 		/// <returns></returns>
-		FixedStack(FixedStack&& value) noexcept(true);
+		FixedStack(FixedStack&& value) noexcept(true) = default;
 
 		/// <summary>
 		/// No copy.
@@ -324,73 +330,73 @@ namespace Nominax
 		/// Move allowed.
 		/// </summary>
 		/// <returns></returns>
-		auto operator =(FixedStack&& value) noexcept(true) -> FixedStack&;
+		auto operator =(FixedStack&& value) noexcept(true) -> FixedStack& = default;
 
 		/// <summary>
 		/// Deallocate stack.
 		/// </summary>
-		~FixedStack();
+		~FixedStack() = default;
 	};
 
 	inline auto FixedStack::Buffer() noexcept(true) -> Record*
 	{
-		return this->Buffer_;
+		return this->Buffer_.data();
 	}
 
 	inline auto FixedStack::Buffer() const noexcept(true) -> const Record*
 	{
-		return this->Buffer_;
+		return this->Buffer_.data();
 	}
 
 	inline auto FixedStack::Size() const noexcept(true) -> std::size_t
 	{
-		return this->BufferSize_;
+		return this->Buffer_.size();
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto FixedStack::begin() noexcept(true) -> Record*
+	inline auto FixedStack::begin() noexcept(true) -> StorageType::iterator
 	{
-		return this->Buffer_;
+		return std::begin(this->Buffer_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto FixedStack::begin() const noexcept(true) -> const Record*
+	inline auto FixedStack::begin() const noexcept(true) -> StorageType::const_iterator
 	{
-		return this->Buffer_;
+		return std::begin(this->Buffer_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto FixedStack::end() noexcept(true) -> Record*
+	inline auto FixedStack::end() noexcept(true) -> StorageType::iterator
 	{
-		return this->Buffer_ + this->BufferSize_;
+		return std::end(this->Buffer_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto FixedStack::end() const noexcept(true) -> const Record*
+	inline auto FixedStack::end() const noexcept(true) -> StorageType::const_iterator
 	{
-		return this->Buffer_ + this->BufferSize_;
+		return std::end(this->Buffer_);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto begin(FixedStack& self) noexcept(true) -> Record*
-	{
-		return self.begin();
-	}
-
-	// ReSharper disable once CppInconsistentNaming
-	inline auto begin(const FixedStack& self) noexcept(true) -> const Record*
+	inline auto begin(FixedStack& self) noexcept(true) -> FixedStack::StorageType::iterator
 	{
 		return self.begin();
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto end(FixedStack& self) noexcept(true) -> Record*
+	inline auto begin(const FixedStack& self) noexcept(true) -> FixedStack::StorageType::const_iterator
+	{
+		return self.begin();
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto end(FixedStack& self) noexcept(true) -> FixedStack::StorageType::iterator
 	{
 		return self.end();
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	inline auto end(const FixedStack& self) noexcept(true) -> const Record*
+	inline auto end(const FixedStack& self) noexcept(true) -> FixedStack::StorageType::const_iterator
 	{
 		return self.end();
 	}

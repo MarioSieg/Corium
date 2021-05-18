@@ -1,6 +1,6 @@
-// File: DynamicSignal.hpp
+// File: ReactorPool.cpp
 // Author: Mario
-// Created: 24.04.2021 9:48 PM
+// Created: 13.05.2021 8:34 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,366 +205,49 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include <algorithm>
+#include <thread>
 
-#include <array>
-#include <cstdint>
-#include <optional>
-#include <variant>
-
-#include "../Common/BaseTypes.hpp"
-#include "../Common/LiteralOp.hpp"
-#include "../Common/F64Comparator.hpp"
-
-#include "Signal.hpp"
-#include "Instruction.hpp"
-#include "SystemIntrinsic.hpp"
-#include "CustomIntrinsic.hpp"
-#include "JumpAddress.hpp"
+#include "../../Include/Nominax/Core/ReactorPool.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// Restricts to valid byte code elements.
-	/// </summary>
-	/// <typeparam name="...Ts">The generic types to perform restriction checks on.</typeparam>
-	template <typename T>
-	concept BytecodeElement = requires(T x)
+	auto ReactorPool::SmartQueryReactorCount(const std::size_t desired) noexcept(false) -> std::size_t
 	{
-		// Type size must either be 32 or 64 bits
-		sizeof(T) == 4 || sizeof(T) == 8;
-		alignof(T) == 4 || alignof(T) == 8;
-		x == x;
-		x != x;
-		std::is_trivial_v<T>;
-	};
-
-	/// <summary>
-	/// Represents an entry in a byte code steam. This get's converted to a signal for execution.
-	/// </summary>
-	struct DynamicSignal final
-	{
-		/// <summary>
-		/// Discriminated union.
-		/// </summary>
-		using StorageType = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, JumpAddress, U64, I64, F64, CharClusterUtf8>;
-
-		/// <summary>
-		/// Default construct an I64(0)
-		/// </summary>
-		/// <returns></returns>
-		constexpr DynamicSignal() noexcept(true);
-
-		/// <summary>
-		/// Construct from data union.
-		/// </summary>
-		/// <param name="data">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(StorageType&& data) noexcept(true);
-
-		/// <summary>
-		/// Construct from instruction.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(Instruction value) noexcept(true);
-
-		/// <summary>
-		/// Construct from system intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(SystemIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from custom intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(CustomIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from jump address.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(JumpAddress value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit unsigned quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(U64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit signed quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(I64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit F64 precision F32.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(F64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 32-bit UTF32 character.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(CharClusterUtf8 value) noexcept(true);
-
-		/// <summary>
-		/// Copy constructor.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr DynamicSignal(const DynamicSignal&) noexcept(true) = default;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr DynamicSignal(DynamicSignal&&) noexcept(true) = default;
-
-		/// <summary>
-		/// Copy assignment operator.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr auto operator =(const DynamicSignal&) noexcept(true) -> DynamicSignal& = default;
-
-		/// <summary>
-		/// Move assignment operator.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr auto operator =(DynamicSignal&&) noexcept(true) -> DynamicSignal& = default;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~DynamicSignal() = default;
-
-		/// <summary>
-		/// Convert to undiscriminated runtime signal.
-		/// </summary>
-		[[nodiscard]]
-		auto Transform() const noexcept(true) -> Signal;
-
-		/// <summary>
-		/// Try to extract raw data.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		template <typename T> requires BytecodeElement<T>
-		[[nodiscard]]
-		constexpr auto Unwrap() const noexcept(false) -> std::optional<T>;
-
-		/// <summary>
-		/// Try to extract raw data but unchecked.
-		/// This is dangerous, only use if you 100% know the type!
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		template <typename T> requires BytecodeElement<T>
-		[[nodiscard]]
-		constexpr auto UnwrapUnchecked() const noexcept(false) -> T;
-
-		/// <summary>
-		/// Check if generic T is contained.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		template <typename T> requires BytecodeElement<T>
-		[[nodiscard]]
-		constexpr auto Contains() const noexcept(true) -> bool;
-
-		/// <summary>
-		/// Check if generic T and value is contained.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		template <typename T> requires BytecodeElement<T>
-		[[nodiscard]]
-		constexpr auto Contains(T other) const noexcept(true) -> bool;
-
-		/// <summary>
-		/// Equals.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator ==(const DynamicSignal& other) const noexcept(false) -> bool;
-
-		/// <summary>
-		/// Not equals.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator !=(const DynamicSignal& other) const noexcept(false) -> bool;
-
-		/// <summary>
-		/// Raw data variant (discriminated union)
-		/// </summary>
-		StorageType Storage { };
-
-		/// <summary>
-		/// Common code prologue.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		static constexpr auto CodePrologue() noexcept(true) -> const std::array<DynamicSignal, 1>&;
-
-		/// <summary>
-		/// Common code epilogue.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		static constexpr auto CodeEpilogue() noexcept(true) -> const std::array<DynamicSignal, 2>&;
-	};
-
-	/// <summary>
-	/// This contains the total number of signals in the prologue + epilogue code.
-	/// Each code chunk must have at least the size of this because prologue and epilogue are required.
-	/// </summary>
-	inline static const std::size_t MANDATORY_CODE_SIZE {DynamicSignal::CodePrologue().size() + DynamicSignal::CodeEpilogue().size()};
-
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal() noexcept(true) : Storage {UINT64_C(0)} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(StorageType&& data) noexcept(true) : Storage {data} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const Instruction value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const U64 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const I64 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const F64 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const CharClusterUtf8 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicCallId value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const JumpAddress value) noexcept(true) : Storage {value} { }
-
-	/// <summary>
-	/// Equals
-	/// </summary>
-	/// <param name="other"></param>
-	/// <returns></returns>
-	constexpr auto DynamicSignal::operator==(const DynamicSignal& other) const noexcept(false) -> bool
-	{
-		return this->Storage == other.Storage;
+		return desired < MIN_REACTOR_COUNT ? std::thread::hardware_concurrency() : desired;
 	}
 
-	/// <summary>
-	/// Not equals
-	/// </summary>
-	/// <param name="other"></param>
-	/// <returns></returns>
-	constexpr auto DynamicSignal::operator!=(const DynamicSignal& other) const noexcept(false) -> bool
+	ReactorPool::ReactorPool
+	(
+		std::pmr::memory_resource&               allocator,
+		const std::size_t                        reactorCount,
+		const ReactorSpawnDescriptor&            config,
+		const std::optional<ReactorRoutineLink>& routineLink
+	) noexcept(false) : Pool_ {&allocator}
 	{
-		return !(*this == other);
-	}
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 
-	constexpr std::array PROLOGUE_DATA
-	{
-		DynamicSignal {Instruction::NOp}
-	};
+		Print("Initializing reactor pool...\n", reactorCount);
+		Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT, FALLBACK_REACTOR_COUNT, reactorCount);
 
-	constexpr auto DynamicSignal::CodePrologue() noexcept(true) -> const std::array<DynamicSignal, 1>&
-	{
-		return PROLOGUE_DATA;
-	}
-
-	constexpr std::array EPILOGUE_DATA
-	{
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
-
-	constexpr auto DynamicSignal::CodeEpilogue() noexcept(true) -> const std::array<DynamicSignal, 2>&
-	{
-		return EPILOGUE_DATA;
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Unwrap() const noexcept(false) -> std::optional<T>
-	{
-		const auto* const val {std::get_if<T>(&this->Storage)};
-		return val ? std::optional<T> {*val} : std::optional<T> {std::nullopt};
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::UnwrapUnchecked() const noexcept(false) -> T
-	{
-		return *std::get_if<T>(&this->Storage);
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains() const noexcept(true) -> bool
-	{
-		return std::holds_alternative<T>(this->Storage);
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains(const T other) const noexcept(true) -> bool
-	{
-		const auto* const val {std::get_if<T>(&this->Storage)};
-		if constexpr (std::is_floating_point_v<T>)
+		this->Pool_.reserve(reactorCount);
+		for (std::size_t i {0}; i < reactorCount; ++i)
 		{
-			return val && F64Equals(*val, other);
+			if (NOMINAX_UNLIKELY(!routineLink))
+			{
+				Print(LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
+			}
+			this->Pool_.emplace_back(Reactor {allocator, config, routineLink ? *routineLink : GetOptimalReactorRoutine({ }), i});
 		}
-		return val && *val == other;
+
+		Print("\n");
+	}
+
+	ReactorPool::~ReactorPool()
+	{
+		const auto size {this->Pool_.size()};
+		this->Pool_.clear();
+		Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
 	}
 }

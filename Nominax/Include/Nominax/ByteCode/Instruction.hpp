@@ -287,6 +287,4 @@ namespace Nominax
 		/* !no instruction - count of total instructions! */
 		Count
 	};
-
-	enum class alignas(alignof(U64)) JumpAddress : U64;
 }

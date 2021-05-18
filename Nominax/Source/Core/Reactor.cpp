@@ -210,6 +210,8 @@
 #include "../../Include/Nominax/Core/ReactorHypervisor.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
+#include "../../Include/Nominax/Common/XorshiftThreadLocal.hpp"
+#include "../../Include/Nominax/System/Os.hpp"
 
 namespace
 {
@@ -218,11 +220,11 @@ namespace
 	[[maybe_unused]]
 	auto CreateDescriptor
 	(
-		FixedStack&               stack,
-		CodeChunk&                chunk,
-		JumpMap&                  jumpMap,
-		SharedIntrinsicTableView& intrinsicTable,
-		InterruptRoutine&         interruptHandler
+		FixedStack&                   stack,
+		CodeChunk&                    chunk,
+		JumpMap&                      jumpMap,
+		UserIntrinsicRoutineRegistry& intrinsicTable,
+		InterruptRoutine&             interruptHandler
 	) noexcept(true) -> DetailedReactorDescriptor
 	{
 		const std::span instrMapTableView
@@ -246,22 +248,50 @@ namespace Nominax
 {
 	Reactor::Reactor
 	(
-		const std::size_t          stackSize,
-		SharedIntrinsicTableView&& intrinsicTable,
-		InterruptRoutine*          interruptHandler
+		std::pmr::memory_resource&               allocator,
+		const ReactorSpawnDescriptor&            descriptor,
+		const std::optional<ReactorRoutineLink>& routineLink,
+		const std::size_t                        poolIdx
 	) noexcept(false) :
+		Id_ {Xorshift128ThreadLocal()},
+		PoolIndex_ {poolIdx},
+		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
+		PowerPreference_ {descriptor.PowerPref},
 		Input_ { },
-		Output_ {Input_},
-		Stack_ {stackSize},
-		IntrinsicTable_ {intrinsicTable},
-		InterruptHandler_ {interruptHandler ? interruptHandler : &DefaultInterruptRoutine} { }
-
-	Reactor::Reactor(Reactor&& other) noexcept(true) :
-		Input_ {other.Input_},
-		Output_ {other.Output_},
-		Stack_ {std::move(other.Stack_)},
-		IntrinsicTable_ {other.IntrinsicTable_},
-		InterruptHandler_ {other.InterruptHandler_} { }
+		Output_ {&Input_},
+		Stack_ {allocator, descriptor.StackSize},
+		IntrinsicTable_ {descriptor.SharedIntrinsicTable},
+		InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : &DefaultInterruptRoutine},
+		RoutineLink_
+		{
+			[&routineLink]() noexcept(true) -> ReactorRoutineLink
+			{
+				if (NOMINAX_UNLIKELY(!routineLink))
+				{
+					Print(LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
+				}
+				return routineLink ? *routineLink : GetOptimalReactorRoutine({ });
+			}()
+		}
+	{
+		Print
+		(
+			"Reactor {:010X} "
+			"Stack: {} MB-"           // stack
+			"{} KR, "                 // kilo records
+			"Intrinsics: {}, "        // intrinsics
+			"Interrupt Routine: {}, " // interrupt
+			"Power: {}, "             // power preference
+			"Pool: {:02}\n",          // pool index
+			this->Id_,
+			Bytes2Megabytes(this->Stack_.Size() * sizeof(Record)),
+			this->Stack_.Size() / 1000,
+			this->IntrinsicTable_.size(),
+			this->InterruptHandler_ == &DefaultInterruptRoutine ? "Def" : "Usr",
+			this->PowerPreference_ == PowerPreference::HighPerformance ? "Perf" : "Safe",
+			this->PoolIndex_
+		);
+	}
 
 	auto Reactor::Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
 	{
@@ -276,14 +306,16 @@ namespace Nominax
 		);
 		const auto validationResult {this->Input_.Validate()};
 		NOMINAX_PANIC_ASSERT_EQ(validationResult, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]);
-		this->Output_ = ExecuteOnce(this->Input_); // TODO Remove second validate?!
+		auto* const routine = std::get<1>(this->RoutineLink_);
+		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");
+		(*routine)(this->Input_, this->Output_);
 		return this->Output_;
 	}
 
-	auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorOutput
+	auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& target) noexcept(true) -> ReactorOutput
 	{
-		ReactorOutput output {.Input = input};
-		ExecuteReactorAutoDispatchBackend(cpuFeatureDetector, input, output);
+		ReactorOutput output {.Input = &input};
+		ExecuteOnce(input, output, target);
 		return output;
 	}
 }

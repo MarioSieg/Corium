@@ -205,70 +205,417 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <chrono>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
-#include "../../Include/Nominax/Common/Protocol.hpp"
-#include "../../Include/Nominax/Common/PanicRoutine.hpp"
-#include "../../Include/Nominax/Core/Environment.hpp"
-#include "../../Include/Nominax/Core/Reactor.hpp"
-#include "../../Include/Nominax/ByteCode/Stream.hpp"
-#include "../../Include/Nominax/System/CpuFeatureDetector.hpp"
-#include "../../Include/Nominax/System/Os.hpp"
+#include "../../Include/Nominax/Nominax.hpp"
 
-#include "EnvironmentUtils.hpp"
-
-namespace Nominax
+namespace
 {
-	struct Environment::Kernel final
+	using namespace Nominax;
+
+	/// <summary>
+	/// Query and print machine info.
+	/// </summary>
+	/// <returns></returns>
+	auto InitSysInfo() noexcept(false) -> SystemSnapshot
 	{
-		SystemInfo           SysInfo;
-		CpuFeatureDetector   CpuFeatures;
-		Stream               AppCode;
-		std::vector<Reactor> ReactorPool;
+		Print("\n");
+		SystemSnapshot snapshot { };
+		snapshot.Print();
+		return snapshot;
+	}
 
-		explicit Kernel(std::size_t reactorCount) noexcept(false);
-		Kernel(const Kernel&)                     = delete;
-		Kernel(Kernel&&)                          = delete;
-		auto operator =(const Kernel&) -> Kernel& = delete;
-		auto operator =(Kernel&&) -> Kernel&      = delete;
-		~Kernel()                                 = default;
-	};
-
-	Environment::Kernel::Kernel(const std::size_t reactorCount) noexcept(false)
-		: SysInfo { }, CpuFeatures { }, AppCode { }, ReactorPool { }
+	/// <summary>
+	/// Query and print cpu features.
+	/// </summary>
+	/// <returns></returns>
+	auto InitCpuFeatures() noexcept(false) -> CpuFeatureDetector
 	{
-		PrintMachineInfo(this->SysInfo, this->CpuFeatures);
+		Print("\n");
+		CpuFeatureDetector cpuFeatureDetector { };
+		cpuFeatureDetector.Print();
+		Print("\n");
+		return cpuFeatureDetector;
+	}
 
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Kernel with zero reactors was requested!");
+	/// <summary>
+	/// Prints the info of one type.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="name"></param>
+	/// <returns></returns>
+	template <typename T>
+	inline auto PrintTypeInfo(const std::string_view name) -> void
+	{
+		Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
+	}
 
-		Print("Creating {} reactors...\n", reactorCount);
+	/// <summary>
+	/// Print size and alignment of common types.
+	/// </summary>
+	/// <param name="threads"></param>
+	/// <returns></returns>
+	auto PrintTypeInfoTable() -> void
+	{
+		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
+		PrintTypeInfo<Record>("Record");
+		PrintTypeInfo<Signal>("Signal");
+		PrintTypeInfo<DynamicSignal>("DynamicSignal");
+		PrintTypeInfo<Object>("Object");
+		PrintTypeInfo<ObjectHeader>("ObjectHeader");
+		PrintTypeInfo<I64>("int");
+		PrintTypeInfo<U64>("uint");
+		PrintTypeInfo<F64>("float");
+		PrintTypeInfo<char32_t>("char");
+		PrintTypeInfo<bool>("bool");
+		PrintTypeInfo<void*>("void*");
+	}
 
-		ReactorPool.reserve(reactorCount);
-		for (std::size_t i {1}; i <= reactorCount; ++i)
-		{
-			Print("Creating reactor {} of {}\n", i, reactorCount);
-			ReactorPool.emplace_back(Reactor {FixedStack::SIZE_LARGE});
-		}
-
+	/// <summary>
+	/// Print Nominax runtime info.
+	/// </summary>
+	/// <returns></returns>
+	auto PrintSystemInfo() -> void
+	{
+		Print(SYSTEM_LOGO_TEXT);
+		Print(SYSTEM_COPYRIGHT_TEXT);
+		Print("\nNominax Version: v.{}.{}\n", SYSTEM_VERSION.Major, SYSTEM_VERSION.Minor);
+		Print("Platform: {} {}\n", NOMINAX_OS_NAME, NOMINAX_ARCH_SIZE_NAME);
+		Print("Arch: {}\n", NOMINAX_ARCH_NAME);
+		Print("IsPosix: {}\n", NOMINAX_IS_POSIX);
+		Print("Compiled with: {} - C++ 20\n", NOMINAX_COM_NAME);
+		Print("\n");
+		PrintTypeInfoTable();
 		Print("\n");
 	}
 
-	auto Environment::Boot() noexcept(false) -> void
-	{
-		std::ios_base::sync_with_stdio(false);
-		PrintSystemInfo();
-		Print("Booting runtime environment...\n");
-		const auto tik {std::chrono::high_resolution_clock::now()};
-		const auto reactorCount {std::thread::hardware_concurrency()};
+#define DISPATCH_HOOK(method, ...)						\
+	do													\
+	{													\
+		Print("Dispatching hook: " #method "\n");		\
+		NOMINAX_PANIC_ASSERT_TRUE						\
+		(												\
+			this-> method (__VA_ARGS__),				\
+			#method "returned false!"					\
+		);												\
+	}													\
+	while(false)
 
-		this->Env_ = new(std::nothrow) Kernel(reactorCount);
-		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Env_, "Kernel allocation failed!");
+#define VALIDATE_ONLINE_BOOT_STATE() NOMINAX_PANIC_ASSERT_TRUE(this->IsOnline(), "Environment is offline!")
+
+	/// <summary>
+	/// Compute the final size of the system pool.
+	/// If the desired size is 0, fallback size is used.
+	/// Y = Y != 0 + F
+	/// S = Y + (C * (Z * R))
+	/// Y = desired size
+	/// S = final size
+	/// C = reactor count
+	/// Z = reactor stack size
+	/// R = sizeof(Record)
+	/// </summary>
+	/// <param name="desiredSize"></param>
+	/// <param name="reactorCount"></param>
+	/// <param name="reactorStackSize"></param>
+	/// <returns></returns>
+	constexpr auto ComputePoolSize
+	(
+		std::size_t       desiredSize,
+		const std::size_t reactorCount,
+		const std::size_t reactorStackSize
+	)
+	noexcept(true) -> std::size_t
+	{
+		desiredSize = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
+		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
+	}
+}
+
+namespace Nominax
+{
+	/// <summary>
+	/// Contains all the runtime variables required for the runtime system.
+	/// </summary>
+	/// <param name="descriptor"></param>
+	/// <returns></returns>
+	struct Environment::Context final
+	{
+		const std::size_t                                        ReactorCount;
+		const std::size_t                                        SystemPoolSize;
+		std::unique_ptr<U8[]>                                    SystemPool;
+		std::pmr::monotonic_buffer_resource                      MonotonicResource;
+		std::pmr::vector<std::pmr::string>                       Arguments;
+		std::pmr::string                                         AppName;
+		std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
+		std::chrono::high_resolution_clock::time_point           BootStamp;
+		std::chrono::milliseconds                                BootTime;
+		SystemSnapshot                                           SysInfoSnapshot;
+		CpuFeatureDetector                                       CpuFeatures;
+		ReactorRoutineLink                                       OptimalReactorRoutine;
+		ReactorPool                                              CorePool;
+
+		explicit Context(const EnvironmentDescriptor& descriptor) noexcept(false);
+		Context(const Context&)                     = delete;
+		Context(Context&&)                          = delete;
+		auto operator =(const Context&) -> Context& = delete;
+		auto operator =(Context&&) -> Context&      = delete;
+		~Context()                                  = default;
+	};
+
+	Environment::Context::Context(const EnvironmentDescriptor& descriptor) noexcept(false) :
+		ReactorCount {ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount)},
+		SystemPoolSize {ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.ReactorDescriptor.StackSize)},
+		SystemPool
+		{
+			[size = SystemPoolSize]() noexcept(false) -> auto*
+			{
+				Print("Allocating system pool with size: {}MB\n", Bytes2Megabytes(size));
+				auto* const mem {new(std::nothrow) U8[size]};
+				NOMINAX_PANIC_ASSERT_NOT_NULL(mem, "System pool allocation failed!");
+				return mem;
+			}()
+		},
+		MonotonicResource {SystemPool.get(), SystemPoolSize},
+		Arguments {&MonotonicResource},
+		AppName {&MonotonicResource},
+		ExecutionTimeHistory {&MonotonicResource},
+		BootStamp {std::chrono::high_resolution_clock::now()},
+		BootTime { },
+		SysInfoSnapshot {InitSysInfo()},
+		CpuFeatures {InitCpuFeatures()},
+		OptimalReactorRoutine {descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)},
+		CorePool {MonotonicResource, ReactorCount, descriptor.ReactorDescriptor, OptimalReactorRoutine}
+	{
+		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
+		{
+			// copy arguments:
+			this->Arguments.assign(descriptor.ArgV + 1, descriptor.ArgV + descriptor.ArgC);
+		}
+
+		// copy app name:
+		this->AppName = descriptor.AppName;
+	}
+
+	auto Environment::ContextDeleter::operator()(Context* const kernel) const noexcept(true) -> void
+	{
+		delete kernel;
+	}
+
+	auto Environment::OnPreBootHook() -> bool
+	{
+		return true;
+	}
+
+	auto Environment::OnPostBootHook() -> bool
+	{
+		return true;
+	}
+
+	auto Environment::OnPreExecutionHook([[maybe_unused]] const AppCodeBundle& appCodeBundle) -> bool
+	{
+		return true;
+	}
+
+	auto Environment::OnPostExecutionHook() -> bool
+	{
+		return true;
+	}
+
+	auto Environment::OnPreShutdownHook() -> bool
+	{
+		return true;
+	}
+
+	auto Environment::OnPostShutdownHook() -> bool
+	{
+		return true;
+	}
+
+	Environment::~Environment()
+	{
+		Shutdown();
+	}
+
+	auto Environment::Boot(const EnvironmentDescriptor& descriptor) noexcept(false) -> void
+	{
+		if (NOMINAX_UNLIKELY(this->Context_))
+		{
+			return;
+		}
+
+		// Basic setup:
+		std::ios_base::sync_with_stdio(!descriptor.FastHostIoSync);
+		PrintSystemInfo();
+		Print("Booting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
+		const auto tik {std::chrono::high_resolution_clock::now()};
+
+		// Invoke hook:
+		DISPATCH_HOOK(OnPreBootHook,);
+
+		// Clamp system pool size:
+		Print
+		(
+			"Monotonic system pool fixed size: {} MB, Fallback: {} MB\n",
+			Bytes2Megabytes(descriptor.SystemPoolSize),
+			Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
+		);
+
+		// No, we cannot use std::make_unique because we want it noexcept!
+		// ReSharper disable once CppSmartPointerVsMakeFunction
+		this->Context_ = std::unique_ptr<Context, ContextDeleter>(new(std::nothrow) Context(descriptor));
+		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Context_, "Context allocation failed!");
+
+		// Invoke hook:
+		DISPATCH_HOOK(OnPostBootHook,);
 
 		const auto tok {std::chrono::high_resolution_clock::now()};
 		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
 
-		Print("Runtime environment online! Boot time: {}, Memory: {}MB\n", ms, Bytes2Megabytes(Os::QueryProcessMemoryUsed()));
+		this->Context_->BootTime = ms;
+
+		// Get memory snapshot:
+		const std::size_t memSnapshot {Os::QueryProcessMemoryUsed()};
+		const F32         memUsagePercent {static_cast<F32>(memSnapshot) * 100.F / static_cast<F32>(this->Context_->SysInfoSnapshot.TotalSystemMemory)};
+
+		// Allocate one byte to get current needle:
+		const U8* const      needle {static_cast<U8*>(this->Context_->MonotonicResource.allocate(sizeof(U8), alignof(U8)))};
+		const std::ptrdiff_t offset {needle - this->Context_->SystemPool.get()};                                                     // compute allocation offset
+		const F32            poolUsagePercent {static_cast<F32>(offset) * 100.F / static_cast<F32>(this->Context_->SystemPoolSize)}; // compute percent usage
+
+		Print
+		(
+			"Runtime environment online!\n"
+			"Boot time: {}\n"
+			"Process memory snapshot: {:.02f} % [{} MB / {} MB]\n"
+			"Monotonic pool snapshot: {:.02f} % [{} MB / {} MB]\n"
+			"\n",
+			ms,
+			memUsagePercent,
+			Bytes2Megabytes(memSnapshot),
+			Bytes2Megabytes(this->Context_->SysInfoSnapshot.TotalSystemMemory),
+			poolUsagePercent,
+			Bytes2Megabytes(offset),
+			Bytes2Megabytes(this->Context_->SystemPoolSize)
+		);
+	}
+
+	auto Environment::Execute(AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+
+		// Invoke hook:
+		DISPATCH_HOOK(OnPreExecutionHook, appCode);
+
+		// Info
+		Print(LogLevel::Warning, "Executing... Code size: {}\n", std::get<0>(appCode).size());
+		std::cout.flush();
+
+		// Execute on alpha reactor:
+		const auto& result {(*this->Context_->CorePool)(std::move(appCode))};
+
+		// Add execution time:
+		const auto micros {std::chrono::duration_cast<std::chrono::duration<F64, std::micro>>(result.Duration)};
+		this->Context_->ExecutionTimeHistory.push_back(micros);
+
+		// Print exec info:
+		const auto level {result.ShutdownReason == ReactorShutdownReason::Success ? LogLevel::Success : LogLevel::Error};
+		Print(level, "Execution #{} done! Runtime {:.04}\n", this->Context_->ExecutionTimeHistory.size(), std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros));
+		std::cout.flush();
+
+		// Invoke hook:
+		DISPATCH_HOOK(OnPostExecutionHook,);
+		return result;
+	}
+
+	auto Environment::Execute(Stream&& appCode) noexcept(false) -> const ReactorOutput&
+	{
+		AppCodeBundle appCodeBundle { };
+		if (const auto [code, _] {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(code != ByteCodeValidationResultCode::Ok))
+		{
+			PANIC(BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[static_cast<std::underlying_type_t<ByteCodeValidationResultCode>>(code)]);
+		}
+		return (*this)(std::move(appCodeBundle));
+	}
+
+	auto Environment::Shutdown() noexcept(false) -> void
+	{
+		if (NOMINAX_UNLIKELY(!this->Context_))
+		{
+			return;
+		}
+
+		// Invoke hook:
+		DISPATCH_HOOK(OnPreShutdownHook,);
+
+		this->Context_.reset();
+		this->Context_ = nullptr;
+
+		// Invoke hook:
+		DISPATCH_HOOK(OnPostShutdownHook,);
+	}
+
+	auto Environment::IsOnline() const noexcept(true) -> bool
+	{
+		return this->Context_ != nullptr;
+	}
+
+	auto Environment::GetKernel() const noexcept(true) -> const void*
+	{
+		return this->Context_.get();
+	}
+
+	auto Environment::GetBootStamp() const noexcept(false) -> std::chrono::high_resolution_clock::time_point
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+		return this->Context_->BootStamp;
+	}
+
+	auto Environment::GetBootTime() const noexcept(false) -> std::chrono::milliseconds
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+		return this->Context_->BootTime;
+	}
+
+	auto Environment::GetInputArguments() const noexcept(false) -> const std::pmr::vector<std::pmr::string>&
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+		return this->Context_->Arguments;
+	}
+
+	auto Environment::GetSystemSnapshot() const noexcept(false) -> const SystemSnapshot&
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+		return this->Context_->SysInfoSnapshot;
+	}
+
+	auto Environment::GetProcessorFeatureSnapshot() const noexcept(false) -> const CpuFeatureDetector&
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+		return this->Context_->CpuFeatures;
+	}
+
+	auto Environment::GetAppName() const noexcept(false) -> const std::pmr::string&
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+		return this->Context_->AppName;
+	}
+
+	auto Environment::GetMonotonicSystemPoolSize() const noexcept(false) -> std::size_t
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+		return this->Context_->SystemPoolSize;
+	}
+
+	auto Environment::GetExecutionCount() const noexcept(false) -> std::size_t
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+		return this->Context_->ExecutionTimeHistory.size();
+	}
+
+	auto Environment::GetExecutionTimeHistory() const noexcept(false) -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&
+	{
+		VALIDATE_ONLINE_BOOT_STATE();
+		return this->Context_->ExecutionTimeHistory;
 	}
 }

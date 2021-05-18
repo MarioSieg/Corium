@@ -213,54 +213,17 @@
 
 namespace Nominax
 {
-	FixedStack::FixedStack(std::size_t sizeInRecords) noexcept(false)
+	FixedStack::FixedStack(std::pmr::memory_resource& allocator, std::size_t sizeInRecords) noexcept(false) : Buffer_ {&allocator}
 	{
-		// TLFRS = Thread Local Fixed Reactor Stack
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(sizeInRecords, "TLFRS with zero size was requested!");
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(sizeInRecords, "Fixed stack with zero size was requested!");
 
-		// Because first padding element.
+		// because first padding element.
 		++sizeInRecords;
-		this->BufferSize_ = sizeInRecords;
-		this->Buffer_     = new(std::nothrow) Record[sizeInRecords]();
-		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Buffer_, "Allocation of TLFRS failed!");
-		*this->Buffer_ = Record::Padding();
 
-		Print
-		(
-			"Allocated {}MB TLFRS, Entries: {}\n",
-			Bytes2Megabytes<F64>(static_cast<F64>(this->BufferSize_) * static_cast<F64>(sizeof(Record))),
-			this->BufferSize_
-		);
-	}
+		// allocate:
+		this->Buffer_.resize(sizeInRecords);
 
-	FixedStack::FixedStack(FixedStack&& value) noexcept(true) : Buffer_ {value.Buffer_}, BufferSize_ {value.BufferSize_}
-	{
-		value.Buffer_     = nullptr;
-		value.BufferSize_ = 0;
-	}
-
-	auto FixedStack::operator=(FixedStack&& value) noexcept(true) -> FixedStack&
-	{
-		if (NOMINAX_UNLIKELY(this == &value))
-		{
-			return *this;
-		}
-
-		delete[] this->Buffer_;
-
-		this->Buffer_     = value.Buffer_;
-		this->BufferSize_ = value.BufferSize_;
-
-		value.Buffer_     = nullptr;
-		value.BufferSize_ = 0;
-
-		return *this;
-	}
-
-	FixedStack::~FixedStack()
-	{
-		delete[] this->Buffer_;
-		this->Buffer_     = nullptr;
-		this->BufferSize_ = 0;
+		// insert padding:
+		this->Buffer_.front() = Record::Padding();
 	}
 }

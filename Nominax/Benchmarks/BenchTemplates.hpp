@@ -215,8 +215,8 @@ using namespace benchmark;
 
 extern auto LoopBenchmark
 (
-	State&                            state,
-	const std::vector<DynamicSignal>& loopBody,
-	I64                               count            = 1'000'000'000,
-	bool                              enableAvxReactor = true
+	State&                          state,
+	const std::span<DynamicSignal>& loopBody,
+	I64                             count            = 1'000'000'000,
+	bool                            enableAvxReactor = true
 ) -> void;

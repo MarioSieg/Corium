@@ -207,9 +207,22 @@
 
 #include "ReactorTestHelper.hpp"
 
+namespace
+{
+	std::vector<std::byte>              Buffer {1024 * 1024};
+	std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
+}
+
 TEST(ReactorClass, Valid)
 {
-	const Reactor reactor {4};
+	const Reactor reactor
+	{
+		Resource,
+		ReactorSpawnDescriptor
+		{
+			.StackSize = 4
+		}
+	};
 	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
 	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
@@ -219,7 +232,14 @@ TEST(ReactorClass, Valid)
 
 TEST(ReactorClass, MoveConstruct)
 {
-	Reactor reactor {4};
+	Reactor reactor
+	{
+		Resource,
+		ReactorSpawnDescriptor
+		{
+			.StackSize = 4
+		}
+	};
 	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
 	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
@@ -236,17 +256,30 @@ TEST(ReactorClass, MoveConstruct)
 
 TEST(ReactorClass, ZeroStackSizeFault)
 {
-	ASSERT_DEATH_IF_SUPPORTED([]()
-	                          {
-	                          [[maybe_unused]]
-	                          auto bad{ Reactor{ 0 } };
-	                          }(), "");
+	auto exec
+	{
+		[]()
+		{
+			[[maybe_unused]]
+				Reactor bad {Resource, ReactorSpawnDescriptor {.StackSize = 0}};
+		}
+	};
+	ASSERT_DEATH_IF_SUPPORTED(exec(), "");
 }
 
 TEST(ReactorClass, InterruptHandler)
 {
 	auto* const   interrupt = +[](InterruptAccumulator) { };
-	const Reactor reactor {4, { }, interrupt};
+	const Reactor reactor
+	{
+		Resource,
+		ReactorSpawnDescriptor
+		{
+			.StackSize = 4,
+			.SharedIntrinsicTable = { },
+			.InterruptHandler = interrupt
+		}
+	};
 	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor.GetInterruptHandler(), interrupt);
 }
@@ -262,26 +295,31 @@ TEST(ReactorClass, TryExecuteValid)
 	}).Epilogue();
 	AppCodeBundle out { };
 	stream.Build(out);
-	Reactor     reactor {FixedStack::SIZE_LARGE};
+	Reactor reactor
+	{
+		Resource,
+		ReactorSpawnDescriptor
+		{
+			.StackSize = FixedStack::SIZE_LARGE
+		}
+	};
 	const auto& output {reactor.Execute(std::move(out))};
 	ASSERT_EQ(output.ShutdownReason, ReactorShutdownReason::Success);
 	ASSERT_EQ(output.InterruptCode, 0);
-	ASSERT_EQ(std::memcmp(&output.Input, &reactor.GetInputDescriptor(), sizeof(decltype(output.Input))), 0);
+	ASSERT_EQ(std::memcmp(output.Input, &reactor.GetInputDescriptor(), sizeof(decltype(*output.Input))), 0);
 }
 
-TEST(ReactorClass, TryExecuteInValidZeroCode)
+TEST(ReactorClass, TryExecuteInvalidZeroCode)
 {
-	ASSERT_DEATH_IF_SUPPORTED
-	(
-		[]()
+	const Stream  stream {OptimizationLevel::Off};
+	AppCodeBundle out { };
+	ASSERT_EQ(stream.Build(out).first, ByteCodeValidationResultCode::Empty);
+	Reactor reactor
+	{
+		Resource,
+		ReactorSpawnDescriptor
 		{
-		const Stream stream{ OptimizationLevel::Off };
-		AppCodeBundle out{};
-		ASSERT_EQ(stream.Build(out), ByteCodeValidationResult::Ok);
-		Reactor reactor{ FixedStack::SIZE_LARGE };
-		[[maybe_unused]]
-		const auto& result{ reactor.Execute(std::move(out)) };
-		}(),
-		""
-	);
+			.StackSize = FixedStack::SIZE_LARGE
+		}
+	};
 }

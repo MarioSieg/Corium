@@ -205,116 +205,223 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <ranges>
+
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentCount.hpp"
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentType.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 #include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 
 namespace Nominax
 {
-	auto ByteCodeValidateSingleInstruction(const Instruction instruction, const std::span<const DynamicSignal> args) -> ByteCodeValidationResult
+	auto ContainsPrologue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool
 	{
-		const auto instructionIndex = static_cast<std::size_t>(instruction);
-		const U8   requiredArgCount = INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[instructionIndex];
-
-		// check if the instruction does not need any immediate arguments:
-		if (NOMINAX_LIKELY(std::empty(args) && requiredArgCount == 0))
+		constexpr const auto& code {DynamicSignal::CodePrologue()};
+		if (NOMINAX_UNLIKELY(input.size() < code.size()))
 		{
-			return ByteCodeValidationResult::Ok;
+			return false;
 		}
-
-		// check if we submitted not enough arguments:
-		if (NOMINAX_UNLIKELY(std::size(args) < requiredArgCount))
+		const auto* const begin {&input.front()};
+		for (std::size_t i {0}; i < code.size(); ++i)
 		{
-			return ByteCodeValidationResult::NotEnoughArguments;
-		}
-
-		// check if we submitted too many arguments:
-		if (NOMINAX_LIKELY(std::size(args) > requiredArgCount))
-		{
-			return ByteCodeValidationResult::TooManyArguments;
-		}
-
-		// fetch the type table:
-		const std::array<InstructionImmediateArgumentType, INSTRUCTION_MAX_IMMEDIATE_ARGUMENTS>& type_table =
-			INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[instructionIndex];
-
-		// this loop checks each submitted operand type with the required operand type.
-		for (std::size_t i = 0; NOMINAX_LIKELY(i < std::size(args)); ++i)
-		{
-			// submitted operand:
-			const DynamicSignal& arg = args[i];
-
-			// required operand type:
-			const InstructionImmediateArgumentType requiredType = type_table[i];
-
-			// true if the data types are equal, else false
-			bool correctType;
-
-			switch (requiredType)
+			if (NOMINAX_UNLIKELY(code[i] != begin[i]))
 			{
-			case InstructionImmediateArgumentType::I64:
-				correctType = arg.Contains<I64>();
-				break;
-			case InstructionImmediateArgumentType::U64:
-			case InstructionImmediateArgumentType::RelativeJumpAddress64:
-			case InstructionImmediateArgumentType::AbsoluteJumpAddress64:
-				correctType = arg.Contains<U64>();
-				break;
-			case InstructionImmediateArgumentType::SystemIntrinsicId:
-				correctType = arg.Contains<SystemIntrinsicCallId>();
-				break;
-			case InstructionImmediateArgumentType::CustomIntrinsicId:
-				correctType = arg.Contains<CustomIntrinsicCallId>();
-				break;
-			case InstructionImmediateArgumentType::F64:
-				correctType = arg.Contains<F64>();
-				break;
-			case InstructionImmediateArgumentType::I64OrU64:
-				correctType = arg.Contains<I64>() || arg.Contains<U64>();
-				break;
-			case InstructionImmediateArgumentType::I64OrU64OrF64:
-				correctType = arg.Contains<I64>() || arg.Contains<U64>() || arg.Contains<F64>();
-				break;
-			default:
-				correctType = false;
-			}
-
-			// if the types where not equal, return error:
-			if (NOMINAX_UNLIKELY(!correctType))
-			{
-				return ByteCodeValidationResult::InvalidOperandType;
+				return false;
 			}
 		}
-
-		return ByteCodeValidationResult::Ok;
+		return true;
 	}
 
-	auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ByteCodeValidationResult
+	auto ContainsEpilogue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool
 	{
-		output.resize(input.Size());
-		jumpMap.resize(input.Size());
+		constexpr const auto& code {DynamicSignal::CodeEpilogue()};
+		if (NOMINAX_UNLIKELY(input.size() < code.size()))
+		{
+			return false;
+		}
+		const auto* const end {&*std::end(input) - code.size()};
+		for (std::size_t i {0}; i < code.size(); ++i)
+		{
+			if (NOMINAX_UNLIKELY(code[i] != end[i]))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 
-		for (std::size_t i {0}; i < input.Size(); ++i)
+	auto GenerateInstructionCache(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> void
+	{
+		output.reserve(input.size() - 1);
+		for (const DynamicSignal *i {input.data()}, *end {input.data() + input.size()}; i < end; ++i)
+		{
+			if (i->Contains<Instruction>())
+			{
+				output.push_back(i);
+			}
+		}
+	}
+
+	auto GenerateChunkAndJumpMap(const std::span<const DynamicSignal>& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void
+	{
+		output.resize(input.size());
+		jumpMap.resize(input.size());
+
+		for (std::size_t i {0}; i < input.size(); ++i)
 		{
 			const auto& in {input[i]};
 			auto&       out {output[i]};
 
-			out = static_cast<Signal>(in);
+			out = in.Transform();
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+
 			if (in.Contains<JumpAddress>())
 			{
 				// minus one because the address is incremented by the reactor before jumped
 				out.Ptr = ComputeRelativeJumpAddress(output.data(), out.JumpTarget);
 			}
+
 #endif
 			jumpMap[i] = static_cast<U8>(in.Contains<Instruction>());
 		}
-		return ByteCodeValidationResult::Ok;
+	}
+
+	auto ExtractInstructionArguments(const DynamicSignal* const* const iterator) noexcept(true) -> std::span<const DynamicSignal>
+	{
+		return {*iterator + 1, *iterator + 1 + ComputeInstructionArgumentOffset(iterator)};
+	}
+
+	auto ValidateLastInstruction(const DynamicSignal* const instr, const std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode
+	{
+		const Instruction          instruction {instr->UnwrapUnchecked<Instruction>()};
+		std::vector<DynamicSignal> view {instr + 1, instr + 1 + argCount};
+		return ValidateInstructionArguments(instruction, view);
+	}
+
+	auto ValidateByteCode(const std::span<const DynamicSignal>& input) noexcept(false) -> ByteCodeValidationResult
+	{
+		// Check if empty:
+		if (NOMINAX_UNLIKELY(input.empty()))
+		{
+			return {ByteCodeValidationResultCode::Empty, 0};
+		}
+
+		// Check if prologue code is contained:
+		if (NOMINAX_UNLIKELY(!ContainsPrologue(input)))
+		{
+			return {ByteCodeValidationResultCode::MissingPrologueCode, 0};
+		}
+
+		// Check if epilogue code is contained:
+		if (NOMINAX_UNLIKELY(!ContainsEpilogue(input)))
+		{
+			return {ByteCodeValidationResultCode::MissingEpilogueCode, 0};
+		}
+
+		// Collect all instructions to validate them:
+		std::vector<const DynamicSignal*> instructionCache { };
+		GenerateInstructionCache(input, instructionCache);
+
+		/*
+		 * Validate last instruction first:
+		 * -> Last instruction is validated first
+		 * because we compute the argument count by
+		 * subtracting the pointers between two instructions.
+		 * But the last instruction does not have any
+		 * instruction following it, so it is checked first and separately,
+		 * then the other are checked without the last instruction.
+		 */
+		const auto lastInstructionResult {ValidateLastInstruction(instructionCache.back(), &input.back() - instructionCache.back())};
+		if (NOMINAX_UNLIKELY(lastInstructionResult != ByteCodeValidationResultCode::Ok))
+		{
+			return {lastInstructionResult, 0};
+		}
+
+		// Remove last instruction
+		instructionCache.pop_back();
+
+		// Find all instructions and push them into the instruction cache:
+		for (const DynamicSignal **i {instructionCache.data()}, **end {instructionCache.data() + instructionCache.size()}; i < end; ++i)
+		{
+			const Instruction instruction {(**i).UnwrapUnchecked<Instruction>()};
+			const std::span   args {ExtractInstructionArguments(i)};
+
+			// validate args:
+			const auto result {ValidateInstructionArguments(instruction, args)};
+
+			// if error, return result:
+			if (NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok))
+			{
+				return {result, 0};
+			}
+		}
+
+		return {ByteCodeValidationResultCode::Ok, 0};
+	}
+
+	auto ValidateJumpAddress(const ValidationBucket& bucket, const JumpAddress address) noexcept(true) -> bool
+	{
+		const auto idx {static_cast<std::size_t>(address)};
+
+		// validate that jump address is inside the range of the bucket:
+		if (NOMINAX_UNLIKELY(bucket.size() < idx))
+		{
+			return false;
+		}
+
+		return NOMINAX_LIKELY(std::get_if<Instruction>(&bucket[idx].Storage));
+	}
+
+	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallId id) noexcept(true) -> bool
+	{
+		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallId::Count) - 1};
+		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
+		static_assert(std::is_unsigned_v<decltype(value)>);
+		return NOMINAX_LIKELY(value <= max);
+	}
+
+	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, CustomIntrinsicCallId id) noexcept(true) -> bool
+	{
+		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
+		return NOMINAX_LIKELY(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size());
+	}
+
+	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> ByteCodeValidationResultCode
+	{
+		// First check if the argument count is incorrect:
+		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) > args.size()))
+		{
+			return ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction;
+		}
+
+		// First check if the argument count is incorrect:
+		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) < args.size()))
+		{
+			return ByteCodeValidationResultCode::TooManyArgumentsForInstruction;
+		}
+
+		for (std::size_t i {0}; i < args.size(); ++i)
+		{
+			const DynamicSignal& arg {args[i]};
+
+			const std::size_t givenIdx {arg.Storage.index()};
+
+			// Check if our given type index is within the required indices:
+
+			const TypeIndexTable& required {LookupInstructionArgumentTypes(instruction)[i]};
+			const bool            isWithinAllowedIndices {std::find(std::begin(required), std::end(required), givenIdx) != std::end(required)};
+
+			if (NOMINAX_UNLIKELY(!isWithinAllowedIndices))
+			{
+				// if not, validation failed:
+				return ByteCodeValidationResultCode::ArgumentTypeMismatch;
+			}
+		}
+
+		return ByteCodeValidationResultCode::Ok;
 	}
 }

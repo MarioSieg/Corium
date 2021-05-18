@@ -280,13 +280,6 @@ TEST(BytecodeStream, CodeEpilogue)
 	ASSERT_FALSE(stream.ContainsEpilogue());
 }
 
-TEST(BytecodeStream, ExampleStream)
-{
-	Stream str { };
-	Stream::ExampleStream(str);
-	ASSERT_TRUE(str.Size() != 0);
-}
-
 TEST(BytecodeStream, CodeGenerationNoOpt)
 {
 	Stream                                   stream {OptimizationLevel::Off};
@@ -323,15 +316,14 @@ TEST(BytecodeStream, CodeGenerationOpt3)
 		var += 1;
 		var /= 1;
 	}).Epilogue();
-	ASSERT_EQ(stream.Size(), 10);
+	ASSERT_EQ(stream.Size(), 9);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
 	ASSERT_TRUE(stream[2].Contains<I64>(2));
 	ASSERT_TRUE(stream[3].Contains(Instruction::IPushO));
 	ASSERT_TRUE(stream[4].Contains(Instruction::ISal));
 	ASSERT_TRUE(stream[5].Contains(Instruction::IInc));
-	ASSERT_TRUE(stream[6].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[7].Contains(Instruction::Pop));
-	ASSERT_TRUE(stream[8].Contains(Instruction::Int));
-	ASSERT_TRUE(stream[9].Contains<I64>(0));
+	ASSERT_TRUE(stream[6].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[7].Contains(Instruction::Int));
+	ASSERT_TRUE(stream[8].Contains<I64>(0));
 }

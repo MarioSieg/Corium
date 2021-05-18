@@ -269,7 +269,7 @@ namespace Nominax
 
 			// If the value is the previous written element in the stream,
 			// we can just duplicate it:
-			if (this->Attached_.Back().Contains(value))
+			if (!this->Attached_.IsEmpty() && this->Attached_.Back().Contains(value))
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
@@ -302,7 +302,7 @@ namespace Nominax
 
 			// If the value is the previous written element in the stream,
 			// we can just duplicate it:
-			if (this->Attached_.Back().Contains(value))
+			if (!this->Attached_.IsEmpty() && this->Attached_.Back().Contains(value))
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
@@ -335,7 +335,7 @@ namespace Nominax
 
 			// If the value is the previous written element in the stream,
 			// we can just duplicate it:
-			if (this->Attached_.Back().Contains(value))
+			if (!this->Attached_.IsEmpty() && this->Attached_.Back().Contains(value))
 			{
 				this->Attached_.Do<Instruction::Dupl>();
 				return *this;
@@ -559,6 +559,7 @@ namespace Nominax
 			// x / x is always 1
 			if (this->Attached_.Back().Contains(value))
 			{
+				this->Attached_.Do<Instruction::Pop>();
 				this->Push(1.0);
 				return *this;
 			}
@@ -566,8 +567,7 @@ namespace Nominax
 			// By 1 it's just the same value.
 			if (::F64IsOne(value))
 			{
-				this->Attached_.Do<Instruction::Dupl>();
-				return *this;
+				return this->DoNothing();
 			}
 		}
 		this->Push(value);
@@ -583,6 +583,7 @@ namespace Nominax
 			// x / x is always 1
 			if (this->Attached_.Back().Contains(value))
 			{
+				this->Attached_.Do<Instruction::Pop>();
 				this->Push(static_cast<decltype(value)>(1));
 				return *this;
 			}
@@ -590,8 +591,7 @@ namespace Nominax
 			// By 1 it's just the same value.
 			if (value == 1)
 			{
-				this->Attached_.Do<Instruction::Dupl>();
-				return *this;
+				return this->DoNothing();
 			}
 
 			// Optimize with shift:
@@ -617,6 +617,7 @@ namespace Nominax
 			// x / x is always 1
 			if (this->Attached_.Back().Contains(value))
 			{
+				this->Attached_.Do<Instruction::Pop>();
 				this->Push(static_cast<decltype(value)>(1));
 				return *this;
 			}
@@ -624,8 +625,7 @@ namespace Nominax
 			// By 1 it's just the same value.
 			if (value == 1)
 			{
-				this->Attached_.Do<Instruction::Dupl>();
-				return *this;
+				return this->DoNothing();
 			}
 
 			// Optimize with shift:

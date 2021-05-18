@@ -1,6 +1,6 @@
-// File: RtTypes.hpp
+// File: ReactorCore_AVX512F.cpp
 // Author: Mario
-// Created: 02.05.2021 1:19 AM
+// Created: 15.05.2021 5:56 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,70 +205,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../Include/Nominax/System/Platform.hpp"
 
-#include <cstdint>
-
-namespace Nominax
-{
-	/// <summary>
-	/// 8 bit unsigned integer.
-	/// </summary>
-	using U8 = std::uint8_t;
-
-	/// <summary>
-	/// 8 bit signed integer.
-	/// </summary>
-	using I8 = std::int8_t;
-
-	/// <summary>
-	/// 16 bit unsigned integer.
-	/// </summary>
-	using U16 = std::uint16_t;
-
-	/// <summary>
-	/// 16 bit signed integer.
-	/// </summary>
-	using I16 = std::int16_t;
-
-	/// <summary>
-	/// 32 bit unsigned integer.
-	/// </summary>
-	using U32 = std::uint32_t;
-
-	/// <summary>
-	/// 32 bit signed integer.
-	/// </summary>
-	using I32 = std::int32_t;
-
-	/// <summary>
-	/// 64 bit unsigned integer.
-	/// </summary>
-	using U64 = std::uint64_t;
-
-	/// <summary>
-	/// 64 bit signed integer.
-	/// </summary>
-	using I64 = std::int64_t;
-
-	/// <summary>
-	/// 32 bit single precision float
-	/// </summary>
-	using F32 = float;
-
-	/// <summary>
-	/// 64 bit double precision float
-	/// </summary>
-	using F64 = double;
-
-	static_assert(sizeof(U8) == 1);
-	static_assert(sizeof(I8) == 1);
-	static_assert(sizeof(U16) == 2);
-	static_assert(sizeof(I16) == 2);
-	static_assert(sizeof(U32) == 4);
-	static_assert(sizeof(I32) == 4);
-	static_assert(sizeof(U64) == 8);
-	static_assert(sizeof(I64) == 8);
-	static_assert(sizeof(F32) == 4);
-	static_assert(sizeof(F64) == 8);
-}
+#if NOMINAX_ARCH_X86_64
+#	if !defined(__AVX512F__) || !__AVX512F__
+#		error "This reactore core requires AVX512F!"
+#	endif
+#	define NOMINAX_REACTOR_IMPL_NAME ReactorCore_AVX512F
+#		include "ReactorCore.inl"
+#	undef NOMINAX_REACTOR_IMPL_NAME
+#endif

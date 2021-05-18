@@ -207,11 +207,16 @@
 
 #pragma once
 
+#include <chrono>
 #include <tuple>
 #include <optional>
+#include <memory_resource>
 
 #include "ReactorOutput.hpp"
 #include "FixedStack.hpp"
+#include "ReactorSpawnDescriptor.hpp"
+#include "ReactorHypervisor.hpp"
+
 #include "../ByteCode/CustomIntrinsic.hpp"
 #include "../ByteCode/Stream.hpp"
 #include "../System/CpuFeatureDetector.hpp"
@@ -223,6 +228,26 @@ namespace Nominax
 	/// </summary>
 	class [[nodiscard]] Reactor final
 	{
+		/// <summary>
+		/// Unique reactor id.
+		/// </summary>
+		std::uint32_t Id_;
+
+		/// <summary>
+		/// The reactor pool index of this reactor.
+		/// </summary>
+		std::size_t PoolIndex_;
+
+		/// <summary>
+		/// Time stamp when the reactor was spawned.
+		/// </summary>
+		std::chrono::high_resolution_clock::time_point SpawnStamp_;
+
+		/// <summary>
+		/// Reactor power preference.
+		/// </summary>
+		PowerPreference PowerPreference_;
+
 		/// <summary>
 		/// The reactor input descriptor build
 		/// when Execute() is called.
@@ -247,25 +272,28 @@ namespace Nominax
 		/// <summary>
 		/// The table of custom intrinsic routines.
 		/// </summary>
-		SharedIntrinsicTableView IntrinsicTable_;
+		UserIntrinsicRoutineRegistry IntrinsicTable_;
 
 		/// <summary>
 		/// The interrupt routine using for reactor interrupts.
 		/// </summary>
 		InterruptRoutine* InterruptHandler_;
 
+		/// <summary>
+		/// Contains the reactor routine.
+		/// </summary>
+		ReactorRoutineLink RoutineLink_;
+
 	public:
 		/// <summary>
 		/// Create reactor with fixed stack size. If zero, panic!
 		/// </summary>
-		/// <param name="stackSize">The of the local reactor stack in records. If zero, panic!</param>
-		/// <param name="intrinsicTable">Table of custom intrinsic routines. If none, just pass an empty.</param>
-		/// <param name="interruptHandler">Interrupt handler. If default should be used, pass nullptr!</param>
 		explicit Reactor
 		(
-			std::size_t                stackSize,
-			SharedIntrinsicTableView&& intrinsicTable   = { },
-			InterruptRoutine*          interruptHandler = nullptr
+			std::pmr::memory_resource&               allocator,
+			const ReactorSpawnDescriptor&            descriptor,
+			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt,
+			std::size_t                              poolIdx     = 0
 		) noexcept(false);
 
 		/// <summary>
@@ -276,7 +304,7 @@ namespace Nominax
 		/// <summary>
 		/// Move constructing okay.
 		/// </summary>
-		Reactor(Reactor&&) noexcept(true);
+		Reactor(Reactor&&) noexcept(true) = default;
 
 		/// <summary>
 		/// No copy!
@@ -293,8 +321,56 @@ namespace Nominax
 		/// </summary>
 		~Reactor() = default;
 
+		/// <summary>
+		/// Execute reactor with specified application code bundle.
+		/// </summary>
+		/// <param name="bundle"></param>
+		/// <returns></returns>
 		[[nodiscard]]
 		auto Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
+
+		/// <summary>
+		/// Execute reactor with specified application code bundle.
+		/// </summary>
+		/// <param name="bundle"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator ()(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The unique reactor id.</returns>
+		[[nodiscard]]
+		auto GetId() const noexcept(true) -> std::uint32_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The index of this rector in the hosting reactor pool</returns>
+		[[nodiscard]]
+		auto GetPoolIndex() const noexcept(true) -> std::size_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The time stamp when the reactor was spawned.</returns>
+		[[nodiscard]]
+		auto GetSpawnStamp() const noexcept(true) -> std::chrono::high_resolution_clock::time_point;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The power preference of this reactor.</returns>
+		[[nodiscard]]
+		auto GetPowerPreference() const noexcept(true) -> PowerPreference;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The process memory snapshot in mb when the reactor was spawned.</returns>
+		[[nodiscard]]
+		auto GetSpawnMemorySnapshot() const noexcept(true) -> std::size_t;
 
 		/// <summary>
 		/// 
@@ -330,7 +406,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetIntrinsicTable() const noexcept(true) -> const SharedIntrinsicTableView&;
+		auto GetIntrinsicTable() const noexcept(true) -> const UserIntrinsicRoutineRegistry&;
 
 		/// <summary>
 		/// 
@@ -340,12 +416,32 @@ namespace Nominax
 		auto GetInterruptHandler() const noexcept(true) -> InterruptRoutine*;
 	};
 
+	inline auto Reactor::GetId() const noexcept(true) -> std::uint32_t
+	{
+		return this->Id_;
+	}
+
+	inline auto Reactor::GetPoolIndex() const noexcept(true) -> std::size_t
+	{
+		return this->PoolIndex_;
+	}
+
+	inline auto Reactor::GetSpawnStamp() const noexcept(true) -> std::chrono::high_resolution_clock::time_point
+	{
+		return this->SpawnStamp_;
+	}
+
+	inline auto Reactor::GetPowerPreference() const noexcept(true) -> PowerPreference
+	{
+		return this->PowerPreference_;
+	}
+
 	inline auto Reactor::GetStack() const noexcept(true) -> const FixedStack&
 	{
 		return this->Stack_;
 	}
 
-	inline auto Reactor::GetIntrinsicTable() const noexcept(true) -> const SharedIntrinsicTableView&
+	inline auto Reactor::GetIntrinsicTable() const noexcept(true) -> const UserIntrinsicRoutineRegistry&
 	{
 		return this->IntrinsicTable_;
 	}
@@ -370,5 +466,10 @@ namespace Nominax
 		return this->AppCode_;
 	}
 
-	[[nodiscard]] extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& cpuFeatureDetector = { }) noexcept(true) -> ReactorOutput;
+	inline auto Reactor::operator()(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
+	{
+		return this->Execute(std::move(bundle));
+	}
+
+	extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& target = { }) noexcept(true) -> ReactorOutput;
 }

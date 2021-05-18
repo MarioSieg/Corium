@@ -222,11 +222,11 @@ namespace Nominax::X86_64
 		NOMINAX_PANIC_ASSERT_TRUE(Asm_IsCpuIdSupported(), "CPUID instruction is not supported on system!");
 
 		// Raw DATA.
-		std::array<std::byte, sizeof(CpuFeatureBits)> data { };
-		std::array<MergedInfoTable, 3>                chunk { };
+		std::array<U8, sizeof(CpuFeatureBits)> data { };
+		std::array<MergedInfoTable, 3>         chunk { };
 
 		// Call cpuid assembly routine:
-		U32 r {Asm_CpuId(chunk[0], chunk[1], chunk[2])};
+		U32 r {Asm_CpuId(&chunk[0], &chunk[1], &chunk[2])};
 
 		// Copy parameter output quads
 		std::memcpy(data.data(), chunk.data(), sizeof(MergedInfoTable) * 3);

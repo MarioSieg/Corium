@@ -207,12 +207,30 @@
 
 #include "BenchTemplates.hpp"
 
+namespace
+{
+	// First environment with optimizations on:
+	std::unique_ptr Env
+	{
+		[]() -> auto
+		{
+			auto                  env {std::make_unique<Environment>()};
+			EnvironmentDescriptor descriptor { };
+			descriptor.AppName        = "NominaxBenchmark";
+			descriptor.FastHostIoSync = false;
+			env->Boot(descriptor);
+			return env;
+		}()
+	};
+}
+
 auto LoopBenchmark
 (
-	State&                            state,
-	const std::vector<DynamicSignal>& loopBody,
-	I64                               count,
-	const bool                        enableAvxReactor
+	State&                          state,
+	const std::span<DynamicSignal>& loopBody,
+	const I64                       count,
+	[[maybe_unused]]
+	const bool enableAvxReactor
 ) -> void
 {
 	Print("\n");
@@ -240,71 +258,13 @@ auto LoopBenchmark
 	stream << Instruction::Int;
 	stream << 0_int;
 
-	CodeChunk chunk { };
-	JumpMap   map { };
+	auto& env {*Env};
 
-	if (stream.Build(chunk, map) != ByteCodeValidationResult::Ok)
-	{
-		state.SkipWithError("Byte code validation failed!");
-	}
-
-	FixedStack stack {FixedStack::SIZE_LARGE};
-
-	constexpr std::array intrinsics {
-		+[](Record*      ) -> void {}
-	};
-
-	const DetailedReactorDescriptor input {
-		.CodeChunk = chunk.data(),
-		.CodeChunkInstructionMap = reinterpret_cast<const bool*>(map.data()),
-		.CodeChunkSize = chunk.size(),
-		.IntrinsicTable = intrinsics.data(),
-		.IntrinsicTableSize = intrinsics.size(),
-		.InterruptHandler = +[](InterruptAccumulator) -> void {},
-		.Stack = stack.Buffer(),
-		.StackSize = stack.Size(),
-	};
-
-	if (input.Validate() != ReactorValidationResult::Ok)
-	{
-		state.SkipWithError("Reactor input validation failed!");
-		return;
-	}
+	AppCodeBundle out { };
+	stream.Build(out);
 
 	for (auto _ : state)
 	{
-		CpuFeatureDetector features { };
-		const_cast<FeatureBits&>(*features).Avx = enableAvxReactor; // Manually disable avx
-		const auto output {ExecuteOnce(input, features)};
-
-		if (output.ShutdownReason != ReactorShutdownReason::Success)
-		{
-			state.SkipWithError("Reactor terminated with error or exception!");
-			break;
-		}
-
-		if (output.SpDiff != 0)
-		{
-			state.SkipWithError("Not all stack entries were popped!");
-			break;
-		}
-
-		if (output.Input.Stack[1].AsI64 != count)
-		{
-			state.SkipWithError("Expected different value on stack!");
-			break;
-		}
-
-		if (output.Input.Stack[2].AsI64 != count)
-		{
-			state.SkipWithError("Expected different value on stack!");
-			break;
-		}
-
-		if (output.Input.Stack[3].AsI64 != count)
-		{
-			state.SkipWithError("Expected different value on stack!");
-			break;
-		}
+		env.Execute(std::move(out));
 	}
 }

@@ -214,7 +214,7 @@ namespace Nominax
 	auto DetailedReactorDescriptor::Validate() const noexcept(true) -> ReactorValidationResult
 	{
 		// validate all pointers:
-		if (NOMINAX_UNLIKELY(!(this->CodeChunk && this->InterruptHandler && this->Stack)))
+		if (NOMINAX_UNLIKELY(!this->CodeChunk || !this->InterruptHandler || !this->Stack))
 		{
 			return ReactorValidationResult::NullPtr;
 		}

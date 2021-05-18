@@ -209,8 +209,9 @@
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
 #include "../../Include/Nominax/ByteCode/Lexeme.hpp"
 #include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
+#include "../../Include/Nominax/ByteCode/Validator.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
-#include "../../Include/Nominax/Common/VisitOverload.hpp"
+#include "../../Include/Nominax/Common/VariantTools.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
 template <>
@@ -319,22 +320,13 @@ struct fmt::formatter<Nominax::DynamicSignal>
 					           Lexemes::LITERAL_SUFFIX_CHAR
 				           );
 			           },
-		           }, sig.DataCollection);
+		           }, sig.Storage);
 		return result;
 	}
 };
 
 namespace Nominax
 {
-	auto Stream::ExampleStream(Stream& stream) noexcept(false) -> void
-	{
-		stream.With(1024, [](ScopedInt x)
-		{
-			x += 1024;
-			x += 2;
-		});
-	}
-
 	auto Stream::PrintIntermediateRepresentation(const bool detailed) const noexcept(false) -> void
 	{
 		Print(TextColor::Green, "{} Len: {}, Size: {}B", Lexemes::COMMENT, this->Size(), this->SizeInBytes());
@@ -386,14 +378,34 @@ namespace Nominax
 	auto Stream::Prologue() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodePrologue()};
-		this->List_.insert(this->List_.begin(), std::begin(code), std::end(code));
+		this->Storage_.insert(this->Storage_.begin(), std::begin(code), std::end(code));
 		return *this;
 	}
 
 	auto Stream::Epilogue() noexcept(false) -> Stream&
 	{
 		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		this->List_.insert(this->List_.end(), std::begin(code), std::end(code));
+		this->Storage_.insert(this->Storage_.end(), std::begin(code), std::end(code));
 		return *this;
+	}
+
+	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult
+	{
+		if (const auto validationResult {ValidateByteCode(*this)}; NOMINAX_UNLIKELY(validationResult.first != ByteCodeValidationResultCode::Ok))
+		{
+			return validationResult;
+		}
+		GenerateChunkAndJumpMap(*this, out, outJumpMap);
+		return {ByteCodeValidationResultCode::Ok, 0};
+	}
+
+	auto Stream::ContainsPrologue() const noexcept(false) -> bool
+	{
+		return Nominax::ContainsPrologue(this->Storage_);
+	}
+
+	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
+	{
+		return Nominax::ContainsEpilogue(this->Storage_);
 	}
 }

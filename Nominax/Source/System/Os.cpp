@@ -211,6 +211,7 @@
 #include "../../Include/Nominax/Common/Protocol.hpp"
 #include "../../Include/Nominax/Common/MemoryUnits.hpp"
 #include "../../Include/Nominax/Common/SafeLocalTime.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
 
 namespace
 {
@@ -242,22 +243,22 @@ namespace
 
 namespace Nominax
 {
-	SystemInfo::SystemInfo() noexcept(false)
+	SystemSnapshot::SystemSnapshot() noexcept(false)
 	{
 		this->QueryAll();
 	}
 
-	auto SystemInfo::QueryAll() noexcept(false) -> void
+	auto SystemSnapshot::QueryAll() noexcept(false) -> void
 	{
 		this->ThreadCount       = std::thread::hardware_concurrency();
 		this->ThreadId          = std::this_thread::get_id();
 		this->CpuName           = Os::QueryCpuName();
 		this->TotalSystemMemory = Os::QuerySystemMemoryTotal();
-		this->UsedSystemMemory  = Os::QueryProcessMemoryUsed();
+		this->ProcessMemory     = Os::QueryProcessMemoryUsed();
 		this->PageSize          = Os::QueryPageSize();
 	}
 
-	auto SystemInfo::Print() const noexcept(false) -> void
+	auto SystemSnapshot::Print() const noexcept(false) -> void
 	{
 		const auto&
 		[

@@ -1,6 +1,6 @@
-// File: EnvironmentUtils.hpp
+// File: EnvironmentDescriptor.hpp
 // Author: Mario
-// Created: 08.05.2021 3:14 PM
+// Created: 14.05.2021 3:04 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -208,15 +208,61 @@
 #pragma once
 
 #include <cstddef>
+#include <string_view>
+
+#include "ReactorSpawnDescriptor.hpp"
 
 namespace Nominax
 {
-	struct SystemInfo;
-	class CpuFeatureDetector;
+	/// <summary>
+	/// Config descriptor for an environment.
+	/// </summary>
+	struct EnvironmentDescriptor final
+	{
+		/// <summary>
+		/// Argument count.
+		/// </summary>
+		signed ArgC {0};
 
-	extern auto PrintSystemInfo() -> void;
+		/// <summary>
+		/// Argument vector.
+		/// </summary>
+		const char* const* ArgV {nullptr};
 
-	extern auto PrintTypeInfoTable() -> void;
+		/// <summary>
+		/// The name of the app.
+		/// </summary>
+		std::string_view AppName {"Untitled App"};
 
-	extern auto PrintMachineInfo(const SystemInfo& sysInfo, const CpuFeatureDetector& cpuInfo) -> void;
+		/// <summary>
+		/// If true, the fallback reactor implementation
+		/// will be used for all reactors, not the
+		/// runtime selected one (based on CPU features).
+		/// </summary>
+		bool ForceFallback {false};
+
+		/// <summary>
+		/// If true, synchronization between
+		/// C++ io-streams (cout, err, cin) and C io-streams (stdout, stdin)
+		/// is deactivated, which makes printing faster.
+		/// This should be activated in most cases when executing code.
+		/// </summary>
+		bool FastHostIoSync {true};
+
+		/// <summary>
+        /// The size of the system memory pool size.
+        /// </summary>
+		std::size_t SystemPoolSize {8_mb};
+
+		/// <summary>
+		/// The count of reactors.
+		/// If 0, the system will use the number of CPU threads.
+		/// </summary>
+		std::size_t ReactorCount {0};
+
+		/// <summary>
+		/// The reactor spawn config.
+		/// </summary>
+		ReactorSpawnDescriptor ReactorDescriptor {ReactorSpawnDescriptor::Default()};
+	};
 }

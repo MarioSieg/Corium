@@ -1,6 +1,6 @@
-// File: EnvironmentUtils.cpp
+// File: ReactorPool.cpp
 // Author: Mario
-// Created: 08.05.2021 3:14 PM
+// Created: 13.05.2021 9:21 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,65 +205,48 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <string_view>
-#include <thread>
+#include "ReactorTestHelper.hpp"
 
-#include "EnvironmentUtils.hpp"
-#include "../../Include/Nominax/Core/Info.hpp"
-#include "../../Include/Nominax/Core/Record.hpp"
-#include "../../Include/Nominax/Core/Object.hpp"
-#include "../../Include/Nominax/Common/Protocol.hpp"
-#include "../../Include/Nominax/System/CpuFeatureDetector.hpp"
-#include "../../Include/Nominax/System/Platform.hpp"
-#include "../../Include/Nominax/System/Os.hpp"
-#include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
+std::vector<std::byte>              Buffer {1024 * 4};
+std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
 
-namespace
+TEST(ReactorPool, Construct)
 {
-	template <typename T>
-	inline auto PrintTypeInfo(const std::string_view name) -> void
-	{
-		Nominax::Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
-	}
+	const ReactorPool pool {Resource, 4, ReactorSpawnDescriptor::Default()};
+	ASSERT_EQ((*pool).GetId(), pool[0].GetId());
+	ASSERT_EQ((*pool).GetSpawnStamp(), pool[0].GetSpawnStamp());
+	ASSERT_EQ(pool.GetSize(), 4);
+	ASSERT_EQ(pool.GetReactor(0).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize + 1); // +1 because of padding
+	ASSERT_EQ(pool.GetReactor(0).GetInterruptHandler(), &DefaultInterruptRoutine);
+	ASSERT_EQ(pool.GetReactor(0).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
+	ASSERT_EQ(pool.GetReactor(1).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize + 1); // +1 because of padding
+	ASSERT_EQ(pool.GetReactor(1).GetInterruptHandler(), &DefaultInterruptRoutine);
+	ASSERT_EQ(pool.GetReactor(1).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
+	ASSERT_EQ(pool.GetReactor(2).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize + 1); // +1 because of padding
+	ASSERT_EQ(pool.GetReactor(2).GetInterruptHandler(), &DefaultInterruptRoutine);
+	ASSERT_EQ(pool.GetReactor(2).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
+	ASSERT_EQ(pool.GetReactor(3).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize + 1); // +1 because of padding
+	ASSERT_EQ(pool.GetReactor(3).GetInterruptHandler(), &DefaultInterruptRoutine);
+	ASSERT_EQ(pool.GetReactor(3).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
 }
 
-namespace Nominax
+TEST(ReactorPool, ZeroSizeFault)
 {
-	auto PrintSystemInfo() -> void
-	{
-		Print(SYSTEM_LOGO_TEXT);
-		Print(SYSTEM_COPYRIGHT_TEXT);
-		Print("\nNominax Version: v.{}.{}\n", SYSTEM_VERSION.Major, SYSTEM_VERSION.Minor);
-		Print("Platform: {} {}\n", NOMINAX_OS_NAME, NOMINAX_ARCH_SIZE_NAME);
-		Print("Arch: {}\n", NOMINAX_ARCH_NAME);
-		Print("IsPosix: {}\n", NOMINAX_IS_POSIX);
-		Print("Compiled with: {} - C++ 20\n", NOMINAX_COM_NAME);
-		Print("\n");
-	}
+	ASSERT_DEATH_IF_SUPPORTED([]()
+	                          {
+	                          [[maybe_unused]]
+	                          ReactorPool x(Resource, 0, ReactorSpawnDescriptor::Default());
+	                          }(), "");
+}
 
-	auto PrintTypeInfoTable() -> void
-	{
-		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
-		PrintTypeInfo<Record>("Record");
-		PrintTypeInfo<Signal>("Signal");
-		PrintTypeInfo<DynamicSignal>("DynamicSignal");
-		PrintTypeInfo<Object>("Object");
-		PrintTypeInfo<ObjectHeader>("ObjectHeader");
-		PrintTypeInfo<I64>("int");
-		PrintTypeInfo<U64>("uint");
-		PrintTypeInfo<F64>("float");
-		PrintTypeInfo<char32_t>("char");
-		PrintTypeInfo<bool>("bool");
-		PrintTypeInfo<void*>("void*");
-	}
-
-	auto PrintMachineInfo(const SystemInfo& sysInfo, const CpuFeatureDetector& cpuInfo) -> void
-	{
-		sysInfo.Print();
-		Print("\n");
-		PrintTypeInfoTable();
-		Print("\n");
-		cpuInfo.Print();
-		Print("\n");
-	}
+TEST(ReactorPool, OutOfRangeReactorGet)
+{
+	const ReactorPool pool {Resource, 4, ReactorSpawnDescriptor::Default()};
+	ASSERT_EQ(pool.GetSize(), 4);
+	ASSERT_EQ(&pool.GetReactor(3), pool.GetBuffer() + 3);
+	ASSERT_DEATH_IF_SUPPORTED([&pool]()
+	                          {
+	                          [[maybe_unused]]
+	                          auto y{ &pool.GetReactor(4) };
+	                          }(), "");
 }

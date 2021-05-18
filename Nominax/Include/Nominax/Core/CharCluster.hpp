@@ -210,7 +210,7 @@
 #include <array>
 #include <algorithm>
 
-#include "../Common/RtTypes.hpp"
+#include "../Common/BaseTypes.hpp"
 
 namespace Nominax
 {

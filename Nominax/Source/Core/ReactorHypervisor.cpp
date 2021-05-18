@@ -205,26 +205,100 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <array>
+
 #include "../../Include/Nominax/Core/ReactorHypervisor.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
+#include "../../Include/Nominax/System/CpuFeatureDetector.hpp"
+
+#include "ReactorCores.hpp"
+
+namespace
+{
+	using namespace Nominax;
+
+	[[maybe_unused]]
+	constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
+	{
+		&ReactorCore_Fallback,
+#if NOMINAX_ARCH_X86_64
+
+		&ReactorCore_AVX,
+		&ReactorCore_AVX512F,
+
+#elif NOMINAX_ARCH_ARM_64
+#	error "ARM64 not yet supported!"
+#endif
+	};
+}
 
 namespace Nominax
 {
-	auto ExecuteReactorAutoDispatchBackend([[maybe_unused]] const CpuFeatureDetector& cpuFeatures, const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void
+	auto SmartSelectReactor(const CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization
 	{
 #if NOMINAX_ARCH_X86_64
-		if ((*cpuFeatures).Avx)
+
+		// if we have AVX 512, use AVX 512:
+		if (cpuFeatureDetector->Avx512F)
 		{
-			Print(LogLevel::Warning, "Using AVX reactor backend!\n");
-			ReactorCore_Avx(input, output);
-			return;
+			return ReactorCoreSpecialization::X86_64_AVX512F;
 		}
 
-		Print(LogLevel::Warning, "Using fallback reactor backend!\n");
-		ReactorCore_Fallback(input, output);
-#else
-		Print(LogLevel::Warning, "Using fallback reactor backend!\n");
-		ReactorCore_Fallback(input, output);
+		// if we have AVX, use AVX:
+		if (cpuFeatureDetector->Avx)
+		{
+			return ReactorCoreSpecialization::X86_64_AVX;
+		}
+
+		// else, do not use fallback:
+		return ReactorCoreSpecialization::Fallback;
+
+#elif NOMINAX_ARCH_ARM_64
+#	error "ARM64 not yet supported!"
 #endif
+	}
+
+	auto GetReactorRegistry() noexcept(true) -> const ReactorRegistry&
+	{
+		return REACTOR_REGISTRY;
+	}
+
+	auto GetFallbackRoutineLink() noexcept(true) -> ReactorRoutineLink
+	{
+		return std::make_tuple(ReactorCoreSpecialization::Fallback, GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback));
+	}
+
+	auto GetReactorRoutineFromRegistryByTarget(const ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*
+	{
+		ReactorCoreExecutionRoutine* routine {REACTOR_REGISTRY[static_cast<std::underlying_type_t<decltype(target)>>(target)]};
+		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor core execution routine is nullptr!");
+		return routine;
+	}
+
+	auto GetOptimalReactorRoutine(const CpuFeatureDetector& features) -> ReactorRoutineLink
+	{
+		static thread_local constinit U16 QueryCounter;
+		ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
+		ReactorCoreExecutionRoutine*      routine {GetReactorRoutineFromRegistryByTarget(specialization)};
+		Print
+		(
+			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry Size: {}\n",
+			GetReactorCoreSpecializationName(specialization),
+			static_cast<std::uint64_t>(specialization),
+			++QueryCounter,
+			REACTOR_REGISTRY.size()
+		);
+		if (NOMINAX_UNLIKELY(QueryCounter > 1))
+		{
+			Print(LogLevel::Warning, "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n", QueryCounter);
+		}
+		return std::make_tuple(specialization, routine);
+	}
+
+	auto ExecuteOnce(const DetailedReactorDescriptor& input, ReactorOutput& output, const CpuFeatureDetector& target) noexcept(true) -> void
+	{
+		std::get<1>(GetOptimalReactorRoutine(target))(input, output);
 	}
 }

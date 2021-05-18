@@ -4,7 +4,7 @@ IF (${CORIUM_BUILD_UNIT_TESTS})
 	ADD_TEST(NAME "NominaxUnitTests" COMMAND "NominaxUnitTests")
 	TARGET_INCLUDE_DIRECTORIES("NominaxUnitTests" PUBLIC "${TEST_INCLUDE}")
 	TARGET_LINK_LIBRARIES("NominaxUnitTests" "gtest")
-	TARGET_LINK_LIBRARIES("NominaxUnitTests" "Nominax")
+	TARGET_LINK_LIBRARIES("NominaxUnitTests" "NominaxTest")
 	ADD_COMPILE_DEFINITIONS("NOMINAX_TESTING")
 
 	# with GCC we need to link posix threads

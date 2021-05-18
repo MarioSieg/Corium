@@ -295,4 +295,4 @@
 #	define NOMINAX_COM_NAME "MinGW"
 #endif
 
-#include "../Common/RtTypes.hpp"
+#include "../Common/BaseTypes.hpp"

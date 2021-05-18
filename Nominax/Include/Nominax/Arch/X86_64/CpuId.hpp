@@ -209,7 +209,7 @@
 
 #include <type_traits>
 
-#include "../../Common/RtTypes.hpp"
+#include "../../Common/BaseTypes.hpp"
 
 namespace Nominax::X86_64
 {
@@ -897,7 +897,7 @@ namespace Nominax::X86_64
 		bool Avx512Vp2Intersect: 1{ };
 
 		/// <summary>
-		/// Special Register Buffer Data Sampling Mitigations
+		/// Special Register SystemBumpPool Data Sampling Mitigations
 		/// </summary>
 		bool SrbdsCtrl: 1{ };
 
@@ -1296,9 +1296,9 @@ namespace Nominax::X86_64
 	/// </summary>
 	extern "C" auto Asm_CpuId
 	(
-		MergedInfoTable& out1,
-		MergedInfoTable& out2,
-		MergedInfoTable& out3
+		MergedInfoTable* out1,
+		MergedInfoTable* out2,
+		MergedInfoTable* out3
 	) noexcept(true) -> U32;
 
 	/// <summary>

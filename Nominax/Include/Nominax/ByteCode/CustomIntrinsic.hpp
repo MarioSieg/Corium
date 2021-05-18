@@ -226,5 +226,5 @@ namespace Nominax
 	using IntrinsicRoutine = auto (Record*) -> void;
 	static_assert(std::is_function_v<IntrinsicRoutine>);
 
-	using SharedIntrinsicTableView = std::span<IntrinsicRoutine*>;
+	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;
 }

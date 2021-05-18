@@ -1,6 +1,6 @@
-// File: VisitOverload.hpp
+// File: JumpAddress.hpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 11.05.2021 8:29 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,18 +207,14 @@
 
 #pragma once
 
+#include "../Common/BaseTypes.hpp"
+
 namespace Nominax
 {
 	/// <summary>
-	///  std::visit auto overload helper
+	/// Represents a jump address which
+	/// is essentially an index to a instruction.
+	/// For dynamic signals only.
 	/// </summary>
-	/// <typeparam name="...Ts">The call types.</typeparam>
-	template <typename... Ts>
-	struct Overloaded : Ts...
-	{
-		using Ts::operator()...;
-	};
-
-	template <typename... Ts>
-	Overloaded(Ts&&...) -> Overloaded<Ts...>;
+	enum class alignas(alignof(U64)) JumpAddress : U64;
 }

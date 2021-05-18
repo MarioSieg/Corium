@@ -207,23 +207,9 @@
 
 #include "BenchTemplates.hpp"
 
-auto DeepCmp(State& state) -> void
-{
-	const auto a {Object::AllocateUnique(16384)};
-	const auto b {Object::AllocateUnique(16384)};
-
-	for (auto _ : state)
-	{
-		const auto x = Object::DeepCmp(*a, *b);
-		DoNotOptimize(x);
-	}
-}
-
-BENCHMARK(DeepCmp)->Unit(kMicrosecond);
-
 auto Loop1BillionVectorsNoAvx(State& state) -> void
 {
-	const std::vector loopBody
+	std::array loopBody
 	{
 		DynamicSignal {Instruction::VPush},
 		DynamicSignal {1.5_float},
@@ -247,7 +233,7 @@ BENCHMARK(Loop1BillionVectorsNoAvx)->Unit(kSecond);
 auto Loop1BillionVectorsAvxIfSupported(State& state) -> void
 {
 	Print("\n");
-	const std::vector loopBody
+	std::array loopBody
 	{
 		DynamicSignal {Instruction::VPush},
 		DynamicSignal {1.5_float},
@@ -274,24 +260,6 @@ auto Loop1Billion(State& state) -> void
 }
 
 BENCHMARK(Loop1Billion)->Unit(kSecond);
-
-auto DeepCmpLess(State& state) -> void
-{
-	const auto a {Object::AllocateUnique(16384)};
-	const auto b {Object::AllocateUnique(16384)};
-	for (auto& x : *b)
-	{
-		x.AsF64 = 10.0;
-	}
-
-	for (auto _ : state)
-	{
-		const auto x = Object::DeepValueCmp_Less<F64>(*a, *b);
-		DoNotOptimize(x);
-	}
-}
-
-BENCHMARK(DeepCmpLess)->Unit(kMicrosecond);
 
 auto Loop5Billion(State& state) -> void
 {

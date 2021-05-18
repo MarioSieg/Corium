@@ -225,7 +225,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Cos)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::cos(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::cos(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -248,7 +248,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Sin)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::sin(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::sin(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -271,7 +271,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Tan)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::tan(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::tan(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -294,7 +294,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ACos)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::acos(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::acos(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -317,7 +317,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ASin)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::asin(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::asin(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -340,7 +340,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::atan(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::atan(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -365,8 +365,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan2)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::atan2(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::atan2(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -389,7 +389,7 @@ TEST(ReactorExecution, IntrinsicRoutine_CosH)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::cosh(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::cosh(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -412,7 +412,7 @@ TEST(ReactorExecution, IntrinsicRoutine_SinH)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::sinh(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::sinh(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -435,7 +435,7 @@ TEST(ReactorExecution, IntrinsicRoutine_TanH)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::tanh(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::tanh(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -458,7 +458,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ACosH)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::acosh(1.6));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::acosh(1.6));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -481,7 +481,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ASinH)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::asinh(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::asinh(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -504,7 +504,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ATanH)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::atanh(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::atanh(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -527,7 +527,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::exp(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::exp(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -550,7 +550,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Log)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::log(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::log(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -573,7 +573,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Log10)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::log10(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::log10(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -596,7 +596,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp2)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::exp2(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::exp2(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -619,7 +619,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ILogB)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::ilogb(1.332));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::ilogb(1.332));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -642,7 +642,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Log2)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::log2(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::log2(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -667,8 +667,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Pow)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::pow(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::pow(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -692,7 +692,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Sqrt)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::sqrt(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::sqrt(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -715,7 +715,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Cbrt)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::cbrt(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::cbrt(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -740,8 +740,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Hypot)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::hypot(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::hypot(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -764,7 +764,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Ceil)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::ceil(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::ceil(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -787,7 +787,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Floor)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::floor(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::floor(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -810,7 +810,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Round)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::round(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::round(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -833,7 +833,7 @@ TEST(ReactorExecution, IntrinsicRoutine_RInt)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::rint(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::rint(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -858,8 +858,8 @@ TEST(ReactorExecution, IntrinsicRoutine_IMax)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_EQ(o.Input.Stack[1].AsI64, std::max<I64>(4, 7));
-	ASSERT_EQ(o.Input.Stack[2].AsI64, 7);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, std::max<I64>(4, 7));
+	ASSERT_EQ(o.Input->Stack[2].AsI64, 7);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -884,8 +884,8 @@ TEST(ReactorExecution, IntrinsicRoutine_IMin)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_EQ(o.Input.Stack[1].AsI64, std::min<I64>(4, 7));
-	ASSERT_EQ(o.Input.Stack[2].AsI64, 7);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, std::min<I64>(4, 7));
+	ASSERT_EQ(o.Input->Stack[2].AsI64, 7);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -910,8 +910,8 @@ TEST(ReactorExecution, IntrinsicRoutine_FMax)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::max(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::max(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -936,8 +936,8 @@ TEST(ReactorExecution, IntrinsicRoutine_FMin)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::fmin(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::fmin(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -962,8 +962,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Dim)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::fdim(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input.Stack[2].AsF64, 0.15);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::fdim(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 2);
 }
@@ -987,7 +987,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_EQ(o.Input.Stack[1].AsI64, std::abs(223233));
+	ASSERT_EQ(o.Input->Stack[1].AsI64, std::abs(223233));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -1010,7 +1010,7 @@ TEST(ReactorExecution, IntrinsicRoutine_FAbs)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_DOUBLE_EQ(o.Input.Stack[1].AsF64, std::fabs(0.35));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::fabs(0.35));
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -1033,7 +1033,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortWrite)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_EQ(o.Input.Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
+	ASSERT_EQ(o.Input->Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -1059,7 +1059,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortRead)
 
 	const auto o {ExecuteOnce(input)};
 
-	ASSERT_EQ(o.Input.Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
+	ASSERT_EQ(o.Input->Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -1084,7 +1084,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortFlush)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {ExecuteOnce(input)};
-	ASSERT_EQ(o.Input.Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
+	ASSERT_EQ(o.Input->Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
 	ASSERT_EQ(o.InterruptCode, -12345);
 	ASSERT_EQ(o.SpDiff, 1);
 }

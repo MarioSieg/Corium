@@ -215,6 +215,7 @@
 #include "SystemIntrinsic.hpp"
 #include "CustomIntrinsic.hpp"
 #include "Instruction.hpp"
+#include "JumpAddress.hpp"
 
 namespace Nominax
 {

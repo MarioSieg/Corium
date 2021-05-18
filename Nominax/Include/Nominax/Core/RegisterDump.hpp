@@ -210,7 +210,7 @@
 #include <array>
 #include <ostream>
 
-#include "../Common/RtTypes.hpp"
+#include "../Common/BaseTypes.hpp"
 #include "../System/Platform.hpp"
 
 namespace Nominax

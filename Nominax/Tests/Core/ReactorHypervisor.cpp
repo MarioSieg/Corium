@@ -1,6 +1,6 @@
-// File: ReactorCore_Avx.cpp
+// File: ReactorHypervisor.cpp
 // Author: Mario
-// Created: 09.05.2021 6:24 PM
+// Created: 15.05.2021 4:50 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,13 +205,110 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/System/Platform.hpp"
+#include "../TestBase.hpp"
+#include "../../Source/Core/ReactorCores.hpp"
+
+TEST(ReactorHypervisor, ReactorRegistry)
+{
+#if NOMINAX_ARCH_X86_64
+	ASSERT_EQ(GetReactorRegistry().size(), static_cast<std::size_t>(ReactorCoreSpecialization::Count));
+#elif NOMINAX_ARCH_ARM_64
+	ASSERT_EQ(GetReactorRegistry().size(), static_cast<std::size_t>(ReactorCoreSpecialization::Count));
+#endif
+}
+
+TEST(ReactorHypervisor, ReactorRegistryNonNull)
+{
+	for (auto* x : GetReactorRegistry())
+	{
+		ASSERT_NE(x, nullptr);
+	}
+}
+
+TEST(ReactorHypervisor, FeatureSelectFallback)
+{
+	std::array<std::byte, sizeof(CpuFeatureDetector)> features { };
+	ASSERT_EQ(SmartSelectReactor(*reinterpret_cast<CpuFeatureDetector*>(features.data())), ReactorCoreSpecialization::Fallback);
+}
+
+TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetFallback)
+{
+	std::array<std::byte, sizeof(CpuFeatureDetector)> features { };
+	ASSERT_EQ
+	(
+		GetReactorRoutineFromRegistryByTarget
+		(
+			SmartSelectReactor(*reinterpret_cast<CpuFeatureDetector*>(features.data()))
+		), &ReactorCore_Fallback
+	);
+}
+
+TEST(ReactorHypervisor, GetOptionalReactorRoutine)
+{
+	std::array<std::byte, sizeof(CpuFeatureDetector)> features { };
+	const ReactorRoutineLink                          data {GetOptimalReactorRoutine(*reinterpret_cast<CpuFeatureDetector*>(features.data()))};
+	ASSERT_EQ(std::get<0>(data), ReactorCoreSpecialization::Fallback);
+	ASSERT_EQ(std::get<1>(data), &ReactorCore_Fallback);
+}
 
 #if NOMINAX_ARCH_X86_64
-#	if !defined(__AVX__) || __AVX__ == 0
-#		error "This reactore core requires AVX!"
-#	endif
-#	define NOMINAX_REACTOR_IMPL_NAME ReactorCore_Avx
-#		include "ReactorCore.inl"
-#	undef NOMINAX_REACTOR_IMPL_NAME
+
+TEST(ReactorHypervisor, FeatureSelectAvx)
+{
+	CpuFeatureDetector feature { };
+	const_cast<FeatureBits&>(*feature).Avx = true;
+	ASSERT_EQ(SmartSelectReactor(feature), ReactorCoreSpecialization::X86_64_AVX);
+}
+
+TEST(ReactorHypervisor, FeatureSelectAvx512F)
+{
+	CpuFeatureDetector feature { };
+	const_cast<FeatureBits&>(*feature).Avx512F = true;
+	ASSERT_EQ(SmartSelectReactor(feature), ReactorCoreSpecialization::X86_64_AVX512F);
+}
+
+TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx)
+{
+	CpuFeatureDetector feature { };
+	const_cast<FeatureBits&>(*feature).Avx = true;
+	ASSERT_EQ
+	(
+		GetReactorRoutineFromRegistryByTarget
+		(
+			SmartSelectReactor(feature)
+		), &ReactorCore_AVX
+	);
+}
+
+TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx512F)
+{
+	CpuFeatureDetector feature { };
+	const_cast<FeatureBits&>(*feature).Avx512F = true;
+	ASSERT_EQ
+	(
+		GetReactorRoutineFromRegistryByTarget
+		(
+			SmartSelectReactor(feature)
+		), &ReactorCore_AVX512F
+	);
+}
+
+TEST(ReactorHypervisor, GetOptionalReactorRoutineAvx)
+{
+	CpuFeatureDetector features { };
+	const_cast<FeatureBits&>(*features).Avx = true;
+	const ReactorRoutineLink data {GetOptimalReactorRoutine(features)};
+	ASSERT_EQ(std::get<0>(data), ReactorCoreSpecialization::X86_64_AVX);
+	ASSERT_EQ(std::get<1>(data), &ReactorCore_AVX);
+}
+
+TEST(ReactorHypervisor, GetOptionalReactorRoutineAvx512)
+{
+	CpuFeatureDetector features { };
+	const_cast<FeatureBits&>(*features).Avx512F = true;
+	const ReactorRoutineLink data {GetOptimalReactorRoutine(features)};
+	ASSERT_EQ(std::get<0>(data), ReactorCoreSpecialization::X86_64_AVX512F);
+	ASSERT_EQ(std::get<1>(data), &ReactorCore_AVX512F);
+}
+
 #endif
