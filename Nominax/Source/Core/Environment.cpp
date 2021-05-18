@@ -531,7 +531,7 @@ namespace Nominax
 	auto Environment::Execute(Stream&& appCode) noexcept(false) -> const ReactorOutput&
 	{
 		AppCodeBundle appCodeBundle { };
-		if(const auto [code, _]{ appCode.Build(appCodeBundle) }; NOMINAX_UNLIKELY(code != ByteCodeValidationResultCode::Ok))
+		if (const auto [code, _] {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(code != ByteCodeValidationResultCode::Ok))
 		{
 			PANIC(BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[static_cast<std::underlying_type_t<ByteCodeValidationResultCode>>(code)]);
 		}

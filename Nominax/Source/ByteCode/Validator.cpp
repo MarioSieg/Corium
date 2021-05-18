@@ -224,7 +224,7 @@ namespace Nominax
 		{
 			return false;
 		}
-		const auto* const begin{ &input.front() };
+		const auto* const begin {&input.front()};
 		for (std::size_t i {0}; i < code.size(); ++i)
 		{
 			if (NOMINAX_UNLIKELY(code[i] != begin[i]))
@@ -242,8 +242,8 @@ namespace Nominax
 		{
 			return false;
 		}
-		const auto* const end{ &*std::end(input) - code.size() };
-		for (std::size_t i{ 0 }; i < code.size(); ++i)
+		const auto* const end {&*std::end(input) - code.size()};
+		for (std::size_t i {0}; i < code.size(); ++i)
 		{
 			if (NOMINAX_UNLIKELY(code[i] != end[i]))
 			{
@@ -292,13 +292,13 @@ namespace Nominax
 
 	auto ExtractInstructionArguments(const DynamicSignal* const* const iterator) noexcept(true) -> std::span<const DynamicSignal>
 	{
-		return { *iterator + 1, *iterator + 1 + ComputeInstructionArgumentOffset(iterator) };
+		return {*iterator + 1, *iterator + 1 + ComputeInstructionArgumentOffset(iterator)};
 	}
 
 	auto ValidateLastInstruction(const DynamicSignal* const instr, const std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode
 	{
-		const Instruction instruction{ instr->UnwrapUnchecked<Instruction>() };
-		std::vector<DynamicSignal> view{ instr + 1, instr + 1 + argCount };
+		const Instruction          instruction {instr->UnwrapUnchecked<Instruction>()};
+		std::vector<DynamicSignal> view {instr + 1, instr + 1 + argCount};
 		return ValidateInstructionArguments(instruction, view);
 	}
 
@@ -307,25 +307,25 @@ namespace Nominax
 		// Check if empty:
 		if (NOMINAX_UNLIKELY(input.empty()))
 		{
-			return { ByteCodeValidationResultCode::Empty, 0 };
+			return {ByteCodeValidationResultCode::Empty, 0};
 		}
 
 		// Check if prologue code is contained:
 		if (NOMINAX_UNLIKELY(!ContainsPrologue(input)))
 		{
-			return { ByteCodeValidationResultCode::MissingPrologueCode, 0 };
+			return {ByteCodeValidationResultCode::MissingPrologueCode, 0};
 		}
 
 		// Check if epilogue code is contained:
 		if (NOMINAX_UNLIKELY(!ContainsEpilogue(input)))
 		{
-			return { ByteCodeValidationResultCode::MissingEpilogueCode, 0 };
+			return {ByteCodeValidationResultCode::MissingEpilogueCode, 0};
 		}
-		
+
 		// Collect all instructions to validate them:
 		std::vector<const DynamicSignal*> instructionCache { };
 		GenerateInstructionCache(input, instructionCache);
-		
+
 		/*
 		 * Validate last instruction first:
 		 * -> Last instruction is validated first
@@ -335,10 +335,10 @@ namespace Nominax
 		 * instruction following it, so it is checked first and separately,
 		 * then the other are checked without the last instruction.
 		 */
-		const auto lastInstructionResult{ ValidateLastInstruction(instructionCache.back(), &input.back() - instructionCache.back()) };	
-		if(NOMINAX_UNLIKELY(lastInstructionResult != ByteCodeValidationResultCode::Ok))
+		const auto lastInstructionResult {ValidateLastInstruction(instructionCache.back(), &input.back() - instructionCache.back())};
+		if (NOMINAX_UNLIKELY(lastInstructionResult != ByteCodeValidationResultCode::Ok))
 		{
-			return { lastInstructionResult, 0 };
+			return {lastInstructionResult, 0};
 		}
 
 		// Remove last instruction
@@ -351,10 +351,10 @@ namespace Nominax
 			const std::span   args {ExtractInstructionArguments(i)};
 
 			// validate args:
-			const auto result{ ValidateInstructionArguments(instruction, args) };
-			
+			const auto result {ValidateInstructionArguments(instruction, args)};
+
 			// if error, return result:
-			if(NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok))
+			if (NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok))
 			{
 				return {result, 0};
 			}

@@ -1,4 +1,4 @@
-// File: ValidatorAlgorithms.cpp
+// File: Validator.cpp
 // Author: Mario
 // Created: 18.05.2021 1:49 PM
 // Project: NominaxRuntime
@@ -462,11 +462,11 @@ TEST(ValidatorAlgorithms, ValidateValid)
 		DynamicSignal {0_int}
 	};
 
-	std::vector<DynamicSignal> stream{};
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-	
+
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
 	ASSERT_EQ(ValidateByteCode(stream).second, 0);
 }
@@ -488,7 +488,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 		DynamicSignal {0_int}
 	};
 
-	std::vector<DynamicSignal> stream{};
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -511,7 +511,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
 		DynamicSignal {0_int}
 	};
 
-	std::vector<DynamicSignal> stream{};
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -533,7 +533,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
 		DynamicSignal {0_int}
 	};
 
-	std::vector<DynamicSignal> stream{};
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -550,7 +550,7 @@ TEST(ValidatorAlgorithms, ValidateLastValid)
 		DynamicSignal {0_int}
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -566,7 +566,7 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidMissingArgs)
 		DynamicSignal {Instruction::Int},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -584,7 +584,7 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidTooManyArgs)
 		DynamicSignal {0_int}
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -601,7 +601,7 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidTypeMismatch)
 		DynamicSignal {0.0_float}
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -617,7 +617,7 @@ TEST(ValidatorAlgorithms, ValidateLastPushInvalidMissingArgs)
 		DynamicSignal {Instruction::Push},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -635,7 +635,7 @@ TEST(ValidatorAlgorithms, ValidateLastPushInvalidTooManyArgs)
 		DynamicSignal {0_int}
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -652,7 +652,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushInt)
 		DynamicSignal {0_int},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -669,7 +669,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushUInt)
 		DynamicSignal {0_uint},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -686,11 +686,11 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushFloat)
 		DynamicSignal {0.0_float},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-	
+
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
 }
 
@@ -704,7 +704,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastSto)
 		DynamicSignal {0.0_float},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -721,7 +721,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoNotEnoughArgs)
 		DynamicSignal {0_uint},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -740,7 +740,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoTooManyArgs)
 		DynamicSignal {0_uint},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -758,7 +758,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastMovTypeMismatch)
 		DynamicSignal {0.0_float},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
@@ -768,7 +768,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastMovTypeMismatch)
 
 TEST(ValidatorAlgorithms, ValidateInvalidEmpty)
 {
-	constexpr std::array<const DynamicSignal, 0> code{ };
+	constexpr std::array<const DynamicSignal, 0> code { };
 
 	ASSERT_EQ(ValidateByteCode(code).first, ByteCodeValidationResultCode::Empty);
 }
@@ -782,7 +782,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingPrologue)
 		DynamicSignal {0_uint},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(code), std::end(code));
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
@@ -796,7 +796,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue)
 		DynamicSignal {Instruction::NOp},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 
@@ -811,7 +811,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue2)
 		DynamicSignal {Instruction::Int},
 	};
 
-	std::vector<DynamicSignal> stream{ };
+	std::vector<DynamicSignal> stream { };
 	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 

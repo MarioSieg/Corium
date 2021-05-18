@@ -333,8 +333,8 @@ namespace Nominax
 	/// <param name="jumpMap"></param>
 	extern auto GenerateChunkAndJumpMap(const std::span<const DynamicSignal>& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void;
 
-	extern auto ValidateLastInstruction(const DynamicSignal* instr, std::ptrdiff_t argCount) noexcept(false)->ByteCodeValidationResultCode;
-	
+	extern auto ValidateLastInstruction(const DynamicSignal* instr, std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode;
+
 	/// <summary>
 	/// Validates the whole code and returns the result.
 	/// </summary>

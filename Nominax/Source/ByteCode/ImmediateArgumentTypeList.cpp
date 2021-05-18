@@ -218,71 +218,72 @@ namespace Nominax
 		DySigIdx<CharClusterUtf16>(),
 		DySigIdx<CharClusterUtf32>()
 	};
-	
+
 	const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
-		PerInstructionArgTypes {{DySigIdx<I64>()}},                               // int
-		{{DySigIdx<SystemIntrinsicCallId>()}},                                    // intrin
-		{{DySigIdx<CustomIntrinsicCallId>()}},                                    // cintrin
-		{{DySigIdx<U64>()}},                                                      // call
-		{ },                                                                      // ret
-		{{DySigIdx<U64>()}, {DySigIdx<U64>()}},                                   // mov
-		{{DySigIdx<U64>()}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}},		  // sto
-		{{std::begin(ANY_TYPE), std::end(ANY_TYPE)}},							  // push
-		{ },                                                                      // pop
-		{ },                                                                      // pop2
-		{ },                                                                      // dupl
-		{ },                                                                      // dupl2
-		{ },                                                                      // swap
-		{ },                                                                      // nop
-		{{DySigIdx<JumpAddress>()}},                                              // jmp
-		{{DySigIdx<JumpAddress>()}},                                              // jmprel
-		{{DySigIdx<JumpAddress>()}},                                              // jz
-		{{DySigIdx<JumpAddress>()}},                                              // jnz
-		{{DySigIdx<JumpAddress>()}},                                              // jo_cmpi
-		{{DySigIdx<JumpAddress>()}},                                              // jo_cmpf
-		{{DySigIdx<JumpAddress>()}},                                              // jno_cmpi
-		{{DySigIdx<JumpAddress>()}},                                              // jno_cmpf
-		{{DySigIdx<JumpAddress>()}},                                              // je_cmpi
-		{{DySigIdx<JumpAddress>()}},                                              // je_cmpf
-		{{DySigIdx<JumpAddress>()}},                                              // jne_cmpi
-		{{DySigIdx<JumpAddress>()}},                                              // jne_cmpf
-		{{DySigIdx<JumpAddress>()}},                                              // ja_cmpi
-		{{DySigIdx<JumpAddress>()}},                                              // ja_cmpf
-		{{DySigIdx<JumpAddress>()}},                                              // jl_cmpi
-		{{DySigIdx<JumpAddress>()}},                                              // jl_cmpf
-		{{DySigIdx<JumpAddress>()}},                                              // jae_cmpi
-		{{DySigIdx<JumpAddress>()}},                                              // jae_cmpf
-		{{DySigIdx<JumpAddress>()}},                                              // jle_cmpi
-		{{DySigIdx<JumpAddress>()}},                                              // jle_cmpf
-		{ },                                                                      // pushz
-		{ },                                                                      // ipusho
-		{ },                                                                      // fpusho
-		{ },                                                                      // iinc
-		{ },                                                                      // idec
-		{ },                                                                      // iadd
-		{ },                                                                      // isub
-		{ },                                                                      // imul
-		{ },                                                                      // idiv
-		{ },                                                                      // imod
-		{ },                                                                      // iand
-		{ },                                                                      // ior
-		{ },                                                                      // ixor
-		{ },                                                                      // icom
-		{ },                                                                      // isal
-		{ },                                                                      // isar
-		{ },                                                                      // irol
-		{ },                                                                      // iror
-		{ },                                                                      // ineg
-		{ },                                                                      // fadd
-		{ },                                                                      // fsub
-		{ },                                                                      // fmul
-		{ },                                                                      // fdiv
-		{ },                                                                      // fmod
-		{ },                                                                      // fneg
-		{ },                                                                      // finc
-		{ },                                                                      // fdec
-		{																		  // vpush
+		PerInstructionArgTypes {{DySigIdx<I64>()}},                      // int
+		{{DySigIdx<SystemIntrinsicCallId>()}},                           // intrin
+		{{DySigIdx<CustomIntrinsicCallId>()}},                           // cintrin
+		{{DySigIdx<U64>()}},                                             // call
+		{ },                                                             // ret
+		{{DySigIdx<U64>()}, {DySigIdx<U64>()}},                          // mov
+		{{DySigIdx<U64>()}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}}, // sto
+		{{std::begin(ANY_TYPE), std::end(ANY_TYPE)}},                    // push
+		{ },                                                             // pop
+		{ },                                                             // pop2
+		{ },                                                             // dupl
+		{ },                                                             // dupl2
+		{ },                                                             // swap
+		{ },                                                             // nop
+		{{DySigIdx<JumpAddress>()}},                                     // jmp
+		{{DySigIdx<JumpAddress>()}},                                     // jmprel
+		{{DySigIdx<JumpAddress>()}},                                     // jz
+		{{DySigIdx<JumpAddress>()}},                                     // jnz
+		{{DySigIdx<JumpAddress>()}},                                     // jo_cmpi
+		{{DySigIdx<JumpAddress>()}},                                     // jo_cmpf
+		{{DySigIdx<JumpAddress>()}},                                     // jno_cmpi
+		{{DySigIdx<JumpAddress>()}},                                     // jno_cmpf
+		{{DySigIdx<JumpAddress>()}},                                     // je_cmpi
+		{{DySigIdx<JumpAddress>()}},                                     // je_cmpf
+		{{DySigIdx<JumpAddress>()}},                                     // jne_cmpi
+		{{DySigIdx<JumpAddress>()}},                                     // jne_cmpf
+		{{DySigIdx<JumpAddress>()}},                                     // ja_cmpi
+		{{DySigIdx<JumpAddress>()}},                                     // ja_cmpf
+		{{DySigIdx<JumpAddress>()}},                                     // jl_cmpi
+		{{DySigIdx<JumpAddress>()}},                                     // jl_cmpf
+		{{DySigIdx<JumpAddress>()}},                                     // jae_cmpi
+		{{DySigIdx<JumpAddress>()}},                                     // jae_cmpf
+		{{DySigIdx<JumpAddress>()}},                                     // jle_cmpi
+		{{DySigIdx<JumpAddress>()}},                                     // jle_cmpf
+		{ },                                                             // pushz
+		{ },                                                             // ipusho
+		{ },                                                             // fpusho
+		{ },                                                             // iinc
+		{ },                                                             // idec
+		{ },                                                             // iadd
+		{ },                                                             // isub
+		{ },                                                             // imul
+		{ },                                                             // idiv
+		{ },                                                             // imod
+		{ },                                                             // iand
+		{ },                                                             // ior
+		{ },                                                             // ixor
+		{ },                                                             // icom
+		{ },                                                             // isal
+		{ },                                                             // isar
+		{ },                                                             // irol
+		{ },                                                             // iror
+		{ },                                                             // ineg
+		{ },                                                             // fadd
+		{ },                                                             // fsub
+		{ },                                                             // fmul
+		{ },                                                             // fdiv
+		{ },                                                             // fmod
+		{ },                                                             // fneg
+		{ },                                                             // finc
+		{ },                                                             // fdec
+		{
+			// vpush
 			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
 			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
 			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},

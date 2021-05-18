@@ -311,8 +311,8 @@ TEST(ReactorClass, TryExecuteValid)
 
 TEST(ReactorClass, TryExecuteInvalidZeroCode)
 {
-	const Stream  stream{ OptimizationLevel::Off };
-	AppCodeBundle out{ };
+	const Stream  stream {OptimizationLevel::Off};
+	AppCodeBundle out { };
 	ASSERT_EQ(stream.Build(out).first, ByteCodeValidationResultCode::Empty);
 	Reactor reactor
 	{
