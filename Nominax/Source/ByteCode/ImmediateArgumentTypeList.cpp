@@ -209,6 +209,16 @@
 
 namespace Nominax
 {
+	static constexpr std::array ANY_TYPE
+	{
+		DySigIdx<U64>(),
+		DySigIdx<I64>(),
+		DySigIdx<F64>(),
+		DySigIdx<CharClusterUtf8>(),
+		DySigIdx<CharClusterUtf16>(),
+		DySigIdx<CharClusterUtf32>()
+	};
+	
 	const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
 		PerInstructionArgTypes {{DySigIdx<I64>()}},                               // int
@@ -217,8 +227,8 @@ namespace Nominax
 		{{DySigIdx<U64>()}},                                                      // call
 		{ },                                                                      // ret
 		{{DySigIdx<U64>()}, {DySigIdx<U64>()}},                                   // mov
-		{{DySigIdx<U64>()}, {DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()}}, // sto
-		{{DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()}},                    // push
+		{{DySigIdx<U64>()}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}},		  // sto
+		{{std::begin(ANY_TYPE), std::end(ANY_TYPE)}},							  // push
 		{ },                                                                      // pop
 		{ },                                                                      // pop2
 		{ },                                                                      // dupl
@@ -272,12 +282,12 @@ namespace Nominax
 		{ },                                                                      // fneg
 		{ },                                                                      // finc
 		{ },                                                                      // fdec
-		{
-			{DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()},
-			{DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()},
-			{DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()},
-			{DySigIdx<U64>(), DySigIdx<I64>(), DySigIdx<F64>()}
-		},   // vpush
+		{																		  // vpush
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)}
+		},
 		{ }, // vpop
 		{ }, // vadd
 		{ }, // vsub

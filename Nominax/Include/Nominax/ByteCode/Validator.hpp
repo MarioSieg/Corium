@@ -279,20 +279,18 @@ namespace Nominax
 	/// prologue code, else false.
 	/// </summary>
 	/// <typeparam name="Iterator"></typeparam>
-	/// <param name="size"></param>
-	/// <param name="begin"></param>
+	/// <param name="input"></param>
 	/// <returns></returns>
-	extern auto ContainsPrologue(const std::size_t size, Stream::StorageType::const_iterator begin) noexcept(false) -> bool;
+	extern auto ContainsPrologue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool;
 
 	/// <summary>
 	/// Returns true if the iterator range end with
 	/// epilogue code, else false.
 	/// </summary>
 	/// <typeparam name="Iterator"></typeparam>
-	/// <param name="size"></param>
-	/// <param name="end"></param>
+	/// <param name="input"></param>
 	/// <returns></returns>
-	extern auto ContainsEpilogue(const std::size_t size, Stream::StorageType::const_iterator end) noexcept(false) -> bool;
+	extern auto ContainsEpilogue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool;
 
 	/// <summary>
 	/// Contains all instructions except for the last one in the stream.
@@ -335,6 +333,8 @@ namespace Nominax
 	/// <param name="jumpMap"></param>
 	extern auto GenerateChunkAndJumpMap(const std::span<const DynamicSignal>& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void;
 
+	extern auto ValidateLastInstruction(const DynamicSignal* instr, std::ptrdiff_t argCount) noexcept(false)->ByteCodeValidationResultCode;
+	
 	/// <summary>
 	/// Validates the whole code and returns the result.
 	/// </summary>

@@ -223,6 +223,9 @@ namespace Nominax
 		NullIntrinsicRoutine,
 		ExecutionAddressMappingError,
 
+		/// <summary>
+		/// No error just count of enum entries.
+		/// </summary>
 		Count
 	};
 

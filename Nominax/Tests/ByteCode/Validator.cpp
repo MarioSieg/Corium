@@ -1,4 +1,4 @@
-// File: Validator.cpp
+// File: ValidatorAlgorithms.cpp
 // Author: Mario
 // Created: 18.05.2021 1:49 PM
 // Project: NominaxRuntime
@@ -207,7 +207,7 @@
 
 #include "../TestBase.hpp"
 
-TEST(Validator, ValidateJumpAddressValid)
+TEST(ValidatorAlgorithms, ValidateJumpAddressValid)
 {
 	const std::vector bucket
 	{
@@ -230,7 +230,7 @@ TEST(Validator, ValidateJumpAddressValid)
 	ASSERT_FALSE(ValidateJumpAddress(bucket, JumpAddress{ 8 }));
 }
 
-TEST(Validator, ValidateSystemIntrinsicCall)
+TEST(ValidatorAlgorithms, ValidateSystemIntrinsicCall)
 {
 	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallId::ACos));
 	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallId::IoPortWriteCluster));
@@ -238,7 +238,7 @@ TEST(Validator, ValidateSystemIntrinsicCall)
 	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<SystemIntrinsicCallId>(-1)));
 }
 
-TEST(Validator, ValidateCustomIntrinsicCall)
+TEST(ValidatorAlgorithms, ValidateCustomIntrinsicCall)
 {
 	std::vector<IntrinsicRoutine*> proc
 	{
@@ -252,7 +252,7 @@ TEST(Validator, ValidateCustomIntrinsicCall)
 	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallId{ 3 }));
 }
 
-TEST(Validator, ValidateInstructionArguments_Int)
+TEST(ValidatorAlgorithms, ValidateInstructionArguments_Int)
 {
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3_int} }), ByteCodeValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3.0_float} }), ByteCodeValidationResultCode::ArgumentTypeMismatch);
@@ -261,7 +261,7 @@ TEST(Validator, ValidateInstructionArguments_Int)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, { {} }), ByteCodeValidationResultCode::ArgumentTypeMismatch);
 }
 
-TEST(Validator, ValidateInstructionArguments_Intrin)
+TEST(ValidatorAlgorithms, ValidateInstructionArguments_Intrin)
 {
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3_int} }), ByteCodeValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3.0_float} }), ByteCodeValidationResultCode::ArgumentTypeMismatch);
@@ -274,7 +274,7 @@ TEST(Validator, ValidateInstructionArguments_Intrin)
 }
 
 
-TEST(Validator, ValidateInstructionArguments_CIntrin)
+TEST(ValidatorAlgorithms, ValidateInstructionArguments_CIntrin)
 {
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_int} }), ByteCodeValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3.0_float} }), ByteCodeValidationResultCode::ArgumentTypeMismatch);
@@ -286,7 +286,7 @@ TEST(Validator, ValidateInstructionArguments_CIntrin)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{CustomIntrinsicCallId{3}} }), ByteCodeValidationResultCode::Ok);
 }
 
-TEST(Validator, ValidateInstructionArguments_None)
+TEST(ValidatorAlgorithms, ValidateInstructionArguments_None)
 {
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, { {} }), ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, { {}, {} }), ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
@@ -296,7 +296,7 @@ TEST(Validator, ValidateInstructionArguments_None)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, std::vector<DynamicSignal>{}), ByteCodeValidationResultCode::Ok);
 }
 
-TEST(Validator, ValidateInstructionArguments_Push_Combined)
+TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push_Combined)
 {
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { {}, {} }), ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, std::vector<DynamicSignal>{}), ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -308,7 +308,7 @@ TEST(Validator, ValidateInstructionArguments_Push_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{JumpAddress{2}} }), ByteCodeValidationResultCode::ArgumentTypeMismatch);
 }
 
-TEST(Validator, ValidateInstructionArguments_Sto_Combined)
+TEST(ValidatorAlgorithms, ValidateInstructionArguments_Sto_Combined)
 {
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { {}, {} }), ByteCodeValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, std::vector<DynamicSignal>{}), ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -323,7 +323,7 @@ TEST(Validator, ValidateInstructionArguments_Sto_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{JumpAddress{2}} }), ByteCodeValidationResultCode::ArgumentTypeMismatch);
 }
 
-TEST(Validator, ValidateInstructionArguments_Push)
+TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push)
 {
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{}), ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { {} }), ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -342,9 +342,9 @@ TEST(Validator, ValidateInstructionArguments_Push)
 	          ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
 }
 
-TEST(Validator, InstructionCacheGenerator)
+TEST(ValidatorAlgorithms, InstructionCacheGenerator)
 {
-	constexpr std::array Code
+	constexpr std::array code
 	{
 		DynamicSignal {Instruction::Push},
 		DynamicSignal {4_int},
@@ -359,20 +359,20 @@ TEST(Validator, InstructionCacheGenerator)
 	};
 
 	ByteCodeValidationInstructionCache cache { };
-	GenerateInstructionCache(Code, cache);
+	GenerateInstructionCache(code, cache);
 
 	// Only 4 because the last instruction is removed and checked separately.
-	ASSERT_EQ(cache.size(), 4);
+	ASSERT_EQ(cache.size(), 5);
 	ASSERT_TRUE(cache[0]->Contains(Instruction::Push));
 	ASSERT_TRUE(cache[1]->Contains(Instruction::Push));
 	ASSERT_TRUE(cache[2]->Contains(Instruction::Sto));
 	ASSERT_TRUE(cache[3]->Contains(Instruction::IAdd));
-	//ASSERT_TRUE(cache[4]->Contains(Instruction::Int));
+	ASSERT_TRUE(cache[4]->Contains(Instruction::Int));
 }
 
-TEST(Validator, ComputeInstructionArgumentOffset)
+TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 {
-	constexpr std::array Code
+	constexpr std::array code
 	{
 		DynamicSignal {Instruction::Push},
 		DynamicSignal {4_int},
@@ -387,8 +387,8 @@ TEST(Validator, ComputeInstructionArgumentOffset)
 	};
 
 	ByteCodeValidationInstructionCache cache { };
-	GenerateInstructionCache(Code, cache);
-	ASSERT_EQ(cache.size(), 4);
+	GenerateInstructionCache(code, cache);
+	ASSERT_EQ(cache.size(), 5);
 
 	ASSERT_EQ(ComputeInstructionArgumentOffset(&cache[0]), 1);
 	ASSERT_EQ(ComputeInstructionArgumentOffset(&cache[1]), 1);
@@ -397,9 +397,9 @@ TEST(Validator, ComputeInstructionArgumentOffset)
 	//ASSERT_EQ(ComputeInstructionArgumentOffset(&cache[3]), 0);
 }
 
-TEST(Validator, ExtractInstructionArguments)
+TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 {
-	constexpr std::array Code
+	constexpr std::array code
 	{
 		DynamicSignal {Instruction::Push},
 		DynamicSignal {4_int},
@@ -414,8 +414,8 @@ TEST(Validator, ExtractInstructionArguments)
 	};
 
 	ByteCodeValidationInstructionCache cache { };
-	GenerateInstructionCache(Code, cache);
-	ASSERT_EQ(cache.size(), 4);
+	GenerateInstructionCache(code, cache);
+	ASSERT_EQ(cache.size(), 5);
 
 	// push
 	const auto r1 {ExtractInstructionArguments(&cache[0])};
@@ -446,9 +446,9 @@ TEST(Validator, ExtractInstructionArguments)
 	*/
 }
 
-TEST(Validator, ValidateValid)
+TEST(ValidatorAlgorithms, ValidateValid)
 {
-	constexpr std::array Code
+	constexpr std::array code
 	{
 		DynamicSignal {Instruction::Push},
 		DynamicSignal {4_int},
@@ -462,13 +462,18 @@ TEST(Validator, ValidateValid)
 		DynamicSignal {0_int}
 	};
 
-	ASSERT_EQ(ValidateByteCode(Code).first, ByteCodeValidationResultCode::Ok);
-	ASSERT_EQ(ValidateByteCode(Code).second, 0);
+	std::vector<DynamicSignal> stream{};
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+	
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
+	ASSERT_EQ(ValidateByteCode(stream).second, 0);
 }
 
-TEST(Validator, ValidateInvalidTooManyArgs)
+TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 {
-	constexpr std::array Code
+	constexpr std::array code
 	{
 		DynamicSignal {Instruction::Push},
 		DynamicSignal {4_int},
@@ -483,12 +488,17 @@ TEST(Validator, ValidateInvalidTooManyArgs)
 		DynamicSignal {0_int}
 	};
 
-	ASSERT_EQ(ValidateByteCode(Code).first, ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
+	std::vector<DynamicSignal> stream{};
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
 }
 
-TEST(Validator, ValidateInvalidNotEnoughArgs)
+TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
 {
-	constexpr std::array Code
+	constexpr std::array code
 	{
 		DynamicSignal {Instruction::Push},
 		DynamicSignal {2_int},
@@ -501,12 +511,17 @@ TEST(Validator, ValidateInvalidNotEnoughArgs)
 		DynamicSignal {0_int}
 	};
 
-	ASSERT_EQ(ValidateByteCode(Code).first, ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
+	std::vector<DynamicSignal> stream{};
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
 }
 
-TEST(Validator, ValidateInvalidTypeMismatch)
+TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
 {
-	constexpr std::array Code
+	constexpr std::array code
 	{
 		DynamicSignal {Instruction::Push},
 		DynamicSignal {2.0_float},
@@ -518,5 +533,287 @@ TEST(Validator, ValidateInvalidTypeMismatch)
 		DynamicSignal {0_int}
 	};
 
-	ASSERT_EQ(ValidateByteCode(Code).first, ByteCodeValidationResultCode::ArgumentTypeMismatch);
+	std::vector<DynamicSignal> stream{};
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::ArgumentTypeMismatch);
+}
+
+TEST(ValidatorAlgorithms, ValidateLastValid)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Int},
+		DynamicSignal {0_int}
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
+}
+
+TEST(ValidatorAlgorithms, ValidateLastInvalidMissingArgs)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Int},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
+}
+
+TEST(ValidatorAlgorithms, ValidateLastInvalidTooManyArgs)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Int},
+		DynamicSignal {0_int},
+		DynamicSignal {0_int}
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
+}
+
+TEST(ValidatorAlgorithms, ValidateLastInvalidTypeMismatch)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Int},
+		DynamicSignal {0.0_float}
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::ArgumentTypeMismatch);
+}
+
+TEST(ValidatorAlgorithms, ValidateLastPushInvalidMissingArgs)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Push},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
+}
+
+TEST(ValidatorAlgorithms, ValidateLastPushInvalidTooManyArgs)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Push},
+		DynamicSignal {0_int},
+		DynamicSignal {0_int}
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
+}
+
+TEST(ValidatorAlgorithms, ValidateValidLastPushInt)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Push},
+		DynamicSignal {0_int},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
+}
+
+TEST(ValidatorAlgorithms, ValidateValidLastPushUInt)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Push},
+		DynamicSignal {0_uint},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
+}
+
+TEST(ValidatorAlgorithms, ValidateValidLastPushFloat)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Push},
+		DynamicSignal {0.0_float},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+	
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
+}
+
+TEST(ValidatorAlgorithms, ValidateValidLastSto)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Sto},
+		DynamicSignal {0_uint},
+		DynamicSignal {0.0_float},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
+}
+
+TEST(ValidatorAlgorithms, ValidateInvalidLastStoNotEnoughArgs)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Sto},
+		DynamicSignal {0_uint},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
+}
+
+TEST(ValidatorAlgorithms, ValidateInvalidLastStoTooManyArgs)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Sto},
+		DynamicSignal {0_uint},
+		DynamicSignal {0_uint},
+		DynamicSignal {0_uint},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
+}
+
+TEST(ValidatorAlgorithms, ValidateInvalidLastMovTypeMismatch)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Mov},
+		DynamicSignal {0_uint},
+		DynamicSignal {0.0_float},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::ArgumentTypeMismatch);
+}
+
+TEST(ValidatorAlgorithms, ValidateInvalidEmpty)
+{
+	constexpr std::array<const DynamicSignal, 0> code{ };
+
+	ASSERT_EQ(ValidateByteCode(code).first, ByteCodeValidationResultCode::Empty);
+}
+
+TEST(ValidatorAlgorithms, ValidateInvalidMissingPrologue)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::Mov},
+		DynamicSignal {0_uint},
+		DynamicSignal {0_uint},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(code), std::end(code));
+	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::MissingPrologueCode);
+}
+
+TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::MissingEpilogueCode);
+}
+
+TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue2)
+{
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Int},
+	};
+
+	std::vector<DynamicSignal> stream{ };
+	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
+	stream.insert(std::end(stream), std::begin(code), std::end(code));
+
+	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::MissingEpilogueCode);
 }

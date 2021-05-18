@@ -311,28 +311,15 @@ TEST(ReactorClass, TryExecuteValid)
 
 TEST(ReactorClass, TryExecuteInvalidZeroCode)
 {
-	auto exec
+	const Stream  stream{ OptimizationLevel::Off };
+	AppCodeBundle out{ };
+	ASSERT_EQ(stream.Build(out).first, ByteCodeValidationResultCode::Empty);
+	Reactor reactor
 	{
-		[]()
+		Resource,
+		ReactorSpawnDescriptor
 		{
-			const Stream  stream {OptimizationLevel::Off};
-			AppCodeBundle out { };
-			ASSERT_EQ(stream.Build(out).first, ByteCodeValidationResultCode::Ok);
-			Reactor reactor
-			{
-				Resource,
-				ReactorSpawnDescriptor
-				{
-					.StackSize = FixedStack::SIZE_LARGE
-				}
-			};
-			[[maybe_unused]]
-				const auto& result {reactor.Execute(std::move(out))};
+			.StackSize = FixedStack::SIZE_LARGE
 		}
 	};
-	ASSERT_DEATH_IF_SUPPORTED
-	(
-		exec(),
-		""
-	);
 }

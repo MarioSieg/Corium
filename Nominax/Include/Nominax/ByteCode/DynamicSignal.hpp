@@ -419,14 +419,14 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		static constexpr auto CodePrologue() noexcept(true) -> std::array<DynamicSignal, 1>;
+		static constexpr auto CodePrologue() noexcept(true) -> const std::array<DynamicSignal, 1>&;
 
 		/// <summary>
 		/// Common code epilogue.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		static constexpr auto CodeEpilogue() noexcept(true) -> std::array<DynamicSignal, 2>;
+		static constexpr auto CodeEpilogue() noexcept(true) -> const std::array<DynamicSignal, 2>&;
 	};
 
 	/// <summary>
@@ -517,22 +517,25 @@ namespace Nominax
 		return !(*this == other);
 	}
 
-	constexpr auto DynamicSignal::CodePrologue() noexcept(true) -> std::array<DynamicSignal, 1>
+	constexpr std::array PROLOGUE_DATA
 	{
-		// First instruction is always skipped and should be NOP:
-		return
-		{
-			DynamicSignal {Instruction::NOp}
-		};
+		DynamicSignal {Instruction::NOp}
+	};
+
+	constexpr auto DynamicSignal::CodePrologue() noexcept(true) -> const std::array<DynamicSignal, 1>&
+	{
+		return PROLOGUE_DATA;
 	}
 
-	constexpr auto DynamicSignal::CodeEpilogue() noexcept(true) -> std::array<DynamicSignal, 2>
+	constexpr std::array EPILOGUE_DATA
 	{
-		return
-		{
-			DynamicSignal {Instruction::Int},
-			DynamicSignal {0_int}
-		};
+		DynamicSignal {Instruction::Int},
+		DynamicSignal {0_int}
+	};
+
+	constexpr auto DynamicSignal::CodeEpilogue() noexcept(true) -> const std::array<DynamicSignal, 2>&
+	{
+		return EPILOGUE_DATA;
 	}
 
 	template <typename T> requires BytecodeElement<T>

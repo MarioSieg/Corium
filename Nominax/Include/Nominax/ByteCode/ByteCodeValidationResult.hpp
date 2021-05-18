@@ -221,11 +221,51 @@ namespace Nominax
 		/// </summary>
 		Ok = 0,
 
+		/// <summary>
+		/// More arguments specified than required.
+		/// </summary>
 		TooManyArgumentsForInstruction,
 
+		/// <summary>
+		/// Not enough arguments specified, more are required.
+		/// </summary>
 		NotEnoughArgumentsForInstruction,
 
-		ArgumentTypeMismatch
+		/// <summary>
+		/// Expected argument of other type.
+		/// </summary>
+		ArgumentTypeMismatch,
+
+		/// <summary>
+		/// No entries.
+		/// </summary>
+		Empty,
+
+		/// <summary>
+		/// Code is missing prologue code.
+		/// </summary>
+		MissingPrologueCode,
+
+		/// <summary>
+		/// Code is missing epilogue code.
+		/// </summary>
+		MissingEpilogueCode,
+
+		/// <summary>
+		/// Not an error, just the number
+		/// </summary>
+		Count
+	};
+
+	constexpr std::array<std::string_view, static_cast<std::size_t>(ByteCodeValidationResultCode::Count)> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
+	{
+		"ByteCodeValidationResultCode::Ok",
+		"ByteCodeValidationResultCode::TooManyArgumentsForInstruction",
+		"ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction",
+		"ByteCodeValidationResultCode::ArgumentTypeMismatch",
+		"ByteCodeValidationResultCode::Empty",
+		"ByteCodeValidationResultCode::MissingPrologueCode",
+		"ByteCodeValidationResultCode::MissingEpilogueCode"
 	};
 
 	/// <summary>

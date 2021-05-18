@@ -391,24 +391,21 @@ namespace Nominax
 
 	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult
 	{
-		// TODO
-		/*
 		if (const auto validationResult{ ValidateByteCode(*this) }; NOMINAX_UNLIKELY(validationResult.first != ByteCodeValidationResultCode::Ok))
 		{
 			return validationResult;
 		}
-		*/
 		GenerateChunkAndJumpMap(*this, out, outJumpMap);
 		return {ByteCodeValidationResultCode::Ok, 0};
 	}
 
 	auto Stream::ContainsPrologue() const noexcept(false) -> bool
 	{
-		return Nominax::ContainsPrologue(this->Storage_.size(), this->Storage_.begin());
+		return Nominax::ContainsPrologue(this->Storage_);
 	}
 
 	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
 	{
-		return Nominax::ContainsEpilogue(this->Storage_.size(), this->Storage_.end());
+		return Nominax::ContainsEpilogue(this->Storage_);
 	}
 }
