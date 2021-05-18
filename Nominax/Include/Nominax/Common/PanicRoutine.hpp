@@ -227,6 +227,8 @@ namespace Nominax
 	}
 }
 
+#define PANIC(msg) Panic( (msg), __FILE__, __LINE__ )
+
 #define NOMINAX_PANIC_ASSERT_TRUE(x, msg)			\
 	do												\
 	{												\

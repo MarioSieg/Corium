@@ -209,6 +209,7 @@
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
 #include "../../Include/Nominax/ByteCode/Lexeme.hpp"
 #include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
+#include "../../Include/Nominax/ByteCode/Validator.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
 #include "../../Include/Nominax/Common/VariantTools.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
@@ -386,5 +387,28 @@ namespace Nominax
 		constexpr std::array code {DynamicSignal::CodeEpilogue()};
 		this->Storage_.insert(this->Storage_.end(), std::begin(code), std::end(code));
 		return *this;
+	}
+
+	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult
+	{
+		// TODO
+		/*
+		if (const auto validationResult{ ValidateByteCode(*this) }; NOMINAX_UNLIKELY(validationResult.first != ByteCodeValidationResultCode::Ok))
+		{
+			return validationResult;
+		}
+		*/
+		GenerateChunkAndJumpMap(*this, out, outJumpMap);
+		return {ByteCodeValidationResultCode::Ok, 0};
+	}
+
+	auto Stream::ContainsPrologue() const noexcept(false) -> bool
+	{
+		return Nominax::ContainsPrologue(this->Storage_.size(), this->Storage_.begin());
+	}
+
+	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
+	{
+		return Nominax::ContainsEpilogue(this->Storage_.size(), this->Storage_.end());
 	}
 }

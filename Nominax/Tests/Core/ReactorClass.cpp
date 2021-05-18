@@ -317,7 +317,7 @@ TEST(ReactorClass, TryExecuteInvalidZeroCode)
 		{
 			const Stream  stream {OptimizationLevel::Off};
 			AppCodeBundle out { };
-			ASSERT_EQ(stream.Build(out), ByteCodeValidationResult::Ok);
+			ASSERT_EQ(stream.Build(out).first, ByteCodeValidationResultCode::Ok);
 			Reactor reactor
 			{
 				Resource,

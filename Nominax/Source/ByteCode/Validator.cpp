@@ -205,27 +205,81 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <ranges>
+
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentCount.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 #include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 
 namespace Nominax
 {
-    auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ValidationResult
+	auto ContainsPrologue(const std::size_t size, Stream::StorageType::const_iterator begin) noexcept(false) -> bool
 	{
-        if (const auto validationResult{ValidateByteCode(input)}; NOMINAX_UNLIKELY(validationResult.first != ByteCodeValidationResult::Ok))
-        {
-            return validationResult;
-        }
+		constexpr std::array code {DynamicSignal::CodePrologue()};
+		if (NOMINAX_UNLIKELY(size < code.size()))
+		{
+			return false;
+		}
+		for (const DynamicSignal& sig : code)
+		{
+			if (NOMINAX_UNLIKELY(sig != *begin))
+			{
+				return false;
+			}
+			std::advance(begin, 1);
+		}
+		return true;
+	}
 
-		output.resize(input.Size());
-		jumpMap.resize(input.Size());
+	auto ContainsEpilogue(const std::size_t size, Stream::StorageType::const_iterator end) noexcept(false) -> bool
+	{
+		constexpr std::array code {DynamicSignal::CodeEpilogue()};
+		if (NOMINAX_UNLIKELY(size < code.size()))
+		{
+			return false;
+		}
+		for (const DynamicSignal& sig : code | std::ranges::views::reverse)
+		{
+			std::advance(end, -1);
+			if (NOMINAX_UNLIKELY(sig != *end))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 
-		for (std::size_t i {0}; i < input.Size(); ++i)
+	auto ExtractInstructionArguments(const DynamicSignal* const* const iterator) noexcept(true) -> std::span<const DynamicSignal>
+	{
+		const DynamicSignal* const argsBegin {(*iterator + 1)};
+		const std::ptrdiff_t       offset {ComputeInstructionArgumentOffset(iterator)};
+		const DynamicSignal* const argsEnd {argsBegin + offset};
+		return {argsBegin, argsEnd};
+	}
+
+	auto GenerateInstructionCache(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> void
+	{
+		output.reserve(input.size() - 1);
+		for (const DynamicSignal *i {input.data()}, *end {input.data() + input.size()}; i < end; ++i)
+		{
+			if (i->Contains<Instruction>())
+			{
+				output.push_back(i);
+			}
+		}
+		output.pop_back(); // destroy last instruction
+	}
+
+	auto GenerateChunkAndJumpMap(const std::span<const DynamicSignal>& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void
+	{
+		output.resize(input.size());
+		jumpMap.resize(input.size());
+
+		for (std::size_t i {0}; i < input.size(); ++i)
 		{
 			const auto& in {input[i]};
 			auto&       out {output[i]};
@@ -243,28 +297,87 @@ namespace Nominax
 #endif
 			jumpMap[i] = static_cast<U8>(in.Contains<Instruction>());
 		}
-		return ByteCodeValidationResult::Ok;
 	}
 
-    auto ValidateByteCode(const Stream& input) -> ValidationResult
-    {
-        // Collect all instructions to validate them:
-        std::vector<Stream::StorageType::const_iterator> instructionCache{};
-        instructionCache.reserve(input.size());
+	auto ValidateByteCode(const std::span<const DynamicSignal>& input) noexcept(false) -> ByteCodeValidationResult
+	{
+		// Collect all instructions to validate them:
+		std::vector<const DynamicSignal*> instructionCache { };
+		GenerateInstructionCache(input, instructionCache);
 
-        // Find all instructions and push them into the instruction cache:
-        for (auto iter{std::begin(input), end{std::end(input)}}; iter < end; std::advance(iter, 1))
-        {
-            if (iter->Contains<Instruction>())
-            {
-                instructionCache.push_back(iter);
-            }
-        }
+		// Find all instructions and push them into the instruction cache:
+		for (const DynamicSignal **i {instructionCache.data()}, **end {instructionCache.data() + instructionCache.size()}; i < end; ++i)
+		{
+			const Instruction instruction {(**i).UnwrapUnchecked<Instruction>()};
+			const std::span   args {ExtractInstructionArguments(i)};
+			if (const auto result {ValidateInstructionArguments(instruction, args)}; result != ByteCodeValidationResultCode::Ok)
+			{
+				return {result, *i - input.data()};
+			}
+		}
 
-        // Validate all instructions:
-        for (const auto iter : instructionCache)
-        {
-            const Instruction instr{iter->Unwrap<Instruction>()};
-        }
-    }
+		return {ByteCodeValidationResultCode::Ok, 0};
+	}
+
+	auto ValidateJumpAddress(const ValidationBucket& bucket, const JumpAddress address) noexcept(true) -> bool
+	{
+		const auto idx {static_cast<std::size_t>(address)};
+
+		// validate that jump address is inside the range of the bucket:
+		if (NOMINAX_UNLIKELY(bucket.size() < idx))
+		{
+			return false;
+		}
+
+		return NOMINAX_LIKELY(std::get_if<Instruction>(&bucket[idx].Storage));
+	}
+
+	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallId id) noexcept(true) -> bool
+	{
+		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallId::Count) - 1};
+		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
+		static_assert(std::is_unsigned_v<decltype(value)>);
+		return NOMINAX_LIKELY(value <= max);
+	}
+
+	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, CustomIntrinsicCallId id) noexcept(true) -> bool
+	{
+		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
+		return NOMINAX_LIKELY(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size());
+	}
+
+	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> ByteCodeValidationResultCode
+	{
+		// First check if the argument count is incorrect:
+		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) > args.size()))
+		{
+			return ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction;
+		}
+
+		// First check if the argument count is incorrect:
+		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) < args.size()))
+		{
+			return ByteCodeValidationResultCode::TooManyArgumentsForInstruction;
+		}
+
+		for (std::size_t i {0}; i < args.size(); ++i)
+		{
+			const DynamicSignal& arg {args[i]};
+
+			const std::size_t givenIdx {arg.Storage.index()};
+
+			// Check if our given type index is within the required indices:
+
+			const TypeIndexTable& required {LookupInstructionArgumentTypes(instruction)[i]};
+			const bool            isWithinAllowedIndices {std::find(std::begin(required), std::end(required), givenIdx) != std::end(required)};
+
+			if (NOMINAX_UNLIKELY(!isWithinAllowedIndices))
+			{
+				// if not, validation failed:
+				return ByteCodeValidationResultCode::ArgumentTypeMismatch;
+			}
+		}
+
+		return ByteCodeValidationResultCode::Ok;
+	}
 }

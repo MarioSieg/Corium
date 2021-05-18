@@ -1,6 +1,6 @@
-// File: ValidationKit.cpp
+// File: ByteCodeValidationResult.hpp
 // Author: Mario
-// Created: 11.05.2021 8:18 PM
+// Created: 18.05.2021 5:50 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,69 +205,34 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <ranges>
+#pragma once
 
-#include "../../Include/Nominax/ByteCode/ValidationKit.hpp"
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include <cstddef>
 
 namespace Nominax
 {
-	auto ValidateJumpAddress(const ValidationBucket& bucket, const JumpAddress address) noexcept(true) -> bool
+	/// <summary>
+	/// Contains all byte code validation results.
+	/// </summary>
+	enum class ByteCodeValidationResultCode
 	{
-		const auto idx {static_cast<std::size_t>(address)};
+		/// <summary>
+		/// Validation did not found any problems.
+		/// </summary>
+		Ok = 0,
 
-		// validate that jump address is inside the range of the bucket:
-		if (NOMINAX_UNLIKELY(bucket.size() < idx))
-		{
-			return false;
-		}
+		TooManyArgumentsForInstruction,
 
-		return NOMINAX_LIKELY(std::get_if<Instruction>(&bucket[idx].Storage));
-	}
+		NotEnoughArgumentsForInstruction,
 
-	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallId id) noexcept(true) -> bool
-	{
-		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallId::Count) - 1};
-		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
-		static_assert(std::is_unsigned_v<decltype(value)>);
-		return NOMINAX_LIKELY(value <= max);
-	}
+		ArgumentTypeMismatch
+	};
 
-	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, CustomIntrinsicCallId id) noexcept(true) -> bool
-	{
-		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
-		return NOMINAX_LIKELY(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size());
-	}
-
-	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> bool
-	{
-		// First check if the argument count is correct:
-		[[maybe_unused]]
-			int y = LookupInstructionArgumentCount(instruction);
-		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) != args.size()))
-		{
-			return false;
-		}
-
-		for (std::size_t i {0}; i < args.size(); ++i)
-		{
-			const DynamicSignal& arg {args[i]};
-
-			const std::size_t givenIdx {arg.Storage.index()};
-
-			// Check if our given type index is within the required indices:
-
-			const TypeIndexTable& required {LookupInstructionArgumentTypes(instruction)[i]};
-			const bool            isWithinAllowedIndices {std::find(std::begin(required), std::end(required), givenIdx) != std::end(required)};
-
-			if (NOMINAX_UNLIKELY(!isWithinAllowedIndices))
-			{
-				// if not, validation failed:
-				return false;
-			}
-		}
-
-		return true;
-	}
+	/// <summary>
+	/// Contains the "ByteCodeValidationResult" enum which is used
+	/// as error indicator. If the validation result is not okay (indicates error),
+	/// the second type contains the index in the byte code
+	/// where the invalid entry is.
+	/// </summary>
+	using ByteCodeValidationResult = std::pair<ByteCodeValidationResultCode, std::size_t>;
 }

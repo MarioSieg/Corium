@@ -212,10 +212,10 @@
 
 #include "DynamicSignal.hpp"
 #include "ImmediateArgumentCount.hpp"
+#include "ByteCodeValidationResult.hpp"
 #include "OptBase.hpp"
 #include "StreamScalar.hpp"
 #include "Chunk.hpp"
-#include "Validator.hpp"
 
 namespace Nominax
 {
@@ -540,7 +540,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) const noexcept(false) -> DynamicSignal;
+		auto operator [](std::size_t idx) const noexcept(false) -> const DynamicSignal&;
 
 		/// <summary>
 		/// Insert instruction manually with immediate arguments.
@@ -644,24 +644,9 @@ namespace Nominax
 		this->OptimizationLevel_ = optimizationLevel;
 	}
 
-	inline auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult
-	{
-		return GenerateChunkAndJumpMap(*this, out, outJumpMap);
-	}
-
 	inline auto Stream::Build(AppCodeBundle& out) const noexcept(false) -> ByteCodeValidationResult
 	{
-		return GenerateChunkAndJumpMap(*this, std::get<0>(out), std::get<1>(out));
-	}
-
-	inline auto Stream::ContainsPrologue() const noexcept(false) -> bool
-	{
-		return Nominax::ContainsPrologue(this->Storage_.size(), this->Storage_.begin());
-	}
-
-	inline auto Stream::ContainsEpilogue() const noexcept(false) -> bool
-	{
-		return Nominax::ContainsEpilogue(this->Storage_.size(), this->Storage_.end());
+		return this->Build(std::get<0>(out), std::get<1>(out));
 	}
 
 	template <Instruction I, typename... Ts>
@@ -721,12 +706,12 @@ namespace Nominax
 
 	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> DynamicSignal&
 	{
-        return this->Storage_[idx];
+		return this->Storage_[idx];
 	}
 
-	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> DynamicSignal
+	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> const DynamicSignal&
 	{
-        return this->Storage_[idx];
+		return this->Storage_[idx];
 	}
 
 	inline auto Stream::IsEmpty() const noexcept(true) -> bool

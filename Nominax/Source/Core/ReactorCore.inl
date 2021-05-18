@@ -893,6 +893,7 @@ namespace Nominax
 
 	__cintrin__:
 		__attribute__((hot));
+		BreakpointInterrupt();
 		ASM_MARKER("__cintrin__");
 
 		(**(intrinsicTable + (*++ip).R64.AsU64))(sp);

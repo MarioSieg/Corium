@@ -367,6 +367,16 @@ namespace Nominax
 		constexpr auto Unwrap() const noexcept(false) -> std::optional<T>;
 
 		/// <summary>
+		/// Try to extract raw data but unchecked.
+		/// This is dangerous, only use if you 100% know the type!
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		template <typename T> requires BytecodeElement<T>
+		[[nodiscard]]
+		constexpr auto UnwrapUnchecked() const noexcept(false) -> T;
+
+		/// <summary>
 		/// Check if generic T is contained.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
@@ -530,6 +540,12 @@ namespace Nominax
 	{
 		const auto* const val {std::get_if<T>(&this->Storage)};
 		return val ? std::optional<T> {*val} : std::optional<T> {std::nullopt};
+	}
+
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto DynamicSignal::UnwrapUnchecked() const noexcept(false) -> T
+	{
+		return *std::get_if<T>(&this->Storage);
 	}
 
 	template <typename T> requires BytecodeElement<T>
