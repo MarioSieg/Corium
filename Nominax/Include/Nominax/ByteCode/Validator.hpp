@@ -300,13 +300,29 @@ namespace Nominax
 
 	class Stream;
 
+    /// <summary>
+    /// Contains the "ByteCodeValidationResult" enum which is used
+    /// as error indicator. If the validation result is not okay (indicates error),
+    /// the second type (std::size_t) contains the index in the bytecode
+    /// where the invalid entry is.
+    /// </summary>
+    using ValidationResult = std::pair<ByteCodeValidationResult, std::size_t>;
+
 	/// <summary>
 	/// 
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <param name="jumpMap"></param>
-	/// <returns></returns>
+    /// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
-	extern auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ByteCodeValidationResult;
+    extern auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ValidationResult;
+
+    /// <summary>
+    /// Validates the whole code and returns the result.
+    /// </summary>
+    /// <param name="input">The stream to validate.</param>
+    /// <returns>Returns the validation result.</returns>
+    [[nodiscard]]
+    extern auto ValidateByteCode(const Stream& input) -> ValidationResult;
 }

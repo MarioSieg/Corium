@@ -215,8 +215,13 @@
 
 namespace Nominax
 {
-	auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ByteCodeValidationResult
+    auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> ValidationResult
 	{
+        if (const auto validationResult{ValidateByteCode(input)}; NOMINAX_UNLIKELY(validationResult.first != ByteCodeValidationResult::Ok))
+        {
+            return validationResult;
+        }
+
 		output.resize(input.Size());
 		jumpMap.resize(input.Size());
 
@@ -228,14 +233,38 @@ namespace Nominax
 			out = in.Transform();
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+
 			if (in.Contains<JumpAddress>())
 			{
 				// minus one because the address is incremented by the reactor before jumped
 				out.Ptr = ComputeRelativeJumpAddress(output.data(), out.JumpTarget);
 			}
+
 #endif
 			jumpMap[i] = static_cast<U8>(in.Contains<Instruction>());
 		}
 		return ByteCodeValidationResult::Ok;
 	}
+
+    auto ValidateByteCode(const Stream& input) -> ValidationResult
+    {
+        // Collect all instructions to validate them:
+        std::vector<Stream::StorageType::const_iterator> instructionCache{};
+        instructionCache.reserve(input.size());
+
+        // Find all instructions and push them into the instruction cache:
+        for (auto iter{std::begin(input), end{std::end(input)}}; iter < end; std::advance(iter, 1))
+        {
+            if (iter->Contains<Instruction>())
+            {
+                instructionCache.push_back(iter);
+            }
+        }
+
+        // Validate all instructions:
+        for (const auto iter : instructionCache)
+        {
+            const Instruction instr{iter->Unwrap<Instruction>()};
+        }
+    }
 }

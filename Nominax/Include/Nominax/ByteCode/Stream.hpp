@@ -264,11 +264,6 @@ namespace Nominax
 		using StorageType = std::vector<DynamicSignal>;
 
 	private:
-		/// <summary>
-		/// We use a std::list instead of std::forward_list because
-		/// std::list is a F64 linked list, and we require bidirectional iteration,
-		/// not unidirectional.
-		/// </summary>
 		StorageType Storage_ { };
 
 		/// <summary>
@@ -726,12 +721,12 @@ namespace Nominax
 
 	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> DynamicSignal&
 	{
-		return *std::next(this->Storage_.begin(), idx);
+        return this->Storage_[idx];
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> DynamicSignal
 	{
-		return *std::next(this->Storage_.begin(), idx);
+        return this->Storage_[idx];
 	}
 
 	inline auto Stream::IsEmpty() const noexcept(true) -> bool
