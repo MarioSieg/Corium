@@ -208,6 +208,7 @@
 #pragma once
 
 #include <cstddef>
+#include <string_view>
 
 namespace Nominax
 {
@@ -250,13 +251,45 @@ namespace Nominax
 		/// Code is missing epilogue code.
 		/// </summary>
 		MissingEpilogueCode,
+
+		/// <summary>
+		/// Jump address out of bounds.
+		/// </summary>
+		InvalidJumpAddress,
+
+		/// <summary>
+		/// Invalid call id.
+		/// </summary>
+		InvalidSystemIntrinsicCall
 	};
+
+	/// <summary>
+	/// Size of the extracted fault code section.
+	/// </summary>
+	constexpr std::size_t CROPPED_FAULT_CODE_DUMP_SIZE {8};
+
+	/// <summary>
+	/// Contains the code section which contains the validation error.
+	/// </summary>
+	using CroppedFaultCodeSection = std::array<DynamicSignal, CROPPED_FAULT_CODE_DUMP_SIZE>;
 
 	/// <summary>
 	/// Contains the "ByteCodeValidationResult" enum which is used
 	/// as error indicator. If the validation result is not okay (indicates error),
-	/// the second type contains the index in the byte code
-	/// where the invalid entry is.
+	/// the second type contains the faulty code.
 	/// </summary>
 	using ByteCodeValidationResult = std::pair<ByteCodeValidationResultCode, std::size_t>;
+
+	constexpr std::array<std::string_view, 9> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
+	{
+		"Ok",
+		"Too many arguments!",
+		"Not enough arguments!",
+		"Invalid argument type!",
+		"Empty byte code!",
+		"Missing code prologue!",
+		"Missing code epilogue!",
+		"Jump address is out of range!",
+		"Unknown system intrinsic call!"
+	};
 }

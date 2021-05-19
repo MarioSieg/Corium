@@ -205,8 +205,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <ranges>
-
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
@@ -253,16 +251,39 @@ namespace Nominax
 		return true;
 	}
 
-	auto GenerateInstructionCache(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> void
+	auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> ByteCodeValidationResult
 	{
-		output.reserve(input.size() - 1);
-		for (const DynamicSignal *i {input.data()}, *end {input.data() + input.size()}; i < end; ++i)
+		output.reserve(input.size());
+		for (const DynamicSignal *i {&*std::begin(input)}, *end {&*std::end(input)}; i < end; ++i)
 		{
 			if (i->Contains<Instruction>())
 			{
 				output.push_back(i);
+				continue;
 			}
+
+			// Validate jump address
+			if (const auto* const x = std::get_if<JumpAddress>(&i->Storage))
+			{
+				if (const bool result {ValidateJumpAddress(input, *x)}; NOMINAX_UNLIKELY(!result))
+				{
+					return {ByteCodeValidationResultCode::InvalidJumpAddress, end - i};
+				}
+			}
+
+			// Validate system intrinsic call:
+			if (const auto* const x = std::get_if<SystemIntrinsicCallId>(&i->Storage))
+			{
+				if (const bool result {ValidateSystemIntrinsicCall(*x)}; NOMINAX_UNLIKELY(!result))
+				{
+					return {ByteCodeValidationResultCode::InvalidSystemIntrinsicCall, end - i};
+				}
+			}
+
+			// Todo validate user intrinsic call
 		}
+
+		return {ByteCodeValidationResultCode::Ok, 0};
 	}
 
 	auto GenerateChunkAndJumpMap(const std::span<const DynamicSignal>& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void
@@ -302,7 +323,7 @@ namespace Nominax
 		return ValidateInstructionArguments(instruction, args);
 	}
 
-	auto ValidateByteCode(const std::span<const DynamicSignal>& input) noexcept(false) -> ByteCodeValidationResult
+	auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input) noexcept(false) -> ByteCodeValidationResult
 	{
 		// Check if empty:
 		if (NOMINAX_UNLIKELY(input.empty()))
@@ -324,7 +345,10 @@ namespace Nominax
 
 		// Collect all instructions to validate them:
 		std::vector<const DynamicSignal*> instructionCache { };
-		GenerateInstructionCache(input, instructionCache);
+		if (const auto result {ValidateByteCodePrePass(input, instructionCache)}; NOMINAX_UNLIKELY(std::get<0>(result) != ByteCodeValidationResultCode::Ok))
+		{
+			return result;
+		}
 
 		/*
 		 * Validate last instruction first:
@@ -363,12 +387,12 @@ namespace Nominax
 		return {ByteCodeValidationResultCode::Ok, 0};
 	}
 
-	auto ValidateJumpAddress(const ValidationBucket& bucket, const JumpAddress address) noexcept(true) -> bool
+	auto ValidateJumpAddress(const std::span<const DynamicSignal>& bucket, const JumpAddress address) noexcept(true) -> bool
 	{
 		const auto idx {static_cast<std::size_t>(address)};
 
 		// validate that jump address is inside the range of the bucket:
-		if (NOMINAX_UNLIKELY(bucket.size() < idx))
+		if (NOMINAX_UNLIKELY(bucket.size() <= idx))
 		{
 			return false;
 		}

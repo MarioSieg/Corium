@@ -207,6 +207,7 @@
 
 #include "../../Include/Nominax/Common/FormatterImpls.hpp"
 #include "../../Include/Nominax/ByteCode/ByteCode.hpp"
+#include "../../Include/Nominax/Core/Core.hpp"
 
 using namespace fmt;
 using namespace Nominax;
@@ -285,35 +286,12 @@ auto formatter<CharClusterUtf8, char, void>::format(const CharClusterUtf8& value
 	);
 }
 
-static constexpr std::array BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
-{
-	"Ok",
-	"Too many arguments!",
-	"Not enough arguments!",
-	"Invalid argument type!",
-	"Empty byte code!",
-	"Missing code prologue!",
-	"Missing code epilogue!"
-};
-
 auto formatter<ByteCodeValidationResultCode, char, void>::format(const ByteCodeValidationResultCode& value,
                                                                  format_context&                     ctx) const noexcept(false) -> FormatOutput
 {
 	const auto idx {static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
 	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);
 }
-
-static constexpr std::array REACTOR_VALIDATION_RESULT_ERROR_MESSAGES
-{
-	"Ok",
-	"Required input parameter is null!",
-	"Required input parameter has zero size!",
-	"Missing code prologue!",
-	"Missing code epilogue!",
-	"Missing stack prologue padding!",
-	"User intrinsic routine table contains an entry which is null!",
-	"Execution address mapping error!"
-};
 
 auto formatter<ReactorValidationResult, char, void>::format(const ReactorValidationResult& value, format_context& ctx) const noexcept(false) -> FormatOutput
 {

@@ -212,16 +212,10 @@
 
 #include "Chunk.hpp"
 #include "DynamicSignal.hpp"
-#include "Stream.hpp"
 #include "ByteCodeValidationResult.hpp"
 
 namespace Nominax
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	using ValidationBucket = std::vector<DynamicSignal>;
-
 	/// <summary>
 	/// Validates a jump address. To be valid the jump address must be:
 	/// 1. Inside the range of the bucket addresses
@@ -231,7 +225,7 @@ namespace Nominax
 	/// <param name="address"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateJumpAddress(const ValidationBucket& bucket, JumpAddress address) noexcept(true) -> bool;
+	extern auto ValidateJumpAddress(const std::span<const DynamicSignal>& bucket, JumpAddress address) noexcept(true) -> bool;
 
 	/// <summary>
 	/// Validates a system intrinsic call id. To be valid the call id must be:
@@ -322,18 +316,19 @@ namespace Nominax
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="output"></param>
-	/// <returns></returns>
-	extern auto GenerateInstructionCache(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> void;
+	/// <param name="jumpMap"></param>
+	extern auto GenerateChunkAndJumpMap(const std::span<const DynamicSignal>& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void;
+
+	extern auto ValidateLastInstruction(const DynamicSignal* instr, std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode;
+
 
 	/// <summary>
 	/// 
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="output"></param>
-	/// <param name="jumpMap"></param>
-	extern auto GenerateChunkAndJumpMap(const std::span<const DynamicSignal>& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void;
-
-	extern auto ValidateLastInstruction(const DynamicSignal* instr, std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode;
+	/// <returns></returns>
+	extern auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> ByteCodeValidationResult;
 
 	/// <summary>
 	/// Validates the whole code and returns the result.
@@ -341,5 +336,5 @@ namespace Nominax
 	/// <param name="input">The stream to validate.</param>
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
-	extern auto ValidateByteCode(const std::span<const DynamicSignal>& input) noexcept(false) -> ByteCodeValidationResult;
+	extern auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input) noexcept(false) -> ByteCodeValidationResult;
 }

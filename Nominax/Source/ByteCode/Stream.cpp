@@ -251,7 +251,7 @@ namespace Nominax
 
 	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult
 	{
-		if (const auto validationResult {ValidateByteCode(*this)}; NOMINAX_UNLIKELY(validationResult.first != ByteCodeValidationResultCode::Ok))
+		if (const auto validationResult {ValidateByteCodePassFull(*this)}; NOMINAX_UNLIKELY(validationResult.first != ByteCodeValidationResultCode::Ok))
 		{
 			return validationResult;
 		}

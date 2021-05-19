@@ -223,4 +223,16 @@ namespace Nominax
 		NullIntrinsicRoutine,
 		ExecutionAddressMappingError,
 	};
+
+	constexpr std::array<std::string_view, 8> REACTOR_VALIDATION_RESULT_ERROR_MESSAGES
+	{
+		"Ok",
+		"Required input parameter is null!",
+		"Required input parameter has zero size!",
+		"Missing code prologue!",
+		"Missing code epilogue!",
+		"Missing stack prologue padding!",
+		"User intrinsic routine table contains an entry which is null!",
+		"Execution address mapping error!"
+	};
 }
