@@ -411,6 +411,15 @@ namespace Nominax
 		auto SizeInBytes() const noexcept(true) -> std::size_t;
 
 		/// <summary>
+		/// Insert range.
+		/// </summary>
+		/// <param name="begin"></param>
+		/// <param name="end"></param>
+		/// <returns></returns>
+		template <typename Iterator>
+		auto Insert(Iterator begin, Iterator end) noexcept(false) -> void;
+
+		/// <summary>
 		/// Pushes a new signal into the stream.
 		/// </summary>
 		/// <param name="sig"></param>
@@ -752,6 +761,12 @@ namespace Nominax
 	inline auto Stream::Push(const DynamicSignal& sig) noexcept(false) -> void
 	{
 		this->Storage_.push_back(sig);
+	}
+
+	template <typename Iterator>
+	inline auto Stream::Insert(Iterator begin, Iterator end) noexcept(false) -> void
+	{
+		this->Storage_.insert(std::end(this->Storage_), begin, end);
 	}
 
 	// ReSharper disable once CppInconsistentNaming

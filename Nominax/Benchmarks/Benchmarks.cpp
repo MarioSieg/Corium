@@ -207,6 +207,48 @@
 
 #include "BenchTemplates.hpp"
 
+auto ValidateAlgorithm1BillionEntries(State& state) -> void
+{
+	constexpr std::size_t count {125'000'000};
+
+	constexpr std::array code
+	{
+		DynamicSignal {Instruction::Push},
+		DynamicSignal {4_int},
+		DynamicSignal {Instruction::Push},
+		DynamicSignal {2_int},
+		DynamicSignal {Instruction::Sto},
+		DynamicSignal {1_uint},
+		DynamicSignal {-0.5_float},
+		DynamicSignal {Instruction::IAdd}
+	};
+
+	Stream stream { };
+	stream.Reserve(count * code.size() + 10);
+	stream.Prologue();
+
+	for (std::size_t i {0}; i < count; ++i)
+	{
+		stream.Insert(std::begin(code), std::end(code));
+	}
+
+	stream.Epilogue();
+
+	Print("Stream size: {}\n", stream.Size());
+
+	for (auto _ : state)
+	{
+		const auto result {ValidateByteCodePassFull(stream)};
+		if (NOMINAX_UNLIKELY(result.first != ByteCodeValidationResultCode::Ok))
+		{
+			auto msg {"Byte code validation with stream failed at index: " + std::to_string(result.second)};
+			state.SkipWithError(msg.c_str());
+		}
+	}
+}
+
+BENCHMARK(ValidateAlgorithm1BillionEntries)->Unit(kSecond);
+
 auto Loop1BillionVectorsNoAvx(State& state) -> void
 {
 	std::array loopBody

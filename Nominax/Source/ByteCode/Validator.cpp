@@ -271,15 +271,6 @@ namespace Nominax
 				}
 			}
 
-			// Validate system intrinsic call:
-			if (const auto* const x = std::get_if<SystemIntrinsicCallId>(&i->Storage))
-			{
-				if (const bool result {ValidateSystemIntrinsicCall(*x)}; NOMINAX_UNLIKELY(!result))
-				{
-					return {ByteCodeValidationResultCode::InvalidSystemIntrinsicCall, end - i};
-				}
-			}
-
 			// Todo validate user intrinsic call
 		}
 
