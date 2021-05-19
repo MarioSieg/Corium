@@ -240,7 +240,7 @@ namespace Nominax::Lexemes
 	/// <summary>
 	/// Type indicator suffix.
 	/// </summary>
-	constexpr auto LITERAL_SUFFIX_F32 {'f'};
+	constexpr auto LITERAL_SUFFIX_FLOAT {'f'};
 
 	/// <summary>
 	/// Type indicator suffix.

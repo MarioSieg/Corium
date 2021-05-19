@@ -257,17 +257,6 @@ namespace Nominax
 		Count
 	};
 
-	constexpr std::array<std::string_view, static_cast<std::size_t>(ByteCodeValidationResultCode::Count)> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
-	{
-		"ByteCodeValidationResultCode::Ok",
-		"ByteCodeValidationResultCode::TooManyArgumentsForInstruction",
-		"ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction",
-		"ByteCodeValidationResultCode::ArgumentTypeMismatch",
-		"ByteCodeValidationResultCode::Empty",
-		"ByteCodeValidationResultCode::MissingPrologueCode",
-		"ByteCodeValidationResultCode::MissingEpilogueCode"
-	};
-
 	/// <summary>
 	/// Contains the "ByteCodeValidationResult" enum which is used
 	/// as error indicator. If the validation result is not okay (indicates error),

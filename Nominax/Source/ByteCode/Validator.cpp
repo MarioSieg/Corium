@@ -298,8 +298,8 @@ namespace Nominax
 	auto ValidateLastInstruction(const DynamicSignal* const instr, const std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode
 	{
 		const Instruction          instruction {instr->UnwrapUnchecked<Instruction>()};
-		std::vector<DynamicSignal> view {instr + 1, instr + 1 + argCount};
-		return ValidateInstructionArguments(instruction, view);
+		std::vector<DynamicSignal> args {instr + 1, instr + 1 + argCount};
+		return ValidateInstructionArguments(instruction, args);
 	}
 
 	auto ValidateByteCode(const std::span<const DynamicSignal>& input) noexcept(false) -> ByteCodeValidationResult
@@ -338,7 +338,7 @@ namespace Nominax
 		const auto lastInstructionResult {ValidateLastInstruction(instructionCache.back(), &input.back() - instructionCache.back())};
 		if (NOMINAX_UNLIKELY(lastInstructionResult != ByteCodeValidationResultCode::Ok))
 		{
-			return {lastInstructionResult, 0};
+			return { lastInstructionResult, instructionCache.back() - &input.front() - 1 };
 		}
 
 		// Remove last instruction
@@ -356,7 +356,7 @@ namespace Nominax
 			// if error, return result:
 			if (NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok))
 			{
-				return {result, 0};
+				return {result, *i - &input.front() - 1 };
 			}
 		}
 

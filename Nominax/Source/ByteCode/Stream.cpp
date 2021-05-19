@@ -214,117 +214,6 @@
 #include "../../Include/Nominax/Common/VariantTools.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
-template <>
-struct fmt::formatter<Nominax::DynamicSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx) noexcept(false)
-	{
-		return ctx.begin();
-	}
-
-	template <typename FormatContext>
-	inline auto format(const Nominax::DynamicSignal& sig, FormatContext& ctx) noexcept(false)
-	{
-		using namespace Nominax;
-		decltype(fmt::format_to(ctx.out(), "{}", 0)) result { };
-		std::visit(Overloaded
-		           {
-			           [&](const Instruction value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(),
-					           "{}",
-					           INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<decltype(value)>>(value)]
-				           );
-			           },
-			           [&](const SystemIntrinsicCallId value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(),
-					           " {}{}{:#X}",
-					           Lexemes::INTRINSIC_CALL_IMMEDIATE,
-					           Lexemes::IMMEDIATE,
-					           static_cast<std::underlying_type_t<decltype(value)>>(value)
-				           );
-			           },
-			           [&](const CustomIntrinsicCallId value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(), " {}{}{:#X}",
-					           Lexemes::INTRINSIC_CALL_IMMEDIATE,
-					           Lexemes::IMMEDIATE,
-					           static_cast<std::underlying_type_t<decltype(value)>>(value)
-				           );
-			           },
-			           [&](const JumpAddress value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(), " {}{}{:#X}",
-					           Lexemes::JUMP_ADDRESS,
-					           Lexemes::IMMEDIATE,
-					           static_cast<std::underlying_type_t<decltype(value)>>(value)
-				           );
-			           },
-			           [&](const U64 value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(), " {}{}{}",
-					           Lexemes::IMMEDIATE,
-					           value,
-					           Lexemes::LITERAL_SUFFIX_UINT
-				           );
-			           },
-			           [&](const I64 value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(),
-					           " {}{}{}",
-					           Lexemes::IMMEDIATE,
-					           value,
-					           Lexemes::LITERAL_SUFFIX_INT
-				           );
-			           },
-			           [&](const F64 value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(),
-					           " {}{}{}",
-					           Lexemes::IMMEDIATE,
-					           value,
-					           Lexemes::LITERAL_SUFFIX_F32
-				           );
-			           },
-			           [&](const CharClusterUtf8 value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(),
-					           " {}{}{}{}{}{}{}{}{}{}",
-					           Lexemes::IMMEDIATE,
-					           static_cast<char>(value.Chars[0]),
-					           static_cast<char>(value.Chars[1]),
-					           static_cast<char>(value.Chars[2]),
-					           static_cast<char>(value.Chars[3]),
-					           static_cast<char>(value.Chars[4]),
-					           static_cast<char>(value.Chars[5]),
-					           static_cast<char>(value.Chars[6]),
-					           static_cast<char>(value.Chars[7]),
-					           Lexemes::LITERAL_SUFFIX_CHAR
-				           );
-			           },
-		           }, sig.Storage);
-		return result;
-	}
-};
-
 namespace Nominax
 {
 	auto Stream::PrintIntermediateRepresentation(const bool detailed) const noexcept(false) -> void
@@ -341,7 +230,7 @@ namespace Nominax
 				{
 					Print(TextColor::Green, "{} &{:X} {:02X} {} ", Lexemes::COMMENT, offset, static_cast<std::underlying_type_t<std::remove_reference_t<decltype(*value)>>>(*value), Lexemes::COMMENT);
 				}
-				Print(TextColor::Cyan, "{}", *sig);
+				Print(TextColor::Cyan, " {}", *sig);
 
 				// Print interrupt type:
 				if (const auto instr {*value}; NOMINAX_UNLIKELY(instr == Instruction::Int))
@@ -368,7 +257,7 @@ namespace Nominax
 			}
 			else
 			{
-				Print(TextColor::Magenta, "{}", *sig);
+				Print(TextColor::Magenta, " {}", *sig);
 			}
 			++offset;
 		}

@@ -211,20 +211,6 @@ using namespace Nominax;
 
 auto main(const signed argc, const char* const* const argv) -> signed
 {
-	Stream stream{ OptimizationLevel::Off };
-	stream.Prologue();
-
-	stream.With(2, [](ScopedInt var)
-		{
-			var *= 2;
-			var += 1;
-			var /= 1;
-		});
-	
-	stream << Instruction::Push << u8"Hello:)\n"_cluster;
-	stream << Instruction::Intrin << SystemIntrinsicCallId::IoPortWriteCluster;
-	stream.Epilogue();
-
 	EnvironmentDescriptor descriptor
 	{
 		.ArgC = argc,
@@ -234,6 +220,22 @@ auto main(const signed argc, const char* const* const argv) -> signed
 
 	Environment env{ };
 	env.Boot(descriptor);
+
+	Stream stream{ OptimizationLevel::Off };
+	stream.Prologue();
+
+	stream.With(2, [](ScopedInt var)
+		{
+			var *= 2;
+			var += 1;
+			var /= 1;
+		});
+
+	stream << Instruction::Push << u8"Hello:)\n"_cluster;
+	stream << Instruction::Intrin << 3;
+	stream.Epilogue();
+	stream.PrintIntermediateRepresentation();
+	
 	env.Execute(std::move(stream));
 	env.Shutdown();
 }

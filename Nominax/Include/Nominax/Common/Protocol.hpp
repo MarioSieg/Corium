@@ -330,3 +330,5 @@ namespace Nominax
 #endif
 	}
 }
+
+#include "FormatterImpls.hpp"

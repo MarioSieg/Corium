@@ -531,9 +531,36 @@ namespace Nominax
 	auto Environment::Execute(Stream&& appCode) noexcept(false) -> const ReactorOutput&
 	{
 		AppCodeBundle appCodeBundle { };
-		if (const auto [code, _] {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(code != ByteCodeValidationResultCode::Ok))
+		if (const auto [code, index] {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(code != ByteCodeValidationResultCode::Ok))
 		{
-			PANIC(BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[static_cast<std::underlying_type_t<ByteCodeValidationResultCode>>(code)]);
+			const auto idx = index + 1;
+
+			Print(LogLevel::Error, "Byte machine code error:");
+			
+			// Print sample:
+			for (std::size_t i{ idx }; i < idx + 8 && i < appCode.Size(); ++i)
+			{
+				if (appCode[i].Contains<Instruction>())
+				{
+					Print(LogLevel::Warning, "\n{}", appCode[i]);
+				}
+				else
+				{
+					Print(LogLevel::Warning, " {}", appCode[i]);
+				}
+			}
+
+			// Print error message:
+			Panic
+			(
+				"Byte code stream validation failed!\n"
+				"Index: {:#X}, Instruction: \"{}\", Message: {}",
+				__FILE__,
+				__LINE__,
+				index, // TODO: While index + 1 ?!
+				appCode[idx].Unwrap<Instruction>().value_or(Instruction::NOp),
+				code
+			);
 		}
 		return (*this)(std::move(appCodeBundle));
 	}

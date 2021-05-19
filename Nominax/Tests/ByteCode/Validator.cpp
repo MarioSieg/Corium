@@ -476,6 +476,8 @@ TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 	constexpr std::array code
 	{
 		DynamicSignal {Instruction::Push},
+		DynamicSignal {2_int},
+		DynamicSignal {Instruction::Push},
 		DynamicSignal {4_int},
 		DynamicSignal {4_int}, // error
 		DynamicSignal {Instruction::Push},
@@ -494,6 +496,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateByteCode(stream).second, 2);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
@@ -517,6 +520,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateByteCode(stream).second, 2);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
@@ -539,6 +543,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateByteCode(stream).second, 2);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastValid)
@@ -556,6 +561,7 @@ TEST(ValidatorAlgorithms, ValidateLastValid)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
+	ASSERT_EQ(ValidateByteCode(stream).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastInvalidMissingArgs)
@@ -572,6 +578,7 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidMissingArgs)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateByteCode(stream).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastInvalidTooManyArgs)
@@ -590,6 +597,7 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidTooManyArgs)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateByteCode(stream).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastInvalidTypeMismatch)
@@ -607,6 +615,7 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidTypeMismatch)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateByteCode(stream).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastPushInvalidMissingArgs)
@@ -623,6 +632,7 @@ TEST(ValidatorAlgorithms, ValidateLastPushInvalidMissingArgs)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateByteCode(stream).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastPushInvalidTooManyArgs)
@@ -641,6 +651,7 @@ TEST(ValidatorAlgorithms, ValidateLastPushInvalidTooManyArgs)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateByteCode(stream).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastPushInt)
@@ -658,6 +669,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushInt)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
+	ASSERT_EQ(ValidateByteCode(stream).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastPushUInt)
@@ -665,6 +677,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushUInt)
 	constexpr std::array code
 	{
 		DynamicSignal {Instruction::NOp},
+		DynamicSignal {Instruction::Dupl},
 		DynamicSignal {Instruction::Push},
 		DynamicSignal {0_uint},
 	};
@@ -675,6 +688,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushUInt)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
+	ASSERT_EQ(ValidateByteCode(stream).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastPushFloat)
@@ -692,6 +706,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushFloat)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
+	ASSERT_EQ(ValidateByteCode(stream).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastSto)
@@ -710,6 +725,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastSto)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::Ok);
+	ASSERT_EQ(ValidateByteCode(stream).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidLastStoNotEnoughArgs)
@@ -727,6 +743,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoNotEnoughArgs)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateByteCode(stream).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidLastStoTooManyArgs)
@@ -746,6 +763,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoTooManyArgs)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateByteCode(stream).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidLastMovTypeMismatch)
@@ -764,6 +782,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastMovTypeMismatch)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateByteCode(stream).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidEmpty)
@@ -787,6 +806,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingPrologue)
 	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::MissingPrologueCode);
+	ASSERT_EQ(ValidateByteCode(stream).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue)
@@ -801,6 +821,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue)
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::MissingEpilogueCode);
+	ASSERT_EQ(ValidateByteCode(stream).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue2)
@@ -816,4 +837,5 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue2)
 	stream.insert(std::end(stream), std::begin(code), std::end(code));
 
 	ASSERT_EQ(ValidateByteCode(stream).first, ByteCodeValidationResultCode::MissingEpilogueCode);
+	ASSERT_EQ(ValidateByteCode(stream).second, 0);
 }
