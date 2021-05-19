@@ -238,12 +238,15 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 
 	for (auto _ : state)
 	{
-		const auto result {ValidateByteCodePassFull(stream)};
+		std::pair<double, double> passTimings { };
+		const auto                result {ValidateByteCodePassFull(stream, &passTimings)};
 		if (NOMINAX_UNLIKELY(result.first != ByteCodeValidationResultCode::Ok))
 		{
 			auto msg {"Byte code validation with stream failed at index: " + std::to_string(result.second)};
 			state.SkipWithError(msg.c_str());
 		}
+		Print("Pass 0: {}s\n", passTimings.first);
+		Print("Pass 1: {}s\n", passTimings.second);
 	}
 }
 

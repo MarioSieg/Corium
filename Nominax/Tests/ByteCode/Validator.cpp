@@ -369,7 +369,7 @@ TEST(ValidatorAlgorithms, Pass0InstructionCacheGenerator)
 	};
 
 	ByteCodeValidationInstructionCache cache { };
-	ValidateByteCodePrePass(code, cache);
+	ASSERT_EQ(ValidateByteCodePrePass(code, cache).first, ByteCodeValidationResultCode::Ok);
 
 	// Only 4 because the last instruction is removed and checked separately.
 	ASSERT_EQ(cache.size(), 5);
@@ -397,7 +397,7 @@ TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 	};
 
 	ByteCodeValidationInstructionCache cache { };
-	ValidateByteCodePrePass(code, cache);
+	ASSERT_EQ(ValidateByteCodePrePass(code, cache).first, ByteCodeValidationResultCode::Ok);
 	ASSERT_EQ(cache.size(), 5);
 
 	ASSERT_EQ(ComputeInstructionArgumentOffset(&cache[0]), 1);
@@ -424,7 +424,7 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 	};
 
 	ByteCodeValidationInstructionCache cache { };
-	ValidateByteCodePrePass(code, cache);
+	ASSERT_EQ(ValidateByteCodePrePass(code, cache).first, ByteCodeValidationResultCode::Ok);
 	ASSERT_EQ(cache.size(), 5);
 
 	// push

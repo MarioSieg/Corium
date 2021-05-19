@@ -12,7 +12,7 @@ IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STR
 	MESSAGE("Using Clang-CL driver")
 
 	# clang-cl common args:
-	SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES}  -Xclang -Wall  -Xclang -Wextra  -Xclang -Werror -Xclang -Wno-undef -Xclang -std=c++20 -Xclang -Wno-unknown-attributes -Xclang -Wno-ignored-attributes -Xclang -Wno-deprecated-declarations")
+	SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES} -Xclang -Wall -Xclang -Wextra  -Xclang -Werror -Xclang -Wno-undef -Xclang -std=c++20 -Xclang -Wno-unknown-attributes -Xclang -Wno-ignored-attributes -Xclang -Wno-deprecated-declarations")
 	
 	# if release, set more optimization flags:
 	# -Xclang -fno-rtti
@@ -29,13 +29,13 @@ ELSE()
 	SET("Using Clang/GCC directly")
 
 	# gcc/clang common flags:
-        SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES} -Wall -Wextra -Werror -Wno-undef -std=c++20 -Wno-unknown-attributes -Wno-ignored-attributes -Wno-deprecated-declarations")
+    SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES} -Wall -Wextra -Werror -Wno-undef -std=c++20 -Wno-unknown-attributes -Wno-ignored-attributes -Wno-deprecated-declarations")
 
 	# if release, set more optimization flags:
 	# -fno-rtti
 	# why does -flto give linker errors?!
 	IF(CMAKE_BUILD_TYPE STREQUAL "Release")
-		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -Ofast -fno-exceptions")
+		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -Ofast -fopenmp -fno-exceptions")
 	ENDIF()
 
 	# if fast math is enabled, add flags:
@@ -43,6 +43,5 @@ ELSE()
 		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -ffast-math")
 	ENDIF()
 ENDIF()
-
 SET("CMAKE_C_FLAGS" "${CMAKE_CXX_FLAGS}")
 MESSAGE("Final compilation flags: ${CMAKE_CXX_FLAGS}")

@@ -336,7 +336,8 @@ namespace Nominax
 	/// Validates the whole code and returns the result.
 	/// </summary>
 	/// <param name="input">The stream to validate.</param>
+	/// <param name="timings"></param>
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
-	extern auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input) noexcept(false) -> ByteCodeValidationResult;
+	extern auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input, std::pair<double, double>* timings = nullptr) noexcept(false) -> ByteCodeValidationResult;
 }

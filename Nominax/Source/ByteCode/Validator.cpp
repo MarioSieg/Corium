@@ -205,6 +205,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <execution>
+
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
@@ -251,32 +253,6 @@ namespace Nominax
 		return true;
 	}
 
-	auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> ByteCodeValidationResult
-	{
-		output.reserve(input.size());
-		for (const DynamicSignal *i {&*std::begin(input)}, *end {&*std::end(input)}; i < end; ++i)
-		{
-			if (i->Contains<Instruction>())
-			{
-				output.push_back(i);
-				continue;
-			}
-
-			// Validate jump address
-			if (const auto* const x = std::get_if<JumpAddress>(&i->Storage))
-			{
-				if (const bool result {ValidateJumpAddress(input, *x)}; NOMINAX_UNLIKELY(!result))
-				{
-					return {ByteCodeValidationResultCode::InvalidJumpAddress, end - i};
-				}
-			}
-
-			// Todo validate user intrinsic call
-		}
-
-		return {ByteCodeValidationResultCode::Ok, 0};
-	}
-
 	auto GenerateChunkAndJumpMap(const std::span<const DynamicSignal>& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void
 	{
 		output.resize(input.size());
@@ -314,7 +290,33 @@ namespace Nominax
 		return ValidateInstructionArguments(instruction, args);
 	}
 
-	auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input) noexcept(false) -> ByteCodeValidationResult
+	auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> ByteCodeValidationResult
+	{
+		output.reserve(input.size());
+		for (const DynamicSignal *i {&*std::begin(input)}, *end {&*std::end(input)}; i < end; ++i)
+		{
+			if (i->Contains<Instruction>())
+			{
+				output.push_back(i);
+				continue;
+			}
+
+			// Validate jump address
+			if (const auto* const x = std::get_if<JumpAddress>(&i->Storage))
+			{
+				if (const bool result {ValidateJumpAddress(input, *x)}; NOMINAX_UNLIKELY(!result))
+				{
+					return {ByteCodeValidationResultCode::InvalidJumpAddress, end - i};
+				}
+			}
+
+			// Todo validate user intrinsic call
+		}
+
+		return {ByteCodeValidationResultCode::Ok, 0};
+	}
+
+	auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input, std::pair<double, double>* timings) noexcept(false) -> ByteCodeValidationResult
 	{
 		// Check if empty:
 		if (NOMINAX_UNLIKELY(input.empty()))
@@ -334,11 +336,22 @@ namespace Nominax
 			return {ByteCodeValidationResultCode::MissingEpilogueCode, 0};
 		}
 
+		// query time:
+		auto tik {std::chrono::high_resolution_clock::now()};
+
 		// Collect all instructions to validate them:
 		std::vector<const DynamicSignal*> instructionCache { };
 		if (const auto result {ValidateByteCodePrePass(input, instructionCache)}; NOMINAX_UNLIKELY(std::get<0>(result) != ByteCodeValidationResultCode::Ok))
 		{
 			return result;
+		}
+
+		// query timings of pass0:
+		if (NOMINAX_LIKELY(timings))
+		{
+			const auto tok {std::chrono::high_resolution_clock::now() - tik};
+			const auto dur {std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1>>>(tok)};
+			timings->first = dur.count(); // write timings of pass0
 		}
 
 		/*
@@ -359,6 +372,9 @@ namespace Nominax
 		// Remove last instruction
 		instructionCache.pop_back();
 
+		// query time:
+		tik = std::chrono::high_resolution_clock::now();
+
 		// Find all instructions and push them into the instruction cache:
 		for (const DynamicSignal **i {instructionCache.data()}, **end {instructionCache.data() + instructionCache.size()}; i < end; ++i)
 		{
@@ -373,6 +389,14 @@ namespace Nominax
 			{
 				return {result, *i - &input.front() - 1};
 			}
+		}
+
+		// query timings of pass1:
+		if (NOMINAX_LIKELY(timings))
+		{
+			const auto tok {std::chrono::high_resolution_clock::now() - tik};
+			const auto dur {std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1>>>(tok)};
+			timings->second = dur.count(); // write timings of pass1
 		}
 
 		return {ByteCodeValidationResultCode::Ok, 0};
