@@ -297,28 +297,31 @@ namespace Nominax
 	auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> ByteCodeValidationResult
 	{
 		output.reserve(input.size());
-		
-		for (const DynamicSignal *i {&*std::begin(input)}, *end {&*std::end(input)}; i < end; ++i)
+
+		auto error{ ByteCodeValidationResultCode::Ok };
+		std::ptrdiff_t index{ 0 };
+
+		std::for_each(std::begin(input), std::end(input), [&error, &index, &output, &input](const auto& iterator) noexcept(false)
 		{
-			if (i->Contains<Instruction>())
+			const DynamicSignal* const i { &iterator };
+			if (NOMINAX_LIKELY(i->Contains<Instruction>()))
 			{
 				output.push_back(i);
-				continue;
 			}
-
-			// Validate jump address
-			if (const auto* const x = std::get_if<JumpAddress>(&i->Storage))
+			else if (const auto* const x = std::get_if<JumpAddress>(&i->Storage))
 			{
-				if (const bool result {ValidateJumpAddress(input, *x)}; NOMINAX_UNLIKELY(!result))
+				if (const bool result{ ValidateJumpAddress(input, *x) }; NOMINAX_UNLIKELY(!result))
 				{
-					return {ByteCodeValidationResultCode::InvalidJumpAddress, end - i};
+					if (NOMINAX_LIKELY(error == ByteCodeValidationResultCode::Ok)) // only update the error once
+					{
+						error = ByteCodeValidationResultCode::InvalidJumpAddress;		// atomic store
+						index = &*std::end(input) - i;									// atomic store
+					}
 				}
 			}
+		});
 
-			// Todo validate user intrinsic call
-		}
-
-		return {ByteCodeValidationResultCode::Ok, 0};
+		return {error, index};
 	}
 
 	auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input, std::pair<double, double>* timings) noexcept(false) -> ByteCodeValidationResult
@@ -389,7 +392,7 @@ namespace Nominax
 		static_assert(decltype(index)::is_always_lock_free);
 
 		// Find all instructions and push them into the instruction cache:
-		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, diff](const auto& iterator)
+		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, diff](const auto& iterator) noexcept(false)
 		{
 			const DynamicSignal* const* i {&iterator};
 			const Instruction           instruction {iterator->template UnwrapUnchecked<Instruction>()};
