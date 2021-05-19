@@ -214,6 +214,7 @@
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 #include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
+#include "../../Include/Nominax/Core/ReactorValidationResult.hpp"
 
 namespace Nominax
 {
@@ -372,23 +373,40 @@ namespace Nominax
 		// Remove last instruction
 		instructionCache.pop_back();
 
-		// query time:
+		// Query time:
 		tik = std::chrono::high_resolution_clock::now();
 
+		// Underlying type of the error code enum:
+		using ErrorInt = std::underlying_type_t<ByteCodeValidationResultCode>;
+
+		const DynamicSignal* const diff{ std::data(input) };
+		std::atomic error { static_cast<ErrorInt>(ReactorValidationResult::Ok) };
+		std::atomic_ptrdiff_t index{0};
+
+		static_assert(decltype(error)::is_always_lock_free);
+		static_assert(decltype(index)::is_always_lock_free);
+		
 		// Find all instructions and push them into the instruction cache:
-		for (const DynamicSignal **i {instructionCache.data()}, **end {instructionCache.data() + instructionCache.size()}; i < end; ++i)
+		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, diff](const auto& iterator)
 		{
-			const Instruction instruction {(**i).UnwrapUnchecked<Instruction>()};
-			const std::span   args {ExtractInstructionArguments(i)};
-
-			// validate args:
-			const auto result {ValidateInstructionArguments(instruction, args)};
-
-			// if error, return result:
-			if (NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok))
+			const DynamicSignal* const* i{ &iterator };
+			const Instruction instruction{ iterator->template UnwrapUnchecked<Instruction>() };
+			const std::span args{ ExtractInstructionArguments(i) };
+			const auto result{ ValidateInstructionArguments(instruction, args) }; // validate args
+			
+			if (NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok)) // if error, return result:
 			{
-				return {result, *i - &input.front() - 1};
+				if(NOMINAX_LIKELY(error == static_cast<ErrorInt>(ReactorValidationResult::Ok))) // only update the error once
+				{
+					error.store(static_cast<ErrorInt>(result)); // atomic store
+					index.store(*i - diff - 1);						// atomic store
+				}
 			}
+		});
+
+		if (NOMINAX_UNLIKELY(error.load() != static_cast<ErrorInt>(ReactorValidationResult::Ok)))
+		{
+			return { static_cast<ByteCodeValidationResultCode>(error.load()), index.load() };
 		}
 
 		// query timings of pass1:
