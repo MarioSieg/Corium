@@ -218,6 +218,9 @@
 
 namespace Nominax
 {
+	// Underlying type of the error code enum:
+	using ErrorInt = std::underlying_type_t<ByteCodeValidationResultCode>;
+	
 	auto ContainsPrologue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool
 	{
 		constexpr const auto& code {DynamicSignal::CodePrologue()};
@@ -286,14 +289,15 @@ namespace Nominax
 
 	auto ValidateLastInstruction(const DynamicSignal* const instr, const std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode
 	{
-		const Instruction          instruction {instr->UnwrapUnchecked<Instruction>()};
-		std::vector<DynamicSignal> args {instr + 1, instr + 1 + argCount};
+		const Instruction instruction {instr->UnwrapUnchecked<Instruction>()};
+		const std::span args {instr + 1, instr + 1 + argCount};
 		return ValidateInstructionArguments(instruction, args);
 	}
 
 	auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> ByteCodeValidationResult
 	{
 		output.reserve(input.size());
+		
 		for (const DynamicSignal *i {&*std::begin(input)}, *end {&*std::end(input)}; i < end; ++i)
 		{
 			if (i->Contains<Instruction>())
@@ -337,7 +341,7 @@ namespace Nominax
 			return {ByteCodeValidationResultCode::MissingEpilogueCode, 0};
 		}
 
-		// query time:
+		// Query time:
 		auto tik {std::chrono::high_resolution_clock::now()};
 
 		// Collect all instructions to validate them:
@@ -347,7 +351,7 @@ namespace Nominax
 			return result;
 		}
 
-		// query timings of pass0:
+		// Query timings of pass0:
 		if (NOMINAX_LIKELY(timings))
 		{
 			const auto tok {std::chrono::high_resolution_clock::now() - tik};
@@ -376,10 +380,8 @@ namespace Nominax
 		// Query time:
 		tik = std::chrono::high_resolution_clock::now();
 
-		// Underlying type of the error code enum:
-		using ErrorInt = std::underlying_type_t<ByteCodeValidationResultCode>;
-
 		const DynamicSignal* const diff {std::data(input)};
+		
 		std::atomic                error {static_cast<ErrorInt>(ReactorValidationResult::Ok)};
 		std::atomic_ptrdiff_t      index {0};
 
@@ -399,17 +401,18 @@ namespace Nominax
 				if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ReactorValidationResult::Ok))) // only update the error once
 				{
 					error.store(static_cast<ErrorInt>(result)); // atomic store
-					index.store(*i - diff - 1);                 // atomic store
+					index.store(*i - diff);						// atomic store
 				}
 			}
 		});
 
+		// Return error if the error value is not okay
 		if (NOMINAX_UNLIKELY(error.load() != static_cast<ErrorInt>(ReactorValidationResult::Ok)))
 		{
-			return {static_cast<ByteCodeValidationResultCode>(error.load()), index.load()};
+			return {static_cast<ByteCodeValidationResultCode>(error.load()), index.load() - 1};
 		}
 
-		// query timings of pass1:
+		// Query timings of pass1:
 		if (NOMINAX_LIKELY(timings))
 		{
 			const auto tok {std::chrono::high_resolution_clock::now() - tik};

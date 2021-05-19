@@ -223,7 +223,7 @@
 #include "JumpAddress.hpp"
 
 namespace Nominax
-{
+{	
 	/// <summary>
 	/// Restricts to valid byte code elements.
 	/// </summary>
