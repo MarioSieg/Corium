@@ -222,22 +222,5 @@ namespace Nominax
 		MissingStackPrologue,
 		NullIntrinsicRoutine,
 		ExecutionAddressMappingError,
-
-		/// <summary>
-		/// No error just count of enum entries.
-		/// </summary>
-		Count
-	};
-
-	constexpr std::array<std::string_view, static_cast<std::size_t>(ReactorValidationResult::Count)> REACTOR_VALIDATION_RESULT_ERROR_MESSAGES
-	{
-		"ReactorValidationResult::Ok",
-		"ReactorValidationResult::NullPtr",
-		"ReactorValidationResult::ZeroSize",
-		"ReactorValidationResult::MissingCodePrologue",
-		"ReactorValidationResult::MissingCodeEpilogue",
-		"ReactorValidationResult::MissingStackPrologue",
-		"ReactorValidationResult::NullIntrinsicRoutine",
-		"ReactorValidationResult::ExecutionAddressMappingError"
 	};
 }

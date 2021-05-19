@@ -260,11 +260,8 @@ auto LoopBenchmark
 
 	auto& env {*Env};
 
-	AppCodeBundle out { };
-	stream.Build(out);
-
 	for (auto _ : state)
 	{
-		env.Execute(std::move(out));
+		env.Execute(std::move(stream));
 	}
 }

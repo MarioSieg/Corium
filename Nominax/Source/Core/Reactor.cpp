@@ -304,8 +304,10 @@ namespace Nominax
 			this->IntrinsicTable_,
 			*this->InterruptHandler_
 		);
-		const auto validationResult {this->Input_.Validate()};
-		NOMINAX_PANIC_ASSERT_EQ(validationResult, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]);
+		if (const auto validationResult {this->Input_.Validate()}; NOMINAX_UNLIKELY(validationResult != ReactorValidationResult::Ok))
+		{
+			PANIC("Reactor {:#X} validation failed with the following reason: {}", this->Id_, validationResult);
+		}
 		auto* const routine = std::get<1>(this->RoutineLink_);
 		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");
 		(*routine)(this->Input_, this->Output_);

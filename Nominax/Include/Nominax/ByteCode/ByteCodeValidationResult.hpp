@@ -250,11 +250,6 @@ namespace Nominax
 		/// Code is missing epilogue code.
 		/// </summary>
 		MissingEpilogueCode,
-
-		/// <summary>
-		/// Not an error, just the number
-		/// </summary>
-		Count
 	};
 
 	/// <summary>

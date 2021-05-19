@@ -219,15 +219,15 @@ namespace Nominax
 	inline auto Panic(const Str& formatString, const char* const file = nullptr, const signed line = 0, Args&&...args) -> void
 	{
 		Print(TextColor::Red, "\n!! FATAL NOMINAX RUNTIME ERROR !!\n");
-		Print(TextColor::Red, "Source File: {}, Source Line: {}\n", file ? file : "?", line);
-		Print(TextColor::Red, formatString, std::forward<Args>(args)...);
+		Print(TextColor::White, "Source File: {}, Source Line: {}\n", file ? file : "?", line);
+		Print(TextColor::White, formatString, std::forward<Args>(args)...);
 		Print(TextColor::Red, "\n!! FATAL NOMINAX RUNTIME ERROR !!\n");
 		std::cout.flush();
 		std::abort();
 	}
 }
 
-#define PANIC(msg) Panic( (msg), __FILE__, __LINE__ )
+#define PANIC(msg, ...) Panic( (msg), __FILE__, __LINE__, __VA_ARGS__)
 
 #define NOMINAX_PANIC_ASSERT_TRUE(x, msg)			\
 	do												\

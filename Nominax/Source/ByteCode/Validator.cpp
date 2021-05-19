@@ -338,7 +338,7 @@ namespace Nominax
 		const auto lastInstructionResult {ValidateLastInstruction(instructionCache.back(), &input.back() - instructionCache.back())};
 		if (NOMINAX_UNLIKELY(lastInstructionResult != ByteCodeValidationResultCode::Ok))
 		{
-			return { lastInstructionResult, instructionCache.back() - &input.front() - 1 };
+			return {lastInstructionResult, instructionCache.back() - &input.front() - 1};
 		}
 
 		// Remove last instruction
@@ -356,7 +356,7 @@ namespace Nominax
 			// if error, return result:
 			if (NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok))
 			{
-				return {result, *i - &input.front() - 1 };
+				return {result, *i - &input.front() - 1};
 			}
 		}
 

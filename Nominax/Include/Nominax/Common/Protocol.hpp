@@ -218,6 +218,7 @@
 
 // ReSharper disable CppUnusedIncludeDirective
 
+#include <iostream>
 #include <fmt/format.h>
 #include <fmt/chrono.h>
 #include <fmt/color.h>
@@ -262,6 +263,16 @@ namespace Nominax
 #ifndef NOMINAX_TEST
 		fmt::print(formatString, std::forward<Args>(args)...);
 #endif
+	}
+
+	/// <summary>
+	/// Print single char.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	inline auto Print(const char x) -> void
+	{
+		std::cout << x;
 	}
 
 	/// <summary>

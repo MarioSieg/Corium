@@ -216,48 +216,19 @@
 
 namespace Nominax
 {
-	auto Stream::PrintIntermediateRepresentation(const bool detailed) const noexcept(false) -> void
+	auto Stream::PrintIntermediateRepresentation() const noexcept(false) -> void
 	{
-		Print(TextColor::Green, "{} Len: {}, Size: {}B", Lexemes::COMMENT, this->Size(), this->SizeInBytes());
-		std::size_t offset {0};
-		for (auto sig {std::begin(*this)}, end {std::end(*this)}; sig != end; std::advance(sig, 1))
+		Print(TextColor::Green, "Len: {}, Size: {}B", this->Size(), this->SizeInBytes());
+		for (std::size_t offset {0}; const auto& sig : *this)
 		{
-			if (const std::optional<Instruction> value {sig->Unwrap<Instruction>()}; NOMINAX_LIKELY(value.has_value()))
+			if (sig.Contains<Instruction>())
 			{
-				Print("\n");
-
-				if (detailed)
-				{
-					Print(TextColor::Green, "{} &{:X} {:02X} {} ", Lexemes::COMMENT, offset, static_cast<std::underlying_type_t<std::remove_reference_t<decltype(*value)>>>(*value), Lexemes::COMMENT);
-				}
-				Print(TextColor::Cyan, " {}", *sig);
-
-				// Print interrupt type:
-				if (const auto instr {*value}; NOMINAX_UNLIKELY(instr == Instruction::Int))
-				{
-					// Get interrupt code:
-					auto current {sig};
-					std::advance(current, 1);
-					if (const auto interrupt {current->Unwrap<I64>()}; NOMINAX_LIKELY(interrupt.has_value()))
-					{
-						if (const auto code = *interrupt; code == 0)
-						{
-							Print(TextColor::Green, " {}OKI{}", Lexemes::COMMENT, Lexemes::COMMENT);
-						}
-						else if (code < 0)
-						{
-							Print(TextColor::Red, " {}ERR{}", Lexemes::COMMENT, Lexemes::COMMENT);
-						}
-						else
-						{
-							Print(TextColor::Yellow, " {}EXP{}", Lexemes::COMMENT, Lexemes::COMMENT);
-						}
-					}
-				}
+				Print(TextColor::Green, "\n{:#018X}: ", offset);
+				Print(TextColor::Cyan, "{}", sig.UnwrapUnchecked<Instruction>());
 			}
 			else
 			{
-				Print(TextColor::Magenta, " {}", *sig);
+				Print(TextColor::Magenta, " {}", sig);
 			}
 			++offset;
 		}

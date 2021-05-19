@@ -334,13 +334,6 @@ namespace Nominax
 		auto Boot(const EnvironmentDescriptor& descriptor) noexcept(false) -> void;
 
 		/// <summary>
-		/// Execute code on alpha reactor.
-		/// </summary>
-		/// <param name="appCode"></param>
-		/// <returns></returns>
-		auto Execute(AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&;
-
-		/// <summary>
 		/// Execute stream on alpha reactor.
 		/// </summary>
 		/// <param name="appCode"></param>
@@ -445,11 +438,6 @@ namespace Nominax
 		[[nodiscard]]
 		auto GetExecutionTimeHistory() const noexcept(false) -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
 	};
-
-	inline auto Environment::operator()(AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&
-	{
-		return this->Execute(std::move(appCode));
-	}
 
 	inline auto Environment::operator()(Stream&& appCode) noexcept(false) -> const ReactorOutput&
 	{

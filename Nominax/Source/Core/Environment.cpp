@@ -297,7 +297,7 @@ namespace
 		NOMINAX_PANIC_ASSERT_TRUE						\
 		(												\
 			this-> method (__VA_ARGS__),				\
-			#method "returned false!"					\
+			"\" "#method "\" returned false!"			\
 		);												\
 	}													\
 	while(false)
@@ -329,6 +329,68 @@ namespace
 	{
 		desiredSize = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
 		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="idx"></param>
+	/// <param name="appCode"></param>
+	/// <param name="code"></param>
+	/// <returns></returns>
+	auto PrintByteCodeErrorSector(const std::size_t idx, const Stream& appCode, const ByteCodeValidationResultCode code)
+	{
+		const bool isInstructionFault
+		{
+			code == ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction
+			|| code == ByteCodeValidationResultCode::TooManyArgumentsForInstruction
+			|| code == ByteCodeValidationResultCode::ArgumentTypeMismatch
+		};
+
+		for (std::size_t i {idx}; i < idx + 8 && i < appCode.Size(); ++i)
+		{
+			if (appCode[i].Contains<Instruction>())
+			{
+				Print(TextColor::Green, "\n{:#018X}: ", i);
+				Print(TextColor::BrightBlue, "{}", appCode[i]);
+			}
+			else
+			{
+				Print(TextColor::Magenta, " {}", appCode[i]);
+			}
+
+			if (isInstructionFault && i == idx)
+			{
+				Print(LogLevel::Error, " {} ->", code);
+			}
+		}
+
+		Print('\n');
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="result"></param>
+	/// <param name="appCode"></param>
+	/// <returns></returns>
+	[[noreturn]]
+	auto TriggerByteCodeStreamValidationPanic(const ByteCodeValidationResult& result, const Stream& appCode)
+	{
+		const auto& [code, idx] = result;
+
+		// Print sample:
+		PrintByteCodeErrorSector(idx + 1, appCode, code);
+
+		// Print error message:
+		PANIC
+		(
+			"Byte code validation of stream failed!\n"
+			"Index: {:#X}, Instruction: \"{}\", Message: {}",
+			idx + 1,
+			appCode[idx + 1].Unwrap<Instruction>().value_or(Instruction::NOp),
+			code
+		);
 	}
 }
 
@@ -500,19 +562,28 @@ namespace Nominax
 		);
 	}
 
-	auto Environment::Execute(AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&
+	auto Environment::Execute(Stream&& appCode) noexcept(false) -> const ReactorOutput&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 
+		AppCodeBundle appCodeBundle { };
+		if (const auto result {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(result.first != ByteCodeValidationResultCode::Ok))
+		{
+			TriggerByteCodeStreamValidationPanic(result, appCode);
+		}
+
+		// Deallocate stream:
+		appCode = { };
+
 		// Invoke hook:
-		DISPATCH_HOOK(OnPreExecutionHook, appCode);
+		DISPATCH_HOOK(OnPreExecutionHook, appCodeBundle);
 
 		// Info
-		Print(LogLevel::Warning, "Executing... Code size: {}\n", std::get<0>(appCode).size());
+		Print(LogLevel::Warning, "Executing...\n");
 		std::cout.flush();
 
 		// Execute on alpha reactor:
-		const auto& result {(*this->Context_->CorePool)(std::move(appCode))};
+		const auto& result {(*this->Context_->CorePool)(std::move(appCodeBundle))};
 
 		// Add execution time:
 		const auto micros {std::chrono::duration_cast<std::chrono::duration<F64, std::micro>>(result.Duration)};
@@ -526,43 +597,6 @@ namespace Nominax
 		// Invoke hook:
 		DISPATCH_HOOK(OnPostExecutionHook,);
 		return result;
-	}
-
-	auto Environment::Execute(Stream&& appCode) noexcept(false) -> const ReactorOutput&
-	{
-		AppCodeBundle appCodeBundle { };
-		if (const auto [code, index] {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(code != ByteCodeValidationResultCode::Ok))
-		{
-			const auto idx = index + 1;
-
-			Print(LogLevel::Error, "Byte machine code error:");
-			
-			// Print sample:
-			for (std::size_t i{ idx }; i < idx + 8 && i < appCode.Size(); ++i)
-			{
-				if (appCode[i].Contains<Instruction>())
-				{
-					Print(LogLevel::Warning, "\n{}", appCode[i]);
-				}
-				else
-				{
-					Print(LogLevel::Warning, " {}", appCode[i]);
-				}
-			}
-
-			// Print error message:
-			Panic
-			(
-				"Byte code stream validation failed!\n"
-				"Index: {:#X}, Instruction: \"{}\", Message: {}",
-				__FILE__,
-				__LINE__,
-				index, // TODO: While index + 1 ?!
-				appCode[idx].Unwrap<Instruction>().value_or(Instruction::NOp),
-				code
-			);
-		}
-		return (*this)(std::move(appCodeBundle));
 	}
 
 	auto Environment::Shutdown() noexcept(false) -> void

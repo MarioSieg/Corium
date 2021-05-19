@@ -524,7 +524,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="detailed"></param>
 		/// <returns></returns>
-		auto PrintIntermediateRepresentation(bool detailed = true) const noexcept(false) -> void;
+		auto PrintIntermediateRepresentation() const noexcept(false) -> void;
 
 		/// <summary>
 		/// Index lookup.
