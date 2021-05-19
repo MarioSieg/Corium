@@ -379,34 +379,34 @@ namespace Nominax
 		// Underlying type of the error code enum:
 		using ErrorInt = std::underlying_type_t<ByteCodeValidationResultCode>;
 
-		const DynamicSignal* const diff{ std::data(input) };
-		std::atomic error { static_cast<ErrorInt>(ReactorValidationResult::Ok) };
-		std::atomic_ptrdiff_t index{0};
+		const DynamicSignal* const diff {std::data(input)};
+		std::atomic                error {static_cast<ErrorInt>(ReactorValidationResult::Ok)};
+		std::atomic_ptrdiff_t      index {0};
 
 		static_assert(decltype(error)::is_always_lock_free);
 		static_assert(decltype(index)::is_always_lock_free);
-		
+
 		// Find all instructions and push them into the instruction cache:
 		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, diff](const auto& iterator)
 		{
-			const DynamicSignal* const* i{ &iterator };
-			const Instruction instruction{ iterator->template UnwrapUnchecked<Instruction>() };
-			const std::span args{ ExtractInstructionArguments(i) };
-			const auto result{ ValidateInstructionArguments(instruction, args) }; // validate args
-			
+			const DynamicSignal* const* i {&iterator};
+			const Instruction           instruction {iterator->template UnwrapUnchecked<Instruction>()};
+			const std::span             args {ExtractInstructionArguments(i)};
+			const auto                  result {ValidateInstructionArguments(instruction, args)}; // validate args
+
 			if (NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok)) // if error, return result:
 			{
-				if(NOMINAX_LIKELY(error == static_cast<ErrorInt>(ReactorValidationResult::Ok))) // only update the error once
+				if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ReactorValidationResult::Ok))) // only update the error once
 				{
 					error.store(static_cast<ErrorInt>(result)); // atomic store
-					index.store(*i - diff - 1);						// atomic store
+					index.store(*i - diff - 1);                 // atomic store
 				}
 			}
 		});
 
 		if (NOMINAX_UNLIKELY(error.load() != static_cast<ErrorInt>(ReactorValidationResult::Ok)))
 		{
-			return { static_cast<ByteCodeValidationResultCode>(error.load()), index.load() };
+			return {static_cast<ByteCodeValidationResultCode>(error.load()), index.load()};
 		}
 
 		// query timings of pass1:
