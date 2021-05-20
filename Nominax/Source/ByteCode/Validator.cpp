@@ -297,45 +297,56 @@ namespace Nominax
 		return ValidateInstructionArguments(instruction, args);
 	}
 
-	auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, Cache& output) noexcept(false) -> ByteCodeValidationResult
+	auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, Cache& output, const std::size_t estimatedInstructionCount) noexcept(false) -> ByteCodeValidationResult
 	{
-		auto cache
+		std::future cache
 		{
-			std::async(std::launch::async, [&input]
+			std::async(std::launch::async, [&input, estimatedInstructionCount]
 			{
 				const std::size_t chunkCount {4};
 
-				Cache out { };
-				out.reserve(input.size());
+				Cache      out { };
+				const auto predictedCap {estimatedInstructionCount ? estimatedInstructionCount : input.size()};
 
-				if (input.size() <= chunkCount)
-				{
-					std::for_each(std::begin(input), std::end(input), [&out](const DynamicSignal& sig)
+				if (auto        sequentialCopy {
+					[&out](auto begin, auto end)
 					{
-						if (sig.Contains<Instruction>())
+						std::for_each(begin, end, [&out](const DynamicSignal& sig)
 						{
-							out.emplace_back(&sig);
-						}
-					});
+							if (sig.Contains<Instruction>())
+							{
+								out.emplace_back(&sig);
+							}
+						});
+					}
+				}; NOMINAX_UNLIKELY(input.size() <= chunkCount))
+				{
+					out.reserve(predictedCap);
+					sequentialCopy(std::begin(input), std::end(input));
 				}
 				else
 				{
-					const auto chunkSize = input.size() / chunkCount;
+					out.resize(predictedCap);
+					std::size_t needle {0};
+					const auto  chunkSize {input.size() / chunkCount};
 
 					// parallel copy chunks:
 					for (std::size_t i {0}; i < chunkCount; ++i)
 					{
-						auto       begin {std::begin(input) + chunkSize * i};
+						const auto begin {std::begin(input) + chunkSize * i};
 						const auto end {i == chunkCount - 1 ? std::end(input) : begin + chunkSize};
-						while (begin < end)
+
+						std::for_each(begin, end, [write = std::begin(out), &needle](const DynamicSignal& sig) mutable
 						{
-							if (begin->Contains<Instruction>())
+							if (sig.Contains<Instruction>())
 							{
-								out.emplace_back(&*begin);
+								write[needle] = &sig;
+								++needle;
 							}
-							std::advance(begin, 1);
-						}
+						});
 					}
+
+					out.resize(needle);
 				}
 
 				return out;
@@ -368,7 +379,8 @@ namespace Nominax
 		return {static_cast<ByteCodeValidationResultCode>(error.load()), index.load()};
 	}
 
-	auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input, std::pair<double, double>* timings) noexcept(false) -> ByteCodeValidationResult
+	auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input, const std::size_t estimatedInstructionCount,
+	                              std::pair<double, double>*            timings) noexcept(false) -> ByteCodeValidationResult
 	{
 		// Check if empty:
 		if (NOMINAX_UNLIKELY(input.empty()))
@@ -393,7 +405,7 @@ namespace Nominax
 
 		// Collect all instructions to validate them:
 		std::vector<const DynamicSignal*> instructionCache { };
-		if (const auto result {ValidateByteCodePrePass(input, instructionCache)}; NOMINAX_UNLIKELY(std::get<0>(result) != ByteCodeValidationResultCode::Ok))
+		if (const auto result {ValidateByteCodePrePass(input, instructionCache, estimatedInstructionCount)}; NOMINAX_UNLIKELY(std::get<0>(result) != ByteCodeValidationResultCode::Ok))
 		{
 			return result;
 		}

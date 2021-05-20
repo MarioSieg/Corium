@@ -328,16 +328,20 @@ namespace Nominax
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="output"></param>
+	/// <param name="estimatedInstructionCount"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> ByteCodeValidationResult;
+	extern auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output,
+	                                    std::size_t                           estimatedInstructionCount = 0) noexcept(false) -> ByteCodeValidationResult;
 
 	/// <summary>
 	/// Validates the whole code and returns the result.
 	/// </summary>
 	/// <param name="input">The stream to validate.</param>
+	/// <param name="estimatedInstructionCount"></param>
 	/// <param name="timings"></param>
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
-	extern auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input, std::pair<double, double>* timings = nullptr) noexcept(false) -> ByteCodeValidationResult;
+	extern auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input, std::size_t estimatedInstructionCount = 0,
+	                                     std::pair<double, double>*            timings                                      = nullptr) noexcept(false) -> ByteCodeValidationResult;
 }

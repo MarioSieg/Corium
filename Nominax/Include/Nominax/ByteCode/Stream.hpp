@@ -271,6 +271,12 @@ namespace Nominax
 		/// </summary>
 		OptimizationLevel OptimizationLevel_ {DefaultOptimizationLevel()};
 
+		/// <summary>
+		/// Contains the count of instruction in the stream.
+		/// Used for optimizations (pre allocating validator instruction cache).
+		/// </summary>
+		std::size_t InstructionCounter_ {0};
+
 	public:
 		/// <summary>
 		/// Construct empty stream.
@@ -420,13 +426,6 @@ namespace Nominax
 		auto Insert(Iterator begin, Iterator end) noexcept(false) -> void;
 
 		/// <summary>
-		/// Pushes a new signal into the stream.
-		/// </summary>
-		/// <param name="sig"></param>
-		/// <returns></returns>
-		auto Push(const DynamicSignal& sig) noexcept(false) -> void;
-
-		/// <summary>
 		/// STL iterator compat
 		/// </summary>
 		/// <returns></returns>
@@ -531,9 +530,14 @@ namespace Nominax
 		/// <summary>
 		/// Print out the ir.
 		/// </summary>
-		/// <param name="detailed"></param>
 		/// <returns></returns>
 		auto PrintIntermediateRepresentation() const noexcept(false) -> void;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The instruction count of the stream.</returns>
+		auto GetInstructionCount() const noexcept(true) -> std::size_t;
 
 		/// <summary>
 		/// Index lookup.
@@ -713,6 +717,11 @@ namespace Nominax
 		return this->Storage_.back();
 	}
 
+	inline auto Stream::GetInstructionCount() const noexcept(true) -> std::size_t
+	{
+		return this->InstructionCounter_;
+	}
+
 	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> DynamicSignal&
 	{
 		return this->Storage_[idx];
@@ -758,15 +767,17 @@ namespace Nominax
 		return this->Storage_.size() * sizeof(DynamicSignal);
 	}
 
-	inline auto Stream::Push(const DynamicSignal& sig) noexcept(false) -> void
-	{
-		this->Storage_.push_back(sig);
-	}
-
 	template <typename Iterator>
 	inline auto Stream::Insert(Iterator begin, Iterator end) noexcept(false) -> void
 	{
-		this->Storage_.insert(std::end(this->Storage_), begin, end);
+		std::for_each(begin, end, [this](const DynamicSignal& sig)
+		{
+			this->Storage_.emplace_back(sig);
+			if (sig.Contains<Instruction>())
+			{
+				++this->InstructionCounter_;
+			}
+		});
 	}
 
 	// ReSharper disable once CppInconsistentNaming
@@ -839,61 +850,62 @@ namespace Nominax
 
 	inline auto Stream::operator<<(const DynamicSignal& sig) noexcept(false) -> Stream&
 	{
-		this->Push(sig);
+		this->Storage_.emplace_back(sig);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const Instruction instr) noexcept(false) -> Stream&
 	{
-		this->Push(DynamicSignal {instr});
+		this->Storage_.emplace_back(DynamicSignal {instr});
+		++this->InstructionCounter_;
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const SystemIntrinsicCallId intrin) noexcept(false) -> Stream&
 	{
-		this->Push(DynamicSignal {intrin});
+		this->Storage_.emplace_back(DynamicSignal {intrin});
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const CustomIntrinsicCallId intrin) noexcept(false) -> Stream&
 	{
-		this->Push(DynamicSignal {intrin});
+		this->Storage_.emplace_back(DynamicSignal {intrin});
 		return *this;
 	}
 
 	inline auto Stream::operator<<(const JumpAddress address) noexcept(false) -> Stream&
 	{
-		this->Push(DynamicSignal {address});
+		this->Storage_.emplace_back(DynamicSignal {address});
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const U64 value) noexcept(false) -> Stream&
 	{
-		this->Push(DynamicSignal {value});
+		this->Storage_.emplace_back(DynamicSignal {value});
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const I64 value) noexcept(false) -> Stream&
 	{
-		this->Push(DynamicSignal {value});
+		this->Storage_.emplace_back(DynamicSignal {value});
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const F64 value) noexcept(false) -> Stream&
 	{
-		this->Push(DynamicSignal {value});
+		this->Storage_.emplace_back(DynamicSignal {value});
 		return *this;
 	}
 
 	inline auto Stream::operator<<(const signed value) noexcept(false) -> Stream&
 	{
-		this->Push(DynamicSignal {static_cast<I64>(value)});
+		this->Storage_.emplace_back(DynamicSignal {static_cast<I64>(value)});
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const CharClusterUtf8 value) noexcept(false) -> Stream&
 	{
-		this->Push(DynamicSignal {value});
+		this->Storage_.emplace_back(DynamicSignal {value});
 		return *this;
 	}
 }

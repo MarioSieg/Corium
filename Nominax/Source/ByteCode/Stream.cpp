@@ -237,15 +237,15 @@ namespace Nominax
 
 	auto Stream::Prologue() noexcept(false) -> Stream&
 	{
-		constexpr std::array code {DynamicSignal::CodePrologue()};
-		this->Storage_.insert(this->Storage_.begin(), std::begin(code), std::end(code));
+		constexpr const auto& code {DynamicSignal::CodePrologue()};
+		this->Insert(std::begin(code), std::end(code));
 		return *this;
 	}
 
 	auto Stream::Epilogue() noexcept(false) -> Stream&
 	{
-		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		this->Storage_.insert(this->Storage_.end(), std::begin(code), std::end(code));
+		constexpr const auto& code {DynamicSignal::CodeEpilogue()};
+		this->Insert(std::begin(code), std::end(code));
 		return *this;
 	}
 
