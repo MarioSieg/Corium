@@ -207,8 +207,10 @@
 
 #pragma once
 
+#include "BaseTypes.hpp"
 #include "BranchHint.hpp"
 #include "F64Comparator.hpp"
+#include "FormatterImpls.hpp"
 #include "ILog2.hpp"
 #include "LiteralOp.hpp"
 #include "MemoryAlign.hpp"
@@ -216,6 +218,8 @@
 #include "PanicRoutine.hpp"
 #include "Protocol.hpp"
 #include "SafeLocalTime.hpp"
+#include "Signal.hpp"
+#include "Stopwatch.hpp"
 #include "VariantTools.hpp"
 #include "XorshiftAtomic.hpp"
 #include "XorshiftThreadLocal.hpp"

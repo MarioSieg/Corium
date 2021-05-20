@@ -206,21 +206,22 @@
 //    limitations under the License.
 
 #include <execution>
+#include <future>
 
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
-#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 #include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 #include "../../Include/Nominax/Core/ReactorValidationResult.hpp"
+#include "../../Include/Nominax/Common/Stopwatch.hpp"
 
 namespace Nominax
 {
 	// Underlying type of the error code enum:
 	using ErrorInt = std::underlying_type_t<ByteCodeValidationResultCode>;
-	
+
 	auto ContainsPrologue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool
 	{
 		constexpr const auto& code {DynamicSignal::CodePrologue()};
@@ -228,7 +229,7 @@ namespace Nominax
 		{
 			return false;
 		}
-		const auto* const begin {&input.front()};
+		const auto begin {std::begin(input)};
 		for (std::size_t i {0}; i < code.size(); ++i)
 		{
 			if (NOMINAX_UNLIKELY(code[i] != begin[i]))
@@ -246,7 +247,7 @@ namespace Nominax
 		{
 			return false;
 		}
-		const auto* const end {&*std::end(input) - code.size()};
+		const auto end {std::end(input) - code.size()};
 		for (std::size_t i {0}; i < code.size(); ++i)
 		{
 			if (NOMINAX_UNLIKELY(code[i] != end[i]))
@@ -290,38 +291,52 @@ namespace Nominax
 	auto ValidateLastInstruction(const DynamicSignal* const instr, const std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode
 	{
 		const Instruction instruction {instr->UnwrapUnchecked<Instruction>()};
-		const std::span args {instr + 1, instr + 1 + argCount};
+		const std::span   args {instr + 1, instr + 1 + argCount};
 		return ValidateInstructionArguments(instruction, args);
 	}
 
 	auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> ByteCodeValidationResult
 	{
-		output.reserve(input.size());
-
-		auto error{ ByteCodeValidationResultCode::Ok };
-		std::ptrdiff_t index{ 0 };
-
-		std::for_each(std::begin(input), std::end(input), [&error, &index, &output, &input](const auto& iterator) noexcept(false)
-		{
-			const DynamicSignal* const i { &iterator };
-			if (NOMINAX_LIKELY(i->Contains<Instruction>()))
+		auto cache {
+			std::async(std::launch::async, [&input]
 			{
-				output.push_back(i);
-			}
-			else if (const auto* const x = std::get_if<JumpAddress>(&i->Storage))
-			{
-				if (const bool result{ ValidateJumpAddress(input, *x) }; NOMINAX_UNLIKELY(!result))
+				ByteCodeValidationInstructionCache out { };
+				out.reserve(input.size());
+				std::for_each(std::begin(input), std::end(input), [&out](const auto& i)
 				{
-					if (NOMINAX_LIKELY(error == ByteCodeValidationResultCode::Ok)) // only update the error once
+					if (i.template Contains<Instruction>())
 					{
-						error = ByteCodeValidationResultCode::InvalidJumpAddress;		// atomic store
-						index = &*std::end(input) - i;									// atomic store
+						out.emplace_back(&i);
+					}
+				});
+				return out;
+			})
+		};
+
+		std::atomic           error {static_cast<ErrorInt>(ReactorValidationResult::Ok)};
+		std::atomic_ptrdiff_t index {0};
+
+		static_assert(decltype(error)::is_always_lock_free);
+		static_assert(decltype(index)::is_always_lock_free);
+
+		// Pass 0:
+		std::for_each(std::execution::par_unseq, std::begin(input), std::end(input), [&input, &error, &index](const auto& iterator) noexcept(false)
+		{
+			const DynamicSignal* const i {&iterator};
+			if (const auto* const x = std::get_if<JumpAddress>(&i->Storage))
+			{
+				if (const bool result {ValidateJumpAddress(input, *x)}; NOMINAX_UNLIKELY(!result))
+				{
+					if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ByteCodeValidationResultCode::Ok))) // only update the error once
+					{
+						error.store(static_cast<ErrorInt>(ByteCodeValidationResultCode::InvalidJumpAddress)); // atomic store
+						index.store(&*std::end(input) - i);                                                   // atomic store
 					}
 				}
 			}
 		});
-
-		return {error, index};
+		output = cache.get();
+		return {static_cast<ByteCodeValidationResultCode>(error.load()), index.load()};
 	}
 
 	auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input, std::pair<double, double>* timings) noexcept(false) -> ByteCodeValidationResult
@@ -345,7 +360,7 @@ namespace Nominax
 		}
 
 		// Query time:
-		auto tik {std::chrono::high_resolution_clock::now()};
+		Stopwatch clock { };
 
 		// Collect all instructions to validate them:
 		std::vector<const DynamicSignal*> instructionCache { };
@@ -357,9 +372,7 @@ namespace Nominax
 		// Query timings of pass0:
 		if (NOMINAX_LIKELY(timings))
 		{
-			const auto tok {std::chrono::high_resolution_clock::now() - tik};
-			const auto dur {std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1>>>(tok)};
-			timings->first = dur.count(); // write timings of pass0
+			timings->first = clock.ElapsedSecsF64().count(); // write timings of pass0
 		}
 
 		/*
@@ -381,17 +394,17 @@ namespace Nominax
 		instructionCache.pop_back();
 
 		// Query time:
-		tik = std::chrono::high_resolution_clock::now();
+		clock.Restart();
 
 		const DynamicSignal* const diff {std::data(input)};
-		
-		std::atomic                error {static_cast<ErrorInt>(ReactorValidationResult::Ok)};
-		std::atomic_ptrdiff_t      index {0};
+
+		std::atomic           error {static_cast<ErrorInt>(ReactorValidationResult::Ok)};
+		std::atomic_ptrdiff_t index {0};
 
 		static_assert(decltype(error)::is_always_lock_free);
 		static_assert(decltype(index)::is_always_lock_free);
 
-		// Find all instructions and push them into the instruction cache:
+		// Padd 1:
 		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, diff](const auto& iterator) noexcept(false)
 		{
 			const DynamicSignal* const* i {&iterator};
@@ -404,7 +417,7 @@ namespace Nominax
 				if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ReactorValidationResult::Ok))) // only update the error once
 				{
 					error.store(static_cast<ErrorInt>(result)); // atomic store
-					index.store(*i - diff);						// atomic store
+					index.store(*i - diff);                     // atomic store
 				}
 			}
 		});
@@ -418,9 +431,7 @@ namespace Nominax
 		// Query timings of pass1:
 		if (NOMINAX_LIKELY(timings))
 		{
-			const auto tok {std::chrono::high_resolution_clock::now() - tik};
-			const auto dur {std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1>>>(tok)};
-			timings->second = dur.count(); // write timings of pass1
+			timings->second = clock.ElapsedSecsF64().count(); // write timings of pass1
 		}
 
 		return {ByteCodeValidationResultCode::Ok, 0};

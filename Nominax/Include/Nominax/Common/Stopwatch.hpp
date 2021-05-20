@@ -1,6 +1,6 @@
-// File: Ini.hpp
+// File: Stopwatch.hpp
 // Author: Mario
-// Created: 17.05.2021 5:40 PM
+// Created: 20.05.2021 10:33 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,4 +207,89 @@
 
 #pragma once
 
-namespace Nominax { }
+#include "BaseTypes.hpp"
+#include "Protocol.hpp"
+
+#include <chrono>
+
+namespace Nominax
+{
+	/// <summary>
+	/// Represents a monotonic stopwatch.
+	/// Used for profiling and time measurements.
+	/// </summary>
+	/// <typeparam name="Clock"></typeparam>
+	template <typename Clock = std::chrono::high_resolution_clock>
+	class Stopwatch final
+	{
+		typename Clock::time_point Stamp_ {Clock::now()};
+
+	public:
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The timestamp set when created.</returns>
+		[[nodiscard]]
+		auto Stamp() const noexcept(true) -> typename Clock::time_point;
+
+		/// <summary>
+		/// Query elapsed time.
+		/// </summary>
+		/// <typeparam name="Dur">The duration type to use.</typeparam>
+		/// <returns>The elapsed time.</returns>
+		template <typename Dur = typename Clock::duration>
+		[[nodiscard]]
+		auto Elapsed() const noexcept(true) -> typename Clock::duration;
+
+		/// <summary>
+		/// Query elapsed time as seconds.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto ElapsedSecs() const noexcept(true) -> std::chrono::seconds;
+
+		/// <summary>
+		/// Query elapsed time as floating point seconds.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto ElapsedSecsF64() const noexcept(true) -> std::chrono::duration<F64>;
+
+		/// <summary>
+		/// Reset time stamp to now.
+		/// </summary>
+		/// <returns></returns>
+		auto Restart() -> void;
+	};
+
+	template <typename Clock>
+	inline auto Stopwatch<Clock>::Stamp() const noexcept(true) -> typename Clock::time_point
+	{
+		return this->Stamp_;
+	}
+
+	template <typename Clock>
+	template <typename Dur>
+	inline auto Stopwatch<Clock>::Elapsed() const noexcept(true) -> typename Clock::duration
+	{
+		return std::chrono::duration_cast<Dur>(Clock::now() - this->Stamp_);
+	}
+
+	template <typename Clock>
+	inline auto Stopwatch<Clock>::ElapsedSecs() const noexcept(true) -> std::chrono::seconds
+	{
+		return std::chrono::duration_cast<std::chrono::seconds>(this->Elapsed<>());
+	}
+
+	template <typename Clock>
+	inline auto Stopwatch<Clock>::ElapsedSecsF64() const noexcept(true) -> std::chrono::duration<F64>
+	{
+		return std::chrono::duration_cast<std::chrono::duration<F64>>(this->Elapsed<>());
+	}
+
+	template <typename Clock>
+	inline auto Stopwatch<Clock>::Restart() -> void
+	{
+		this->Stamp_ = Clock::now();
+	}
+}
