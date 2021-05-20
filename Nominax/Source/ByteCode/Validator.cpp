@@ -222,6 +222,8 @@ namespace Nominax
 	// Underlying type of the error code enum:
 	using ErrorInt = std::underlying_type_t<ByteCodeValidationResultCode>;
 
+	using Cache = ByteCodeValidationInstructionCache;
+
 	auto ContainsPrologue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool
 	{
 		constexpr const auto& code {DynamicSignal::CodePrologue()};
@@ -295,20 +297,47 @@ namespace Nominax
 		return ValidateInstructionArguments(instruction, args);
 	}
 
-	auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> ByteCodeValidationResult
+	auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, Cache& output) noexcept(false) -> ByteCodeValidationResult
 	{
-		auto cache {
+		auto cache
+		{
 			std::async(std::launch::async, [&input]
 			{
-				ByteCodeValidationInstructionCache out { };
+				const std::size_t chunkCount {4};
+
+				Cache out { };
 				out.reserve(input.size());
-				std::for_each(std::begin(input), std::end(input), [&out](const auto& i)
+
+				if (input.size() <= chunkCount)
 				{
-					if (i.template Contains<Instruction>())
+					std::for_each(std::begin(input), std::end(input), [&out](const DynamicSignal& sig)
 					{
-						out.emplace_back(&i);
+						if (sig.Contains<Instruction>())
+						{
+							out.emplace_back(&sig);
+						}
+					});
+				}
+				else
+				{
+					const auto chunkSize = input.size() / chunkCount;
+
+					// parallel copy chunks:
+					for (std::size_t i {0}; i < chunkCount; ++i)
+					{
+						auto       begin {std::begin(input) + chunkSize * i};
+						const auto end {i == chunkCount - 1 ? std::end(input) : begin + chunkSize};
+						while (begin < end)
+						{
+							if (begin->Contains<Instruction>())
+							{
+								out.emplace_back(&*begin);
+							}
+							std::advance(begin, 1);
+						}
 					}
-				});
+				}
+
 				return out;
 			})
 		};
