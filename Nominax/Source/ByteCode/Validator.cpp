@@ -303,10 +303,11 @@ namespace Nominax
 		{
 			std::async(std::launch::async, [&input, estimatedInstructionCount]
 			{
-				const std::size_t chunkCount {4};
+				const std::size_t chunkCount {std::thread::hardware_concurrency()};
 
 				Cache      out { };
 				const auto predictedCap {estimatedInstructionCount ? estimatedInstructionCount : input.size()};
+				out.reserve(predictedCap);
 
 				if (auto        sequentialCopy {
 					[&out](auto begin, auto end)
@@ -321,32 +322,42 @@ namespace Nominax
 					}
 				}; NOMINAX_UNLIKELY(input.size() <= chunkCount))
 				{
-					out.reserve(predictedCap);
 					sequentialCopy(std::begin(input), std::end(input));
 				}
 				else
 				{
-					out.resize(predictedCap);
-					std::size_t needle {0};
-					const auto  chunkSize {input.size() / chunkCount};
+					const auto chunkSize {input.size() / chunkCount};
+
+					std::vector<std::future<Cache>> results { };
+					results.reserve(chunkCount);
 
 					// parallel copy chunks:
 					for (std::size_t i {0}; i < chunkCount; ++i)
 					{
-						const auto begin {std::begin(input) + chunkSize * i};
-						const auto end {i == chunkCount - 1 ? std::end(input) : begin + chunkSize};
+						const auto      begin {std::begin(input) + chunkSize * i};
+						const auto      end {i == chunkCount - 1 ? std::end(input) : begin + chunkSize};
+						const std::span range {begin, end};
 
-						std::for_each(begin, end, [write = std::begin(out), &needle](const DynamicSignal& sig) mutable
+						results.emplace_back(std::async(std::launch::async, [range]() -> Cache
 						{
-							if (sig.Contains<Instruction>())
+							Cache local { };
+							local.reserve(range.size());
+							std::ranges::for_each(range, [&local](const DynamicSignal& sig) mutable
 							{
-								write[needle] = &sig;
-								++needle;
-							}
-						});
+								if (sig.Contains<Instruction>())
+								{
+									local.emplace_back(&sig);
+								}
+							});
+							return local;
+						}));
 					}
 
-					out.resize(needle);
+					for (auto& chunk : results)
+					{
+						auto val {chunk.get()};
+						out.insert(std::end(out), std::begin(val), std::end(val));
+					}
 				}
 
 				return out;
