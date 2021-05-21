@@ -285,11 +285,6 @@ namespace Nominax
 		}
 	}
 
-	auto ExtractInstructionArguments(const DynamicSignal* const* const iterator) noexcept(true) -> std::span<const DynamicSignal>
-	{
-		return {*iterator + 1, *iterator + 1 + ComputeInstructionArgumentOffset(iterator)};
-	}
-
 	auto ValidateLastInstruction(const DynamicSignal* const instr, const std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode
 	{
 		const Instruction instruction {instr->UnwrapUnchecked<Instruction>()};
@@ -399,6 +394,12 @@ namespace Nominax
 			return {ByteCodeValidationResultCode::Empty, 0};
 		}
 
+		// Check if we've reached the pointer compression limit:
+		if (NOMINAX_UNLIKELY(input.size() >= std::numeric_limits<U32>::max()))
+		{
+			return {ByteCodeValidationResultCode::SignalLimitReached, 0};
+		}
+
 		// Check if prologue code is contained:
 		if (NOMINAX_UNLIKELY(!ContainsPrologue(input)))
 		{
@@ -415,7 +416,7 @@ namespace Nominax
 		Stopwatch clock { };
 
 		// Collect all instructions to validate them:
-		std::vector<const DynamicSignal*> instructionCache { };
+		Cache instructionCache { };
 		if (const auto result {ValidateByteCodePrePass(input, instructionCache, estimatedInstructionCount)}; NOMINAX_UNLIKELY(std::get<0>(result) != ByteCodeValidationResultCode::Ok))
 		{
 			return result;
@@ -456,12 +457,12 @@ namespace Nominax
 		static_assert(decltype(error)::is_always_lock_free);
 		static_assert(decltype(index)::is_always_lock_free);
 
-		// Padd 1:
+		// Pass 1:
 		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, diff](const auto& iterator) noexcept(false)
 		{
 			const DynamicSignal* const* i {&iterator};
 			const Instruction           instruction {iterator->template UnwrapUnchecked<Instruction>()};
-			const std::span             args {ExtractInstructionArguments(i)};
+			const std::span             args {ExtractInstructionArguments(*i, ComputeInstructionArgumentOffset(*i, *(i + 1)))};
 			const auto                  result {ValidateInstructionArguments(instruction, args)}; // validate args
 
 			if (NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok)) // if error, return result:

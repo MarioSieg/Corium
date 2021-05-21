@@ -260,7 +260,13 @@ namespace Nominax
 		/// <summary>
 		/// Invalid call id.
 		/// </summary>
-		InvalidSystemIntrinsicCall
+		InvalidSystemIntrinsicCall,
+
+		/// <summary>
+		/// Maximum dynamic signals for validation: 0xFF'FF'FF'FF,
+		/// because pointers are compressed to 32-bit in the validator internally.
+		/// </summary>
+		SignalLimitReached
 	};
 
 	/// <summary>
@@ -280,16 +286,17 @@ namespace Nominax
 	/// </summary>
 	using ByteCodeValidationResult = std::pair<ByteCodeValidationResultCode, std::size_t>;
 
-	constexpr std::array<std::string_view, 9> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
+	constexpr std::array<std::string_view, 10> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
 	{
 		"Ok",
-		"Too many arguments!",
-		"Not enough arguments!",
-		"Invalid argument type!",
-		"Empty byte code!",
+		"Too many arguments provided!",
+		"Not enough arguments provided!",
+		"Argument data type mismatch!",
+		"Empty byte code submitted!",
 		"Missing code prologue!",
 		"Missing code epilogue!",
-		"Jump address is out of range!",
-		"Unknown system intrinsic call!"
+		"Jump address is out of range or does not point to an instruction!",
+		"Unknown system intrinsic call!",
+		"Signal limit reached! Because of pointer compression no more than (2 ^ 32) - 1 signals are allowed!"
 	};
 }

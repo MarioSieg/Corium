@@ -294,11 +294,12 @@ namespace Nominax
 	/// <summary>
 	/// Compute offset of the instruction argument.
 	/// </summary>
-	/// <param name="iterator"></param>
+	/// <param name="where"></param>
+	/// <param name="next"></param>
 	/// <returns></returns>
-	constexpr auto ComputeInstructionArgumentOffset(const DynamicSignal* const* const iterator) noexcept(true) -> std::ptrdiff_t
+	constexpr auto ComputeInstructionArgumentOffset(const DynamicSignal* const where, const DynamicSignal* const next) noexcept(true) -> std::ptrdiff_t
 	{
-		return *(iterator + 1) - *iterator - 1;
+		return next - where - 1;
 	}
 
 	/// <summary>
@@ -306,10 +307,14 @@ namespace Nominax
 	/// !! Warning this can not be used on the last instruction,
 	/// because it will determine the count by computing the pointer difference of two instructions.
 	/// </summary>
-	/// <param name="iterator">Pointer to instruction</param>
+	/// <param name="where">Pointer to instruction</param>
+	/// <param name="offset"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ExtractInstructionArguments(const DynamicSignal* const* iterator) noexcept(true) -> std::span<const DynamicSignal>;
+	constexpr auto ExtractInstructionArguments(const DynamicSignal* const where, const std::size_t offset) noexcept(true) -> std::span<const DynamicSignal>
+	{
+		return {where + 1, where + 1 + offset};
+	}
 
 	/// <summary>
 	/// 

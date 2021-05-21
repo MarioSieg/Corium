@@ -400,9 +400,9 @@ TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 	ASSERT_EQ(ValidateByteCodePrePass(code, cache).first, ByteCodeValidationResultCode::Ok);
 	ASSERT_EQ(cache.size(), 5);
 
-	ASSERT_EQ(ComputeInstructionArgumentOffset(&cache[0]), 1);
-	ASSERT_EQ(ComputeInstructionArgumentOffset(&cache[1]), 1);
-	ASSERT_EQ(ComputeInstructionArgumentOffset(&cache[2]), 2);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(cache[0], cache[1]), 1);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(cache[1], cache[2]), 1);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(cache[2], cache[3]), 2);
 	// Only 4 because the last instruction is removed and checked separately.
 	//ASSERT_EQ(ComputeInstructionArgumentOffset(&cache[3]), 0);
 }
@@ -428,23 +428,23 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 	ASSERT_EQ(cache.size(), 5);
 
 	// push
-	const auto r1 {ExtractInstructionArguments(&cache[0])};
+	const auto r1 {ExtractInstructionArguments(cache[0], ComputeInstructionArgumentOffset(cache[0], cache[1]))};
 	ASSERT_EQ(r1.size(), 1);
 	ASSERT_TRUE(r1[0].Contains(4_int));
 
 	// push
-	const auto r2 {ExtractInstructionArguments(&cache[1])};
+	const auto r2 {ExtractInstructionArguments(cache[1], ComputeInstructionArgumentOffset(cache[1], cache[2]))};
 	ASSERT_EQ(r2.size(), 1);
 	ASSERT_TRUE(r2[0].Contains(2_int));
 
 	// sto
-	const auto r3 {ExtractInstructionArguments(&cache[2])};
+	const auto r3 {ExtractInstructionArguments(cache[2], ComputeInstructionArgumentOffset(cache[2], cache[3]))};
 	ASSERT_EQ(r3.size(), 2);
 	ASSERT_TRUE(r3[0].Contains(1_uint));
 	ASSERT_TRUE(r3[1].Contains(-0.5_float));
 
 	// iadd
-	const auto r4 {ExtractInstructionArguments(&cache[3])};
+	const auto r4 {ExtractInstructionArguments(cache[3], ComputeInstructionArgumentOffset(cache[3], cache[4]))};
 	ASSERT_TRUE(r4.empty());
 
 	// Only 4 because the last instruction is removed and checked separately. 
