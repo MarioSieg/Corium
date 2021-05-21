@@ -373,11 +373,11 @@ TEST(ValidatorAlgorithms, Pass0InstructionCacheGenerator)
 
 	// Only 4 because the last instruction is removed and checked separately.
 	ASSERT_EQ(cache.size(), 5);
-	ASSERT_TRUE(cache[0]->Contains(Instruction::Push));
-	ASSERT_TRUE(cache[1]->Contains(Instruction::Push));
-	ASSERT_TRUE(cache[2]->Contains(Instruction::Sto));
-	ASSERT_TRUE(cache[3]->Contains(Instruction::IAdd));
-	ASSERT_TRUE(cache[4]->Contains(Instruction::Int));
+	ASSERT_TRUE(code[cache[0]].Contains(Instruction::Push));
+	ASSERT_TRUE(code[cache[1]].Contains(Instruction::Push));
+	ASSERT_TRUE(code[cache[2]].Contains(Instruction::Sto));
+	ASSERT_TRUE(code[cache[3]].Contains(Instruction::IAdd));
+	ASSERT_TRUE(code[cache[4]].Contains(Instruction::Int));
 }
 
 TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
@@ -400,9 +400,9 @@ TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 	ASSERT_EQ(ValidateByteCodePrePass(code, cache).first, ByteCodeValidationResultCode::Ok);
 	ASSERT_EQ(cache.size(), 5);
 
-	ASSERT_EQ(ComputeInstructionArgumentOffset(cache[0], cache[1]), 1);
-	ASSERT_EQ(ComputeInstructionArgumentOffset(cache[1], cache[2]), 1);
-	ASSERT_EQ(ComputeInstructionArgumentOffset(cache[2], cache[3]), 2);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(&code[cache[0]], &code[cache[1]]), 1);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(&code[cache[1]], &code[cache[2]]), 1);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(&code[cache[2]], &code[cache[3]]), 2);
 	// Only 4 because the last instruction is removed and checked separately.
 	//ASSERT_EQ(ComputeInstructionArgumentOffset(&cache[3]), 0);
 }
@@ -428,23 +428,23 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 	ASSERT_EQ(cache.size(), 5);
 
 	// push
-	const auto r1 {ExtractInstructionArguments(cache[0], ComputeInstructionArgumentOffset(cache[0], cache[1]))};
+	const auto r1 {ExtractInstructionArguments(&code[cache[0]], ComputeInstructionArgumentOffset(&code[cache[0]], &code[cache[1]]))};
 	ASSERT_EQ(r1.size(), 1);
 	ASSERT_TRUE(r1[0].Contains(4_int));
 
 	// push
-	const auto r2 {ExtractInstructionArguments(cache[1], ComputeInstructionArgumentOffset(cache[1], cache[2]))};
+	const auto r2 {ExtractInstructionArguments(&code[cache[1]], ComputeInstructionArgumentOffset(&code[cache[1]], &code[cache[2]]))};
 	ASSERT_EQ(r2.size(), 1);
 	ASSERT_TRUE(r2[0].Contains(2_int));
 
 	// sto
-	const auto r3 {ExtractInstructionArguments(cache[2], ComputeInstructionArgumentOffset(cache[2], cache[3]))};
+	const auto r3 {ExtractInstructionArguments(&code[cache[2]], ComputeInstructionArgumentOffset(&code[cache[2]], &code[cache[3]]))};
 	ASSERT_EQ(r3.size(), 2);
 	ASSERT_TRUE(r3[0].Contains(1_uint));
 	ASSERT_TRUE(r3[1].Contains(-0.5_float));
 
 	// iadd
-	const auto r4 {ExtractInstructionArguments(cache[3], ComputeInstructionArgumentOffset(cache[3], cache[4]))};
+	const auto r4 {ExtractInstructionArguments(&code[cache[3]], ComputeInstructionArgumentOffset(&code[cache[3]], &code[cache[4]]))};
 	ASSERT_TRUE(r4.empty());
 
 	// Only 4 because the last instruction is removed and checked separately. 

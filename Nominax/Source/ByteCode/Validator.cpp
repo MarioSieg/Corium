@@ -307,12 +307,13 @@ namespace Nominax
 				if (auto        sequentialCopy {
 					[&out](auto begin, auto end)
 					{
-						std::for_each(begin, end, [&out](const DynamicSignal& sig)
+						std::for_each(begin, end, [&out, index = static_cast<CompressedRelativePtr>(0)](const DynamicSignal& sig) mutable
 						{
 							if (sig.Contains<Instruction>())
 							{
-								out.emplace_back(&sig);
+								out.emplace_back(index);
 							}
+							++index;
 						});
 					}
 				}; NOMINAX_UNLIKELY(input.size() <= chunkCount))
@@ -333,16 +334,17 @@ namespace Nominax
 						const auto      end {i == chunkCount - 1 ? std::end(input) : begin + chunkSize};
 						const std::span range {begin, end};
 
-						results.emplace_back(std::async(std::launch::async, [range]() -> Cache
+						results.emplace_back(std::async(std::launch::async, [range, needle = chunkSize * i]() -> Cache
 						{
 							Cache local { };
 							local.reserve(range.size());
-							std::ranges::for_each(range, [&local](const DynamicSignal& sig) mutable
+							std::ranges::for_each(range, [&local, index = needle](const DynamicSignal& sig) mutable
 							{
 								if (sig.Contains<Instruction>())
 								{
-									local.emplace_back(&sig);
+									local.emplace_back(index);
 								}
+								index++;
 							});
 							return local;
 						}));
@@ -417,7 +419,11 @@ namespace Nominax
 
 		// Collect all instructions to validate them:
 		Cache instructionCache { };
-		if (const auto result {ValidateByteCodePrePass(input, instructionCache, estimatedInstructionCount)}; NOMINAX_UNLIKELY(std::get<0>(result) != ByteCodeValidationResultCode::Ok))
+		if
+		(
+			const auto result {ValidateByteCodePrePass(input, instructionCache, estimatedInstructionCount)};
+			NOMINAX_UNLIKELY(std::get<0>(result) != ByteCodeValidationResultCode::Ok)
+		)
 		{
 			return result;
 		}
@@ -428,19 +434,13 @@ namespace Nominax
 			timings->first = clock.ElapsedSecsF64().count(); // write timings of pass0
 		}
 
-		/*
-		 * Validate last instruction first:
-		 * -> Last instruction is validated first
-		 * because we compute the argument count by
-		 * subtracting the pointers between two instructions.
-		 * But the last instruction does not have any
-		 * instruction following it, so it is checked first and separately,
-		 * then the other are checked without the last instruction.
-		 */
-		const auto lastInstructionResult {ValidateLastInstruction(instructionCache.back(), &input.back() - instructionCache.back())};
-		if (NOMINAX_UNLIKELY(lastInstructionResult != ByteCodeValidationResultCode::Ok))
+		if
+		(
+			const auto lastInstructionResult {ValidateLastInstruction(&input[instructionCache.back()], input.size() - instructionCache.back() - 1)};
+			NOMINAX_UNLIKELY(lastInstructionResult != ByteCodeValidationResultCode::Ok)
+		)
 		{
-			return {lastInstructionResult, instructionCache.back() - &input.front() - 1};
+			return {lastInstructionResult, instructionCache.back()};
 		}
 
 		// Remove last instruction
@@ -449,8 +449,6 @@ namespace Nominax
 		// Query time:
 		clock.Restart();
 
-		const DynamicSignal* const diff {std::data(input)};
-
 		std::atomic           error {static_cast<ErrorInt>(ReactorValidationResult::Ok)};
 		std::atomic_ptrdiff_t index {0};
 
@@ -458,11 +456,12 @@ namespace Nominax
 		static_assert(decltype(index)::is_always_lock_free);
 
 		// Pass 1:
-		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, diff](const auto& iterator) noexcept(false)
+		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, &input](const CompressedRelativePtr& iterator) noexcept(false)
 		{
-			const DynamicSignal* const* i {&iterator};
-			const Instruction           instruction {iterator->template UnwrapUnchecked<Instruction>()};
-			const std::span             args {ExtractInstructionArguments(*i, ComputeInstructionArgumentOffset(*i, *(i + 1)))};
+			const CompressedRelativePtr next {*(&iterator + 1)};
+			const DynamicSignal* const  i {&input[iterator]};
+			const Instruction           instruction {i->UnwrapUnchecked<Instruction>()};
+			const std::span             args {ExtractInstructionArguments(i, ComputeInstructionArgumentOffset(i, &input[next]))};
 			const auto                  result {ValidateInstructionArguments(instruction, args)}; // validate args
 
 			if (NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok)) // if error, return result:
@@ -470,7 +469,7 @@ namespace Nominax
 				if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ReactorValidationResult::Ok))) // only update the error once
 				{
 					error.store(static_cast<ErrorInt>(result)); // atomic store
-					index.store(*i - diff);                     // atomic store
+					index.store(i - std::data(input));          // atomic store
 				}
 			}
 		});

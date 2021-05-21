@@ -286,10 +286,12 @@ namespace Nominax
 	/// <returns></returns>
 	extern auto ContainsEpilogue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool;
 
+	using CompressedRelativePtr = U32;
+
 	/// <summary>
 	/// Contains all instructions except for the last one in the stream.
 	/// </summary>
-	using ByteCodeValidationInstructionCache = std::vector<const DynamicSignal*>;
+	using ByteCodeValidationInstructionCache = std::vector<CompressedRelativePtr>;
 
 	/// <summary>
 	/// Compute offset of the instruction argument.
