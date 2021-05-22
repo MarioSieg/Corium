@@ -217,11 +217,11 @@ namespace Nominax::Core
 	[[maybe_unused]]
 	static auto CreateDescriptor
 	(
-		FixedStack& stack,
-		ByteCode::CodeChunk& chunk,
-		ByteCode::JumpMap& jumpMap,
+		FixedStack&                             stack,
+		ByteCode::CodeChunk&                    chunk,
+		ByteCode::JumpMap&                      jumpMap,
 		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
-		InterruptRoutine& interruptHandler
+		InterruptRoutine&                       interruptHandler
 	) noexcept(true) -> DetailedReactorDescriptor
 	{
 		const std::span instrMapTableView
@@ -239,7 +239,7 @@ namespace Nominax::Core
 		};
 		return simpleDescriptor.BuildDetailed();
 	}
-	
+
 	Reactor::Reactor
 	(
 		std::pmr::memory_resource&               allocator,
@@ -262,7 +262,7 @@ namespace Nominax::Core
 			{
 				if (NOMINAX_UNLIKELY(!routineLink))
 				{
-					Common::Print(Common::LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
+					Print(Common::LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
 				}
 				return routineLink ? *routineLink : GetOptimalReactorRoutine({ });
 			}()
@@ -308,7 +308,7 @@ namespace Nominax::Core
 		return this->Output_;
 	}
 
-	auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& target) noexcept(true) -> ReactorOutput
+	auto ExecuteOnce(const DetailedReactorDescriptor& input, const System::CpuFeatureDetector& target) noexcept(true) -> ReactorOutput
 	{
 		ReactorOutput output {.Input = &input};
 		ExecuteOnce(input, output, target);

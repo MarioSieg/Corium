@@ -214,8 +214,8 @@ namespace Nominax::Core
 	(
 		ByteCode::Signal* __restrict__             bucket,
 		const ByteCode::Signal* const __restrict__ bucketEnd,
-		const bool*                      jumpAddressMap,
-		JumpTable                        jumpTable
+		const bool*                                jumpAddressMap,
+		JumpTable                                  jumpTable
 	) noexcept(false) -> bool
 	{
 		NOMINAX_PANIC_ASSERT_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");

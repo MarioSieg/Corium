@@ -215,7 +215,7 @@
 namespace Nominax::ByteCode
 {
 	using namespace Common;
-	
+
 	auto Stream::PrintIntermediateRepresentation() const noexcept(false) -> void
 	{
 		Print(TextColor::Green, "Len: {}, Size: {}B", this->Size(), this->SizeInBytes());
@@ -249,23 +249,23 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult
+	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ValidationResult
 	{
-		if (const auto validationResult {ValidateByteCodePassFull(*this)}; NOMINAX_UNLIKELY(validationResult.first != ByteCodeValidationResultCode::Ok))
+		if (const auto validationResult {ValidateFullPass(*this)}; NOMINAX_UNLIKELY(validationResult.first != ValidationResultCode::Ok))
 		{
 			return validationResult;
 		}
 		GenerateChunkAndJumpMap(*this, out, outJumpMap);
-		return {ByteCodeValidationResultCode::Ok, 0};
+		return {ValidationResultCode::Ok, 0};
 	}
 
 	auto Stream::ContainsPrologue() const noexcept(false) -> bool
 	{
-		return Nominax::ByteCode::ContainsPrologue(this->Storage_);
+		return ByteCode::ContainsPrologue(this->Storage_);
 	}
 
 	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
 	{
-		return Nominax::ByteCode::ContainsEpilogue(this->Storage_);
+		return ByteCode::ContainsEpilogue(this->Storage_);
 	}
 }

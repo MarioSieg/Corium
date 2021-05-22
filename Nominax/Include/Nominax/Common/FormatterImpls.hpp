@@ -216,10 +216,10 @@ namespace Nominax
 		enum class ReactorValidationResult;
 		union CharClusterUtf8;
 	}
-	
+
 	namespace ByteCode
 	{
-		enum class ByteCodeValidationResultCode;
+		enum class ValidationResultCode;
 		enum class JumpAddress : std::uint64_t;
 		enum class CustomIntrinsicCallId : std::uint64_t;
 		enum class SystemIntrinsicCallId : std::uint64_t;
@@ -276,12 +276,12 @@ struct fmt::formatter<Nominax::Core::CharClusterUtf8>
 };
 
 template <>
-struct fmt::formatter<Nominax::ByteCode::ByteCodeValidationResultCode>
+struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::ByteCode::ByteCodeValidationResultCode& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>

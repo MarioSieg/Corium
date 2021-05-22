@@ -214,7 +214,7 @@
 #include "MessageBox.hpp"
 #include "Platform.hpp"
 
-namespace Nominax
+namespace Nominax::System
 {
 	namespace Os
 	{
@@ -239,7 +239,7 @@ namespace Nominax
 		extern auto DylibClose(void*& handle) noexcept(false) -> void;
 	}
 
-	struct SystemSnapshot final
+	struct Snapshot final
 	{
 		std::thread::id  ThreadId { };
 		std::string_view OperatingSystemName {NOMINAX_OS_NAME};
@@ -251,7 +251,7 @@ namespace Nominax
 		std::size_t      ProcessMemory { };
 		std::size_t      PageSize { };
 
-		SystemSnapshot() noexcept(false);
+		Snapshot() noexcept(false);
 
 		auto QueryAll() noexcept(false) -> void;
 		auto Print() const noexcept(false) -> void;

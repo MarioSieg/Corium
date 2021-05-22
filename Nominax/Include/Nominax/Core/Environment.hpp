@@ -217,11 +217,14 @@
 
 namespace Nominax
 {
-	class CpuFeatureDetector;
-	struct SystemSnapshot;
+	namespace System
+	{
+		struct CpuFeatureDetector;
+		struct Snapshot;
+	}
 
-	namespace Core {
-
+	namespace Core
+	{
 		/// <summary>
 		/// Represents the whole runtime environment.
 		/// </summary>
@@ -243,7 +246,7 @@ namespace Nominax
 			/// <summary>
 			/// Pimpl ptr.
 			/// </summary>
-			std::unique_ptr<Context, ContextDeleter> Context_{ nullptr };
+			std::unique_ptr<Context, ContextDeleter> Context_ {nullptr};
 
 		protected:
 			/// <summary>
@@ -286,7 +289,7 @@ namespace Nominax
 			/// <summary>
 			/// Size in bytes of the system pool, if the given count was invalid.
 			/// </summary>
-			static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE{ 2_mb };
+			static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {2_mb};
 
 			static_assert(FALLBACK_SYSTEM_POOL_SIZE);
 
@@ -312,14 +315,14 @@ namespace Nominax
 			/// </summary>
 			/// <param name="other"></param>
 			/// <returns></returns>
-			auto operator =(const Environment& other)->Environment & = delete;
+			auto operator =(const Environment& other) -> Environment& = delete;
 
 			/// <summary>
 			/// No move.
 			/// </summary>
 			/// <param name="other"></param>
 			/// <returns></returns>
-			auto operator =(Environment&& other)->Environment & = delete;
+			auto operator =(Environment&& other) -> Environment& = delete;
 
 			/// <summary>
 			/// Destructor.
@@ -382,14 +385,14 @@ namespace Nominax
 			/// </summary>
 			/// <returns>The boot time stamp.</returns>
 			[[nodiscard]]
-			auto GetBootStamp() const noexcept(false)->std::chrono::high_resolution_clock::time_point;
+			auto GetBootStamp() const noexcept(false) -> std::chrono::high_resolution_clock::time_point;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The boot time in milliseconds.</returns>
 			[[nodiscard]]
-			auto GetBootTime() const noexcept(false)->std::chrono::milliseconds;
+			auto GetBootTime() const noexcept(false) -> std::chrono::milliseconds;
 
 			/// <summary>
 			/// 
@@ -403,14 +406,14 @@ namespace Nominax
 			/// </summary>
 			/// <returns>The system stat snapshot.</returns>
 			[[nodiscard]]
-			auto GetSystemSnapshot() const noexcept(false) -> const SystemSnapshot&;
+			auto GetSystemSnapshot() const noexcept(false) -> const System::Snapshot&;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The cpu feature detector.</returns>
 			[[nodiscard]]
-			auto GetProcessorFeatureSnapshot() const noexcept(false) -> const CpuFeatureDetector&;
+			auto GetProcessorFeatureSnapshot() const noexcept(false) -> const System::CpuFeatureDetector&;
 
 			/// <summary>
 			/// 
@@ -424,14 +427,14 @@ namespace Nominax
 			/// </summary>
 			/// <returns>The size of the system pool in bytes.</returns>
 			[[nodiscard]]
-			auto GetMonotonicSystemPoolSize() const noexcept(false)->std::size_t;
+			auto GetMonotonicSystemPoolSize() const noexcept(false) -> std::size_t;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The count of reactor executions so far.</returns>
 			[[nodiscard]]
-			auto GetExecutionCount() const noexcept(false)->std::size_t;
+			auto GetExecutionCount() const noexcept(false) -> std::size_t;
 
 			/// <summary>
 			/// 

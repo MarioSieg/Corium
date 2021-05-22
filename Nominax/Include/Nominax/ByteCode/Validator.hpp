@@ -212,7 +212,7 @@
 
 #include "Chunk.hpp"
 #include "DynamicSignal.hpp"
-#include "ByteCodeValidationResult.hpp"
+#include "ValidationResult.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -254,7 +254,7 @@ namespace Nominax::ByteCode
 	/// <param name="args"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateInstructionArguments(Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> ByteCodeValidationResultCode;
+	extern auto ValidateInstructionArguments(Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> ValidationResultCode;
 
 	/// <summary>
 	/// 
@@ -263,7 +263,7 @@ namespace Nominax::ByteCode
 	/// <param name="args"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto ValidateInstructionArguments(const Instruction instruction, std::vector<DynamicSignal>&& args) noexcept(true) -> ByteCodeValidationResultCode
+	inline auto ValidateInstructionArguments(const Instruction instruction, std::vector<DynamicSignal>&& args) noexcept(true) -> ValidationResultCode
 	{
 		return ValidateInstructionArguments(instruction, args);
 	}
@@ -286,12 +286,15 @@ namespace Nominax::ByteCode
 	/// <returns></returns>
 	extern auto ContainsEpilogue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool;
 
+	/// <summary>
+	/// 32-bit index used as compressed pointer.
+	/// </summary>
 	using CompressedRelativePtr = U32;
 
 	/// <summary>
 	/// Contains all instructions except for the last one in the stream.
 	/// </summary>
-	using ByteCodeValidationInstructionCache = std::vector<CompressedRelativePtr>;
+	using InstructionCache = std::vector<CompressedRelativePtr>;
 
 	/// <summary>
 	/// Compute offset of the instruction argument.
@@ -326,8 +329,14 @@ namespace Nominax::ByteCode
 	/// <param name="jumpMap"></param>
 	extern auto GenerateChunkAndJumpMap(const std::span<const DynamicSignal>& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void;
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="instr"></param>
+	/// <param name="argCount"></param>
+	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateLastInstruction(const DynamicSignal* instr, std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode;
+	extern auto ValidateLastInstruction(const DynamicSignal* instr, std::ptrdiff_t argCount) noexcept(false) -> ValidationResultCode;
 
 
 	/// <summary>
@@ -338,8 +347,8 @@ namespace Nominax::ByteCode
 	/// <param name="estimatedInstructionCount"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output,
-	                                    std::size_t                           estimatedInstructionCount = 0) noexcept(false) -> ByteCodeValidationResult;
+	extern auto ValidatePrePass(const std::span<const DynamicSignal>& input, InstructionCache& output,
+	                            std::size_t                           estimatedInstructionCount = 0) noexcept(false) -> ValidationResult;
 
 	/// <summary>
 	/// Validates the whole code and returns the result.
@@ -349,6 +358,6 @@ namespace Nominax::ByteCode
 	/// <param name="timings"></param>
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
-	extern auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input, std::size_t estimatedInstructionCount = 0,
-	                                     std::pair<double, double>*            timings                                      = nullptr) noexcept(false) -> ByteCodeValidationResult;
+	extern auto ValidateFullPass(const std::span<const DynamicSignal>& input, std::size_t estimatedInstructionCount = 0,
+	                             std::pair<double, double>*            timings                                      = nullptr) noexcept(false) -> ValidationResult;
 }

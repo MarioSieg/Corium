@@ -226,7 +226,7 @@ namespace Nominax::ByteCode
 		return !(x & (x - 1));
 	}
 
-	inline auto Proxy_F64IsZero(const Nominax::F64 x) noexcept(true) -> bool
+	inline auto Proxy_F64IsZero(const F64 x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return Common::F64IsZero(x);
@@ -235,7 +235,7 @@ namespace Nominax::ByteCode
 #endif
 	}
 
-	inline auto Proxy_F64IsOne(const Nominax::F64 x) noexcept(true) -> bool
+	inline auto Proxy_F64IsOne(const F64 x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return Common::F64IsOne(x);
@@ -243,9 +243,9 @@ namespace Nominax::ByteCode
 		return x == 1.0;
 #endif
 	}
-	
+
 	using Common::ILog2;
-	
+
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	auto ScopedVariable<F64>::Push(const F64 value) -> ScopedVariable&

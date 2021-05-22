@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "ByteCodeValidationResult.hpp"
+#include "ValidationResult.hpp"
 #include "Category.hpp"
 #include "Chunk.hpp"
 #include "CustomIntrinsic.hpp"

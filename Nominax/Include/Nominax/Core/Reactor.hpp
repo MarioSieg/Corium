@@ -471,5 +471,5 @@ namespace Nominax::Core
 		return this->Execute(std::move(bundle));
 	}
 
-	extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& target = { }) noexcept(true) -> ReactorOutput;
+	extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const System::CpuFeatureDetector& target = { }) noexcept(true) -> ReactorOutput;
 }

@@ -212,7 +212,7 @@
 
 #include "Os.hpp"
 
-namespace Nominax
+namespace Nominax::System
 {
 	/// <summary>
 	/// Represents a procedure address inside a dynamic library.

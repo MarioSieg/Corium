@@ -222,15 +222,15 @@ namespace Nominax::Core
 		&ReactorCore_Fallback,
 #if NOMINAX_ARCH_X86_64
 
-		& ReactorCore_AVX,
+		&ReactorCore_AVX,
 		&ReactorCore_AVX512F,
 
 #elif NOMINAX_ARCH_ARM_64
 #	error "ARM64 not yet supported!"
 #endif
 	};
-	
-	auto SmartSelectReactor(const CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization
+
+	auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization
 	{
 #if NOMINAX_ARCH_X86_64
 
@@ -271,7 +271,7 @@ namespace Nominax::Core
 		return routine;
 	}
 
-	auto GetOptimalReactorRoutine(const CpuFeatureDetector& features) -> ReactorRoutineLink
+	auto GetOptimalReactorRoutine(const System::CpuFeatureDetector& features) -> ReactorRoutineLink
 	{
 		static thread_local constinit U16 QueryCounter;
 		ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
@@ -291,7 +291,7 @@ namespace Nominax::Core
 		return std::make_tuple(specialization, routine);
 	}
 
-	auto ExecuteOnce(const DetailedReactorDescriptor& input, ReactorOutput& output, const CpuFeatureDetector& target) noexcept(true) -> void
+	auto ExecuteOnce(const DetailedReactorDescriptor& input, ReactorOutput& output, const System::CpuFeatureDetector& target) noexcept(true) -> void
 	{
 		std::get<1>(GetOptimalReactorRoutine(target))(input, output);
 	}

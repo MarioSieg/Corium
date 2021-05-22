@@ -799,10 +799,10 @@ namespace Nominax::Core
 		out << "Arch: " << NOMINAX_ARCH_NAME << '\n';
 		out << "Posix: " << std::boolalpha << NOMINAX_IS_POSIX << '\n';
 		out << "Compiler: " << NOMINAX_COM_NAME " - C++ 20" << '\n';
-		out << "CPU: " << Os::QueryCpuName() << '\n';
+		out << "CPU: " << System::Os::QueryCpuName() << '\n';
 		out << "CPU Threads: " << std::thread::hardware_concurrency() << '\n';
-		out << "System RAM: " << Bytes2Megabytes(Os::QuerySystemMemoryTotal()) << " MB\n";
-		out << "Process RAM: " << Bytes2Megabytes(Os::QueryProcessMemoryUsed()) << " MB\n";
+		out << "System RAM: " << Bytes2Megabytes(System::Os::QuerySystemMemoryTotal()) << " MB\n";
+		out << "Process RAM: " << Bytes2Megabytes(System::Os::QueryProcessMemoryUsed()) << " MB\n";
 		out << '\n';
 		out << "MS = " << (!message.empty() && message.data() ? message : "none") << '\n';
 		out << "SP = &0x" << std::hex << sp << '\n';

@@ -211,7 +211,7 @@
 
 #include "DynamicSignal.hpp"
 #include "ImmediateArgumentCount.hpp"
-#include "ByteCodeValidationResult.hpp"
+#include "ValidationResult.hpp"
 #include "OptBase.hpp"
 #include "StreamScalar.hpp"
 #include "Chunk.hpp"
@@ -616,14 +616,14 @@ namespace Nominax::ByteCode
 		/// <param name="out"></param>
 		/// <param name="outJumpMap"></param>
 		/// <returns></returns>
-		auto Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult;
+		auto Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ValidationResult;
 
 		/// <summary>
 		/// Validate and build code chunk plus jump map into app code bundle.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <returns></returns>
-		auto Build(AppCodeBundle& out) const noexcept(false) -> ByteCodeValidationResult;
+		auto Build(AppCodeBundle& out) const noexcept(false) -> ValidationResult;
 
 		/// <summary>
 		/// Get current optimization level.
@@ -656,7 +656,7 @@ namespace Nominax::ByteCode
 		this->OptimizationLevel_ = optimizationLevel;
 	}
 
-	inline auto Stream::Build(AppCodeBundle& out) const noexcept(false) -> ByteCodeValidationResult
+	inline auto Stream::Build(AppCodeBundle& out) const noexcept(false) -> ValidationResult
 	{
 		return this->Build(std::get<0>(out), std::get<1>(out));
 	}

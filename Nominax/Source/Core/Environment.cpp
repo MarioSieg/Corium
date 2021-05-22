@@ -209,20 +209,22 @@
 #include <iostream>
 
 #include "../../Include/Nominax/Nominax.hpp"
+
 namespace Nominax::Core
 {
 	using namespace Nominax;
 	using namespace ByteCode;
 	using namespace Common;
+	using namespace System;
 
 	/// <summary>
 	/// Query and print machine info.
 	/// </summary>
 	/// <returns></returns>
-	static auto InitSysInfo() noexcept(false) -> SystemSnapshot
+	static auto InitSysInfo() noexcept(false) -> Snapshot
 	{
 		Print('\n');
-		SystemSnapshot snapshot{ };
+		Snapshot snapshot { };
 		snapshot.Print();
 		return snapshot;
 	}
@@ -234,7 +236,7 @@ namespace Nominax::Core
 	static auto InitCpuFeatures() noexcept(false) -> CpuFeatureDetector
 	{
 		Print('\n');
-		CpuFeatureDetector cpuFeatureDetector{ };
+		CpuFeatureDetector cpuFeatureDetector { };
 		cpuFeatureDetector.Print();
 		Print('\n');
 		return cpuFeatureDetector;
@@ -326,7 +328,7 @@ namespace Nominax::Core
 		const std::size_t reactorCount,
 		const std::size_t reactorStackSize
 	)
-		noexcept(true) -> std::size_t
+	noexcept(true) -> std::size_t
 	{
 		desiredSize = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
 		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
@@ -339,16 +341,16 @@ namespace Nominax::Core
 	/// <param name="appCode"></param>
 	/// <param name="code"></param>
 	/// <returns></returns>
-	static auto PrintByteCodeErrorSector(const std::size_t idx, const Stream& appCode, const ByteCodeValidationResultCode code)
+	static auto PrintByteCodeErrorSector(const std::size_t idx, const Stream& appCode, const ValidationResultCode code)
 	{
 		const bool isInstructionFault
 		{
-			code == ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction
-			|| code == ByteCodeValidationResultCode::TooManyArgumentsForInstruction
-			|| code == ByteCodeValidationResultCode::ArgumentTypeMismatch
+			code == ValidationResultCode::NotEnoughArgumentsForInstruction
+			|| code == ValidationResultCode::TooManyArgumentsForInstruction
+			|| code == ValidationResultCode::ArgumentTypeMismatch
 		};
 
-		for (std::size_t i{ idx }; i < idx + 8 && i < appCode.Size(); ++i)
+		for (std::size_t i {idx}; i < idx + 8 && i < appCode.Size(); ++i)
 		{
 			if (appCode[i].Contains<Instruction>())
 			{
@@ -376,7 +378,7 @@ namespace Nominax::Core
 	/// <param name="appCode"></param>
 	/// <returns></returns>
 	[[noreturn]]
-	static auto TriggerByteCodeStreamValidationPanic(const ByteCodeValidationResult& result, const Stream& appCode)
+	static auto TriggerByteCodeStreamValidationPanic(const ValidationResult& result, const Stream& appCode)
 	{
 		const auto& [code, idx] = result;
 
@@ -393,7 +395,7 @@ namespace Nominax::Core
 			code
 		);
 	}
-	
+
 	/// <summary>
 	/// Contains all the runtime variables required for the runtime system.
 	/// </summary>
@@ -410,7 +412,7 @@ namespace Nominax::Core
 		std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
 		std::chrono::high_resolution_clock::time_point           BootStamp;
 		std::chrono::milliseconds                                BootTime;
-		SystemSnapshot                                           SysInfoSnapshot;
+		Snapshot                                                 SysInfoSnapshot;
 		CpuFeatureDetector                                       CpuFeatures;
 		ReactorRoutineLink                                       OptimalReactorRoutine;
 		ReactorPool                                              CorePool;
@@ -565,7 +567,7 @@ namespace Nominax::Core
 		VALIDATE_ONLINE_BOOT_STATE();
 
 		AppCodeBundle appCodeBundle { };
-		if (const auto result {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(result.first != ByteCodeValidationResultCode::Ok))
+		if (const auto result {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(result.first != ValidationResultCode::Ok))
 		{
 			TriggerByteCodeStreamValidationPanic(result, appCode);
 		}
@@ -642,7 +644,7 @@ namespace Nominax::Core
 		return this->Context_->Arguments;
 	}
 
-	auto Environment::GetSystemSnapshot() const noexcept(false) -> const SystemSnapshot&
+	auto Environment::GetSystemSnapshot() const noexcept(false) -> const Snapshot&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Context_->SysInfoSnapshot;

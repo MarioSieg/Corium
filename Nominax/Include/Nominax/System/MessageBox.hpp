@@ -207,7 +207,7 @@
 
 #pragma once
 
-namespace Nominax
+namespace Nominax::System
 {
 	/// <summary>
 	/// Represents the style of a message box.

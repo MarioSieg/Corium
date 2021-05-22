@@ -211,7 +211,10 @@
 
 namespace Nominax
 {
-	class CpuFeatureDetector;
+	namespace System
+	{
+		struct CpuFeatureDetector;
+	}
 
 	namespace Core
 	{
@@ -239,7 +242,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		extern auto GetFallbackRoutineLink() noexcept(true)->ReactorRoutineLink;
+		extern auto GetFallbackRoutineLink() noexcept(true) -> ReactorRoutineLink;
 
 		/// <summary>
 		/// Returns the reactor specialization based on the cpu features available.
@@ -247,7 +250,7 @@ namespace Nominax
 		/// <param name="cpuFeatureDetector"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		extern auto SmartSelectReactor(const CpuFeatureDetector& cpuFeatureDetector) noexcept(true)->ReactorCoreSpecialization;
+		extern auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization;
 
 		/// <summary>
 		/// 
@@ -262,7 +265,7 @@ namespace Nominax
 		/// <param name="target"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		extern auto GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization target)->ReactorCoreExecutionRoutine*;
+		extern auto GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*;
 
 		/// <summary>
 		/// Selects the best reactor routine matching the cpu features and saves it.
@@ -270,7 +273,7 @@ namespace Nominax
 		/// <param name="features"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		extern auto GetOptimalReactorRoutine(const CpuFeatureDetector& features)->ReactorRoutineLink;
+		extern auto GetOptimalReactorRoutine(const System::CpuFeatureDetector& features) -> ReactorRoutineLink;
 
 		/// <summary>
 		/// Helpers to quickly execute a reactor with specified cpu features.
@@ -280,6 +283,6 @@ namespace Nominax
 		/// <param name="input"></param>
 		/// <param name="output"></param>
 		/// <returns></returns>
-		extern auto ExecuteOnce(const DetailedReactorDescriptor& input, ReactorOutput& output, const CpuFeatureDetector& target) noexcept(true) -> void;
+		extern auto ExecuteOnce(const DetailedReactorDescriptor& input, ReactorOutput& output, const System::CpuFeatureDetector& target) noexcept(true) -> void;
 	}
 }

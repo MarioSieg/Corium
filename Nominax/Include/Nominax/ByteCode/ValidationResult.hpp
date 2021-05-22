@@ -1,4 +1,4 @@
-// File: ByteCodeValidationResult.hpp
+// File: ValidationResult.hpp
 // Author: Mario
 // Created: 18.05.2021 5:50 PM
 // Project: NominaxRuntime
@@ -217,7 +217,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all byte code validation results.
 	/// </summary>
-	enum class ByteCodeValidationResultCode
+	enum class ValidationResultCode
 	{
 		/// <summary>
 		/// Validation did not found any problems.
@@ -286,7 +286,7 @@ namespace Nominax::ByteCode
 	/// as error indicator. If the validation result is not okay (indicates error),
 	/// the second type contains the faulty code.
 	/// </summary>
-	using ByteCodeValidationResult = std::pair<ByteCodeValidationResultCode, std::size_t>;
+	using ValidationResult = std::pair<ValidationResultCode, std::size_t>;
 
 	constexpr std::array<std::string_view, 10> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
 	{

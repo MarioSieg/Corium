@@ -271,8 +271,8 @@ namespace Nominax::Core
 	(
 		ByteCode::Signal* __restrict__       bucket,
 		const ByteCode::Signal* __restrict__ bucketEnd,
-		const bool*                jumpAddressMap,
-		JumpTable                  jumpTable
+		const bool*                          jumpAddressMap,
+		JumpTable                            jumpTable
 	) noexcept(false) -> bool;
 
 	/// <summary>

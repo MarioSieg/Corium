@@ -220,9 +220,9 @@
 namespace Nominax::ByteCode
 {
 	// Underlying type of the error code enum:
-	using ErrorInt = std::underlying_type_t<ByteCodeValidationResultCode>;
+	using ErrorInt = std::underlying_type_t<ValidationResultCode>;
 
-	using Cache = ByteCodeValidationInstructionCache;
+	using Cache = InstructionCache;
 
 	auto ContainsPrologue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool
 	{
@@ -277,7 +277,7 @@ namespace Nominax::ByteCode
 			if (in.Contains<JumpAddress>())
 			{
 				// minus one because the address is incremented by the reactor before jumped
-				out.Ptr = ComputeRelativeJumpAddress(output.data(), out.JumpTarget);
+				out.Ptr = Core::ComputeRelativeJumpAddress(output.data(), out.JumpTarget);
 			}
 
 #endif
@@ -285,14 +285,14 @@ namespace Nominax::ByteCode
 		}
 	}
 
-	auto ValidateLastInstruction(const DynamicSignal* const instr, const std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode
+	auto ValidateLastInstruction(const DynamicSignal* const instr, const std::ptrdiff_t argCount) noexcept(false) -> ValidationResultCode
 	{
 		const Instruction instruction {instr->UnwrapUnchecked<Instruction>()};
 		const std::span   args {instr + 1, instr + 1 + argCount};
 		return ValidateInstructionArguments(instruction, args);
 	}
 
-	auto ValidateByteCodePrePass(const std::span<const DynamicSignal>& input, Cache& output, const std::size_t estimatedInstructionCount) noexcept(false) -> ByteCodeValidationResult
+	auto ValidatePrePass(const std::span<const DynamicSignal>& input, Cache& output, const std::size_t estimatedInstructionCount) noexcept(false) -> ValidationResult
 	{
 		std::future cache
 		{
@@ -375,43 +375,43 @@ namespace Nominax::ByteCode
 			{
 				if (const bool result {ValidateJumpAddress(input, *x)}; NOMINAX_UNLIKELY(!result))
 				{
-					if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ByteCodeValidationResultCode::Ok))) // only update the error once
+					if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ValidationResultCode::Ok))) // only update the error once
 					{
-						error.store(static_cast<ErrorInt>(ByteCodeValidationResultCode::InvalidJumpAddress)); // atomic store
-						index.store(&*std::end(input) - i);                                                   // atomic store
+						error.store(static_cast<ErrorInt>(ValidationResultCode::InvalidJumpAddress)); // atomic store
+						index.store(&*std::end(input) - i);                                           // atomic store
 					}
 				}
 			}
 		});
 		output = cache.get();
-		return {static_cast<ByteCodeValidationResultCode>(error.load()), index.load()};
+		return {static_cast<ValidationResultCode>(error.load()), index.load()};
 	}
 
-	auto ValidateByteCodePassFull(const std::span<const DynamicSignal>& input, const std::size_t estimatedInstructionCount,
-	                              std::pair<double, double>*            timings) noexcept(false) -> ByteCodeValidationResult
+	auto ValidateFullPass(const std::span<const DynamicSignal>& input, const std::size_t estimatedInstructionCount,
+	                      std::pair<double, double>*            timings) noexcept(false) -> ValidationResult
 	{
 		// Check if empty:
 		if (NOMINAX_UNLIKELY(input.empty()))
 		{
-			return {ByteCodeValidationResultCode::Empty, 0};
+			return {ValidationResultCode::Empty, 0};
 		}
 
 		// Check if we've reached the pointer compression limit:
 		if (NOMINAX_UNLIKELY(input.size() >= std::numeric_limits<U32>::max()))
 		{
-			return {ByteCodeValidationResultCode::SignalLimitReached, 0};
+			return {ValidationResultCode::SignalLimitReached, 0};
 		}
 
 		// Check if prologue code is contained:
 		if (NOMINAX_UNLIKELY(!ContainsPrologue(input)))
 		{
-			return {ByteCodeValidationResultCode::MissingPrologueCode, 0};
+			return {ValidationResultCode::MissingPrologueCode, 0};
 		}
 
 		// Check if epilogue code is contained:
 		if (NOMINAX_UNLIKELY(!ContainsEpilogue(input)))
 		{
-			return {ByteCodeValidationResultCode::MissingEpilogueCode, 0};
+			return {ValidationResultCode::MissingEpilogueCode, 0};
 		}
 
 		// Query time:
@@ -421,8 +421,8 @@ namespace Nominax::ByteCode
 		Cache instructionCache { };
 		if
 		(
-			const auto result {ValidateByteCodePrePass(input, instructionCache, estimatedInstructionCount)};
-			NOMINAX_UNLIKELY(std::get<0>(result) != ByteCodeValidationResultCode::Ok)
+			const auto result {ValidatePrePass(input, instructionCache, estimatedInstructionCount)};
+			NOMINAX_UNLIKELY(std::get<0>(result) != ValidationResultCode::Ok)
 		)
 		{
 			return result;
@@ -437,7 +437,7 @@ namespace Nominax::ByteCode
 		if
 		(
 			const auto lastInstructionResult {ValidateLastInstruction(&input[instructionCache.back()], input.size() - instructionCache.back() - 1)};
-			NOMINAX_UNLIKELY(lastInstructionResult != ByteCodeValidationResultCode::Ok)
+			NOMINAX_UNLIKELY(lastInstructionResult != ValidationResultCode::Ok)
 		)
 		{
 			return {lastInstructionResult, instructionCache.back()};
@@ -464,7 +464,7 @@ namespace Nominax::ByteCode
 			const std::span             args {ExtractInstructionArguments(i, ComputeInstructionArgumentOffset(i, &input[next]))};
 			const auto                  result {ValidateInstructionArguments(instruction, args)}; // validate args
 
-			if (NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok)) // if error, return result:
+			if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok)) // if error, return result:
 			{
 				if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(Core::ReactorValidationResult::Ok))) // only update the error once
 				{
@@ -477,7 +477,7 @@ namespace Nominax::ByteCode
 		// Return error if the error value is not okay
 		if (NOMINAX_UNLIKELY(error.load() != static_cast<ErrorInt>(Core::ReactorValidationResult::Ok)))
 		{
-			return {static_cast<ByteCodeValidationResultCode>(error.load()), index.load() - 1};
+			return {static_cast<ValidationResultCode>(error.load()), index.load() - 1};
 		}
 
 		// Query timings of pass1:
@@ -486,7 +486,7 @@ namespace Nominax::ByteCode
 			timings->second = clock.ElapsedSecsF64().count(); // write timings of pass1
 		}
 
-		return {ByteCodeValidationResultCode::Ok, 0};
+		return {ValidationResultCode::Ok, 0};
 	}
 
 	auto ValidateJumpAddress(const std::span<const DynamicSignal>& bucket, const JumpAddress address) noexcept(true) -> bool
@@ -516,18 +516,18 @@ namespace Nominax::ByteCode
 		return NOMINAX_LIKELY(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size());
 	}
 
-	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> ByteCodeValidationResultCode
+	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> ValidationResultCode
 	{
 		// First check if the argument count is incorrect:
 		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) > args.size()))
 		{
-			return ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction;
+			return ValidationResultCode::NotEnoughArgumentsForInstruction;
 		}
 
 		// First check if the argument count is incorrect:
 		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) < args.size()))
 		{
-			return ByteCodeValidationResultCode::TooManyArgumentsForInstruction;
+			return ValidationResultCode::TooManyArgumentsForInstruction;
 		}
 
 		for (std::size_t i {0}; i < args.size(); ++i)
@@ -544,10 +544,10 @@ namespace Nominax::ByteCode
 			if (NOMINAX_UNLIKELY(!isWithinAllowedIndices))
 			{
 				// if not, validation failed:
-				return ByteCodeValidationResultCode::ArgumentTypeMismatch;
+				return ValidationResultCode::ArgumentTypeMismatch;
 			}
 		}
 
-		return ByteCodeValidationResultCode::Ok;
+		return ValidationResultCode::Ok;
 	}
 }

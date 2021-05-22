@@ -288,8 +288,8 @@ auto formatter<CharClusterUtf8, char, void>::format(const CharClusterUtf8& value
 	);
 }
 
-auto formatter<ByteCodeValidationResultCode, char, void>::format(const ByteCodeValidationResultCode& value,
-                                                                 format_context&                     ctx) const noexcept(false) -> FormatOutput
+auto formatter<ValidationResultCode, char, void>::format(const ValidationResultCode& value,
+                                                         format_context&             ctx) const noexcept(false) -> FormatOutput
 {
 	const auto idx {static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
 	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);

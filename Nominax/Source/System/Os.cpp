@@ -212,7 +212,7 @@
 #include "../../Include/Nominax/Common/MemoryUnits.hpp"
 #include "../../Include/Nominax/Common/SafeLocalTime.hpp"
 
-namespace Nominax
+namespace Nominax::System
 {
 	static auto MachineRating(const std::size_t threads) noexcept(true) -> char
 	{
@@ -238,13 +238,13 @@ namespace Nominax
 		}
 		return 'A';
 	}
-	
-	SystemSnapshot::SystemSnapshot() noexcept(false)
+
+	Snapshot::Snapshot() noexcept(false)
 	{
 		this->QueryAll();
 	}
 
-	auto SystemSnapshot::QueryAll() noexcept(false) -> void
+	auto Snapshot::QueryAll() noexcept(false) -> void
 	{
 		this->ThreadCount       = std::thread::hardware_concurrency();
 		this->ThreadId          = std::this_thread::get_id();
@@ -254,10 +254,10 @@ namespace Nominax
 		this->PageSize          = Os::QueryPageSize();
 	}
 
-	auto SystemSnapshot::Print() const noexcept(false) -> void
+	auto Snapshot::Print() const noexcept(false) -> void
 	{
 		using namespace Common;
-		
+
 		const auto&
 		[
 			ThreadId,

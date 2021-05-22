@@ -267,7 +267,7 @@ namespace Nominax::Core
 		return x == y;
 #endif
 	}
-	
+
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>

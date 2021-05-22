@@ -217,7 +217,7 @@
 namespace Nominax::Arch::X86_64
 {
 	using namespace Common;
-	
+
 	CpuFeatureBits::CpuFeatureBits() noexcept(false)
 	{
 		// check if cpuid is supported on system
