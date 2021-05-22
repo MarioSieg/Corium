@@ -209,23 +209,8 @@
 
 #include <fmt/format.h>
 
-namespace Nominax
-{
-	namespace Core
-	{
-		enum class ReactorValidationResult;
-		union CharClusterUtf8;
-	}
-
-	namespace ByteCode
-	{
-		enum class ValidationResultCode;
-		enum class JumpAddress : std::uint64_t;
-		enum class CustomIntrinsicCallID : std::uint64_t;
-		enum class SystemIntrinsicCallID : std::uint64_t;
-		enum class Instruction : std::uint64_t;
-	}
-}
+#include "../ByteCode/ByteCode.hpp"
+#include "../Core/Core.hpp"
 
 using FormatOutput = fmt::format_context::iterator;
 

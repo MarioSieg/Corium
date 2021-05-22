@@ -227,14 +227,14 @@ namespace Nominax::Common
 	}
 }
 
-#define PANIC(msg, ...) Common::Panic( (msg), __FILE__, __LINE__, __VA_ARGS__)
+#define PANIC(msg, ...) ::Nominax::Common::Panic( (msg), __FILE__, __LINE__, __VA_ARGS__)
 
 #define NOMINAX_PANIC_ASSERT_TRUE(x, msg)			\
 	do												\
 	{												\
 		if (NOMINAX_UNLIKELY(!( x )))				\
 		{											\
-			Common::Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -244,7 +244,7 @@ namespace Nominax::Common
 	{												\
 		if (NOMINAX_UNLIKELY(( x )))				\
 		{											\
-			Common::Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -266,7 +266,7 @@ namespace Nominax::Common
 	{												\
 		if (NOMINAX_UNLIKELY(( x ) != ( y )))		\
 		{											\
-			Common::Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -277,7 +277,7 @@ namespace Nominax::Common
 	{												\
 		if (NOMINAX_UNLIKELY(( x ) == ( y )))		\
 		{											\
-			Common::Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -287,7 +287,7 @@ namespace Nominax::Common
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) < ( y ))))		\
 		{											\
-			Common::Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -297,7 +297,7 @@ namespace Nominax::Common
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) <= ( y ))))	\
 		{											\
-			Common::Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -307,7 +307,7 @@ namespace Nominax::Common
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) > ( y ))))		\
 		{											\
-			Common::Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -317,7 +317,7 @@ namespace Nominax::Common
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) >= ( y ))))	\
 		{											\
-			Common::Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)

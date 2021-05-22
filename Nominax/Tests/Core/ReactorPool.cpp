@@ -238,15 +238,3 @@ TEST(ReactorPool, ZeroSizeFault)
 	                          ReactorPool x(Resource, 0, ReactorSpawnDescriptor::Default());
 	                          }(), "");
 }
-
-TEST(ReactorPool, OutOfRangeReactorGet)
-{
-	const ReactorPool pool {Resource, 4, ReactorSpawnDescriptor::Default()};
-	ASSERT_EQ(pool.GetSize(), 4);
-	ASSERT_EQ(&pool.GetReactor(3), pool.GetBuffer() + 3);
-	ASSERT_DEATH_IF_SUPPORTED([&pool]()
-	                          {
-	                          [[maybe_unused]]
-	                          auto y{ &pool.GetReactor(4) };
-	                          }(), "");
-}
