@@ -208,7 +208,7 @@
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 #include "../../Include/Nominax/Common/F64Comparator.hpp"
-#include "../../Include/Nominax/Common/ILog2.hpp"
+#include "../../Include/Nominax/Common/Algorithm.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
 namespace Nominax::ByteCode

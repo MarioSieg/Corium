@@ -271,12 +271,12 @@ namespace Nominax::Core
 		Common::Print
 		(
 			"Reactor {:010X} "
-			"Stack: {} MB, "			// stack
-			"{} Records, "				// kilo records
-			"Intrinsics: {}, "			// intrinsics
-			"Interrupt Routine: {}, "	// interrupt
-			"Power: {}, "				// power preference
-			"Pool: {:02}\n",			// pool index
+			"Stack: {} MB, "          // stack
+			"{} Records, "            // kilo records
+			"Intrinsics: {}, "        // intrinsics
+			"Interrupt Routine: {}, " // interrupt
+			"Power: {}, "             // power preference
+			"Pool: {:02}\n",          // pool index
 			this->Id_,
 			Bytes2Megabytes(this->Stack_.Size() * sizeof(Record)),
 			this->Stack_.Size(),

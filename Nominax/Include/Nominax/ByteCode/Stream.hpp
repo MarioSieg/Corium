@@ -396,7 +396,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Back() const noexcept(true) ->DiscriminatedSignal;
+		auto Back() const noexcept(true) -> DiscriminatedSignal;
 
 		/// <summary>
 		/// Clears the content of the whole stream.
@@ -508,14 +508,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(Core::CharClusterUtf16 value) noexcept(false)->Stream&;
+		auto operator <<(Core::CharClusterUtf16 value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(Core::CharClusterUtf32 value) noexcept(false)->Stream&;
+		auto operator <<(Core::CharClusterUtf32 value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Print out immediate byte code.
@@ -541,7 +541,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) const noexcept(false) ->DiscriminatedSignal;
+		auto operator [](std::size_t idx) const noexcept(false) -> DiscriminatedSignal;
 
 		/// <summary>
 		/// Insert instruction manually with immediate arguments.
@@ -827,7 +827,7 @@ namespace Nominax::ByteCode
 	inline auto Stream::operator <<(const Core::CharClusterUtf8 value) noexcept(false) -> Stream&
 	{
 		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal{ value });
+		this->Code_.emplace_back(Signal {value});
 		this->CodeDisc_.emplace_back(Signal::Discriminator::CharClusterUtf8);
 		return *this;
 	}
@@ -835,15 +835,15 @@ namespace Nominax::ByteCode
 	inline auto Stream::operator<<(const Core::CharClusterUtf16 value) noexcept(false) -> Stream&
 	{
 		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal{ value });
+		this->Code_.emplace_back(Signal {value});
 		this->CodeDisc_.emplace_back(Signal::Discriminator::CharClusterUtf16);
 		return *this;
 	}
-	
+
 	inline auto Stream::operator<<(const Core::CharClusterUtf32 value) noexcept(false) -> Stream&
 	{
 		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal{ value });
+		this->Code_.emplace_back(Signal {value});
 		this->CodeDisc_.emplace_back(Signal::Discriminator::CharClusterUtf32);
 		return *this;
 	}

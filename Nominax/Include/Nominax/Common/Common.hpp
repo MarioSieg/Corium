@@ -207,11 +207,11 @@
 
 #pragma once
 
+#include "Algorithm.hpp"
 #include "BaseTypes.hpp"
 #include "BranchHint.hpp"
 #include "F64Comparator.hpp"
 #include "FormatterImpls.hpp"
-#include "ILog2.hpp"
 #include "LiteralOp.hpp"
 #include "MemoryAlign.hpp"
 #include "MemoryUnits.hpp"

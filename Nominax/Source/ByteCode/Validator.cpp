@@ -211,11 +211,15 @@
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
+
+#include "../../Include/Nominax/Common/Algorithm.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/Stopwatch.hpp"
+
 #include "../../Include/Nominax/System/MacroCfg.hpp"
+
 #include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 #include "../../Include/Nominax/Core/ReactorValidationResult.hpp"
-#include "../../Include/Nominax/Common/Stopwatch.hpp"
 
 namespace Nominax::ByteCode
 {

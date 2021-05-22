@@ -277,7 +277,7 @@ TEST(BytecodeStream, CodeEpilogue)
 	auto i {std::begin(stream.CodeBuffer())};
 	for (const auto& sig : epilogue)
 	{
-		const auto x{ DiscriminatedSignal{ *j, *i } };
+		const auto x {DiscriminatedSignal {*j, *i}};
 		ASSERT_EQ(sig, x);
 		std::advance(i, 1);
 		std::advance(j, 1);

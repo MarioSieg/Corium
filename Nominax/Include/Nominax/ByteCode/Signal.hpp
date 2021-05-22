@@ -431,8 +431,8 @@ namespace Nominax::ByteCode
 	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const Core::CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal::Signal(const Core::CharClusterUtf16 cluster) noexcept(true) : R64{ cluster } {}
-	constexpr Signal::Signal(const Core::CharClusterUtf32 cluster) noexcept(true) : R64{ cluster } {}
+	constexpr Signal::Signal(const Core::CharClusterUtf16 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal::Signal(const Core::CharClusterUtf32 cluster) noexcept(true) : R64 {cluster} {}
 	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JmpAddress {value} {}
 

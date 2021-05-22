@@ -1,6 +1,6 @@
-// File: ILog2.hpp
+// File: Algorithm.hpp
 // Author: Mario
-// Created: 29.04.2021 11:31 AM
+// Created: 23.05.2021 12:34 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,13 +207,39 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cassert>
-#include <climits>
-
-#include "BaseTypes.hpp"
+#include <iterator>
+#include <span>
 
 namespace Nominax::Common
 {
+	template <typename Iter>
+	concept RandomAccessIterator = std::is_same_v<typename std::iterator_traits<Iter>::iterator_category, std::random_access_iterator_tag>;
+
+	template <typename Iter, typename Func> requires RandomAccessIterator<Iter>
+	inline auto UniformChunkSplit(const std::size_t chunkCount, const Iter begin, const Iter end, Func&& func) -> void
+	{
+		using ValueType = const typename std::iterator_traits<Iter>::value_type;
+
+		const std::iter_difference_t<Iter> length {std::distance(begin, end)};
+		const std::size_t                  chunkSize {static_cast<std::size_t>(length) / chunkCount};
+
+		for (std::size_t i {0}; i < chunkSize; ++i)
+		{
+			const Iter                 beginChunk {begin + chunkSize * i};
+			const Iter                 endChunk {i == chunkCount - 1 ? end : beginChunk + chunkSize};
+			const std::span<ValueType> range {beginChunk, endChunk};
+			func(range, chunkSize * i);
+		}
+	}
+
+	template <typename T, typename Func>
+	inline auto UniformChunkSplit(const std::size_t chunkCount, const std::span<const T> range, Func&& func) -> void
+	{
+		UniformChunkSplit<decltype(std::begin(range)), Func>(chunkCount, std::begin(range), std::end(range), std::forward<Func>(func));
+	}
+
 	/// <summary>
 	/// Computes the binary logarithm of log2(2)
 	/// </summary>

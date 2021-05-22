@@ -1,6 +1,6 @@
 // File: DiscriminatedSignal.hpp
 // Author: Mario
-// Created: 22.05.2021 3:34 PM
+// Created: 22.05.2021 11:30 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License

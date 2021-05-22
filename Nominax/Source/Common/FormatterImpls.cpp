@@ -245,33 +245,33 @@ auto formatter<CharClusterUtf8, char, void>::format(const CharClusterUtf8& value
 {
 	static_assert(sizeof(char8_t) == sizeof(U8));
 	return format_to(ctx.out(),
-		R"(\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X})",
-		static_cast<U16>(value.Chars[0]),
-		static_cast<U16>(value.Chars[1]), 
-		static_cast<U16>(value.Chars[2]), 
-		static_cast<U16>(value.Chars[3]),
-		static_cast<U16>(value.Chars[4]),
-		static_cast<U16>(value.Chars[5]),
-		static_cast<U16>(value.Chars[6]),
-		static_cast<U16>(value.Chars[7])
+	                 R"(\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X})",
+	                 static_cast<U16>(value.Chars[0]),
+	                 static_cast<U16>(value.Chars[1]),
+	                 static_cast<U16>(value.Chars[2]),
+	                 static_cast<U16>(value.Chars[3]),
+	                 static_cast<U16>(value.Chars[4]),
+	                 static_cast<U16>(value.Chars[5]),
+	                 static_cast<U16>(value.Chars[6]),
+	                 static_cast<U16>(value.Chars[7])
 	);
 }
 
-auto formatter<CharClusterUtf16, char, void>::format(const Nominax::Core::CharClusterUtf16& value, format_context& ctx) const noexcept(false) -> FormatOutput
+auto formatter<CharClusterUtf16, char, void>::format(const CharClusterUtf16& value, format_context& ctx) const noexcept(false) -> FormatOutput
 {
 	static_assert(sizeof(char16_t) == sizeof(U16));
 	return format_to(ctx.out(),
-	    R"(\{:X}\{:X}\{:X}\{:X})", 
-		static_cast<U16>(value.Chars[0]), static_cast<U16>(value.Chars[1]), static_cast<U16>(value.Chars[2]), static_cast<U16>(value.Chars[3])
+	                 R"(\{:X}\{:X}\{:X}\{:X})",
+	                 static_cast<U16>(value.Chars[0]), static_cast<U16>(value.Chars[1]), static_cast<U16>(value.Chars[2]), static_cast<U16>(value.Chars[3])
 	);
 }
 
-auto formatter<CharClusterUtf32, char, void>::format(const Nominax::Core::CharClusterUtf32& value, format_context& ctx) const noexcept(false) -> FormatOutput
+auto formatter<CharClusterUtf32, char, void>::format(const CharClusterUtf32& value, format_context& ctx) const noexcept(false) -> FormatOutput
 {
 	static_assert(sizeof(char32_t) == sizeof(U32));
 	return format_to(ctx.out(),
-		"\\{:X}\\{:X}",
-		static_cast<U32>(value.Chars[0]), static_cast<U32>(value.Chars[1])
+	                 "\\{:X}\\{:X}",
+	                 static_cast<U32>(value.Chars[0]), static_cast<U32>(value.Chars[1])
 	);
 }
 
@@ -288,10 +288,10 @@ auto formatter<ReactorValidationResult, char, void>::format(const ReactorValidat
 	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
 }
 
-auto formatter<DiscriminatedSignal, char, void>::format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const noexcept(false) -> FormatOutput
+auto formatter<DiscriminatedSignal, char, void>::format(const DiscriminatedSignal& value, format_context& ctx) const noexcept(false) -> FormatOutput
 {
-	using Dis = Nominax::ByteCode::Signal::Discriminator;
-	
+	using Dis = Signal::Discriminator;
+
 	switch (value.Discriminator)
 	{
 	case Dis::U64:
@@ -324,7 +324,7 @@ auto formatter<DiscriminatedSignal, char, void>::format(const Nominax::ByteCode:
 
 	case Dis::JumpAddress:
 		return format_to(ctx.out(), NOMINAX_LEX_TYPE_UIC " " NOMINAX_LEX_IMM "{}", static_cast<std::underlying_type_t<JumpAddress>>(value.Value.JmpAddress));
-		
+
 	default:
 	case Dis::Ptr:
 		return format_to(ctx.out(), NOMINAX_LEX_TYPE_CC4 " " NOMINAX_LEX_IMM "{:X}", value.Value.R64.AsU64);

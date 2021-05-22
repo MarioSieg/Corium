@@ -1,4 +1,4 @@
-// File: CustomIntrinsic.hpp
+// File: UserIntrinsic.hpp
 // Author: Mario
 // Created: 24.04.2021 9:46 PM
 // Project: NominaxRuntime

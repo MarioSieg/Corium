@@ -211,7 +211,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "ILog2.hpp"
+#include "Algorithm.hpp"
 
 namespace Nominax::Common
 {

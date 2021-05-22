@@ -362,7 +362,7 @@ namespace Nominax::Core
 
 	inline auto ReactorPool::GetReactor(const std::size_t idx) const noexcept(false) -> const Reactor&
 	{
-        return this->Pool_[idx];
+		return this->Pool_[idx];
 	}
 
 	inline auto ReactorPool::operator[](const std::size_t idx) const noexcept(false) -> const Reactor&
