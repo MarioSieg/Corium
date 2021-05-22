@@ -208,15 +208,12 @@
 #pragma once
 
 #include <csignal>
-#include <span>
 
 #include "../ByteCode/Signal.hpp"
 #include "../ByteCode/CustomIntrinsic.hpp"
-#include "../ByteCode/Signal.hpp"
 
 #include "Interrupt.hpp"
 #include "ReactorValidationResult.hpp"
-#include "Marker.hpp"
 
 namespace Nominax
 {
@@ -225,14 +222,14 @@ namespace Nominax
 	/// </summary>
 	struct DetailedReactorDescriptor final
 	{
-		__NOMINAX_KERNEL_THREAD_LOCAL__ Signal*                  CodeChunk {nullptr};
-		__NOMINAX_KERNEL_THREAD_LOCAL__ const bool*              CodeChunkInstructionMap {nullptr};
-		__NOMINAX_KERNEL_THREAD_LOCAL__ std::size_t              CodeChunkSize {0};
-		__NOMINAX_KERNEL_THREAD_LOCAL__ IntrinsicRoutine* const* IntrinsicTable {nullptr};
-		__NOMINAX_KERNEL_THREAD_LOCAL__ std::size_t              IntrinsicTableSize {0};
-		__NOMINAX_KERNEL_THREAD_LOCAL__ InterruptRoutine*        InterruptHandler {nullptr};
-		__NOMINAX_KERNEL_THREAD_LOCAL__ Record*                  Stack {nullptr};
-		__NOMINAX_KERNEL_THREAD_LOCAL__ std::size_t              StackSize {0};
+		ByteCode::Signal*                  CodeChunk {nullptr};
+		const bool*                        CodeChunkInstructionMap {nullptr};
+		std::size_t                        CodeChunkSize {0};
+		ByteCode::IntrinsicRoutine* const* IntrinsicTable {nullptr};
+		std::size_t                        IntrinsicTableSize {0};
+		InterruptRoutine*                  InterruptHandler {nullptr};
+		Record*                            Stack {nullptr};
+		std::size_t                        StackSize {0};
 
 		[[nodiscard]]
 		auto Validate() const noexcept(true) -> ReactorValidationResult;

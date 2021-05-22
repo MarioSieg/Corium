@@ -222,7 +222,7 @@
 #include "CustomIntrinsic.hpp"
 #include "JumpAddress.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Restricts to valid byte code elements.
@@ -563,7 +563,7 @@ namespace Nominax
 		const auto* const val {std::get_if<T>(&this->Storage)};
 		if constexpr (std::is_floating_point_v<T>)
 		{
-			return val && F64Equals(*val, other);
+			return val && Common::F64Equals(*val, other);
 		}
 		return val && *val == other;
 	}

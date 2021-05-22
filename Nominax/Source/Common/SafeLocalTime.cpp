@@ -210,7 +210,7 @@
 
 #include <mutex>
 
-namespace Nominax
+namespace Nominax::Common
 {
 	auto SafeLocalTime(const std::time_t& time) -> std::tm
 	{

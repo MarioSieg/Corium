@@ -211,6 +211,7 @@
 
 using namespace fmt;
 using namespace Nominax;
+using namespace ByteCode;
 
 auto formatter<Instruction, char, void>::format(const Instruction& value,
                                                 format_context&    ctx) const noexcept(false) -> FormatOutput

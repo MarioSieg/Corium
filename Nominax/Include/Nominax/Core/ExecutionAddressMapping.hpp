@@ -214,7 +214,7 @@ namespace Nominax
 	/// <summary>
 	/// Compute relative jump address.
 	/// </summary>
-	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(Signal* const base, const JumpAddress address) noexcept(true) -> void*
+	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(ByteCode::Signal* const base, const ByteCode::JumpAddress address) noexcept(true) -> void*
 	{
 		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
 	}
@@ -269,8 +269,8 @@ namespace Nominax
 	[[nodiscard]]
 	extern auto MapJumpTable
 	(
-		Signal* __restrict__       bucket,
-		const Signal* __restrict__ bucketEnd,
+		ByteCode::Signal* __restrict__       bucket,
+		const ByteCode::Signal* __restrict__ bucketEnd,
 		const bool*                jumpAddressMap,
 		JumpTable                  jumpTable
 	) noexcept(false) -> bool;

@@ -211,7 +211,7 @@
 #include "../../Include/Nominax/Common/ILog2.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
-namespace
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Returns true if x is a power of two.
@@ -220,33 +220,32 @@ namespace
 	/// <param name="x"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T>
-	__attribute__((always_inline, pure)) constexpr auto IsPowerOfTwo(const T x) noexcept(true) -> bool
+	constexpr auto IsPowerOfTwo(const T x) noexcept(true) -> bool
 	{
 		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
 		return !(x & (x - 1));
 	}
 
-	__attribute__((always_inline, pure)) inline auto F64IsZero(const Nominax::F64 x) noexcept(true) -> bool
+	inline auto Proxy_F64IsZero(const Nominax::F64 x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Nominax::F64IsZero(x);
+		return Common::F64IsZero(x);
 #else
 		return x == 0.0;
 #endif
 	}
 
-	__attribute__((always_inline, pure)) inline auto F64IsOne(const Nominax::F64 x) noexcept(true) -> bool
+	inline auto Proxy_F64IsOne(const Nominax::F64 x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Nominax::F64IsOne(x);
+		return Common::F64IsOne(x);
 #else
 		return x == 1.0;
 #endif
 	}
-}
-
-namespace Nominax
-{
+	
+	using Common::ILog2;
+	
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	auto ScopedVariable<F64>::Push(const F64 value) -> ScopedVariable&
@@ -254,14 +253,14 @@ namespace Nominax
 		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
 		{
 			// If zero, optimize with special push zero instruction.
-			if (::F64IsZero(value))
+			if (Proxy_F64IsZero(value))
 			{
 				this->Attached_.Do<Instruction::PushZ>();
 				return *this;
 			}
 
 			// If one, optimize with special push F32 one instruction.
-			if (::F64IsOne(value))
+			if (Proxy_F64IsOne(value))
 			{
 				this->Attached_.Do<Instruction::FPushO>();
 				return *this;
@@ -352,13 +351,13 @@ namespace Nominax
 		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
 		{
 			// With 0 it's a no-op
-			if (::F64IsZero(value))
+			if (Proxy_F64IsZero(value))
 			{
 				return this->DoNothing();
 			}
 
 			// Optimize to increment:
-			if (::F64IsOne(value))
+			if (Proxy_F64IsOne(value))
 			{
 				this->Attached_.Do<Instruction::FInc>();
 				return *this;
@@ -422,13 +421,13 @@ namespace Nominax
 		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
 		{
 			// With 0 it's a no-op
-			if (::F64IsZero(value))
+			if (Proxy_F64IsZero(value))
 			{
 				return this->DoNothing();
 			}
 
 			// Optimize to decrement:
-			if (::F64IsOne(value))
+			if (Proxy_F64IsOne(value))
 			{
 				this->Attached_.Do<Instruction::FDec>();
 				return *this;
@@ -491,7 +490,7 @@ namespace Nominax
 		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
 		{
 			// By 0 or 1 is a no-op:
-			if (::F64IsZero(value) || ::F64IsOne(value))
+			if (Proxy_F64IsZero(value) || Proxy_F64IsOne(value))
 			{
 				return this->DoNothing();
 			}
@@ -565,7 +564,7 @@ namespace Nominax
 			}
 
 			// By 1 it's just the same value.
-			if (::F64IsOne(value))
+			if (Proxy_F64IsOne(value))
 			{
 				return this->DoNothing();
 			}

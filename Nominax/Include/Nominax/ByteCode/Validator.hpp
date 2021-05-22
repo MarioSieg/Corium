@@ -214,7 +214,7 @@
 #include "DynamicSignal.hpp"
 #include "ByteCodeValidationResult.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Validates a jump address. To be valid the jump address must be:

@@ -209,9 +209,10 @@
 
 #include <cassert>
 #include <climits>
-#include <cstdint>
 
-namespace Nominax
+#include "BaseTypes.hpp"
+
+namespace Nominax::Common
 {
 	/// <summary>
 	/// Computes the binary logarithm of log2(2)

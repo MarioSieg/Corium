@@ -231,41 +231,43 @@
 #	include <arm_neon.h>
 #endif
 
-namespace
+namespace Nominax
 {
+	using ByteCode::SystemIntrinsicCallId;
+	using ByteCode::Instruction;
+	using ByteCode::Signal;
+	using ByteCode::IntrinsicRoutine;
+
 	[[maybe_unused]]
-	__attribute__((always_inline, pure)) inline auto F64IsZero(const Nominax::F64 x) noexcept(true) -> bool
+	__attribute__((always_inline, pure)) static inline auto Proxy_F64IsZero(const F64 x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Nominax::F64IsZero(x);
+		return Common::F64IsZero(x);
 #else
 		return x == 0.0;
 #endif
 	}
 
 	[[maybe_unused]]
-	__attribute__((always_inline, pure)) inline auto F64IsOne(const Nominax::F64 x) noexcept(true) -> bool
+	__attribute__((always_inline, pure)) static inline auto Proxy_F64IsOne(const F64 x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Nominax::F64IsOne(x);
+		return Common::F64IsOne(x);
 #else
 		return x == 1.0;
 #endif
 	}
 
 	[[maybe_unused]]
-	__attribute__((always_inline, pure)) inline auto F64Equals(const Nominax::F64 x, const Nominax::F64 y) noexcept(true) -> bool
+	__attribute__((always_inline, pure)) static inline auto Proxy_F64Equals(const F64 x, const F64 y) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Nominax::F64Equals(x, y);
+		return Common::F64Equals(x, y);
 #else
 		return x == y;
 #endif
 	}
-}
-
-namespace Nominax
-{
+	
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
@@ -280,7 +282,7 @@ namespace Nominax
 #elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
 		asm volatile
 		(
-			"rolq %%cl, %0"
+			"ROLQ %%CL, %0"
 			: "=r"(value)
 			: "0" (value), "c"(shift)
 		);
@@ -304,7 +306,7 @@ namespace Nominax
 #elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
 		asm volatile
 		(
-			"rorq %%cl, %0"
+			"RORQ %%CL, %0"
 			: "=r"(value)
 			: "0" (value), "c"(shift)
 		);
@@ -1118,7 +1120,7 @@ namespace Nominax
 			ASM_MARKER("__jo_cmpf__");
 
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
-			if (::F64IsOne((*sp--).AsF64))
+			if (Proxy_F64IsOne((*sp--).AsF64))
 			{
 				// pop()
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1150,7 +1152,7 @@ namespace Nominax
 			ASM_MARKER("__jno_cmpf__");
 
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
-			if (!::F64IsOne((*sp--).AsF64))
+			if (!Proxy_F64IsOne((*sp--).AsF64))
 			{
 				// pop()
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1184,7 +1186,7 @@ namespace Nominax
 
 			--sp;                              // pop()
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
-			if (::F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
+			if (Proxy_F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
@@ -1218,7 +1220,7 @@ namespace Nominax
 
 			--sp;                              // pop()
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
-			if (!::F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
+			if (!Proxy_F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}

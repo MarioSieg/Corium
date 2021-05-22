@@ -212,7 +212,7 @@
 #include "DynamicSignal.hpp"
 #include "Signal.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// An optimized and ready to execute code chunk.

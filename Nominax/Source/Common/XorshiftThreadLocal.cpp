@@ -207,7 +207,7 @@
 
 #include "../../Include/Nominax/Common/XorshiftThreadLocal.hpp"
 
-namespace Nominax
+namespace Nominax::Common
 {
 	auto Xorshift32ThreadLocal() noexcept(true) -> U32
 	{

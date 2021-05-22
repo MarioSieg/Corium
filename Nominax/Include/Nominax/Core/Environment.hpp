@@ -260,7 +260,7 @@ namespace Nominax
 		/// This hook is executed before any code execution.
 		/// </summary>
 		/// <returns>True on success, panic on false.</returns>
-		virtual auto OnPreExecutionHook(const AppCodeBundle& appCodeBundle) -> bool;
+		virtual auto OnPreExecutionHook(const ByteCode::AppCodeBundle& appCodeBundle) -> bool;
 
 		/// <summary>
 		/// This hook is executed after any code execution.
@@ -338,21 +338,21 @@ namespace Nominax
 		/// </summary>
 		/// <param name="appCode"></param>
 		/// <returns></returns>
-		auto Execute(Stream&& appCode) noexcept(false) -> const ReactorOutput&;
+		auto Execute(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorOutput&;
 
 		/// <summary>
 		/// Execute code on alpha reactor.
 		/// </summary>
 		/// <param name="appCode"></param>
 		/// <returns></returns>
-		auto operator()(AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&;
+		auto operator()(ByteCode::AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
 		/// </summary>
 		/// <param name="appCode"></param>
 		/// <returns></returns>
-		auto operator()(Stream&& appCode) noexcept(false) -> const ReactorOutput&;
+		auto operator()(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorOutput&;
 
 		/// <summary>
 		/// Shutdown runtime environment.
@@ -439,7 +439,7 @@ namespace Nominax
 		auto GetExecutionTimeHistory() const noexcept(false) -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
 	};
 
-	inline auto Environment::operator()(Stream&& appCode) noexcept(false) -> const ReactorOutput&
+	inline auto Environment::operator()(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorOutput&
 	{
 		return this->Execute(std::move(appCode));
 	}

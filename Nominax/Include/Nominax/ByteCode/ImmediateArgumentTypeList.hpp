@@ -213,7 +213,7 @@
 #include "DynamicSignal.hpp"
 #include "../Common/VariantTools.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// 
@@ -223,8 +223,8 @@ namespace Nominax
 	template <typename T>
 	constexpr auto DySigIdx() noexcept(true) -> U8
 	{
-		static_assert(VariantIndexOf<DynamicSignal::StorageType, T>() <= std::numeric_limits<U8>::max());
-		return static_cast<U8>(VariantIndexOf<DynamicSignal::StorageType, T>());
+		static_assert(Common::VariantIndexOf<DynamicSignal::StorageType, T>() <= std::numeric_limits<U8>::max());
+		return static_cast<U8>(Common::VariantIndexOf<DynamicSignal::StorageType, T>());
 	}
 
 	/// <summary>

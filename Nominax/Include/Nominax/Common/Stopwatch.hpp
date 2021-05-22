@@ -212,7 +212,7 @@
 
 #include <chrono>
 
-namespace Nominax
+namespace Nominax::Common
 {
 	/// <summary>
 	/// Represents a monotonic stopwatch.

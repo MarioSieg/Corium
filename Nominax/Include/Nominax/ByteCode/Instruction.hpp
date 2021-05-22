@@ -209,7 +209,7 @@
 
 #include <cstdint>
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Contains all byte code instructions with opcodes.

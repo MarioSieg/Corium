@@ -209,7 +209,7 @@
 
 #include <ctime>
 
-namespace Nominax
+namespace Nominax::Common
 {
 	[[nodiscard]]
 	extern auto SafeLocalTime(const std::time_t& time) -> std::tm;

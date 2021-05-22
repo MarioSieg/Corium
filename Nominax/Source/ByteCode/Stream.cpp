@@ -207,15 +207,15 @@
 
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
-#include "../../Include/Nominax/ByteCode/Lexeme.hpp"
 #include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
-#include "../../Include/Nominax/Common/VariantTools.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
+	using namespace Common;
+	
 	auto Stream::PrintIntermediateRepresentation() const noexcept(false) -> void
 	{
 		Print(TextColor::Green, "Len: {}, Size: {}B", this->Size(), this->SizeInBytes());
@@ -261,11 +261,11 @@ namespace Nominax
 
 	auto Stream::ContainsPrologue() const noexcept(false) -> bool
 	{
-		return Nominax::ContainsPrologue(this->Storage_);
+		return Nominax::ByteCode::ContainsPrologue(this->Storage_);
 	}
 
 	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
 	{
-		return Nominax::ContainsEpilogue(this->Storage_);
+		return Nominax::ByteCode::ContainsEpilogue(this->Storage_);
 	}
 }

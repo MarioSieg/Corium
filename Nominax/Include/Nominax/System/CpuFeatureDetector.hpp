@@ -219,7 +219,7 @@ namespace Nominax
 	/// <summary>
 	/// Architecture dependent cpu feature flags.
 	/// </summary>
-	using FeatureBits = X86_64::CpuFeatureBits;
+	using FeatureBits = Arch::X86_64::CpuFeatureBits;
 #else
     using FeatureBits = void;
 #   error "ARM is not yet implemented!"

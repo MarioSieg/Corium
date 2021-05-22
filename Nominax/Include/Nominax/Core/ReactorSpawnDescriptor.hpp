@@ -244,7 +244,7 @@ namespace Nominax
 		/// <summary>
 		/// The intrinsic routines.
 		/// </summary>
-		UserIntrinsicRoutineRegistry SharedIntrinsicTable { };
+		ByteCode::UserIntrinsicRoutineRegistry SharedIntrinsicTable { };
 
 		/// <summary>
 		/// Interrupt handler.

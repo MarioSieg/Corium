@@ -210,7 +210,9 @@
 #include <cstddef>
 #include <string_view>
 
-namespace Nominax
+#include "DynamicSignal.hpp"
+
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Contains all byte code validation results.

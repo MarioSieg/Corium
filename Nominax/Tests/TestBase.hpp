@@ -211,3 +211,6 @@
 #include "../Include/Nominax/Nominax.hpp"
 
 using namespace Nominax;
+using namespace ByteCode;
+using namespace Arch;
+using namespace Common;

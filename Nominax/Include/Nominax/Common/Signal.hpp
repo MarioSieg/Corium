@@ -209,7 +209,7 @@
 
 #include <csignal>
 
-namespace Nominax
+namespace Nominax::Common
 {
 	extern auto QuerySignalStatus() noexcept(true) -> std::sig_atomic_t;
 	extern auto InstallSignalHandlers(auto (&handler)(std::sig_atomic_t) -> void) -> void;

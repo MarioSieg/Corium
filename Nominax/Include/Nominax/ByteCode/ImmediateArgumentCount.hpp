@@ -211,7 +211,7 @@
 
 #include "Instruction.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Contains the count of required immediate arguments for each instruction.

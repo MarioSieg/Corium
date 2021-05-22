@@ -217,7 +217,7 @@
 #include "../../Include/Nominax/Core/ReactorValidationResult.hpp"
 #include "../../Include/Nominax/Common/Stopwatch.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	// Underlying type of the error code enum:
 	using ErrorInt = std::underlying_type_t<ByteCodeValidationResultCode>;
@@ -415,7 +415,7 @@ namespace Nominax
 		}
 
 		// Query time:
-		Stopwatch clock { };
+		Common::Stopwatch clock { };
 
 		// Collect all instructions to validate them:
 		Cache instructionCache { };

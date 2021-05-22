@@ -209,7 +209,7 @@
 
 #include "../Common/BaseTypes.hpp"
 
-namespace Nominax
+namespace Nominax::Common
 {
 	[[nodiscard]]
 	extern auto Xorshift32Atomic() noexcept(true) -> U32;

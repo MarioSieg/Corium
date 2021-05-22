@@ -223,7 +223,7 @@
 #include <fmt/chrono.h>
 #include <fmt/color.h>
 
-namespace Nominax
+namespace Nominax::Common
 {
 	enum class TextColor: std::underlying_type_t<fmt::terminal_color>
 	{
@@ -272,7 +272,7 @@ namespace Nominax
 	/// <returns></returns>
 	inline auto Print(const char x) -> void
 	{
-		std::cout << x;
+		Print("{}", x);
 	}
 
 	/// <summary>

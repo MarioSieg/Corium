@@ -228,26 +228,26 @@ namespace Nominax
 	{
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 
-		Print("Initializing reactor pool...\n", reactorCount);
-		Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT, FALLBACK_REACTOR_COUNT, reactorCount);
+		Common::Print("Initializing reactor pool...\n", reactorCount);
+		Common::Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT, FALLBACK_REACTOR_COUNT, reactorCount);
 
 		this->Pool_.reserve(reactorCount);
 		for (std::size_t i {0}; i < reactorCount; ++i)
 		{
 			if (NOMINAX_UNLIKELY(!routineLink))
 			{
-				Print(LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
+				Print(Common::LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
 			}
 			this->Pool_.emplace_back(Reactor {allocator, config, routineLink ? *routineLink : GetOptimalReactorRoutine({ }), i});
 		}
 
-		Print("\n");
+		Common::Print('\n');
 	}
 
 	ReactorPool::~ReactorPool()
 	{
 		const auto size {this->Pool_.size()};
 		this->Pool_.clear();
-		Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
+		Common::Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
 	}
 }

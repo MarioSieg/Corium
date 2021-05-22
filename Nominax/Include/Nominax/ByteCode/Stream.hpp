@@ -208,7 +208,6 @@
 #pragma once
 
 #include <vector>
-#include <functional>
 
 #include "DynamicSignal.hpp"
 #include "ImmediateArgumentCount.hpp"
@@ -217,7 +216,7 @@
 #include "StreamScalar.hpp"
 #include "Chunk.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	template <typename T> requires StreamScalar<T>
 	class ScopedVariable;

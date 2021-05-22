@@ -209,7 +209,7 @@
 
 #include "../../Common/BaseTypes.hpp"
 
-namespace Nominax::X86_64
+namespace Nominax::Arch::X86_64
 {
 	extern "C" auto Asm_MockCall() noexcept(true) -> U64;
 }

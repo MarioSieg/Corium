@@ -215,10 +215,8 @@
 #include "../../Include/Nominax/Core/HardFaultReport.hpp"
 #include "../../Include/Nominax/Core/Info.hpp"
 #include "../../Include/Nominax/Core/RegisterDump.hpp"
-
 #include "../../Include/Nominax/System/Platform.hpp"
 #include "../../Include/Nominax/System/Os.hpp"
-
 #include "../../Include/Nominax/Common/Common.hpp"
 
 namespace
@@ -242,15 +240,15 @@ namespace Nominax
 	/// <returns></returns>
 	auto WriteHardFaultReport
 	(
-		std::ostream&          out,
-		const Record* const    sp,
-		const Signal* const    ip,
-		const Signal* const    bp,
-		const std::size_t      stackSize,
-		const std::size_t      codeSize,
-		const std::string_view message,
-		std::size_t            stackDumpSize,
-		std::size_t            codeDumpSize
+		std::ostream&                 out,
+		const Record* const           sp,
+		const ByteCode::Signal* const ip,
+		const ByteCode::Signal* const bp,
+		const std::size_t             stackSize,
+		const std::size_t             codeSize,
+		const std::string_view        message,
+		std::size_t                   stackDumpSize,
+		std::size_t                   codeDumpSize
 	) -> void
 	{
 		[[maybe_unused]] GprRegisterLane gpr { };
@@ -864,14 +862,14 @@ namespace Nominax
 	/// <returns></returns>
 	auto WriteHardFaultReport
 	(
-		const Record* const    sp,
-		const Signal* const    ip,
-		const Signal* const    bp,
-		const std::size_t      stackSize,
-		const std::size_t      codeSize,
-		const std::string_view message,
-		const std::size_t      stackDumpSize,
-		const std::size_t      codeDumpSize
+		const Record* const           sp,
+		const ByteCode::Signal* const ip,
+		const ByteCode::Signal* const bp,
+		const std::size_t             stackSize,
+		const std::size_t             codeSize,
+		const std::string_view        message,
+		const std::size_t             stackDumpSize,
+		const std::size_t             codeDumpSize
 	) -> void
 	{
 		std::stringstream dump;
@@ -880,7 +878,7 @@ namespace Nominax
 		std::cerr << str << std::endl;
 		std::filesystem::create_directory(CRASH_DIRECTORY);
 		const std::time_t t  = std::time(nullptr);
-		const std::tm     tm = SafeLocalTime(t);
+		const std::tm     tm = Common::SafeLocalTime(t);
 		std::stringstream crashFilePath;
 		crashFilePath << CRASH_DIRECTORY;
 		crashFilePath << std::put_time(&tm, "NominaxCrash_%d_%m_%Y_%H_%M_%S.dmp");

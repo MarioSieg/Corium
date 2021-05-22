@@ -221,9 +221,9 @@ namespace
 	auto CreateDescriptor
 	(
 		FixedStack&                   stack,
-		CodeChunk&                    chunk,
-		JumpMap&                      jumpMap,
-		UserIntrinsicRoutineRegistry& intrinsicTable,
+		ByteCode::CodeChunk&                    chunk,
+		ByteCode::JumpMap&                      jumpMap,
+		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
 		InterruptRoutine&             interruptHandler
 	) noexcept(true) -> DetailedReactorDescriptor
 	{
@@ -253,7 +253,7 @@ namespace Nominax
 		const std::optional<ReactorRoutineLink>& routineLink,
 		const std::size_t                        poolIdx
 	) noexcept(false) :
-		Id_ {Xorshift128ThreadLocal()},
+		Id_ {Common::Xorshift128ThreadLocal()},
 		PoolIndex_ {poolIdx},
 		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
 		PowerPreference_ {descriptor.PowerPref},
@@ -268,13 +268,13 @@ namespace Nominax
 			{
 				if (NOMINAX_UNLIKELY(!routineLink))
 				{
-					Print(LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
+					Common::Print(Common::LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
 				}
 				return routineLink ? *routineLink : GetOptimalReactorRoutine({ });
 			}()
 		}
 	{
-		Print
+		Common::Print
 		(
 			"Reactor {:010X} "
 			"Stack: {} MB-"           // stack
@@ -293,7 +293,7 @@ namespace Nominax
 		);
 	}
 
-	auto Reactor::Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
+	auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
 	{
 		this->AppCode_ = std::move(bundle);
 		this->Input_   = CreateDescriptor

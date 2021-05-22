@@ -207,10 +207,9 @@
 
 #pragma once
 
-#include <type_traits>
 #include <variant>
 
-namespace Nominax
+namespace Nominax::Common
 {
 	/// <summary>
 	///  std::visit auto overload helper

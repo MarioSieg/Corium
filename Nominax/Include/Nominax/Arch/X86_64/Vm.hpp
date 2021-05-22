@@ -207,17 +207,19 @@
 
 #pragma once
 
-namespace Nominax::X86_64
+namespace Nominax::Arch::X86_64
 {
 	/// <summary>
 	/// Tries to detect a VM using time stamp counter.
+	/// Warning! Do not use this! On most systems it will crash
+	/// because the in instruction cannot get executed from user space.
 	/// </summary>
 	extern "C" auto Asm_VmDetector() noexcept(true) -> bool;
 
 	/// <summary>
 	/// Detects vm ware using a port read action.
 	/// Warning! Do not use this! On most systems it will crash
-	/// because the in instruction cannot get executed from userspace.
+	/// because the in instruction cannot get executed from user space.
 	/// </summary>
 	extern "C" auto Asm_VmWareDetector() noexcept(true) -> bool;
 }

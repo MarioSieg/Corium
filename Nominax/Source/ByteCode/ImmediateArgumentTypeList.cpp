@@ -207,7 +207,7 @@
 
 #include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	static constexpr std::array ANY_TYPE
 	{

@@ -208,7 +208,7 @@
 #include "../../Include/Nominax/ByteCode/Chunk.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	auto CalculateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
 	{

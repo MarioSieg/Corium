@@ -209,19 +209,20 @@
 #include <iostream>
 
 #include "../../Include/Nominax/Nominax.hpp"
-
-namespace
+namespace Nominax
 {
 	using namespace Nominax;
+	using namespace ByteCode;
+	using namespace Common;
 
 	/// <summary>
 	/// Query and print machine info.
 	/// </summary>
 	/// <returns></returns>
-	auto InitSysInfo() noexcept(false) -> SystemSnapshot
+	static auto InitSysInfo() noexcept(false) -> SystemSnapshot
 	{
-		Print("\n");
-		SystemSnapshot snapshot { };
+		Print('\n');
+		SystemSnapshot snapshot{ };
 		snapshot.Print();
 		return snapshot;
 	}
@@ -230,12 +231,12 @@ namespace
 	/// Query and print cpu features.
 	/// </summary>
 	/// <returns></returns>
-	auto InitCpuFeatures() noexcept(false) -> CpuFeatureDetector
+	static auto InitCpuFeatures() noexcept(false) -> CpuFeatureDetector
 	{
-		Print("\n");
-		CpuFeatureDetector cpuFeatureDetector { };
+		Print('\n');
+		CpuFeatureDetector cpuFeatureDetector{ };
 		cpuFeatureDetector.Print();
-		Print("\n");
+		Print('\n');
 		return cpuFeatureDetector;
 	}
 
@@ -246,7 +247,7 @@ namespace
 	/// <param name="name"></param>
 	/// <returns></returns>
 	template <typename T>
-	inline auto PrintTypeInfo(const std::string_view name) -> void
+	static inline auto PrintTypeInfo(const std::string_view name) -> void
 	{
 		Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
 	}
@@ -256,7 +257,7 @@ namespace
 	/// </summary>
 	/// <param name="threads"></param>
 	/// <returns></returns>
-	auto PrintTypeInfoTable() -> void
+	static auto PrintTypeInfoTable() -> void
 	{
 		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
 		PrintTypeInfo<Record>("Record");
@@ -276,7 +277,7 @@ namespace
 	/// Print Nominax runtime info.
 	/// </summary>
 	/// <returns></returns>
-	auto PrintSystemInfo() -> void
+	static auto PrintSystemInfo() -> void
 	{
 		Print(SYSTEM_LOGO_TEXT);
 		Print(SYSTEM_COPYRIGHT_TEXT);
@@ -319,13 +320,13 @@ namespace
 	/// <param name="reactorCount"></param>
 	/// <param name="reactorStackSize"></param>
 	/// <returns></returns>
-	constexpr auto ComputePoolSize
+	static constexpr auto ComputePoolSize
 	(
 		std::size_t       desiredSize,
 		const std::size_t reactorCount,
 		const std::size_t reactorStackSize
 	)
-	noexcept(true) -> std::size_t
+		noexcept(true) -> std::size_t
 	{
 		desiredSize = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
 		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
@@ -338,7 +339,7 @@ namespace
 	/// <param name="appCode"></param>
 	/// <param name="code"></param>
 	/// <returns></returns>
-	auto PrintByteCodeErrorSector(const std::size_t idx, const Stream& appCode, const ByteCodeValidationResultCode code)
+	static auto PrintByteCodeErrorSector(const std::size_t idx, const Stream& appCode, const ByteCodeValidationResultCode code)
 	{
 		const bool isInstructionFault
 		{
@@ -347,7 +348,7 @@ namespace
 			|| code == ByteCodeValidationResultCode::ArgumentTypeMismatch
 		};
 
-		for (std::size_t i {idx}; i < idx + 8 && i < appCode.Size(); ++i)
+		for (std::size_t i{ idx }; i < idx + 8 && i < appCode.Size(); ++i)
 		{
 			if (appCode[i].Contains<Instruction>())
 			{
@@ -375,7 +376,7 @@ namespace
 	/// <param name="appCode"></param>
 	/// <returns></returns>
 	[[noreturn]]
-	auto TriggerByteCodeStreamValidationPanic(const ByteCodeValidationResult& result, const Stream& appCode)
+	static auto TriggerByteCodeStreamValidationPanic(const ByteCodeValidationResult& result, const Stream& appCode)
 	{
 		const auto& [code, idx] = result;
 
@@ -392,10 +393,7 @@ namespace
 			code
 		);
 	}
-}
-
-namespace Nominax
-{
+	
 	/// <summary>
 	/// Contains all the runtime variables required for the runtime system.
 	/// </summary>

@@ -235,13 +235,13 @@ namespace Nominax
 		}
 
 		// first instruction will be skipped and must be NOP:
-		if (NOMINAX_UNLIKELY(CodeChunk->Instr != Instruction::NOp))
+		if (NOMINAX_UNLIKELY(CodeChunk->Instr != ByteCode::Instruction::NOp))
 		{
 			return ReactorValidationResult::MissingCodePrologue;
 		}
 
 		// last instruction must be interrupt:
-		if (NOMINAX_UNLIKELY(CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != Instruction::Int))
+		if (NOMINAX_UNLIKELY(CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != ByteCode::Instruction::Int))
 		{
 			return ReactorValidationResult::MissingCodeEpilogue;
 		}

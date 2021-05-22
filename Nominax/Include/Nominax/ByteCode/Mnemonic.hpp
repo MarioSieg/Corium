@@ -208,11 +208,10 @@
 #pragma once
 
 #include <array>
-#include <string_view>
 
 #include "Instruction.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Contains all instruction mnemonics.

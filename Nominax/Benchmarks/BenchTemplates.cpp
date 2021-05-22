@@ -207,22 +207,19 @@
 
 #include "BenchTemplates.hpp"
 
-namespace
+// First environment with optimizations on:
+static std::unique_ptr Env
 {
-	// First environment with optimizations on:
-	std::unique_ptr Env
+	[] () -> auto
 	{
-		[]() -> auto
-		{
-			auto                  env {std::make_unique<Environment>()};
-			EnvironmentDescriptor descriptor { };
-			descriptor.AppName        = "NominaxBenchmark";
-			descriptor.FastHostIoSync = false;
-			env->Boot(descriptor);
-			return env;
-		}()
-	};
-}
+		auto                  env {std::make_unique<Environment>()};
+		EnvironmentDescriptor descriptor { };
+		descriptor.AppName = "NominaxBenchmark";
+		descriptor.FastHostIoSync = false;
+		env->Boot(descriptor);
+		return env;
+	}()
+};
 
 auto LoopBenchmark
 (
@@ -233,7 +230,7 @@ auto LoopBenchmark
 	const bool enableAvxReactor
 ) -> void
 {
-	Print("\n");
+	Print('\n');
 
 	Stream stream
 	{
@@ -258,9 +255,7 @@ auto LoopBenchmark
 	stream << Instruction::Int;
 	stream << 0_int;
 
-	auto& env {*Env};
-
-	for (auto _ : state)
+	for (auto& env {*Env}; auto _ : state)
 	{
 		env.Execute(std::move(stream));
 	}

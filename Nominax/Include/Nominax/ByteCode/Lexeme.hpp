@@ -210,7 +210,7 @@
 /// <summary>
 /// Contains lexical tokens required to parse and write byte code.
 /// </summary>
-namespace Nominax::Lexemes
+namespace Nominax::ByteCode::Lexemes
 {
 	/// <summary>
 	/// Specify immediate constant operand.

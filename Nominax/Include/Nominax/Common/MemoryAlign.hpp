@@ -213,7 +213,7 @@
 
 #include "ILog2.hpp"
 
-namespace Nominax
+namespace Nominax::Common
 {
 	/// <summary>
 	/// Returns true if the alignment is valid,

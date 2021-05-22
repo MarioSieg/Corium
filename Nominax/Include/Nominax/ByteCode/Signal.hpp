@@ -208,7 +208,6 @@
 #pragma once
 
 #include <array>
-#include <cstdint>
 #include <type_traits>
 
 #include "../Core/Record.hpp"
@@ -217,7 +216,7 @@
 #include "Instruction.hpp"
 #include "JumpAddress.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Raw representation of a signal as bytes.

@@ -212,7 +212,7 @@ namespace
 	constinit volatile std::sig_atomic_t SignalStatus {0};
 }
 
-namespace Nominax
+namespace Nominax::Common
 {
 	auto QuerySignalStatus() noexcept(true) -> std::sig_atomic_t
 	{

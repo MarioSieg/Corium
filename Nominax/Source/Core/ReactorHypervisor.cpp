@@ -282,7 +282,7 @@ namespace Nominax
 		static thread_local constinit U16 QueryCounter;
 		ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
 		ReactorCoreExecutionRoutine*      routine {GetReactorRoutineFromRegistryByTarget(specialization)};
-		Print
+		Common::Print
 		(
 			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry Size: {}\n",
 			GetReactorCoreSpecializationName(specialization),
@@ -292,7 +292,7 @@ namespace Nominax
 		);
 		if (NOMINAX_UNLIKELY(QueryCounter > 1))
 		{
-			Print(LogLevel::Warning, "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n", QueryCounter);
+			Print(Common::LogLevel::Warning, "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n", QueryCounter);
 		}
 		return std::make_tuple(specialization, routine);
 	}

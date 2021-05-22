@@ -207,6 +207,7 @@
 
 #pragma once
 
+#include "ByteCodeValidationResult.hpp"
 #include "Category.hpp"
 #include "Chunk.hpp"
 #include "CustomIntrinsic.hpp"
@@ -216,6 +217,7 @@
 #include "ImmediateArgumentTypeList.hpp"
 #include "Instruction.hpp"
 #include "InstructionCategory.hpp"
+#include "JumpAddress.hpp"
 #include "Lexeme.hpp"
 #include "Mnemonic.hpp"
 #include "OptBase.hpp"
@@ -224,5 +226,6 @@
 #include "ScopedVariable.hpp"
 #include "Signal.hpp"
 #include "Stream.hpp"
+#include "StreamScalar.hpp"
 #include "SystemIntrinsic.hpp"
 #include "Validator.hpp"

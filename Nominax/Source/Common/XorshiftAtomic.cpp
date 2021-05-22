@@ -209,7 +209,7 @@
 
 #include "../../Include/Nominax/Common/XorshiftAtomic.hpp"
 
-namespace Nominax
+namespace Nominax::Common
 {
 	auto Xorshift32Atomic() noexcept(true) -> U32
 	{

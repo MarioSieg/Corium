@@ -208,7 +208,7 @@
 #include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	auto DynamicSignal::Transform() const noexcept(true) -> Signal
 	{
@@ -245,6 +245,6 @@ namespace Nominax
 			return Signal {*x};
 		}
 
-		Panic("Dynamic signal transformation failed!");
+		Common::Panic("Dynamic signal transformation failed!");
 	}
 }

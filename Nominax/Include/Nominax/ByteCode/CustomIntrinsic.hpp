@@ -212,7 +212,7 @@
 
 #include "../Core/Record.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Call id for custom intrinsic routine.

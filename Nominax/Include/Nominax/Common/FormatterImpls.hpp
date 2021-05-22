@@ -212,51 +212,55 @@
 namespace Nominax
 {
 	enum class ReactorValidationResult;
-	enum class ByteCodeValidationResultCode;
 	union CharClusterUtf8;
-	enum class JumpAddress : std::uint64_t;
-	enum class CustomIntrinsicCallId : std::uint64_t;
-	enum class SystemIntrinsicCallId : std::uint64_t;
-	enum class Instruction : std::uint64_t;
-	struct DynamicSignal;
+
+	namespace ByteCode
+	{
+		enum class ByteCodeValidationResultCode;
+		enum class JumpAddress : std::uint64_t;
+		enum class CustomIntrinsicCallId : std::uint64_t;
+		enum class SystemIntrinsicCallId : std::uint64_t;
+		enum class Instruction : std::uint64_t;
+		struct DynamicSignal;
+	}
 }
 
 using FormatOutput = fmt::format_context::iterator;
 
 template <>
-struct fmt::formatter<Nominax::Instruction>
+struct fmt::formatter<Nominax::ByteCode::Instruction>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::Instruction& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>
-struct fmt::formatter<Nominax::SystemIntrinsicCallId>
+struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicCallId>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::SystemIntrinsicCallId& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::SystemIntrinsicCallId& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>
-struct fmt::formatter<Nominax::CustomIntrinsicCallId>
+struct fmt::formatter<Nominax::ByteCode::CustomIntrinsicCallId>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::CustomIntrinsicCallId& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::CustomIntrinsicCallId& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>
-struct fmt::formatter<Nominax::JumpAddress>
+struct fmt::formatter<Nominax::ByteCode::JumpAddress>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::JumpAddress& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>
@@ -269,12 +273,12 @@ struct fmt::formatter<Nominax::CharClusterUtf8>
 };
 
 template <>
-struct fmt::formatter<Nominax::ByteCodeValidationResultCode>
+struct fmt::formatter<Nominax::ByteCode::ByteCodeValidationResultCode>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::ByteCodeValidationResultCode& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::ByteCodeValidationResultCode& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>
@@ -287,10 +291,10 @@ struct fmt::formatter<Nominax::ReactorValidationResult>
 };
 
 template <>
-struct fmt::formatter<Nominax::DynamicSignal>
+struct fmt::formatter<Nominax::ByteCode::DynamicSignal>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::DynamicSignal& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::DynamicSignal& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };

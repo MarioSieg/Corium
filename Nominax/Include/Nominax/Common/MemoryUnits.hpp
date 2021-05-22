@@ -209,7 +209,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <ostream>
 
 namespace Nominax
 {
@@ -272,6 +271,4 @@ namespace Nominax
 	{
 		return Gigabytes2Bytes<decltype(value)>(value);
 	}
-
-	extern auto PrettyPrintBytes(std::ostream& out, std::size_t size) -> void;
 }
