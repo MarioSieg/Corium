@@ -209,7 +209,7 @@
 
 #include "../../Include/Nominax/System/Platform.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	struct ReactorOutput;
 	struct DetailedReactorDescriptor;

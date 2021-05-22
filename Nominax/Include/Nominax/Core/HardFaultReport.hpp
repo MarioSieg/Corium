@@ -208,12 +208,11 @@
 #pragma once
 
 #include <ostream>
-#include <string_view>
 
 #include "Record.hpp"
 #include "../ByteCode/Signal.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Writes a full error dump into the stream.

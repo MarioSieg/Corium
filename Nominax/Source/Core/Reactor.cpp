@@ -211,20 +211,17 @@
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
 #include "../../Include/Nominax/Common/XorshiftThreadLocal.hpp"
-#include "../../Include/Nominax/System/Os.hpp"
 
-namespace
+namespace Nominax::Core
 {
-	using namespace Nominax;
-
 	[[maybe_unused]]
-	auto CreateDescriptor
+	static auto CreateDescriptor
 	(
-		FixedStack&                   stack,
-		ByteCode::CodeChunk&                    chunk,
-		ByteCode::JumpMap&                      jumpMap,
+		FixedStack& stack,
+		ByteCode::CodeChunk& chunk,
+		ByteCode::JumpMap& jumpMap,
 		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
-		InterruptRoutine&             interruptHandler
+		InterruptRoutine& interruptHandler
 	) noexcept(true) -> DetailedReactorDescriptor
 	{
 		const std::span instrMapTableView
@@ -242,10 +239,7 @@ namespace
 		};
 		return simpleDescriptor.BuildDetailed();
 	}
-}
-
-namespace Nominax
-{
+	
 	Reactor::Reactor
 	(
 		std::pmr::memory_resource&               allocator,

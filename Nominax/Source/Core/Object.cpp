@@ -209,7 +209,7 @@
 
 #include <iostream>
 
-namespace Nominax
+namespace Nominax::Core
 {
 	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) const noexcept(true) -> bool
 	{

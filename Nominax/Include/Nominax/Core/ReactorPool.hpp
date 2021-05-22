@@ -213,7 +213,7 @@
 #include "Reactor.hpp"
 #include "../Common/PanicRoutine.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// A pool holding all existing reactors.

@@ -224,7 +224,7 @@ namespace
 	constexpr std::string_view CRASH_DIRECTORY {"Crashes/"};
 }
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Writes a full error dump into the stream.

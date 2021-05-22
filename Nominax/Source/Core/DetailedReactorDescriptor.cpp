@@ -209,7 +209,7 @@
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	auto DetailedReactorDescriptor::Validate() const noexcept(true) -> ReactorValidationResult
 	{

@@ -214,9 +214,9 @@ namespace Nominax::ByteCode
 		DySigIdx<U64>(),
 		DySigIdx<I64>(),
 		DySigIdx<F64>(),
-		DySigIdx<CharClusterUtf8>(),
-		DySigIdx<CharClusterUtf16>(),
-		DySigIdx<CharClusterUtf32>()
+		DySigIdx<Core::CharClusterUtf8>(),
+		DySigIdx<Core::CharClusterUtf16>(),
+		DySigIdx<Core::CharClusterUtf32>()
 	};
 
 	const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES

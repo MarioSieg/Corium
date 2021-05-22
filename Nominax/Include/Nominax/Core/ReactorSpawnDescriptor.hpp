@@ -211,9 +211,8 @@
 #include "Interrupt.hpp"
 
 #include "../ByteCode/CustomIntrinsic.hpp"
-#include "../System/Platform.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Power preference for a VM reactor.

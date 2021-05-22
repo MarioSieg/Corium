@@ -211,7 +211,7 @@
 #include "../../Include/Nominax/Common/Protocol.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	FixedStack::FixedStack(std::pmr::memory_resource& allocator, std::size_t sizeInRecords) noexcept(false) : Buffer_ {&allocator}
 	{

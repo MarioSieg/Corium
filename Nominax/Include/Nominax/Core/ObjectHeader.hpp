@@ -214,7 +214,7 @@
 #include "Record.hpp"
 #include "../Common/BranchHint.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// Every heap allocated object has an object header.
 	/// The object header contains various meta data about the object.

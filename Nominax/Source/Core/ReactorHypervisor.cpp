@@ -215,27 +215,21 @@
 
 #include "ReactorCores.hpp"
 
-namespace
+namespace Nominax::Core
 {
-	using namespace Nominax;
-
-	[[maybe_unused]]
-	constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
+	static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
 	{
 		&ReactorCore_Fallback,
 #if NOMINAX_ARCH_X86_64
 
-		&ReactorCore_AVX,
+		& ReactorCore_AVX,
 		&ReactorCore_AVX512F,
 
 #elif NOMINAX_ARCH_ARM_64
 #	error "ARM64 not yet supported!"
 #endif
 	};
-}
-
-namespace Nominax
-{
+	
 	auto SmartSelectReactor(const CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization
 	{
 #if NOMINAX_ARCH_X86_64

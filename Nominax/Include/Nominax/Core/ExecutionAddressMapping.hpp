@@ -209,7 +209,7 @@
 
 #include "../ByteCode/Signal.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Compute relative jump address.

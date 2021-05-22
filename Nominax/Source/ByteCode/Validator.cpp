@@ -361,7 +361,7 @@ namespace Nominax::ByteCode
 			})
 		};
 
-		std::atomic           error {static_cast<ErrorInt>(ReactorValidationResult::Ok)};
+		std::atomic           error {static_cast<ErrorInt>(Core::ReactorValidationResult::Ok)};
 		std::atomic_ptrdiff_t index {0};
 
 		static_assert(decltype(error)::is_always_lock_free);
@@ -449,7 +449,7 @@ namespace Nominax::ByteCode
 		// Query time:
 		clock.Restart();
 
-		std::atomic           error {static_cast<ErrorInt>(ReactorValidationResult::Ok)};
+		std::atomic           error {static_cast<ErrorInt>(Core::ReactorValidationResult::Ok)};
 		std::atomic_ptrdiff_t index {0};
 
 		static_assert(decltype(error)::is_always_lock_free);
@@ -466,7 +466,7 @@ namespace Nominax::ByteCode
 
 			if (NOMINAX_UNLIKELY(result != ByteCodeValidationResultCode::Ok)) // if error, return result:
 			{
-				if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ReactorValidationResult::Ok))) // only update the error once
+				if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(Core::ReactorValidationResult::Ok))) // only update the error once
 				{
 					error.store(static_cast<ErrorInt>(result)); // atomic store
 					index.store(i - std::data(input));          // atomic store
@@ -475,7 +475,7 @@ namespace Nominax::ByteCode
 		});
 
 		// Return error if the error value is not okay
-		if (NOMINAX_UNLIKELY(error.load() != static_cast<ErrorInt>(ReactorValidationResult::Ok)))
+		if (NOMINAX_UNLIKELY(error.load() != static_cast<ErrorInt>(Core::ReactorValidationResult::Ok)))
 		{
 			return {static_cast<ByteCodeValidationResultCode>(error.load()), index.load() - 1};
 		}

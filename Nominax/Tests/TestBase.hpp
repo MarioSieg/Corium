@@ -214,3 +214,4 @@ using namespace Nominax;
 using namespace ByteCode;
 using namespace Arch;
 using namespace Common;
+using namespace Core;

@@ -215,7 +215,7 @@
 #include "Interrupt.hpp"
 #include "ReactorValidationResult.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Contains all input data for the VM reactor.

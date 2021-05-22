@@ -210,7 +210,7 @@
 #include <array>
 #include <string_view>
 
-namespace Nominax
+namespace Nominax::Core
 {
 	enum class ReactorValidationResult
 	{

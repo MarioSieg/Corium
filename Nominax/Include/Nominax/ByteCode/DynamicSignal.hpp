@@ -247,7 +247,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Discriminated union.
 		/// </summary>
-		using StorageType = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, JumpAddress, U64, I64, F64, CharClusterUtf8>;
+		using StorageType = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, JumpAddress, U64, I64, F64, Core::CharClusterUtf8>;
 
 		/// <summary>
 		/// Default construct an I64(0)
@@ -316,7 +316,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr DynamicSignal(CharClusterUtf8 value) noexcept(true);
+		explicit constexpr DynamicSignal(Core::CharClusterUtf8 value) noexcept(true);
 
 		/// <summary>
 		/// Copy constructor.
@@ -476,7 +476,7 @@ namespace Nominax::ByteCode
 	/// Constructor.
 	/// </summary>
 	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const CharClusterUtf8 value) noexcept(true) : Storage {value} {}
+	constexpr DynamicSignal::DynamicSignal(const Core::CharClusterUtf8 value) noexcept(true) : Storage {value} {}
 
 	/// <summary>
 	/// Constructor.

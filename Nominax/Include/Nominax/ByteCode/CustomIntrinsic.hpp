@@ -223,7 +223,7 @@ namespace Nominax::ByteCode
 	/// Custom intrinsic routine function prototype.
 	/// Contains the stack pointer as parameter.
 	/// </summary>
-	using IntrinsicRoutine = auto (Record*) -> void;
+	using IntrinsicRoutine = auto (Core::Record*) -> void;
 	static_assert(std::is_function_v<IntrinsicRoutine>);
 
 	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;

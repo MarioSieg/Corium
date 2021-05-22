@@ -208,7 +208,7 @@
 #include "../../Include/Nominax/Core/ReactorShutdownReason.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	auto PrintShutdownReason(const ReactorShutdownReason reason, const InterruptAccumulator code) noexcept(false) -> void
 	{

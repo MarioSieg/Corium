@@ -206,10 +206,11 @@
 //    limitations under the License.
 
 #include <bitset>
+#include <ostream>
 
 #include "../../Include/Nominax/Core/RegisterDump.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 #if NOMINAX_ARCH_X86_32
 	

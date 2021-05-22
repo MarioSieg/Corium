@@ -211,9 +211,12 @@
 
 namespace Nominax
 {
-	enum class ReactorValidationResult;
-	union CharClusterUtf8;
-
+	namespace Core
+	{
+		enum class ReactorValidationResult;
+		union CharClusterUtf8;
+	}
+	
 	namespace ByteCode
 	{
 		enum class ByteCodeValidationResultCode;
@@ -264,12 +267,12 @@ struct fmt::formatter<Nominax::ByteCode::JumpAddress>
 };
 
 template <>
-struct fmt::formatter<Nominax::CharClusterUtf8>
+struct fmt::formatter<Nominax::Core::CharClusterUtf8>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::CharClusterUtf8& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::Core::CharClusterUtf8& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>
@@ -282,12 +285,12 @@ struct fmt::formatter<Nominax::ByteCode::ByteCodeValidationResultCode>
 };
 
 template <>
-struct fmt::formatter<Nominax::ReactorValidationResult>
+struct fmt::formatter<Nominax::Core::ReactorValidationResult>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::ReactorValidationResult& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>

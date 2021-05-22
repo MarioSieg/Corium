@@ -240,7 +240,7 @@ namespace Nominax::ByteCode
 		{
 			return Signal {*x};
 		}
-		if (const auto* const x = std::get_if<CharClusterUtf8>(&this->Storage))
+		if (const auto* const x = std::get_if<Core::CharClusterUtf8>(&this->Storage))
 		{
 			return Signal {*x};
 		}

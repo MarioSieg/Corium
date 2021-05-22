@@ -208,7 +208,7 @@
 #include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	auto MapJumpTable
 	(

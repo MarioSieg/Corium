@@ -231,7 +231,7 @@
 #	include <arm_neon.h>
 #endif
 
-namespace Nominax
+namespace Nominax::Core
 {
 	using ByteCode::SystemIntrinsicCallId;
 	using ByteCode::Instruction;

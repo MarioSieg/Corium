@@ -207,7 +207,7 @@
 
 #include "../../Include/Nominax/Core/Interrupt.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	auto DefaultInterruptRoutine(InterruptAccumulator) -> void { }
 }

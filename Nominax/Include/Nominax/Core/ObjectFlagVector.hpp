@@ -207,9 +207,7 @@
 
 #pragma once
 
-#include <cstdint>
-
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Contains all flags in the flag vector field in the object header.

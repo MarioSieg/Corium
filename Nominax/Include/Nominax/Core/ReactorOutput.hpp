@@ -212,7 +212,7 @@
 #include "ReactorShutdownReason.hpp"
 #include "DetailedReactorDescriptor.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Contains all the output data from the VM reactor.

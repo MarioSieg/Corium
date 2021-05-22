@@ -211,7 +211,7 @@
 
 #include "DetailedReactorDescriptor.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// A simpler version of the "ReactorInput" struct.

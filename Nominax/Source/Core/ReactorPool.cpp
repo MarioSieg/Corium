@@ -211,7 +211,7 @@
 #include "../../Include/Nominax/Core/ReactorPool.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	auto ReactorPool::SmartQueryReactorCount(const std::size_t desired) noexcept(false) -> std::size_t
 	{

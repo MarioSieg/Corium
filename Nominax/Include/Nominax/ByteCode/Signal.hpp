@@ -231,7 +231,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as Record64.
 		/// </summary>
-		Record R64;
+		Core::Record R64;
 
 		/// <summary>
 		/// Reinterpret as instruction.
@@ -274,7 +274,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(Record value) noexcept(true);
+		explicit constexpr Signal(Core::Record value) noexcept(true);
 
 		/// <summary>
 		/// Construct from instruction.
@@ -330,7 +330,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="cluster"></param>
 		/// <returns></returns>
-		explicit constexpr Signal(CharClusterUtf8 cluster) noexcept(true);
+		explicit constexpr Signal(Core::CharClusterUtf8 cluster) noexcept(true);
 
 		/// <summary>
 		/// Construct from 32-bit UTF-32 character.
@@ -347,7 +347,7 @@ namespace Nominax::ByteCode
 		explicit constexpr Signal(JumpAddress value) noexcept(true);
 	};
 
-	constexpr Signal::Signal(const Record value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const Core::Record value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const Instruction value) noexcept(true) : Instr {value} {}
 	constexpr Signal::Signal(const SystemIntrinsicCallId value) noexcept(true) : SystemIntrinId {value} {}
 	constexpr Signal::Signal(const CustomIntrinsicCallId value) noexcept(true) : CustomIntrinId {value} {}
@@ -355,7 +355,7 @@ namespace Nominax::ByteCode
 	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal::Signal(const Core::CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
 	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JumpTarget {value} {}
 

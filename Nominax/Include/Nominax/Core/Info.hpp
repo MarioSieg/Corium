@@ -207,13 +207,11 @@
 
 #pragma once
 
-#include <cstdint>
-#include <string_view>
 #include <ostream>
 
 #include "../Common/BaseTypes.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	struct Version final
 	{

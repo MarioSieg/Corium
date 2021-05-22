@@ -212,7 +212,7 @@
 #include "Interrupt.hpp"
 #include "../System/MacroCfg.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	enum class ReactorShutdownReason
 	{

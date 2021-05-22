@@ -524,7 +524,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(CharClusterUtf8 value) noexcept(false) -> Stream&;
+		auto operator <<(Core::CharClusterUtf8 value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Print out the ir.
@@ -902,7 +902,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const CharClusterUtf8 value) noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const Core::CharClusterUtf8 value) noexcept(false) -> Stream&
 	{
 		this->Storage_.emplace_back(DynamicSignal {value});
 		return *this;

@@ -221,7 +221,7 @@
 #include "../ByteCode/Stream.hpp"
 #include "../System/CpuFeatureDetector.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Represents a reactor.

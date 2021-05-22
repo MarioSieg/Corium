@@ -209,7 +209,7 @@
 #include <iostream>
 
 #include "../../Include/Nominax/Nominax.hpp"
-namespace Nominax
+namespace Nominax::Core
 {
 	using namespace Nominax;
 	using namespace ByteCode;
