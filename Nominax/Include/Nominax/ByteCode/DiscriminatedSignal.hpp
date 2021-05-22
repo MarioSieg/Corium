@@ -246,9 +246,9 @@ namespace Nominax::ByteCode
 		{
 			return {Signal::Discriminator::SystemIntrinsicCallID};
 		}
-		else if constexpr (std::is_same_v<CustomIntrinsicCallID, T>)
+		else if constexpr (std::is_same_v<UserIntrinsicCallID, T>)
 		{
-			return {Signal::Discriminator::CustomIntrinsicCallID};
+			return {Signal::Discriminator::UserIntrinsicCallID};
 		}
 		else if constexpr (std::is_same_v<JumpAddress, T>)
 		{

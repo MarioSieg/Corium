@@ -210,7 +210,7 @@
 #include "FixedStack.hpp"
 #include "Interrupt.hpp"
 
-#include "../ByteCode/CustomIntrinsic.hpp"
+#include "../ByteCode/UserIntrinsic.hpp"
 
 namespace Nominax::Core
 {

@@ -210,7 +210,7 @@
 #include "ValidationResult.hpp"
 #include "Category.hpp"
 #include "Chunk.hpp"
-#include "CustomIntrinsic.hpp"
+#include "UserIntrinsic.hpp"
 #include "Descriptor.hpp"
 #include "ImmediateArgumentCount.hpp"
 #include "ImmediateArgumentTypeList.hpp"

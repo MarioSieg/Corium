@@ -233,12 +233,12 @@ struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicCallID>
 };
 
 template <>
-struct fmt::formatter<Nominax::ByteCode::CustomIntrinsicCallID>
+struct fmt::formatter<Nominax::ByteCode::UserIntrinsicCallID>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::ByteCode::CustomIntrinsicCallID& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::UserIntrinsicCallID& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>
@@ -260,6 +260,24 @@ struct fmt::formatter<Nominax::Core::CharClusterUtf8>
 };
 
 template <>
+struct fmt::formatter<Nominax::Core::CharClusterUtf16>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::Core::CharClusterUtf16& value, format_context& ctx) const noexcept(false)->FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::Core::CharClusterUtf32>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::Core::CharClusterUtf32& value, format_context& ctx) const noexcept(false)->FormatOutput;
+};
+
+template <>
 struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
 {
 	template <typename ParseContext>
@@ -275,4 +293,13 @@ struct fmt::formatter<Nominax::Core::ReactorValidationResult>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
 	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const noexcept(false)->FormatOutput;
 };

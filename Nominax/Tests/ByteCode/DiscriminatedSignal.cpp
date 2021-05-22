@@ -4,7 +4,7 @@ TEST(DiscriminatedSignal, MapStreamType)
 {
 	ASSERT_EQ(MapStreamType<Instruction>().value(), Signal::Discriminator::Instruction);
 	ASSERT_EQ(MapStreamType<SystemIntrinsicCallID>().value(), Signal::Discriminator::SystemIntrinsicCallID);
-	ASSERT_EQ(MapStreamType<CustomIntrinsicCallID>().value(), Signal::Discriminator::CustomIntrinsicCallID);
+	ASSERT_EQ(MapStreamType<UserIntrinsicCallID>().value(), Signal::Discriminator::UserIntrinsicCallID);
 	ASSERT_EQ(MapStreamType<JumpAddress>().value(), Signal::Discriminator::JumpAddress);
 	ASSERT_EQ(MapStreamType<U64>().value(), Signal::Discriminator::U64);
 	ASSERT_EQ(MapStreamType<I64>().value(), Signal::Discriminator::I64);
@@ -34,7 +34,7 @@ TEST(DiscriminatedSignal, Unwrap)
 	ASSERT_DOUBLE_EQ(sig.UnwrapUnchecked<F64>(), 2.5);
 }
 
-TEST(DiscriminaedSignal, Equality)
+TEST(DiscriminatedSignal, Equality)
 {
 	const DiscriminatedSignal sig{ Signal::Discriminator::F64, Signal{2.5} };
 	const DiscriminatedSignal sig2{ Signal::Discriminator::F64, Signal{2.0} };

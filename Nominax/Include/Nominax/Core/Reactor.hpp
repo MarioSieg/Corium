@@ -217,7 +217,7 @@
 #include "ReactorSpawnDescriptor.hpp"
 #include "ReactorHypervisor.hpp"
 
-#include "../ByteCode/CustomIntrinsic.hpp"
+#include "../ByteCode/UserIntrinsic.hpp"
 #include "../ByteCode/Stream.hpp"
 #include "../System/CpuFeatureDetector.hpp"
 

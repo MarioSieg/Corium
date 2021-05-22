@@ -212,7 +212,7 @@
 
 #include "../Core/Record.hpp"
 #include "SystemIntrinsic.hpp"
-#include "CustomIntrinsic.hpp"
+#include "UserIntrinsic.hpp"
 #include "Instruction.hpp"
 #include "JumpAddress.hpp"
 
@@ -228,17 +228,64 @@ namespace Nominax::ByteCode
 		/// </summary>
 		enum class Discriminator: U8
 		{
+			/// <summary>
+			/// U64 in record.
+			/// </summary>
 			U64,
+
+			/// <summary>
+			/// I64 in record.
+			/// </summary>
 			I64,
+
+			/// <summary>
+			/// F64 in record.
+			/// </summary>
 			F64,
+
+			/// <summary>
+			/// Char cluster UTF-8.
+			/// </summary>
 			CharClusterUtf8,
+
+			/// <summary>
+			/// Char cluster UTF-16.
+			/// </summary>
 			CharClusterUtf16,
+
+			/// <summary>
+			/// Char cluster UTF-32.
+			/// </summary>
 			CharClusterUtf32,
+
+			/// <summary>
+			/// Byte code instruction.
+			/// </summary>
 			Instruction,
+
+			/// <summary>
+			/// System call id.
+			/// </summary>
 			SystemIntrinsicCallID,
-			CustomIntrinsicCallID,
+
+			/// <summary>
+			/// User call id.
+			/// </summary>
+			UserIntrinsicCallID,
+
+			/// <summary>
+			/// Byte code instruction opcode.
+			/// </summary>
 			OpCode,
+
+			/// <summary>
+			/// Pointer.
+			/// </summary>
 			Ptr,
+
+			/// <summary>
+			/// Jump address.
+			/// </summary>
 			JumpAddress
 		};
 
@@ -255,12 +302,12 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as system intrinsic call id.
 		/// </summary>
-		SystemIntrinsicCallID SystemIntrinId;
+		SystemIntrinsicCallID SystemIntrinID;
 
 		/// <summary>
 		/// Reinterpret as custom intrinsic call id.
 		/// </summary>
-		CustomIntrinsicCallID CustomIntrinId;
+		UserIntrinsicCallID CustomIntrinID;
 
 		/// <summary>
 		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
@@ -275,7 +322,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as jump target.
 		/// </summary>
-		JumpAddress JumpTarget;
+		JumpAddress JmpAddress;
 
 		/// <summary>
 		/// Default constructor.
@@ -309,7 +356,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(CustomIntrinsicCallID value) noexcept(true);
+		explicit constexpr Signal(UserIntrinsicCallID value) noexcept(true);
 
 		/// <summary>
 		/// Construct from void pointer.
@@ -347,6 +394,20 @@ namespace Nominax::ByteCode
 		explicit constexpr Signal(Core::CharClusterUtf8 cluster) noexcept(true);
 
 		/// <summary>
+		/// Construct from UTF-16 char cluster.
+		/// </summary>
+		/// <param name="cluster"></param>
+		/// <returns></returns>
+		explicit constexpr Signal(Core::CharClusterUtf16 cluster) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-32 char cluster.
+		/// </summary>
+		/// <param name="cluster"></param>
+		/// <returns></returns>
+		explicit constexpr Signal(Core::CharClusterUtf32 cluster) noexcept(true);
+
+		/// <summary>
 		/// Construct from 32-bit UTF-32 character.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
@@ -363,15 +424,17 @@ namespace Nominax::ByteCode
 
 	constexpr Signal::Signal(const Core::Record value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const Instruction value) noexcept(true) : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicCallID value) noexcept(true) : SystemIntrinId {value} {}
-	constexpr Signal::Signal(const CustomIntrinsicCallID value) noexcept(true) : CustomIntrinId {value} {}
+	constexpr Signal::Signal(const SystemIntrinsicCallID value) noexcept(true) : SystemIntrinID {value} {}
+	constexpr Signal::Signal(const UserIntrinsicCallID value) noexcept(true) : CustomIntrinID {value} {}
 	constexpr Signal::Signal(void* const value) noexcept(true) : Ptr {value} {}
 	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const Core::CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal::Signal(const Core::CharClusterUtf16 cluster) noexcept(true) : R64{ cluster } {}
+	constexpr Signal::Signal(const Core::CharClusterUtf32 cluster) noexcept(true) : R64{ cluster } {}
 	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JumpTarget {value} {}
+	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JmpAddress {value} {}
 
 	/// <summary>
 	/// Raw representation of a signal as bytes.

@@ -275,7 +275,7 @@ namespace Nominax::ByteCode
 			if (in.Contains<JumpAddress>())
 			{
 				// minus one because the address is incremented by the reactor before jumped
-				out.Ptr = Core::ComputeRelativeJumpAddress(output.data(), out.JumpTarget);
+				out.Ptr = Core::ComputeRelativeJumpAddress(output.data(), out.JmpAddress);
 			}
 
 #endif
@@ -371,7 +371,7 @@ namespace Nominax::ByteCode
 			              if (iterator == Signal::Discriminator::JumpAddress)
 			              {
 				              const std::ptrdiff_t idx {&iterator - begin};
-				              if (const bool result {ValidateJumpAddress(input, valBuf[idx].JumpTarget)}; NOMINAX_UNLIKELY(!result))
+				              if (const bool result {ValidateJumpAddress(input, valBuf[idx].JmpAddress)}; NOMINAX_UNLIKELY(!result))
 				              {
 					              if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ValidationResultCode::Ok))) // only update the error once
 					              {
@@ -509,7 +509,7 @@ namespace Nominax::ByteCode
 		return NOMINAX_LIKELY(value <= max);
 	}
 
-	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, CustomIntrinsicCallID id) noexcept(true) -> bool
+	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicCallID id) noexcept(true) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
 		return NOMINAX_LIKELY(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size());

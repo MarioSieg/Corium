@@ -207,53 +207,68 @@
 
 #pragma once
 
+/*
+ * Stop crying, we use macros instead of "constexpr char"
+ * here to use compile time string concatenation!
+ * It's not pretty and the best modern C++ way but simple and effective!
+ */
+
 /// <summary>
-/// Contains lexical tokens required to parse and write byte code.
+/// Specify immediate constant operand.
 /// </summary>
-namespace Nominax::ByteCode::Lexemes
-{
-	/// <summary>
-	/// Specify immediate constant operand.
-	/// </summary>
-	constexpr auto IMMEDIATE {'$'};
+#define NOMINAX_LEX_IMM "%"
 
-	/// <summary>
-	/// Specify immediate constant call id for system or custom intrinsic call.
-	/// </summary>
-	constexpr auto INTRINSIC_CALL_IMMEDIATE {'*'};
+/// <summary>
+/// Begin byte code comment.
+/// </summary>
+#define NOMINAX_LEX_COMMENT "#"
 
-	/// <summary>
-	/// Specify relative or absolute jump address.
-	/// </summary>
-	constexpr auto JUMP_ADDRESS {'&'};
+/// <summary>
+///
+/// </summary>
+#define NOMINAX_LEX_TYPE "*"
 
-	/// <summary>
-	/// Begin or end comment.
-	/// </summary>
-	constexpr auto COMMENT {'#'};
+/// <summary>
+///
+/// </summary>
+#define NOMINAX_LEX_TYPE_U64 NOMINAX_LEX_TYPE "U64"
 
-	/// <summary>
-	/// Begin preprocessor directive.
-	/// </summary>
-	constexpr auto PREPROCESSOR {'%'};
+/// <summary>
+///
+/// </summary>
+#define NOMINAX_LEX_TYPE_I64 NOMINAX_LEX_TYPE "I64"
 
-	/// <summary>
-	/// Type indicator suffix.
-	/// </summary>
-	constexpr auto LITERAL_SUFFIX_FLOAT {'f'};
+/// <summary>
+///
+/// </summary>
+#define NOMINAX_LEX_TYPE_F64 NOMINAX_LEX_TYPE "F64"
 
-	/// <summary>
-	/// Type indicator suffix.
-	/// </summary>
-	constexpr auto LITERAL_SUFFIX_INT {'i'};
+/// <summary>
+/// CharClusterUtf8 (1 byte)
+/// </summary>
+#define NOMINAX_LEX_TYPE_CC1 NOMINAX_LEX_TYPE "CC1"
 
-	/// <summary>
-	/// Type indicator suffix.
-	/// </summary>
-	constexpr auto LITERAL_SUFFIX_UINT {'u'};
+/// <summary>
+/// CharClusterUtf16 (2 byte)
+/// </summary>
+#define NOMINAX_LEX_TYPE_CC2 NOMINAX_LEX_TYPE "CC2"
 
-	/// <summary>
-	/// Type indicator char.
-	/// </summary>
-	constexpr auto LITERAL_SUFFIX_CHAR {'c'};
-}
+/// <summary>
+///CharClusterUtf32 (4 byte)
+/// </summary>
+#define NOMINAX_LEX_TYPE_CC4 NOMINAX_LEX_TYPE "CC4"
+
+/// <summary>
+/// System intrinsic call id.
+/// </summary>
+#define NOMINAX_LEX_TYPE_SIC NOMINAX_LEX_TYPE "SIC"
+
+/// <summary>
+/// User intrinsic call id.
+/// </summary>
+#define NOMINAX_LEX_TYPE_UIC NOMINAX_LEX_TYPE "UIC"
+
+/// <summary>
+/// Jump address.
+/// </summary>
+#define NOMINAX_LEX_TYPE_JMP NOMINAX_LEX_TYPE "JMA"

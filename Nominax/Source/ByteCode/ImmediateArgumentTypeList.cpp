@@ -225,7 +225,7 @@ namespace Nominax::ByteCode
 	{
 		PerInstructionArgTypes {{Dis::I64}},                      // int
 		{{Dis::SystemIntrinsicCallID}},                           // intrin
-		{{Dis::CustomIntrinsicCallID}},                           // cintrin
+		{{Dis::UserIntrinsicCallID}},                           // cintrin
 		{{Dis::U64}},                                             // call
 		{ },                                                      // ret
 		{{Dis::U64}, {Dis::U64}},                                 // mov

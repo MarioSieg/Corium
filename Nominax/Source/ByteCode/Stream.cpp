@@ -228,7 +228,7 @@ namespace Nominax::ByteCode
 			}
 			else
 			{
-				Print(TextColor::Magenta, " {}", this->Code_[i].R64.AsU64);
+				Print(TextColor::Magenta, " {}", (*this)[i]);
 			}
 		}
 		Print("\n\n");

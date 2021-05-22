@@ -223,7 +223,7 @@ TEST(BytecodeStream, Push)
 	stream << Instruction::NOp;
 	stream << Instruction::Call;
 	stream << SystemIntrinsicCallID::ACos;
-	stream << CustomIntrinsicCallID {3};
+	stream << UserIntrinsicCallID {3};
 	stream << 3.5;
 	stream << UINT64_C(32);
 	stream << INT64_C(-10);
@@ -234,7 +234,7 @@ TEST(BytecodeStream, Push)
 	ASSERT_TRUE(stream[1].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[2].Contains(Instruction::Call));
 	ASSERT_TRUE(stream[3].Contains(SystemIntrinsicCallID::ACos));
-	ASSERT_TRUE(stream[4].Contains(CustomIntrinsicCallID{ 3 }));
+	ASSERT_TRUE(stream[4].Contains(UserIntrinsicCallID{ 3 }));
 	ASSERT_TRUE(stream[5].Contains(3.5));
 	ASSERT_TRUE(stream[6].Contains(UINT64_C(32)));
 	ASSERT_TRUE(stream[7].Contains(INT64_C(-10)));

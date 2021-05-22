@@ -212,7 +212,7 @@
 // Legacy compat:
 struct DynamicSignal final
 {
-	using DataVariant = std::variant<Instruction, SystemIntrinsicCallID, CustomIntrinsicCallID, JumpAddress, U64, I64, F64, CharClusterUtf8, CharClusterUtf16, CharClusterUtf32>;
+	using DataVariant = std::variant<Instruction, SystemIntrinsicCallID, UserIntrinsicCallID, JumpAddress, U64, I64, F64, CharClusterUtf8, CharClusterUtf16, CharClusterUtf32>;
 
 	DataVariant Data {0_uint};
 
@@ -225,7 +225,7 @@ struct DynamicSignal final
 		case 1:
 			return Signal::Discriminator::SystemIntrinsicCallID;
 		case 2:
-			return Signal::Discriminator::CustomIntrinsicCallID;
+			return Signal::Discriminator::UserIntrinsicCallID;
 		case 3:
 			return Signal::Discriminator::JumpAddress;
 		case 4:
@@ -293,10 +293,10 @@ TEST(ValidatorAlgorithms, ValidateCustomIntrinsicCall)
 		nullptr
 	};
 
-	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallID{ 0 }));
-	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallID{ 1 }));
-	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallID{ 2 }));
-	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallID{ 3 }));
+	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, UserIntrinsicCallID{ 0 }));
+	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, UserIntrinsicCallID{ 1 }));
+	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, UserIntrinsicCallID{ 2 }));
+	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, UserIntrinsicCallID{ 3 }));
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Int)
@@ -338,9 +338,9 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_CIntrin)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_int}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, std::vector<DynamicSignal>{ {} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{CustomIntrinsicCallID{3}}, DynamicSignal{CustomIntrinsicCallID{3}} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{UserIntrinsicCallID{3}}, DynamicSignal{UserIntrinsicCallID{3}} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{CustomIntrinsicCallID{3}} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{UserIntrinsicCallID{3}} }), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_None)
@@ -361,7 +361,7 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3_uint} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3.0_float} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{SystemIntrinsicCallID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{CustomIntrinsicCallID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{UserIntrinsicCallID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 
@@ -376,7 +376,7 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Sto_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3.0_float},DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3.0_float},DynamicSignal{3.0_float} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{SystemIntrinsicCallID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{CustomIntrinsicCallID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{UserIntrinsicCallID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 

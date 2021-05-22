@@ -225,66 +225,53 @@ auto formatter<Instruction, char, void>::format(const Instruction& value,
 	);
 }
 
-auto formatter<SystemIntrinsicCallID, char, void>::format(const SystemIntrinsicCallID& value,
-                                                          format_context&              ctx) const noexcept(false) -> FormatOutput
+auto formatter<SystemIntrinsicCallID, char, void>::format(const SystemIntrinsicCallID& value, format_context& ctx) const noexcept(false) -> FormatOutput
 {
-	return format_to
-	(
-		ctx.out(),
-		"{}{}{:#X}",
-		Lexemes::INTRINSIC_CALL_IMMEDIATE,
-		Lexemes::IMMEDIATE,
-		static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)
-	);
+	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value));
 }
 
-auto formatter<CustomIntrinsicCallID, char, void>::format(const CustomIntrinsicCallID& value,
-                                                          format_context&              ctx) const noexcept(false) -> FormatOutput
+auto formatter<UserIntrinsicCallID, char, void>::format(const UserIntrinsicCallID& value, format_context& ctx) const noexcept(false) -> FormatOutput
 {
-	return format_to
-	(
-		ctx.out(),
-		"{}{}{:#X}",
-		Lexemes::INTRINSIC_CALL_IMMEDIATE,
-		Lexemes::IMMEDIATE,
-		static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)
-	);
+	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value));
 }
 
-auto formatter<JumpAddress, char, void>::format(const JumpAddress& value,
-                                                format_context&    ctx) const noexcept(false) -> FormatOutput
+auto formatter<JumpAddress, char, void>::format(const JumpAddress& value, format_context& ctx) const noexcept(false) -> FormatOutput
 {
-	return format_to
-	(
-		ctx.out(), "{}{}{:#X}",
-		Lexemes::JUMP_ADDRESS,
-		Lexemes::IMMEDIATE,
-		static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)
-	);
+	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<JumpAddress>>(value));
 }
 
 auto formatter<CharClusterUtf8, char, void>::format(const CharClusterUtf8& value,
                                                     format_context&        ctx) const noexcept(false) -> FormatOutput
 {
-	const auto                                begin {reinterpret_cast<const char*>(&*std::begin(value.Chars))};
-	const auto                                end {reinterpret_cast<const char*>(&*std::end(value.Chars))};
-	std::array<char, sizeof(CharClusterUtf8)> copy { };
-	std::copy(begin, end, std::begin(copy));
-	for (auto& c : copy)
-	{
-		if (NOMINAX_UNLIKELY(std::iscntrl(c)))
-		{
-			c = '?';
-		}
-	}
-	const std::string_view chars {std::begin(copy), std::end(copy)};
-	return format_to
-	(
-		ctx.out(),
-		"{}",
-		chars,
-		Lexemes::IMMEDIATE,
-		Lexemes::LITERAL_SUFFIX_CHAR
+	static_assert(sizeof(char8_t) == sizeof(U8));
+	return format_to(ctx.out(),
+		R"(\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X})",
+		static_cast<U16>(value.Chars[0]),
+		static_cast<U16>(value.Chars[1]), 
+		static_cast<U16>(value.Chars[2]), 
+		static_cast<U16>(value.Chars[3]),
+		static_cast<U16>(value.Chars[4]),
+		static_cast<U16>(value.Chars[5]),
+		static_cast<U16>(value.Chars[6]),
+		static_cast<U16>(value.Chars[7])
+	);
+}
+
+auto formatter<CharClusterUtf16, char, void>::format(const Nominax::Core::CharClusterUtf16& value, format_context& ctx) const noexcept(false) -> FormatOutput
+{
+	static_assert(sizeof(char16_t) == sizeof(U16));
+	return format_to(ctx.out(),
+	    R"(\{:X}\{:X}\{:X}\{:X})", 
+		static_cast<U16>(value.Chars[0]), static_cast<U16>(value.Chars[1]), static_cast<U16>(value.Chars[2]), static_cast<U16>(value.Chars[3])
+	);
+}
+
+auto formatter<CharClusterUtf32, char, void>::format(const Nominax::Core::CharClusterUtf32& value, format_context& ctx) const noexcept(false) -> FormatOutput
+{
+	static_assert(sizeof(char32_t) == sizeof(U32));
+	return format_to(ctx.out(),
+		"\\{:X}\\{:X}",
+		static_cast<U32>(value.Chars[0]), static_cast<U32>(value.Chars[1])
 	);
 }
 
@@ -299,4 +286,47 @@ auto formatter<ReactorValidationResult, char, void>::format(const ReactorValidat
 {
 	const auto idx {static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
 	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
+}
+
+auto formatter<DiscriminatedSignal, char, void>::format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const noexcept(false) -> FormatOutput
+{
+	using Dis = Nominax::ByteCode::Signal::Discriminator;
+	
+	switch (value.Discriminator)
+	{
+	case Dis::U64:
+		return format_to(ctx.out(), NOMINAX_LEX_TYPE_U64 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsU64);
+
+	case Dis::I64:
+		return format_to(ctx.out(), NOMINAX_LEX_TYPE_I64 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsI64);
+
+	case Dis::F64:
+		return format_to(ctx.out(), NOMINAX_LEX_TYPE_F64 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsF64);
+
+	case Dis::CharClusterUtf8:
+		return format_to(ctx.out(), NOMINAX_LEX_TYPE_CC1 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsUtf8);
+
+	case Dis::CharClusterUtf16:
+		return format_to(ctx.out(), NOMINAX_LEX_TYPE_CC2 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsUtf16);
+
+	case Dis::CharClusterUtf32:
+		return format_to(ctx.out(), NOMINAX_LEX_TYPE_CC4 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsUtf32);
+
+	case Dis::OpCode:
+	case Dis::Instruction:
+		return format_to(ctx.out(), "{}", value.Value.Instr);
+
+	case Dis::SystemIntrinsicCallID:
+		return format_to(ctx.out(), NOMINAX_LEX_TYPE_SIC " " NOMINAX_LEX_IMM "{}", static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value.Value.SystemIntrinID));
+
+	case Dis::UserIntrinsicCallID:
+		return format_to(ctx.out(), NOMINAX_LEX_TYPE_UIC " " NOMINAX_LEX_IMM "{}", static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value.Value.CustomIntrinID));
+
+	case Dis::JumpAddress:
+		return format_to(ctx.out(), NOMINAX_LEX_TYPE_UIC " " NOMINAX_LEX_IMM "{}", static_cast<std::underlying_type_t<JumpAddress>>(value.Value.JmpAddress));
+		
+	default:
+	case Dis::Ptr:
+		return format_to(ctx.out(), NOMINAX_LEX_TYPE_CC4 " " NOMINAX_LEX_IMM "{:X}", value.Value.R64.AsU64);
+	}
 }

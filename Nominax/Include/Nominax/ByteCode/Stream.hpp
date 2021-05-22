@@ -310,7 +310,18 @@ namespace Nominax::ByteCode
 		std::size_t InstructionCounter_ {0};
 
 	public:
+		/// <summary>
+		/// Query prologue code.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
 		static constexpr auto PrologueCode() noexcept(true) -> const auto&;
+
+		/// <summary>
+		/// Query epilogue code.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
 		static constexpr auto EpilogueCode() noexcept(true) -> const auto&;
 
 		/// <summary>
@@ -448,7 +459,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
-		auto operator <<(CustomIntrinsicCallID intrin) noexcept(false) -> Stream&;
+		auto operator <<(UserIntrinsicCallID intrin) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
@@ -491,6 +502,20 @@ namespace Nominax::ByteCode
 		/// <param name="value"></param>
 		/// <returns></returns>
 		auto operator <<(Core::CharClusterUtf8 value) noexcept(false) -> Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto operator <<(Core::CharClusterUtf16 value) noexcept(false)->Stream&;
+
+		/// <summary>
+		/// Push stream entry.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto operator <<(Core::CharClusterUtf32 value) noexcept(false)->Stream&;
 
 		/// <summary>
 		/// Print out immediate byte code.
@@ -754,11 +779,11 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const CustomIntrinsicCallID intrin) noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const UserIntrinsicCallID intrin) noexcept(false) -> Stream&
 	{
 		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {intrin});
-		this->CodeDisc_.emplace_back(Signal::Discriminator::CustomIntrinsicCallID);
+		this->CodeDisc_.emplace_back(Signal::Discriminator::UserIntrinsicCallID);
 		return *this;
 	}
 
@@ -801,6 +826,25 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const Core::CharClusterUtf8 value) noexcept(false) -> Stream&
 	{
-		return *this << value.Merged;
+		assert(this->Code_.size() == this->CodeDisc_.size());
+		this->Code_.emplace_back(Signal{ value });
+		this->CodeDisc_.emplace_back(Signal::Discriminator::CharClusterUtf8);
+		return *this;
+	}
+
+	inline auto Stream::operator<<(const Core::CharClusterUtf16 value) noexcept(false) -> Stream&
+	{
+		assert(this->Code_.size() == this->CodeDisc_.size());
+		this->Code_.emplace_back(Signal{ value });
+		this->CodeDisc_.emplace_back(Signal::Discriminator::CharClusterUtf16);
+		return *this;
+	}
+	
+	inline auto Stream::operator<<(const Core::CharClusterUtf32 value) noexcept(false) -> Stream&
+	{
+		assert(this->Code_.size() == this->CodeDisc_.size());
+		this->Code_.emplace_back(Signal{ value });
+		this->CodeDisc_.emplace_back(Signal::Discriminator::CharClusterUtf32);
+		return *this;
 	}
 }

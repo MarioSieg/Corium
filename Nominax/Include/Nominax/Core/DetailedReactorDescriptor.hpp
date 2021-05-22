@@ -210,7 +210,7 @@
 #include <csignal>
 
 #include "../ByteCode/Signal.hpp"
-#include "../ByteCode/CustomIntrinsic.hpp"
+#include "../ByteCode/UserIntrinsic.hpp"
 
 #include "Interrupt.hpp"
 #include "ReactorValidationResult.hpp"
