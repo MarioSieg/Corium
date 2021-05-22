@@ -304,7 +304,7 @@ namespace Nominax::ByteCode
 	/// <param name="where"></param>
 	/// <param name="next"></param>
 	/// <returns></returns>
-	constexpr auto ComputeInstructionArgumentOffset(const Signal* const where, const Signal* const next) noexcept(true) -> std::ptrdiff_t
+	constexpr auto ComputeInstructionArgumentOffset(const Signal::Discriminator* const where, const Signal::Discriminator* const next) noexcept(true) -> std::ptrdiff_t
 	{
 		return next - where - 1;
 	}
@@ -318,7 +318,7 @@ namespace Nominax::ByteCode
 	/// <param name="offset"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto ExtractInstructionArguments(const Signal* const where, const std::size_t offset) noexcept(true) -> std::span<const Signal>
+	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const std::size_t offset) noexcept(true) -> std::span<const Signal::Discriminator>
 	{
 		return {where + 1, where + 1 + offset};
 	}

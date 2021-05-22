@@ -361,23 +361,25 @@ namespace Nominax::ByteCode
 		static_assert(decltype(error)::is_always_lock_free);
 		static_assert(decltype(index)::is_always_lock_free);
 
+		const auto& discBuf{ input.DiscriminatorBuffer() };
+		const auto& valBuf{ input.CodeBuffer() };
+
 		// Pass 0:
-		/*
-		std::for_each(std::execution::par_unseq, std::begin(input.DiscriminatorBuffer()), std::end(input.DiscriminatorBuffer()), [&input, &error, &index](const Signal::Discriminator& iterator) noexcept(false)
+		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf), [&input, &error, &index, &discBuf, &valBuf](const Signal::Discriminator& iterator) noexcept(false)
 		{
 			if (iterator == Signal::Discriminator::JumpAddress)
 			{
-				if (const bool result {ValidateJumpAddress(input, iterator)}; NOMINAX_UNLIKELY(!result))
+				const std::size_t idx= std::distance(std::begin(discBuf), std::end(discBuf));
+				if (const bool result {ValidateJumpAddress(input, valBuf[idx].JumpTarget)}; NOMINAX_UNLIKELY(!result))
 				{
 					if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ValidationResultCode::Ok))) // only update the error once
 					{
 						error.store(static_cast<ErrorInt>(ValidationResultCode::InvalidJumpAddress)); // atomic store
-						index.store(0);                                           // atomic store
+						index.store(idx);                                           // atomic store
 					}
 				}
 			}
 		});
-						*/
 		output = cache.get();
 		return {static_cast<ValidationResultCode>(error.load()), index.load()};
 	}
@@ -429,16 +431,15 @@ namespace Nominax::ByteCode
 			timings->first = clock.ElapsedSecsF64().count(); // write timings of pass0
 		}
 
-		/*
-		if
-		(
-			const auto lastInstructionResult {ValidateLastInstruction(&input[instructionCache.back()], input.size() - instructionCache.back() - 1)};
-			NOMINAX_UNLIKELY(lastInstructionResult != ValidationResultCode::Ok)
-		)
 		{
-			return {lastInstructionResult, instructionCache.back()};
+			const Instruction last{ input.CodeBuffer()[instructionCache.back()].Instr };
+			const std::span<const Signal::Discriminator> args{std::begin(input.DiscriminatorBuffer()) + instructionCache.back() + 1, std::end(input.DiscriminatorBuffer())};
+			const auto lastInstructionResult{ ValidateInstructionArguments(last, args)};
+			if(NOMINAX_UNLIKELY(lastInstructionResult != ValidationResultCode::Ok))
+			{
+				return { lastInstructionResult, instructionCache.back() };
+			}
 		}
-		*/
 
 		// Remove last instruction
 		instructionCache.pop_back();
@@ -452,15 +453,16 @@ namespace Nominax::ByteCode
 		static_assert(decltype(error)::is_always_lock_free);
 		static_assert(decltype(index)::is_always_lock_free);
 
-		/*
 		
 		// Pass 1:
-		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, input = input.CodeBuffer()](const CompressedRelativePtr& iterator) noexcept(false)
+		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, discriminators = input.DiscriminatorBuffer(), base = std::begin(input.CodeBuffer())](const CompressedRelativePtr& iterator) noexcept(false)
 		{
 			const CompressedRelativePtr next {*(&iterator + 1)};
-			const Signal* const  i {&input[iterator]};
-			const Instruction           instruction {i->Instr};
-			const std::span<Signal::Discriminator>             args {ExtractInstructionArguments(i, ComputeInstructionArgumentOffset(i, &input[next]))};
+			const Signal::Discriminator* const  discriminator {&discriminators[iterator]};
+			const Signal::Discriminator* const  nextDiscriminator{ &discriminators[next] };
+			const std::ptrdiff_t idx{ discriminator - discriminators.data() };
+			const Instruction           instruction {base[idx].Instr};
+			const std::span<const Signal::Discriminator>             args{ ExtractInstructionArguments(discriminator, ComputeInstructionArgumentOffset(discriminator, nextDiscriminator)) };
 			const auto                  result {ValidateInstructionArguments(instruction, args)}; // validate args
 
 			if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok)) // if error, return result:
@@ -468,12 +470,11 @@ namespace Nominax::ByteCode
 				if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(Core::ReactorValidationResult::Ok))) // only update the error once
 				{
 					error.store(static_cast<ErrorInt>(result)); // atomic store
-					index.store(i - std::data(input));          // atomic store
+					index.store(discriminator - std::data(discriminators));          // atomic store
 				}
 			}
 		});
 
-		*/
 
 		// Return error if the error value is not okay
 		if (NOMINAX_UNLIKELY(error.load() != static_cast<ErrorInt>(Core::ReactorValidationResult::Ok)))

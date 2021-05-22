@@ -223,31 +223,24 @@ static std::unique_ptr Env
 
 auto LoopBenchmark
 (
-	State&                          state,
-	const std::span<DynamicSignal>& loopBody,
-	const I64                       count,
+	State&                                      state,
+	const std::function<auto(Stream&) -> void>& loopBody,
+	const I64                                   count,
 	[[maybe_unused]]
 	const bool enableAvxReactor
 ) -> void
 {
 	Print('\n');
 
-	Stream stream
-	{
-		{
-			DynamicSignal {Instruction::NOp}, // first padding
-			DynamicSignal {Instruction::PushZ},
-			DynamicSignal {Instruction::IInc},
-			DynamicSignal {Instruction::Dupl},
-			DynamicSignal {Instruction::Push},
-			DynamicSignal {count},
-		}
-	};
+	Stream stream { };
+	stream << Instruction::NOp;
+	stream << Instruction::PushZ;
+	stream << Instruction::IInc;
+	stream << Instruction::Dupl;
+	stream << Instruction::Push;
+	stream << count;
 
-	for (const auto& sig : loopBody)
-	{
-		stream << sig;
-	}
+	loopBody(stream);
 
 	stream << Instruction::JlCmpi;
 	stream << JumpAddress {2};
