@@ -211,7 +211,7 @@
 #include <vector>
 
 #include "Chunk.hpp"
-#include "StreamPair.hpp"
+#include "DiscriminatedSignal.hpp"
 #include "ValidationResult.hpp"
 #include "ValidationResult.hpp"
 

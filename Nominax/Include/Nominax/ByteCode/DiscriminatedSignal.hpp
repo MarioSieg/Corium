@@ -1,4 +1,4 @@
-// File: StreamPair.hpp
+// File: DiscriminatedSignal.hpp
 // Author: Mario
 // Created: 22.05.2021 3:34 PM
 // Project: NominaxRuntime
@@ -230,6 +230,11 @@ namespace Nominax::ByteCode
 		std::is_trivial_v<T>;
 	};
 
+	/// <summary>
+	/// Maps a generic type to a signal discriminator, if applicable.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
 	template <typename T> requires BytecodeElement<T>
 	constexpr auto MapStreamType() -> std::optional<Signal::Discriminator>
 	{
@@ -279,48 +284,96 @@ namespace Nominax::ByteCode
 		}
 	}
 
-	template <typename D = Signal::Discriminator, typename V = Signal> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
-	struct StreamPair
+	/// <summary>
+	/// Represents an entry in the byte code stream.
+	/// Both values are just copied from the internal storage of the stream.
+	/// </summary>
+	/// <typeparam name="V"></typeparam>
+	/// <typeparam name="D"></typeparam>
+	struct DiscriminatedSignal
 	{
-		D Discriminator;
-		V Value;
+		/// <summary>
+		/// Discriminator for the signal "Value".
+		/// </summary>
+		Signal::Discriminator Discriminator;
 
-		constexpr StreamPair(D discriminator, V value) noexcept(true);
+		/// <summary>
+		/// The value itself.
+		/// </summary>
+		Signal Value;
 
+		/// <summary>
+		/// Construct.
+		/// </summary>
+		/// <param name="discriminator"></param>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		constexpr DiscriminatedSignal(Signal::Discriminator discriminator, Signal value) noexcept(true);
+
+		/// <summary>
+		/// Check if discriminator matches generic type.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto Contains() const noexcept(true) -> bool;
 
+		/// <summary>
+		///  Check if discriminator matches generic type and value.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="value"></param>
+		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto Contains(T value) const noexcept(true) -> bool;
 
+		/// <summary>
+		///  Check if discriminator matches generic type,
+		///  and convert to T if possible.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto Unwrap() const noexcept(true) -> std::optional<std::remove_reference_t<T>>;
 
+		/// <summary>
+		/// Converted to T without discriminator checks.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto UnwrapUnchecked() const noexcept(true) -> std::remove_reference_t<T>;
 
-		constexpr auto operator ==(const StreamPair& other) const noexcept(true) -> bool;
-		constexpr auto operator !=(const StreamPair& other) const noexcept(true) -> bool;
+		/// <summary>
+		/// Equals.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator ==(const DiscriminatedSignal& other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Not equals.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator !=(const DiscriminatedSignal& other) const noexcept(true) -> bool;
 	};
 
-	template <typename D, typename V> requires std::is_same_v<typename std::remove_reference<D>::type, Signal::Discriminator>
-	constexpr StreamPair<D, V>::StreamPair(D discriminator, V value) noexcept(true) : Discriminator {discriminator}, Value {value} { }
+	constexpr DiscriminatedSignal::DiscriminatedSignal(const Signal::Discriminator discriminator, const Signal value) noexcept(true) : Discriminator {discriminator}, Value {value} { }
 
-	template <typename D, typename V> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto StreamPair<D, V>::Contains() const noexcept(true) -> bool
+	constexpr auto DiscriminatedSignal::Contains() const noexcept(true) -> bool
 	{
 		static_assert(MapStreamType<T>());
 		return this->Discriminator == *MapStreamType<T>();
 	}
 
-	template <typename D, typename V> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto StreamPair<D, V>::Contains(T value) const noexcept(true) -> bool
+	constexpr auto DiscriminatedSignal::Contains(T value) const noexcept(true) -> bool
 	{
 		static_assert(MapStreamType<std::remove_reference_t<T>>());
 		const bool result
@@ -331,30 +384,26 @@ namespace Nominax::ByteCode
 		return result;
 	}
 
-	template <typename D, typename V> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto StreamPair<D, V>::Unwrap() const noexcept(true) -> std::optional<std::remove_reference_t<T>>
+	constexpr auto DiscriminatedSignal::Unwrap() const noexcept(true) -> std::optional<std::remove_reference_t<T>>
 	{
-		return this->template Contains<T>()
+		return this->Contains<T>()
 			       ? std::optional<std::remove_reference_t<T>> {std::bit_cast<T>(this->Value.R64.AsU64)}
 			       : std::optional<std::remove_reference_t<T>> {std::nullopt};
 	}
 
-	template <typename D, typename V> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto StreamPair<D, V>::UnwrapUnchecked() const noexcept(true) -> std::remove_reference_t<T>
+	constexpr auto DiscriminatedSignal::UnwrapUnchecked() const noexcept(true) -> std::remove_reference_t<T>
 	{
 		return std::bit_cast<T>(this->Value.R64.AsU64);
 	}
 
-	template <typename D, typename V> requires std::is_same_v<typename std::remove_reference<D>::type, Signal::Discriminator>
-	constexpr auto StreamPair<D, V>::operator==(const StreamPair& other) const noexcept(true) -> bool
+	constexpr auto DiscriminatedSignal::operator==(const DiscriminatedSignal& other) const noexcept(true) -> bool
 	{
 		return this->Value.R64.AsU64 == other.Value.R64.AsU64;
 	}
 
-	template <typename D, typename V> requires std::is_same_v<typename std::remove_reference<D>::type, Signal::Discriminator>
-	constexpr auto StreamPair<D, V>::operator!=(const StreamPair& other) const noexcept(true) -> bool
+	constexpr auto DiscriminatedSignal::operator!=(const DiscriminatedSignal& other) const noexcept(true) -> bool
 	{
 		return !(*this == other);
 	}

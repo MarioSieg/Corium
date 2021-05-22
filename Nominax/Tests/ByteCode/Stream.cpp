@@ -255,7 +255,7 @@ TEST(BytecodeStream, CodePrologue)
 	auto i {std::begin(stream.CodeBuffer())};
 	for (const auto& sig : prologue)
 	{
-		ASSERT_EQ(sig, StreamPair<>(*j, *i));
+		ASSERT_EQ(sig, DiscriminatedSignal(*j, *i));
 		std::advance(i, 1);
 		std::advance(j, 1);
 	}
@@ -277,7 +277,8 @@ TEST(BytecodeStream, CodeEpilogue)
 	auto i {std::begin(stream.CodeBuffer())};
 	for (const auto& sig : epilogue)
 	{
-		ASSERT_EQ(sig, StreamPair<>(*j, *i));
+		const auto x{ DiscriminatedSignal{ *j, *i } };
+		ASSERT_EQ(sig, x);
 		std::advance(i, 1);
 		std::advance(j, 1);
 	}

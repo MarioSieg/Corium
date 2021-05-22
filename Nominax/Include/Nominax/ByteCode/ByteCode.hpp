@@ -225,7 +225,7 @@
 #include "ScopedVariable.hpp"
 #include "Signal.hpp"
 #include "Stream.hpp"
-#include "StreamPair.hpp"
+#include "DiscriminatedSignal.hpp"
 #include "StreamScalar.hpp"
 #include "SystemIntrinsic.hpp"
 #include "Validator.hpp"

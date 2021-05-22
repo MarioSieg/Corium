@@ -214,7 +214,7 @@
 #include "ImmediateArgumentCount.hpp"
 #include "ValidationResult.hpp"
 #include "OptBase.hpp"
-#include "StreamPair.hpp"
+#include "DiscriminatedSignal.hpp"
 #include "StreamScalar.hpp"
 #include "Chunk.hpp"
 
@@ -269,26 +269,22 @@ namespace Nominax::ByteCode
 		/// </summary>
 		using DiscriminatorStorageType = std::vector<Signal::Discriminator>;
 
-		/// <summary>
-		/// Contains the value and discriminator.
-		/// </summary>
-		using Pair = StreamPair<DiscriminatorStorageType::value_type, CodeStorageType::value_type>;
-
-		/// <summary>
-		/// Contains the value and discriminator as references.
-		/// </summary>
-		using RefPair = StreamPair<DiscriminatorStorageType::value_type&, CodeStorageType::value_type&>;
-
 	private:
+		/// <summary>
+		/// Required prologue code.
+		/// </summary>
 		static constexpr std::array PROLOGUE_CODE
 		{
-			StreamPair<> {Signal::Discriminator::Instruction, Signal {Instruction::NOp}}
+			DiscriminatedSignal {Signal::Discriminator::Instruction, Signal {Instruction::NOp}}
 		};
 
+		/// <summary>
+		/// Required epilogue code.
+		/// </summary>
 		static constexpr std::array EPILOGUE_CODE
 		{
-			StreamPair<> {Signal::Discriminator::Instruction, Signal {Instruction::Int}},
-			StreamPair<> {Signal::Discriminator::I64, Signal { }}
+			DiscriminatedSignal {Signal::Discriminator::Instruction, Signal {Instruction::Int}},
+			DiscriminatedSignal {Signal::Discriminator::I64, Signal { }}
 		};
 
 		/// <summary>
@@ -382,14 +378,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Front() const noexcept(true) -> Pair;
+		auto Front() const noexcept(true) -> DiscriminatedSignal;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Back() const noexcept(true) -> Pair;
+		auto Back() const noexcept(true) ->DiscriminatedSignal;
 
 		/// <summary>
 		/// Clears the content of the whole stream.
@@ -516,19 +512,11 @@ namespace Nominax::ByteCode
 
 		/// <summary>
 		/// Index lookup.
-		/// Slow! O(i)
-		/// </summary>
-		/// <param name="idx"></param>
-		/// <returns></returns>
-		auto operator [](std::size_t idx) noexcept(false) -> RefPair;
-
-		/// <summary>
-		/// Index lookup.
 		///Slow! O(i)
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) const noexcept(false) -> Pair;
+		auto operator [](std::size_t idx) const noexcept(false) ->DiscriminatedSignal;
 
 		/// <summary>
 		/// Insert instruction manually with immediate arguments.
@@ -678,12 +666,12 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	inline auto Stream::Front() const noexcept(true) -> Pair
+	inline auto Stream::Front() const noexcept(true) -> DiscriminatedSignal
 	{
 		return {this->CodeDisc_.front(), this->Code_.front()};
 	}
 
-	inline auto Stream::Back() const noexcept(true) -> Pair
+	inline auto Stream::Back() const noexcept(true) -> DiscriminatedSignal
 	{
 		return {this->CodeDisc_.back(), this->Code_.back()};
 	}
@@ -693,12 +681,7 @@ namespace Nominax::ByteCode
 		return this->InstructionCounter_;
 	}
 
-	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> RefPair
-	{
-		return {this->CodeDisc_[idx], this->Code_[idx]};
-	}
-
-	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> Pair
+	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> DiscriminatedSignal
 	{
 		return {this->CodeDisc_[idx], this->Code_[idx]};
 	}
