@@ -207,12 +207,14 @@
 
 #pragma once
 
+#include <cassert>
 #include <vector>
 
-#include "DynamicSignal.hpp"
+#include "Signal.hpp"
 #include "ImmediateArgumentCount.hpp"
 #include "ValidationResult.hpp"
 #include "OptBase.hpp"
+#include "StreamPair.hpp"
 #include "StreamScalar.hpp"
 #include "Chunk.hpp"
 
@@ -258,12 +260,47 @@ namespace Nominax::ByteCode
 	{
 	public:
 		/// <summary>
-		/// Data structure used for storing the dynamic signals.
+		/// Data structure to store the whole byte code.
 		/// </summary>
-		using StorageType = std::vector<DynamicSignal>;
+		using CodeStorageType = std::vector<Signal>;
+
+		/// <summary>
+		/// Data structure to store the discriminator for each signal.
+		/// </summary>
+		using DiscriminatorStorageType = std::vector<Signal::Discriminator>;
+
+		/// <summary>
+		/// Contains the value and discriminator.
+		/// </summary>
+		using Pair = StreamPair<DiscriminatorStorageType::value_type, CodeStorageType::value_type>;
+
+		/// <summary>
+		/// Contains the value and discriminator as references.
+		/// </summary>
+		using RefPair = StreamPair<DiscriminatorStorageType::value_type&, CodeStorageType::value_type&>;
 
 	private:
-		StorageType Storage_ { };
+		static constexpr std::array PROLOGUE_CODE
+		{
+			StreamPair<> {Signal::Discriminator::Instruction, Signal {Instruction::NOp}}
+		};
+
+		static constexpr std::array EPILOGUE_CODE
+		{
+			StreamPair<> {Signal::Discriminator::Instruction, Signal {Instruction::Int}},
+			StreamPair<> {Signal::Discriminator::I64, Signal { }}
+		};
+
+		/// <summary>
+		/// Contains the whole byte code.
+		/// </summary>
+		CodeStorageType Code_ { };
+
+		/// <summary>
+		/// Contains all discriminators for the byte code.
+		/// Must always be same size as the "Code_" above.
+		/// </summary>
+		DiscriminatorStorageType CodeDiscrimination_ { };
 
 		/// <summary>
 		/// Optimization level used for stream.
@@ -277,18 +314,14 @@ namespace Nominax::ByteCode
 		std::size_t InstructionCounter_ {0};
 
 	public:
+		static constexpr auto PrologueCode() noexcept(true) -> const auto&;
+		static constexpr auto EpilogueCode() noexcept(true) -> const auto&;
+
 		/// <summary>
 		/// Construct empty stream.
 		/// </summary>
 		/// <returns></returns>
-		Stream() noexcept(true) = default;
-
-		/// <summary>
-		/// Construct with data.
-		/// </summary>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		explicit Stream(StorageType&& data) noexcept(true);
+		Stream() noexcept(true) = default;;
 
 		/// <summary>
 		/// Construct with specific optimization level.
@@ -298,14 +331,6 @@ namespace Nominax::ByteCode
 		explicit Stream(OptimizationLevel optimizationLevel) noexcept(true);
 
 		/// <summary>
-		/// Construct with data and specific optimization level.
-		/// </summary>
-		/// <param name="data"></param>
-		/// <param name="optimizationLevel"></param>
-		/// <returns></returns>
-		explicit Stream(StorageType&& data, OptimizationLevel optimizationLevel) noexcept(true);
-
-		/// <summary>
 		/// Move constructor.
 		/// </summary>
 		/// <param name="other"></param>
@@ -313,18 +338,11 @@ namespace Nominax::ByteCode
 		Stream(Stream&& other) noexcept(true) = default;
 
 		/// <summary>
-		/// Copy constructor.
+		/// No copy.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		Stream(const Stream& other) noexcept(true) = default;
-
-		/// <summary>
-		/// Copy assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(const Stream& other) -> Stream& = default;
+		Stream(const Stream& other) noexcept(true) = delete;
 
 		/// <summary>
 		/// Move assignment operator.
@@ -334,6 +352,13 @@ namespace Nominax::ByteCode
 		auto operator =(Stream&& other) -> Stream& = default;
 
 		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const Stream& other) -> Stream& = delete;
+
+		/// <summary>
 		/// Destructor.
 		/// </summary>
 		~Stream() = default;
@@ -341,37 +366,30 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>The vector used as buffer.</returns>
+		/// <returns>The underlying code buffer.</returns>
 		[[nodiscard]]
-		auto Buffer() const noexcept(true) -> const StorageType&;
+		auto CodeBuffer() const noexcept(true) -> const CodeStorageType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying discriminator buffer.</returns>
+		[[nodiscard]]
+		auto DiscriminatorBuffer() const noexcept(true) -> const DiscriminatorStorageType&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Front() noexcept(true) -> DynamicSignal&;
+		auto Front() const noexcept(true) -> Pair;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Back() noexcept(true) -> DynamicSignal&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto Front() const noexcept(true) -> const DynamicSignal&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto Back() const noexcept(true) -> const DynamicSignal&;
+		auto Back() const noexcept(true) -> Pair;
 
 		/// <summary>
 		/// Clears the content of the whole stream.
@@ -416,54 +434,6 @@ namespace Nominax::ByteCode
 		auto SizeInBytes() const noexcept(true) -> std::size_t;
 
 		/// <summary>
-		/// Insert range.
-		/// </summary>
-		/// <param name="begin"></param>
-		/// <param name="end"></param>
-		/// <returns></returns>
-		template <typename Iterator>
-		auto Insert(Iterator begin, Iterator end) noexcept(false) -> void;
-
-		/// <summary>
-		/// STL iterator compat
-		/// </summary>
-		/// <returns></returns>
-		// ReSharper disable once CppInconsistentNaming
-		[[nodiscard]]
-		auto begin() noexcept(true) -> StorageType::iterator;
-
-		/// <summary>
-		/// STL iterator compat
-		/// </summary>
-		/// <returns></returns>
-		// ReSharper disable once CppInconsistentNaming
-		[[nodiscard]]
-		auto end() noexcept(true) -> StorageType::iterator;
-
-		/// <summary>
-		/// STL iterator compat
-		/// </summary>
-		/// <returns></returns>
-		// ReSharper disable once CppInconsistentNaming
-		[[nodiscard]]
-		auto begin() const noexcept(true) -> StorageType::const_iterator;
-
-		/// <summary>
-		/// STL iterator compat
-		/// </summary>
-		/// <returns></returns>
-		// ReSharper disable once CppInconsistentNaming
-		[[nodiscard]]
-		auto end() const noexcept(true) -> StorageType::const_iterator;
-
-		/// <summary>
-		/// Push stream entry.
-		/// </summary>
-		/// <param name="sig"></param>
-		/// <returns></returns>
-		auto operator <<(const DynamicSignal& sig) noexcept(false) -> Stream&;
-
-		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="instr"></param>
@@ -475,14 +445,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
-		auto operator <<(SystemIntrinsicCallId intrin) noexcept(false) -> Stream&;
+		auto operator <<(SystemIntrinsicCallID intrin) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
-		auto operator <<(CustomIntrinsicCallId intrin) noexcept(false) -> Stream&;
+		auto operator <<(CustomIntrinsicCallID intrin) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
@@ -544,7 +514,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) noexcept(false) -> DynamicSignal&;
+		auto operator [](std::size_t idx) noexcept(false) -> RefPair;
 
 		/// <summary>
 		/// Index lookup.
@@ -552,7 +522,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) const noexcept(false) -> const DynamicSignal&;
+		auto operator [](std::size_t idx) const noexcept(false) -> Pair;
 
 		/// <summary>
 		/// Insert instruction manually with immediate arguments.
@@ -640,11 +610,17 @@ namespace Nominax::ByteCode
 		auto SetOptimizationLevel(OptimizationLevel optimizationLevel) noexcept(true) -> void;
 	};
 
-	inline Stream::Stream(StorageType&& data) noexcept(true) : Storage_ {std::move(data)} { }
+	constexpr auto Stream::PrologueCode() noexcept(true) -> const auto&
+	{
+		return PROLOGUE_CODE;
+	}
+
+	constexpr auto Stream::EpilogueCode() noexcept(true) -> const auto&
+	{
+		return EPILOGUE_CODE;
+	}
 
 	inline Stream::Stream(const OptimizationLevel optimizationLevel) noexcept(true) : OptimizationLevel_ {optimizationLevel} { }
-
-	inline Stream::Stream(StorageType&& data, const OptimizationLevel optimizationLevel) noexcept(true) : Storage_ {std::move(data)}, OptimizationLevel_ {optimizationLevel} {}
 
 	inline auto Stream::GetOptimizationLevel() const noexcept(true) -> OptimizationLevel
 	{
@@ -696,24 +672,14 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	inline auto Stream::Front() noexcept(true) -> DynamicSignal&
+	inline auto Stream::Front() const noexcept(true) -> Pair
 	{
-		return this->Storage_.front();
+		return {this->CodeDiscrimination_.front(), this->Code_.front()};
 	}
 
-	inline auto Stream::Back() noexcept(true) -> DynamicSignal&
+	inline auto Stream::Back() const noexcept(true) -> Pair
 	{
-		return this->Storage_.back();
-	}
-
-	inline auto Stream::Front() const noexcept(true) -> const DynamicSignal&
-	{
-		return this->Storage_.front();
-	}
-
-	inline auto Stream::Back() const noexcept(true) -> const DynamicSignal&
-	{
-		return this->Storage_.back();
+		return {this->CodeDiscrimination_.back(), this->Code_.back()};
 	}
 
 	inline auto Stream::GetInstructionCount() const noexcept(true) -> std::size_t
@@ -721,190 +687,131 @@ namespace Nominax::ByteCode
 		return this->InstructionCounter_;
 	}
 
-	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> DynamicSignal&
+	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> RefPair
 	{
-		return this->Storage_[idx];
+		return {this->CodeDiscrimination_[idx], this->Code_[idx]};
 	}
 
-	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> const DynamicSignal&
+	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> Pair
 	{
-		return this->Storage_[idx];
+		return {this->CodeDiscrimination_[idx], this->Code_[idx]};
 	}
 
 	inline auto Stream::IsEmpty() const noexcept(true) -> bool
 	{
-		return this->Storage_.empty();
+		return this->Code_.empty() && this->CodeDiscrimination_.empty();
 	}
 
-	inline auto Stream::Buffer() const noexcept(true) -> const StorageType&
+	inline auto Stream::CodeBuffer() const noexcept(true) -> const CodeStorageType&
 	{
-		return this->Storage_;
+		return this->Code_;
+	}
+
+	inline auto Stream::DiscriminatorBuffer() const noexcept(true) -> const DiscriminatorStorageType&
+	{
+		return this->CodeDiscrimination_;
 	}
 
 	inline auto Stream::Clear() noexcept(false) -> void
 	{
-		this->Storage_.clear();
+		this->Code_.clear();
+		this->CodeDiscrimination_.clear();
 	}
 
 	inline auto Stream::Resize(const std::size_t size) noexcept(false) -> void
 	{
-		this->Storage_.resize(size);
+		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		this->Code_.resize(size);
+		this->CodeDiscrimination_.resize(size);
 	}
 
 	inline auto Stream::Reserve(const std::size_t size) noexcept(false) -> void
 	{
-		this->Storage_.reserve(size);
+		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		this->Code_.reserve(size);
+		this->CodeDiscrimination_.reserve(size);
 	}
 
 	inline auto Stream::Size() const noexcept(true) -> std::size_t
 	{
-		return this->Storage_.size();
+		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		return this->Code_.size();
 	}
 
 	inline auto Stream::SizeInBytes() const noexcept(true) -> std::size_t
 	{
-		return this->Storage_.size() * sizeof(DynamicSignal);
-	}
-
-	template <typename Iterator>
-	inline auto Stream::Insert(Iterator begin, Iterator end) noexcept(false) -> void
-	{
-		std::for_each(begin, end, [this](const DynamicSignal& sig)
-		{
-			this->Storage_.emplace_back(sig);
-			if (sig.Contains<Instruction>())
-			{
-				++this->InstructionCounter_;
-			}
-		});
-	}
-
-	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::begin() noexcept(true) -> StorageType::iterator
-	{
-		return std::begin(this->Storage_);
-	}
-
-	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::end() noexcept(true) -> StorageType::iterator
-	{
-		return std::end(this->Storage_);
-	}
-
-	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::begin() const noexcept(true) -> StorageType::const_iterator
-	{
-		return std::begin(this->Storage_);
-	}
-
-	// ReSharper disable once CppInconsistentNaming
-	inline auto Stream::end() const noexcept(true) -> StorageType::const_iterator
-	{
-		return std::end(this->Storage_);
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <param name="in"></param>
-	/// <returns></returns>
-	// ReSharper disable once CppInconsistentNaming
-	inline auto begin(Stream& in) noexcept(true) -> Stream::StorageType::iterator
-	{
-		return in.begin();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <param name="in"></param>
-	/// <returns></returns>
-	// ReSharper disable once CppInconsistentNaming
-	inline auto end(Stream& in) noexcept(true) -> Stream::StorageType::iterator
-	{
-		return in.end();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <param name="in"></param>
-	/// <returns></returns>
-	// ReSharper disable once CppInconsistentNaming
-	inline auto begin(const Stream& in) noexcept(true) -> Stream::StorageType::const_iterator
-	{
-		return in.begin();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <param name="in"></param>
-	/// <returns></returns>
-	// ReSharper disable once CppInconsistentNaming
-	inline auto end(const Stream& in) noexcept(true) -> Stream::StorageType::const_iterator
-	{
-		return in.end();
-	}
-
-	inline auto Stream::operator<<(const DynamicSignal& sig) noexcept(false) -> Stream&
-	{
-		this->Storage_.emplace_back(sig);
-		return *this;
+		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		return
+			this->Code_.size()
+			* sizeof(Signal)
+			+ this->CodeDiscrimination_.size()
+			* sizeof(Signal::Discriminator);
 	}
 
 	inline auto Stream::operator <<(const Instruction instr) noexcept(false) -> Stream&
 	{
-		this->Storage_.emplace_back(DynamicSignal {instr});
+		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		this->Code_.emplace_back(Signal {instr});
+		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::Instruction);
 		++this->InstructionCounter_;
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const SystemIntrinsicCallId intrin) noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const SystemIntrinsicCallID intrin) noexcept(false) -> Stream&
 	{
-		this->Storage_.emplace_back(DynamicSignal {intrin});
+		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		this->Code_.emplace_back(Signal {intrin});
+		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::SystemIntrinsicCallID);
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const CustomIntrinsicCallId intrin) noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const CustomIntrinsicCallID intrin) noexcept(false) -> Stream&
 	{
-		this->Storage_.emplace_back(DynamicSignal {intrin});
+		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		this->Code_.emplace_back(Signal {intrin});
+		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::CustomIntrinsicCallID);
 		return *this;
 	}
 
 	inline auto Stream::operator<<(const JumpAddress address) noexcept(false) -> Stream&
 	{
-		this->Storage_.emplace_back(DynamicSignal {address});
+		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		this->Code_.emplace_back(Signal {address});
+		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::JumpAddress);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const U64 value) noexcept(false) -> Stream&
 	{
-		this->Storage_.emplace_back(DynamicSignal {value});
+		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		this->Code_.emplace_back(Signal {value});
+		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::U64);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const I64 value) noexcept(false) -> Stream&
 	{
-		this->Storage_.emplace_back(DynamicSignal {value});
+		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		this->Code_.emplace_back(Signal {value});
+		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::I64);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const F64 value) noexcept(false) -> Stream&
 	{
-		this->Storage_.emplace_back(DynamicSignal {value});
+		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		this->Code_.emplace_back(Signal {value});
+		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::F64);
 		return *this;
 	}
 
 	inline auto Stream::operator<<(const signed value) noexcept(false) -> Stream&
 	{
-		this->Storage_.emplace_back(DynamicSignal {static_cast<I64>(value)});
-		return *this;
+		return *this << static_cast<I64>(value);
 	}
 
 	inline auto Stream::operator <<(const Core::CharClusterUtf8 value) noexcept(false) -> Stream&
 	{
-		this->Storage_.emplace_back(DynamicSignal {value});
-		return *this;
+		return *this << value.Merged;
 	}
 }

@@ -207,10 +207,9 @@
 
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <string_view>
-
-#include "DynamicSignal.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -275,11 +274,6 @@ namespace Nominax::ByteCode
 	/// Size of the extracted fault code section.
 	/// </summary>
 	constexpr std::size_t CROPPED_FAULT_CODE_DUMP_SIZE {8};
-
-	/// <summary>
-	/// Contains the code section which contains the validation error.
-	/// </summary>
-	using CroppedFaultCodeSection = std::array<DynamicSignal, CROPPED_FAULT_CODE_DUMP_SIZE>;
 
 	/// <summary>
 	/// Contains the "ByteCodeValidationResult" enum which is used

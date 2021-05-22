@@ -210,7 +210,7 @@
 
 namespace Nominax::ByteCode
 {
-	auto CalculateInstructionMapping(const std::span<const DynamicSignal> input, std::span<bool>& output) -> bool
+	auto CalculateInstructionMapping(std::span<const Signal::Discriminator> input, std::span<bool>& output) -> bool
 	{
 		if (NOMINAX_UNLIKELY(std::size(input) != std::size(output)))
 		{
@@ -220,9 +220,9 @@ namespace Nominax::ByteCode
 		auto       iterator {std::begin(input)};
 		const auto end {std::end(input)};
 
-		for (bool* flag = &output[0]; NOMINAX_LIKELY(iterator < end); ++iterator, ++flag)
+		for (bool* flag = output.data(); NOMINAX_LIKELY(iterator < end); ++iterator, ++flag)
 		{
-			*flag = iterator->Contains<Instruction>();
+			*flag = *iterator == Signal::Discriminator::Instruction;
 		}
 
 		return true;

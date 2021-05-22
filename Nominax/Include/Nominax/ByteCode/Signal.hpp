@@ -219,15 +219,29 @@
 namespace Nominax::ByteCode
 {
 	/// <summary>
-	/// Raw representation of a signal as bytes.
-	/// </summary>
-	using SignalByteBuffer = std::array<std::byte, 8>;
-
-	/// <summary>
 	/// 64-bit byte code signal data contains either an instruction or an immediate value.
 	/// </summary>
 	union alignas(alignof(U64)) Signal
 	{
+		/// <summary>
+		/// Discriminator for discriminated signals.
+		/// </summary>
+		enum class Discriminator: U8
+		{
+			U64,
+			I64,
+			F64,
+			CharClusterUtf8,
+			CharClusterUtf16,
+			CharClusterUtf32,
+			Instruction,
+			SystemIntrinsicCallID,
+			CustomIntrinsicCallID,
+			OpCode,
+			Ptr,
+			JumpAddress
+		};
+
 		/// <summary>
 		/// Reinterpret as Record64.
 		/// </summary>
@@ -241,12 +255,12 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as system intrinsic call id.
 		/// </summary>
-		SystemIntrinsicCallId SystemIntrinId;
+		SystemIntrinsicCallID SystemIntrinId;
 
 		/// <summary>
 		/// Reinterpret as custom intrinsic call id.
 		/// </summary>
-		CustomIntrinsicCallId CustomIntrinId;
+		CustomIntrinsicCallID CustomIntrinId;
 
 		/// <summary>
 		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
@@ -288,14 +302,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(SystemIntrinsicCallId value) noexcept(true);
+		explicit constexpr Signal(SystemIntrinsicCallID value) noexcept(true);
 
 		/// <summary>
 		/// Construct from custom intrinsic call id.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(CustomIntrinsicCallId value) noexcept(true);
+		explicit constexpr Signal(CustomIntrinsicCallID value) noexcept(true);
 
 		/// <summary>
 		/// Construct from void pointer.
@@ -349,8 +363,8 @@ namespace Nominax::ByteCode
 
 	constexpr Signal::Signal(const Core::Record value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const Instruction value) noexcept(true) : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicCallId value) noexcept(true) : SystemIntrinId {value} {}
-	constexpr Signal::Signal(const CustomIntrinsicCallId value) noexcept(true) : CustomIntrinId {value} {}
+	constexpr Signal::Signal(const SystemIntrinsicCallID value) noexcept(true) : SystemIntrinId {value} {}
+	constexpr Signal::Signal(const CustomIntrinsicCallID value) noexcept(true) : CustomIntrinId {value} {}
 	constexpr Signal::Signal(void* const value) noexcept(true) : Ptr {value} {}
 	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
@@ -359,7 +373,11 @@ namespace Nominax::ByteCode
 	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JumpTarget {value} {}
 
-	static_assert(sizeof(SignalByteBuffer) == sizeof(Signal));
+	/// <summary>
+	/// Raw representation of a signal as bytes.
+	/// </summary>
+	using SignalByteBuffer = std::array<U8, sizeof(Signal)>;
+
 	static_assert(std::is_trivial_v<Signal>);
 	static_assert(std::is_default_constructible_v<Signal>);
 	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, U64>);

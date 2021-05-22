@@ -214,7 +214,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Cos)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Cos},
+		Signal {SystemIntrinsicCallID::Cos},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -237,7 +237,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Sin)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Sin},
+		Signal {SystemIntrinsicCallID::Sin},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -260,7 +260,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Tan)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Tan},
+		Signal {SystemIntrinsicCallID::Tan},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -283,7 +283,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ACos)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ACos},
+		Signal {SystemIntrinsicCallID::ACos},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -306,7 +306,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ASin)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ASin},
+		Signal {SystemIntrinsicCallID::ASin},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -329,7 +329,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ATan},
+		Signal {SystemIntrinsicCallID::ATan},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -354,7 +354,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan2)
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ATan2},
+		Signal {SystemIntrinsicCallID::ATan2},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -378,7 +378,7 @@ TEST(ReactorExecution, IntrinsicRoutine_CosH)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::CosH},
+		Signal {SystemIntrinsicCallID::CosH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -401,7 +401,7 @@ TEST(ReactorExecution, IntrinsicRoutine_SinH)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::SinH},
+		Signal {SystemIntrinsicCallID::SinH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -424,7 +424,7 @@ TEST(ReactorExecution, IntrinsicRoutine_TanH)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::TanH},
+		Signal {SystemIntrinsicCallID::TanH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -447,7 +447,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ACosH)
 		Signal {Instruction::Push},
 		Signal {1.6},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ACosH},
+		Signal {SystemIntrinsicCallID::ACosH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -470,7 +470,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ASinH)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ASinH},
+		Signal {SystemIntrinsicCallID::ASinH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -493,7 +493,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ATanH)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ATanH},
+		Signal {SystemIntrinsicCallID::ATanH},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -516,7 +516,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Exp},
+		Signal {SystemIntrinsicCallID::Exp},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -539,7 +539,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Log)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Log},
+		Signal {SystemIntrinsicCallID::Log},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -562,7 +562,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Log10)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Log10},
+		Signal {SystemIntrinsicCallID::Log10},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -585,7 +585,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp2)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Exp2},
+		Signal {SystemIntrinsicCallID::Exp2},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -608,7 +608,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ILogB)
 		Signal {Instruction::Push},
 		Signal {1.332},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::ILogB},
+		Signal {SystemIntrinsicCallID::ILogB},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -631,7 +631,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Log2)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Log2},
+		Signal {SystemIntrinsicCallID::Log2},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -656,7 +656,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Pow)
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Pow},
+		Signal {SystemIntrinsicCallID::Pow},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -681,7 +681,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Sqrt)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Sqrt},
+		Signal {SystemIntrinsicCallID::Sqrt},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -704,7 +704,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Cbrt)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Cbrt},
+		Signal {SystemIntrinsicCallID::Cbrt},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -729,7 +729,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Hypot)
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Hypot},
+		Signal {SystemIntrinsicCallID::Hypot},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -753,7 +753,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Ceil)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Ceil},
+		Signal {SystemIntrinsicCallID::Ceil},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -776,7 +776,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Floor)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Floor},
+		Signal {SystemIntrinsicCallID::Floor},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -799,7 +799,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Round)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Round},
+		Signal {SystemIntrinsicCallID::Round},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -822,7 +822,7 @@ TEST(ReactorExecution, IntrinsicRoutine_RInt)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::RInt},
+		Signal {SystemIntrinsicCallID::RInt},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -847,7 +847,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IMax)
 		Signal {Instruction::Push},
 		Signal {INT64_C(7)},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::IMax},
+		Signal {SystemIntrinsicCallID::IMax},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -873,7 +873,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IMin)
 		Signal {Instruction::Push},
 		Signal {INT64_C(7)},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::IMin},
+		Signal {SystemIntrinsicCallID::IMin},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -899,7 +899,7 @@ TEST(ReactorExecution, IntrinsicRoutine_FMax)
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::FMax},
+		Signal {SystemIntrinsicCallID::FMax},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -925,7 +925,7 @@ TEST(ReactorExecution, IntrinsicRoutine_FMin)
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::FMin},
+		Signal {SystemIntrinsicCallID::FMin},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -951,7 +951,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Dim)
 		Signal {Instruction::Push},
 		Signal {0.15},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::Dim},
+		Signal {SystemIntrinsicCallID::Dim},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -976,7 +976,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 		Signal {Instruction::Push},
 		Signal {INT64_C(223233)},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::IAbs},
+		Signal {SystemIntrinsicCallID::IAbs},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -999,7 +999,7 @@ TEST(ReactorExecution, IntrinsicRoutine_FAbs)
 		Signal {Instruction::Push},
 		Signal {0.35},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::FAbs},
+		Signal {SystemIntrinsicCallID::FAbs},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -1022,7 +1022,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortWrite)
 		Signal {Instruction::Push},
 		Signal {u8"Hey =)\n"_cluster},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::IoPortWriteCluster},
+		Signal {SystemIntrinsicCallID::IoPortWriteCluster},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -1047,7 +1047,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortRead)
 		Signal {Instruction::Push},
 		Signal {0_uint},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::IoPortReadCluster},
+		Signal {SystemIntrinsicCallID::IoPortReadCluster},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};
@@ -1071,9 +1071,9 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortFlush)
 		Signal {Instruction::Push},
 		Signal {u8"Hey =)\n"_cluster},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::IoPortWriteCluster},
+		Signal {SystemIntrinsicCallID::IoPortWriteCluster},
 		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallId::IoPortFlush},
+		Signal {SystemIntrinsicCallID::IoPortFlush},
 		Signal {Instruction::Int},
 		Signal {INT64_C(-12345)},
 	};

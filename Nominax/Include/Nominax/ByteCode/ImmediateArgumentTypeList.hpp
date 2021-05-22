@@ -210,27 +210,15 @@
 #include <array>
 #include <vector>
 
-#include "DynamicSignal.hpp"
-#include "../Common/VariantTools.hpp"
+#include "Signal.hpp"
+#include "Instruction.hpp"
 
 namespace Nominax::ByteCode
 {
 	/// <summary>
-	/// 
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <returns></returns>
-	template <typename T>
-	constexpr auto DySigIdx() noexcept(true) -> U8
-	{
-		static_assert(Common::VariantIndexOf<DynamicSignal::StorageType, T>() <= std::numeric_limits<U8>::max());
-		return static_cast<U8>(Common::VariantIndexOf<DynamicSignal::StorageType, T>());
-	}
-
-	/// <summary>
 	/// Contains the variant type indices of the storage type of DynamicSignal.
 	/// </summary>
-	using TypeIndexTable = std::vector<std::uint8_t>;
+	using TypeIndexTable = std::vector<Signal::Discriminator>;
 
 	/// <summary>
 	/// 

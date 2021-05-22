@@ -1,6 +1,6 @@
-// File: DynamicSignal.hpp
+// File: StreamPair.hpp
 // Author: Mario
-// Created: 24.04.2021 9:48 PM
+// Created: 22.05.2021 3:34 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,20 +207,10 @@
 
 #pragma once
 
-#include <array>
-#include <cstdint>
 #include <optional>
-#include <variant>
+#include <type_traits>
 
-#include "../Common/BaseTypes.hpp"
-#include "../Common/LiteralOp.hpp"
-#include "../Common/F64Comparator.hpp"
-
-#include "Signal.hpp"
-#include "Instruction.hpp"
-#include "SystemIntrinsic.hpp"
-#include "CustomIntrinsic.hpp"
-#include "JumpAddress.hpp"
+#include "../Core/CharCluster.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -239,332 +229,127 @@ namespace Nominax::ByteCode
 		std::is_trivial_v<T>;
 	};
 
-	/// <summary>
-	/// Represents an entry in a byte code steam. This get's converted to a signal for execution.
-	/// </summary>
-	struct DynamicSignal final
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto MapStreamType() -> std::optional<Signal::Discriminator>
 	{
-		/// <summary>
-		/// Discriminated union.
-		/// </summary>
-		using StorageType = std::variant<Instruction, SystemIntrinsicCallId, CustomIntrinsicCallId, JumpAddress, U64, I64, F64, Core::CharClusterUtf8>;
+		if constexpr (std::is_same_v<Instruction, T>)
+		{
+			return {Signal::Discriminator::Instruction};
+		}
+		else if constexpr (std::is_same_v<SystemIntrinsicCallID, T>)
+		{
+			return {Signal::Discriminator::SystemIntrinsicCallID};
+		}
+		else if constexpr (std::is_same_v<CustomIntrinsicCallID, T>)
+		{
+			return {Signal::Discriminator::CustomIntrinsicCallID};
+		}
+		else if constexpr (std::is_same_v<JumpAddress, T>)
+		{
+			return {Signal::Discriminator::JumpAddress};
+		}
+		else if constexpr (std::is_same_v<U64, T>)
+		{
+			return {Signal::Discriminator::U64};
+		}
+		else if constexpr (std::is_same_v<I64, T>)
+		{
+			return {Signal::Discriminator::I64};
+		}
+		else if constexpr (std::is_same_v<F64, T>)
+		{
+			return {Signal::Discriminator::F64};
+		}
+		else if constexpr (std::is_same_v<Core::CharClusterUtf8, T>)
+		{
+			return {Signal::Discriminator::CharClusterUtf8};
+		}
+		else if constexpr (std::is_same_v<Core::CharClusterUtf16, T>)
+		{
+			return {Signal::Discriminator::CharClusterUtf16};
+		}
+		else if constexpr (std::is_same_v<Core::CharClusterUtf32, T>)
+		{
+			return {Signal::Discriminator::CharClusterUtf32};
+		}
+		else
+		{
+			return std::nullopt;
+		}
+	}
 
-		/// <summary>
-		/// Default construct an I64(0)
-		/// </summary>
-		/// <returns></returns>
-		constexpr DynamicSignal() noexcept(true);
+	template <typename D = Signal::Discriminator, typename V = Signal> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
+	struct StreamPair
+	{
+		D Discriminator;
+		V Value;
 
-		/// <summary>
-		/// Construct from data union.
-		/// </summary>
-		/// <param name="data">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(StorageType&& data) noexcept(true);
-
-		/// <summary>
-		/// Construct from instruction.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(Instruction value) noexcept(true);
-
-		/// <summary>
-		/// Construct from system intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(SystemIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from custom intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(CustomIntrinsicCallId value) noexcept(true);
-
-		/// <summary>
-		/// Construct from jump address.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(JumpAddress value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit unsigned quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(U64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit signed quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(I64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit F64 precision F32.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(F64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 32-bit UTF32 character.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr DynamicSignal(Core::CharClusterUtf8 value) noexcept(true);
-
-		/// <summary>
-		/// Copy constructor.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr DynamicSignal(const DynamicSignal&) noexcept(true) = default;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr DynamicSignal(DynamicSignal&&) noexcept(true) = default;
-
-		/// <summary>
-		/// Copy assignment operator.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr auto operator =(const DynamicSignal&) noexcept(true) -> DynamicSignal& = default;
-
-		/// <summary>
-		/// Move assignment operator.
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
-		constexpr auto operator =(DynamicSignal&&) noexcept(true) -> DynamicSignal& = default;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~DynamicSignal() = default;
-
-		/// <summary>
-		/// Convert to undiscriminated runtime signal.
-		/// </summary>
-		[[nodiscard]]
-		auto Transform() const noexcept(true) -> Signal;
-
-		/// <summary>
-		/// Try to extract raw data.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		template <typename T> requires BytecodeElement<T>
-		[[nodiscard]]
-		constexpr auto Unwrap() const noexcept(false) -> std::optional<T>;
-
-		/// <summary>
-		/// Try to extract raw data but unchecked.
-		/// This is dangerous, only use if you 100% know the type!
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		template <typename T> requires BytecodeElement<T>
-		[[nodiscard]]
-		constexpr auto UnwrapUnchecked() const noexcept(false) -> T;
-
-		/// <summary>
-		/// Check if generic T is contained.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto Contains() const noexcept(true) -> bool;
 
-		/// <summary>
-		/// Check if generic T and value is contained.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="other"></param>
-		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Contains(T other) const noexcept(true) -> bool;
+		constexpr auto Contains(T value) const noexcept(true) -> bool;
 
-		/// <summary>
-		/// Equals.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator ==(const DynamicSignal& other) const noexcept(false) -> bool;
-
-		/// <summary>
-		/// Not equals.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator !=(const DynamicSignal& other) const noexcept(false) -> bool;
-
-		/// <summary>
-		/// Raw data variant (discriminated union)
-		/// </summary>
-		StorageType Storage { };
-
-		/// <summary>
-		/// Common code prologue.
-		/// </summary>
-		/// <returns></returns>
+		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		static constexpr auto CodePrologue() noexcept(true) -> const std::array<DynamicSignal, 1>&;
+		constexpr auto Unwrap() const noexcept(true) -> std::optional<std::remove_reference_t<T>>;
 
-		/// <summary>
-		/// Common code epilogue.
-		/// </summary>
-		/// <returns></returns>
+		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		static constexpr auto CodeEpilogue() noexcept(true) -> const std::array<DynamicSignal, 2>&;
+		constexpr auto UnwrapUnchecked() const noexcept(true) -> std::remove_reference_t<T>;
+
+		constexpr auto operator ==(const StreamPair& other) const noexcept(true) -> bool;
+		constexpr auto operator !=(const StreamPair& other) const noexcept(true) -> bool;
 	};
 
-	/// <summary>
-	/// This contains the total number of signals in the prologue + epilogue code.
-	/// Each code chunk must have at least the size of this because prologue and epilogue are required.
-	/// </summary>
-	inline static const std::size_t MANDATORY_CODE_SIZE {DynamicSignal::CodePrologue().size() + DynamicSignal::CodeEpilogue().size()};
-
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal() noexcept(true) : Storage {UINT64_C(0)} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(StorageType&& data) noexcept(true) : Storage {data} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const Instruction value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const U64 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const I64 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const F64 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const Core::CharClusterUtf8 value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const SystemIntrinsicCallId value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const CustomIntrinsicCallId value) noexcept(true) : Storage {value} {}
-
-	/// <summary>
-	/// Constructor.
-	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr DynamicSignal::DynamicSignal(const JumpAddress value) noexcept(true) : Storage {value} { }
-
-	/// <summary>
-	/// Equals
-	/// </summary>
-	/// <param name="other"></param>
-	/// <returns></returns>
-	constexpr auto DynamicSignal::operator==(const DynamicSignal& other) const noexcept(false) -> bool
+	template <typename D, typename V> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto StreamPair<D, V>::Contains() const noexcept(true) -> bool
 	{
-		return this->Storage == other.Storage;
+		static_assert(MapStreamType<T>());
+		return this->Discriminator == *MapStreamType<T>();
 	}
 
-	/// <summary>
-	/// Not equals
-	/// </summary>
-	/// <param name="other"></param>
-	/// <returns></returns>
-	constexpr auto DynamicSignal::operator!=(const DynamicSignal& other) const noexcept(false) -> bool
+	template <typename D, typename V> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto StreamPair<D, V>::Contains(T value) const noexcept(true) -> bool
+	{
+		static_assert(MapStreamType<std::remove_reference_t<T>>());
+		const bool result
+		{
+			this->Discriminator == *MapStreamType<std::remove_reference_t<T>>()
+			&& this->Value.R64.AsU64 == std::bit_cast<decltype(this->Value.R64.AsU64)>(value)
+		};
+		return result;
+	}
+
+	template <typename D, typename V> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto StreamPair<D, V>::Unwrap() const noexcept(true) -> std::optional<std::remove_reference_t<T>>
+	{
+		return this->template Contains<T>()
+			       ? std::optional<std::remove_reference_t<T>> {std::bit_cast<T>(this->Value.R64.AsU64)}
+			       : std::optional<std::remove_reference_t<T>> {std::nullopt};
+	}
+
+	template <typename D, typename V> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto StreamPair<D, V>::UnwrapUnchecked() const noexcept(true) -> std::remove_reference_t<T>
+	{
+		return std::bit_cast<T>(this->Value.R64.AsU64);
+	}
+
+	template <typename D, typename V> requires std::is_same_v<typename std::remove_reference<D>::type, Signal::Discriminator>
+	constexpr auto StreamPair<D, V>::operator==(const StreamPair& other) const noexcept(true) -> bool
+	{
+		return this->Value.R64.AsU64 == other.Value.R64.AsU64;
+	}
+
+	template <typename D, typename V> requires std::is_same_v<typename std::remove_reference<D>::type, Signal::Discriminator>
+	constexpr auto StreamPair<D, V>::operator!=(const StreamPair& other) const noexcept(true) -> bool
 	{
 		return !(*this == other);
-	}
-
-	constexpr std::array PROLOGUE_DATA
-	{
-		DynamicSignal {Instruction::NOp}
-	};
-
-	constexpr auto DynamicSignal::CodePrologue() noexcept(true) -> const std::array<DynamicSignal, 1>&
-	{
-		return PROLOGUE_DATA;
-	}
-
-	constexpr std::array EPILOGUE_DATA
-	{
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
-
-	constexpr auto DynamicSignal::CodeEpilogue() noexcept(true) -> const std::array<DynamicSignal, 2>&
-	{
-		return EPILOGUE_DATA;
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Unwrap() const noexcept(false) -> std::optional<T>
-	{
-		const auto* const val {std::get_if<T>(&this->Storage)};
-		return val ? std::optional<T> {*val} : std::optional<T> {std::nullopt};
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::UnwrapUnchecked() const noexcept(false) -> T
-	{
-		return *std::get_if<T>(&this->Storage);
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains() const noexcept(true) -> bool
-	{
-		return std::holds_alternative<T>(this->Storage);
-	}
-
-	template <typename T> requires BytecodeElement<T>
-	constexpr auto DynamicSignal::Contains(const T other) const noexcept(true) -> bool
-	{
-		const auto* const val {std::get_if<T>(&this->Storage)};
-		if constexpr (std::is_floating_point_v<T>)
-		{
-			return val && Common::F64Equals(*val, other);
-		}
-		return val && *val == other;
 	}
 }

@@ -225,7 +225,7 @@ auto formatter<Instruction, char, void>::format(const Instruction& value,
 	);
 }
 
-auto formatter<SystemIntrinsicCallId, char, void>::format(const SystemIntrinsicCallId& value,
+auto formatter<SystemIntrinsicCallID, char, void>::format(const SystemIntrinsicCallID& value,
                                                           format_context&              ctx) const noexcept(false) -> FormatOutput
 {
 	return format_to
@@ -238,7 +238,7 @@ auto formatter<SystemIntrinsicCallId, char, void>::format(const SystemIntrinsicC
 	);
 }
 
-auto formatter<CustomIntrinsicCallId, char, void>::format(const CustomIntrinsicCallId& value,
+auto formatter<CustomIntrinsicCallID, char, void>::format(const CustomIntrinsicCallID& value,
                                                           format_context&              ctx) const noexcept(false) -> FormatOutput
 {
 	return format_to
@@ -299,49 +299,4 @@ auto formatter<ReactorValidationResult, char, void>::format(const ReactorValidat
 {
 	const auto idx {static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
 	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
-}
-
-auto formatter<DynamicSignal>::format(const DynamicSignal& value, format_context& ctx) const noexcept(false) -> FormatOutput
-{
-	if (const auto* const x = std::get_if<Instruction>(&value.Storage))
-	{
-		return format_to(ctx.out(), "{}", *x);
-	}
-
-	if (const auto* const x = std::get_if<SystemIntrinsicCallId>(&value.Storage))
-	{
-		return format_to(ctx.out(), "{}", *x);
-	}
-
-	if (const auto* const x = std::get_if<CustomIntrinsicCallId>(&value.Storage))
-	{
-		return format_to(ctx.out(), "{}", *x);
-	}
-
-	if (const auto* const x = std::get_if<JumpAddress>(&value.Storage))
-	{
-		return format_to(ctx.out(), "{}", *x);
-	}
-
-	if (const auto* const x = std::get_if<U64>(&value.Storage))
-	{
-		return format_to(ctx.out(), "{}{}{}", Lexemes::IMMEDIATE, *x, Lexemes::LITERAL_SUFFIX_UINT);
-	}
-
-	if (const auto* const x = std::get_if<I64>(&value.Storage))
-	{
-		return format_to(ctx.out(), "{}{}{}", Lexemes::IMMEDIATE, *x, Lexemes::LITERAL_SUFFIX_INT);
-	}
-
-	if (const auto* const x = std::get_if<F64>(&value.Storage))
-	{
-		return format_to(ctx.out(), "{}{}{}", Lexemes::IMMEDIATE, *x, Lexemes::LITERAL_SUFFIX_FLOAT);
-	}
-
-	if (const auto* const x = std::get_if<CharClusterUtf8>(&value.Storage))
-	{
-		return format_to(ctx.out(), "{}", *x);
-	}
-
-	return format_to(ctx.out(), "index: {}", Lexemes::IMMEDIATE, value.Storage.index(), Lexemes::LITERAL_SUFFIX_UINT);
 }

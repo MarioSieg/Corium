@@ -232,10 +232,10 @@ TEST(ValidatorAlgorithms, ValidateJumpAddressValid)
 
 TEST(ValidatorAlgorithms, ValidateSystemIntrinsicCall)
 {
-	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallId::ACos));
-	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallId::IoPortWriteCluster));
-	ASSERT_FALSE(ValidateSystemIntrinsicCall(SystemIntrinsicCallId::Count));
-	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<SystemIntrinsicCallId>(-1)));
+	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallID::ACos));
+	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallID::IoPortWriteCluster));
+	ASSERT_FALSE(ValidateSystemIntrinsicCall(SystemIntrinsicCallID::Count));
+	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<SystemIntrinsicCallID>(-1)));
 }
 
 TEST(ValidatorAlgorithms, ValidateCustomIntrinsicCall)
@@ -246,10 +246,10 @@ TEST(ValidatorAlgorithms, ValidateCustomIntrinsicCall)
 		nullptr
 	};
 
-	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallId{ 0 }));
-	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallId{ 1 }));
-	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallId{ 2 }));
-	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallId{ 3 }));
+	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallID{ 0 }));
+	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallID{ 1 }));
+	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallID{ 2 }));
+	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, CustomIntrinsicCallID{ 3 }));
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Int)
@@ -278,9 +278,9 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Intrin)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3_int}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { {} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicCallId::ASin}, DynamicSignal{SystemIntrinsicCallId::ASin} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicCallID::ASin}, DynamicSignal{SystemIntrinsicCallID::ASin} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicCallId::ASin} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicCallID::ASin} }), ValidationResultCode::Ok);
 }
 
 
@@ -291,9 +291,9 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_CIntrin)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_int}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { {} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{CustomIntrinsicCallId{3}}, DynamicSignal{CustomIntrinsicCallId{3}} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{CustomIntrinsicCallID{3}}, DynamicSignal{CustomIntrinsicCallID{3}} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{CustomIntrinsicCallId{3}} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{CustomIntrinsicCallID{3}} }), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_None)
@@ -313,8 +313,8 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3_int} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3_uint} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3.0_float} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{SystemIntrinsicCallId::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{CustomIntrinsicCallId{3}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{SystemIntrinsicCallID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{CustomIntrinsicCallID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 
@@ -328,8 +328,8 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Sto_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_int}, DynamicSignal{3_int} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3.0_float},DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3.0_float},DynamicSignal{3.0_float} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{SystemIntrinsicCallId::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{CustomIntrinsicCallId{3}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{SystemIntrinsicCallID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{CustomIntrinsicCallID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 

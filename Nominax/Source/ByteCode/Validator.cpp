@@ -224,17 +224,16 @@ namespace Nominax::ByteCode
 
 	using Cache = InstructionCache;
 
-	auto ContainsPrologue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool
+	auto ContainsPrologue(const Stream& input) noexcept(false) -> bool
 	{
-		constexpr const auto& code {DynamicSignal::CodePrologue()};
-		if (NOMINAX_UNLIKELY(input.size() < code.size()))
+		constexpr const auto& code {Stream::PrologueCode()};
+		if (NOMINAX_UNLIKELY(input.Size() < code.size()))
 		{
 			return false;
 		}
-		const auto begin {std::begin(input)};
 		for (std::size_t i {0}; i < code.size(); ++i)
 		{
-			if (NOMINAX_UNLIKELY(code[i] != begin[i]))
+			if (NOMINAX_UNLIKELY(code[i] != input[i]))
 			{
 				return false;
 			}
@@ -242,17 +241,16 @@ namespace Nominax::ByteCode
 		return true;
 	}
 
-	auto ContainsEpilogue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool
+	auto ContainsEpilogue(const Stream& input) noexcept(false) -> bool
 	{
-		constexpr const auto& code {DynamicSignal::CodeEpilogue()};
-		if (NOMINAX_UNLIKELY(input.size() < code.size()))
+		constexpr const auto& code {Stream::EpilogueCode()};
+		if (NOMINAX_UNLIKELY(input.Size() < code.size()))
 		{
 			return false;
 		}
-		const auto end {std::end(input) - code.size()};
 		for (std::size_t i {0}; i < code.size(); ++i)
 		{
-			if (NOMINAX_UNLIKELY(code[i] != end[i]))
+			if (NOMINAX_UNLIKELY(code[i] != code[code.size() - 1 - i]))
 			{
 				return false;
 			}
@@ -260,17 +258,17 @@ namespace Nominax::ByteCode
 		return true;
 	}
 
-	auto GenerateChunkAndJumpMap(const std::span<const DynamicSignal>& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void
+	auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void
 	{
-		output.resize(input.size());
-		jumpMap.resize(input.size());
+		output.resize(input.Size());
+		jumpMap.resize(input.Size());
 
-		for (std::size_t i {0}; i < input.size(); ++i)
+		for (std::size_t i {0}; i < input.Size(); ++i)
 		{
 			const auto& in {input[i]};
 			auto&       out {output[i]};
 
-			out = in.Transform();
+			out = in.Value;
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
 
@@ -285,14 +283,7 @@ namespace Nominax::ByteCode
 		}
 	}
 
-	auto ValidateLastInstruction(const DynamicSignal* const instr, const std::ptrdiff_t argCount) noexcept(false) -> ValidationResultCode
-	{
-		const Instruction instruction {instr->UnwrapUnchecked<Instruction>()};
-		const std::span   args {instr + 1, instr + 1 + argCount};
-		return ValidateInstructionArguments(instruction, args);
-	}
-
-	auto ValidatePrePass(const std::span<const DynamicSignal>& input, Cache& output, const std::size_t estimatedInstructionCount) noexcept(false) -> ValidationResult
+	auto ValidatePrePass(const Stream& input, Cache& output, const std::size_t estimatedInstructionCount) noexcept(false) -> ValidationResult
 	{
 		std::future cache
 		{
@@ -301,28 +292,31 @@ namespace Nominax::ByteCode
 				const std::size_t chunkCount {std::thread::hardware_concurrency()};
 
 				Cache      out { };
-				const auto predictedCap {estimatedInstructionCount ? estimatedInstructionCount : input.size()};
+				const auto predictedCap {estimatedInstructionCount ? estimatedInstructionCount : input.Size()};
 				out.reserve(predictedCap);
 
-				if (auto        sequentialCopy {
-					[&out](auto begin, auto end)
+				if (auto sequentialCopy {
+					[&out]
+				(
+					const std::size_t                             count,
+					const std::span<const Signal::Discriminator>& discriminators
+				)
 					{
-						std::for_each(begin, end, [&out, index = static_cast<CompressedRelativePtr>(0)](const DynamicSignal& sig) mutable
+						for (CompressedRelativePtr i {0}; i < count; ++i)
 						{
-							if (sig.Contains<Instruction>())
+							if (discriminators[i] == Signal::Discriminator::Instruction)
 							{
-								out.emplace_back(index);
+								out.emplace_back(i);
 							}
-							++index;
-						});
+						}
 					}
-				}; NOMINAX_UNLIKELY(input.size() <= chunkCount))
+				}; NOMINAX_UNLIKELY(input.Size() <= chunkCount))
 				{
-					sequentialCopy(std::begin(input), std::end(input));
+					sequentialCopy(input.Size(), input.DiscriminatorBuffer());
 				}
 				else
 				{
-					const auto chunkSize {input.size() / chunkCount};
+					const auto chunkSize {input.Size() / chunkCount};
 
 					std::vector<std::future<Cache>> results { };
 					results.reserve(chunkCount);
@@ -330,17 +324,17 @@ namespace Nominax::ByteCode
 					// parallel copy chunks:
 					for (std::size_t i {0}; i < chunkCount; ++i)
 					{
-						const auto      begin {std::begin(input) + chunkSize * i};
-						const auto      end {i == chunkCount - 1 ? std::end(input) : begin + chunkSize};
+						const auto      begin {std::begin(input.DiscriminatorBuffer()) + chunkSize * i};
+						const auto      end {i == chunkCount - 1 ? std::end(input.DiscriminatorBuffer()) : begin + chunkSize};
 						const std::span range {begin, end};
 
 						results.emplace_back(std::async(std::launch::async, [range, needle = chunkSize * i]() -> Cache
 						{
 							Cache local { };
 							local.reserve(range.size());
-							std::ranges::for_each(range, [&local, index = needle](const DynamicSignal& sig) mutable
+							std::ranges::for_each(range, [&local, index = needle](const Signal::Discriminator sig) mutable
 							{
-								if (sig.Contains<Instruction>())
+								if (sig == Signal::Discriminator::Instruction)
 								{
 									local.emplace_back(index);
 								}
@@ -368,36 +362,37 @@ namespace Nominax::ByteCode
 		static_assert(decltype(index)::is_always_lock_free);
 
 		// Pass 0:
-		std::for_each(std::execution::par_unseq, std::begin(input), std::end(input), [&input, &error, &index](const auto& iterator) noexcept(false)
+		/*
+		std::for_each(std::execution::par_unseq, std::begin(input.DiscriminatorBuffer()), std::end(input.DiscriminatorBuffer()), [&input, &error, &index](const Signal::Discriminator& iterator) noexcept(false)
 		{
-			const DynamicSignal* const i {&iterator};
-			if (const auto* const x = std::get_if<JumpAddress>(&i->Storage))
+			if (iterator == Signal::Discriminator::JumpAddress)
 			{
-				if (const bool result {ValidateJumpAddress(input, *x)}; NOMINAX_UNLIKELY(!result))
+				if (const bool result {ValidateJumpAddress(input, iterator)}; NOMINAX_UNLIKELY(!result))
 				{
 					if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ValidationResultCode::Ok))) // only update the error once
 					{
 						error.store(static_cast<ErrorInt>(ValidationResultCode::InvalidJumpAddress)); // atomic store
-						index.store(&*std::end(input) - i);                                           // atomic store
+						index.store(0);                                           // atomic store
 					}
 				}
 			}
 		});
+						*/
 		output = cache.get();
 		return {static_cast<ValidationResultCode>(error.load()), index.load()};
 	}
 
-	auto ValidateFullPass(const std::span<const DynamicSignal>& input, const std::size_t estimatedInstructionCount,
-	                      std::pair<double, double>*            timings) noexcept(false) -> ValidationResult
+	auto ValidateFullPass(const Stream&              input, const std::size_t estimatedInstructionCount,
+	                      std::pair<double, double>* timings) noexcept(false) -> ValidationResult
 	{
 		// Check if empty:
-		if (NOMINAX_UNLIKELY(input.empty()))
+		if (NOMINAX_UNLIKELY(input.IsEmpty()))
 		{
 			return {ValidationResultCode::Empty, 0};
 		}
 
 		// Check if we've reached the pointer compression limit:
-		if (NOMINAX_UNLIKELY(input.size() >= std::numeric_limits<U32>::max()))
+		if (NOMINAX_UNLIKELY(input.Size() >= std::numeric_limits<U32>::max()))
 		{
 			return {ValidationResultCode::SignalLimitReached, 0};
 		}
@@ -434,6 +429,7 @@ namespace Nominax::ByteCode
 			timings->first = clock.ElapsedSecsF64().count(); // write timings of pass0
 		}
 
+		/*
 		if
 		(
 			const auto lastInstructionResult {ValidateLastInstruction(&input[instructionCache.back()], input.size() - instructionCache.back() - 1)};
@@ -442,6 +438,7 @@ namespace Nominax::ByteCode
 		{
 			return {lastInstructionResult, instructionCache.back()};
 		}
+		*/
 
 		// Remove last instruction
 		instructionCache.pop_back();
@@ -455,13 +452,15 @@ namespace Nominax::ByteCode
 		static_assert(decltype(error)::is_always_lock_free);
 		static_assert(decltype(index)::is_always_lock_free);
 
+		/*
+		
 		// Pass 1:
-		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, &input](const CompressedRelativePtr& iterator) noexcept(false)
+		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, input = input.CodeBuffer()](const CompressedRelativePtr& iterator) noexcept(false)
 		{
 			const CompressedRelativePtr next {*(&iterator + 1)};
-			const DynamicSignal* const  i {&input[iterator]};
-			const Instruction           instruction {i->UnwrapUnchecked<Instruction>()};
-			const std::span             args {ExtractInstructionArguments(i, ComputeInstructionArgumentOffset(i, &input[next]))};
+			const Signal* const  i {&input[iterator]};
+			const Instruction           instruction {i->Instr};
+			const std::span<Signal::Discriminator>             args {ExtractInstructionArguments(i, ComputeInstructionArgumentOffset(i, &input[next]))};
 			const auto                  result {ValidateInstructionArguments(instruction, args)}; // validate args
 
 			if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok)) // if error, return result:
@@ -473,6 +472,8 @@ namespace Nominax::ByteCode
 				}
 			}
 		});
+
+		*/
 
 		// Return error if the error value is not okay
 		if (NOMINAX_UNLIKELY(error.load() != static_cast<ErrorInt>(Core::ReactorValidationResult::Ok)))
@@ -489,34 +490,34 @@ namespace Nominax::ByteCode
 		return {ValidationResultCode::Ok, 0};
 	}
 
-	auto ValidateJumpAddress(const std::span<const DynamicSignal>& bucket, const JumpAddress address) noexcept(true) -> bool
+	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) noexcept(true) -> bool
 	{
 		const auto idx {static_cast<std::size_t>(address)};
 
 		// validate that jump address is inside the range of the bucket:
-		if (NOMINAX_UNLIKELY(bucket.size() <= idx))
+		if (NOMINAX_UNLIKELY(bucket.Size() <= idx))
 		{
 			return false;
 		}
 
-		return NOMINAX_LIKELY(std::get_if<Instruction>(&bucket[idx].Storage));
+		return NOMINAX_LIKELY(bucket[idx].Contains<Instruction>());
 	}
 
-	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallId id) noexcept(true) -> bool
+	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallID id) noexcept(true) -> bool
 	{
-		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallId::Count) - 1};
+		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallID::Count) - 1};
 		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
 		static_assert(std::is_unsigned_v<decltype(value)>);
 		return NOMINAX_LIKELY(value <= max);
 	}
 
-	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, CustomIntrinsicCallId id) noexcept(true) -> bool
+	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, CustomIntrinsicCallID id) noexcept(true) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
 		return NOMINAX_LIKELY(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size());
 	}
 
-	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> ValidationResultCode
+	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const Signal::Discriminator>& args) noexcept(true) -> ValidationResultCode
 	{
 		// First check if the argument count is incorrect:
 		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) > args.size()))
@@ -532,14 +533,12 @@ namespace Nominax::ByteCode
 
 		for (std::size_t i {0}; i < args.size(); ++i)
 		{
-			const DynamicSignal& arg {args[i]};
-
-			const std::size_t givenIdx {arg.Storage.index()};
+			const Signal::Discriminator discriminator {args[i]};
 
 			// Check if our given type index is within the required indices:
 
 			const TypeIndexTable& required {LookupInstructionArgumentTypes(instruction)[i]};
-			const bool            isWithinAllowedIndices {std::find(std::begin(required), std::end(required), givenIdx) != std::end(required)};
+			const bool            isWithinAllowedIndices {std::find(std::begin(required), std::end(required), discriminator) != std::end(required)};
 
 			if (NOMINAX_UNLIKELY(!isWithinAllowedIndices))
 			{

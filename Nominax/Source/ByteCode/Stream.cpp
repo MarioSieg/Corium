@@ -219,33 +219,38 @@ namespace Nominax::ByteCode
 	auto Stream::PrintIntermediateRepresentation() const noexcept(false) -> void
 	{
 		Print(TextColor::Green, "Len: {}, Size: {}B", this->Size(), this->SizeInBytes());
-		for (std::size_t offset {0}; const auto& sig : *this)
+		for (std::size_t i {0}; i < this->Size(); ++i)
 		{
-			if (sig.Contains<Instruction>())
+			if (this->CodeDiscrimination_[i] == Signal::Discriminator::Instruction)
 			{
-				Print(TextColor::Green, "\n{:#018X}: ", offset);
-				Print(TextColor::Cyan, "{}", sig.UnwrapUnchecked<Instruction>());
+				Print(TextColor::Green, "\n{:#018X}: ", i);
+				Print(TextColor::Cyan, "{}", this->Code_[i].Instr);
 			}
 			else
 			{
-				Print(TextColor::Magenta, " {}", sig);
+				Print(TextColor::Magenta, " {}", this->Code_[i].R64.AsU64);
 			}
-			++offset;
 		}
 		Print("\n\n");
 	}
 
 	auto Stream::Prologue() noexcept(false) -> Stream&
 	{
-		constexpr const auto& code {DynamicSignal::CodePrologue()};
-		this->Insert(std::begin(code), std::end(code));
+		for (const auto& [discriminator, signal] : PrologueCode())
+		{
+			this->CodeDiscrimination_.emplace_back(discriminator);
+			this->Code_.emplace_back(signal);
+		}
 		return *this;
 	}
 
 	auto Stream::Epilogue() noexcept(false) -> Stream&
 	{
-		constexpr const auto& code {DynamicSignal::CodeEpilogue()};
-		this->Insert(std::begin(code), std::end(code));
+		for (const auto& [discriminator, signal] : EpilogueCode())
+		{
+			this->CodeDiscrimination_.emplace_back(discriminator);
+			this->Code_.emplace_back(signal);
+		}
 		return *this;
 	}
 
@@ -261,11 +266,11 @@ namespace Nominax::ByteCode
 
 	auto Stream::ContainsPrologue() const noexcept(false) -> bool
 	{
-		return ByteCode::ContainsPrologue(this->Storage_);
+		return ByteCode::ContainsPrologue(*this);
 	}
 
 	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
 	{
-		return ByteCode::ContainsEpilogue(this->Storage_);
+		return ByteCode::ContainsEpilogue(*this);
 	}
 }

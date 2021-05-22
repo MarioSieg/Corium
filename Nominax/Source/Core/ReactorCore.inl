@@ -233,7 +233,7 @@
 
 namespace Nominax::Core
 {
-	using ByteCode::SystemIntrinsicCallId;
+	using ByteCode::SystemIntrinsicCallID;
 	using ByteCode::Instruction;
 	using ByteCode::Signal;
 	using ByteCode::IntrinsicRoutine;
@@ -440,7 +440,7 @@ namespace Nominax::Core
 	/// </summary>
 	__attribute__((hot)) static auto SyscallIntrin(Record* __restrict__ const sp, const U64 id) noexcept(true) -> void
 	{
-		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallId::Count)] {
+		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallID::Count)] {
 			&& __cos__,
 			&& __sin__,
 			&& __tan__,

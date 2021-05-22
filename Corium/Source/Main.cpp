@@ -234,7 +234,7 @@ auto main(const signed argc, const char* const* const argv) -> signed
 	});
 
 	stream << Instruction::Push << u8"Hello:)\n"_cluster;
-	stream << Instruction::Intrin << SystemIntrinsicCallId::IoPortWriteCluster;
+	stream << Instruction::Intrin << SystemIntrinsicCallID::IoPortWriteCluster;
 	stream.Epilogue();
 	stream.PrintIntermediateRepresentation();
 

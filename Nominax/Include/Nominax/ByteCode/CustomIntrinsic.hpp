@@ -217,7 +217,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Call id for custom intrinsic routine.
 	/// </summary>
-	enum class alignas(alignof(U64)) CustomIntrinsicCallId : U64;
+	enum class alignas(alignof(U64)) CustomIntrinsicCallID : U64;
 
 	/// <summary>
 	/// Custom intrinsic routine function prototype.

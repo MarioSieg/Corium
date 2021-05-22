@@ -214,7 +214,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Call id for system intrinsic routine.
 	/// </summary>
-	enum class alignas(alignof(U64)) SystemIntrinsicCallId : U64
+	enum class alignas(alignof(U64)) SystemIntrinsicCallID : U64
 	{
 		Cos = 0x00'00'00'00'00'00'00'00,
 		Sin = 0x00'00'00'00'00'00'00'01,

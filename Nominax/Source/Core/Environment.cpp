@@ -264,7 +264,7 @@ namespace Nominax::Core
 		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
 		PrintTypeInfo<Record>("Record");
 		PrintTypeInfo<Signal>("Signal");
-		PrintTypeInfo<DynamicSignal>("DynamicSignal");
+		PrintTypeInfo<Signal::Discriminator>("SignalDisc");
 		PrintTypeInfo<Object>("Object");
 		PrintTypeInfo<ObjectHeader>("ObjectHeader");
 		PrintTypeInfo<I64>("int");
@@ -355,11 +355,11 @@ namespace Nominax::Core
 			if (appCode[i].Contains<Instruction>())
 			{
 				Print(TextColor::Green, "\n{:#018X}: ", i);
-				Print(TextColor::BrightBlue, "{}", appCode[i]);
+				Print(TextColor::BrightBlue, "{}", appCode[i].Value.R64.AsU64);
 			}
 			else
 			{
-				Print(TextColor::Magenta, " {}", appCode[i]);
+				Print(TextColor::Magenta, " {}", appCode[i].Value.R64.AsU64);
 			}
 
 			if (isInstructionFault && i == idx)

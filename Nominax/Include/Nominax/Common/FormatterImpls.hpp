@@ -221,10 +221,9 @@ namespace Nominax
 	{
 		enum class ValidationResultCode;
 		enum class JumpAddress : std::uint64_t;
-		enum class CustomIntrinsicCallId : std::uint64_t;
-		enum class SystemIntrinsicCallId : std::uint64_t;
+		enum class CustomIntrinsicCallID : std::uint64_t;
+		enum class SystemIntrinsicCallID : std::uint64_t;
 		enum class Instruction : std::uint64_t;
-		struct DynamicSignal;
 	}
 }
 
@@ -240,21 +239,21 @@ struct fmt::formatter<Nominax::ByteCode::Instruction>
 };
 
 template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicCallId>
+struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicCallID>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicCallId& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::SystemIntrinsicCallID& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>
-struct fmt::formatter<Nominax::ByteCode::CustomIntrinsicCallId>
+struct fmt::formatter<Nominax::ByteCode::CustomIntrinsicCallID>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::ByteCode::CustomIntrinsicCallId& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::CustomIntrinsicCallID& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>
@@ -291,13 +290,4 @@ struct fmt::formatter<Nominax::Core::ReactorValidationResult>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
 	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const noexcept(false) -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DynamicSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
-
-	auto format(const Nominax::ByteCode::DynamicSignal& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
