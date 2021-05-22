@@ -213,6 +213,7 @@
 #include "Chunk.hpp"
 #include "StreamPair.hpp"
 #include "ValidationResult.hpp"
+#include "ValidationResult.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -341,7 +342,7 @@ namespace Nominax::ByteCode
 	/// <returns></returns>
 	[[nodiscard]]
 	extern auto ValidatePrePass(const Stream& input, InstructionCache& output,
-	                            std::size_t   estimatedInstructionCount = 0) noexcept(false) -> ValidationResult;
+	                            std::size_t   estimatedInstructionCount = 0) noexcept(false) -> ValidationResultCode;
 
 	/// <summary>
 	/// Validates the whole code and returns the result.
@@ -352,5 +353,5 @@ namespace Nominax::ByteCode
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
 	extern auto ValidateFullPass(const Stream&              input, std::size_t estimatedInstructionCount = 0,
-	                             std::pair<double, double>* timings                                      = nullptr) noexcept(false) -> ValidationResult;
+	                             std::pair<double, double>* timings                                      = nullptr) noexcept(false) -> ValidationResultCode;
 }

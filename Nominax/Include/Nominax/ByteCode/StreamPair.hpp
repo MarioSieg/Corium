@@ -307,10 +307,7 @@ namespace Nominax::ByteCode
 	};
 
 	template <typename D, typename V> requires std::is_same_v<typename std::remove_reference<D>::type, Signal::Discriminator>
-	constexpr StreamPair<D, V>::StreamPair(D discriminator, V value) noexcept(true) : Discriminator {discriminator}, Value {value}
-	{
-		
-	}
+	constexpr StreamPair<D, V>::StreamPair(D discriminator, V value) noexcept(true) : Discriminator {discriminator}, Value {value} { }
 
 	template <typename D, typename V> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
 	template <typename T> requires BytecodeElement<T>

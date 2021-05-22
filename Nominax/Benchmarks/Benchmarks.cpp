@@ -231,10 +231,9 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 	{
 		std::pair<double, double> passTimings { };
 		const auto                result {ValidateFullPass(stream, stream.GetInstructionCount(), &passTimings)};
-		if (NOMINAX_UNLIKELY(result.first != ValidationResultCode::Ok))
+		if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
 		{
-			auto msg {"Byte code validation with stream failed at index: " + std::to_string(result.second)};
-			state.SkipWithError(msg.c_str());
+			state.SkipWithError("Byte code validation with stream failed!");
 		}
 		Print("Pass 0: {}s\n", passTimings.first);
 		Print("Pass 1: {}s\n", passTimings.second);
@@ -243,66 +242,11 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 
 BENCHMARK(ValidateAlgorithm1BillionEntries)->Unit(kSecond);
 
-/*
-auto Loop1BillionVectorsNoAvx(State& state) -> void
-{
-	std::array loopBody
-	{
-		DynamicSignal {Instruction::VPush},
-		DynamicSignal {1.5_float},
-		DynamicSignal {2.5_float},
-		DynamicSignal {3.5_float},
-		DynamicSignal {4.5_float},
-		DynamicSignal {Instruction::VPush},
-		DynamicSignal {-1.5_float},
-		DynamicSignal {-2.5_float},
-		DynamicSignal {-3.5_float},
-		DynamicSignal {-4.5_float},
-		DynamicSignal {Instruction::VAdd},
-		DynamicSignal {Instruction::VPop}
-	};
-
-	LoopBenchmark(state, loopBody, 1'000'000'000, false);
-}
-
-BENCHMARK(Loop1BillionVectorsNoAvx)->Unit(kSecond);
-
-auto Loop1BillionVectorsAvxIfSupported(State& state) -> void
-{
-	Print("\n");
-	std::array loopBody
-	{
-		DynamicSignal {Instruction::VPush},
-		DynamicSignal {1.5_float},
-		DynamicSignal {2.5_float},
-		DynamicSignal {3.5_float},
-		DynamicSignal {4.5_float},
-		DynamicSignal {Instruction::VPush},
-		DynamicSignal {-1.5_float},
-		DynamicSignal {-2.5_float},
-		DynamicSignal {-3.5_float},
-		DynamicSignal {-4.5_float},
-		DynamicSignal {Instruction::VAdd},
-		DynamicSignal {Instruction::VPop}
-	};
-
-	LoopBenchmark(state, loopBody, 1'000'000'000, true);
-}
-
-BENCHMARK(Loop1BillionVectorsAvxIfSupported)->Unit(kSecond);
-
 auto Loop1Billion(State& state) -> void
 {
-	LoopBenchmark(state, { }, 1'000'000'000);
+	LoopBenchmark(state, [](Stream&) {}, 1'000'000'000);
 }
 
 BENCHMARK(Loop1Billion)->Unit(kSecond);
 
-auto Loop5Billion(State& state) -> void
-{
-	LoopBenchmark(state, { }, 5'000'000'000);
-}
-
-BENCHMARK(Loop5Billion)->Unit(kSecond);
-*/
 BENCHMARK_MAIN();

@@ -275,12 +275,6 @@ namespace Nominax::ByteCode
 	/// </summary>
 	constexpr std::size_t CROPPED_FAULT_CODE_DUMP_SIZE {8};
 
-	/// <summary>
-	/// Contains the "ByteCodeValidationResult" enum which is used
-	/// as error indicator. If the validation result is not okay (indicates error),
-	/// the second type contains the index to the faulty code.
-	/// </summary>
-	using ValidationResult = std::pair<ValidationResultCode, std::size_t>;
 
 	constexpr std::array<std::string_view, 10> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
 	{

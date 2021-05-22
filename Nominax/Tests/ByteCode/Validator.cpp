@@ -214,7 +214,7 @@ struct DynamicSignal final
 {
 	using DataVariant = std::variant<Instruction, SystemIntrinsicCallID, CustomIntrinsicCallID, JumpAddress, U64, I64, F64, CharClusterUtf8, CharClusterUtf16, CharClusterUtf32>;
 
-	DataVariant Data{0_uint};
+	DataVariant Data {0_uint};
 
 	explicit constexpr operator Signal::Discriminator() const noexcept(true)
 	{
@@ -248,8 +248,8 @@ struct DynamicSignal final
 
 inline auto ValidateInstructionArguments(const Instruction instr, std::vector<DynamicSignal>&& vec) -> ValidationResultCode
 {
-	std::vector<Signal::Discriminator> disc{};
-	for(const DynamicSignal& sig : vec)
+	std::vector<Signal::Discriminator> disc { };
+	for (const DynamicSignal& sig : vec)
 	{
 		disc.emplace_back(static_cast<Signal::Discriminator>(sig));
 	}
@@ -258,7 +258,7 @@ inline auto ValidateInstructionArguments(const Instruction instr, std::vector<Dy
 
 TEST(ValidatorAlgorithms, ValidateJumpAddressValid)
 {
-	Stream bucket{};
+	Stream bucket { };
 	bucket << Instruction::Dupl;
 	bucket << 2.2_float;
 	bucket << -2_int;
@@ -401,7 +401,7 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push)
 
 TEST(ValidatorAlgorithms, Pass0InstructionCacheGenerator)
 {
-	Stream code{};
+	Stream code { };
 	code << Instruction::Push;
 	code << 4_int;
 	code << Instruction::Push;
@@ -414,7 +414,7 @@ TEST(ValidatorAlgorithms, Pass0InstructionCacheGenerator)
 	code << 0_int;
 
 	InstructionCache cache { };
-	ASSERT_EQ(ValidatePrePass(code, cache).first, ValidationResultCode::Ok);
+	ASSERT_EQ(ValidatePrePass(code, cache), ValidationResultCode::Ok);
 
 	// Only 4 because the last instruction is removed and checked separately.
 	ASSERT_EQ(cache.size(), 5);
@@ -427,7 +427,7 @@ TEST(ValidatorAlgorithms, Pass0InstructionCacheGenerator)
 
 TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 {
-	Stream code{};
+	Stream code { };
 	code << Instruction::Push;
 	code << 4_int;
 	code << Instruction::Push;
@@ -440,7 +440,7 @@ TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 	code << 0_int;
 
 	InstructionCache cache { };
-	ASSERT_EQ(ValidatePrePass(code, cache).first, ValidationResultCode::Ok);
+	ASSERT_EQ(ValidatePrePass(code, cache), ValidationResultCode::Ok);
 	ASSERT_EQ(cache.size(), 5);
 
 	ASSERT_EQ(ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[0]], &code.DiscriminatorBuffer()[cache[1]]), 1);
@@ -452,7 +452,7 @@ TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 
 TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 {
-	Stream code{};
+	Stream code { };
 	code << Instruction::Push;
 	code << 4_int;
 	code << Instruction::Push;
@@ -465,7 +465,7 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 	code << 0_int;
 
 	InstructionCache cache { };
-	ASSERT_EQ(ValidatePrePass(code, cache).first, ValidationResultCode::Ok);
+	ASSERT_EQ(ValidatePrePass(code, cache), ValidationResultCode::Ok);
 	ASSERT_EQ(cache.size(), 5);
 
 	// push
@@ -499,7 +499,7 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 
 TEST(ValidatorAlgorithms, ValidateValid)
 {
-	Stream code{};
+	Stream code { };
 
 	code.Prologue();
 	code << Instruction::Push;
@@ -510,19 +510,18 @@ TEST(ValidatorAlgorithms, ValidateValid)
 	code << 1_uint;
 	code << -0.5_float;
 	code << Instruction::Jmp;
-	code << JumpAddress{ 0 };
+	code << JumpAddress {0};
 	code << Instruction::IAdd;
 	code << Instruction::Int;
 	code << 0_int;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(code).second, 0);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::Push;
 	code << 2_int;
@@ -538,13 +537,12 @@ TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 	code << Instruction::Int;
 	code << 0_int;
 	code.Epilogue();
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(code).second, 2);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::Push;
 	code << 2_int;
@@ -556,13 +554,12 @@ TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
 	code << Instruction::Int;
 	code << 0_int;
 	code.Epilogue();
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(code).second, 2);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::Push;
 	code << 2.0_float;
@@ -574,260 +571,239 @@ TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
 	code << 0_int;
 	code << 0_int;
 	code.Epilogue();
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateFullPass(code).second, 2);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastValid)
 {
-
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Jmp;
-	code << JumpAddress{ 0 };
+	code << JumpAddress {0};
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(code).second, 0);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastInvalidMissingArgs)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Int;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(code).second, 1);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastInvalidTooManyArgs)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Int << 0 << 0;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(code).second, 1);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastInvalidTypeMismatch)
 {
-
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Int << 0.2_float;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateFullPass(code).second, 1);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastPushInvalidMissingArgs)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Push;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(code).second, 1);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastPushInvalidTooManyArgs)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Push << 0 << 0;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(code).second, 1);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastPushInt)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Push << 0;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(code).second, 0);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastPushUInt)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Push << 0_uint;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(code).second, 0);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastPushFloat)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Push << 0.0_float;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(code).second, 0);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastSto)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Sto << 0_uint << 2.5_float;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(code).second, 0);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidLastStoNotEnoughArgs)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Sto << 0_uint;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(code).second, 1);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidLastStoTooManyArgs)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Sto << 0_uint << 2.5_float << 3;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(code).second, 1);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidLastMovTypeMismatch)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Mov << 0_uint << 2.5_float;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateFullPass(code).second, 1);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidEmpty)
 {
-	Stream code{};
+	const Stream code { };
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Empty);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Empty);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidMissingPrologue)
 {
-	Stream code{};
+	Stream code { };
 	code << Instruction::FAdd;
 	code << Instruction::Sto << 0_uint << 2.5_float;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::MissingPrologueCode);
-	ASSERT_EQ(ValidateFullPass(code).second, 0);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingPrologueCode);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Sto << 0_uint << 2.5_float;
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::MissingEpilogueCode);
-	ASSERT_EQ(ValidateFullPass(code).second, 0);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingEpilogueCode);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue2)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
 	code << Instruction::Int;
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::MissingEpilogueCode);
-	ASSERT_EQ(ValidateFullPass(code).second, 0);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingEpilogueCode);
 }
 
 
 TEST(ValidatorAlgorithms, ValidateValidPass0JumpAddress)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::Push;
 	code << 4_int;
 	code << Instruction::Jmp;
-	code << JumpAddress{ 0 };
+	code << JumpAddress {0};
 	code << Instruction::Jmp;
-	code << JumpAddress{ 7 };
+	code << JumpAddress {7};
 	code << Instruction::Jmp;
-	code << JumpAddress{ 10 };
+	code << JumpAddress {10};
 	code << Instruction::IAdd;
 	code << Instruction::Int;
 	code << 0_int;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(code).second, 0);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressOutOfRange)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::Push;
 	code << 4_int;
 	code << Instruction::Jmp;
-	code << JumpAddress{ 0 };
+	code << JumpAddress {0};
 	code << Instruction::Jmp;
-	code << JumpAddress{ 7 };
+	code << JumpAddress {7};
 	code << Instruction::Jmp;
-	code << JumpAddress{ 100 };
+	code << JumpAddress {100};
 	code << Instruction::IAdd;
 	code << Instruction::Int;
 	code << 0_int;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::InvalidJumpAddress);
-	ASSERT_EQ(ValidateFullPass(code).second, code.PrologueCode().size() + 6);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressNoInstruction)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::Push;
 	code << 4_int;
 	code << Instruction::Jmp;
-	code << JumpAddress{ Stream::PrologueCode().size() + 1 };
+	code << JumpAddress {Stream::PrologueCode().size() + 1};
 	code << Instruction::Sto;
 	code << 1_uint;
 	code << -0.5_float;
@@ -836,39 +812,35 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressNoInstruction)
 	code << 0_int;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::InvalidJumpAddress);
-	ASSERT_EQ(ValidateFullPass(code).second, 9);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressOutOfRange)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
-	code << Instruction::Jmp << JumpAddress{100};
+	code << Instruction::Jmp << JumpAddress {100};
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::InvalidJumpAddress);
-	ASSERT_EQ(ValidateFullPass(code).second, 3);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressWrongType)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
 	code << Instruction::Jmp << 2_uint;
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateFullPass(code).second, 3);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressNoInstruction)
 {
-	Stream code{};
+	Stream code { };
 	code.Prologue();
-	code << Instruction::Jmp << JumpAddress{ Stream::PrologueCode().size() + 1 };
+	code << Instruction::Jmp << JumpAddress {Stream::PrologueCode().size() + 1};
 	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::InvalidJumpAddress);
-	ASSERT_EQ(ValidateFullPass(code).second, 3);
+	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
 }

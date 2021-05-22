@@ -235,7 +235,7 @@ namespace Nominax::ByteCode
 	}
 
 	auto Stream::PrintMemoryCompositionInfo() const noexcept(false) -> void
-	{		
+	{
 		Print("Stream size: {}\n", this->Size());
 		Print("Code buffer: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->Code_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
 		Print("Discriminator buffer: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->CodeDisc_.size()) * static_cast<F32>(sizeof(DiscriminatorStorageType::value_type))));
@@ -262,14 +262,14 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ValidationResult
+	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ValidationResultCode
 	{
-		if (const auto validationResult {ValidateFullPass(*this)}; NOMINAX_UNLIKELY(validationResult.first != ValidationResultCode::Ok))
+		if (const auto validationResult {ValidateFullPass(*this)}; NOMINAX_UNLIKELY(validationResult != ValidationResultCode::Ok))
 		{
 			return validationResult;
 		}
 		GenerateChunkAndJumpMap(*this, out, outJumpMap);
-		return {ValidationResultCode::Ok, 0};
+		return ValidationResultCode::Ok;
 	}
 
 	auto Stream::ContainsPrologue() const noexcept(false) -> bool

@@ -248,7 +248,7 @@ namespace Nominax::ByteCode
 		{
 			return false;
 		}
-		for (std::size_t i {0}, j{input.Size() - code.size()}; i < code.size(); ++i)
+		for (std::size_t i {0}, j {input.Size() - code.size()}; i < code.size(); ++i)
 		{
 			if (NOMINAX_UNLIKELY(code[i] != input[j + i]))
 			{
@@ -283,7 +283,7 @@ namespace Nominax::ByteCode
 		}
 	}
 
-	auto ValidatePrePass(const Stream& input, Cache& output, const std::size_t estimatedInstructionCount) noexcept(false) -> ValidationResult
+	auto ValidatePrePass(const Stream& input, Cache& output, const std::size_t estimatedInstructionCount) noexcept(false) -> ValidationResultCode
 	{
 		std::future cache
 		{
@@ -361,54 +361,55 @@ namespace Nominax::ByteCode
 		static_assert(decltype(error)::is_always_lock_free);
 		static_assert(decltype(index)::is_always_lock_free);
 
-		const auto& discBuf{ input.DiscriminatorBuffer() };
-		const auto& valBuf{ input.CodeBuffer() };
+		const auto& discBuf {input.DiscriminatorBuffer()};
+		const auto& valBuf {input.CodeBuffer()};
 
 		// Pass 0:
-		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf), [&input, &error, &index, &valBuf, begin = discBuf.data()](const Signal::Discriminator& iterator) noexcept(false)
-		{
-			if (iterator == Signal::Discriminator::JumpAddress)
-			{
-				const std::ptrdiff_t idx{ &iterator - begin };
-				if (const bool result {ValidateJumpAddress(input, valBuf[idx].JumpTarget)}; NOMINAX_UNLIKELY(!result))
-				{
-					if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ValidationResultCode::Ok))) // only update the error once
-					{
-						error.store(static_cast<ErrorInt>(ValidationResultCode::InvalidJumpAddress)); // atomic store
-						index.store(idx - 1);                                           // atomic store
-					}
-				}
-			}
-		});
+		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf),
+		              [&input, &error, &index, &valBuf, begin = discBuf.data()](const Signal::Discriminator& iterator) noexcept(false)
+		              {
+			              if (iterator == Signal::Discriminator::JumpAddress)
+			              {
+				              const std::ptrdiff_t idx {&iterator - begin};
+				              if (const bool result {ValidateJumpAddress(input, valBuf[idx].JumpTarget)}; NOMINAX_UNLIKELY(!result))
+				              {
+					              if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ValidationResultCode::Ok))) // only update the error once
+					              {
+						              error.store(static_cast<ErrorInt>(ValidationResultCode::InvalidJumpAddress)); // atomic store
+						              index.store(idx);                                                             // atomic store
+					              }
+				              }
+			              }
+		              });
 		output = cache.get();
-		return {static_cast<ValidationResultCode>(error.load()), index.load()};
+		return static_cast<ValidationResultCode>(error.load());
 	}
 
 	auto ValidateFullPass(const Stream&              input, const std::size_t estimatedInstructionCount,
-	                      std::pair<double, double>* timings) noexcept(false) -> ValidationResult
+	                      std::pair<double, double>* timings) noexcept(false) -> ValidationResultCode
 	{
 		// Check if empty:
 		if (NOMINAX_UNLIKELY(input.IsEmpty()))
 		{
-			return {ValidationResultCode::Empty, 0};
+			return ValidationResultCode::Empty;
 		}
 
 		// Check if we've reached the pointer compression limit:
 		if (NOMINAX_UNLIKELY(input.Size() >= std::numeric_limits<U32>::max()))
 		{
-			return {ValidationResultCode::SignalLimitReached, 0};
+			return ValidationResultCode::SignalLimitReached;
 		}
 
 		// Check if prologue code is contained:
 		if (NOMINAX_UNLIKELY(!ContainsPrologue(input)))
 		{
-			return {ValidationResultCode::MissingPrologueCode, 0};
+			return ValidationResultCode::MissingPrologueCode;
 		}
 
 		// Check if epilogue code is contained:
 		if (NOMINAX_UNLIKELY(!ContainsEpilogue(input)))
 		{
-			return {ValidationResultCode::MissingEpilogueCode, 0};
+			return ValidationResultCode::MissingEpilogueCode;
 		}
 
 		// Query time:
@@ -419,7 +420,7 @@ namespace Nominax::ByteCode
 		if
 		(
 			const auto result {ValidatePrePass(input, instructionCache, estimatedInstructionCount)};
-			NOMINAX_UNLIKELY(std::get<0>(result) != ValidationResultCode::Ok)
+			NOMINAX_UNLIKELY(result != ValidationResultCode::Ok)
 		)
 		{
 			return result;
@@ -432,12 +433,12 @@ namespace Nominax::ByteCode
 		}
 
 		{
-			const Instruction last{ input.CodeBuffer()[instructionCache.back()].Instr };
-			const std::span args{std::begin(input.DiscriminatorBuffer()) + instructionCache.back() + 1, std::end(input.DiscriminatorBuffer())};
-			const auto lastInstructionResult{ ValidateInstructionArguments(last, args)};
-			if(NOMINAX_UNLIKELY(lastInstructionResult != ValidationResultCode::Ok))
+			const Instruction last {input.CodeBuffer()[instructionCache.back()].Instr};
+			const std::span   args {std::begin(input.DiscriminatorBuffer()) + instructionCache.back() + 1, std::end(input.DiscriminatorBuffer())};
+			const auto        result {ValidateInstructionArguments(last, args)};
+			if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
 			{
-				return { lastInstructionResult, instructionCache.back() };
+				return result;
 			}
 		}
 
@@ -447,39 +448,35 @@ namespace Nominax::ByteCode
 		// Query time:
 		clock.Restart();
 
-		std::atomic           error {static_cast<ErrorInt>(Core::ReactorValidationResult::Ok)};
-		std::atomic_ptrdiff_t index {0};
-
+		std::atomic error {static_cast<ErrorInt>(Core::ReactorValidationResult::Ok)};
 		static_assert(decltype(error)::is_always_lock_free);
-		static_assert(decltype(index)::is_always_lock_free);
 
-		
 		// Pass 1:
-		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), [&error, &index, discriminators = input.DiscriminatorBuffer(), base = std::begin(input.CodeBuffer())](const CompressedRelativePtr& iterator) noexcept(false)
-		{
-			const CompressedRelativePtr next {*(&iterator + 1)};
-			const Signal::Discriminator* const  discriminator {&discriminators[iterator]};
-			const Signal::Discriminator* const  nextDiscriminator{ &discriminators[next] };
-			const std::ptrdiff_t idx{ discriminator - discriminators.data() };
-			const Instruction           instruction {base[idx].Instr};
-			const std::span             args{ ExtractInstructionArguments(discriminator, ComputeInstructionArgumentOffset(discriminator, nextDiscriminator)) };
-			const auto                  result {ValidateInstructionArguments(instruction, args)}; // validate args
+		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache),
+		              [&error, discriminators = input.DiscriminatorBuffer(), base = std::begin(input.CodeBuffer())](const CompressedRelativePtr& iterator) noexcept(false)
+		              {
+			              const CompressedRelativePtr        next {*(&iterator + 1)};
+			              const Signal::Discriminator* const discriminator {&discriminators[iterator]};
+			              const Signal::Discriminator* const nextDiscriminator {&discriminators[next]};
+			              const std::ptrdiff_t               idx {discriminator - discriminators.data()};
+			              const Instruction                  instruction {base[idx].Instr};
+			              const std::span                    args {ExtractInstructionArguments(discriminator, ComputeInstructionArgumentOffset(discriminator, nextDiscriminator))};
+			              const auto                         result {ValidateInstructionArguments(instruction, args)}; // validate args
 
-			if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok)) // if error, return result:
-			{
-				if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(Core::ReactorValidationResult::Ok))) // only update the error once
-				{
-					error.store(static_cast<ErrorInt>(result)); // atomic store
-					index.store(idx);          // atomic store
-				}
-			}
-		});
+			              if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok)) // if error, return result:
+			              {
+				              if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(Core::ReactorValidationResult::Ok))) // only update the error once
+				              {
+					              error.store(static_cast<ErrorInt>(result)); // atomic store
+				              }
+			              }
+		              });
 
 
 		// Return error if the error value is not okay
 		if (NOMINAX_UNLIKELY(error.load() != static_cast<ErrorInt>(Core::ReactorValidationResult::Ok)))
 		{
-			return {static_cast<ValidationResultCode>(error.load()), index.load() - 1};
+			return static_cast<ValidationResultCode>(error.load());
 		}
 
 		// Query timings of pass1:
@@ -488,7 +485,7 @@ namespace Nominax::ByteCode
 			timings->second = clock.ElapsedSecsF64().count(); // write timings of pass1
 		}
 
-		return {ValidationResultCode::Ok, 0};
+		return ValidationResultCode::Ok;
 	}
 
 	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) noexcept(true) -> bool

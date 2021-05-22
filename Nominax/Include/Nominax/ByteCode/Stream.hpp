@@ -592,14 +592,14 @@ namespace Nominax::ByteCode
 		/// <param name="out"></param>
 		/// <param name="outJumpMap"></param>
 		/// <returns></returns>
-		auto Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ValidationResult;
+		auto Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ValidationResultCode;
 
 		/// <summary>
 		/// Validate and build code chunk plus jump map into app code bundle.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <returns></returns>
-		auto Build(AppCodeBundle& out) const noexcept(false) -> ValidationResult;
+		auto Build(AppCodeBundle& out) const noexcept(false) -> ValidationResultCode;
 
 		/// <summary>
 		/// Get current optimization level.
@@ -638,7 +638,7 @@ namespace Nominax::ByteCode
 		this->OptimizationLevel_ = optimizationLevel;
 	}
 
-	inline auto Stream::Build(AppCodeBundle& out) const noexcept(false) -> ValidationResult
+	inline auto Stream::Build(AppCodeBundle& out) const noexcept(false) -> ValidationResultCode
 	{
 		return this->Build(std::get<0>(out), std::get<1>(out));
 	}

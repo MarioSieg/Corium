@@ -341,6 +341,7 @@ namespace Nominax::Core
 	/// <param name="appCode"></param>
 	/// <param name="code"></param>
 	/// <returns></returns>
+	[[maybe_unused]]
 	static auto PrintByteCodeErrorSector(const std::size_t idx, const Stream& appCode, const ValidationResultCode code)
 	{
 		const bool isInstructionFault
@@ -378,22 +379,10 @@ namespace Nominax::Core
 	/// <param name="appCode"></param>
 	/// <returns></returns>
 	[[noreturn]]
-	static auto TriggerByteCodeStreamValidationPanic(const ValidationResult& result, const Stream& appCode)
+	static auto TriggerByteCodeStreamValidationPanic(const ValidationResultCode result, [[maybe_unused]] const Stream& appCode)
 	{
-		const auto& [code, idx] = result;
-
-		// Print sample:
-		PrintByteCodeErrorSector(idx + 1, appCode, code);
-
 		// Print error message:
-		PANIC
-		(
-			"Byte code validation of stream failed!\n"
-			"Index: {:#X}, Instruction: \"{}\", Message: {}",
-			idx + 1,
-			appCode[idx + 1].Unwrap<Instruction>().value_or(Instruction::NOp),
-			code
-		);
+		PANIC("Byte code validation of stream failed: {}\n", result);
 	}
 
 	/// <summary>
@@ -567,7 +556,7 @@ namespace Nominax::Core
 		VALIDATE_ONLINE_BOOT_STATE();
 
 		AppCodeBundle appCodeBundle { };
-		if (const auto result {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(result.first != ValidationResultCode::Ok))
+		if (const auto result {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
 		{
 			TriggerByteCodeStreamValidationPanic(result, appCode);
 		}
