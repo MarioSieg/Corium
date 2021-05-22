@@ -248,9 +248,9 @@ namespace Nominax::ByteCode
 		{
 			return false;
 		}
-		for (std::size_t i {0}; i < code.size(); ++i)
+		for (std::size_t i {0}, j{input.Size() - code.size()}; i < code.size(); ++i)
 		{
-			if (NOMINAX_UNLIKELY(code[i] != code[code.size() - 1 - i]))
+			if (NOMINAX_UNLIKELY(code[i] != input[j + i]))
 			{
 				return false;
 			}
@@ -338,7 +338,7 @@ namespace Nominax::ByteCode
 								{
 									local.emplace_back(index);
 								}
-								index++;
+								++index;
 							});
 							return local;
 						}));
@@ -365,17 +365,17 @@ namespace Nominax::ByteCode
 		const auto& valBuf{ input.CodeBuffer() };
 
 		// Pass 0:
-		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf), [&input, &error, &index, &discBuf, &valBuf](const Signal::Discriminator& iterator) noexcept(false)
+		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf), [&input, &error, &index, &valBuf, begin = discBuf.data()](const Signal::Discriminator& iterator) noexcept(false)
 		{
 			if (iterator == Signal::Discriminator::JumpAddress)
 			{
-				const std::size_t idx= std::distance(std::begin(discBuf), std::end(discBuf));
+				const std::ptrdiff_t idx{ &iterator - begin };
 				if (const bool result {ValidateJumpAddress(input, valBuf[idx].JumpTarget)}; NOMINAX_UNLIKELY(!result))
 				{
 					if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ValidationResultCode::Ok))) // only update the error once
 					{
 						error.store(static_cast<ErrorInt>(ValidationResultCode::InvalidJumpAddress)); // atomic store
-						index.store(idx);                                           // atomic store
+						index.store(idx - 1);                                           // atomic store
 					}
 				}
 			}
@@ -433,7 +433,7 @@ namespace Nominax::ByteCode
 
 		{
 			const Instruction last{ input.CodeBuffer()[instructionCache.back()].Instr };
-			const std::span<const Signal::Discriminator> args{std::begin(input.DiscriminatorBuffer()) + instructionCache.back() + 1, std::end(input.DiscriminatorBuffer())};
+			const std::span args{std::begin(input.DiscriminatorBuffer()) + instructionCache.back() + 1, std::end(input.DiscriminatorBuffer())};
 			const auto lastInstructionResult{ ValidateInstructionArguments(last, args)};
 			if(NOMINAX_UNLIKELY(lastInstructionResult != ValidationResultCode::Ok))
 			{
@@ -462,7 +462,7 @@ namespace Nominax::ByteCode
 			const Signal::Discriminator* const  nextDiscriminator{ &discriminators[next] };
 			const std::ptrdiff_t idx{ discriminator - discriminators.data() };
 			const Instruction           instruction {base[idx].Instr};
-			const std::span<const Signal::Discriminator>             args{ ExtractInstructionArguments(discriminator, ComputeInstructionArgumentOffset(discriminator, nextDiscriminator)) };
+			const std::span             args{ ExtractInstructionArguments(discriminator, ComputeInstructionArgumentOffset(discriminator, nextDiscriminator)) };
 			const auto                  result {ValidateInstructionArguments(instruction, args)}; // validate args
 
 			if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok)) // if error, return result:
@@ -470,7 +470,7 @@ namespace Nominax::ByteCode
 				if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(Core::ReactorValidationResult::Ok))) // only update the error once
 				{
 					error.store(static_cast<ErrorInt>(result)); // atomic store
-					index.store(discriminator - std::data(discriminators));          // atomic store
+					index.store(idx);          // atomic store
 				}
 			}
 		});

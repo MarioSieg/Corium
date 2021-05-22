@@ -206,22 +206,22 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
-#include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
 #include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/MemoryUnits.hpp"
 
 namespace Nominax::ByteCode
 {
 	using namespace Common;
 
-	auto Stream::PrintIntermediateRepresentation() const noexcept(false) -> void
+	auto Stream::PrintByteCode() const noexcept(false) -> void
 	{
 		Print(TextColor::Green, "Len: {}, Size: {}B", this->Size(), this->SizeInBytes());
 		for (std::size_t i {0}; i < this->Size(); ++i)
 		{
-			if (this->CodeDiscrimination_[i] == Signal::Discriminator::Instruction)
+			if (this->CodeDisc_[i] == Signal::Discriminator::Instruction)
 			{
 				Print(TextColor::Green, "\n{:#018X}: ", i);
 				Print(TextColor::Cyan, "{}", this->Code_[i].Instr);
@@ -234,11 +234,19 @@ namespace Nominax::ByteCode
 		Print("\n\n");
 	}
 
+	auto Stream::PrintMemoryCompositionInfo() const noexcept(false) -> void
+	{		
+		Print("Stream size: {}\n", this->Size());
+		Print("Code buffer: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->Code_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
+		Print("Discriminator buffer: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->CodeDisc_.size()) * static_cast<F32>(sizeof(DiscriminatorStorageType::value_type))));
+		Print("Total: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
+	}
+
 	auto Stream::Prologue() noexcept(false) -> Stream&
 	{
 		for (const auto& [discriminator, signal] : PrologueCode())
 		{
-			this->CodeDiscrimination_.emplace_back(discriminator);
+			this->CodeDisc_.emplace_back(discriminator);
 			this->Code_.emplace_back(signal);
 		}
 		return *this;
@@ -248,7 +256,7 @@ namespace Nominax::ByteCode
 	{
 		for (const auto& [discriminator, signal] : EpilogueCode())
 		{
-			this->CodeDiscrimination_.emplace_back(discriminator);
+			this->CodeDisc_.emplace_back(discriminator);
 			this->Code_.emplace_back(signal);
 		}
 		return *this;

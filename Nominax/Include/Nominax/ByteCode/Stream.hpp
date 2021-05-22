@@ -300,7 +300,7 @@ namespace Nominax::ByteCode
 		/// Contains all discriminators for the byte code.
 		/// Must always be same size as the "Code_" above.
 		/// </summary>
-		DiscriminatorStorageType CodeDiscrimination_ { };
+		DiscriminatorStorageType CodeDisc_ { };
 
 		/// <summary>
 		/// Optimization level used for stream.
@@ -497,10 +497,16 @@ namespace Nominax::ByteCode
 		auto operator <<(Core::CharClusterUtf8 value) noexcept(false) -> Stream&;
 
 		/// <summary>
-		/// Print out the ir.
+		/// Print out immediate byte code.
 		/// </summary>
 		/// <returns></returns>
-		auto PrintIntermediateRepresentation() const noexcept(false) -> void;
+		auto PrintByteCode() const noexcept(false) -> void;
+
+		/// <summary>
+		/// Print the size of the stream with memory info.
+		/// </summary>
+		/// <returns></returns>
+		auto PrintMemoryCompositionInfo() const noexcept(false) -> void;
 
 		/// <summary>
 		/// 
@@ -674,12 +680,12 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::Front() const noexcept(true) -> Pair
 	{
-		return {this->CodeDiscrimination_.front(), this->Code_.front()};
+		return {this->CodeDisc_.front(), this->Code_.front()};
 	}
 
 	inline auto Stream::Back() const noexcept(true) -> Pair
 	{
-		return {this->CodeDiscrimination_.back(), this->Code_.back()};
+		return {this->CodeDisc_.back(), this->Code_.back()};
 	}
 
 	inline auto Stream::GetInstructionCount() const noexcept(true) -> std::size_t
@@ -689,17 +695,17 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator[](const std::size_t idx) noexcept(false) -> RefPair
 	{
-		return {this->CodeDiscrimination_[idx], this->Code_[idx]};
+		return {this->CodeDisc_[idx], this->Code_[idx]};
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> Pair
 	{
-		return {this->CodeDiscrimination_[idx], this->Code_[idx]};
+		return {this->CodeDisc_[idx], this->Code_[idx]};
 	}
 
 	inline auto Stream::IsEmpty() const noexcept(true) -> bool
 	{
-		return this->Code_.empty() && this->CodeDiscrimination_.empty();
+		return this->Code_.empty() && this->CodeDisc_.empty();
 	}
 
 	inline auto Stream::CodeBuffer() const noexcept(true) -> const CodeStorageType&
@@ -709,99 +715,99 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::DiscriminatorBuffer() const noexcept(true) -> const DiscriminatorStorageType&
 	{
-		return this->CodeDiscrimination_;
+		return this->CodeDisc_;
 	}
 
 	inline auto Stream::Clear() noexcept(false) -> void
 	{
 		this->Code_.clear();
-		this->CodeDiscrimination_.clear();
+		this->CodeDisc_.clear();
 	}
 
 	inline auto Stream::Resize(const std::size_t size) noexcept(false) -> void
 	{
-		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.resize(size);
-		this->CodeDiscrimination_.resize(size);
+		this->CodeDisc_.resize(size);
 	}
 
 	inline auto Stream::Reserve(const std::size_t size) noexcept(false) -> void
 	{
-		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.reserve(size);
-		this->CodeDiscrimination_.reserve(size);
+		this->CodeDisc_.reserve(size);
 	}
 
 	inline auto Stream::Size() const noexcept(true) -> std::size_t
 	{
-		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		assert(this->Code_.size() == this->CodeDisc_.size());
 		return this->Code_.size();
 	}
 
 	inline auto Stream::SizeInBytes() const noexcept(true) -> std::size_t
 	{
-		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		assert(this->Code_.size() == this->CodeDisc_.size());
 		return
 			this->Code_.size()
 			* sizeof(Signal)
-			+ this->CodeDiscrimination_.size()
+			+ this->CodeDisc_.size()
 			* sizeof(Signal::Discriminator);
 	}
 
 	inline auto Stream::operator <<(const Instruction instr) noexcept(false) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {instr});
-		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::Instruction);
+		this->CodeDisc_.emplace_back(Signal::Discriminator::Instruction);
 		++this->InstructionCounter_;
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const SystemIntrinsicCallID intrin) noexcept(false) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {intrin});
-		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::SystemIntrinsicCallID);
+		this->CodeDisc_.emplace_back(Signal::Discriminator::SystemIntrinsicCallID);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const CustomIntrinsicCallID intrin) noexcept(false) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {intrin});
-		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::CustomIntrinsicCallID);
+		this->CodeDisc_.emplace_back(Signal::Discriminator::CustomIntrinsicCallID);
 		return *this;
 	}
 
 	inline auto Stream::operator<<(const JumpAddress address) noexcept(false) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {address});
-		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::JumpAddress);
+		this->CodeDisc_.emplace_back(Signal::Discriminator::JumpAddress);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const U64 value) noexcept(false) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {value});
-		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::U64);
+		this->CodeDisc_.emplace_back(Signal::Discriminator::U64);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const I64 value) noexcept(false) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {value});
-		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::I64);
+		this->CodeDisc_.emplace_back(Signal::Discriminator::I64);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const F64 value) noexcept(false) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDiscrimination_.size());
+		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {value});
-		this->CodeDiscrimination_.emplace_back(Signal::Discriminator::F64);
+		this->CodeDisc_.emplace_back(Signal::Discriminator::F64);
 		return *this;
 	}
 

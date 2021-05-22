@@ -225,8 +225,7 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 	}
 
 	stream.Epilogue();
-
-	Print("Stream size: {}\n", stream.Size());
+	stream.PrintMemoryCompositionInfo();
 
 	for (auto _ : state)
 	{

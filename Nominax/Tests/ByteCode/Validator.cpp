@@ -205,19 +205,66 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <variant>
+
 #include "../TestBase.hpp"
+
+// Legacy compat:
+struct DynamicSignal final
+{
+	using DataVariant = std::variant<Instruction, SystemIntrinsicCallID, CustomIntrinsicCallID, JumpAddress, U64, I64, F64, CharClusterUtf8, CharClusterUtf16, CharClusterUtf32>;
+
+	DataVariant Data{0_uint};
+
+	explicit constexpr operator Signal::Discriminator() const noexcept(true)
+	{
+		switch (this->Data.index())
+		{
+		case 0:
+			return Signal::Discriminator::Instruction;
+		case 1:
+			return Signal::Discriminator::SystemIntrinsicCallID;
+		case 2:
+			return Signal::Discriminator::CustomIntrinsicCallID;
+		case 3:
+			return Signal::Discriminator::JumpAddress;
+		case 4:
+			return Signal::Discriminator::U64;
+		case 5:
+			return Signal::Discriminator::I64;
+		case 6:
+			return Signal::Discriminator::F64;
+		case 7:
+			return Signal::Discriminator::CharClusterUtf8;
+		case 8:
+			return Signal::Discriminator::CharClusterUtf16;
+		case 9:
+			return Signal::Discriminator::CharClusterUtf32;
+		default:
+			return Signal::Discriminator::Ptr;
+		}
+	}
+};
+
+inline auto ValidateInstructionArguments(const Instruction instr, std::vector<DynamicSignal>&& vec) -> ValidationResultCode
+{
+	std::vector<Signal::Discriminator> disc{};
+	for(const DynamicSignal& sig : vec)
+	{
+		disc.emplace_back(static_cast<Signal::Discriminator>(sig));
+	}
+	return ValidateInstructionArguments(instr, std::move(disc));
+}
 
 TEST(ValidatorAlgorithms, ValidateJumpAddressValid)
 {
-	const std::array bucket
-	{
-		DynamicSignal {Instruction::Dupl},
-		DynamicSignal {2.2_float},
-		DynamicSignal {-2_int},
-		DynamicSignal {0xFF_uint},
-		DynamicSignal {Instruction::FAdd},
-		DynamicSignal {3_int}
-	};
+	Stream bucket{};
+	bucket << Instruction::Dupl;
+	bucket << 2.2_float;
+	bucket << -2_int;
+	bucket << 0xFF_uint;
+	bucket << Instruction::FAdd;
+	bucket << 3_int;
 
 	ASSERT_TRUE(ValidateJumpAddress(bucket, JumpAddress{ 0 }));
 	ASSERT_FALSE(ValidateJumpAddress(bucket, JumpAddress{ 1 }));
@@ -258,7 +305,7 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Int)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3.0_float} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3_int}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, { {} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, std::vector<DynamicSignal>{ {} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Jmp)
@@ -267,7 +314,7 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Jmp)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, { DynamicSignal{3.0_float} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, { DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, { DynamicSignal{3_int}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, { {} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, std::vector<DynamicSignal>{ {} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
 }
 
@@ -277,7 +324,7 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Intrin)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3.0_float} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3_int}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { {} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, std::vector<DynamicSignal>{ {} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicCallID::ASin}, DynamicSignal{SystemIntrinsicCallID::ASin} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicCallID::ASin} }), ValidationResultCode::Ok);
@@ -290,7 +337,7 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_CIntrin)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3.0_float} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_int}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { {} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, std::vector<DynamicSignal>{ {} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{CustomIntrinsicCallID{3}}, DynamicSignal{CustomIntrinsicCallID{3}} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{CustomIntrinsicCallID{3}} }), ValidationResultCode::Ok);
@@ -298,8 +345,8 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_CIntrin)
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_None)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, { {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, { {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, std::vector<DynamicSignal>{ {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, std::vector<DynamicSignal>{ {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, { DynamicSignal{3_int} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, { DynamicSignal{3_uint} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, { DynamicSignal{ 3.0_float } }), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -308,7 +355,7 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_None)
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push_Combined)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, std::vector<DynamicSignal>{ {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3_int} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3_uint} }), ValidationResultCode::Ok);
@@ -320,7 +367,7 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push_Combined)
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Sto_Combined)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { {}, {} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, std::vector<DynamicSignal>{ {}, {} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint}, DynamicSignal{3_int} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{3_uint} }), ValidationResultCode::Ok);
@@ -336,11 +383,11 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Sto_Combined)
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push)
 {
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { {}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { {}, {}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { {}, {}, {}, {} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { {}, {}, {}, {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{ {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{ {}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{ {}, {}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{ {}, {}, {}, {} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{ {}, {}, {}, {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0_int}, DynamicSignal{1_int}, DynamicSignal{2_int}, DynamicSignal{3_int} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0_uint}, DynamicSignal{1_uint}, DynamicSignal{2_uint}, DynamicSignal{3_uint} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0.0_float}, DynamicSignal{1.0_float}, DynamicSignal{2.0_float}, DynamicSignal{3.0_float} }),
@@ -354,19 +401,17 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push)
 
 TEST(ValidatorAlgorithms, Pass0InstructionCacheGenerator)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {4_int},
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {2_int},
-		DynamicSignal {Instruction::Sto},
-		DynamicSignal {1_uint},
-		DynamicSignal {-0.5_float},
-		DynamicSignal {Instruction::IAdd},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
+	Stream code{};
+	code << Instruction::Push;
+	code << 4_int;
+	code << Instruction::Push;
+	code << 2_int;
+	code << Instruction::Sto;
+	code << 1_uint;
+	code << -0.5_float;
+	code << Instruction::IAdd;
+	code << Instruction::Int;
+	code << 0_int;
 
 	InstructionCache cache { };
 	ASSERT_EQ(ValidatePrePass(code, cache).first, ValidationResultCode::Ok);
@@ -382,69 +427,65 @@ TEST(ValidatorAlgorithms, Pass0InstructionCacheGenerator)
 
 TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {4_int},
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {2_int},
-		DynamicSignal {Instruction::Sto},
-		DynamicSignal {1_uint},
-		DynamicSignal {-0.5_float},
-		DynamicSignal {Instruction::IAdd},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
+	Stream code{};
+	code << Instruction::Push;
+	code << 4_int;
+	code << Instruction::Push;
+	code << 2_int;
+	code << Instruction::Sto;
+	code << 1_uint;
+	code << -0.5_float;
+	code << Instruction::IAdd;
+	code << Instruction::Int;
+	code << 0_int;
 
 	InstructionCache cache { };
 	ASSERT_EQ(ValidatePrePass(code, cache).first, ValidationResultCode::Ok);
 	ASSERT_EQ(cache.size(), 5);
 
-	ASSERT_EQ(ComputeInstructionArgumentOffset(&code[cache[0]], &code[cache[1]]), 1);
-	ASSERT_EQ(ComputeInstructionArgumentOffset(&code[cache[1]], &code[cache[2]]), 1);
-	ASSERT_EQ(ComputeInstructionArgumentOffset(&code[cache[2]], &code[cache[3]]), 2);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[0]], &code.DiscriminatorBuffer()[cache[1]]), 1);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[1]], &code.DiscriminatorBuffer()[cache[2]]), 1);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[2]], &code.DiscriminatorBuffer()[cache[3]]), 2);
 	// Only 4 because the last instruction is removed and checked separately.
 	//ASSERT_EQ(ComputeInstructionArgumentOffset(&cache[3]), 0);
 }
 
 TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {4_int},
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {2_int},
-		DynamicSignal {Instruction::Sto},
-		DynamicSignal {1_uint},
-		DynamicSignal {-0.5_float},
-		DynamicSignal {Instruction::IAdd},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
+	Stream code{};
+	code << Instruction::Push;
+	code << 4_int;
+	code << Instruction::Push;
+	code << 2_int;
+	code << Instruction::Sto;
+	code << 1_uint;
+	code << -0.5_float;
+	code << Instruction::IAdd;
+	code << Instruction::Int;
+	code << 0_int;
 
 	InstructionCache cache { };
 	ASSERT_EQ(ValidatePrePass(code, cache).first, ValidationResultCode::Ok);
 	ASSERT_EQ(cache.size(), 5);
 
 	// push
-	const auto r1 {ExtractInstructionArguments(&code[cache[0]], ComputeInstructionArgumentOffset(&code[cache[0]], &code[cache[1]]))};
+	const auto r1 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[0]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[0]], &code.DiscriminatorBuffer()[cache[1]]))};
 	ASSERT_EQ(r1.size(), 1);
-	ASSERT_TRUE(r1[0].Contains(4_int));
+	ASSERT_TRUE(r1[0] == Signal::Discriminator::I64);
 
 	// push
-	const auto r2 {ExtractInstructionArguments(&code[cache[1]], ComputeInstructionArgumentOffset(&code[cache[1]], &code[cache[2]]))};
+	const auto r2 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[1]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[1]], &code.DiscriminatorBuffer()[cache[2]]))};
 	ASSERT_EQ(r2.size(), 1);
-	ASSERT_TRUE(r2[0].Contains(2_int));
+	ASSERT_TRUE(r2[0] == Signal::Discriminator::I64);
 
 	// sto
-	const auto r3 {ExtractInstructionArguments(&code[cache[2]], ComputeInstructionArgumentOffset(&code[cache[2]], &code[cache[3]]))};
+	const auto r3 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[2]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[2]], &code.DiscriminatorBuffer()[cache[3]]))};
 	ASSERT_EQ(r3.size(), 2);
-	ASSERT_TRUE(r3[0].Contains(1_uint));
-	ASSERT_TRUE(r3[1].Contains(-0.5_float));
+	ASSERT_TRUE(r3[0] == Signal::Discriminator::U64);
+	ASSERT_TRUE(r3[1] == Signal::Discriminator::F64);
 
 	// iadd
-	const auto r4 {ExtractInstructionArguments(&code[cache[3]], ComputeInstructionArgumentOffset(&code[cache[3]], &code[cache[4]]))};
+	const auto r4 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[3]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[3]], &code.DiscriminatorBuffer()[cache[4]]))};
 	ASSERT_TRUE(r4.empty());
 
 	// Only 4 because the last instruction is removed and checked separately. 
@@ -458,508 +499,376 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 
 TEST(ValidatorAlgorithms, ValidateValid)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {4_int},
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {2_int},
-		DynamicSignal {Instruction::Sto},
-		DynamicSignal {1_uint},
-		DynamicSignal {-0.5_float},
-		DynamicSignal {Instruction::Jmp},
-		DynamicSignal {JumpAddress {0}},
-		DynamicSignal {Instruction::IAdd},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
+	Stream code{};
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+	code.Prologue();
+	code << Instruction::Push;
+	code << 4_int;
+	code << Instruction::Push;
+	code << 2_int;
+	code << Instruction::Sto;
+	code << 1_uint;
+	code << -0.5_float;
+	code << Instruction::Jmp;
+	code << JumpAddress{ 0 };
+	code << Instruction::IAdd;
+	code << Instruction::Int;
+	code << 0_int;
+	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(stream).second, 0);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateFullPass(code).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {2_int},
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {4_int},
-		DynamicSignal {4_int}, // error
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {2_int},
-		DynamicSignal {Instruction::Sto},
-		DynamicSignal {1_uint},
-		DynamicSignal {-0.5_float},
-		DynamicSignal {Instruction::IAdd},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
-
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(stream).second, 2);
+	Stream code{};
+	code.Prologue();
+	code << Instruction::Push;
+	code << 2_int;
+	code << Instruction::Push;
+	code << 4_int;
+	code << 4_int; // error
+	code << Instruction::Push;
+	code << 2_int;
+	code << Instruction::Sto;
+	code << 1_uint;
+	code << -0.5_float;
+	code << Instruction::IAdd;
+	code << Instruction::Int;
+	code << 0_int;
+	code.Epilogue();
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateFullPass(code).second, 2);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {2_int},
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {Instruction::Sto},
-		DynamicSignal {1_uint},
-		DynamicSignal {-0.5_float},
-		DynamicSignal {Instruction::IAdd},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
-
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(stream).second, 2);
+	Stream code{};
+	code.Prologue();
+	code << Instruction::Push;
+	code << 2_int;
+	code << Instruction::Push;
+	code << Instruction::Sto;
+	code << 1_uint;
+	code << -0.5_float;
+	code << Instruction::IAdd;
+	code << Instruction::Int;
+	code << 0_int;
+	code.Epilogue();
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateFullPass(code).second, 2);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {2.0_float},
-		DynamicSignal {Instruction::Sto},
-		DynamicSignal {2.0_float},
-		DynamicSignal {-0.5_float},
-		DynamicSignal {Instruction::IAdd},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
-
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateFullPass(stream).second, 2);
+	Stream code{};
+	code.Prologue();
+	code << Instruction::Push;
+	code << 2.0_float;
+	code << Instruction::Sto;
+	code << 2.0_float;
+	code << -0.5_float;
+	code << Instruction::IAdd;
+	code << Instruction::Int;
+	code << 0_int;
+	code << 0_int;
+	code.Epilogue();
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateFullPass(code).second, 2);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastValid)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Jmp},
-		DynamicSignal {JumpAddress {0}}
-	};
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Jmp;
+	code << JumpAddress{ 0 };
+	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(stream).second, 0);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateFullPass(code).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastInvalidMissingArgs)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Int},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Int;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(stream).second, 1);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateFullPass(code).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastInvalidTooManyArgs)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int},
-		DynamicSignal {0_int}
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Int << 0 << 0;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(stream).second, 1);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateFullPass(code).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastInvalidTypeMismatch)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0.0_float}
-	};
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Int << 0.2_float;
+	code.Epilogue();
 
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateFullPass(stream).second, 1);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateFullPass(code).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastPushInvalidMissingArgs)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Push},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Push;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(stream).second, 1);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateFullPass(code).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastPushInvalidTooManyArgs)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {0_int},
-		DynamicSignal {0_int}
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Push << 0 << 0;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(stream).second, 1);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateFullPass(code).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastPushInt)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {0_int},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Push << 0;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(stream).second, 0);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateFullPass(code).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastPushUInt)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Dupl},
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {0_uint},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Push << 0_uint;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(stream).second, 0);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateFullPass(code).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastPushFloat)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {0.0_float},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Push << 0.0_float;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(stream).second, 0);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateFullPass(code).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateValidLastSto)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Sto},
-		DynamicSignal {0_uint},
-		DynamicSignal {0.0_float},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Sto << 0_uint << 2.5_float;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(stream).second, 0);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateFullPass(code).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidLastStoNotEnoughArgs)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Sto},
-		DynamicSignal {0_uint},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Sto << 0_uint;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(stream).second, 1);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateFullPass(code).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidLastStoTooManyArgs)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Sto},
-		DynamicSignal {0_uint},
-		DynamicSignal {0_uint},
-		DynamicSignal {0_uint},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Sto << 0_uint << 2.5_float << 3;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateFullPass(stream).second, 1);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateFullPass(code).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidLastMovTypeMismatch)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Mov},
-		DynamicSignal {0_uint},
-		DynamicSignal {0.0_float},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Mov << 0_uint << 2.5_float;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateFullPass(stream).second, 1);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateFullPass(code).second, 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidEmpty)
 {
-	constexpr std::array<const DynamicSignal, 0> code { };
+	Stream code{};
 
 	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Empty);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidMissingPrologue)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Mov},
-		DynamicSignal {0_uint},
-		DynamicSignal {0_uint},
-	};
+	Stream code{};
+	code << Instruction::FAdd;
+	code << Instruction::Sto << 0_uint << 2.5_float;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::MissingPrologueCode);
-	ASSERT_EQ(ValidateFullPass(stream).second, 0);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::MissingPrologueCode);
+	ASSERT_EQ(ValidateFullPass(code).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Sto << 0_uint << 2.5_float;
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::MissingEpilogueCode);
-	ASSERT_EQ(ValidateFullPass(stream).second, 0);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::MissingEpilogueCode);
+	ASSERT_EQ(ValidateFullPass(code).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue2)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::NOp},
-		DynamicSignal {Instruction::Int},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::NOp;
+	code << Instruction::Int;
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::MissingEpilogueCode);
-	ASSERT_EQ(ValidateFullPass(stream).second, 0);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::MissingEpilogueCode);
+	ASSERT_EQ(ValidateFullPass(code).second, 0);
 }
 
 
 TEST(ValidatorAlgorithms, ValidateValidPass0JumpAddress)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {4_int},
-		DynamicSignal {Instruction::Jmp},
-		DynamicSignal {JumpAddress {0}},
-		DynamicSignal {Instruction::Jmp},
-		DynamicSignal {JumpAddress {7}},
-		DynamicSignal {Instruction::Jmp},
-		DynamicSignal {JumpAddress {10}},
-		DynamicSignal {Instruction::IAdd},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::Push;
+	code << 4_int;
+	code << Instruction::Jmp;
+	code << JumpAddress{ 0 };
+	code << Instruction::Jmp;
+	code << JumpAddress{ 7 };
+	code << Instruction::Jmp;
+	code << JumpAddress{ 10 };
+	code << Instruction::IAdd;
+	code << Instruction::Int;
+	code << 0_int;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateFullPass(stream).second, 0);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateFullPass(code).second, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressOutOfRange)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {4_int},
-		DynamicSignal {Instruction::Jmp},
-		DynamicSignal {JumpAddress {0}},
-		DynamicSignal {Instruction::Jmp},
-		DynamicSignal {JumpAddress {7}},
-		DynamicSignal {Instruction::Jmp},
-		DynamicSignal {JumpAddress {100}},
-		DynamicSignal {Instruction::IAdd},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::Push;
+	code << 4_int;
+	code << Instruction::Jmp;
+	code << JumpAddress{ 0 };
+	code << Instruction::Jmp;
+	code << JumpAddress{ 7 };
+	code << Instruction::Jmp;
+	code << JumpAddress{ 100 };
+	code << Instruction::IAdd;
+	code << Instruction::Int;
+	code << 0_int;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::InvalidJumpAddress);
-	ASSERT_EQ(ValidateFullPass(stream).second, 6);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::InvalidJumpAddress);
+	ASSERT_EQ(ValidateFullPass(code).second, code.PrologueCode().size() + 6);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressNoInstruction)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Push},
-		DynamicSignal {4_int},
-		DynamicSignal {Instruction::Jmp},
-		DynamicSignal {JumpAddress {DynamicSignal::CodePrologue().size() + 1}},
-		DynamicSignal {Instruction::Sto},
-		DynamicSignal {1_uint},
-		DynamicSignal {-0.5_float},
-		DynamicSignal {Instruction::IAdd},
-		DynamicSignal {Instruction::Int},
-		DynamicSignal {0_int}
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::Push;
+	code << 4_int;
+	code << Instruction::Jmp;
+	code << JumpAddress{ Stream::PrologueCode().size() + 1 };
+	code << Instruction::Sto;
+	code << 1_uint;
+	code << -0.5_float;
+	code << Instruction::IAdd;
+	code << Instruction::Int;
+	code << 0_int;
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::InvalidJumpAddress);
-	ASSERT_EQ(ValidateFullPass(stream).second, 9);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::InvalidJumpAddress);
+	ASSERT_EQ(ValidateFullPass(code).second, 9);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressOutOfRange)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Jmp},
-		DynamicSignal {JumpAddress {100}},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::Jmp << JumpAddress{100};
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::InvalidJumpAddress);
+	ASSERT_EQ(ValidateFullPass(code).second, 3);
+}
 
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::InvalidJumpAddress);
-	ASSERT_EQ(ValidateFullPass(stream).second, 3);
+TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressWrongType)
+{
+	Stream code{};
+	code.Prologue();
+	code << Instruction::Jmp << 2_uint;
+	code.Epilogue();
+
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateFullPass(code).second, 3);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressNoInstruction)
 {
-	constexpr std::array code
-	{
-		DynamicSignal {Instruction::Jmp},
-		DynamicSignal {JumpAddress {DynamicSignal::CodePrologue().size() + 1}},
-	};
+	Stream code{};
+	code.Prologue();
+	code << Instruction::Jmp << JumpAddress{ Stream::PrologueCode().size() + 1 };
+	code.Epilogue();
 
-	std::vector<DynamicSignal> stream { };
-	stream.insert(std::begin(stream), std::begin(DynamicSignal::CodePrologue()), std::end(DynamicSignal::CodePrologue()));
-	stream.insert(std::end(stream), std::begin(code), std::end(code));
-	stream.insert(std::end(stream), std::begin(DynamicSignal::CodeEpilogue()), std::end(DynamicSignal::CodeEpilogue()));
-
-	ASSERT_EQ(ValidateFullPass(stream).first, ValidationResultCode::InvalidJumpAddress);
-	ASSERT_EQ(ValidateFullPass(stream).second, 3);
+	ASSERT_EQ(ValidateFullPass(code).first, ValidationResultCode::InvalidJumpAddress);
+	ASSERT_EQ(ValidateFullPass(code).second, 3);
 }

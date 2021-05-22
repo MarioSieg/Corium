@@ -284,6 +284,8 @@ namespace Nominax::ByteCode
 		D Discriminator;
 		V Value;
 
+		constexpr StreamPair(D discriminator, V value) noexcept(true);
+
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
 		constexpr auto Contains() const noexcept(true) -> bool;
@@ -303,6 +305,12 @@ namespace Nominax::ByteCode
 		constexpr auto operator ==(const StreamPair& other) const noexcept(true) -> bool;
 		constexpr auto operator !=(const StreamPair& other) const noexcept(true) -> bool;
 	};
+
+	template <typename D, typename V> requires std::is_same_v<typename std::remove_reference<D>::type, Signal::Discriminator>
+	constexpr StreamPair<D, V>::StreamPair(D discriminator, V value) noexcept(true) : Discriminator {discriminator}, Value {value}
+	{
+		
+	}
 
 	template <typename D, typename V> requires std::is_same_v<std::remove_reference_t<D>, Signal::Discriminator>
 	template <typename T> requires BytecodeElement<T>

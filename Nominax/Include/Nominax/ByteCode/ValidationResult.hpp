@@ -278,7 +278,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the "ByteCodeValidationResult" enum which is used
 	/// as error indicator. If the validation result is not okay (indicates error),
-	/// the second type contains the faulty code.
+	/// the second type contains the index to the faulty code.
 	/// </summary>
 	using ValidationResult = std::pair<ValidationResultCode, std::size_t>;
 

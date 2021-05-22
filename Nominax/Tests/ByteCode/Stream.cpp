@@ -255,16 +255,15 @@ TEST(BytecodeStream, CodePrologue)
 	auto i {std::begin(stream.CodeBuffer())};
 	for (const auto& sig : prologue)
 	{
-		ASSERT_EQ(sig, StreamPair<>{*j, * i});
-			                                     std::advance(i, 1);
-			                                     std::advance(j, 1);
-	
-		                                     }
-				ASSERT_TRUE(stream.ContainsPrologue());
-		ASSERT_FALSE(stream.ContainsEpilogue());
-		stream.Clear();
-		ASSERT_FALSE(stream.ContainsPrologue());
+		ASSERT_EQ(sig, StreamPair<>(*j, *i));
+		std::advance(i, 1);
+		std::advance(j, 1);
 	}
+	ASSERT_TRUE(stream.ContainsPrologue());
+	ASSERT_FALSE(stream.ContainsEpilogue());
+	stream.Clear();
+	ASSERT_FALSE(stream.ContainsPrologue());
+}
 
 	TEST(BytecodeStream, CodeEpilogue)
 	{
@@ -278,15 +277,14 @@ TEST(BytecodeStream, CodePrologue)
 		auto i {std::begin(stream.CodeBuffer())};
 		for (const auto& sig : epilogue)
 		{
-			ASSERT_EQ(sig, StreamPair<>{*j, *i});
-				                                    std::advance(i, 1);
-				                                    std::advance(j, 1);
-	
-			                                    }
-					ASSERT_TRUE(stream.ContainsEpilogue());
-			ASSERT_FALSE(stream.ContainsPrologue());
-			stream.Clear();
-			ASSERT_FALSE(stream.ContainsEpilogue());
+			ASSERT_EQ(sig, StreamPair<>(*j, *i));
+			std::advance(i, 1);
+			std::advance(j, 1);
+		}
+		ASSERT_TRUE(stream.ContainsEpilogue());
+		ASSERT_FALSE(stream.ContainsPrologue());
+		stream.Clear();
+		ASSERT_FALSE(stream.ContainsEpilogue());
 		}
 
 		TEST(BytecodeStream, CodeGenerationNoOpt)
