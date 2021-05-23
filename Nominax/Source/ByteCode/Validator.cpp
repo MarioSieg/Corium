@@ -223,6 +223,8 @@
 
 namespace Nominax::ByteCode
 {
+	using Common::UniformChunkSplit;
+
 	// Underlying type of the error code enum:
 	using ErrorInt = std::underlying_type_t<ValidationResultCode>;
 
@@ -320,33 +322,30 @@ namespace Nominax::ByteCode
 				}
 				else
 				{
-					const auto chunkSize {input.Size() / chunkCount};
-
 					std::vector<std::future<Cache>> results { };
 					results.reserve(chunkCount);
 
-					// parallel copy chunks:
-					for (std::size_t i {0}; i < chunkCount; ++i)
-					{
-						const auto      begin {std::begin(input.DiscriminatorBuffer()) + chunkSize * i};
-						const auto      end {i == chunkCount - 1 ? std::end(input.DiscriminatorBuffer()) : begin + chunkSize};
-						const std::span range {begin, end};
-
-						results.emplace_back(std::async(std::launch::async, [range, needle = chunkSize * i]() -> Cache
+					auto                                                        chunkRoutine {
+						[&results](const std::span<const Signal::Discriminator> range, const std::size_t needle)
 						{
-							Cache local { };
-							local.reserve(range.size());
-							std::ranges::for_each(range, [&local, index = needle](const Signal::Discriminator sig) mutable
+							results.emplace_back(std::async(std::launch::async, [range, needle]()-> Cache
 							{
-								if (sig == Signal::Discriminator::Instruction)
+								Cache local { };
+								local.reserve(range.size());
+								std::for_each(std::begin(range), std::end(range), [&local, index = needle](const Signal::Discriminator sig) mutable
 								{
-									local.emplace_back(index);
-								}
-								++index;
-							});
-							return local;
-						}));
-					}
+									if (sig == Signal::Discriminator::Instruction)
+									{
+										local.emplace_back(index);
+									}
+									++index;
+								});
+								return local;
+							}));
+						}
+					};
+
+					UniformChunkSplit<Signal::Discriminator>(chunkCount, input.DiscriminatorBuffer(), chunkRoutine);
 
 					for (auto& chunk : results)
 					{
@@ -368,23 +367,26 @@ namespace Nominax::ByteCode
 		const auto& discBuf {input.DiscriminatorBuffer()};
 		const auto& valBuf {input.CodeBuffer()};
 
+		auto                                                                                       pass0Routine {
+			[&input, &error, &index, &valBuf, begin = discBuf.data()](const Signal::Discriminator& iterator) noexcept(false)
+			{
+				if (iterator == Signal::Discriminator::JumpAddress)
+				{
+					const std::ptrdiff_t idx {&iterator - begin};
+					if (const bool result {ValidateJumpAddress(input, valBuf[idx].JmpAddress)}; NOMINAX_UNLIKELY(!result))
+					{
+						if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ValidationResultCode::Ok))) // only update the error once
+						{
+							error.store(static_cast<ErrorInt>(ValidationResultCode::InvalidJumpAddress)); // atomic store
+							index.store(idx);                                                             // atomic store
+						}
+					}
+				}
+			}
+		};
+
 		// Pass 0:
-		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf),
-		              [&input, &error, &index, &valBuf, begin = discBuf.data()](const Signal::Discriminator& iterator) noexcept(false)
-		              {
-			              if (iterator == Signal::Discriminator::JumpAddress)
-			              {
-				              const std::ptrdiff_t idx {&iterator - begin};
-				              if (const bool result {ValidateJumpAddress(input, valBuf[idx].JmpAddress)}; NOMINAX_UNLIKELY(!result))
-				              {
-					              if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(ValidationResultCode::Ok))) // only update the error once
-					              {
-						              error.store(static_cast<ErrorInt>(ValidationResultCode::InvalidJumpAddress)); // atomic store
-						              index.store(idx);                                                             // atomic store
-					              }
-				              }
-			              }
-		              });
+		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf), pass0Routine);
 		output = cache.get();
 		return static_cast<ValidationResultCode>(error.load());
 	}
@@ -455,26 +457,29 @@ namespace Nominax::ByteCode
 		std::atomic error {static_cast<ErrorInt>(Core::ReactorValidationResult::Ok)};
 		static_assert(decltype(error)::is_always_lock_free);
 
-		// Pass 1:
-		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache),
-		              [&error, discriminators = input.DiscriminatorBuffer(), base = std::begin(input.CodeBuffer())](const CompressedRelativePtr& iterator) noexcept(false)
-		              {
-			              const CompressedRelativePtr        next {*(&iterator + 1)};
-			              const Signal::Discriminator* const discriminator {&discriminators[iterator]};
-			              const Signal::Discriminator* const nextDiscriminator {&discriminators[next]};
-			              const std::ptrdiff_t               idx {discriminator - discriminators.data()};
-			              const Instruction                  instruction {base[idx].Instr};
-			              const std::span                    args {ExtractInstructionArguments(discriminator, ComputeInstructionArgumentOffset(discriminator, nextDiscriminator))};
-			              const auto                         result {ValidateInstructionArguments(instruction, args)}; // validate args
+		auto                                                                                                                           pass1Routine {
+			[&error, discriminators = input.DiscriminatorBuffer(), base = std::begin(input.CodeBuffer())](const CompressedRelativePtr& iterator) noexcept(false)
+			{
+				const CompressedRelativePtr        next {*(&iterator + 1)};
+				const Signal::Discriminator* const discriminator {&discriminators[iterator]};
+				const Signal::Discriminator* const nextDiscriminator {&discriminators[next]};
+				const std::ptrdiff_t               idx {discriminator - discriminators.data()};
+				const Instruction                  instruction {base[idx].Instr};
+				const std::span                    args {ExtractInstructionArguments(discriminator, ComputeInstructionArgumentOffset(discriminator, nextDiscriminator))};
+				const auto                         result {ValidateInstructionArguments(instruction, args)}; // validate args
 
-			              if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok)) // if error, return result:
-			              {
-				              if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(Core::ReactorValidationResult::Ok))) // only update the error once
-				              {
-					              error.store(static_cast<ErrorInt>(result)); // atomic store
-				              }
-			              }
-		              });
+				if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok)) // if error, return result:
+				{
+					if (NOMINAX_LIKELY(error == static_cast<ErrorInt>(Core::ReactorValidationResult::Ok))) // only update the error once
+					{
+						error.store(static_cast<ErrorInt>(result)); // atomic store
+					}
+				}
+			}
+		};
+
+		// Pass 1:
+		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), pass1Routine);
 
 
 		// Return error if the error value is not okay

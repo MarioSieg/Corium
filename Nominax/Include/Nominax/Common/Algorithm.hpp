@@ -225,7 +225,7 @@ namespace Nominax::Common
 		const std::iter_difference_t<Iter> length {std::distance(begin, end)};
 		const std::size_t                  chunkSize {static_cast<std::size_t>(length) / chunkCount};
 
-		for (std::size_t i {0}; i < chunkSize; ++i)
+		for (std::size_t i {0}; i < chunkCount; ++i)
 		{
 			const Iter                 beginChunk {begin + chunkSize * i};
 			const Iter                 endChunk {i == chunkCount - 1 ? end : beginChunk + chunkSize};

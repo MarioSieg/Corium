@@ -3,8 +3,8 @@
 SET(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 FILE(GLOB_RECURSE "NOMINAX_SOURCES" "Nominax/Source/*.cpp" "Nominax/Source/*.S" "Include/Nominax/*.hpp")
-ADD_LIBRARY("Nominax" STATIC "${NOMINAX_SOURCES}")
-ADD_LIBRARY("NominaxTest" STATIC "${NOMINAX_SOURCES}")
+ADD_LIBRARY("Nominax" SHARED "${NOMINAX_SOURCES}")
+ADD_LIBRARY("NominaxTest" SHARED "${NOMINAX_SOURCES}")
 
 # Set test flags and disable execution address mapping:
 TARGET_COMPILE_DEFINITIONS("NominaxTest" PUBLIC "-DNOMINAX_TEST")

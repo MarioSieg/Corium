@@ -217,16 +217,16 @@ TEST(ReactorPool, Construct)
 	ASSERT_EQ((*pool).GetSpawnStamp(), pool[0].GetSpawnStamp());
 	ASSERT_EQ(pool.GetSize(), 4);
 	ASSERT_EQ(pool.GetReactor(0).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize + 1); // +1 because of padding
-	ASSERT_EQ(pool.GetReactor(0).GetInterruptHandler(), &DefaultInterruptRoutine);
+	ASSERT_EQ(pool.GetReactor(0).GetInterruptHandler(), GetDefaultInterruptRoutine());
 	ASSERT_EQ(pool.GetReactor(0).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
 	ASSERT_EQ(pool.GetReactor(1).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize + 1); // +1 because of padding
-	ASSERT_EQ(pool.GetReactor(1).GetInterruptHandler(), &DefaultInterruptRoutine);
+	ASSERT_EQ(pool.GetReactor(1).GetInterruptHandler(), GetDefaultInterruptRoutine());
 	ASSERT_EQ(pool.GetReactor(1).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
 	ASSERT_EQ(pool.GetReactor(2).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize + 1); // +1 because of padding
-	ASSERT_EQ(pool.GetReactor(2).GetInterruptHandler(), &DefaultInterruptRoutine);
+	ASSERT_EQ(pool.GetReactor(2).GetInterruptHandler(), GetDefaultInterruptRoutine());
 	ASSERT_EQ(pool.GetReactor(2).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
 	ASSERT_EQ(pool.GetReactor(3).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize + 1); // +1 because of padding
-	ASSERT_EQ(pool.GetReactor(3).GetInterruptHandler(), &DefaultInterruptRoutine);
+	ASSERT_EQ(pool.GetReactor(3).GetInterruptHandler(), GetDefaultInterruptRoutine());
 	ASSERT_EQ(pool.GetReactor(3).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
 }
 

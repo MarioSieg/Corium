@@ -231,6 +231,14 @@ auto main(const signed argc, const char* const* const argv) -> signed
 		var *= 2;
 		var += 1;
 		var /= 1;
+		auto i {0};
+		for (; i < 2; ++i)
+		{
+			var += 1;
+			var *= i;
+			var <<= i - 1;
+		}
+		var %= i;
 	});
 
 	stream << Instruction::Push << u8"Hello:)\n"_cluster;

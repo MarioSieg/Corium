@@ -223,7 +223,7 @@ namespace Nominax::ByteCode
 		{
 			if (this->CodeDisc_[i] == Signal::Discriminator::Instruction)
 			{
-				Print(TextColor::Green, "\n{:#018X}: ", i);
+				Print(TextColor::Green, "\n&{:08X}: ", i);
 				Print(TextColor::Cyan, "{}", this->Code_[i].Instr);
 			}
 			else

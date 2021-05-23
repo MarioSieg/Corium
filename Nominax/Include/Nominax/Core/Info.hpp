@@ -224,7 +224,7 @@ namespace Nominax::Core
 	constexpr Version SYSTEM_VERSION
 	{
 		.Major = 0,
-		.Minor = 6,
+		.Minor = 7,
 		.Build = 0,
 		.Revision = 0,
 	};

@@ -222,4 +222,7 @@ namespace Nominax::Core
 
 	[[maybe_unused]]
 	extern auto DefaultInterruptRoutine(InterruptAccumulator) -> void;
+
+	[[nodiscard]]
+	extern auto GetDefaultInterruptRoutine() noexcept(true) -> InterruptRoutine*;
 }
