@@ -234,7 +234,7 @@ namespace Nominax::Common
 		x |= x >> UINT64_C(8);
 		x |= x >> UINT64_C(16);
 		x |= x >> UINT64_C(32);
-		return x + 1;
+		return ++x;
 	}
 
 	/// <summary>
@@ -306,7 +306,7 @@ namespace Nominax::Common
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename Iter, typename Func, typename... Args> requires RandomAccessIterator<Iter>
-	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) -> void
+	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) noexcept(false) -> void
 	{
 		using ValueType = const typename std::iterator_traits<Iter>::value_type;
 		using Span = std::span<ValueType>;
@@ -346,7 +346,7 @@ namespace Nominax::Common
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename T, typename Func, typename... Args>
-	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const std::span<const T> range, Func&& func, Args&&...args) -> void
+	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const std::span<const T> range, Func&& func, Args&&...args) noexcept(false) -> void
 	{
 		UniformChunkSplit<decltype(std::begin(range)), Func, Args...>(chunkCount, std::begin(range), std::end(range), std::forward<Func>(func), std::forward(args)...);
 	}

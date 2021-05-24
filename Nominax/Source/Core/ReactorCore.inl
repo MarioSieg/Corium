@@ -282,7 +282,7 @@ namespace Nominax::Core
 #elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
 		asm volatile
 		(
-			"ROLQ %%CL, %0"
+			"rolq %%cl, %0"
 			: "=r"(value)
 			: "0" (value), "c"(shift)
 		);
@@ -306,7 +306,7 @@ namespace Nominax::Core
 #elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
 		asm volatile
 		(
-			"RORQ %%CL, %0"
+			"rorq %%cl, %0"
 			: "=r"(value)
 			: "0" (value), "c"(shift)
 		);
