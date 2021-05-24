@@ -2,9 +2,7 @@ CalculateAge(birthYear uint, currentYear uint) uint {
 	return currentYear - birthYear
 }
 
-Main() {
-	andysBirthYear = 1968
-	currentYear = 2021
-	andysAge = CalculateAge(andysBirthYear, currentYear)
-	PrintLn($"Andy was born in {andysBirthYear} and is now {andysAge} years old!")
-}
+andysBirthYear = 1968
+currentYear = 2021
+andysAge = CalculateAge(andysBirthYear, currentYear)
+PrintLn($"Andy was born in {andysBirthYear} and is now {andysAge} years old!")
