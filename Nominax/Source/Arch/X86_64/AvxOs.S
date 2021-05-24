@@ -209,10 +209,10 @@
 
 # Header: Arch/X86_64/CpuId.hpp
 Asm_IsAvxSupportedByOs:
-    XORL    %ECX, %ECX              # clear ecx
-    XGETBV                          # read value from extended control register into %EDX:%EAX
-    ANDB    $0b00000110, %AL        # mask out avx bits
-    CMPB    $0b00000110, %AL        # compare value
-    SETEB   %AL                     # if equals & supported, set al to 1 else 0
-    RETQ                            # return
+    xorl    %ecx, %ecx              # clear ecx
+    xgetbv                          # read value from extended control register into %edx:%eax
+    andb    $0b00000110, %al        # mask out avx bits
+    cmpb    $0b00000110, %al        # compare value
+    seteb   %al                     # if equals & supported, set al to 1 else 0
+    retq                            # return
     

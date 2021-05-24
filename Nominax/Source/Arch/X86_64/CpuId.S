@@ -209,67 +209,67 @@
 
 # Header: Arch/X86_64/CpuId.hpp
 Asm_CpuId:
-    PUSHQ   %RBP                # stack frame prologue
-    MOVQ    %RSP, %RBP          # stack frame prologue
-    PUSHQ   %RBX
-    MOVL    $0xFFFFFFFF, %R10D
+    pushq   %rbp                # stack frame prologue
+    movq    %rsp, %rbp          # stack frame prologue
+    pushq   %rbx
+    movl    $0xFFFFFFFF, %r10d
 #ifdef __WIN__
-    PUSHQ   %RDX                # preserve clobbered rdx
-    PUSHQ   %RCX                # preserve clobbered rcx
+    pushq   %rdx                # preserve clobbered rdx
+    pushq   %rcx                # preserve clobbered rcx
 #else
-    PUSHQ   %RDX
+    pushq   %rdx
 #endif
-    XORL    %EAX, %EAX
-    MOVB    $1, %AL             # set eax to cpuid mode
-    CPUID                       # call cpuid
-    MOVL    %EDX, %EAX          # copy result 1 to eax
-    ANDQ    %R10, %RCX
-    SALQ    $32, %RCX           # shift into hiword
-    ORQ     %RCX, %RAX          # merge first and second feature dwords
+    xorl    %eax, %eax
+    movb    $1, %al             # set eax to cpuid mode
+    cpuid                       # call cpuid
+    movl    %edx, %eax          # copy result 1 to eax
+    andq    %r10, %rcx
+    salq    $32, %rcx           # shift into hiword
+    orq     %rcx, %rax          # merge first and second feature dwords
 #ifdef __WIN__
-    POPQ    %RCX                # restore clobbered rcx
-    MOVQ    %RAX, (%RCX)        # store result into output1
-    PUSHQ   %RCX                # preserve clobbered rcx
+    popq    %rcx                # restore clobbered rcx
+    movq    %rax, (%rcx)        # store result into output1
+    pushq   %rcx                # preserve clobbered rcx
 #else
-    MOVQ    %RAX, (%RDI)        # store result into output1
+    movq    %rax, (%rdi)        # store result into output1
 #endif
-    XORL    %EAX, %EAX          # clear eax
-    MOVB    $7, %AL             # set cpuid mode
-    XORL    %ECX, %ECX          # set cpuid mode
-    CPUID                       # call cpuid
-    MOVL    %EBX, %EAX          # copy result 1 to eax
-    ANDQ    %R10, %RCX          # truncate result 1 in rcx
-    SALQ    $32, %RCX           # shift into hiword
-    ORQ     %RCX, %RAX          # merge first and second feature dwords
-    ANDQ    %R10, %RDX          # truncate result 2 dword in rdx
+    xorl    %eax, %eax          # clear eax
+    movb    $7, %al             # set cpuid mode
+    xorl    %ecx, %ecx          # set cpuid mode
+    cpuid                       # call cpuid
+    movl    %ebx, %eax          # copy result 1 to eax
+    andq    %r10, %rcx          # truncate result 1 in rcx
+    salq    $32, %rcx           # shift into hiword
+    orq     %rcx, %rax          # merge first and second feature dwords
+    andq    %r10, %rdx          # truncate result 2 dword in rdx
 #ifdef __WIN__
-    MOVQ    %RDX, (%R8)         # copy result into output 3
-    POPQ    %RCX                # restore clobbered rcx
-    POPQ    %RDX                # restore clobbered rdx
-    MOVQ    %RAX, (%RDX)        # store result into output2
+    movq    %rdx, (%r8)         # copy result into output 3
+    popq    %rcx                # restore clobbered rcx
+    popq    %rdx                # restore clobbered rdx
+    movq    %rax, (%rdx)        # store result into output2
 #else
-    MOVQ    %RAX, (%RSI)        # copy result into output2
-    MOVQ    %RDX, %R9           # backup result 3 into r9
-    POPQ    %RDX                # restore output3
-    MOVQ    %R9, (%RDX)         # store result into output3
+    movq    %rax, (%rsi)        # copy result into output2
+    movq    %rdx, %r9           # backup result 3 into r9
+    popq    %rdx                # restore output3
+    movq    %r9, (%rdx)         # store result into output3
 #endif
 #ifndef __WIN__
-    PUSHQ   %RDX                # preserve clobbered rdx
+    pushq   %rdx                # preserve clobbered rdx
 #endif
-    MOVL    $0x80000001, %EAX   # set cpuid mode
-    XORL    %ECX, %ECX          # clear ecx
-    CPUID                       # call cpuid
-    ANDQ    %R10, %RCX          # truncate result
-    SALQ    $32, %RCX           # shift into hiword
+    movl    $0x80000001, %eax   # set cpuid mode
+    xorl    %ecx, %ecx          # clear ecx
+    cpuid                       # call cpuid
+    andq    %r10, %rcx          # truncate result
+    salq    $32, %rcx           # shift into hiword
 #ifdef __WIN__
-    ORQ     %RCX, (%R8)         # store result into output3
+    orq     %rcx, (%r8)         # store result into output3
 #else
-    POPQ    %RDX                # restore clobbered rdx
-    ORQ     %RCX, (%RDX)        # store result into output3
+    popq    %rdx                # restore clobbered rdx
+    orq     %rcx, (%rdx)        # store result into output3
 #endif
-    MOVL    %EDX, %EAX          # copy dword return value to return reg
-    POPQ    %RBX
-    MOVQ    %RBP, %RSP          # stack frame epilogue
-    POPQ    %RBP                # stack frame epilogue
-    RETQ                        # return
+    movl    %edx, %eax          # copy dword return value to return reg
+    popq    %rbx
+    movq    %rbp, %rsp          # stack frame epilogue
+    popq    %rbp                # stack frame epilogue
+    retq                        # return
     

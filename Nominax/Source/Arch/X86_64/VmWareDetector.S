@@ -211,17 +211,17 @@
 .equ PORT, 0x5658               # "VX"  
 
 Asm_VmWareDetector:
-    PUSHQ   %RBP
-    MOVQ    %RSP, %RBP
-    PUSHQ   %RBX
-    MOVL    $HYPERVISOR, %EAX
-    MOVL    $-1, %EBX
-    MOVL    $10, %ECX
-    MOVL    $PORT, %EDX
-    INL     %DX, %EAX
-    CMPL    $HYPERVISOR, %EBX
-    SETZ    %AL
-    POPQ    %RBX
-    MOVQ    %RBP, %RSP
-    POPQ    %RBP
-    RETQ
+    pushq   %rbp
+    movq    %rsp, %rbp
+    pushq   %rbx
+    movl    $HYPERVISOR, %eax
+    movl    $-1, %ebx
+    movl    $10, %ecx
+    movl    $PORT, %edx
+    inl     %dx, %eax
+    cmpl    $HYPERVISOR, %ebx
+    setz    %al
+    popq    %rbx
+    movq    %rbp, %rsp
+    popq    %rbp
+    retq
