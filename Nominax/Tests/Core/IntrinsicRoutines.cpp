@@ -1044,8 +1044,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortRead)
 		auto   _ {freopen("MockInput.txt", "r", stdin)};
 	std::array code = {
 		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0_uint},
+		Signal {Instruction::PushZ},
 		Signal {Instruction::Intrin},
 		Signal {SystemIntrinsicCallID::IoPortReadCluster},
 		Signal {Instruction::Int},

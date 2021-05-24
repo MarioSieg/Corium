@@ -296,7 +296,7 @@ namespace Nominax
 			/// <summary>
 			/// Default constructor. Does not initialize the environment.
 			/// </summary>
-			explicit Environment() noexcept(false) = default;
+			explicit Environment() noexcept(true) = default;
 
 			/// <summary>
 			/// No copy.
