@@ -209,10 +209,9 @@
 
 #include <vector>
 
-#include "DynamicSignal.hpp"
 #include "Signal.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// An optimized and ready to execute code chunk.
@@ -236,5 +235,5 @@ namespace Nominax
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <returns></returns>
-	extern auto CalculateInstructionMapping(std::span<const DynamicSignal> input, std::span<bool>& output) -> bool;
+	extern auto CalculateInstructionMapping(std::span<const Signal::Discriminator> input, std::span<bool>& output) -> bool;
 }

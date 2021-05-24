@@ -1,6 +1,6 @@
-// File: ILog2.hpp
+// File: FormatterImpls.hpp
 // Author: Mario
-// Created: 29.04.2021 11:31 AM
+// Created: 19.05.2021 9:29 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,21 +207,99 @@
 
 #pragma once
 
-#include <cassert>
-#include <climits>
-#include <cstdint>
+#include <fmt/format.h>
 
-namespace Nominax
+#include "../ByteCode/ByteCode.hpp"
+#include "../Core/Core.hpp"
+
+using FormatOutput = fmt::format_context::iterator;
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::Instruction>
 {
-	/// <summary>
-	/// Computes the binary logarithm of log2(2)
-	/// </summary>
-	/// <param name="x">Should not be 0!</param>
-	/// <returns></returns>
-	inline auto ILog2(U64 x) noexcept(true) -> U64
-	{
-		assert(x);
-		--x;
-		return sizeof x * CHAR_BIT - __builtin_clzll(x);
-	}
-}
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicCallID>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::ByteCode::SystemIntrinsicCallID& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::UserIntrinsicCallID>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::ByteCode::UserIntrinsicCallID& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::JumpAddress>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::Core::CharClusterUtf8>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::Core::CharClusterUtf8& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::Core::CharClusterUtf16>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::Core::CharClusterUtf16& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::Core::CharClusterUtf32>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::Core::CharClusterUtf32& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::Core::ReactorValidationResult>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
+
+	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+};

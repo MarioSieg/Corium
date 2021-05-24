@@ -216,7 +216,7 @@
 #include "../Common/BaseTypes.hpp"
 #include "ObjectHeader.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 #define MUTATOR
 #define IMMUTATOR

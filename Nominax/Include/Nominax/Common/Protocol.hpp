@@ -218,11 +218,12 @@
 
 // ReSharper disable CppUnusedIncludeDirective
 
+#include <iostream>
 #include <fmt/format.h>
 #include <fmt/chrono.h>
 #include <fmt/color.h>
 
-namespace Nominax
+namespace Nominax::Common
 {
 	enum class TextColor: std::underlying_type_t<fmt::terminal_color>
 	{
@@ -262,6 +263,16 @@ namespace Nominax
 #ifndef NOMINAX_TEST
 		fmt::print(formatString, std::forward<Args>(args)...);
 #endif
+	}
+
+	/// <summary>
+	/// Print single char.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	inline auto Print(const char x) -> void
+	{
+		Print("{}", x);
 	}
 
 	/// <summary>
@@ -330,3 +341,5 @@ namespace Nominax
 #endif
 	}
 }
+
+#include "FormatterImpls.hpp"

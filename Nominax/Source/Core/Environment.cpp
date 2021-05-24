@@ -210,18 +210,21 @@
 
 #include "../../Include/Nominax/Nominax.hpp"
 
-namespace
+namespace Nominax::Core
 {
 	using namespace Nominax;
+	using namespace ByteCode;
+	using namespace Common;
+	using namespace System;
 
 	/// <summary>
 	/// Query and print machine info.
 	/// </summary>
 	/// <returns></returns>
-	auto InitSysInfo() noexcept(false) -> SystemSnapshot
+	static auto InitSysInfo() noexcept(false) -> Snapshot
 	{
-		Print("\n");
-		SystemSnapshot snapshot { };
+		Print('\n');
+		Snapshot snapshot { };
 		snapshot.Print();
 		return snapshot;
 	}
@@ -230,12 +233,12 @@ namespace
 	/// Query and print cpu features.
 	/// </summary>
 	/// <returns></returns>
-	auto InitCpuFeatures() noexcept(false) -> CpuFeatureDetector
+	static auto InitCpuFeatures() noexcept(false) -> CpuFeatureDetector
 	{
-		Print("\n");
+		Print('\n');
 		CpuFeatureDetector cpuFeatureDetector { };
 		cpuFeatureDetector.Print();
-		Print("\n");
+		Print('\n');
 		return cpuFeatureDetector;
 	}
 
@@ -246,7 +249,7 @@ namespace
 	/// <param name="name"></param>
 	/// <returns></returns>
 	template <typename T>
-	inline auto PrintTypeInfo(const std::string_view name) -> void
+	static inline auto PrintTypeInfo(const std::string_view name) -> void
 	{
 		Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
 	}
@@ -256,12 +259,12 @@ namespace
 	/// </summary>
 	/// <param name="threads"></param>
 	/// <returns></returns>
-	auto PrintTypeInfoTable() -> void
+	static auto PrintTypeInfoTable() -> void
 	{
 		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
 		PrintTypeInfo<Record>("Record");
 		PrintTypeInfo<Signal>("Signal");
-		PrintTypeInfo<DynamicSignal>("DynamicSignal");
+		PrintTypeInfo<Signal::Discriminator>("SignalDisc");
 		PrintTypeInfo<Object>("Object");
 		PrintTypeInfo<ObjectHeader>("ObjectHeader");
 		PrintTypeInfo<I64>("int");
@@ -276,7 +279,7 @@ namespace
 	/// Print Nominax runtime info.
 	/// </summary>
 	/// <returns></returns>
-	auto PrintSystemInfo() -> void
+	static auto PrintSystemInfo() -> void
 	{
 		Print(SYSTEM_LOGO_TEXT);
 		Print(SYSTEM_COPYRIGHT_TEXT);
@@ -297,7 +300,7 @@ namespace
 		NOMINAX_PANIC_ASSERT_TRUE						\
 		(												\
 			this-> method (__VA_ARGS__),				\
-			#method "returned false!"					\
+			"\" "#method "\" returned false!"			\
 		);												\
 	}													\
 	while(false)
@@ -319,7 +322,7 @@ namespace
 	/// <param name="reactorCount"></param>
 	/// <param name="reactorStackSize"></param>
 	/// <returns></returns>
-	constexpr auto ComputePoolSize
+	static constexpr auto ComputePoolSize
 	(
 		std::size_t       desiredSize,
 		const std::size_t reactorCount,
@@ -330,10 +333,58 @@ namespace
 		desiredSize = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
 		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
 	}
-}
 
-namespace Nominax
-{
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="idx"></param>
+	/// <param name="appCode"></param>
+	/// <param name="code"></param>
+	/// <returns></returns>
+	[[maybe_unused]]
+	static auto PrintByteCodeErrorSector(const std::size_t idx, const Stream& appCode, const ValidationResultCode code)
+	{
+		const bool isInstructionFault
+		{
+			code == ValidationResultCode::NotEnoughArgumentsForInstruction
+			|| code == ValidationResultCode::TooManyArgumentsForInstruction
+			|| code == ValidationResultCode::ArgumentTypeMismatch
+		};
+
+		for (std::size_t i {idx}; i < idx + 8 && i < appCode.Size(); ++i)
+		{
+			if (appCode[i].Contains<Instruction>())
+			{
+				Print(TextColor::Green, "\n{:#018X}: ", i);
+				Print(TextColor::BrightBlue, "{}", appCode[i].Value.R64.AsU64);
+			}
+			else
+			{
+				Print(TextColor::Magenta, " {}", appCode[i].Value.R64.AsU64);
+			}
+
+			if (isInstructionFault && i == idx)
+			{
+				Print(LogLevel::Error, " {} ->", code);
+			}
+		}
+
+		Print('\n');
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="result"></param>
+	/// <param name="appCode"></param>
+	/// <returns></returns>
+	[[noreturn]]
+	static auto TriggerByteCodeStreamValidationPanic(const ValidationResultCode result, [[maybe_unused]] const Stream& appCode)
+	{
+		// Print error message:
+		PANIC("Byte code validation of stream failed: {}\n", result);
+	}
+
 	/// <summary>
 	/// Contains all the runtime variables required for the runtime system.
 	/// </summary>
@@ -350,7 +401,7 @@ namespace Nominax
 		std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
 		std::chrono::high_resolution_clock::time_point           BootStamp;
 		std::chrono::milliseconds                                BootTime;
-		SystemSnapshot                                           SysInfoSnapshot;
+		Snapshot                                                 SysInfoSnapshot;
 		CpuFeatureDetector                                       CpuFeatures;
 		ReactorRoutineLink                                       OptimalReactorRoutine;
 		ReactorPool                                              CorePool;
@@ -500,19 +551,28 @@ namespace Nominax
 		);
 	}
 
-	auto Environment::Execute(AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&
+	auto Environment::Execute(Stream&& appCode) noexcept(false) -> const ReactorOutput&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 
+		AppCodeBundle appCodeBundle { };
+		if (const auto result {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
+		{
+			TriggerByteCodeStreamValidationPanic(result, appCode);
+		}
+
+		// Deallocate stream:
+		appCode = { };
+
 		// Invoke hook:
-		DISPATCH_HOOK(OnPreExecutionHook, appCode);
+		DISPATCH_HOOK(OnPreExecutionHook, appCodeBundle);
 
 		// Info
-		Print(LogLevel::Warning, "Executing... Code size: {}\n", std::get<0>(appCode).size());
+		Print(LogLevel::Warning, "Executing...\n");
 		std::cout.flush();
 
 		// Execute on alpha reactor:
-		const auto& result {(*this->Context_->CorePool)(std::move(appCode))};
+		const auto& result {(*this->Context_->CorePool)(std::move(appCodeBundle))};
 
 		// Add execution time:
 		const auto micros {std::chrono::duration_cast<std::chrono::duration<F64, std::micro>>(result.Duration)};
@@ -526,16 +586,6 @@ namespace Nominax
 		// Invoke hook:
 		DISPATCH_HOOK(OnPostExecutionHook,);
 		return result;
-	}
-
-	auto Environment::Execute(Stream&& appCode) noexcept(false) -> const ReactorOutput&
-	{
-		AppCodeBundle appCodeBundle { };
-		if (const auto [code, _] {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(code != ByteCodeValidationResultCode::Ok))
-		{
-			PANIC(BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[static_cast<std::underlying_type_t<ByteCodeValidationResultCode>>(code)]);
-		}
-		return (*this)(std::move(appCodeBundle));
 	}
 
 	auto Environment::Shutdown() noexcept(false) -> void
@@ -583,7 +633,7 @@ namespace Nominax
 		return this->Context_->Arguments;
 	}
 
-	auto Environment::GetSystemSnapshot() const noexcept(false) -> const SystemSnapshot&
+	auto Environment::GetSystemSnapshot() const noexcept(false) -> const Snapshot&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Context_->SysInfoSnapshot;

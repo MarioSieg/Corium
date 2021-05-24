@@ -211,11 +211,10 @@
 #include "../../Include/Nominax/Common/Protocol.hpp"
 #include "../../Include/Nominax/Common/MemoryUnits.hpp"
 #include "../../Include/Nominax/Common/SafeLocalTime.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
 
-namespace
+namespace Nominax::System
 {
-	auto MachineRating(const std::size_t threads) noexcept(true) -> char
+	static auto MachineRating(const std::size_t threads) noexcept(true) -> char
 	{
 		if (threads <= 2)
 		{
@@ -239,16 +238,13 @@ namespace
 		}
 		return 'A';
 	}
-}
 
-namespace Nominax
-{
-	SystemSnapshot::SystemSnapshot() noexcept(false)
+	Snapshot::Snapshot() noexcept(false)
 	{
 		this->QueryAll();
 	}
 
-	auto SystemSnapshot::QueryAll() noexcept(false) -> void
+	auto Snapshot::QueryAll() noexcept(false) -> void
 	{
 		this->ThreadCount       = std::thread::hardware_concurrency();
 		this->ThreadId          = std::this_thread::get_id();
@@ -258,8 +254,10 @@ namespace Nominax
 		this->PageSize          = Os::QueryPageSize();
 	}
 
-	auto SystemSnapshot::Print() const noexcept(false) -> void
+	auto Snapshot::Print() const noexcept(false) -> void
 	{
+		using namespace Common;
+
 		const auto&
 		[
 			ThreadId,
@@ -273,13 +271,13 @@ namespace Nominax
 			PageSize
 		] = *this;
 
-		Nominax::Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
-		Nominax::Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
-		Nominax::Print("CPU: {}\n", CpuName);
-		Nominax::Print("CPU Hardware threads: {}\n", ThreadCount);
-		Nominax::Print("CPU Machine class: {}\n", MachineRating(ThreadCount));
-		Nominax::Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
-		Nominax::Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
-		Nominax::Print("Page size: {}B\n", PageSize);
+		Common::Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
+		Common::Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
+		Common::Print("CPU: {}\n", CpuName);
+		Common::Print("CPU Hardware threads: {}\n", ThreadCount);
+		Common::Print("CPU Machine class: {}\n", MachineRating(ThreadCount));
+		Common::Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
+		Common::Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
+		Common::Print("Page size: {}B\n", PageSize);
 	}
 }

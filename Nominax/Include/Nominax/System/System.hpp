@@ -207,7 +207,9 @@
 
 #pragma once
 
+#include "CpuFeatureDetector.hpp"
 #include "DynamicLibrary.hpp"
 #include "MacroCfg.hpp"
+#include "MessageBox.hpp"
 #include "Os.hpp"
 #include "Platform.hpp"

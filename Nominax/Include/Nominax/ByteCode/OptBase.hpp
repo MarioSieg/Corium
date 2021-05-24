@@ -209,7 +209,7 @@
 
 #include "../System/Platform.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	enum class OptimizationLevel
 	{

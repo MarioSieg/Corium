@@ -207,16 +207,22 @@
 
 #pragma once
 
+#include <functional>
+
 #include "../Include/Nominax/Nominax.hpp"
 #include "../../SharedTools/googlebench/include/benchmark/benchmark.h"
 
-using namespace Nominax;
 using namespace benchmark;
+
+using namespace Nominax;
+using namespace Common;
+using namespace ByteCode;
+using namespace Core;
 
 extern auto LoopBenchmark
 (
-	State&                          state,
-	const std::span<DynamicSignal>& loopBody,
-	I64                             count            = 1'000'000'000,
-	bool                            enableAvxReactor = true
+	State&                                      state,
+	const std::function<auto(Stream&) -> void>& loopBody,
+	I64                                         count            = 1'000'000'000,
+	bool                                        enableAvxReactor = true
 ) -> void;

@@ -211,7 +211,7 @@
 
 #include "InstructionCategory.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Contains the categories of all instructions.

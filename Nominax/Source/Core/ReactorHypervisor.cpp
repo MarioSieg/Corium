@@ -215,12 +215,9 @@
 
 #include "ReactorCores.hpp"
 
-namespace
+namespace Nominax::Core
 {
-	using namespace Nominax;
-
-	[[maybe_unused]]
-	constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
+	static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
 	{
 		&ReactorCore_Fallback,
 #if NOMINAX_ARCH_X86_64
@@ -232,11 +229,8 @@ namespace
 #	error "ARM64 not yet supported!"
 #endif
 	};
-}
 
-namespace Nominax
-{
-	auto SmartSelectReactor(const CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization
+	auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization
 	{
 #if NOMINAX_ARCH_X86_64
 
@@ -277,12 +271,12 @@ namespace Nominax
 		return routine;
 	}
 
-	auto GetOptimalReactorRoutine(const CpuFeatureDetector& features) -> ReactorRoutineLink
+	auto GetOptimalReactorRoutine(const System::CpuFeatureDetector& features) -> ReactorRoutineLink
 	{
 		static thread_local constinit U16 QueryCounter;
 		ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
 		ReactorCoreExecutionRoutine*      routine {GetReactorRoutineFromRegistryByTarget(specialization)};
-		Print
+		Common::Print
 		(
 			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry Size: {}\n",
 			GetReactorCoreSpecializationName(specialization),
@@ -292,12 +286,12 @@ namespace Nominax
 		);
 		if (NOMINAX_UNLIKELY(QueryCounter > 1))
 		{
-			Print(LogLevel::Warning, "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n", QueryCounter);
+			Print(Common::LogLevel::Warning, "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n", QueryCounter);
 		}
 		return std::make_tuple(specialization, routine);
 	}
 
-	auto ExecuteOnce(const DetailedReactorDescriptor& input, ReactorOutput& output, const CpuFeatureDetector& target) noexcept(true) -> void
+	auto ExecuteOnce(const DetailedReactorDescriptor& input, ReactorOutput& output, const System::CpuFeatureDetector& target) noexcept(true) -> void
 	{
 		std::get<1>(GetOptimalReactorRoutine(target))(input, output);
 	}

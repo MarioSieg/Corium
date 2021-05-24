@@ -206,7 +206,6 @@
 //    limitations under the License.
 
 #include "../TestBase.hpp"
-#include "../../Source/Core/ReactorCores.hpp"
 
 TEST(ReactorHypervisor, ReactorRegistry)
 {
@@ -239,7 +238,7 @@ TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetFallback)
 		GetReactorRoutineFromRegistryByTarget
 		(
 			SmartSelectReactor(*reinterpret_cast<CpuFeatureDetector*>(features.data()))
-		), &ReactorCore_Fallback
+		), GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)
 	);
 }
 
@@ -248,7 +247,7 @@ TEST(ReactorHypervisor, GetOptionalReactorRoutine)
 	std::array<std::byte, sizeof(CpuFeatureDetector)> features { };
 	const ReactorRoutineLink                          data {GetOptimalReactorRoutine(*reinterpret_cast<CpuFeatureDetector*>(features.data()))};
 	ASSERT_EQ(std::get<0>(data), ReactorCoreSpecialization::Fallback);
-	ASSERT_EQ(std::get<1>(data), &ReactorCore_Fallback);
+	ASSERT_EQ(std::get<1>(data), GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback));
 }
 
 #if NOMINAX_ARCH_X86_64
@@ -276,7 +275,7 @@ TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx)
 		GetReactorRoutineFromRegistryByTarget
 		(
 			SmartSelectReactor(feature)
-		), &ReactorCore_AVX
+		), GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX)
 	);
 }
 
@@ -289,7 +288,7 @@ TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx512F)
 		GetReactorRoutineFromRegistryByTarget
 		(
 			SmartSelectReactor(feature)
-		), &ReactorCore_AVX512F
+		), GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX512F)
 	);
 }
 
@@ -299,7 +298,7 @@ TEST(ReactorHypervisor, GetOptionalReactorRoutineAvx)
 	const_cast<FeatureBits&>(*features).Avx = true;
 	const ReactorRoutineLink data {GetOptimalReactorRoutine(features)};
 	ASSERT_EQ(std::get<0>(data), ReactorCoreSpecialization::X86_64_AVX);
-	ASSERT_EQ(std::get<1>(data), &ReactorCore_AVX);
+	ASSERT_EQ(std::get<1>(data), GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX));
 }
 
 TEST(ReactorHypervisor, GetOptionalReactorRoutineAvx512)
@@ -308,7 +307,7 @@ TEST(ReactorHypervisor, GetOptionalReactorRoutineAvx512)
 	const_cast<FeatureBits&>(*features).Avx512F = true;
 	const ReactorRoutineLink data {GetOptimalReactorRoutine(features)};
 	ASSERT_EQ(std::get<0>(data), ReactorCoreSpecialization::X86_64_AVX512F);
-	ASSERT_EQ(std::get<1>(data), &ReactorCore_AVX512F);
+	ASSERT_EQ(std::get<1>(data), GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX512F));
 }
 
 #endif

@@ -212,7 +212,7 @@
 
 #include "CharCluster.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// 64-bit memory record.

@@ -209,7 +209,7 @@
 
 #include <type_traits>
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	template <typename T>
 	concept StreamScalar = requires

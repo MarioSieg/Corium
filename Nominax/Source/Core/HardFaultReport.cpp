@@ -215,10 +215,8 @@
 #include "../../Include/Nominax/Core/HardFaultReport.hpp"
 #include "../../Include/Nominax/Core/Info.hpp"
 #include "../../Include/Nominax/Core/RegisterDump.hpp"
-
 #include "../../Include/Nominax/System/Platform.hpp"
 #include "../../Include/Nominax/System/Os.hpp"
-
 #include "../../Include/Nominax/Common/Common.hpp"
 
 namespace
@@ -226,7 +224,7 @@ namespace
 	constexpr std::string_view CRASH_DIRECTORY {"Crashes/"};
 }
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Writes a full error dump into the stream.
@@ -242,15 +240,15 @@ namespace Nominax
 	/// <returns></returns>
 	auto WriteHardFaultReport
 	(
-		std::ostream&          out,
-		const Record* const    sp,
-		const Signal* const    ip,
-		const Signal* const    bp,
-		const std::size_t      stackSize,
-		const std::size_t      codeSize,
-		const std::string_view message,
-		std::size_t            stackDumpSize,
-		std::size_t            codeDumpSize
+		std::ostream&                 out,
+		const Record* const           sp,
+		const ByteCode::Signal* const ip,
+		const ByteCode::Signal* const bp,
+		const std::size_t             stackSize,
+		const std::size_t             codeSize,
+		const std::string_view        message,
+		std::size_t                   stackDumpSize,
+		std::size_t                   codeDumpSize
 	) -> void
 	{
 		[[maybe_unused]] GprRegisterLane gpr { };
@@ -801,10 +799,10 @@ namespace Nominax
 		out << "Arch: " << NOMINAX_ARCH_NAME << '\n';
 		out << "Posix: " << std::boolalpha << NOMINAX_IS_POSIX << '\n';
 		out << "Compiler: " << NOMINAX_COM_NAME " - C++ 20" << '\n';
-		out << "CPU: " << Os::QueryCpuName() << '\n';
+		out << "CPU: " << System::Os::QueryCpuName() << '\n';
 		out << "CPU Threads: " << std::thread::hardware_concurrency() << '\n';
-		out << "System RAM: " << Bytes2Megabytes(Os::QuerySystemMemoryTotal()) << " MB\n";
-		out << "Process RAM: " << Bytes2Megabytes(Os::QueryProcessMemoryUsed()) << " MB\n";
+		out << "System RAM: " << Bytes2Megabytes(System::Os::QuerySystemMemoryTotal()) << " MB\n";
+		out << "Process RAM: " << Bytes2Megabytes(System::Os::QueryProcessMemoryUsed()) << " MB\n";
 		out << '\n';
 		out << "MS = " << (!message.empty() && message.data() ? message : "none") << '\n';
 		out << "SP = &0x" << std::hex << sp << '\n';
@@ -864,14 +862,14 @@ namespace Nominax
 	/// <returns></returns>
 	auto WriteHardFaultReport
 	(
-		const Record* const    sp,
-		const Signal* const    ip,
-		const Signal* const    bp,
-		const std::size_t      stackSize,
-		const std::size_t      codeSize,
-		const std::string_view message,
-		const std::size_t      stackDumpSize,
-		const std::size_t      codeDumpSize
+		const Record* const           sp,
+		const ByteCode::Signal* const ip,
+		const ByteCode::Signal* const bp,
+		const std::size_t             stackSize,
+		const std::size_t             codeSize,
+		const std::string_view        message,
+		const std::size_t             stackDumpSize,
+		const std::size_t             codeDumpSize
 	) -> void
 	{
 		std::stringstream dump;
@@ -880,7 +878,7 @@ namespace Nominax
 		std::cerr << str << std::endl;
 		std::filesystem::create_directory(CRASH_DIRECTORY);
 		const std::time_t t  = std::time(nullptr);
-		const std::tm     tm = SafeLocalTime(t);
+		const std::tm     tm = Common::SafeLocalTime(t);
 		std::stringstream crashFilePath;
 		crashFilePath << CRASH_DIRECTORY;
 		crashFilePath << std::put_time(&tm, "NominaxCrash_%d_%m_%Y_%H_%M_%S.dmp");

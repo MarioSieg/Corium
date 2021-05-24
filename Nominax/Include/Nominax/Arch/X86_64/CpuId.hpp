@@ -211,7 +211,7 @@
 
 #include "../../Common/BaseTypes.hpp"
 
-namespace Nominax::X86_64
+namespace Nominax::Arch::X86_64
 {
 	/// <summary>
 	/// Contains all feature bits for a x86-64 cpu.

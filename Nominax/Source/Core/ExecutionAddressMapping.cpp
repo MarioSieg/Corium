@@ -208,14 +208,14 @@
 #include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	auto MapJumpTable
 	(
-		Signal* __restrict__             bucket,
-		const Signal* const __restrict__ bucketEnd,
-		const bool*                      jumpAddressMap,
-		JumpTable                        jumpTable
+		ByteCode::Signal* __restrict__             bucket,
+		const ByteCode::Signal* const __restrict__ bucketEnd,
+		const bool*                                jumpAddressMap,
+		JumpTable                                  jumpTable
 	) noexcept(false) -> bool
 	{
 		NOMINAX_PANIC_ASSERT_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");
@@ -224,7 +224,7 @@ namespace Nominax
 		NOMINAX_PANIC_ASSERT_NOT_NULL(jumpTable, "Jump table was nullptr!");
 		NOMINAX_PANIC_ASSERT_NOT_NULL(*jumpTable, "First element of jump table was nullptr!");
 		NOMINAX_PANIC_ASSERT_TRUE(*jumpAddressMap, "First element of jump address map was false, but should be true because of code prologue!");
-		NOMINAX_PANIC_ASSERT_EQ(bucket->Instr, Instruction::NOp, "Missing code prologue in code bucket!");
+		NOMINAX_PANIC_ASSERT_EQ(bucket->Instr, ByteCode::Instruction::NOp, "Missing code prologue in code bucket!");
 
 		// skip first "nop" padding instruction:
 		++bucket;

@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: ValidationResult.hpp
 // Author: Mario
-// Created: 27.04.2021 3:41 PM
+// Created: 18.05.2021 5:50 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,95 +205,88 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#pragma once
 
-TEST(BytecodeDynamicSignal, InstructionData)
-{
-	const auto x = DynamicSignal {Instruction::CIntrin};
-	ASSERT_TRUE(x.Contains<Instruction>());
-	ASSERT_TRUE(x.Contains(Instruction::CIntrin));
-}
+#include <array>
+#include <cstddef>
+#include <string_view>
 
-TEST(BytecodeDynamicSignal, IntrinsicData)
+namespace Nominax::ByteCode
 {
-	const auto x = DynamicSignal {SystemIntrinsicCallId::ATan2};
-	ASSERT_TRUE(x.Contains<SystemIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(SystemIntrinsicCallId::ATan2));
-}
+	/// <summary>
+	/// Contains all byte code validation results.
+	/// </summary>
+	enum class ValidationResultCode
+	{
+		/// <summary>
+		/// Validation did not found any problems.
+		/// </summary>
+		Ok = 0,
 
-TEST(BytecodeDynamicSignal, CustomIntrinsicData)
-{
-	const auto x = DynamicSignal {CustomIntrinsicCallId {233113}};
-	ASSERT_TRUE(x.Contains<CustomIntrinsicCallId>());
-	ASSERT_TRUE(x.Contains(CustomIntrinsicCallId{ 233113 }));
-}
+		/// <summary>
+		/// More arguments specified than required.
+		/// </summary>
+		TooManyArgumentsForInstruction,
 
-TEST(BytecodeDynamicSignal, U64Data)
-{
-	const auto x = DynamicSignal {UINT64_C(12345)};
-	ASSERT_TRUE(x.Contains<U64>());
-	ASSERT_TRUE(x.Contains(UINT64_C(12345)));
-}
+		/// <summary>
+		/// Not enough arguments specified, more are required.
+		/// </summary>
+		NotEnoughArgumentsForInstruction,
 
-TEST(BytecodeDynamicSignal, I64Data)
-{
-	const auto x = DynamicSignal {INT64_C(-12345)};
-	ASSERT_TRUE(x.Contains<I64>());
-	ASSERT_TRUE(x.Contains(INT64_C(-12345)));
-}
+		/// <summary>
+		/// Expected argument of other type.
+		/// </summary>
+		ArgumentTypeMismatch,
 
-TEST(BytecodeDynamicSignal, F64Data)
-{
-	const auto x = DynamicSignal {12345.0};
-	ASSERT_TRUE(x.Contains<F64>());
-	ASSERT_TRUE(x.Contains(12345.0));
-}
+		/// <summary>
+		/// No entries.
+		/// </summary>
+		Empty,
 
-TEST(BytecodeDynamicSignal, C32Data)
-{
-	const auto x = DynamicSignal {CharClusterUtf8 {.Chars = {'A'}}};
-	ASSERT_TRUE(x.Contains<CharClusterUtf8>());
-	ASSERT_TRUE(x.Contains(CharClusterUtf8{ .Chars = {'A'} }));
-}
+		/// <summary>
+		/// Code is missing prologue code.
+		/// </summary>
+		MissingPrologueCode,
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithInstructionToSignal)
-{
-	const auto x = DynamicSignal {Instruction::CIntrin}.Transform();
-	ASSERT_EQ(x.Instr, Instruction::CIntrin);
-}
+		/// <summary>
+		/// Code is missing epilogue code.
+		/// </summary>
+		MissingEpilogueCode,
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithIntrinsicToSignal)
-{
-	const auto x = DynamicSignal {SystemIntrinsicCallId::ATan2}.Transform();
-	ASSERT_EQ(x.SystemIntrinId, SystemIntrinsicCallId::ATan2);
-}
+		/// <summary>
+		/// Jump address out of bounds.
+		/// </summary>
+		InvalidJumpAddress,
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithCustomIntrinsicToSignal)
-{
-	const auto x = DynamicSignal {CustomIntrinsicCallId {4}}.Transform();
-	ASSERT_EQ(x.CustomIntrinId, CustomIntrinsicCallId{ 4 });
-}
+		/// <summary>
+		/// Invalid call id.
+		/// </summary>
+		InvalidSystemIntrinsicCall,
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithU64ToSignal)
-{
-	const auto x = DynamicSignal {UINT64_C(0xFF'FF'FF'FF'FF'FF'FF'FF)}.Transform();
-	ASSERT_EQ(x.R64.AsU64, 0xFF'FF'FF'FF'FF'FF'FF'FF);
-}
+		/// <summary>
+		/// Maximum dynamic signals for validation: 0xFF'FF'FF'FF,
+		/// because pointers are compressed to 32-bit in the validator internally.
+		/// </summary>
+		SignalLimitReached
+	};
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithI64ToSignal)
-{
-	const auto x = DynamicSignal {INT64_C(-0x80'FF'FF'FF'FF'FF'FF'FF)}.Transform();
-	ASSERT_EQ(x.R64.AsI64, -0x80'FF'FF'FF'FF'FF'FF'FF);
-}
+	/// <summary>
+	/// Size of the extracted fault code section.
+	/// </summary>
+	constexpr std::size_t CROPPED_FAULT_CODE_DUMP_SIZE {8};
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithF64ToSignal)
-{
-	const auto x = DynamicSignal {std::numeric_limits<F64>::max()}.Transform();
-	ASSERT_EQ(x.R64.AsF64, std::numeric_limits<F64>::max());
-}
 
-TEST(BytecodeDynamicSignal, DynamicSignalWithChar8ToSignal)
-{
-	const auto x = DynamicSignal {CharClusterUtf8 {.Chars = {'X'}}}.Transform();
-	ASSERT_EQ(x.R64.AsChar8, 'X');
+	constexpr std::array<std::string_view, 10> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
+	{
+		"Ok",
+		"Too many arguments provided!",
+		"Not enough arguments provided!",
+		"Argument data type mismatch!",
+		"Empty byte code submitted!",
+		"Missing code prologue!",
+		"Missing code epilogue!",
+		"Jump address is out of range or does not point to an instruction!",
+		"Unknown system intrinsic call!",
+		"Signal limit reached! Because of pointer compression no more than (2 ^ 32) - 1 signals are allowed!"
+	};
 }

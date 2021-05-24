@@ -1,6 +1,6 @@
-// File: Ini.hpp
+// File: AtomicState.hpp
 // Author: Mario
-// Created: 17.05.2021 5:40 PM
+// Created: 23.05.2021 9:26 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,4 +207,178 @@
 
 #pragma once
 
-namespace Nominax { }
+#include "BranchHint.hpp"
+
+#include <atomic>
+#include <type_traits>
+
+namespace Nominax::Common
+{
+	/// <summary>
+	/// Stores the underlying type of an enum atomically as error code.
+	/// </summary>
+	/// <typeparam name="T">The enumeration type.</typeparam>
+	/// <typeparam name="SuccessState">The enumeration type success code like Ok.</typeparam>
+	/// <typeparam name="SingletonLock">If true the state is only updated when it is untouched (first time).</typeparam>
+	template <typename T, const T SuccessState = T::Ok, const bool SingletonLock = true> requires std::is_enum_v<T>
+	struct AtomicState final
+	{
+		/// <summary>
+		/// Underlying value type of enum.
+		/// </summary>
+		using ValueType = std::underlying_type_t<std::decay_t<T>>;
+
+		static_assert(std::atomic<ValueType>::is_always_lock_free);
+
+		/// <summary>
+		/// Update error state.
+		/// If "SingletonLock" is true,
+		/// the state is only updated on the first call of this operator.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		constexpr auto operator ()(T x) noexcept(true) -> void;
+
+		/// <summary>
+		/// Return current error state.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		constexpr auto operator ()() const noexcept(true) -> T;
+
+		/// <summary>
+		/// Get atomic value container.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		constexpr auto operator *() const noexcept(true) -> const std::atomic<ValueType>&;
+
+		/// <summary>
+		/// Returns true if the current state is
+		/// equals to success state, else false.
+		/// </summary>
+		/// <returns></returns>
+		constexpr operator bool() const noexcept(true);
+
+		/// <summary>
+		/// Construct with success state as value.
+		/// </summary>
+		/// <returns></returns>
+		constexpr AtomicState() noexcept(true);
+
+		/// <summary>
+		/// Construct with custom state.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		explicit constexpr AtomicState(T x) noexcept(true);
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr AtomicState(AtomicState&& other) noexcept(true) = default;
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr AtomicState(const AtomicState& other) noexcept(true) = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(AtomicState&& other) noexcept(true) -> AtomicState& = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(const AtomicState& other) noexcept(true) -> AtomicState& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~AtomicState() = default;
+
+	private:
+		std::atomic<ValueType> Value_;
+	};
+
+	/// <summary>
+	/// Update error state.
+	/// If "SingletonLock" is true,
+	/// the state is only updated on the first call of this operator.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator()(const T x) noexcept(true) -> void
+	{
+		if constexpr (SingletonLock)
+		{
+			if (NOMINAX_UNLIKELY(x != SuccessState)) // Only store if error state
+			{
+				if (NOMINAX_LIKELY(this->Value_.load() == static_cast<ValueType>(SuccessState))) // Only store if untouched state
+				{
+					this->Value_.store(static_cast<ValueType>(x));
+				}
+			}
+		}
+		else
+		{
+			this->Value_.store(static_cast<ValueType>(x));
+		}
+	}
+
+	/// <summary>
+	/// Return current error state.
+	/// </summary>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator()() const noexcept(true) -> T
+	{
+		return static_cast<T>(this->Value_.load());
+	}
+
+	/// <summary>
+	/// Get atomic value container.
+	/// </summary>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator*() const noexcept(true) -> const std::atomic<ValueType>&
+	{
+		return this->Value_;
+	}
+
+	/// <summary>
+	/// Returns true if the current state is
+	/// equals to success state, else false.
+	/// </summary>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr AtomicState<T, SuccessState, SingletonLock>::operator bool() const noexcept(true)
+	{
+		return (*this)() == SuccessState;
+	}
+
+	/// <summary>
+	/// Construct with success state as value.
+	/// </summary>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState() noexcept(true) : Value_ {static_cast<ValueType>(SuccessState)} { }
+
+	/// <summary>
+	/// Construct with custom state.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState(const T x) noexcept(true) : Value_ {static_cast<ValueType>(x)} { }
+}

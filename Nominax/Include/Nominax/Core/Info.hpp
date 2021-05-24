@@ -207,13 +207,11 @@
 
 #pragma once
 
-#include <cstdint>
-#include <string_view>
 #include <ostream>
 
 #include "../Common/BaseTypes.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	struct Version final
 	{
@@ -226,7 +224,7 @@ namespace Nominax
 	constexpr Version SYSTEM_VERSION
 	{
 		.Major = 0,
-		.Minor = 6,
+		.Minor = 7,
 		.Build = 0,
 		.Revision = 0,
 	};

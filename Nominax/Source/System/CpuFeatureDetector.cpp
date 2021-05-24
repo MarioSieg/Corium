@@ -207,7 +207,7 @@
 
 #include "../../Include/Nominax/System/CpuFeatureDetector.hpp"
 
-namespace Nominax
+namespace Nominax::System
 {
 	CpuFeatureDetector::CpuFeatureDetector() noexcept(false) : Features_ { } {}
 

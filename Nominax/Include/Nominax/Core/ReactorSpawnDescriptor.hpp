@@ -210,10 +210,9 @@
 #include "FixedStack.hpp"
 #include "Interrupt.hpp"
 
-#include "../ByteCode/CustomIntrinsic.hpp"
-#include "../System/Platform.hpp"
+#include "../ByteCode/UserIntrinsic.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Power preference for a VM reactor.
@@ -244,7 +243,7 @@ namespace Nominax
 		/// <summary>
 		/// The intrinsic routines.
 		/// </summary>
-		UserIntrinsicRoutineRegistry SharedIntrinsicTable { };
+		ByteCode::UserIntrinsicRoutineRegistry SharedIntrinsicTable { };
 
 		/// <summary>
 		/// Interrupt handler.

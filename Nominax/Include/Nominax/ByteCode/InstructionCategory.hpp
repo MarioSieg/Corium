@@ -207,11 +207,9 @@
 
 #pragma once
 
-#include <cstdint>
-
 #include "../Common/BaseTypes.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Instruction category.

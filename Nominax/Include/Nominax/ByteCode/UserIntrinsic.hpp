@@ -1,6 +1,6 @@
-// File: DynamicSignal.cpp
+// File: UserIntrinsic.hpp
 // Author: Mario
-// Created: 11.05.2021 9:07 PM
+// Created: 24.04.2021 9:46 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,46 +205,26 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/ByteCode/DynamicSignal.hpp"
-#include "../../Include/Nominax/Common/PanicRoutine.hpp"
+#pragma once
 
-namespace Nominax
+#include <cstdint>
+#include <span>
+
+#include "../Core/Record.hpp"
+
+namespace Nominax::ByteCode
 {
-	auto DynamicSignal::Transform() const noexcept(true) -> Signal
-	{
-		if (const auto* const x = std::get_if<Instruction>(&this->Storage))
-		{
-			return Signal {*x};
-		}
-		if (const auto* const x = std::get_if<SystemIntrinsicCallId>(&this->Storage))
-		{
-			return Signal {*x};
-		}
-		if (const auto* const x = std::get_if<CustomIntrinsicCallId>(&this->Storage))
-		{
-			return Signal {*x};
-		}
-		if (const auto* const x = std::get_if<JumpAddress>(&this->Storage))
-		{
-			return Signal {*x};
-		}
-		if (const auto* const x = std::get_if<U64>(&this->Storage))
-		{
-			return Signal {*x};
-		}
-		if (const auto* const x = std::get_if<I64>(&this->Storage))
-		{
-			return Signal {*x};
-		}
-		if (const auto* const x = std::get_if<F64>(&this->Storage))
-		{
-			return Signal {*x};
-		}
-		if (const auto* const x = std::get_if<CharClusterUtf8>(&this->Storage))
-		{
-			return Signal {*x};
-		}
+	/// <summary>
+	/// Call id for custom intrinsic routine.
+	/// </summary>
+	enum class alignas(alignof(U64)) UserIntrinsicCallID : U64;
 
-		Panic("Dynamic signal transformation failed!");
-	}
+	/// <summary>
+	/// Custom intrinsic routine function prototype.
+	/// Contains the stack pointer as parameter.
+	/// </summary>
+	using IntrinsicRoutine = auto (Core::Record*) -> void;
+	static_assert(std::is_function_v<IntrinsicRoutine>);
+
+	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;
 }

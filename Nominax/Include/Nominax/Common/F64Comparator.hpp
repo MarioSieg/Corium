@@ -212,7 +212,7 @@
 #include <cmath>
 #include <limits>
 
-namespace Nominax
+namespace Nominax::Common
 {
 	/// <summary>
 	/// Zero tolerance epsilon.

@@ -207,50 +207,40 @@
 
 #include "BenchTemplates.hpp"
 
-namespace
+// First environment with optimizations on:
+static std::unique_ptr Env
 {
-	// First environment with optimizations on:
-	std::unique_ptr Env
+	[]() -> auto
 	{
-		[]() -> auto
-		{
-			auto                  env {std::make_unique<Environment>()};
-			EnvironmentDescriptor descriptor { };
-			descriptor.AppName        = "NominaxBenchmark";
-			descriptor.FastHostIoSync = false;
-			env->Boot(descriptor);
-			return env;
-		}()
-	};
-}
+		auto                  env {std::make_unique<Environment>()};
+		EnvironmentDescriptor descriptor { };
+		descriptor.AppName        = "NominaxBenchmark";
+		descriptor.FastHostIoSync = false;
+		env->Boot(descriptor);
+		return env;
+	}()
+};
 
 auto LoopBenchmark
 (
-	State&                          state,
-	const std::span<DynamicSignal>& loopBody,
-	const I64                       count,
+	State&                                      state,
+	const std::function<auto(Stream&) -> void>& loopBody,
+	const I64                                   count,
 	[[maybe_unused]]
 	const bool enableAvxReactor
 ) -> void
 {
-	Print("\n");
+	Print('\n');
 
-	Stream stream
-	{
-		{
-			DynamicSignal {Instruction::NOp}, // first padding
-			DynamicSignal {Instruction::PushZ},
-			DynamicSignal {Instruction::IInc},
-			DynamicSignal {Instruction::Dupl},
-			DynamicSignal {Instruction::Push},
-			DynamicSignal {count},
-		}
-	};
+	Stream stream { };
+	stream << Instruction::NOp;
+	stream << Instruction::PushZ;
+	stream << Instruction::IInc;
+	stream << Instruction::Dupl;
+	stream << Instruction::Push;
+	stream << count;
 
-	for (const auto& sig : loopBody)
-	{
-		stream << sig;
-	}
+	loopBody(stream);
 
 	stream << Instruction::JlCmpi;
 	stream << JumpAddress {2};
@@ -258,13 +248,8 @@ auto LoopBenchmark
 	stream << Instruction::Int;
 	stream << 0_int;
 
-	auto& env {*Env};
-
-	AppCodeBundle out { };
-	stream.Build(out);
-
-	for (auto _ : state)
+	for (auto& env {*Env}; auto _ : state)
 	{
-		env.Execute(std::move(out));
+		env.Execute(std::move(stream));
 	}
 }

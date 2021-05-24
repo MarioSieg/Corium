@@ -211,28 +211,28 @@
 
 #include "Instruction.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Contains the count of required immediate arguments for each instruction.
 	/// </summary>
 	constexpr std::array<U8, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
 	{
+		1, // int
 		1,
 		1,
 		1,
-		1,
 		0,
-		2,
-		2,
-		1,
-		0,
+		2, // mov
+		2, // sto
+		1, // push
 		0,
 		0,
 		0,
 		0,
-		0,
-		1,
+		0, // swap
+		0, // nop
+		1, // jmp
 		1,
 		1,
 		1,

@@ -211,20 +211,17 @@
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
 #include "../../Include/Nominax/Common/XorshiftThreadLocal.hpp"
-#include "../../Include/Nominax/System/Os.hpp"
 
-namespace
+namespace Nominax::Core
 {
-	using namespace Nominax;
-
 	[[maybe_unused]]
-	auto CreateDescriptor
+	static auto CreateDescriptor
 	(
-		FixedStack&                   stack,
-		CodeChunk&                    chunk,
-		JumpMap&                      jumpMap,
-		UserIntrinsicRoutineRegistry& intrinsicTable,
-		InterruptRoutine&             interruptHandler
+		FixedStack&                             stack,
+		ByteCode::CodeChunk&                    chunk,
+		ByteCode::JumpMap&                      jumpMap,
+		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
+		InterruptRoutine&                       interruptHandler
 	) noexcept(true) -> DetailedReactorDescriptor
 	{
 		const std::span instrMapTableView
@@ -242,10 +239,7 @@ namespace
 		};
 		return simpleDescriptor.BuildDetailed();
 	}
-}
 
-namespace Nominax
-{
 	Reactor::Reactor
 	(
 		std::pmr::memory_resource&               allocator,
@@ -253,7 +247,7 @@ namespace Nominax
 		const std::optional<ReactorRoutineLink>& routineLink,
 		const std::size_t                        poolIdx
 	) noexcept(false) :
-		Id_ {Xorshift128ThreadLocal()},
+		Id_ {Common::Xorshift128ThreadLocal()},
 		PoolIndex_ {poolIdx},
 		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
 		PowerPreference_ {descriptor.PowerPref},
@@ -268,24 +262,24 @@ namespace Nominax
 			{
 				if (NOMINAX_UNLIKELY(!routineLink))
 				{
-					Print(LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
+					Print(Common::LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
 				}
 				return routineLink ? *routineLink : GetOptimalReactorRoutine({ });
 			}()
 		}
 	{
-		Print
+		Common::Print
 		(
 			"Reactor {:010X} "
-			"Stack: {} MB-"           // stack
-			"{} KR, "                 // kilo records
+			"Stack: {} MB, "          // stack
+			"{} Records, "            // kilo records
 			"Intrinsics: {}, "        // intrinsics
 			"Interrupt Routine: {}, " // interrupt
 			"Power: {}, "             // power preference
 			"Pool: {:02}\n",          // pool index
 			this->Id_,
 			Bytes2Megabytes(this->Stack_.Size() * sizeof(Record)),
-			this->Stack_.Size() / 1000,
+			this->Stack_.Size(),
 			this->IntrinsicTable_.size(),
 			this->InterruptHandler_ == &DefaultInterruptRoutine ? "Def" : "Usr",
 			this->PowerPreference_ == PowerPreference::HighPerformance ? "Perf" : "Safe",
@@ -293,7 +287,7 @@ namespace Nominax
 		);
 	}
 
-	auto Reactor::Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
+	auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
 	{
 		this->AppCode_ = std::move(bundle);
 		this->Input_   = CreateDescriptor
@@ -304,15 +298,17 @@ namespace Nominax
 			this->IntrinsicTable_,
 			*this->InterruptHandler_
 		);
-		const auto validationResult {this->Input_.Validate()};
-		NOMINAX_PANIC_ASSERT_EQ(validationResult, ReactorValidationResult::Ok, REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]);
+		if (const auto validationResult {this->Input_.Validate()}; NOMINAX_UNLIKELY(validationResult != ReactorValidationResult::Ok))
+		{
+			PANIC("Reactor {:#X} validation failed with the following reason: {}", this->Id_, validationResult);
+		}
 		auto* const routine = std::get<1>(this->RoutineLink_);
 		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");
 		(*routine)(this->Input_, this->Output_);
 		return this->Output_;
 	}
 
-	auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& target) noexcept(true) -> ReactorOutput
+	auto ExecuteOnce(const DetailedReactorDescriptor& input, const System::CpuFeatureDetector& target) noexcept(true) -> ReactorOutput
 	{
 		ReactorOutput output {.Input = &input};
 		ExecuteOnce(input, output, target);

@@ -213,7 +213,7 @@
 #include "Reactor.hpp"
 #include "../Common/PanicRoutine.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// A pool holding all existing reactors.
@@ -362,7 +362,6 @@ namespace Nominax
 
 	inline auto ReactorPool::GetReactor(const std::size_t idx) const noexcept(false) -> const Reactor&
 	{
-		NOMINAX_PANIC_ASSERT_L(idx, this->Pool_.size(), "Reactor with invalid index was requested from pool!");
 		return this->Pool_[idx];
 	}
 

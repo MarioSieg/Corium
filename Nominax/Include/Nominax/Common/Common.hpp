@@ -207,15 +207,19 @@
 
 #pragma once
 
+#include "Algorithm.hpp"
+#include "AtomicState.hpp"
+#include "BaseTypes.hpp"
 #include "BranchHint.hpp"
 #include "F64Comparator.hpp"
-#include "ILog2.hpp"
+#include "FormatterImpls.hpp"
 #include "LiteralOp.hpp"
 #include "MemoryAlign.hpp"
 #include "MemoryUnits.hpp"
 #include "PanicRoutine.hpp"
 #include "Protocol.hpp"
 #include "SafeLocalTime.hpp"
-#include "VariantTools.hpp"
+#include "Signal.hpp"
+#include "Stopwatch.hpp"
 #include "XorshiftAtomic.hpp"
 #include "XorshiftThreadLocal.hpp"

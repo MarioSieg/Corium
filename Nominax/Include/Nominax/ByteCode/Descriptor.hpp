@@ -212,7 +212,7 @@
 
 #include "Instruction.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Contains a short descripion for all instructions.

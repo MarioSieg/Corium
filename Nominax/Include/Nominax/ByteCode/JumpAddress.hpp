@@ -209,7 +209,7 @@
 
 #include "../Common/BaseTypes.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Represents a jump address which

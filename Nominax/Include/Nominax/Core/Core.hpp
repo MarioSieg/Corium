@@ -211,6 +211,7 @@
 #include "CharCluster.hpp"
 #include "DetailedReactorDescriptor.hpp"
 #include "Environment.hpp"
+#include "EnvironmentDescriptor.hpp"
 #include "ExecutionAddressMapping.hpp"
 #include "FixedStack.hpp"
 #include "HardFaultReport.hpp"

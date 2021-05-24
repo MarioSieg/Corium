@@ -217,11 +217,11 @@
 #include "ReactorSpawnDescriptor.hpp"
 #include "ReactorHypervisor.hpp"
 
-#include "../ByteCode/CustomIntrinsic.hpp"
+#include "../ByteCode/UserIntrinsic.hpp"
 #include "../ByteCode/Stream.hpp"
 #include "../System/CpuFeatureDetector.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Represents a reactor.
@@ -267,12 +267,12 @@ namespace Nominax
 		/// <summary>
 		/// Current app code bundle.
 		/// </summary>
-		AppCodeBundle AppCode_;
+		ByteCode::AppCodeBundle AppCode_;
 
 		/// <summary>
 		/// The table of custom intrinsic routines.
 		/// </summary>
-		UserIntrinsicRoutineRegistry IntrinsicTable_;
+		ByteCode::UserIntrinsicRoutineRegistry IntrinsicTable_;
 
 		/// <summary>
 		/// The interrupt routine using for reactor interrupts.
@@ -327,7 +327,7 @@ namespace Nominax
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
+		auto Execute(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
 
 		/// <summary>
 		/// Execute reactor with specified application code bundle.
@@ -335,7 +335,7 @@ namespace Nominax
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator ()(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
+		auto operator ()(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
 
 		/// <summary>
 		/// 
@@ -399,14 +399,14 @@ namespace Nominax
 		/// </summary>
 		/// <returns>The current app code bundle.</returns>
 		[[nodiscard]]
-		auto GetCodeBundle() const noexcept(true) -> const AppCodeBundle&;
+		auto GetCodeBundle() const noexcept(true) -> const ByteCode::AppCodeBundle&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetIntrinsicTable() const noexcept(true) -> const UserIntrinsicRoutineRegistry&;
+		auto GetIntrinsicTable() const noexcept(true) -> const ByteCode::UserIntrinsicRoutineRegistry&;
 
 		/// <summary>
 		/// 
@@ -441,7 +441,7 @@ namespace Nominax
 		return this->Stack_;
 	}
 
-	inline auto Reactor::GetIntrinsicTable() const noexcept(true) -> const UserIntrinsicRoutineRegistry&
+	inline auto Reactor::GetIntrinsicTable() const noexcept(true) -> const ByteCode::UserIntrinsicRoutineRegistry&
 	{
 		return this->IntrinsicTable_;
 	}
@@ -461,15 +461,15 @@ namespace Nominax
 		return this->Output_;
 	}
 
-	inline auto Reactor::GetCodeBundle() const noexcept(true) -> const AppCodeBundle&
+	inline auto Reactor::GetCodeBundle() const noexcept(true) -> const ByteCode::AppCodeBundle&
 	{
 		return this->AppCode_;
 	}
 
-	inline auto Reactor::operator()(AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
+	inline auto Reactor::operator()(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
 	{
 		return this->Execute(std::move(bundle));
 	}
 
-	extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const CpuFeatureDetector& target = { }) noexcept(true) -> ReactorOutput;
+	extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const System::CpuFeatureDetector& target = { }) noexcept(true) -> ReactorOutput;
 }

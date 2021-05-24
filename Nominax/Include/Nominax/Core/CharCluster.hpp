@@ -212,7 +212,7 @@
 
 #include "../Common/BaseTypes.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Utf-8 character constant without null terminator.

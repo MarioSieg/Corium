@@ -206,206 +206,79 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
-#include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
-#include "../../Include/Nominax/ByteCode/Lexeme.hpp"
 #include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
-#include "../../Include/Nominax/Common/VariantTools.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/MemoryUnits.hpp"
 
-template <>
-struct fmt::formatter<Nominax::DynamicSignal>
+namespace Nominax::ByteCode
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx) noexcept(false)
-	{
-		return ctx.begin();
-	}
+	using namespace Common;
 
-	template <typename FormatContext>
-	inline auto format(const Nominax::DynamicSignal& sig, FormatContext& ctx) noexcept(false)
+	auto Stream::PrintByteCode() const noexcept(false) -> void
 	{
-		using namespace Nominax;
-		decltype(fmt::format_to(ctx.out(), "{}", 0)) result { };
-		std::visit(Overloaded
-		           {
-			           [&](const Instruction value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(),
-					           "{}",
-					           INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<decltype(value)>>(value)]
-				           );
-			           },
-			           [&](const SystemIntrinsicCallId value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(),
-					           " {}{}{:#X}",
-					           Lexemes::INTRINSIC_CALL_IMMEDIATE,
-					           Lexemes::IMMEDIATE,
-					           static_cast<std::underlying_type_t<decltype(value)>>(value)
-				           );
-			           },
-			           [&](const CustomIntrinsicCallId value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(), " {}{}{:#X}",
-					           Lexemes::INTRINSIC_CALL_IMMEDIATE,
-					           Lexemes::IMMEDIATE,
-					           static_cast<std::underlying_type_t<decltype(value)>>(value)
-				           );
-			           },
-			           [&](const JumpAddress value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(), " {}{}{:#X}",
-					           Lexemes::JUMP_ADDRESS,
-					           Lexemes::IMMEDIATE,
-					           static_cast<std::underlying_type_t<decltype(value)>>(value)
-				           );
-			           },
-			           [&](const U64 value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(), " {}{}{}",
-					           Lexemes::IMMEDIATE,
-					           value,
-					           Lexemes::LITERAL_SUFFIX_UINT
-				           );
-			           },
-			           [&](const I64 value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(),
-					           " {}{}{}",
-					           Lexemes::IMMEDIATE,
-					           value,
-					           Lexemes::LITERAL_SUFFIX_INT
-				           );
-			           },
-			           [&](const F64 value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(),
-					           " {}{}{}",
-					           Lexemes::IMMEDIATE,
-					           value,
-					           Lexemes::LITERAL_SUFFIX_F32
-				           );
-			           },
-			           [&](const CharClusterUtf8 value)
-			           {
-				           result = fmt::format_to
-				           (
-					           ctx.out(),
-					           " {}{}{}{}{}{}{}{}{}{}",
-					           Lexemes::IMMEDIATE,
-					           static_cast<char>(value.Chars[0]),
-					           static_cast<char>(value.Chars[1]),
-					           static_cast<char>(value.Chars[2]),
-					           static_cast<char>(value.Chars[3]),
-					           static_cast<char>(value.Chars[4]),
-					           static_cast<char>(value.Chars[5]),
-					           static_cast<char>(value.Chars[6]),
-					           static_cast<char>(value.Chars[7]),
-					           Lexemes::LITERAL_SUFFIX_CHAR
-				           );
-			           },
-		           }, sig.Storage);
-		return result;
-	}
-};
-
-namespace Nominax
-{
-	auto Stream::PrintIntermediateRepresentation(const bool detailed) const noexcept(false) -> void
-	{
-		Print(TextColor::Green, "{} Len: {}, Size: {}B", Lexemes::COMMENT, this->Size(), this->SizeInBytes());
-		std::size_t offset {0};
-		for (auto sig {std::begin(*this)}, end {std::end(*this)}; sig != end; std::advance(sig, 1))
+		Print(TextColor::Green, "Len: {}, Size: {}B", this->Size(), this->SizeInBytes());
+		for (std::size_t i {0}; i < this->Size(); ++i)
 		{
-			if (const std::optional<Instruction> value {sig->Unwrap<Instruction>()}; NOMINAX_LIKELY(value.has_value()))
+			if (this->CodeDisc_[i] == Signal::Discriminator::Instruction)
 			{
-				Print("\n");
-
-				if (detailed)
-				{
-					Print(TextColor::Green, "{} &{:X} {:02X} {} ", Lexemes::COMMENT, offset, static_cast<std::underlying_type_t<std::remove_reference_t<decltype(*value)>>>(*value), Lexemes::COMMENT);
-				}
-				Print(TextColor::Cyan, "{}", *sig);
-
-				// Print interrupt type:
-				if (const auto instr {*value}; NOMINAX_UNLIKELY(instr == Instruction::Int))
-				{
-					// Get interrupt code:
-					auto current {sig};
-					std::advance(current, 1);
-					if (const auto interrupt {current->Unwrap<I64>()}; NOMINAX_LIKELY(interrupt.has_value()))
-					{
-						if (const auto code = *interrupt; code == 0)
-						{
-							Print(TextColor::Green, " {}OKI{}", Lexemes::COMMENT, Lexemes::COMMENT);
-						}
-						else if (code < 0)
-						{
-							Print(TextColor::Red, " {}ERR{}", Lexemes::COMMENT, Lexemes::COMMENT);
-						}
-						else
-						{
-							Print(TextColor::Yellow, " {}EXP{}", Lexemes::COMMENT, Lexemes::COMMENT);
-						}
-					}
-				}
+				Print(TextColor::Green, "\n&{:08X}: ", i);
+				Print(TextColor::Cyan, "{}", this->Code_[i].Instr);
 			}
 			else
 			{
-				Print(TextColor::Magenta, "{}", *sig);
+				Print(TextColor::Magenta, " {}", (*this)[i]);
 			}
-			++offset;
 		}
 		Print("\n\n");
 	}
 
+	auto Stream::PrintMemoryCompositionInfo() const noexcept(false) -> void
+	{
+		Print("Stream size: {}\n", this->Size());
+		Print("Code buffer: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->Code_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
+		Print("Discriminator buffer: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->CodeDisc_.size()) * static_cast<F32>(sizeof(DiscriminatorStorageType::value_type))));
+		Print("Total: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
+	}
+
 	auto Stream::Prologue() noexcept(false) -> Stream&
 	{
-		constexpr std::array code {DynamicSignal::CodePrologue()};
-		this->Storage_.insert(this->Storage_.begin(), std::begin(code), std::end(code));
+		for (const auto& [discriminator, signal] : PrologueCode())
+		{
+			this->CodeDisc_.emplace_back(discriminator);
+			this->Code_.emplace_back(signal);
+		}
 		return *this;
 	}
 
 	auto Stream::Epilogue() noexcept(false) -> Stream&
 	{
-		constexpr std::array code {DynamicSignal::CodeEpilogue()};
-		this->Storage_.insert(this->Storage_.end(), std::begin(code), std::end(code));
+		for (const auto& [discriminator, signal] : EpilogueCode())
+		{
+			this->CodeDisc_.emplace_back(discriminator);
+			this->Code_.emplace_back(signal);
+		}
 		return *this;
 	}
 
-	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ByteCodeValidationResult
+	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ValidationResultCode
 	{
-		if (const auto validationResult {ValidateByteCode(*this)}; NOMINAX_UNLIKELY(validationResult.first != ByteCodeValidationResultCode::Ok))
+		if (const auto validationResult {ValidateFullPass(*this)}; NOMINAX_UNLIKELY(validationResult != ValidationResultCode::Ok))
 		{
 			return validationResult;
 		}
 		GenerateChunkAndJumpMap(*this, out, outJumpMap);
-		return {ByteCodeValidationResultCode::Ok, 0};
+		return ValidationResultCode::Ok;
 	}
 
 	auto Stream::ContainsPrologue() const noexcept(false) -> bool
 	{
-		return Nominax::ContainsPrologue(this->Storage_);
+		return ByteCode::ContainsPrologue(*this);
 	}
 
 	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
 	{
-		return Nominax::ContainsEpilogue(this->Storage_);
+		return ByteCode::ContainsEpilogue(*this);
 	}
 }

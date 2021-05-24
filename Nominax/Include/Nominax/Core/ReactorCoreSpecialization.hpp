@@ -212,7 +212,7 @@
 
 #include "../System/Platform.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Contains all sub implementations for the reactor core.

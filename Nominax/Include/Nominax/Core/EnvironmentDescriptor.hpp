@@ -208,11 +208,10 @@
 #pragma once
 
 #include <cstddef>
-#include <string_view>
 
 #include "ReactorSpawnDescriptor.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Config descriptor for an environment.

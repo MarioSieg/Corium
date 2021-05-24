@@ -208,32 +208,44 @@
 #include "../../Nominax/Include/Nominax/Nominax.hpp"
 
 using namespace Nominax;
+using namespace Core;
+using namespace ByteCode;
 
 auto main(const signed argc, const char* const* const argv) -> signed
 {
-	Stream stream{ OptimizationLevel::Off };
-	stream.Prologue();
-
-	stream.With(2, [](ScopedInt var)
-		{
-			var *= 2;
-			var += 1;
-			var /= 1;
-		});
-	
-	stream << Instruction::Push << u8"Hello:)\n"_cluster;
-	stream << Instruction::Intrin << SystemIntrinsicCallId::IoPortWriteCluster;
-	stream.Epilogue();
-
-	EnvironmentDescriptor descriptor
+	const EnvironmentDescriptor descriptor
 	{
 		.ArgC = argc,
 		.ArgV = argv,
 		.AppName = "Corium"
 	};
 
-	Environment env{ };
+	Environment env { };
 	env.Boot(descriptor);
+
+	Stream stream {OptimizationLevel::Off};
+	stream.Prologue();
+
+	stream.With(2, [](ScopedInt var)
+	{
+		var *= 2;
+		var += 1;
+		var /= 1;
+		auto i {0};
+		for (; i < 2; ++i)
+		{
+			var += 1;
+			var *= i;
+			var <<= i - 1;
+		}
+		var %= i;
+	});
+
+	stream << Instruction::Push << u8"Hello:)\n"_cluster;
+	stream << Instruction::Intrin << SystemIntrinsicCallID::IoPortWriteCluster;
+	stream.Epilogue();
+	stream.PrintByteCode();
+
 	env.Execute(std::move(stream));
 	env.Shutdown();
 }

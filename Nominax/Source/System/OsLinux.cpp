@@ -217,7 +217,7 @@
 #include <dlfcn.h>
 #include <unistd.h>
 
-namespace Nominax::Os {
+namespace Nominax::System::Os {
 	auto QuerySystemMemoryTotal() noexcept(false) -> std::size_t
 	{
 		const long pages = sysconf(_SC_PHYS_PAGES);

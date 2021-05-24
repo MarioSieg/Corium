@@ -207,16 +207,13 @@
 
 #pragma once
 
-#include <cmath>
-#include <type_traits>
-
 #include "OptBase.hpp"
 #include "Instruction.hpp"
 #include "Stream.hpp"
 #include "StreamScalar.hpp"
 #include "../Common/BranchHint.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Single stack-bounded variable.

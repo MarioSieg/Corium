@@ -211,7 +211,7 @@
 
 #include "Instruction.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Contains the amount of stack pops each instruction will perform.

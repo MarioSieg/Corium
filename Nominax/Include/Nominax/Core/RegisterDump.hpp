@@ -208,12 +208,11 @@
 #pragma once
 
 #include <array>
-#include <ostream>
 
 #include "../Common/BaseTypes.hpp"
 #include "../System/Platform.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// 128 bit vector type for SIMD data

@@ -208,31 +208,91 @@
 #pragma once
 
 #include <array>
-#include <cstdint>
 #include <type_traits>
 
 #include "../Core/Record.hpp"
 #include "SystemIntrinsic.hpp"
-#include "CustomIntrinsic.hpp"
+#include "UserIntrinsic.hpp"
 #include "Instruction.hpp"
 #include "JumpAddress.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
-	/// <summary>
-	/// Raw representation of a signal as bytes.
-	/// </summary>
-	using SignalByteBuffer = std::array<std::byte, 8>;
-
 	/// <summary>
 	/// 64-bit byte code signal data contains either an instruction or an immediate value.
 	/// </summary>
 	union alignas(alignof(U64)) Signal
 	{
 		/// <summary>
+		/// Discriminator for discriminated signals.
+		/// </summary>
+		enum class Discriminator: U8
+		{
+			/// <summary>
+			/// U64 in record.
+			/// </summary>
+			U64,
+
+			/// <summary>
+			/// I64 in record.
+			/// </summary>
+			I64,
+
+			/// <summary>
+			/// F64 in record.
+			/// </summary>
+			F64,
+
+			/// <summary>
+			/// Char cluster UTF-8.
+			/// </summary>
+			CharClusterUtf8,
+
+			/// <summary>
+			/// Char cluster UTF-16.
+			/// </summary>
+			CharClusterUtf16,
+
+			/// <summary>
+			/// Char cluster UTF-32.
+			/// </summary>
+			CharClusterUtf32,
+
+			/// <summary>
+			/// Byte code instruction.
+			/// </summary>
+			Instruction,
+
+			/// <summary>
+			/// System call id.
+			/// </summary>
+			SystemIntrinsicCallID,
+
+			/// <summary>
+			/// User call id.
+			/// </summary>
+			UserIntrinsicCallID,
+
+			/// <summary>
+			/// Byte code instruction opcode.
+			/// </summary>
+			OpCode,
+
+			/// <summary>
+			/// Pointer.
+			/// </summary>
+			Ptr,
+
+			/// <summary>
+			/// Jump address.
+			/// </summary>
+			JumpAddress
+		};
+
+		/// <summary>
 		/// Reinterpret as Record64.
 		/// </summary>
-		Record R64;
+		Core::Record R64;
 
 		/// <summary>
 		/// Reinterpret as instruction.
@@ -242,12 +302,12 @@ namespace Nominax
 		/// <summary>
 		/// Reinterpret as system intrinsic call id.
 		/// </summary>
-		SystemIntrinsicCallId SystemIntrinId;
+		SystemIntrinsicCallID SystemIntrinID;
 
 		/// <summary>
 		/// Reinterpret as custom intrinsic call id.
 		/// </summary>
-		CustomIntrinsicCallId CustomIntrinId;
+		UserIntrinsicCallID CustomIntrinID;
 
 		/// <summary>
 		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
@@ -262,7 +322,7 @@ namespace Nominax
 		/// <summary>
 		/// Reinterpret as jump target.
 		/// </summary>
-		JumpAddress JumpTarget;
+		JumpAddress JmpAddress;
 
 		/// <summary>
 		/// Default constructor.
@@ -275,7 +335,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(Record value) noexcept(true);
+		explicit constexpr Signal(Core::Record value) noexcept(true);
 
 		/// <summary>
 		/// Construct from instruction.
@@ -289,14 +349,14 @@ namespace Nominax
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(SystemIntrinsicCallId value) noexcept(true);
+		explicit constexpr Signal(SystemIntrinsicCallID value) noexcept(true);
 
 		/// <summary>
 		/// Construct from custom intrinsic call id.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(CustomIntrinsicCallId value) noexcept(true);
+		explicit constexpr Signal(UserIntrinsicCallID value) noexcept(true);
 
 		/// <summary>
 		/// Construct from void pointer.
@@ -331,7 +391,21 @@ namespace Nominax
 		/// </summary>
 		/// <param name="cluster"></param>
 		/// <returns></returns>
-		explicit constexpr Signal(CharClusterUtf8 cluster) noexcept(true);
+		explicit constexpr Signal(Core::CharClusterUtf8 cluster) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-16 char cluster.
+		/// </summary>
+		/// <param name="cluster"></param>
+		/// <returns></returns>
+		explicit constexpr Signal(Core::CharClusterUtf16 cluster) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-32 char cluster.
+		/// </summary>
+		/// <param name="cluster"></param>
+		/// <returns></returns>
+		explicit constexpr Signal(Core::CharClusterUtf32 cluster) noexcept(true);
 
 		/// <summary>
 		/// Construct from 32-bit UTF-32 character.
@@ -348,19 +422,25 @@ namespace Nominax
 		explicit constexpr Signal(JumpAddress value) noexcept(true);
 	};
 
-	constexpr Signal::Signal(const Record value) noexcept(true) : R64 {value} {}
+	constexpr Signal::Signal(const Core::Record value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const Instruction value) noexcept(true) : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicCallId value) noexcept(true) : SystemIntrinId {value} {}
-	constexpr Signal::Signal(const CustomIntrinsicCallId value) noexcept(true) : CustomIntrinId {value} {}
+	constexpr Signal::Signal(const SystemIntrinsicCallID value) noexcept(true) : SystemIntrinID {value} {}
+	constexpr Signal::Signal(const UserIntrinsicCallID value) noexcept(true) : CustomIntrinID {value} {}
 	constexpr Signal::Signal(void* const value) noexcept(true) : Ptr {value} {}
 	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal::Signal(const Core::CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal::Signal(const Core::CharClusterUtf16 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal::Signal(const Core::CharClusterUtf32 cluster) noexcept(true) : R64 {cluster} {}
 	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JumpTarget {value} {}
+	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JmpAddress {value} {}
 
-	static_assert(sizeof(SignalByteBuffer) == sizeof(Signal));
+	/// <summary>
+	/// Raw representation of a signal as bytes.
+	/// </summary>
+	using SignalByteBuffer = std::array<U8, sizeof(Signal)>;
+
 	static_assert(std::is_trivial_v<Signal>);
 	static_assert(std::is_default_constructible_v<Signal>);
 	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, U64>);

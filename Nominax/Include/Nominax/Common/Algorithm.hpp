@@ -1,6 +1,6 @@
-// File: ByteCodeValidationResult.hpp
+// File: Algorithm.hpp
 // Author: Mario
-// Created: 18.05.2021 5:50 PM
+// Created: 23.05.2021 12:34 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,72 +207,153 @@
 
 #pragma once
 
-#include <cstddef>
+#include <atomic>
+#include <iterator>
+#include <span>
+#include <variant>
 
-namespace Nominax
+#include "BranchHint.hpp"
+
+namespace Nominax::Common
 {
 	/// <summary>
-	/// Contains all byte code validation results.
+	/// Restricts to random access iterator.
 	/// </summary>
-	enum class ByteCodeValidationResultCode
-	{
-		/// <summary>
-		/// Validation did not found any problems.
-		/// </summary>
-		Ok = 0,
-
-		/// <summary>
-		/// More arguments specified than required.
-		/// </summary>
-		TooManyArgumentsForInstruction,
-
-		/// <summary>
-		/// Not enough arguments specified, more are required.
-		/// </summary>
-		NotEnoughArgumentsForInstruction,
-
-		/// <summary>
-		/// Expected argument of other type.
-		/// </summary>
-		ArgumentTypeMismatch,
-
-		/// <summary>
-		/// No entries.
-		/// </summary>
-		Empty,
-
-		/// <summary>
-		/// Code is missing prologue code.
-		/// </summary>
-		MissingPrologueCode,
-
-		/// <summary>
-		/// Code is missing epilogue code.
-		/// </summary>
-		MissingEpilogueCode,
-
-		/// <summary>
-		/// Not an error, just the number
-		/// </summary>
-		Count
-	};
-
-	constexpr std::array<std::string_view, static_cast<std::size_t>(ByteCodeValidationResultCode::Count)> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
-	{
-		"ByteCodeValidationResultCode::Ok",
-		"ByteCodeValidationResultCode::TooManyArgumentsForInstruction",
-		"ByteCodeValidationResultCode::NotEnoughArgumentsForInstruction",
-		"ByteCodeValidationResultCode::ArgumentTypeMismatch",
-		"ByteCodeValidationResultCode::Empty",
-		"ByteCodeValidationResultCode::MissingPrologueCode",
-		"ByteCodeValidationResultCode::MissingEpilogueCode"
-	};
+	template <typename Iter>
+	concept RandomAccessIterator = std::is_same_v<typename std::iterator_traits<Iter>::iterator_category, std::random_access_iterator_tag>;
 
 	/// <summary>
-	/// Contains the "ByteCodeValidationResult" enum which is used
-	/// as error indicator. If the validation result is not okay (indicates error),
-	/// the second type contains the index in the byte code
-	/// where the invalid entry is.
+	/// Splits the iterator range into chunks
+	/// and invokes the function for each chunk range.
+	/// This is useful for parallel processing or processing data in chunks.
 	/// </summary>
-	using ByteCodeValidationResult = std::pair<ByteCodeValidationResultCode, std::size_t>;
+	/// <typeparam name="Iter"></typeparam>
+	/// <typeparam name="Func"></typeparam>
+	/// <typeparam name="...Args"></typeparam>
+	/// <param name="chunkCount"></param>
+	/// <param name="begin"></param>
+	/// <param name="end"></param>
+	/// <param name="func"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
+	template <typename Iter, typename Func, typename... Args> requires RandomAccessIterator<Iter>
+	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) -> void
+	{
+		using ValueType = const typename std::iterator_traits<Iter>::value_type;
+		using Span = std::span<ValueType>;
+
+		const auto length {std::distance(begin, end)};
+		const bool mismatch {chunkCount <= 1 || static_cast<std::size_t>(length) % chunkCount};
+
+		if (NOMINAX_UNLIKELY(mismatch))
+		{
+			const Span range {begin, end};
+			std::invoke(std::forward<Func>(func), range, static_cast<std::size_t>(0), std::forward<Args>(args)...);
+		}
+		else
+		{
+			const auto chunkSize {static_cast<std::size_t>(length) / chunkCount};
+			for (std::size_t i {0}; i < chunkCount; ++i)
+			{
+				const Iter beginChunk {begin + chunkSize * i};
+				const Iter endChunk {i == chunkCount - 1 ? end : beginChunk + chunkSize};
+				const Span range {beginChunk, endChunk};
+				std::invoke(std::forward<Func>(func), range, chunkSize * i, std::forward<Args>(args)...);
+			}
+		}
+	}
+
+	/// <summary>
+	/// Splits the iterator range into chunks
+	/// and invokes the function for each chunk range.
+	/// This is useful for parallel processing or processing data in chunks.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <typeparam name="Func"></typeparam>
+	/// <typeparam name="...Args"></typeparam>
+	/// <param name="chunkCount"></param>
+	/// <param name="range"></param>
+	/// <param name="func"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
+	template <typename T, typename Func, typename... Args>
+	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const std::span<const T> range, Func&& func, Args&&...args) -> void
+	{
+		UniformChunkSplit<decltype(std::begin(range)), Func, Args...>(chunkCount, std::begin(range), std::end(range), std::forward<Func>(func), std::forward(args)...);
+	}
+
+	/// <summary>
+	///  std::visit auto overload helper
+	/// </summary>
+	/// <typeparam name="...Ts">The call types.</typeparam>
+	template <typename... Ts>
+	struct Overloaded : Ts...
+	{
+		using Ts::operator()...;
+	};
+
+	template <typename... Ts>
+	Overloaded(Ts&&...) -> Overloaded<Ts...>;
+
+	/// <summary>
+	/// Computes the index of T inside the variant type.
+	/// </summary>
+	/// <typeparam name="VariantType"></typeparam>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
+	template <typename VariantType, typename T, std::size_t Index = 0>
+	[[nodiscard]]
+	constexpr auto VariantIndexOf() noexcept(true) -> std::size_t
+	{
+		if constexpr (Index == std::variant_size_v<VariantType> || std::is_same_v<std::variant_alternative_t<Index, VariantType>, T>)
+		{
+			return Index;
+		}
+		else
+		{
+			return VariantIndexOf<VariantType, T, Index + 1>();
+		}
+	}
+
+	/// <summary>
+	/// Calculates and returns the next element in the array using pointer arithmetic.
+	/// Is is important that T is a reference to an element in the array and NOT the last one.
+	/// This is useful to get the next element when using std::for_each with parallel execution.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="iter"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_reference_v<T>
+	[[nodiscard]]
+	constexpr auto AdvanceRef(T&& iter) noexcept(true) -> T&&
+	{
+		return *(std::addressof(iter) + 1);
+	}
+
+	/// <summary>
+	/// Calculates and returns the next element in the array using pointer arithmetic.
+	/// Is is important that T is a reference to an element in the array and NOT the last one.
+	/// This is useful to get the next element when using std::for_each with parallel execution.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="iter"></param>
+	/// <param name="begin"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_reference_v<T>
+	[[nodiscard]]
+	constexpr auto DistanceRef(T&& iter, const std::remove_reference_t<T>* const begin) noexcept(true) -> std::ptrdiff_t
+	{
+		return std::addressof(iter) - begin;
+	}
+
+	/// <summary>
+	/// Computes the binary logarithm of log2(2)
+	/// </summary>
+	/// <param name="x">Should not be 0!</param>
+	/// <returns></returns>
+	inline auto ILog2(U64 x) noexcept(true) -> U64
+	{
+		--x;
+		return sizeof x * CHAR_BIT - __builtin_clzll(x);
+	}
 }

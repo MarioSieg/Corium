@@ -208,14 +208,13 @@
 #pragma once
 
 #include <cstddef>
-#include <memory>
 #include <memory_resource>
 #include <vector>
 
 #include "../Common/MemoryUnits.hpp"
 #include "Record.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	/// <summary>
 	/// Represents a stack buffer with fixed size.

@@ -207,7 +207,7 @@
 
 #include "../../Include/Nominax/Core/BasicReactorDescriptor.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	auto BasicReactorDescriptor::BuildDetailed() const noexcept(true) -> DetailedReactorDescriptor
 	{

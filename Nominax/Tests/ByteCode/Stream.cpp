@@ -219,21 +219,22 @@ TEST(BytecodeStream, Push)
 	Stream stream { };
 	ASSERT_EQ(stream.Size(), 0);
 
-	stream.Push(DynamicSignal { });
-	stream.Push(DynamicSignal {Instruction::NOp});
+	stream << 0_uint;
+	stream << Instruction::NOp;
 	stream << Instruction::Call;
-	stream << SystemIntrinsicCallId::ACos;
-	stream << CustomIntrinsicCallId {3};
+	stream << SystemIntrinsicCallID::ACos;
+	stream << UserIntrinsicCallID {3};
 	stream << 3.5;
 	stream << UINT64_C(32);
 	stream << INT64_C(-10);
 
 	ASSERT_EQ(stream.Size(), 8);
+	ASSERT_EQ(stream.GetInstructionCount(), 2);
 	ASSERT_TRUE(stream[0].Contains(UINT64_C(0)));
 	ASSERT_TRUE(stream[1].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[2].Contains(Instruction::Call));
-	ASSERT_TRUE(stream[3].Contains(SystemIntrinsicCallId::ACos));
-	ASSERT_TRUE(stream[4].Contains(CustomIntrinsicCallId{ 3 }));
+	ASSERT_TRUE(stream[3].Contains(SystemIntrinsicCallID::ACos));
+	ASSERT_TRUE(stream[4].Contains(UserIntrinsicCallID{ 3 }));
 	ASSERT_TRUE(stream[5].Contains(3.5));
 	ASSERT_TRUE(stream[6].Contains(UINT64_C(32)));
 	ASSERT_TRUE(stream[7].Contains(INT64_C(-10)));
@@ -248,12 +249,15 @@ TEST(BytecodeStream, CodePrologue)
 	ASSERT_EQ(stream.Size(), 0);
 	ASSERT_TRUE(stream.IsEmpty());
 	stream.Prologue();
-	const auto prologue {DynamicSignal::CodePrologue()};
+	const auto prologue {Stream::PrologueCode()};
 	ASSERT_EQ(stream.Size(), prologue.size());
-	for (auto i {std::begin(stream)}; const auto& sig : prologue)
+	auto j {std::begin(stream.DiscriminatorBuffer())};
+	auto i {std::begin(stream.CodeBuffer())};
+	for (const auto& sig : prologue)
 	{
-		ASSERT_EQ(sig, *i);
+		ASSERT_EQ(sig, DiscriminatedSignal(*j, *i));
 		std::advance(i, 1);
+		std::advance(j, 1);
 	}
 	ASSERT_TRUE(stream.ContainsPrologue());
 	ASSERT_FALSE(stream.ContainsEpilogue());
@@ -267,12 +271,16 @@ TEST(BytecodeStream, CodeEpilogue)
 	ASSERT_EQ(stream.Size(), 0);
 	ASSERT_TRUE(stream.IsEmpty());
 	stream.Epilogue();
-	const auto epilogue {DynamicSignal::CodeEpilogue()};
+	const auto epilogue {Stream::EpilogueCode()};
 	ASSERT_EQ(stream.Size(), epilogue.size());
-	for (auto i {std::begin(stream)}; const auto& sig : epilogue)
+	auto j {std::begin(stream.DiscriminatorBuffer())};
+	auto i {std::begin(stream.CodeBuffer())};
+	for (const auto& sig : epilogue)
 	{
-		ASSERT_EQ(sig, *i);
+		const auto x {DiscriminatedSignal {*j, *i}};
+		ASSERT_EQ(sig, x);
 		std::advance(i, 1);
+		std::advance(j, 1);
 	}
 	ASSERT_TRUE(stream.ContainsEpilogue());
 	ASSERT_FALSE(stream.ContainsPrologue());

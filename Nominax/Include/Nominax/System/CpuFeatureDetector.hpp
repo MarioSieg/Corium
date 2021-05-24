@@ -213,13 +213,13 @@
 #   include "../Arch/X86_64.hpp"
 #endif
 
-namespace Nominax
+namespace Nominax::System
 {
 #if NOMINAX_ARCH_X86_64
 	/// <summary>
 	/// Architecture dependent cpu feature flags.
 	/// </summary>
-	using FeatureBits = X86_64::CpuFeatureBits;
+	using FeatureBits = Arch::X86_64::CpuFeatureBits;
 #else
     using FeatureBits = void;
 #   error "ARM is not yet implemented!"
@@ -230,8 +230,9 @@ namespace Nominax
 	/// <summary>
 	/// Detects architecture dependent cpu features.
 	/// </summary>
-	class CpuFeatureDetector final
+	struct CpuFeatureDetector final
 	{
+	private:
 		/// <summary>
 		/// Architecture dependent bits.
 		/// </summary>

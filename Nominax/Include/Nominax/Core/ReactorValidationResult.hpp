@@ -210,7 +210,7 @@
 #include <array>
 #include <string_view>
 
-namespace Nominax
+namespace Nominax::Core
 {
 	enum class ReactorValidationResult
 	{
@@ -222,22 +222,17 @@ namespace Nominax
 		MissingStackPrologue,
 		NullIntrinsicRoutine,
 		ExecutionAddressMappingError,
-
-		/// <summary>
-		/// No error just count of enum entries.
-		/// </summary>
-		Count
 	};
 
-	constexpr std::array<std::string_view, static_cast<std::size_t>(ReactorValidationResult::Count)> REACTOR_VALIDATION_RESULT_ERROR_MESSAGES
+	constexpr std::array<std::string_view, 8> REACTOR_VALIDATION_RESULT_ERROR_MESSAGES
 	{
-		"ReactorValidationResult::Ok",
-		"ReactorValidationResult::NullPtr",
-		"ReactorValidationResult::ZeroSize",
-		"ReactorValidationResult::MissingCodePrologue",
-		"ReactorValidationResult::MissingCodeEpilogue",
-		"ReactorValidationResult::MissingStackPrologue",
-		"ReactorValidationResult::NullIntrinsicRoutine",
-		"ReactorValidationResult::ExecutionAddressMappingError"
+		"Ok",
+		"Required input parameter is null!",
+		"Required input parameter has zero size!",
+		"Missing code prologue!",
+		"Missing code epilogue!",
+		"Missing stack prologue padding!",
+		"User intrinsic routine table contains an entry which is null!",
+		"Execution address mapping error!"
 	};
 }

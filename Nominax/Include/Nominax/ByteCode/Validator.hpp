@@ -211,16 +211,13 @@
 #include <vector>
 
 #include "Chunk.hpp"
-#include "DynamicSignal.hpp"
-#include "Stream.hpp"
-#include "ByteCodeValidationResult.hpp"
+#include "DiscriminatedSignal.hpp"
+#include "ValidationResult.hpp"
+#include "ValidationResult.hpp"
 
-namespace Nominax
+namespace Nominax::ByteCode
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	using ValidationBucket = std::vector<DynamicSignal>;
+	class Stream;
 
 	/// <summary>
 	/// Validates a jump address. To be valid the jump address must be:
@@ -231,7 +228,7 @@ namespace Nominax
 	/// <param name="address"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateJumpAddress(const ValidationBucket& bucket, JumpAddress address) noexcept(true) -> bool;
+	extern auto ValidateJumpAddress(const Stream& bucket, JumpAddress address) noexcept(true) -> bool;
 
 	/// <summary>
 	/// Validates a system intrinsic call id. To be valid the call id must be:
@@ -240,7 +237,7 @@ namespace Nominax
 	/// <param name="id"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateSystemIntrinsicCall(SystemIntrinsicCallId id) noexcept(true) -> bool;
+	extern auto ValidateSystemIntrinsicCall(SystemIntrinsicCallID id) noexcept(true) -> bool;
 
 	/// <summary>
 	/// Validates a user intrinsic call id. To be valid the call id must be:
@@ -251,7 +248,7 @@ namespace Nominax
 	/// <param name="id"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, CustomIntrinsicCallId id) noexcept(true) -> bool;
+	extern auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicCallID id) noexcept(true) -> bool;
 
 	/// <summary>
 	/// 
@@ -260,7 +257,7 @@ namespace Nominax
 	/// <param name="args"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateInstructionArguments(Instruction instruction, const std::span<const DynamicSignal>& args) noexcept(true) -> ByteCodeValidationResultCode;
+	extern auto ValidateInstructionArguments(Instruction instruction, const std::span<const Signal::Discriminator>& args) noexcept(true) -> ValidationResultCode;
 
 	/// <summary>
 	/// 
@@ -269,7 +266,7 @@ namespace Nominax
 	/// <param name="args"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto ValidateInstructionArguments(const Instruction instruction, std::vector<DynamicSignal>&& args) noexcept(true) -> ByteCodeValidationResultCode
+	inline auto ValidateInstructionArguments(const Instruction instruction, std::vector<Signal::Discriminator>&& args) noexcept(true) -> ValidationResultCode
 	{
 		return ValidateInstructionArguments(instruction, args);
 	}
@@ -281,7 +278,7 @@ namespace Nominax
 	/// <typeparam name="Iterator"></typeparam>
 	/// <param name="input"></param>
 	/// <returns></returns>
-	extern auto ContainsPrologue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool;
+	extern auto ContainsPrologue(const Stream& input) noexcept(false) -> bool;
 
 	/// <summary>
 	/// Returns true if the iterator range end with
@@ -290,21 +287,27 @@ namespace Nominax
 	/// <typeparam name="Iterator"></typeparam>
 	/// <param name="input"></param>
 	/// <returns></returns>
-	extern auto ContainsEpilogue(const std::span<const DynamicSignal>& input) noexcept(false) -> bool;
+	extern auto ContainsEpilogue(const Stream& input) noexcept(false) -> bool;
+
+	/// <summary>
+	/// 32-bit index used as compressed pointer.
+	/// </summary>
+	using CompressedRelativePtr = U32;
 
 	/// <summary>
 	/// Contains all instructions except for the last one in the stream.
 	/// </summary>
-	using ByteCodeValidationInstructionCache = std::vector<const DynamicSignal*>;
+	using InstructionCache = std::vector<CompressedRelativePtr>;
 
 	/// <summary>
 	/// Compute offset of the instruction argument.
 	/// </summary>
-	/// <param name="iterator"></param>
+	/// <param name="where"></param>
+	/// <param name="next"></param>
 	/// <returns></returns>
-	constexpr auto ComputeInstructionArgumentOffset(const DynamicSignal* const* const iterator) noexcept(true) -> std::ptrdiff_t
+	constexpr auto ComputeInstructionArgumentOffset(const Signal::Discriminator* const where, const Signal::Discriminator* const next) noexcept(true) -> std::ptrdiff_t
 	{
-		return *(iterator + 1) - *iterator - 1;
+		return next - where - 1;
 	}
 
 	/// <summary>
@@ -312,18 +315,14 @@ namespace Nominax
 	/// !! Warning this can not be used on the last instruction,
 	/// because it will determine the count by computing the pointer difference of two instructions.
 	/// </summary>
-	/// <param name="iterator">Pointer to instruction</param>
+	/// <param name="where">Pointer to instruction</param>
+	/// <param name="offset"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ExtractInstructionArguments(const DynamicSignal* const* iterator) noexcept(true) -> std::span<const DynamicSignal>;
-
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="input"></param>
-	/// <param name="output"></param>
-	/// <returns></returns>
-	extern auto GenerateInstructionCache(const std::span<const DynamicSignal>& input, ByteCodeValidationInstructionCache& output) noexcept(false) -> void;
+	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const std::size_t offset) noexcept(true) -> std::span<const Signal::Discriminator>
+	{
+		return {where + 1, where + 1 + offset};
+	}
 
 	/// <summary>
 	/// 
@@ -331,15 +330,28 @@ namespace Nominax
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <param name="jumpMap"></param>
-	extern auto GenerateChunkAndJumpMap(const std::span<const DynamicSignal>& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void;
+	extern auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void;
 
-	extern auto ValidateLastInstruction(const DynamicSignal* instr, std::ptrdiff_t argCount) noexcept(false) -> ByteCodeValidationResultCode;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="estimatedInstructionCount"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto ValidatePrePass(const Stream& input, InstructionCache& output,
+	                            std::size_t   estimatedInstructionCount = 0) noexcept(false) -> ValidationResultCode;
 
 	/// <summary>
 	/// Validates the whole code and returns the result.
 	/// </summary>
 	/// <param name="input">The stream to validate.</param>
+	/// <param name="estimatedInstructionCount"></param>
+	/// <param name="timings"></param>
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
-	extern auto ValidateByteCode(const std::span<const DynamicSignal>& input) noexcept(false) -> ByteCodeValidationResult;
+	extern auto ValidateFullPass(const Stream&              input, std::size_t estimatedInstructionCount = 0,
+	                             std::pair<double, double>* timings                                      = nullptr) noexcept(false) -> ValidationResultCode;
 }

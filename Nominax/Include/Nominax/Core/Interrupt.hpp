@@ -207,12 +207,11 @@
 
 #pragma once
 
-#include <cstdint>
 #include <limits>
 
 #include "../Common/BaseTypes.hpp"
 
-namespace Nominax
+namespace Nominax::Core
 {
 	using InterruptAccumulator = I32;
 	using InterruptRoutine = auto(InterruptAccumulator) -> void;
@@ -223,4 +222,7 @@ namespace Nominax
 
 	[[maybe_unused]]
 	extern auto DefaultInterruptRoutine(InterruptAccumulator) -> void;
+
+	[[nodiscard]]
+	extern auto GetDefaultInterruptRoutine() noexcept(true) -> InterruptRoutine*;
 }

@@ -212,29 +212,29 @@
 #include "Protocol.hpp"
 #include "BranchHint.hpp"
 
-namespace Nominax
+namespace Nominax::Common
 {
 	template <typename Str, typename... Args>
 	[[noreturn]]
 	inline auto Panic(const Str& formatString, const char* const file = nullptr, const signed line = 0, Args&&...args) -> void
 	{
 		Print(TextColor::Red, "\n!! FATAL NOMINAX RUNTIME ERROR !!\n");
-		Print(TextColor::Red, "Source File: {}, Source Line: {}\n", file ? file : "?", line);
-		Print(TextColor::Red, formatString, std::forward<Args>(args)...);
+		Print(TextColor::White, "Source File: {}, Source Line: {}\n", file ? file : "?", line);
+		Print(TextColor::White, formatString, std::forward<Args>(args)...);
 		Print(TextColor::Red, "\n!! FATAL NOMINAX RUNTIME ERROR !!\n");
 		std::cout.flush();
 		std::abort();
 	}
 }
 
-#define PANIC(msg) Panic( (msg), __FILE__, __LINE__ )
+#define PANIC(msg, ...) ::Nominax::Common::Panic( (msg), __FILE__, __LINE__, __VA_ARGS__)
 
 #define NOMINAX_PANIC_ASSERT_TRUE(x, msg)			\
 	do												\
 	{												\
 		if (NOMINAX_UNLIKELY(!( x )))				\
 		{											\
-			Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -244,7 +244,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(( x )))				\
 		{											\
-			Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -266,7 +266,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(( x ) != ( y )))		\
 		{											\
-			Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -277,7 +277,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(( x ) == ( y )))		\
 		{											\
-			Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -287,7 +287,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) < ( y ))))		\
 		{											\
-			Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -297,7 +297,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) <= ( y ))))	\
 		{											\
-			Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -307,7 +307,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) > ( y ))))		\
 		{											\
-			Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)
@@ -317,7 +317,7 @@ namespace Nominax
 	{												\
 		if (NOMINAX_UNLIKELY(!(( x ) >= ( y ))))	\
 		{											\
-			Panic(( msg ), __FILE__, __LINE__);		\
+                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
 		}											\
 	}												\
 	while(false)

@@ -215,7 +215,7 @@
 #include <WinUser.h>
 #include <Psapi.h>
 
-namespace Nominax::Os
+namespace Nominax::System::Os
 {
 	auto QuerySystemMemoryTotal() noexcept(false) -> std::size_t
 	{

@@ -1,6 +1,6 @@
-// File: ILog2.cpp
+// File: Algorithms.cpp
 // Author: Mario
-// Created: 30.04.2021 9:59 AM
+// Created: 24.05.2021 12:49 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,10 +207,88 @@
 
 #include "../TestBase.hpp"
 
-#include <cmath>
+using Variant = std::variant<int, short, float>;
+static_assert(VariantIndexOf<Variant, int>() == 0);
+static_assert(VariantIndexOf<Variant, short>() == 1);
+static_assert(VariantIndexOf<Variant, float>() == 2);
+
+TEST(Algorithms, UniformChunkSplit)
+{
+	constexpr std::array                                                                       values {2, 5, 1, 4, 5, 9};
+	std::size_t                                                                                i {0};
+	UniformChunkSplit(2, std::begin(values), std::end(values), [&i](const std::span<const int> range, const std::size_t index)
+	{
+		ASSERT_EQ(range.size(), 3);
+		ASSERT_EQ(index, 6 / 2 * i++);
+	});
+}
+
+TEST(Algorithms, UniformChunkSplit2)
+{
+	constexpr std::array                                                                       values {2, 5, 1, 4, 5, 9, 2, 5, 1, 4, 5, 9};
+	std::size_t                                                                                i {0};
+	UniformChunkSplit(1, std::begin(values), std::end(values), [&i](const std::span<const int> range, const std::size_t index)
+	{
+		ASSERT_EQ(index, i++);
+		ASSERT_EQ(range.size(), 12);
+	});
+}
+
+TEST(Algorithms, UniformChunkSplit3)
+{
+	constexpr std::array                                                                                             values {2, 5, 1, 4, 5, 9, 2, 5, 1, 4, 5, 9};
+	std::size_t                                                                                                      i {0};
+	UniformChunkSplit(4, std::begin(values), std::end(values), [&i, size = values.size()](const std::span<const int> range, const std::size_t index)
+	{
+		ASSERT_EQ(range.size(), 3);
+		ASSERT_EQ(index, size / 4 * i++);
+	});
+}
+
+TEST(Algorithms, UniformChunkSplitSingleZero)
+{
+	constexpr std::array                                                                            values {2, 5, 1, 4, 5, 9};
+	UniformChunkSplit(0, std::begin(values), std::end(values), [&values](const std::span<const int> range, const std::size_t index)
+	{
+		ASSERT_EQ(range.size(), values.size());
+		ASSERT_EQ(index, 0);
+	});
+}
+
+TEST(Algorithms, UniformChunkSplitSingleOne)
+{
+	constexpr std::array                                                                            values {2, 5, 1, 4, 5, 9};
+	UniformChunkSplit(1, std::begin(values), std::end(values), [&values](const std::span<const int> range, const std::size_t index)
+	{
+		ASSERT_EQ(range.size(), values.size());
+		ASSERT_EQ(index, 0);
+	});
+}
+
+
+TEST(Algorithms, AdvanceRef)
+{
+	constexpr std::array values {1, 2, 3};
+	ASSERT_EQ(AdvanceRef(values[0]), 2);
+	ASSERT_EQ(AdvanceRef(values[1]), 3);
+}
+
+TEST(Algorithms, DistanceRef)
+{
+	constexpr std::array values {1, 2, 3};
+	ASSERT_EQ(DistanceRef(values[0], values.data()), 0);
+	ASSERT_EQ(DistanceRef(values[1], values.data()), 1);
+	ASSERT_EQ(DistanceRef(values[2], values.data()), 2);
+}
 
 TEST(Common, ILog2)
 {
 	ASSERT_EQ(ILog2(8), 3);
 	ASSERT_EQ(ILog2(8), std::log(8) / std::log(2));
+}
+
+TEST(Common, ILog22)
+{
+	ASSERT_EQ(ILog2(16), 4);
+	ASSERT_EQ(ILog2(8), std::log2(8));
 }
