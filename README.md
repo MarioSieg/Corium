@@ -59,7 +59,6 @@ some specific type of data.<br>
 * Can hold values from -9223372036854775808 to 9223372036854775807.
 * Because it it signed, it can also hold negative values.
 * This type is used as the default type for natural number calculations.
-* The ‘i’ suffix is used to make an uint literal.
 * The equivalent in other C style languages would be “long”.
 
 <h4>uint</h4>
@@ -68,7 +67,7 @@ some specific type of data.<br>
 * Can hold values from 0 to 147573952589676412927. 
 * Because it is unsigned it can only hold positive values, but larger ones than ```uint```
 * This type is the default type for array indices.
-* The ‘u’ suffix is used to make an uint literal.
+* The ```u``` suffix is used to make an uint literal.
 * The equivalent in other C style languages is "unsigned long" or "ulong".
 
 <h4>float</h4>
@@ -76,7 +75,6 @@ some specific type of data.<br>
 * 64-bit double precision float.
 * Can hold values from -2.22507•10−308  to approximately 1.79769•10308.
 * This type is used as the default type for real number calculations.
-* The ‘f’ suffix is used to make an uint literal.
 * The equivalent in other C style languages is "double".
 
 <h4>bool</h4>
@@ -89,8 +87,54 @@ some specific type of data.<br>
 * A 32-bit UTF-32 character.
 * Can hold **any** unicode codepoint.
 
+<h3>Local Variables</h3>
+We've just learned the primitive data types.
+In Corium, local variables are declared by the follow scheme:
+
+```
+let <VariableName> <Type?> = <Literal?>
+```
+Let's create some local variables using the
+```let```
+keyword:
+
+```
+let a int = 3
+let b uint = 5
+let c float = 2.5
+let d char = 'O'
+let e bool = true
+```
+If you look at the above scheme again,```Type```
+and the ```Literal```
+are optional (indicated by the
+```?```.<br> That means that we can elide them:
+
+```
+let a = 3
+let b = 5u
+let c = 2.5
+let d = 'O'
+let e = true
+```
+
+That's better right?<br>
+Corium knows the type from the literal,
+so types can be deduced:
+| Literal  | Deduced Type |
+| ------------- | ------------- |
+| 3  | int  |
+| 5u  | uint  |
+| 2.5  | float  |
+| 'O'  | char  | 
+| true  | bool  |
+
+Note the ```u``` at the end of the ```uint``` literal!<br>
+It is used to create an **u**nsigned ```uint``` literal.<br>
+Without it, the literal would be of type ```int```.
+
 <h3> Functions And Methods </h3>
-Like in other languages,
+Like in many other languages,
 every program starts in within the
 
 ```Main```
