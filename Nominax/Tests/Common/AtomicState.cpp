@@ -1,6 +1,6 @@
-// File: VariantTools.hpp
+// File: AtomicState.cpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 24.05.2021 12:40 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,39 +205,42 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../TestBase.hpp"
 
-#include <variant>
-
-namespace Nominax::Common
+TEST(AtomicState, DefConstructor)
 {
-	/// <summary>
-	///  std::visit auto overload helper
-	/// </summary>
-	/// <typeparam name="...Ts">The call types.</typeparam>
-	template <typename... Ts>
-	struct Overloaded : Ts...
-	{
-		using Ts::operator()...;
-	};
+	const AtomicState<ValidationResultCode> state { };
+	ASSERT_EQ(state(), ValidationResultCode::Ok);
+	ASSERT_EQ(static_cast<ValidationResultCode>((*state).load()), ValidationResultCode::Ok);
+	ASSERT_TRUE(state);
+}
 
-	template <typename... Ts>
-	Overloaded(Ts&&...) -> Overloaded<Ts...>;
+TEST(AtomicState, Constructor)
+{
+	const AtomicState<ValidationResultCode> state {ValidationResultCode::ArgumentTypeMismatch};
+	ASSERT_EQ(state(), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(static_cast<ValidationResultCode>((*state).load()), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_FALSE(state);
+}
 
-	template <typename VariantType, typename T, std::size_t index = 0>
-	constexpr auto VariantIndexOf() noexcept(true) -> std::size_t
-	{
-		if constexpr (index == std::variant_size_v<VariantType>)
-		{
-			return index;
-		}
-		else if constexpr (std::is_same_v<std::variant_alternative_t<index, VariantType>, T>)
-		{
-			return index;
-		}
-		else
-		{
-			return VariantIndexOf<VariantType, T, index + 1>();
-		}
-	}
+TEST(AtomicState, SetStateSingleton)
+{
+	AtomicState<ValidationResultCode> state { };
+	state(ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(state(), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_FALSE(state);
+	state(ValidationResultCode::Ok);
+	ASSERT_EQ(state(), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_FALSE(state);
+}
+
+TEST(AtomicState, SetStateNoSingleton)
+{
+	AtomicState<ValidationResultCode, ValidationResultCode::Ok, false> state { };
+	state(ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(state(), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_FALSE(state);
+	state(ValidationResultCode::Ok);
+	ASSERT_EQ(state(), ValidationResultCode::Ok);
+	ASSERT_TRUE(state);
 }

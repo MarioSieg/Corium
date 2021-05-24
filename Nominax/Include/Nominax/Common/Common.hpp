@@ -208,6 +208,7 @@
 #pragma once
 
 #include "Algorithm.hpp"
+#include "AtomicState.hpp"
 #include "BaseTypes.hpp"
 #include "BranchHint.hpp"
 #include "F64Comparator.hpp"
@@ -220,6 +221,5 @@
 #include "SafeLocalTime.hpp"
 #include "Signal.hpp"
 #include "Stopwatch.hpp"
-#include "VariantTools.hpp"
 #include "XorshiftAtomic.hpp"
 #include "XorshiftThreadLocal.hpp"

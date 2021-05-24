@@ -223,19 +223,24 @@ namespace Nominax::ByteCode
 	template <typename T> requires StreamScalar<T>
 	class ScopedVariable;
 
+	/// <summary>
+	/// Proxy type for scoped variable value type.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	template <typename T>
 	class ScopedVariableProxyType final
 	{
 		using Type = std::decay_t<T>;
 	};
 
+	/// <summary>
+	/// Proxy type for scoped variable value type.
+	/// </summary>
 	template <>
 	class ScopedVariableProxyType<signed>
 	{
 		using Type = I64;
 	};
-
-	class Stream;
 
 	/// <summary>
 	/// Restrict stream expression type.
@@ -246,6 +251,29 @@ namespace Nominax::ByteCode
 		requires std::is_trivial_v<V>;
 		requires std::is_floating_point_v<V> || std::is_integral_v<V>;
 		// TODO: Validate that F() is callable with F(V, ScopedVariable<ScopedVariableProxyType<V>>)
+	};
+
+	/// <summary>
+	/// Validate template instruction.
+	/// </summary>
+	template <const Instruction I, typename... Ts>
+	concept ValidInstruction = requires
+	{
+		requires sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[static_cast<std::underlying_type_t<decltype(I)>>(I)];
+	};
+
+	/// <summary>
+	/// Validate template instruction argument.
+	/// </summary>
+	template <typename... Ts>
+	concept ValidInstructionArgument = requires
+	{
+		requires std::is_trivial_v<std::decay_t<Ts>...>;
+		requires std::is_integral_v<std::decay_t<Ts>...>
+		|| std::is_floating_point_v<std::decay_t<Ts>...>
+		|| std::is_enum_v<std::decay_t<Ts>...>;
+		requires (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(I64) == 0
+		|| (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(I32) == 0;
 	};
 
 	/// <summary>
@@ -328,7 +356,7 @@ namespace Nominax::ByteCode
 		/// Construct empty stream.
 		/// </summary>
 		/// <returns></returns>
-		Stream() noexcept(true) = default;;
+		Stream() noexcept(true) = default;
 
 		/// <summary>
 		/// Construct with specific optimization level.
@@ -548,7 +576,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="args"></param>
 		/// <returns></returns>
-		template <Instruction I, typename... Ts>
+		template <Instruction I, typename... Ts> requires ValidInstruction<I, Ts...> && ValidInstructionArgument<Ts...>
 		auto Do(Ts&&...args) noexcept(false) -> Stream&;
 
 		/// <summary>
@@ -656,17 +684,9 @@ namespace Nominax::ByteCode
 		return this->Build(std::get<0>(out), std::get<1>(out));
 	}
 
-	template <Instruction I, typename... Ts>
+	template <Instruction I, typename... Ts> requires ValidInstruction<I, Ts...> && ValidInstructionArgument<Ts...>
 	inline auto Stream::Do(Ts&&...args) noexcept(false) -> Stream&
 	{
-		static_assert(sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[static_cast<std::size_t>(I)], "Invalid amount of immediate arguments!");
-		static_assert(std::is_trivial_v<std::remove_reference_t<Ts>...>, "Invalid argument types!");
-		static_assert(std::is_integral_v<std::remove_reference_t<Ts>...>
-			|| std::is_floating_point_v<std::remove_reference_t<Ts>...>
-			|| std::is_enum_v<std::remove_reference_t<Ts>...>, "Invalid argument types!");
-		static_assert((sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(I64) == 0
-			|| (sizeof(std::remove_reference_t<Ts>) + ... + 0) % sizeof(I32) == 0,
-			"Invalid argument types!");
 		*this << I;
 		return (*this << ... << args);
 	}
