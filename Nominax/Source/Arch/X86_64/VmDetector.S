@@ -208,14 +208,14 @@
 .globl Asm_VmDetector
 
 Asm_VmDetector:
-    RDTSC                   # read time stamp counter into %EDX:%EAX
-    SALQ    $32, %RDX       # shift into hiword
-    ORQ     %RDX, %RAX      # merge
-    MOVQ    %RAX, %RCX      # backup into rcx
-    RDTSC                   # read time stamp counter into %EDX:%EAX
-    SALQ    $32, %RDX       # shift into hiword
-    ORQ     %RDX, %RAX      # merge
-    SUBQ    %RAX, %RCX      # subtract the two timestamps
-    CMPQ    $500, %RAX      # compare time between instructions
-    SETGB   %AL             # we might be inside a vm
-    RETQ                    # return
+    rdtsc                   # read time stamp counter into %edx:%eax
+    salq    $32, %rdx       # shift into hiword
+    orq     %rdx, %rax      # merge
+    movq    %rax, %rcx      # backup into rcx
+    rdtsc                   # read time stamp counter into %edx:%eax
+    salq    $32, %rdx       # shift into hiword
+    orq     %rdx, %rax      # merge
+    subq    %rax, %rcx      # subtract the two timestamps
+    cmpq    $500, %rax      # compare time between instructions
+    setgb   %al             # we might be inside a vm
+    retq                    # return

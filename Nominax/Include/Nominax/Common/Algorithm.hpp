@@ -208,14 +208,83 @@
 #pragma once
 
 #include <atomic>
+#include <functional>
 #include <iterator>
 #include <span>
 #include <variant>
 
 #include "BranchHint.hpp"
+#include "BaseTypes.hpp"
+#include "../System/MacroCfg.hpp"
 
 namespace Nominax::Common
 {
+	/// <summary>
+	/// Rounds up x to the next power of 2.
+	/// x should not be zero.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	constexpr auto RoundUpPow2(U64 x) noexcept(true) -> U64
+	{
+		--x;
+		x |= x >> UINT64_C(1);
+		x |= x >> UINT64_C(2);
+		x |= x >> UINT64_C(4);
+		x |= x >> UINT64_C(8);
+		x |= x >> UINT64_C(16);
+		x |= x >> UINT64_C(32);
+		return ++x;
+	}
+
+	/// <summary>
+	/// Computes the required bytes needed for the value or bit representation x.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns>The amount of bytes -> min: 1, max: 8</returns>
+	constexpr auto ComputeRequiredBytes(U64 x) noexcept(true) -> U8
+	{
+		U8 bytes {0};
+		do
+		{
+			x >>= UINT64_C(8);
+			++bytes;
+		}
+		while (x);
+		return static_cast<U8>(RoundUpPow2(static_cast<U64>(bytes)));
+	}
+
+	/// <summary>
+	/// Linearizes 2D coordinates using interleaved bits (morton table).
+	/// </summary>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <returns></returns>
+	extern auto LinearizeCoords2D(U16 x, U16 y) noexcept(true) -> U32;
+
+	/// <summary>
+	/// Fallback implementation for "ILog"
+	/// using a table of De-Bruijn sequence numbers.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	extern auto ILog2DeBruijn(U64 x) noexcept(true) -> U64;
+
+	/// <summary>
+	/// Computes the binary logarithm of log2(2)
+	/// </summary>
+	/// <param name="x">Should not be 0!</param>
+	/// <returns></returns>
+	inline auto ILog2(const U64 x) noexcept(true) -> U64
+	{
+#if !NOMINAX_USE_ARCH_OPT
+		--x;
+		return sizeof x * CHAR_BIT - __builtin_clzll(x);
+#else
+		return ILog2DeBruijn(x);
+#endif
+	}
+
 	/// <summary>
 	/// Restricts to random access iterator.
 	/// </summary>
@@ -237,7 +306,7 @@ namespace Nominax::Common
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename Iter, typename Func, typename... Args> requires RandomAccessIterator<Iter>
-	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) -> void
+	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) noexcept(false) -> void
 	{
 		using ValueType = const typename std::iterator_traits<Iter>::value_type;
 		using Span = std::span<ValueType>;
@@ -277,7 +346,7 @@ namespace Nominax::Common
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename T, typename Func, typename... Args>
-	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const std::span<const T> range, Func&& func, Args&&...args) -> void
+	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const std::span<const T> range, Func&& func, Args&&...args) noexcept(false) -> void
 	{
 		UniformChunkSplit<decltype(std::begin(range)), Func, Args...>(chunkCount, std::begin(range), std::end(range), std::forward<Func>(func), std::forward(args)...);
 	}
@@ -344,16 +413,5 @@ namespace Nominax::Common
 	constexpr auto DistanceRef(T&& iter, const std::remove_reference_t<T>* const begin) noexcept(true) -> std::ptrdiff_t
 	{
 		return std::addressof(iter) - begin;
-	}
-
-	/// <summary>
-	/// Computes the binary logarithm of log2(2)
-	/// </summary>
-	/// <param name="x">Should not be 0!</param>
-	/// <returns></returns>
-	inline auto ILog2(U64 x) noexcept(true) -> U64
-	{
-		--x;
-		return sizeof x * CHAR_BIT - __builtin_clzll(x);
 	}
 }

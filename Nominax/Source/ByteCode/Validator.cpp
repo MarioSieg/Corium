@@ -225,11 +225,6 @@ namespace Nominax::ByteCode
 {
 	using namespace Common;
 
-	// Underlying type of the error code enum:
-	using ErrorInt = std::underlying_type_t<ValidationResultCode>;
-
-	using Cache = InstructionCache;
-
 	auto ContainsPrologue(const Stream& input) noexcept(false) -> bool
 	{
 		constexpr const auto& code {Stream::PrologueCode()};
@@ -289,103 +284,7 @@ namespace Nominax::ByteCode
 		}
 	}
 
-	auto ValidatePrePass(const Stream& input, Cache& output, const std::size_t estimatedInstructionCount) noexcept(false) -> ValidationResultCode
-	{
-		std::future cache
-		{
-			std::async(std::launch::async, [&input, estimatedInstructionCount]
-			{
-				const std::size_t chunkCount {std::thread::hardware_concurrency()};
-
-				Cache      out { };
-				const auto predictedCap {estimatedInstructionCount ? estimatedInstructionCount : input.Size()};
-				out.reserve(predictedCap);
-
-				auto sequentialCopy
-				{
-					[&out](const std::size_t count, const std::span<const Signal::Discriminator>& discriminators)
-					{
-						for (CompressedRelativePtr i {0}; i < count; ++i)
-						{
-							if (discriminators[i] == Signal::Discriminator::Instruction)
-							{
-								out.emplace_back(i);
-							}
-						}
-					}
-				};
-
-				if (NOMINAX_UNLIKELY(input.Size() <= chunkCount))
-				{
-					sequentialCopy(input.Size(), input.DiscriminatorBuffer());
-				}
-				else
-				{
-					std::vector<std::future<Cache>> results { };
-					results.reserve(chunkCount);
-
-					auto                                                        chunkRoutine {
-						[&results](const std::span<const Signal::Discriminator> range, const std::size_t needle)
-						{
-							results.emplace_back(std::async(std::launch::async, [range, needle]()-> Cache
-							{
-								Cache local { };
-								local.reserve(range.size());
-								std::for_each(std::begin(range), std::end(range), [&local, index = needle](const Signal::Discriminator sig) mutable
-								{
-									if (sig == Signal::Discriminator::Instruction)
-									{
-										local.emplace_back(index);
-									}
-									++index;
-								});
-								return local;
-							}));
-						}
-					};
-
-					UniformChunkSplit<Signal::Discriminator>(chunkCount, input.DiscriminatorBuffer(), chunkRoutine);
-
-					for (auto& chunk : results)
-					{
-						auto val {chunk.get()};
-						out.insert(std::end(out), std::begin(val), std::end(val));
-					}
-				}
-
-				return out;
-			})
-		};
-
-		AtomicState<ValidationResultCode> error { };
-
-		const auto& discBuf {input.DiscriminatorBuffer()};
-		const auto& valBuf {input.CodeBuffer()};
-
-		auto pass0Routine
-		{
-			[&input, &error, &valBuf, begin = discBuf.data()](const Signal::Discriminator& iterator) noexcept(false)
-			{
-				if (iterator == Signal::Discriminator::JumpAddress)
-				{
-					const std::ptrdiff_t idx {DistanceRef(iterator, begin)};
-					if (const bool result {ValidateJumpAddress(input, valBuf[idx].JmpAddress)}; NOMINAX_UNLIKELY(!result))
-					{
-						error(ValidationResultCode::InvalidJumpAddress);
-					}
-				}
-			}
-		};
-
-		// Pass 0:
-		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf), pass0Routine);
-
-		output = cache.get();
-		return error();
-	}
-
-	auto ValidateFullPass(const Stream&              input, const std::size_t estimatedInstructionCount,
-	                      std::pair<double, double>* timings) noexcept(false) -> ValidationResultCode
+	auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry) noexcept(false) -> ValidationResultCode
 	{
 		// Check if empty:
 		if (NOMINAX_UNLIKELY(input.IsEmpty()))
@@ -411,73 +310,67 @@ namespace Nominax::ByteCode
 			return ValidationResultCode::MissingEpilogueCode;
 		}
 
-		// Query time:
-		Stopwatch clock { };
-
-		// Collect all instructions to validate them:
-		Cache instructionCache { };
-		if
-		(
-			const auto result {ValidatePrePass(input, instructionCache, estimatedInstructionCount)};
-			NOMINAX_UNLIKELY(result != ValidationResultCode::Ok)
-		)
+		// Validate that user intrinsic calls are non null:
+		for (IntrinsicRoutine* const routine : intrinsicRegistry)
 		{
-			return result;
-		}
-
-		// Query timings of pass0:
-		if (NOMINAX_LIKELY(timings))
-		{
-			timings->first = clock.ElapsedSecsF64().count(); // write timings of pass0
-		}
-
-		{
-			const Instruction last {input.CodeBuffer()[instructionCache.back()].Instr};
-			const std::span   args {std::begin(input.DiscriminatorBuffer()) + instructionCache.back() + 1, std::end(input.DiscriminatorBuffer())};
-			const auto        result {ValidateInstructionArguments(last, args)};
-			if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
+			if (NOMINAX_UNLIKELY(!routine))
 			{
-				return result;
+				return ValidationResultCode::InvalidUserIntrinsicCall;
 			}
 		}
-
-		// Remove last instruction
-		instructionCache.pop_back();
-
-		// Query time:
-		clock.Restart();
 
 		// Error code:
 		AtomicState<ValidationResultCode> error { };
 
-		auto                                                                                                                           pass1Routine {
-			[&error, discriminators = input.DiscriminatorBuffer(), base = std::begin(input.CodeBuffer())](const CompressedRelativePtr& iterator) noexcept(false)
-			{
-				const auto* const discriminator {&discriminators[iterator]};
-				const auto* const nextDiscriminator {&discriminators[AdvanceRef(iterator)]};
-				const auto        args {ExtractInstructionArguments(discriminator, ComputeInstructionArgumentOffset(discriminator, nextDiscriminator))};
-				const auto        result {ValidateInstructionArguments(base[discriminator - discriminators.data()].Instr, args)}; // validate args
+		const auto& codeBuf {input.CodeBuffer()};
+		const auto& discBuf {input.DiscriminatorBuffer()};
+		const auto  bufBegin {&*std::begin(discBuf),};
+		const auto  bufEnd {&*std::end(discBuf),};
 
-				if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok)) // if error, return result:
+		auto validationRoutine
+		{
+			[&error, &codeBuf, &input, &intrinsicRegistry, bufBegin, bufEnd](const Signal::Discriminator& iterator) noexcept(false)
+			{
+				const std::ptrdiff_t index {DistanceRef(iterator, bufBegin)};
+				const Signal         signal {codeBuf[index]};
+
+				switch (iterator)
 				{
-					error(result);
+					// validate instruction:
+				case Signal::Discriminator::Instruction:
+					{
+						const auto* const next {SearchForNextInstruction(&iterator, bufEnd)};
+						const auto        args {ExtractInstructionArguments(&iterator, ComputeInstructionArgumentOffset(&iterator, next))};
+						const auto        result {ValidateInstructionArguments(signal.Instr, args)}; // validate args
+						error(result);
+					}
+					break;
+
+				case Signal::Discriminator::JumpAddress:
+					{
+						const auto result {ValidateJumpAddress(input, signal.JmpAddress) ? ValidationResultCode::Ok : ValidationResultCode::InvalidJumpAddress};
+						error(result);
+					}
+					break;
+
+				case Signal::Discriminator::UserIntrinsicCallID:
+					{
+						const auto result {ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID) ? ValidationResultCode::Ok : ValidationResultCode::InvalidUserIntrinsicCall};
+						error(result);
+					}
+					break;
+
+				default: ;
 				}
 			}
 		};
 
-		// Pass 1:
-		std::for_each(std::execution::par_unseq, std::begin(instructionCache), std::end(instructionCache), pass1Routine);
+		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf), validationRoutine);
 
 		// Return error if the error value is not okay
 		if (NOMINAX_UNLIKELY(!error))
 		{
 			return error();
-		}
-
-		// Query timings of pass1:
-		if (NOMINAX_LIKELY(timings))
-		{
-			timings->second = clock.ElapsedSecsF64().count(); // write timings of pass1
 		}
 
 		return ValidationResultCode::Ok;

@@ -209,10 +209,10 @@
 
 # Header: Arch/X86_64/CpuId.hpp
 Asm_MockCall:
-    XORL    %EAX, %EAX
+    xorl    %eax, %eax
 #ifdef __WIN__
-    MOVB	$0XFF, %AL
+    movb	$0xFF, %al
 #else
-    MOVW	$1234, %AX
+    movw	$1234, %ax
 #endif
-    RETQ
+    retq

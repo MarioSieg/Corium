@@ -33,3 +33,162 @@ It supports heavy parallelism, JIT compiling and garbage collection out of the b
 The source code is in the [Nominax](https://github.com/MarioSieg/Corium/tree/master/Nominax) directory.
 For more technical information, check out the Nominax [ReadMe](https://github.com/MarioSieg/Corium/blob/dev/Nominax/README.md).
 </h4>
+
+# Corium To-Go :coffee:
+<h2>Short cheat sheet for the basics</h2>
+
+<h3> Primitive Data Types </h3>
+There are 5 primitive data types in Corium:<br>
+
+* int
+* uint
+* float
+* bool
+* char
+
+The number types ```int```, ```uint``` and ```float```<br>
+are 64 bits wide and provide enough range and precision for all tasks.<br>
+Corium empowers static typing for safety and explicit code,<br>
+and choosing the type is very simple.<br>
+Every of the 5 primitive type is perfect for<br>
+some specific type of data.<br>
+
+<h4>int</h4>
+
+* A 64-bit signed integer. 
+* Can hold values from -9223372036854775808 to 9223372036854775807.
+* Because it it signed, it can also hold negative values.
+* This type is used as the default type for natural number calculations.
+* The equivalent in other C style languages would be “long”.
+
+<h4>uint</h4>
+
+* A 64-bit unsigned integer. 
+* Can hold values from 0 to 147573952589676412927. 
+* Because it is unsigned it can only hold positive values, but larger ones than ```uint```
+* This type is the default type for array indices.
+* The ```u``` suffix is used to make an uint literal.
+* The equivalent in other C style languages is "unsigned long" or "ulong".
+
+<h4>float</h4>
+
+* 64-bit double precision float.
+* Can hold values from -2.22507•10−308  to approximately 1.79769•10308.
+* This type is used as the default type for real number calculations.
+* The equivalent in other C style languages is "double".
+
+<h4>bool</h4>
+
+* A boolean type. 
+* Can either be true (1) or false (0).
+
+<h4>char</h4>
+
+* A 32-bit UTF-32 character.
+* Can hold **any** unicode codepoint.
+
+<h3>Local Variables</h3>
+We've just learned the primitive data types.
+In Corium, local variables are declared by the follow scheme:
+
+```
+let <VariableName> <Type?> = <Literal?>
+```
+Let's create some local variables using the
+```let```
+keyword:
+
+```
+let a int = 3
+let b uint = 5
+let c float = 2.5
+let d char = 'O'
+let e bool = true
+```
+If you look at the above scheme again,```Type```
+and the ```Literal```
+are optional (indicated by the
+```?```.<br> That means that we can elide them:
+
+```
+let a = 3
+let b = 5u
+let c = 2.5
+let d = 'O'
+let e = true
+```
+
+That's better right?<br>
+Corium knows the type from the literal,
+so types can be deduced:
+| Literal  | Deduced Type |
+| ------------- | ------------- |
+| 3  | int  |
+| 5u  | uint  |
+| 2.5  | float  |
+| 'O'  | char  | 
+| true  | bool  |
+
+Note the ```u``` at the end of the ```uint``` literal!<br>
+It is used to create an **u**nsigned ```uint``` literal.<br>
+Without it, the literal would be of type ```int```.
+
+<h3> Functions And Methods </h3>
+Like in many other languages,
+every program starts in within the
+
+```Main```
+function.
+So let's follow the tradition and start with hello world:
+
+```
+Main () {
+    Print("Hello, World")
+}
+```
+
+Methods and functions are declared by the following scheme:
+
+```
+<FunctionName> ( <Parameters> ) <ReturnType> {
+
+}
+```
+
+Let's write a function which takes no parameters and returns nothing:
+
+```
+SayHello () {
+    Print("Say hello to my little friend!")
+}
+```
+
+in C we would write this function like this:
+
+```
+void SayHello () {
+    printf("Say hello to my little friend!\n");
+}
+```
+
+this also applies to many other languages deriving from C such as C++, Java or C#,<br>
+but of course the priting mechanism is different.<br>
+Lets write another functions which returns a number:<br>
+
+```
+GetNumber () int {
+    return 5
+}
+```
+
+Let's write it again in C:
+
+```
+int GetNumber() {
+    return 5;
+}
+```
+
+As you can see, the return type is just at a different position and there are no semicolons.<br>
+If your functions returns nothing, the return type is just elided.<br>
+There is no need to write ```void``` like we know it from C style languages.<br>

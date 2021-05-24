@@ -1,7 +1,18 @@
+# Define variables with type and value:
+# The type can be elided here, but we do it explictly 
+
 Main() {
-	a int = 3
-	b uint = 5
-	c float = 2.5
-	d char = 'O'
-	e bool = true
+	let a int = 3
+	let b uint = 5
+	let c float = 2.5
+	let d char = 'O'
+	let e bool = true
+
+	# Reassign the value of the variables:
+
+	a = -4
+	b = 10
+	c = 3.14
+	d = 'X'
+	e = false
 }

@@ -259,9 +259,9 @@ namespace Nominax::ByteCode
 		InvalidJumpAddress,
 
 		/// <summary>
-		/// Invalid call id.
+		/// The corresponding user intrinsic routine is invalid or the call id is too big.
 		/// </summary>
-		InvalidSystemIntrinsicCall,
+		InvalidUserIntrinsicCall,
 
 		/// <summary>
 		/// Maximum dynamic signals for validation: 0xFF'FF'FF'FF,

@@ -320,7 +320,7 @@ auto formatter<DiscriminatedSignal, char, void>::format(const DiscriminatedSigna
 		return format_to(ctx.out(), NOMINAX_LEX_TYPE_SIC " " NOMINAX_LEX_IMM "{}", static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value.Value.SystemIntrinID));
 
 	case Dis::UserIntrinsicCallID:
-		return format_to(ctx.out(), NOMINAX_LEX_TYPE_UIC " " NOMINAX_LEX_IMM "{}", static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value.Value.CustomIntrinID));
+		return format_to(ctx.out(), NOMINAX_LEX_TYPE_UIC " " NOMINAX_LEX_IMM "{}", static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value.Value.UserIntrinID));
 
 	case Dis::JumpAddress:
 		return format_to(ctx.out(), NOMINAX_LEX_TYPE_UIC " " NOMINAX_LEX_IMM "{}", static_cast<std::underlying_type_t<JumpAddress>>(value.Value.JmpAddress));

@@ -265,7 +265,6 @@ TEST(Algorithms, UniformChunkSplitSingleOne)
 	});
 }
 
-
 TEST(Algorithms, AdvanceRef)
 {
 	constexpr std::array values {1, 2, 3};
@@ -281,14 +280,48 @@ TEST(Algorithms, DistanceRef)
 	ASSERT_EQ(DistanceRef(values[2], values.data()), 2);
 }
 
-TEST(Common, ILog2)
+TEST(Algorithms, ILog2)
 {
 	ASSERT_EQ(ILog2(8), 3);
 	ASSERT_EQ(ILog2(8), std::log(8) / std::log(2));
 }
 
-TEST(Common, ILog22)
+TEST(Algorithms, ILog22)
 {
 	ASSERT_EQ(ILog2(16), 4);
 	ASSERT_EQ(ILog2(8), std::log2(8));
+}
+
+TEST(Algorithms, ILog2DeBruijn)
+{
+	ASSERT_EQ(ILog2DeBruijn(8), 3);
+	ASSERT_EQ(ILog2DeBruijn(8), std::log(8) / std::log(2));
+}
+
+TEST(Algorithms, ILog2DeBruijn2)
+{
+	ASSERT_EQ(ILog2DeBruijn(16), 4);
+	ASSERT_EQ(ILog2DeBruijn(8), std::log2(8));
+}
+
+TEST(Algorithms, RoundUpPow2)
+{
+	ASSERT_EQ(RoundUpPow2(1), 1);
+	ASSERT_EQ(RoundUpPow2(3), 4);
+	ASSERT_EQ(RoundUpPow2(5), 8);
+	ASSERT_EQ(RoundUpPow2(10), 16);
+	ASSERT_EQ(RoundUpPow2(240), 256);
+}
+
+TEST(Algorithms, ComputeRequiredBytes)
+{
+	ASSERT_EQ(ComputeRequiredBytes(0), 1);
+	ASSERT_EQ(ComputeRequiredBytes(1), 1);
+	ASSERT_EQ(ComputeRequiredBytes(0xFF), 1);
+	ASSERT_EQ(ComputeRequiredBytes(0xFF + 1), 2);
+	ASSERT_EQ(ComputeRequiredBytes(0xFFFF), 2);
+	ASSERT_EQ(ComputeRequiredBytes(0xFFFF + 1), 4);
+	ASSERT_EQ(ComputeRequiredBytes(0xFFFFFFFF), 4);
+	ASSERT_EQ(ComputeRequiredBytes(UINT64_C(0xFFFFFFFF) + 1), 8);
+	ASSERT_EQ(ComputeRequiredBytes(0xFFFFFFFFFFFFFFFF), 8);
 }

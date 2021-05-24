@@ -231,44 +231,44 @@
 /// <summary>
 ///
 /// </summary>
-#define NOMINAX_LEX_TYPE_U64 NOMINAX_LEX_TYPE "U64"
+#define NOMINAX_LEX_TYPE_U64 NOMINAX_LEX_TYPE "u64"
 
 /// <summary>
 ///
 /// </summary>
-#define NOMINAX_LEX_TYPE_I64 NOMINAX_LEX_TYPE "I64"
+#define NOMINAX_LEX_TYPE_I64 NOMINAX_LEX_TYPE "i64"
 
 /// <summary>
 ///
 /// </summary>
-#define NOMINAX_LEX_TYPE_F64 NOMINAX_LEX_TYPE "F64"
+#define NOMINAX_LEX_TYPE_F64 NOMINAX_LEX_TYPE "f64"
 
 /// <summary>
 /// CharClusterUtf8 (1 byte)
 /// </summary>
-#define NOMINAX_LEX_TYPE_CC1 NOMINAX_LEX_TYPE "CC1"
+#define NOMINAX_LEX_TYPE_CC1 NOMINAX_LEX_TYPE "cc1"
 
 /// <summary>
 /// CharClusterUtf16 (2 byte)
 /// </summary>
-#define NOMINAX_LEX_TYPE_CC2 NOMINAX_LEX_TYPE "CC2"
+#define NOMINAX_LEX_TYPE_CC2 NOMINAX_LEX_TYPE "cc2"
 
 /// <summary>
 ///CharClusterUtf32 (4 byte)
 /// </summary>
-#define NOMINAX_LEX_TYPE_CC4 NOMINAX_LEX_TYPE "CC4"
+#define NOMINAX_LEX_TYPE_CC4 NOMINAX_LEX_TYPE "cc4"
 
 /// <summary>
 /// System intrinsic call id.
 /// </summary>
-#define NOMINAX_LEX_TYPE_SIC NOMINAX_LEX_TYPE "SIC"
+#define NOMINAX_LEX_TYPE_SIC NOMINAX_LEX_TYPE "sys"
 
 /// <summary>
 /// User intrinsic call id.
 /// </summary>
-#define NOMINAX_LEX_TYPE_UIC NOMINAX_LEX_TYPE "UIC"
+#define NOMINAX_LEX_TYPE_UIC NOMINAX_LEX_TYPE "usr"
 
 /// <summary>
 /// Jump address.
 /// </summary>
-#define NOMINAX_LEX_TYPE_JMP NOMINAX_LEX_TYPE "JMA"
+#define NOMINAX_LEX_TYPE_JMP NOMINAX_LEX_TYPE "jma"

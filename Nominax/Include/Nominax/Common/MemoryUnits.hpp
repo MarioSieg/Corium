@@ -209,9 +209,11 @@
 
 #include <algorithm>
 
+#include "BaseTypes.hpp"
+
 namespace Nominax
 {
-	constexpr std::uint64_t BYTE_SCALE {1000};
+	constexpr U64 BYTE_SCALE {1000};
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]

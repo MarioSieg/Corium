@@ -331,12 +331,6 @@ namespace Nominax::ByteCode
 		/// </summary>
 		OptimizationLevel OptimizationLevel_ {DefaultOptimizationLevel()};
 
-		/// <summary>
-		/// Contains the count of instruction in the stream.
-		/// Used for optimizations (pre allocating validator instruction cache).
-		/// </summary>
-		std::size_t InstructionCounter_ {0};
-
 	public:
 		/// <summary>
 		/// Query prologue code.
@@ -351,6 +345,13 @@ namespace Nominax::ByteCode
 		/// <returns></returns>
 		[[nodiscard]]
 		static constexpr auto EpilogueCode() noexcept(true) -> const auto&;
+
+		/// <summary>
+		/// Returns PrologueCode.size() + EpilogueCode().size()
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		static constexpr auto MandatoryCodeSize() noexcept(true) -> std::size_t;
 
 		/// <summary>
 		/// Construct empty stream.
@@ -558,12 +559,6 @@ namespace Nominax::ByteCode
 		auto PrintMemoryCompositionInfo() const noexcept(false) -> void;
 
 		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The instruction count of the stream.</returns>
-		auto GetInstructionCount() const noexcept(true) -> std::size_t;
-
-		/// <summary>
 		/// Index lookup.
 		///Slow! O(i)
 		/// </summary>
@@ -667,6 +662,13 @@ namespace Nominax::ByteCode
 		return EPILOGUE_CODE;
 	}
 
+	constexpr auto Stream::MandatoryCodeSize() noexcept(true) -> std::size_t
+	{
+		return PrologueCode().size() + EpilogueCode().size();
+	}
+
+	static_assert(Stream::MandatoryCodeSize() == Stream::PrologueCode().size() + Stream::EpilogueCode().size());
+
 	inline Stream::Stream(const OptimizationLevel optimizationLevel) noexcept(true) : OptimizationLevel_ {optimizationLevel} { }
 
 	inline auto Stream::GetOptimizationLevel() const noexcept(true) -> OptimizationLevel
@@ -719,11 +721,6 @@ namespace Nominax::ByteCode
 	inline auto Stream::Back() const noexcept(true) -> DiscriminatedSignal
 	{
 		return {this->CodeDisc_.back(), this->Code_.back()};
-	}
-
-	inline auto Stream::GetInstructionCount() const noexcept(true) -> std::size_t
-	{
-		return this->InstructionCounter_;
 	}
 
 	inline auto Stream::operator[](const std::size_t idx) const noexcept(false) -> DiscriminatedSignal
@@ -787,7 +784,6 @@ namespace Nominax::ByteCode
 		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {instr});
 		this->CodeDisc_.emplace_back(Signal::Discriminator::Instruction);
-		++this->InstructionCounter_;
 		return *this;
 	}
 
