@@ -307,7 +307,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as custom intrinsic call id.
 		/// </summary>
-		UserIntrinsicCallID CustomIntrinID;
+		UserIntrinsicCallID UserIntrinID;
 
 		/// <summary>
 		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
@@ -425,7 +425,7 @@ namespace Nominax::ByteCode
 	constexpr Signal::Signal(const Core::Record value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const Instruction value) noexcept(true) : Instr {value} {}
 	constexpr Signal::Signal(const SystemIntrinsicCallID value) noexcept(true) : SystemIntrinID {value} {}
-	constexpr Signal::Signal(const UserIntrinsicCallID value) noexcept(true) : CustomIntrinID {value} {}
+	constexpr Signal::Signal(const UserIntrinsicCallID value) noexcept(true) : UserIntrinID {value} {}
 	constexpr Signal::Signal(void* const value) noexcept(true) : Ptr {value} {}
 	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}

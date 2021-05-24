@@ -229,7 +229,6 @@ TEST(BytecodeStream, Push)
 	stream << INT64_C(-10);
 
 	ASSERT_EQ(stream.Size(), 8);
-	ASSERT_EQ(stream.GetInstructionCount(), 2);
 	ASSERT_TRUE(stream[0].Contains(UINT64_C(0)));
 	ASSERT_TRUE(stream[1].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[2].Contains(Instruction::Call));

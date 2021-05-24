@@ -212,7 +212,7 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 	constexpr std::size_t count {200'000'000};
 
 	Stream stream { };
-	stream.Reserve(count * 5 + 10);
+	stream.Reserve(Stream::MandatoryCodeSize() + count * 5);
 	stream.Prologue();
 
 	for (std::size_t i {0}; i < count; ++i)
@@ -229,18 +229,47 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 
 	for (auto _ : state)
 	{
-		std::pair<double, double> passTimings { };
-		const auto                result {ValidateFullPass(stream, stream.GetInstructionCount(), &passTimings)};
-		if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
+		if (const auto result {ValidateFullPass(stream)}; NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
 		{
-			state.SkipWithError("Byte code validation with stream failed!");
+			const auto message = BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[static_cast<std::size_t>(result)];
+			state.SkipWithError(message.data());
 		}
-		Print("Pass 0: {}s\n", passTimings.first);
-		Print("Pass 1: {}s\n", passTimings.second);
 	}
 }
 
 BENCHMARK(ValidateAlgorithm1BillionEntries)->Unit(kSecond);
+
+auto BuildAndValidateAlgorithm1BillionEntries(State& state) -> void
+{
+	constexpr std::size_t count {200'000'000};
+
+	for (auto _ : state)
+	{
+		Stream stream { };
+		stream.Reserve(Stream::MandatoryCodeSize() + count * 5);
+		stream.Prologue();
+
+		for (std::size_t i {0}; i < count; ++i)
+		{
+			stream << Instruction::Jmp;
+			stream << JumpAddress {0};
+			stream << Instruction::Sto;
+			stream << 1_uint;
+			stream << -0.5_float;
+		}
+
+		stream.Epilogue();
+		stream.PrintMemoryCompositionInfo();
+
+		if (const auto result {ValidateFullPass(stream)}; NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
+		{
+			const auto message = BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[static_cast<std::size_t>(result)];
+			state.SkipWithError(message.data());
+		}
+	}
+}
+
+BENCHMARK(BuildAndValidateAlgorithm1BillionEntries)->Unit(kSecond);
 
 auto Loop1Billion(State& state) -> void
 {

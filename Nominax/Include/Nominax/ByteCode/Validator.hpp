@@ -290,24 +290,32 @@ namespace Nominax::ByteCode
 	extern auto ContainsEpilogue(const Stream& input) noexcept(false) -> bool;
 
 	/// <summary>
-	/// 32-bit index used as compressed pointer.
-	/// </summary>
-	using CompressedRelativePtr = U32;
-
-	/// <summary>
-	/// Contains all instructions except for the last one in the stream.
-	/// </summary>
-	using InstructionCache = std::vector<CompressedRelativePtr>;
-
-	/// <summary>
 	/// Compute offset of the instruction argument.
 	/// </summary>
 	/// <param name="where"></param>
 	/// <param name="next"></param>
 	/// <returns></returns>
-	constexpr auto ComputeInstructionArgumentOffset(const Signal::Discriminator* const where, const Signal::Discriminator* const next) noexcept(true) -> std::ptrdiff_t
+	[[nodiscard]]
+	constexpr auto ComputeInstructionArgumentOffset(const Signal::Discriminator* __restrict__ const where, const Signal::Discriminator* __restrict__ const next) noexcept(true) -> std::ptrdiff_t
 	{
 		return next - where - 1;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="current"></param>
+	/// <param name="end"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	constexpr auto SearchForNextInstruction(const Signal::Discriminator* __restrict__ current, const Signal::Discriminator* __restrict__ const end) noexcept(true) -> const Signal::Discriminator*
+	{
+		do
+		{
+			++current;
+		}
+		while (*current != Signal::Discriminator::Instruction && current < end);
+		return current;
 	}
 
 	/// <summary>
@@ -332,18 +340,6 @@ namespace Nominax::ByteCode
 	/// <param name="jumpMap"></param>
 	extern auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void;
 
-
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="input"></param>
-	/// <param name="output"></param>
-	/// <param name="estimatedInstructionCount"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	extern auto ValidatePrePass(const Stream& input, InstructionCache& output,
-	                            std::size_t   estimatedInstructionCount = 0) noexcept(false) -> ValidationResultCode;
-
 	/// <summary>
 	/// Validates the whole code and returns the result.
 	/// </summary>
@@ -352,6 +348,5 @@ namespace Nominax::ByteCode
 	/// <param name="timings"></param>
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
-	extern auto ValidateFullPass(const Stream&              input, std::size_t estimatedInstructionCount = 0,
-	                             std::pair<double, double>* timings                                      = nullptr) noexcept(false) -> ValidationResultCode;
+	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }) noexcept(false) -> ValidationResultCode;
 }
