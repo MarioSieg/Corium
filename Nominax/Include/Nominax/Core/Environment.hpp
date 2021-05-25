@@ -290,8 +290,19 @@ namespace Nominax
 			/// Size in bytes of the system pool, if the given count was invalid.
 			/// </summary>
 			static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {2_mb};
-
 			static_assert(FALLBACK_SYSTEM_POOL_SIZE);
+
+			/// <summary>
+			/// The min size of the boot pool.
+			/// </summary>
+			static constexpr std::size_t BOOT_POOL_SIZE_MIN {32_kb};
+			static_assert(BOOT_POOL_SIZE_MIN);
+
+			/// <summary>
+			/// The max size of the boot pool.
+			/// </summary>
+			static constexpr std::size_t BOOT_POOL_SIZE_MAX {256_kb};
+			static_assert(BOOT_POOL_SIZE_MAX);
 
 			/// <summary>
 			/// Default constructor. Does not initialize the environment.
@@ -344,13 +355,6 @@ namespace Nominax
 			/// <param name="appCode"></param>
 			/// <returns></returns>
 			auto Execute(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorOutput&;
-
-			/// <summary>
-			/// Execute code on alpha reactor.
-			/// </summary>
-			/// <param name="appCode"></param>
-			/// <returns></returns>
-			auto operator()(ByteCode::AppCodeBundle&& appCode) noexcept(false) -> const ReactorOutput&;
 
 			/// <summary>
 			/// Execute stream on alpha reactor.

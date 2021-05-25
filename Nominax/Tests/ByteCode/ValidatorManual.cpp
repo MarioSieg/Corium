@@ -1,6 +1,6 @@
-// File: ValidatorMan.cpp
+// File: ValidatorManual.cpp
 // Author: Mario
-// Created: 24.05.2021 4:41 PM
+// Created: 25.05.2021 12:32 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License

@@ -321,7 +321,7 @@ namespace Nominax::ByteCode
 
 		// Error code:
 		AtomicState<ValidationResultCode> error { };
-		std::atomic<U32> errorIndex{ 0 };
+		std::atomic<U32>                  errorIndex {0};
 
 		const auto& codeBuf {input.CodeBuffer()};
 		const auto& discBuf {input.DiscriminatorBuffer()};
@@ -334,7 +334,7 @@ namespace Nominax::ByteCode
 			{
 				const std::ptrdiff_t index {DistanceRef(iterator, bufBegin)};
 				const Signal         signal {codeBuf[index]};
-				ValidationResultCode result{ ValidationResultCode::Ok };
+				auto                 result {ValidationResultCode::Ok};
 
 				switch (iterator)
 				{

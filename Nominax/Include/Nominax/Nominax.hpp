@@ -212,3 +212,13 @@
 #include "Core/Core.hpp"
 #include "System/System.hpp"
 #include "Common/Common.hpp"
+
+namespace Nominax::Prelude
+{
+	using namespace Nominax;
+	using namespace Arch;
+	using namespace ByteCode;
+	using namespace Core;
+	using namespace System;
+	using namespace Common;
+}
