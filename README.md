@@ -34,6 +34,8 @@ The source code is in the [Nominax](https://github.com/MarioSieg/Corium/tree/mas
 For more technical information, check out the Nominax [ReadMe](https://github.com/MarioSieg/Corium/blob/dev/Nominax/README.md).
 </h4>
 
+[Trello Board](https://trello.com/b/QiBdAQrb/nominax)
+
 # Corium To-Go :coffee:
 <h2>Short cheat sheet for the basics</h2>
 
