@@ -1,6 +1,6 @@
-// File: Info.hpp
+// File: NominaxAnaly.cpp
 // Author: Mario
-// Created: 12.04.2021 6:39 AM
+// Created: 25.05.2021 12:51 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,33 +205,47 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../Include/Nominax/Nominax.hpp"
 
-#include <ostream>
+using namespace Prelude;
 
-#include "../Common/BaseTypes.hpp"
-
-namespace Nominax::Core
+auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
 {
-	struct Version final
+	const EnvironmentDescriptor descriptor
 	{
-		U8 Major { };
-		U8 Minor { };
-		U8 Build { };
-		U8 Revision { };
+		.ArgC = argc,
+		.ArgV = argv,
+		.AppName = "Corium"
 	};
 
-	constexpr Version SYSTEM_VERSION
-	{
-		.Major = 0,
-		.Minor = 7,
-		.Build = 0,
-		.Revision = 0,
-	};
+	Environment env { };
+	env.Boot(descriptor);
 
-	inline auto operator <<(std::ostream& out, const Version version) -> std::ostream&
+	Stream stream {OptimizationLevel::Off};
+	stream.Prologue();
+
+	stream.With(2, [](ScopedInt var)
 	{
-		return out << static_cast<U16>(version.Major) << '.' << static_cast<U16>(version.Minor) <<
-			'.' << static_cast<U16>(version.Build) << '.' << static_cast<U16>(version.Revision);
-	}
+		var *= 2;
+		var += 1;
+		var /= 1;
+		auto i {0};
+		for (; i < 2; ++i)
+		{
+			var += 1;
+			var *= i;
+			var <<= i - 1;
+		}
+		var %= i;
+	});
+
+	stream << Instruction::Push << u8"Hello:)\n"_cluster;
+	stream << Instruction::Intrin << SystemIntrinsicCallID::IoPortWriteCluster;
+	stream.Epilogue();
+	stream.PrintByteCode();
+
+	env.Execute(std::move(stream));
+	env.Shutdown();
+
+	return 0;
 }

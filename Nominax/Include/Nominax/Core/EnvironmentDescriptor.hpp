@@ -249,6 +249,11 @@ namespace Nominax::Core
 		bool FastHostIoSync {true};
 
 		/// <summary>
+		/// The size of the boot pool
+		/// </summary>
+		std::size_t BootPoolSize {128_kb};
+
+		/// <summary>
         /// The size of the system memory pool size.
         /// </summary>
 		std::size_t SystemPoolSize {8_mb};

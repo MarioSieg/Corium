@@ -344,9 +344,9 @@ namespace Nominax::ByteCode
 	/// Validates the whole code and returns the result.
 	/// </summary>
 	/// <param name="input">The stream to validate.</param>
-	/// <param name="estimatedInstructionCount"></param>
-	/// <param name="timings"></param>
+	/// <param name="intrinsicRegistry"></param>
+	/// <param name="outIndex"></param>
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
-	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }) noexcept(false) -> ValidationResultCode;
+	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }, U32* outIndex = nullptr) noexcept(false) -> ValidationResultCode;
 }

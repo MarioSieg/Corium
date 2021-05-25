@@ -208,6 +208,7 @@
 #include <iomanip>
 #include <iostream>
 
+#include "EmbeddedText.hpp"
 #include "../../Include/Nominax/Nominax.hpp"
 
 namespace Nominax::Core
@@ -288,6 +289,15 @@ namespace Nominax::Core
 		Print("Arch: {}\n", NOMINAX_ARCH_NAME);
 		Print("IsPosix: {}\n", NOMINAX_IS_POSIX);
 		Print("Compiled with: {} - C++ 20\n", NOMINAX_COM_NAME);
+		constexpr bool analyzer
+		{
+#ifdef NOMINAX_ANALY
+			true
+#else
+			false
+#endif
+		};
+		Print("Analyzer: {}\n", analyzer);
 		Print("\n");
 		PrintTypeInfoTable();
 		Print("\n");
@@ -335,6 +345,27 @@ namespace Nominax::Core
 	}
 
 	/// <summary>
+	/// Faster to write than get() each time.
+	/// This is implemented for the default unique_ptr but not for the array specialization.
+	/// </summary>
+	/// <param name="ptr"></param>
+	/// <returns></returns>
+	static constexpr auto operator*(const std::unique_ptr<U8[]>& ptr) noexcept(true) -> U8*
+	{
+		return ptr.get();
+	}
+
+	/// <summary>
+	/// Clamps the size of the boot pool between a valid range,
+	/// </summary>
+	/// <param name="desiredSize"></param>
+	/// <returns></returns>
+	static constexpr auto ClampBootPoolSize(const std::size_t desiredSize) noexcept(true) -> std::size_t
+	{
+		return std::clamp(desiredSize, Environment::BOOT_POOL_SIZE_MIN, Environment::BOOT_POOL_SIZE_MAX);
+	}
+
+	/// <summary>
 	/// 
 	/// </summary>
 	/// <param name="idx"></param>
@@ -373,6 +404,21 @@ namespace Nominax::Core
 	}
 
 	/// <summary>
+	/// Helper to allocate a environment pool.
+	/// </summary>
+	[[nodiscard]]
+	__attribute__((alloc_size(1))) static inline auto AllocatePool(const std::size_t size, const std::string_view poolId) noexcept(false) -> U8*
+	{
+		Print("Allocating {} pool with size: {} MB\n", poolId, Bytes2Megabytes(static_cast<F64>(size)));
+		auto* __restrict__ const mem {new(std::nothrow) U8[size]};
+		if (NOMINAX_UNLIKELY(!mem))
+		{
+			PANIC("Allocation of monotonic {} pool with size {} MB failed!", poolId, Bytes2Megabytes(static_cast<F64>(size)));
+		}
+		return mem;
+	}
+
+	/// <summary>
 	/// 
 	/// </summary>
 	/// <param name="result"></param>
@@ -386,6 +432,39 @@ namespace Nominax::Core
 	}
 
 	/// <summary>
+	/// Computes the percent of used memory by a specific resource.
+	/// </summary>
+	/// <param name="used"></param>
+	/// <param name="max"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	static constexpr auto ComputeMemoryPercent(const std::size_t used, const std::size_t max) noexcept(true) -> F64
+	{
+		return static_cast<F64>(used) * 100.0 / static_cast<F64>(max);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="resource"></param>
+	/// <param name="buffer"></param>
+	/// <param name="size"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	static inline auto QueryMemoryResourceUsage
+	(
+		std::pmr::monotonic_buffer_resource& resource,
+		const std::unique_ptr<U8[]>&         buffer,
+		const std::size_t                    size
+	) noexcept(false) -> std::pair<std::ptrdiff_t, F64>
+	{
+		const U8* const      needle {static_cast<U8*>(resource.allocate(sizeof(U8), alignof(U8)))};
+		const std::ptrdiff_t offset {needle - *buffer};                             // compute allocation offset
+		const F64            poolUsagePercent {ComputeMemoryPercent(offset, size)}; // compute percent usage
+		return {offset, poolUsagePercent};
+	}
+
+	/// <summary>
 	/// Contains all the runtime variables required for the runtime system.
 	/// </summary>
 	/// <param name="descriptor"></param>
@@ -393,17 +472,20 @@ namespace Nominax::Core
 	struct Environment::Context final
 	{
 		const std::size_t                                        ReactorCount;
+		const std::size_t                                        BootPoolSize;
+		const std::unique_ptr<U8[]>                              BootPool;
+		std::pmr::monotonic_buffer_resource                      BootPoolResource;
 		const std::size_t                                        SystemPoolSize;
-		std::unique_ptr<U8[]>                                    SystemPool;
-		std::pmr::monotonic_buffer_resource                      MonotonicResource;
+		const std::unique_ptr<U8[]>                              SystemPool;
+		std::pmr::monotonic_buffer_resource                      SystemPoolResource;
 		std::pmr::vector<std::pmr::string>                       Arguments;
 		std::pmr::string                                         AppName;
 		std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
-		std::chrono::high_resolution_clock::time_point           BootStamp;
+		const std::chrono::high_resolution_clock::time_point     BootStamp;
 		std::chrono::milliseconds                                BootTime;
-		Snapshot                                                 SysInfoSnapshot;
-		CpuFeatureDetector                                       CpuFeatures;
-		ReactorRoutineLink                                       OptimalReactorRoutine;
+		const Snapshot                                           SysInfoSnapshot;
+		const CpuFeatureDetector                                 CpuFeatures;
+		const ReactorRoutineLink                                 OptimalReactorRoutine;
 		ReactorPool                                              CorePool;
 
 		explicit Context(const EnvironmentDescriptor& descriptor) noexcept(false);
@@ -416,27 +498,21 @@ namespace Nominax::Core
 
 	Environment::Context::Context(const EnvironmentDescriptor& descriptor) noexcept(false) :
 		ReactorCount {ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount)},
+		BootPoolSize {ClampBootPoolSize(descriptor.BootPoolSize)},
+		BootPool {AllocatePool(BootPoolSize, "boot")},
+		BootPoolResource {*BootPool, BootPoolSize},
 		SystemPoolSize {ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.ReactorDescriptor.StackSize)},
-		SystemPool
-		{
-			[size = SystemPoolSize]() noexcept(false) -> auto*
-			{
-				Print("Allocating system pool with size: {}MB\n", Bytes2Megabytes(size));
-				auto* const mem {new(std::nothrow) U8[size]};
-				NOMINAX_PANIC_ASSERT_NOT_NULL(mem, "System pool allocation failed!");
-				return mem;
-			}()
-		},
-		MonotonicResource {SystemPool.get(), SystemPoolSize},
-		Arguments {&MonotonicResource},
-		AppName {&MonotonicResource},
-		ExecutionTimeHistory {&MonotonicResource},
+		SystemPool {AllocatePool(SystemPoolSize, "system")},
+		SystemPoolResource {*SystemPool, SystemPoolSize},
+		Arguments {&BootPoolResource},
+		AppName {&SystemPoolResource},
+		ExecutionTimeHistory {&SystemPoolResource},
 		BootStamp {std::chrono::high_resolution_clock::now()},
 		BootTime { },
 		SysInfoSnapshot {InitSysInfo()},
 		CpuFeatures {InitCpuFeatures()},
 		OptimalReactorRoutine {descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)},
-		CorePool {MonotonicResource, ReactorCount, descriptor.ReactorDescriptor, OptimalReactorRoutine}
+		CorePool {SystemPoolResource, ReactorCount, descriptor.ReactorDescriptor, OptimalReactorRoutine}
 	{
 		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
 		{
@@ -504,7 +580,14 @@ namespace Nominax::Core
 		// Invoke hook:
 		DISPATCH_HOOK(OnPreBootHook,);
 
-		// Clamp system pool size:
+		Print
+		(
+			"Monotonic boot pool fixed size: {} MB, Min: {} MB, Max: {} MB\n",
+			Bytes2Megabytes(static_cast<F64>(descriptor.BootPoolSize)),
+			Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MIN)),
+			Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MAX))
+		);
+
 		Print
 		(
 			"Monotonic system pool fixed size: {} MB, Fallback: {} MB\n",
@@ -527,27 +610,46 @@ namespace Nominax::Core
 
 		// Get memory snapshot:
 		const std::size_t memSnapshot {Os::QueryProcessMemoryUsed()};
-		const F32         memUsagePercent {static_cast<F32>(memSnapshot) * 100.F / static_cast<F32>(this->Context_->SysInfoSnapshot.TotalSystemMemory)};
+		const F64         memUsagePercent {ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory)};
 
-		// Allocate one byte to get current needle:
-		const U8* const      needle {static_cast<U8*>(this->Context_->MonotonicResource.allocate(sizeof(U8), alignof(U8)))};
-		const std::ptrdiff_t offset {needle - this->Context_->SystemPool.get()};                                                     // compute allocation offset
-		const F32            poolUsagePercent {static_cast<F32>(offset) * 100.F / static_cast<F32>(this->Context_->SystemPoolSize)}; // compute percent usage
+		// Query pool info
+		const auto [bootPoolSize, bootPoolPer] {
+			QueryMemoryResourceUsage
+			(
+				this->Context_->BootPoolResource,
+				this->Context_->BootPool,
+				this->Context_->BootPoolSize
+			)
+		};
+
+		// Query pool info
+		const auto [sysPoolSize, sysPoolPer] {
+			QueryMemoryResourceUsage
+			(
+				this->Context_->SystemPoolResource,
+				this->Context_->SystemPool,
+				this->Context_->SystemPoolSize
+			)
+		};
 
 		Print
 		(
 			"Runtime environment online!\n"
 			"Boot time: {}\n"
 			"Process memory snapshot: {:.02f} % [{} MB / {} MB]\n"
-			"Monotonic pool snapshot: {:.02f} % [{} MB / {} MB]\n"
+			"Monotonic boot pool snapshot:	 {:.02f} % [{} KB / {} KB]\n"
+			"Monotonic system pool snapshot: {:.02f} % [{} MB / {} MB]\n"
 			"\n",
 			ms,
 			memUsagePercent,
-			Bytes2Megabytes(memSnapshot),
-			Bytes2Megabytes(this->Context_->SysInfoSnapshot.TotalSystemMemory),
-			poolUsagePercent,
-			Bytes2Megabytes(offset),
-			Bytes2Megabytes(this->Context_->SystemPoolSize)
+			Bytes2Megabytes(static_cast<F64>(memSnapshot)),
+			Bytes2Megabytes(static_cast<F64>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
+			bootPoolPer,
+			Bytes2Kilobytes(static_cast<F64>(bootPoolSize)),
+			Bytes2Kilobytes(static_cast<F64>(this->Context_->BootPoolSize)),
+			sysPoolPer,
+			Bytes2Megabytes(static_cast<F64>(sysPoolSize)),
+			Bytes2Megabytes(static_cast<F64>(this->Context_->SystemPoolSize))
 		);
 	}
 

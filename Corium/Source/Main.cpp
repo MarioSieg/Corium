@@ -205,47 +205,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Nominax/Include/Nominax/Nominax.hpp"
+#include <iostream>
 
-using namespace Nominax;
-using namespace Core;
-using namespace ByteCode;
-
-auto main(const signed argc, const char* const* const argv) -> signed
+auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
 {
-	const EnvironmentDescriptor descriptor
-	{
-		.ArgC = argc,
-		.ArgV = argv,
-		.AppName = "Corium"
-	};
-
-	Environment env { };
-	env.Boot(descriptor);
-
-	Stream stream {OptimizationLevel::Off};
-	stream.Prologue();
-
-	stream.With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-		auto i {0};
-		for (; i < 2; ++i)
-		{
-			var += 1;
-			var *= i;
-			var <<= i - 1;
-		}
-		var %= i;
-	});
-
-	stream << Instruction::Push << u8"Hello:)\n"_cluster;
-	stream << Instruction::Intrin << SystemIntrinsicCallID::IoPortWriteCluster;
-	stream.Epilogue();
-	stream.PrintByteCode();
-
-	env.Execute(std::move(stream));
-	env.Shutdown();
+	std::cout << "Hello corium!\n";
+	return 0;
 }

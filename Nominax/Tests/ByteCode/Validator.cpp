@@ -486,8 +486,9 @@ TEST(ValidatorAlgorithms, ValidateValid)
 	code << Instruction::Int;
 	code << 0_int;
 	code.Epilogue();
-
-	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
+	U32 error;
+	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::Ok);
+	ASSERT_EQ(error, 0);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
@@ -508,7 +509,9 @@ TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 	code << Instruction::Int;
 	code << 0_int;
 	code.Epilogue();
-	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
+	U32 error;
+	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(error, Stream::PrologueCode().size() + 2);
 }
 
 TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
@@ -540,9 +543,10 @@ TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
 	code << Instruction::IAdd;
 	code << Instruction::Int;
 	code << 0_int;
-	code << 0_int;
 	code.Epilogue();
-	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
+	U32 error;
+	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(error, Stream::PrologueCode().size() + 2);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastValid)
@@ -564,8 +568,9 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidMissingArgs)
 	code << Instruction::NOp;
 	code << Instruction::Int;
 	code.Epilogue();
-
-	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	U32 error;
+	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(error, Stream::PrologueCode().size() + 1);
 }
 
 TEST(ValidatorAlgorithms, ValidateLastInvalidTooManyArgs)
