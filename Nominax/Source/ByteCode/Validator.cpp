@@ -324,8 +324,8 @@ namespace Nominax::ByteCode
 
 		const auto& codeBuf {input.CodeBuffer()};
 		const auto& discBuf {input.DiscriminatorBuffer()};
-		const auto  bufBegin {&*std::begin(discBuf),};
-		const auto  bufEnd {&*std::end(discBuf),};
+		const auto  bufBegin {&*std::begin(discBuf)};
+		const auto  bufEnd {&*std::end(discBuf)};
 
 		auto validationRoutine
 		{
