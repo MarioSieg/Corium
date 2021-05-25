@@ -207,6 +207,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <unordered_set>
 
 #include "EmbeddedText.hpp"
 #include "../../Include/Nominax/Nominax.hpp"
@@ -478,7 +479,7 @@ namespace Nominax::Core
 		const std::size_t                                        SystemPoolSize;
 		const std::unique_ptr<U8[]>                              SystemPool;
 		std::pmr::monotonic_buffer_resource                      SystemPoolResource;
-		std::pmr::vector<std::pmr::string>                       Arguments;
+		std::pmr::unordered_set<std::pmr::string>                Arguments;
 		std::pmr::string                                         AppName;
 		std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
 		const std::chrono::high_resolution_clock::time_point     BootStamp;
@@ -517,7 +518,7 @@ namespace Nominax::Core
 		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
 		{
 			// copy arguments:
-			this->Arguments.assign(descriptor.ArgV + 1, descriptor.ArgV + descriptor.ArgC);
+			this->Arguments.insert(descriptor.ArgV + 1, descriptor.ArgV + descriptor.ArgC);
 		}
 
 		// copy app name:
@@ -727,12 +728,6 @@ namespace Nominax::Core
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Context_->BootTime;
-	}
-
-	auto Environment::GetInputArguments() const noexcept(false) -> const std::pmr::vector<std::pmr::string>&
-	{
-		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Context_->Arguments;
 	}
 
 	auto Environment::GetSystemSnapshot() const noexcept(false) -> const Snapshot&

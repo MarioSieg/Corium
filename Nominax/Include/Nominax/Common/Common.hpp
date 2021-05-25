@@ -211,6 +211,8 @@
 #include "AtomicState.hpp"
 #include "BaseTypes.hpp"
 #include "BranchHint.hpp"
+#include "CliArgParser.hpp"
+#include "Entry.hpp"
 #include "F64Comparator.hpp"
 #include "FormatterImpls.hpp"
 #include "LiteralOp.hpp"

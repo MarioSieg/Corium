@@ -1,6 +1,6 @@
-// File: Environment.hpp
+// File: CliArgParser.hpp
 // Author: Mario
-// Created: 17.04.2021 2:32 PM
+// Created: 25.05.2021 8:50 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,243 +207,27 @@
 
 #pragma once
 
-#include <chrono>
-#include <string>
-#include <memory>
-#include <memory_resource>
+#include <tuple>
+#include <unordered_set>
 
-#include "EnvironmentDescriptor.hpp"
-#include "ReactorOutput.hpp"
-
-namespace Nominax
+namespace Nominax::Common
 {
-	namespace System
+	class CliArgParser final
 	{
-		struct CpuFeatureDetector;
-		struct Snapshot;
-	}
+		std::unordered_set<std::string_view>                       Args_ { };
+		std::vector<std::pair<std::string_view, std::string_view>> Options_ { };
 
-	namespace Core
-	{
-		/// <summary>
-		/// Represents the whole runtime environment.
-		/// </summary>
-		class [[nodiscard]] Environment
-		{
-			/// <summary>
-			/// Pimpl.
-			/// </summary>
-			struct Context;
+	public:
+		CliArgParser(signed argc, const char* const* argv) noexcept(false);
+		CliArgParser(const CliArgParser&)                               = delete;
+		CliArgParser(CliArgParser&&) noexcept(true)                     = default;
+		auto operator =(const CliArgParser&) -> CliArgParser&           = delete;
+		auto operator =(CliArgParser&&) noexcept(true) -> CliArgParser& = default;
+		~CliArgParser()                                                 = default;
 
-			/// <summary>
-			/// Context deallocator.
-			/// </summary>
-			struct ContextDeleter final
-			{
-				auto operator()(Context* kernel) const noexcept(true) -> void;
-			};
-
-			/// <summary>
-			/// Pimpl ptr.
-			/// </summary>
-			std::unique_ptr<Context, ContextDeleter> Context_ {nullptr};
-
-		protected:
-			/// <summary>
-			/// This hook is executed before the environment boots.
-			/// </summary>
-			/// <returns>True on success, panic on false.</returns>
-			virtual auto OnPreBootHook() -> bool;
-
-			/// <summary>
-			/// This hook is executed after the environment boots.
-			/// </summary>
-			/// <returns>True on success, panic on false.</returns>
-			virtual auto OnPostBootHook() -> bool;
-
-			/// <summary>
-			/// This hook is executed before any code execution.
-			/// </summary>
-			/// <returns>True on success, panic on false.</returns>
-			virtual auto OnPreExecutionHook(const ByteCode::AppCodeBundle& appCodeBundle) -> bool;
-
-			/// <summary>
-			/// This hook is executed after any code execution.
-			/// </summary>
-			/// <returns>True on success, panic on false.</returns>
-			virtual auto OnPostExecutionHook() -> bool;
-
-			/// <summary>
-			/// This hook is executed before the environment shuts down.
-			/// </summary>
-			/// <returns>True on success, panic on false.</returns>
-			virtual auto OnPreShutdownHook() -> bool;
-
-			/// <summary>
-			/// This hook is executed after the environment shuts down.
-			/// </summary>
-			/// <returns>True on success, panic on false.</returns>
-			virtual auto OnPostShutdownHook() -> bool;
-
-		public:
-			/// <summary>
-			/// Size in bytes of the system pool, if the given count was invalid.
-			/// </summary>
-			static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {2_mb};
-			static_assert(FALLBACK_SYSTEM_POOL_SIZE);
-
-			/// <summary>
-			/// The min size of the boot pool.
-			/// </summary>
-			static constexpr std::size_t BOOT_POOL_SIZE_MIN {32_kb};
-			static_assert(BOOT_POOL_SIZE_MIN);
-
-			/// <summary>
-			/// The max size of the boot pool.
-			/// </summary>
-			static constexpr std::size_t BOOT_POOL_SIZE_MAX {256_kb};
-			static_assert(BOOT_POOL_SIZE_MAX);
-
-			/// <summary>
-			/// Default constructor. Does not initialize the environment.
-			/// </summary>
-			explicit Environment() noexcept(true) = default;
-
-			/// <summary>
-			/// No copy.
-			/// </summary>
-			/// <param name="other"></param>
-			Environment(const Environment& other) = delete;
-
-			/// <summary>
-			/// No move.
-			/// </summary>
-			/// <param name="other"></param>
-			Environment(Environment&& other) = delete;
-
-			/// <summary>
-			/// No copy.
-			/// </summary>
-			/// <param name="other"></param>
-			/// <returns></returns>
-			auto operator =(const Environment& other) -> Environment& = delete;
-
-			/// <summary>
-			/// No move.
-			/// </summary>
-			/// <param name="other"></param>
-			/// <returns></returns>
-			auto operator =(Environment&& other) -> Environment& = delete;
-
-			/// <summary>
-			/// Destructor.
-			/// If Shutdown() has not been called before
-			/// the destructor, the destructor will call it.
-			/// </summary>
-			virtual ~Environment();
-
-			/// <summary>
-			/// Boot up runtime environment.
-			/// Will panic if fatal errors are encountered.
-			/// </summary>
-			/// <returns></returns>
-			auto Boot(const EnvironmentDescriptor& descriptor) noexcept(false) -> void;
-
-			/// <summary>
-			/// Execute stream on alpha reactor.
-			/// </summary>
-			/// <param name="appCode"></param>
-			/// <returns></returns>
-			auto Execute(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorOutput&;
-
-			/// <summary>
-			/// Execute stream on alpha reactor.
-			/// </summary>
-			/// <param name="appCode"></param>
-			/// <returns></returns>
-			auto operator()(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorOutput&;
-
-			/// <summary>
-			/// Shutdown runtime environment.
-			/// Will panic if fatal errors are encountered.
-			/// </summary>
-			/// <returns></returns>
-			auto Shutdown() noexcept(false) -> void;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <returns>True if the system is booted and online!</returns>
-			[[nodiscard]]
-			auto IsOnline() const noexcept(true) -> bool;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <returns>The raw kernel pointer. Only useful for internal interop.-</returns>
-			[[nodiscard]]
-			auto GetKernel() const noexcept(true) -> const void*;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <returns>The boot time stamp.</returns>
-			[[nodiscard]]
-			auto GetBootStamp() const noexcept(false) -> std::chrono::high_resolution_clock::time_point;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <returns>The boot time in milliseconds.</returns>
-			[[nodiscard]]
-			auto GetBootTime() const noexcept(false) -> std::chrono::milliseconds;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <returns>The system stat snapshot.</returns>
-			[[nodiscard]]
-			auto GetSystemSnapshot() const noexcept(false) -> const System::Snapshot&;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <returns>The cpu feature detector.</returns>
-			[[nodiscard]]
-			auto GetProcessorFeatureSnapshot() const noexcept(false) -> const System::CpuFeatureDetector&;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <returns>The app name for which the environment is hosted for.</returns>
-			[[nodiscard]]
-			auto GetAppName() const noexcept(false) -> const std::pmr::string&;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <returns>The size of the system pool in bytes.</returns>
-			[[nodiscard]]
-			auto GetMonotonicSystemPoolSize() const noexcept(false) -> std::size_t;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <returns>The count of reactor executions so far.</returns>
-			[[nodiscard]]
-			auto GetExecutionCount() const noexcept(false) -> std::size_t;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <returns>The history of execution times.</returns>
-			[[nodiscard]]
-			auto GetExecutionTimeHistory() const noexcept(false) -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
-		};
-
-		inline auto Environment::operator()(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorOutput&
-		{
-			return this->Execute(std::move(appCode));
-		}
-	}
+		auto HasFlag(std::string_view key) noexcept(true) -> bool;
+		auto AddOption(std::string_view name, std::string_view description = "") noexcept(false) -> bool;
+		auto PrintAllOptions() noexcept(false) -> void;
+		auto IsEmpty() const noexcept(true) -> bool;
+	};
 }
