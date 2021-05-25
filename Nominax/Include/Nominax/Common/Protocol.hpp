@@ -340,6 +340,23 @@ namespace Nominax::Common
 		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
 #endif
 	}
+
+	/// <summary>
+	/// Formats the arguments into the string if format
+	/// arguments are given.
+	/// The formatting rules follow the C++ 20 <format> convention.
+	/// All printing inside Nominax should be done via this functions
+	/// and friends because it also allows different configurations.
+	/// </summary>
+	/// <typeparam name="Str">The string type.</typeparam>
+	/// <typeparam name="...Args">The argument types.</typeparam>
+	/// <param name="formatString">The format string.</param>
+	/// <param name="args">The arguments to format.</param>
+	template <typename Str, typename... Args>
+	inline auto Format([[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> std::string
+	{
+		return fmt::format(formatString, std::forward<Args>(args)...);
+	}
 }
 
 #include "FormatterImpls.hpp"
