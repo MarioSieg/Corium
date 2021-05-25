@@ -284,7 +284,7 @@ namespace Nominax::ByteCode
 		}
 	}
 
-	auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry) noexcept(false) -> ValidationResultCode
+	auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry, U32* const outIndex) noexcept(false) -> ValidationResultCode
 	{
 		// Check if empty:
 		if (NOMINAX_UNLIKELY(input.IsEmpty()))
@@ -321,6 +321,7 @@ namespace Nominax::ByteCode
 
 		// Error code:
 		AtomicState<ValidationResultCode> error { };
+		std::atomic<U32> errorIndex{ 0 };
 
 		const auto& codeBuf {input.CodeBuffer()};
 		const auto& discBuf {input.DiscriminatorBuffer()};
@@ -329,10 +330,11 @@ namespace Nominax::ByteCode
 
 		auto validationRoutine
 		{
-			[&error, &codeBuf, &input, &intrinsicRegistry, bufBegin, bufEnd](const Signal::Discriminator& iterator) noexcept(false)
+			[&error, &codeBuf, &input, &intrinsicRegistry, &errorIndex, bufBegin, bufEnd](const Signal::Discriminator& iterator) noexcept(false)
 			{
 				const std::ptrdiff_t index {DistanceRef(iterator, bufBegin)};
 				const Signal         signal {codeBuf[index]};
+				ValidationResultCode result{ ValidationResultCode::Ok };
 
 				switch (iterator)
 				{
@@ -341,26 +343,29 @@ namespace Nominax::ByteCode
 					{
 						const auto* const next {SearchForNextInstruction(&iterator, bufEnd)};
 						const auto        args {ExtractInstructionArguments(&iterator, ComputeInstructionArgumentOffset(&iterator, next))};
-						const auto        result {ValidateInstructionArguments(signal.Instr, args)}; // validate args
-						error(result);
+						result = ValidateInstructionArguments(signal.Instr, args); // validate args
 					}
 					break;
 
 				case Signal::Discriminator::JumpAddress:
 					{
-						const auto result {ValidateJumpAddress(input, signal.JmpAddress) ? ValidationResultCode::Ok : ValidationResultCode::InvalidJumpAddress};
-						error(result);
+						result = ValidateJumpAddress(input, signal.JmpAddress) ? ValidationResultCode::Ok : ValidationResultCode::InvalidJumpAddress;
 					}
 					break;
 
 				case Signal::Discriminator::UserIntrinsicCallID:
 					{
-						const auto result {ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID) ? ValidationResultCode::Ok : ValidationResultCode::InvalidUserIntrinsicCall};
-						error(result);
+						result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID) ? ValidationResultCode::Ok : ValidationResultCode::InvalidUserIntrinsicCall;
 					}
 					break;
 
 				default: ;
+				}
+
+				if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
+				{
+					errorIndex.store(index);
+					error(result);
 				}
 			}
 		};
@@ -370,7 +375,16 @@ namespace Nominax::ByteCode
 		// Return error if the error value is not okay
 		if (NOMINAX_UNLIKELY(!error))
 		{
+			if (NOMINAX_LIKELY(outIndex))
+			{
+				*outIndex = errorIndex.load();
+			}
 			return error();
+		}
+
+		if (NOMINAX_LIKELY(outIndex))
+		{
+			*outIndex = 0;
 		}
 
 		return ValidationResultCode::Ok;
