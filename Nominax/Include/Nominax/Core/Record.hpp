@@ -210,7 +210,7 @@
 #include <array>
 #include <type_traits>
 
-#include "CharCluster.hpp"
+#include "../ByteCode/CharCluster.hpp"
 
 namespace Nominax::Core
 {
@@ -288,17 +288,17 @@ namespace Nominax::Core
 		/// <summary>
 		/// Use as UTF-8 cluster.
 		/// </summary>
-		CharClusterUtf8 AsUtf8;
+		ByteCode::CharClusterUtf8 AsUtf8;
 
 		/// <summary>
 		/// Use as UTF-16 cluster.
 		/// </summary>
-		CharClusterUtf16 AsUtf16;
+		ByteCode::CharClusterUtf16 AsUtf16;
 
 		/// <summary>
 		/// Use as UTF-32 cluster.
 		/// </summary>
-		CharClusterUtf32 AsUtf32;
+		ByteCode::CharClusterUtf32 AsUtf32;
 
 		/// <summary>
 		/// Default construct.
@@ -402,21 +402,21 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(CharClusterUtf8 value) noexcept(true);
+		explicit constexpr Record(ByteCode::CharClusterUtf8 value) noexcept(true);
 
 		/// <summary>
 		/// Construct from UTF-16 cluster.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(CharClusterUtf16 value) noexcept(true);
+		explicit constexpr Record(ByteCode::CharClusterUtf16 value) noexcept(true);
 
 		/// <summary>
 		/// Construct from UTF-32 cluster.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(CharClusterUtf32 value) noexcept(true);
+		explicit constexpr Record(ByteCode::CharClusterUtf32 value) noexcept(true);
 
 		/// <summary>
 		/// Returns true if value contains non zero, else false.
@@ -486,9 +486,9 @@ namespace Nominax::Core
 	constexpr Record::Record(const std::array<U32, 2> value) noexcept(true) : AsU32S {value} {}
 	constexpr Record::Record(const std::array<I32, 2> value) noexcept(true) : AsI32S {value} {}
 	constexpr Record::Record(const std::array<F32, 2> value) noexcept(true) : AsF32S {value} {}
-	constexpr Record::Record(const CharClusterUtf8 value) noexcept(true) : AsUtf8 {value} {}
-	constexpr Record::Record(const CharClusterUtf16 value) noexcept(true) : AsUtf16 {value} {}
-	constexpr Record::Record(const CharClusterUtf32 value) noexcept(true) : AsUtf32 {value} {}
+	constexpr Record::Record(const ByteCode::CharClusterUtf8 value) noexcept(true) : AsUtf8 {value} {}
+	constexpr Record::Record(const ByteCode::CharClusterUtf16 value) noexcept(true) : AsUtf16 {value} {}
+	constexpr Record::Record(const ByteCode::CharClusterUtf32 value) noexcept(true) : AsUtf32 {value} {}
 
 	constexpr Record::operator bool() const noexcept(true)
 	{

@@ -208,7 +208,6 @@
 #pragma once
 
 #include "BasicReactorDescriptor.hpp"
-#include "CharCluster.hpp"
 #include "DetailedReactorDescriptor.hpp"
 #include "Environment.hpp"
 #include "EnvironmentDescriptor.hpp"

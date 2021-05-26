@@ -391,21 +391,21 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="cluster"></param>
 		/// <returns></returns>
-		explicit constexpr Signal(Core::CharClusterUtf8 cluster) noexcept(true);
+		explicit constexpr Signal(CharClusterUtf8 cluster) noexcept(true);
 
 		/// <summary>
 		/// Construct from UTF-16 char cluster.
 		/// </summary>
 		/// <param name="cluster"></param>
 		/// <returns></returns>
-		explicit constexpr Signal(Core::CharClusterUtf16 cluster) noexcept(true);
+		explicit constexpr Signal(CharClusterUtf16 cluster) noexcept(true);
 
 		/// <summary>
 		/// Construct from UTF-32 char cluster.
 		/// </summary>
 		/// <param name="cluster"></param>
 		/// <returns></returns>
-		explicit constexpr Signal(Core::CharClusterUtf32 cluster) noexcept(true);
+		explicit constexpr Signal(CharClusterUtf32 cluster) noexcept(true);
 
 		/// <summary>
 		/// Construct from 32-bit UTF-32 character.
@@ -430,9 +430,9 @@ namespace Nominax::ByteCode
 	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const Core::CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal::Signal(const Core::CharClusterUtf16 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal::Signal(const Core::CharClusterUtf32 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal::Signal(const CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal::Signal(const CharClusterUtf16 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal::Signal(const CharClusterUtf32 cluster) noexcept(true) : R64 {cluster} {}
 	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
 	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JmpAddress {value} {}
 

@@ -244,8 +244,9 @@ namespace Nominax::Core
 
 	using ByteCode::SystemIntrinsicCallID;
 	using ByteCode::Instruction;
-	using ByteCode::Signal;
 	using ByteCode::IntrinsicRoutine;
+	using ByteCode::Signal;
+	using ByteCode::CharClusterUtf8;
 
 	/// <summary>
 	/// Operator for F64 precision F32ing point modulo.

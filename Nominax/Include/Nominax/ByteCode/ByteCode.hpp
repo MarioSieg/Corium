@@ -207,8 +207,8 @@
 
 #pragma once
 
-#include "ValidationResult.hpp"
 #include "Category.hpp"
+#include "CharCluster.hpp"
 #include "Chunk.hpp"
 #include "UserIntrinsic.hpp"
 #include "Descriptor.hpp"
@@ -228,4 +228,5 @@
 #include "DiscriminatedSignal.hpp"
 #include "StreamScalar.hpp"
 #include "SystemIntrinsic.hpp"
+#include "ValidationResult.hpp"
 #include "Validator.hpp"
