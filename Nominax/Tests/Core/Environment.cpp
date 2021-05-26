@@ -239,18 +239,6 @@ TEST(Environent, ConstructOfflineAccessDeath_GetBootTime)
 	                          }(), "");
 }
 
-TEST(Environent, ConstructOfflineAccessDeath_GetInputArguments)
-{
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetInputArguments() };
-	                          }(), "");
-}
-
 TEST(Environent, ConstructOfflineAccessDeath_GetSystemSnapshot)
 {
 	const Environment env { };
@@ -460,8 +448,6 @@ TEST(Environment, SystemConfig)
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
 	ASSERT_EQ(env.GetAppName(), "Hey:)");
-	ASSERT_EQ(env.GetInputArguments()[0], "Hey");
-	ASSERT_EQ(env.GetInputArguments()[1], "Ho");
 }
 
 TEST(Environment, PoolSizeZero)
@@ -479,8 +465,6 @@ TEST(Environment, PoolSizeZero)
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
 	ASSERT_EQ(env.GetAppName(), "Hey:)");
-	ASSERT_EQ(env.GetInputArguments()[0], "Hey");
-	ASSERT_EQ(env.GetInputArguments()[1], "Ho");
 	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::FALLBACK_SYSTEM_POOL_SIZE + descriptor.ReactorCount * (descriptor.ReactorDescriptor.StackSize * sizeof(Record)));
 }
 

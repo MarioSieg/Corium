@@ -205,25 +205,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <algorithm>
-#include <bitset>
 #include <cmath>
-#include <cassert>
-#include <cstring>
-#include <filesystem>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string_view>
-#include <thread>
 
 #include "../../Include/Nominax/Nominax.hpp"
-
-#if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
-#	include <malloc.h>
-#else
-#	include <alloca.h>
-#endif
 
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
 #	include <immintrin.h>
@@ -233,88 +217,18 @@
 
 namespace Nominax::Core
 {
+	using Common::BreakpointInterrupt;
+	using Common::NoOperation;
+	using Common::Rol64;
+	using Common::Ror64;
+	using Common::Proxy_F64Equals;
+	using Common::Proxy_F64IsOne;
+	using Common::Proxy_F64IsZero;
+
 	using ByteCode::SystemIntrinsicCallID;
 	using ByteCode::Instruction;
 	using ByteCode::Signal;
 	using ByteCode::IntrinsicRoutine;
-
-	[[maybe_unused]]
-	__attribute__((always_inline, pure)) static inline auto Proxy_F64IsZero(const F64 x) noexcept(true) -> bool
-	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Common::F64IsZero(x);
-#else
-		return x == 0.0;
-#endif
-	}
-
-	[[maybe_unused]]
-	__attribute__((always_inline, pure)) static inline auto Proxy_F64IsOne(const F64 x) noexcept(true) -> bool
-	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Common::F64IsOne(x);
-#else
-		return x == 1.0;
-#endif
-	}
-
-	[[maybe_unused]]
-	__attribute__((always_inline, pure)) static inline auto Proxy_F64Equals(const F64 x, const F64 y) noexcept(true) -> bool
-	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Common::F64Equals(x, y);
-#else
-		return x == y;
-#endif
-	}
-
-	/// <summary>
-	/// Fast, platform dependent implementation for a bitwise left rotation.
-	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto Rol64
-	(
-		U64      value,
-		const U8 shift
-	) noexcept(true) -> U64
-	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
-		return _rotl64(value, shift);
-#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
-		asm volatile
-		(
-			"rolq %%cl, %0"
-			: "=r"(value)
-			: "0" (value), "c"(shift)
-		);
-		return value;
-#else
-		return std::rotl<U64>(value, shift);
-#endif
-	}
-
-	/// <summary>
-	/// Fast, platform dependent implementation for a bitwise right rotation.
-	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto Ror64
-	(
-		U64      value,
-		const U8 shift
-	) noexcept(true) -> U64
-	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
-		return _rotr64(value, shift);
-#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
-		asm volatile
-		(
-			"rorq %%cl, %0"
-			: "=r"(value)
-			: "0" (value), "c"(shift)
-		);
-		return value;
-#else
-		return std::rotr<U64>(value, shift);
-#endif
-	}
 
 	/// <summary>
 	/// Operator for F64 precision F32ing point modulo.
@@ -324,83 +238,6 @@ namespace Nominax::Core
 		self.AsF64 = std::fmod(self.AsF64, value);
 	}
 
-	/// <summary>
-	/// Trigger a breakpoint.
-	/// </summary>
-	[[maybe_unused]] __attribute__((always_inline, cold)) static inline auto BreakpointInterrupt() noexcept(true) -> void
-	{
-#if NOMINAX_ARCH_X86_64
-		asm("int $3");
-#elif NOMINAX_ARCH_ARM_64
-#if NOMINAX_OS_MAC || NOMINAX_OS_IOS
-		asm("trap");
-#else
-		asm("bkpt 0");
-#endif
-#else
-		auto* int3 = reinterpret_cast<int*>(3);
-		*int3 = 3;
-#endif
-	}
-
-	/// <summary>
-	/// Allocate small structure/array on stack using alloca.
-	/// 
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <returns></returns>
-	template <typename T, std::size_t Count> requires requires
-	{
-		std::is_trivial_v<T>;     // trivial types only
-		Count != 0;               // must at least be one
-		sizeof(T) != 0;           // must at least be one
-		sizeof(T) * Count < 1024; // no more than 1KB
-	}
-	[[nodiscard]]
-	[[maybe_unused]]
-	__attribute__((always_inline)) auto StackAlloc() noexcept(true) -> T*
-	{
-#if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
-		return _alloca(sizeof(T) * Count);
-#else
-		return alloca(sizeof(T) * Count);
-#endif
-	}
-
-	// @formatter:off
-
-	/// <summary>
-	/// Insert memory read fence barrier.
-	/// </summary>
-	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto ReadFence() noexcept(true) -> void
-	{
-		// ReSharper disable once CppRedundantEmptyStatement
-		asm volatile("":::"memory");
-	}
-
-	/// <summary>
-	/// Insert memory write fence barrier.
-	/// </summary>
-	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto WriteFence() noexcept(true) -> void
-	{
-		// ReSharper disable once CppRedundantEmptyStatement
-		asm volatile("":::"memory");
-	}
-
-	/// <summary>
-	/// Insert memory read-write fence barrier.
-	/// </summary>
-	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto ReadWriteFence() noexcept(true) -> void
-	{
-		// ReSharper disable once CppRedundantEmptyStatement
-		asm volatile("":::"memory");
-	}
-
-	// @formatter:on
-
 	/*
 	 * This inserts a comment with the msg into the assembler code.
 	 * Useful for finding the asm code of the instructions.
@@ -408,7 +245,7 @@ namespace Nominax::Core
 	 * Asm volatile is like a black box and never touched by the compiler so it might affect code generation/ordering!
 	 */
 #if NOMINAX_REACTOR_ASM_MARKERS
-#	define ASM_MARKER(msg) asm volatile("#" msg)
+#	define ASM_MARKER(msg) __asm__ __volatile__("#" msg)
 #else
 #	define ASM_MARKER(msg)
 #endif
@@ -1026,11 +863,7 @@ namespace Nominax::Core
 		__attribute__((cold));
 		ASM_MARKER("__nop__");
 
-#if NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32
-		asm("nop");
-#elif NOMINAX_ARCH_ARM_64 || NOMINAX_ARCH_ARM_32
-		asm("move r0, r0");
-#endif
+		NoOperation();
 
 		goto
 		JMP_PTR();

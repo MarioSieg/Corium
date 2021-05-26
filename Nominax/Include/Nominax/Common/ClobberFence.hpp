@@ -1,6 +1,6 @@
-// File: Common.hpp
+// File: ClobberFence.hpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 26.05.2021 4:09 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,28 +207,39 @@
 
 #pragma once
 
-#include "Algorithm.hpp"
-#include "Alloca.hpp"
-#include "AtomicState.hpp"
-#include "BaseTypes.hpp"
-#include "BitRot.hpp"
-#include "BranchHint.hpp"
-#include "CliArgParser.hpp"
-#include "ClobberFence.hpp"
-#include "DisOpt.hpp"
-#include "Entry.hpp"
-#include "F64Comparator.hpp"
-#include "F64ComProxy.hpp"
-#include "FormatterImpls.hpp"
-#include "Interrupt.hpp"
-#include "LiteralOp.hpp"
-#include "MemoryAlign.hpp"
-#include "MemoryUnits.hpp"
-#include "Nop.hpp"
-#include "PanicRoutine.hpp"
-#include "Protocol.hpp"
-#include "SafeLocalTime.hpp"
-#include "Signal.hpp"
-#include "Stopwatch.hpp"
-#include "XorshiftAtomic.hpp"
-#include "XorshiftThreadLocal.hpp"
+namespace Nominax::Common
+{
+	// @formatter:off
+
+	/// <summary>
+	/// Insert memory read fence barrier.
+	/// Force the compiler to flush queued writes to global memory.
+	/// </summary>
+	[[maybe_unused]]
+	__attribute__((always_inline)) inline auto ReadFence() noexcept(true) -> void
+	{
+		__asm__ __volatile__("":::"memory")
+	}
+
+	/// <summary>
+	/// Insert memory write fence barrier.
+	/// Force the compiler to flush queued writes to global memory.
+	/// </summary>
+	[[maybe_unused]]
+	__attribute__((always_inline)) inline auto WriteFence() noexcept(true) -> void
+	{
+		__asm__ __volatile__("":::"memory")
+	}
+
+	/// <summary>
+	/// Insert memory read-write fence barrier.
+	/// Force the compiler to flush queued writes to global memory.
+	/// </summary>
+	[[maybe_unused]]
+	__attribute__((always_inline)) inline auto ReadWriteFence() noexcept(true) -> void
+	{
+		__asm__ __volatile__("":::"memory")
+	}
+
+	// @formatter:on
+}

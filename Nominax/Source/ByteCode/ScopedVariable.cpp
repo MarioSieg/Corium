@@ -210,41 +210,14 @@
 #include "../../Include/Nominax/Common/F64Comparator.hpp"
 #include "../../Include/Nominax/Common/Algorithm.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/F64ComProxy.hpp"
 
 namespace Nominax::ByteCode
 {
-	/// <summary>
-	/// Returns true if x is a power of two.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_integral_v<T>
-	constexpr auto IsPowerOfTwo(const T x) noexcept(true) -> bool
-	{
-		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
-		return !(x & (x - 1));
-	}
-
-	inline auto Proxy_F64IsZero(const F64 x) noexcept(true) -> bool
-	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Common::F64IsZero(x);
-#else
-		return x == 0.0;
-#endif
-	}
-
-	inline auto Proxy_F64IsOne(const F64 x) noexcept(true) -> bool
-	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Common::F64IsOne(x);
-#else
-		return x == 1.0;
-#endif
-	}
-
 	using Common::ILog2;
+	using Common::Proxy_F64IsZero;
+	using Common::Proxy_F64IsOne;
+	using Common::IsPowerOfTwo;
 
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst

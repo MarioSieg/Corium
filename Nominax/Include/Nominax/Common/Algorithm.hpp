@@ -220,6 +220,19 @@
 namespace Nominax::Common
 {
 	/// <summary>
+	/// Returns true if x is a power of two.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T>
+	constexpr auto IsPowerOfTwo(const T x) noexcept(true) -> bool
+	{
+		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
+		return !(x & x - 1);
+	}
+
+	/// <summary>
 	/// Rounds up x to the next power of 2.
 	/// x should not be zero.
 	/// </summary>
@@ -227,6 +240,7 @@ namespace Nominax::Common
 	/// <returns></returns>
 	constexpr auto RoundUpPow2(U64 x) noexcept(true) -> U64
 	{
+		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
 		--x;
 		x |= x >> UINT64_C(1);
 		x |= x >> UINT64_C(2);

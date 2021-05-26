@@ -1,6 +1,6 @@
-// File: Common.hpp
+// File: Interrupt.hpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 26.05.2021 4:11 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,28 +207,27 @@
 
 #pragma once
 
-#include "Algorithm.hpp"
-#include "Alloca.hpp"
-#include "AtomicState.hpp"
-#include "BaseTypes.hpp"
-#include "BitRot.hpp"
-#include "BranchHint.hpp"
-#include "CliArgParser.hpp"
-#include "ClobberFence.hpp"
-#include "DisOpt.hpp"
-#include "Entry.hpp"
-#include "F64Comparator.hpp"
-#include "F64ComProxy.hpp"
-#include "FormatterImpls.hpp"
-#include "Interrupt.hpp"
-#include "LiteralOp.hpp"
-#include "MemoryAlign.hpp"
-#include "MemoryUnits.hpp"
-#include "Nop.hpp"
-#include "PanicRoutine.hpp"
-#include "Protocol.hpp"
-#include "SafeLocalTime.hpp"
-#include "Signal.hpp"
-#include "Stopwatch.hpp"
-#include "XorshiftAtomic.hpp"
-#include "XorshiftThreadLocal.hpp"
+#include "../System/Platform.hpp"
+
+namespace Nominax::Common
+{
+	/// <summary>
+	/// Trigger a breakpoint, works in release mode too.
+	/// Good for debugging release code or looking at assembler.
+	/// </summary>
+	__attribute__((always_inline, cold)) inline auto BreakpointInterrupt() noexcept(true) -> void
+	{
+#if NOMINAX_ARCH_X86_64
+		__asm__ __volatile__("int $3");
+#elif NOMINAX_ARCH_ARM_64
+#if NOMINAX_OS_MAC || NOMINAX_OS_IOS
+		__asm__ __volatile__("trap");
+#else
+		__asm__ __volatile__("bkpt 0");
+#endif
+#else
+		auto* int3 = reinterpret_cast<int*>(3);
+		*int3 = 3;
+#endif
+	}
+}

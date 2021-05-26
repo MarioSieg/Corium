@@ -1,6 +1,6 @@
-// File: Common.hpp
+// File: Alloca.hpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 26.05.2021 4:27 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,28 +207,41 @@
 
 #pragma once
 
-#include "Algorithm.hpp"
-#include "Alloca.hpp"
-#include "AtomicState.hpp"
-#include "BaseTypes.hpp"
-#include "BitRot.hpp"
-#include "BranchHint.hpp"
-#include "CliArgParser.hpp"
-#include "ClobberFence.hpp"
-#include "DisOpt.hpp"
-#include "Entry.hpp"
-#include "F64Comparator.hpp"
-#include "F64ComProxy.hpp"
-#include "FormatterImpls.hpp"
-#include "Interrupt.hpp"
-#include "LiteralOp.hpp"
-#include "MemoryAlign.hpp"
-#include "MemoryUnits.hpp"
-#include "Nop.hpp"
-#include "PanicRoutine.hpp"
-#include "Protocol.hpp"
-#include "SafeLocalTime.hpp"
-#include "Signal.hpp"
-#include "Stopwatch.hpp"
-#include "XorshiftAtomic.hpp"
-#include "XorshiftThreadLocal.hpp"
+#include "../System/Platform.hpp"
+
+#if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
+#	include <malloc.h>
+#else
+#	include <alloca.h>
+#endif
+
+namespace Nominax
+{
+	/// <summary>
+	/// Restrict stack allocations type.
+	/// </summary>
+	template <typename T, const std::size_t C>
+	concept StackAlloca = requires
+	{
+		std::is_trivial_v<T>; // trivial types only
+		C != 0;               // must at least be one
+		sizeof(T) != 0;       // must at least be one
+		sizeof(T) * C < 1024; // no more than 1KB
+	};
+
+	/// <summary>
+	/// Allocate small structure/array on stack using alloca.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
+	template <typename T, const std::size_t Count = 1> requires StackAlloca<T, Count>
+	[[nodiscard]]
+	__attribute__((always_inline)) inline auto StackAlloc() noexcept(true) -> T*
+	{
+#if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
+		return static_cast<T*>(::_alloca(sizeof(T) * Count));
+#else
+		return static_cast<T*>(::alloca(sizeof(T) * Count));
+#endif
+	}
+}

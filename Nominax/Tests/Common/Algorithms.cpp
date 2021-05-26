@@ -325,3 +325,17 @@ TEST(Algorithms, ComputeRequiredBytes)
 	ASSERT_EQ(ComputeRequiredBytes(UINT64_C(0xFFFFFFFF) + 1), 8);
 	ASSERT_EQ(ComputeRequiredBytes(0xFFFFFFFFFFFFFFFF), 8);
 }
+
+TEST(Algorithms, IsPow2)
+{
+	ASSERT_TRUE(IsPowerOfTwo(0));
+	ASSERT_TRUE(IsPowerOfTwo(1));
+	ASSERT_TRUE(IsPowerOfTwo(2));
+	ASSERT_TRUE(IsPowerOfTwo(4));
+	ASSERT_FALSE(IsPowerOfTwo(5));
+	ASSERT_FALSE(IsPowerOfTwo(6));
+	ASSERT_FALSE(IsPowerOfTwo(67));
+	ASSERT_FALSE(IsPowerOfTwo(255));
+	ASSERT_TRUE(IsPowerOfTwo(256));
+	ASSERT_TRUE(IsPowerOfTwo(512));
+}

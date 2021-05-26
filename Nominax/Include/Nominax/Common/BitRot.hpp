@@ -1,6 +1,6 @@
-// File: Common.hpp
+// File: BitRot.hpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 26.05.2021 4:15 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,28 +207,58 @@
 
 #pragma once
 
-#include "Algorithm.hpp"
-#include "Alloca.hpp"
-#include "AtomicState.hpp"
+#include <bit>
+
+#include "../System/MacroCfg.hpp"
 #include "BaseTypes.hpp"
-#include "BitRot.hpp"
-#include "BranchHint.hpp"
-#include "CliArgParser.hpp"
-#include "ClobberFence.hpp"
-#include "DisOpt.hpp"
-#include "Entry.hpp"
-#include "F64Comparator.hpp"
-#include "F64ComProxy.hpp"
-#include "FormatterImpls.hpp"
-#include "Interrupt.hpp"
-#include "LiteralOp.hpp"
-#include "MemoryAlign.hpp"
-#include "MemoryUnits.hpp"
-#include "Nop.hpp"
-#include "PanicRoutine.hpp"
-#include "Protocol.hpp"
-#include "SafeLocalTime.hpp"
-#include "Signal.hpp"
-#include "Stopwatch.hpp"
-#include "XorshiftAtomic.hpp"
-#include "XorshiftThreadLocal.hpp"
+
+namespace Nominax::Common
+{
+	/// <summary>
+	/// Fast, platform dependent implementation for a bitwise left rotation.
+	/// </summary>
+	[[nodiscard]] __attribute__((always_inline, pure)) inline auto Rol64
+	(
+		U64      value,
+		const U8 shift
+	) noexcept(true) -> U64
+	{
+#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
+		return _rotl64(value, shift);
+#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
+		__asm__ __volatile__
+		(
+			"rolq %%cl, %0"
+			: "=r"(value)
+			: "0" (value), "c"(shift)
+		);
+		return value;
+#else
+		return std::rotl<U64>(value, shift);
+#endif
+	}
+
+	/// <summary>
+	/// Fast, platform dependent implementation for a bitwise right rotation.
+	/// </summary>
+	[[nodiscard]] __attribute__((always_inline, pure)) inline auto Ror64
+	(
+		U64      value,
+		const U8 shift
+	) noexcept(true) -> U64
+	{
+#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
+		return _rotr64(value, shift);
+#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
+		__asm__ __volatile__
+		(
+			"rorq %%cl, %0"
+			: "=r"(value)
+			: "0" (value), "c"(shift)
+		);
+		return value;
+#else
+		return std::rotr<U64>(value, shift);
+#endif
+	}
+}
