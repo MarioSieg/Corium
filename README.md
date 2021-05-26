@@ -67,7 +67,7 @@ some specific type of data.<br>
 
 * A 64-bit unsigned integer. 
 * Can hold values from 0 to 147573952589676412927. 
-* Because it is unsigned it can only hold positive values, but larger ones than ```uint```
+* Because it is unsigned it can only hold positive values, but larger ones than ```int```
 * This type is the default type for array indices.
 * The ```u``` suffix is used to make an uint literal.
 * The equivalent in other C style languages is "unsigned long" or "ulong".
@@ -107,10 +107,10 @@ let c float = 2.5
 let d char = 'O'
 let e bool = true
 ```
-If you look at the above scheme again,```Type```
+If you look at the above scheme again,<br> the ```Type```
 and the ```Literal```
 are optional (indicated by the
-```?```.<br> That means that we can elide them:
+```?```).<br> That means that we can elide them:
 
 ```
 let a = 3
