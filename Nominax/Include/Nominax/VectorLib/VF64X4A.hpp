@@ -1,6 +1,6 @@
-// File: DisOpt.hpp
+// File: VF64X4A.hpp
 // Author: Mario
-// Created: 26.05.2021 4:03 AM
+// Created: 26.05.2021 10:11 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,35 +207,147 @@
 
 #pragma once
 
-#include "../System/Platform.hpp"
+#include "VBase.hpp"
 
-namespace Nominax::Common
+namespace Nominax::VectorLib
 {
 	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
+	/// Intrinsic vector code.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(T& x) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F64_X4_Add_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
 	{
-#if NOMINAX_COM_CLANG
-		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+
+		__m256d x = _mm256_load_pd(inout);
+		const __m256d y = _mm256_load_pd(in);
+		x = _mm256_add_pd(x, y);
+		_mm256_store_pd(inout, x);
+
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+
+		__m128d x1 = _mm_load_pd(inout);
+		__m128d x2 = _mm_load_pd(inout + 2);
+		const __m128d y1 = _mm_load_pd(in);
+		const __m128d y2 = _mm_load_pd(in + 2);
+		x1 = _mm_add_pd(x1, y1);
+		x2 = _mm_add_pd(x2, y2);
+		_mm_store_pd(inout, x1);
+		_mm_store_pd(inout + 2, x2);
 #else
-		__asm__ __volatile__("" : "+m,r"(x) :: "memory");
+
+		inout[0] += in[0];
+		inout[1] += in[1];
+		inout[2] += in[2];
+		inout[3] += in[3];
+
 #endif
 	}
 
 	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
+	/// Intrinsic vector code.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(const T& x) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F64_X4_Sub_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
 	{
-		__asm__ __volatile__("" : "r,m"(x) :: "memory");
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+
+		__m256d x = _mm256_load_pd(inout);
+		const __m256d y = _mm256_load_pd(in);
+		x = _mm256_sub_pd(x, y);
+		_mm256_store_pd(inout, x);
+
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+
+		__m128d x1 = _mm_load_pd(inout);
+		__m128d x2 = _mm_load_pd(inout + 2);
+		const __m128d y1 = _mm_load_pd(in);
+		const __m128d y2 = _mm_load_pd(in + 2);
+		x1 = _mm_sub_pd(x1, y1);
+		x2 = _mm_sub_pd(x2, y2);
+		_mm_store_pd(inout, x1);
+		_mm_store_pd(inout + 2, x2);
+#else
+
+		inout[0] -= in[0];
+		inout[1] -= in[1];
+		inout[2] -= in[2];
+		inout[3] -= in[3];
+
+#endif
+	}
+
+	/// <summary>
+	/// Intrinsic vector code.
+	/// </summary>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
+	/// <returns></returns>
+	__attribute__((always_inline)) inline auto F64_X4_Mul_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
+	{
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+
+		__m256d x = _mm256_load_pd(inout);
+		const __m256d y = _mm256_load_pd(in);
+		x = _mm256_mul_pd(x, y);
+		_mm256_store_pd(inout, x);
+
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+
+		__m128d x1 = _mm_load_pd(inout);
+		__m128d x2 = _mm_load_pd(inout + 2);
+		const __m128d y1 = _mm_load_pd(in);
+		const __m128d y2 = _mm_load_pd(in + 2);
+		x1 = _mm_mul_pd(x1, y1);
+		x2 = _mm_mul_pd(x2, y2);
+		_mm_store_pd(inout, x1);
+		_mm_store_pd(inout + 2, x2);
+#else
+
+		inout[0] *= in[0];
+		inout[1] *= in[1];
+		inout[2] *= in[2];
+		inout[3] *= in[3];
+
+#endif
+	}
+
+	/// <summary>
+	/// Intrinsic vector code.
+	/// </summary>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
+	/// <returns></returns>
+	__attribute__((always_inline)) inline auto F64_X4_Div_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
+	{
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+
+		__m256d x = _mm256_load_pd(inout);
+		const __m256d y = _mm256_load_pd(in);
+		x = _mm256_div_pd(x, y);
+		_mm256_store_pd(inout, x);
+
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+
+		__m128d x1 = _mm_load_pd(inout);
+		__m128d x2 = _mm_load_pd(inout + 2);
+		const __m128d y1 = _mm_load_pd(in);
+		const __m128d y2 = _mm_load_pd(in + 2);
+		x1 = _mm_div_pd(x1, y1);
+		x2 = _mm_div_pd(x2, y2);
+		_mm_store_pd(inout, x1);
+		_mm_store_pd(inout + 2, x2);
+#else
+
+		inout[0] /= in[0];
+		inout[1] /= in[1];
+		inout[2] /= in[2];
+		inout[3] /= in[3];
+
+#endif
 	}
 }

@@ -1,6 +1,6 @@
-// File: DisOpt.hpp
+// File: VBase.hpp
 // Author: Mario
-// Created: 26.05.2021 4:03 AM
+// Created: 26.05.2021 8:21 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,35 +207,46 @@
 
 #pragma once
 
-#include "../System/Platform.hpp"
+#include "../System/MacroCfg.hpp"
 
-namespace Nominax::Common
-{
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(T& x) noexcept(true) -> void
-	{
-#if NOMINAX_COM_CLANG
-		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
-#else
-		__asm__ __volatile__("" : "+m,r"(x) :: "memory");
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
+#	include <immintrin.h>
+#elif NOMINAX_ARCH_ARM_64 && NOMINAX_USE_ARCH_OPT && defined(__ARM_NEON)
+#	include <arm_neon.h>
 #endif
-	}
 
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(const T& x) noexcept(true) -> void
+namespace Nominax::VectorLib
+{
+	constexpr std::size_t V128_ALIGN
 	{
-		__asm__ __volatile__("" : "r,m"(x) :: "memory");
-	}
+#ifdef __SSE__
+		16
+#else
+		alignof(F32)
+#endif
+	};
+
+	constexpr std::size_t V256_ALIGN
+	{
+#if defined(__AVX__)
+		32
+#elif defined(__SSE__)
+		16
+#else
+		alignof(F32)
+#endif
+	};
+
+	constexpr std::size_t V512_ALIGN
+	{
+#if defined(__AVX512F__)
+		64
+#elif defined(__AVX__)
+		32
+#elif defined(__SSE__)
+		16
+#else
+		alignof(F32)
+#endif
+	};
 }

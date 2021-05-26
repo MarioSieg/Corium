@@ -1,6 +1,6 @@
-// File: DisOpt.hpp
+// File: VectorLib.hpp
 // Author: Mario
-// Created: 26.05.2021 4:03 AM
+// Created: 26.05.2021 9:03 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,35 +207,24 @@
 
 #pragma once
 
-#include "../System/Platform.hpp"
+// single precision aligned:
+#include "VF32X4A.hpp"
+#include "VF32X8A.hpp"
+#include "VF32X16A.hpp"
 
-namespace Nominax::Common
-{
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(T& x) noexcept(true) -> void
-	{
-#if NOMINAX_COM_CLANG
-		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
-#else
-		__asm__ __volatile__("" : "+m,r"(x) :: "memory");
-#endif
-	}
+// single precision unaligned:
+#include "VF32X4U.hpp"
+#include "VF32X8U.hpp"
+#include "VF32X16U.hpp"
 
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(const T& x) noexcept(true) -> void
-	{
-		__asm__ __volatile__("" : "r,m"(x) :: "memory");
-	}
-}
+// double precision aligned:
+#include "VF64X2A.hpp"
+#include "VF64X4A.hpp"
+#include "VF64X8A.hpp"
+#include "VF64X16A.hpp"
+
+// double precision unaligned:
+#include "VF64X2U.hpp"
+#include "VF64X4U.hpp"
+#include "VF64X8U.hpp"
+#include "VF64X16U.hpp"

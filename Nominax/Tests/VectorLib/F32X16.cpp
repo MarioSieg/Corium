@@ -1,6 +1,6 @@
-// File: DisOpt.hpp
+// File: F32X16.cpp
 // Author: Mario
-// Created: 26.05.2021 4:03 AM
+// Created: 26.05.2021 9:22 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,37 +205,492 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../TestBase.hpp"
 
-#include "../System/Platform.hpp"
-
-namespace Nominax::Common
+TEST(VectorLib, F32_X16_Add_Unaligned)
 {
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(T& x) noexcept(true) -> void
+	F32 x[16]
 	{
-#if NOMINAX_COM_CLANG
-		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
-#else
-		__asm__ __volatile__("" : "+m,r"(x) :: "memory");
-#endif
-	}
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F
+	};
 
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(const T& x) noexcept(true) -> void
+	const F32 y[16]
 	{
-		__asm__ __volatile__("" : "r,m"(x) :: "memory");
-	}
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F
+	};
+
+	F32_X16_Add_Unaligned(x, y);
+	ASSERT_FLOAT_EQ(x[0], 2.5F + 0.5F);
+	ASSERT_FLOAT_EQ(x[1], 0.3F + 1.3F);
+	ASSERT_FLOAT_EQ(x[2], 1.2F + 3.2F);
+	ASSERT_FLOAT_EQ(x[3], -0.5F + -0.25F);
+	ASSERT_FLOAT_EQ(x[4], 2.5F + 0.5F);
+	ASSERT_FLOAT_EQ(x[5], 0.3F + 1.3F);
+	ASSERT_FLOAT_EQ(x[6], 1.2F + 3.2F);
+	ASSERT_FLOAT_EQ(x[7], -0.5F + -0.25F);
+	ASSERT_FLOAT_EQ(x[8], 2.5F + 0.5F);
+	ASSERT_FLOAT_EQ(x[9], 0.3F + 1.3F);
+	ASSERT_FLOAT_EQ(x[10], 1.2F + 3.2F);
+	ASSERT_FLOAT_EQ(x[11], -0.5F + -0.25F);
+	ASSERT_FLOAT_EQ(x[12], 2.5F + 0.5F);
+	ASSERT_FLOAT_EQ(x[13], 0.3F + 1.3F);
+	ASSERT_FLOAT_EQ(x[14], 1.2F + 3.2F);
+	ASSERT_FLOAT_EQ(x[15], -0.5F + -0.25F);
+}
+
+TEST(VectorLib, F32_X16_Add_Aligned)
+{
+	alignas(V512_ALIGN) F32 x[16]
+	{
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F
+	};
+
+	alignas(V512_ALIGN) const F32 y[16]
+	{
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F
+	};
+
+	F32_X16_Add_Aligned(x, y);
+	ASSERT_FLOAT_EQ(x[0], 2.5F + 0.5F);
+	ASSERT_FLOAT_EQ(x[1], 0.3F + 1.3F);
+	ASSERT_FLOAT_EQ(x[2], 1.2F + 3.2F);
+	ASSERT_FLOAT_EQ(x[3], -0.5F + -0.25F);
+	ASSERT_FLOAT_EQ(x[4], 2.5F + 0.5F);
+	ASSERT_FLOAT_EQ(x[5], 0.3F + 1.3F);
+	ASSERT_FLOAT_EQ(x[6], 1.2F + 3.2F);
+	ASSERT_FLOAT_EQ(x[7], -0.5F + -0.25F);
+	ASSERT_FLOAT_EQ(x[8], 2.5F + 0.5F);
+	ASSERT_FLOAT_EQ(x[9], 0.3F + 1.3F);
+	ASSERT_FLOAT_EQ(x[10], 1.2F + 3.2F);
+	ASSERT_FLOAT_EQ(x[11], -0.5F + -0.25F);
+	ASSERT_FLOAT_EQ(x[12], 2.5F + 0.5F);
+	ASSERT_FLOAT_EQ(x[13], 0.3F + 1.3F);
+	ASSERT_FLOAT_EQ(x[14], 1.2F + 3.2F);
+	ASSERT_FLOAT_EQ(x[15], -0.5F + -0.25F);
+}
+
+TEST(VectorLib, F32_X16_Sub_Unaligned)
+{
+	F32 x[16]
+	{
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F
+	};
+
+	const F32 y[16]
+	{
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F
+	};
+
+	F32_X16_Sub_Unaligned(x, y);
+	ASSERT_FLOAT_EQ(x[0], 2.5F - 0.5F);
+	ASSERT_FLOAT_EQ(x[1], 0.3F - 1.3F);
+	ASSERT_FLOAT_EQ(x[2], 1.2F - 3.2F);
+	ASSERT_FLOAT_EQ(x[3], -0.5F - -0.25F);
+	ASSERT_FLOAT_EQ(x[4], 2.5F - 0.5F);
+	ASSERT_FLOAT_EQ(x[5], 0.3F - 1.3F);
+	ASSERT_FLOAT_EQ(x[6], 1.2F - 3.2F);
+	ASSERT_FLOAT_EQ(x[7], -0.5F - -0.25F);
+	ASSERT_FLOAT_EQ(x[8], 2.5F - 0.5F);
+	ASSERT_FLOAT_EQ(x[9], 0.3F - 1.3F);
+	ASSERT_FLOAT_EQ(x[10], 1.2F - 3.2F);
+	ASSERT_FLOAT_EQ(x[11], -0.5F - -0.25F);
+	ASSERT_FLOAT_EQ(x[12], 2.5F - 0.5F);
+	ASSERT_FLOAT_EQ(x[13], 0.3F - 1.3F);
+	ASSERT_FLOAT_EQ(x[14], 1.2F - 3.2F);
+	ASSERT_FLOAT_EQ(x[15], -0.5F - -0.25F);
+}
+
+TEST(VectorLib, F32_X16_Sub_Aligned)
+{
+	alignas(V512_ALIGN) F32 x[16]
+	{
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F
+	};
+
+	alignas(V512_ALIGN) const F32 y[16]
+	{
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F
+	};
+
+	F32_X16_Sub_Aligned(x, y);
+	ASSERT_FLOAT_EQ(x[0], 2.5F - 0.5F);
+	ASSERT_FLOAT_EQ(x[1], 0.3F - 1.3F);
+	ASSERT_FLOAT_EQ(x[2], 1.2F - 3.2F);
+	ASSERT_FLOAT_EQ(x[3], -0.5F - -0.25F);
+	ASSERT_FLOAT_EQ(x[4], 2.5F - 0.5F);
+	ASSERT_FLOAT_EQ(x[5], 0.3F - 1.3F);
+	ASSERT_FLOAT_EQ(x[6], 1.2F - 3.2F);
+	ASSERT_FLOAT_EQ(x[7], -0.5F - -0.25F);
+	ASSERT_FLOAT_EQ(x[8], 2.5F - 0.5F);
+	ASSERT_FLOAT_EQ(x[9], 0.3F - 1.3F);
+	ASSERT_FLOAT_EQ(x[10], 1.2F - 3.2F);
+	ASSERT_FLOAT_EQ(x[11], -0.5F - -0.25F);
+	ASSERT_FLOAT_EQ(x[12], 2.5F - 0.5F);
+	ASSERT_FLOAT_EQ(x[13], 0.3F - 1.3F);
+	ASSERT_FLOAT_EQ(x[14], 1.2F - 3.2F);
+	ASSERT_FLOAT_EQ(x[15], -0.5F - -0.25F);
+}
+
+TEST(VectorLib, F32_X16_Mul_Unaligned)
+{
+	F32 x[16]
+	{
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F
+	};
+
+	const F32 y[16]
+	{
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F
+	};
+
+	F32_X16_Mul_Unaligned(x, y);
+	ASSERT_FLOAT_EQ(x[0], 2.5F * 0.5F);
+	ASSERT_FLOAT_EQ(x[1], 0.3F * 1.3F);
+	ASSERT_FLOAT_EQ(x[2], 1.2F * 3.2F);
+	ASSERT_FLOAT_EQ(x[3], -0.5F * -0.25F);
+	ASSERT_FLOAT_EQ(x[4], 2.5F * 0.5F);
+	ASSERT_FLOAT_EQ(x[5], 0.3F * 1.3F);
+	ASSERT_FLOAT_EQ(x[6], 1.2F * 3.2F);
+	ASSERT_FLOAT_EQ(x[7], -0.5F * -0.25F);
+	ASSERT_FLOAT_EQ(x[8], 2.5F * 0.5F);
+	ASSERT_FLOAT_EQ(x[9], 0.3F * 1.3F);
+	ASSERT_FLOAT_EQ(x[10], 1.2F * 3.2F);
+	ASSERT_FLOAT_EQ(x[11], -0.5F * -0.25F);
+	ASSERT_FLOAT_EQ(x[12], 2.5F * 0.5F);
+	ASSERT_FLOAT_EQ(x[13], 0.3F * 1.3F);
+	ASSERT_FLOAT_EQ(x[14], 1.2F * 3.2F);
+	ASSERT_FLOAT_EQ(x[15], -0.5F * -0.25F);
+}
+
+TEST(VectorLib, F32_X16_Mul_Aligned)
+{
+	alignas(V512_ALIGN) F32 x[16]
+	{
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F
+	};
+
+	alignas(V512_ALIGN) const F32 y[16]
+	{
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F
+	};
+
+	F32_X16_Mul_Aligned(x, y);
+	ASSERT_FLOAT_EQ(x[0], 2.5F * 0.5F);
+	ASSERT_FLOAT_EQ(x[1], 0.3F * 1.3F);
+	ASSERT_FLOAT_EQ(x[2], 1.2F * 3.2F);
+	ASSERT_FLOAT_EQ(x[3], -0.5F * -0.25F);
+	ASSERT_FLOAT_EQ(x[4], 2.5F * 0.5F);
+	ASSERT_FLOAT_EQ(x[5], 0.3F * 1.3F);
+	ASSERT_FLOAT_EQ(x[6], 1.2F * 3.2F);
+	ASSERT_FLOAT_EQ(x[7], -0.5F * -0.25F);
+	ASSERT_FLOAT_EQ(x[8], 2.5F * 0.5F);
+	ASSERT_FLOAT_EQ(x[9], 0.3F * 1.3F);
+	ASSERT_FLOAT_EQ(x[10], 1.2F * 3.2F);
+	ASSERT_FLOAT_EQ(x[11], -0.5F * -0.25F);
+	ASSERT_FLOAT_EQ(x[12], 2.5F * 0.5F);
+	ASSERT_FLOAT_EQ(x[13], 0.3F * 1.3F);
+	ASSERT_FLOAT_EQ(x[14], 1.2F * 3.2F);
+	ASSERT_FLOAT_EQ(x[15], -0.5F * -0.25F);
+}
+
+TEST(VectorLib, F32_X16_Div_Unaligned)
+{
+	F32 x[16]
+	{
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F
+	};
+
+	const F32 y[16]
+	{
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F
+	};
+
+	F32_X16_Div_Unaligned(x, y);
+	ASSERT_FLOAT_EQ(x[0], 2.5F / 0.5F);
+	ASSERT_FLOAT_EQ(x[1], 0.3F / 1.3F);
+	ASSERT_FLOAT_EQ(x[2], 1.2F / 3.2F);
+	ASSERT_FLOAT_EQ(x[3], -0.5F / -0.25F);
+	ASSERT_FLOAT_EQ(x[4], 2.5F / 0.5F);
+	ASSERT_FLOAT_EQ(x[5], 0.3F / 1.3F);
+	ASSERT_FLOAT_EQ(x[6], 1.2F / 3.2F);
+	ASSERT_FLOAT_EQ(x[7], -0.5F / -0.25F);
+	ASSERT_FLOAT_EQ(x[8], 2.5F / 0.5F);
+	ASSERT_FLOAT_EQ(x[9], 0.3F / 1.3F);
+	ASSERT_FLOAT_EQ(x[10], 1.2F / 3.2F);
+	ASSERT_FLOAT_EQ(x[11], -0.5F / -0.25F);
+	ASSERT_FLOAT_EQ(x[12], 2.5F / 0.5F);
+	ASSERT_FLOAT_EQ(x[13], 0.3F / 1.3F);
+	ASSERT_FLOAT_EQ(x[14], 1.2F / 3.2F);
+	ASSERT_FLOAT_EQ(x[15], -0.5F / -0.25F);
+}
+
+TEST(VectorLib, F32_X16_Div_Aligned)
+{
+	alignas(V512_ALIGN) F32 x[16]
+	{
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F,
+		2.5F,
+		0.3F,
+		1.2F,
+		-0.5F
+	};
+
+	alignas(V512_ALIGN) const F32 y[16]
+	{
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F,
+		0.5F,
+		1.3F,
+		3.2F,
+		-0.25F
+	};
+
+	F32_X16_Div_Aligned(x, y);
+	ASSERT_FLOAT_EQ(x[0], 2.5F / 0.5F);
+	ASSERT_FLOAT_EQ(x[1], 0.3F / 1.3F);
+	ASSERT_FLOAT_EQ(x[2], 1.2F / 3.2F);
+	ASSERT_FLOAT_EQ(x[3], -0.5F / -0.25F);
+	ASSERT_FLOAT_EQ(x[4], 2.5F / 0.5F);
+	ASSERT_FLOAT_EQ(x[5], 0.3F / 1.3F);
+	ASSERT_FLOAT_EQ(x[6], 1.2F / 3.2F);
+	ASSERT_FLOAT_EQ(x[7], -0.5F / -0.25F);
+	ASSERT_FLOAT_EQ(x[8], 2.5F / 0.5F);
+	ASSERT_FLOAT_EQ(x[9], 0.3F / 1.3F);
+	ASSERT_FLOAT_EQ(x[10], 1.2F / 3.2F);
+	ASSERT_FLOAT_EQ(x[11], -0.5F / -0.25F);
+	ASSERT_FLOAT_EQ(x[12], 2.5F / 0.5F);
+	ASSERT_FLOAT_EQ(x[13], 0.3F / 1.3F);
+	ASSERT_FLOAT_EQ(x[14], 1.2F / 3.2F);
+	ASSERT_FLOAT_EQ(x[15], -0.5F / -0.25F);
 }

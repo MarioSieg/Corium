@@ -1,6 +1,6 @@
-// File: DisOpt.hpp
+// File: VF32X8U.hpp
 // Author: Mario
-// Created: 26.05.2021 4:03 AM
+// Created: 26.05.2021 8:40 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,35 +207,167 @@
 
 #pragma once
 
-#include "../System/Platform.hpp"
+#include "VBase.hpp"
 
-namespace Nominax::Common
+namespace Nominax::VectorLib
 {
 	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
+	/// Intrinsic vector code.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(T& x) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F32_X8_Add_Unaligned(F32* const __restrict__ inout, const F32* const __restrict__ in) noexcept(true) -> void
 	{
-#if NOMINAX_COM_CLANG
-		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+		
+		__m256 x = _mm256_loadu_ps(inout);
+		const __m256 y = _mm256_loadu_ps(in);
+		x = _mm256_add_ps(x, y);
+		_mm256_storeu_ps(inout, x);
+		
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+		
+		__m128 x1 = _mm_loadu_ps(inout);
+		__m128 x2 = _mm_loadu_ps(inout + 4);
+		const __m128 y1 = _mm_loadu_ps(in);
+		const __m128 y2 = _mm_loadu_ps(in + 4);
+		x1 = _mm_add_ps(x1, y1);
+		x2 = _mm_add_ps(x2, y2);
+		_mm_storeu_ps(inout, x1);
+		_mm_storeu_ps(inout + 4, x2);
+		
 #else
-		__asm__ __volatile__("" : "+m,r"(x) :: "memory");
+
+		inout[0] += in[0];
+		inout[1] += in[1];
+		inout[2] += in[2];
+		inout[3] += in[3];
+		inout[4] += in[4];
+		inout[5] += in[5];
+		inout[6] += in[6];
+		inout[7] += in[7];
+
 #endif
 	}
 
 	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
+	/// Intrinsic vector code.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(const T& x) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F32_X8_Sub_Unaligned(F32* const __restrict__ inout, const F32* const __restrict__ in) noexcept(true) -> void
 	{
-		__asm__ __volatile__("" : "r,m"(x) :: "memory");
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+
+		__m256 x = _mm256_loadu_ps(inout);
+		const __m256 y = _mm256_loadu_ps(in);
+		x = _mm256_sub_ps(x, y);
+		_mm256_storeu_ps(inout, x);
+
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+
+		__m128 x1 = _mm_loadu_ps(inout);
+		__m128 x2 = _mm_loadu_ps(inout + 4);
+		const __m128 y1 = _mm_loadu_ps(in);
+		const __m128 y2 = _mm_loadu_ps(in + 4);
+		x1 = _mm_sub_ps(x1, y1);
+		x2 = _mm_sub_ps(x2, y2);
+		_mm_storeu_ps(inout, x1);
+		_mm_storeu_ps(inout + 4, x2);
+
+#else
+
+		inout[0] -= in[0];
+		inout[1] -= in[1];
+		inout[2] -= in[2];
+		inout[3] -= in[3];
+		inout[4] -= in[4];
+		inout[5] -= in[5];
+		inout[6] -= in[6];
+		inout[7] -= in[7];
+
+#endif
+	}
+
+	/// <summary>
+	/// Intrinsic vector code.
+	/// </summary>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
+	/// <returns></returns>
+	__attribute__((always_inline)) inline auto F32_X8_Mul_Unaligned(F32* const __restrict__ inout, const F32* const __restrict__ in) noexcept(true) -> void
+	{
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+
+		__m256 x = _mm256_loadu_ps(inout);
+		const __m256 y = _mm256_loadu_ps(in);
+		x = _mm256_mul_ps(x, y);
+		_mm256_storeu_ps(inout, x);
+
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+
+		__m128 x1 = _mm_loadu_ps(inout);
+		__m128 x2 = _mm_loadu_ps(inout + 4);
+		const __m128 y1 = _mm_loadu_ps(in);
+		const __m128 y2 = _mm_loadu_ps(in + 4);
+		x1 = _mm_mul_ps(x1, y1);
+		x2 = _mm_mul_ps(x2, y2);
+		_mm_storeu_ps(inout, x1);
+		_mm_storeu_ps(inout + 4, x2);
+
+#else
+
+		inout[0] *= in[0];
+		inout[1] *= in[1];
+		inout[2] *= in[2];
+		inout[3] *= in[3];
+		inout[4] *= in[4];
+		inout[5] *= in[5];
+		inout[6] *= in[6];
+		inout[7] *= in[7];
+
+#endif
+	}
+
+	/// <summary>
+	/// Intrinsic vector code.
+	/// </summary>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
+	/// <returns></returns>
+	__attribute__((always_inline)) inline auto F32_X8_Div_Unaligned(F32* const __restrict__ inout, const F32* const __restrict__ in) noexcept(true) -> void
+	{
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+
+		__m256 x = _mm256_loadu_ps(inout);
+		const __m256 y = _mm256_loadu_ps(in);
+		x = _mm256_div_ps(x, y);
+		_mm256_storeu_ps(inout, x);
+
+#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+
+		__m128 x1 = _mm_loadu_ps(inout);
+		__m128 x2 = _mm_loadu_ps(inout + 4);
+		const __m128 y1 = _mm_loadu_ps(in);
+		const __m128 y2 = _mm_loadu_ps(in + 4);
+		x1 = _mm_div_ps(x1, y1);
+		x2 = _mm_div_ps(x2, y2);
+		_mm_storeu_ps(inout, x1);
+		_mm_storeu_ps(inout + 4, x2);
+
+#else
+
+		inout[0] /= in[0];
+		inout[1] /= in[1];
+		inout[2] /= in[2];
+		inout[3] /= in[3];
+		inout[4] /= in[4];
+		inout[5] /= in[5];
+		inout[6] /= in[6];
+		inout[7] /= in[7];
+
+#endif
 	}
 }

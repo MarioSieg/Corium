@@ -1,6 +1,6 @@
-// File: DisOpt.hpp
+// File: F64X16.cpp
 // Author: Mario
-// Created: 26.05.2021 4:03 AM
+// Created: 26.05.2021 1:36 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,37 +205,493 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../TestBase.hpp"
 
-#include "../System/Platform.hpp"
-
-namespace Nominax::Common
+TEST(VectorLib, F64_X16_Add_Unaligned)
 {
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(T& x) noexcept(true) -> void
+	F64 x[16]
 	{
-#if NOMINAX_COM_CLANG
-		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
-#else
-		__asm__ __volatile__("" : "+m,r"(x) :: "memory");
-#endif
-	}
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1
+	};
 
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(const T& x) noexcept(true) -> void
+	const F64 y[16]
 	{
-		__asm__ __volatile__("" : "r,m"(x) :: "memory");
-	}
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1
+	};
+
+	F64_X16_Add_Unaligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 + 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 + 1.3);
+	ASSERT_DOUBLE_EQ(x[2], 3.4 + -2.9);
+	ASSERT_DOUBLE_EQ(x[3], 1.1 + 0.1);
+	ASSERT_DOUBLE_EQ(x[4], 2.5 + 0.5);
+	ASSERT_DOUBLE_EQ(x[5], 0.3 + 1.3);
+	ASSERT_DOUBLE_EQ(x[6], 3.4 + -2.9);
+	ASSERT_DOUBLE_EQ(x[7], 1.1 + 0.1);
+	ASSERT_DOUBLE_EQ(x[8], 2.5 + 0.5);
+	ASSERT_DOUBLE_EQ(x[9], 0.3 + 1.3);
+	ASSERT_DOUBLE_EQ(x[10], 3.4 + -2.9);
+	ASSERT_DOUBLE_EQ(x[11], 1.1 + 0.1);
+	ASSERT_DOUBLE_EQ(x[12], 2.5 + 0.5);
+	ASSERT_DOUBLE_EQ(x[13], 0.3 + 1.3);
+	ASSERT_DOUBLE_EQ(x[14], 3.4 + -2.9);
+	ASSERT_DOUBLE_EQ(x[15], 1.1 + 0.1);
+}
+
+TEST(VectorLib, F64_X16_Add_Aligned)
+{
+	alignas(V512_ALIGN) F64 x[16]
+	{
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1
+	};
+
+	alignas(V512_ALIGN) const F64 y[16]
+	{
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1
+	};
+
+	F64_X16_Add_Aligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 + 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 + 1.3);
+	ASSERT_DOUBLE_EQ(x[2], 3.4 + -2.9);
+	ASSERT_DOUBLE_EQ(x[3], 1.1 + 0.1);
+	ASSERT_DOUBLE_EQ(x[4], 2.5 + 0.5);
+	ASSERT_DOUBLE_EQ(x[5], 0.3 + 1.3);
+	ASSERT_DOUBLE_EQ(x[6], 3.4 + -2.9);
+	ASSERT_DOUBLE_EQ(x[7], 1.1 + 0.1);
+	ASSERT_DOUBLE_EQ(x[8], 2.5 + 0.5);
+	ASSERT_DOUBLE_EQ(x[9], 0.3 + 1.3);
+	ASSERT_DOUBLE_EQ(x[10], 3.4 + -2.9);
+	ASSERT_DOUBLE_EQ(x[11], 1.1 + 0.1);
+	ASSERT_DOUBLE_EQ(x[12], 2.5 + 0.5);
+	ASSERT_DOUBLE_EQ(x[13], 0.3 + 1.3);
+	ASSERT_DOUBLE_EQ(x[14], 3.4 + -2.9);
+	ASSERT_DOUBLE_EQ(x[15], 1.1 + 0.1);
+}
+
+TEST(VectorLib, F64_X16_Sub_Unaligned)
+{
+	F64 x[16]
+	{
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1
+	};
+
+	const F64 y[16]
+	{
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1
+	};
+
+	F64_X16_Sub_Unaligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 - 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 - 1.3);
+	ASSERT_DOUBLE_EQ(x[2], 3.4 - -2.9);
+	ASSERT_DOUBLE_EQ(x[3], 1.1 - 0.1);
+	ASSERT_DOUBLE_EQ(x[4], 2.5 - 0.5);
+	ASSERT_DOUBLE_EQ(x[5], 0.3 - 1.3);
+	ASSERT_DOUBLE_EQ(x[6], 3.4 - -2.9);
+	ASSERT_DOUBLE_EQ(x[7], 1.1 - 0.1);
+	ASSERT_DOUBLE_EQ(x[8], 2.5 - 0.5);
+	ASSERT_DOUBLE_EQ(x[9], 0.3 - 1.3);
+	ASSERT_DOUBLE_EQ(x[10], 3.4 - -2.9);
+	ASSERT_DOUBLE_EQ(x[11], 1.1 - 0.1);
+	ASSERT_DOUBLE_EQ(x[12], 2.5 - 0.5);
+	ASSERT_DOUBLE_EQ(x[13], 0.3 - 1.3);
+	ASSERT_DOUBLE_EQ(x[14], 3.4 - -2.9);
+	ASSERT_DOUBLE_EQ(x[15], 1.1 - 0.1);
+}
+
+TEST(VectorLib, F64_X16_Sub_Aligned)
+{
+	alignas(V512_ALIGN) F64 x[16]
+	{
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1
+	};
+
+	alignas(V512_ALIGN) const F64 y[16]
+	{
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1
+	};
+
+	F64_X16_Sub_Aligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 - 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 - 1.3);
+	ASSERT_DOUBLE_EQ(x[2], 3.4 - -2.9);
+	ASSERT_DOUBLE_EQ(x[3], 1.1 - 0.1);
+	ASSERT_DOUBLE_EQ(x[4], 2.5 - 0.5);
+	ASSERT_DOUBLE_EQ(x[5], 0.3 - 1.3);
+	ASSERT_DOUBLE_EQ(x[6], 3.4 - -2.9);
+	ASSERT_DOUBLE_EQ(x[7], 1.1 - 0.1);
+	ASSERT_DOUBLE_EQ(x[8], 2.5 - 0.5);
+	ASSERT_DOUBLE_EQ(x[9], 0.3 - 1.3);
+	ASSERT_DOUBLE_EQ(x[10], 3.4 - -2.9);
+	ASSERT_DOUBLE_EQ(x[11], 1.1 - 0.1);
+	ASSERT_DOUBLE_EQ(x[12], 2.5 - 0.5);
+	ASSERT_DOUBLE_EQ(x[13], 0.3 - 1.3);
+	ASSERT_DOUBLE_EQ(x[14], 3.4 - -2.9);
+	ASSERT_DOUBLE_EQ(x[15], 1.1 - 0.1);
+}
+
+TEST(VectorLib, F64_X16_Mul_Unaligned)
+{
+	F64 x[16]
+	{
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1
+	};
+
+	const F64 y[16]
+	{
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1
+	};
+
+	F64_X16_Mul_Unaligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 * 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 * 1.3);
+	ASSERT_DOUBLE_EQ(x[2], 3.4 * -2.9);
+	ASSERT_DOUBLE_EQ(x[3], 1.1 * 0.1);
+	ASSERT_DOUBLE_EQ(x[4], 2.5 * 0.5);
+	ASSERT_DOUBLE_EQ(x[5], 0.3 * 1.3);
+	ASSERT_DOUBLE_EQ(x[6], 3.4 * -2.9);
+	ASSERT_DOUBLE_EQ(x[7], 1.1 * 0.1);
+	ASSERT_DOUBLE_EQ(x[8], 2.5 * 0.5);
+	ASSERT_DOUBLE_EQ(x[9], 0.3 * 1.3);
+	ASSERT_DOUBLE_EQ(x[10], 3.4 * -2.9);
+	ASSERT_DOUBLE_EQ(x[11], 1.1 * 0.1);
+	ASSERT_DOUBLE_EQ(x[12], 2.5 * 0.5);
+	ASSERT_DOUBLE_EQ(x[13], 0.3 * 1.3);
+	ASSERT_DOUBLE_EQ(x[14], 3.4 * -2.9);
+	ASSERT_DOUBLE_EQ(x[15], 1.1 * 0.1);
+}
+
+TEST(VectorLib, F64_X16_Mul_Aligned)
+{
+	alignas(V512_ALIGN) F64 x[16]
+	{
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1
+	};
+
+	alignas(V512_ALIGN) const F64 y[16]
+	{
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1
+	};
+
+	F64_X16_Mul_Aligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 * 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 * 1.3);
+	ASSERT_DOUBLE_EQ(x[2], 3.4 * -2.9);
+	ASSERT_DOUBLE_EQ(x[3], 1.1 * 0.1);
+	ASSERT_DOUBLE_EQ(x[4], 2.5 * 0.5);
+	ASSERT_DOUBLE_EQ(x[5], 0.3 * 1.3);
+	ASSERT_DOUBLE_EQ(x[6], 3.4 * -2.9);
+	ASSERT_DOUBLE_EQ(x[7], 1.1 * 0.1);
+	ASSERT_DOUBLE_EQ(x[8], 2.5 * 0.5);
+	ASSERT_DOUBLE_EQ(x[9], 0.3 * 1.3);
+	ASSERT_DOUBLE_EQ(x[10], 3.4 * -2.9);
+	ASSERT_DOUBLE_EQ(x[11], 1.1 * 0.1);
+	ASSERT_DOUBLE_EQ(x[12], 2.5 * 0.5);
+	ASSERT_DOUBLE_EQ(x[13], 0.3 * 1.3);
+	ASSERT_DOUBLE_EQ(x[14], 3.4 * -2.9);
+	ASSERT_DOUBLE_EQ(x[15], 1.1 * 0.1);
+}
+
+
+TEST(VectorLib, F64_X16_Div_Unaligned)
+{
+	F64 x[16]
+	{
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1
+	};
+
+	const F64 y[16]
+	{
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1
+	};
+
+	F64_X16_Div_Unaligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 / 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 / 1.3);
+	ASSERT_DOUBLE_EQ(x[2], 3.4 / -2.9);
+	ASSERT_DOUBLE_EQ(x[3], 1.1 / 0.1);
+	ASSERT_DOUBLE_EQ(x[4], 2.5 / 0.5);
+	ASSERT_DOUBLE_EQ(x[5], 0.3 / 1.3);
+	ASSERT_DOUBLE_EQ(x[6], 3.4 / -2.9);
+	ASSERT_DOUBLE_EQ(x[7], 1.1 / 0.1);
+	ASSERT_DOUBLE_EQ(x[8], 2.5 / 0.5);
+	ASSERT_DOUBLE_EQ(x[9], 0.3 / 1.3);
+	ASSERT_DOUBLE_EQ(x[10], 3.4 / -2.9);
+	ASSERT_DOUBLE_EQ(x[11], 1.1 / 0.1);
+	ASSERT_DOUBLE_EQ(x[12], 2.5 / 0.5);
+	ASSERT_DOUBLE_EQ(x[13], 0.3 / 1.3);
+	ASSERT_DOUBLE_EQ(x[14], 3.4 / -2.9);
+	ASSERT_DOUBLE_EQ(x[15], 1.1 / 0.1);
+}
+
+TEST(VectorLib, F64_X16_Div_Aligned)
+{
+	alignas(V512_ALIGN) F64 x[16]
+	{
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1,
+		2.5,
+		0.3,
+		3.4,
+		1.1
+	};
+
+	alignas(V512_ALIGN) const F64 y[16]
+	{
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1,
+		0.5,
+		1.3,
+		-2.9,
+		0.1
+	};
+
+	F64_X16_Div_Aligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 / 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 / 1.3);
+	ASSERT_DOUBLE_EQ(x[2], 3.4 / -2.9);
+	ASSERT_DOUBLE_EQ(x[3], 1.1 / 0.1);
+	ASSERT_DOUBLE_EQ(x[4], 2.5 / 0.5);
+	ASSERT_DOUBLE_EQ(x[5], 0.3 / 1.3);
+	ASSERT_DOUBLE_EQ(x[6], 3.4 / -2.9);
+	ASSERT_DOUBLE_EQ(x[7], 1.1 / 0.1);
+	ASSERT_DOUBLE_EQ(x[8], 2.5 / 0.5);
+	ASSERT_DOUBLE_EQ(x[9], 0.3 / 1.3);
+	ASSERT_DOUBLE_EQ(x[10], 3.4 / -2.9);
+	ASSERT_DOUBLE_EQ(x[11], 1.1 / 0.1);
+	ASSERT_DOUBLE_EQ(x[12], 2.5 / 0.5);
+	ASSERT_DOUBLE_EQ(x[13], 0.3 / 1.3);
+	ASSERT_DOUBLE_EQ(x[14], 3.4 / -2.9);
+	ASSERT_DOUBLE_EQ(x[15], 1.1 / 0.1);
 }

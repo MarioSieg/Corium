@@ -1,6 +1,6 @@
-// File: DisOpt.hpp
+// File: VF64X2U.hpp
 // Author: Mario
-// Created: 26.05.2021 4:03 AM
+// Created: 26.05.2021 8:30 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,35 +207,98 @@
 
 #pragma once
 
-#include "../System/Platform.hpp"
+#include "VBase.hpp"
 
-namespace Nominax::Common
+namespace Nominax::VectorLib
 {
 	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
+	/// Intrinsic vector code.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(T& x) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F64_X2_Add_Unaligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
 	{
-#if NOMINAX_COM_CLANG
-		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+		
+		__m128d x = _mm_loadu_pd(inout);
+		const __m128d y = _mm_loadu_pd(in);
+		x = _mm_add_pd(x, y);
+		_mm_storeu_pd(inout, x);
+		
 #else
-		__asm__ __volatile__("" : "+m,r"(x) :: "memory");
+
+		inout[0] += in[0];
+		inout[1] += in[1];
+
 #endif
 	}
 
 	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
+	/// Intrinsic vector code.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(const T& x) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F64_X2_Sub_Unaligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
 	{
-		__asm__ __volatile__("" : "r,m"(x) :: "memory");
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+		
+		__m128d x = _mm_loadu_pd(inout);
+		const __m128d y = _mm_loadu_pd(in);
+		x = _mm_sub_pd(x, y);
+		_mm_storeu_pd(inout, x);
+		
+#else
+		inout[0] + - in[0];
+		inout[1] -= in[1];
+
+#endif
+	}
+
+	/// <summary>
+	/// Intrinsic vector code.
+	/// </summary>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
+	/// <returns></returns>
+	__attribute__((always_inline)) inline auto F64_X2_Mul_Unaligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
+	{
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+		
+		__m128d x = _mm_loadu_pd(inout);
+		const __m128d y = _mm_loadu_pd(in);
+		x = _mm_mul_pd(x, y);
+		_mm_storeu_pd(inout, x);
+		
+#else
+
+		inout[0] *= in[0];
+		inout[1] *= in[1];
+
+#endif
+	}
+
+	/// <summary>
+	/// Intrinsic vector code.
+	/// </summary>
+	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
+	/// <param name="in">The second input parameter.</param>
+	/// <returns></returns>
+	__attribute__((always_inline)) inline auto F64_X2_Div_Unaligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
+	{
+#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
+		
+		__m128d x = _mm_loadu_pd(inout);
+		const __m128d y = _mm_loadu_pd(in);
+		x = _mm_div_pd(x, y);
+		_mm_storeu_pd(inout, x);
+		
+#else
+
+		inout[0] /= in[0];
+		inout[1] /= in[1];
+
+#endif
 	}
 }

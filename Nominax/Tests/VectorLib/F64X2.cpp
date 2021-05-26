@@ -1,6 +1,6 @@
-// File: DisOpt.hpp
+// File: F64X2.cpp
 // Author: Mario
-// Created: 26.05.2021 4:03 AM
+// Created: 26.05.2021 1:16 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,37 +205,156 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../TestBase.hpp"
 
-#include "../System/Platform.hpp"
-
-namespace Nominax::Common
+TEST(VectorLib, F64_X2_Add_Unaligned)
 {
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(T& x) noexcept(true) -> void
+	F64 x[2]
 	{
-#if NOMINAX_COM_CLANG
-		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
-#else
-		__asm__ __volatile__("" : "+m,r"(x) :: "memory");
-#endif
-	}
+		2.5,
+		0.3,
+	};
 
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(const T& x) noexcept(true) -> void
+	const F64 y[2]
 	{
-		__asm__ __volatile__("" : "r,m"(x) :: "memory");
-	}
+		0.5,
+		1.3,
+	};
+
+	F64_X2_Add_Unaligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 + 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 + 1.3);
+}
+
+TEST(VectorLib, F64_X2_Add_Aligned)
+{
+	alignas(V128_ALIGN) F64 x[2]
+	{
+		2.5,
+		0.3,
+	};
+
+	alignas(V128_ALIGN) const F64 y[2]
+	{
+		0.5,
+		1.3,
+	};
+
+	F64_X4_Add_Aligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 + 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 + 1.3);
+}
+
+TEST(VectorLib, F64_X2_Sub_Unaligned)
+{
+	F64 x[2]
+	{
+		2.5,
+		0.3,
+	};
+
+	const F64 y[2]
+	{
+		0.5,
+		1.3,
+	};
+
+	F64_X2_Sub_Unaligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 - 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 - 1.3);
+}
+
+TEST(VectorLib, F64_X2_Sub_Aligned)
+{
+	alignas(V128_ALIGN) F64 x[2]
+	{
+		2.5,
+		0.3,
+	};
+
+	alignas(V128_ALIGN) const F64 y[2]
+	{
+		0.5,
+		1.3,
+	};
+
+	F64_X4_Sub_Aligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 - 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 - 1.3);
+}
+
+TEST(VectorLib, F64_X2_Mul_Unaligned)
+{
+	F64 x[2]
+	{
+		2.5,
+		0.3,
+	};
+
+	const F64 y[2]
+	{
+		0.5,
+		1.3,
+	};
+
+	F64_X2_Mul_Unaligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 * 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 * 1.3);
+}
+
+TEST(VectorLib, F64_X2_Mul_Aligned)
+{
+	alignas(V128_ALIGN) F64 x[2]
+	{
+		2.5,
+		0.3,
+	};
+
+	alignas(V128_ALIGN) const F64 y[2]
+	{
+		0.5,
+		1.3,
+	};
+
+	F64_X2_Mul_Aligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 * 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 * 1.3);
+}
+
+TEST(VectorLib, F64_X2_Div_Unaligned)
+{
+	F64 x[2]
+	{
+		2.5,
+		0.3,
+	};
+
+	const F64 y[2]
+	{
+		0.5,
+		1.3,
+	};
+
+	F64_X2_Div_Unaligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 / 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 / 1.3);
+}
+
+TEST(VectorLib, F64_X2_Div_Aligned)
+{
+	alignas(V128_ALIGN) F64 x[2]
+	{
+		2.5,
+		0.3,
+	};
+
+	alignas(V128_ALIGN) const F64 y[2]
+	{
+		0.5,
+		1.3,
+	};
+
+	F64_X2_Div_Aligned(x, y);
+	ASSERT_DOUBLE_EQ(x[0], 2.5 / 0.5);
+	ASSERT_DOUBLE_EQ(x[1], 0.3 / 1.3);
 }
