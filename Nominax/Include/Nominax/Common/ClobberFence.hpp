@@ -218,7 +218,7 @@ namespace Nominax::Common
 	[[maybe_unused]]
 	__attribute__((always_inline)) inline auto ReadFence() noexcept(true) -> void
 	{
-		__asm__ __volatile__("":::"memory")
+		__asm__ __volatile__("" : : : "memory");
 	}
 
 	/// <summary>
@@ -228,7 +228,7 @@ namespace Nominax::Common
 	[[maybe_unused]]
 	__attribute__((always_inline)) inline auto WriteFence() noexcept(true) -> void
 	{
-		__asm__ __volatile__("":::"memory")
+		__asm__ __volatile__("" : : : "memory");
 	}
 
 	/// <summary>
@@ -238,7 +238,7 @@ namespace Nominax::Common
 	[[maybe_unused]]
 	__attribute__((always_inline)) inline auto ReadWriteFence() noexcept(true) -> void
 	{
-		__asm__ __volatile__("":::"memory")
+		__asm__ __volatile__("" : : : "memory");
 	}
 
 	// @formatter:on

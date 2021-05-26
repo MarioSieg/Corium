@@ -223,7 +223,7 @@ namespace Nominax::Common
 #if NOMINAX_COM_CLANG
 		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
 #else
-		__asm__ __volatile__("" : "+m,r"(x) :: "memory");
+		__asm__ __volatile__("" : "+m,r"(x) : : "memory");
 #endif
 	}
 
@@ -236,6 +236,6 @@ namespace Nominax::Common
 	template <typename T>
 	inline auto DisOpt(const T& x) noexcept(true) -> void
 	{
-		__asm__ __volatile__("" : "r,m"(x) :: "memory");
+		__asm__ __volatile__("" : "r,m"(x) : : "memory");
 	}
 }
