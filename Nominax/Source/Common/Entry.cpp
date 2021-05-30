@@ -209,13 +209,14 @@
 
 namespace Nominax::Common
 {
-	auto NominaxMain(const int argc, const char* const* const argv) noexcept(false) -> signed
+	auto NominaxMain(const signed argc, const char* const* const argv) noexcept(false) -> signed
 	{
 		{
 			CliArgParser argParser {argc, argv};
-			const auto   help {argParser.AddOption("-h", "print version info") || argParser.IsEmpty()};
-			const auto   isa {argParser.AddOption("-isa", "print virtual instruction set")};
-
+			const auto   help {argParser.AddOption("-h", "print help") || argParser.IsEmpty()};
+			const auto   isa {argParser.AddOption("-i", "print virtual instruction set")};
+			const auto	 ver {argParser.AddOption("-v", "print version")};
+			
 			if (help)
 			{
 				Print("Usage: \n");
@@ -223,15 +224,19 @@ namespace Nominax::Common
 			}
 			else if (isa)
 			{
-				Print("{: < 10} | {: < 8} | {: < 4} | {: < 4} | {: < 4}\n\n", "Mnemonic", "OpCode", "Imm", "Push", "Pop");
+				Print("{: < 10} |  {: < 8}| {: < 3} | {: < 3} | {: < 3} |\n\n", "Mnemonic", "OpCode", "Imm", "Psh", "Pop");
 				for (U64 i {0}; i < static_cast<U64>(ByteCode::Instruction::Count); ++i)
 				{
 					const auto& mnemonic {ByteCode::INSTRUCTION_MNEMONICS[i]};
 					const auto  immCount {ByteCode::INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[i].size()};
 					const auto  pushCount {ByteCode::INSTRUCTION_PUSH_COUNTS[i]};
 					const auto  popCount {ByteCode::INSTRUCTION_POP_COUNTS[i]};
-					Print("{: < 10} |   {:#04X}   | {: < 4} | {: < 4} | {: < 4}\n", mnemonic, i, immCount, pushCount, popCount);
+					Print("{: < 10} |   {:#04x}   | {: < 3} | {: < 3} | {: < 3} |\n", mnemonic, i, immCount, pushCount, popCount);
 				}
+			}
+			else if(ver)
+			{
+				Core::PrintSystemInfo();
 			}
 		}
 

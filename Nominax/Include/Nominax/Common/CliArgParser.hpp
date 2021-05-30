@@ -207,27 +207,105 @@
 
 #pragma once
 
-#include <tuple>
 #include <unordered_set>
 
 namespace Nominax::Common
 {
+	/// <summary>
+	/// Helper to parse command line interface arguments.
+	/// </summary>
 	class CliArgParser final
 	{
 		std::unordered_set<std::string_view>                       Args_ { };
 		std::vector<std::pair<std::string_view, std::string_view>> Options_ { };
 
-	public:
+	public:		
+		/// <summary>
+		/// Construct with argc and argv from
+		/// the entry point.
+		/// </summary>
+		/// <param name="argc"></param>
+		/// <param name="argv"></param>
+		/// <returns></returns>
 		CliArgParser(signed argc, const char* const* argv) noexcept(false);
-		CliArgParser(const CliArgParser&)                               = delete;
-		CliArgParser(CliArgParser&&) noexcept(true)                     = default;
-		auto operator =(const CliArgParser&) -> CliArgParser&           = delete;
-		auto operator =(CliArgParser&&) noexcept(true) -> CliArgParser& = default;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		CliArgParser(const CliArgParser& other)                               = delete;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		CliArgParser(CliArgParser&& other) noexcept(true)                     = default;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const CliArgParser& other) -> CliArgParser&           = delete;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(CliArgParser&& other) noexcept(true) -> CliArgParser& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
 		~CliArgParser()                                                 = default;
 
+		/// <summary>
+		/// Returns true if the command line flag is set,
+		/// else false.
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		[[nodiscard]]
 		auto HasFlag(std::string_view key) noexcept(true) -> bool;
+
+		/// <summary>
+		/// Adds a command line option with description and returns true
+		/// if the flag is set, else false.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="description"></param>
+		/// <returns></returns>
+		[[nodiscard]]
 		auto AddOption(std::string_view name, std::string_view description = "") noexcept(false) -> bool;
+
+		/// <summary>
+		/// Prints all the added options with description.
+		/// </summary>
+		/// <returns></returns>
 		auto PrintAllOptions() noexcept(false) -> void;
+
+		/// <summary>
+		/// Returns true if the argument count is less or equal to one,
+		/// because one is the self path, else false.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
 		auto IsEmpty() const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Returns argument set.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetArgs() const noexcept(true) -> const std::unordered_set<std::string_view>&;
+
+		/// <summary>
+		/// Returns all added options.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetOptions() const noexcept(true) -> const std::vector<std::pair<std::string_view, std::string_view>>&;
 	};
 }

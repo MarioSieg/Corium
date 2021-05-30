@@ -235,6 +235,16 @@ namespace Nominax::Common
 		return this->Args_.size() <= 1;
 	}
 
+	auto CliArgParser::GetArgs() const noexcept(true) -> const std::unordered_set<std::string_view>&
+	{
+		return this->Args_;
+	}
+
+	auto CliArgParser::GetOptions() const noexcept(true) -> const std::vector<std::pair<std::string_view, std::string_view>>&
+	{
+		return this->Options_;
+	}
+
 	auto CliArgParser::HasFlag(const std::string_view key) noexcept(true) -> bool
 	{
 		return std::ranges::find(this->Args_, key) != this->Args_.end();

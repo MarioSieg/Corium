@@ -281,7 +281,7 @@ namespace Nominax::Core
 	/// Print Nominax runtime info.
 	/// </summary>
 	/// <returns></returns>
-	static auto PrintSystemInfo() -> void
+	auto PrintSystemInfo() -> void
 	{
 		Print(SYSTEM_LOGO_TEXT);
 		Print(SYSTEM_COPYRIGHT_TEXT);
@@ -452,7 +452,7 @@ namespace Nominax::Core
 	/// <param name="size"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	static inline auto QueryMemoryResourceUsage
+	static auto QueryMemoryResourceUsage
 	(
 		std::pmr::monotonic_buffer_resource& resource,
 		const std::unique_ptr<U8[]>&         buffer,
