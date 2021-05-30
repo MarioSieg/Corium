@@ -279,11 +279,17 @@ namespace Nominax::ByteCode
 		"fneg",
 		"finc",
 		"fdec",
-		"vpush",
-		"vpop",
-		"vadd",
-		"vsub",
-		"vmul",
-		"vdiv"
+		"vecpush",
+		"vecpop",
+		"vecadd",
+		"vecsub",
+		"vecmul",
+		"vecdiv",
+		"matpush",
+		"matpop",
+		"matadd",
+		"matsub",
+		"matmul",
+		"matdiv"
 	};
 }

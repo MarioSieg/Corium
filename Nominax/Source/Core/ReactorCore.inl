@@ -226,6 +226,7 @@
 #include "../../Include/Nominax/ByteCode/Signal.hpp"
 
 #include "../../Include/Nominax/VectorLib/VF64X4U.hpp"
+#include "../../Include/Nominax/VectorLib/VF64X16U.hpp"
 
 namespace Nominax::Core
 {
@@ -241,6 +242,11 @@ namespace Nominax::Core
 	using VectorLib::F64_X4_Sub_Unaligned;
 	using VectorLib::F64_X4_Mul_Unaligned;
 	using VectorLib::F64_X4_Div_Unaligned;
+	using VectorLib::F64_X16_Add_Unaligned;
+	using VectorLib::F64_X16_Sub_Unaligned;
+	using VectorLib::F64_X16_Mul_Unaligned;
+	using VectorLib::F64_X16_Div_Unaligned;
+
 
 	using ByteCode::SystemIntrinsicCallID;
 	using ByteCode::Instruction;
@@ -668,12 +674,18 @@ namespace Nominax::Core
 			&& __fneg__,
 			&& __finc__,
 			&& __fdec__,
-			&& __vpush__,
-			&& __vpop__,
-			&& __vadd__,
-			&& __vsub__,
-			&& __vmul__,
-			&& __vdiv__
+			&& __vecpush__,
+			&& __vecpop__,
+			&& __vecadd__,
+			&& __vecsub__,
+			&& __vecmul__,
+			&& __vecdiv__,
+			&& __matpush__,
+			&& __matpop__,
+			&& __matadd__,
+			&& __matsub__,
+			&& __matmul__,
+			&& __matdiv__,
 		};
 
 		static_assert(ValidateJumpTable(JUMP_TABLE, sizeof JUMP_TABLE / sizeof *JUMP_TABLE));
@@ -1502,9 +1514,9 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__vpush__:
+	__vecpush__:
 		__attribute__((hot));
-		ASM_MARKER("__vpush__");
+		ASM_MARKER("__vecpush__");
 
 		/*
 			SSE:
@@ -1526,18 +1538,18 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__vpop__:
+	__vecpop__:
 		__attribute__((hot));
-		ASM_MARKER("__vpop__");
+		ASM_MARKER("__vecpop__");
 
 		sp -= 4;
 
 		goto
 		JMP_PTR();
 
-	__vadd__:
+	__vecadd__:
 		__attribute__((hot));
-		ASM_MARKER("__vadd__");
+		ASM_MARKER("__vecadd__");
 
 		F64_X4_Add_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 		sp -= 4;
@@ -1546,9 +1558,9 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__vsub__:
+	__vecsub__:
 		__attribute__((hot));
-		ASM_MARKER("__vsub__");
+		ASM_MARKER("__vecsub__");
 
 		F64_X4_Sub_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 
@@ -1558,9 +1570,9 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__vmul__:
+	__vecmul__:
 		__attribute__((hot));
-		ASM_MARKER("__vmul__");
+		ASM_MARKER("__vecmul__");
 
 		F64_X4_Mul_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 
@@ -1570,13 +1582,110 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__vdiv__:
+	__vecdiv__:
 		__attribute__((hot));
-		ASM_MARKER("__vdiv__");
+		ASM_MARKER("__vecdiv__");
 
 		F64_X4_Div_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 
 		sp -= 4;
+
+		goto
+		JMP_PTR();
+
+	__matpush__:
+		__attribute__((hot));
+		ASM_MARKER("__matpush__");
+
+		/*
+			SSE:
+				movups 0x78(%rdi), %xmm0
+				movups %xmm0, 0x78(%rbx)
+				movups 0x68(%rdi), %xmm0
+				movups %xmm0, 0x68(%rbx)
+				movups 0x58(%rdi), %xmm0
+				movups %xmm0, 0x58(%rbx)
+				movups 0x48(%rdi), %xmm0
+				movups %xmm0, 0x48(%rbx)
+				movupd 0x8(%rdi), %xmm0
+				movupd 0x18(%rdi), %xmm1
+				movupd 0x28(%rdi), %xmm2
+				movups 0x38(%rdi), %xmm3
+				movups %xmm3, 0x38(%rbx)
+				movupd %xmm2, 0x28(%rbx)
+				movupd %xmm1, 0x18(%rbx)
+				movupd %xmm0, 0x8(%rbx)
+
+			AVX:
+				vmovupd 0x8(%rdi), %ymm0
+				vmovups 0x28(%rdi), %ymm1
+				vmovups 0x48(%rdi), %ymm2
+				vmovups 0x68(%rdi), %ymm3
+				vmovups %ymm3, 0x68(%rbx)
+				vmovups %ymm2, 0x48(%rbx)
+				vmovups %ymm1, 0x28(%rbx)
+				vmovupd %ymm0, 0x8(%rbx)
+
+			AVX512F:
+				vmovupd 0x8(%rdi), %zmm0
+				vmovups 0x48(%rdi), %zmm1
+				vmovups %zmm1, 0x48(%rbx)
+				vmovupd %zmm0, 0x8(%rbx)
+		 */
+		std::memcpy(sp + 1, ip + 1, sizeof(Record) * 16);
+
+		sp += 16;
+		ip += 16;
+
+		goto
+		JMP_PTR();
+
+
+	__matpop__:
+		__attribute__((hot));
+		ASM_MARKER("__matpop__");
+
+		sp -= 16;
+
+		goto
+		JMP_PTR();
+
+	__matadd__:
+		__attribute__((hot));
+		ASM_MARKER("__matadd__");
+
+		F64_X16_Add_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
+		sp -= 16;
+
+		goto
+		JMP_PTR();
+
+	__matsub__:
+		__attribute__((hot));
+		ASM_MARKER("__matsub__");
+
+		F64_X16_Sub_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
+		sp -= 16;
+
+		goto
+		JMP_PTR();
+
+	__matmul__:
+		__attribute__((hot));
+		ASM_MARKER("__matmul__");
+
+		F64_X16_Mul_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
+		sp -= 16;
+
+		goto
+		JMP_PTR();
+
+	__matdiv__:
+		__attribute__((hot));
+		ASM_MARKER("__matdiv__");
+
+		F64_X16_Div_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
+		sp -= 16;
 
 		goto
 		JMP_PTR();

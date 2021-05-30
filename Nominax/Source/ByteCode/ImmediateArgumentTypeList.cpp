@@ -295,6 +295,30 @@ namespace Nominax::ByteCode
 		{ }, // vadd
 		{ }, // vsub
 		{ }, // vmul
-		{ }  // vdiv
+		{ },  // vdiv
+		{
+			// matpush
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+		},
+		{ }, // matpop
+		{ }, // matadd
+		{ }, // matsub
+		{ }, // matmul
+		{ }  // matdiv
 	};
 }
