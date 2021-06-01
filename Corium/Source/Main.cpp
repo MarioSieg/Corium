@@ -205,10 +205,24 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <iostream>
+#include <Nominax/Nominax.hpp>
+
+using namespace Nominax::Common;
 
 auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
 {
-	std::cout << "Hello corium!\n";
+	const char* const path{ "../../../Corium/Docs/Arithmetic.cor" };
+
+	TextFile file{};
+	if (const auto ok{ file.ReadFromFile(path) }; !ok)
+	{
+		Print("Failed to read source file: {}", path);
+		return -1;
+	}
+	Print("Source File: \"{}\":\n", file.GetFilePath().string());
+	file.EraseSpacesAndControlChars();
+	Print("{}\n", file.GetContentText());
+	Print("{}\n", file.SubStringChar('#', '#'));
+	
 	return 0;
 }

@@ -209,13 +209,14 @@
 
 #include "../System/MacroCfg.hpp"
 #include "BaseTypes.hpp"
+#include "F64Comparator.hpp"
 
 namespace Nominax::Common
 {
 	__attribute__((always_inline, pure)) inline auto Proxy_F64IsZero(const F64 x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Common::F64IsZero(x);
+		return F64IsZero(x);
 #else
 		return x == 0.0;
 #endif
@@ -224,7 +225,7 @@ namespace Nominax::Common
 	__attribute__((always_inline, pure)) inline auto Proxy_F64IsOne(const F64 x) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Common::F64IsOne(x);
+		return F64IsOne(x);
 #else
 		return x == 1.0;
 #endif
@@ -233,7 +234,7 @@ namespace Nominax::Common
 	__attribute__((always_inline, pure)) inline auto Proxy_F64Equals(const F64 x, const F64 y) noexcept(true) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Common::F64Equals(x, y);
+		return F64Equals(x, y);
 #else
 		return x == y;
 #endif

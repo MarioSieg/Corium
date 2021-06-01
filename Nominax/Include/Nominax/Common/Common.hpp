@@ -230,5 +230,6 @@
 #include "SafeLocalTime.hpp"
 #include "Signal.hpp"
 #include "Stopwatch.hpp"
+#include "TextFile.hpp"
 #include "XorshiftAtomic.hpp"
 #include "XorshiftThreadLocal.hpp"
