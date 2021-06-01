@@ -229,3 +229,5 @@
 #include "ReactorValidationResult.hpp"
 #include "Record.hpp"
 #include "RegisterDump.hpp"
+#include "TaskQueue.hpp"
+#include "TaskScheduler.hpp"

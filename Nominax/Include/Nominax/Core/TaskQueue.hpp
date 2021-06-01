@@ -1,6 +1,6 @@
-// File: Main.cpp
+// File: TaskQueue.hpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 01.06.2021 10:17 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,24 +205,171 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <Nominax/Nominax.hpp>
+#pragma once
 
-using namespace Nominax::Common;
+#include <functional>
+#include <thread>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <memory_resource>
 
-auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
+namespace Nominax::Core
 {
-	const char* const path{ "../../../Corium/Docs/Arithmetic.cor" };
+	/// <summary>
+	/// Task routine function.
+	/// </summary>
+	using TaskRoutine = std::function<auto() -> void>;
 
-	TextFile file{};
-	if (const auto ok{ file.ReadFromFile(path) }; !ok)
+	/// <summary>
+	/// Represents a queue of task which are executed on a worker threads.
+	/// </summary>
+	class [[nodiscard]] TaskQueueThread final
 	{
-		Print("Failed to read source file: {}", path);
-		return -1;
+		/// <summary>
+		/// Is the thread currently disposing?!
+		/// </summary>
+		bool Disposing_{ false };
+		
+		/// <summary>
+		/// Job queue.
+		/// </summary>
+		std::queue<TaskRoutine, std::pmr::deque<TaskRoutine>> TaskQueue_{};
+
+		/// <summary>
+		/// Mutex for the queue.
+		/// </summary>
+		std::mutex QueueMutex_{};
+
+		/// <summary>
+		/// Condition notifier.
+		/// </summary>
+		std::condition_variable SharedCondition_{};
+
+		/// <summary>
+		/// Worker thread.
+		/// </summary>
+		std::thread Worker_;
+
+		/// <summary>
+		/// Loop for the thread,
+		/// executes all jobs in the queue.
+		/// </summary>
+		/// <returns></returns>
+		auto DispatchJobQueue() noexcept(false) -> void;
+
+	public:
+		/// <summary>
+		/// Construct and launch background thread on queue.
+		/// </summary>
+		/// <returns></returns>
+		TaskQueueThread() noexcept(false);
+
+		/// <summary>
+		/// Construct and launch background thread on queue.
+		/// </summary>
+		/// <param name="allocator">The memory resource to use.</param>
+		/// <returns></returns>
+		explicit TaskQueueThread(std::pmr::memory_resource& allocator) noexcept(false);
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		TaskQueueThread(const TaskQueueThread&) = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		TaskQueueThread(TaskQueueThread&&) = delete;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <returns></returns>
+		auto operator=(const TaskQueueThread&)->TaskQueueThread & = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		/// <returns></returns>
+		auto operator=(TaskQueueThread&&)->TaskQueueThread & = delete;
+
+		/// <summary>
+		/// Destroy and join thread.
+		/// </summary>
+		~TaskQueueThread();
+
+		/// <summary>
+		/// Wait until all tasks are done.
+		/// </summary>
+		/// <returns></returns>
+		auto Join() noexcept(false) -> void;
+
+		/// <summary>
+		/// Enqueue a task into the queue.
+		/// </summary>
+		/// <param name="target">The task routine to execute.</param>
+		/// <returns></returns>
+		auto Enqueue(TaskRoutine&& target) noexcept(false) -> void;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if the task queue is disposing the resources and the thread.</returns>
+		[[nodiscard]]
+		auto IsDisposing() const noexcept(true) -> bool;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The task queue.</returns>
+		[[nodiscard]]
+		auto GetTaskQueue() const noexcept(true) -> const std::queue<TaskRoutine, std::pmr::deque<TaskRoutine>>&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The worker thread used to do all the work.</returns>
+		[[nodiscard]]
+		auto GetWorkerThread() const noexcept(true) -> const std::thread&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The remaining amount of tasks in the queue.</returns>
+		[[nodiscard]]
+		auto GetRemainingTaskCount() const noexcept(true) -> std::size_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if task queue is currently empty, else false.</returns>
+		[[nodiscard]]
+		auto IsEmpty() const noexcept(true) -> bool;
+	};
+
+	inline auto TaskQueueThread::IsDisposing() const noexcept(true) -> bool
+	{
+		return this->Disposing_;
 	}
-	Print("Source File: \"{}\":\n", file.GetFilePath().string());
-	file.EraseSpacesAndControlChars();
-	Print("{}\n", file.GetContentText());
-	Print("{}\n", file.SubStringChar('#', '#'));
-	
-	return 0;
+
+	inline auto TaskQueueThread::GetTaskQueue() const noexcept(true) -> const std::queue<TaskRoutine, std::pmr::deque<TaskRoutine>>&
+	{
+		return this->TaskQueue_;
+	}
+
+	inline auto TaskQueueThread::GetWorkerThread() const noexcept(true) -> const std::thread&
+	{
+		return this->Worker_;
+	}
+
+	inline auto TaskQueueThread::GetRemainingTaskCount() const noexcept(true) -> std::size_t
+	{
+		return this->TaskQueue_.size();
+	}
+
+	inline auto TaskQueueThread::IsEmpty() const noexcept(true) -> bool
+	{
+		return this->TaskQueue_.empty();
+	}
 }

@@ -1,6 +1,6 @@
-// File: Main.cpp
+// File: TaskQueue.cpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 01.06.2021 10:17 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,24 +205,78 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <Nominax/Nominax.hpp>
+#include "../../Include/Nominax/Core/TaskQueue.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
 
-using namespace Nominax::Common;
-
-auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
+namespace Nominax::Core
 {
-	const char* const path{ "../../../Corium/Docs/Arithmetic.cor" };
-
-	TextFile file{};
-	if (const auto ok{ file.ReadFromFile(path) }; !ok)
+	auto TaskQueueThread::DispatchJobQueue() noexcept(false) -> void
 	{
-		Print("Failed to read source file: {}", path);
-		return -1;
+		for (;;)
+		{
+			TaskRoutine routine;
+			{
+				std::unique_lock lock{ this->QueueMutex_ };
+				this->SharedCondition_.wait(lock, [this]
+				{
+					return
+						!this->TaskQueue_.empty()
+						|| this->Disposing_;
+				});
+				if (this->Disposing_)
+				{
+					break;
+				}
+				routine = this->TaskQueue_.front();
+			}
+			std::invoke(routine);
+			{
+				std::lock_guard lock{ this->QueueMutex_ };
+				this->TaskQueue_.pop();
+				this->SharedCondition_.notify_one();
+			}
+		}
 	}
-	Print("Source File: \"{}\":\n", file.GetFilePath().string());
-	file.EraseSpacesAndControlChars();
-	Print("{}\n", file.GetContentText());
-	Print("{}\n", file.SubStringChar('#', '#'));
-	
-	return 0;
+
+	TaskQueueThread::TaskQueueThread()
+	{
+		this->Worker_ = std::thread(&TaskQueueThread::DispatchJobQueue, this);
+	}
+
+	TaskQueueThread::TaskQueueThread(std::pmr::memory_resource& allocator) noexcept(false) : TaskQueue_{&allocator}
+	{
+		this->Worker_ = std::thread(&TaskQueueThread::DispatchJobQueue, this);
+	}
+
+	TaskQueueThread::~TaskQueueThread()
+	{
+		if (NOMINAX_UNLIKELY(!this->Worker_.joinable()))
+		{
+			return;
+		}
+
+		this->Join();
+		this->QueueMutex_.lock();
+		this->Disposing_ = true;
+		this->SharedCondition_.notify_one();
+		this->QueueMutex_.unlock();
+		this->Worker_.join();
+	}
+
+	auto TaskQueueThread::Join() noexcept(false) -> void
+	{
+		std::unique_lock lock{ this->QueueMutex_ };
+		this->SharedCondition_.wait(lock, [this]
+		{
+			return this->TaskQueue_.empty();
+		});
+	}
+
+	auto TaskQueueThread::Enqueue(TaskRoutine&& target) noexcept(false) -> void
+	{
+		std::lock_guard lock{ this->QueueMutex_ };
+		this->TaskQueue_.push(std::move(target));
+		this->SharedCondition_.notify_one();
+	}
+
 }

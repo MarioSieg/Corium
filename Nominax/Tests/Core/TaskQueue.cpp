@@ -1,6 +1,6 @@
-// File: Main.cpp
+// File: TaskQueue.cpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 01.06.2021 10:16 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,24 +205,51 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <Nominax/Nominax.hpp>
+#include "../TestBase.hpp"
 
-using namespace Nominax::Common;
-
-auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
+TEST(TaskQueue, Construct)
 {
-	const char* const path{ "../../../Corium/Docs/Arithmetic.cor" };
+	TaskQueueThread queue{};
+	ASSERT_FALSE(queue.IsDisposing());
+	ASSERT_TRUE(queue.IsEmpty());
+	ASSERT_TRUE(queue.GetWorkerThread().joinable());
+}
 
-	TextFile file{};
-	if (const auto ok{ file.ReadFromFile(path) }; !ok)
+TEST(TaskQueue, Enqueue)
+{
+	TaskQueueThread queue{};
+	std::atomic_int x{ 0 };
+
+	queue.Enqueue([&x]
 	{
-		Print("Failed to read source file: {}", path);
-		return -1;
-	}
-	Print("Source File: \"{}\":\n", file.GetFilePath().string());
-	file.EraseSpacesAndControlChars();
-	Print("{}\n", file.GetContentText());
-	Print("{}\n", file.SubStringChar('#', '#'));
-	
-	return 0;
+		++x;
+	});
+	queue.Enqueue([&x]
+	{
+		++x;
+	});
+	queue.Enqueue([&x]
+	{
+		++x;
+	});
+
+	queue.Join();
+	ASSERT_EQ(x, 3);
+	ASSERT_TRUE(queue.IsEmpty());
+}
+
+TEST(TaskQueue, EnqueueSleep)
+{
+	TaskQueueThread queue{};
+	std::atomic_int x{ 0 };
+
+	queue.Enqueue([&x]
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds{ 500 });
+		++x;
+	});
+
+	queue.Join();
+	ASSERT_EQ(x, 1);
+	ASSERT_TRUE(queue.IsEmpty());
 }
