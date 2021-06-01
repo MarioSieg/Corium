@@ -220,7 +220,7 @@ auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const
 		return -1;
 	}
 	Print("Source File: \"{}\":\n", file.GetFilePath().string());
-	file.EraseSpacesAndControlChars();
+	file.EraseControlChars();
 	Print("{}\n", file.GetContentText());
 	Print("{}\n", file.SubStringChar('#', '#'));
 	

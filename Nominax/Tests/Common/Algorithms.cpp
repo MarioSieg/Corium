@@ -339,3 +339,27 @@ TEST(Algorithms, IsPow2)
 	ASSERT_TRUE(IsPowerOfTwo(256));
 	ASSERT_TRUE(IsPowerOfTwo(512));
 }
+
+TEST(Algorithms, BitRotLeft32)
+{
+	ASSERT_EQ(Rol32(2, 4), std::rotl<U32>(2, 4));
+	ASSERT_EQ(Rol32(1234567, 22), std::rotl<U32>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotLeft64)
+{
+	ASSERT_EQ(Rol64(2, 4), std::rotl<U64>(2, 4));
+	ASSERT_EQ(Rol64(1234567, 22), std::rotl<U64>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotRight32)
+{
+	ASSERT_EQ(Ror32(2, 4), std::rotr<U32>(2, 4));
+	ASSERT_EQ(Ror32(1234567, 22), std::rotr<U32>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotRight64)
+{
+	ASSERT_EQ(Ror64(2, 4), std::rotr<U64>(2, 4));
+	ASSERT_EQ(Ror64(1234567, 22), std::rotr<U64>(1234567, 22));
+}

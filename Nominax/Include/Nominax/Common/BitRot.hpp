@@ -213,7 +213,55 @@
 #include "BaseTypes.hpp"
 
 namespace Nominax::Common
-{
+{	
+	/// <summary>
+	/// Fast, platform dependent implementation for a bitwise left rotation.
+	/// </summary>
+	[[nodiscard]] __attribute__((always_inline, pure)) inline auto Rol32
+	(
+		U32      value,
+		const U8 shift
+	) noexcept(true) -> U32
+	{
+#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
+		return _rotl(value, shift);
+#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
+		__asm__ __volatile__
+		(
+			"roll %%cl, %0"
+			: "=r"(value)
+			: "0" (value), "c"(shift)
+		);
+		return value;
+#else
+		return std::rotl<decltype(value)>(value, shift);
+#endif
+	}
+
+	/// <summary>
+	/// Fast, platform dependent implementation for a bitwise right rotation.
+	/// </summary>
+	[[nodiscard]] __attribute__((always_inline, pure)) inline auto Ror32
+	(
+		U32      value,
+		const U8 shift
+	) noexcept(true) -> U32
+	{
+#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
+		return _rotr(value, shift);
+#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
+		__asm__ __volatile__
+		(
+			"rorl %%cl, %0"
+			: "=r"(value)
+			: "0" (value), "c"(shift)
+		);
+		return value;
+#else
+		return std::rotr<decltype(value)>(value, shift);
+#endif
+	}
+	
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
