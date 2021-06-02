@@ -654,7 +654,7 @@ namespace Nominax::Core
 		);
 	}
 
-	auto Environment::Execute(Stream&& appCode) noexcept(false) -> const ReactorOutput&
+	auto Environment::Execute(Stream&& appCode) noexcept(false) -> const ReactorState&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 

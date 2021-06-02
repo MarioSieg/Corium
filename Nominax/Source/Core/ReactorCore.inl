@@ -210,8 +210,8 @@
 
 #include "ReactorCores.hpp"
 
-#include "../../Include/Nominax/Core/DetailedReactorDescriptor.hpp"
-#include "../../Include/Nominax/Core/ReactorOutput.hpp"
+#include "../../Include/Nominax/Core/VerboseReactorDescriptor.hpp"
+#include "../../Include/Nominax/Core/ReactorState.hpp"
 #include "../../Include/Nominax/Core/Interrupt.hpp"
 #include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 
@@ -607,7 +607,7 @@ namespace Nominax::Core
 		return;
 	}
 
-	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void
+	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor& input, ReactorState& output) noexcept(true) -> void
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 

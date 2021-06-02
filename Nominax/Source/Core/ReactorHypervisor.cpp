@@ -291,7 +291,7 @@ namespace Nominax::Core
 		return std::make_tuple(specialization, routine);
 	}
 
-	auto ExecuteOnce(const DetailedReactorDescriptor& input, ReactorOutput& output, const System::CpuFeatureDetector& target) noexcept(true) -> void
+	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target) noexcept(true) -> void
 	{
 		std::get<1>(GetOptimalReactorRoutine(target))(input, output);
 	}

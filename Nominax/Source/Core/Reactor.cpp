@@ -222,7 +222,7 @@ namespace Nominax::Core
 		ByteCode::JumpMap&                      jumpMap,
 		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
 		InterruptRoutine&                       interruptHandler
-	) noexcept(true) -> DetailedReactorDescriptor
+	) noexcept(true) -> VerboseReactorDescriptor
 	{
 		const std::span instrMapTableView
 		{
@@ -287,7 +287,7 @@ namespace Nominax::Core
 		);
 	}
 
-	auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
+	auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorState&
 	{
 		this->AppCode_ = std::move(bundle);
 		this->Input_   = CreateDescriptor
@@ -308,10 +308,10 @@ namespace Nominax::Core
 		return this->Output_;
 	}
 
-	auto ExecuteOnce(const DetailedReactorDescriptor& input, const System::CpuFeatureDetector& target) noexcept(true) -> ReactorOutput
+	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target) noexcept(true) -> ReactorState
 	{
-		ReactorOutput output {.Input = &input};
-		ExecuteOnce(input, output, target);
+		ReactorState output {.Input = &input};
+		SingletonExecutionProxy(input, output, target);
 		return output;
 	}
 }

@@ -218,13 +218,13 @@ namespace Nominax
 
 	namespace Core
 	{
-		struct ReactorOutput;
-		struct DetailedReactorDescriptor;
+		struct ReactorState;
+		struct VerboseReactorDescriptor;
 
 		/// <summary>
 		/// Signature of the reactor core execution routine.
 		/// </summary>
-		using ReactorCoreExecutionRoutine = auto(const DetailedReactorDescriptor&, ReactorOutput&) -> void;
+		using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor&, ReactorState&) -> void;
 
 		/// <summary>
 		/// Contains a reactor execution routine and info.
@@ -283,6 +283,6 @@ namespace Nominax
 		/// <param name="input"></param>
 		/// <param name="output"></param>
 		/// <returns></returns>
-		extern auto ExecuteOnce(const DetailedReactorDescriptor& input, ReactorOutput& output, const System::CpuFeatureDetector& target) noexcept(true) -> void;
+		extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target) noexcept(true) -> void;
 	}
 }

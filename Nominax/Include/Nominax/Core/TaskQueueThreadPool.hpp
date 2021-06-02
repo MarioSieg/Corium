@@ -1,6 +1,6 @@
-// File: DetailedReactorDescriptor.cpp
+// File: TaskQueue.hpp
 // Author: Mario
-// Created: 25.04.2021 3:03 PM
+// Created: 02.06.2021 4:09 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,67 +205,345 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Core/DetailedReactorDescriptor.hpp"
-#include "../../Include/Nominax/System/MacroCfg.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#pragma once
+
+#include "TaskQueue.hpp"
 
 namespace Nominax::Core
 {
-	auto DetailedReactorDescriptor::Validate() const noexcept(true) -> ReactorValidationResult
+	/// <summary>
+	/// Contains a pool of scheduler queues.
+	/// </summary>
+	class TaskQueueThreadPool final
 	{
-		// validate all pointers:
-		if (NOMINAX_UNLIKELY(!this->CodeChunk || !this->InterruptHandler || !this->Stack))
-		{
-			return ReactorValidationResult::NullPtr;
-		}
+		std::pmr::monotonic_buffer_resource* Allocator_{ nullptr };
+		
+	public:
+		/// <summary>
+		/// Data types used to store.
+		/// </summary>
+		using StorageType = std::pmr::vector<std::unique_ptr<TaskQueueThread>>;
+		
+		/// <summary>
+		/// The list of task queue threads.
+		/// </summary>
+		StorageType Threads{};
 
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+		/// <summary>
+		/// Default constructor.
+		/// </summary>
+		/// <returns></returns>
+		TaskQueueThreadPool() noexcept(true) = default;
 
-		if (NOMINAX_UNLIKELY(!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize)))
-		{
-			return ReactorValidationResult::NullPtr;
-		}
+		/// <summary>
+		/// Construct and start n threads.
+		/// </summary>
+		/// <param name="threadCount"></param>
+		/// <returns></returns>
+		explicit TaskQueueThreadPool(std::size_t threadCount) noexcept(false);
 
-#endif
+		/// <summary>
+		/// Construct empty with allocator.
+		/// </summary>
+		/// <param name="allocator"></param>
+		/// <returns></returns>
+		explicit TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator) noexcept(true);
 
-		// validate the size for the corresponding pointers:
-		if (NOMINAX_UNLIKELY(!this->CodeChunkSize || !this->StackSize))
-		{
-			return ReactorValidationResult::ZeroSize;
-		}
+		/// <summary>
+		/// Construct with allocator and launch threads.
+		/// </summary>
+		/// <param name="allocator"></param>
+		/// <param name="threadCount"></param>
+		/// <returns></returns>
+		TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator, std::size_t threadCount) noexcept(false);
 
-		// first instruction will be skipped and must be NOP:
-		if (NOMINAX_UNLIKELY(CodeChunk->Instr != ByteCode::Instruction::NOp))
-		{
-			return ReactorValidationResult::MissingCodePrologue;
-		}
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		TaskQueueThreadPool(const TaskQueueThreadPool& other) = delete;
 
-		// last instruction must be interrupt:
-		if (NOMINAX_UNLIKELY(CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != ByteCode::Instruction::Int))
-		{
-			return ReactorValidationResult::MissingCodeEpilogue;
-		}
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		TaskQueueThreadPool(TaskQueueThreadPool&& other) noexcept(true) = default;
 
-		// first stack entry is never used and must be nop-padding:
-		if (NOMINAX_UNLIKELY(*Stack != Record::Padding()))
-		{
-			return ReactorValidationResult::MissingStackPrologue;
-		}
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const TaskQueueThreadPool& other)->TaskQueueThreadPool & = delete;
 
-		if (NOMINAX_LIKELY(this->IntrinsicTable))
-		{
-			// validate intrinsic routines:
-			auto* const*       begin = this->IntrinsicTable;
-			auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
-			while (NOMINAX_LIKELY(begin < end))
-			{
-				if (NOMINAX_UNLIKELY(!*begin++))
-				{
-					return ReactorValidationResult::NullIntrinsicRoutine;
-				}
-			}
-		}
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(TaskQueueThreadPool&& other)->TaskQueueThreadPool & = default;
 
-		return ReactorValidationResult::Ok;
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~TaskQueueThreadPool() = default;
+
+		/// <summary>
+		/// Join all threads.
+		/// </summary>
+		/// <returns></returns>
+		auto JoinAll() noexcept(false) -> void;
+
+		/// <summary>
+		/// Joins and removes all threads.
+		/// </summary>
+		/// <returns></returns>
+		auto Clear() noexcept(false) -> void;
+
+		/// <summary>
+		/// Resizes the container size.
+		/// </summary>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		auto Resize(std::size_t size) noexcept(false) -> void;
+
+		/// <summary>
+		/// Pushes a new task queue thread into the queue.
+		/// </summary>
+		/// <param name="elem"></param>
+		/// <returns></returns>
+		auto Push() noexcept(false) -> void;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The amount of threads.</returns>
+		[[nodiscard]]
+		auto GetSize() const noexcept(true)->std::size_t;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto begin() noexcept(true) -> StorageType::iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto end() noexcept(true)->StorageType::iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto rbegin() noexcept(true)->StorageType::reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto rend() noexcept(true)->StorageType::reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto cbegin() const noexcept(true)->StorageType::const_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto cend() const noexcept(true)->StorageType::const_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto crbegin() const noexcept(true)->StorageType::const_reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto crend() const noexcept(true)->StorageType::const_reverse_iterator;
+	};
+
+	inline auto TaskQueueThreadPool::Clear() noexcept(false) -> void
+	{
+		this->JoinAll();
+		this->Threads.clear();
+	}
+
+	inline auto TaskQueueThreadPool::Resize(const std::size_t size) noexcept(false) -> void
+	{
+		this->Threads.resize(size);
+	}
+
+	inline auto TaskQueueThreadPool::GetSize() const noexcept(true) -> std::size_t
+	{
+		return this->Threads.size();
+	}
+	
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::begin() noexcept(true)->StorageType::iterator
+	{
+		return std::begin(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::end() noexcept(true)->StorageType::iterator
+	{
+		return std::end(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::rbegin() noexcept(true)->StorageType::reverse_iterator
+	{
+		return std::rbegin(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::rend() noexcept(true)->StorageType::reverse_iterator
+	{
+		return std::rend(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::cbegin() const noexcept(true)->StorageType::const_iterator
+	{
+		return std::cbegin(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::cend() const noexcept(true)->StorageType::const_iterator
+	{
+		return std::cend(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::crbegin() const noexcept(true)->StorageType::const_reverse_iterator
+	{
+		return std::crbegin(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::crend() const noexcept(true)->StorageType::const_reverse_iterator
+	{
+		return std::crend(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto begin(TaskQueueThreadPool& pool) noexcept(true) -> auto
+	{
+		return pool.begin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto end(TaskQueueThreadPool& pool) noexcept(true) -> auto
+	{
+		return pool.end();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto rbegin(TaskQueueThreadPool& pool) noexcept(true) -> auto
+	{
+		return pool.rbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto rend(TaskQueueThreadPool& pool) noexcept(true) -> auto
+	{
+		return pool.rend();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto cbegin(const TaskQueueThreadPool& pool) noexcept(true) -> auto
+	{
+		return pool.cbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto cend(const TaskQueueThreadPool& pool) noexcept(true) -> auto
+	{
+		return pool.cend();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto crbegin(const TaskQueueThreadPool& pool) noexcept(true) -> auto
+	{
+		return pool.crbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto crend(const TaskQueueThreadPool& pool) noexcept(true) -> auto
+	{
+		return pool.crend();
 	}
 }

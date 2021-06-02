@@ -1,6 +1,6 @@
-// File: ReactorOutput.hpp
+// File: VerboseReactorDescriptor.cpp
 // Author: Mario
-// Created: 25.04.2021 3:06 PM
+// Created: 25.04.2021 3:03 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,28 +205,67 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include <chrono>
-
-#include "ReactorShutdownReason.hpp"
-#include "DetailedReactorDescriptor.hpp"
+#include "../../Include/Nominax/Core/VerboseReactorDescriptor.hpp"
+#include "../../Include/Nominax/System/MacroCfg.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
 
 namespace Nominax::Core
 {
-	/// <summary>
-	/// Contains all the output data from the VM reactor.
-	/// </summary>
-	struct ReactorOutput final
+	auto VerboseReactorDescriptor::Validate() const noexcept(true) -> ReactorValidationResult
 	{
-		const DetailedReactorDescriptor*               Input {nullptr};
-		ReactorShutdownReason                          ShutdownReason {ReactorShutdownReason::Success};
-		std::chrono::high_resolution_clock::time_point Pre { };
-		std::chrono::high_resolution_clock::time_point Post { };
-		std::chrono::high_resolution_clock::duration   Duration { };
-		InterruptAccumulator                           InterruptCode { };
-		std::ptrdiff_t                                 IpDiff { };
-		std::ptrdiff_t                                 SpDiff { };
-		std::ptrdiff_t                                 BpDiff { };
-	};
+		// validate all pointers:
+		if (NOMINAX_UNLIKELY(!this->CodeChunk || !this->InterruptHandler || !this->Stack))
+		{
+			return ReactorValidationResult::NullPtr;
+		}
+
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+
+		if (NOMINAX_UNLIKELY(!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize)))
+		{
+			return ReactorValidationResult::NullPtr;
+		}
+
+#endif
+
+		// validate the size for the corresponding pointers:
+		if (NOMINAX_UNLIKELY(!this->CodeChunkSize || !this->StackSize))
+		{
+			return ReactorValidationResult::ZeroSize;
+		}
+
+		// first instruction will be skipped and must be NOP:
+		if (NOMINAX_UNLIKELY(CodeChunk->Instr != ByteCode::Instruction::NOp))
+		{
+			return ReactorValidationResult::MissingCodePrologue;
+		}
+
+		// last instruction must be interrupt:
+		if (NOMINAX_UNLIKELY(CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != ByteCode::Instruction::Int))
+		{
+			return ReactorValidationResult::MissingCodeEpilogue;
+		}
+
+		// first stack entry is never used and must be nop-padding:
+		if (NOMINAX_UNLIKELY(*Stack != Record::Padding()))
+		{
+			return ReactorValidationResult::MissingStackPrologue;
+		}
+
+		if (NOMINAX_LIKELY(this->IntrinsicTable))
+		{
+			// validate intrinsic routines:
+			auto* const*       begin = this->IntrinsicTable;
+			auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
+			while (NOMINAX_LIKELY(begin < end))
+			{
+				if (NOMINAX_UNLIKELY(!*begin++))
+				{
+					return ReactorValidationResult::NullIntrinsicRoutine;
+				}
+			}
+		}
+
+		return ReactorValidationResult::Ok;
+	}
 }

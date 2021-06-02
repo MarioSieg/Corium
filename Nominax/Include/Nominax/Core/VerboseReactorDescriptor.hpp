@@ -1,4 +1,4 @@
-// File: DetailedReactorDescriptor.hpp
+// File: VerboseReactorDescriptor.hpp
 // Author: Mario
 // Created: 25.04.2021 3:02 PM
 // Project: NominaxRuntime
@@ -220,7 +220,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Contains all input data for the VM reactor.
 	/// </summary>
-	struct DetailedReactorDescriptor final
+	struct VerboseReactorDescriptor final
 	{
 		ByteCode::Signal*                  CodeChunk {nullptr};
 		const bool*                        CodeChunkInstructionMap {nullptr};

@@ -1,6 +1,6 @@
-// File: Interrupt.hpp
+// File: ClobberFence.hpp
 // Author: Mario
-// Created: 01.05.2021 3:58 PM
+// Created: 2.06.2021 4:12 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,48 +207,39 @@
 
 #pragma once
 
-#include <limits>
-
-#include "../Common/BaseTypes.hpp"
-
-namespace Nominax::Core
+namespace Nominax::Common
 {
-	/// <summary>
-	/// The type used to store interrupt codes.
-	/// </summary>
-	using InterruptAccumulator = I32;
+	// @formatter:off
 
 	/// <summary>
-	/// The function prototype for interrupt handlers.
+	/// Insert memory read fence barrier.
+	/// Force the compiler to flush queued writes to global memory.
 	/// </summary>
-	using InterruptRoutine = auto(InterruptAccumulator) -> void;
+	[[maybe_unused]]
+	__attribute__((always_inline)) inline auto ReadFence() noexcept(true) -> void
+	{
+		__asm__ __volatile__("" : : : "memory");
+	}
 
 	/// <summary>
-	/// Interrupt code indicating a fatal reactor error.
+	/// Insert memory write fence barrier.
+	/// Force the compiler to flush queued writes to global memory.
 	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_FATAL_ERROR {std::numeric_limits<InterruptAccumulator>::min()};
+	[[maybe_unused]]
+	__attribute__((always_inline)) inline auto WriteFence() noexcept(true) -> void
+	{
+		__asm__ __volatile__("" : : : "memory");
+	}
 
 	/// <summary>
-	/// Iterrupt code indicating success.
+	/// Insert memory read-write fence barrier.
+	/// Force the compiler to flush queued writes to global memory.
 	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_OK {0};
+	[[maybe_unused]]
+	__attribute__((always_inline)) inline auto ReadWriteFence() noexcept(true) -> void
+	{
+		__asm__ __volatile__("" : : : "memory");
+	}
 
-	/// <summary>
-	/// Interrupt code indicating user space exception.
-	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_EXCEPTIONS {std::numeric_limits<InterruptAccumulator>::max()};
-
-	/// <summary>
-	/// Default interrupt routine,
-	/// </summary>
-	/// <param name=""></param>
-	/// <returns></returns>
-	extern auto DefaultInterruptRoutine(InterruptAccumulator) -> void;
-
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <returns>A pointer to the default interrupt routine.</returns>
-	[[nodiscard]]
-	extern auto GetDefaultInterruptRoutine() noexcept(true) -> InterruptRoutine*;
+	// @formatter:on
 }

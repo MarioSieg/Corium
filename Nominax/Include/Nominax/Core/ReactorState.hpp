@@ -1,6 +1,6 @@
-// File: ClobberFence.hpp
+// File: ReactorState.hpp
 // Author: Mario
-// Created: 26.05.2021 4:09 AM
+// Created: 25.04.2021 3:06 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,39 +207,26 @@
 
 #pragma once
 
-namespace Nominax::Common
+#include <chrono>
+
+#include "ReactorShutdownReason.hpp"
+#include "VerboseReactorDescriptor.hpp"
+
+namespace Nominax::Core
 {
-	// @formatter:off
-
 	/// <summary>
-	/// Insert memory read fence barrier.
-	/// Force the compiler to flush queued writes to global memory.
+	/// Contains all the output data from the VM reactor.
 	/// </summary>
-	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto ReadFence() noexcept(true) -> void
+	struct ReactorState final
 	{
-		__asm__ __volatile__("" : : : "memory");
-	}
-
-	/// <summary>
-	/// Insert memory write fence barrier.
-	/// Force the compiler to flush queued writes to global memory.
-	/// </summary>
-	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto WriteFence() noexcept(true) -> void
-	{
-		__asm__ __volatile__("" : : : "memory");
-	}
-
-	/// <summary>
-	/// Insert memory read-write fence barrier.
-	/// Force the compiler to flush queued writes to global memory.
-	/// </summary>
-	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto ReadWriteFence() noexcept(true) -> void
-	{
-		__asm__ __volatile__("" : : : "memory");
-	}
-
-	// @formatter:on
+		const VerboseReactorDescriptor*               Input {nullptr};
+		ReactorShutdownReason                          ShutdownReason {ReactorShutdownReason::Success};
+		std::chrono::high_resolution_clock::time_point Pre { };
+		std::chrono::high_resolution_clock::time_point Post { };
+		std::chrono::high_resolution_clock::duration   Duration { };
+		InterruptAccumulator                           InterruptCode { };
+		std::ptrdiff_t                                 IpDiff { };
+		std::ptrdiff_t                                 SpDiff { };
+		std::ptrdiff_t                                 BpDiff { };
+	};
 }

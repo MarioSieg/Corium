@@ -1,6 +1,6 @@
-// File: Interrupt.hpp
+// File: TaskQueue.hpp
 // Author: Mario
-// Created: 01.05.2021 3:58 PM
+// Created: 02.06.2021 4:09 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,50 +205,53 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include <limits>
-
-#include "../Common/BaseTypes.hpp"
+#include "../../Include/Nominax/Core/TaskQueueThreadPool.hpp"
 
 namespace Nominax::Core
 {
-	/// <summary>
-	/// The type used to store interrupt codes.
-	/// </summary>
-	using InterruptAccumulator = I32;
+	TaskQueueThreadPool::TaskQueueThreadPool(const std::size_t threadCount) noexcept(false)
+	{
+		for (std::size_t i{0}; i < threadCount; ++i)
+		{
+			this->Threads.emplace_back(std::make_unique<TaskQueueThread>());
+		}
+	}
 
-	/// <summary>
-	/// The function prototype for interrupt handlers.
-	/// </summary>
-	using InterruptRoutine = auto(InterruptAccumulator) -> void;
+	TaskQueueThreadPool::TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator) noexcept(true)
+	: Allocator_{ &allocator }, Threads{Allocator_}
+	{
+		
+	}
 
-	/// <summary>
-	/// Interrupt code indicating a fatal reactor error.
-	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_FATAL_ERROR {std::numeric_limits<InterruptAccumulator>::min()};
+	TaskQueueThreadPool::TaskQueueThreadPool
+	(
+		std::pmr::monotonic_buffer_resource& allocator,
+		const std::size_t threadCount
+	) noexcept(false) : Allocator_{ &allocator }, Threads {
+		Allocator_
+	}
+	{
+		for (std::size_t i{ 0 }; i < threadCount; ++i)
+		{
+			this->Threads.emplace_back(std::make_unique<TaskQueueThread>(allocator));
+		}
+	}
 
-	/// <summary>
-	/// Iterrupt code indicating success.
-	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_OK {0};
+	auto TaskQueueThreadPool::JoinAll() noexcept(false) -> void
+	{
+		for(auto& thread : this->Threads)
+		{
+			thread->Join();
+		}
+	}
 
-	/// <summary>
-	/// Interrupt code indicating user space exception.
-	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_EXCEPTIONS {std::numeric_limits<InterruptAccumulator>::max()};
-
-	/// <summary>
-	/// Default interrupt routine,
-	/// </summary>
-	/// <param name=""></param>
-	/// <returns></returns>
-	extern auto DefaultInterruptRoutine(InterruptAccumulator) -> void;
-
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <returns>A pointer to the default interrupt routine.</returns>
-	[[nodiscard]]
-	extern auto GetDefaultInterruptRoutine() noexcept(true) -> InterruptRoutine*;
+	auto TaskQueueThreadPool::Push() noexcept(false) -> void
+	{
+		this->Threads.emplace_back
+		(
+			this->Allocator_ 
+			? std::make_unique<TaskQueueThread>(*this->Allocator_)
+			: std::make_unique<TaskQueueThread>()
+		);
+	}
 }

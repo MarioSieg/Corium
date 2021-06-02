@@ -208,7 +208,7 @@
 #pragma once
 
 #include "BasicReactorDescriptor.hpp"
-#include "DetailedReactorDescriptor.hpp"
+#include "VerboseReactorDescriptor.hpp"
 #include "Environment.hpp"
 #include "EnvironmentDescriptor.hpp"
 #include "ExecutionAddressMapping.hpp"
@@ -222,7 +222,7 @@
 #include "Reactor.hpp"
 #include "ReactorCoreSpecialization.hpp"
 #include "ReactorHypervisor.hpp"
-#include "ReactorOutput.hpp"
+#include "ReactorState.hpp"
 #include "ReactorPool.hpp"
 #include "ReactorShutdownReason.hpp"
 #include "ReactorSpawnDescriptor.hpp"
@@ -230,4 +230,4 @@
 #include "Record.hpp"
 #include "RegisterDump.hpp"
 #include "TaskQueue.hpp"
-#include "TaskScheduler.hpp"
+#include "TaskQueueThreadPool.hpp"

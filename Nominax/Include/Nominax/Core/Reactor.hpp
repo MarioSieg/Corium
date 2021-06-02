@@ -212,7 +212,7 @@
 #include <optional>
 #include <memory_resource>
 
-#include "ReactorOutput.hpp"
+#include "ReactorState.hpp"
 #include "FixedStack.hpp"
 #include "ReactorSpawnDescriptor.hpp"
 #include "ReactorHypervisor.hpp"
@@ -252,12 +252,12 @@ namespace Nominax::Core
 		/// The reactor input descriptor build
 		/// when Execute() is called.
 		/// </summary>
-		DetailedReactorDescriptor Input_;
+		VerboseReactorDescriptor Input_;
 
 		/// <summary>
 		/// The reactor output from previous executions.
 		/// </summary>
-		ReactorOutput Output_;
+		ReactorState Output_;
 
 		/// <summary>
 		/// The thread local fixed reactor stack (TLFRS)
@@ -327,7 +327,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
+		auto Execute(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute reactor with specified application code bundle.
@@ -335,7 +335,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator ()(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&;
+		auto operator ()(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorState&;
 
 		/// <summary>
 		/// 
@@ -377,7 +377,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The current descriptor of the reactor.</returns>
 		[[nodiscard]]
-		auto GetInputDescriptor() const noexcept(true) -> const DetailedReactorDescriptor&;
+		auto GetInputDescriptor() const noexcept(true) -> const VerboseReactorDescriptor&;
 
 		/// <summary>
 		/// Returns the reactor output of any previous
@@ -385,7 +385,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetOutput() const noexcept(true) -> const ReactorOutput&;
+		auto GetOutput() const noexcept(true) -> const ReactorState&;
 
 		/// <summary>
 		/// 
@@ -451,12 +451,12 @@ namespace Nominax::Core
 		return this->InterruptHandler_;
 	}
 
-	inline auto Reactor::GetInputDescriptor() const noexcept(true) -> const DetailedReactorDescriptor&
+	inline auto Reactor::GetInputDescriptor() const noexcept(true) -> const VerboseReactorDescriptor&
 	{
 		return this->Input_;
 	}
 
-	inline auto Reactor::GetOutput() const noexcept(true) -> const ReactorOutput&
+	inline auto Reactor::GetOutput() const noexcept(true) -> const ReactorState&
 	{
 		return this->Output_;
 	}
@@ -466,10 +466,17 @@ namespace Nominax::Core
 		return this->AppCode_;
 	}
 
-	inline auto Reactor::operator()(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorOutput&
+	inline auto Reactor::operator()(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorState&
 	{
 		return this->Execute(std::move(bundle));
 	}
 
-	extern auto ExecuteOnce(const DetailedReactorDescriptor& input, const System::CpuFeatureDetector& target = { }) noexcept(true) -> ReactorOutput;
+	/// <summary>
+	/// Proxy function to perform a single reactor
+	/// execution with provided descriptors.
+	/// </summary>
+	/// <param name="input">The reactor input descriptor.</param>
+	/// <param name="target">The cpu target.</param>
+	/// <returns></returns>
+	extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target = { }) noexcept(true) -> ReactorState;
 }

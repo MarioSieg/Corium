@@ -209,7 +209,7 @@
 
 TEST(ReactorInputValidation, ValidInput)
 {
-	const auto input = DetailedReactorDescriptor {
+	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -226,7 +226,7 @@ TEST(ReactorInputValidation, ValidInput)
 
 TEST(ReactorInputValidation, NullPointers)
 {
-	const auto input = DetailedReactorDescriptor {
+	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = nullptr,
 		.CodeChunkInstructionMap = nullptr,
@@ -243,7 +243,7 @@ TEST(ReactorInputValidation, NullPointers)
 
 TEST(ReactorInputValidation, ZeroMemorySizes)
 {
-	const auto input = DetailedReactorDescriptor {
+	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -263,7 +263,7 @@ TEST(ReactorInputValidation, NullPointerIntrinsicRoutines)
 	std::array<IntrinsicRoutine*, 1> intrinsicRoutines {
 		nullptr
 	};
-	const auto input = DetailedReactorDescriptor {
+	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -280,7 +280,7 @@ TEST(ReactorInputValidation, NullPointerIntrinsicRoutines)
 
 TEST(ReactorInputValidation, ValidIntrinsicRoutines)
 {
-	const auto input = DetailedReactorDescriptor {
+	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -297,7 +297,7 @@ TEST(ReactorInputValidation, ValidIntrinsicRoutines)
 
 TEST(ReactorInputValidation, MissingCodePrologue)
 {
-	const auto input = DetailedReactorDescriptor {
+	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data() + 1,
 		.CodeChunkInstructionMap = nullptr,
@@ -320,7 +320,7 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue1)
 		Signal {INT64_C(5)},
 	};
 
-	const auto input = DetailedReactorDescriptor {
+	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -342,7 +342,7 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue2)
 		Signal {Instruction::NOp},
 	};
 
-	const auto input = DetailedReactorDescriptor {
+	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -364,7 +364,7 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue3)
 		Signal {INT64_C(5)},
 	};
 
-	const auto input = DetailedReactorDescriptor {
+	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = code.data(),
 		.CodeChunkInstructionMap = nullptr,
@@ -381,7 +381,7 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue3)
 
 TEST(ReactorInputValidation, MissingStackPrologue)
 {
-	const auto input = DetailedReactorDescriptor {
+	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
 		.CodeChunkInstructionMap = nullptr,
