@@ -1,6 +1,6 @@
-// File: CharCluster.hpp
+// File: DisOpt.hpp
 // Author: Mario
-// Created: 09.05.2021 1:13 AM
+// Created: 26.05.2021 4:03 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,92 +207,35 @@
 
 #pragma once
 
-#include <array>
-#include <algorithm>
+#include "../System/Platform.hpp"
 
-#include "../Common/BaseTypes.hpp"
-
-namespace Nominax::Core
+namespace Nominax::Common
 {
 	/// <summary>
-	/// Utf-8 character constant without null terminator.
+	/// Prevents the compiler from optimizing away the value.
 	/// </summary>
-	union CharClusterUtf8
-	{
-		std::array<char8_t, 8> Chars;
-		U64                    Merged;
-	};
-
-	inline auto operator ==(const CharClusterUtf8 left, const CharClusterUtf8 right) noexcept(true) -> bool
-	{
-		return left.Merged == right.Merged;
-	}
-
-	inline auto operator !=(const CharClusterUtf8 left, const CharClusterUtf8 right) noexcept(true) -> bool
-	{
-		return left.Merged == right.Merged;
-	}
-
-	/// <summary>
-	/// Writes the string literal into the char clusters.
-	/// If the string literal is longer than 8 chars, only the first 8 chars are written.
-	/// Null terminators are not written, so it's possible to use the full 8 chars, without using the 8th as null terminator.
-	/// </summary>
-	/// <param name="data"></param>
-	/// <param name="count"></param>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
 	/// <returns></returns>
-	constexpr auto operator "" _cluster(const char8_t* const data, const std::size_t count) noexcept(true) -> CharClusterUtf8
+	template <typename T>
+	inline auto DisOpt(T& x) noexcept(true) -> void
 	{
-		CharClusterUtf8 result { };
-		for (std::size_t i {0}; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
-		{
-			result.Chars[i] = data[i];
-		}
-		return result;
+#if NOMINAX_COM_CLANG
+		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
+#else
+		__asm__ __volatile__("" : "+m,r"(x) :: "memory");
+#endif
 	}
-
-	static_assert(sizeof(CharClusterUtf8) == sizeof(U64));
-	static_assert(sizeof(char) == sizeof(char8_t));
 
 	/// <summary>
-	/// Utf-16 character constant without null terminator.
+	/// Prevents the compiler from optimizing away the value.
 	/// </summary>
-	union CharClusterUtf16
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T>
+	inline auto DisOpt(const T& x) noexcept(true) -> void
 	{
-		std::array<char16_t, 4> Chars;
-		U64                     Merged;
-	};
-
-	inline auto operator ==(const CharClusterUtf16 left, const CharClusterUtf16 right) noexcept(true) -> bool
-	{
-		return left.Merged == right.Merged;
+		__asm__ __volatile__("" : "r,m"(x) :: "memory");
 	}
-
-	inline auto operator !=(const CharClusterUtf16 left, const CharClusterUtf16 right) noexcept(true) -> bool
-	{
-		return left.Merged == right.Merged;
-	}
-
-	static_assert(sizeof(CharClusterUtf16) == sizeof(U64));
-
-	/// <summary>
-	/// Utf-32 character constant without null terminator.
-	/// </summary>
-	union CharClusterUtf32
-	{
-		std::array<char32_t, 2> Chars;
-		U64                     Merged;
-	};
-
-	inline auto operator ==(const CharClusterUtf32 left, const CharClusterUtf32 right) noexcept(true) -> bool
-	{
-		return left.Merged == right.Merged;
-	}
-
-	inline auto operator !=(const CharClusterUtf32 left, const CharClusterUtf32 right) noexcept(true) -> bool
-	{
-		return left.Merged == right.Merged;
-	}
-
-	static_assert(sizeof(CharClusterUtf32) == sizeof(U64));
 }

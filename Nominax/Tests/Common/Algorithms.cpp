@@ -325,3 +325,41 @@ TEST(Algorithms, ComputeRequiredBytes)
 	ASSERT_EQ(ComputeRequiredBytes(UINT64_C(0xFFFFFFFF) + 1), 8);
 	ASSERT_EQ(ComputeRequiredBytes(0xFFFFFFFFFFFFFFFF), 8);
 }
+
+TEST(Algorithms, IsPow2)
+{
+	ASSERT_TRUE(IsPowerOfTwo(0));
+	ASSERT_TRUE(IsPowerOfTwo(1));
+	ASSERT_TRUE(IsPowerOfTwo(2));
+	ASSERT_TRUE(IsPowerOfTwo(4));
+	ASSERT_FALSE(IsPowerOfTwo(5));
+	ASSERT_FALSE(IsPowerOfTwo(6));
+	ASSERT_FALSE(IsPowerOfTwo(67));
+	ASSERT_FALSE(IsPowerOfTwo(255));
+	ASSERT_TRUE(IsPowerOfTwo(256));
+	ASSERT_TRUE(IsPowerOfTwo(512));
+}
+
+TEST(Algorithms, BitRotLeft32)
+{
+	ASSERT_EQ(Rol32(2, 4), std::rotl<U32>(2, 4));
+	ASSERT_EQ(Rol32(1234567, 22), std::rotl<U32>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotLeft64)
+{
+	ASSERT_EQ(Rol64(2, 4), std::rotl<U64>(2, 4));
+	ASSERT_EQ(Rol64(1234567, 22), std::rotl<U64>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotRight32)
+{
+	ASSERT_EQ(Ror32(2, 4), std::rotr<U32>(2, 4));
+	ASSERT_EQ(Ror32(1234567, 22), std::rotr<U32>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotRight64)
+{
+	ASSERT_EQ(Ror64(2, 4), std::rotr<U64>(2, 4));
+	ASSERT_EQ(Ror64(1234567, 22), std::rotr<U64>(1234567, 22));
+}

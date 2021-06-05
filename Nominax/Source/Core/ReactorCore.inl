@@ -205,116 +205,54 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <algorithm>
-#include <bitset>
+#include <chrono>
 #include <cmath>
-#include <cassert>
-#include <cstring>
-#include <filesystem>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string_view>
-#include <thread>
 
-#include "../../Include/Nominax/Nominax.hpp"
+#include "ReactorCores.hpp"
 
-#if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
-#	include <malloc.h>
-#else
-#	include <alloca.h>
-#endif
+#include "../../Include/Nominax/Core/VerboseReactorDescriptor.hpp"
+#include "../../Include/Nominax/Core/ReactorState.hpp"
+#include "../../Include/Nominax/Core/Interrupt.hpp"
+#include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
-#	include <immintrin.h>
-#elif NOMINAX_ARCH_ARM_64 && NOMINAX_USE_ARCH_OPT && defined(__ARM_NEON)
-#	include <arm_neon.h>
-#endif
+#include "../../Include/Nominax/Common/Interrupt.hpp"
+#include "../../Include/Nominax/Common/Nop.hpp"
+#include "../../Include/Nominax/Common/BitRot.hpp"
+#include "../../Include/Nominax/Common/F64ComProxy.hpp"
+#include "../../Include/Nominax/Common/BranchHint.hpp"
+
+#include "../../Include/Nominax/ByteCode/SystemIntrinsic.hpp"
+#include "../../Include/Nominax/ByteCode/Instruction.hpp"
+#include "../../Include/Nominax/ByteCode/Signal.hpp"
+
+#include "../../Include/Nominax/VectorLib/VF64X4U.hpp"
+#include "../../Include/Nominax/VectorLib/VF64X16U.hpp"
 
 namespace Nominax::Core
 {
+	using Common::BreakpointInterrupt;
+	using Common::NoOperation;
+	using Common::Rol64;
+	using Common::Ror64;
+	using Common::Proxy_F64Equals;
+	using Common::Proxy_F64IsOne;
+	using Common::Proxy_F64IsZero;
+
+	using VectorLib::F64_X4_Add_Unaligned;
+	using VectorLib::F64_X4_Sub_Unaligned;
+	using VectorLib::F64_X4_Mul_Unaligned;
+	using VectorLib::F64_X4_Div_Unaligned;
+	using VectorLib::F64_X16_Add_Unaligned;
+	using VectorLib::F64_X16_Sub_Unaligned;
+	using VectorLib::F64_X16_Mul_Unaligned;
+	using VectorLib::F64_X16_Div_Unaligned;
+
+
 	using ByteCode::SystemIntrinsicCallID;
 	using ByteCode::Instruction;
-	using ByteCode::Signal;
 	using ByteCode::IntrinsicRoutine;
-
-	[[maybe_unused]]
-	__attribute__((always_inline, pure)) static inline auto Proxy_F64IsZero(const F64 x) noexcept(true) -> bool
-	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Common::F64IsZero(x);
-#else
-		return x == 0.0;
-#endif
-	}
-
-	[[maybe_unused]]
-	__attribute__((always_inline, pure)) static inline auto Proxy_F64IsOne(const F64 x) noexcept(true) -> bool
-	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Common::F64IsOne(x);
-#else
-		return x == 1.0;
-#endif
-	}
-
-	[[maybe_unused]]
-	__attribute__((always_inline, pure)) static inline auto Proxy_F64Equals(const F64 x, const F64 y) noexcept(true) -> bool
-	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
-		return Common::F64Equals(x, y);
-#else
-		return x == y;
-#endif
-	}
-
-	/// <summary>
-	/// Fast, platform dependent implementation for a bitwise left rotation.
-	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto Rol64
-	(
-		U64      value,
-		const U8 shift
-	) noexcept(true) -> U64
-	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
-		return _rotl64(value, shift);
-#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
-		asm volatile
-		(
-			"rolq %%cl, %0"
-			: "=r"(value)
-			: "0" (value), "c"(shift)
-		);
-		return value;
-#else
-		return std::rotl<U64>(value, shift);
-#endif
-	}
-
-	/// <summary>
-	/// Fast, platform dependent implementation for a bitwise right rotation.
-	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) static inline auto Ror64
-	(
-		U64      value,
-		const U8 shift
-	) noexcept(true) -> U64
-	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
-		return _rotr64(value, shift);
-#elif !NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64
-		asm volatile
-		(
-			"rorq %%cl, %0"
-			: "=r"(value)
-			: "0" (value), "c"(shift)
-		);
-		return value;
-#else
-		return std::rotr<U64>(value, shift);
-#endif
-	}
+	using ByteCode::Signal;
+	using ByteCode::CharClusterUtf8;
 
 	/// <summary>
 	/// Operator for F64 precision F32ing point modulo.
@@ -324,83 +262,6 @@ namespace Nominax::Core
 		self.AsF64 = std::fmod(self.AsF64, value);
 	}
 
-	/// <summary>
-	/// Trigger a breakpoint.
-	/// </summary>
-	[[maybe_unused]] __attribute__((always_inline, cold)) static inline auto BreakpointInterrupt() noexcept(true) -> void
-	{
-#if NOMINAX_ARCH_X86_64
-		asm("int $3");
-#elif NOMINAX_ARCH_ARM_64
-#if NOMINAX_OS_MAC || NOMINAX_OS_IOS
-		asm("trap");
-#else
-		asm("bkpt 0");
-#endif
-#else
-		auto* int3 = reinterpret_cast<int*>(3);
-		*int3 = 3;
-#endif
-	}
-
-	/// <summary>
-	/// Allocate small structure/array on stack using alloca.
-	/// 
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <returns></returns>
-	template <typename T, std::size_t Count> requires requires
-	{
-		std::is_trivial_v<T>;     // trivial types only
-		Count != 0;               // must at least be one
-		sizeof(T) != 0;           // must at least be one
-		sizeof(T) * Count < 1024; // no more than 1KB
-	}
-	[[nodiscard]]
-	[[maybe_unused]]
-	__attribute__((always_inline)) auto StackAlloc() noexcept(true) -> T*
-	{
-#if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
-		return _alloca(sizeof(T) * Count);
-#else
-		return alloca(sizeof(T) * Count);
-#endif
-	}
-
-	// @formatter:off
-
-	/// <summary>
-	/// Insert memory read fence barrier.
-	/// </summary>
-	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto ReadFence() noexcept(true) -> void
-	{
-		// ReSharper disable once CppRedundantEmptyStatement
-		asm volatile("":::"memory");
-	}
-
-	/// <summary>
-	/// Insert memory write fence barrier.
-	/// </summary>
-	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto WriteFence() noexcept(true) -> void
-	{
-		// ReSharper disable once CppRedundantEmptyStatement
-		asm volatile("":::"memory");
-	}
-
-	/// <summary>
-	/// Insert memory read-write fence barrier.
-	/// </summary>
-	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto ReadWriteFence() noexcept(true) -> void
-	{
-		// ReSharper disable once CppRedundantEmptyStatement
-		asm volatile("":::"memory");
-	}
-
-	// @formatter:on
-
 	/*
 	 * This inserts a comment with the msg into the assembler code.
 	 * Useful for finding the asm code of the instructions.
@@ -408,7 +269,7 @@ namespace Nominax::Core
 	 * Asm volatile is like a black box and never touched by the compiler so it might affect code generation/ordering!
 	 */
 #if NOMINAX_REACTOR_ASM_MARKERS
-#	define ASM_MARKER(msg) asm volatile("#" msg)
+#	define ASM_MARKER(msg) __asm__ __volatile__("#" msg)
 #else
 #	define ASM_MARKER(msg)
 #endif
@@ -746,7 +607,7 @@ namespace Nominax::Core
 		return;
 	}
 
-	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void
+	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor& input, ReactorState& output) noexcept(true) -> void
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 
@@ -813,12 +674,18 @@ namespace Nominax::Core
 			&& __fneg__,
 			&& __finc__,
 			&& __fdec__,
-			&& __vpush__,
-			&& __vpop__,
-			&& __vadd__,
-			&& __vsub__,
-			&& __vmul__,
-			&& __vdiv__
+			&& __vecpush__,
+			&& __vecpop__,
+			&& __vecadd__,
+			&& __vecsub__,
+			&& __vecmul__,
+			&& __vecdiv__,
+			&& __matpush__,
+			&& __matpop__,
+			&& __matadd__,
+			&& __matsub__,
+			&& __matmul__,
+			&& __matdiv__,
 		};
 
 		static_assert(ValidateJumpTable(JUMP_TABLE, sizeof JUMP_TABLE / sizeof *JUMP_TABLE));
@@ -1026,11 +893,7 @@ namespace Nominax::Core
 		__attribute__((cold));
 		ASM_MARKER("__nop__");
 
-#if NOMINAX_ARCH_X86_64 || NOMINAX_ARCH_X86_32
-		asm("nop");
-#elif NOMINAX_ARCH_ARM_64 || NOMINAX_ARCH_ARM_32
-		asm("move r0, r0");
-#endif
+		NoOperation();
 
 		goto
 		JMP_PTR();
@@ -1651,9 +1514,9 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__vpush__:
+	__vecpush__:
 		__attribute__((hot));
-		ASM_MARKER("__vpush__");
+		ASM_MARKER("__vecpush__");
 
 		/*
 			SSE:
@@ -1675,259 +1538,154 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__vpop__:
+	__vecpop__:
 		__attribute__((hot));
-		ASM_MARKER("__vpop__");
+		ASM_MARKER("__vecpop__");
 
 		sp -= 4;
 
 		goto
 		JMP_PTR();
 
-	__vadd__:
+	__vecadd__:
 		__attribute__((hot));
-		ASM_MARKER("__vadd__");
+		ASM_MARKER("__vecadd__");
 
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
-		{
-			/*
-				 vmovupd	-0x18(%rbx), %ymm0
-				 vaddpd		-0x38(%rbx), %ymm0, %ymm0
-				 vmovupd	%ymm0, -0x38(%rbx)
-			 */
-            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 4 records
-            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 4 records
-			y = _mm256_add_pd(y, x);
-			_mm256_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y);
-		}
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__)
-		{
-			/*
-				movupd	-56(%rdi), %xmm0
-				movupd	-40(%rdi), %xmm1
-				movupd	-24(%rdi), %xmm2
-				addpd	%xmm0, %xmm2
-				movupd	-8(%rdi), %xmm0
-				addpd	%xmm1, %xmm0
-				movupd	%xmm0, -40(%rdi)
-				movupd	%xmm2, -56(%rdi)
-			 */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(0))); // 2 records
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 2 records
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(4))); // 2 records
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 2 records
-			y1 = _mm_add_pd(y1, x1);
-			y2 = _mm_add_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(4)), y1);
-			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y2);
-		}
-#else
-		/*
-			movupd	-64(%rdi), %xmm0
-			movupd	-48(%rdi), %xmm1
-			movupd	8(%rdi), %xmm2
-			movupd	24(%rdi), %xmm3
-			shufpd	$1, %xmm2, %xmm2
-			addpd	%xmm1, %xmm2
-			movupd	%xmm2, -48(%rdi)
-			shufpd	$1, %xmm3, %xmm3
-			addpd	%xmm0, %xmm3
-			movupd	%xmm3, -64(%rdi)
-		*/
-		(*(sp - 4)).AsF64 += (*(sp - 0)).AsF64;
-		(*(sp - 5)).AsF64 += (*(sp - 1)).AsF64;
-		(*(sp - 6)).AsF64 += (*(sp - 2)).AsF64;
-		(*(sp - 7)).AsF64 += (*(sp - 3)).AsF64;
-#endif
+		F64_X4_Add_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 		sp -= 4;
 
 		goto
 		JMP_PTR();
 
 
-	__vsub__:
+	__vecsub__:
 		__attribute__((hot));
-		ASM_MARKER("__vsub__");
+		ASM_MARKER("__vecsub__");
 
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
-		{
-			/*
-				 vmovupd	-0x18(%rbx), %ymm0
-				 vsubpd		-0x38(%rbx), %ymm0, %ymm0
-				 vmovupd	%ymm0, -0x38(%rbx)
-			 */
-            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 4 records
-            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 4 records
-			y = _mm256_sub_pd(y, x);
-			_mm256_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y);
-		}
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__) && !defined(__AVX__)
-		{
-			/* For this the compiler generated the same
-			 * code on my machine but this depends on compiler and optimizations
-			 * so we still have a manually vectorized version.
-			 */
-			 /*
-				 movupd	-56(%rdi), %xmm0
-				 movupd	-40(%rdi), %xmm1
-				 movupd	-24(%rdi), %xmm2
-				 subpd	%xmm2, %xmm0
-				 movupd	-8(%rdi), %xmm2
-				 subpd	%xmm2, %xmm1
-				 movupd	%xmm1, -40(%rdi)
-				 movupd	%xmm0, -56(%rdi)
-			  */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(0))); // 2 records
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 2 records
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(4))); // 2 records
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 2 records
-			y1 = _mm_sub_pd(y1, x1);
-			y2 = _mm_sub_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(4)), y1);
-			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y2);
-		}
-#else
-		/*
-			movupd	-56(%rdi), %xmm0
-			movupd	-40(%rdi), %xmm1
-			movupd	-24(%rdi), %xmm2
-			subpd	%xmm2, %xmm0
-			movupd	-8(%rdi), %xmm2
-			subpd	%xmm2, %xmm1
-			movupd	%xmm1, -40(%rdi)
-			movupd	%xmm0, -56(%rdi)
-		*/
-		(*(sp - 4)).AsF64 -= (*(sp - 0)).AsF64;
-		(*(sp - 5)).AsF64 -= (*(sp - 1)).AsF64;
-		(*(sp - 6)).AsF64 -= (*(sp - 2)).AsF64;
-		(*(sp - 7)).AsF64 -= (*(sp - 3)).AsF64;
-#endif
+		F64_X4_Sub_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
+
 		sp -= 4;
 
 		goto
 		JMP_PTR();
 
 
-	__vmul__:
+	__vecmul__:
 		__attribute__((hot));
-		ASM_MARKER("__vmul__");
+		ASM_MARKER("__vecmul__");
 
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
-		{
-			/*
-				 vmovupd	-0x18(%rbx), %ymm0
-				 vmulpd		-0x38(%rbx), %ymm0,%ymm0
-				 vmovupd	%ymm0, -0x38(%rbx)
-			 */
-            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 4 records
-            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 4 records
-			y = _mm256_mul_pd(y, x);
-			_mm256_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y);
-		}
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__) && !defined(__AVX__)
-		{
-			/* For this the compiler generated the same
-			 * code on my machine but this depends on compiler and optimizations
-			 * so we still have a manually vectorized version.
-			 */
-			 /*
-				 movupd	-56(%rdi), %xmm0
-				 movupd	-40(%rdi), %xmm1
-				 movupd	-24(%rdi), %xmm2
-				 mulpd	%xmm0, %xmm2
-				 movupd	-8(%rdi), %xmm0
-				 mulpd	%xmm1, %xmm0
-				 movupd	%xmm0, -40(%rdi)
-				 movupd	%xmm2, -56(%rdi)
-			  */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(0))); // 2 records
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 2 records
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(4))); // 2 records
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 2 records
-			y1 = _mm_mul_pd(y1, x1);
-			y2 = _mm_mul_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(4)), y1);
-			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y2);
-		}
-#else
-		/*
-			movupd	-56(%rdi), %xmm0
-			movupd	-40(%rdi), %xmm1
-			movupd	-24(%rdi), %xmm2
-			mulpd	%xmm0, %xmm2
-			movupd	-8(%rdi), %xmm0
-			mulpd	%xmm1, %xmm0
-			movupd	%xmm0, -40(%rdi)
-			movupd	%xmm2, -56(%rdi)
-		*/
-		(*(sp - 4)).AsF64 *= (*(sp - 0)).AsF64;
-		(*(sp - 5)).AsF64 *= (*(sp - 1)).AsF64;
-		(*(sp - 6)).AsF64 *= (*(sp - 2)).AsF64;
-		(*(sp - 7)).AsF64 *= (*(sp - 3)).AsF64;
-#endif
+		F64_X4_Mul_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
+
 		sp -= 4;
 
 		goto
 		JMP_PTR();
 
 
-	__vdiv__:
+	__vecdiv__:
 		__attribute__((hot));
-		ASM_MARKER("__vdiv__");
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
-		{
-			/*
-				 vmovupd	-0x18(%rbx), %ymm0
-				 vdivpd		-0x38(%rbx), %ymm0, %ymm0
-				 vmovupd	%ymm0, -0x38(%rbx)
-			 */
-            __m256d x = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 4 records
-            __m256d y = _mm256_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 4 records
-			y = _mm256_div_pd(y, x);
-			_mm256_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y);
-		}
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE2__) && !defined(__AVX__)
-		{
-			/* For this the compiler generated the same
-			 * code on my machine but this depends on compiler and optimizations
-			 * so we still have a manually vectorized version.
-			 */
-			 /*
-				 movupd	-56(%rdi), %xmm0
-				 movupd	-40(%rdi), %xmm1
-				 movupd	-24(%rdi), %xmm2
-				 divpd	%xmm2, %xmm0
-				 movupd	-8(%rdi), %xmm2
-				 divpd	%xmm2, %xmm1
-				 movupd	%xmm1, -40(%rdi)
-				 movupd	%xmm0, -56(%rdi)
-			  */
-			__m128d x1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(0))); // 2 records
-			__m128d x2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(2))); // 2 records
-			__m128d y1 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(4))); // 2 records
-			__m128d y2 = _mm_loadu_pd(reinterpret_cast<const F64*>(VEC_MOFFS(6))); // 2 records
-			y1 = _mm_div_pd(y1, x1);
-			y2 = _mm_div_pd(y2, x2);
-			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(4)), y1);
-			_mm_storeu_pd(reinterpret_cast<F64*>(VEC_MOFFS(6)), y2);
-		}
-#else
-		/*
-			movupd	-56(%rdi), %xmm0
-			movupd	-40(%rdi), %xmm1
-			movupd	-24(%rdi), %xmm2
-			divpd	%xmm2, %xmm0
-			movupd	-8(%rdi), %xmm2
-			divpd	%xmm2, %xmm1
-			movupd	%xmm1, -40(%rdi)
-			movupd	%xmm0, -56(%rdi)
-		*/
-		(*(sp - 4)).AsF64 /= (*(sp - 0)).AsF64;
-		(*(sp - 5)).AsF64 /= (*(sp - 1)).AsF64;
-		(*(sp - 6)).AsF64 /= (*(sp - 2)).AsF64;
-		(*(sp - 7)).AsF64 /= (*(sp - 3)).AsF64;
-#endif
+		ASM_MARKER("__vecdiv__");
+
+		F64_X4_Div_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
+
 		sp -= 4;
+
+		goto
+		JMP_PTR();
+
+	__matpush__:
+		__attribute__((hot));
+		ASM_MARKER("__matpush__");
+
+		/*
+			SSE:
+				movups 0x78(%rdi), %xmm0
+				movups %xmm0, 0x78(%rbx)
+				movups 0x68(%rdi), %xmm0
+				movups %xmm0, 0x68(%rbx)
+				movups 0x58(%rdi), %xmm0
+				movups %xmm0, 0x58(%rbx)
+				movups 0x48(%rdi), %xmm0
+				movups %xmm0, 0x48(%rbx)
+				movupd 0x8(%rdi), %xmm0
+				movupd 0x18(%rdi), %xmm1
+				movupd 0x28(%rdi), %xmm2
+				movups 0x38(%rdi), %xmm3
+				movups %xmm3, 0x38(%rbx)
+				movupd %xmm2, 0x28(%rbx)
+				movupd %xmm1, 0x18(%rbx)
+				movupd %xmm0, 0x8(%rbx)
+
+			AVX:
+				vmovupd 0x8(%rdi), %ymm0
+				vmovups 0x28(%rdi), %ymm1
+				vmovups 0x48(%rdi), %ymm2
+				vmovups 0x68(%rdi), %ymm3
+				vmovups %ymm3, 0x68(%rbx)
+				vmovups %ymm2, 0x48(%rbx)
+				vmovups %ymm1, 0x28(%rbx)
+				vmovupd %ymm0, 0x8(%rbx)
+
+			AVX512F:
+				vmovupd 0x8(%rdi), %zmm0
+				vmovups 0x48(%rdi), %zmm1
+				vmovups %zmm1, 0x48(%rbx)
+				vmovupd %zmm0, 0x8(%rbx)
+		 */
+		std::memcpy(sp + 1, ip + 1, sizeof(Record) * 16);
+
+		sp += 16;
+		ip += 16;
+
+		goto
+		JMP_PTR();
+
+
+	__matpop__:
+		__attribute__((hot));
+		ASM_MARKER("__matpop__");
+
+		sp -= 16;
+
+		goto
+		JMP_PTR();
+
+	__matadd__:
+		__attribute__((hot));
+		ASM_MARKER("__matadd__");
+
+		F64_X16_Add_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
+		sp -= 16;
+
+		goto
+		JMP_PTR();
+
+	__matsub__:
+		__attribute__((hot));
+		ASM_MARKER("__matsub__");
+
+		F64_X16_Sub_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
+		sp -= 16;
+
+		goto
+		JMP_PTR();
+
+	__matmul__:
+		__attribute__((hot));
+		ASM_MARKER("__matmul__");
+
+		F64_X16_Mul_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
+		sp -= 16;
+
+		goto
+		JMP_PTR();
+
+	__matdiv__:
+		__attribute__((hot));
+		ASM_MARKER("__matdiv__");
+
+		F64_X16_Div_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
+		sp -= 16;
 
 		goto
 		JMP_PTR();

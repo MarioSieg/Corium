@@ -211,7 +211,7 @@
 #include <optional>
 #include <type_traits>
 
-#include "../Core/CharCluster.hpp"
+#include "CharCluster.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -266,15 +266,15 @@ namespace Nominax::ByteCode
 		{
 			return {Signal::Discriminator::F64};
 		}
-		else if constexpr (std::is_same_v<Core::CharClusterUtf8, T>)
+		else if constexpr (std::is_same_v<CharClusterUtf8, T>)
 		{
 			return {Signal::Discriminator::CharClusterUtf8};
 		}
-		else if constexpr (std::is_same_v<Core::CharClusterUtf16, T>)
+		else if constexpr (std::is_same_v<CharClusterUtf16, T>)
 		{
 			return {Signal::Discriminator::CharClusterUtf16};
 		}
-		else if constexpr (std::is_same_v<Core::CharClusterUtf32, T>)
+		else if constexpr (std::is_same_v<CharClusterUtf32, T>)
 		{
 			return {Signal::Discriminator::CharClusterUtf32};
 		}

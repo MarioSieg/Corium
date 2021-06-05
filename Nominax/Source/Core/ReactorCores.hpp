@@ -211,8 +211,8 @@
 
 namespace Nominax::Core
 {
-	struct ReactorOutput;
-	struct DetailedReactorDescriptor;
+	struct ReactorState;
+	struct VerboseReactorDescriptor;
 
 	/// <summary>
 	/// Generic fallback implementation, for all architectures.
@@ -220,7 +220,7 @@ namespace Nominax::Core
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <returns></returns>
-	__attribute__((hot)) extern auto ReactorCore_Fallback(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
+	__attribute__((hot)) extern auto ReactorCore_Fallback(const VerboseReactorDescriptor& input, ReactorState& output) noexcept(true) -> void;
 
 #if NOMINAX_ARCH_X86_64
 
@@ -230,7 +230,7 @@ namespace Nominax::Core
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <returns></returns>
-	__attribute__((hot)) extern auto ReactorCore_AVX(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
+	__attribute__((hot)) extern auto ReactorCore_AVX(const VerboseReactorDescriptor& input, ReactorState& output) noexcept(true) -> void;
 
 	/// <summary>
 	/// Specialized implementation compiled with AVX, which uses 512-bit ZMM registers.
@@ -238,7 +238,7 @@ namespace Nominax::Core
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <returns></returns>
-	__attribute__((hot)) extern auto ReactorCore_AVX512F(const DetailedReactorDescriptor& input, ReactorOutput& output) noexcept(true) -> void;
+	__attribute__((hot)) extern auto ReactorCore_AVX512F(const VerboseReactorDescriptor& input, ReactorState& output) noexcept(true) -> void;
 
 #endif
 }

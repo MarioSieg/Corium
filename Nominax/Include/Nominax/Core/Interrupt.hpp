@@ -213,16 +213,42 @@
 
 namespace Nominax::Core
 {
+	/// <summary>
+	/// The type used to store interrupt codes.
+	/// </summary>
 	using InterruptAccumulator = I32;
+
+	/// <summary>
+	/// The function prototype for interrupt handlers.
+	/// </summary>
 	using InterruptRoutine = auto(InterruptAccumulator) -> void;
 
+	/// <summary>
+	/// Interrupt code indicating a fatal reactor error.
+	/// </summary>
 	constexpr InterruptAccumulator INT_CODE_FATAL_ERROR {std::numeric_limits<InterruptAccumulator>::min()};
+
+	/// <summary>
+	/// Iterrupt code indicating success.
+	/// </summary>
 	constexpr InterruptAccumulator INT_CODE_OK {0};
+
+	/// <summary>
+	/// Interrupt code indicating user space exception.
+	/// </summary>
 	constexpr InterruptAccumulator INT_CODE_EXCEPTIONS {std::numeric_limits<InterruptAccumulator>::max()};
 
-	[[maybe_unused]]
+	/// <summary>
+	/// Default interrupt routine,
+	/// </summary>
+	/// <param name=""></param>
+	/// <returns></returns>
 	extern auto DefaultInterruptRoutine(InterruptAccumulator) -> void;
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns>A pointer to the default interrupt routine.</returns>
 	[[nodiscard]]
 	extern auto GetDefaultInterruptRoutine() noexcept(true) -> InterruptRoutine*;
 }

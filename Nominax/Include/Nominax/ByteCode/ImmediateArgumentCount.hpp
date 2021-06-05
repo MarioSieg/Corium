@@ -284,7 +284,13 @@ namespace Nominax::ByteCode
 		0,
 		0,
 		0,
-		0
+		0,
+		16,
+		0,
+		0,
+		0,
+		0,
+		0,
 	};
 
 	consteval auto FindMaxImmediateArgumentCount() noexcept(true) -> U8

@@ -1,6 +1,6 @@
-// File: DetailedReactorDescriptor.cpp
+// File: TextFile.cpp
 // Author: Mario
-// Created: 25.04.2021 3:03 PM
+// Created: 01.06.2021 6:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,67 +205,125 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Core/DetailedReactorDescriptor.hpp"
-#include "../../Include/Nominax/System/MacroCfg.hpp"
+#include "../../Include/Nominax/Common/TextFile.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
-namespace Nominax::Core
+#include <algorithm>
+#include <execution>
+#include <locale>
+#include <fstream>
+
+namespace Nominax::Common
 {
-	auto DetailedReactorDescriptor::Validate() const noexcept(true) -> ReactorValidationResult
+	[[nodiscard]]
+	static inline auto SubstringView
+	(
+		const std::string& source, 
+		const size_t offset = 0,
+	    const std::string_view::size_type count = std::numeric_limits<std::string_view::size_type>::max()
+	) noexcept(true) -> std::string_view
 	{
-		// validate all pointers:
-		if (NOMINAX_UNLIKELY(!this->CodeChunk || !this->InterruptHandler || !this->Stack))
+		if (NOMINAX_LIKELY(offset < source.size())) 
 		{
-			return ReactorValidationResult::NullPtr;
-		}
-
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-
-		if (NOMINAX_UNLIKELY(!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize)))
-		{
-			return ReactorValidationResult::NullPtr;
-		}
-
-#endif
-
-		// validate the size for the corresponding pointers:
-		if (NOMINAX_UNLIKELY(!this->CodeChunkSize || !this->StackSize))
-		{
-			return ReactorValidationResult::ZeroSize;
-		}
-
-		// first instruction will be skipped and must be NOP:
-		if (NOMINAX_UNLIKELY(CodeChunk->Instr != ByteCode::Instruction::NOp))
-		{
-			return ReactorValidationResult::MissingCodePrologue;
-		}
-
-		// last instruction must be interrupt:
-		if (NOMINAX_UNLIKELY(CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != ByteCode::Instruction::Int))
-		{
-			return ReactorValidationResult::MissingCodeEpilogue;
-		}
-
-		// first stack entry is never used and must be nop-padding:
-		if (NOMINAX_UNLIKELY(*Stack != Record::Padding()))
-		{
-			return ReactorValidationResult::MissingStackPrologue;
-		}
-
-		if (NOMINAX_LIKELY(this->IntrinsicTable))
-		{
-			// validate intrinsic routines:
-			auto* const*       begin = this->IntrinsicTable;
-			auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
-			while (NOMINAX_LIKELY(begin < end))
+			return
 			{
-				if (NOMINAX_UNLIKELY(!*begin++))
-				{
-					return ReactorValidationResult::NullIntrinsicRoutine;
-				}
-			}
+				source.data() + offset,
+				std::min(source.size() - offset, 
+				count)
+			};
 		}
+		return {};
+	}
 
-		return ReactorValidationResult::Ok;
+	static inline auto SubstringView
+	(
+		std::string&& source,
+		const size_t offset = 0,
+		const std::string_view::size_type count = std::numeric_limits<std::string_view::size_type>::max()
+	) noexcept(true) -> std::string_view = delete;
+	
+	auto TextFile::WriteToFile(std::filesystem::path&& path) noexcept(false) -> bool
+	{
+		this->FilePath_ = std::move(path);
+		OutputStream stream{ this->FilePath_ };
+		if (NOMINAX_UNLIKELY(!stream))
+		{
+			return false;
+		}
+		stream << this->Content_;
+		return true;
+	}
+
+	auto TextFile::ReadFromFile(std::filesystem::path&& path) noexcept(false) -> bool
+	{
+		this->FilePath_ = std::move(path);
+		InputStream stream{ this->FilePath_ };
+		if (NOMINAX_UNLIKELY(!stream))
+		{
+			return false;
+		}
+		stream.seekg(0, std::ios::end);
+		this->Content_.reserve(stream.tellg());
+		stream.seekg(0, std::ios::beg);
+		this->Content_.assign(std::istreambuf_iterator<CharType>{stream}, std::istreambuf_iterator<CharType>{});
+		return true;
+	}
+
+	auto TextFile::EraseSpaces() noexcept(false) -> void
+	{
+		this->Content_.erase
+		(
+			std::remove_if(std::execution::par_unseq, std::begin(this->Content_), std::end(this->Content_),
+				[](const char c) noexcept(true) -> bool
+				{
+					return c == ' ';
+				}),
+			std::end(this->Content_)
+		);
+	}
+
+	auto TextFile::EraseSpacesAndControlChars() noexcept(false) -> void
+	{
+		this->Content_.erase
+		(
+			std::remove_if(std::execution::par_unseq, std::begin(this->Content_), std::end(this->Content_),
+				[](const char c) noexcept(true) -> bool
+				{
+					return std::isspace<char>(c, std::locale::classic());
+				}),
+			std::end(this->Content_)
+		);
+	}
+
+	auto TextFile::Erase(const char x) noexcept(false) -> void
+	{
+		this->Content_.erase
+		(
+			std::remove_if(std::execution::par_unseq, std::begin(this->Content_), std::end(this->Content_),
+				[x](const char c) noexcept(true) -> bool
+				{
+					return c == x;
+				}),
+			std::end(this->Content_)
+		);
+	}
+
+	auto TextFile::EraseRange(const char begin, const char end) noexcept(false) -> void
+	{
+		const std::size_t beginIndex{ this->Content_.find(begin) };
+		const std::size_t endIndex{ this->Content_.find(end, beginIndex + 1) };
+		this->Content_.erase(beginIndex, endIndex - beginIndex + 1);
+	}
+
+	auto TextFile::SubString(const std::size_t beginIdx, const std::size_t endIdx) const noexcept(true) -> std::string_view
+	{
+		return SubstringView(this->Content_, beginIdx, endIdx - beginIdx + 1);
+	}
+
+	auto TextFile::SubStringChar(const char beginChar, const char endChar) const noexcept(true) -> std::string_view
+	{
+		const std::size_t beginIndex{ this->Content_.find_first_of(beginChar) };
+		const std::size_t endIndex{ this->Content_.find_first_of(endChar, beginIndex + 1) };
+		return SubstringView(this->Content_, beginIndex, endIndex - beginIndex + 1);
 	}
 }

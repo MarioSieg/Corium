@@ -230,7 +230,7 @@ constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
 	+[](InterruptAccumulator) noexcept(true) -> void { }
 };
 
-constexpr DetailedReactorDescriptor MOCK_REACTOR_INPUT
+constexpr VerboseReactorDescriptor MOCK_REACTOR_INPUT
 {
 	.CodeChunk = nullptr,
 	.CodeChunkInstructionMap = nullptr,

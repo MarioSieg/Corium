@@ -209,7 +209,7 @@
 
 #include <span>
 
-#include "DetailedReactorDescriptor.hpp"
+#include "VerboseReactorDescriptor.hpp"
 
 namespace Nominax::Core
 {
@@ -230,7 +230,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The detailed descriptor, created from this instance.</returns>
 		[[nodiscard]]
-		auto BuildDetailed() const noexcept(true) -> DetailedReactorDescriptor;
+		auto BuildDetailed() const noexcept(true) -> VerboseReactorDescriptor;
 
 		/// <summary>
 		/// Will build a detailed descriptor out of this instance and validate it.

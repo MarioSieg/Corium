@@ -382,20 +382,20 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Sto_Combined)
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{ {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{ {}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{ {}, {}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{ {}, {}, {}, {} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, std::vector<DynamicSignal>{ {}, {}, {}, {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0_int}, DynamicSignal{1_int}, DynamicSignal{2_int}, DynamicSignal{3_int} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0_uint}, DynamicSignal{1_uint}, DynamicSignal{2_uint}, DynamicSignal{3_uint} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0.0_float}, DynamicSignal{1.0_float}, DynamicSignal{2.0_float}, DynamicSignal{3.0_float} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{ {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{ {}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{ {}, {}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{ {}, {}, {}, {} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{ {}, {}, {}, {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0_int}, DynamicSignal{1_int}, DynamicSignal{2_int}, DynamicSignal{3_int} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0_uint}, DynamicSignal{1_uint}, DynamicSignal{2_uint}, DynamicSignal{3_uint} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0.0_float}, DynamicSignal{1.0_float}, DynamicSignal{2.0_float}, DynamicSignal{3.0_float} }),
 	          ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0.0_float}, DynamicSignal{1_uint}, DynamicSignal{2_int}, DynamicSignal{3.0_float} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0.0_float}, DynamicSignal{1_uint}, DynamicSignal{2_int}, DynamicSignal{3.0_float}, DynamicSignal{1_uint} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0.0_float}, DynamicSignal{1_uint}, DynamicSignal{2_int}, DynamicSignal{3.0_float} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0.0_float}, DynamicSignal{1_uint}, DynamicSignal{2_int}, DynamicSignal{3.0_float}, DynamicSignal{1_uint} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPush, { DynamicSignal{0.0_float}, DynamicSignal{1_uint}, DynamicSignal{2_int}, DynamicSignal{3.0_float}, DynamicSignal{3.0_float} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0.0_float}, DynamicSignal{1_uint}, DynamicSignal{2_int}, DynamicSignal{3.0_float}, DynamicSignal{3.0_float} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
 }
 

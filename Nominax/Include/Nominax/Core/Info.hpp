@@ -234,4 +234,6 @@ namespace Nominax::Core
 		return out << static_cast<U16>(version.Major) << '.' << static_cast<U16>(version.Minor) <<
 			'.' << static_cast<U16>(version.Build) << '.' << static_cast<U16>(version.Revision);
 	}
+
+	extern auto PrintSystemInfo() -> void;
 }

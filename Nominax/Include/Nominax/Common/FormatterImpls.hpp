@@ -251,30 +251,30 @@ struct fmt::formatter<Nominax::ByteCode::JumpAddress>
 };
 
 template <>
-struct fmt::formatter<Nominax::Core::CharClusterUtf8>
+struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::Core::CharClusterUtf8& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>
-struct fmt::formatter<Nominax::Core::CharClusterUtf16>
+struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::Core::CharClusterUtf16& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>
-struct fmt::formatter<Nominax::Core::CharClusterUtf32>
+struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) noexcept(false) { return ctx.begin(); }
 
-	auto format(const Nominax::Core::CharClusterUtf32& value, format_context& ctx) const noexcept(false) -> FormatOutput;
+	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const noexcept(false) -> FormatOutput;
 };
 
 template <>

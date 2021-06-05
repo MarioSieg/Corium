@@ -212,6 +212,7 @@
 #include "Core/Core.hpp"
 #include "System/System.hpp"
 #include "Common/Common.hpp"
+#include "VectorLib/VectorLib.hpp"
 
 namespace Nominax::Prelude
 {
@@ -221,4 +222,5 @@ namespace Nominax::Prelude
 	using namespace Core;
 	using namespace System;
 	using namespace Common;
+	using namespace VectorLib;
 }

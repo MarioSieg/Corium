@@ -209,7 +209,7 @@
 
 namespace Nominax::Core
 {
-	auto BasicReactorDescriptor::BuildDetailed() const noexcept(true) -> DetailedReactorDescriptor
+	auto BasicReactorDescriptor::BuildDetailed() const noexcept(true) -> VerboseReactorDescriptor
 	{
 		return
 		{

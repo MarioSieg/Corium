@@ -213,7 +213,7 @@
 #include <memory_resource>
 
 #include "EnvironmentDescriptor.hpp"
-#include "ReactorOutput.hpp"
+#include "ReactorState.hpp"
 
 namespace Nominax
 {
@@ -354,14 +354,14 @@ namespace Nominax
 			/// </summary>
 			/// <param name="appCode"></param>
 			/// <returns></returns>
-			auto Execute(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorOutput&;
+			auto Execute(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorState&;
 
 			/// <summary>
 			/// Execute stream on alpha reactor.
 			/// </summary>
 			/// <param name="appCode"></param>
 			/// <returns></returns>
-			auto operator()(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorOutput&;
+			auto operator()(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorState&;
 
 			/// <summary>
 			/// Shutdown runtime environment.
@@ -397,13 +397,6 @@ namespace Nominax
 			/// <returns>The boot time in milliseconds.</returns>
 			[[nodiscard]]
 			auto GetBootTime() const noexcept(false) -> std::chrono::milliseconds;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <returns>The console arguments from argc and argv without the self path.</returns>
-			[[nodiscard]]
-			auto GetInputArguments() const noexcept(false) -> const std::pmr::vector<std::pmr::string>&;
 
 			/// <summary>
 			/// 
@@ -448,7 +441,7 @@ namespace Nominax
 			auto GetExecutionTimeHistory() const noexcept(false) -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
 		};
 
-		inline auto Environment::operator()(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorOutput&
+		inline auto Environment::operator()(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorState&
 		{
 			return this->Execute(std::move(appCode));
 		}

@@ -530,21 +530,21 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(Core::CharClusterUtf8 value) noexcept(false) -> Stream&;
+		auto operator <<(CharClusterUtf8 value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(Core::CharClusterUtf16 value) noexcept(false) -> Stream&;
+		auto operator <<(CharClusterUtf16 value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		auto operator <<(Core::CharClusterUtf32 value) noexcept(false) -> Stream&;
+		auto operator <<(CharClusterUtf32 value) noexcept(false) -> Stream&;
 
 		/// <summary>
 		/// Print out immediate byte code.
@@ -840,7 +840,7 @@ namespace Nominax::ByteCode
 		return *this << static_cast<I64>(value);
 	}
 
-	inline auto Stream::operator <<(const Core::CharClusterUtf8 value) noexcept(false) -> Stream&
+	inline auto Stream::operator <<(const CharClusterUtf8 value) noexcept(false) -> Stream&
 	{
 		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {value});
@@ -848,7 +848,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	inline auto Stream::operator<<(const Core::CharClusterUtf16 value) noexcept(false) -> Stream&
+	inline auto Stream::operator<<(const CharClusterUtf16 value) noexcept(false) -> Stream&
 	{
 		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {value});
@@ -856,7 +856,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	inline auto Stream::operator<<(const Core::CharClusterUtf32 value) noexcept(false) -> Stream&
+	inline auto Stream::operator<<(const CharClusterUtf32 value) noexcept(false) -> Stream&
 	{
 		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.emplace_back(Signal {value});
