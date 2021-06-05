@@ -229,6 +229,11 @@ namespace Nominax::Common
 		using ValueType = std::underlying_type_t<std::decay_t<T>>;
 
 		static_assert(std::atomic<ValueType>::is_always_lock_free);
+	
+	private:
+		std::atomic<ValueType> Value_;
+	
+	public:
 
 		/// <summary>
 		/// Update error state.
@@ -305,9 +310,6 @@ namespace Nominax::Common
 		/// Destructor.
 		/// </summary>
 		~AtomicState() = default;
-
-	private:
-		std::atomic<ValueType> Value_;
 	};
 
 	/// <summary>
