@@ -219,10 +219,10 @@ namespace Nominax::Core
 	/// </summary>
 	struct BasicReactorDescriptor final
 	{
-		std::span<ByteCode::Signal>            CodeChunk;
+		std::span<ByteCode::Signal32>          CodeChunk;
 		std::span<const bool>                  CodeChunkInstructionMap;
 		std::span<ByteCode::IntrinsicRoutine*> IntrinsicTable;
-		std::span<Record>                      Stack;
+		std::span<Record32>                    Stack;
 		InterruptRoutine&                      InterruptHandler;
 
 		/// <summary>

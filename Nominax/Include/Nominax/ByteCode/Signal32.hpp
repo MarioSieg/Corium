@@ -1,4 +1,4 @@
-// File: Signal.hpp
+// File: Signal32.hpp
 // Author: Mario
 // Created: 24.04.2021 9:46 PM
 // Project: NominaxRuntime
@@ -210,7 +210,7 @@
 #include <array>
 #include <type_traits>
 
-#include "../Core/Record.hpp"
+#include "../Core/Record32.hpp"
 #include "SystemIntrinsic.hpp"
 #include "UserIntrinsic.hpp"
 #include "Instruction.hpp"
@@ -221,7 +221,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// 64-bit byte code signal data contains either an instruction or an immediate value.
 	/// </summary>
-	union alignas(alignof(U64)) Signal
+	union alignas(alignof(U64)) Signal32
 	{
 		/// <summary>
 		/// Discriminator for discriminated signals.
@@ -292,7 +292,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as Record64.
 		/// </summary>
-		Core::Record R64;
+		Core::Record32 R64;
 
 		/// <summary>
 		/// Reinterpret as instruction.
@@ -328,123 +328,123 @@ namespace Nominax::ByteCode
 		/// Default constructor.
 		/// </summary>
 		/// <returns></returns>
-		Signal() noexcept(true) = default;
+		Signal32() noexcept(true) = default;
 
 		/// <summary>
 		/// Construct from record64.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(Core::Record value) noexcept(true);
+		explicit constexpr Signal32(Core::Record32 value) noexcept(true);
 
 		/// <summary>
 		/// Construct from instruction.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(Instruction value) noexcept(true);
+		explicit constexpr Signal32(Instruction value) noexcept(true);
 
 		/// <summary>
 		/// Construct from system intrinsic call id.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(SystemIntrinsicCallID value) noexcept(true);
+		explicit constexpr Signal32(SystemIntrinsicCallID value) noexcept(true);
 
 		/// <summary>
 		/// Construct from custom intrinsic call id.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(UserIntrinsicCallID value) noexcept(true);
+		explicit constexpr Signal32(UserIntrinsicCallID value) noexcept(true);
 
 		/// <summary>
 		/// Construct from void pointer.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(void* value) noexcept(true);
+		explicit constexpr Signal32(void* value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit signed quadword integer.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(I64 value) noexcept(true);
+		explicit constexpr Signal32(I64 value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit unsigned quadword integer.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(U64 value) noexcept(true);
+		explicit constexpr Signal32(U64 value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64-bit F64 precision F32.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(F64 value) noexcept(true);
+		explicit constexpr Signal32(F64 value) noexcept(true);
 
 		/// <summary>
 		/// Construct from UTF-8 char cluster.
 		/// </summary>
 		/// <param name="cluster"></param>
 		/// <returns></returns>
-		explicit constexpr Signal(CharClusterUtf8 cluster) noexcept(true);
+		explicit constexpr Signal32(CharClusterUtf8 cluster) noexcept(true);
 
 		/// <summary>
 		/// Construct from UTF-16 char cluster.
 		/// </summary>
 		/// <param name="cluster"></param>
 		/// <returns></returns>
-		explicit constexpr Signal(CharClusterUtf16 cluster) noexcept(true);
+		explicit constexpr Signal32(CharClusterUtf16 cluster) noexcept(true);
 
 		/// <summary>
 		/// Construct from UTF-32 char cluster.
 		/// </summary>
 		/// <param name="cluster"></param>
 		/// <returns></returns>
-		explicit constexpr Signal(CharClusterUtf32 cluster) noexcept(true);
+		explicit constexpr Signal32(CharClusterUtf32 cluster) noexcept(true);
 
 		/// <summary>
 		/// Construct from 32-bit UTF-32 character.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(char32_t value) noexcept(true);
+		explicit constexpr Signal32(char32_t value) noexcept(true);
 
 		/// <summary>
 		/// Construct from 64 bit jump address.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Signal(JumpAddress value) noexcept(true);
+		explicit constexpr Signal32(JumpAddress value) noexcept(true);
 	};
 
-	constexpr Signal::Signal(const Core::Record value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const Instruction value) noexcept(true) : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicCallID value) noexcept(true) : SystemIntrinID {value} {}
-	constexpr Signal::Signal(const UserIntrinsicCallID value) noexcept(true) : UserIntrinID {value} {}
-	constexpr Signal::Signal(void* const value) noexcept(true) : Ptr {value} {}
-	constexpr Signal::Signal(const I64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const U64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const F64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal::Signal(const CharClusterUtf16 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal::Signal(const CharClusterUtf32 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal::Signal(const char32_t value) noexcept(true) : R64 {value} {}
-	constexpr Signal::Signal(const JumpAddress value) noexcept(true) : JmpAddress {value} {}
+	constexpr Signal32::Signal32(const Core::Record32 value) noexcept(true) : R64 {value} {}
+	constexpr Signal32::Signal32(const Instruction value) noexcept(true) : Instr {value} {}
+	constexpr Signal32::Signal32(const SystemIntrinsicCallID value) noexcept(true) : SystemIntrinID {value} {}
+	constexpr Signal32::Signal32(const UserIntrinsicCallID value) noexcept(true) : UserIntrinID {value} {}
+	constexpr Signal32::Signal32(void* const value) noexcept(true) : Ptr {value} {}
+	constexpr Signal32::Signal32(const I64 value) noexcept(true) : R64 {value} {}
+	constexpr Signal32::Signal32(const U64 value) noexcept(true) : R64 {value} {}
+	constexpr Signal32::Signal32(const F64 value) noexcept(true) : R64 {value} {}
+	constexpr Signal32::Signal32(const CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal32::Signal32(const CharClusterUtf16 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal32::Signal32(const CharClusterUtf32 cluster) noexcept(true) : R64 {cluster} {}
+	constexpr Signal32::Signal32(const char32_t value) noexcept(true) : R64 {value} {}
+	constexpr Signal32::Signal32(const JumpAddress value) noexcept(true) : JmpAddress {value} {}
 
 	/// <summary>
 	/// Raw representation of a signal as bytes.
 	/// </summary>
-	using SignalByteBuffer = std::array<U8, sizeof(Signal)>;
+	using SignalByteBuffer = std::array<U8, sizeof(Signal32)>;
 
-	static_assert(std::is_trivial_v<Signal>);
-	static_assert(std::is_default_constructible_v<Signal>);
+	static_assert(std::is_trivial_v<Signal32>);
+	static_assert(std::is_default_constructible_v<Signal32>);
 	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, U64>);
 	static_assert(sizeof(Instruction) == sizeof(U64));
-	static_assert(sizeof(Signal) == sizeof(U64));
-	static_assert(std::is_standard_layout_v<Signal>);
+	static_assert(sizeof(Signal32) == sizeof(U64));
+	static_assert(std::is_standard_layout_v<Signal32>);
 }

@@ -315,9 +315,9 @@ TEST(ReactorInputValidation, MissingCodePrologue)
 TEST(ReactorInputValidation, InvalidMissingCodePrologue1)
 {
 	std::array code = {
-		Signal {Instruction::NOp},
-		Signal {Instruction::Int},
-		Signal {INT64_C(5)},
+		Signal32 {Instruction::NOp},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(5)},
 	};
 
 	const auto input = VerboseReactorDescriptor {
@@ -339,7 +339,7 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue1)
 TEST(ReactorInputValidation, InvalidMissingCodePrologue2)
 {
 	std::array code = {
-		Signal {Instruction::NOp},
+		Signal32 {Instruction::NOp},
 	};
 
 	const auto input = VerboseReactorDescriptor {
@@ -360,8 +360,8 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue2)
 TEST(ReactorInputValidation, InvalidMissingCodePrologue3)
 {
 	std::array code = {
-		Signal {Instruction::NOp},
-		Signal {INT64_C(5)},
+		Signal32 {Instruction::NOp},
+		Signal32 {INT64_C(5)},
 	};
 
 	const auto input = VerboseReactorDescriptor {

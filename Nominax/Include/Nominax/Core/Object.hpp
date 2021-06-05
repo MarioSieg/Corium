@@ -227,7 +227,7 @@ namespace Nominax::Core
 	class Object final
 	{
 	public:
-		using BlobBlockType = Record;
+		using BlobBlockType = Record32;
 
 	private:
 		friend class RuntimeObjectAllocator;
@@ -1114,12 +1114,12 @@ namespace Nominax::Core
 
 	__attribute__((flatten)) inline auto IMMUTATOR Object::BlobSizeInBytes() const noexcept(true) -> std::size_t
 	{
-		return BlobSize() * sizeof(Record);
+		return BlobSize() * sizeof(Record32);
 	}
 
 	__attribute__((flatten)) inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const noexcept(true) -> std::size_t
 	{
-		return this->HeaderRead_BlockSize() * sizeof(Record);
+		return this->HeaderRead_BlockSize() * sizeof(Record32);
 	}
 
 	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const noexcept(true) -> U32

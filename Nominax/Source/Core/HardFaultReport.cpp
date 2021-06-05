@@ -240,15 +240,15 @@ namespace Nominax::Core
 	/// <returns></returns>
 	auto WriteHardFaultReport
 	(
-		std::ostream&                 out,
-		const Record* const           sp,
-		const ByteCode::Signal* const ip,
-		const ByteCode::Signal* const bp,
-		const std::size_t             stackSize,
-		const std::size_t             codeSize,
-		const std::string_view        message,
-		std::size_t                   stackDumpSize,
-		std::size_t                   codeDumpSize
+		std::ostream&                   out,
+		const Record32* const           sp,
+		const ByteCode::Signal32* const ip,
+		const ByteCode::Signal32* const bp,
+		const std::size_t               stackSize,
+		const std::size_t               codeSize,
+		const std::string_view          message,
+		std::size_t                     stackDumpSize,
+		std::size_t                     codeDumpSize
 	) -> void
 	{
 		[[maybe_unused]] GprRegisterLane gpr { };
@@ -862,14 +862,14 @@ namespace Nominax::Core
 	/// <returns></returns>
 	auto WriteHardFaultReport
 	(
-		const Record* const           sp,
-		const ByteCode::Signal* const ip,
-		const ByteCode::Signal* const bp,
-		const std::size_t             stackSize,
-		const std::size_t             codeSize,
-		const std::string_view        message,
-		const std::size_t             stackDumpSize,
-		const std::size_t             codeDumpSize
+		const Record32* const           sp,
+		const ByteCode::Signal32* const ip,
+		const ByteCode::Signal32* const bp,
+		const std::size_t               stackSize,
+		const std::size_t               codeSize,
+		const std::string_view          message,
+		const std::size_t               stackDumpSize,
+		const std::size_t               codeDumpSize
 	) -> void
 	{
 		std::stringstream dump;

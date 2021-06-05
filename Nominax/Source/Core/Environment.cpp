@@ -264,9 +264,9 @@ namespace Nominax::Core
 	static auto PrintTypeInfoTable() -> void
 	{
 		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
-		PrintTypeInfo<Record>("Record");
-		PrintTypeInfo<Signal>("Signal");
-		PrintTypeInfo<Signal::Discriminator>("SignalDisc");
+		PrintTypeInfo<Record32>("Record");
+		PrintTypeInfo<Signal32>("Signal");
+		PrintTypeInfo<Signal32::Discriminator>("SignalDisc");
 		PrintTypeInfo<Object>("Object");
 		PrintTypeInfo<ObjectHeader>("ObjectHeader");
 		PrintTypeInfo<I64>("int");
@@ -342,7 +342,7 @@ namespace Nominax::Core
 	noexcept(true) -> std::size_t
 	{
 		desiredSize = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
-		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
+		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record32));
 	}
 
 	/// <summary>

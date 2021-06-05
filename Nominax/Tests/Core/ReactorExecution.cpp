@@ -210,11 +210,11 @@
 TEST(ReactorExecution, Instruction_Int)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Int},
-		Signal {INT64_C(5)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -242,15 +242,15 @@ TEST(ReactorExecution, Instruction_Int)
 TEST(ReactorExecution, Instruction_Mov)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Sto},
-		Signal {UINT64_C(3)},
-		Signal {3.1415},
-		Signal {Instruction::Mov},
-		Signal {UINT64_C(8)},
-		Signal {UINT64_C(3)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Sto},
+		Signal32 {UINT64_C(3)},
+		Signal32 {3.1415},
+		Signal32 {Instruction::Mov},
+		Signal32 {UINT64_C(8)},
+		Signal32 {UINT64_C(3)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -265,15 +265,15 @@ TEST(ReactorExecution, Instruction_Mov)
 TEST(ReactorExecution, Instruction_Sto)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Sto},
-		Signal {UINT64_C(1)},
-		Signal {INT64_C(5657334)},
-		Signal {Instruction::Sto},
-		Signal {UINT64_C(31)},
-		Signal {3.1415},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Sto},
+		Signal32 {UINT64_C(1)},
+		Signal32 {INT64_C(5657334)},
+		Signal32 {Instruction::Sto},
+		Signal32 {UINT64_C(31)},
+		Signal32 {3.1415},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -288,13 +288,13 @@ TEST(ReactorExecution, Instruction_Sto)
 TEST(ReactorExecution, Instruction_Push)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1224)},
-		Signal {Instruction::Push},
-		Signal {-0.6666},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-3)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(1224)},
+		Signal32 {Instruction::Push},
+		Signal32 {-0.6666},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-3)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -309,15 +309,15 @@ TEST(ReactorExecution, Instruction_Push)
 TEST(ReactorExecution, Instruction_Pop)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1224)},
-		Signal {Instruction::Push},
-		Signal {-0.6666},
-		Signal {Instruction::Pop},
-		Signal {Instruction::Pop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(1224)},
+		Signal32 {Instruction::Push},
+		Signal32 {-0.6666},
+		Signal32 {Instruction::Pop},
+		Signal32 {Instruction::Pop},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -339,14 +339,14 @@ TEST(ReactorExecution, Instruction_Pop)
 TEST(ReactorExecution, Instruction_Pop2)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {UINT64_C(1224)},
-		Signal {Instruction::Push},
-		Signal {-0.6666},
-		Signal {Instruction::Pop2},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {UINT64_C(1224)},
+		Signal32 {Instruction::Push},
+		Signal32 {-0.6666},
+		Signal32 {Instruction::Pop2},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -362,15 +362,15 @@ TEST(ReactorExecution, Instruction_Pop2)
 TEST(ReactorExecution, Instruction_Dupl)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::Dupl},
-		Signal {Instruction::Push},
-		Signal {INT64_C(-2)},
-		Signal {Instruction::Dupl},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::Dupl},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(-2)},
+		Signal32 {Instruction::Dupl},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -387,14 +387,14 @@ TEST(ReactorExecution, Instruction_Dupl)
 TEST(ReactorExecution, Instruction_Swap)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(3)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(-666)},
-		Signal {Instruction::Swap},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(3)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(-666)},
+		Signal32 {Instruction::Swap},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -410,15 +410,15 @@ TEST(ReactorExecution, Instruction_Swap)
 TEST(ReactorExecution, Instruction_Dupl2)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::Dupl2},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0xFF)},
-		Signal {Instruction::Dupl2},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::Dupl2},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0xFF)},
+		Signal32 {Instruction::Dupl2},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -437,16 +437,16 @@ TEST(ReactorExecution, Instruction_Dupl2)
 TEST(ReactorExecution, Instruction_IInc)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(0)},
-		Signal {Instruction::IInc},
-		Signal {Instruction::IInc},
-		Signal {Instruction::IInc},
-		Signal {Instruction::IInc},
-		Signal {Instruction::IInc},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0)},
+		Signal32 {Instruction::IInc},
+		Signal32 {Instruction::IInc},
+		Signal32 {Instruction::IInc},
+		Signal32 {Instruction::IInc},
+		Signal32 {Instruction::IInc},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -454,7 +454,7 @@ TEST(ReactorExecution, Instruction_IInc)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
+	ASSERT_EQ(o.Input->Stack[0], Record32::Padding());
 	ASSERT_EQ(o.Input->Stack[1].AsI64, 5);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -462,23 +462,23 @@ TEST(ReactorExecution, Instruction_IInc)
 TEST(ReactorExecution, Instruction_IDec)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::IDec},
-		Signal {Instruction::IDec},
-		Signal {Instruction::IDec},
-		Signal {Instruction::IDec},
-		Signal {Instruction::IDec},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::IDec},
+		Signal32 {Instruction::IDec},
+		Signal32 {Instruction::IDec},
+		Signal32 {Instruction::IDec},
+		Signal32 {Instruction::IDec},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
+	ASSERT_EQ(o.Input->Stack[0], Record32::Padding());
 	ASSERT_EQ(o.Input->Stack[1].AsI64, -3);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -486,12 +486,12 @@ TEST(ReactorExecution, Instruction_IDec)
 TEST(ReactorExecution, Instruction_PushZ)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -507,12 +507,12 @@ TEST(ReactorExecution, Instruction_PushZ)
 TEST(ReactorExecution, Instruction_IPushO)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::IPushO},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -528,14 +528,14 @@ TEST(ReactorExecution, Instruction_IPushO)
 TEST(ReactorExecution, Instruction_IAdd)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::IAdd},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::IAdd},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -551,14 +551,14 @@ TEST(ReactorExecution, Instruction_IAdd)
 TEST(ReactorExecution, Instruction_ISub)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::ISub},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::ISub},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -574,14 +574,14 @@ TEST(ReactorExecution, Instruction_ISub)
 TEST(ReactorExecution, Instruction_IMul)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::IMul},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::IMul},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -597,14 +597,14 @@ TEST(ReactorExecution, Instruction_IMul)
 TEST(ReactorExecution, Instruction_IDiv)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::IDiv},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(10)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::IDiv},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -620,14 +620,14 @@ TEST(ReactorExecution, Instruction_IDiv)
 TEST(ReactorExecution, Instruction_IMod)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::IMod},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(10)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::IMod},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -643,14 +643,14 @@ TEST(ReactorExecution, Instruction_IMod)
 TEST(ReactorExecution, Instruction_IAnd)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b1101'1101)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b0111'0111)},
-		Signal {Instruction::IAnd},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0b1101'1101)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0b0111'0111)},
+		Signal32 {Instruction::IAnd},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -666,14 +666,14 @@ TEST(ReactorExecution, Instruction_IAnd)
 TEST(ReactorExecution, Instruction_IOr)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b1101'1101)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b0111'0111)},
-		Signal {Instruction::IOr},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0b1101'1101)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0b0111'0111)},
+		Signal32 {Instruction::IOr},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -689,14 +689,14 @@ TEST(ReactorExecution, Instruction_IOr)
 TEST(ReactorExecution, Instruction_IXor)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b1101'1101)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b0111'0111)},
-		Signal {Instruction::IXor},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0b1101'1101)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0b0111'0111)},
+		Signal32 {Instruction::IXor},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -712,12 +712,12 @@ TEST(ReactorExecution, Instruction_IXor)
 TEST(ReactorExecution, Instruction_ICom)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b1101'1101)},
-		Signal {Instruction::ICom},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0b1101'1101)},
+		Signal32 {Instruction::ICom},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -732,14 +732,14 @@ TEST(ReactorExecution, Instruction_ICom)
 TEST(ReactorExecution, Instruction_ISal)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::ISal},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(1)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::ISal},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -755,14 +755,14 @@ TEST(ReactorExecution, Instruction_ISal)
 TEST(ReactorExecution, Instruction_ISar)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::ISar},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(1)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::ISar},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -778,14 +778,14 @@ TEST(ReactorExecution, Instruction_ISar)
 TEST(ReactorExecution, Instruction_IRol)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::IRol},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(1)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::IRol},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -801,14 +801,14 @@ TEST(ReactorExecution, Instruction_IRol)
 TEST(ReactorExecution, Instruction_IRor)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::IRor},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(1)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::IRor},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -824,12 +824,12 @@ TEST(ReactorExecution, Instruction_IRor)
 TEST(ReactorExecution, Instruction_INeg)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::INeg},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(10)},
+		Signal32 {Instruction::INeg},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -844,14 +844,14 @@ TEST(ReactorExecution, Instruction_INeg)
 TEST(ReactorExecution, Instruction_FAdd)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {4.25},
-		Signal {Instruction::Push},
-		Signal {2.50},
-		Signal {Instruction::FAdd},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {4.25},
+		Signal32 {Instruction::Push},
+		Signal32 {2.50},
+		Signal32 {Instruction::FAdd},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -867,14 +867,14 @@ TEST(ReactorExecution, Instruction_FAdd)
 TEST(ReactorExecution, Instruction_FMod)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {4.25},
-		Signal {Instruction::Push},
-		Signal {2.50},
-		Signal {Instruction::FMod},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {4.25},
+		Signal32 {Instruction::Push},
+		Signal32 {2.50},
+		Signal32 {Instruction::FMod},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -890,14 +890,14 @@ TEST(ReactorExecution, Instruction_FMod)
 TEST(ReactorExecution, Instruction_FSub)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {4.25},
-		Signal {Instruction::Push},
-		Signal {2.50},
-		Signal {Instruction::FSub},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {4.25},
+		Signal32 {Instruction::Push},
+		Signal32 {2.50},
+		Signal32 {Instruction::FSub},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -913,14 +913,14 @@ TEST(ReactorExecution, Instruction_FSub)
 TEST(ReactorExecution, Instruction_FMul)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {4.25},
-		Signal {Instruction::Push},
-		Signal {2.50},
-		Signal {Instruction::FMul},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {4.25},
+		Signal32 {Instruction::Push},
+		Signal32 {2.50},
+		Signal32 {Instruction::FMul},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -936,14 +936,14 @@ TEST(ReactorExecution, Instruction_FMul)
 TEST(ReactorExecution, Instruction_FDiv)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {4.25},
-		Signal {Instruction::Push},
-		Signal {2.50},
-		Signal {Instruction::FDiv},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {4.25},
+		Signal32 {Instruction::Push},
+		Signal32 {2.50},
+		Signal32 {Instruction::FDiv},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -959,12 +959,12 @@ TEST(ReactorExecution, Instruction_FDiv)
 TEST(ReactorExecution, Instruction_FNeg)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {2.25},
-		Signal {Instruction::FNeg},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {2.25},
+		Signal32 {Instruction::FNeg},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -979,16 +979,16 @@ TEST(ReactorExecution, Instruction_FNeg)
 TEST(ReactorExecution, Instruction_FInc)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {.0},
-		Signal {Instruction::FInc},
-		Signal {Instruction::FInc},
-		Signal {Instruction::FInc},
-		Signal {Instruction::FInc},
-		Signal {Instruction::FInc},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {.0},
+		Signal32 {Instruction::FInc},
+		Signal32 {Instruction::FInc},
+		Signal32 {Instruction::FInc},
+		Signal32 {Instruction::FInc},
+		Signal32 {Instruction::FInc},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -996,7 +996,7 @@ TEST(ReactorExecution, Instruction_FInc)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
+	ASSERT_EQ(o.Input->Stack[0], Record32::Padding());
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 5.);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -1004,16 +1004,16 @@ TEST(ReactorExecution, Instruction_FInc)
 TEST(ReactorExecution, Instruction_FDec)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {2.},
-		Signal {Instruction::FDec},
-		Signal {Instruction::FDec},
-		Signal {Instruction::FDec},
-		Signal {Instruction::FDec},
-		Signal {Instruction::FDec},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {2.},
+		Signal32 {Instruction::FDec},
+		Signal32 {Instruction::FDec},
+		Signal32 {Instruction::FDec},
+		Signal32 {Instruction::FDec},
+		Signal32 {Instruction::FDec},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1021,7 +1021,7 @@ TEST(ReactorExecution, Instruction_FDec)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
+	ASSERT_EQ(o.Input->Stack[0], Record32::Padding());
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, -3.);
 	ASSERT_EQ(o.SpDiff, 1);
 }
@@ -1029,12 +1029,12 @@ TEST(ReactorExecution, Instruction_FDec)
 TEST(ReactorExecution, Instruction_FPushO)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::FPushO},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::FPushO},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::FPushO},
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::FPushO},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1050,15 +1050,15 @@ TEST(ReactorExecution, Instruction_FPushO)
 TEST(ReactorExecution, Instruction_Call)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Call},
-		Signal {UINT64_C(5)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Call},
+		Signal32 {UINT64_C(5)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(10)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1074,18 +1074,18 @@ TEST(ReactorExecution, Instruction_Call)
 TEST(ReactorExecution, Instruction_Ret)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Call},
-		Signal {UINT64_C(5)},
-		Signal {Instruction::Call},
-		Signal {UINT64_C(5)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xABCDEF)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Ret},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Call},
+		Signal32 {UINT64_C(5)},
+		Signal32 {Instruction::Call},
+		Signal32 {UINT64_C(5)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xABCDEF)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(10)},
+		Signal32 {Instruction::Ret},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1103,15 +1103,15 @@ TEST(ReactorExecution, Instruction_Ret)
 TEST(ReactorExecution, Instruction_Jmp)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Jmp},
-		Signal {UINT64_C(5)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Jmp},
+		Signal32 {UINT64_C(5)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(10)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1127,15 +1127,15 @@ TEST(ReactorExecution, Instruction_Jmp)
 TEST(ReactorExecution, Instruction_JmpRel)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::JmpRel},
-		Signal {UINT64_C(3)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::JmpRel},
+		Signal32 {UINT64_C(3)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(10)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1151,17 +1151,17 @@ TEST(ReactorExecution, Instruction_JmpRel)
 TEST(ReactorExecution, Instruction_JZ)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::Jz},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::Jz},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::Jz},
+		Signal32 {UINT64_C(6)}, // first padding does not count
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::Jz},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1178,17 +1178,17 @@ TEST(ReactorExecution, Instruction_JZ)
 TEST(ReactorExecution, Instruction_JnZ)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::IPushO},
-		Signal {Instruction::Jnz},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::Jnz},
-		Signal {UINT64_C(1)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::Jnz},
+		Signal32 {UINT64_C(6)}, // first padding does not count
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::Jnz},
+		Signal32 {UINT64_C(1)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1205,17 +1205,17 @@ TEST(ReactorExecution, Instruction_JnZ)
 TEST(ReactorExecution, Instruction_JoCmpI)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JoCmpi},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::JoCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::JoCmpi},
+		Signal32 {UINT64_C(6)}, // first padding does not count
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::JoCmpi},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1232,17 +1232,17 @@ TEST(ReactorExecution, Instruction_JoCmpI)
 TEST(ReactorExecution, Instruction_JnoCmpI)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::JnoCmpi},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JnoCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::JnoCmpi},
+		Signal32 {UINT64_C(6)}, // first padding does not count
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::JnoCmpi},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1259,17 +1259,17 @@ TEST(ReactorExecution, Instruction_JnoCmpI)
 TEST(ReactorExecution, Instruction_JoCmpF)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::FPushO},
-		Signal {Instruction::JoCmpf},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::JoCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::FPushO},
+		Signal32 {Instruction::JoCmpf},
+		Signal32 {UINT64_C(6)}, // first padding does not count
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::JoCmpf},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1286,17 +1286,17 @@ TEST(ReactorExecution, Instruction_JoCmpF)
 TEST(ReactorExecution, Instruction_JnoCmpF)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::JnoCmpf},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::FPushO},
-		Signal {Instruction::JnoCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::JnoCmpf},
+		Signal32 {UINT64_C(6)}, // first padding does not count
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::FPushO},
+		Signal32 {Instruction::JnoCmpf},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1313,22 +1313,22 @@ TEST(ReactorExecution, Instruction_JnoCmpF)
 TEST(ReactorExecution, Instruction_JeCmpI)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(12345679)},
-		Signal {Instruction::Dupl},
-		Signal {Instruction::JeCmpi},
-		Signal {UINT64_C(8)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(123424224)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0xFF'FF)},
-		Signal {Instruction::JeCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(12345679)},
+		Signal32 {Instruction::Dupl},
+		Signal32 {Instruction::JeCmpi},
+		Signal32 {UINT64_C(8)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(123424224)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0xFF'FF)},
+		Signal32 {Instruction::JeCmpi},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1346,22 +1346,22 @@ TEST(ReactorExecution, Instruction_JeCmpI)
 TEST(ReactorExecution, Instruction_JeCmpF)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {1234567.0},
-		Signal {Instruction::Dupl},
-		Signal {Instruction::JeCmpf},
-		Signal {UINT64_C(8)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {123424224.0},
-		Signal {Instruction::Push},
-		Signal {0.22233},
-		Signal {Instruction::JeCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {1234567.0},
+		Signal32 {Instruction::Dupl},
+		Signal32 {Instruction::JeCmpf},
+		Signal32 {UINT64_C(8)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::Push},
+		Signal32 {123424224.0},
+		Signal32 {Instruction::Push},
+		Signal32 {0.22233},
+		Signal32 {Instruction::JeCmpf},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1379,23 +1379,23 @@ TEST(ReactorExecution, Instruction_JeCmpF)
 TEST(ReactorExecution, Instruction_JneCmpI)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1234567)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(213131232)},
-		Signal {Instruction::JneCmpi},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0xFF'FF)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0xFF'FF)},
-		Signal {Instruction::JneCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(1234567)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(213131232)},
+		Signal32 {Instruction::JneCmpi},
+		Signal32 {UINT64_C(9)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0xFF'FF)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(0xFF'FF)},
+		Signal32 {Instruction::JneCmpi},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1413,23 +1413,23 @@ TEST(ReactorExecution, Instruction_JneCmpI)
 TEST(ReactorExecution, Instruction_JneCmpF)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {1234567.},
-		Signal {Instruction::Push},
-		Signal {213131232.},
-		Signal {Instruction::JneCmpf},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {3.1415},
-		Signal {Instruction::Push},
-		Signal {3.1415},
-		Signal {Instruction::JneCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {1234567.},
+		Signal32 {Instruction::Push},
+		Signal32 {213131232.},
+		Signal32 {Instruction::JneCmpf},
+		Signal32 {UINT64_C(9)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-1)},
+		Signal32 {Instruction::Push},
+		Signal32 {3.1415},
+		Signal32 {Instruction::Push},
+		Signal32 {3.1415},
+		Signal32 {Instruction::JneCmpf},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1447,23 +1447,23 @@ TEST(ReactorExecution, Instruction_JneCmpF)
 TEST(ReactorExecution, Instruction_JaCmpI)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::JaCmpi},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(0)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(3)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(53)},
-		Signal {Instruction::JaCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::JaCmpi},
+		Signal32 {UINT64_C(9)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(0)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(3)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(53)},
+		Signal32 {Instruction::JaCmpi},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1481,23 +1481,23 @@ TEST(ReactorExecution, Instruction_JaCmpI)
 TEST(ReactorExecution, Instruction_JaCmpF)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {5.0},
-		Signal {Instruction::Push},
-		Signal {2.0},
-		Signal {Instruction::JaCmpf},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(0)},
-		Signal {Instruction::Push},
-		Signal {3.0},
-		Signal {Instruction::Push},
-		Signal {53.0},
-		Signal {Instruction::JaCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {5.0},
+		Signal32 {Instruction::Push},
+		Signal32 {2.0},
+		Signal32 {Instruction::JaCmpf},
+		Signal32 {UINT64_C(9)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(0)},
+		Signal32 {Instruction::Push},
+		Signal32 {3.0},
+		Signal32 {Instruction::Push},
+		Signal32 {53.0},
+		Signal32 {Instruction::JaCmpf},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1515,23 +1515,23 @@ TEST(ReactorExecution, Instruction_JaCmpF)
 TEST(ReactorExecution, Instruction_JlCmpI)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::JlCmpi},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(0)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(53)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(3)},
-		Signal {Instruction::JlCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::JlCmpi},
+		Signal32 {UINT64_C(9)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(0)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(53)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(3)},
+		Signal32 {Instruction::JlCmpi},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1549,23 +1549,23 @@ TEST(ReactorExecution, Instruction_JlCmpI)
 TEST(ReactorExecution, Instruction_JlCmpF)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {2.0},
-		Signal {Instruction::Push},
-		Signal {5.0},
-		Signal {Instruction::JlCmpf},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(0)},
-		Signal {Instruction::Push},
-		Signal {53.0},
-		Signal {Instruction::Push},
-		Signal {3.0},
-		Signal {Instruction::JlCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {2.0},
+		Signal32 {Instruction::Push},
+		Signal32 {5.0},
+		Signal32 {Instruction::JlCmpf},
+		Signal32 {UINT64_C(9)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(0)},
+		Signal32 {Instruction::Push},
+		Signal32 {53.0},
+		Signal32 {Instruction::Push},
+		Signal32 {3.0},
+		Signal32 {Instruction::JlCmpf},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1583,29 +1583,29 @@ TEST(ReactorExecution, Instruction_JlCmpF)
 TEST(ReactorExecution, Instruction_JaeCmpI)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::JaeCmpi},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-3)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JaeCmpi},
-		Signal {UINT64_C(15)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-5)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(3)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(53)},
-		Signal {Instruction::JaeCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::JaeCmpi},
+		Signal32 {UINT64_C(9)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-3)},
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::JaeCmpi},
+		Signal32 {UINT64_C(15)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-5)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(3)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(53)},
+		Signal32 {Instruction::JaeCmpi},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1623,29 +1623,29 @@ TEST(ReactorExecution, Instruction_JaeCmpI)
 TEST(ReactorExecution, Instruction_JaeCmpF)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {5.0},
-		Signal {Instruction::Push},
-		Signal {2.0},
-		Signal {Instruction::JaeCmpf},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-3)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JaeCmpf},
-		Signal {UINT64_C(15)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-5)},
-		Signal {Instruction::Push},
-		Signal {3.0},
-		Signal {Instruction::Push},
-		Signal {53.0},
-		Signal {Instruction::JaeCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {5.0},
+		Signal32 {Instruction::Push},
+		Signal32 {2.0},
+		Signal32 {Instruction::JaeCmpf},
+		Signal32 {UINT64_C(9)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-3)},
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::JaeCmpf},
+		Signal32 {UINT64_C(15)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-5)},
+		Signal32 {Instruction::Push},
+		Signal32 {3.0},
+		Signal32 {Instruction::Push},
+		Signal32 {53.0},
+		Signal32 {Instruction::JaeCmpf},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1663,29 +1663,29 @@ TEST(ReactorExecution, Instruction_JaeCmpF)
 TEST(ReactorExecution, Instruction_JleCmpI)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::JleCmpi},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-3)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JleCmpi},
-		Signal {UINT64_C(15)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-5)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(53)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(3)},
-		Signal {Instruction::JleCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(2)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(5)},
+		Signal32 {Instruction::JleCmpi},
+		Signal32 {UINT64_C(9)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-3)},
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::JleCmpi},
+		Signal32 {UINT64_C(15)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-5)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(53)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(3)},
+		Signal32 {Instruction::JleCmpi},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1703,29 +1703,29 @@ TEST(ReactorExecution, Instruction_JleCmpI)
 TEST(ReactorExecution, Instruction_JleCmpF)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {2.0},
-		Signal {Instruction::Push},
-		Signal {5.0},
-		Signal {Instruction::JleCmpf},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-3)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JleCmpf},
-		Signal {UINT64_C(15)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-5)},
-		Signal {Instruction::Push},
-		Signal {53.0},
-		Signal {Instruction::Push},
-		Signal {3.0},
-		Signal {Instruction::JleCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {2.0},
+		Signal32 {Instruction::Push},
+		Signal32 {5.0},
+		Signal32 {Instruction::JleCmpf},
+		Signal32 {UINT64_C(9)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-3)},
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::IPushO},
+		Signal32 {Instruction::JleCmpf},
+		Signal32 {UINT64_C(15)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-5)},
+		Signal32 {Instruction::Push},
+		Signal32 {53.0},
+		Signal32 {Instruction::Push},
+		Signal32 {3.0},
+		Signal32 {Instruction::JleCmpf},
+		Signal32 {UINT64_C(0)},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = code.data();
@@ -1743,14 +1743,14 @@ TEST(ReactorExecution, Instruction_JleCmpF)
 TEST(ReactorExecution, Instruction_VecPush)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::VecPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -1771,15 +1771,15 @@ TEST(ReactorExecution, Instruction_VecPush)
 TEST(ReactorExecution, Instruction_VecPop)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::VecPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::VecPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {Instruction::VecPop},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -1800,21 +1800,21 @@ TEST(ReactorExecution, Instruction_VecPop)
 TEST(ReactorExecution, Instruction_VecAdd)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::VecPush},
-		Signal {6.0},
-		Signal {8.0},
-		Signal {10.0},
-		Signal {12.0},
-		Signal {Instruction::VecAdd},
-		Signal {Instruction::VecPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::VecPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {Instruction::VecPush},
+		Signal32 {6.0},
+		Signal32 {8.0},
+		Signal32 {10.0},
+		Signal32 {12.0},
+		Signal32 {Instruction::VecAdd},
+		Signal32 {Instruction::VecPop},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -1835,21 +1835,21 @@ TEST(ReactorExecution, Instruction_VecAdd)
 TEST(ReactorExecution, Instruction_VecSub)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::VecPush},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {1.0},
-		Signal {4.0},
-		Signal {Instruction::VecSub},
-		Signal {Instruction::VecPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::VecPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {Instruction::VecPush},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {1.0},
+		Signal32 {4.0},
+		Signal32 {Instruction::VecSub},
+		Signal32 {Instruction::VecPop},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -1870,21 +1870,21 @@ TEST(ReactorExecution, Instruction_VecSub)
 TEST(ReactorExecution, Instruction_VecMul)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::VecMul},
-		Signal {Instruction::VecPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::VecPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {Instruction::VecPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {Instruction::VecMul},
+		Signal32 {Instruction::VecPop},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -1905,21 +1905,21 @@ TEST(ReactorExecution, Instruction_VecMul)
 TEST(ReactorExecution, Instruction_VecDiv)
 {
 	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {8.0},
-		Signal {Instruction::VecPush},
-		Signal {4.0},
-		Signal {2.0},
-		Signal {0.5},
-		Signal {4.0},
-		Signal {Instruction::VecDiv},
-		Signal {Instruction::VecPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::VecPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {8.0},
+		Signal32 {Instruction::VecPush},
+		Signal32 {4.0},
+		Signal32 {2.0},
+		Signal32 {0.5},
+		Signal32 {4.0},
+		Signal32 {Instruction::VecDiv},
+		Signal32 {Instruction::VecPop},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -1941,34 +1941,34 @@ TEST(ReactorExecution, Instruction_MatPush)
 {
 	std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::MatPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
+	const auto o {SingletonExecutionProxy(input)};
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
@@ -1993,35 +1993,35 @@ TEST(ReactorExecution, Instruction_MatPop)
 {
 	std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::MatPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::MatPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {Instruction::MatPop},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
+	const auto o {SingletonExecutionProxy(input)};
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
@@ -2046,62 +2046,62 @@ TEST(ReactorExecution, Instruction_MatAdd)
 {
 	std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-		Signal {1.0 },
-		Signal {4.0 },
-		Signal {3.0 },
-		Signal {4.0 },
-		Signal {1.0 },
-		Signal {2.0 },
-		Signal {3.0 },
-		Signal {2.0 },
-		Signal {1.0 },
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 4.0},
-		Signal { 1.0},
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 6.0},
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatAdd},
-		Signal {Instruction::MatPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::MatPush},
+		Signal32 {1.0},
+		Signal32 {4.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {2.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {6.0},
+		Signal32 {Instruction::MatPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {2.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {6.0},
+		Signal32 {Instruction::MatAdd},
+		Signal32 {Instruction::MatPop},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0  + 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0  + 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0  + 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0  + 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0  + 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0  + 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0  + 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0  + 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0  + 1.0);
+	const auto o {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 + 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 + 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 + 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 + 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 + 3.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 + 4.0);
@@ -2117,62 +2117,62 @@ TEST(ReactorExecution, Instruction_MatSub)
 {
 	std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-Signal {1.0 },
-		Signal {4.0 },
-		Signal {3.0 },
-		Signal {4.0 },
-		Signal {1.0 },
-		Signal {2.0 },
-		Signal {3.0 },
-		Signal {2.0 },
-		Signal {1.0 },
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 4.0},
-		Signal { 1.0},
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 6.0},
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatSub},
-		Signal {Instruction::MatPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::MatPush},
+		Signal32 {1.0},
+		Signal32 {4.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {2.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {6.0},
+		Signal32 {Instruction::MatPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {2.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {6.0},
+		Signal32 {Instruction::MatSub},
+		Signal32 {Instruction::MatPop},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64,  1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64,  4.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64,  3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64,  4.0 - 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64,  1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64,  2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64,  3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64,  2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64,  1.0 - 1.0);
+	const auto o {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 - 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 - 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 - 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 - 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 - 3.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 - 4.0);
@@ -2188,53 +2188,53 @@ TEST(ReactorExecution, Instruction_MatMul)
 {
 	std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-		Signal {1.0 },
-		Signal {4.0 },
-		Signal {3.0 },
-		Signal {4.0 },
-		Signal {1.0 },
-		Signal {2.0 },
-		Signal {3.0 },
-		Signal {2.0 },
-		Signal {1.0 },
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 4.0},
-		Signal { 1.0},
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 6.0},
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatMul},
-		Signal {Instruction::MatPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::MatPush},
+		Signal32 {1.0},
+		Signal32 {4.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {2.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {6.0},
+		Signal32 {Instruction::MatPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {2.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {6.0},
+		Signal32 {Instruction::MatMul},
+		Signal32 {Instruction::MatPop},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
+	const auto o {SingletonExecutionProxy(input)};
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 * 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 * 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 * 3.0);
@@ -2259,53 +2259,53 @@ TEST(ReactorExecution, Instruction_MatDiv)
 {
 	std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-		Signal {1.0 },
-		Signal {4.0 },
-		Signal {3.0 },
-		Signal {4.0 },
-		Signal {1.0 },
-		Signal {2.0 },
-		Signal {3.0 },
-		Signal {2.0 },
-		Signal {1.0 },
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 4.0},
-		Signal { 1.0},
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 6.0},
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatDiv},
-		Signal {Instruction::MatPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::MatPush},
+		Signal32 {1.0},
+		Signal32 {4.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {2.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {6.0},
+		Signal32 {Instruction::MatPush},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {2.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {4.0},
+		Signal32 {1.0},
+		Signal32 {2.0},
+		Signal32 {3.0},
+		Signal32 {6.0},
+		Signal32 {Instruction::MatDiv},
+		Signal32 {Instruction::MatPop},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
+	const auto o {SingletonExecutionProxy(input)};
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 / 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 / 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 / 3.0);
@@ -2325,4 +2325,3 @@ TEST(ReactorExecution, Instruction_MatDiv)
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
-

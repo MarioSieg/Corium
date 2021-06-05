@@ -1,6 +1,6 @@
 // File: TaskQueue.hpp
 // Author: Mario
-// Created: 01.06.2021 10:17 PM
+// Created: 05.06.2021 12:25 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -229,22 +229,22 @@ namespace Nominax::Core
 		/// <summary>
 		/// Is the thread currently disposing?!
 		/// </summary>
-		bool Disposing_{ false };
-		
+		bool Disposing_ {false};
+
 		/// <summary>
 		/// Job queue.
 		/// </summary>
-		std::queue<TaskRoutine, std::pmr::deque<TaskRoutine>> TaskQueue_{};
+		std::queue<TaskRoutine, std::pmr::deque<TaskRoutine>> TaskQueue_ { };
 
 		/// <summary>
 		/// Mutex for the queue.
 		/// </summary>
-		std::mutex QueueMutex_{};
+		std::mutex QueueMutex_ { };
 
 		/// <summary>
 		/// Condition notifier.
 		/// </summary>
-		std::condition_variable SharedCondition_{};
+		std::condition_variable SharedCondition_ { };
 
 		/// <summary>
 		/// Worker thread.
@@ -286,13 +286,13 @@ namespace Nominax::Core
 		/// No copy.
 		/// </summary>
 		/// <returns></returns>
-		auto operator=(const TaskQueueThread&)->TaskQueueThread & = delete;
+		auto operator=(const TaskQueueThread&) -> TaskQueueThread& = delete;
 
 		/// <summary>
 		/// No move.
 		/// </summary>
 		/// <returns></returns>
-		auto operator=(TaskQueueThread&&)->TaskQueueThread & = delete;
+		auto operator=(TaskQueueThread&&) -> TaskQueueThread& = delete;
 
 		/// <summary>
 		/// Destroy and join thread.

@@ -209,7 +209,7 @@
 
 TEST(ReactorAggregates, UnionReinterpretation)
 {
-	Record rec {
+	Record32 rec {
 		UINT64_C(0xFF'FF'FF'FF)
 	};
 	ASSERT_EQ(rec.AsU64, 0xFF'FF'FF'FF);
@@ -226,7 +226,7 @@ TEST(ReactorAggregates, UnionReinterpretation)
 	rec.AsPtr = &rec;
 	ASSERT_EQ(rec.AsPtr, &rec);
 
-	constexpr Signal sig {
+	constexpr Signal32 sig {
 		Instruction::Mov
 	};
 	ASSERT_EQ(sig.Instr, Instruction::Mov);

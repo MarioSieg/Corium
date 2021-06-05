@@ -213,7 +213,7 @@
 #include "BaseTypes.hpp"
 
 namespace Nominax::Common
-{	
+{
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
@@ -261,7 +261,7 @@ namespace Nominax::Common
 		return std::rotr<decltype(value)>(value, shift);
 #endif
 	}
-	
+
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>

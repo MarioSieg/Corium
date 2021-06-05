@@ -290,7 +290,7 @@ auto formatter<ReactorValidationResult, char, void>::format(const ReactorValidat
 
 auto formatter<DiscriminatedSignal, char, void>::format(const DiscriminatedSignal& value, format_context& ctx) const noexcept(false) -> FormatOutput
 {
-	using Dis = Signal::Discriminator;
+	using Dis = Signal32::Discriminator;
 
 	switch (value.Discriminator)
 	{

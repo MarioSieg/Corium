@@ -224,6 +224,6 @@ namespace Nominax::Core
 		this->Buffer_.resize(sizeInRecords);
 
 		// insert padding:
-		this->Buffer_.front() = Record::Padding();
+		this->Buffer_.front() = Record32::Padding();
 	}
 }

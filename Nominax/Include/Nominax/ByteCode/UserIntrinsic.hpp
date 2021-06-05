@@ -210,7 +210,7 @@
 #include <cstdint>
 #include <span>
 
-#include "../Core/Record.hpp"
+#include "../Core/Record32.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -223,7 +223,7 @@ namespace Nominax::ByteCode
 	/// Custom intrinsic routine function prototype.
 	/// Contains the stack pointer as parameter.
 	/// </summary>
-	using IntrinsicRoutine = auto (Core::Record*) -> void;
+	using IntrinsicRoutine = auto (Core::Record32*) -> void;
 	static_assert(std::is_function_v<IntrinsicRoutine>);
 
 	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;

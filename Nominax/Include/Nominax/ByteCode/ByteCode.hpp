@@ -223,7 +223,7 @@
 #include "PopCount.hpp"
 #include "PushCount.hpp"
 #include "ScopedVariable.hpp"
-#include "Signal.hpp"
+#include "Signal32.hpp"
 #include "Stream.hpp"
 #include "DiscriminatedSignal.hpp"
 #include "StreamScalar.hpp"

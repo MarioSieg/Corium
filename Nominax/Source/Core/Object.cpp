@@ -211,7 +211,7 @@
 
 namespace Nominax::Core
 {
-	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) const noexcept(true) -> bool
+	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record32> buffer) const noexcept(true) -> bool
 	{
 		if (NOMINAX_UNLIKELY(buffer.size() < this->HeaderRead_BlockSize()))
 		{
@@ -223,13 +223,13 @@ namespace Nominax::Core
 		return true;
 	}
 
-	auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) const noexcept(false) -> void
+	auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record32>& buffer) const noexcept(false) -> void
 	{
 		buffer.resize(this->HeaderRead_BlockSize());
 		std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
 	}
 
-	auto Object::CopyBlob(std::vector<Record>& buffer) const noexcept(false) -> void
+	auto Object::CopyBlob(std::vector<Record32>& buffer) const noexcept(false) -> void
 	{
 		buffer.resize(this->BlobSize());
 		std::memcpy(buffer.data(), this->Blob_, this->BlobSizeInBytes());
@@ -249,7 +249,7 @@ namespace Nominax::Core
 			return nullptr;
 		}
 		const U32                finalObjectSize = ObjectHeader::RECORD_CHUNKS + sizeInRecords;
-		auto* __restrict__ const object          = new Record[finalObjectSize]();
+		auto* __restrict__ const object          = new Record32[finalObjectSize]();
 		assert(object);
 
 		// Write object header:

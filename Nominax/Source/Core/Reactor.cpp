@@ -278,7 +278,7 @@ namespace Nominax::Core
 			"Power: {}, "             // power preference
 			"Pool: {:02}\n",          // pool index
 			this->Id_,
-			Bytes2Megabytes(this->Stack_.Size() * sizeof(Record)),
+			Bytes2Megabytes(this->Stack_.Size() * sizeof(Record32)),
 			this->Stack_.Size(),
 			this->IntrinsicTable_.size(),
 			this->InterruptHandler_ == &DefaultInterruptRoutine ? "Def" : "Usr",

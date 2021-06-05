@@ -1,6 +1,6 @@
-// File: Core.hpp
+// File: Record64.hpp
 // Author: Mario
-// Created: 25.04.2021 3:17 PM
+// Created: 06.06.2021 12:59 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,27 +207,334 @@
 
 #pragma once
 
-#include "BasicReactorDescriptor.hpp"
-#include "VerboseReactorDescriptor.hpp"
-#include "Environment.hpp"
-#include "EnvironmentDescriptor.hpp"
-#include "ExecutionAddressMapping.hpp"
-#include "FixedStack.hpp"
-#include "HardFaultReport.hpp"
-#include "Info.hpp"
-#include "Interrupt.hpp"
-#include "Object.hpp"
-#include "ObjectFlagVector.hpp"
-#include "ObjectHeader.hpp"
-#include "Reactor.hpp"
-#include "ReactorCoreSpecialization.hpp"
-#include "ReactorHypervisor.hpp"
-#include "ReactorState.hpp"
-#include "ReactorPool.hpp"
-#include "ReactorShutdownReason.hpp"
-#include "ReactorSpawnDescriptor.hpp"
-#include "ReactorValidationResult.hpp"
-#include "Record32.hpp"
-#include "RegisterDump.hpp"
-#include "TaskQueue.hpp"
-#include "TaskQueueThreadPool.hpp"
+#include <array>
+#include <type_traits>
+
+#include "../ByteCode/CharCluster.hpp"
+
+namespace Nominax::Core
+{
+	/// <summary>
+	/// 64-bit memory record.
+	/// Contains either: Record6432, void*, U64, I64, F64
+	/// </summary>
+	union alignas(alignof(I64)) Record64
+	{
+		/// <summary>
+		/// Use as U32.
+		/// </summary>
+		U32 AsU32;
+
+		/// <summary>
+		/// Use as I32.
+		/// </summary>
+		I32 AsI32;
+
+		/// <summary>
+		/// Use as F32.
+		/// </summary>
+		F32 AsF32;
+
+		/// <summary>
+		/// Use as U64.
+		/// </summary>
+		U64 AsU64;
+
+		/// <summary>
+		/// Use as I64.
+		/// </summary>
+		I64 AsI64;
+
+		/// <summary>
+		/// Use as F64.
+		/// </summary>
+		F64 AsF64;
+
+		/// <summary>
+		/// Use as PTR 64.
+		/// </summary>
+		void* AsPtr;
+
+		/// <summary>
+		/// Use as ASCII/UTF-8 char.
+		/// </summary>
+		char8_t AsChar8;
+
+		/// <summary>
+		/// Use as UTF-16 char.
+		/// </summary>
+		char16_t AsChar16;
+
+		/// <summary>
+		/// Use as UTF-32 char.
+		/// </summary>
+		char32_t AsChar32;
+
+		/// <summary>
+		/// Use as U32's array.
+		/// </summary>
+		std::array<U32, 2> AsU32S;
+
+		/// <summary>
+		/// Use as I32's array.
+		/// </summary>
+		std::array<I32, 2> AsI32S;
+
+		/// <summary>
+		/// Use as F32's array.
+		/// </summary>
+		std::array<F32, 2> AsF32S;
+
+		/// <summary>
+		/// Use as UTF-8 cluster.
+		/// </summary>
+		ByteCode::CharClusterUtf8 AsUtf8;
+
+		/// <summary>
+		/// Use as UTF-16 cluster.
+		/// </summary>
+		ByteCode::CharClusterUtf16 AsUtf16;
+
+		/// <summary>
+		/// Use as UTF-32 cluster.
+		/// </summary>
+		ByteCode::CharClusterUtf32 AsUtf32;
+
+		/// <summary>
+		/// Default construct.
+		/// </summary>
+		/// <returns></returns>
+		Record64() noexcept(true) = default;
+
+		/// <summary>
+		/// Construct from U32 and zero upper 32 bits.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(U32 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from I32 and zero upper 32 bits.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(I32 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from F32 and zero upper 32 bits.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(F32 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from U64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(U64 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from I64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(I64 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from F64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(F64 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from PTR 64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(void* value) noexcept(true);
+
+		/// <summary>
+		/// Construct from ASCII/UTF-8 char.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(char8_t value) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-16 char.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(char16_t value) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-32 char.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(char32_t value) noexcept(true);
+
+		/// <summary>
+		/// Construct from U32 array.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(std::array<U32, 2> value) noexcept(true);
+
+		/// <summary>
+		/// Construct from I32 array.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(std::array<I32, 2> value) noexcept(true);
+
+		/// <summary>
+		/// Construct from F32 array.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(std::array<F32, 2> value) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-8 cluster.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(ByteCode::CharClusterUtf8 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-16 cluster.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(ByteCode::CharClusterUtf16 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-32 cluster.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record64(ByteCode::CharClusterUtf32 value) noexcept(true);
+
+		/// <summary>
+		/// Returns true if value contains non zero, else false.
+		/// </summary>
+		/// <returns></returns>
+		explicit constexpr operator bool() const noexcept(true);
+
+		/// <summary>
+		/// Equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator ==(Record64 other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Not equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator !=(Record64 other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Less.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator <(Record64 other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Above.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator >(Record64 other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Less equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator <=(Record64 other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Above equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator >=(Record64 other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Get stack padding value.
+		/// </summary>
+		/// <returns></returns>
+		static constexpr auto Padding() noexcept(true) -> Record64;
+	};
+
+	constexpr Record64::Record64(const U32 value) noexcept(true) : AsU32 {value} {}
+	constexpr Record64::Record64(const I32 value) noexcept(true) : AsI32 {value} {}
+	constexpr Record64::Record64(const F32 value) noexcept(true) : AsF32 {value} {}
+	constexpr Record64::Record64(const U64 value) noexcept(true) : AsU64 {value} {}
+	constexpr Record64::Record64(const I64 value) noexcept(true) : AsI64 {value} {}
+	constexpr Record64::Record64(const F64 value) noexcept(true) : AsF64 {value} {}
+	constexpr Record64::Record64(void* const value) noexcept(true) : AsPtr {value} {}
+	constexpr Record64::Record64(const char8_t value) noexcept(true) : AsChar8 {value} {}
+	constexpr Record64::Record64(const char16_t value) noexcept(true) : AsChar16 {value} {}
+	constexpr Record64::Record64(const char32_t value) noexcept(true) : AsChar32 {value} {}
+	constexpr Record64::Record64(const std::array<U32, 2> value) noexcept(true) : AsU32S {value} {}
+	constexpr Record64::Record64(const std::array<I32, 2> value) noexcept(true) : AsI32S {value} {}
+	constexpr Record64::Record64(const std::array<F32, 2> value) noexcept(true) : AsF32S {value} {}
+	constexpr Record64::Record64(const ByteCode::CharClusterUtf8 value) noexcept(true) : AsUtf8 {value} {}
+	constexpr Record64::Record64(const ByteCode::CharClusterUtf16 value) noexcept(true) : AsUtf16 {value} {}
+	constexpr Record64::Record64(const ByteCode::CharClusterUtf32 value) noexcept(true) : AsUtf32 {value} {}
+
+	constexpr Record64::operator bool() const noexcept(true)
+	{
+		return this->AsU64;
+	}
+
+	constexpr auto Record64::operator ==(const Record64 other) const noexcept(true) -> bool
+	{
+		return this->AsU64 == other.AsU64;
+	}
+
+	constexpr auto Record64::operator !=(const Record64 other) const noexcept(true) -> bool
+	{
+		return !(*this == other);
+	}
+
+	constexpr auto Record64::operator <(const Record64 other) const noexcept(true) -> bool
+	{
+		return this->AsU64 < other.AsU64;
+	}
+
+	constexpr auto Record64::operator >(const Record64 other) const noexcept(true) -> bool
+	{
+		return this->AsU64 > other.AsU64;
+	}
+
+	constexpr auto Record64::operator <=(const Record64 other) const noexcept(true) -> bool
+	{
+		return this->AsU64 <= other.AsU64;
+	}
+
+	constexpr auto Record64::operator >=(const Record64 other) const noexcept(true) -> bool
+	{
+		return this->AsU64 >= other.AsU64;
+	}
+
+	constexpr auto Record64::Padding() noexcept(true) -> Record64
+	{
+		return Record64 {0xFF'FF'FF'FF'FF'FF'FF'FF};
+	}
+
+	static_assert(sizeof(F32) == sizeof(I32));
+	static_assert(sizeof(F64) == sizeof(I64));
+	static_assert(sizeof(Record64) == sizeof(I64));
+	static_assert(alignof(Record64) == alignof(I64));
+	static_assert(std::is_standard_layout_v<Record64>);
+	static_assert(std::is_trivial_v<Record64>);
+	static_assert(std::is_default_constructible_v<Record64>);
+}

@@ -219,7 +219,7 @@ namespace Nominax::Common
 		std::unordered_set<std::string_view>                       Args_ { };
 		std::vector<std::pair<std::string_view, std::string_view>> Options_ { };
 
-	public:		
+	public:
 		/// <summary>
 		/// Construct with argc and argv from
 		/// the entry point.
@@ -233,21 +233,21 @@ namespace Nominax::Common
 		/// No copy.
 		/// </summary>
 		/// <param name="other"></param>
-		CliArgParser(const CliArgParser& other)                               = delete;
+		CliArgParser(const CliArgParser& other) = delete;
 
 		/// <summary>
 		/// Move constructor.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		CliArgParser(CliArgParser&& other) noexcept(true)                     = default;
+		CliArgParser(CliArgParser&& other) noexcept(true) = default;
 
 		/// <summary>
 		/// No copy.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(const CliArgParser& other) -> CliArgParser&           = delete;
+		auto operator =(const CliArgParser& other) -> CliArgParser& = delete;
 
 		/// <summary>
 		/// Move assignment operator.
@@ -259,7 +259,7 @@ namespace Nominax::Common
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~CliArgParser()                                                 = default;
+		~CliArgParser() = default;
 
 		/// <summary>
 		/// Returns true if the command line flag is set,

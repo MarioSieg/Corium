@@ -217,9 +217,9 @@ TEST(Common, FixedStackConstructAllocateValid)
 {
 	FixedStack stack {Resource, 1};
 	ASSERT_EQ(stack.Size(), 2);
-	ASSERT_EQ(stack.Buffer()[0], Record::Padding());
+	ASSERT_EQ(stack.Buffer()[0], Record32::Padding());
 	ASSERT_EQ(stack.Buffer()[1].AsU64, 0);
-	ASSERT_EQ(*stack.begin(), Record::Padding());
+	ASSERT_EQ(*stack.begin(), Record32::Padding());
 	ASSERT_EQ(stack.end()[-1].AsU64, 0);
 }
 

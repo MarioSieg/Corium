@@ -330,16 +330,16 @@ namespace Nominax::ByteCode
 
 		auto validationRoutine
 		{
-			[&error, &codeBuf, &input, &intrinsicRegistry, &errorIndex, bufBegin, bufEnd](const Signal::Discriminator& iterator) noexcept(false)
+			[&error, &codeBuf, &input, &intrinsicRegistry, &errorIndex, bufBegin, bufEnd](const Signal32::Discriminator& iterator) noexcept(false)
 			{
 				const std::ptrdiff_t index {DistanceRef(iterator, bufBegin)};
-				const Signal         signal {codeBuf[index]};
+				const Signal32       signal {codeBuf[index]};
 				auto                 result {ValidationResultCode::Ok};
 
 				switch (iterator)
 				{
 					// validate instruction:
-				case Signal::Discriminator::Instruction:
+				case Signal32::Discriminator::Instruction:
 					{
 						const auto* const next {SearchForNextInstruction(&iterator, bufEnd)};
 						const auto        args {ExtractInstructionArguments(&iterator, ComputeInstructionArgumentOffset(&iterator, next))};
@@ -347,13 +347,13 @@ namespace Nominax::ByteCode
 					}
 					break;
 
-				case Signal::Discriminator::JumpAddress:
+				case Signal32::Discriminator::JumpAddress:
 					{
 						result = ValidateJumpAddress(input, signal.JmpAddress) ? ValidationResultCode::Ok : ValidationResultCode::InvalidJumpAddress;
 					}
 					break;
 
-				case Signal::Discriminator::UserIntrinsicCallID:
+				case Signal32::Discriminator::UserIntrinsicCallID:
 					{
 						result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID) ? ValidationResultCode::Ok : ValidationResultCode::InvalidUserIntrinsicCall;
 					}
@@ -417,7 +417,7 @@ namespace Nominax::ByteCode
 		return NOMINAX_LIKELY(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size());
 	}
 
-	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const Signal::Discriminator>& args) noexcept(true) -> ValidationResultCode
+	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const Signal32::Discriminator>& args) noexcept(true) -> ValidationResultCode
 	{
 		// First check if the argument count is incorrect:
 		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) > args.size()))
@@ -433,7 +433,7 @@ namespace Nominax::ByteCode
 
 		for (std::size_t i {0}; i < args.size(); ++i)
 		{
-			const Signal::Discriminator discriminator {args[i]};
+			const Signal32::Discriminator discriminator {args[i]};
 
 			// Check if our given type index is within the required indices:
 

@@ -215,8 +215,8 @@ namespace Nominax::Common
 			CliArgParser argParser {argc, argv};
 			const auto   help {argParser.AddOption("-h", "print help") || argParser.IsEmpty()};
 			const auto   isa {argParser.AddOption("-i", "print virtual instruction set")};
-			const auto	 ver {argParser.AddOption("-v", "print version")};
-			
+			const auto   ver {argParser.AddOption("-v", "print version")};
+
 			if (help)
 			{
 				Print("Usage: \n");
@@ -234,7 +234,7 @@ namespace Nominax::Common
 					Print("{: < 10} |   {:#04x}   | {: < 3} | {: < 3} | {: < 3} |\n", mnemonic, i, immCount, pushCount, popCount);
 				}
 			}
-			else if(ver)
+			else if (ver)
 			{
 				Core::PrintSystemInfo();
 			}

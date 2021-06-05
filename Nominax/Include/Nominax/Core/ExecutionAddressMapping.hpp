@@ -207,14 +207,14 @@
 
 #pragma once
 
-#include "../ByteCode/Signal.hpp"
+#include "../ByteCode/Signal32.hpp"
 
 namespace Nominax::Core
 {
 	/// <summary>
 	/// Compute relative jump address.
 	/// </summary>
-	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(ByteCode::Signal* const base, const ByteCode::JumpAddress address) noexcept(true) -> void*
+	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(ByteCode::Signal32* const base, const ByteCode::JumpAddress address) noexcept(true) -> void*
 	{
 		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
 	}
@@ -269,10 +269,10 @@ namespace Nominax::Core
 	[[nodiscard]]
 	extern auto MapJumpTable
 	(
-		ByteCode::Signal* __restrict__       bucket,
-		const ByteCode::Signal* __restrict__ bucketEnd,
-		const bool*                          jumpAddressMap,
-		JumpTable                            jumpTable
+		ByteCode::Signal32* __restrict__       bucket,
+		const ByteCode::Signal32* __restrict__ bucketEnd,
+		const bool*                            jumpAddressMap,
+		JumpTable                              jumpTable
 	) noexcept(false) -> bool;
 
 	/// <summary>

@@ -210,13 +210,13 @@
 TEST(ReactorExecution, IntrinsicRoutine_Cos)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Cos},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Cos},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -233,13 +233,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Cos)
 TEST(ReactorExecution, IntrinsicRoutine_Sin)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Sin},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Sin},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -256,13 +256,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Sin)
 TEST(ReactorExecution, IntrinsicRoutine_Tan)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Tan},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Tan},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -279,13 +279,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Tan)
 TEST(ReactorExecution, IntrinsicRoutine_ACos)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::ACos},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::ACos},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -302,13 +302,13 @@ TEST(ReactorExecution, IntrinsicRoutine_ACos)
 TEST(ReactorExecution, IntrinsicRoutine_ASin)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::ASin},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::ASin},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -325,13 +325,13 @@ TEST(ReactorExecution, IntrinsicRoutine_ASin)
 TEST(ReactorExecution, IntrinsicRoutine_ATan)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::ATan},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::ATan},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -348,15 +348,15 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan)
 TEST(ReactorExecution, IntrinsicRoutine_ATan2)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::ATan2},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Push},
+		Signal32 {0.15},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::ATan2},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -374,13 +374,13 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan2)
 TEST(ReactorExecution, IntrinsicRoutine_CosH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::CosH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::CosH},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -397,13 +397,13 @@ TEST(ReactorExecution, IntrinsicRoutine_CosH)
 TEST(ReactorExecution, IntrinsicRoutine_SinH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::SinH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::SinH},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -420,13 +420,13 @@ TEST(ReactorExecution, IntrinsicRoutine_SinH)
 TEST(ReactorExecution, IntrinsicRoutine_TanH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::TanH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::TanH},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -443,13 +443,13 @@ TEST(ReactorExecution, IntrinsicRoutine_TanH)
 TEST(ReactorExecution, IntrinsicRoutine_ACosH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {1.6},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::ACosH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {1.6},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::ACosH},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -466,13 +466,13 @@ TEST(ReactorExecution, IntrinsicRoutine_ACosH)
 TEST(ReactorExecution, IntrinsicRoutine_ASinH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::ASinH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::ASinH},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -489,13 +489,13 @@ TEST(ReactorExecution, IntrinsicRoutine_ASinH)
 TEST(ReactorExecution, IntrinsicRoutine_ATanH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::ATanH},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::ATanH},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -512,13 +512,13 @@ TEST(ReactorExecution, IntrinsicRoutine_ATanH)
 TEST(ReactorExecution, IntrinsicRoutine_Exp)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Exp},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Exp},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -535,13 +535,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp)
 TEST(ReactorExecution, IntrinsicRoutine_Log)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Log},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Log},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -558,13 +558,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Log)
 TEST(ReactorExecution, IntrinsicRoutine_Log10)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Log10},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Log10},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -581,13 +581,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Log10)
 TEST(ReactorExecution, IntrinsicRoutine_Exp2)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Exp2},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Exp2},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -604,13 +604,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp2)
 TEST(ReactorExecution, IntrinsicRoutine_ILogB)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {1.332},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::ILogB},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {1.332},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::ILogB},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -627,13 +627,13 @@ TEST(ReactorExecution, IntrinsicRoutine_ILogB)
 TEST(ReactorExecution, IntrinsicRoutine_Log2)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Log2},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Log2},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -650,15 +650,15 @@ TEST(ReactorExecution, IntrinsicRoutine_Log2)
 TEST(ReactorExecution, IntrinsicRoutine_Pow)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Pow},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Push},
+		Signal32 {0.15},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Pow},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -677,13 +677,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Pow)
 TEST(ReactorExecution, IntrinsicRoutine_Sqrt)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Sqrt},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Sqrt},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -700,13 +700,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Sqrt)
 TEST(ReactorExecution, IntrinsicRoutine_Cbrt)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Cbrt},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Cbrt},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -723,15 +723,15 @@ TEST(ReactorExecution, IntrinsicRoutine_Cbrt)
 TEST(ReactorExecution, IntrinsicRoutine_Hypot)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Hypot},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Push},
+		Signal32 {0.15},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Hypot},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -749,13 +749,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Hypot)
 TEST(ReactorExecution, IntrinsicRoutine_Ceil)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Ceil},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Ceil},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -772,13 +772,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Ceil)
 TEST(ReactorExecution, IntrinsicRoutine_Floor)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Floor},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Floor},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -795,13 +795,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Floor)
 TEST(ReactorExecution, IntrinsicRoutine_Round)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Round},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Round},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -818,13 +818,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Round)
 TEST(ReactorExecution, IntrinsicRoutine_RInt)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::RInt},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::RInt},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -841,15 +841,15 @@ TEST(ReactorExecution, IntrinsicRoutine_RInt)
 TEST(ReactorExecution, IntrinsicRoutine_IMax)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(4)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(7)},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::IMax},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(4)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(7)},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::IMax},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -867,15 +867,15 @@ TEST(ReactorExecution, IntrinsicRoutine_IMax)
 TEST(ReactorExecution, IntrinsicRoutine_IMin)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(4)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(7)},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::IMin},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(4)},
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(7)},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::IMin},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -893,15 +893,15 @@ TEST(ReactorExecution, IntrinsicRoutine_IMin)
 TEST(ReactorExecution, IntrinsicRoutine_FMax)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::FMax},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Push},
+		Signal32 {0.15},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::FMax},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -919,15 +919,15 @@ TEST(ReactorExecution, IntrinsicRoutine_FMax)
 TEST(ReactorExecution, IntrinsicRoutine_FMin)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::FMin},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Push},
+		Signal32 {0.15},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::FMin},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -945,15 +945,15 @@ TEST(ReactorExecution, IntrinsicRoutine_FMin)
 TEST(ReactorExecution, IntrinsicRoutine_Dim)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Push},
-		Signal {0.15},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::Dim},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Push},
+		Signal32 {0.15},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::Dim},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -972,13 +972,13 @@ TEST(ReactorExecution, IntrinsicRoutine_Dim)
 TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(223233)},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::IAbs},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {INT64_C(223233)},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::IAbs},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -995,13 +995,13 @@ TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 TEST(ReactorExecution, IntrinsicRoutine_FAbs)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {0.35},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::FAbs},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {0.35},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::FAbs},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -1018,13 +1018,13 @@ TEST(ReactorExecution, IntrinsicRoutine_FAbs)
 TEST(ReactorExecution, IntrinsicRoutine_IOPortWrite)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {u8"Hey =)\n"_cluster},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::IoPortWriteCluster},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {u8"Hey =)\n"_cluster},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::IoPortWriteCluster},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -1043,12 +1043,12 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortRead)
 	[[maybe_unused]]
 		auto   _ {freopen("MockInput.txt", "r", stdin)};
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::IoPortReadCluster},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::PushZ},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::IoPortReadCluster},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
@@ -1066,15 +1066,15 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortRead)
 TEST(ReactorExecution, IntrinsicRoutine_IOPortFlush)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {u8"Hey =)\n"_cluster},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::IoPortWriteCluster},
-		Signal {Instruction::Intrin},
-		Signal {SystemIntrinsicCallID::IoPortFlush},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+		Signal32 {Instruction::NOp}, // first padding
+		Signal32 {Instruction::Push},
+		Signal32 {u8"Hey =)\n"_cluster},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::IoPortWriteCluster},
+		Signal32 {Instruction::Intrin},
+		Signal32 {SystemIntrinsicCallID::IoPortFlush},
+		Signal32 {Instruction::Int},
+		Signal32 {INT64_C(-12345)},
 	};
 
 	auto input {MOCK_REACTOR_INPUT};

@@ -212,7 +212,7 @@
 #include <vector>
 
 #include "../Common/MemoryUnits.hpp"
-#include "Record.hpp"
+#include "Record32.hpp"
 
 namespace Nominax::Core
 {
@@ -223,7 +223,7 @@ namespace Nominax::Core
 	class [[nodiscard]] FixedStack final
 	{
 	public:
-		using StorageType = std::pmr::vector<Record>;
+		using StorageType = std::pmr::vector<Record32>;
 
 	private:
 		StorageType Buffer_;
@@ -233,32 +233,32 @@ namespace Nominax::Core
 		/// Small 1 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_SMALL {1_mb / sizeof(Record)};
+		static constexpr std::size_t SIZE_SMALL {1_mb / sizeof(Record32)};
 
 		/// <summary>
 		/// Medium sizes 4 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_MEDIUM {4_mb / sizeof(Record)};
+		static constexpr std::size_t SIZE_MEDIUM {4_mb / sizeof(Record32)};
 
 		/// <summary>
 		/// Medium sizes 8 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_LARGE {8_mb / sizeof(Record)};
+		static constexpr std::size_t SIZE_LARGE {8_mb / sizeof(Record32)};
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The memory buffer pointer.</returns>
 		[[nodiscard]]
-		auto Buffer() noexcept(true) -> Record*;
+		auto Buffer() noexcept(true) -> Record32*;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The memory buffer pointer.</returns>
 		[[nodiscard]]
-		auto Buffer() const noexcept(true) -> const Record*;
+		auto Buffer() const noexcept(true) -> const Record32*;
 
 		/// <summary>
 		/// 
@@ -337,12 +337,12 @@ namespace Nominax::Core
 		~FixedStack() = default;
 	};
 
-	inline auto FixedStack::Buffer() noexcept(true) -> Record*
+	inline auto FixedStack::Buffer() noexcept(true) -> Record32*
 	{
 		return this->Buffer_.data();
 	}
 
-	inline auto FixedStack::Buffer() const noexcept(true) -> const Record*
+	inline auto FixedStack::Buffer() const noexcept(true) -> const Record32*
 	{
 		return this->Buffer_.data();
 	}

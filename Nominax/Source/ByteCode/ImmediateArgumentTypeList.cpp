@@ -209,7 +209,7 @@
 
 namespace Nominax::ByteCode
 {
-	using Dis = Signal::Discriminator;;
+	using Dis = Signal32::Discriminator;;
 
 	static constexpr std::array ANY_TYPE
 	{
@@ -295,7 +295,7 @@ namespace Nominax::ByteCode
 		{ }, // vadd
 		{ }, // vsub
 		{ }, // vmul
-		{ },  // vdiv
+		{ }, // vdiv
 		{
 			// matpush
 			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},

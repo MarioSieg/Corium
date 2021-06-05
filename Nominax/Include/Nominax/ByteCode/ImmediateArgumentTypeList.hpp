@@ -210,7 +210,7 @@
 #include <array>
 #include <vector>
 
-#include "Signal.hpp"
+#include "Signal32.hpp"
 #include "Instruction.hpp"
 
 namespace Nominax::ByteCode
@@ -218,7 +218,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the variant type indices of the storage type of DynamicSignal.
 	/// </summary>
-	using TypeIndexTable = std::vector<Signal::Discriminator>;
+	using TypeIndexTable = std::vector<Signal32::Discriminator>;
 
 	/// <summary>
 	/// 

@@ -223,7 +223,7 @@
 
 #include "../../Include/Nominax/ByteCode/SystemIntrinsic.hpp"
 #include "../../Include/Nominax/ByteCode/Instruction.hpp"
-#include "../../Include/Nominax/ByteCode/Signal.hpp"
+#include "../../Include/Nominax/ByteCode/Signal32.hpp"
 
 #include "../../Include/Nominax/VectorLib/VF64X4U.hpp"
 #include "../../Include/Nominax/VectorLib/VF64X16U.hpp"
@@ -251,13 +251,13 @@ namespace Nominax::Core
 	using ByteCode::SystemIntrinsicCallID;
 	using ByteCode::Instruction;
 	using ByteCode::IntrinsicRoutine;
-	using ByteCode::Signal;
+	using ByteCode::Signal32;
 	using ByteCode::CharClusterUtf8;
 
 	/// <summary>
 	/// Operator for F64 precision F32ing point modulo.
 	/// </summary>
-	__attribute__((always_inline)) static inline auto operator %=(Record& self, const F64 value) noexcept(true) -> void
+	__attribute__((always_inline)) static inline auto operator %=(Record32& self, const F64 value) noexcept(true) -> void
 	{
 		self.AsF64 = std::fmod(self.AsF64, value);
 	}
@@ -299,9 +299,10 @@ namespace Nominax::Core
 	/// So stack[-1] will be overwritten and contains the result.
 	/// stack[0] will still contain arg2.
 	/// </summary>
-	__attribute__((hot)) static auto SyscallIntrin(Record* __restrict__ const sp, const U64 id) noexcept(true) -> void
+	__attribute__((hot)) static auto SyscallIntrin(Record32* __restrict__ const sp, const U64 id) noexcept(true) -> void
 	{
-		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallID::Count)] {
+		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallID::Count)]
+		{
 			&& __cos__,
 			&& __sin__,
 			&& __tan__,
@@ -702,13 +703,13 @@ namespace Nominax::Core
 
 		ASM_MARKER("reactor locals");
 
-		InterruptAccumulator             interruptCode { };                         /* interrupt id flag		*/
-		IntrinsicRoutine* const* const   intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi		*/
-		InterruptRoutine* const          interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
-		const Signal* const __restrict__ ipLo {input.CodeChunk};                    /* instruction low ptr		*/
-		const Signal*                    ip {ipLo};                                 /* instruction ptr			*/
-		const Signal*                    bp {ipLo};                                 /* base pointer				*/
-		Record* __restrict__             sp {input.Stack};                          /* stack pointer lo			*/
+		InterruptAccumulator               interruptCode { };                         /* interrupt id flag		*/
+		IntrinsicRoutine* const* const     intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi		*/
+		InterruptRoutine* const            interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
+		const Signal32* const __restrict__ ipLo {input.CodeChunk};                    /* instruction low ptr		*/
+		const Signal32*                    ip {ipLo};                                 /* instruction ptr			*/
+		const Signal32*                    bp {ipLo};                                 /* base pointer				*/
+		Record32* __restrict__             sp {input.Stack};                          /* stack pointer lo			*/
 
 		ASM_MARKER("reactor exec");
 
@@ -716,7 +717,7 @@ namespace Nominax::Core
 
 #	define JMP_PTR()		*((*++ip).Ptr)
 #	define JMP_PTR_REL()	*((*ip).Ptr)
-#	define UPDATE_IP()		ip = reinterpret_cast<const Signal*>(abs)
+#	define UPDATE_IP()		ip = reinterpret_cast<const Signal32*>(abs)
 
 #else
 
@@ -762,7 +763,6 @@ namespace Nominax::Core
 
 	__cintrin__:
 		__attribute__((hot));
-		BreakpointInterrupt();
 		ASM_MARKER("__cintrin__");
 
 		(**(intrinsicTable + (*++ip).R64.AsU64))(sp);
@@ -906,7 +906,7 @@ namespace Nominax::Core
 
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-			ip = reinterpret_cast<const Signal*>(abs);
+			ip = reinterpret_cast<const Signal32*>(abs);
 #else
 			ip = ipLo + abs; // ip = begin + offset
 #endif
@@ -922,7 +922,7 @@ namespace Nominax::Core
 
 			const U64 rel {(*++ip).R64.AsU64}; // relative address
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-			ip = reinterpret_cast<const Signal*>(rel);
+			ip = reinterpret_cast<const Signal32*>(rel);
 #else
 			ip += rel; // ip +-= rel
 #endif
@@ -1529,7 +1529,7 @@ namespace Nominax::Core
 				vmovupd 8(%rdi), %ymm0
 				vmovupd %ymm0, 8(%rbx)
 		*/
-		std::memcpy(sp + 1, ip + 1, sizeof(Record) * 4);
+		std::memcpy(sp + 1, ip + 1, sizeof(Record32) * 4);
 
 		sp += 4;
 		ip += 4;
@@ -1632,7 +1632,7 @@ namespace Nominax::Core
 				vmovups %zmm1, 0x48(%rbx)
 				vmovupd %zmm0, 0x8(%rbx)
 		 */
-		std::memcpy(sp + 1, ip + 1, sizeof(Record) * 16);
+		std::memcpy(sp + 1, ip + 1, sizeof(Record32) * 16);
 
 		sp += 16;
 		ip += 16;

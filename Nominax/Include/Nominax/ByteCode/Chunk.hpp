@@ -209,14 +209,14 @@
 
 #include <vector>
 
-#include "Signal.hpp"
+#include "Signal32.hpp"
 
 namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// An optimized and ready to execute code chunk.
 	/// </summary>
-	using CodeChunk = std::vector<Signal>;
+	using CodeChunk = std::vector<Signal32>;
 
 	/// <summary>
 	/// Contains the boolean values for the jump map.
@@ -235,5 +235,5 @@ namespace Nominax::ByteCode
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <returns></returns>
-	extern auto CalculateInstructionMapping(std::span<const Signal::Discriminator> input, std::span<bool>& output) -> bool;
+	extern auto CalculateInstructionMapping(std::span<const Signal32::Discriminator> input, std::span<bool>& output) -> bool;
 }

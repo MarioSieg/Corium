@@ -1,6 +1,6 @@
 // File: TextFile.cpp
 // Author: Mario
-// Created: 01.06.2021 6:11 PM
+// Created: 05.06.2021 12:25 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -218,34 +218,34 @@ namespace Nominax::Common
 	[[nodiscard]]
 	static inline auto SubstringView
 	(
-		const std::string& source, 
-		const size_t offset = 0,
-	    const std::string_view::size_type count = std::numeric_limits<std::string_view::size_type>::max()
+		const std::string&                source,
+		const size_t                      offset = 0,
+		const std::string_view::size_type count  = std::numeric_limits<std::string_view::size_type>::max()
 	) noexcept(true) -> std::string_view
 	{
-		if (NOMINAX_LIKELY(offset < source.size())) 
+		if (NOMINAX_LIKELY(offset < source.size()))
 		{
 			return
 			{
 				source.data() + offset,
-				std::min(source.size() - offset, 
-				count)
+				std::min(source.size() - offset,
+				         count)
 			};
 		}
-		return {};
+		return { };
 	}
 
 	static inline auto SubstringView
 	(
-		std::string&& source,
-		const size_t offset = 0,
-		const std::string_view::size_type count = std::numeric_limits<std::string_view::size_type>::max()
+		std::string&&                     source,
+		const size_t                      offset = 0,
+		const std::string_view::size_type count  = std::numeric_limits<std::string_view::size_type>::max()
 	) noexcept(true) -> std::string_view = delete;
-	
+
 	auto TextFile::WriteToFile(std::filesystem::path&& path) noexcept(false) -> bool
 	{
 		this->FilePath_ = std::move(path);
-		OutputStream stream{ this->FilePath_ };
+		OutputStream stream {this->FilePath_};
 		if (NOMINAX_UNLIKELY(!stream))
 		{
 			return false;
@@ -257,7 +257,7 @@ namespace Nominax::Common
 	auto TextFile::ReadFromFile(std::filesystem::path&& path) noexcept(false) -> bool
 	{
 		this->FilePath_ = std::move(path);
-		InputStream stream{ this->FilePath_ };
+		InputStream stream {this->FilePath_};
 		if (NOMINAX_UNLIKELY(!stream))
 		{
 			return false;
@@ -265,7 +265,7 @@ namespace Nominax::Common
 		stream.seekg(0, std::ios::end);
 		this->Content_.reserve(stream.tellg());
 		stream.seekg(0, std::ios::beg);
-		this->Content_.assign(std::istreambuf_iterator<CharType>{stream}, std::istreambuf_iterator<CharType>{});
+		this->Content_.assign(std::istreambuf_iterator<CharType> {stream}, std::istreambuf_iterator<CharType> { });
 		return true;
 	}
 
@@ -274,10 +274,10 @@ namespace Nominax::Common
 		this->Content_.erase
 		(
 			std::remove_if(std::execution::par_unseq, std::begin(this->Content_), std::end(this->Content_),
-				[](const char c) noexcept(true) -> bool
-				{
-					return c == ' ';
-				}),
+			               [](const char c) noexcept(true) -> bool
+			               {
+				               return c == ' ';
+			               }),
 			std::end(this->Content_)
 		);
 	}
@@ -287,10 +287,10 @@ namespace Nominax::Common
 		this->Content_.erase
 		(
 			std::remove_if(std::execution::par_unseq, std::begin(this->Content_), std::end(this->Content_),
-				[](const char c) noexcept(true) -> bool
-				{
-					return std::isspace<char>(c, std::locale::classic());
-				}),
+			               [](const char c) noexcept(true) -> bool
+			               {
+				               return std::isspace<char>(c, std::locale::classic());
+			               }),
 			std::end(this->Content_)
 		);
 	}
@@ -300,18 +300,18 @@ namespace Nominax::Common
 		this->Content_.erase
 		(
 			std::remove_if(std::execution::par_unseq, std::begin(this->Content_), std::end(this->Content_),
-				[x](const char c) noexcept(true) -> bool
-				{
-					return c == x;
-				}),
+			               [x](const char c) noexcept(true) -> bool
+			               {
+				               return c == x;
+			               }),
 			std::end(this->Content_)
 		);
 	}
 
 	auto TextFile::EraseRange(const char begin, const char end) noexcept(false) -> void
 	{
-		const std::size_t beginIndex{ this->Content_.find(begin) };
-		const std::size_t endIndex{ this->Content_.find(end, beginIndex + 1) };
+		const std::size_t beginIndex {this->Content_.find(begin)};
+		const std::size_t endIndex {this->Content_.find(end, beginIndex + 1)};
 		this->Content_.erase(beginIndex, endIndex - beginIndex + 1);
 	}
 
@@ -322,8 +322,8 @@ namespace Nominax::Common
 
 	auto TextFile::SubStringChar(const char beginChar, const char endChar) const noexcept(true) -> std::string_view
 	{
-		const std::size_t beginIndex{ this->Content_.find_first_of(beginChar) };
-		const std::size_t endIndex{ this->Content_.find_first_of(endChar, beginIndex + 1) };
+		const std::size_t beginIndex {this->Content_.find_first_of(beginChar)};
+		const std::size_t endIndex {this->Content_.find_first_of(endChar, beginIndex + 1)};
 		return SubstringView(this->Content_, beginIndex, endIndex - beginIndex + 1);
 	}
 }

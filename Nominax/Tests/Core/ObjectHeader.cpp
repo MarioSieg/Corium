@@ -217,7 +217,7 @@ TEST(ObjectHeaderReinterpretation, FieldAccess)
 		.FlagVector = {.Merged = 0xFF'FF'FF'AA}
 	};
 
-	std::array<Record, 2> header { };
+	std::array<Record32, 2> header { };
 
 	static_assert(sizeof header == sizeof object);
 
@@ -250,8 +250,8 @@ TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
 		.FlagVector = {.Merged = 0xFF'FF'FF'AA}
 	};
 
-	std::array<Record, 2> header { };
-	auto*                 data {std::data(header)};
+	std::array<Record32, 2> header { };
+	auto*                   data {std::data(header)};
 
 	static_assert(sizeof header == sizeof object);
 
@@ -290,7 +290,7 @@ TEST(ObjectHeaderReinterpretation, FieldCheckedMapping)
 {
 	ObjectHeader object { };
 
-	std::array<Record, 1> header { };
+	std::array<Record32, 1> header { };
 	ASSERT_FALSE(object.MapToRegionChecked(header));
 	ASSERT_FALSE(object.MapFromRegionChecked(header));
 }

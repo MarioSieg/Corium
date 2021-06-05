@@ -221,7 +221,7 @@ namespace Nominax::ByteCode
 		Print(TextColor::Green, "Len: {}, Size: {}B", this->Size(), this->SizeInBytes());
 		for (std::size_t i {0}; i < this->Size(); ++i)
 		{
-			if (this->CodeDisc_[i] == Signal::Discriminator::Instruction)
+			if (this->CodeDisc_[i] == Signal32::Discriminator::Instruction)
 			{
 				Print(TextColor::Green, "\n&{:08X}: ", i);
 				Print(TextColor::Cyan, "{}", this->Code_[i].Instr);

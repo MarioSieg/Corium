@@ -212,10 +212,10 @@ namespace Nominax::Core
 {
 	auto MapJumpTable
 	(
-		ByteCode::Signal* __restrict__             bucket,
-		const ByteCode::Signal* const __restrict__ bucketEnd,
-		const bool*                                jumpAddressMap,
-		JumpTable                                  jumpTable
+		ByteCode::Signal32* __restrict__             bucket,
+		const ByteCode::Signal32* const __restrict__ bucketEnd,
+		const bool*                                  jumpAddressMap,
+		JumpTable                                    jumpTable
 	) noexcept(false) -> bool
 	{
 		NOMINAX_PANIC_ASSERT_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");

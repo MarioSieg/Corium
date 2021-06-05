@@ -1,6 +1,6 @@
-// File: TextFile.cpp
+// File: TextFile.hpp
 // Author: Mario
-// Created: 01.06.2021 6:11 PM
+// Created: 05.06.2021 12:25 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -221,19 +221,19 @@ namespace Nominax::Common
 		/// <summary>
 		/// The content of the file.
 		/// </summary>
-		std::string Content_{};
+		std::string Content_ { };
 
 		/// <summary>
 		/// The path of the file.
 		/// </summary>
-		std::filesystem::path FilePath_{};
+		std::filesystem::path FilePath_ { };
 
 	public:
 		/// <summary>
 		/// The character type.
 		/// </summary>
 		using CharType = decltype(Content_)::value_type;
-		
+
 		/// <summary>
 		/// The type for the file input stream.
 		/// </summary>
@@ -243,7 +243,7 @@ namespace Nominax::Common
 		/// The type for the file output stream.
 		/// </summary>
 		using OutputStream = std::basic_ofstream<CharType, std::char_traits<CharType>>;
-		
+
 		/// <summary>
 		/// Construct empty.
 		/// </summary>
@@ -282,14 +282,14 @@ namespace Nominax::Common
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(const TextFile& other)->TextFile & = delete;
+		auto operator =(const TextFile& other) -> TextFile& = delete;
 
 		/// <summary>
 		/// Move assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(TextFile&& other)->TextFile & = default;
+		auto operator =(TextFile&& other) -> TextFile& = default;
 
 		/// <summary>
 		/// Destructor.
@@ -474,17 +474,11 @@ namespace Nominax::Common
 	};
 
 	inline TextFile::TextFile(std::string&& content) noexcept(true)
-		: Content_{ std::move(content) }
-	{
-		
-	}
+		: Content_ {std::move(content)} { }
 
 	inline TextFile::TextFile(std::filesystem::path&& path, std::string&& content) noexcept(true)
-		: Content_{ std::move(content) },
-		FilePath_{ std::move(path) }
-	{
-
-	}
+		: Content_ {std::move(content)},
+		  FilePath_ {std::move(path)} { }
 
 	inline auto TextFile::GetContentText() const & noexcept(true) -> const std::string&
 	{

@@ -211,7 +211,7 @@
 
 constexpr IntrinsicRoutine* MOCK_INTRINSIC_ROUTINE
 {
-	+[]([[maybe_unused]] Record*) noexcept(true) -> void { }
+	+[]([[maybe_unused]] Record32*) noexcept(true) -> void { }
 };
 
 constexpr std::array MOCK_INTRINSIC_ROUTINE_TABLE
@@ -223,7 +223,7 @@ constexpr std::array MOCK_INTRINSIC_ROUTINE_TABLE
 
 constexpr auto MOCK_STACK_SIZE = 32; // 32 records
 
-inline constinit std::array<Record, MOCK_STACK_SIZE> MockStack {Record::Padding()};
+inline constinit std::array<Record32, MOCK_STACK_SIZE> MockStack {Record32::Padding()};
 
 constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
 {
@@ -245,7 +245,7 @@ constexpr VerboseReactorDescriptor MOCK_REACTOR_INPUT
 
 inline std::array MockCode
 {
-	Signal {Instruction::NOp}, // first padding
-	Signal {Instruction::Int},
-	Signal {INT64_C(5)},
+	Signal32 {Instruction::NOp}, // first padding
+	Signal32 {Instruction::Int},
+	Signal32 {INT64_C(5)},
 };
