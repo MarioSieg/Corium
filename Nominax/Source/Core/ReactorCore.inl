@@ -1561,6 +1561,11 @@ namespace Nominax::Core
 				addpd  %xmm1, %xmm0
 				movupd %xmm2, -0x38(%rbx)
 				movupd %xmm0, -0x28(%rbx)
+
+			AVX:
+				vmovupd -0x38(%rbx), %ymm0
+				vaddpd -0x18(%rbx), %ymm0, %ymm0
+				vmovupd %ymm0, -0x38(%rbx)
 		 */
 
 		F64_X4_Add_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
@@ -1584,6 +1589,11 @@ namespace Nominax::Core
 				subpd  %xmm2, %xmm1
 				movupd %xmm0, -0x38(%rbx)
 				movupd %xmm1, -0x28(%rbx)
+
+			AVX:
+				vmovupd -0x38(%rbx), %ymm0
+				vsubpd -0x18(%rbx), %ymm0, %ymm0
+				vmovupd %ymm0, -0x38(%rbx)
 		 */
 
 		F64_X4_Sub_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
@@ -1608,6 +1618,11 @@ namespace Nominax::Core
 				mulpd  %xmm1, %xmm0
 				movupd %xmm2, -0x38(%rbx)
 				movupd %xmm0, -0x28(%rbx)
+
+			AVX:
+				vmovupd -0x38(%rbx), %ymm0
+				vmulpd -0x18(%rbx), %ymm0, %ymm0
+				vmovupd %ymm0, -0x38(%rbx)
 		 */
 
 		F64_X4_Mul_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
@@ -1632,6 +1647,11 @@ namespace Nominax::Core
 				divpd  %xmm2, %xmm1
 				movupd %xmm0, -0x38(%rbx)
 				movupd %xmm1, -0x28(%rbx)
+
+			AVX:
+				vmovupd -0x38(%rbx), %ymm0
+				vdivpd -0x18(%rbx), %ymm0, %ymm0
+				vmovupd %ymm0, -0x38(%rbx)
 		 */
 
 		F64_X4_Div_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
@@ -1736,6 +1756,26 @@ namespace Nominax::Core
 				movupd %xmm4, -0xa8(%rbx)
 				movupd %xmm5, -0x98(%rbx)
 				movupd %xmm6, -0x88(%rbx)
+
+			AVX:
+				vmovupd -0xf8(%rbx), %ymm0
+				vmovupd -0xd8(%rbx), %ymm1
+				vmovupd -0xb8(%rbx), %ymm2
+				vmovupd -0x98(%rbx), %ymm3
+				vaddpd -0x78(%rbx), %ymm0, %ymm0
+				vaddpd -0x58(%rbx), %ymm1, %ymm1
+				vaddpd -0x38(%rbx), %ymm2, %ymm2
+				vaddpd -0x18(%rbx), %ymm3, %ymm3
+				vmovupd %ymm0, -0xf8(%rbx)
+				vmovupd %ymm1, -0xd8(%rbx)
+				vmovupd %ymm2, -0xb8(%rbx)
+				vmovupd %ymm3, -0x98(%rbx)
+
+			AVX512F:
+				vmovupd -0xf8(%rbx), %zmm0
+				vaddpd -0x78(%rbx), %zmm0, %zmm0
+				vmovupd %zmm0, -0xf8(%rbx)
+				vmovupd %zmm0, -0xb8(%rbx)
 		 */
 
 		F64_X16_Add_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
@@ -1782,6 +1822,26 @@ namespace Nominax::Core
 				movupd %xmm5, -0xa8(%rbx)
 				movupd %xmm6, -0x98(%rbx)
 				movupd %xmm7, -0x88(%rbx)
+
+			AVX:
+				vmovupd -0xf8(%rbx), %ymm0
+				vmovupd -0xd8(%rbx), %ymm1
+				vmovupd -0xb8(%rbx), %ymm2
+				vmovupd -0x98(%rbx), %ymm3
+				vsubpd -0x78(%rbx), %ymm0, %ymm0
+				vsubpd -0x58(%rbx), %ymm1, %ymm1
+				vsubpd -0x38(%rbx), %ymm2, %ymm2
+				vsubpd -0x18(%rbx), %ymm3, %ymm3
+				vmovupd %ymm0, -0xf8(%rbx)
+				vmovupd %ymm1, -0xd8(%rbx)
+				vmovupd %ymm2, -0xb8(%rbx)
+				vmovupd %ymm3, -0x98(%rbx)
+
+			AVX512F:
+				vmovupd -0xf8(%rbx), %zmm0
+				vsubpd -0x78(%rbx), %zmm0, %zmm0
+				vmovupd %zmm0, -0xf8(%rbx)
+				vmovupd %zmm0, -0xb8(%rbx)
 		 */
 
 		F64_X16_Sub_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
@@ -1828,6 +1888,26 @@ namespace Nominax::Core
 				movupd %xmm4, -0xa8(%rbx)
 				movupd %xmm5, -0x98(%rbx)
 				movupd %xmm6, -0x88(%rbx)
+
+			AVX:
+				vmovupd -0xf8(%rbx), %ymm0
+				vmovupd -0xd8(%rbx), %ymm1
+				vmovupd -0xb8(%rbx), %ymm2
+				vmovupd -0x98(%rbx), %ymm3
+				vmulpd -0x78(%rbx), %ymm0, %ymm0
+				vmulpd -0x58(%rbx), %ymm1, %ymm1
+				vmulpd -0x38(%rbx), %ymm2, %ymm2
+				vmulpd -0x18(%rbx), %ymm3, %ymm3
+				vmovupd %ymm0, -0xf8(%rbx)
+				vmovupd %ymm1, -0xd8(%rbx)
+				vmovupd %ymm2, -0xb8(%rbx)
+				vmovupd %ymm3, -0x98(%rbx)
+
+			AVX512F:
+				vmovupd -0xf8(%rbx), %zmm0
+				vmulpd -0x78(%rbx), %zmm0, %zmm0
+				vmovupd %zmm0, -0xf8(%rbx)
+				vmovupd %zmm0, -0xb8(%rbx)
 		 */
 
 		F64_X16_Mul_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
@@ -1874,6 +1954,27 @@ namespace Nominax::Core
 				movupd %xmm5, -0xa8(%rbx)
 				movupd %xmm6, -0x98(%rbx)
 				movupd %xmm7, -0x88(%rbx)
+				
+			AVX:
+				vmovupd -0xf8(%rbx), %ymm0
+				vmovupd -0xd8(%rbx), %ymm1
+				vmovupd -0xb8(%rbx), %ymm2
+				vmovupd -0x98(%rbx), %ymm3
+				vdivpd -0x78(%rbx), %ymm0, %ymm0
+				vdivpd -0x58(%rbx), %ymm1, %ymm1
+				vdivpd -0x38(%rbx), %ymm2, %ymm2
+				vdivpd -0x18(%rbx), %ymm3, %ymm3
+				movq %rdi, %rax
+				vmovupd %ymm0, -0xf8(%rbx)
+				vmovupd %ymm1, -0xd8(%rbx)
+				vmovupd %ymm2, -0xb8(%rbx)
+				vmovupd %ymm3, -0x98(%rbx)
+
+			AVX512F:
+				vmovupd -0xf8(%rbx), %zmm0
+				vdivpd -0x78(%rbx), %zmm0, %zmm0
+				vmovupd %zmm0, -0xf8(%rbx)
+				vmovupd %zmm0, -0xb8(%rbx)
 		 */
 
 		F64_X16_Div_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
@@ -1881,7 +1982,6 @@ namespace Nominax::Core
 
 		goto
 		JMP_PTR();
-
 
 		[[maybe_unused]]
 	_hard_fault_err_: __attribute__((cold));
