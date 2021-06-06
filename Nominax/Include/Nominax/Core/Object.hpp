@@ -1,6 +1,6 @@
 // File: Object.hpp
 // Author: Mario
-// Created: 19.04.2021 5:13 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -227,7 +227,7 @@ namespace Nominax::Core
 	class Object final
 	{
 	public:
-		using BlobBlockType = Record32;
+		using BlobBlockType = Record;
 
 	private:
 		friend class RuntimeObjectAllocator;
@@ -1114,12 +1114,12 @@ namespace Nominax::Core
 
 	__attribute__((flatten)) inline auto IMMUTATOR Object::BlobSizeInBytes() const noexcept(true) -> std::size_t
 	{
-		return BlobSize() * sizeof(Record32);
+		return BlobSize() * sizeof(Record);
 	}
 
 	__attribute__((flatten)) inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const noexcept(true) -> std::size_t
 	{
-		return this->HeaderRead_BlockSize() * sizeof(Record32);
+		return this->HeaderRead_BlockSize() * sizeof(Record);
 	}
 
 	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const noexcept(true) -> U32

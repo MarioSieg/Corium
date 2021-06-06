@@ -1,6 +1,6 @@
 // File: Validator.cpp
 // Author: Mario
-// Created: 18.05.2021 1:49 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -216,42 +216,42 @@ struct DynamicSignal final
 
 	DataVariant Data {0_uint};
 
-	explicit constexpr operator Signal32::Discriminator() const noexcept(true)
+	explicit constexpr operator Signal::Discriminator() const noexcept(true)
 	{
 		switch (this->Data.index())
 		{
 		case 0:
-			return Signal32::Discriminator::Instruction;
+			return Signal::Discriminator::Instruction;
 		case 1:
-			return Signal32::Discriminator::SystemIntrinsicCallID;
+			return Signal::Discriminator::SystemIntrinsicCallID;
 		case 2:
-			return Signal32::Discriminator::UserIntrinsicCallID;
+			return Signal::Discriminator::UserIntrinsicCallID;
 		case 3:
-			return Signal32::Discriminator::JumpAddress;
+			return Signal::Discriminator::JumpAddress;
 		case 4:
-			return Signal32::Discriminator::U64;
+			return Signal::Discriminator::U64;
 		case 5:
-			return Signal32::Discriminator::I64;
+			return Signal::Discriminator::I64;
 		case 6:
-			return Signal32::Discriminator::F64;
+			return Signal::Discriminator::F64;
 		case 7:
-			return Signal32::Discriminator::CharClusterUtf8;
+			return Signal::Discriminator::CharClusterUtf8;
 		case 8:
-			return Signal32::Discriminator::CharClusterUtf16;
+			return Signal::Discriminator::CharClusterUtf16;
 		case 9:
-			return Signal32::Discriminator::CharClusterUtf32;
+			return Signal::Discriminator::CharClusterUtf32;
 		default:
-			return Signal32::Discriminator::Ptr;
+			return Signal::Discriminator::Ptr;
 		}
 	}
 };
 
 inline auto ValidateInstructionArguments(const Instruction instr, std::vector<DynamicSignal>&& vec) -> ValidationResultCode
 {
-	std::vector<Signal32::Discriminator> disc { };
+	std::vector<Signal::Discriminator> disc { };
 	for (const DynamicSignal& sig : vec)
 	{
-		disc.emplace_back(static_cast<Signal32::Discriminator>(sig));
+		disc.emplace_back(static_cast<Signal::Discriminator>(sig));
 	}
 	return ValidateInstructionArguments(instr, std::move(disc));
 }
@@ -442,18 +442,18 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 	// push
 	const auto r1 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[0]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[0]], &code.DiscriminatorBuffer()[cache[1]]))};
 	ASSERT_EQ(r1.size(), 1);
-	ASSERT_TRUE(r1[0] == Signal32::Discriminator::I64);
+	ASSERT_TRUE(r1[0] == Signal::Discriminator::I64);
 
 	// push
 	const auto r2 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[1]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[1]], &code.DiscriminatorBuffer()[cache[2]]))};
 	ASSERT_EQ(r2.size(), 1);
-	ASSERT_TRUE(r2[0] == Signal32::Discriminator::I64);
+	ASSERT_TRUE(r2[0] == Signal::Discriminator::I64);
 
 	// sto
 	const auto r3 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[2]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[2]], &code.DiscriminatorBuffer()[cache[3]]))};
 	ASSERT_EQ(r3.size(), 2);
-	ASSERT_TRUE(r3[0] == Signal32::Discriminator::U64);
-	ASSERT_TRUE(r3[1] == Signal32::Discriminator::F64);
+	ASSERT_TRUE(r3[0] == Signal::Discriminator::U64);
+	ASSERT_TRUE(r3[1] == Signal::Discriminator::F64);
 
 	// iadd
 	const auto r4 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[3]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[3]], &code.DiscriminatorBuffer()[cache[4]]))};

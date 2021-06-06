@@ -1,6 +1,6 @@
 // File: ExecutionAddressMapping.cpp
 // Author: Mario
-// Created: 10.05.2021 4:57 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -212,10 +212,10 @@ namespace Nominax::Core
 {
 	auto MapJumpTable
 	(
-		ByteCode::Signal32* __restrict__             bucket,
-		const ByteCode::Signal32* const __restrict__ bucketEnd,
-		const bool*                                  jumpAddressMap,
-		JumpTable                                    jumpTable
+		ByteCode::Signal* __restrict__             bucket,
+		const ByteCode::Signal* const __restrict__ bucketEnd,
+		const bool*                                jumpAddressMap,
+		JumpTable                                  jumpTable
 	) noexcept(false) -> bool
 	{
 		NOMINAX_PANIC_ASSERT_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");

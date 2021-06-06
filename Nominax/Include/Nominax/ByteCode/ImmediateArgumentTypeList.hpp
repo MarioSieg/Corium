@@ -1,6 +1,6 @@
 // File: ImmediateArgumentTypeList.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -210,7 +210,7 @@
 #include <array>
 #include <vector>
 
-#include "Signal32.hpp"
+#include "Signal.hpp"
 #include "Instruction.hpp"
 
 namespace Nominax::ByteCode
@@ -218,7 +218,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the variant type indices of the storage type of DynamicSignal.
 	/// </summary>
-	using TypeIndexTable = std::vector<Signal32::Discriminator>;
+	using TypeIndexTable = std::vector<Signal::Discriminator>;
 
 	/// <summary>
 	/// 

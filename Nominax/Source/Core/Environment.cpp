@@ -1,6 +1,6 @@
 // File: Environment.cpp
 // Author: Mario
-// Created: 17.04.2021 2:32 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -264,9 +264,9 @@ namespace Nominax::Core
 	static auto PrintTypeInfoTable() -> void
 	{
 		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
-		PrintTypeInfo<Record32>("Record");
-		PrintTypeInfo<Signal32>("Signal");
-		PrintTypeInfo<Signal32::Discriminator>("SignalDisc");
+		PrintTypeInfo<Record>("Record");
+		PrintTypeInfo<Signal>("Signal");
+		PrintTypeInfo<Signal::Discriminator>("SignalDisc");
 		PrintTypeInfo<Object>("Object");
 		PrintTypeInfo<ObjectHeader>("ObjectHeader");
 		PrintTypeInfo<I64>("int");
@@ -342,7 +342,7 @@ namespace Nominax::Core
 	noexcept(true) -> std::size_t
 	{
 		desiredSize = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
-		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record32));
+		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
 	}
 
 	/// <summary>

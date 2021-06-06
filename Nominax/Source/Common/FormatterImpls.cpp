@@ -1,6 +1,6 @@
 // File: FormatterImpls.cpp
 // Author: Mario
-// Created: 19.05.2021 9:29 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -290,7 +290,7 @@ auto formatter<ReactorValidationResult, char, void>::format(const ReactorValidat
 
 auto formatter<DiscriminatedSignal, char, void>::format(const DiscriminatedSignal& value, format_context& ctx) const noexcept(false) -> FormatOutput
 {
-	using Dis = Signal32::Discriminator;
+	using Dis = Signal::Discriminator;
 
 	switch (value.Discriminator)
 	{

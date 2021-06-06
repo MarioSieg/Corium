@@ -1,6 +1,6 @@
 // File: VerboseReactorDescriptor.cpp
 // Author: Mario
-// Created: 05.06.2021 12:25 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -247,7 +247,7 @@ namespace Nominax::Core
 		}
 
 		// first stack entry is never used and must be nop-padding:
-		if (NOMINAX_UNLIKELY(*Stack != Record32::Padding()))
+		if (NOMINAX_UNLIKELY(*Stack != Record::Padding()))
 		{
 			return ReactorValidationResult::MissingStackPrologue;
 		}

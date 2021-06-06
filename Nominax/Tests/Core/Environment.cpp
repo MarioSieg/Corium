@@ -1,6 +1,6 @@
 // File: Environment.cpp
 // Author: Mario
-// Created: 14.05.2021 3:29 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -465,7 +465,7 @@ TEST(Environment, PoolSizeZero)
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
 	ASSERT_EQ(env.GetAppName(), "Hey:)");
-	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::FALLBACK_SYSTEM_POOL_SIZE + descriptor.ReactorCount * (descriptor.ReactorDescriptor.StackSize * sizeof(Record32)));
+	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::FALLBACK_SYSTEM_POOL_SIZE + descriptor.ReactorCount * (descriptor.ReactorDescriptor.StackSize * sizeof(Record)));
 }
 
 TEST(Environment, Execution)

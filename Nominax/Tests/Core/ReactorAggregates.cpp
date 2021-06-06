@@ -1,6 +1,6 @@
 // File: ReactorAggregates.cpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -209,7 +209,7 @@
 
 TEST(ReactorAggregates, UnionReinterpretation)
 {
-	Record32 rec {
+	Record rec {
 		UINT64_C(0xFF'FF'FF'FF)
 	};
 	ASSERT_EQ(rec.AsU64, 0xFF'FF'FF'FF);
@@ -226,7 +226,7 @@ TEST(ReactorAggregates, UnionReinterpretation)
 	rec.AsPtr = &rec;
 	ASSERT_EQ(rec.AsPtr, &rec);
 
-	constexpr Signal32 sig {
+	constexpr Signal sig {
 		Instruction::Mov
 	};
 	ASSERT_EQ(sig.Instr, Instruction::Mov);

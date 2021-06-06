@@ -1,6 +1,6 @@
 // File: ReactorCore.inl
 // Author: Mario
-// Created: 09.05.2021 5:50 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -223,7 +223,7 @@
 
 #include "../../Include/Nominax/ByteCode/SystemIntrinsic.hpp"
 #include "../../Include/Nominax/ByteCode/Instruction.hpp"
-#include "../../Include/Nominax/ByteCode/Signal32.hpp"
+#include "../../Include/Nominax/ByteCode/Signal.hpp"
 
 #include "../../Include/Nominax/VectorLib/VF64X4U.hpp"
 #include "../../Include/Nominax/VectorLib/VF64X16U.hpp"
@@ -251,13 +251,13 @@ namespace Nominax::Core
 	using ByteCode::SystemIntrinsicCallID;
 	using ByteCode::Instruction;
 	using ByteCode::IntrinsicRoutine;
-	using ByteCode::Signal32;
+	using ByteCode::Signal;
 	using ByteCode::CharClusterUtf8;
 
 	/// <summary>
 	/// Operator for F64 precision F32ing point modulo.
 	/// </summary>
-	__attribute__((always_inline)) static inline auto operator %=(Record32& self, const F64 value) noexcept(true) -> void
+	__attribute__((always_inline)) static inline auto operator %=(Record& self, const F64 value) noexcept(true) -> void
 	{
 		self.AsF64 = std::fmod(self.AsF64, value);
 	}
@@ -299,10 +299,9 @@ namespace Nominax::Core
 	/// So stack[-1] will be overwritten and contains the result.
 	/// stack[0] will still contain arg2.
 	/// </summary>
-	__attribute__((hot)) static auto SyscallIntrin(Record32* __restrict__ const sp, const U64 id) noexcept(true) -> void
+	__attribute__((hot)) static auto SyscallIntrin(Record* __restrict__ const sp, const U64 id) noexcept(true) -> void
 	{
-		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallID::Count)]
-		{
+		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallID::Count)] {
 			&& __cos__,
 			&& __sin__,
 			&& __tan__,
@@ -703,13 +702,13 @@ namespace Nominax::Core
 
 		ASM_MARKER("reactor locals");
 
-		InterruptAccumulator               interruptCode { };                         /* interrupt id flag		*/
-		IntrinsicRoutine* const* const     intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi		*/
-		InterruptRoutine* const            interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
-		const Signal32* const __restrict__ ipLo {input.CodeChunk};                    /* instruction low ptr		*/
-		const Signal32*                    ip {ipLo};                                 /* instruction ptr			*/
-		const Signal32*                    bp {ipLo};                                 /* base pointer				*/
-		Record32* __restrict__             sp {input.Stack};                          /* stack pointer lo			*/
+		InterruptAccumulator             interruptCode { };                         /* interrupt id flag		*/
+		IntrinsicRoutine* const* const   intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi		*/
+		InterruptRoutine* const          interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
+		const Signal* const __restrict__ ipLo {input.CodeChunk};                    /* instruction low ptr		*/
+		const Signal*                    ip {ipLo};                                 /* instruction ptr			*/
+		const Signal*                    bp {ipLo};                                 /* base pointer				*/
+		Record* __restrict__             sp {input.Stack};                          /* stack pointer lo			*/
 
 		ASM_MARKER("reactor exec");
 
@@ -717,7 +716,7 @@ namespace Nominax::Core
 
 #	define JMP_PTR()		*((*++ip).Ptr)
 #	define JMP_PTR_REL()	*((*ip).Ptr)
-#	define UPDATE_IP()		ip = reinterpret_cast<const Signal32*>(abs)
+#	define UPDATE_IP()		ip = reinterpret_cast<const Signal*>(abs)
 
 #else
 
@@ -763,6 +762,7 @@ namespace Nominax::Core
 
 	__cintrin__:
 		__attribute__((hot));
+		BreakpointInterrupt();
 		ASM_MARKER("__cintrin__");
 
 		(**(intrinsicTable + (*++ip).R64.AsU64))(sp);
@@ -906,7 +906,7 @@ namespace Nominax::Core
 
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-			ip = reinterpret_cast<const Signal32*>(abs);
+			ip = reinterpret_cast<const Signal*>(abs);
 #else
 			ip = ipLo + abs; // ip = begin + offset
 #endif
@@ -922,7 +922,7 @@ namespace Nominax::Core
 
 			const U64 rel {(*++ip).R64.AsU64}; // relative address
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-			ip = reinterpret_cast<const Signal32*>(rel);
+			ip = reinterpret_cast<const Signal*>(rel);
 #else
 			ip += rel; // ip +-= rel
 #endif
@@ -1529,7 +1529,7 @@ namespace Nominax::Core
 				vmovupd 8(%rdi), %ymm0
 				vmovupd %ymm0, 8(%rbx)
 		*/
-		std::memcpy(sp + 1, ip + 1, sizeof(Record32) * 4);
+		std::memcpy(sp + 1, ip + 1, sizeof(Record) * 4);
 
 		sp += 4;
 		ip += 4;
@@ -1551,6 +1551,18 @@ namespace Nominax::Core
 		__attribute__((hot));
 		ASM_MARKER("__vecadd__");
 
+		/*
+			SSE:
+				movupd -0x38(%rbx), %xmm0
+				movupd -0x28(%rbx), %xmm1
+				movupd -0x18(%rbx), %xmm2
+				addpd  %xmm0, %xmm2
+				movupd -0x8(%rbx), %xmm0
+				addpd  %xmm1, %xmm0
+				movupd %xmm2, -0x38(%rbx)
+				movupd %xmm0, -0x28(%rbx)
+		 */
+
 		F64_X4_Add_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 		sp -= 4;
 
@@ -1561,6 +1573,18 @@ namespace Nominax::Core
 	__vecsub__:
 		__attribute__((hot));
 		ASM_MARKER("__vecsub__");
+
+		/*
+			SSE:
+				movupd -0x38(%rbx), %xmm0
+				movupd -0x28(%rbx), %xmm1
+				movupd -0x18(%rbx), %xmm2
+				subpd  %xmm2, %xmm0
+				movupd -0x8(%rbx), %xmm2
+				subpd  %xmm2, %xmm1
+				movupd %xmm0, -0x38(%rbx)
+				movupd %xmm1, -0x28(%rbx)
+		 */
 
 		F64_X4_Sub_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 
@@ -1574,6 +1598,18 @@ namespace Nominax::Core
 		__attribute__((hot));
 		ASM_MARKER("__vecmul__");
 
+		/*
+			SSE:
+				movupd -0x38(%rbx), %xmm0
+				movupd -0x28(%rbx), %xmm1
+				movupd -0x18(%rbx), %xmm2
+				mulpd  %xmm0, %xmm2
+				movupd -0x8(%rbx), %xmm0
+				mulpd  %xmm1, %xmm0
+				movupd %xmm2, -0x38(%rbx)
+				movupd %xmm0, -0x28(%rbx)
+		 */
+
 		F64_X4_Mul_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 
 		sp -= 4;
@@ -1585,6 +1621,18 @@ namespace Nominax::Core
 	__vecdiv__:
 		__attribute__((hot));
 		ASM_MARKER("__vecdiv__");
+
+		/*
+			SSE:
+				movupd -0x38(%rbx), %xmm0
+				movupd -0x28(%rbx), %xmm1
+				movupd -0x18(%rbx), %xmm2
+				divpd  %xmm2, %xmm0
+				movupd -0x8(%rbx), %xmm2
+				divpd  %xmm2, %xmm1
+				movupd %xmm0, -0x38(%rbx)
+				movupd %xmm1, -0x28(%rbx)
+		 */
 
 		F64_X4_Div_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 
@@ -1632,7 +1680,7 @@ namespace Nominax::Core
 				vmovups %zmm1, 0x48(%rbx)
 				vmovupd %zmm0, 0x8(%rbx)
 		 */
-		std::memcpy(sp + 1, ip + 1, sizeof(Record32) * 16);
+		std::memcpy(sp + 1, ip + 1, sizeof(Record) * 16);
 
 		sp += 16;
 		ip += 16;
@@ -1654,6 +1702,42 @@ namespace Nominax::Core
 		__attribute__((hot));
 		ASM_MARKER("__matadd__");
 
+		/*
+			SSE:
+				movupd -0xf8(%rbx), %xmm0
+				movupd -0xe8(%rbx), %xmm1
+				movupd -0xd8(%rbx), %xmm2
+				movupd -0xc8(%rbx), %xmm3
+				movupd -0xb8(%rbx), %xmm4
+				movupd -0xa8(%rbx), %xmm5
+				movupd -0x98(%rbx), %xmm6
+				movupd -0x88(%rbx), %xmm8
+				movupd -0x78(%rbx), %xmm7
+				addpd  %xmm0, %xmm7
+				movupd -0x68(%rbx), %xmm0
+				addpd  %xmm1, %xmm0
+				movupd -0x58(%rbx), %xmm1
+				addpd  %xmm2, %xmm1
+				movupd -0x48(%rbx), %xmm2
+				addpd  %xmm3, %xmm2
+				movupd -0x38(%rbx), %xmm3
+				addpd  %xmm4, %xmm3
+				movupd -0x28(%rbx), %xmm4
+				addpd  %xmm5, %xmm4
+				movupd -0x18(%rbx), %xmm5
+				addpd  %xmm6, %xmm5
+				movupd -0x8(%rbx), %xmm6
+				addpd  %xmm8, %xmm6
+				movupd %xmm7, -0xf8(%rbx)
+				movupd %xmm0, -0xe8(%rbx)
+				movupd %xmm1, -0xd8(%rbx)
+				movupd %xmm2, -0xc8(%rbx)
+				movupd %xmm3, -0xb8(%rbx)
+				movupd %xmm4, -0xa8(%rbx)
+				movupd %xmm5, -0x98(%rbx)
+				movupd %xmm6, -0x88(%rbx)
+		 */
+
 		F64_X16_Add_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
 		sp -= 16;
 
@@ -1663,6 +1747,42 @@ namespace Nominax::Core
 	__matsub__:
 		__attribute__((hot));
 		ASM_MARKER("__matsub__");
+
+		/*
+			SSE:
+				movupd -0xf8(%rbx), %xmm8
+				movupd -0xe8(%rbx), %xmm1
+				movupd -0xd8(%rbx), %xmm2
+				movupd -0xc8(%rbx), %xmm3
+				movupd -0xb8(%rbx), %xmm4
+				movupd -0xa8(%rbx), %xmm5
+				movupd -0x98(%rbx), %xmm6
+				movupd -0x88(%rbx), %xmm7
+				movupd -0x78(%rbx), %xmm0
+				subpd  %xmm0, %xmm8
+				movupd -0x68(%rbx), %xmm0
+				subpd  %xmm0, %xmm1
+				movupd -0x58(%rbx), %xmm0
+				subpd  %xmm0, %xmm2
+				movupd -0x48(%rbx), %xmm0
+				subpd  %xmm0, %xmm3
+				movupd -0x38(%rbx), %xmm0
+				subpd  %xmm0, %xmm4
+				movupd -0x28(%rbx), %xmm0
+				subpd  %xmm0, %xmm5
+				movupd -0x18(%rbx), %xmm0
+				subpd  %xmm0, %xmm6
+				movupd -0x8(%rbx), %xmm0
+				subpd  %xmm0, %xmm7
+				movupd %xmm8, -0xf8(%rbx)
+				movupd %xmm1, -0xe8(%rbx)
+				movupd %xmm2, -0xd8(%rbx)
+				movupd %xmm3, -0xc8(%rbx)
+				movupd %xmm4, -0xb8(%rbx)
+				movupd %xmm5, -0xa8(%rbx)
+				movupd %xmm6, -0x98(%rbx)
+				movupd %xmm7, -0x88(%rbx)
+		 */
 
 		F64_X16_Sub_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
 		sp -= 16;
@@ -1674,6 +1794,42 @@ namespace Nominax::Core
 		__attribute__((hot));
 		ASM_MARKER("__matmul__");
 
+		/*
+			SSE:
+				movupd -0xf8(%rbx), %xmm0
+				movupd -0xe8(%rbx), %xmm1
+				movupd -0xd8(%rbx), %xmm2
+				movupd -0xc8(%rbx), %xmm3
+				movupd -0xb8(%rbx), %xmm4
+				movupd -0xa8(%rbx), %xmm5
+				movupd -0x98(%rbx), %xmm6
+				movupd -0x88(%rbx), %xmm8
+				movupd -0x78(%rbx), %xmm7
+				mulpd  %xmm0, %xmm7
+				movupd -0x68(%rbx), %xmm0
+				mulpd  %xmm1, %xmm0
+				movupd -0x58(%rbx), %xmm1
+				mulpd  %xmm2, %xmm1
+				movupd -0x48(%rbx), %xmm2
+				mulpd  %xmm3, %xmm2
+				movupd -0x38(%rbx), %xmm3
+				mulpd  %xmm4, %xmm3
+				movupd -0x28(%rbx), %xmm4
+				mulpd  %xmm5, %xmm4
+				movupd -0x18(%rbx), %xmm5
+				mulpd  %xmm6, %xmm5
+				movupd -0x8(%rbx), %xmm6
+				mulpd  %xmm8, %xmm6
+				movupd %xmm7, -0xf8(%rbx)
+				movupd %xmm0, -0xe8(%rbx)
+				movupd %xmm1, -0xd8(%rbx)
+				movupd %xmm2, -0xc8(%rbx)
+				movupd %xmm3, -0xb8(%rbx)
+				movupd %xmm4, -0xa8(%rbx)
+				movupd %xmm5, -0x98(%rbx)
+				movupd %xmm6, -0x88(%rbx)
+		 */
+
 		F64_X16_Mul_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
 		sp -= 16;
 
@@ -1683,6 +1839,42 @@ namespace Nominax::Core
 	__matdiv__:
 		__attribute__((hot));
 		ASM_MARKER("__matdiv__");
+
+		/*
+			SSE:
+				movupd -0xf8(%rbx), %xmm8
+				movupd -0xe8(%rbx), %xmm1
+				movupd -0xd8(%rbx), %xmm2
+				movupd -0xc8(%rbx), %xmm3
+				movupd -0xb8(%rbx), %xmm4
+				movupd -0xa8(%rbx), %xmm5
+				movupd -0x98(%rbx), %xmm6
+				movupd -0x88(%rbx), %xmm7
+				movupd -0x78(%rbx), %xmm0
+				divpd  %xmm0, %xmm8
+				movupd -0x68(%rbx), %xmm0
+				divpd  %xmm0, %xmm1
+				movupd -0x58(%rbx), %xmm0
+				divpd  %xmm0, %xmm2
+				movupd -0x48(%rbx), %xmm0
+				divpd  %xmm0, %xmm3
+				movupd -0x38(%rbx), %xmm0
+				divpd  %xmm0, %xmm4
+				movupd -0x28(%rbx), %xmm0
+				divpd  %xmm0, %xmm5
+				movupd -0x18(%rbx), %xmm0
+				divpd  %xmm0, %xmm6
+				movupd -0x8(%rbx), %xmm0
+				divpd  %xmm0, %xmm7
+				movupd %xmm8, -0xf8(%rbx)
+				movupd %xmm1, -0xe8(%rbx)
+				movupd %xmm2, -0xd8(%rbx)
+				movupd %xmm3, -0xc8(%rbx)
+				movupd %xmm4, -0xb8(%rbx)
+				movupd %xmm5, -0xa8(%rbx)
+				movupd %xmm6, -0x98(%rbx)
+				movupd %xmm7, -0x88(%rbx)
+		 */
 
 		F64_X16_Div_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
 		sp -= 16;

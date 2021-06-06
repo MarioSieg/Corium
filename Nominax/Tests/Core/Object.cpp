@@ -1,6 +1,6 @@
 // File: Object.cpp
 // Author: Mario
-// Created: 19.04.2021 5:41 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -225,11 +225,11 @@ TEST(Object, BlockMappingReadWriteData)
 	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS);
 	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS + obj->HeaderRead_BlockSize());
 	ASSERT_EQ(obj->BlobSize(), 6);
-	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record32));
+	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record));
 	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
 	ASSERT_EQ(obj->Header_ReadFlagVector().Merged, 0);
-	ASSERT_EQ(obj->ObjectBlockSizeInBytes(), 4 * sizeof(Record32));
+	ASSERT_EQ(obj->ObjectBlockSizeInBytes(), 4 * sizeof(Record));
 }
 
 TEST(Object, BlockMappingReadWriteHeaderData)
@@ -243,7 +243,7 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS);
 	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS + obj->HeaderRead_BlockSize());
 	ASSERT_EQ(obj->BlobSize(), 6);
-	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record32));
+	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record));
 	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
 	ASSERT_EQ(obj->Header_ReadFlagVector().Merged, 0);
@@ -294,7 +294,7 @@ TEST(Object, BlobCopy)
 	obj->operator[](2).AsU64 = 0xABCDEF;
 	obj->operator[](3).AsI64 = -0xABCDEF;
 
-	std::vector<Record32> buffer { };
+	std::vector<Record> buffer { };
 	obj->CopyBlob(buffer);
 
 	ASSERT_EQ(buffer.at(0).AsU32S[0], 1);
@@ -319,7 +319,7 @@ TEST(Object, BlockCopy)
 	obj->operator[](2).AsU64 = 0xABCDEF;
 	obj->operator[](3).AsI64 = -0xABCDEF;
 
-	std::vector<Record32> buffer { };
+	std::vector<Record> buffer { };
 	obj->ShallowCopyObjectBlockToBuffer(buffer);
 
 	ASSERT_EQ(buffer.at(0).AsU64, 0xFF'FF);
@@ -327,7 +327,7 @@ TEST(Object, BlockCopy)
 	ASSERT_EQ(buffer.at(2).AsU64, 0xABCDEF);
 	ASSERT_EQ(buffer.at(3).AsI64, -0xABCDEF);
 
-	for (Record32& rec : *obj)
+	for (Record& rec : *obj)
 	{
 		rec.AsU64 = 0;
 	}

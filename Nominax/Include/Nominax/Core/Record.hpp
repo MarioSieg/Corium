@@ -1,6 +1,6 @@
-// File: Signal32.hpp
+// File: Record.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 06.06.2021 5:39 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -210,241 +210,331 @@
 #include <array>
 #include <type_traits>
 
-#include "../Core/Record32.hpp"
-#include "SystemIntrinsic.hpp"
-#include "UserIntrinsic.hpp"
-#include "Instruction.hpp"
-#include "JumpAddress.hpp"
+#include "../ByteCode/CharCluster.hpp"
 
-namespace Nominax::ByteCode
+namespace Nominax::Core
 {
 	/// <summary>
-	/// 64-bit byte code signal data contains either an instruction or an immediate value.
+	/// 64-bit memory record.
+	/// Contains either: Record32, void*, U64, I64, F64
 	/// </summary>
-	union alignas(alignof(U64)) Signal32
+	union alignas(alignof(I64)) Record
 	{
 		/// <summary>
-		/// Discriminator for discriminated signals.
+		/// Use as U32.
 		/// </summary>
-		enum class Discriminator: U8
-		{
-			/// <summary>
-			/// U64 in record.
-			/// </summary>
-			U64,
-
-			/// <summary>
-			/// I64 in record.
-			/// </summary>
-			I64,
-
-			/// <summary>
-			/// F64 in record.
-			/// </summary>
-			F64,
-
-			/// <summary>
-			/// Char cluster UTF-8.
-			/// </summary>
-			CharClusterUtf8,
-
-			/// <summary>
-			/// Char cluster UTF-16.
-			/// </summary>
-			CharClusterUtf16,
-
-			/// <summary>
-			/// Char cluster UTF-32.
-			/// </summary>
-			CharClusterUtf32,
-
-			/// <summary>
-			/// Byte code instruction.
-			/// </summary>
-			Instruction,
-
-			/// <summary>
-			/// System call id.
-			/// </summary>
-			SystemIntrinsicCallID,
-
-			/// <summary>
-			/// User call id.
-			/// </summary>
-			UserIntrinsicCallID,
-
-			/// <summary>
-			/// Byte code instruction opcode.
-			/// </summary>
-			OpCode,
-
-			/// <summary>
-			/// Pointer.
-			/// </summary>
-			Ptr,
-
-			/// <summary>
-			/// Jump address.
-			/// </summary>
-			JumpAddress
-		};
+		U32 AsU32;
 
 		/// <summary>
-		/// Reinterpret as Record64.
+		/// Use as I32.
 		/// </summary>
-		Core::Record32 R64;
+		I32 AsI32;
 
 		/// <summary>
-		/// Reinterpret as instruction.
+		/// Use as F32.
 		/// </summary>
-		Instruction Instr;
+		F32 AsF32;
 
 		/// <summary>
-		/// Reinterpret as system intrinsic call id.
+		/// Use as U64.
 		/// </summary>
-		SystemIntrinsicCallID SystemIntrinID;
+		U64 AsU64;
 
 		/// <summary>
-		/// Reinterpret as custom intrinsic call id.
+		/// Use as I64.
 		/// </summary>
-		UserIntrinsicCallID UserIntrinID;
+		I64 AsI64;
 
 		/// <summary>
-		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
+		/// Use as F64.
 		/// </summary>
-		U64 OpCode;
+		F64 AsF64;
 
 		/// <summary>
-		/// Reinterpret as void pointer.
+		/// Use as PTR 64.
 		/// </summary>
-		void* Ptr;
+		void* AsPtr;
 
 		/// <summary>
-		/// Reinterpret as jump target.
+		/// Use as ASCII/UTF-8 char.
 		/// </summary>
-		JumpAddress JmpAddress;
+		char8_t AsChar8;
 
 		/// <summary>
-		/// Default constructor.
+		/// Use as UTF-16 char.
+		/// </summary>
+		char16_t AsChar16;
+
+		/// <summary>
+		/// Use as UTF-32 char.
+		/// </summary>
+		char32_t AsChar32;
+
+		/// <summary>
+		/// Use as U32's array.
+		/// </summary>
+		std::array<U32, 2> AsU32S;
+
+		/// <summary>
+		/// Use as I32's array.
+		/// </summary>
+		std::array<I32, 2> AsI32S;
+
+		/// <summary>
+		/// Use as F32's array.
+		/// </summary>
+		std::array<F32, 2> AsF32S;
+
+		/// <summary>
+		/// Use as UTF-8 cluster.
+		/// </summary>
+		ByteCode::CharClusterUtf8 AsUtf8;
+
+		/// <summary>
+		/// Use as UTF-16 cluster.
+		/// </summary>
+		ByteCode::CharClusterUtf16 AsUtf16;
+
+		/// <summary>
+		/// Use as UTF-32 cluster.
+		/// </summary>
+		ByteCode::CharClusterUtf32 AsUtf32;
+
+		/// <summary>
+		/// Default construct.
 		/// </summary>
 		/// <returns></returns>
-		Signal32() noexcept(true) = default;
+		Record() noexcept(true) = default;
 
 		/// <summary>
-		/// Construct from record64.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal32(Core::Record32 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from instruction.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal32(Instruction value) noexcept(true);
-
-		/// <summary>
-		/// Construct from system intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal32(SystemIntrinsicCallID value) noexcept(true);
-
-		/// <summary>
-		/// Construct from custom intrinsic call id.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal32(UserIntrinsicCallID value) noexcept(true);
-
-		/// <summary>
-		/// Construct from void pointer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal32(void* value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit signed quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal32(I64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit unsigned quadword integer.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal32(U64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64-bit F64 precision F32.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal32(F64 value) noexcept(true);
-
-		/// <summary>
-		/// Construct from UTF-8 char cluster.
-		/// </summary>
-		/// <param name="cluster"></param>
-		/// <returns></returns>
-		explicit constexpr Signal32(CharClusterUtf8 cluster) noexcept(true);
-
-		/// <summary>
-		/// Construct from UTF-16 char cluster.
-		/// </summary>
-		/// <param name="cluster"></param>
-		/// <returns></returns>
-		explicit constexpr Signal32(CharClusterUtf16 cluster) noexcept(true);
-
-		/// <summary>
-		/// Construct from UTF-32 char cluster.
-		/// </summary>
-		/// <param name="cluster"></param>
-		/// <returns></returns>
-		explicit constexpr Signal32(CharClusterUtf32 cluster) noexcept(true);
-
-		/// <summary>
-		/// Construct from 32-bit UTF-32 character.
-		/// </summary>
-		/// <param name="value">The initial value.</param>
-		/// <returns></returns>
-		explicit constexpr Signal32(char32_t value) noexcept(true);
-
-		/// <summary>
-		/// Construct from 64 bit jump address.
+		/// Construct from U32 and zero upper 32 bits.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Signal32(JumpAddress value) noexcept(true);
+		explicit constexpr Record(U32 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from I32 and zero upper 32 bits.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(I32 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from F32 and zero upper 32 bits.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(F32 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from U64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(U64 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from I64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(I64 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from F64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(F64 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from PTR 64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(void* value) noexcept(true);
+
+		/// <summary>
+		/// Construct from ASCII/UTF-8 char.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(char8_t value) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-16 char.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(char16_t value) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-32 char.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(char32_t value) noexcept(true);
+
+		/// <summary>
+		/// Construct from U32 array.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(std::array<U32, 2> value) noexcept(true);
+
+		/// <summary>
+		/// Construct from I32 array.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(std::array<I32, 2> value) noexcept(true);
+
+		/// <summary>
+		/// Construct from F32 array.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(std::array<F32, 2> value) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-8 cluster.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(ByteCode::CharClusterUtf8 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-16 cluster.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(ByteCode::CharClusterUtf16 value) noexcept(true);
+
+		/// <summary>
+		/// Construct from UTF-32 cluster.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(ByteCode::CharClusterUtf32 value) noexcept(true);
+
+		/// <summary>
+		/// Returns true if value contains non zero, else false.
+		/// </summary>
+		/// <returns></returns>
+		explicit constexpr operator bool() const noexcept(true);
+
+		/// <summary>
+		/// Equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator ==(Record other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Not equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator !=(Record other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Less.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator <(Record other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Above.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator >(Record other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Less equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator <=(Record other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Above equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator >=(Record other) const noexcept(true) -> bool;
+
+		/// <summary>
+		/// Get stack padding value.
+		/// </summary>
+		/// <returns></returns>
+		static constexpr auto Padding() noexcept(true) -> Record;
 	};
 
-	constexpr Signal32::Signal32(const Core::Record32 value) noexcept(true) : R64 {value} {}
-	constexpr Signal32::Signal32(const Instruction value) noexcept(true) : Instr {value} {}
-	constexpr Signal32::Signal32(const SystemIntrinsicCallID value) noexcept(true) : SystemIntrinID {value} {}
-	constexpr Signal32::Signal32(const UserIntrinsicCallID value) noexcept(true) : UserIntrinID {value} {}
-	constexpr Signal32::Signal32(void* const value) noexcept(true) : Ptr {value} {}
-	constexpr Signal32::Signal32(const I64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal32::Signal32(const U64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal32::Signal32(const F64 value) noexcept(true) : R64 {value} {}
-	constexpr Signal32::Signal32(const CharClusterUtf8 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal32::Signal32(const CharClusterUtf16 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal32::Signal32(const CharClusterUtf32 cluster) noexcept(true) : R64 {cluster} {}
-	constexpr Signal32::Signal32(const char32_t value) noexcept(true) : R64 {value} {}
-	constexpr Signal32::Signal32(const JumpAddress value) noexcept(true) : JmpAddress {value} {}
+	constexpr Record::Record(const U32 value) noexcept(true) : AsU32 {value} {}
+	constexpr Record::Record(const I32 value) noexcept(true) : AsI32 {value} {}
+	constexpr Record::Record(const F32 value) noexcept(true) : AsF32 {value} {}
+	constexpr Record::Record(const U64 value) noexcept(true) : AsU64 {value} {}
+	constexpr Record::Record(const I64 value) noexcept(true) : AsI64 {value} {}
+	constexpr Record::Record(const F64 value) noexcept(true) : AsF64 {value} {}
+	constexpr Record::Record(void* const value) noexcept(true) : AsPtr {value} {}
+	constexpr Record::Record(const char8_t value) noexcept(true) : AsChar8 {value} {}
+	constexpr Record::Record(const char16_t value) noexcept(true) : AsChar16 {value} {}
+	constexpr Record::Record(const char32_t value) noexcept(true) : AsChar32 {value} {}
+	constexpr Record::Record(const std::array<U32, 2> value) noexcept(true) : AsU32S {value} {}
+	constexpr Record::Record(const std::array<I32, 2> value) noexcept(true) : AsI32S {value} {}
+	constexpr Record::Record(const std::array<F32, 2> value) noexcept(true) : AsF32S {value} {}
+	constexpr Record::Record(const ByteCode::CharClusterUtf8 value) noexcept(true) : AsUtf8 {value} {}
+	constexpr Record::Record(const ByteCode::CharClusterUtf16 value) noexcept(true) : AsUtf16 {value} {}
+	constexpr Record::Record(const ByteCode::CharClusterUtf32 value) noexcept(true) : AsUtf32 {value} {}
 
-	/// <summary>
-	/// Raw representation of a signal as bytes.
-	/// </summary>
-	using SignalByteBuffer = std::array<U8, sizeof(Signal32)>;
+	constexpr Record::operator bool() const noexcept(true)
+	{
+		return this->AsU64;
+	}
 
-	static_assert(std::is_trivial_v<Signal32>);
-	static_assert(std::is_default_constructible_v<Signal32>);
-	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, U64>);
-	static_assert(sizeof(Instruction) == sizeof(U64));
-	static_assert(sizeof(Signal32) == sizeof(U64));
-	static_assert(std::is_standard_layout_v<Signal32>);
+	constexpr auto Record::operator ==(const Record other) const noexcept(true) -> bool
+	{
+		return this->AsU64 == other.AsU64;
+	}
+
+	constexpr auto Record::operator !=(const Record other) const noexcept(true) -> bool
+	{
+		return !(*this == other);
+	}
+
+	constexpr auto Record::operator <(const Record other) const noexcept(true) -> bool
+	{
+		return this->AsU64 < other.AsU64;
+	}
+
+	constexpr auto Record::operator >(const Record other) const noexcept(true) -> bool
+	{
+		return this->AsU64 > other.AsU64;
+	}
+
+	constexpr auto Record::operator <=(const Record other) const noexcept(true) -> bool
+	{
+		return this->AsU64 <= other.AsU64;
+	}
+
+	constexpr auto Record::operator >=(const Record other) const noexcept(true) -> bool
+	{
+		return this->AsU64 >= other.AsU64;
+	}
+
+	constexpr auto Record::Padding() noexcept(true) -> Record
+	{
+		return Record {0xFF'FF'FF'FF'FF'FF'FF'FF};
+	}
+
+	static_assert(sizeof(F32) == sizeof(I32));
+	static_assert(sizeof(F64) == sizeof(I64));
+	static_assert(sizeof(Record) == sizeof(I64));
+	static_assert(alignof(Record) == alignof(I64));
+	static_assert(std::is_standard_layout_v<Record>);
+	static_assert(std::is_trivial_v<Record>);
+	static_assert(std::is_default_constructible_v<Record>);
 }

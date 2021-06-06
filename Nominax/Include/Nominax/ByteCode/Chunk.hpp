@@ -1,6 +1,6 @@
 // File: Chunk.hpp
 // Author: Mario
-// Created: 28.04.2021 9:52 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -209,14 +209,14 @@
 
 #include <vector>
 
-#include "Signal32.hpp"
+#include "Signal.hpp"
 
 namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// An optimized and ready to execute code chunk.
 	/// </summary>
-	using CodeChunk = std::vector<Signal32>;
+	using CodeChunk = std::vector<Signal>;
 
 	/// <summary>
 	/// Contains the boolean values for the jump map.
@@ -235,5 +235,5 @@ namespace Nominax::ByteCode
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <returns></returns>
-	extern auto CalculateInstructionMapping(std::span<const Signal32::Discriminator> input, std::span<bool>& output) -> bool;
+	extern auto CalculateInstructionMapping(std::span<const Signal::Discriminator> input, std::span<bool>& output) -> bool;
 }

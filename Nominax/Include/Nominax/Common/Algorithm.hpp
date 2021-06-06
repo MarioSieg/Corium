@@ -1,6 +1,6 @@
 // File: Algorithm.hpp
 // Author: Mario
-// Created: 23.05.2021 12:34 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License

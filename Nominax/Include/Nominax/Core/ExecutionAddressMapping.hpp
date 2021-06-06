@@ -1,6 +1,6 @@
 // File: ExecutionAddressMapping.hpp
 // Author: Mario
-// Created: 10.05.2021 4:45 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,14 +207,14 @@
 
 #pragma once
 
-#include "../ByteCode/Signal32.hpp"
+#include "../ByteCode/Signal.hpp"
 
 namespace Nominax::Core
 {
 	/// <summary>
 	/// Compute relative jump address.
 	/// </summary>
-	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(ByteCode::Signal32* const base, const ByteCode::JumpAddress address) noexcept(true) -> void*
+	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(ByteCode::Signal* const base, const ByteCode::JumpAddress address) noexcept(true) -> void*
 	{
 		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
 	}
@@ -269,10 +269,10 @@ namespace Nominax::Core
 	[[nodiscard]]
 	extern auto MapJumpTable
 	(
-		ByteCode::Signal32* __restrict__       bucket,
-		const ByteCode::Signal32* __restrict__ bucketEnd,
-		const bool*                            jumpAddressMap,
-		JumpTable                              jumpTable
+		ByteCode::Signal* __restrict__       bucket,
+		const ByteCode::Signal* __restrict__ bucketEnd,
+		const bool*                          jumpAddressMap,
+		JumpTable                            jumpTable
 	) noexcept(false) -> bool;
 
 	/// <summary>

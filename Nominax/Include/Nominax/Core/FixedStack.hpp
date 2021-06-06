@@ -1,6 +1,6 @@
 // File: FixedStack.hpp
 // Author: Mario
-// Created: 28.04.2021 9:46 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -212,7 +212,7 @@
 #include <vector>
 
 #include "../Common/MemoryUnits.hpp"
-#include "Record32.hpp"
+#include "Record.hpp"
 
 namespace Nominax::Core
 {
@@ -223,7 +223,7 @@ namespace Nominax::Core
 	class [[nodiscard]] FixedStack final
 	{
 	public:
-		using StorageType = std::pmr::vector<Record32>;
+		using StorageType = std::pmr::vector<Record>;
 
 	private:
 		StorageType Buffer_;
@@ -233,32 +233,32 @@ namespace Nominax::Core
 		/// Small 1 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_SMALL {1_mb / sizeof(Record32)};
+		static constexpr std::size_t SIZE_SMALL {1_mb / sizeof(Record)};
 
 		/// <summary>
 		/// Medium sizes 4 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_MEDIUM {4_mb / sizeof(Record32)};
+		static constexpr std::size_t SIZE_MEDIUM {4_mb / sizeof(Record)};
 
 		/// <summary>
 		/// Medium sizes 8 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_LARGE {8_mb / sizeof(Record32)};
+		static constexpr std::size_t SIZE_LARGE {8_mb / sizeof(Record)};
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The memory buffer pointer.</returns>
 		[[nodiscard]]
-		auto Buffer() noexcept(true) -> Record32*;
+		auto Buffer() noexcept(true) -> Record*;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The memory buffer pointer.</returns>
 		[[nodiscard]]
-		auto Buffer() const noexcept(true) -> const Record32*;
+		auto Buffer() const noexcept(true) -> const Record*;
 
 		/// <summary>
 		/// 
@@ -337,12 +337,12 @@ namespace Nominax::Core
 		~FixedStack() = default;
 	};
 
-	inline auto FixedStack::Buffer() noexcept(true) -> Record32*
+	inline auto FixedStack::Buffer() noexcept(true) -> Record*
 	{
 		return this->Buffer_.data();
 	}
 
-	inline auto FixedStack::Buffer() const noexcept(true) -> const Record32*
+	inline auto FixedStack::Buffer() const noexcept(true) -> const Record*
 	{
 		return this->Buffer_.data();
 	}

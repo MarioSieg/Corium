@@ -1,6 +1,6 @@
 // File: AtomicState.cpp
 // Author: Mario
-// Created: 24.05.2021 12:40 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License

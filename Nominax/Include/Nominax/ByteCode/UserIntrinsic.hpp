@@ -1,6 +1,6 @@
 // File: UserIntrinsic.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -210,7 +210,7 @@
 #include <cstdint>
 #include <span>
 
-#include "../Core/Record32.hpp"
+#include "../Core/Record.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -223,7 +223,7 @@ namespace Nominax::ByteCode
 	/// Custom intrinsic routine function prototype.
 	/// Contains the stack pointer as parameter.
 	/// </summary>
-	using IntrinsicRoutine = auto (Core::Record32*) -> void;
+	using IntrinsicRoutine = auto (Core::Record*) -> void;
 	static_assert(std::is_function_v<IntrinsicRoutine>);
 
 	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;

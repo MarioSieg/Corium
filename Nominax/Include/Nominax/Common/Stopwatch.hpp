@@ -1,6 +1,6 @@
 // File: Stopwatch.hpp
 // Author: Mario
-// Created: 20.05.2021 10:33 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -253,7 +253,7 @@ namespace Nominax::Common
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto ElapsedSecsF64() const noexcept(true) -> F64;
+		auto ElapsedSecsF64() const noexcept(true) -> std::chrono::duration<F64>;
 
 		/// <summary>
 		/// Reset time stamp to now.
@@ -282,9 +282,9 @@ namespace Nominax::Common
 	}
 
 	template <typename Clock>
-	inline auto Stopwatch<Clock>::ElapsedSecsF64() const noexcept(true) -> F64
+	inline auto Stopwatch<Clock>::ElapsedSecsF64() const noexcept(true) -> std::chrono::duration<F64>
 	{
-		return std::chrono::duration_cast<std::chrono::duration<F64>>(this->Elapsed<>()).count();
+		return std::chrono::duration_cast<std::chrono::duration<F64>>(this->Elapsed<>());
 	}
 
 	template <typename Clock>

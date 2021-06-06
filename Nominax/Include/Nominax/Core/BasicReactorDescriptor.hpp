@@ -1,6 +1,6 @@
 // File: BasicReactorDescriptor.hpp
 // Author: Mario
-// Created: 26.04.2021 6:27 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -219,10 +219,10 @@ namespace Nominax::Core
 	/// </summary>
 	struct BasicReactorDescriptor final
 	{
-		std::span<ByteCode::Signal32>          CodeChunk;
+		std::span<ByteCode::Signal>            CodeChunk;
 		std::span<const bool>                  CodeChunkInstructionMap;
 		std::span<ByteCode::IntrinsicRoutine*> IntrinsicTable;
-		std::span<Record32>                    Stack;
+		std::span<Record>                      Stack;
 		InterruptRoutine&                      InterruptHandler;
 
 		/// <summary>

@@ -1,6 +1,6 @@
 // File: DiscriminatedSignal.hpp
 // Author: Mario
-// Created: 22.05.2021 11:30 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -236,47 +236,47 @@ namespace Nominax::ByteCode
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto MapStreamType() -> std::optional<Signal32::Discriminator>
+	constexpr auto MapStreamType() -> std::optional<Signal::Discriminator>
 	{
 		if constexpr (std::is_same_v<Instruction, T>)
 		{
-			return {Signal32::Discriminator::Instruction};
+			return {Signal::Discriminator::Instruction};
 		}
 		else if constexpr (std::is_same_v<SystemIntrinsicCallID, T>)
 		{
-			return {Signal32::Discriminator::SystemIntrinsicCallID};
+			return {Signal::Discriminator::SystemIntrinsicCallID};
 		}
 		else if constexpr (std::is_same_v<UserIntrinsicCallID, T>)
 		{
-			return {Signal32::Discriminator::UserIntrinsicCallID};
+			return {Signal::Discriminator::UserIntrinsicCallID};
 		}
 		else if constexpr (std::is_same_v<JumpAddress, T>)
 		{
-			return {Signal32::Discriminator::JumpAddress};
+			return {Signal::Discriminator::JumpAddress};
 		}
 		else if constexpr (std::is_same_v<U64, T>)
 		{
-			return {Signal32::Discriminator::U64};
+			return {Signal::Discriminator::U64};
 		}
 		else if constexpr (std::is_same_v<I64, T>)
 		{
-			return {Signal32::Discriminator::I64};
+			return {Signal::Discriminator::I64};
 		}
 		else if constexpr (std::is_same_v<F64, T>)
 		{
-			return {Signal32::Discriminator::F64};
+			return {Signal::Discriminator::F64};
 		}
 		else if constexpr (std::is_same_v<CharClusterUtf8, T>)
 		{
-			return {Signal32::Discriminator::CharClusterUtf8};
+			return {Signal::Discriminator::CharClusterUtf8};
 		}
 		else if constexpr (std::is_same_v<CharClusterUtf16, T>)
 		{
-			return {Signal32::Discriminator::CharClusterUtf16};
+			return {Signal::Discriminator::CharClusterUtf16};
 		}
 		else if constexpr (std::is_same_v<CharClusterUtf32, T>)
 		{
-			return {Signal32::Discriminator::CharClusterUtf32};
+			return {Signal::Discriminator::CharClusterUtf32};
 		}
 		else
 		{
@@ -295,12 +295,12 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Discriminator for the signal "Value".
 		/// </summary>
-		Signal32::Discriminator Discriminator;
+		Signal::Discriminator Discriminator;
 
 		/// <summary>
 		/// The value itself.
 		/// </summary>
-		Signal32 Value;
+		Signal Value;
 
 		/// <summary>
 		/// Construct.
@@ -308,7 +308,7 @@ namespace Nominax::ByteCode
 		/// <param name="discriminator"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		constexpr DiscriminatedSignal(Signal32::Discriminator discriminator, Signal32 value) noexcept(true);
+		constexpr DiscriminatedSignal(Signal::Discriminator discriminator, Signal value) noexcept(true);
 
 		/// <summary>
 		/// Check if discriminator matches generic type.
@@ -363,7 +363,7 @@ namespace Nominax::ByteCode
 		constexpr auto operator !=(const DiscriminatedSignal& other) const noexcept(true) -> bool;
 	};
 
-	constexpr DiscriminatedSignal::DiscriminatedSignal(const Signal32::Discriminator discriminator, const Signal32 value) noexcept(true) : Discriminator {discriminator}, Value {value} { }
+	constexpr DiscriminatedSignal::DiscriminatedSignal(const Signal::Discriminator discriminator, const Signal value) noexcept(true) : Discriminator {discriminator}, Value {value} { }
 
 	template <typename T> requires BytecodeElement<T>
 	constexpr auto DiscriminatedSignal::Contains() const noexcept(true) -> bool

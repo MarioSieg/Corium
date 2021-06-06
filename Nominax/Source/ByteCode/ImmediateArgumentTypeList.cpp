@@ -1,6 +1,6 @@
 // File: ImmediateArgumentTypeList.cpp
 // Author: Mario
-// Created: 12.05.2021 4:27 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -209,7 +209,7 @@
 
 namespace Nominax::ByteCode
 {
-	using Dis = Signal32::Discriminator;;
+	using Dis = Signal::Discriminator;;
 
 	static constexpr std::array ANY_TYPE
 	{

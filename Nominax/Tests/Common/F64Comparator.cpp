@@ -1,6 +1,6 @@
 // File: F64Comparator.cpp
 // Author: Mario
-// Created: 21.04.2021 10:21 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -231,10 +231,4 @@ TEST(Common, F64ComparatorIsZero)
 	ASSERT_FALSE(F64IsZero(0.000001));
 	ASSERT_TRUE(F64IsZero(0.0000001));
 	ASSERT_TRUE(F64IsZero(0.000000009999999999));
-}
-
-TEST(Common, F64ComparatorIsOne)
-{
-	ASSERT_FALSE(F64IsOne(0.0));
-	ASSERT_TRUE(F64IsOne(1.0));
 }

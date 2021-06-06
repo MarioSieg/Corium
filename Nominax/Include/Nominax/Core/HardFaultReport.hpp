@@ -1,6 +1,6 @@
 // File: HardFaultReport.hpp
 // Author: Mario
-// Created: 25.04.2021 2:44 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -209,8 +209,8 @@
 
 #include <ostream>
 
-#include "Record32.hpp"
-#include "../ByteCode/Signal32.hpp"
+#include "Record.hpp"
+#include "../ByteCode/Signal.hpp"
 
 namespace Nominax::Core
 {
@@ -229,15 +229,15 @@ namespace Nominax::Core
 	/// <returns></returns>
 	auto WriteHardFaultReport
 	(
-		std::ostream&             out,
-		const Record32*           sp,
-		const ByteCode::Signal32* ip,
-		const ByteCode::Signal32* bp,
-		std::size_t               stackSize,
-		std::size_t               codeSize,
-		std::string_view          message       = "",
-		std::size_t               stackDumpSize = 64,
-		std::size_t               codeDumpSize  = 64
+		std::ostream&           out,
+		const Record*           sp,
+		const ByteCode::Signal* ip,
+		const ByteCode::Signal* bp,
+		std::size_t             stackSize,
+		std::size_t             codeSize,
+		std::string_view        message       = "",
+		std::size_t             stackDumpSize = 64,
+		std::size_t             codeDumpSize  = 64
 	) -> void;
 
 	/// <summary>
@@ -254,14 +254,14 @@ namespace Nominax::Core
 	/// <returns></returns>
 	auto WriteHardFaultReport
 	(
-		const Record32*           sp,
-		const ByteCode::Signal32* ip,
-		const ByteCode::Signal32* bp,
-		std::size_t               stackSize,
-		std::size_t               codeSize,
-		std::string_view          message       = "",
-		std::size_t               stackDumpSize = 64,
-		std::size_t               codeDumpSize  = 64
+		const Record*           sp,
+		const ByteCode::Signal* ip,
+		const ByteCode::Signal* bp,
+		std::size_t             stackSize,
+		std::size_t             codeSize,
+		std::string_view        message       = "",
+		std::size_t             stackDumpSize = 64,
+		std::size_t             codeDumpSize  = 64
 	) -> void;
 
 	auto WriteHardFaultReport(std::string_view message) -> void;

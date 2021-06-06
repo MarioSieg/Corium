@@ -1,6 +1,6 @@
 // File: DecomposerF64.hpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -212,14 +212,12 @@
 #include <cmath>
 #include <limits>
 
-#include "BaseTypes.hpp"
-
 namespace Nominax::Common
 {
 	/// <summary>
 	/// Zero tolerance epsilon.
 	/// </summary>
-	constexpr F64 F64_ZERO_TOLERANCE {1e-6}; // 8 * 1.19209290E-07F
+	constexpr auto ZERO_TOLERANCE {1e-6}; // 8 * 1.19209290E-07F
 
 	/// <summary>
 	/// Returns true if x is zero, else false.
@@ -228,7 +226,7 @@ namespace Nominax::Common
 	/// <returns>True if x is zero, else false.</returns>
 	__attribute__((flatten, pure)) inline auto F64IsZero(const F64 x) noexcept(true) -> bool
 	{
-		return std::abs(x) < F64_ZERO_TOLERANCE;
+		return std::abs(x) < ZERO_TOLERANCE;
 	}
 
 	/// <summary>
@@ -247,37 +245,37 @@ namespace Nominax::Common
 	/// If the ULP value is zero, the two numbers must be exactly the same.
 	/// See http://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/ by Bruce Dawson
 	/// </summary>
-	constexpr U32 F64_MAX_ULPS {4};
+	constexpr U32 MAX_ULPS {4};
 
 	/// <summary>
 	/// Bit count inside F64.
 	/// </summary>
-	constexpr auto F64_BIT_COUNT {8 * sizeof(F64)};
+	constexpr auto BIT_COUNT {8 * sizeof(F64)};
 
 	/// <summary>
 	/// Fraction bit count.
 	/// </summary>
-	constexpr auto F64_FRACTION_BITS {std::numeric_limits<F64>::digits - 1};
+	constexpr auto FRACTION_BITS {std::numeric_limits<F64>::digits - 1};
 
 	/// <summary>
 	/// Exponent bit count.
 	/// </summary>
-	constexpr auto F64_EXPONENT_BITS {F64_BIT_COUNT - 1 - F64_FRACTION_BITS};
+	constexpr auto EXPONENT_BITS {BIT_COUNT - 1 - FRACTION_BITS};
 
 	/// <summary>
 	/// Mask to extract sign bit.
 	/// </summary>
-	constexpr auto F64_SIGN_MASK {UINT64_C(1) << (F64_BIT_COUNT - 1)};
+	constexpr auto SIGN_MASK {UINT64_C(1) << (BIT_COUNT - 1)};
 
 	/// <summary>
 	/// Mask to extract fraction.
 	/// </summary>
-	constexpr auto F64_FRACTION_MASK {~UINT64_C(0) >> (F64_EXPONENT_BITS + 1)};
+	constexpr auto FRACTION_MASK {~UINT64_C(0) >> (EXPONENT_BITS + 1)};
 
 	/// <summary>
 	/// Mask to extract exponent.
 	/// </summary>
-	constexpr auto F64_EXPONENT_MASK {~(F64_SIGN_MASK | F64_FRACTION_MASK)};
+	constexpr auto EXPONENT_MASK {~(SIGN_MASK | FRACTION_MASK)};
 
 	/// <summary>
 	/// Returns the bit representation of the F64.
@@ -292,17 +290,17 @@ namespace Nominax::Common
 
 	__attribute__((flatten, pure)) constexpr auto ExponentBitsOf(const F64 x) noexcept(true) -> U64
 	{
-		return F64_EXPONENT_MASK & BitsOf(x);
+		return EXPONENT_MASK & BitsOf(x);
 	}
 
 	__attribute__((flatten, pure)) constexpr auto FractionBitsOf(const F64 x) noexcept(true) -> U64
 	{
-		return F64_FRACTION_MASK & BitsOf(x);
+		return FRACTION_MASK & BitsOf(x);
 	}
 
 	__attribute__((flatten, pure)) constexpr auto SignBitOf(const F64 x) noexcept(true) -> U64
 	{
-		return F64_SIGN_MASK & BitsOf(x);
+		return SIGN_MASK & BitsOf(x);
 	}
 
 	/// <summary>
@@ -311,7 +309,7 @@ namespace Nominax::Common
 	/// </summary>
 	__attribute__((flatten, pure)) constexpr auto IsNan(const F64 x) noexcept(true) -> bool
 	{
-		return ExponentBitsOf(x) == F64_EXPONENT_MASK && FractionBitsOf(x) != 0;
+		return ExponentBitsOf(x) == EXPONENT_MASK && FractionBitsOf(x) != 0;
 	}
 
 	/// <summary>
@@ -320,11 +318,11 @@ namespace Nominax::Common
 	/// </summary>
 	__attribute__((flatten, pure)) constexpr auto SignMagnitudeToBiasedRepresentation(const U64 bits) noexcept(true) -> U64
 	{
-		if (F64_SIGN_MASK & bits)
+		if (SIGN_MASK & bits)
 		{
 			return ~bits + 1;
 		}
-		return F64_SIGN_MASK | bits;
+		return SIGN_MASK | bits;
 	}
 
 	/// <summary>
@@ -351,7 +349,7 @@ namespace Nominax::Common
 	/// <param name="x"></param>
 	/// <param name="y"></param>
 	/// <returns></returns>
-	template <U32 Ulps = F64_MAX_ULPS>
+	template <U32 Ulps = MAX_ULPS>
 	__attribute__((flatten, pure)) constexpr auto F64Equals(const F64 x, const F64 y) noexcept(true) -> bool
 	{
 		static_assert(Ulps > 0);

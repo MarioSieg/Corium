@@ -1,6 +1,6 @@
 // File: ByteCode.hpp
 // Author: Mario
-// Created: 24.04.2021 9:46 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -223,7 +223,7 @@
 #include "PopCount.hpp"
 #include "PushCount.hpp"
 #include "ScopedVariable.hpp"
-#include "Signal32.hpp"
+#include "Signal.hpp"
 #include "Stream.hpp"
 #include "DiscriminatedSignal.hpp"
 #include "StreamScalar.hpp"

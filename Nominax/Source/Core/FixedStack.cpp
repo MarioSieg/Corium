@@ -1,6 +1,6 @@
 // File: FixedStack.cpp
 // Author: Mario
-// Created: 28.04.2021 1:04 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -224,6 +224,6 @@ namespace Nominax::Core
 		this->Buffer_.resize(sizeInRecords);
 
 		// insert padding:
-		this->Buffer_.front() = Record32::Padding();
+		this->Buffer_.front() = Record::Padding();
 	}
 }

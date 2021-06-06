@@ -1,6 +1,6 @@
 // File: Stream.cpp
 // Author: Mario
-// Created: 25.04.2021 1:24 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -221,7 +221,7 @@ namespace Nominax::ByteCode
 		Print(TextColor::Green, "Len: {}, Size: {}B", this->Size(), this->SizeInBytes());
 		for (std::size_t i {0}; i < this->Size(); ++i)
 		{
-			if (this->CodeDisc_[i] == Signal32::Discriminator::Instruction)
+			if (this->CodeDisc_[i] == Signal::Discriminator::Instruction)
 			{
 				Print(TextColor::Green, "\n&{:08X}: ", i);
 				Print(TextColor::Cyan, "{}", this->Code_[i].Instr);

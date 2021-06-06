@@ -1,6 +1,6 @@
 // File: NominaxAnaly.cpp
 // Author: Mario
-// Created: 25.05.2021 12:51 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,7 +207,7 @@
 
 #include "../Include/Nominax/Nominax.hpp"
 
-using namespace Nominax::Prelude;
+using namespace Prelude;
 
 auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
 {

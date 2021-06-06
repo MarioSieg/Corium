@@ -1,6 +1,6 @@
 // File: XorshiftAtomic.cpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License

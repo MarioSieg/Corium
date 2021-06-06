@@ -1,6 +1,6 @@
 // File: Validator.hpp
 // Author: Mario
-// Created: 24.04.2021 9:51 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -257,7 +257,7 @@ namespace Nominax::ByteCode
 	/// <param name="args"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateInstructionArguments(Instruction instruction, const std::span<const Signal32::Discriminator>& args) noexcept(true) -> ValidationResultCode;
+	extern auto ValidateInstructionArguments(Instruction instruction, const std::span<const Signal::Discriminator>& args) noexcept(true) -> ValidationResultCode;
 
 	/// <summary>
 	/// 
@@ -266,7 +266,7 @@ namespace Nominax::ByteCode
 	/// <param name="args"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto ValidateInstructionArguments(const Instruction instruction, std::vector<Signal32::Discriminator>&& args) noexcept(true) -> ValidationResultCode
+	inline auto ValidateInstructionArguments(const Instruction instruction, std::vector<Signal::Discriminator>&& args) noexcept(true) -> ValidationResultCode
 	{
 		return ValidateInstructionArguments(instruction, args);
 	}
@@ -296,7 +296,7 @@ namespace Nominax::ByteCode
 	/// <param name="next"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto ComputeInstructionArgumentOffset(const Signal32::Discriminator* __restrict__ const where, const Signal32::Discriminator* __restrict__ const next) noexcept(true) -> std::ptrdiff_t
+	constexpr auto ComputeInstructionArgumentOffset(const Signal::Discriminator* __restrict__ const where, const Signal::Discriminator* __restrict__ const next) noexcept(true) -> std::ptrdiff_t
 	{
 		return next - where - 1;
 	}
@@ -308,13 +308,13 @@ namespace Nominax::ByteCode
 	/// <param name="end"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto SearchForNextInstruction(const Signal32::Discriminator* __restrict__ current, const Signal32::Discriminator* __restrict__ const end) noexcept(true) -> const Signal32::Discriminator*
+	constexpr auto SearchForNextInstruction(const Signal::Discriminator* __restrict__ current, const Signal::Discriminator* __restrict__ const end) noexcept(true) -> const Signal::Discriminator*
 	{
 		do
 		{
 			++current;
 		}
-		while (*current != Signal32::Discriminator::Instruction && current < end);
+		while (*current != Signal::Discriminator::Instruction && current < end);
 		return current;
 	}
 
@@ -327,7 +327,7 @@ namespace Nominax::ByteCode
 	/// <param name="offset"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto ExtractInstructionArguments(const Signal32::Discriminator* const where, const std::size_t offset) noexcept(true) -> std::span<const Signal32::Discriminator>
+	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const std::size_t offset) noexcept(true) -> std::span<const Signal::Discriminator>
 	{
 		return {where + 1, where + 1 + offset};
 	}

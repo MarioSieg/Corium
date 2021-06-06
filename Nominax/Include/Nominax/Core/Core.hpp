@@ -1,6 +1,6 @@
 // File: Core.hpp
 // Author: Mario
-// Created: 25.04.2021 3:17 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -227,7 +227,7 @@
 #include "ReactorShutdownReason.hpp"
 #include "ReactorSpawnDescriptor.hpp"
 #include "ReactorValidationResult.hpp"
-#include "Record32.hpp"
+#include "Record.hpp"
 #include "RegisterDump.hpp"
 #include "TaskQueue.hpp"
 #include "TaskQueueThreadPool.hpp"

@@ -1,6 +1,6 @@
 // File: AtomicState.hpp
 // Author: Mario
-// Created: 23.05.2021 9:26 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License

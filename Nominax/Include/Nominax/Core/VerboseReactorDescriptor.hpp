@@ -1,6 +1,6 @@
 // File: VerboseReactorDescriptor.hpp
 // Author: Mario
-// Created: 05.06.2021 12:25 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -209,7 +209,7 @@
 
 #include <csignal>
 
-#include "../ByteCode/Signal32.hpp"
+#include "../ByteCode/Signal.hpp"
 #include "../ByteCode/UserIntrinsic.hpp"
 
 #include "Interrupt.hpp"
@@ -222,13 +222,13 @@ namespace Nominax::Core
 	/// </summary>
 	struct VerboseReactorDescriptor final
 	{
-		ByteCode::Signal32*                CodeChunk {nullptr};
+		ByteCode::Signal*                  CodeChunk {nullptr};
 		const bool*                        CodeChunkInstructionMap {nullptr};
 		std::size_t                        CodeChunkSize {0};
 		ByteCode::IntrinsicRoutine* const* IntrinsicTable {nullptr};
 		std::size_t                        IntrinsicTableSize {0};
 		InterruptRoutine*                  InterruptHandler {nullptr};
-		Record32*                          Stack {nullptr};
+		Record*                            Stack {nullptr};
 		std::size_t                        StackSize {0};
 
 		[[nodiscard]]

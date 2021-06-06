@@ -1,6 +1,6 @@
 // File: Chunk.cpp
 // Author: Mario
-// Created: 28.04.2021 10:02 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -210,7 +210,7 @@
 
 namespace Nominax::ByteCode
 {
-	auto CalculateInstructionMapping(std::span<const Signal32::Discriminator> input, std::span<bool>& output) -> bool
+	auto CalculateInstructionMapping(std::span<const Signal::Discriminator> input, std::span<bool>& output) -> bool
 	{
 		if (NOMINAX_UNLIKELY(std::size(input) != std::size(output)))
 		{
@@ -222,7 +222,7 @@ namespace Nominax::ByteCode
 
 		for (bool* flag = output.data(); NOMINAX_LIKELY(iterator < end); ++iterator, ++flag)
 		{
-			*flag = *iterator == Signal32::Discriminator::Instruction;
+			*flag = *iterator == Signal::Discriminator::Instruction;
 		}
 
 		return true;
