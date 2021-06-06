@@ -1,6 +1,6 @@
-// File: F64Comparator.hpp
+// File: F64Comparator.cpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 21.04.2021 10:21 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,160 +205,36 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../TestBase.hpp"
 
-#include <bit>
-#include <cstdint>
-#include <cmath>
-#include <limits>
-
-namespace Nominax::Common
+TEST(Common, F32ComparatorEquals)
 {
-	/// <summary>
-	/// Zero tolerance epsilon.
-	/// </summary>
-	constexpr auto ZERO_TOLERANCE {1e-6}; // 8 * 1.19209290E-07F
+	ASSERT_TRUE(F32Equals<>(1.0F, 1.0F));
+	ASSERT_TRUE(F32Equals<>(0.0F, 0.0F));
+	ASSERT_TRUE(F32Equals<>(0.0000001F, 0.0000001F));
+	ASSERT_TRUE(F32Equals<>(99.99999999F, 99.99999999F));
+}
 
-	/// <summary>
-	/// Returns true if x is zero, else false.
-	/// </summary>
-	/// <param name="x">The number to check for zero.</param>
-	/// <returns>True if x is zero, else false.</returns>
-	__attribute__((flatten, pure)) inline auto F64IsZero(const F64 x) noexcept(true) -> bool
-	{
-		return std::abs(x) < ZERO_TOLERANCE;
-	}
+TEST(Common, F32ComparatorNotEquals)
+{
+	ASSERT_FALSE(F32Equals<>(1.0F, 1.001F));
+	ASSERT_FALSE(F32Equals<>(0.0F, 0.000001F));
+	ASSERT_FALSE(F32Equals<>(0.00012F, 0.0001F));
+	ASSERT_FALSE(F32Equals<>(99.9998F, 99.999F));
+}
 
-	/// <summary>
-	/// Returns true if x is one, else false.
-	/// </summary>
-	/// <param name="x">The number to check for zero.</param>
-	/// <returns>True if x is zero, else false.</returns>
-	__attribute__((flatten, pure)) inline auto F64IsOne(const F64 x) noexcept(true) -> bool
-	{
-		return F64IsZero(x - 1.0);
-	}
+TEST(Common, F32ComparatorIsZero)
+{
+	ASSERT_TRUE(F32IsZero(0.0F));
+	ASSERT_FALSE(F32IsZero(1.0F));
+	ASSERT_FALSE(F32IsZero(2.0F));
+	ASSERT_FALSE(F32IsZero(0.0001F));
+	ASSERT_TRUE(F32IsZero(0.000000001F));
+	ASSERT_TRUE(F32IsZero(0.00000000009999999999F));
+}
 
-	/// <summary>
-	/// How many ULP's (Units in the Last Place) we want to tolerate when comparing two numbers.
-	/// The large the value, the more error (mismatch) the comparison will allow.
-	/// If the ULP value is zero, the two numbers must be exactly the same.
-	/// See http://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/ by Bruce Dawson
-	/// </summary>
-	constexpr U32 MAX_ULPS {4};
-
-	/// <summary>
-	/// Bit count inside F64.
-	/// </summary>
-	constexpr auto BIT_COUNT {8 * sizeof(F64)};
-
-	/// <summary>
-	/// Fraction bit count.
-	/// </summary>
-	constexpr auto FRACTION_BITS {std::numeric_limits<F64>::digits - 1};
-
-	/// <summary>
-	/// Exponent bit count.
-	/// </summary>
-	constexpr auto EXPONENT_BITS {BIT_COUNT - 1 - FRACTION_BITS};
-
-	/// <summary>
-	/// Mask to extract sign bit.
-	/// </summary>
-	constexpr auto SIGN_MASK {UINT64_C(1) << (BIT_COUNT - 1)};
-
-	/// <summary>
-	/// Mask to extract fraction.
-	/// </summary>
-	constexpr auto FRACTION_MASK {~UINT64_C(0) >> (EXPONENT_BITS + 1)};
-
-	/// <summary>
-	/// Mask to extract exponent.
-	/// </summary>
-	constexpr auto EXPONENT_MASK {~(SIGN_MASK | FRACTION_MASK)};
-
-	/// <summary>
-	/// Returns the bit representation of the F64.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	__attribute__((flatten, pure)) constexpr auto BitsOf(const F64 x) noexcept(true) -> U64
-	{
-		static_assert(sizeof(U64) == sizeof(F64));
-		return std::bit_cast<U64>(x);
-	}
-
-	__attribute__((flatten, pure)) constexpr auto ExponentBitsOf(const F64 x) noexcept(true) -> U64
-	{
-		return EXPONENT_MASK & BitsOf(x);
-	}
-
-	__attribute__((flatten, pure)) constexpr auto FractionBitsOf(const F64 x) noexcept(true) -> U64
-	{
-		return FRACTION_MASK & BitsOf(x);
-	}
-
-	__attribute__((flatten, pure)) constexpr auto SignBitOf(const F64 x) noexcept(true) -> U64
-	{
-		return SIGN_MASK & BitsOf(x);
-	}
-
-	/// <summary>
-	/// Returns true if x is NAN, else false.
-	/// NAN = Not A Number
-	/// </summary>
-	__attribute__((flatten, pure)) constexpr auto IsNan(const F64 x) noexcept(true) -> bool
-	{
-		return ExponentBitsOf(x) == EXPONENT_MASK && FractionBitsOf(x) != 0;
-	}
-
-	/// <summary>
-	/// Converts an integer from the "sign and magnitude" to the biased representation.
-	/// See https://en.wikipedia.org/wiki/Signed_number_representations for more info.
-	/// </summary>
-	__attribute__((flatten, pure)) constexpr auto SignMagnitudeToBiasedRepresentation(const U64 bits) noexcept(true) -> U64
-	{
-		if (SIGN_MASK & bits)
-		{
-			return ~bits + 1;
-		}
-		return SIGN_MASK | bits;
-	}
-
-	/// <summary>
-	/// Returns the unsigned distance between bitsA and bitsB.
-	/// bitsA and bitsB must be converted into the biased representation first!
-	/// </summary>
-	/// <param name="bitsA">The first bits as biased representation.</param>
-	/// <param name="bitsB">The second bits as biased representation.</param>
-	/// <returns>The unsigned distance.</returns>
-	__attribute__((flatten, pure)) constexpr auto ComputeDistanceBetweenSignAndMagnitude(const U64 bitsA, const U64 bitsB) noexcept(true) -> U64
-	{
-		const auto biasedA {SignMagnitudeToBiasedRepresentation(bitsA)};
-		const auto biasedB {SignMagnitudeToBiasedRepresentation(bitsB)};
-		return biasedA >= biasedB ? biasedA - biasedB : biasedB - biasedA;
-	}
-
-	/// <summary>
-	/// Returns true if x and y are near or equal.
-	/// Returns false if either x or y or both are NAN.
-	/// Huge numbers are treated almost as infinity.
-	/// Uses a ULP based approach.
-	/// See https://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/
-	/// </summary>
-	/// <param name="x"></param>
-	/// <param name="y"></param>
-	/// <returns></returns>
-	template <U32 Ulps = MAX_ULPS>
-	__attribute__((flatten, pure)) constexpr auto F64Equals(const F64 x, const F64 y) noexcept(true) -> bool
-	{
-		static_assert(Ulps > 0);
-		// IEEE 754 required that any NAN comparison should yield false.
-		if (IsNan(x) || IsNan(y))
-		{
-			return false;
-		}
-
-		return ComputeDistanceBetweenSignAndMagnitude(BitsOf(x), BitsOf(y)) <= Ulps;
-	}
+TEST(Common, F32ComparatorIsOne)
+{
+	ASSERT_FALSE(F32IsOne(0.0F));
+	ASSERT_TRUE(F32IsOne(1.0F));
 }

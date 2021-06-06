@@ -218,7 +218,7 @@
 #include "../../Include/Nominax/Common/Interrupt.hpp"
 #include "../../Include/Nominax/Common/Nop.hpp"
 #include "../../Include/Nominax/Common/BitRot.hpp"
-#include "../../Include/Nominax/Common/F64ComProxy.hpp"
+#include "../../Include/Nominax/Common/ComparatorProxyF64.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
 #include "../../Include/Nominax/ByteCode/SystemIntrinsic.hpp"

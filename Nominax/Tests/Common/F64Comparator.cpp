@@ -232,3 +232,9 @@ TEST(Common, F64ComparatorIsZero)
 	ASSERT_TRUE(F64IsZero(0.0000001));
 	ASSERT_TRUE(F64IsZero(0.000000009999999999));
 }
+
+TEST(Common, F64ComparatorIsOne)
+{
+	ASSERT_FALSE(F64IsOne(0.0));
+	ASSERT_TRUE(F64IsOne(1.0));
+}

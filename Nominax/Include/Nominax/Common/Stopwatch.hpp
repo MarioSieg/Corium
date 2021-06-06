@@ -253,7 +253,7 @@ namespace Nominax::Common
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto ElapsedSecsF64() const noexcept(true) -> std::chrono::duration<F64>;
+		auto ElapsedSecsF64() const noexcept(true) -> F64;
 
 		/// <summary>
 		/// Reset time stamp to now.
@@ -282,9 +282,9 @@ namespace Nominax::Common
 	}
 
 	template <typename Clock>
-	inline auto Stopwatch<Clock>::ElapsedSecsF64() const noexcept(true) -> std::chrono::duration<F64>
+	inline auto Stopwatch<Clock>::ElapsedSecsF64() const noexcept(true) -> F64
 	{
-		return std::chrono::duration_cast<std::chrono::duration<F64>>(this->Elapsed<>());
+		return std::chrono::duration_cast<std::chrono::duration<F64>>(this->Elapsed<>()).count();
 	}
 
 	template <typename Clock>

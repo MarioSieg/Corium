@@ -1,6 +1,6 @@
-// File: Common.hpp
+// File: ComparatorProxyF32.hpp
 // Author: Mario
-// Created: 26.04.2021 8:51 AM
+// Created: 06.06.2021 4:48 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,31 +207,36 @@
 
 #pragma once
 
-#include "Algorithm.hpp"
-#include "Alloca.hpp"
-#include "AtomicState.hpp"
+#include "../System/MacroCfg.hpp"
 #include "BaseTypes.hpp"
-#include "BitRot.hpp"
-#include "BranchHint.hpp"
-#include "CliArgParser.hpp"
-#include "Entry.hpp"
 #include "DecomposerF32.hpp"
-#include "DecomposerF64.hpp"
-#include "ComparatorProxyF32.hpp"
-#include "ComparatorProxyF64.hpp"
-#include "FormatterImpls.hpp"
-#include "Interrupt.hpp"
-#include "LiteralOp.hpp"
-#include "MemoryAlign.hpp"
-#include "MemoryClobber.hpp"
-#include "MemoryFenceBarrier.hpp"
-#include "MemoryUnits.hpp"
-#include "Nop.hpp"
-#include "PanicRoutine.hpp"
-#include "Protocol.hpp"
-#include "SafeLocalTime.hpp"
-#include "Signal.hpp"
-#include "Stopwatch.hpp"
-#include "TextFile.hpp"
-#include "XorshiftAtomic.hpp"
-#include "XorshiftThreadLocal.hpp"
+
+namespace Nominax::Common
+{
+	__attribute__((always_inline, pure)) inline auto Proxy_F32IsZero(const F32 x) noexcept(true) -> bool
+	{
+#if NOMINAX_OPT_USE_ZERO_EPSILON
+		return F32IsZero(x);
+#else
+		return x == 0.0F;
+#endif
+	}
+
+	__attribute__((always_inline, pure)) inline auto Proxy_F32IsOne(const F32 x) noexcept(true) -> bool
+	{
+#if NOMINAX_OPT_USE_ZERO_EPSILON
+		return F32IsOne(x);
+#else
+		return x == 1.0F;
+#endif
+	}
+
+	__attribute__((always_inline, pure)) inline auto Proxy_F32Equals(const F32 x, const F32 y) noexcept(true) -> bool
+	{
+#if NOMINAX_OPT_USE_ZERO_EPSILON
+		return F32Equals(x, y);
+#else
+		return x == y;
+#endif
+	}
+}

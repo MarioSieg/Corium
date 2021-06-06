@@ -1,6 +1,6 @@
-// File: F64ComProxy.hpp
+// File: DecomposerF64.hpp
 // Author: Mario
-// Created: 26.05.2021 4:25 AM
+// Created: 26.04.2021 8:51 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,36 +207,160 @@
 
 #pragma once
 
-#include "../System/MacroCfg.hpp"
+#include <bit>
+#include <cstdint>
+#include <cmath>
+#include <limits>
+
 #include "BaseTypes.hpp"
-#include "F64Comparator.hpp"
 
 namespace Nominax::Common
 {
-	__attribute__((always_inline, pure)) inline auto Proxy_F64IsZero(const F64 x) noexcept(true) -> bool
+	/// <summary>
+	/// Zero tolerance epsilon.
+	/// </summary>
+	constexpr F64 F64_ZERO_TOLERANCE {1e-6}; // 8 * 1.19209290E-07F
+
+	/// <summary>
+	/// Returns true if x is zero, else false.
+	/// </summary>
+	/// <param name="x">The number to check for zero.</param>
+	/// <returns>True if x is zero, else false.</returns>
+	__attribute__((flatten, pure)) inline auto F64IsZero(const F64 x) noexcept(true) -> bool
 	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
-		return F64IsZero(x);
-#else
-		return x == 0.0;
-#endif
+		return std::abs(x) < F64_ZERO_TOLERANCE;
 	}
 
-	__attribute__((always_inline, pure)) inline auto Proxy_F64IsOne(const F64 x) noexcept(true) -> bool
+	/// <summary>
+	/// Returns true if x is one, else false.
+	/// </summary>
+	/// <param name="x">The number to check for zero.</param>
+	/// <returns>True if x is zero, else false.</returns>
+	__attribute__((flatten, pure)) inline auto F64IsOne(const F64 x) noexcept(true) -> bool
 	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
-		return F64IsOne(x);
-#else
-		return x == 1.0;
-#endif
+		return F64IsZero(x - 1.0);
 	}
 
-	__attribute__((always_inline, pure)) inline auto Proxy_F64Equals(const F64 x, const F64 y) noexcept(true) -> bool
+	/// <summary>
+	/// How many ULP's (Units in the Last Place) we want to tolerate when comparing two numbers.
+	/// The large the value, the more error (mismatch) the comparison will allow.
+	/// If the ULP value is zero, the two numbers must be exactly the same.
+	/// See http://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/ by Bruce Dawson
+	/// </summary>
+	constexpr U32 F64_MAX_ULPS {4};
+
+	/// <summary>
+	/// Bit count inside F64.
+	/// </summary>
+	constexpr auto F64_BIT_COUNT {8 * sizeof(F64)};
+
+	/// <summary>
+	/// Fraction bit count.
+	/// </summary>
+	constexpr auto F64_FRACTION_BITS {std::numeric_limits<F64>::digits - 1};
+
+	/// <summary>
+	/// Exponent bit count.
+	/// </summary>
+	constexpr auto F64_EXPONENT_BITS {F64_BIT_COUNT - 1 - F64_FRACTION_BITS};
+
+	/// <summary>
+	/// Mask to extract sign bit.
+	/// </summary>
+	constexpr auto F64_SIGN_MASK {UINT64_C(1) << (F64_BIT_COUNT - 1)};
+
+	/// <summary>
+	/// Mask to extract fraction.
+	/// </summary>
+	constexpr auto F64_FRACTION_MASK {~UINT64_C(0) >> (F64_EXPONENT_BITS + 1)};
+
+	/// <summary>
+	/// Mask to extract exponent.
+	/// </summary>
+	constexpr auto F64_EXPONENT_MASK {~(F64_SIGN_MASK | F64_FRACTION_MASK)};
+
+	/// <summary>
+	/// Returns the bit representation of the F64.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	__attribute__((flatten, pure)) constexpr auto BitsOf(const F64 x) noexcept(true) -> U64
 	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
-		return F64Equals(x, y);
-#else
-		return x == y;
-#endif
+		static_assert(sizeof(U64) == sizeof(F64));
+		return std::bit_cast<U64>(x);
+	}
+
+	__attribute__((flatten, pure)) constexpr auto ExponentBitsOf(const F64 x) noexcept(true) -> U64
+	{
+		return F64_EXPONENT_MASK & BitsOf(x);
+	}
+
+	__attribute__((flatten, pure)) constexpr auto FractionBitsOf(const F64 x) noexcept(true) -> U64
+	{
+		return F64_FRACTION_MASK & BitsOf(x);
+	}
+
+	__attribute__((flatten, pure)) constexpr auto SignBitOf(const F64 x) noexcept(true) -> U64
+	{
+		return F64_SIGN_MASK & BitsOf(x);
+	}
+
+	/// <summary>
+	/// Returns true if x is NAN, else false.
+	/// NAN = Not A Number
+	/// </summary>
+	__attribute__((flatten, pure)) constexpr auto IsNan(const F64 x) noexcept(true) -> bool
+	{
+		return ExponentBitsOf(x) == F64_EXPONENT_MASK && FractionBitsOf(x) != 0;
+	}
+
+	/// <summary>
+	/// Converts an integer from the "sign and magnitude" to the biased representation.
+	/// See https://en.wikipedia.org/wiki/Signed_number_representations for more info.
+	/// </summary>
+	__attribute__((flatten, pure)) constexpr auto SignMagnitudeToBiasedRepresentation(const U64 bits) noexcept(true) -> U64
+	{
+		if (F64_SIGN_MASK & bits)
+		{
+			return ~bits + 1;
+		}
+		return F64_SIGN_MASK | bits;
+	}
+
+	/// <summary>
+	/// Returns the unsigned distance between bitsA and bitsB.
+	/// bitsA and bitsB must be converted into the biased representation first!
+	/// </summary>
+	/// <param name="bitsA">The first bits as biased representation.</param>
+	/// <param name="bitsB">The second bits as biased representation.</param>
+	/// <returns>The unsigned distance.</returns>
+	__attribute__((flatten, pure)) constexpr auto ComputeDistanceBetweenSignAndMagnitude(const U64 bitsA, const U64 bitsB) noexcept(true) -> U64
+	{
+		const auto biasedA {SignMagnitudeToBiasedRepresentation(bitsA)};
+		const auto biasedB {SignMagnitudeToBiasedRepresentation(bitsB)};
+		return biasedA >= biasedB ? biasedA - biasedB : biasedB - biasedA;
+	}
+
+	/// <summary>
+	/// Returns true if x and y are near or equal.
+	/// Returns false if either x or y or both are NAN.
+	/// Huge numbers are treated almost as infinity.
+	/// Uses a ULP based approach.
+	/// See https://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/
+	/// </summary>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <returns></returns>
+	template <U32 Ulps = F64_MAX_ULPS>
+	__attribute__((flatten, pure)) constexpr auto F64Equals(const F64 x, const F64 y) noexcept(true) -> bool
+	{
+		static_assert(Ulps > 0);
+		// IEEE 754 required that any NAN comparison should yield false.
+		if (IsNan(x) || IsNan(y))
+		{
+			return false;
+		}
+
+		return ComputeDistanceBetweenSignAndMagnitude(BitsOf(x), BitsOf(y)) <= Ulps;
 	}
 }
