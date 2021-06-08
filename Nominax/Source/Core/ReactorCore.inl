@@ -1,6 +1,6 @@
 // File: ReactorCore.inl
 // Author: Mario
-// Created: 09.05.2021 5:50 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -218,7 +218,7 @@
 #include "../../Include/Nominax/Common/Interrupt.hpp"
 #include "../../Include/Nominax/Common/Nop.hpp"
 #include "../../Include/Nominax/Common/BitRot.hpp"
-#include "../../Include/Nominax/Common/F64ComProxy.hpp"
+#include "../../Include/Nominax/Common/ComparatorProxyF64.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
 
 #include "../../Include/Nominax/ByteCode/SystemIntrinsic.hpp"
@@ -1551,6 +1551,23 @@ namespace Nominax::Core
 		__attribute__((hot));
 		ASM_MARKER("__vecadd__");
 
+		/*
+			SSE:
+				movupd -0x38(%rbx), %xmm0
+				movupd -0x28(%rbx), %xmm1
+				movupd -0x18(%rbx), %xmm2
+				addpd  %xmm0, %xmm2
+				movupd -0x8(%rbx), %xmm0
+				addpd  %xmm1, %xmm0
+				movupd %xmm2, -0x38(%rbx)
+				movupd %xmm0, -0x28(%rbx)
+
+			AVX:
+				vmovupd -0x38(%rbx), %ymm0
+				vaddpd -0x18(%rbx), %ymm0, %ymm0
+				vmovupd %ymm0, -0x38(%rbx)
+		 */
+
 		F64_X4_Add_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 		sp -= 4;
 
@@ -1561,6 +1578,23 @@ namespace Nominax::Core
 	__vecsub__:
 		__attribute__((hot));
 		ASM_MARKER("__vecsub__");
+
+		/*
+			SSE:
+				movupd -0x38(%rbx), %xmm0
+				movupd -0x28(%rbx), %xmm1
+				movupd -0x18(%rbx), %xmm2
+				subpd  %xmm2, %xmm0
+				movupd -0x8(%rbx), %xmm2
+				subpd  %xmm2, %xmm1
+				movupd %xmm0, -0x38(%rbx)
+				movupd %xmm1, -0x28(%rbx)
+
+			AVX:
+				vmovupd -0x38(%rbx), %ymm0
+				vsubpd -0x18(%rbx), %ymm0, %ymm0
+				vmovupd %ymm0, -0x38(%rbx)
+		 */
 
 		F64_X4_Sub_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 
@@ -1574,6 +1608,23 @@ namespace Nominax::Core
 		__attribute__((hot));
 		ASM_MARKER("__vecmul__");
 
+		/*
+			SSE:
+				movupd -0x38(%rbx), %xmm0
+				movupd -0x28(%rbx), %xmm1
+				movupd -0x18(%rbx), %xmm2
+				mulpd  %xmm0, %xmm2
+				movupd -0x8(%rbx), %xmm0
+				mulpd  %xmm1, %xmm0
+				movupd %xmm2, -0x38(%rbx)
+				movupd %xmm0, -0x28(%rbx)
+
+			AVX:
+				vmovupd -0x38(%rbx), %ymm0
+				vmulpd -0x18(%rbx), %ymm0, %ymm0
+				vmovupd %ymm0, -0x38(%rbx)
+		 */
+
 		F64_X4_Mul_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 
 		sp -= 4;
@@ -1585,6 +1636,23 @@ namespace Nominax::Core
 	__vecdiv__:
 		__attribute__((hot));
 		ASM_MARKER("__vecdiv__");
+
+		/*
+			SSE:
+				movupd -0x38(%rbx), %xmm0
+				movupd -0x28(%rbx), %xmm1
+				movupd -0x18(%rbx), %xmm2
+				divpd  %xmm2, %xmm0
+				movupd -0x8(%rbx), %xmm2
+				divpd  %xmm2, %xmm1
+				movupd %xmm0, -0x38(%rbx)
+				movupd %xmm1, -0x28(%rbx)
+
+			AVX:
+				vmovupd -0x38(%rbx), %ymm0
+				vdivpd -0x18(%rbx), %ymm0, %ymm0
+				vmovupd %ymm0, -0x38(%rbx)
+		 */
 
 		F64_X4_Div_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(6)), reinterpret_cast<F64*>(VEC_MOFFS(2)));
 
@@ -1654,6 +1722,62 @@ namespace Nominax::Core
 		__attribute__((hot));
 		ASM_MARKER("__matadd__");
 
+		/*
+			SSE:
+				movupd -0xf8(%rbx), %xmm0
+				movupd -0xe8(%rbx), %xmm1
+				movupd -0xd8(%rbx), %xmm2
+				movupd -0xc8(%rbx), %xmm3
+				movupd -0xb8(%rbx), %xmm4
+				movupd -0xa8(%rbx), %xmm5
+				movupd -0x98(%rbx), %xmm6
+				movupd -0x88(%rbx), %xmm8
+				movupd -0x78(%rbx), %xmm7
+				addpd  %xmm0, %xmm7
+				movupd -0x68(%rbx), %xmm0
+				addpd  %xmm1, %xmm0
+				movupd -0x58(%rbx), %xmm1
+				addpd  %xmm2, %xmm1
+				movupd -0x48(%rbx), %xmm2
+				addpd  %xmm3, %xmm2
+				movupd -0x38(%rbx), %xmm3
+				addpd  %xmm4, %xmm3
+				movupd -0x28(%rbx), %xmm4
+				addpd  %xmm5, %xmm4
+				movupd -0x18(%rbx), %xmm5
+				addpd  %xmm6, %xmm5
+				movupd -0x8(%rbx), %xmm6
+				addpd  %xmm8, %xmm6
+				movupd %xmm7, -0xf8(%rbx)
+				movupd %xmm0, -0xe8(%rbx)
+				movupd %xmm1, -0xd8(%rbx)
+				movupd %xmm2, -0xc8(%rbx)
+				movupd %xmm3, -0xb8(%rbx)
+				movupd %xmm4, -0xa8(%rbx)
+				movupd %xmm5, -0x98(%rbx)
+				movupd %xmm6, -0x88(%rbx)
+
+			AVX:
+				vmovupd -0xf8(%rbx), %ymm0
+				vmovupd -0xd8(%rbx), %ymm1
+				vmovupd -0xb8(%rbx), %ymm2
+				vmovupd -0x98(%rbx), %ymm3
+				vaddpd -0x78(%rbx), %ymm0, %ymm0
+				vaddpd -0x58(%rbx), %ymm1, %ymm1
+				vaddpd -0x38(%rbx), %ymm2, %ymm2
+				vaddpd -0x18(%rbx), %ymm3, %ymm3
+				vmovupd %ymm0, -0xf8(%rbx)
+				vmovupd %ymm1, -0xd8(%rbx)
+				vmovupd %ymm2, -0xb8(%rbx)
+				vmovupd %ymm3, -0x98(%rbx)
+
+			AVX512F:
+				vmovupd -0xf8(%rbx), %zmm0
+				vaddpd -0x78(%rbx), %zmm0, %zmm0
+				vmovupd %zmm0, -0xf8(%rbx)
+				vmovupd %zmm0, -0xb8(%rbx)
+		 */
+
 		F64_X16_Add_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
 		sp -= 16;
 
@@ -1663,6 +1787,62 @@ namespace Nominax::Core
 	__matsub__:
 		__attribute__((hot));
 		ASM_MARKER("__matsub__");
+
+		/*
+			SSE:
+				movupd -0xf8(%rbx), %xmm8
+				movupd -0xe8(%rbx), %xmm1
+				movupd -0xd8(%rbx), %xmm2
+				movupd -0xc8(%rbx), %xmm3
+				movupd -0xb8(%rbx), %xmm4
+				movupd -0xa8(%rbx), %xmm5
+				movupd -0x98(%rbx), %xmm6
+				movupd -0x88(%rbx), %xmm7
+				movupd -0x78(%rbx), %xmm0
+				subpd  %xmm0, %xmm8
+				movupd -0x68(%rbx), %xmm0
+				subpd  %xmm0, %xmm1
+				movupd -0x58(%rbx), %xmm0
+				subpd  %xmm0, %xmm2
+				movupd -0x48(%rbx), %xmm0
+				subpd  %xmm0, %xmm3
+				movupd -0x38(%rbx), %xmm0
+				subpd  %xmm0, %xmm4
+				movupd -0x28(%rbx), %xmm0
+				subpd  %xmm0, %xmm5
+				movupd -0x18(%rbx), %xmm0
+				subpd  %xmm0, %xmm6
+				movupd -0x8(%rbx), %xmm0
+				subpd  %xmm0, %xmm7
+				movupd %xmm8, -0xf8(%rbx)
+				movupd %xmm1, -0xe8(%rbx)
+				movupd %xmm2, -0xd8(%rbx)
+				movupd %xmm3, -0xc8(%rbx)
+				movupd %xmm4, -0xb8(%rbx)
+				movupd %xmm5, -0xa8(%rbx)
+				movupd %xmm6, -0x98(%rbx)
+				movupd %xmm7, -0x88(%rbx)
+
+			AVX:
+				vmovupd -0xf8(%rbx), %ymm0
+				vmovupd -0xd8(%rbx), %ymm1
+				vmovupd -0xb8(%rbx), %ymm2
+				vmovupd -0x98(%rbx), %ymm3
+				vsubpd -0x78(%rbx), %ymm0, %ymm0
+				vsubpd -0x58(%rbx), %ymm1, %ymm1
+				vsubpd -0x38(%rbx), %ymm2, %ymm2
+				vsubpd -0x18(%rbx), %ymm3, %ymm3
+				vmovupd %ymm0, -0xf8(%rbx)
+				vmovupd %ymm1, -0xd8(%rbx)
+				vmovupd %ymm2, -0xb8(%rbx)
+				vmovupd %ymm3, -0x98(%rbx)
+
+			AVX512F:
+				vmovupd -0xf8(%rbx), %zmm0
+				vsubpd -0x78(%rbx), %zmm0, %zmm0
+				vmovupd %zmm0, -0xf8(%rbx)
+				vmovupd %zmm0, -0xb8(%rbx)
+		 */
 
 		F64_X16_Sub_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
 		sp -= 16;
@@ -1674,6 +1854,62 @@ namespace Nominax::Core
 		__attribute__((hot));
 		ASM_MARKER("__matmul__");
 
+		/*
+			SSE:
+				movupd -0xf8(%rbx), %xmm0
+				movupd -0xe8(%rbx), %xmm1
+				movupd -0xd8(%rbx), %xmm2
+				movupd -0xc8(%rbx), %xmm3
+				movupd -0xb8(%rbx), %xmm4
+				movupd -0xa8(%rbx), %xmm5
+				movupd -0x98(%rbx), %xmm6
+				movupd -0x88(%rbx), %xmm8
+				movupd -0x78(%rbx), %xmm7
+				mulpd  %xmm0, %xmm7
+				movupd -0x68(%rbx), %xmm0
+				mulpd  %xmm1, %xmm0
+				movupd -0x58(%rbx), %xmm1
+				mulpd  %xmm2, %xmm1
+				movupd -0x48(%rbx), %xmm2
+				mulpd  %xmm3, %xmm2
+				movupd -0x38(%rbx), %xmm3
+				mulpd  %xmm4, %xmm3
+				movupd -0x28(%rbx), %xmm4
+				mulpd  %xmm5, %xmm4
+				movupd -0x18(%rbx), %xmm5
+				mulpd  %xmm6, %xmm5
+				movupd -0x8(%rbx), %xmm6
+				mulpd  %xmm8, %xmm6
+				movupd %xmm7, -0xf8(%rbx)
+				movupd %xmm0, -0xe8(%rbx)
+				movupd %xmm1, -0xd8(%rbx)
+				movupd %xmm2, -0xc8(%rbx)
+				movupd %xmm3, -0xb8(%rbx)
+				movupd %xmm4, -0xa8(%rbx)
+				movupd %xmm5, -0x98(%rbx)
+				movupd %xmm6, -0x88(%rbx)
+
+			AVX:
+				vmovupd -0xf8(%rbx), %ymm0
+				vmovupd -0xd8(%rbx), %ymm1
+				vmovupd -0xb8(%rbx), %ymm2
+				vmovupd -0x98(%rbx), %ymm3
+				vmulpd -0x78(%rbx), %ymm0, %ymm0
+				vmulpd -0x58(%rbx), %ymm1, %ymm1
+				vmulpd -0x38(%rbx), %ymm2, %ymm2
+				vmulpd -0x18(%rbx), %ymm3, %ymm3
+				vmovupd %ymm0, -0xf8(%rbx)
+				vmovupd %ymm1, -0xd8(%rbx)
+				vmovupd %ymm2, -0xb8(%rbx)
+				vmovupd %ymm3, -0x98(%rbx)
+
+			AVX512F:
+				vmovupd -0xf8(%rbx), %zmm0
+				vmulpd -0x78(%rbx), %zmm0, %zmm0
+				vmovupd %zmm0, -0xf8(%rbx)
+				vmovupd %zmm0, -0xb8(%rbx)
+		 */
+
 		F64_X16_Mul_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
 		sp -= 16;
 
@@ -1684,12 +1920,68 @@ namespace Nominax::Core
 		__attribute__((hot));
 		ASM_MARKER("__matdiv__");
 
+		/*
+			SSE:
+				movupd -0xf8(%rbx), %xmm8
+				movupd -0xe8(%rbx), %xmm1
+				movupd -0xd8(%rbx), %xmm2
+				movupd -0xc8(%rbx), %xmm3
+				movupd -0xb8(%rbx), %xmm4
+				movupd -0xa8(%rbx), %xmm5
+				movupd -0x98(%rbx), %xmm6
+				movupd -0x88(%rbx), %xmm7
+				movupd -0x78(%rbx), %xmm0
+				divpd  %xmm0, %xmm8
+				movupd -0x68(%rbx), %xmm0
+				divpd  %xmm0, %xmm1
+				movupd -0x58(%rbx), %xmm0
+				divpd  %xmm0, %xmm2
+				movupd -0x48(%rbx), %xmm0
+				divpd  %xmm0, %xmm3
+				movupd -0x38(%rbx), %xmm0
+				divpd  %xmm0, %xmm4
+				movupd -0x28(%rbx), %xmm0
+				divpd  %xmm0, %xmm5
+				movupd -0x18(%rbx), %xmm0
+				divpd  %xmm0, %xmm6
+				movupd -0x8(%rbx), %xmm0
+				divpd  %xmm0, %xmm7
+				movupd %xmm8, -0xf8(%rbx)
+				movupd %xmm1, -0xe8(%rbx)
+				movupd %xmm2, -0xd8(%rbx)
+				movupd %xmm3, -0xc8(%rbx)
+				movupd %xmm4, -0xb8(%rbx)
+				movupd %xmm5, -0xa8(%rbx)
+				movupd %xmm6, -0x98(%rbx)
+				movupd %xmm7, -0x88(%rbx)
+				
+			AVX:
+				vmovupd -0xf8(%rbx), %ymm0
+				vmovupd -0xd8(%rbx), %ymm1
+				vmovupd -0xb8(%rbx), %ymm2
+				vmovupd -0x98(%rbx), %ymm3
+				vdivpd -0x78(%rbx), %ymm0, %ymm0
+				vdivpd -0x58(%rbx), %ymm1, %ymm1
+				vdivpd -0x38(%rbx), %ymm2, %ymm2
+				vdivpd -0x18(%rbx), %ymm3, %ymm3
+				movq %rdi, %rax
+				vmovupd %ymm0, -0xf8(%rbx)
+				vmovupd %ymm1, -0xd8(%rbx)
+				vmovupd %ymm2, -0xb8(%rbx)
+				vmovupd %ymm3, -0x98(%rbx)
+
+			AVX512F:
+				vmovupd -0xf8(%rbx), %zmm0
+				vdivpd -0x78(%rbx), %zmm0, %zmm0
+				vmovupd %zmm0, -0xf8(%rbx)
+				vmovupd %zmm0, -0xb8(%rbx)
+		 */
+
 		F64_X16_Div_Unaligned(reinterpret_cast<F64*>(VEC_MOFFS(30)), reinterpret_cast<F64*>(VEC_MOFFS(14)));
 		sp -= 16;
 
 		goto
 		JMP_PTR();
-
 
 		[[maybe_unused]]
 	_hard_fault_err_: __attribute__((cold));

@@ -1,6 +1,6 @@
 // File: BitRot.hpp
 // Author: Mario
-// Created: 26.05.2021 4:15 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -213,7 +213,7 @@
 #include "BaseTypes.hpp"
 
 namespace Nominax::Common
-{	
+{
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
@@ -261,7 +261,7 @@ namespace Nominax::Common
 		return std::rotr<decltype(value)>(value, shift);
 #endif
 	}
-	
+
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>

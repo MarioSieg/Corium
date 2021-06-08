@@ -1,6 +1,6 @@
 // File: Stream.cpp
 // Author: Mario
-// Created: 27.04.2021 3:43 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License

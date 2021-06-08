@@ -1,6 +1,6 @@
 // File: ScopedVariable.cpp
 // Author: Mario
-// Created: 25.04.2021 1:41 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,10 +207,10 @@
 
 #include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
-#include "../../Include/Nominax/Common/F64Comparator.hpp"
+#include "../../Include/Nominax/Common/DecomposerF64.hpp"
 #include "../../Include/Nominax/Common/Algorithm.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
-#include "../../Include/Nominax/Common/F64ComProxy.hpp"
+#include "../../Include/Nominax/Common/ComparatorProxyF64.hpp"
 
 namespace Nominax::ByteCode
 {

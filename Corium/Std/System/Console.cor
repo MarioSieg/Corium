@@ -1,8 +1,0 @@
-# Prints the message into the console without a new line.
-extern Print(message string)
-
-# Prints the message into the console and appends a new line.
-extern PrintLn(message string)
-
-# Prints the character into the console.
-extern PutChar(value char)

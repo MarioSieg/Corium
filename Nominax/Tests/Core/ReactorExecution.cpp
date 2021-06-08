@@ -1,6 +1,6 @@
 // File: ReactorExecution.cpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -1963,12 +1963,12 @@ TEST(ReactorExecution, Instruction_MatPush)
 		Signal {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
+	const auto o {SingletonExecutionProxy(input)};
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
@@ -2016,12 +2016,12 @@ TEST(ReactorExecution, Instruction_MatPop)
 		Signal {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
+	const auto o {SingletonExecutionProxy(input)};
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
@@ -2048,22 +2048,22 @@ TEST(ReactorExecution, Instruction_MatAdd)
 	{
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::MatPush},
-		Signal {1.0 },
-		Signal {4.0 },
-		Signal {3.0 },
-		Signal {4.0 },
-		Signal {1.0 },
-		Signal {2.0 },
-		Signal {3.0 },
-		Signal {2.0 },
-		Signal {1.0 },
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 4.0},
-		Signal { 1.0},
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 6.0},
+		Signal {1.0},
+		Signal {4.0},
+		Signal {3.0},
+		Signal {4.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {2.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {4.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {6.0},
 		Signal {Instruction::MatPush},
 		Signal {1.0},
 		Signal {2.0},
@@ -2087,21 +2087,21 @@ TEST(ReactorExecution, Instruction_MatAdd)
 		Signal {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0  + 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0  + 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0  + 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0  + 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0  + 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0  + 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0  + 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0  + 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0  + 1.0);
+	const auto o {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 + 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 + 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 + 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 + 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 + 3.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 + 4.0);
@@ -2119,22 +2119,22 @@ TEST(ReactorExecution, Instruction_MatSub)
 	{
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::MatPush},
-Signal {1.0 },
-		Signal {4.0 },
-		Signal {3.0 },
-		Signal {4.0 },
-		Signal {1.0 },
-		Signal {2.0 },
-		Signal {3.0 },
-		Signal {2.0 },
-		Signal {1.0 },
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 4.0},
-		Signal { 1.0},
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 6.0},
+		Signal {1.0},
+		Signal {4.0},
+		Signal {3.0},
+		Signal {4.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {2.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {4.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {6.0},
 		Signal {Instruction::MatPush},
 		Signal {1.0},
 		Signal {2.0},
@@ -2158,21 +2158,21 @@ Signal {1.0 },
 		Signal {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64,  1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64,  4.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64,  3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64,  4.0 - 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64,  1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64,  2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64,  3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64,  2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64,  1.0 - 1.0);
+	const auto o {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 - 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 - 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 - 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 - 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 - 3.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 - 4.0);
@@ -2190,22 +2190,22 @@ TEST(ReactorExecution, Instruction_MatMul)
 	{
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::MatPush},
-		Signal {1.0 },
-		Signal {4.0 },
-		Signal {3.0 },
-		Signal {4.0 },
-		Signal {1.0 },
-		Signal {2.0 },
-		Signal {3.0 },
-		Signal {2.0 },
-		Signal {1.0 },
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 4.0},
-		Signal { 1.0},
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 6.0},
+		Signal {1.0},
+		Signal {4.0},
+		Signal {3.0},
+		Signal {4.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {2.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {4.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {6.0},
 		Signal {Instruction::MatPush},
 		Signal {1.0},
 		Signal {2.0},
@@ -2229,12 +2229,12 @@ TEST(ReactorExecution, Instruction_MatMul)
 		Signal {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
+	const auto o {SingletonExecutionProxy(input)};
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 * 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 * 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 * 3.0);
@@ -2261,22 +2261,22 @@ TEST(ReactorExecution, Instruction_MatDiv)
 	{
 		Signal {Instruction::NOp}, // first padding
 		Signal {Instruction::MatPush},
-		Signal {1.0 },
-		Signal {4.0 },
-		Signal {3.0 },
-		Signal {4.0 },
-		Signal {1.0 },
-		Signal {2.0 },
-		Signal {3.0 },
-		Signal {2.0 },
-		Signal {1.0 },
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 4.0},
-		Signal { 1.0},
-		Signal { 2.0},
-		Signal { 3.0},
-		Signal { 6.0},
+		Signal {1.0},
+		Signal {4.0},
+		Signal {3.0},
+		Signal {4.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {2.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {4.0},
+		Signal {1.0},
+		Signal {2.0},
+		Signal {3.0},
+		Signal {6.0},
 		Signal {Instruction::MatPush},
 		Signal {1.0},
 		Signal {2.0},
@@ -2300,12 +2300,12 @@ TEST(ReactorExecution, Instruction_MatDiv)
 		Signal {INT64_C(-0xFF)},
 	};
 
-	auto input{ MOCK_REACTOR_INPUT };
-	input.CodeChunk = code.data();
+	auto input {MOCK_REACTOR_INPUT};
+	input.CodeChunk     = code.data();
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o{ SingletonExecutionProxy(input) };
+	const auto o {SingletonExecutionProxy(input)};
 	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 / 1.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 / 2.0);
 	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 / 3.0);
@@ -2325,4 +2325,3 @@ TEST(ReactorExecution, Instruction_MatDiv)
 	ASSERT_EQ(o.SpDiff, 0);
 	ASSERT_EQ(o.InterruptCode, -0xFF);
 }
-

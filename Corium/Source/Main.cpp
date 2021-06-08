@@ -205,24 +205,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <Nominax/Nominax.hpp>
-
-using namespace Nominax::Common;
+#include "Lexer.hpp"
 
 auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
 {
-	const char* const path{ "../../../Corium/Docs/Arithmetic.cor" };
+	const auto path {"../../../Corium/Docs/ParseTest.cor"};
 
-	TextFile file{};
-	if (const auto ok{ file.ReadFromFile(path) }; !ok)
-	{
-		Print("Failed to read source file: {}", path);
-		return -1;
-	}
-	Print("Source File: \"{}\":\n", file.GetFilePath().string());
-	file.EraseSpacesAndControlChars();
-	Print("{}\n", file.GetContentText());
-	Print("{}\n", file.SubStringChar('#', '#'));
-	
+	Nominax::Common::TextFile file { };
+	file.ReadFromFileOrPanic(path);
+	Corium::LexFile(std::move(file));
 	return 0;
 }

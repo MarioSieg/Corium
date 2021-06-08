@@ -1,6 +1,6 @@
 // File: ReactorState.hpp
 // Author: Mario
-// Created: 25.04.2021 3:06 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -219,7 +219,7 @@ namespace Nominax::Core
 	/// </summary>
 	struct ReactorState final
 	{
-		const VerboseReactorDescriptor*               Input {nullptr};
+		const VerboseReactorDescriptor*                Input {nullptr};
 		ReactorShutdownReason                          ShutdownReason {ReactorShutdownReason::Success};
 		std::chrono::high_resolution_clock::time_point Pre { };
 		std::chrono::high_resolution_clock::time_point Post { };

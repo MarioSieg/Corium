@@ -1,6 +1,6 @@
-// File: TaskQueue.hpp
+// File: TaskQueueThreadPool.hpp
 // Author: Mario
-// Created: 02.06.2021 4:09 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -216,18 +216,18 @@ namespace Nominax::Core
 	/// </summary>
 	class TaskQueueThreadPool final
 	{
-		std::pmr::monotonic_buffer_resource* Allocator_{ nullptr };
-		
+		std::pmr::monotonic_buffer_resource* Allocator_ {nullptr};
+
 	public:
 		/// <summary>
 		/// Data types used to store.
 		/// </summary>
 		using StorageType = std::pmr::vector<std::unique_ptr<TaskQueueThread>>;
-		
+
 		/// <summary>
 		/// The list of task queue threads.
 		/// </summary>
-		StorageType Threads{};
+		StorageType Threads { };
 
 		/// <summary>
 		/// Default constructor.
@@ -275,14 +275,14 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(const TaskQueueThreadPool& other)->TaskQueueThreadPool & = delete;
+		auto operator =(const TaskQueueThreadPool& other) -> TaskQueueThreadPool& = delete;
 
 		/// <summary>
 		/// Copy assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(TaskQueueThreadPool&& other)->TaskQueueThreadPool & = default;
+		auto operator =(TaskQueueThreadPool&& other) -> TaskQueueThreadPool& = default;
 
 		/// <summary>
 		/// Destructor.
@@ -320,7 +320,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The amount of threads.</returns>
 		[[nodiscard]]
-		auto GetSize() const noexcept(true)->std::size_t;
+		auto GetSize() const noexcept(true) -> std::size_t;
 
 		/// <summary>
 		/// STL iterator interface.
@@ -334,49 +334,49 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto end() noexcept(true)->StorageType::iterator;
+		auto end() noexcept(true) -> StorageType::iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto rbegin() noexcept(true)->StorageType::reverse_iterator;
+		auto rbegin() noexcept(true) -> StorageType::reverse_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto rend() noexcept(true)->StorageType::reverse_iterator;
+		auto rend() noexcept(true) -> StorageType::reverse_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto cbegin() const noexcept(true)->StorageType::const_iterator;
+		auto cbegin() const noexcept(true) -> StorageType::const_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto cend() const noexcept(true)->StorageType::const_iterator;
+		auto cend() const noexcept(true) -> StorageType::const_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto crbegin() const noexcept(true)->StorageType::const_reverse_iterator;
+		auto crbegin() const noexcept(true) -> StorageType::const_reverse_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto crend() const noexcept(true)->StorageType::const_reverse_iterator;
+		auto crend() const noexcept(true) -> StorageType::const_reverse_iterator;
 	};
 
 	inline auto TaskQueueThreadPool::Clear() noexcept(false) -> void
@@ -394,12 +394,12 @@ namespace Nominax::Core
 	{
 		return this->Threads.size();
 	}
-	
+
 	/// <summary>
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::begin() noexcept(true)->StorageType::iterator
+	inline auto TaskQueueThreadPool::begin() noexcept(true) -> StorageType::iterator
 	{
 		return std::begin(this->Threads);
 	}
@@ -408,7 +408,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::end() noexcept(true)->StorageType::iterator
+	inline auto TaskQueueThreadPool::end() noexcept(true) -> StorageType::iterator
 	{
 		return std::end(this->Threads);
 	}
@@ -417,7 +417,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::rbegin() noexcept(true)->StorageType::reverse_iterator
+	inline auto TaskQueueThreadPool::rbegin() noexcept(true) -> StorageType::reverse_iterator
 	{
 		return std::rbegin(this->Threads);
 	}
@@ -426,7 +426,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::rend() noexcept(true)->StorageType::reverse_iterator
+	inline auto TaskQueueThreadPool::rend() noexcept(true) -> StorageType::reverse_iterator
 	{
 		return std::rend(this->Threads);
 	}
@@ -435,7 +435,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::cbegin() const noexcept(true)->StorageType::const_iterator
+	inline auto TaskQueueThreadPool::cbegin() const noexcept(true) -> StorageType::const_iterator
 	{
 		return std::cbegin(this->Threads);
 	}
@@ -444,7 +444,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::cend() const noexcept(true)->StorageType::const_iterator
+	inline auto TaskQueueThreadPool::cend() const noexcept(true) -> StorageType::const_iterator
 	{
 		return std::cend(this->Threads);
 	}
@@ -453,7 +453,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::crbegin() const noexcept(true)->StorageType::const_reverse_iterator
+	inline auto TaskQueueThreadPool::crbegin() const noexcept(true) -> StorageType::const_reverse_iterator
 	{
 		return std::crbegin(this->Threads);
 	}
@@ -462,7 +462,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::crend() const noexcept(true)->StorageType::const_reverse_iterator
+	inline auto TaskQueueThreadPool::crend() const noexcept(true) -> StorageType::const_reverse_iterator
 	{
 		return std::crend(this->Threads);
 	}

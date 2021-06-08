@@ -1,6 +1,6 @@
-// File: ClobberFence.hpp
+// File: MemoryFenceBarrier.hpp
 // Author: Mario
-// Created: 2.06.2021 4:12 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License

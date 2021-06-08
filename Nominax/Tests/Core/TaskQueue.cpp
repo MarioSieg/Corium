@@ -1,6 +1,6 @@
 // File: TaskQueue.cpp
 // Author: Mario
-// Created: 01.06.2021 10:16 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -209,7 +209,7 @@
 
 TEST(TaskQueue, Construct)
 {
-	TaskQueueThread queue{};
+	const TaskQueueThread queue { };
 	ASSERT_FALSE(queue.IsDisposing());
 	ASSERT_TRUE(queue.IsEmpty());
 	ASSERT_TRUE(queue.GetWorkerThread().joinable());
@@ -217,8 +217,8 @@ TEST(TaskQueue, Construct)
 
 TEST(TaskQueue, Enqueue)
 {
-	TaskQueueThread queue{};
-	std::atomic_int x{ 0 };
+	TaskQueueThread queue { };
+	std::atomic_int x {0};
 
 	queue.Enqueue([&x]
 	{
@@ -240,12 +240,12 @@ TEST(TaskQueue, Enqueue)
 
 TEST(TaskQueue, EnqueueSleep)
 {
-	TaskQueueThread queue{};
-	std::atomic_int x{ 0 };
+	TaskQueueThread queue { };
+	std::atomic_int x {0};
 
 	queue.Enqueue([&x]
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds{ 500 });
+		std::this_thread::sleep_for(std::chrono::milliseconds {500});
 		++x;
 	});
 

@@ -1,6 +1,6 @@
 // File: AtomicState.hpp
 // Author: Mario
-// Created: 23.05.2021 9:26 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -230,6 +230,10 @@ namespace Nominax::Common
 
 		static_assert(std::atomic<ValueType>::is_always_lock_free);
 
+	private:
+		std::atomic<ValueType> Value_;
+
+	public:
 		/// <summary>
 		/// Update error state.
 		/// If "SingletonLock" is true,
@@ -305,9 +309,6 @@ namespace Nominax::Common
 		/// Destructor.
 		/// </summary>
 		~AtomicState() = default;
-
-	private:
-		std::atomic<ValueType> Value_;
 	};
 
 	/// <summary>

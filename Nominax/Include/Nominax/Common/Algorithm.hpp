@@ -1,6 +1,6 @@
 // File: Algorithm.hpp
 // Author: Mario
-// Created: 23.05.2021 12:34 AM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -289,9 +289,9 @@ namespace Nominax::Common
 	/// </summary>
 	/// <param name="x">Should not be 0!</param>
 	/// <returns></returns>
-	inline auto ILog2(const U64 x) noexcept(true) -> U64
+	inline auto ILog2(U64 x) noexcept(true) -> U64
 	{
-#if !NOMINAX_USE_ARCH_OPT
+#if NOMINAX_USE_ARCH_OPT
 		--x;
 		return sizeof x * CHAR_BIT - __builtin_clzll(x);
 #else

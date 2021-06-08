@@ -1,6 +1,6 @@
-// File: Lexemes.hpp
+// File: Lexeme.hpp
 // Author: Mario
-// Created: 27.04.2021 8:59 AM
+// Created: 08.06.2021 7:09 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,74 +207,53 @@
 
 #pragma once
 
-#include <array>
-#include <string_view>
+#include <variant>
+
+#include "Base.hpp"
 
 namespace Corium
 {
-	enum class Lexeme : std::size_t
+	constexpr char8_t COMMENT_MARKER{ '#' };
+	
+	enum class MonoLexeme: char8_t
 	{
-		TypeSeparator,
-		Comment,
-		Assignment,
-		LBracket,
-		RBracket,
-		LParen,
-		RParen,
-		Separator,
-		Add,
-		Sub,
-		Mul,
-		Div,
-		Mod,
-		And,
-		Or,
-		Xor,
-		Compl,
-		Not,
-		Equals,
-		NotEquals,
-		Less,
-		LessEquals,
-		Greater,
-		GreaterEquals,
-		Ellipsis,
-		Accessor,
-		StringLiteral,
-		CharLiteral,
-
-		Count
+		ParenthesisLeft		= u8'(',
+		ParenthesisRight	= u8')',
+		CurlyBracesLeft		= u8'{',
+		CurlyBracesRight	= u8'}',
+		Identifier
 	};
 
-	constexpr std::array<std::u32string_view, static_cast<std::size_t>(Lexeme::Count)> LEXEMES
+	constexpr auto NameOf(const MonoLexeme lexeme) noexcept(true) -> std::string_view
 	{
-		U":",
-		U"#",
-		U"=",
-		U"{",
-		U"}",
-		U"(",
-		U")",
-		U",",
-		U"+",
-		U"-",
-		U"*",
-		U"/",
-		U"%",
-		U"&",
-		U"|",
-		U"^",
-		U"~",
-		U"!",
-		U"==",
-		U"!=",
-		U"<",
-		U"<=",
-		U">",
-		U">=",
-		U"...",
-		U".",
-		U"\"",
-		U"'"
-	};
+		switch (lexeme)
+		{
+		case MonoLexeme::ParenthesisLeft:
+			return "ParenthesisLeft";
+		case MonoLexeme::ParenthesisRight:
+			return "ParenthesisRight";
+		case MonoLexeme::CurlyBracesLeft:
+			return "CurlyBracesLeft";
+		case MonoLexeme::CurlyBracesRight:
+			return "CurlyBracesRight";
+		default:
+			return "Identifier";
+		}
+	}
+
+	using Identifier = std::u8string;
+
+	using Lexeme = std::variant<MonoLexeme, Identifier>;
+
+	inline auto PrintLexeme(const Lexeme& lex) noexcept(false) -> void
+	{
+		if (const auto* const ml = std::get_if<MonoLexeme>(&lex))
+		{
+			Print(Nominax::Common::TextColor::BrightBlue, "{}\n", NameOf(*ml));
+		}
+		else
+		{
+			Print(Nominax::Common::TextColor::BrightBlue, "Identifier: {}\n", reinterpret_cast<const char*>(std::get_if<Identifier>(&lex)->c_str()));
+		}
+	}
 }

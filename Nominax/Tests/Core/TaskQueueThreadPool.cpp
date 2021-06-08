@@ -1,6 +1,6 @@
-// File: TaskQueue.hpp
+// File: TaskQueueThreadPool.cpp
 // Author: Mario
-// Created: 02.06.2021 4:09 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -211,27 +211,24 @@ namespace Nominax::Core
 {
 	TaskQueueThreadPool::TaskQueueThreadPool(const std::size_t threadCount) noexcept(false)
 	{
-		for (std::size_t i{0}; i < threadCount; ++i)
+		for (std::size_t i {0}; i < threadCount; ++i)
 		{
 			this->Threads.emplace_back(std::make_unique<TaskQueueThread>());
 		}
 	}
 
 	TaskQueueThreadPool::TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator) noexcept(true)
-	: Allocator_{ &allocator }, Threads{Allocator_}
-	{
-		
-	}
+		: Allocator_ {&allocator}, Threads {Allocator_} { }
 
 	TaskQueueThreadPool::TaskQueueThreadPool
 	(
 		std::pmr::monotonic_buffer_resource& allocator,
-		const std::size_t threadCount
-	) noexcept(false) : Allocator_{ &allocator }, Threads {
-		Allocator_
-	}
+		const std::size_t                    threadCount
+	) noexcept(false) : Allocator_ {&allocator}, Threads {
+		                    Allocator_
+	                    }
 	{
-		for (std::size_t i{ 0 }; i < threadCount; ++i)
+		for (std::size_t i {0}; i < threadCount; ++i)
 		{
 			this->Threads.emplace_back(std::make_unique<TaskQueueThread>(allocator));
 		}
@@ -239,7 +236,7 @@ namespace Nominax::Core
 
 	auto TaskQueueThreadPool::JoinAll() noexcept(false) -> void
 	{
-		for(auto& thread : this->Threads)
+		for (auto& thread : this->Threads)
 		{
 			thread->Join();
 		}
@@ -249,9 +246,9 @@ namespace Nominax::Core
 	{
 		this->Threads.emplace_back
 		(
-			this->Allocator_ 
-			? std::make_unique<TaskQueueThread>(*this->Allocator_)
-			: std::make_unique<TaskQueueThread>()
+			this->Allocator_
+				? std::make_unique<TaskQueueThread>(*this->Allocator_)
+				: std::make_unique<TaskQueueThread>()
 		);
 	}
 }

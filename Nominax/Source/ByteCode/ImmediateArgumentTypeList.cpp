@@ -1,6 +1,6 @@
 // File: ImmediateArgumentTypeList.cpp
 // Author: Mario
-// Created: 12.05.2021 4:27 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -295,7 +295,7 @@ namespace Nominax::ByteCode
 		{ }, // vadd
 		{ }, // vsub
 		{ }, // vmul
-		{ },  // vdiv
+		{ }, // vdiv
 		{
 			// matpush
 			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},

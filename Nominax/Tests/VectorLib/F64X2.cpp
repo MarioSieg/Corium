@@ -1,6 +1,6 @@
 // File: F64X2.cpp
 // Author: Mario
-// Created: 26.05.2021 1:16 PM
+// Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
