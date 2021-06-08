@@ -43,16 +43,15 @@ For more technical information, check out the Nominax [ReadMe](https://github.co
 There are 5 primitive data types in Corium:<br>
 
 * int
-* uint
 * float
 * bool
 * char
 
-The number types ```int```, ```uint``` and ```float```<br>
+The number types ```int``` and ```float```<br>
 are 64 bits wide and provide enough range and precision for all tasks.<br>
 Corium empowers static typing for safety and explicit code,<br>
 and choosing the type is very simple.<br>
-Every of the 5 primitive type is perfect for<br>
+Every of the 4 primitive type is perfect for<br>
 some specific type of data.<br>
 
 <h4>int</h4>
@@ -62,15 +61,6 @@ some specific type of data.<br>
 * Because it it signed, it can also hold negative values.
 * This type is used as the default type for natural number calculations.
 * The equivalent in other C style languages would be “long”.
-
-<h4>uint</h4>
-
-* A 64-bit unsigned integer. 
-* Can hold values from 0 to 147573952589676412927. 
-* Because it is unsigned it can only hold positive values, but larger ones than ```int```
-* This type is the default type for array indices.
-* The ```u``` suffix is used to make an uint literal.
-* The equivalent in other C style languages is "unsigned long" or "ulong".
 
 <h4>float</h4>
 
@@ -102,10 +92,9 @@ keyword:
 
 ```
 let a int = 3
-let b uint = 5
-let c float = 2.5
-let d char = 'O'
-let e bool = true
+let b float = 2.5
+let c char = 'O'
+let d bool = true
 ```
 If you look at the above scheme again,<br> the ```Type```
 and the ```Literal```
@@ -114,10 +103,9 @@ are optional (indicated by the
 
 ```
 let a = 3
-let b = 5u
-let c = 2.5
-let d = 'O'
-let e = true
+let b = 2.5
+let c = 'O'
+let d = true
 ```
 
 That's better right?<br>
@@ -126,14 +114,9 @@ so types can be deduced:
 | Literal  | Deduced Type |
 | ------------- | ------------- |
 | 3  | int  |
-| 5u  | uint  |
 | 2.5  | float  |
 | 'O'  | char  | 
 | true  | bool  |
-
-Note the ```u``` at the end of the ```uint``` literal!<br>
-It is used to create an **u**nsigned ```uint``` literal.<br>
-Without it, the literal would be of type ```int```.
 
 <h3> Functions And Methods </h3>
 Like in many other languages,
@@ -144,8 +127,8 @@ function.
 So let's follow the tradition and start with hello world:
 
 ```
-Main () {
-    Print("Hello, World")
+main () {
+    print("Hello, World")
 }
 ```
 
@@ -160,15 +143,15 @@ Methods and functions are declared by the following scheme:
 Let's write a function which takes no parameters and returns nothing:
 
 ```
-SayHello () {
-    Print("Say hello to my little friend!")
+sayHello () {
+    print("Say hello to my little friend!")
 }
 ```
 
 in C we would write this function like this:
 
 ```
-void SayHello () {
+void sayHello () {
     printf("Say hello to my little friend!\n");
 }
 ```
@@ -178,7 +161,7 @@ but of course the priting mechanism is different.<br>
 Lets write another functions which returns a number:<br>
 
 ```
-GetNumber () int {
+getNumber () int {
     return 5
 }
 ```
@@ -186,7 +169,7 @@ GetNumber () int {
 Let's write it again in C:
 
 ```
-int GetNumber() {
+int getNumber() {
     return 5;
 }
 ```
