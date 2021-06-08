@@ -219,8 +219,8 @@ namespace Nominax::Common
 	[[nodiscard]]
 	static inline auto SubstringView
 	(
-		const TextFile::StringType&                source,
-		const size_t                      offset = 0,
+		const TextFile::StringType&         source,
+		const size_t                        offset = 0,
 		const TextFile::ViewType::size_type count  = std::numeric_limits<TextFile::ViewType::size_type>::max()
 	) noexcept(true) -> TextFile::ViewType
 	{

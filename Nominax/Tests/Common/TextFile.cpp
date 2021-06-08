@@ -218,7 +218,7 @@ TEST(TextFile, Construct)
 
 TEST(TextFile, Construct2)
 {
-	const TextFile file { u8"info.txt", u8"hey!"};
+	const TextFile file {u8"info.txt", u8"hey!"};
 	ASSERT_EQ(file.GetContentText(), u8"hey!");
 	ASSERT_EQ(file.GetFilePath(), "info.txt");
 }
@@ -231,7 +231,7 @@ TEST(TextFile, Construct3)
 
 TEST(TextFile, SizeCapacityBytes)
 {
-	const TextFile file { u8"hey!"};
+	const TextFile file {u8"hey!"};
 	ASSERT_EQ(file.GetCapacity(), std::u8string(u8"hey!").capacity());
 	ASSERT_EQ(file.GetSize(), std::u8string(u8"hey!").size());
 	ASSERT_EQ(file.GetSizeInBytes(), std::u8string(u8"hey!").capacity() * sizeof(char));
@@ -239,35 +239,35 @@ TEST(TextFile, SizeCapacityBytes)
 
 TEST(TextFile, MoveConstruct)
 {
-	TextFile       file { u8"hey!"};
+	TextFile       file {u8"hey!"};
 	const TextFile file2 {std::move(file)};
 	ASSERT_EQ(file2.GetContentText(), u8"hey!");
 }
 
 TEST(TextFile, MoveAssign)
 {
-	TextFile       file { u8"hey!"};
+	TextFile       file {u8"hey!"};
 	const TextFile file2 = std::move(file);
 	ASSERT_EQ(file2.GetContentText(), u8"hey!");
 }
 
 TEST(TextFile, Write)
 {
-	TextFile file { u8"test&*%$!"};
+	TextFile file {u8"test&*%$!"};
 	ASSERT_TRUE(file.WriteToFile("TestTextFile.txt"));
 	ASSERT_EQ(file.GetFilePath(), "TestTextFile.txt");
 	ASSERT_TRUE(std::filesystem::is_regular_file("TestTextFile.txt"));
 	std::basic_ifstream<char8_t> in {"TestTextFile.txt"};
 	ASSERT_TRUE(in);
 	const std::u8string str((std::istreambuf_iterator<char8_t>(in)),
-	                      std::istreambuf_iterator<char8_t>());
+	                        std::istreambuf_iterator<char8_t>());
 	ASSERT_EQ(str, u8"test&*%$!");
 }
 
 TEST(TextFile, Read)
 {
 	{
-		TextFile file { u8"test&*%$!"};
+		TextFile file {u8"test&*%$!"};
 		ASSERT_TRUE(file.WriteToFile(u8"TestTextFile.txt"));
 		ASSERT_TRUE(std::filesystem::is_regular_file(u8"TestTextFile.txt"));
 	}
@@ -280,7 +280,7 @@ TEST(TextFile, Read)
 
 TEST(TextFile, Iterator)
 {
-	TextFile file { u8"hey!"};
+	TextFile file {u8"hey!"};
 	for (auto i {0}; const char x : file)
 	{
 		ASSERT_EQ(x, u8"hey!"[i++]);
@@ -289,28 +289,28 @@ TEST(TextFile, Iterator)
 
 TEST(TextFile, EraseSpaces)
 {
-	TextFile file { u8"Gestatten,\tmein Name ist\rMario Sieg!\n"};
+	TextFile file {u8"Gestatten,\tmein Name ist\rMario Sieg!\n"};
 	file.ParallelEraseSpaces();
 	ASSERT_EQ(file.GetContentText(), u8"Gestatten,\tmeinNameist\rMarioSieg!\n");
 }
 
 TEST(TextFile, EraseCtrl)
 {
-	TextFile file { u8"Gestatten,\tmein Name ist\rMario Sieg!\n"};
+	TextFile file {u8"Gestatten,\tmein Name ist\rMario Sieg!\n"};
 	file.ParallelEraseSpacesAndControlChars();
 	ASSERT_EQ(file.GetContentText(), u8"Gestatten,meinNameistMarioSieg!");
 }
 
 TEST(TextFile, EraseChar)
 {
-	TextFile file { u8"Gestatten,\tmein Name ist\rMario Sieg!\n"};
+	TextFile file {u8"Gestatten,\tmein Name ist\rMario Sieg!\n"};
 	file.ParallelErase(u8'e');
 	ASSERT_EQ(file.GetContentText(), u8"Gstattn,\tmin Nam ist\rMario Sig!\n");
 }
 
 TEST(TextFile, SubStringIndex)
 {
-	const TextFile file { u8"** Hey cutie! **"};
+	const TextFile file {u8"** Hey cutie! **"};
 	ASSERT_EQ(file.SubString(0, 15), u8"** Hey cutie! **");
 	ASSERT_EQ(file.SubString(0, 0), u8"*");
 	ASSERT_EQ(file.SubString(1, 3), u8"* H");
@@ -318,14 +318,14 @@ TEST(TextFile, SubStringIndex)
 
 TEST(TextFile, SubStringChar)
 {
-	const TextFile file { u8"** Hey cutie! **"};
+	const TextFile file {u8"** Hey cutie! **"};
 	ASSERT_EQ(file.SubStringChar(u8'*', u8'*'), u8"**");
 	ASSERT_EQ(file.SubStringChar(u8'*', u8'!'), u8"** Hey cutie!");
 }
 
 TEST(TextFile, EraseSubString)
 {
-	TextFile file { u8"** Hey cutie! **"};
+	TextFile file {u8"** Hey cutie! **"};
 	file.EraseRange(u8'*', u8'!');
 	ASSERT_EQ(file.GetContentText(), u8" **");
 }

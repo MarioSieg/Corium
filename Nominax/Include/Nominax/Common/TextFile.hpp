@@ -230,7 +230,6 @@ namespace Nominax::Common
 		using ViewType = std::u8string_view;
 
 	private:
-		
 		/// <summary>
 		/// The content of the file.
 		/// </summary>
@@ -331,7 +330,7 @@ namespace Nominax::Common
 		/// </summary>
 		/// <param name="path"></param>
 		/// <returns></returns>
-		auto ReadFromFileOrPanic(std::filesystem::path && path) noexcept(false) -> void;
+		auto ReadFromFileOrPanic(std::filesystem::path&& path) noexcept(false) -> void;
 
 		/// <summary>
 		/// 

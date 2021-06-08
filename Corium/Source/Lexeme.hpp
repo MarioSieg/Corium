@@ -1,6 +1,6 @@
-// File: Lexemes.hpp
+// File: Lexeme.hpp
 // Author: Mario
-// Created: 27.04.2021 8:59 AM
+// Created: 08.06.2021 7:09 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -215,10 +215,10 @@ namespace Corium
 {
 	enum class MonoLexeme: char8_t
 	{
-		ParenthesisLeft	= u8'(',
-		ParenthesisRight	= u8')',
-		CurlyBracesLeft	= u8'{',
-		CurlyBracesRight	= u8'}',
+		ParenthesisLeft = u8'(',
+		ParenthesisRight = u8')',
+		CurlyBracesLeft = u8'{',
+		CurlyBracesRight = u8'}',
 		Identifier
 	};
 
@@ -226,16 +226,16 @@ namespace Corium
 	{
 		switch (lexeme)
 		{
-			case MonoLexeme::ParenthesisLeft:
-				return "ParenthesisLeft";
-			case MonoLexeme::ParenthesisRight:
-				return "ParenthesisRight";
-			case MonoLexeme::CurlyBracesLeft:
-				return "CurlyBracesLeft";
-			case MonoLexeme::CurlyBracesRight:
-				return "CurlyBracesRight";
-			default:
-				return "Identifier";
+		case MonoLexeme::ParenthesisLeft:
+			return "ParenthesisLeft";
+		case MonoLexeme::ParenthesisRight:
+			return "ParenthesisRight";
+		case MonoLexeme::CurlyBracesLeft:
+			return "CurlyBracesLeft";
+		case MonoLexeme::CurlyBracesRight:
+			return "CurlyBracesRight";
+		default:
+			return "Identifier";
 		}
 	}
 
