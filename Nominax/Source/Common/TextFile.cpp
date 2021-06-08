@@ -207,6 +207,7 @@
 
 #include "../../Include/Nominax/Common/TextFile.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
 #include <algorithm>
 #include <execution>
@@ -218,10 +219,10 @@ namespace Nominax::Common
 	[[nodiscard]]
 	static inline auto SubstringView
 	(
-		const std::string&                source,
+		const TextFile::StringType&                source,
 		const size_t                      offset = 0,
-		const std::string_view::size_type count  = std::numeric_limits<std::string_view::size_type>::max()
-	) noexcept(true) -> std::string_view
+		const TextFile::ViewType::size_type count  = std::numeric_limits<TextFile::ViewType::size_type>::max()
+	) noexcept(true) -> TextFile::ViewType
 	{
 		if (NOMINAX_LIKELY(offset < source.size()))
 		{
@@ -269,7 +270,15 @@ namespace Nominax::Common
 		return true;
 	}
 
-	auto TextFile::EraseSpaces() noexcept(false) -> void
+	auto TextFile::ReadFromFileOrPanic(std::filesystem::path&& path) noexcept(false) -> void
+	{
+		if (NOMINAX_UNLIKELY(!this->ReadFromFile(std::move(path))))
+		{
+			PANIC("Failed to read text file from path: {}", path.string());
+		}
+	}
+
+	auto TextFile::ParallelEraseSpaces() noexcept(false) -> void
 	{
 		this->Content_.erase
 		(
@@ -282,7 +291,7 @@ namespace Nominax::Common
 		);
 	}
 
-	auto TextFile::EraseSpacesAndControlChars() noexcept(false) -> void
+	auto TextFile::ParallelEraseSpacesAndControlChars() noexcept(false) -> void
 	{
 		this->Content_.erase
 		(
@@ -295,7 +304,7 @@ namespace Nominax::Common
 		);
 	}
 
-	auto TextFile::Erase(const char x) noexcept(false) -> void
+	auto TextFile::ParallelErase(const CharType x) noexcept(false) -> void
 	{
 		this->Content_.erase
 		(
@@ -308,19 +317,19 @@ namespace Nominax::Common
 		);
 	}
 
-	auto TextFile::EraseRange(const char begin, const char end) noexcept(false) -> void
+	auto TextFile::EraseRange(const CharType begin, const CharType end) noexcept(false) -> void
 	{
 		const std::size_t beginIndex {this->Content_.find(begin)};
 		const std::size_t endIndex {this->Content_.find(end, beginIndex + 1)};
 		this->Content_.erase(beginIndex, endIndex - beginIndex + 1);
 	}
 
-	auto TextFile::SubString(const std::size_t beginIdx, const std::size_t endIdx) const noexcept(true) -> std::string_view
+	auto TextFile::SubString(const std::size_t beginIdx, const std::size_t endIdx) const noexcept(true) -> ViewType
 	{
 		return SubstringView(this->Content_, beginIdx, endIdx - beginIdx + 1);
 	}
 
-	auto TextFile::SubStringChar(const char beginChar, const char endChar) const noexcept(true) -> std::string_view
+	auto TextFile::SubStringChar(const CharType beginChar, const CharType endChar) const noexcept(true) -> ViewType
 	{
 		const std::size_t beginIndex {this->Content_.find_first_of(beginChar)};
 		const std::size_t endIndex {this->Content_.find_first_of(endChar, beginIndex + 1)};

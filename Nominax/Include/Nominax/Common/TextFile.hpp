@@ -218,10 +218,23 @@ namespace Nominax::Common
 	/// </summary>
 	class TextFile final
 	{
+	public:
+		/// <summary>
+		/// String type alias.
+		/// </summary>
+		using StringType = std::u8string;
+
+		/// <summary>
+		/// String view type.
+		/// </summary>
+		using ViewType = std::u8string_view;
+
+	private:
+		
 		/// <summary>
 		/// The content of the file.
 		/// </summary>
-		std::string Content_ { };
+		StringType Content_ { };
 
 		/// <summary>
 		/// The path of the file.
@@ -255,7 +268,7 @@ namespace Nominax::Common
 		/// </summary>
 		/// <param name="content">Content of the file.</param>
 		/// <returns></returns>
-		explicit TextFile(std::string&& content) noexcept(true);
+		explicit TextFile(StringType&& content) noexcept(true);
 
 		/// <summary>
 		/// Construct with path and content.
@@ -263,7 +276,7 @@ namespace Nominax::Common
 		/// <param name="path"></param>
 		/// <param name="content"></param>
 		/// <returns></returns>
-		TextFile(std::filesystem::path&& path, std::string&& content) noexcept(true);
+		TextFile(std::filesystem::path&& path, StringType&& content) noexcept(true);
 
 		/// <summary>
 		/// No copy.
@@ -306,7 +319,7 @@ namespace Nominax::Common
 		auto WriteToFile(std::filesystem::path&& path) noexcept(false) -> bool;
 
 		/// <summary>
-		/// Reads the content of the path into this class instance content.
+		/// Reads the content of the file into this class instance content.
 		/// </summary>
 		/// <param name="path"></param>
 		/// <returns>True on success, else false.</returns>
@@ -314,18 +327,25 @@ namespace Nominax::Common
 		auto ReadFromFile(std::filesystem::path&& path) noexcept(false) -> bool;
 
 		/// <summary>
-		/// 
+		/// Reads the content of the file into this class instance and panics on any failture.
 		/// </summary>
-		/// <returns>The current text file content.</returns>
-		[[nodiscard]]
-		auto GetContentText() const & noexcept(true) -> const std::string&;
+		/// <param name="path"></param>
+		/// <returns></returns>
+		auto ReadFromFileOrPanic(std::filesystem::path && path) noexcept(false) -> void;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current text file content.</returns>
 		[[nodiscard]]
-		auto GetContentText() && noexcept(true) -> std::string&&;
+		auto GetContentText() const & noexcept(true) -> const StringType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current text file content.</returns>
+		[[nodiscard]]
+		auto GetContentText() && noexcept(true) -> StringType&&;
 
 		/// <summary>
 		/// 
@@ -373,20 +393,20 @@ namespace Nominax::Common
 		/// Removes all the spaces (' ') from the content in parallel.
 		/// </summary>
 		/// <returns></returns>
-		auto EraseSpaces() noexcept(false) -> void;
+		auto ParallelEraseSpaces() noexcept(false) -> void;
 
 		/// <summary>
 		/// Removes all spaces and control characters from the content in parallel.
 		/// </summary>
 		/// <returns></returns>
-		auto EraseSpacesAndControlChars() noexcept(false) -> void;
+		auto ParallelEraseSpacesAndControlChars() noexcept(false) -> void;
 
 		/// <summary>
 		/// Removes all the occurrences of the character in parallel.
 		/// </summary>
 		/// <param name="x"></param>
 		/// <returns></returns>
-		auto Erase(char x) noexcept(false) -> void;
+		auto ParallelErase(CharType x) noexcept(false) -> void;
 
 		/// <summary>
 		/// Searches all the ranges between the two chars and removes the text between them and themselves.
@@ -394,7 +414,7 @@ namespace Nominax::Common
 		/// <param name="begin"></param>
 		/// <param name="end"></param>
 		/// <returns></returns>
-		auto EraseRange(char begin, char end) noexcept(false) -> void;
+		auto EraseRange(CharType begin, CharType end) noexcept(false) -> void;
 
 		/// <summary>
 		/// Get a substring string view to the
@@ -404,7 +424,7 @@ namespace Nominax::Common
 		/// <param name="endIdx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto SubString(std::size_t beginIdx, std::size_t endIdx) const noexcept(true) -> std::string_view;
+		auto SubString(std::size_t beginIdx, std::size_t endIdx) const noexcept(true) -> ViewType;
 
 		/// <summary>
 		/// Get a substring string view to the
@@ -414,78 +434,78 @@ namespace Nominax::Common
 		/// <param name="endChar"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto SubStringChar(char beginChar, char endChar) const noexcept(true) -> std::string_view;
+		auto SubStringChar(CharType beginChar, CharType endChar) const noexcept(true) -> ViewType;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto begin() noexcept(true) -> std::string::iterator;
+		auto begin() noexcept(true) -> StringType::iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto end() noexcept(true) -> std::string::iterator;
+		auto end() noexcept(true) -> StringType::iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto rbegin() noexcept(true) -> std::string::reverse_iterator;
+		auto rbegin() noexcept(true) -> StringType::reverse_iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto rend() noexcept(true) -> std::string::reverse_iterator;
+		auto rend() noexcept(true) -> StringType::reverse_iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto cbegin() const noexcept(true) -> std::string::const_iterator;
+		auto cbegin() const noexcept(true) -> StringType::const_iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto cend() const noexcept(true) -> std::string::const_iterator;
+		auto cend() const noexcept(true) -> StringType::const_iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto crbegin() const noexcept(true) -> std::string::const_reverse_iterator;
+		auto crbegin() const noexcept(true) -> StringType::const_reverse_iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto crend() const noexcept(true) -> std::string::const_reverse_iterator;
+		auto crend() const noexcept(true) -> StringType::const_reverse_iterator;
 	};
 
-	inline TextFile::TextFile(std::string&& content) noexcept(true)
+	inline TextFile::TextFile(StringType&& content) noexcept(true)
 		: Content_ {std::move(content)} { }
 
-	inline TextFile::TextFile(std::filesystem::path&& path, std::string&& content) noexcept(true)
+	inline TextFile::TextFile(std::filesystem::path&& path, StringType&& content) noexcept(true)
 		: Content_ {std::move(content)},
 		  FilePath_ {std::move(path)} { }
 
-	inline auto TextFile::GetContentText() const & noexcept(true) -> const std::string&
+	inline auto TextFile::GetContentText() const & noexcept(true) -> const StringType&
 	{
 		return this->Content_;
 	}
 
-	inline auto TextFile::GetContentText() && noexcept(true) -> std::string&&
+	inline auto TextFile::GetContentText() && noexcept(true) -> StringType&&
 	{
 		return std::move(this->Content_);
 	}
@@ -517,45 +537,45 @@ namespace Nominax::Common
 
 	inline auto TextFile::GetSizeInBytes() const noexcept(true) -> std::size_t
 	{
-		return this->Content_.capacity() * sizeof(char);
+		return this->Content_.capacity() * sizeof(CharType);
 	}
 
-	inline auto TextFile::begin() noexcept(true) -> std::string::iterator
+	inline auto TextFile::begin() noexcept(true) -> StringType::iterator
 	{
 		return std::begin(this->Content_);
 	}
 
-	inline auto TextFile::end() noexcept(true) -> std::string::iterator
+	inline auto TextFile::end() noexcept(true) -> StringType::iterator
 	{
 		return std::end(this->Content_);
 	}
 
-	inline auto TextFile::rbegin() noexcept(true) -> std::string::reverse_iterator
+	inline auto TextFile::rbegin() noexcept(true) -> StringType::reverse_iterator
 	{
 		return std::rbegin(this->Content_);
 	}
 
-	inline auto TextFile::rend() noexcept(true) -> std::string::reverse_iterator
+	inline auto TextFile::rend() noexcept(true) -> StringType::reverse_iterator
 	{
 		return std::rend(this->Content_);
 	}
 
-	inline auto TextFile::cbegin() const noexcept(true) -> std::string::const_iterator
+	inline auto TextFile::cbegin() const noexcept(true) -> StringType::const_iterator
 	{
 		return std::cbegin(this->Content_);
 	}
 
-	inline auto TextFile::cend() const noexcept(true) -> std::string::const_iterator
+	inline auto TextFile::cend() const noexcept(true) -> StringType::const_iterator
 	{
 		return std::cend(this->Content_);
 	}
 
-	inline auto TextFile::crbegin() const noexcept(true) -> std::string::const_reverse_iterator
+	inline auto TextFile::crbegin() const noexcept(true) -> StringType::const_reverse_iterator
 	{
 		return std::crbegin(this->Content_);
 	}
 
-	inline auto TextFile::crend() const noexcept(true) -> std::string::const_reverse_iterator
+	inline auto TextFile::crend() const noexcept(true) -> StringType::const_reverse_iterator
 	{
 		return std::crend(this->Content_);
 	}
@@ -565,7 +585,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto begin(TextFile& file) noexcept(true) -> std::string::iterator
+	inline auto begin(TextFile& file) noexcept(true) -> TextFile::StringType::iterator
 	{
 		return file.begin();
 	}
@@ -575,7 +595,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto end(TextFile& file) noexcept(true) -> std::string::iterator
+	inline auto end(TextFile& file) noexcept(true) -> TextFile::StringType::iterator
 	{
 		return file.end();
 	}
@@ -585,7 +605,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto rbegin(TextFile& file) noexcept(true) -> std::string::reverse_iterator
+	inline auto rbegin(TextFile& file) noexcept(true) -> TextFile::StringType::reverse_iterator
 	{
 		return file.rbegin();
 	}
@@ -595,7 +615,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto rend(TextFile& file) noexcept(true) -> std::string::reverse_iterator
+	inline auto rend(TextFile& file) noexcept(true) -> TextFile::StringType::reverse_iterator
 	{
 		return file.rend();
 	}
@@ -605,7 +625,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto cbegin(const TextFile& file) noexcept(true) -> std::string::const_iterator
+	inline auto cbegin(const TextFile& file) noexcept(true) -> TextFile::StringType::const_iterator
 	{
 		return file.cbegin();
 	}
@@ -615,7 +635,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto cend(const TextFile& file) noexcept(true) -> std::string::const_iterator
+	inline auto cend(const TextFile& file) noexcept(true) -> TextFile::StringType::const_iterator
 	{
 		return file.cend();
 	}
@@ -625,7 +645,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto crbegin(const TextFile& file) noexcept(true) -> std::string::const_reverse_iterator
+	inline auto crbegin(const TextFile& file) noexcept(true) -> TextFile::StringType::const_reverse_iterator
 	{
 		return file.crbegin();
 	}
@@ -635,7 +655,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto crend(const TextFile& file) noexcept(true) -> std::string::const_reverse_iterator
+	inline auto crend(const TextFile& file) noexcept(true) -> TextFile::StringType::const_reverse_iterator
 	{
 		return file.crend();
 	}
