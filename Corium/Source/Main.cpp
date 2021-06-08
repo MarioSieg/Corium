@@ -205,7 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "Parser.hpp"
+#include "Lexer.hpp"
 
 auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
 {
@@ -213,7 +213,6 @@ auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const
 
 	Nominax::Common::TextFile file { };
 	file.ReadFromFileOrPanic(path);
-	Corium::ParseFile(std::move(file));
-
+	Corium::LexFile(std::move(file));
 	return 0;
 }

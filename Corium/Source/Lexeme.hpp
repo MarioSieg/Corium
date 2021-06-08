@@ -213,12 +213,14 @@
 
 namespace Corium
 {
+	constexpr char8_t COMMENT_MARKER{ '#' };
+	
 	enum class MonoLexeme: char8_t
 	{
-		ParenthesisLeft = u8'(',
-		ParenthesisRight = u8')',
-		CurlyBracesLeft = u8'{',
-		CurlyBracesRight = u8'}',
+		ParenthesisLeft		= u8'(',
+		ParenthesisRight	= u8')',
+		CurlyBracesLeft		= u8'{',
+		CurlyBracesRight	= u8'}',
 		Identifier
 	};
 
