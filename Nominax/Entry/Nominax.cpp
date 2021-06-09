@@ -207,7 +207,7 @@
 
 #include "../Include/Nominax/Nominax.hpp"
 
-using namespace Prelude;
+using namespace Nominax::Prelude;
 
 auto main(const signed argc, const char* const* const argv) -> signed
 {

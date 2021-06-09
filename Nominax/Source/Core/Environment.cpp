@@ -560,6 +560,14 @@ namespace Nominax::Core
 		return true;
 	}
 
+	Environment::Environment(IAllocator* const allocator) noexcept(true)
+	{
+		if (NOMINAX_UNLIKELY(allocator))
+		{
+			GlobalSystemAllocator = allocator;
+		}
+	}
+
 	Environment::~Environment()
 	{
 		Shutdown();
@@ -697,6 +705,11 @@ namespace Nominax::Core
 		{
 			return;
 		}
+
+		// Print allocator info:
+#if NOMINAX_DEBUG
+		DEBUG_ALLOCATOR.DumpAllocationInfo();
+#endif
 
 		// Invoke hook:
 		DISPATCH_HOOK(OnPreShutdownHook,);

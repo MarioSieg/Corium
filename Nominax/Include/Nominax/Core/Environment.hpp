@@ -212,6 +212,7 @@
 #include <memory>
 #include <memory_resource>
 
+#include "../Common/Allocator.hpp"
 #include "EnvironmentDescriptor.hpp"
 #include "ReactorState.hpp"
 
@@ -253,36 +254,42 @@ namespace Nominax
 			/// This hook is executed before the environment boots.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPreBootHook() -> bool;
 
 			/// <summary>
 			/// This hook is executed after the environment boots.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPostBootHook() -> bool;
 
 			/// <summary>
 			/// This hook is executed before any code execution.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPreExecutionHook(const ByteCode::AppCodeBundle& appCodeBundle) -> bool;
 
 			/// <summary>
 			/// This hook is executed after any code execution.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPostExecutionHook() -> bool;
 
 			/// <summary>
 			/// This hook is executed before the environment shuts down.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPreShutdownHook() -> bool;
 
 			/// <summary>
 			/// This hook is executed after the environment shuts down.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPostShutdownHook() -> bool;
 
 		public:
@@ -307,7 +314,7 @@ namespace Nominax
 			/// <summary>
 			/// Default constructor. Does not initialize the environment.
 			/// </summary>
-			explicit Environment() noexcept(true) = default;
+			explicit Environment(Common::IAllocator* allocator = nullptr) noexcept(true);
 
 			/// <summary>
 			/// No copy.
