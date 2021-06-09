@@ -25,6 +25,25 @@ The final features of the language are:<br><br>
 The source code for the language parser is in the [Corium](https://github.com/MarioSieg/Corium/tree/master/Corium) directory.
 </h4>
 
+<h2> Why another language? </h2>
+<h4>
+As you might know,<br>
+there are already plenty of programming languages out there.<br>
+Many programming can be divided into two groups (the so called two language problem):<br>
+There are very hight level languages such as Python or Java and<br>
+many performance critical code is written in a more lower level language <br>
+such as C, C++ or Rust. This is highly inefficient as it requires more knowledge,<br>
+testing and time. It is also more error prone.<br>
+Corium allows for code which is clean, portable, easy to write and still very fast.<br>
+This might sound like the "Julia" language, but Corium relies much more on simplicity.<br>
+With a semicolon free, easy to read C like syntax, it's easy to learn the language.<br>
+The core language features are enough to write good code, but not too much to become bloated.<br>
+It has a great and easy to use debugger, package manager and linter.<br>
+Just get your favourite editor like VisualStudioCode, IntelliJ or something else,<br>
+and start coding!<br>
+It's also fairly easy to embed Corium into an existing C++ application.<br>
+Corium also is used as a game scripting language in one of my custom engines.<br>
+</h4>
 <h2> Nominax Runtime </h2>
 <h4>
 Nominax is the runtime environment for Corium.<br>
@@ -34,6 +53,7 @@ The source code is in the [Nominax](https://github.com/MarioSieg/Corium/tree/mas
 For more technical information, check out the Nominax [ReadMe](https://github.com/MarioSieg/Corium/blob/dev/Nominax/README.md).
 </h4>
 
+<h2> Roadmap </h2>
 [Trello Board](https://trello.com/b/QiBdAQrb/nominax)
 
 # Corium To-Go :coffee:
@@ -88,7 +108,7 @@ let <VariableName> <Type?> = <Literal?>
 ```
 Let's create some local variables using the
 ```let```
-keyword:
+keyword. No semicolons required!<br>
 
 ```
 let a int = 3
@@ -177,3 +197,5 @@ int getNumber() {
 As you can see, the return type is just at a different position and there are no semicolons.<br>
 If your functions returns nothing, the return type is just elided.<br>
 There is no need to write ```void``` like we know it from C style languages.<br>
+
+More comming soon...
