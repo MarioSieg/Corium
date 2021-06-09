@@ -564,7 +564,7 @@ namespace Nominax::Core
 	{
 		if (NOMINAX_UNLIKELY(allocator))
 		{
-			GlobalSystemAllocator = allocator;
+			GlobalCurrentSystemAllocator = allocator;
 		}
 	}
 
@@ -708,7 +708,7 @@ namespace Nominax::Core
 
 		// Print allocator info:
 #if NOMINAX_DEBUG
-		DEBUG_ALLOCATOR.DumpAllocationInfo();
+		static_cast<const DebugAllocator*>(GlobalCurrentSystemAllocator)->DumpAllocationInfo();
 #endif
 
 		// Invoke hook:
