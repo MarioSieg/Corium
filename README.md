@@ -80,7 +80,7 @@ some specific type of data.<br>
 * Can hold values from -9223372036854775808 to 9223372036854775807.
 * Because it it signed, it can also hold negative values.
 * This type is used as the default type for natural number calculations.
-* The equivalent in other C style languages would be “long”.
+* The equivalent in other C style languages is “long”.
 
 <h4>float</h4>
 
