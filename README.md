@@ -4,12 +4,12 @@
 ![](https://img.shields.io/github/commit-activity/m/MarioSieg/NominaxRuntime)
 
 # Corium Programming Language
-<h4>
+
 Corium is a modern scripting language for all platforms.<br>
 The goal is to have a safe, clean and easy to write scripting language,<br>
 which is still very fast, so it can be used for AI, HPC or game development.<br>
 The final features of the language are:<br><br>
- 
+
 * Easy to learn
 * Clean syntax
 * Safe, statically typed
@@ -23,10 +23,9 @@ The final features of the language are:<br><br>
 * Fast
 
 The source code for the language parser is in the [Corium](https://github.com/MarioSieg/Corium/tree/master/Corium) directory.
-</h4>
 
 <h2> Why another language? </h2>
-<h4>
+
 As you might know,<br>
 there are already plenty of programming languages out there.<br>
 Many programming can be divided into two groups (the so called two language problem):<br>
@@ -43,17 +42,18 @@ Just get your favourite editor like VisualStudioCode, IntelliJ or something else
 and start coding!<br>
 It's also fairly easy to embed Corium into an existing C++ application.<br>
 Corium also is used as a game scripting language in one of my custom engines.<br>
-</h4>
+
 <h2> Nominax Runtime </h2>
 <h4>
 Nominax is the runtime environment for Corium.<br>
 It supports heavy parallelism, JIT compiling and garbage collection out of the box.<br>
-  
+
 The source code is in the [Nominax](https://github.com/MarioSieg/Corium/tree/master/Nominax) directory.
 For more technical information, check out the Nominax [ReadMe](https://github.com/MarioSieg/Corium/blob/dev/Nominax/README.md).
 </h4>
 
 <h2> Roadmap </h2>
+
 [Trello Board](https://trello.com/b/QiBdAQrb/nominax)
 
 # Corium To-Go :coffee:
@@ -76,7 +76,7 @@ some specific type of data.<br>
 
 <h4>int</h4>
 
-* A 64-bit signed integer. 
+* A 64-bit signed integer.
 * Can hold values from -9223372036854775808 to 9223372036854775807.
 * Because it it signed, it can also hold negative values.
 * This type is used as the default type for natural number calculations.
@@ -91,7 +91,7 @@ some specific type of data.<br>
 
 <h4>bool</h4>
 
-* A boolean type. 
+* A boolean type.
 * Can either be true (1) or false (0).
 
 <h4>char</h4>
@@ -135,7 +135,7 @@ so types can be deduced:
 | ------------- | ------------- |
 | 3  | int  |
 | 2.5  | float  |
-| 'O'  | char  | 
+| 'O'  | char  |
 | true  | bool  |
 
 <h3> Functions And Methods </h3>
