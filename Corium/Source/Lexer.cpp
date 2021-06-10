@@ -94,6 +94,8 @@ namespace Corium
 			PrintLexeme(x);
 		}
 
+		Common::Print('\n');
+
 		return { result, LexResultCode::Ok };
 	}
 }

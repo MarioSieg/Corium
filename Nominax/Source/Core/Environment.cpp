@@ -319,6 +319,21 @@ namespace Nominax::Core
 #define VALIDATE_ONLINE_BOOT_STATE() NOMINAX_PANIC_ASSERT_TRUE(this->IsOnline(), "Environment is offline!")
 
 	/// <summary>
+	/// Checks if the byte stack size is divisible by sizeof(Record) and panics if not.
+	/// Returns the counts of records.
+	/// </summary>
+	/// <param name="appCode"></param>
+	/// <returns></returns>
+	static inline auto MapStackSize(const std::size_t sizeInBytes) noexcept(true) -> std::size_t
+	{
+		if (NOMINAX_UNLIKELY(sizeInBytes % sizeof(Record) != 0))
+		{
+			PANIC("Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
+		}
+		return sizeInBytes / sizeof(Record);
+	}
+
+	/// <summary>
 	/// Compute the final size of the system pool.
 	/// If the desired size is 0, fallback size is used.
 	/// Y = Y != 0 + F
@@ -333,14 +348,15 @@ namespace Nominax::Core
 	/// <param name="reactorCount"></param>
 	/// <param name="reactorStackSize"></param>
 	/// <returns></returns>
-	static constexpr auto ComputePoolSize
+	static inline auto ComputePoolSize
 	(
 		std::size_t       desiredSize,
 		const std::size_t reactorCount,
-		const std::size_t reactorStackSize
+		std::size_t reactorStackSize
 	)
 	noexcept(true) -> std::size_t
 	{
+		reactorStackSize = MapStackSize(reactorStackSize);
 		desiredSize = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
 		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
 	}
@@ -502,7 +518,7 @@ namespace Nominax::Core
 		BootPoolSize {ClampBootPoolSize(descriptor.BootPoolSize)},
 		BootPool {AllocatePool(BootPoolSize, "boot")},
 		BootPoolResource {*BootPool, BootPoolSize},
-		SystemPoolSize {ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.ReactorDescriptor.StackSize)},
+		SystemPoolSize {ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.StackSize)},
 		SystemPool {AllocatePool(SystemPoolSize, "system")},
 		SystemPoolResource {*SystemPool, SystemPoolSize},
 		Arguments {&BootPoolResource},
@@ -513,7 +529,13 @@ namespace Nominax::Core
 		SysInfoSnapshot {InitSysInfo()},
 		CpuFeatures {InitCpuFeatures()},
 		OptimalReactorRoutine {descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)},
-		CorePool {SystemPoolResource, ReactorCount, descriptor.ReactorDescriptor, OptimalReactorRoutine}
+		CorePool{ SystemPoolResource, ReactorCount, ReactorSpawnDescriptor 
+		{
+			.StackSize = MapStackSize(descriptor.StackSize),
+			.SharedIntrinsicTable = {},
+			.InterruptHandler = nullptr,
+			.PowerPref = descriptor.PowerPref
+		}, OptimalReactorRoutine }
 	{
 		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
 		{
@@ -558,6 +580,14 @@ namespace Nominax::Core
 	auto Environment::OnPostShutdownHook() -> bool
 	{
 		return true;
+	}
+
+	Environment::Environment(const IAllocator* const allocator) noexcept(true)
+	{
+		if (NOMINAX_UNLIKELY(allocator))
+		{
+			GlobalCurrentSystemAllocator = allocator;
+		}
 	}
 
 	Environment::~Environment()
@@ -605,9 +635,6 @@ namespace Nominax::Core
 		DISPATCH_HOOK(OnPostBootHook,);
 
 		const auto tok {std::chrono::high_resolution_clock::now()};
-		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
-
-		this->Context_->BootTime = ms;
 
 		// Get memory snapshot:
 		const std::size_t memSnapshot {Os::QueryProcessMemoryUsed()};
@@ -633,15 +660,17 @@ namespace Nominax::Core
 			)
 		};
 
+		const auto ms{ std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik) };
+		this->Context_->BootTime = ms;
+
 		Print
 		(
 			"Runtime environment online!\n"
-			"Boot time: {}\n"
 			"Process memory snapshot: {:.02f} % [{} MB / {} MB]\n"
 			"Monotonic boot pool snapshot:	 {:.02f} % [{} KB / {} KB]\n"
 			"Monotonic system pool snapshot: {:.02f} % [{} MB / {} MB]\n"
+			"Boot time: {}\n"
 			"\n",
-			ms,
 			memUsagePercent,
 			Bytes2Megabytes(static_cast<F64>(memSnapshot)),
 			Bytes2Megabytes(static_cast<F64>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
@@ -650,7 +679,8 @@ namespace Nominax::Core
 			Bytes2Kilobytes(static_cast<F64>(this->Context_->BootPoolSize)),
 			sysPoolPer,
 			Bytes2Megabytes(static_cast<F64>(sysPoolSize)),
-			Bytes2Megabytes(static_cast<F64>(this->Context_->SystemPoolSize))
+			Bytes2Megabytes(static_cast<F64>(this->Context_->SystemPoolSize)),
+			ms
 		);
 	}
 
@@ -697,6 +727,11 @@ namespace Nominax::Core
 		{
 			return;
 		}
+
+		// Print allocator info:
+#if NOMINAX_DEBUG
+		static_cast<const DebugAllocator*>(GlobalCurrentSystemAllocator)->DumpAllocationInfo();
+#endif
 
 		// Invoke hook:
 		DISPATCH_HOOK(OnPreShutdownHook,);

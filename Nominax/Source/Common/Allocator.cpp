@@ -1,6 +1,6 @@
-// File: EnvironmentDescriptor.hpp
+// File: Allocator.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 09.06.2021 2:19 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,74 +205,26 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../Include/Nominax/Common/Allocator.hpp"
+#include "../../Include/Nominax/Common/RuntimeAllocator.hpp"
+#include "../../Include/Nominax/Common/DebugAllocator.hpp"
 
-#include <cstddef>
-
-#include "ReactorSpawnDescriptor.hpp"
-
-namespace Nominax::Core
+namespace Nominax::Common
 {
-	/// <summary>
-	/// Config descriptor for an environment.
-	/// </summary>
-	struct EnvironmentDescriptor final
+	static constexpr RuntimeAllocator SysRuntimeAllocator { };
+	static constexpr DebugAllocator   SysDebugAllocator { };
+
+	constinit const IAllocator& GlobalRuntimeAllocator {SysRuntimeAllocator};
+	constinit const IAllocator& GlobalDebugAllocator {SysDebugAllocator};
+	constinit const IAllocator* GlobalCurrentSystemAllocator {&DetermineAllocator()};
+
+	auto IAllocator::Valloc(void*& out, const std::size_t size) const noexcept(true) -> void
 	{
-		/// <summary>
-		/// Argument count.
-		/// </summary>
-		signed ArgC {0};
+		this->Allocate(out, size);
+	}
 
-		/// <summary>
-		/// Argument vector.
-		/// </summary>
-		const char* const* ArgV {nullptr};
-
-		/// <summary>
-		/// The name of the app.
-		/// </summary>
-		std::string_view AppName {"Untitled App"};
-
-		/// <summary>
-		/// If true, the fallback reactor implementation
-		/// will be used for all reactors, not the
-		/// runtime selected one (based on CPU features).
-		/// </summary>
-		bool ForceFallback {false};
-
-		/// <summary>
-		/// If true, synchronization between
-		/// C++ io-streams (cout, err, cin) and C io-streams (stdout, stdin)
-		/// is deactivated, which makes printing faster.
-		/// This should be activated in most cases when executing code.
-		/// </summary>
-		bool FastHostIoSync {true};
-
-		/// <summary>
-		/// The size of the boot pool
-		/// </summary>
-		std::size_t BootPoolSize {128_kb};
-
-		/// <summary>
-        /// The size of the system memory pool size.
-        /// </summary>
-		std::size_t SystemPoolSize {512_kb};
-
-		/// <summary>
-		/// The count of reactors.
-		/// If 0, the system will use the number of CPU threads.
-		/// </summary>
-		std::size_t ReactorCount {0};
-
-		/// <summary>
-		/// The reactor stack size in bytes.
-		/// Must be divisible by 8!
-		/// </summary>
-		std::size_t StackSize{ 8_mb };
-
-		/// <summary>
-		/// Power preference of the system.
-		/// </summary>
-		PowerPreference PowerPref{ PowerPreference::HighPerformance };
-	};
+	auto IAllocator::Vdealloc(void*& out) const noexcept(true) -> void
+	{
+		this->Deallocate(out);
+	}
 }

@@ -205,14 +205,52 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include "Base.hpp"
 #include "Lexer.hpp"
 
-auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
-{
-	const auto path {"../../../Corium/Docs/ParseTest.cor"};
+using namespace Nominax::Prelude;
 
-	Nominax::Common::TextFile file { };
+static auto ParseFile(const std::string_view path, Stream& out) noexcept(false) -> void
+{
+	Nominax::Common::TextFile file{ };
 	file.ReadFromFileOrPanic(path);
 	Corium::LexFile(std::move(file));
-	return 0;
+
+	out.Prologue();
+	out.Epilogue();
+}
+
+static auto ExecuteNominax
+(
+	Stream&& appCode, 
+	const int argc = 0, 
+	const char* const* const argv = nullptr
+) noexcept(false) -> int
+{
+	const EnvironmentDescriptor descriptor
+	{
+		.ArgC = argc,
+		.ArgV = argv,
+		.AppName = "Corium",
+		.ForceFallback = false,
+		.FastHostIoSync = true,
+		.BootPoolSize = 64_kb,
+		.SystemPoolSize = 256_kb,
+		.ReactorCount = 1,
+		.StackSize = 8_mb,
+		.PowerPref = PowerPreference::HighPerformance
+	};
+
+	Environment runtimeEnvironment{};
+	runtimeEnvironment.Boot(descriptor);
+	const ReactorState& result{ runtimeEnvironment.Execute(std::move(appCode)) };
+	return result.ReturnCode();
+}
+
+auto main(const int argc, const char* const* const argv) -> int
+{
+	Stream stream{};
+	ParseFile("../../../Corium/Docs/ParseTest.cor", stream);
+	stream.PrintByteCode();
+	return ExecuteNominax(std::move(stream), argc, argv);
 }

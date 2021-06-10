@@ -4,12 +4,12 @@
 ![](https://img.shields.io/github/commit-activity/m/MarioSieg/NominaxRuntime)
 
 # Corium Programming Language
-<h4>
+
 Corium is a modern scripting language for all platforms.<br>
 The goal is to have a safe, clean and easy to write scripting language,<br>
 which is still very fast, so it can be used for AI, HPC or game development.<br>
 The final features of the language are:<br><br>
- 
+
 * Easy to learn
 * Clean syntax
 * Safe, statically typed
@@ -23,16 +23,36 @@ The final features of the language are:<br><br>
 * Fast
 
 The source code for the language parser is in the [Corium](https://github.com/MarioSieg/Corium/tree/master/Corium) directory.
-</h4>
+
+<h2> Why another language? </h2>
+
+As you might know,<br>
+there are already plenty of programming languages out there.<br>
+Many programming can be divided into two groups (the so called two language problem):<br>
+There are very hight level languages such as Python or Java and<br>
+many performance critical code is written in a more lower level language <br>
+such as C, C++ or Rust. This is highly inefficient as it requires more knowledge,<br>
+testing and time. It is also more error prone.<br>
+Corium allows for code which is clean, portable, easy to write and still very fast.<br>
+This might sound like the "Julia" language, but Corium relies much more on simplicity.<br>
+With a semicolon free, easy to read C like syntax, it's easy to learn the language.<br>
+The core language features are enough to write good code, but not too much to become bloated.<br>
+It has a great and easy to use debugger, package manager and linter.<br>
+Just get your favourite editor like VisualStudioCode, IntelliJ or something else,<br>
+and start coding!<br>
+It's also fairly easy to embed Corium into an existing C++ application.<br>
+Corium also is used as a game scripting language in one of my custom engines.<br>
 
 <h2> Nominax Runtime </h2>
 <h4>
 Nominax is the runtime environment for Corium.<br>
 It supports heavy parallelism, JIT compiling and garbage collection out of the box.<br>
-  
+
 The source code is in the [Nominax](https://github.com/MarioSieg/Corium/tree/master/Nominax) directory.
 For more technical information, check out the Nominax [ReadMe](https://github.com/MarioSieg/Corium/blob/dev/Nominax/README.md).
 </h4>
+
+<h2> Roadmap </h2>
 
 [Trello Board](https://trello.com/b/QiBdAQrb/nominax)
 
@@ -56,11 +76,11 @@ some specific type of data.<br>
 
 <h4>int</h4>
 
-* A 64-bit signed integer. 
+* A 64-bit signed integer.
 * Can hold values from -9223372036854775808 to 9223372036854775807.
 * Because it it signed, it can also hold negative values.
 * This type is used as the default type for natural number calculations.
-* The equivalent in other C style languages would be “long”.
+* The equivalent in other C style languages is “long”.
 
 <h4>float</h4>
 
@@ -71,7 +91,7 @@ some specific type of data.<br>
 
 <h4>bool</h4>
 
-* A boolean type. 
+* A boolean type.
 * Can either be true (1) or false (0).
 
 <h4>char</h4>
@@ -88,7 +108,7 @@ let <VariableName> <Type?> = <Literal?>
 ```
 Let's create some local variables using the
 ```let```
-keyword:
+keyword. No semicolons required!<br>
 
 ```
 let a int = 3
@@ -115,7 +135,7 @@ so types can be deduced:
 | ------------- | ------------- |
 | 3  | int  |
 | 2.5  | float  |
-| 'O'  | char  | 
+| 'O'  | char  |
 | true  | bool  |
 
 <h3> Functions And Methods </h3>
@@ -177,3 +197,5 @@ int getNumber() {
 As you can see, the return type is just at a different position and there are no semicolons.<br>
 If your functions returns nothing, the return type is just elided.<br>
 There is no need to write ```void``` like we know it from C style languages.<br>
+
+More comming soon...

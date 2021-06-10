@@ -212,6 +212,7 @@
 #include <memory>
 #include <memory_resource>
 
+#include "../Common/Allocator.hpp"
 #include "EnvironmentDescriptor.hpp"
 #include "ReactorState.hpp"
 
@@ -253,43 +254,49 @@ namespace Nominax
 			/// This hook is executed before the environment boots.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPreBootHook() -> bool;
 
 			/// <summary>
 			/// This hook is executed after the environment boots.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPostBootHook() -> bool;
 
 			/// <summary>
 			/// This hook is executed before any code execution.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPreExecutionHook(const ByteCode::AppCodeBundle& appCodeBundle) -> bool;
 
 			/// <summary>
 			/// This hook is executed after any code execution.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPostExecutionHook() -> bool;
 
 			/// <summary>
 			/// This hook is executed before the environment shuts down.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPreShutdownHook() -> bool;
 
 			/// <summary>
 			/// This hook is executed after the environment shuts down.
 			/// </summary>
 			/// <returns>True on success, panic on false.</returns>
+			[[nodiscard]]
 			virtual auto OnPostShutdownHook() -> bool;
 
 		public:
 			/// <summary>
 			/// Size in bytes of the system pool, if the given count was invalid.
 			/// </summary>
-			static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {2_mb};
+			static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {256_kb};
 			static_assert(FALLBACK_SYSTEM_POOL_SIZE);
 
 			/// <summary>
@@ -307,7 +314,7 @@ namespace Nominax
 			/// <summary>
 			/// Default constructor. Does not initialize the environment.
 			/// </summary>
-			explicit Environment() noexcept(true) = default;
+			explicit Environment(const Common::IAllocator* allocator = nullptr) noexcept(true);
 
 			/// <summary>
 			/// No copy.

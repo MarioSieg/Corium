@@ -1,6 +1,6 @@
-// File: EnvironmentDescriptor.hpp
+// File: RuntimeAllocator.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 09.06.2021 2:19 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,72 +207,101 @@
 
 #pragma once
 
-#include <cstddef>
+#include "Allocator.hpp"
 
-#include "ReactorSpawnDescriptor.hpp"
-
-namespace Nominax::Core
+namespace Nominax::Common
 {
 	/// <summary>
-	/// Config descriptor for an environment.
+	/// Default and fast allocator implementation.
 	/// </summary>
-	struct EnvironmentDescriptor final
+	class RuntimeAllocator : public IAllocator
 	{
+	public:
 		/// <summary>
-		/// Argument count.
+		/// Default constructor.
 		/// </summary>
-		signed ArgC {0};
+		/// <returns></returns>
+		constexpr RuntimeAllocator() noexcept(true) = default;
 
 		/// <summary>
-		/// Argument vector.
+		/// Copy constructor.
 		/// </summary>
-		const char* const* ArgV {nullptr};
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr RuntimeAllocator(const RuntimeAllocator& other) noexcept(true) = default;
 
 		/// <summary>
-		/// The name of the app.
+		/// Move constructor.
 		/// </summary>
-		std::string_view AppName {"Untitled App"};
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr RuntimeAllocator(RuntimeAllocator&& other) noexcept(true) = default;
 
 		/// <summary>
-		/// If true, the fallback reactor implementation
-		/// will be used for all reactors, not the
-		/// runtime selected one (based on CPU features).
+		/// Copy assignment operator.
 		/// </summary>
-		bool ForceFallback {false};
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(const RuntimeAllocator& other) noexcept(true) -> RuntimeAllocator& = default;
 
 		/// <summary>
-		/// If true, synchronization between
-		/// C++ io-streams (cout, err, cin) and C io-streams (stdout, stdin)
-		/// is deactivated, which makes printing faster.
-		/// This should be activated in most cases when executing code.
+		/// Move assignment operator.
 		/// </summary>
-		bool FastHostIoSync {true};
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(RuntimeAllocator&& other) noexcept(true) -> RuntimeAllocator& = default;
 
 		/// <summary>
-		/// The size of the boot pool
+		/// Destructor.
 		/// </summary>
-		std::size_t BootPoolSize {128_kb};
+		~RuntimeAllocator() override = default;
 
 		/// <summary>
-        /// The size of the system memory pool size.
-        /// </summary>
-		std::size_t SystemPoolSize {512_kb};
+		/// Allocate block using std::malloc.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		auto Allocate(void*& out, std::size_t size) const noexcept(true) -> void override;
 
 		/// <summary>
-		/// The count of reactors.
-		/// If 0, the system will use the number of CPU threads.
+		/// Reallocate using std::realloc.
 		/// </summary>
-		std::size_t ReactorCount {0};
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		auto Reallocate(void*& out, std::size_t size) const noexcept(true) -> void override;
 
 		/// <summary>
-		/// The reactor stack size in bytes.
-		/// Must be divisible by 8!
+		/// Deallocate using std::free.
 		/// </summary>
-		std::size_t StackSize{ 8_mb };
+		/// <param name="out"></param>
+		/// <returns></returns>
+		auto Deallocate(void*& out) const noexcept(true) -> void override;
 
 		/// <summary>
-		/// Power preference of the system.
+		/// Allocate aligned using platform specific intrinsic allocator.
 		/// </summary>
-		PowerPreference PowerPref{ PowerPreference::HighPerformance };
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <param name="alignment"></param>
+		/// <returns></returns>
+		auto AllocateAligned(void*& out, std::size_t size, std::size_t alignment) const noexcept(true) -> void override;
+
+		/// <summary>
+		/// Reallocate aligned using platform specific intrinsic allocator.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <param name="alignment"></param>
+		/// <returns></returns>
+		auto ReallocateAligned(void*& out, std::size_t size, std::size_t alignment) const noexcept(true) -> void override;
+
+		/// <summary>
+		/// Deallocate aligned using platform specific intrinsic allocator.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <returns></returns>
+		auto DeallocateAligned(void*& out) const noexcept(true) -> void override;
 	};
 }

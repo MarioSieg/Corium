@@ -1,6 +1,6 @@
-// File: EnvironmentDescriptor.hpp
+// File: Allocator.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 09.06.2021 2:19 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,72 +207,145 @@
 
 #pragma once
 
-#include <cstddef>
+#include "BaseTypes.hpp"
+#include "../System/Platform.hpp"
 
-#include "ReactorSpawnDescriptor.hpp"
-
-namespace Nominax::Core
+namespace Nominax::Common
 {
 	/// <summary>
-	/// Config descriptor for an environment.
+	/// Generic runtime allocator interface.
 	/// </summary>
-	struct EnvironmentDescriptor final
+	class IAllocator
 	{
+	protected:
 		/// <summary>
-		/// Argument count.
+		/// Impl constructor.
 		/// </summary>
-		signed ArgC {0};
+		/// <returns></returns>
+		constexpr IAllocator() noexcept(true) = default;
+
+	public:
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		constexpr IAllocator(const IAllocator& other) noexcept(true) = default;
 
 		/// <summary>
-		/// Argument vector.
+		/// Move constructor.
 		/// </summary>
-		const char* const* ArgV {nullptr};
+		/// <param name="other"></param>
+		constexpr IAllocator(IAllocator&& other) noexcept(true) = default;
 
 		/// <summary>
-		/// The name of the app.
+		/// Copy assignment operator.
 		/// </summary>
-		std::string_view AppName {"Untitled App"};
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(const IAllocator& other) noexcept(true) -> IAllocator& = default;
 
 		/// <summary>
-		/// If true, the fallback reactor implementation
-		/// will be used for all reactors, not the
-		/// runtime selected one (based on CPU features).
+		/// Move assignment operator.
 		/// </summary>
-		bool ForceFallback {false};
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(IAllocator&& other) noexcept(true) -> IAllocator& = default;
 
 		/// <summary>
-		/// If true, synchronization between
-		/// C++ io-streams (cout, err, cin) and C io-streams (stdout, stdin)
-		/// is deactivated, which makes printing faster.
-		/// This should be activated in most cases when executing code.
+		/// Destructor.
 		/// </summary>
-		bool FastHostIoSync {true};
+		virtual ~IAllocator() = default;
 
 		/// <summary>
-		/// The size of the boot pool
+		/// Raw allocate like malloc().
 		/// </summary>
-		std::size_t BootPoolSize {128_kb};
+		/// <param name="out">Output pointer.</param>
+		/// <param name="size">The size of the block in bytes.</param>
+		/// <returns></returns>
+		virtual auto Allocate(void*& out, std::size_t size) const noexcept(true) -> void = 0;
 
 		/// <summary>
-        /// The size of the system memory pool size.
-        /// </summary>
-		std::size_t SystemPoolSize {512_kb};
+		/// Raw reallocate like realloc().
+		/// </summary>
+		/// <param name="out">Output pointer.</param>
+		/// <param name="size">The size of the block in bytes.</param>
+		/// <returns></returns>
+		virtual auto Reallocate(void*& out, std::size_t size) const noexcept(true) -> void = 0;
 
 		/// <summary>
-		/// The count of reactors.
-		/// If 0, the system will use the number of CPU threads.
+		/// Raw deallocate like free().
 		/// </summary>
-		std::size_t ReactorCount {0};
+		/// <param name="out">Input pointer.</param>
+		/// <returns></returns>
+		virtual auto Deallocate(void*& out) const noexcept(true) -> void = 0;
+
 
 		/// <summary>
-		/// The reactor stack size in bytes.
-		/// Must be divisible by 8!
+		/// Raw allocate with alignment like aligned_malloc().
 		/// </summary>
-		std::size_t StackSize{ 8_mb };
+		/// <param name="out"></param>
+		/// <param name="alignment"></param>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		virtual auto AllocateAligned(void*& out, std::size_t size, std::size_t alignment) const noexcept(true) -> void = 0;
 
 		/// <summary>
-		/// Power preference of the system.
+		/// 
 		/// </summary>
-		PowerPreference PowerPref{ PowerPreference::HighPerformance };
+		/// <param name="out"></param>
+		/// <param name="alignment"></param>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		virtual auto ReallocateAligned(void*& out, std::size_t size, std::size_t alignment) const noexcept(true) -> void = 0;
+
+		/// <summary>
+		/// Raw deallocate aligned like free().
+		/// </summary>
+		/// <param name="out">Input pointer.</param>
+		/// <returns></returns>
+		virtual auto DeallocateAligned(void*& out) const noexcept(true) -> void = 0;
+
+		/// <summary>
+		/// Virtual alloc.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		virtual auto Valloc(void*& out, std::size_t size) const noexcept(true) -> void;
+
+		/// <summary>
+		/// Virtual free.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <returns></returns>
+		virtual auto Vdealloc(void*& out) const noexcept(true) -> void;
 	};
+
+	/// <summary>
+	/// Currently used allocator.
+	/// </summary>
+	extern constinit const IAllocator* GlobalCurrentSystemAllocator;
+
+	/// <summary>
+	/// Fast runtime allocator.
+	/// </summary>
+	extern constinit const IAllocator& GlobalRuntimeAllocator;
+
+	/// <summary>
+	/// Slow debug allocator.
+	/// </summary>
+	extern constinit const IAllocator& GlobalDebugAllocator;
+
+	/// <summary>
+	/// Queries the best allocator for the current (DEBUG/RELEASE) build type.
+	/// </summary>
+	/// <returns></returns>
+	constexpr auto DetermineAllocator() noexcept(true) -> const IAllocator&
+	{
+#if NOMINAX_RELEASE
+		return GlobalRuntimeAllocator;
+#else
+		return GlobalDebugAllocator;
+#endif
+	}
 }

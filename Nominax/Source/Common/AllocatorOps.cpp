@@ -1,6 +1,6 @@
-// File: EnvironmentDescriptor.hpp
+// File: AllocatorOps.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 09.06.2021 2:19 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,74 +205,72 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include <new>
 
-#include <cstddef>
+#include "../../Include/Nominax/Common/Allocator.hpp"
 
-#include "ReactorSpawnDescriptor.hpp"
-
-namespace Nominax::Core
+auto operator new(const std::size_t size) noexcept(false) -> void*
 {
-	/// <summary>
-	/// Config descriptor for an environment.
-	/// </summary>
-	struct EnvironmentDescriptor final
-	{
-		/// <summary>
-		/// Argument count.
-		/// </summary>
-		signed ArgC {0};
+	void* mem;
+	Nominax::Common::GlobalCurrentSystemAllocator->Allocate(mem, size);
+	return mem;
+}
 
-		/// <summary>
-		/// Argument vector.
-		/// </summary>
-		const char* const* ArgV {nullptr};
+auto operator new[](const std::size_t size) noexcept(false) -> void*
+{
+	void* mem;
+	Nominax::Common::GlobalCurrentSystemAllocator->Allocate(mem, size);
+	return mem;
+}
 
-		/// <summary>
-		/// The name of the app.
-		/// </summary>
-		std::string_view AppName {"Untitled App"};
+auto operator new(const std::size_t size, const std::align_val_t alignment) noexcept(false) -> void*
+{
+	void* mem;
+	Nominax::Common::GlobalCurrentSystemAllocator->AllocateAligned(mem, size, static_cast<std::size_t>(alignment));
+	return mem;
+}
 
-		/// <summary>
-		/// If true, the fallback reactor implementation
-		/// will be used for all reactors, not the
-		/// runtime selected one (based on CPU features).
-		/// </summary>
-		bool ForceFallback {false};
+auto operator new[](const std::size_t size, const std::align_val_t alignment) noexcept(false) -> void*
+{
+	void* mem;
+	Nominax::Common::GlobalCurrentSystemAllocator->AllocateAligned(mem, size, static_cast<std::size_t>(alignment));
+	return mem;
+}
 
-		/// <summary>
-		/// If true, synchronization between
-		/// C++ io-streams (cout, err, cin) and C io-streams (stdout, stdin)
-		/// is deactivated, which makes printing faster.
-		/// This should be activated in most cases when executing code.
-		/// </summary>
-		bool FastHostIoSync {true};
+auto operator new(const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
+{
+	void* mem;
+	Nominax::Common::GlobalCurrentSystemAllocator->Allocate(mem, size);
+	return mem;
+}
 
-		/// <summary>
-		/// The size of the boot pool
-		/// </summary>
-		std::size_t BootPoolSize {128_kb};
+auto operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
+{
+	void* mem;
+	Nominax::Common::GlobalCurrentSystemAllocator->Allocate(mem, size);
+	return mem;
+}
 
-		/// <summary>
-        /// The size of the system memory pool size.
-        /// </summary>
-		std::size_t SystemPoolSize {512_kb};
+auto operator new(const std::size_t size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
+{
+	void* mem;
+	Nominax::Common::GlobalCurrentSystemAllocator->AllocateAligned(mem, size, static_cast<std::size_t>(alignment));
+	return mem;
+}
 
-		/// <summary>
-		/// The count of reactors.
-		/// If 0, the system will use the number of CPU threads.
-		/// </summary>
-		std::size_t ReactorCount {0};
+auto operator new[](const std::size_t size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
+{
+	void* mem;
+	Nominax::Common::GlobalCurrentSystemAllocator->AllocateAligned(mem, size, static_cast<std::size_t>(alignment));
+	return mem;
+}
 
-		/// <summary>
-		/// The reactor stack size in bytes.
-		/// Must be divisible by 8!
-		/// </summary>
-		std::size_t StackSize{ 8_mb };
+auto operator delete(void* mem) noexcept(true) -> void
+{
+	Nominax::Common::GlobalCurrentSystemAllocator->Deallocate(mem);
+}
 
-		/// <summary>
-		/// Power preference of the system.
-		/// </summary>
-		PowerPreference PowerPref{ PowerPreference::HighPerformance };
-	};
+auto operator delete[](void* mem) noexcept(true) -> void
+{
+	Nominax::Common::GlobalCurrentSystemAllocator->Deallocate(mem);
 }
