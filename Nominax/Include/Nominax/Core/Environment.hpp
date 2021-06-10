@@ -296,7 +296,7 @@ namespace Nominax
 			/// <summary>
 			/// Size in bytes of the system pool, if the given count was invalid.
 			/// </summary>
-			static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {2_mb};
+			static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {256_kb};
 			static_assert(FALLBACK_SYSTEM_POOL_SIZE);
 
 			/// <summary>
@@ -314,7 +314,7 @@ namespace Nominax
 			/// <summary>
 			/// Default constructor. Does not initialize the environment.
 			/// </summary>
-			explicit Environment(Common::IAllocator* allocator = nullptr) noexcept(true);
+			explicit Environment(const Common::IAllocator* allocator = nullptr) noexcept(true);
 
 			/// <summary>
 			/// No copy.

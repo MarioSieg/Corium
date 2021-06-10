@@ -465,7 +465,7 @@ TEST(Environment, PoolSizeZero)
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
 	ASSERT_EQ(env.GetAppName(), "Hey:)");
-	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::FALLBACK_SYSTEM_POOL_SIZE + descriptor.ReactorCount * (descriptor.ReactorDescriptor.StackSize * sizeof(Record)));
+	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::FALLBACK_SYSTEM_POOL_SIZE + descriptor.ReactorCount * descriptor.StackSize);
 }
 
 TEST(Environment, Execution)

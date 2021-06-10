@@ -259,14 +259,14 @@ namespace Nominax::Core
 		/// Get platform dependent default configuration.
 		/// </summary>
 		/// <returns></returns>
-		static constexpr auto Default() noexcept(true) -> ReactorSpawnDescriptor;
+		static constexpr auto Default(std::size_t stackSize = FixedStack::SIZE_LARGE) noexcept(true) -> ReactorSpawnDescriptor;
 	};
 
-	constexpr auto ReactorSpawnDescriptor::Default() noexcept(true) -> ReactorSpawnDescriptor
+	constexpr auto ReactorSpawnDescriptor::Default(const std::size_t stackSize) noexcept(true) -> ReactorSpawnDescriptor
 	{
 		return ReactorSpawnDescriptor
 		{
-			.StackSize = FixedStack::SIZE_LARGE,
+			.StackSize = stackSize,
 			.SharedIntrinsicTable = { },
 			.InterruptHandler = nullptr,
 #if NOMINAX_ARCH_ARM_64

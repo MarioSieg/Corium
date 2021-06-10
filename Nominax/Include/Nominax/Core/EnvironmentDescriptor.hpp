@@ -256,7 +256,7 @@ namespace Nominax::Core
 		/// <summary>
         /// The size of the system memory pool size.
         /// </summary>
-		std::size_t SystemPoolSize {8_mb};
+		std::size_t SystemPoolSize {512_kb};
 
 		/// <summary>
 		/// The count of reactors.
@@ -265,8 +265,14 @@ namespace Nominax::Core
 		std::size_t ReactorCount {0};
 
 		/// <summary>
-		/// The reactor spawn config.
+		/// The reactor stack size in bytes.
+		/// Must be divisible by 8!
 		/// </summary>
-		ReactorSpawnDescriptor ReactorDescriptor {ReactorSpawnDescriptor::Default()};
+		std::size_t StackSize{ 8_mb };
+
+		/// <summary>
+		/// Power preference of the system.
+		/// </summary>
+		PowerPreference PowerPref{ PowerPreference::HighPerformance };
 	};
 }
