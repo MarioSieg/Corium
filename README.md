@@ -43,6 +43,17 @@ and start coding!<br>
 It's also fairly easy to embed Corium into an existing C++ application.<br>
 Corium also is used as a game scripting language in one of my custom engines.<br>
 
+<h2> What's the current state of Corium? </h2>
+Corium is currently under heavy development.<br>
+Nominax (the runtime system) is ready for simple Corium programs.<br>
+The primary focus lies on the frontend language lexer and code generator.<br>
+In some weeks, it is expected to have a first working version,<br>
+which can be used to write simple code in Corium.<br>
+This is a big step, from that point on features will come in quickly.<br>
+That's why we need you!<br>
+Consider to contribute or sponsor the project!<br>
+Let's make Corium a widely used, beginner friendly and fast language!<br>
+
 <h2> Nominax Runtime </h2>
 <h4>
 Nominax is the runtime environment for Corium.<br>
