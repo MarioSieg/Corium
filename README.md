@@ -237,7 +237,7 @@ Parameters are written in the following scheme:<br>
 A simple square function could look like:
 
 ```
-square(float x) float {
+square (float x) float {
     return x * x
 }
 ```
@@ -254,7 +254,7 @@ let y = square(2.0)
 
 <h3>Conditionals</h3>
 
-In Corium, the classic ```if``` statement, which executes code,<br>
+In Corium, the classic ```if``` statement which executes code<br>
 if the expression is true, is written using the following scheme:
 
 ```
@@ -264,10 +264,10 @@ if <Expression> {
 ```
 
 The same applies to ```else if```.<br>
-A big difference to C is that there are **no parenthesis** ```()``` around the if-expression.
-But the **curly braces** ``` { } ``` are **always enforced **.
+A big difference to C is that there are **no parenthesis** ```()``` around the if-expression.<br>
+But the **curly braces** ``` { } ``` are **always enforced**.<br>
 
-Corium provides following comparison operators:
+Corium provides following comparison operators:<br>
 
 | Operator | Meaning |
 | ------------- | ------------- |
@@ -328,7 +328,7 @@ compare <Expression> {
 }
 ```
 It is somewhat similar to the ```switch``` statement in C, but much more powerful.<br>
-A ```compare``` statement is made otu of multiple arms. The each arm the scheme is:<br>
+A ```compare``` statement is made out of multiple arms. For each arm the scheme is:<br>
 
 ```
 <Expression> | else => <Body?>
