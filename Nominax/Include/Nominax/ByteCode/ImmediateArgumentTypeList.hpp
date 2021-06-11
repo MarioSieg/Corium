@@ -228,7 +228,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all immediate argument types for each instruction.
 	/// </summary>
-	extern const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES;
+	extern const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES;
 
 	/// <summary>
 	/// 

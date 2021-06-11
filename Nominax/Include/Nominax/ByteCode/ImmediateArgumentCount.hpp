@@ -216,7 +216,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the count of required immediate arguments for each instruction.
 	/// </summary>
-	constexpr std::array<U8, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
+	constexpr std::array<U8, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
 	{
 		1, // int
 		1,

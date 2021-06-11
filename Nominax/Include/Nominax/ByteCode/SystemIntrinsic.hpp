@@ -255,6 +255,6 @@ namespace Nominax::ByteCode
 		IoPortFlush = 0x00'00'00'00'00'00'00'24,
 
 		/* !no intrinsic routine - count of total intrinsic routines! */
-		Count
+		$Count
 	};
 }

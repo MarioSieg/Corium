@@ -1,6 +1,6 @@
-// File: ImmediateArgumentTypeList.cpp
+// File: Main.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 09.04.2021 5:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,120 +205,63 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
+#include "../Source/Base.hpp"
+#include "../Source/Lexer.hpp"
 
-namespace Nominax::ByteCode
+using namespace Prelude;
+
+static auto ParseFile(const std::string_view path, Stream& out) noexcept(false) -> void
 {
-	using Dis = Signal::Discriminator;;
-
-	static constexpr std::array ANY_TYPE
+	TextFile file { };
+	file.ReadFromFileOrPanic(path);
+	if (const auto result {Corium::LexSource(file.GetContentText())}; result.second == Corium::LexResultCode::Ok)
 	{
-		Dis::U64,
-		Dis::I64,
-		Dis::F64,
-		Dis::CharClusterUtf8,
-		Dis::CharClusterUtf16,
-		Dis::CharClusterUtf32
+		// Print parse tree:
+		for (const Corium::Lexeme& x : result.first)
+		{
+			PrintLexeme(x);
+		}
+	}
+
+	Print('\n');
+
+	out.Prologue();
+	out.Epilogue();
+}
+
+[[maybe_unused]]
+static auto ExecuteNominax
+(
+	Stream&&                 appCode,
+	const int                argc = 0,
+	const char* const* const argv = nullptr
+) noexcept(false) -> int
+{
+	const EnvironmentDescriptor descriptor
+	{
+		.ArgC = argc,
+		.ArgV = argv,
+		.AppName = "Corium",
+		.ForceFallback = false,
+		.FastHostIoSync = true,
+		.BootPoolSize = 64_kb,
+		.SystemPoolSize = 256_kb,
+		.ReactorCount = 1,
+		.StackSize = 8_mb,
+		.PowerPref = PowerPreference::HighPerformance
 	};
 
-	const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
-	{
-		PerInstructionArgTypes {{Dis::I64}},                      // int
-		{{Dis::SystemIntrinsicCallID}},                           // intrin
-		{{Dis::UserIntrinsicCallID}},                             // cintrin
-		{{Dis::U64}},                                             // call
-		{ },                                                      // ret
-		{{Dis::U64}, {Dis::U64}},                                 // mov
-		{{Dis::U64}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}}, // sto
-		{{std::begin(ANY_TYPE), std::end(ANY_TYPE)}},             // push
-		{ },                                                      // pop
-		{ },                                                      // pop2
-		{ },                                                      // dupl
-		{ },                                                      // dupl2
-		{ },                                                      // swap
-		{ },                                                      // nop
-		{{Dis::JumpAddress}},                                     // jmp
-		{{Dis::JumpAddress}},                                     // jmprel
-		{{Dis::JumpAddress}},                                     // jz
-		{{Dis::JumpAddress}},                                     // jnz
-		{{Dis::JumpAddress}},                                     // jo_cmpi
-		{{Dis::JumpAddress}},                                     // jo_cmpf
-		{{Dis::JumpAddress}},                                     // jno_cmpi
-		{{Dis::JumpAddress}},                                     // jno_cmpf
-		{{Dis::JumpAddress}},                                     // je_cmpi
-		{{Dis::JumpAddress}},                                     // je_cmpf
-		{{Dis::JumpAddress}},                                     // jne_cmpi
-		{{Dis::JumpAddress}},                                     // jne_cmpf
-		{{Dis::JumpAddress}},                                     // ja_cmpi
-		{{Dis::JumpAddress}},                                     // ja_cmpf
-		{{Dis::JumpAddress}},                                     // jl_cmpi
-		{{Dis::JumpAddress}},                                     // jl_cmpf
-		{{Dis::JumpAddress}},                                     // jae_cmpi
-		{{Dis::JumpAddress}},                                     // jae_cmpf
-		{{Dis::JumpAddress}},                                     // jle_cmpi
-		{{Dis::JumpAddress}},                                     // jle_cmpf
-		{ },                                                      // pushz
-		{ },                                                      // ipusho
-		{ },                                                      // fpusho
-		{ },                                                      // iinc
-		{ },                                                      // idec
-		{ },                                                      // iadd
-		{ },                                                      // isub
-		{ },                                                      // imul
-		{ },                                                      // idiv
-		{ },                                                      // imod
-		{ },                                                      // iand
-		{ },                                                      // ior
-		{ },                                                      // ixor
-		{ },                                                      // icom
-		{ },                                                      // isal
-		{ },                                                      // isar
-		{ },                                                      // irol
-		{ },                                                      // iror
-		{ },                                                      // ineg
-		{ },                                                      // fadd
-		{ },                                                      // fsub
-		{ },                                                      // fmul
-		{ },                                                      // fdiv
-		{ },                                                      // fmod
-		{ },                                                      // fneg
-		{ },                                                      // finc
-		{ },                                                      // fdec
-		{
-			// vpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)}
-		},
-		{ }, // vpop
-		{ }, // vadd
-		{ }, // vsub
-		{ }, // vmul
-		{ }, // vdiv
-		{
-			// matpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-		},
-		{ }, // matpop
-		{ }, // matadd
-		{ }, // matsub
-		{ }, // matmul
-		{ }  // matdiv
-	};
+	Environment runtimeEnvironment { };
+	runtimeEnvironment.Boot(descriptor);
+	const ReactorState& result {runtimeEnvironment.Execute(std::move(appCode))};
+	return result.ReturnCode();
+}
+
+auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* const argv) -> int
+{
+	Stream stream { };
+	ParseFile("../../../Corium/Docs/ParseTest.cor", stream);
+	stream.PrintByteCode();
+	//return ExecuteNominax(std::move(stream), argc, argv);
+	return 0;
 }

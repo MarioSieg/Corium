@@ -216,7 +216,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all instruction mnemonics.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_MNEMONICS
+	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_MNEMONICS
 	{
 		"int",
 		"intrin",

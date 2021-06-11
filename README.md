@@ -294,7 +294,6 @@ a simple ```else``` block can be used:<br>
 let x = 5
 if x == 10 { # Will be false
     print("x is 10!")
-}
 } else {
     # Instead this code will be executed, because ```5 == 10``` is false!
     print("x is not 2!")

@@ -1,0 +1,17 @@
+IF (${CORIUM_BUILD_UNIT_TESTS})
+	FILE(GLOB_RECURSE "CORIUM_TEST_SOURCES" "Corium/Tests/*.cpp")
+	ADD_EXECUTABLE("CoriumUnitTest" "${CORIUM_TEST_SOURCES}")
+	TARGET_COMPILE_OPTIONS("NominaxUnitTest" PRIVATE "-frtti")
+	ADD_TEST(NAME "CoriumUnitTest" COMMAND "CoriumUnitTests")
+	TARGET_INCLUDE_DIRECTORIES("CoriumUnitTest" PUBLIC "${TEST_INCLUDE}")
+	TARGET_LINK_LIBRARIES("CoriumUnitTest" CoriumCompiler)
+	TARGET_LINK_LIBRARIES("CoriumUnitTest" "NominaxRuntime")
+	TARGET_LINK_LIBRARIES("CoriumUnitTest" "gtest")
+	TARGET_INCLUDE_DIRECTORIES("CoriumUnitTest" PRIVATE "Nominax/Include/")
+	ADD_COMPILE_DEFINITIONS("CORIUM_TESTING")
+
+	# with GCC we need to link posix threads
+	IF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        TARGET_LINK_LIBRARIES("CoriumUnitTest" "pthread")
+    ENDIF()
+ENDIF()

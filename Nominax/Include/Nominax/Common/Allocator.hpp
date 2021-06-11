@@ -342,10 +342,6 @@ namespace Nominax::Common
 	/// <returns></returns>
 	constexpr auto DetermineAllocator() noexcept(true) -> const IAllocator&
 	{
-#if NOMINAX_RELEASE
 		return GlobalRuntimeAllocator;
-#else
-		return GlobalDebugAllocator;
-#endif
 	}
 }

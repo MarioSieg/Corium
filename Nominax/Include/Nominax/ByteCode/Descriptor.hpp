@@ -217,7 +217,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains a short descripion for all instructions.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_DESCRIPTIONS
+	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_DESCRIPTIONS
 	{
 		"interrupt reactor execution",
 		"call intrinsic system routine",

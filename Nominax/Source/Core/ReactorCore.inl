@@ -301,7 +301,7 @@ namespace Nominax::Core
 	/// </summary>
 	__attribute__((hot)) static auto SyscallIntrin(Record* __restrict__ const sp, const U64 id) noexcept(true) -> void
 	{
-		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallID::Count)] {
+		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallID::$Count)] {
 			&& __cos__,
 			&& __sin__,
 			&& __tan__,
@@ -611,7 +611,7 @@ namespace Nominax::Core
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 
-		static constexpr const void* __restrict__ const JUMP_TABLE[static_cast<std::size_t>(Instruction::Count)]
+		static constexpr const void* __restrict__ const JUMP_TABLE[static_cast<std::size_t>(Instruction::$Count)]
 		{
 			&& __int__,
 			&& __intrin__,
