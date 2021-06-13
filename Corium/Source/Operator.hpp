@@ -1,6 +1,6 @@
-// File: Keywords.hpp
+// File: Operator.hpp
 // Author: Mario
-// Created: 11.06.2021 10:40 AM
+// Created: 13.06.2021 9:21 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,33 +207,21 @@
 
 #pragma once
 
-#include "Base.hpp"
-
 namespace Corium
 {
-	enum class Keyword: Nominax::U8
+	enum class Operator : char8_t
 	{
-		Let,
-
-		$Count
+		Assignment = u8'=',
 	};
 
-	constexpr std::array<std::string_view, static_cast<std::size_t>(Keyword::$Count)> KEYWORD_TABLE
+	[[nodiscard]]
+	constexpr auto GetOperatorDescription(const Operator op) noexcept(true) -> std::string_view
 	{
-		"let"
-	};
-
-	constexpr auto QueryKeyword(const std::string_view name) noexcept(true) -> std::optional<Keyword>
-	{
-		std::optional<Keyword> ret {std::nullopt};
-		for (std::size_t i {0}; i < static_cast<std::size_t>(Keyword::$Count); ++i)
+		switch (op)
 		{
-			if (KEYWORD_TABLE[i] == name)
-			{
-				ret = static_cast<Keyword>(i);
-				break;
-			}
+		case Operator::Assignment:
+			return "Assignment";
+			break;
 		}
-		return ret;
 	}
 }

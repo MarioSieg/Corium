@@ -209,13 +209,13 @@
 
 TEST(Keyword, QueryCorrect)
 {
-	ASSERT_TRUE(QueryKeyword("let").has_value());
-	ASSERT_EQ(*QueryKeyword("let"), Keyword::Let);
+	ASSERT_TRUE(QueryKeyword(u8"let").has_value());
+	ASSERT_EQ(*QueryKeyword(u8"let"), Keyword::Let);
 }
 
 TEST(Keyword, QueryInCorrect)
 {
-	ASSERT_FALSE(QueryKeyword("Let").has_value());
-	ASSERT_FALSE(QueryKeyword("short").has_value());
-	ASSERT_FALSE(QueryKeyword("EASY").has_value());
+	ASSERT_FALSE(QueryKeyword(u8"Let").has_value());
+	ASSERT_FALSE(QueryKeyword(u8"short").has_value());
+	ASSERT_FALSE(QueryKeyword(u8"EASY").has_value());
 }

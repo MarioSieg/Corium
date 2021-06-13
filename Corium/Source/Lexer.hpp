@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "Lexeme.hpp"
+#include "Token.hpp"
 #include "Base.hpp"
 
 namespace Corium
@@ -218,10 +218,9 @@ namespace Corium
 		EmptyFile
 	};
 
-	using LexTree = std::vector<Lexeme>;
+	using LexTree = std::vector<Token>;
 
 	using LexResult = std::pair<LexTree, LexResultCode>;
 
 	extern auto LexSource(std::u8string_view sourceCode) noexcept(false) -> LexResult;
-	extern auto EvalChar(char8_t x, LexTree& result, Identifier& identifier) noexcept(false) -> void;
 }

@@ -1,6 +1,6 @@
-// File: Lexer.cpp
+// File: Token.cpp
 // Author: Mario
-// Created: 09.06.2021 2:19 PM
+// Created: 13.06.2021 9:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,121 +205,38 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "Lexer.hpp"
-#include "Keyword.hpp"
-
-using namespace Nominax;
+#include "Token.hpp"
 
 namespace Corium
 {
-	auto LexSource(const std::u8string_view sourceCode) noexcept(false) -> LexResult
+	auto PrintToken(const Token& tok) noexcept(false) -> void
 	{
-		if (NOMINAX_UNLIKELY(std::empty(sourceCode)))
+		if (const auto* const monoLexeme = std::get_if<MonoLexeme>(&tok))
 		{
-			return {{ }, LexResultCode::EmptyFile};
+			Print(Nominax::Common::TextColor::BrightBlue, "Lexeme: {}\n", GetLexemeDescription(*monoLexeme));
 		}
-
-		Identifier identBuffer { };
-		identBuffer.reserve(128);
-		LexTree result { };
-
-		const auto identSubmit = [&]
+		else if (const auto* const keyword = std::get_if<Keyword>(&tok))
 		{
-			const auto* const data {reinterpret_cast<const char*>(identBuffer.c_str())};
-			char*             end { };
-
-			if (identBuffer.empty())
-			{
-				return;
-			}
-
-			// check if it's a keyword
-			if (const auto kw {QueryKeyword(identBuffer)}; kw)
-			{
-				result.emplace_back(*kw);
-			}
-
-				// check if it's a "float":
-			else if
-			(
-				const F64 floating = std::strtod(data, &end);
-				identBuffer.find(FLOAT_SEPARATOR) != std::string::npos
-				&& end
-				&& data != end
-				&& errno != ERANGE
-			)
-			{
-				result.emplace_back(PrimitiveLiteral {floating});
-			}
-
-				// check if it's an "int":
-			else if
-			(
-				const I64 integer = std::strtoll(data, &end, 10);
-				end
-				&& data != end
-				&& errno != ERANGE
-			)
-			{
-				result.emplace_back(PrimitiveLiteral {integer});
-			}
-
-				// else it's an identifier:
-			else
-			{
-				result.emplace_back(std::move(identBuffer));
-			}
-			identBuffer.clear();
-		};
-
-		const auto evalChar = [&](const char8_t x)
+			Print(Nominax::Common::TextColor::BrightBlue, "Keyword: {}\n", reinterpret_cast<const char*>(GetKeywordLexeme(*keyword).data()));
+		}
+		else if (const auto* const operator_ = std::get_if<Operator>(&tok))
 		{
-			switch (x)
-			{
-			case static_cast<char8_t>(MonoLexeme::ParenthesisLeft):
-				identSubmit();
-				result.emplace_back(MonoLexeme::ParenthesisLeft);
-				return;
-
-			case static_cast<char8_t>(MonoLexeme::ParenthesisRight):
-				identSubmit();
-				result.emplace_back(MonoLexeme::ParenthesisRight);
-				return;
-
-			case static_cast<char8_t>(MonoLexeme::CurlyBracesLeft):
-				identSubmit();
-				result.emplace_back(MonoLexeme::CurlyBracesLeft);
-				return;
-
-			case static_cast<char8_t>(MonoLexeme::CurlyBracesRight):
-				identSubmit();
-				result.emplace_back(MonoLexeme::CurlyBracesRight);
-				return;
-
-			case static_cast<char8_t>(Operator::Assignment):
-				result.emplace_back(Operator::Assignment);
-				return;
-
-			case ' ':
-				identSubmit();
-				return;
-
-			case '\n':
-			case '\t':
-			case '\v':
-			case '\f':
-			case '\r':
-				return;
-			}
-
-			identBuffer.push_back(x);
-		};
-
-		std::for_each(std::cbegin(sourceCode), std::cend(sourceCode), [&](const char8_t current)
+			Print(Nominax::Common::TextColor::BrightBlue, "Operator: {}\n", GetOperatorDescription(*operator_));
+		}
+		else if (const auto* const literal = std::get_if<PrimitiveLiteral>(&tok))
 		{
-			evalChar(current);
-		});
-
-		return {result, LexResultCode::Ok};
+			if (const auto* const integer = std::get_if<Nominax::I64>(literal))
+			{
+				Print(Nominax::Common::TextColor::BrightBlue, "Literal: int {}\n", *integer);
+			}
+			else if (const auto* const floating = std::get_if<Nominax::F64>(literal))
+			{
+				Print(Nominax::Common::TextColor::BrightBlue, "Literal: float {}\n", *floating);
+			}
+		}
+		else if (const auto* const identifier = std::get_if<Identifier>(&tok))
+		{
+			Print(Nominax::Common::TextColor::BrightBlue, "Identifier: {}\n", reinterpret_cast<const char*>(identifier->c_str()));
+		}
 	}
 }

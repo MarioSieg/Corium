@@ -11,10 +11,10 @@ SET_SOURCE_FILES_PROPERTIES("Nominax/Source/Core/ReactorCore_AVX512F.cpp" PROPER
 # We have 3 targets:
 
 # 1. The fast release version without debugging tools:
-ADD_LIBRARY("NominaxRuntime" SHARED "${NOMINAX_SOURCES}")
+ADD_LIBRARY("NominaxRuntime" STATIC "${NOMINAX_SOURCES}")
 
 # 2. The fast release version with debugging any analyze tools:
-ADD_LIBRARY("NominaxRuntimeAnaly" SHARED "${NOMINAX_SOURCES}")
+ADD_LIBRARY("NominaxRuntimeAnaly" STATIC "${NOMINAX_SOURCES}")
 TARGET_COMPILE_DEFINITIONS("NominaxRuntimeAnaly" PUBLIC "NOMINAX_ANALY")
 
 # 3. The unit test verion with special checks

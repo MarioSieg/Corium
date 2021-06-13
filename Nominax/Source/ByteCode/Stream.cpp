@@ -218,7 +218,7 @@ namespace Nominax::ByteCode
 
 	auto Stream::PrintByteCode() const noexcept(false) -> void
 	{
-		Print(TextColor::Green, "Len: {}, Size: {}B", this->Size(), this->SizeInBytes());
+		Print(TextColor::Green, "Len: {}, Size: {} B", this->Size(), this->SizeInBytes());
 		for (std::size_t i {0}; i < this->Size(); ++i)
 		{
 			if (this->CodeDisc_[i] == Signal::Discriminator::Instruction)
@@ -237,9 +237,9 @@ namespace Nominax::ByteCode
 	auto Stream::PrintMemoryCompositionInfo() const noexcept(false) -> void
 	{
 		Print("Stream size: {}\n", this->Size());
-		Print("Code buffer: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->Code_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
-		Print("Discriminator buffer: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->CodeDisc_.size()) * static_cast<F32>(sizeof(DiscriminatorStorageType::value_type))));
-		Print("Total: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
+		Print("Code buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->Code_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
+		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->CodeDisc_.size()) * static_cast<F32>(sizeof(DiscriminatorStorageType::value_type))));
+		Print("Total: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
 	}
 
 	auto Stream::Prologue() noexcept(false) -> Stream&

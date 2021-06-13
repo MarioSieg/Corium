@@ -209,8 +209,8 @@
 
 #include "gtest/gtest.h"
 #include "../Source/Base.hpp"
-#include "../Source/Keywords.hpp"
-#include "../Source/Lexeme.hpp"
+#include "../Source/Keyword.hpp"
+#include "../Source/Token.hpp"
 #include "../Source/Lexer.hpp"
 
 using namespace Nominax::Prelude;

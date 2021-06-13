@@ -344,6 +344,13 @@ namespace Nominax::Common
 		/// </summary>
 		/// <returns>The current text file content.</returns>
 		[[nodiscard]]
+		auto GetContentText() & noexcept(true) -> StringType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current text file content.</returns>
+		[[nodiscard]]
 		auto GetContentText() && noexcept(true) -> StringType&&;
 
 		/// <summary>
@@ -504,6 +511,11 @@ namespace Nominax::Common
 		return this->Content_;
 	}
 
+	inline auto TextFile::GetContentText() & noexcept(true) -> StringType&
+	{
+		return this->Content_;
+	}
+	
 	inline auto TextFile::GetContentText() && noexcept(true) -> StringType&&
 	{
 		return std::move(this->Content_);

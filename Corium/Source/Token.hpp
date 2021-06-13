@@ -1,6 +1,6 @@
-// File: Lexer.cpp
+// File: Token.hpp
 // Author: Mario
-// Created: 09.06.2021 2:19 PM
+// Created: 08.06.2021 7:09 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,121 +205,24 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "Lexer.hpp"
-#include "Keyword.hpp"
+#pragma once
 
-using namespace Nominax;
+#include <variant>
+
+#include "Base.hpp"
+#include "Keyword.hpp"
+#include "Operator.hpp"
+#include "MonoLexeme.hpp"
 
 namespace Corium
 {
-	auto LexSource(const std::u8string_view sourceCode) noexcept(false) -> LexResult
-	{
-		if (NOMINAX_UNLIKELY(std::empty(sourceCode)))
-		{
-			return {{ }, LexResultCode::EmptyFile};
-		}
+	constexpr char8_t COMMENT {'#'};
+	constexpr char8_t FLOAT_SEPARATOR {'.'};
 
-		Identifier identBuffer { };
-		identBuffer.reserve(128);
-		LexTree result { };
+	using Identifier = std::u8string;
 
-		const auto identSubmit = [&]
-		{
-			const auto* const data {reinterpret_cast<const char*>(identBuffer.c_str())};
-			char*             end { };
+	using PrimitiveLiteral = std::variant<Nominax::I64, Nominax::F64>;
+	using Token = std::variant<MonoLexeme, Identifier, Keyword, Operator, PrimitiveLiteral>;
 
-			if (identBuffer.empty())
-			{
-				return;
-			}
-
-			// check if it's a keyword
-			if (const auto kw {QueryKeyword(identBuffer)}; kw)
-			{
-				result.emplace_back(*kw);
-			}
-
-				// check if it's a "float":
-			else if
-			(
-				const F64 floating = std::strtod(data, &end);
-				identBuffer.find(FLOAT_SEPARATOR) != std::string::npos
-				&& end
-				&& data != end
-				&& errno != ERANGE
-			)
-			{
-				result.emplace_back(PrimitiveLiteral {floating});
-			}
-
-				// check if it's an "int":
-			else if
-			(
-				const I64 integer = std::strtoll(data, &end, 10);
-				end
-				&& data != end
-				&& errno != ERANGE
-			)
-			{
-				result.emplace_back(PrimitiveLiteral {integer});
-			}
-
-				// else it's an identifier:
-			else
-			{
-				result.emplace_back(std::move(identBuffer));
-			}
-			identBuffer.clear();
-		};
-
-		const auto evalChar = [&](const char8_t x)
-		{
-			switch (x)
-			{
-			case static_cast<char8_t>(MonoLexeme::ParenthesisLeft):
-				identSubmit();
-				result.emplace_back(MonoLexeme::ParenthesisLeft);
-				return;
-
-			case static_cast<char8_t>(MonoLexeme::ParenthesisRight):
-				identSubmit();
-				result.emplace_back(MonoLexeme::ParenthesisRight);
-				return;
-
-			case static_cast<char8_t>(MonoLexeme::CurlyBracesLeft):
-				identSubmit();
-				result.emplace_back(MonoLexeme::CurlyBracesLeft);
-				return;
-
-			case static_cast<char8_t>(MonoLexeme::CurlyBracesRight):
-				identSubmit();
-				result.emplace_back(MonoLexeme::CurlyBracesRight);
-				return;
-
-			case static_cast<char8_t>(Operator::Assignment):
-				result.emplace_back(Operator::Assignment);
-				return;
-
-			case ' ':
-				identSubmit();
-				return;
-
-			case '\n':
-			case '\t':
-			case '\v':
-			case '\f':
-			case '\r':
-				return;
-			}
-
-			identBuffer.push_back(x);
-		};
-
-		std::for_each(std::cbegin(sourceCode), std::cend(sourceCode), [&](const char8_t current)
-		{
-			evalChar(current);
-		});
-
-		return {result, LexResultCode::Ok};
-	}
+	extern auto PrintToken(const Token& tok) noexcept(false) -> void;
 }

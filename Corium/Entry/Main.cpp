@@ -208,7 +208,7 @@
 #include "../Source/Base.hpp"
 #include "../Source/Lexer.hpp"
 
-using namespace Prelude;
+using namespace Nominax::Prelude;
 
 static auto ParseFile(const std::string_view path, Stream& out) noexcept(false) -> void
 {
@@ -217,9 +217,9 @@ static auto ParseFile(const std::string_view path, Stream& out) noexcept(false) 
 	if (const auto result {Corium::LexSource(file.GetContentText())}; result.second == Corium::LexResultCode::Ok)
 	{
 		// Print parse tree:
-		for (const Corium::Lexeme& x : result.first)
+		for (const Corium::Token& x : result.first)
 		{
-			PrintLexeme(x);
+			PrintToken(x);
 		}
 	}
 

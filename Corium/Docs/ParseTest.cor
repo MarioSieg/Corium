@@ -1,5 +1,5 @@
-# a comment
-main () {# another
-# hehe lot's of comments
+main () {
+	let x = 10
+	let age = 1.5
+	let year = 2021
 }
-#  I love popcorn btw

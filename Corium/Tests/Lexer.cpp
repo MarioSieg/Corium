@@ -207,105 +207,6 @@
 
 #include "TestBase.hpp"
 
-TEST(Lexer, EvalChar)
-{
-	LexTree    result { };
-	Identifier id { };
-	EvalChar(u8'h', result, id);
-	ASSERT_EQ(id.size(), 1);
-	ASSERT_EQ(id[0], u8'h');
-	ASSERT_TRUE(std::empty(result));
-}
-
-TEST(Lexer, EvalChar_Control1)
-{
-	LexTree    result { };
-	Identifier id { };
-	EvalChar(u8' ', result, id);
-	ASSERT_TRUE(std::empty(id));
-	ASSERT_TRUE(std::empty(result));
-}
-
-TEST(Lexer, EvalChar_Control2)
-{
-	LexTree    result { };
-	Identifier id { };
-	EvalChar(u8'\n', result, id);
-	ASSERT_TRUE(std::empty(id));
-	ASSERT_TRUE(std::empty(result));
-}
-
-TEST(Lexer, EvalChar_Control3)
-{
-	LexTree    result { };
-	Identifier id { };
-	EvalChar(u8'\t', result, id);
-	ASSERT_TRUE(std::empty(id));
-	ASSERT_TRUE(std::empty(result));
-}
-
-TEST(Lexer, EvalChar_Control4)
-{
-	LexTree    result { };
-	Identifier id { };
-	EvalChar(u8'\v', result, id);
-	ASSERT_TRUE(std::empty(id));
-	ASSERT_TRUE(std::empty(result));
-}
-
-TEST(Lexer, EvalChar_Control5)
-{
-	LexTree    result { };
-	Identifier id { };
-	EvalChar(u8'\f', result, id);
-	ASSERT_TRUE(std::empty(id));
-	ASSERT_TRUE(std::empty(result));
-}
-
-TEST(Lexer, EvalChar_LParen)
-{
-	LexTree    result { };
-	Identifier id { };
-	EvalChar(static_cast<char8_t>(MonoLexeme::ParenthesisLeft), result, id);
-	ASSERT_TRUE(std::empty(id));
-	ASSERT_EQ(std::size(result), 1);
-	ASSERT_TRUE(std::holds_alternative<MonoLexeme>(result[0]));
-	ASSERT_EQ(std::get<MonoLexeme>(result[0]), MonoLexeme::ParenthesisLeft);
-}
-
-TEST(Lexer, EvalChar_RParen)
-{
-	LexTree    result { };
-	Identifier id { };
-	EvalChar(static_cast<char8_t>(MonoLexeme::ParenthesisRight), result, id);
-	ASSERT_TRUE(std::empty(id));
-	ASSERT_EQ(std::size(result), 1);
-	ASSERT_TRUE(std::holds_alternative<MonoLexeme>(result[0]));
-	ASSERT_EQ(std::get<MonoLexeme>(result[0]), MonoLexeme::ParenthesisRight);
-}
-
-TEST(Lexer, EvalChar_LCurly)
-{
-	LexTree    result { };
-	Identifier id { };
-	EvalChar(static_cast<char8_t>(MonoLexeme::CurlyBracesLeft), result, id);
-	ASSERT_TRUE(std::empty(id));
-	ASSERT_EQ(std::size(result), 1);
-	ASSERT_TRUE(std::holds_alternative<MonoLexeme>(result[0]));
-	ASSERT_EQ(std::get<MonoLexeme>(result[0]), MonoLexeme::CurlyBracesLeft);
-}
-
-TEST(Lexer, EvalChar_RCurly)
-{
-	LexTree    result { };
-	Identifier id { };
-	EvalChar(static_cast<char8_t>(MonoLexeme::CurlyBracesRight), result, id);
-	ASSERT_TRUE(std::empty(id));
-	ASSERT_EQ(std::size(result), 1);
-	ASSERT_TRUE(std::holds_alternative<MonoLexeme>(result[0]));
-	ASSERT_EQ(std::get<MonoLexeme>(result[0]), MonoLexeme::CurlyBracesRight);
-}
-
 TEST(Lexer, LexFunction)
 {
 	LexTree    result { };
@@ -320,30 +221,6 @@ TEST(Lexer, LexFunction)
 			}
 
 		)"
-		)
-	};
-	ASSERT_EQ(ok.second, LexResultCode::Ok);
-	ASSERT_EQ(std::size(ok.first), 5);
-	ASSERT_EQ(std::get<Identifier>(ok.first[0]), u8"main");
-	ASSERT_EQ(std::get<MonoLexeme>(ok.first[1]), MonoLexeme::ParenthesisLeft);
-	ASSERT_EQ(std::get<MonoLexeme>(ok.first[2]), MonoLexeme::ParenthesisRight);
-	ASSERT_EQ(std::get<MonoLexeme>(ok.first[3]), MonoLexeme::CurlyBracesLeft);
-	ASSERT_EQ(std::get<MonoLexeme>(ok.first[4]), MonoLexeme::CurlyBracesRight);
-}
-
-
-TEST(Lexer, LexFunctionWithComments)
-{
-	LexTree    result { };
-	Identifier id { };
-	const auto ok {
-		LexSource
-		(
-			u8R"(# a comment
-main () {# another
-# hehe lot's of comments
-}
-#  I love popcorn btw)"
 		)
 	};
 	ASSERT_EQ(ok.second, LexResultCode::Ok);

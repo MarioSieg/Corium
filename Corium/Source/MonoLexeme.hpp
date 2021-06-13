@@ -1,6 +1,6 @@
-// File: Lexeme.hpp
+// File: MonoLexeme.hpp
 // Author: Mario
-// Created: 08.06.2021 7:09 PM
+// Created: 13.06.2021 9:23 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,24 +207,21 @@
 
 #pragma once
 
-#include <variant>
-
 #include "Base.hpp"
 
 namespace Corium
 {
-	constexpr char8_t COMMENT_MARKER{ '#' };
-	
-	enum class MonoLexeme: char8_t
+	enum class MonoLexeme : char8_t
 	{
-		ParenthesisLeft		= u8'(',
-		ParenthesisRight	= u8')',
-		CurlyBracesLeft		= u8'{',
-		CurlyBracesRight	= u8'}',
+		ParenthesisLeft = u8'(',
+		ParenthesisRight = u8')',
+		CurlyBracesLeft = u8'{',
+		CurlyBracesRight = u8'}',
 		Identifier
 	};
 
-	constexpr auto NameOf(const MonoLexeme lexeme) noexcept(true) -> std::string_view
+	[[nodiscard]]
+	constexpr auto GetLexemeDescription(const MonoLexeme lexeme) noexcept(true) -> std::string_view
 	{
 		switch (lexeme)
 		{
@@ -238,22 +235,6 @@ namespace Corium
 			return "CurlyBracesRight";
 		default:
 			return "Identifier";
-		}
-	}
-
-	using Identifier = std::u8string;
-
-	using Lexeme = std::variant<MonoLexeme, Identifier>;
-
-	inline auto PrintLexeme(const Lexeme& lex) noexcept(false) -> void
-	{
-		if (const auto* const ml = std::get_if<MonoLexeme>(&lex))
-		{
-			Print(Nominax::Common::TextColor::BrightBlue, "{}\n", NameOf(*ml));
-		}
-		else
-		{
-			Print(Nominax::Common::TextColor::BrightBlue, "Identifier: {}\n", reinterpret_cast<const char*>(std::get_if<Identifier>(&lex)->c_str()));
 		}
 	}
 }
