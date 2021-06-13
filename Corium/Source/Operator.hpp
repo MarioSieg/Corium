@@ -219,9 +219,11 @@ namespace Corium
 	{
 		switch (op)
 		{
-		case Operator::Assignment:
-			return "Assignment";
-			break;
+            case Operator::Assignment:
+                return "Assignment";
+
+            default:
+                return "";
 		}
 	}
 }

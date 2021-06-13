@@ -229,7 +229,7 @@ namespace Nominax::Common
 	constexpr auto IsPowerOfTwo(const T x) noexcept(true) -> bool
 	{
 		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
-		return !(x & x - 1);
+        return !(x & (x - 1));
 	}
 
 	/// <summary>

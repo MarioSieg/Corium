@@ -20,7 +20,7 @@ IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STR
 ELSE() # if not clang/cl use clang or GCC flags:
 	SET("IS_CLANG_CL" FALSE)
 	SET("Using Clang/GCC directly")
-    SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES} -Wall -Wextra -Werror -Wno-undef -std=c++20 -fno-rtti -Wno-unknown-attributes -Wno-ignored-attributes -Wno-deprecated-declarations")
+        SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} ${DEFAULT_FLAGS} ${CPU_FEATURES} -Wall -Wextra -Werror -Wno-undef -std=c++20 -Wno-unknown-attributes -Wno-ignored-attributes -Wno-deprecated-declarations")
 	IF(CMAKE_BUILD_TYPE STREQUAL "Release") 	# why does -flto give linker errors?!
 		SET("CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -Ofast -fopenmp -fno-exceptions")
 	ENDIF()

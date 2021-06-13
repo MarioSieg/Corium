@@ -324,17 +324,17 @@ namespace Nominax::Common
 	/// <summary>
 	/// Currently used allocator.
 	/// </summary>
-	extern constinit const IAllocator* GlobalCurrentSystemAllocator;
+    extern const IAllocator* GlobalCurrentSystemAllocator;
 
 	/// <summary>
 	/// Fast runtime allocator.
 	/// </summary>
-	extern constinit const IAllocator& GlobalRuntimeAllocator;
+    extern const IAllocator& GlobalRuntimeAllocator;
 
 	/// <summary>
 	/// Slow debug allocator.
 	/// </summary>
-	extern constinit const IAllocator& GlobalDebugAllocator;
+    extern const IAllocator& GlobalDebugAllocator;
 
 	/// <summary>
 	/// Queries the best allocator for the current (DEBUG/RELEASE) build type.

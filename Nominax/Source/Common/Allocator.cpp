@@ -211,12 +211,12 @@
 
 namespace Nominax::Common
 {
-	static constexpr RuntimeAllocator SysRuntimeAllocator { };
-	static constexpr DebugAllocator   SysDebugAllocator { };
+    static const RuntimeAllocator SysRuntimeAllocator { };
+    static const DebugAllocator   SysDebugAllocator { };
 
-	constinit const IAllocator& GlobalRuntimeAllocator {SysRuntimeAllocator};
-	constinit const IAllocator& GlobalDebugAllocator {SysDebugAllocator};
-	constinit const IAllocator* GlobalCurrentSystemAllocator {&DetermineAllocator()};
+    const IAllocator& GlobalRuntimeAllocator {SysRuntimeAllocator};
+    const IAllocator& GlobalDebugAllocator {SysDebugAllocator};
+    const IAllocator* GlobalCurrentSystemAllocator {&DetermineAllocator()};
 
 	auto IAllocator::Valloc(void*& out, const std::size_t size) const noexcept(true) -> void
 	{

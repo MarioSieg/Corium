@@ -223,6 +223,8 @@ auto operator new[](const std::size_t size) noexcept(false) -> void*
 	return mem;
 }
 
+#if false
+
 auto operator new(const std::size_t size, const std::align_val_t alignment) noexcept(false) -> void*
 {
 	void* mem;
@@ -236,6 +238,8 @@ auto operator new[](const std::size_t size, const std::align_val_t alignment) no
 	Nominax::Common::GlobalCurrentSystemAllocator->AllocateAligned(mem, size, static_cast<std::size_t>(alignment));
 	return mem;
 }
+
+#endif
 
 auto operator new(const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
@@ -251,6 +255,8 @@ auto operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_
 	return mem;
 }
 
+#if false
+
 auto operator new(const std::size_t size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
 	void* mem;
@@ -265,12 +271,25 @@ auto operator new[](const std::size_t size, const std::align_val_t alignment, [[
 	return mem;
 }
 
+#endif
+
 auto operator delete(void* mem) noexcept(true) -> void
 {
 	Nominax::Common::GlobalCurrentSystemAllocator->Deallocate(mem);
+}
+
+auto operator delete(void* mem, std::size_t) noexcept(true) -> void
+{
+    Nominax::Common::GlobalCurrentSystemAllocator->Deallocate(mem);
 }
 
 auto operator delete[](void* mem) noexcept(true) -> void
 {
 	Nominax::Common::GlobalCurrentSystemAllocator->Deallocate(mem);
 }
+
+auto operator delete[](void* mem, std::size_t) noexcept(true) -> void
+{
+    Nominax::Common::GlobalCurrentSystemAllocator->Deallocate(mem);
+}
+

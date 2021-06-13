@@ -207,6 +207,7 @@
 
 #include <chrono>
 #include <cmath>
+#include <cstring>
 
 #include "ReactorCores.hpp"
 

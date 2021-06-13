@@ -367,7 +367,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="ptr"></param>
 	/// <returns></returns>
-	static constexpr auto operator*(const std::unique_ptr<U8[]>& ptr) noexcept(true) -> U8*
+    static inline auto operator*(const std::unique_ptr<U8[]>& ptr) noexcept(true) -> U8*
 	{
 		return ptr.get();
 	}

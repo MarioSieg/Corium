@@ -224,7 +224,7 @@ namespace Nominax::Common
 	[[nodiscard]]
 	constexpr auto IsAlignmentValid(const std::size_t alignment) noexcept(true) -> bool
 	{
-		return alignment && !(alignment & alignment - 1);
+        return alignment && !(alignment & (alignment - 1));
 	}
 
 	static_assert(IsAlignmentValid(alignof(std::max_align_t)), "WTF");
