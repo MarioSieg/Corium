@@ -1,6 +1,6 @@
-// File: ImmediateArgumentTypeList.cpp
+// File: TestBase.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 11.06.2021 10:59 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,120 +205,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
+#pragma once
 
-namespace Nominax::ByteCode
-{
-	using Dis = Signal::Discriminator;;
+#include "gtest/gtest.h"
+#include "../Source/Base.hpp"
+#include "../Source/Keywords.hpp"
+#include "../Source/Lexeme.hpp"
+#include "../Source/Lexer.hpp"
 
-	static constexpr std::array ANY_TYPE
-	{
-		Dis::U64,
-		Dis::I64,
-		Dis::F64,
-		Dis::CharClusterUtf8,
-		Dis::CharClusterUtf16,
-		Dis::CharClusterUtf32
-	};
-
-	const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
-	{
-		PerInstructionArgTypes {{Dis::I64}},                      // int
-		{{Dis::SystemIntrinsicCallID}},                           // intrin
-		{{Dis::UserIntrinsicCallID}},                             // cintrin
-		{{Dis::U64}},                                             // call
-		{ },                                                      // ret
-		{{Dis::U64}, {Dis::U64}},                                 // mov
-		{{Dis::U64}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}}, // sto
-		{{std::begin(ANY_TYPE), std::end(ANY_TYPE)}},             // push
-		{ },                                                      // pop
-		{ },                                                      // pop2
-		{ },                                                      // dupl
-		{ },                                                      // dupl2
-		{ },                                                      // swap
-		{ },                                                      // nop
-		{{Dis::JumpAddress}},                                     // jmp
-		{{Dis::JumpAddress}},                                     // jmprel
-		{{Dis::JumpAddress}},                                     // jz
-		{{Dis::JumpAddress}},                                     // jnz
-		{{Dis::JumpAddress}},                                     // jo_cmpi
-		{{Dis::JumpAddress}},                                     // jo_cmpf
-		{{Dis::JumpAddress}},                                     // jno_cmpi
-		{{Dis::JumpAddress}},                                     // jno_cmpf
-		{{Dis::JumpAddress}},                                     // je_cmpi
-		{{Dis::JumpAddress}},                                     // je_cmpf
-		{{Dis::JumpAddress}},                                     // jne_cmpi
-		{{Dis::JumpAddress}},                                     // jne_cmpf
-		{{Dis::JumpAddress}},                                     // ja_cmpi
-		{{Dis::JumpAddress}},                                     // ja_cmpf
-		{{Dis::JumpAddress}},                                     // jl_cmpi
-		{{Dis::JumpAddress}},                                     // jl_cmpf
-		{{Dis::JumpAddress}},                                     // jae_cmpi
-		{{Dis::JumpAddress}},                                     // jae_cmpf
-		{{Dis::JumpAddress}},                                     // jle_cmpi
-		{{Dis::JumpAddress}},                                     // jle_cmpf
-		{ },                                                      // pushz
-		{ },                                                      // ipusho
-		{ },                                                      // fpusho
-		{ },                                                      // iinc
-		{ },                                                      // idec
-		{ },                                                      // iadd
-		{ },                                                      // isub
-		{ },                                                      // imul
-		{ },                                                      // idiv
-		{ },                                                      // imod
-		{ },                                                      // iand
-		{ },                                                      // ior
-		{ },                                                      // ixor
-		{ },                                                      // icom
-		{ },                                                      // isal
-		{ },                                                      // isar
-		{ },                                                      // irol
-		{ },                                                      // iror
-		{ },                                                      // ineg
-		{ },                                                      // fadd
-		{ },                                                      // fsub
-		{ },                                                      // fmul
-		{ },                                                      // fdiv
-		{ },                                                      // fmod
-		{ },                                                      // fneg
-		{ },                                                      // finc
-		{ },                                                      // fdec
-		{
-			// vpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)}
-		},
-		{ }, // vpop
-		{ }, // vadd
-		{ }, // vsub
-		{ }, // vmul
-		{ }, // vdiv
-		{
-			// matpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-		},
-		{ }, // matpop
-		{ }, // matadd
-		{ }, // matsub
-		{ }, // matmul
-		{ }  // matdiv
-	};
-}
+using namespace Nominax::Prelude;
+using namespace Corium;

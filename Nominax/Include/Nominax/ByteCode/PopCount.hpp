@@ -216,7 +216,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of stack pops each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, static_cast<std::size_t>(Instruction::Count)> INSTRUCTION_POP_COUNTS
+	constexpr std::array<U8, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_POP_COUNTS
 	{
 		0,
 		0,

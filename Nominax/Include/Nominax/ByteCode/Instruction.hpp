@@ -291,6 +291,6 @@ namespace Nominax::ByteCode
 		MatDiv = 0x00'00'00'00'00'00'00'48,
 
 		/* !no instruction - count of total instructions! */
-		Count
+		$Count
 	};
 }

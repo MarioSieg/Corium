@@ -1,6 +1,6 @@
-// File: ImmediateArgumentTypeList.cpp
+// File: Main.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 11.06.2021 11:02 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,120 +205,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
+#include "TestBase.hpp"
 
-namespace Nominax::ByteCode
+auto main(int argc, char** argv) -> int
 {
-	using Dis = Signal::Discriminator;;
-
-	static constexpr std::array ANY_TYPE
-	{
-		Dis::U64,
-		Dis::I64,
-		Dis::F64,
-		Dis::CharClusterUtf8,
-		Dis::CharClusterUtf16,
-		Dis::CharClusterUtf32
-	};
-
-	const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
-	{
-		PerInstructionArgTypes {{Dis::I64}},                      // int
-		{{Dis::SystemIntrinsicCallID}},                           // intrin
-		{{Dis::UserIntrinsicCallID}},                             // cintrin
-		{{Dis::U64}},                                             // call
-		{ },                                                      // ret
-		{{Dis::U64}, {Dis::U64}},                                 // mov
-		{{Dis::U64}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}}, // sto
-		{{std::begin(ANY_TYPE), std::end(ANY_TYPE)}},             // push
-		{ },                                                      // pop
-		{ },                                                      // pop2
-		{ },                                                      // dupl
-		{ },                                                      // dupl2
-		{ },                                                      // swap
-		{ },                                                      // nop
-		{{Dis::JumpAddress}},                                     // jmp
-		{{Dis::JumpAddress}},                                     // jmprel
-		{{Dis::JumpAddress}},                                     // jz
-		{{Dis::JumpAddress}},                                     // jnz
-		{{Dis::JumpAddress}},                                     // jo_cmpi
-		{{Dis::JumpAddress}},                                     // jo_cmpf
-		{{Dis::JumpAddress}},                                     // jno_cmpi
-		{{Dis::JumpAddress}},                                     // jno_cmpf
-		{{Dis::JumpAddress}},                                     // je_cmpi
-		{{Dis::JumpAddress}},                                     // je_cmpf
-		{{Dis::JumpAddress}},                                     // jne_cmpi
-		{{Dis::JumpAddress}},                                     // jne_cmpf
-		{{Dis::JumpAddress}},                                     // ja_cmpi
-		{{Dis::JumpAddress}},                                     // ja_cmpf
-		{{Dis::JumpAddress}},                                     // jl_cmpi
-		{{Dis::JumpAddress}},                                     // jl_cmpf
-		{{Dis::JumpAddress}},                                     // jae_cmpi
-		{{Dis::JumpAddress}},                                     // jae_cmpf
-		{{Dis::JumpAddress}},                                     // jle_cmpi
-		{{Dis::JumpAddress}},                                     // jle_cmpf
-		{ },                                                      // pushz
-		{ },                                                      // ipusho
-		{ },                                                      // fpusho
-		{ },                                                      // iinc
-		{ },                                                      // idec
-		{ },                                                      // iadd
-		{ },                                                      // isub
-		{ },                                                      // imul
-		{ },                                                      // idiv
-		{ },                                                      // imod
-		{ },                                                      // iand
-		{ },                                                      // ior
-		{ },                                                      // ixor
-		{ },                                                      // icom
-		{ },                                                      // isal
-		{ },                                                      // isar
-		{ },                                                      // irol
-		{ },                                                      // iror
-		{ },                                                      // ineg
-		{ },                                                      // fadd
-		{ },                                                      // fsub
-		{ },                                                      // fmul
-		{ },                                                      // fdiv
-		{ },                                                      // fmod
-		{ },                                                      // fneg
-		{ },                                                      // finc
-		{ },                                                      // fdec
-		{
-			// vpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)}
-		},
-		{ }, // vpop
-		{ }, // vadd
-		{ }, // vsub
-		{ }, // vmul
-		{ }, // vdiv
-		{
-			// matpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-		},
-		{ }, // matpop
-		{ }, // matadd
-		{ }, // matsub
-		{ }, // matmul
-		{ }  // matdiv
-	};
+	testing::InitGoogleTest(&argc, argv);
+	testing::GTEST_FLAG(filter) = "*";
+	return RUN_ALL_TESTS();
 }

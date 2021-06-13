@@ -1,6 +1,6 @@
-// File: ImmediateArgumentTypeList.cpp
+// File: Lexer.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 11.06.2021 12:17 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,120 +205,152 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/ByteCode/ImmediateArgumentTypeList.hpp"
+#include "TestBase.hpp"
 
-namespace Nominax::ByteCode
+TEST(Lexer, EvalChar)
 {
-	using Dis = Signal::Discriminator;;
+	LexTree    result { };
+	Identifier id { };
+	EvalChar(u8'h', result, id);
+	ASSERT_EQ(id.size(), 1);
+	ASSERT_EQ(id[0], u8'h');
+	ASSERT_TRUE(std::empty(result));
+}
 
-	static constexpr std::array ANY_TYPE
-	{
-		Dis::U64,
-		Dis::I64,
-		Dis::F64,
-		Dis::CharClusterUtf8,
-		Dis::CharClusterUtf16,
-		Dis::CharClusterUtf32
-	};
+TEST(Lexer, EvalChar_Control1)
+{
+	LexTree    result { };
+	Identifier id { };
+	EvalChar(u8' ', result, id);
+	ASSERT_TRUE(std::empty(id));
+	ASSERT_TRUE(std::empty(result));
+}
 
-	const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
-	{
-		PerInstructionArgTypes {{Dis::I64}},                      // int
-		{{Dis::SystemIntrinsicCallID}},                           // intrin
-		{{Dis::UserIntrinsicCallID}},                             // cintrin
-		{{Dis::U64}},                                             // call
-		{ },                                                      // ret
-		{{Dis::U64}, {Dis::U64}},                                 // mov
-		{{Dis::U64}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}}, // sto
-		{{std::begin(ANY_TYPE), std::end(ANY_TYPE)}},             // push
-		{ },                                                      // pop
-		{ },                                                      // pop2
-		{ },                                                      // dupl
-		{ },                                                      // dupl2
-		{ },                                                      // swap
-		{ },                                                      // nop
-		{{Dis::JumpAddress}},                                     // jmp
-		{{Dis::JumpAddress}},                                     // jmprel
-		{{Dis::JumpAddress}},                                     // jz
-		{{Dis::JumpAddress}},                                     // jnz
-		{{Dis::JumpAddress}},                                     // jo_cmpi
-		{{Dis::JumpAddress}},                                     // jo_cmpf
-		{{Dis::JumpAddress}},                                     // jno_cmpi
-		{{Dis::JumpAddress}},                                     // jno_cmpf
-		{{Dis::JumpAddress}},                                     // je_cmpi
-		{{Dis::JumpAddress}},                                     // je_cmpf
-		{{Dis::JumpAddress}},                                     // jne_cmpi
-		{{Dis::JumpAddress}},                                     // jne_cmpf
-		{{Dis::JumpAddress}},                                     // ja_cmpi
-		{{Dis::JumpAddress}},                                     // ja_cmpf
-		{{Dis::JumpAddress}},                                     // jl_cmpi
-		{{Dis::JumpAddress}},                                     // jl_cmpf
-		{{Dis::JumpAddress}},                                     // jae_cmpi
-		{{Dis::JumpAddress}},                                     // jae_cmpf
-		{{Dis::JumpAddress}},                                     // jle_cmpi
-		{{Dis::JumpAddress}},                                     // jle_cmpf
-		{ },                                                      // pushz
-		{ },                                                      // ipusho
-		{ },                                                      // fpusho
-		{ },                                                      // iinc
-		{ },                                                      // idec
-		{ },                                                      // iadd
-		{ },                                                      // isub
-		{ },                                                      // imul
-		{ },                                                      // idiv
-		{ },                                                      // imod
-		{ },                                                      // iand
-		{ },                                                      // ior
-		{ },                                                      // ixor
-		{ },                                                      // icom
-		{ },                                                      // isal
-		{ },                                                      // isar
-		{ },                                                      // irol
-		{ },                                                      // iror
-		{ },                                                      // ineg
-		{ },                                                      // fadd
-		{ },                                                      // fsub
-		{ },                                                      // fmul
-		{ },                                                      // fdiv
-		{ },                                                      // fmod
-		{ },                                                      // fneg
-		{ },                                                      // finc
-		{ },                                                      // fdec
-		{
-			// vpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)}
-		},
-		{ }, // vpop
-		{ }, // vadd
-		{ }, // vsub
-		{ }, // vmul
-		{ }, // vdiv
-		{
-			// matpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-		},
-		{ }, // matpop
-		{ }, // matadd
-		{ }, // matsub
-		{ }, // matmul
-		{ }  // matdiv
+TEST(Lexer, EvalChar_Control2)
+{
+	LexTree    result { };
+	Identifier id { };
+	EvalChar(u8'\n', result, id);
+	ASSERT_TRUE(std::empty(id));
+	ASSERT_TRUE(std::empty(result));
+}
+
+TEST(Lexer, EvalChar_Control3)
+{
+	LexTree    result { };
+	Identifier id { };
+	EvalChar(u8'\t', result, id);
+	ASSERT_TRUE(std::empty(id));
+	ASSERT_TRUE(std::empty(result));
+}
+
+TEST(Lexer, EvalChar_Control4)
+{
+	LexTree    result { };
+	Identifier id { };
+	EvalChar(u8'\v', result, id);
+	ASSERT_TRUE(std::empty(id));
+	ASSERT_TRUE(std::empty(result));
+}
+
+TEST(Lexer, EvalChar_Control5)
+{
+	LexTree    result { };
+	Identifier id { };
+	EvalChar(u8'\f', result, id);
+	ASSERT_TRUE(std::empty(id));
+	ASSERT_TRUE(std::empty(result));
+}
+
+TEST(Lexer, EvalChar_LParen)
+{
+	LexTree    result { };
+	Identifier id { };
+	EvalChar(static_cast<char8_t>(MonoLexeme::ParenthesisLeft), result, id);
+	ASSERT_TRUE(std::empty(id));
+	ASSERT_EQ(std::size(result), 1);
+	ASSERT_TRUE(std::holds_alternative<MonoLexeme>(result[0]));
+	ASSERT_EQ(std::get<MonoLexeme>(result[0]), MonoLexeme::ParenthesisLeft);
+}
+
+TEST(Lexer, EvalChar_RParen)
+{
+	LexTree    result { };
+	Identifier id { };
+	EvalChar(static_cast<char8_t>(MonoLexeme::ParenthesisRight), result, id);
+	ASSERT_TRUE(std::empty(id));
+	ASSERT_EQ(std::size(result), 1);
+	ASSERT_TRUE(std::holds_alternative<MonoLexeme>(result[0]));
+	ASSERT_EQ(std::get<MonoLexeme>(result[0]), MonoLexeme::ParenthesisRight);
+}
+
+TEST(Lexer, EvalChar_LCurly)
+{
+	LexTree    result { };
+	Identifier id { };
+	EvalChar(static_cast<char8_t>(MonoLexeme::CurlyBracesLeft), result, id);
+	ASSERT_TRUE(std::empty(id));
+	ASSERT_EQ(std::size(result), 1);
+	ASSERT_TRUE(std::holds_alternative<MonoLexeme>(result[0]));
+	ASSERT_EQ(std::get<MonoLexeme>(result[0]), MonoLexeme::CurlyBracesLeft);
+}
+
+TEST(Lexer, EvalChar_RCurly)
+{
+	LexTree    result { };
+	Identifier id { };
+	EvalChar(static_cast<char8_t>(MonoLexeme::CurlyBracesRight), result, id);
+	ASSERT_TRUE(std::empty(id));
+	ASSERT_EQ(std::size(result), 1);
+	ASSERT_TRUE(std::holds_alternative<MonoLexeme>(result[0]));
+	ASSERT_EQ(std::get<MonoLexeme>(result[0]), MonoLexeme::CurlyBracesRight);
+}
+
+TEST(Lexer, LexFunction)
+{
+	LexTree    result { };
+	Identifier id { };
+	const auto ok {
+		LexSource
+		(
+			u8R"(
+
+			main () {
+
+			}
+
+		)"
+		)
 	};
+	ASSERT_EQ(ok.second, LexResultCode::Ok);
+	ASSERT_EQ(std::size(ok.first), 5);
+	ASSERT_EQ(std::get<Identifier>(ok.first[0]), u8"main");
+	ASSERT_EQ(std::get<MonoLexeme>(ok.first[1]), MonoLexeme::ParenthesisLeft);
+	ASSERT_EQ(std::get<MonoLexeme>(ok.first[2]), MonoLexeme::ParenthesisRight);
+	ASSERT_EQ(std::get<MonoLexeme>(ok.first[3]), MonoLexeme::CurlyBracesLeft);
+	ASSERT_EQ(std::get<MonoLexeme>(ok.first[4]), MonoLexeme::CurlyBracesRight);
+}
+
+
+TEST(Lexer, LexFunctionWithComments)
+{
+	LexTree    result { };
+	Identifier id { };
+	const auto ok {
+		LexSource
+		(
+			u8R"(# a comment
+main () {# another
+# hehe lot's of comments
+}
+#  I love popcorn btw)"
+		)
+	};
+	ASSERT_EQ(ok.second, LexResultCode::Ok);
+	ASSERT_EQ(std::size(ok.first), 5);
+	ASSERT_EQ(std::get<Identifier>(ok.first[0]), u8"main");
+	ASSERT_EQ(std::get<MonoLexeme>(ok.first[1]), MonoLexeme::ParenthesisLeft);
+	ASSERT_EQ(std::get<MonoLexeme>(ok.first[2]), MonoLexeme::ParenthesisRight);
+	ASSERT_EQ(std::get<MonoLexeme>(ok.first[3]), MonoLexeme::CurlyBracesLeft);
+	ASSERT_EQ(std::get<MonoLexeme>(ok.first[4]), MonoLexeme::CurlyBracesRight);
 }

@@ -405,7 +405,7 @@ namespace Nominax::ByteCode
 
 	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallID id) noexcept(true) -> bool
 	{
-		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallID::Count) - 1};
+		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallID::$Count) - 1};
 		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
 		static_assert(std::is_unsigned_v<decltype(value)>);
 		return NOMINAX_LIKELY(value <= max);

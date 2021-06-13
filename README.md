@@ -43,6 +43,17 @@ and start coding!<br>
 It's also fairly easy to embed Corium into an existing C++ application.<br>
 Corium also is used as a game scripting language in one of my custom engines.<br>
 
+<h2> What's the current state of Corium? </h2>
+Corium is currently under heavy development.<br>
+Nominax (the runtime system) is ready for simple Corium programs.<br>
+The primary focus lies on the frontend language lexer and code generator.<br>
+In some weeks, it is expected to have a first working version,<br>
+which can be used to write simple code in Corium.<br>
+This is a big step, from that point on features will come in quickly.<br>
+That's why we need you!<br>
+Consider to contribute or sponsor the project!<br>
+Let's make Corium a widely used, beginner friendly and fast language!<br>
+
 <h2> Nominax Runtime </h2>
 <h4>
 Nominax is the runtime environment for Corium.<br>
@@ -99,6 +110,25 @@ some specific type of data.<br>
 * A 32-bit UTF-32 character.
 * Can hold **any** unicode codepoint.
 
+<h3>Comments</h3>
+
+Comments in Corium begin with a ```#```, like in Python:<br>
+
+```
+let x = 10 # This is a comment, x is of type int!
+```
+
+Multiline comments are written using two ```##``` for the begin and the end:
+```
+##
+    This is a
+    long long,
+    long
+    multiline comment.
+##
+let x = 10
+```
+
 <h3>Local Variables</h3>
 We've just learned the primitive data types.
 In Corium, local variables are declared by the follow scheme:
@@ -142,7 +172,7 @@ so types can be deduced:
 Like in many other languages,
 every program starts in within the
 
-```Main```
+```main```
 function.
 So let's follow the tradition and start with hello world:
 
@@ -198,4 +228,138 @@ As you can see, the return type is just at a different position and there are no
 If your functions returns nothing, the return type is just elided.<br>
 There is no need to write ```void``` like we know it from C style languages.<br>
 
-More comming soon...
+Parameters are written in the following scheme:<br>
+
+```
+<ParameterType> <ParameterName>
+```
+
+A simple square function could look like:
+
+```
+square (float x) float {
+    return x * x
+}
+```
+
+This function has a parameter ```x``` of type ```float```<br>
+and has a return value of type ```float``` too.
+
+To invoke a function the ```()``` call operator is used.<br>
+Arguments are submitted inside the parenthesis:<br>
+```
+let y = square(2.0)
+# Now y is 4.0
+```
+
+<h3>Conditionals</h3>
+
+In Corium, the classic ```if``` statement which executes code<br>
+if the expression is true, is written using the following scheme:
+
+```
+if <Expression> {
+    <Body?>
+}
+```
+
+The same applies to ```else if```.<br>
+A big difference to C is that there are **no parenthesis** ```()``` around the if-expression.<br>
+But the **curly braces** ``` { } ``` are **always enforced**.<br>
+
+Corium provides following comparison operators:<br>
+
+| Operator | Meaning |
+| ------------- | ------------- |
+| == | equal to  |
+| != | not equal to  |
+| <  | less than  |
+| >  | greater than |
+| <=  | less or equal to  |
+| >=  | greater or equal to  |
+
+A simple ```if```-statements which checks if the variable ```x``` of type ```int``` equals **10** could look like:<br>
+
+```
+let x = 10
+if x == 10 {  # Will be true
+    print("x is 10!")
+}
+```
+
+To execute code when the expression in the ```if```-statement is false,<br>
+a simple ```else``` block can be used:<br>
+
+```
+let x = 5
+if x == 10 { # Will be false
+    print("x is 10!")
+} else {
+    # Instead this code will be executed, because ```5 == 10``` is false!
+    print("x is not 2!")
+}
+```
+
+Using the final combination of ```if``` and ```else```,<br>
+```else if``` statements can be used.<br>
+These executed if the previous ```if``` statement did not execute,<br>
+because the condition was false: <br>
+
+```
+let x = 2
+
+if x == 0 {
+   print("x is 0!")
+} else if x == 1 {
+   print("x is 1!")
+} else if x == 2 { 
+    print("x is 2!")
+} else {
+    print("x is something else!")
+}
+```
+
+The most powerful statement is the ```compare``` statement.<br>
+The following scheme is used:<br>
+```
+compare <Expression> { 
+    <Body?>
+}
+```
+It is somewhat similar to the ```switch``` statement in C, but much more powerful.<br>
+A ```compare``` statement is made out of multiple arms. For each arm the scheme is:<br>
+
+```
+<Expression> | else => <Body?>
+```
+
+A simple example:
+
+```
+let x = 3
+compare x {
+    0 => print("x is 0!")
+    1 => print("x is 1!")
+    2 => print("x is 2!")
+    3 => print("x is 3!")
+    else => print("x is something else!")
+}
+```
+
+Each "arm" act's like a ```if``` statements:<br>
+The first arm ``0 => print("x is 0!")``` is the same as:<br>
+
+```
+if x == 0 {
+    print("x is 0!")
+}
+```
+
+If ```x``` is zero, print ```x is 0!```.
+The following arms are like ```else if``` statements<br>
+and the final arm ```else => print("x is something else!")``` acts exactly like a normal else statement:<br>
+if none of the above conditions occured, print ```x is something else!```!
+In fact, it's possible to write the whole ```compare``` statement<br>
+using linked ```if else``` statements, but that's ugly and far less clean.<br>
+
+<h3>Loops</h3>

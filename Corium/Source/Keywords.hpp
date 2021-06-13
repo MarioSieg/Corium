@@ -1,6 +1,6 @@
-// File: Main.cpp
+// File: Keywords.hpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 11.06.2021 10:40 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,52 +205,35 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#pragma once
+
 #include "Base.hpp"
-#include "Lexer.hpp"
 
-using namespace Nominax::Prelude;
-
-static auto ParseFile(const std::string_view path, Stream& out) noexcept(false) -> void
+namespace Corium
 {
-	Nominax::Common::TextFile file{ };
-	file.ReadFromFileOrPanic(path);
-	Corium::LexFile(std::move(file));
-
-	out.Prologue();
-	out.Epilogue();
-}
-
-static auto ExecuteNominax
-(
-	Stream&& appCode, 
-	const int argc = 0, 
-	const char* const* const argv = nullptr
-) noexcept(false) -> int
-{
-	const EnvironmentDescriptor descriptor
+	enum class Keyword: Nominax::U8
 	{
-		.ArgC = argc,
-		.ArgV = argv,
-		.AppName = "Corium",
-		.ForceFallback = false,
-		.FastHostIoSync = true,
-		.BootPoolSize = 64_kb,
-		.SystemPoolSize = 256_kb,
-		.ReactorCount = 1,
-		.StackSize = 8_mb,
-		.PowerPref = PowerPreference::HighPerformance
+		Let,
+
+		$Count
 	};
 
-	Environment runtimeEnvironment{};
-	runtimeEnvironment.Boot(descriptor);
-	const ReactorState& result{ runtimeEnvironment.Execute(std::move(appCode)) };
-	return result.ReturnCode();
-}
+	constexpr std::array<std::string_view, static_cast<std::size_t>(Keyword::$Count)> KEYWORD_TABLE
+	{
+		"let"
+	};
 
-auto main(const int argc, const char* const* const argv) -> int
-{
-	Stream stream{};
-	ParseFile("../../../Corium/Docs/ParseTest.cor", stream);
-	stream.PrintByteCode();
-	return ExecuteNominax(std::move(stream), argc, argv);
+	constexpr auto QueryKeyword(const std::string_view name) noexcept(true) -> std::optional<Keyword>
+	{
+		std::optional<Keyword> ret {std::nullopt};
+		for (std::size_t i {0}; i < static_cast<std::size_t>(Keyword::$Count); ++i)
+		{
+			if (KEYWORD_TABLE[i] == name)
+			{
+				ret = static_cast<Keyword>(i);
+				break;
+			}
+		}
+		return ret;
+	}
 }
