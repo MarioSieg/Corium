@@ -230,7 +230,7 @@ namespace Nominax::Common
 
 	auto RuntimeAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
 	{
-#if NOMINAX_OS_WINDOWS
+#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
 		out = &*static_cast<U8*>(_aligned_malloc(size, alignment));
 #else
         out = &*static_cast<U8*>(aligned_alloc(size, alignment));
@@ -239,7 +239,7 @@ namespace Nominax::Common
 
 	auto RuntimeAllocator::ReallocateAligned([[maybe_unused]] void*& out, [[maybe_unused]] const std::size_t size, [[maybe_unused]] const std::size_t alignment) const -> void
 	{
-#if NOMINAX_OS_WINDOWS
+#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
 		out = &*static_cast<U8*>(_aligned_realloc(out, size, alignment));
 #else
         // todo using posix_memalign
@@ -249,7 +249,7 @@ namespace Nominax::Common
 
 	auto RuntimeAllocator::DeallocateAligned(void*& out) const -> void
 	{
-#if NOMINAX_OS_WINDOWS
+#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
 		_aligned_free(out);
 #else
         std::free(out);

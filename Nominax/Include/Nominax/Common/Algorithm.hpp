@@ -208,6 +208,7 @@
 #pragma once
 
 #include <atomic>
+#include <climits>
 #include <functional>
 #include <iterator>
 #include <span>
