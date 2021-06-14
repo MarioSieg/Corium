@@ -232,6 +232,6 @@ namespace Nominax::Core
 		std::size_t                        StackSize {0};
 
 		[[nodiscard]]
-		auto Validate() const noexcept(true) -> ReactorValidationResult;
+		auto Validate() const -> ReactorValidationResult;
 	};
 }

@@ -213,5 +213,5 @@
 #include "../Source/Token.hpp"
 #include "../Source/Lexer.hpp"
 
-using namespace Nominax::Prelude;
+using namespace Prelude;
 using namespace Corium;

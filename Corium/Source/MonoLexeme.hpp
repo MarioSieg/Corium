@@ -221,7 +221,7 @@ namespace Corium
 	};
 
 	[[nodiscard]]
-	constexpr auto GetLexemeDescription(const MonoLexeme lexeme) noexcept(true) -> std::string_view
+	constexpr auto GetLexemeDescription(const MonoLexeme lexeme) -> std::string_view
 	{
 		switch (lexeme)
 		{

@@ -217,7 +217,7 @@ namespace Nominax::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	__attribute__((always_inline)) inline auto F64_X4_Add_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F64_X4_Add_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) -> void
 	{
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -252,7 +252,7 @@ namespace Nominax::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	__attribute__((always_inline)) inline auto F64_X4_Sub_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F64_X4_Sub_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) -> void
 	{
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -287,7 +287,7 @@ namespace Nominax::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	__attribute__((always_inline)) inline auto F64_X4_Mul_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F64_X4_Mul_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) -> void
 	{
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -322,7 +322,7 @@ namespace Nominax::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	__attribute__((always_inline)) inline auto F64_X4_Div_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F64_X4_Div_Aligned(F64* const __restrict__ inout, const F64* const __restrict__ in) -> void
 	{
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 

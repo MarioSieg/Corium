@@ -250,5 +250,5 @@ namespace Nominax::Core
 	/// </summary>
 	/// <returns>A pointer to the default interrupt routine.</returns>
 	[[nodiscard]]
-	extern auto GetDefaultInterruptRoutine() noexcept(true) -> InterruptRoutine*;
+	extern auto GetDefaultInterruptRoutine() -> InterruptRoutine*;
 }

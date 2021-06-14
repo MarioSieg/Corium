@@ -214,7 +214,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Compute relative jump address.
 	/// </summary>
-	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(ByteCode::Signal* const base, const ByteCode::JumpAddress address) noexcept(true) -> void*
+	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(ByteCode::Signal* const base, const ByteCode::JumpAddress address) -> void*
 	{
 		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
 	}
@@ -273,7 +273,7 @@ namespace Nominax::Core
 		const ByteCode::Signal* __restrict__ bucketEnd,
 		const bool*                          jumpAddressMap,
 		JumpTable                            jumpTable
-	) noexcept(false) -> bool;
+	) -> bool;
 
 	/// <summary>
 	/// Checks if all pointers inside the jump table are non null.
@@ -286,7 +286,7 @@ namespace Nominax::Core
 	(
 		JumpTable         jumpTable,
 		const std::size_t jumpTableSize
-	) noexcept(true) -> bool
+	) -> bool
 	{
 		if (!jumpTable || !jumpTableSize)
 		{

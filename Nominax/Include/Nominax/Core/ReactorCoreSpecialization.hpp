@@ -238,7 +238,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="target"></param>
 	/// <returns></returns>
-	constexpr auto GetReactorCoreSpecializationName(const ReactorCoreSpecialization target) noexcept(true) -> std::string_view
+	constexpr auto GetReactorCoreSpecializationName(const ReactorCoreSpecialization target) -> std::string_view
 	{
 #if NOMINAX_ARCH_X86_64
 		switch (target)

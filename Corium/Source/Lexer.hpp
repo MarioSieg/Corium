@@ -222,5 +222,5 @@ namespace Corium
 
 	using LexResult = std::pair<LexTree, LexResultCode>;
 
-	extern auto LexSource(std::u8string_view sourceCode) noexcept(false) -> LexResult;
+	extern auto LexSource(std::u8string_view sourceCode) -> LexResult;
 }

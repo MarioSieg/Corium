@@ -211,7 +211,7 @@
 
 namespace Nominax::Core
 {
-	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) const noexcept(true) -> bool
+	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) const -> bool
 	{
 		if (NOMINAX_UNLIKELY(buffer.size() < this->HeaderRead_BlockSize()))
 		{
@@ -235,7 +235,7 @@ namespace Nominax::Core
 		std::memcpy(buffer.data(), this->Blob_, this->BlobSizeInBytes());
 	}
 
-	auto Object::DeepCmp(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepCmp(const Object a, const Object b) -> bool
 	{
 		return a.HeaderRead_BlockSize() == b.HeaderRead_BlockSize()
 			       ? std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.ObjectBlockSizeInBytes()) == 0
@@ -273,7 +273,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Equal<U64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Equal<U64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -299,7 +299,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Equal<I64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Equal<I64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -325,7 +325,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Equal<F64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Equal<F64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -351,7 +351,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Less<U64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Less<U64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -377,7 +377,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Less<I64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Less<I64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -403,7 +403,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Less<F64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Less<F64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -429,7 +429,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_LessEqual<U64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_LessEqual<U64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -455,7 +455,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_LessEqual<I64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_LessEqual<I64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -481,7 +481,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_LessEqual<F64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_LessEqual<F64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -507,7 +507,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Greater<U64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Greater<U64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -533,7 +533,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Greater<I64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Greater<I64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -559,7 +559,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Greater<F64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_Greater<F64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -585,7 +585,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<U64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_GreaterEqual<U64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -611,7 +611,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<I64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_GreaterEqual<I64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -637,7 +637,7 @@ namespace Nominax::Core
 	}
 
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<F64>(const Object a, const Object b) noexcept(true) -> bool
+	auto Object::DeepValueCmp_GreaterEqual<F64>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())

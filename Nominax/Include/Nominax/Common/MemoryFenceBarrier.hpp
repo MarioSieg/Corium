@@ -216,7 +216,7 @@ namespace Nominax::Common
 	/// Force the compiler to flush queued writes to global memory.
 	/// </summary>
 	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto ReadFence() noexcept(true) -> void
+	__attribute__((always_inline)) inline auto ReadFence()  -> void
 	{
 		__asm__ __volatile__("" : : : "memory");
 	}
@@ -226,7 +226,7 @@ namespace Nominax::Common
 	/// Force the compiler to flush queued writes to global memory.
 	/// </summary>
 	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto WriteFence() noexcept(true) -> void
+	__attribute__((always_inline)) inline auto WriteFence()  -> void
 	{
 		__asm__ __volatile__("" : : : "memory");
 	}
@@ -236,7 +236,7 @@ namespace Nominax::Common
 	/// Force the compiler to flush queued writes to global memory.
 	/// </summary>
 	[[maybe_unused]]
-	__attribute__((always_inline)) inline auto ReadWriteFence() noexcept(true) -> void
+	__attribute__((always_inline)) inline auto ReadWriteFence()  -> void
 	{
 		__asm__ __volatile__("" : : : "memory");
 	}

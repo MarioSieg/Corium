@@ -230,7 +230,7 @@ namespace Nominax::Core
 #endif
 	};
 
-	auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization
+	auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
 	{
 #if NOMINAX_ARCH_X86_64
 
@@ -254,12 +254,12 @@ namespace Nominax::Core
 #endif
 	}
 
-	auto GetReactorRegistry() noexcept(true) -> const ReactorRegistry&
+	auto GetReactorRegistry() -> const ReactorRegistry&
 	{
 		return REACTOR_REGISTRY;
 	}
 
-	auto GetFallbackRoutineLink() noexcept(true) -> ReactorRoutineLink
+	auto GetFallbackRoutineLink() -> ReactorRoutineLink
 	{
 		return std::make_tuple(ReactorCoreSpecialization::Fallback, GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback));
 	}
@@ -291,7 +291,7 @@ namespace Nominax::Core
 		return std::make_tuple(specialization, routine);
 	}
 
-	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target) noexcept(true) -> void
+	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target) -> void
 	{
 		std::get<1>(GetOptimalReactorRoutine(target))(input, output);
 	}

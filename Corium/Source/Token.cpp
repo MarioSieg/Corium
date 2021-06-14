@@ -209,7 +209,7 @@
 
 namespace Corium
 {
-	auto PrintToken(const Token& tok) noexcept(false) -> void
+	auto PrintToken(const Token& tok) -> void
 	{
 		if (const auto* const monoLexeme = std::get_if<MonoLexeme>(&tok))
 		{

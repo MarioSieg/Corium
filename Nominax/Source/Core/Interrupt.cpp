@@ -211,7 +211,7 @@ namespace Nominax::Core
 {
 	auto DefaultInterruptRoutine(InterruptAccumulator) -> void { }
 
-	auto GetDefaultInterruptRoutine() noexcept(true) -> InterruptRoutine*
+	auto GetDefaultInterruptRoutine() -> InterruptRoutine*
 	{
 		return &DefaultInterruptRoutine;
 	}

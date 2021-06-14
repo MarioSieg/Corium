@@ -218,7 +218,7 @@ namespace Nominax::Common
 	/// <param name="x"></param>
 	/// <returns></returns>
 	template <typename T>
-	inline auto DisOpt(T& x) noexcept(true) -> void
+	inline auto DisOpt(T& x) -> void
 	{
 #if NOMINAX_COM_CLANG
 		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
@@ -234,7 +234,7 @@ namespace Nominax::Common
 	/// <param name="x"></param>
 	/// <returns></returns>
 	template <typename T>
-	inline auto DisOpt(const T& x) noexcept(true) -> void
+	inline auto DisOpt(const T& x) -> void
 	{
 		__asm__ __volatile__("" : "r,m"(x) :: "memory");
 	}

@@ -233,21 +233,21 @@ namespace Nominax::Core
 		/// Default constructor.
 		/// </summary>
 		/// <returns></returns>
-		TaskQueueThreadPool() noexcept(true) = default;
+		TaskQueueThreadPool() = default;
 
 		/// <summary>
 		/// Construct and start n threads.
 		/// </summary>
 		/// <param name="threadCount"></param>
 		/// <returns></returns>
-		explicit TaskQueueThreadPool(std::size_t threadCount) noexcept(false);
+		explicit TaskQueueThreadPool(std::size_t threadCount);
 
 		/// <summary>
 		/// Construct empty with allocator.
 		/// </summary>
 		/// <param name="allocator"></param>
 		/// <returns></returns>
-		explicit TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator) noexcept(true);
+		explicit TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator);
 
 		/// <summary>
 		/// Construct with allocator and launch threads.
@@ -255,7 +255,7 @@ namespace Nominax::Core
 		/// <param name="allocator"></param>
 		/// <param name="threadCount"></param>
 		/// <returns></returns>
-		TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator, std::size_t threadCount) noexcept(false);
+		TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator, std::size_t threadCount);
 
 		/// <summary>
 		/// No copying.
@@ -268,7 +268,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		TaskQueueThreadPool(TaskQueueThreadPool&& other) noexcept(true) = default;
+		TaskQueueThreadPool(TaskQueueThreadPool&& other) = default;
 
 		/// <summary>
 		/// No copying.
@@ -293,104 +293,104 @@ namespace Nominax::Core
 		/// Join all threads.
 		/// </summary>
 		/// <returns></returns>
-		auto JoinAll() noexcept(false) -> void;
+		auto JoinAll() -> void;
 
 		/// <summary>
 		/// Joins and removes all threads.
 		/// </summary>
 		/// <returns></returns>
-		auto Clear() noexcept(false) -> void;
+		auto Clear() -> void;
 
 		/// <summary>
 		/// Resizes the container size.
 		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		auto Resize(std::size_t size) noexcept(false) -> void;
+		auto Resize(std::size_t size) -> void;
 
 		/// <summary>
 		/// Pushes a new task queue thread into the queue.
 		/// </summary>
 		/// <param name="elem"></param>
 		/// <returns></returns>
-		auto Push() noexcept(false) -> void;
+		auto Push() -> void;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The amount of threads.</returns>
 		[[nodiscard]]
-		auto GetSize() const noexcept(true) -> std::size_t;
+		auto GetSize() const -> std::size_t;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto begin() noexcept(true) -> StorageType::iterator;
+		auto begin() -> StorageType::iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto end() noexcept(true) -> StorageType::iterator;
+		auto end() -> StorageType::iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto rbegin() noexcept(true) -> StorageType::reverse_iterator;
+		auto rbegin() -> StorageType::reverse_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto rend() noexcept(true) -> StorageType::reverse_iterator;
+		auto rend() -> StorageType::reverse_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto cbegin() const noexcept(true) -> StorageType::const_iterator;
+		auto cbegin() const -> StorageType::const_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto cend() const noexcept(true) -> StorageType::const_iterator;
+		auto cend() const -> StorageType::const_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto crbegin() const noexcept(true) -> StorageType::const_reverse_iterator;
+		auto crbegin() const -> StorageType::const_reverse_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto crend() const noexcept(true) -> StorageType::const_reverse_iterator;
+		auto crend() const -> StorageType::const_reverse_iterator;
 	};
 
-	inline auto TaskQueueThreadPool::Clear() noexcept(false) -> void
+	inline auto TaskQueueThreadPool::Clear() -> void
 	{
 		this->JoinAll();
 		this->Threads.clear();
 	}
 
-	inline auto TaskQueueThreadPool::Resize(const std::size_t size) noexcept(false) -> void
+	inline auto TaskQueueThreadPool::Resize(const std::size_t size) -> void
 	{
 		this->Threads.resize(size);
 	}
 
-	inline auto TaskQueueThreadPool::GetSize() const noexcept(true) -> std::size_t
+	inline auto TaskQueueThreadPool::GetSize() const -> std::size_t
 	{
 		return this->Threads.size();
 	}
@@ -399,7 +399,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::begin() noexcept(true) -> StorageType::iterator
+	inline auto TaskQueueThreadPool::begin() -> StorageType::iterator
 	{
 		return std::begin(this->Threads);
 	}
@@ -408,7 +408,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::end() noexcept(true) -> StorageType::iterator
+	inline auto TaskQueueThreadPool::end() -> StorageType::iterator
 	{
 		return std::end(this->Threads);
 	}
@@ -417,7 +417,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::rbegin() noexcept(true) -> StorageType::reverse_iterator
+	inline auto TaskQueueThreadPool::rbegin() -> StorageType::reverse_iterator
 	{
 		return std::rbegin(this->Threads);
 	}
@@ -426,7 +426,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::rend() noexcept(true) -> StorageType::reverse_iterator
+	inline auto TaskQueueThreadPool::rend() -> StorageType::reverse_iterator
 	{
 		return std::rend(this->Threads);
 	}
@@ -435,7 +435,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::cbegin() const noexcept(true) -> StorageType::const_iterator
+	inline auto TaskQueueThreadPool::cbegin() const -> StorageType::const_iterator
 	{
 		return std::cbegin(this->Threads);
 	}
@@ -444,7 +444,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::cend() const noexcept(true) -> StorageType::const_iterator
+	inline auto TaskQueueThreadPool::cend() const -> StorageType::const_iterator
 	{
 		return std::cend(this->Threads);
 	}
@@ -453,7 +453,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::crbegin() const noexcept(true) -> StorageType::const_reverse_iterator
+	inline auto TaskQueueThreadPool::crbegin() const -> StorageType::const_reverse_iterator
 	{
 		return std::crbegin(this->Threads);
 	}
@@ -462,7 +462,7 @@ namespace Nominax::Core
 	/// STL iterator interface.
 	/// </summary>
 	/// <returns></returns>
-	inline auto TaskQueueThreadPool::crend() const noexcept(true) -> StorageType::const_reverse_iterator
+	inline auto TaskQueueThreadPool::crend() const -> StorageType::const_reverse_iterator
 	{
 		return std::crend(this->Threads);
 	}
@@ -472,7 +472,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto begin(TaskQueueThreadPool& pool) noexcept(true) -> auto
+	inline auto begin(TaskQueueThreadPool& pool) -> auto
 	{
 		return pool.begin();
 	}
@@ -482,7 +482,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto end(TaskQueueThreadPool& pool) noexcept(true) -> auto
+	inline auto end(TaskQueueThreadPool& pool) -> auto
 	{
 		return pool.end();
 	}
@@ -492,7 +492,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto rbegin(TaskQueueThreadPool& pool) noexcept(true) -> auto
+	inline auto rbegin(TaskQueueThreadPool& pool) -> auto
 	{
 		return pool.rbegin();
 	}
@@ -502,7 +502,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto rend(TaskQueueThreadPool& pool) noexcept(true) -> auto
+	inline auto rend(TaskQueueThreadPool& pool) -> auto
 	{
 		return pool.rend();
 	}
@@ -512,7 +512,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto cbegin(const TaskQueueThreadPool& pool) noexcept(true) -> auto
+	inline auto cbegin(const TaskQueueThreadPool& pool) -> auto
 	{
 		return pool.cbegin();
 	}
@@ -522,7 +522,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto cend(const TaskQueueThreadPool& pool) noexcept(true) -> auto
+	inline auto cend(const TaskQueueThreadPool& pool) -> auto
 	{
 		return pool.cend();
 	}
@@ -532,7 +532,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto crbegin(const TaskQueueThreadPool& pool) noexcept(true) -> auto
+	inline auto crbegin(const TaskQueueThreadPool& pool) -> auto
 	{
 		return pool.crbegin();
 	}
@@ -542,7 +542,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto crend(const TaskQueueThreadPool& pool) noexcept(true) -> auto
+	inline auto crend(const TaskQueueThreadPool& pool) -> auto
 	{
 		return pool.crend();
 	}

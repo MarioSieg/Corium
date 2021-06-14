@@ -219,24 +219,24 @@ namespace Nominax::System
 	namespace Os
 	{
 		[[nodiscard]]
-		extern auto QuerySystemMemoryTotal() noexcept(false) -> std::size_t;
+		extern auto QuerySystemMemoryTotal() -> std::size_t;
 
 		[[nodiscard]]
-		extern auto QueryProcessMemoryUsed() noexcept(false) -> std::size_t;
+		extern auto QueryProcessMemoryUsed() -> std::size_t;
 
 		[[nodiscard]]
-		extern auto QueryCpuName() noexcept(false) -> std::string;
+		extern auto QueryCpuName() -> std::string;
 
 		[[nodiscard]]
-		extern auto QueryPageSize() noexcept(false) -> std::size_t;
+		extern auto QueryPageSize() -> std::size_t;
 
 		[[nodiscard]]
-		extern auto DylibOpen(std::string_view filePath) noexcept(false) -> void*;
+		extern auto DylibOpen(std::string_view filePath) -> void*;
 
 		[[nodiscard]]
-		extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) noexcept(false) -> void*;
+		extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
 
-		extern auto DylibClose(void*& handle) noexcept(false) -> void;
+		extern auto DylibClose(void*& handle) -> void;
 	}
 
 	struct Snapshot final
@@ -251,9 +251,9 @@ namespace Nominax::System
 		std::size_t      ProcessMemory { };
 		std::size_t      PageSize { };
 
-		Snapshot() noexcept(false);
+		Snapshot();
 
-		auto QueryAll() noexcept(false) -> void;
-		auto Print() const noexcept(false) -> void;
+		auto QueryAll() -> void;
+		auto Print() const -> void;
 	};
 }

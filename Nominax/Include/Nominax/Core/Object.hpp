@@ -245,141 +245,141 @@ namespace Nominax::Core
 		BlobBlockType* Blob_ {nullptr};
 
 	public:
-		explicit Object(BlobBlockType* blob) noexcept(true);
+		explicit Object(BlobBlockType* blob);
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The strong reference count field from the object header.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR HeaderRead_StrongReferenceCount() const noexcept(true) -> U32;
+		auto IMMUTATOR HeaderRead_StrongReferenceCount() const -> U32;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the object in records. The size field from the object header.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR HeaderRead_BlockSize() const noexcept(true) -> U32;
+		auto IMMUTATOR HeaderRead_BlockSize() const -> U32;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The type id field from the object header.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR HeaderRead_TypeId() const noexcept(true) -> U32;
+		auto IMMUTATOR HeaderRead_TypeId() const -> U32;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The flag vector field from the object header.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR Header_ReadFlagVector() const noexcept(true) -> ObjectFlagVector;
+		auto IMMUTATOR Header_ReadFlagVector() const -> ObjectFlagVector;
 
 		/// <summary>
 		/// Writes the value into the strong ref count header field.
 		/// </summary>
 		/// <param name="strongRefCount">The new value to write.</param>
 		/// <returns></returns>
-		auto MUTATOR HeaderWrite_StrongRefCount(U32 strongRefCount) const noexcept(true) -> void;
+		auto MUTATOR HeaderWrite_StrongRefCount(U32 strongRefCount) const -> void;
 
 		/// <summary>
 		/// Increments the object header strong reference counter by one.
 		/// </summary>
 		/// <returns></returns>
-		auto MUTATOR HeaderWrite_IncrementStrongRefCount() const noexcept(true) -> void;
+		auto MUTATOR HeaderWrite_IncrementStrongRefCount() const -> void;
 
 		/// <summary>
 		/// Decrements the object header strong reference counter by one.
 		/// </summary>
 		/// <returns></returns>
-		auto MUTATOR HeaderWrite_DecrementStrongRefCount() const noexcept(true) -> void;
+		auto MUTATOR HeaderWrite_DecrementStrongRefCount() const -> void;
 
 		/// <summary>
 		/// Same as HeaderWrite_IncrementStrongRefCount()
 		/// </summary>
 		/// <returns></returns>
-		auto MUTATOR operator ++() const noexcept(true) -> void;
+		auto MUTATOR operator ++() const -> void;
 
 		/// <summary>
 		/// Same as HeaderWrite_DecrementStrongRefCount()
 		/// </summary>
 		/// <returns></returns>
-		auto MUTATOR operator --() const noexcept(true) -> void;
+		auto MUTATOR operator --() const -> void;
 
 		/// <summary>
 		/// Same as HeaderWrite_IncrementStrongRefCount()
 		/// </summary>
 		/// <returns></returns>
-		auto MUTATOR operator ++(int) const noexcept(true) -> void;
+		auto MUTATOR operator ++(int) const -> void;
 
 		/// <summary>
 		/// Same as HeaderWrite_DecrementStrongRefCount()
 		/// </summary>
 		/// <returns></returns>
-		auto MUTATOR operator --(int) const noexcept(true) -> void;
+		auto MUTATOR operator --(int) const -> void;
 
 		/// <summary>
 		/// Writes the value of size into the Size object header field.
 		/// </summary>
 		/// <param name="size">The new value to write.</param>
 		/// <returns></returns>
-		auto MUTATOR HeaderWrite_Size(U32 size) const noexcept(true) -> void;
+		auto MUTATOR HeaderWrite_Size(U32 size) const -> void;
 
 		/// <summary>
 		/// Writes the value of typeId into the TypeId object header field.
 		/// </summary>
 		/// <param name="typeId">The new value to write.</param>
 		/// <returns></returns>
-		auto MUTATOR HeaderWrite_TypeId(U32 typeId) const noexcept(true) -> void;
+		auto MUTATOR HeaderWrite_TypeId(U32 typeId) const -> void;
 
 		/// <summary>
 		/// Writes the value of flagVector into the ObjectFlags object header field.
 		/// </summary>
 		/// <param name="flagVector">The new value to write.</param>
 		/// <returns></returns>
-		auto MUTATOR HeaderWrite_FlagVector(ObjectFlagVector flagVector) const noexcept(true) -> void;
+		auto MUTATOR HeaderWrite_FlagVector(ObjectFlagVector flagVector) const -> void;
 
 		/// <summary>
 		/// Get the raw object header pointer.
 		/// </summary>
 		/// <returns>The object header pointer.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR QueryRawHeader() const noexcept(true) -> BlobBlockType*;
+		auto IMMUTATOR QueryRawHeader() const -> BlobBlockType*;
 
 		/// <summary>
 		/// Get the object header.
 		/// </summary>
 		/// <returns>The object header.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR QueryHeader() const noexcept(true) -> ObjectHeader;
+		auto IMMUTATOR QueryHeader() const -> ObjectHeader;
 
 		/// <summary>
 		/// Get underlying object block.
 		/// </summary>
 		/// <returns>The begin pointer of the underlying object block.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR LookupObjectBlock() const noexcept(true) -> BlobBlockType*;
+		auto IMMUTATOR LookupObjectBlock() const -> BlobBlockType*;
 
 		/// <summary>
 		/// Get underlying object block end iterator.
 		/// </summary>
 		/// <returns>The end pointer of the underlying object block.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR LookupObjectBlockEnd() const noexcept(true) -> BlobBlockType*;
+		auto IMMUTATOR LookupObjectBlockEnd() const -> BlobBlockType*;
 
 		/// <summary>
 		/// Checks if the underlying object block is null, but the object header is null.
 		/// </summary>
 		/// <returns>True if the underlying object is null, else false.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR IsUnderlyingObjectBlockNull() const noexcept(true) -> bool;
+		auto IMMUTATOR IsUnderlyingObjectBlockNull() const -> bool;
 
 		/// <summary>
 		/// Checks if the whole data blob (underlying object) and the object header is null.
 		/// </summary>
 		/// <returns>true if the whole data blob (underlying object) and the object header is null, else false.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR IsBlobNull() const noexcept(true) -> bool;
+		auto IMMUTATOR IsBlobNull() const -> bool;
 
 		/// <summary>
 		/// The size in records of the whole data blob:
@@ -387,7 +387,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The size in records of the object header plus the size of object it self.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR BlobSize() const noexcept(true) -> std::size_t;
+		auto IMMUTATOR BlobSize() const -> std::size_t;
 
 		/// <summary>
 		/// The size in bytes of the whole data blob:
@@ -395,7 +395,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The size in bytes of the whole object header plus the whole size of object it self.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR BlobSizeInBytes() const noexcept(true) -> std::size_t;
+		auto IMMUTATOR BlobSizeInBytes() const -> std::size_t;
 
 		/// <summary>
 		/// Returns the size of the object block in bytes.
@@ -403,7 +403,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto IMMUTATOR ObjectBlockSizeInBytes() const noexcept(true) -> std::size_t;
+		auto IMMUTATOR ObjectBlockSizeInBytes() const -> std::size_t;
 
 		/// <summary>
 		/// Tries to copy the object block into the buffer.
@@ -413,7 +413,7 @@ namespace Nominax::Core
 		/// <param name="buffer">The target buffer.</param>
 		/// <returns>True if the size was large enough, else false.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::span<BlobBlockType> buffer) const noexcept(true) -> bool;
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::span<BlobBlockType> buffer) const -> bool;
 
 		/// <summary>
 		/// Resizes the buffer to the size of the object block and copies the whole
@@ -421,7 +421,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="buffer">The target buffer.</param>
 		/// <returns></returns>
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<BlobBlockType>& buffer) const noexcept(false) -> void;
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<BlobBlockType>& buffer) const -> void;
 
 		/// <summary>
 		/// SLT-Compat
@@ -430,7 +430,7 @@ namespace Nominax::Core
 		/// <returns>Begin iterator.</returns>
 		[[nodiscard]]
 		// ReSharper disable once CppInconsistentNaming
-		auto IMMUTATOR begin() const noexcept(true) -> BlobBlockType*;
+		auto IMMUTATOR begin() const -> BlobBlockType*;
 
 		/// <summary>
 		/// SLT-Compat
@@ -439,7 +439,7 @@ namespace Nominax::Core
 		/// <returns>End iterator.</returns>
 		[[nodiscard]]
 		// ReSharper disable once CppInconsistentNaming
-		auto IMMUTATOR end() const noexcept(true) -> BlobBlockType*;
+		auto IMMUTATOR end() const -> BlobBlockType*;
 
 		/// <summary>
 		/// Resizes the vector to the correct size
@@ -447,39 +447,39 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="buffer"></param>
 		/// <returns></returns>
-		auto IMMUTATOR CopyBlob(std::vector<BlobBlockType>& buffer) const noexcept(false) -> void;
+		auto IMMUTATOR CopyBlob(std::vector<BlobBlockType>& buffer) const -> void;
 
 		/// <summary>
 		/// Lookup object block.
 		/// </summary>
 		/// <returns></returns>
-		auto IMMUTATOR operator *() const noexcept(true) -> BlobBlockType*;
+		auto IMMUTATOR operator *() const -> BlobBlockType*;
 
 		/// <summary>
 		/// Lookup object block.
 		/// </summary>
 		/// <returns></returns>
-		auto IMMUTATOR operator ->() const noexcept(true) -> BlobBlockType*;
+		auto IMMUTATOR operator ->() const -> BlobBlockType*;
 
 		/// <summary>
 		/// Lookup object block end.
 		/// </summary>
 		/// <returns></returns>
-		auto IMMUTATOR operator ~() const noexcept(true) -> BlobBlockType*;
+		auto IMMUTATOR operator ~() const -> BlobBlockType*;
 
 		/// <summary>
 		/// Unchecked subscript in object block.
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto IMMUTATOR operator [](std::size_t idx) noexcept(true) -> BlobBlockType&;
+		auto IMMUTATOR operator [](std::size_t idx) -> BlobBlockType&;
 
 		/// <summary>
 		/// Unchecked subscript in object block.
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto IMMUTATOR operator [](std::size_t idx) const noexcept(true) -> BlobBlockType;
+		auto IMMUTATOR operator [](std::size_t idx) const -> BlobBlockType;
 
 		/// <summary>
 		/// Sets the object block to zero - all object fields will be zero.
@@ -496,7 +496,7 @@ namespace Nominax::Core
 		/// <param name="b">The second object to compare to first.</param>
 		/// <returns>True if the two objects point to the same object blob, else false.</returns>
 		[[nodiscard]]
-		static auto ShallowCmp(Object a, Object b) noexcept(true) -> bool;
+		static auto ShallowCmp(Object a, Object b) -> bool;
 
 		/// <summary>
 		/// Compares the values of the object block of the two objects.
@@ -506,7 +506,7 @@ namespace Nominax::Core
 		/// <param name="b">The second object to compare to first.</param>
 		/// <returns>True if the object block data is equal, else false.</returns>
 		[[nodiscard]]
-		static auto DeepCmp(Object a, Object b) noexcept(true) -> bool;
+		static auto DeepCmp(Object a, Object b) -> bool;
 
 		/// <summary>
 		/// Compares the values of the object block of the two objects.
@@ -518,7 +518,7 @@ namespace Nominax::Core
 		/// <returns>True if all values of a are equal than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
 		[[nodiscard]]
-		static auto DeepValueCmp_Equal(Object a, Object b) noexcept(true) -> bool;
+		static auto DeepValueCmp_Equal(Object a, Object b) -> bool;
 
 
 		/// <summary>
@@ -531,7 +531,7 @@ namespace Nominax::Core
 		/// <returns>True if all values of a are not equal than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
 		[[nodiscard]]
-		static auto DeepValueCmp_NotEqual(Object a, Object b) noexcept(true) -> bool;
+		static auto DeepValueCmp_NotEqual(Object a, Object b) -> bool;
 
 		/// <summary>
 		/// Compares the values of the object block of the two objects.
@@ -543,7 +543,7 @@ namespace Nominax::Core
 		/// <returns>True if all values of a are less than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
 		[[nodiscard]]
-		static auto DeepValueCmp_Less(Object a, Object b) noexcept(true) -> bool;
+		static auto DeepValueCmp_Less(Object a, Object b) -> bool;
 
 		/// <summary>
 		/// Compares the values of the object block of the two objects.
@@ -555,7 +555,7 @@ namespace Nominax::Core
 		/// <returns>True if all values of a are less equal than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
 		[[nodiscard]]
-		static auto DeepValueCmp_LessEqual(Object a, Object b) noexcept(true) -> bool;
+		static auto DeepValueCmp_LessEqual(Object a, Object b) -> bool;
 
 		/// <summary>
 		/// Compares the values of the object block of the two objects.
@@ -567,7 +567,7 @@ namespace Nominax::Core
 		/// <returns>True if all values of a are greater than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
 		[[nodiscard]]
-		static auto DeepValueCmp_Greater(Object a, Object b) noexcept(true) -> bool;
+		static auto DeepValueCmp_Greater(Object a, Object b) -> bool;
 
 		/// <summary>
 		/// Compares the values of the object block of the two objects.
@@ -579,14 +579,14 @@ namespace Nominax::Core
 		/// <returns>True if all values of a are greater or equal than all values of b, else false.</returns>
 		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
 		[[nodiscard]]
-		static auto DeepValueCmp_GreaterEqual(Object a, Object b) noexcept(true) -> bool;
+		static auto DeepValueCmp_GreaterEqual(Object a, Object b) -> bool;
 
 		/// <summary>
 		/// Deleter for unique objects allocated with std::unique_ptr.
 		/// </summary>
 		struct UniquePtrObjectDeleter final
 		{
-			inline auto operator()(Object* const target) const noexcept(true) -> void
+			inline auto operator()(Object* const target) const -> void
 			{
 				delete[] target->Blob_;
 				delete target;
@@ -599,14 +599,14 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="sizeInRecords">BUG-PRONE The size of the object in RECORDS NOT in BYTES</param>
 		/// <returns>The mock object.</returns>
-		static auto AllocateUnique(U32 sizeInRecords) noexcept(false) -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
+		static auto AllocateUnique(U32 sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
 	};
 
 	static_assert(sizeof(Object) == sizeof(Object::BlobBlockType*));
 	static_assert(std::is_trivially_copyable_v<Object>);
 	static_assert(std::is_standard_layout_v<Object>);
 
-	inline Object::Object(BlobBlockType* const blob) noexcept(true) : Blob_(blob) {}
+	inline Object::Object(BlobBlockType* const blob) : Blob_(blob) {}
 
 	/// <summary>
 	/// Prevent using with invalid type.
@@ -622,7 +622,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
 	{
 		return false;
 	}
@@ -634,7 +634,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Equal<U64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Equal<U64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of I64.
@@ -643,7 +643,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Equal<I64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Equal<I64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of F64.
@@ -652,7 +652,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Equal<F64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Equal<F64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -661,7 +661,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Equal<char32_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Equal<char32_t>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of void*.
@@ -670,16 +670,16 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Equal<void*>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Equal<void*>(Object a, Object b) -> bool;
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal<char32_t>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal<char32_t>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Equal<U64>(a, b);
 	}
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal<void*>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal<void*>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Equal<U64>(a, b);
 	}
@@ -698,7 +698,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	inline auto Object::DeepValueCmp_NotEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept(true) -> bool
+	inline auto Object::DeepValueCmp_NotEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
 	{
 		assert(false);
 		return false;
@@ -711,7 +711,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<U64>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<U64>(const Object a, const Object b) -> bool
 	{
 		return !DeepValueCmp_Equal<U64>(a, b);
 	}
@@ -723,7 +723,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<I64>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<I64>(const Object a, const Object b) -> bool
 	{
 		return !DeepValueCmp_Equal<I64>(a, b);
 	}
@@ -735,7 +735,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<F64>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<F64>(const Object a, const Object b) -> bool
 	{
 		return !DeepValueCmp_Equal<F64>(a, b);
 	}
@@ -747,7 +747,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<char32_t>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<char32_t>(const Object a, const Object b) -> bool
 	{
 		return !DeepValueCmp_Equal<char32_t>(a, b);
 	}
@@ -759,7 +759,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<void*>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<void*>(const Object a, const Object b) -> bool
 	{
 		return !DeepValueCmp_Equal<void*>(a, b);
 	}
@@ -778,7 +778,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	inline auto Object::DeepValueCmp_Less([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept(true) -> bool
+	inline auto Object::DeepValueCmp_Less([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
 	{
 		assert(false);
 		return false;
@@ -791,7 +791,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Less<U64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Less<U64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of I64.
@@ -800,7 +800,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Less<I64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Less<I64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of F64.
@@ -809,7 +809,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Less<F64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Less<F64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -818,7 +818,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Less<char32_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Less<char32_t>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of void*.
@@ -827,16 +827,16 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Less<void*>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Less<void*>(Object a, Object b) -> bool;
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Less<char32_t>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Less<char32_t>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Less<void*>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Less<void*>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
@@ -855,7 +855,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	inline auto Object::DeepValueCmp_LessEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept(true) -> bool
+	inline auto Object::DeepValueCmp_LessEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
 	{
 		assert(false);
 		return false;
@@ -868,7 +868,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_LessEqual<U64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_LessEqual<U64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of I64.
@@ -877,7 +877,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_LessEqual<I64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_LessEqual<I64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of F64.
@@ -886,7 +886,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_LessEqual<F64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_LessEqual<F64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -895,7 +895,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_LessEqual<char32_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_LessEqual<char32_t>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of void*.
@@ -904,16 +904,16 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_LessEqual<void*>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_LessEqual<void*>(Object a, Object b) -> bool;
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_LessEqual<char32_t>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_LessEqual<char32_t>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_LessEqual<void*>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_LessEqual<void*>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
@@ -932,7 +932,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	inline auto Object::DeepValueCmp_Greater([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept(true) -> bool
+	inline auto Object::DeepValueCmp_Greater([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
 	{
 		assert(false);
 		return false;
@@ -945,7 +945,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Greater<U64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Greater<U64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of I64.
@@ -954,7 +954,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Greater<I64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Greater<I64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of F64.
@@ -963,7 +963,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Greater<F64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Greater<F64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -972,7 +972,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Greater<char32_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Greater<char32_t>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of void*.
@@ -981,16 +981,16 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Greater<void*>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_Greater<void*>(Object a, Object b) -> bool;
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Greater<char32_t>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Greater<char32_t>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Greater<void*>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_Greater<void*>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
@@ -1009,7 +1009,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	inline auto Object::DeepValueCmp_GreaterEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) noexcept(true) -> bool
+	inline auto Object::DeepValueCmp_GreaterEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
 	{
 		assert(false);
 		return false;
@@ -1022,7 +1022,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<U64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_GreaterEqual<U64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of I64.
@@ -1031,7 +1031,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<I64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_GreaterEqual<I64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of F64.
@@ -1040,7 +1040,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<F64>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_GreaterEqual<F64>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -1049,7 +1049,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<char32_t>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_GreaterEqual<char32_t>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of void*.
@@ -1058,173 +1058,173 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<void*>(Object a, Object b) noexcept(true) -> bool;
+	auto Object::DeepValueCmp_GreaterEqual<void*>(Object a, Object b) -> bool;
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_GreaterEqual<char32_t>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_GreaterEqual<char32_t>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_GreaterEqual<void*>(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::DeepValueCmp_GreaterEqual<void*>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryRawHeader() const noexcept(true) -> BlobBlockType*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryRawHeader() const -> BlobBlockType*
 	{
 		assert(this->Blob_ != nullptr);
 		return this->Blob_;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryHeader() const noexcept(true) -> ObjectHeader
+	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryHeader() const -> ObjectHeader
 	{
 		ObjectHeader header;
 		header.MapFromRegionUnchecked(this->QueryRawHeader());
 		return header;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlock() const noexcept(true) -> BlobBlockType*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlock() const -> BlobBlockType*
 	{
 		assert(this->Blob_ != nullptr);
 		return this->Blob_ + ObjectHeader::RECORD_OFFSET;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlockEnd() const noexcept(true) -> BlobBlockType*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlockEnd() const -> BlobBlockType*
 	{
 		assert(this->HeaderRead_BlockSize() > 0);
 		return this->LookupObjectBlock() + this->HeaderRead_BlockSize();
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::IsUnderlyingObjectBlockNull() const noexcept(true) -> bool
+	__attribute__((flatten)) inline auto IMMUTATOR Object::IsUnderlyingObjectBlockNull() const -> bool
 	{
 		return this->LookupObjectBlock() == nullptr;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::IsBlobNull() const noexcept(true) -> bool
+	__attribute__((flatten)) inline auto IMMUTATOR Object::IsBlobNull() const -> bool
 	{
 		return this->Blob_ == nullptr;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::BlobSize() const noexcept(true) -> std::size_t
+	__attribute__((flatten)) inline auto IMMUTATOR Object::BlobSize() const -> std::size_t
 	{
 		return ObjectHeader::RECORD_CHUNKS + ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::BlobSizeInBytes() const noexcept(true) -> std::size_t
+	__attribute__((flatten)) inline auto IMMUTATOR Object::BlobSizeInBytes() const -> std::size_t
 	{
 		return BlobSize() * sizeof(Record);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const noexcept(true) -> std::size_t
+	__attribute__((flatten)) inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const -> std::size_t
 	{
 		return this->HeaderRead_BlockSize() * sizeof(Record);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const noexcept(true) -> U32
+	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const -> U32
 	{
 		return ObjectHeader::ReadMapping_StrongRefCount(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_BlockSize() const noexcept(true) -> U32
+	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_BlockSize() const -> U32
 	{
 		return ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_TypeId() const noexcept(true) -> U32
+	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_TypeId() const -> U32
 	{
 		return ObjectHeader::ReadMapping_TypeId(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::Header_ReadFlagVector() const noexcept(true) -> ObjectFlagVector
+	__attribute__((flatten)) inline auto IMMUTATOR Object::Header_ReadFlagVector() const -> ObjectFlagVector
 	{
 		return ObjectHeader::ReadMapping_FlagVector(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_IncrementStrongRefCount() const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_IncrementStrongRefCount() const -> void
 	{
 		ObjectHeader::WriteMapping_IncrementStrongRefCount(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_DecrementStrongRefCount() const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_DecrementStrongRefCount() const -> void
 	{
 		ObjectHeader::WriteMapping_DecrementStrongRefCount(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::operator++() const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::operator++() const -> void
 	{
 		this->HeaderWrite_IncrementStrongRefCount();
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::operator--() const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::operator--() const -> void
 	{
 		this->HeaderWrite_DecrementStrongRefCount();
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::operator++(int) const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::operator++(int) const -> void
 	{
 		this->HeaderWrite_IncrementStrongRefCount();
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::operator--(int) const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::operator--(int) const -> void
 	{
 		this->HeaderWrite_DecrementStrongRefCount();
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_StrongRefCount(const U32 strongRefCount) const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_StrongRefCount(const U32 strongRefCount) const -> void
 	{
 		ObjectHeader::WriteMapping_StrongRefCount(this->QueryRawHeader(), strongRefCount);
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_Size(const U32 size) const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_Size(const U32 size) const -> void
 	{
 		ObjectHeader::WriteMapping_Size(this->QueryRawHeader(), size);
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_TypeId(const U32 typeId) const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_TypeId(const U32 typeId) const -> void
 	{
 		ObjectHeader::WriteMapping_TypeId(this->QueryRawHeader(), typeId);
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagVector flagVector) const noexcept(true) -> void
+	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagVector flagVector) const -> void
 	{
 		ObjectHeader::WriteMapping_FlagVector(this->QueryRawHeader(), flagVector);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator*() const noexcept(true) -> BlobBlockType*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator*() const -> BlobBlockType*
 	{
 		return this->LookupObjectBlock();
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator->() const noexcept(true) -> BlobBlockType*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator->() const -> BlobBlockType*
 	{
 		return this->LookupObjectBlock();
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator~() const noexcept(true) -> BlobBlockType*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator~() const -> BlobBlockType*
 	{
 		return this->LookupObjectBlockEnd();
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) noexcept(true) -> BlobBlockType&
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) -> BlobBlockType&
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) const noexcept(true) -> BlobBlockType
+	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) const -> BlobBlockType
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto IMMUTATOR Object::begin() const noexcept(true) -> BlobBlockType*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::begin() const -> BlobBlockType*
 	{
 		return this->LookupObjectBlock();
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto IMMUTATOR Object::end() const noexcept(true) -> BlobBlockType*
+	__attribute__((flatten)) inline auto IMMUTATOR Object::end() const -> BlobBlockType*
 	{
 		return this->LookupObjectBlockEnd();
 	}
@@ -1234,7 +1234,7 @@ namespace Nominax::Core
 		std::memset(this->LookupObjectBlock(), 0, this->ObjectBlockSizeInBytes());
 	}
 
-	__attribute__((flatten)) inline auto Object::ShallowCmp(const Object a, const Object b) noexcept(true) -> bool
+	__attribute__((flatten)) inline auto Object::ShallowCmp(const Object a, const Object b) -> bool
 	{
 		return a.Blob_ == b.Blob_;
 	}
@@ -1247,7 +1247,7 @@ namespace Nominax::Core
 	/// <param name="object"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto begin(const Object object) noexcept(true) -> Object::BlobBlockType*
+	__attribute__((flatten)) inline auto begin(const Object object) -> Object::BlobBlockType*
 	{
 		return object.LookupObjectBlock();
 	}
@@ -1260,7 +1260,7 @@ namespace Nominax::Core
 	/// <param name="object"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto end(const Object object) noexcept(true) -> Object::BlobBlockType*
+	__attribute__((flatten)) inline auto end(const Object object) -> Object::BlobBlockType*
 	{
 		return object.LookupObjectBlockEnd();
 	}

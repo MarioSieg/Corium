@@ -242,7 +242,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		extern auto GetFallbackRoutineLink() noexcept(true) -> ReactorRoutineLink;
+		extern auto GetFallbackRoutineLink() -> ReactorRoutineLink;
 
 		/// <summary>
 		/// Returns the reactor specialization based on the cpu features available.
@@ -250,14 +250,14 @@ namespace Nominax
 		/// <param name="cpuFeatureDetector"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		extern auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization;
+		extern auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current reactor registry.</returns>
 		[[nodiscard]]
-		extern auto GetReactorRegistry() noexcept(true) -> const ReactorRegistry&;
+		extern auto GetReactorRegistry() -> const ReactorRegistry&;
 
 		/// <summary>
 		/// Returns the reactor routine of the corresponding target.
@@ -283,6 +283,6 @@ namespace Nominax
 		/// <param name="input"></param>
 		/// <param name="output"></param>
 		/// <returns></returns>
-		extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target) noexcept(true) -> void;
+		extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target) -> void;
 	}
 }

@@ -211,7 +211,7 @@
 
 namespace Nominax::Common
 {
-	auto Xorshift32Atomic() noexcept(true) -> U32
+	auto Xorshift32Atomic() -> U32
 	{
 		static constinit std::atomic_uint32_t seed32 {0x12B9B0A1};
 		seed32 ^= seed32 << 0xD;
@@ -220,7 +220,7 @@ namespace Nominax::Common
 		return seed32;
 	}
 
-	auto Xorshift64Atomic() noexcept(true) -> U64
+	auto Xorshift64Atomic() -> U64
 	{
 		static constinit std::atomic_uint64_t seed64 {0x139408DCBBF7A44};
 		seed64 ^= seed64 << 0xD;
@@ -229,7 +229,7 @@ namespace Nominax::Common
 		return seed64;
 	}
 
-	auto Xorshift128Atomic() noexcept(true) -> U32
+	auto Xorshift128Atomic() -> U32
 	{
 		static constinit std::atomic_uint32_t x {0x75BCD15};
 		static constinit std::atomic_uint32_t y {0x159A55E5};

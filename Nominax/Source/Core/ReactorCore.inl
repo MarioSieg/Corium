@@ -258,7 +258,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Operator for F64 precision F32ing point modulo.
 	/// </summary>
-	__attribute__((always_inline)) static inline auto operator %=(Record& self, const F64 value) noexcept(true) -> void
+	__attribute__((always_inline)) static inline auto operator %=(Record& self, const F64 value) -> void
 	{
 		self.AsF64 = std::fmod(self.AsF64, value);
 	}
@@ -300,7 +300,7 @@ namespace Nominax::Core
 	/// So stack[-1] will be overwritten and contains the result.
 	/// stack[0] will still contain arg2.
 	/// </summary>
-	__attribute__((hot)) static auto SyscallIntrin(Record* __restrict__ const sp, const U64 id) noexcept(true) -> void
+	__attribute__((hot)) static auto SyscallIntrin(Record* __restrict__ const sp, const U64 id) -> void
 	{
 		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallID::$Count)] {
 			&& __cos__,
@@ -608,7 +608,7 @@ namespace Nominax::Core
 		return;
 	}
 
-	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor& input, ReactorState& output) noexcept(true) -> void
+	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor& input, ReactorState& output) -> void
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 

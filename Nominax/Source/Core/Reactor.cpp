@@ -222,7 +222,7 @@ namespace Nominax::Core
 		ByteCode::JumpMap&                      jumpMap,
 		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
 		InterruptRoutine&                       interruptHandler
-	) noexcept(true) -> VerboseReactorDescriptor
+	) -> VerboseReactorDescriptor
 	{
 		const std::span instrMapTableView
 		{
@@ -258,7 +258,7 @@ namespace Nominax::Core
 		InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : &DefaultInterruptRoutine},
 		RoutineLink_
 		{
-			[&routineLink]() noexcept(true) -> ReactorRoutineLink
+			[&routineLink]() -> ReactorRoutineLink
 			{
 				if (NOMINAX_UNLIKELY(!routineLink))
 				{
@@ -308,7 +308,7 @@ namespace Nominax::Core
 		return this->Output_;
 	}
 
-	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target) noexcept(true) -> ReactorState
+	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target) -> ReactorState
 	{
 		ReactorState output {.Input = &input};
 		SingletonExecutionProxy(input, output, target);

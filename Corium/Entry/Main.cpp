@@ -208,9 +208,15 @@
 #include "../Source/Base.hpp"
 #include "../Source/Lexer.hpp"
 
-using namespace Nominax::Prelude;
+using namespace Nominax;
+using namespace Arch;
+using namespace ByteCode;
+using namespace Core;
+using namespace System;
+using namespace Common;
+using namespace VectorLib;
 
-static auto ParseFile(const std::string_view path, Stream& out) noexcept(false) -> void
+static auto ParseFile(const std::string_view path, Stream& out) -> void
 {
 	TextFile file { };
 	file.ReadFromFileOrPanic(path);
@@ -235,7 +241,7 @@ static auto ExecuteNominax
 	Stream&&                 appCode,
 	const int                argc = 0,
 	const char* const* const argv = nullptr
-) noexcept(false) -> int
+) -> int
 {
 	const EnvironmentDescriptor descriptor
 	{

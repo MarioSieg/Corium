@@ -215,15 +215,15 @@ namespace Corium
 	};
 
 	[[nodiscard]]
-	constexpr auto GetOperatorDescription(const Operator op) noexcept(true) -> std::string_view
+	constexpr auto GetOperatorDescription(const Operator op) -> std::string_view
 	{
 		switch (op)
 		{
-            case Operator::Assignment:
-                return "Assignment";
+		case Operator::Assignment:
+			return "Assignment";
 
-            default:
-                return "";
+		default:
+			return "";
 		}
 	}
 }

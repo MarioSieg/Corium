@@ -212,11 +212,11 @@
 namespace Nominax::Common
 {
 	[[nodiscard]]
-	extern auto Xorshift32ThreadLocal() noexcept(true) -> U32;
+	extern auto Xorshift32ThreadLocal() -> U32;
 
 	[[nodiscard]]
-	extern auto Xorshift64ThreadLocal() noexcept(true) -> U64;
+	extern auto Xorshift64ThreadLocal() -> U64;
 
 	[[nodiscard]]
-	extern auto Xorshift128ThreadLocal() noexcept(true) -> U32;
+	extern auto Xorshift128ThreadLocal() -> U32;
 }

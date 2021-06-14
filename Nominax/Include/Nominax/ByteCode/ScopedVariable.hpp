@@ -463,7 +463,7 @@ namespace Nominax::ByteCode
 		/// Returns the attached stream.
 		/// </summary>
 		/// <returns></returns>
-		auto AttachedStream() const noexcept(true) -> const Stream&;
+		auto AttachedStream() const -> const Stream&;
 
 		auto Unwrap() const -> T;
 	};
@@ -479,7 +479,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <typename T> requires StreamScalar<T>
-	inline auto ScopedVariable<T>::AttachedStream() const noexcept(true) -> const Stream&
+	inline auto ScopedVariable<T>::AttachedStream() const -> const Stream&
 	{
 		return this->Attached_;
 	}

@@ -324,7 +324,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="appCode"></param>
 	/// <returns></returns>
-	static inline auto MapStackSize(const std::size_t sizeInBytes) noexcept(true) -> std::size_t
+	static inline auto MapStackSize(const std::size_t sizeInBytes) -> std::size_t
 	{
 		if (NOMINAX_UNLIKELY(sizeInBytes % sizeof(Record) != 0))
 		{
@@ -352,12 +352,12 @@ namespace Nominax::Core
 	(
 		std::size_t       desiredSize,
 		const std::size_t reactorCount,
-		std::size_t reactorStackSize
+		std::size_t       reactorStackSize
 	)
-	noexcept(true) -> std::size_t
+	-> std::size_t
 	{
 		reactorStackSize = MapStackSize(reactorStackSize);
-		desiredSize = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
+		desiredSize      = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
 		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
 	}
 
@@ -367,7 +367,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="ptr"></param>
 	/// <returns></returns>
-    static inline auto operator*(const std::unique_ptr<U8[]>& ptr) noexcept(true) -> U8*
+	static inline auto operator*(const std::unique_ptr<U8[]>& ptr) -> U8*
 	{
 		return ptr.get();
 	}
@@ -377,7 +377,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="desiredSize"></param>
 	/// <returns></returns>
-	static constexpr auto ClampBootPoolSize(const std::size_t desiredSize) noexcept(true) -> std::size_t
+	static constexpr auto ClampBootPoolSize(const std::size_t desiredSize) -> std::size_t
 	{
 		return std::clamp(desiredSize, Environment::BOOT_POOL_SIZE_MIN, Environment::BOOT_POOL_SIZE_MAX);
 	}
@@ -455,7 +455,7 @@ namespace Nominax::Core
 	/// <param name="max"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	static constexpr auto ComputeMemoryPercent(const std::size_t used, const std::size_t max) noexcept(true) -> F64
+	static constexpr auto ComputeMemoryPercent(const std::size_t used, const std::size_t max) -> F64
 	{
 		return static_cast<F64>(used) * 100.0 / static_cast<F64>(max);
 	}
@@ -529,13 +529,16 @@ namespace Nominax::Core
 		SysInfoSnapshot {InitSysInfo()},
 		CpuFeatures {InitCpuFeatures()},
 		OptimalReactorRoutine {descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)},
-		CorePool{ SystemPoolResource, ReactorCount, ReactorSpawnDescriptor 
-		{
-			.StackSize = MapStackSize(descriptor.StackSize),
-			.SharedIntrinsicTable = {},
-			.InterruptHandler = nullptr,
-			.PowerPref = descriptor.PowerPref
-		}, OptimalReactorRoutine }
+		CorePool {
+			SystemPoolResource, ReactorCount, ReactorSpawnDescriptor
+			{
+				.StackSize = MapStackSize(descriptor.StackSize),
+				.SharedIntrinsicTable = { },
+				.InterruptHandler = nullptr,
+				.PowerPref = descriptor.PowerPref
+			},
+			OptimalReactorRoutine
+		}
 	{
 		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
 		{
@@ -547,7 +550,7 @@ namespace Nominax::Core
 		this->AppName = descriptor.AppName;
 	}
 
-	auto Environment::ContextDeleter::operator()(Context* const kernel) const noexcept(true) -> void
+	auto Environment::ContextDeleter::operator()(Context* const kernel) const -> void
 	{
 		delete kernel;
 	}
@@ -582,7 +585,7 @@ namespace Nominax::Core
 		return true;
 	}
 
-	Environment::Environment(const IAllocator* const allocator) noexcept(true)
+	Environment::Environment(const IAllocator* const allocator)
 	{
 		if (NOMINAX_UNLIKELY(allocator))
 		{
@@ -660,7 +663,7 @@ namespace Nominax::Core
 			)
 		};
 
-		const auto ms{ std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik) };
+		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
 		this->Context_->BootTime = ms;
 
 		Print
@@ -743,12 +746,12 @@ namespace Nominax::Core
 		DISPATCH_HOOK(OnPostShutdownHook,);
 	}
 
-	auto Environment::IsOnline() const noexcept(true) -> bool
+	auto Environment::IsOnline() const -> bool
 	{
 		return this->Context_ != nullptr;
 	}
 
-	auto Environment::GetKernel() const noexcept(true) -> const void*
+	auto Environment::GetKernel() const -> const void*
 	{
 		return this->Context_.get();
 	}

@@ -243,7 +243,7 @@ namespace Nominax::System
 		/// Construct new instance and query cpu feature
 		/// using architecture dependent routines.
 		/// </summary>
-		CpuFeatureDetector() noexcept(false);
+		CpuFeatureDetector();
 
 		/// <summary>
 		/// No copy.
@@ -273,12 +273,12 @@ namespace Nominax::System
 		/// <summary>
 		/// Access the architecture dependent feature bits directly.
 		/// </summary>
-		auto operator ->() const noexcept(true) -> const FeatureBits*;
+		auto operator ->() const -> const FeatureBits*;
 
 		/// <summary>
 		/// Access the architecture dependent feature bits directly.
 		/// </summary>
-		auto operator *() const noexcept(true) -> const FeatureBits&;
+		auto operator *() const -> const FeatureBits&;
 
 		/// <summary>
 		/// Prints all the architecture dependent features in different colors.
@@ -286,12 +286,12 @@ namespace Nominax::System
 		auto Print() const -> void;
 	};
 
-	inline auto CpuFeatureDetector::operator ->() const noexcept(true) -> const FeatureBits*
+	inline auto CpuFeatureDetector::operator ->() const -> const FeatureBits*
 	{
 		return &this->Features_;
 	}
 
-	inline auto CpuFeatureDetector::operator *() const noexcept(true) -> const FeatureBits&
+	inline auto CpuFeatureDetector::operator *() const -> const FeatureBits&
 	{
 		return this->Features_;
 	}

@@ -214,7 +214,7 @@
 
 namespace Nominax::System
 {
-	static auto MachineRating(const std::size_t threads) noexcept(true) -> char
+	static auto MachineRating(const std::size_t threads) -> char
 	{
 		if (threads <= 2)
 		{

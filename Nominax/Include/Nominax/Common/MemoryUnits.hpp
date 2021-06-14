@@ -217,7 +217,7 @@ namespace Nominax
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Bytes2Gigabytes(T bytes) noexcept(true) -> T
+	constexpr auto Bytes2Gigabytes(T bytes) -> T
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
 		return bytes / static_cast<T>(BYTE_SCALE) / static_cast<T>(BYTE_SCALE) / static_cast<T>(BYTE_SCALE);
@@ -225,7 +225,7 @@ namespace Nominax
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Bytes2Megabytes(T bytes) noexcept(true) -> T
+	constexpr auto Bytes2Megabytes(T bytes) -> T
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
 		return bytes / static_cast<T>(BYTE_SCALE) / static_cast<T>(BYTE_SCALE);
@@ -233,7 +233,7 @@ namespace Nominax
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Bytes2Kilobytes(T bytes) noexcept(true) -> T
+	constexpr auto Bytes2Kilobytes(T bytes) -> T
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
 		return bytes / static_cast<T>(BYTE_SCALE);
@@ -241,36 +241,36 @@ namespace Nominax
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Gigabytes2Bytes(const T gigabytes) noexcept(true) -> T
+	constexpr auto Gigabytes2Bytes(const T gigabytes) -> T
 	{
 		return gigabytes * static_cast<T>(BYTE_SCALE) * static_cast<T>(BYTE_SCALE) * static_cast<T>(BYTE_SCALE);
 	}
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Megabytes2Bytes(const T megabytes) noexcept(true) -> T
+	constexpr auto Megabytes2Bytes(const T megabytes) -> T
 	{
 		return megabytes * static_cast<T>(BYTE_SCALE) * static_cast<T>(BYTE_SCALE);
 	}
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
-	constexpr auto Kilobytes2Bytes(const T kilobytes) noexcept(true) -> T
+	constexpr auto Kilobytes2Bytes(const T kilobytes) -> T
 	{
 		return kilobytes * static_cast<T>(BYTE_SCALE);
 	}
 
-	constexpr auto operator ""_kb(const unsigned long long int value) noexcept(true) -> unsigned long long int
+	constexpr auto operator ""_kb(const unsigned long long int value) -> unsigned long long int
 	{
 		return Kilobytes2Bytes<decltype(value)>(value);
 	}
 
-	constexpr auto operator ""_mb(const unsigned long long int value) noexcept(true) -> unsigned long long int
+	constexpr auto operator ""_mb(const unsigned long long int value) -> unsigned long long int
 	{
 		return Megabytes2Bytes<decltype(value)>(value);
 	}
 
-	constexpr auto operator ""_gb(const unsigned long long int value) noexcept(true) -> unsigned long long int
+	constexpr auto operator ""_gb(const unsigned long long int value) -> unsigned long long int
 	{
 		return Gigabytes2Bytes<decltype(value)>(value);
 	}

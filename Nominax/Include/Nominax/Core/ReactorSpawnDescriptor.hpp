@@ -259,10 +259,10 @@ namespace Nominax::Core
 		/// Get platform dependent default configuration.
 		/// </summary>
 		/// <returns></returns>
-		static constexpr auto Default(std::size_t stackSize = FixedStack::SIZE_LARGE) noexcept(true) -> ReactorSpawnDescriptor;
+		static constexpr auto Default(std::size_t stackSize = FixedStack::SIZE_LARGE) -> ReactorSpawnDescriptor;
 	};
 
-	constexpr auto ReactorSpawnDescriptor::Default(const std::size_t stackSize) noexcept(true) -> ReactorSpawnDescriptor
+	constexpr auto ReactorSpawnDescriptor::Default(const std::size_t stackSize) -> ReactorSpawnDescriptor
 	{
 		return ReactorSpawnDescriptor
 		{

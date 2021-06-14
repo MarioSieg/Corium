@@ -224,5 +224,5 @@ namespace Corium
 	using PrimitiveLiteral = std::variant<Nominax::I64, Nominax::F64>;
 	using Token = std::variant<MonoLexeme, Identifier, Keyword, Operator, PrimitiveLiteral>;
 
-	extern auto PrintToken(const Token& tok) noexcept(false) -> void;
+	extern auto PrintToken(const Token& tok) -> void;
 }
