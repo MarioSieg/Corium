@@ -224,9 +224,7 @@ namespace Nominax::Core
 	(
 		std::pmr::monotonic_buffer_resource& allocator,
 		const std::size_t                    threadCount
-	) noexcept(false) : Allocator_ {&allocator}, Threads {
-		                    Allocator_
-	                    }
+	) : Allocator_ {&allocator}, Threads { Allocator_}
 	{
 		for (std::size_t i {0}; i < threadCount; ++i)
 		{
