@@ -213,5 +213,11 @@
 #include "../Source/Token.hpp"
 #include "../Source/Lexer.hpp"
 
-using namespace Prelude;
+using namespace Nominax;
+using namespace Arch;
+using namespace ByteCode;
+using namespace Core;
+using namespace System;
+using namespace Common;
+using namespace VectorLib;
 using namespace Corium;

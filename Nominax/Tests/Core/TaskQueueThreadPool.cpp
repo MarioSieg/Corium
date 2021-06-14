@@ -209,7 +209,7 @@
 
 namespace Nominax::Core
 {
-	TaskQueueThreadPool::TaskQueueThreadPool(const std::size_t threadCount) noexcept(false)
+	TaskQueueThreadPool::TaskQueueThreadPool(const std::size_t threadCount)
 	{
 		for (std::size_t i {0}; i < threadCount; ++i)
 		{
@@ -217,7 +217,7 @@ namespace Nominax::Core
 		}
 	}
 
-	TaskQueueThreadPool::TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator) noexcept(true)
+	TaskQueueThreadPool::TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator)
 		: Allocator_ {&allocator}, Threads {Allocator_} { }
 
 	TaskQueueThreadPool::TaskQueueThreadPool
@@ -234,7 +234,7 @@ namespace Nominax::Core
 		}
 	}
 
-	auto TaskQueueThreadPool::JoinAll() noexcept(false) -> void
+	auto TaskQueueThreadPool::JoinAll() -> void
 	{
 		for (auto& thread : this->Threads)
 		{
@@ -242,7 +242,7 @@ namespace Nominax::Core
 		}
 	}
 
-	auto TaskQueueThreadPool::Push() noexcept(false) -> void
+	auto TaskQueueThreadPool::Push() -> void
 	{
 		this->Threads.emplace_back
 		(
