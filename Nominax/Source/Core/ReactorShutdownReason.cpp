@@ -210,7 +210,7 @@
 
 namespace Nominax::Core
 {
-	auto PrintShutdownReason(const ReactorShutdownReason reason, const InterruptAccumulator code) noexcept(false) -> void
+	auto PrintShutdownReason(const ReactorShutdownReason reason, const InterruptAccumulator code) -> void
 	{
 		using namespace Common;
 

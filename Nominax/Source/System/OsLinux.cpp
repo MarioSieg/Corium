@@ -219,14 +219,14 @@
 
 namespace Nominax::System::Os
 {
-	auto QuerySystemMemoryTotal() noexcept(false) -> std::size_t
+	auto QuerySystemMemoryTotal()  -> std::size_t
 	{
 		const long pages = sysconf(_SC_PHYS_PAGES);
 		const long page_size = sysconf(_SC_PAGE_SIZE);
 		return static_cast<std::size_t>(pages * page_size);
 	}
 
-	auto QueryProcessMemoryUsed() noexcept(false) -> std::size_t {
+	auto QueryProcessMemoryUsed()  -> std::size_t {
 		auto* const file = fopen("/proc/self/statm", "r");
 		if (file == nullptr)
 		{
@@ -238,7 +238,7 @@ namespace Nominax::System::Os
 		return static_cast<std::size_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
 	}
 
-	auto QueryCpuName() noexcept(false) -> std::string
+	auto QueryCpuName()  -> std::string
 	{
 		std::ifstream cpuinfo("/proc/cpuinfo");
 
@@ -260,22 +260,22 @@ namespace Nominax::System::Os
 		return {};
 	}
 
-	auto QueryPageSize() noexcept(false)->std::size_t
+	auto QueryPageSize() ->std::size_t
 	{
 		return static_cast<std::size_t>(sysconf(_SC_PAGE_SIZE));
 	}
 
-	auto DylibOpen(const std::string_view file_) noexcept(false) -> void*
+	auto DylibOpen(const std::string_view file_)  -> void*
 	{
 		return ::dlopen(file_.data(), RTLD_LOCAL | RTLD_LAZY);
 	}
 
-	auto DylibLookupSymbol(void* const handle_, const std::string_view symbol_) noexcept(false) -> void*
+	auto DylibLookupSymbol(void* const handle_, const std::string_view symbol_)  -> void*
 	{
 		return ::dlsym(handle_, symbol_.data());
 	}
 
-	auto DylibClose(void*& handle_) noexcept(false) -> void
+	auto DylibClose(void*& handle_)  -> void
 	{
 		::dlclose(handle_);
 		handle_ = nullptr;

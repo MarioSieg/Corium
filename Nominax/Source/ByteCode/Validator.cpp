@@ -225,7 +225,7 @@ namespace Nominax::ByteCode
 {
 	using namespace Common;
 
-	auto ContainsPrologue(const Stream& input) noexcept(false) -> bool
+	auto ContainsPrologue(const Stream& input) -> bool
 	{
 		constexpr const auto& code {Stream::PrologueCode()};
 		if (NOMINAX_UNLIKELY(input.Size() < code.size()))
@@ -242,7 +242,7 @@ namespace Nominax::ByteCode
 		return true;
 	}
 
-	auto ContainsEpilogue(const Stream& input) noexcept(false) -> bool
+	auto ContainsEpilogue(const Stream& input) -> bool
 	{
 		constexpr const auto& code {Stream::EpilogueCode()};
 		if (NOMINAX_UNLIKELY(input.Size() < code.size()))
@@ -259,7 +259,7 @@ namespace Nominax::ByteCode
 		return true;
 	}
 
-	auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void
+	auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> void
 	{
 		output.resize(input.Size());
 		jumpMap.resize(input.Size());
@@ -284,7 +284,7 @@ namespace Nominax::ByteCode
 		}
 	}
 
-	auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry, U32* const outIndex) noexcept(false) -> ValidationResultCode
+	auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry, U32* const outIndex) -> ValidationResultCode
 	{
 		// Check if empty:
 		if (NOMINAX_UNLIKELY(input.IsEmpty()))
@@ -330,7 +330,7 @@ namespace Nominax::ByteCode
 
 		auto validationRoutine
 		{
-			[&error, &codeBuf, &input, &intrinsicRegistry, &errorIndex, bufBegin, bufEnd](const Signal::Discriminator& iterator) noexcept(false)
+			[&error, &codeBuf, &input, &intrinsicRegistry, &errorIndex, bufBegin, bufEnd](const Signal::Discriminator& iterator)
 			{
 				const std::ptrdiff_t index {DistanceRef(iterator, bufBegin)};
 				const Signal         signal {codeBuf[index]};

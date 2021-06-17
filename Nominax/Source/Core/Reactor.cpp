@@ -246,7 +246,7 @@ namespace Nominax::Core
 		const ReactorSpawnDescriptor&            descriptor,
 		const std::optional<ReactorRoutineLink>& routineLink,
 		const std::size_t                        poolIdx
-	) noexcept(false) :
+	) :
 		Id_ {Common::Xorshift128ThreadLocal()},
 		PoolIndex_ {poolIdx},
 		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
@@ -287,7 +287,7 @@ namespace Nominax::Core
 		);
 	}
 
-	auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorState&
+	auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) -> const ReactorState&
 	{
 		this->AppCode_ = std::move(bundle);
 		this->Input_   = CreateDescriptor

@@ -216,7 +216,7 @@ struct DynamicSignal final
 
 	DataVariant Data {0_uint};
 
-	explicit constexpr operator Signal::Discriminator() const noexcept(true)
+	explicit constexpr operator Signal::Discriminator() const
 	{
 		switch (this->Data.index())
 		{

@@ -222,7 +222,7 @@ TEST(ReactorExecution, Instruction_Int)
 	static constinit InterruptAccumulator accumulator;
 	static constinit int                  calls;
 
-	input.InterruptHandler = +[](const InterruptAccumulator x) noexcept(true) -> void
+	input.InterruptHandler = +[](const InterruptAccumulator x) -> void
 	{
 		accumulator = x;
 		++calls;

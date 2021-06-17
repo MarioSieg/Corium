@@ -223,13 +223,13 @@ namespace Nominax::Core
 		return true;
 	}
 
-	auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) const noexcept(false) -> void
+	auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) const -> void
 	{
 		buffer.resize(this->HeaderRead_BlockSize());
 		std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
 	}
 
-	auto Object::CopyBlob(std::vector<Record>& buffer) const noexcept(false) -> void
+	auto Object::CopyBlob(std::vector<Record>& buffer) const -> void
 	{
 		buffer.resize(this->BlobSize());
 		std::memcpy(buffer.data(), this->Blob_, this->BlobSizeInBytes());
@@ -242,7 +242,7 @@ namespace Nominax::Core
 			       : false;
 	}
 
-	auto Object::AllocateUnique(const U32 sizeInRecords) noexcept(false) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
+	auto Object::AllocateUnique(const U32 sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
 	{
 		if (NOMINAX_UNLIKELY(sizeInRecords == 0))
 		{

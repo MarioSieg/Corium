@@ -209,7 +209,7 @@
 
 namespace Nominax::System
 {
-	CpuFeatureDetector::CpuFeatureDetector() noexcept(false) : Features_ { } {}
+	CpuFeatureDetector::CpuFeatureDetector() : Features_ { } {}
 
 	auto CpuFeatureDetector::Print() const -> void
 	{
