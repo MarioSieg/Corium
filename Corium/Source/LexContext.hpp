@@ -3,7 +3,6 @@
 
 #include "Token.hpp"
 
-
 namespace Corium
 {
 	using LexTree = std::vector<Token>;

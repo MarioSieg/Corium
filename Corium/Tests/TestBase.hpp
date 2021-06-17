@@ -212,6 +212,7 @@
 #include "../Source/Keyword.hpp"
 #include "../Source/Token.hpp"
 #include "../Source/Lexer.hpp"
+#include "../Source/LexContext.hpp"
 
 using namespace Nominax;
 using namespace Arch;

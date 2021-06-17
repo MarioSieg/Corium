@@ -84,15 +84,13 @@ namespace Corium
 				result.emplace_back(Operator::Assignment);
 			return;
 
-			case u8' ':
-				this->ParseAndSubmitIdentifier();
-			return;
-
 			case u8'\n':
 			case u8'\t':
 			case u8'\v':
 			case u8'\f':
 			case u8'\r':
+			case u8' ':
+				this->ParseAndSubmitIdentifier();
 			return;
 
 			default:
