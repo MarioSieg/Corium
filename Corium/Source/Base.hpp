@@ -208,3 +208,5 @@
 #pragma once
 
 #include <Nominax/Nominax.hpp>
+
+using namespace Nominax;

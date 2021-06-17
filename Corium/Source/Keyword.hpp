@@ -211,7 +211,7 @@
 
 namespace Corium
 {
-	enum class Keyword : Nominax::U8
+	enum class Keyword : U8
 	{
 		Let,
 

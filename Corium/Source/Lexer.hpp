@@ -207,18 +207,19 @@
 
 #pragma once
 
-#include "Token.hpp"
 #include "Base.hpp"
+#include "LexContext.hpp"
 
 namespace Corium
 {
+	/// <summary>
+	/// Contains the error code about lexing failture.
+	/// </summary>
 	enum class LexResultCode
 	{
 		Ok,
 		EmptyFile
 	};
-
-	using LexTree = std::vector<Token>;
 
 	using LexResult = std::pair<LexTree, LexResultCode>;
 

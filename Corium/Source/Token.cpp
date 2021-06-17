@@ -213,30 +213,30 @@ namespace Corium
 	{
 		if (const auto* const monoLexeme = std::get_if<MonoLexeme>(&tok))
 		{
-			Print(Nominax::Common::TextColor::BrightBlue, "Lexeme: {}\n", GetLexemeDescription(*monoLexeme));
+			Print(Common::TextColor::BrightBlue, "Lexeme: {}\n", GetLexemeDescription(*monoLexeme));
 		}
 		else if (const auto* const keyword = std::get_if<Keyword>(&tok))
 		{
-			Print(Nominax::Common::TextColor::BrightBlue, "Keyword: {}\n", reinterpret_cast<const char*>(GetKeywordLexeme(*keyword).data()));
+			Print(Common::TextColor::BrightBlue, "Keyword: {}\n", reinterpret_cast<const char*>(GetKeywordLexeme(*keyword).data()));
 		}
 		else if (const auto* const operator_ = std::get_if<Operator>(&tok))
 		{
-			Print(Nominax::Common::TextColor::BrightBlue, "Operator: {}\n", GetOperatorDescription(*operator_));
+			Print(Common::TextColor::BrightBlue, "Operator: {}\n", GetOperatorDescription(*operator_));
 		}
-		else if (const auto* const literal = std::get_if<PrimitiveLiteral>(&tok))
+		else if (const auto* const literal = std::get_if<Literal>(&tok))
 		{
-			if (const auto* const integer = std::get_if<Nominax::I64>(literal))
+			if (const auto* const integer = std::get_if<I64>(literal))
 			{
-				Print(Nominax::Common::TextColor::BrightBlue, "Literal: int {}\n", *integer);
+				Print(Common::TextColor::BrightBlue, "Literal: int {}\n", *integer);
 			}
-			else if (const auto* const floating = std::get_if<Nominax::F64>(literal))
+			else if (const auto* const floating = std::get_if<F64>(literal))
 			{
-				Print(Nominax::Common::TextColor::BrightBlue, "Literal: float {}\n", *floating);
+				Print(Common::TextColor::BrightBlue, "Literal: float {}\n", *floating);
 			}
 		}
 		else if (const auto* const identifier = std::get_if<Identifier>(&tok))
 		{
-			Print(Nominax::Common::TextColor::BrightBlue, "Identifier: {}\n", reinterpret_cast<const char*>(identifier->c_str()));
+			Print(Common::TextColor::BrightBlue, "Identifier: {}\n", reinterpret_cast<const char*>(identifier->c_str()));
 		}
 	}
 }

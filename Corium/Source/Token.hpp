@@ -210,6 +210,7 @@
 #include <variant>
 
 #include "Base.hpp"
+#include "Literal.hpp"
 #include "Keyword.hpp"
 #include "Operator.hpp"
 #include "MonoLexeme.hpp"
@@ -217,12 +218,10 @@
 namespace Corium
 {
 	constexpr char8_t COMMENT {'#'};
-	constexpr char8_t FLOAT_SEPARATOR {'.'};
 
 	using Identifier = std::u8string;
-
-	using PrimitiveLiteral = std::variant<Nominax::I64, Nominax::F64>;
-	using Token = std::variant<MonoLexeme, Identifier, Keyword, Operator, PrimitiveLiteral>;
+	
+	using Token = std::variant<MonoLexeme, Identifier, Keyword, Operator, Literal>;
 
 	extern auto PrintToken(const Token& tok) -> void;
 }

@@ -206,7 +206,7 @@
 //    limitations under the License.
 
 #include "Lexer.hpp"
-#include "Keyword.hpp"
+#include "LexContext.hpp"
 
 using namespace Nominax;
 
@@ -219,107 +219,9 @@ namespace Corium
 			return {{ }, LexResultCode::EmptyFile};
 		}
 
-		Identifier identBuffer { };
-		identBuffer.reserve(128);
-		LexTree result { };
+		LexContext context{};
+		context.EvaluateString(sourceCode);
 
-		const auto identSubmit = [&]
-		{
-			const auto* const data {reinterpret_cast<const char*>(identBuffer.c_str())};
-			char*             end { };
-
-			if (identBuffer.empty())
-			{
-				return;
-			}
-
-			// check if it's a keyword
-			if (const auto kw {QueryKeyword(identBuffer)}; kw)
-			{
-				result.emplace_back(*kw);
-			}
-
-				// check if it's a "float":
-			else if
-			(
-				const F64 floating = std::strtod(data, &end);
-				identBuffer.find(FLOAT_SEPARATOR) != std::string::npos
-				&& end
-				&& data != end
-				&& errno != ERANGE
-			)
-			{
-				result.emplace_back(PrimitiveLiteral {floating});
-			}
-
-				// check if it's an "int":
-			else if
-			(
-				const I64 integer = std::strtoll(data, &end, 10);
-				end
-				&& data != end
-				&& errno != ERANGE
-			)
-			{
-				result.emplace_back(PrimitiveLiteral {integer});
-			}
-
-				// else it's an identifier:
-			else
-			{
-				result.emplace_back(std::move(identBuffer));
-			}
-			identBuffer.clear();
-		};
-
-		const auto evalChar = [&](const char8_t x)
-		{
-			switch (x)
-			{
-			case static_cast<char8_t>(MonoLexeme::ParenthesisLeft):
-				identSubmit();
-				result.emplace_back(MonoLexeme::ParenthesisLeft);
-				return;
-
-			case static_cast<char8_t>(MonoLexeme::ParenthesisRight):
-				identSubmit();
-				result.emplace_back(MonoLexeme::ParenthesisRight);
-				return;
-
-			case static_cast<char8_t>(MonoLexeme::CurlyBracesLeft):
-				identSubmit();
-				result.emplace_back(MonoLexeme::CurlyBracesLeft);
-				return;
-
-			case static_cast<char8_t>(MonoLexeme::CurlyBracesRight):
-				identSubmit();
-				result.emplace_back(MonoLexeme::CurlyBracesRight);
-				return;
-
-			case static_cast<char8_t>(Operator::Assignment):
-				result.emplace_back(Operator::Assignment);
-				return;
-
-			case ' ':
-				identSubmit();
-				return;
-
-			case '\n':
-			case '\t':
-			case '\v':
-			case '\f':
-			case '\r':
-				return;
-			}
-
-			identBuffer.push_back(x);
-		};
-
-		std::for_each(std::cbegin(sourceCode), std::cend(sourceCode), [&](const char8_t current)
-		{
-			evalChar(current);
-		});
-
-		return {result, LexResultCode::Ok};
+		return {context.GetLexTreeOutput(), LexResultCode::Ok};
 	}
 }
