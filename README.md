@@ -71,7 +71,7 @@ For more technical information, check out the Nominax [ReadMe](https://github.co
 <h2>Short cheat sheet for the basics</h2>
 
 <h3> Primitive Data Types </h3>
-There are 5 primitive data types in Corium:<br>
+There are 4 primitive data types in Corium:<br>
 
 * int
 * float
