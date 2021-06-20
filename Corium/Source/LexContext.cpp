@@ -51,7 +51,7 @@ namespace Corium
 		static constexpr char8_t PARENTHESIS_RIGHT{ static_cast<char8_t>(MonoLexeme::ParenthesisRight) };
 		static constexpr char8_t CURLY_BRACES_LEFT{ static_cast<char8_t>(MonoLexeme::CurlyBracesLeft) };
 		static constexpr char8_t CURLY_BRACES_RIGHT{ static_cast<char8_t>(MonoLexeme::CurlyBracesRight) };
-		static constexpr char8_t ASSIGNMENT{ static_cast<char8_t>(Operator::Assignment) };
+		static constexpr char8_t OPERATOR_ASSIGNMENT{ static_cast<char8_t>(Operator::Assignment) };
 	}
 	
 	auto LexContext::EvalChar(const char8_t x) -> void
@@ -80,7 +80,7 @@ namespace Corium
 				result.emplace_back(MonoLexeme::CurlyBracesRight);
 			return;
 
-			case Sym::ASSIGNMENT:
+			case Sym::OPERATOR_ASSIGNMENT:
 				result.emplace_back(Operator::Assignment);
 			return;
 
