@@ -256,6 +256,13 @@ namespace Nominax::ByteCode
 		auto IsEmpty() const -> bool;
 
 		/// <summary>
+		/// Returns the data as modifiable reactor view.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetReactorView() const -> std::span<Signal>;
+
+		/// <summary>
 		/// Construct empty image.
 		/// </summary>
 		Image() = default;
@@ -460,5 +467,12 @@ namespace Nominax::ByteCode
 	inline auto Image::operator[](const std::size_t idx) -> Signal&
 	{
 		return *(this->Blob_ + idx);
+	}
+
+	inline auto Image::GetReactorView() const -> std::span<Signal>
+	{
+		auto* const begin {const_cast<Signal*>(&*std::begin(*this))};
+		auto* const end {const_cast<Signal*>(&*std::end(*this))};
+		return {begin, end};
 	}
 }

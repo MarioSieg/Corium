@@ -440,23 +440,31 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 	constexpr std::array cache {0, 2, 4, 7, 8};
 
 	// push
-	const auto r1 {ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[0]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[0]], &code.GetDiscriminatorBuffer()[cache[1]]))};
+	const auto r1 {
+		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[0]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[0]], &code.GetDiscriminatorBuffer()[cache[1]]))
+	};
 	ASSERT_EQ(r1.size(), 1);
 	ASSERT_TRUE(r1[0] == Signal::Discriminator::I64);
 
 	// push
-	const auto r2 {ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[1]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[1]], &code.GetDiscriminatorBuffer()[cache[2]]))};
+	const auto r2 {
+		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[1]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[1]], &code.GetDiscriminatorBuffer()[cache[2]]))
+	};
 	ASSERT_EQ(r2.size(), 1);
 	ASSERT_TRUE(r2[0] == Signal::Discriminator::I64);
 
 	// sto
-	const auto r3 {ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[2]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[2]], &code.GetDiscriminatorBuffer()[cache[3]]))};
+	const auto r3 {
+		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[2]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[2]], &code.GetDiscriminatorBuffer()[cache[3]]))
+	};
 	ASSERT_EQ(r3.size(), 2);
 	ASSERT_TRUE(r3[0] == Signal::Discriminator::U64);
 	ASSERT_TRUE(r3[1] == Signal::Discriminator::F64);
 
 	// iadd
-	const auto r4 {ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[3]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[3]], &code.GetDiscriminatorBuffer()[cache[4]]))};
+	const auto r4 {
+		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[3]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[3]], &code.GetDiscriminatorBuffer()[cache[4]]))
+	};
 	ASSERT_TRUE(r4.empty());
 
 	// Only 4 because the last instruction is removed and checked separately. 

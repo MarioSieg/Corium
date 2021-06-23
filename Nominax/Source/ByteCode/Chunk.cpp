@@ -217,13 +217,12 @@ namespace Nominax::ByteCode
 	{
 		// allocate image and copy code:
 		{
-			Signal* const binaryImage{ new(std::nothrow) Signal[input.Size()] };
+			const auto binaryImage {new(std::nothrow) Signal[input.Size()]};
 			std::memcpy(binaryImage, std::data(input.GetCodeBuffer()), std::size(input.GetCodeBuffer()) * sizeof(Signal));
-			output = Image{ static_cast<void*>(binaryImage), std::size(input.GetCodeBuffer()) * sizeof(Signal) };
+			output = Image {static_cast<void*>(binaryImage), std::size(input.GetCodeBuffer()) * sizeof(Signal)};
 		}
 
 		// create jump map and execution address mapping:
-
 		jumpMap.resize(input.Size());
 
 		const auto& discriminators {input.GetDiscriminatorBuffer()};

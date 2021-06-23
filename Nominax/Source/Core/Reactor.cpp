@@ -231,7 +231,7 @@ namespace Nominax::Core
 		};
 		const auto simpleDescriptor = BasicReactorDescriptor
 		{
-			.CodeChunk = std::span{const_cast<ByteCode::Signal*>(std::begin(image)), const_cast<ByteCode::Signal*>(std::end(image))},
+			.CodeChunk = image.GetReactorView(),
 			.CodeChunkInstructionMap = instrMapTableView,
 			.IntrinsicTable = intrinsicTable,
 			.Stack = stack,
