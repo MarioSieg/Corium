@@ -229,7 +229,7 @@ namespace Nominax
 		/// <summary>
 		/// Contains a reactor execution routine and info.
 		/// </summary>
-		using ReactorRoutineLink = std::tuple<ReactorCoreSpecialization, ReactorCoreExecutionRoutine*>;
+		using ReactorRoutineLink = std::pair<ReactorCoreSpecialization, ReactorCoreExecutionRoutine*>;
 
 		/// <summary>
 		/// Contains all available reactor implementations for the current platform.

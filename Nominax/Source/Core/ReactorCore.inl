@@ -612,7 +612,7 @@ namespace Nominax::Core
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 
-		static constexpr const void* __restrict__ const JUMP_TABLE[static_cast<std::size_t>(Instruction::$Count)]
+		static constexpr const void* __restrict__ const JUMP_TABLE[static_cast<std::underlying_type_t<Instruction>>(Instruction::$Count)]
 		{
 			&& __int__,
 			&& __intrin__,
