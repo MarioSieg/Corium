@@ -1,6 +1,6 @@
 // File: Chunk.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 23.06.2021 5:02 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -213,10 +213,12 @@
 
 namespace Nominax::ByteCode
 {
+	class Stream;
+
 	/// <summary>
 	/// An optimized and ready to execute code chunk.
 	/// </summary>
-	using Image = std::vector<Signal>;
+	using Chunk = std::vector<Signal>;
 
 	/// <summary>
 	/// Contains the boolean values for the jump map.
@@ -229,11 +231,12 @@ namespace Nominax::ByteCode
 	static_assert(alignof(U8) == alignof(bool));
 
 	/// <summary>
-	/// Calculates an instruction mapping.
-	/// Input and output must have the same size.
+	/// Builds a byte code image chunk and a jump map out of the stream.
+	/// The memory for the chunk image is newly allocated which might be slower.
+	/// If you execute a stream once, use TransformStreamMove.
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="output"></param>
-	/// <returns></returns>
-	extern auto CalculateInstructionMapping(std::span<const Signal::Discriminator> input, std::span<bool>& output) -> bool;
+	/// <param name="jumpMap"></param>
+	extern auto TransformStreamToImageByCopy(const Stream& input, Chunk& output, JumpMap& jumpMap) -> void;
 }

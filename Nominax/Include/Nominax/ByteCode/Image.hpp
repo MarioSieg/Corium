@@ -1,6 +1,6 @@
-// File: RuntimeAllocator.cpp
+// File: Image.hpp
 // Author: Mario
-// Created: 09.06.2021 2:19 PM
+// Created: 23.06.2021 5:03 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,55 +205,242 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Common/RuntimeAllocator.hpp"
-#include "../../Include/Nominax/System/Platform.hpp"
+#pragma once
 
-#include <cstdlib>
+#include "Signal.hpp"
 
-namespace Nominax::Common
+namespace Nominax::ByteCode
 {
-	auto RuntimeAllocator::Allocate(void*& out, const std::size_t size) const -> void
+	/// <summary>
+	/// An optimized and ready to execute code chunk.
+	/// </summary>
+	class Image final
 	{
-		out = &*static_cast<U8*>(std::malloc(size));
+		Signal*     Blob_ {nullptr};
+		std::size_t Size_ {0};
+
+	public:
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The size of the blob in bytes.</returns>
+		[[nodiscard]]
+		auto GetByteSize() const -> std::size_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The size of the blob (amount of signals).</returns>
+		[[nodiscard]]
+		auto GetSize() const -> std::size_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Data pointer of the blob.</returns>
+		[[nodiscard]]
+		auto GetBlobData() const -> const Signal*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Data pointer of the blob as byte ptr.</returns>
+		[[nodiscard]]
+		auto GetByteData() const -> const U8*;
+
+		/// <summary>
+		/// Check of null pointer or zero size.
+		/// </summary>
+		/// <returns></returns>
+		auto IsEmpty() const -> bool;
+
+		/// <summary>
+		/// Construct empty image.
+		/// </summary>
+		Image() = default;
+
+		/// <summary>
+		/// Construct with by copying blob.
+		/// Allocates an internal blob for the image
+		/// and copies the data into it.
+		/// </summary>
+		/// <param name="blob">The blob to copy the data from.</param>
+		explicit Image(std::span<const Signal> blob);
+
+		/// <summary>
+		/// Construct by coping blob.
+		/// Allocates an internal blob for the image
+		/// and copies the data into it.
+		/// </summary>
+		/// <param name="data">The blob to copy the data from.</param>
+		/// <param name="size">The size of the data in bytes.</param>
+		Image(const void* data, std::size_t size);
+
+		/// <summary>
+		/// Construct with owning blob.
+		/// Assumes that the data is owned by this instance after construction.
+		/// </summary>
+		/// <param name="data">The data to be used as buffer.</param>
+		/// <param name="size">The size of the data in records.</param>
+		Image(Signal* data, std::size_t size);
+
+		/// <summary>
+		/// Construct with blob.
+		/// Assumes that the data is owned by this instance after construction.
+		/// </summary>
+		/// <param name="data">The data to be used as buffer.</param>
+		/// <param name="size">The size of the data in bytes.</param>
+		Image(U8* data, std::size_t size);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		Image(const Image& other) = delete;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		Image(Image&& other);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const Image& other) -> Image& = delete;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(Image&& other) -> Image&;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~Image();
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns>Iterator.</returns>
+		[[nodiscard]]
+		auto begin() const -> const Signal*;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns>Iterator.</returns>
+		[[nodiscard]]
+		auto end() const -> const Signal*;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns>Iterator.</returns>
+		[[nodiscard]]
+		auto cbegin() const -> const Signal*;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns>Iterator.</returns>
+		[[nodiscard]]
+		auto cend() const -> const Signal*;
+
+		/// <summary>
+		/// Subscript operator.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		auto operator [](std::size_t idx) const -> const Signal&;
+	};
+
+	inline auto Image::GetByteSize() const -> std::size_t
+	{
+		return this->Size_ * sizeof(Signal);
 	}
 
-	auto RuntimeAllocator::Reallocate(void*& out, const std::size_t size) const -> void
+	inline auto Image::GetSize() const -> std::size_t
 	{
-		out = &*static_cast<U8*>(std::realloc(out, size));
+		return this->Size_;
 	}
 
-	auto RuntimeAllocator::Deallocate(void*& out) const -> void
+	inline auto Image::GetBlobData() const -> const Signal*
 	{
-		std::free(out);
-		out = nullptr;
+		return this->Blob_;
 	}
 
-	auto RuntimeAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
+	inline auto Image::GetByteData() const -> const U8*
 	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
-		out = &*static_cast<U8*>(_aligned_malloc(size, alignment));
-#else
-		out = &*static_cast<U8*>(aligned_alloc(size, alignment));
-#endif
+		return reinterpret_cast<const U8*>(this->Blob_);
 	}
 
-	auto RuntimeAllocator::ReallocateAligned([[maybe_unused]] void*& out, [[maybe_unused]] const std::size_t size, [[maybe_unused]] const std::size_t alignment) const -> void
+	inline auto Image::IsEmpty() const -> bool
 	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
-		out = &*static_cast<U8*>(_aligned_realloc(out, size, alignment));
-#else
-		// todo using posix_memalign
-		__asm__("int3");
-#endif
+		return !this->Size_ || !this->Blob_;
 	}
 
-	auto RuntimeAllocator::DeallocateAligned(void*& out) const -> void
+	inline auto Image::begin() const -> const Signal*
 	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
-		_aligned_free(out);
-#else
-		std::free(out);
-#endif
-		out = nullptr;
+		return this->Blob_;
+	}
+
+	inline auto Image::end() const -> const Signal*
+	{
+		return this->Blob_ + this->Size_;
+	}
+
+	inline auto Image::cbegin() const -> const Signal*
+	{
+		return this->Blob_;
+	}
+
+	inline auto Image::cend() const -> const Signal*
+	{
+		return this->Blob_ + this->Size_;
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns>Iterator.</returns>
+	[[nodiscard]]
+	inline auto begin(const Image& image) -> const Signal*
+	{
+		return image.begin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns>Iterator.</returns>
+	[[nodiscard]]
+	inline auto end(const Image& image) -> const Signal*
+	{
+		return image.end();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns>Iterator.</returns>
+	[[nodiscard]]
+	inline auto cbegin(const Image& image) -> const Signal*
+	{
+		return image.cbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns>Iterator.</returns>
+	[[nodiscard]]
+	inline auto cend(const Image& image) -> const Signal*
+	{
+		return image.cend();
 	}
 }

@@ -608,7 +608,7 @@ namespace Nominax::Core
 		return;
 	}
 
-	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor& input, ReactorState& output) -> void
+	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable) -> void
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 
@@ -690,6 +690,12 @@ namespace Nominax::Core
 		};
 
 		static_assert(ValidateJumpTable(JUMP_TABLE, sizeof JUMP_TABLE / sizeof *JUMP_TABLE));
+
+		if (outJumpTable)
+		{
+			**outJumpTable = const_cast<const void**>(JUMP_TABLE);
+			return;
+		}
 
 		ASM_MARKER("reactor begin");
 

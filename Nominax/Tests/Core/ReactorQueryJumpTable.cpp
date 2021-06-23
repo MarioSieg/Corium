@@ -1,6 +1,6 @@
-// File: RuntimeAllocator.cpp
+// File: ReactorQueryJumpTable.cpp
 // Author: Mario
-// Created: 09.06.2021 2:19 PM
+// Created: 23.06.2021 5:30 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,55 +205,21 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Common/RuntimeAllocator.hpp"
-#include "../../Include/Nominax/System/Platform.hpp"
+#include "ReactorTestHelper.hpp"
 
-#include <cstdlib>
-
-namespace Nominax::Common
+TEST(Reactor, QueryJumpTable)
 {
-	auto RuntimeAllocator::Allocate(void*& out, const std::size_t size) const -> void
-	{
-		out = &*static_cast<U8*>(std::malloc(size));
-	}
+	const VerboseReactorDescriptor reactorDescriptor { };
+	auto                           backup {reactorDescriptor};
 
-	auto RuntimeAllocator::Reallocate(void*& out, const std::size_t size) const -> void
+	const void**  jumpTable { };
+	const void*** proxy {&jumpTable};
+	ASSERT_NE(proxy, nullptr);
+	ASSERT_NO_FATAL_FAILURE(SingletonExecutionProxy(reactorDescriptor, {}, &proxy));
+	ASSERT_NE(jumpTable, nullptr);
+	ASSERT_EQ(std::memcmp(&reactorDescriptor, &backup, sizeof reactorDescriptor), 0);
+	for (U64 i {0}; i < static_cast<U64>(Instruction::$Count); ++i)
 	{
-		out = &*static_cast<U8*>(std::realloc(out, size));
-	}
-
-	auto RuntimeAllocator::Deallocate(void*& out) const -> void
-	{
-		std::free(out);
-		out = nullptr;
-	}
-
-	auto RuntimeAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
-	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
-		out = &*static_cast<U8*>(_aligned_malloc(size, alignment));
-#else
-		out = &*static_cast<U8*>(aligned_alloc(size, alignment));
-#endif
-	}
-
-	auto RuntimeAllocator::ReallocateAligned([[maybe_unused]] void*& out, [[maybe_unused]] const std::size_t size, [[maybe_unused]] const std::size_t alignment) const -> void
-	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
-		out = &*static_cast<U8*>(_aligned_realloc(out, size, alignment));
-#else
-		// todo using posix_memalign
-		__asm__("int3");
-#endif
-	}
-
-	auto RuntimeAllocator::DeallocateAligned(void*& out) const -> void
-	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
-		_aligned_free(out);
-#else
-		std::free(out);
-#endif
-		out = nullptr;
+		ASSERT_NE(jumpTable[i], nullptr);
 	}
 }

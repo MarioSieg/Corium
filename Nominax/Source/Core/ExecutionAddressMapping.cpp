@@ -210,7 +210,25 @@
 
 namespace Nominax::Core
 {
-	auto MapJumpTable
+	auto ComputeInstructionMapBinding(std::span<const ByteCode::Signal::Discriminator> input, std::span<bool>& output) -> bool
+	{
+		if (NOMINAX_UNLIKELY(std::size(input) != std::size(output)))
+		{
+			return false;
+		}
+
+		auto       iterator {std::begin(input)};
+		const auto end {std::end(input)};
+
+		for (bool* flag = output.data(); NOMINAX_LIKELY(iterator < end); ++iterator, ++flag)
+		{
+			*flag = *iterator == ByteCode::Signal::Discriminator::Instruction;
+		}
+
+		return true;
+	}
+
+	auto PerformJumpTableMapping
 	(
 		ByteCode::Signal* __restrict__             bucket,
 		const ByteCode::Signal* const __restrict__ bucketEnd,

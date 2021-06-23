@@ -259,31 +259,6 @@ namespace Nominax::ByteCode
 		return true;
 	}
 
-	auto TransformStreamCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void
-	{
-		// allocate image and copy code:
-		output.resize(input.Size());
-		std::memcpy(std::data(output), std::data(input.GetCodeBuffer()), std::size(input.GetCodeBuffer()) * sizeof(Signal));
-
-		// create jump map and execution address mapping:
-		
-		jumpMap.resize(input.Size());
-
-		const auto& discriminators{ input.GetDiscriminatorBuffer() };
-		for (std::size_t i {0}; i < input.Size(); ++i)
-		{
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-
-			if (discriminators[i] == Signal::Discriminator::JumpAddress)
-			{
-				output[i].Ptr = Core::ComputeRelativeJumpAddress(output.data(), output[i].JmpAddress);
-			}
-
-#endif
-			jumpMap[i] = static_cast<U8>(discriminators[i] == Signal::Discriminator::Instruction);
-		}
-	}
-
 	auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry, U32* const outIndex) -> ValidationResultCode
 	{
 		// Check if empty:

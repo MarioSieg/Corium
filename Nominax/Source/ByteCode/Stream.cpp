@@ -262,13 +262,13 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	auto Stream::Build(Image& out, JumpMap& outJumpMap) const -> ValidationResultCode
+	auto Stream::Build(Chunk& out, JumpMap& outJumpMap) const -> ValidationResultCode
 	{
 		if (const auto validationResult {ValidateFullPass(*this)}; NOMINAX_UNLIKELY(validationResult != ValidationResultCode::Ok))
 		{
 			return validationResult;
 		}
-		TransformStreamCopy(*this, out, outJumpMap);
+		TransformStreamToImageByCopy(*this, out, outJumpMap);
 		return ValidationResultCode::Ok;
 	}
 

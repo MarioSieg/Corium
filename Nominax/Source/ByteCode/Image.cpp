@@ -1,6 +1,6 @@
-// File: RuntimeAllocator.cpp
+// File: Image.cpp
 // Author: Mario
-// Created: 09.06.2021 2:19 PM
+// Created: 23.06.2021 5:04 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,55 +205,78 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Common/RuntimeAllocator.hpp"
-#include "../../Include/Nominax/System/Platform.hpp"
+#include "../../Include/Nominax/ByteCode/Image.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
-#include <cstdlib>
-
-namespace Nominax::Common
+namespace Nominax::ByteCode
 {
-	auto RuntimeAllocator::Allocate(void*& out, const std::size_t size) const -> void
+	Image::Image(const std::span<const Signal> blob)
 	{
-		out = &*static_cast<U8*>(std::malloc(size));
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(blob.size(), "Byte code image with zero size is invalid!");
+		this->Size_ = std::size(blob);
+		this->Blob_ = new(std::nothrow) Signal[this->Size_];
+		std::memcpy(this->Blob_, std::data(blob), this->Size_ * sizeof(Signal));
 	}
 
-	auto RuntimeAllocator::Reallocate(void*& out, const std::size_t size) const -> void
+	Image::Image(const void* const data, const std::size_t size)
 	{
-		out = &*static_cast<U8*>(std::realloc(out, size));
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "Byte code image with zero size is invalid!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(data, "Byte code image with null data is invalid!");
+		NOMINAX_PANIC_ASSERT_TRUE(size % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
+		this->Size_ = size / sizeof(Signal);
+		this->Blob_ = new(std::nothrow) Signal[this->Size_];
+		std::memcpy(this->Blob_, data, size);
 	}
 
-	auto RuntimeAllocator::Deallocate(void*& out) const -> void
+	Image::Image(Signal* const data, const std::size_t size)
 	{
-		std::free(out);
-		out = nullptr;
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "Byte code image with zero size is invalid!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(data, "Byte code image with null data is invalid!");
+		this->Blob_ = data;
+		this->Size_ = size;
 	}
 
-	auto RuntimeAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
+	Image::Image(U8* const data, const std::size_t size)
 	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
-		out = &*static_cast<U8*>(_aligned_malloc(size, alignment));
-#else
-		out = &*static_cast<U8*>(aligned_alloc(size, alignment));
-#endif
+		NOMINAX_PANIC_ASSERT_TRUE(size % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "Byte code image with zero size is invalid!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(data, "Byte code image with null data is invalid!");
+
+		this->Size_ = size / sizeof(Signal);
+		this->Blob_ = reinterpret_cast<Signal*>(data);
 	}
 
-	auto RuntimeAllocator::ReallocateAligned([[maybe_unused]] void*& out, [[maybe_unused]] const std::size_t size, [[maybe_unused]] const std::size_t alignment) const -> void
+	Image::Image(Image&& other) : Blob_ {other.Blob_}, Size_ {other.Size_}
 	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
-		out = &*static_cast<U8*>(_aligned_realloc(out, size, alignment));
-#else
-		// todo using posix_memalign
-		__asm__("int3");
-#endif
+		other.Blob_ = nullptr;
+		other.Size_ = 0;
 	}
 
-	auto RuntimeAllocator::DeallocateAligned(void*& out) const -> void
+	auto Image::operator =(Image&& other) -> Image&
 	{
-#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
-		_aligned_free(out);
-#else
-		std::free(out);
-#endif
-		out = nullptr;
+		if (this->Blob_ && this->Size_)
+		{
+			delete[] this->Blob_;
+		}
+
+		this->Blob_ = other.Blob_;
+		this->Size_ = other.Size_;
+
+		other.Blob_ = nullptr;
+		other.Size_ = 0;
+
+		return *this;
+	}
+
+	Image::~Image()
+	{
+		delete[] this->Blob_;
+		this->Blob_ = nullptr;
+		this->Size_ = 0;
+	}
+
+	auto Image::operator[](const std::size_t idx) const -> const Signal&
+	{
+		return *(this->Blob_ + idx);
 	}
 }

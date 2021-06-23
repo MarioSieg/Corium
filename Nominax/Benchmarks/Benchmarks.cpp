@@ -242,14 +242,14 @@ BENCHMARK(ValidateAlgorithm1BillionEntries)->Unit(kSecond);
 auto TransformAlgorithm1BillionEntries(State& state) -> void
 {
 	constexpr std::size_t count {200'000'000};
-	Stream stream{ };
+	Stream                stream { };
 	stream.Reserve(Stream::MandatoryCodeSize() + count * 5);
 	stream.Prologue();
 
-	for (std::size_t i{ 0 }; i < count; ++i)
+	for (std::size_t i {0}; i < count; ++i)
 	{
 		stream << Instruction::Jmp;
-		stream << JumpAddress{ 0 };
+		stream << JumpAddress {0};
 		stream << Instruction::Sto;
 		stream << 1_uint;
 		stream << -0.5_float;
@@ -260,9 +260,9 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 
 	for (auto _ : state)
 	{
-		Image chunk{};
-		JumpMap jumpMap{};
-		TransformStreamCopy(stream, chunk, jumpMap);
+		Chunk   chunk { };
+		JumpMap jumpMap { };
+		TransformStreamToImageByCopy(stream, chunk, jumpMap);
 	}
 }
 

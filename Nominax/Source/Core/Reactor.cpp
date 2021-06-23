@@ -218,7 +218,7 @@ namespace Nominax::Core
 	static auto CreateDescriptor
 	(
 		FixedStack&                             stack,
-		ByteCode::Image&                    chunk,
+		ByteCode::Chunk&                        chunk,
 		ByteCode::JumpMap&                      jumpMap,
 		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
 		InterruptRoutine&                       interruptHandler
@@ -304,14 +304,14 @@ namespace Nominax::Core
 		}
 		auto* const routine = std::get<1>(this->RoutineLink_);
 		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");
-		(*routine)(this->Input_, this->Output_);
+		(*routine)(this->Input_, this->Output_, nullptr);
 		return this->Output_;
 	}
 
-	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target) -> ReactorState
+	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target, const void**** outJumpTable) -> ReactorState
 	{
 		ReactorState output {.Input = &input};
-		SingletonExecutionProxy(input, output, target);
+		SingletonExecutionProxy(input, output, target, outJumpTable);
 		return output;
 	}
 }

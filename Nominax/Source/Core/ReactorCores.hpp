@@ -219,8 +219,9 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	__attribute__((hot)) extern auto ReactorCore_Fallback(const VerboseReactorDescriptor& input, ReactorState& output) -> void;
+	__attribute__((hot)) extern auto ReactorCore_Fallback(const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable = nullptr) -> void;
 
 #if NOMINAX_ARCH_X86_64
 
@@ -229,16 +230,18 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	__attribute__((hot)) extern auto ReactorCore_AVX(const VerboseReactorDescriptor& input, ReactorState& output) -> void;
+	__attribute__((hot)) extern auto ReactorCore_AVX(const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable = nullptr) -> void;
 
 	/// <summary>
 	/// Specialized implementation compiled with AVX, which uses 512-bit ZMM registers.
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	__attribute__((hot)) extern auto ReactorCore_AVX512F(const VerboseReactorDescriptor& input, ReactorState& output) -> void;
+	__attribute__((hot)) extern auto ReactorCore_AVX512F(const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable = nullptr) -> void;
 
 #endif
 }

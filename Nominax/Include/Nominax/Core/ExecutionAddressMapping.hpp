@@ -267,7 +267,7 @@ namespace Nominax::Core
 	/// <returns>true on success, else false.</returns>
 	[[maybe_unused]]
 	[[nodiscard]]
-	extern auto MapJumpTable
+	extern auto PerformJumpTableMapping
 	(
 		ByteCode::Signal* __restrict__       bucket,
 		const ByteCode::Signal* __restrict__ bucketEnd,
@@ -303,4 +303,14 @@ namespace Nominax::Core
 		}
 		return true;
 	}
+
+
+	/// <summary>
+	/// Calculates an instruction mapping.
+	/// Input and output must have the same size.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <returns></returns>
+	extern auto ComputeInstructionMapBinding(std::span<const ByteCode::Signal::Discriminator> input, std::span<bool>& output) -> bool;
 }

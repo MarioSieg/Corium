@@ -224,7 +224,7 @@ namespace Nominax
 		/// <summary>
 		/// Signature of the reactor core execution routine.
 		/// </summary>
-		using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor&, ReactorState&) -> void;
+		using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor&, ReactorState&, const void****) -> void;
 
 		/// <summary>
 		/// Contains a reactor execution routine and info.
@@ -283,6 +283,6 @@ namespace Nominax
 		/// <param name="input"></param>
 		/// <param name="output"></param>
 		/// <returns></returns>
-		extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target) -> void;
+		extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target, const void**** outJumpTable = nullptr) -> void;
 	}
 }

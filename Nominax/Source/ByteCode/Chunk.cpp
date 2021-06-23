@@ -1,6 +1,6 @@
 // File: Chunk.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 23.06.2021 5:02 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -206,25 +206,34 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/ByteCode/Chunk.hpp"
+#include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/System/MacroCfg.hpp"
 
 namespace Nominax::ByteCode
 {
-	auto CalculateInstructionMapping(std::span<const Signal::Discriminator> input, std::span<bool>& output) -> bool
+	auto TransformStreamToImageByCopy(const Stream& input, Chunk& output, JumpMap& jumpMap) -> void
 	{
-		if (NOMINAX_UNLIKELY(std::size(input) != std::size(output)))
+		// allocate image and copy code:
+		output.resize(input.Size());
+		std::memcpy(std::data(output), std::data(input.GetCodeBuffer()), std::size(input.GetCodeBuffer()) * sizeof(Signal));
+
+		// create jump map and execution address mapping:
+
+		jumpMap.resize(input.Size());
+
+		const auto& discriminators {input.GetDiscriminatorBuffer()};
+		for (std::size_t i {0}; i < input.Size(); ++i)
 		{
-			return false;
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+
+			if (discriminators[i] == Signal::Discriminator::JumpAddress)
+			{
+				output[i].Ptr = Core::ComputeRelativeJumpAddress(output.data(), output[i].JmpAddress);
+			}
+
+#endif
+			jumpMap[i] = static_cast<U8>(discriminators[i] == Signal::Discriminator::Instruction);
 		}
-
-		auto       iterator {std::begin(input)};
-		const auto end {std::end(input)};
-
-		for (bool* flag = output.data(); NOMINAX_LIKELY(iterator < end); ++iterator, ++flag)
-		{
-			*flag = *iterator == Signal::Discriminator::Instruction;
-		}
-
-		return true;
 	}
 }
