@@ -218,7 +218,7 @@ namespace Nominax::Core
 	static auto CreateDescriptor
 	(
 		FixedStack&                             stack,
-		ByteCode::Chunk&                        chunk,
+		ByteCode::Image&                        image,
 		ByteCode::JumpMap&                      jumpMap,
 		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
 		InterruptRoutine&                       interruptHandler
@@ -231,7 +231,7 @@ namespace Nominax::Core
 		};
 		const auto simpleDescriptor = BasicReactorDescriptor
 		{
-			.CodeChunk = chunk,
+			.CodeChunk = std::span{const_cast<ByteCode::Signal*>(std::begin(image)), const_cast<ByteCode::Signal*>(std::end(image))},
 			.CodeChunkInstructionMap = instrMapTableView,
 			.IntrinsicTable = intrinsicTable,
 			.Stack = stack,

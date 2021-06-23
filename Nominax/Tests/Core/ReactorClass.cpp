@@ -225,7 +225,6 @@ TEST(ReactorClass, Valid)
 	};
 	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(std::get<1>(reactor.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(reactor.GetInterruptHandler(), GetDefaultInterruptRoutine());
 }
@@ -242,14 +241,12 @@ TEST(ReactorClass, MoveConstruct)
 	};
 	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(std::get<1>(reactor.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(reactor.GetInterruptHandler(), GetDefaultInterruptRoutine());
 
 	const Reactor reactor2 {std::move(reactor)};
 	ASSERT_EQ(reactor2.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor2.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(std::get<0>(reactor2.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(std::get<1>(reactor2.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(reactor2.GetInterruptHandler(), GetDefaultInterruptRoutine());
 }

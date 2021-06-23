@@ -260,7 +260,7 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 
 	for (auto _ : state)
 	{
-		Chunk   chunk { };
+		Image   chunk { };
 		JumpMap jumpMap { };
 		TransformStreamToImageByCopy(stream, chunk, jumpMap);
 	}

@@ -214,7 +214,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Compute relative jump address.
 	/// </summary>
-	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(ByteCode::Signal* const base, const ByteCode::JumpAddress address) -> void*
+	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(const ByteCode::Signal* const base, const ByteCode::JumpAddress address) -> const void*
 	{
 		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
 	}
@@ -303,7 +303,6 @@ namespace Nominax::Core
 		}
 		return true;
 	}
-
 
 	/// <summary>
 	/// Calculates an instruction mapping.

@@ -274,9 +274,4 @@ namespace Nominax::ByteCode
 		this->Blob_ = nullptr;
 		this->Size_ = 0;
 	}
-
-	auto Image::operator[](const std::size_t idx) const -> const Signal&
-	{
-		return *(this->Blob_ + idx);
-	}
 }

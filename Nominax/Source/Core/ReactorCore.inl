@@ -608,7 +608,7 @@ namespace Nominax::Core
 		return;
 	}
 
-	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable) -> void
+	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME (const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable) -> void
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 

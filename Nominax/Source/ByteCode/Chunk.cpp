@@ -208,15 +208,19 @@
 #include "../../Include/Nominax/ByteCode/Chunk.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 
 namespace Nominax::ByteCode
 {
-	auto TransformStreamToImageByCopy(const Stream& input, Chunk& output, JumpMap& jumpMap) -> void
+	auto TransformStreamToImageByCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void
 	{
 		// allocate image and copy code:
-		output.resize(input.Size());
-		std::memcpy(std::data(output), std::data(input.GetCodeBuffer()), std::size(input.GetCodeBuffer()) * sizeof(Signal));
+		{
+			Signal* const binaryImage{ new(std::nothrow) Signal[input.Size()] };
+			std::memcpy(binaryImage, std::data(input.GetCodeBuffer()), std::size(input.GetCodeBuffer()) * sizeof(Signal));
+			output = Image{ static_cast<void*>(binaryImage), std::size(input.GetCodeBuffer()) * sizeof(Signal) };
+		}
 
 		// create jump map and execution address mapping:
 
@@ -229,7 +233,7 @@ namespace Nominax::ByteCode
 
 			if (discriminators[i] == Signal::Discriminator::JumpAddress)
 			{
-				output[i].Ptr = Core::ComputeRelativeJumpAddress(output.data(), output[i].JmpAddress);
+				output[i].Ptr = const_cast<void*>(Core::ComputeRelativeJumpAddress(output.GetBlobData(), output[i].JmpAddress));
 			}
 
 #endif

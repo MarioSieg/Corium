@@ -210,15 +210,11 @@
 #include <vector>
 
 #include "Signal.hpp"
+#include "Image.hpp"
 
 namespace Nominax::ByteCode
 {
 	class Stream;
-
-	/// <summary>
-	/// An optimized and ready to execute code chunk.
-	/// </summary>
-	using Chunk = std::vector<Signal>;
 
 	/// <summary>
 	/// Contains the boolean values for the jump map.
@@ -238,5 +234,5 @@ namespace Nominax::ByteCode
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <param name="jumpMap"></param>
-	extern auto TransformStreamToImageByCopy(const Stream& input, Chunk& output, JumpMap& jumpMap) -> void;
+	extern auto TransformStreamToImageByCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void;
 }

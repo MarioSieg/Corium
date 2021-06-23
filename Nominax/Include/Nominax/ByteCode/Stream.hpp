@@ -279,7 +279,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Execution ready byte code and jump map.
 	/// </summary>
-	using AppCodeBundle = std::tuple<Chunk, JumpMap>;
+	using AppCodeBundle = std::tuple<Image, JumpMap>;
 
 	/// <summary>
 	/// Dynamic byte code stream.
@@ -628,7 +628,7 @@ namespace Nominax::ByteCode
 		/// <param name="out"></param>
 		/// <param name="outJumpMap"></param>
 		/// <returns></returns>
-		auto Build(Chunk& out, JumpMap& outJumpMap) const -> ValidationResultCode;
+		auto Build(Image& out, JumpMap& outJumpMap) const -> ValidationResultCode;
 
 		/// <summary>
 		/// Validate and build code chunk plus jump map into app code bundle.

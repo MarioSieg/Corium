@@ -252,6 +252,7 @@ namespace Nominax::ByteCode
 		/// Check of null pointer or zero size.
 		/// </summary>
 		/// <returns></returns>
+		[[nodiscard]]
 		auto IsEmpty() const -> bool;
 
 		/// <summary>
@@ -356,6 +357,13 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
+		auto operator [](std::size_t idx) -> Signal&;
+
+		/// <summary>
+		/// Subscript operator.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
 		auto operator [](std::size_t idx) const -> const Signal&;
 	};
 
@@ -442,5 +450,15 @@ namespace Nominax::ByteCode
 	inline auto cend(const Image& image) -> const Signal*
 	{
 		return image.cend();
+	}
+
+	inline auto Image::operator[](const std::size_t idx) const -> const Signal&
+	{
+		return *(this->Blob_ + idx);
+	}
+
+	inline auto Image::operator[](const std::size_t idx) -> Signal&
+	{
+		return *(this->Blob_ + idx);
 	}
 }
