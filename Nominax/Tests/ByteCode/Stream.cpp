@@ -250,8 +250,8 @@ TEST(BytecodeStream, CodePrologue)
 	stream.Prologue();
 	const auto prologue {Stream::PrologueCode()};
 	ASSERT_EQ(stream.Size(), prologue.size());
-	auto j {std::begin(stream.DiscriminatorBuffer())};
-	auto i {std::begin(stream.CodeBuffer())};
+	auto j {std::begin(stream.GetDiscriminatorBuffer())};
+	auto i {std::begin(stream.GetCodeBuffer())};
 	for (const auto& sig : prologue)
 	{
 		ASSERT_EQ(sig, DiscriminatedSignal(*j, *i));
@@ -272,8 +272,8 @@ TEST(BytecodeStream, CodeEpilogue)
 	stream.Epilogue();
 	const auto epilogue {Stream::EpilogueCode()};
 	ASSERT_EQ(stream.Size(), epilogue.size());
-	auto j {std::begin(stream.DiscriminatorBuffer())};
-	auto i {std::begin(stream.CodeBuffer())};
+	auto j {std::begin(stream.GetDiscriminatorBuffer())};
+	auto i {std::begin(stream.GetCodeBuffer())};
 	for (const auto& sig : epilogue)
 	{
 		const auto x {DiscriminatedSignal {*j, *i}};

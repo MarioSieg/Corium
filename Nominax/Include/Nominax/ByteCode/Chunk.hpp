@@ -216,7 +216,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// An optimized and ready to execute code chunk.
 	/// </summary>
-	using CodeChunk = std::vector<Signal>;
+	using Image = std::vector<Signal>;
 
 	/// <summary>
 	/// Contains the boolean values for the jump map.

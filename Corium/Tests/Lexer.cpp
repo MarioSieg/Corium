@@ -220,14 +220,15 @@ TEST(Lexer, LexFunction)
 
 			}
 
-		)"
+		)",
+			result
 		)
 	};
-	ASSERT_EQ(ok.second, LexResultCode::Ok);
-	ASSERT_EQ(std::size(ok.first), 5);
-	ASSERT_EQ(std::get<Identifier>(ok.first[0]), u8"main");
-	ASSERT_EQ(std::get<MonoLexeme>(ok.first[1]), MonoLexeme::ParenthesisLeft);
-	ASSERT_EQ(std::get<MonoLexeme>(ok.first[2]), MonoLexeme::ParenthesisRight);
-	ASSERT_EQ(std::get<MonoLexeme>(ok.first[3]), MonoLexeme::CurlyBracesLeft);
-	ASSERT_EQ(std::get<MonoLexeme>(ok.first[4]), MonoLexeme::CurlyBracesRight);
+	ASSERT_EQ(ok, LexResultCode::Ok);
+	ASSERT_EQ(std::size(result), 5);
+	ASSERT_EQ(std::get<Identifier>(result[0]), u8"main");
+	ASSERT_EQ(std::get<MonoLexeme>(result[1]), MonoLexeme::ParenthesisLeft);
+	ASSERT_EQ(std::get<MonoLexeme>(result[2]), MonoLexeme::ParenthesisRight);
+	ASSERT_EQ(std::get<MonoLexeme>(result[3]), MonoLexeme::CurlyBracesLeft);
+	ASSERT_EQ(std::get<MonoLexeme>(result[4]), MonoLexeme::CurlyBracesRight);
 }

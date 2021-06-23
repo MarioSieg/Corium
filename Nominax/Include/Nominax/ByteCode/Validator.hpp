@@ -333,12 +333,14 @@ namespace Nominax::ByteCode
 	}
 
 	/// <summary>
-	/// 
+	/// Builds a byte code image chunk and a jump map out of the stream.
+	/// The memory for the chunk image is newly allocated which might be slower.
+	/// If you execute a stream once, use TransformStreamMove.
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <param name="jumpMap"></param>
-	extern auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> void;
+	extern auto TransformStreamCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void;
 
 	/// <summary>
 	/// Validates the whole code and returns the result.

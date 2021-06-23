@@ -259,28 +259,28 @@ namespace Nominax::ByteCode
 		return true;
 	}
 
-	auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) -> void
+	auto TransformStreamCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void
 	{
+		// allocate image and copy code:
 		output.resize(input.Size());
+		std::memcpy(std::data(output), std::data(input.GetCodeBuffer()), std::size(input.GetCodeBuffer()) * sizeof(Signal));
+
+		// create jump map and execution address mapping:
+		
 		jumpMap.resize(input.Size());
 
+		const auto& discriminators{ input.GetDiscriminatorBuffer() };
 		for (std::size_t i {0}; i < input.Size(); ++i)
 		{
-			const auto& in {input[i]};
-			auto&       out {output[i]};
-
-			out = in.Value;
-
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
 
-			if (in.Contains<JumpAddress>())
+			if (discriminators[i] == Signal::Discriminator::JumpAddress)
 			{
-				// minus one because the address is incremented by the reactor before jumped
-				out.Ptr = Core::ComputeRelativeJumpAddress(output.data(), out.JmpAddress);
+				output[i].Ptr = Core::ComputeRelativeJumpAddress(output.data(), output[i].JmpAddress);
 			}
 
 #endif
-			jumpMap[i] = static_cast<U8>(in.Contains<Instruction>());
+			jumpMap[i] = static_cast<U8>(discriminators[i] == Signal::Discriminator::Instruction);
 		}
 	}
 
@@ -323,8 +323,8 @@ namespace Nominax::ByteCode
 		AtomicState<ValidationResultCode> error { };
 		std::atomic<U32>                  errorIndex {0};
 
-		const auto& codeBuf {input.CodeBuffer()};
-		const auto& discBuf {input.DiscriminatorBuffer()};
+		const auto& codeBuf {input.GetCodeBuffer()};
+		const auto& discBuf {input.GetDiscriminatorBuffer()};
 		const auto  bufBegin {&*std::begin(discBuf)};
 		const auto  bufEnd {&*std::end(discBuf)};
 

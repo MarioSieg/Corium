@@ -218,7 +218,7 @@ namespace Nominax::Core
 	static auto CreateDescriptor
 	(
 		FixedStack&                             stack,
-		ByteCode::CodeChunk&                    chunk,
+		ByteCode::Image&                    chunk,
 		ByteCode::JumpMap&                      jumpMap,
 		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
 		InterruptRoutine&                       interruptHandler

@@ -279,7 +279,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Execution ready byte code and jump map.
 	/// </summary>
-	using AppCodeBundle = std::tuple<CodeChunk, JumpMap>;
+	using AppCodeBundle = std::tuple<Image, JumpMap>;
 
 	/// <summary>
 	/// Dynamic byte code stream.
@@ -404,14 +404,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns>The underlying code buffer.</returns>
 		[[nodiscard]]
-		auto CodeBuffer() const -> const CodeStorageType&;
+		auto GetCodeBuffer() const -> const CodeStorageType&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The underlying discriminator buffer.</returns>
 		[[nodiscard]]
-		auto DiscriminatorBuffer() const -> const DiscriminatorStorageType&;
+		auto GetDiscriminatorBuffer() const -> const DiscriminatorStorageType&;
 
 		/// <summary>
 		/// 
@@ -628,7 +628,7 @@ namespace Nominax::ByteCode
 		/// <param name="out"></param>
 		/// <param name="outJumpMap"></param>
 		/// <returns></returns>
-		auto Build(CodeChunk& out, JumpMap& outJumpMap) const -> ValidationResultCode;
+		auto Build(Image& out, JumpMap& outJumpMap) const -> ValidationResultCode;
 
 		/// <summary>
 		/// Validate and build code chunk plus jump map into app code bundle.
@@ -733,12 +733,12 @@ namespace Nominax::ByteCode
 		return this->Code_.empty() && this->CodeDisc_.empty();
 	}
 
-	inline auto Stream::CodeBuffer() const -> const CodeStorageType&
+	inline auto Stream::GetCodeBuffer() const -> const CodeStorageType&
 	{
 		return this->Code_;
 	}
 
-	inline auto Stream::DiscriminatorBuffer() const -> const DiscriminatorStorageType&
+	inline auto Stream::GetDiscriminatorBuffer() const -> const DiscriminatorStorageType&
 	{
 		return this->CodeDisc_;
 	}

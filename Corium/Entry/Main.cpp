@@ -220,10 +220,11 @@ static auto ParseFile(const std::string_view path, Stream& out) -> void
 {
 	TextFile file { };
 	file.ReadFromFileOrPanic(path);
-	if (const auto result {Corium::LexSource(file.GetContentText())}; result.second == Corium::LexResultCode::Ok)
+	Corium::LexTree output{};
+	if (const auto result {Corium::LexSource(file.GetContentText(), output)}; result == Corium::LexResultCode::Ok)
 	{
 		// Print parse tree:
-		for (const Corium::Token& x : result.first)
+		for (const Corium::Token& x : output)
 		{
 			PrintToken(x);
 		}
