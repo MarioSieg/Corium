@@ -44,15 +44,6 @@ namespace Corium
 		
 		ident.clear();
 	}
-
-	namespace Sym
-	{
-		static constexpr char8_t PARENTHESIS_LEFT{ static_cast<char8_t>(MonoLexeme::ParenthesisLeft) };
-		static constexpr char8_t PARENTHESIS_RIGHT{ static_cast<char8_t>(MonoLexeme::ParenthesisRight) };
-		static constexpr char8_t CURLY_BRACES_LEFT{ static_cast<char8_t>(MonoLexeme::CurlyBracesLeft) };
-		static constexpr char8_t CURLY_BRACES_RIGHT{ static_cast<char8_t>(MonoLexeme::CurlyBracesRight) };
-		static constexpr char8_t OPERATOR_ASSIGNMENT{ static_cast<char8_t>(Operator::Assignment) };
-	}
 	
 	auto LexContext::EvalChar(const char8_t x) -> void
 	{
@@ -60,28 +51,80 @@ namespace Corium
 		
 		switch (x)
 		{
-			case Sym::PARENTHESIS_LEFT:
+			case static_cast<char8_t>(Operator::Equals):
+				result.emplace_back(Operator::Equals);
+				return;
+
+			case static_cast<char8_t>(Operator::Comma):
+				result.emplace_back(Operator::Comma);
+				return;
+
+			case static_cast<char8_t>(Operator::Addition):
+				result.emplace_back(Operator::Addition);
+				return;
+
+			case static_cast<char8_t>(Operator::Subtraction):
+				result.emplace_back(Operator::Subtraction);
+				return;
+
+			case static_cast<char8_t>(Operator::Multiplication):
+				result.emplace_back(Operator::Multiplication);
+				return;
+
+			case static_cast<char8_t>(Operator::Division):
+				result.emplace_back(Operator::Division);
+				return;
+
+			case static_cast<char8_t>(Operator::Modulo):
+				result.emplace_back(Operator::Modulo);
+				return;
+
+			case static_cast<char8_t>(Operator::And):
+				result.emplace_back(Operator::And);
+				return;
+
+			case static_cast<char8_t>(Operator::Or):
+				result.emplace_back(Operator::Or);
+				return;
+			
+			case static_cast<char8_t>(Operator::Xor):
+				result.emplace_back(Operator::Xor);
+				return;
+
+			case static_cast<char8_t>(Operator::Complement):
+				result.emplace_back(Operator::Complement);
+				return;
+
+			case static_cast<char8_t>(Operator::Not):
+				result.emplace_back(Operator::Not);
+				return;
+
+			case static_cast<char8_t>(Operator::Less):
+				result.emplace_back(Operator::Less);
+				return;
+
+			case static_cast<char8_t>(Operator::Greater):
+				result.emplace_back(Operator::Greater);
+				return;
+			
+			case static_cast<char8_t>(MonoLexeme::ParenthesisLeft):
 				this->ParseAndSubmitIdentifier();
 				result.emplace_back(MonoLexeme::ParenthesisLeft);
 			return;
 
-			case Sym::PARENTHESIS_RIGHT:
+			case static_cast<char8_t>(MonoLexeme::ParenthesisRight):
 				this->ParseAndSubmitIdentifier();
 				result.emplace_back(MonoLexeme::ParenthesisRight);
 			return;
 
-			case Sym::CURLY_BRACES_LEFT:
+			case static_cast<char8_t>(MonoLexeme::CurlyBracesLeft):
 				this->ParseAndSubmitIdentifier();
 				result.emplace_back(MonoLexeme::CurlyBracesLeft);
 			return;
 				
-			case Sym::CURLY_BRACES_RIGHT:
+			case static_cast<char8_t>(MonoLexeme::CurlyBracesRight):
 				this->ParseAndSubmitIdentifier();
 				result.emplace_back(MonoLexeme::CurlyBracesRight);
-			return;
-
-			case Sym::OPERATOR_ASSIGNMENT:
-				result.emplace_back(Operator::Assignment);
 			return;
 
 			case u8'\n':
@@ -100,9 +143,9 @@ namespace Corium
 
 	auto LexContext::EvaluateString(const std::u8string_view sourceText) -> void
 	{
-		for (const char8_t x : sourceText)
+		std::for_each(std::begin(sourceText), std::end(sourceText), [this](const char8_t x)
 		{
 			this->EvalChar(x);
-		}
+		});
 	}
 }

@@ -209,21 +209,78 @@
 
 namespace Corium
 {
+	/// <summary>
+	/// Represents an operator.
+	/// </summary>
 	enum class Operator : char8_t
 	{
-		Assignment = u8'=',
+		Equals			= u8'=',
+		Comma			= u8',',
+		Addition		= u8'+',
+		Subtraction		= u8'-',
+		Multiplication	= u8'*',
+		Division		= u8'/',
+		Modulo			= u8'%',
+		And				= u8'&',
+		Or				= u8'|',
+		Xor				= u8'^',
+		Complement		= u8'~',
+		Not				= u8'!',
+		Less			= u8'<',
+		Greater			= u8'>',
 	};
 
+	/// <summary>
+	/// Returns the name of the operator specified.
+	/// </summary>
+	/// <param name="op"></param>
+	/// <returns></returns>
 	[[nodiscard]]
 	constexpr auto GetOperatorDescription(const Operator op) -> std::string_view
 	{
 		switch (op)
 		{
-		case Operator::Assignment:
+		case Operator::Equals:
 			return "Assignment";
 
-		default:
-			return "";
+		case Operator::Comma:
+			return "Comma";
+
+		case Operator::Addition:
+			return "Addition";
+
+		case Operator::Subtraction:
+			return "Subtraction";
+
+		case Operator::Multiplication:
+			return "Multiplication";
+
+		case Operator::Division:
+			return "Division";
+
+		case Operator::Modulo:
+			return "Modulo";
+
+		case Operator::And:
+			return "And";
+
+		case Operator::Or:
+			return "Or";
+
+		case Operator::Xor:
+			return "Xor";
+
+		case Operator::Complement:
+			return "Complement";
+
+		case Operator::Not:
+			return "Not";
+
+		case Operator::Less:
+			return "Less";
+
+		case Operator::Greater:
+			return "Greater";
 		}
 	}
 }

@@ -221,7 +221,17 @@ namespace Corium
 		EmptyFile
 	};
 
+	/// <summary>
+	/// Contains the output and the result code.
+	/// </summary>
 	using LexResult = std::pair<LexTree, LexResultCode>;
 
+	/// <summary>
+	/// Creates a new lex context and lexes the result.
+	/// Can be used for one time lexing or tests,
+	/// for other purposes please use the lex contextr.
+	/// </summary>
+	/// <param name="sourceCode"></param>
+	/// <returns></returns>
 	extern auto LexSource(std::u8string_view sourceCode) -> LexResult;
 }

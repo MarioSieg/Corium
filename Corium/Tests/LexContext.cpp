@@ -36,7 +36,7 @@ TEST(LexContext, Braces)
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 3);
 	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[0]), MonoLexeme::CurlyBracesLeft);
 	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[1]), MonoLexeme::CurlyBracesRight);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[2]), Operator::Assignment);
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[2]), Operator::Equals);
 }
 
 TEST(LexContext, Control)
@@ -135,4 +135,74 @@ TEST(LexContext, LexIdentifiers)
 	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), u8"two");
 	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[2]), u8"three");
 	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[3]), u8"four");
+}
+
+TEST(LexContext, LexArithmeticOperators)
+{
+	LexContext ctx{};
+	ctx.EvaluateString(u8"let x = 10 + 11 - 3 % 1 * 3 / 2\n");
+	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 14);
+	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
+	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[2]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[3]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[4]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[5]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[6]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[7]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[8]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[9]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[10]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[11]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[12]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[13]));
+	
+	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Let);
+	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), u8"x");
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[2]), Operator::Equals);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[3])), 10);
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[4]), Operator::Addition);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[5])), 11);
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[6]), Operator::Subtraction);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[7])), 3);
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[8]), Operator::Modulo);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[9])), 1);
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[10]), Operator::Multiplication);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[11])), 3);
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[12]), Operator::Division);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[13])), 2);
+}
+
+TEST(LexContext, LexBitOperators)
+{
+	LexContext ctx{};
+	ctx.EvaluateString(u8"let x = 10 ^ 11 & 3 | 1 ^ ~3\n");
+	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 13);
+	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
+	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[2]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[3]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[4]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[5]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[6]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[7]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[8]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[9]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[10]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[11]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[12]));
+
+	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Let);
+	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), u8"x");
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[2]), Operator::Equals);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[3])), 10);
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[4]), Operator::Xor);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[5])), 11);
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[6]), Operator::And);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[7])), 3);
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[8]), Operator::Or);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[9])), 1);
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[10]), Operator::Xor);
+	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[11]), Operator::Complement);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[12])), 3);
 }

@@ -23,12 +23,47 @@ namespace Corium
 		auto GetRawIdentifierBufferBlob() const -> const U8*;
 
 	public:
+		/// <summary>
+		/// Construct new and empty instance.
+		/// </summary>
 		LexContext() = default;
+
+		/// <summary>
+		/// Construct and reserve buffers.
+		/// </summary>
+		/// <param name="expectedOutputSize">The reserved output buffer size.</param>
+		/// <param name="expectedIdentSize">The reserved identifier size.</param>
 		LexContext(std::size_t expectedOutputSize, std::size_t expectedIdentSize);
-		LexContext(const LexContext&) = delete;
-		LexContext(LexContext&&) = default;
-		auto operator =(const LexContext&) -> LexContext& = delete;
-		auto operator =(LexContext&&) -> LexContext& = delete;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		LexContext(const LexContext& other) = delete;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		LexContext(LexContext&& other) = default;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const LexContext& other) -> LexContext& = delete;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(LexContext&& other) -> LexContext& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
 		~LexContext() = default;
 
 		/// <summary>
