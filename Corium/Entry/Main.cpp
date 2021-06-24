@@ -220,7 +220,7 @@ static auto ParseFile(const std::string_view path, Stream& out) -> void
 {
 	TextFile file { };
 	file.ReadFromFileOrPanic(path);
-	Corium::LexTree output{};
+	Corium::TokenStream output{};
 	if (const auto result {Corium::LexSource(file.GetContentText(), output)}; result == Corium::LexResultCode::Ok)
 	{
 		// Print parse tree:

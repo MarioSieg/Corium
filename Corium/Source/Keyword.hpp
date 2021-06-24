@@ -214,13 +214,15 @@ namespace Corium
 	enum class Keyword : U8
 	{
 		Let,
+		Fun,
 
 		$Count
 	};
 
 	constexpr std::array<std::u8string_view, static_cast<std::size_t>(Keyword::$Count)> KEYWORD_TABLE
 	{
-		u8"let"
+		u8"let",
+		u8"fun"
 	};
 
 	constexpr auto GetKeywordLexeme(const Keyword kw) -> std::u8string_view

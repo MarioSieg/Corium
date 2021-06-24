@@ -1,19 +1,16 @@
 #pragma once
 
-
 #include "Token.hpp"
 
 namespace Corium
-{
-	using LexTree = std::vector<Token>;
-	
+{	
 	/// <summary>
 	/// Core lexer context.
 	/// </summary>
 	class LexContext final
 	{
 		Identifier IdentifierBuffer_{};
-		LexTree Output_{};
+		TokenStream Output_{};
 
 		auto GetRawIdentifierBuffer() -> char8_t*;
 		auto GetRawIdentifierBufferLossy() -> char*;
@@ -98,28 +95,28 @@ namespace Corium
 		/// </summary>
 		/// <returns>The current lex tree result.</returns>
 		[[nodiscard]]
-		auto GetLexTreeOutput() const & -> const LexTree&;
+		auto GetLexTreeOutput() const & -> const TokenStream&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current lex tree result.</returns>
 		[[nodiscard]]
-		auto GetLexTreeOutput() & -> LexTree&;
+		auto GetLexTreeOutput() & -> TokenStream&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current lex tree result.</returns>
 		[[nodiscard]]
-		auto GetLexTreeOutput() const && -> const LexTree&&;
+		auto GetLexTreeOutput() const && -> const TokenStream&&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current lex tree result.</returns>
 		[[nodiscard]]
-		auto GetLexTreeOutput() && -> LexTree&&;
+		auto GetLexTreeOutput() && -> TokenStream&&;
 	};
 
 	inline auto LexContext::GetIdentifierBuffer() const -> const Identifier&
@@ -157,22 +154,22 @@ namespace Corium
 		return reinterpret_cast<const U8*>(std::data(this->IdentifierBuffer_));
 	}
 
-	inline auto LexContext::GetLexTreeOutput() const & -> const LexTree&
+	inline auto LexContext::GetLexTreeOutput() const & -> const TokenStream&
 	{
 		return this->Output_;
 	}
 
-	inline auto LexContext::GetLexTreeOutput() & -> LexTree&
+	inline auto LexContext::GetLexTreeOutput() & -> TokenStream&
 	{
 		return this->Output_;
 	}
 
-	inline auto LexContext::GetLexTreeOutput() const && -> const LexTree&&
+	inline auto LexContext::GetLexTreeOutput() const && -> const TokenStream&&
 	{
 		return std::move(this->Output_);
 	}
 
-	inline auto LexContext::GetLexTreeOutput() && -> LexTree&&
+	inline auto LexContext::GetLexTreeOutput() && -> TokenStream&&
 	{
 		return std::move(this->Output_);
 	}

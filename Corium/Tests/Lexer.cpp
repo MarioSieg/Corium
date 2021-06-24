@@ -209,7 +209,7 @@
 
 TEST(Lexer, LexFunction)
 {
-	LexTree    result { };
+	TokenStream    result { };
 	Identifier id { };
 	const auto ok {
 		LexSource

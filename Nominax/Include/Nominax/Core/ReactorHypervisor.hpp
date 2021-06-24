@@ -282,6 +282,7 @@ namespace Nominax
 		/// <param name="target"></param>
 		/// <param name="input"></param>
 		/// <param name="output"></param>
+		/// <param name="outJumpTable"></param>
 		/// <returns></returns>
 		extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target, const void**** outJumpTable = nullptr) -> void;
 	}

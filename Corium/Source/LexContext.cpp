@@ -47,7 +47,7 @@ namespace Corium
 	
 	auto LexContext::EvalChar(const char8_t x) -> void
 	{
-		LexTree& result{ this->Output_ };
+		TokenStream& result{ this->Output_ };
 		
 		switch (x)
 		{

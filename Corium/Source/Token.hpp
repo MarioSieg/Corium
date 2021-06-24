@@ -208,6 +208,7 @@
 #pragma once
 
 #include <variant>
+#include <vector>
 
 #include "Base.hpp"
 #include "Literal.hpp"
@@ -217,11 +218,30 @@
 
 namespace Corium
 {
+	/// <summary>
+	/// Char used to begin and end comments.
+	/// </summary>
 	constexpr char8_t COMMENT {'#'};
 
+	/// <summary>
+	/// Represents an identifier.
+	/// </summary>
 	using Identifier = std::u8string;
-	
+
+	/// <summary>
+	/// Represents a language token.
+	/// </summary>
 	using Token = std::variant<MonoLexeme, Identifier, Keyword, Operator, Literal>;
 
+	/// <summary>
+	/// Prints the type of the token.
+	/// </summary>
+	/// <param name="tok"></param>
+	/// <returns></returns>
 	extern auto PrintToken(const Token& tok) -> void;
+
+	/// <summary>
+	/// Represents a stream of tokens.
+	/// </summary>
+	using TokenStream = std::vector<Token>;
 }
