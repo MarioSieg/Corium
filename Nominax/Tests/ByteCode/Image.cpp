@@ -1,6 +1,6 @@
 // File: Image.cpp
 // Author: Mario
-// Created: 23.06.2021 5:04 PM
+// Created: 24.06.2021 7:14 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,73 +205,208 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/ByteCode/Image.hpp"
-#include "../../Include/Nominax/Common/PanicRoutine.hpp"
+#include "../TestBase.hpp"
 
-namespace Nominax::ByteCode
+TEST(Image, Construct1)
 {
-	Image::Image(const std::span<const Signal> blob)
-	{
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(blob.size(), "Byte code image with zero size is invalid!");
-		this->Size_ = std::size(blob);
-		this->Blob_ = new(std::nothrow) Signal[this->Size_];
-		std::memcpy(this->Blob_, std::data(blob), this->Size_ * sizeof(Signal));
-	}
-
-	Image::Image(const void* const data, const std::size_t byteSize)
-	{
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(byteSize, "Byte code image with zero size is invalid!");
-		NOMINAX_PANIC_ASSERT_NOT_NULL(data, "Byte code image with null data is invalid!");
-		NOMINAX_PANIC_ASSERT_TRUE(byteSize % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
-		this->Size_ = byteSize / sizeof(Signal);
-		this->Blob_ = new(std::nothrow) Signal[this->Size_];
-		std::memcpy(this->Blob_, data, byteSize);
-	}
-
-	Image::Image(Signal* const data, const std::size_t size)
-	{
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "Byte code image with zero size is invalid!");
-		NOMINAX_PANIC_ASSERT_NOT_NULL(data, "Byte code image with null data is invalid!");
-		this->Blob_ = data;
-		this->Size_ = size;
-	}
-
-	Image::Image(U8* const data, const std::size_t size)
-	{
-		NOMINAX_PANIC_ASSERT_TRUE(size % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "Byte code image with zero size is invalid!");
-		NOMINAX_PANIC_ASSERT_NOT_NULL(data, "Byte code image with null data is invalid!");
-
-		this->Size_ = size / sizeof(Signal);
-		this->Blob_ = reinterpret_cast<Signal*>(data);
-	}
-
-	Image::Image(Image&& other) : Blob_ {other.Blob_}, Size_ {other.Size_}
-	{
-		other.Blob_ = nullptr;
-		other.Size_ = 0;
-	}
-
-	auto Image::operator =(Image&& other) -> Image&
-	{
-		if (this->Blob_ && this->Size_)
-		{
-			delete[] this->Blob_;
-		}
-
-		this->Blob_ = other.Blob_;
-		this->Size_ = other.Size_;
-
-		other.Blob_ = nullptr;
-		other.Size_ = 0;
-
-		return *this;
-	}
-
-	Image::~Image()
-	{
-		delete[] this->Blob_;
-		this->Blob_ = nullptr;
-		this->Size_ = 0;
-	}
+	const std::array<const Signal, 3> values {Signal {3.0}, Signal {1.0}, Signal {-3.0}};
+	Image                             image {values};
+	ASSERT_EQ(image.GetSize(), 3);
+	ASSERT_EQ(image.GetByteSize(), 24);
+	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image[1].R64.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image[2].R64.AsF64, -3.0);
 }
+
+TEST(Image, Construct2)
+{
+	const std::array<const Signal, 3> values {Signal {3.0}, Signal {1.0}, Signal {-3.0}};
+	Image                             image {static_cast<const void*>(std::data(values)), std::size(values) * sizeof(Signal)};
+	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image[1].R64.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image[2].R64.AsF64, -3.0);
+	ASSERT_EQ(image.GetSize(), 3);
+	ASSERT_EQ(image.GetByteSize(), 24);
+}
+
+TEST(Image, Construct3)
+{
+	auto* const values {new Signal[3] {Signal {3.0}, Signal {1.0}, Signal {-3.0}}};
+	Image       image {values, 3};
+	ASSERT_EQ(image.GetSize(), 3);
+	ASSERT_EQ(image.GetByteSize(), 24);
+	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image[1].R64.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image[2].R64.AsF64, -3.0);
+}
+
+TEST(Image, Construct4)
+{
+	auto* const values {new Signal[3] {Signal {3.0}, Signal {1.0}, Signal {-3.0}}};
+	Image       image {reinterpret_cast<U8*>(values), 3 * sizeof(Signal)};
+	ASSERT_EQ(image.GetSize(), 3);
+	ASSERT_EQ(image.GetByteSize(), 24);
+	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image[1].R64.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image[2].R64.AsF64, -3.0);
+}
+
+TEST(Image, MoveConstruct)
+{
+	const std::array<const Signal, 3> values {Signal {3.0}, Signal {1.0}, Signal {-3.0}};
+	Image                             image {values};
+	ASSERT_EQ(image.GetSize(), 3);
+	ASSERT_EQ(image.GetByteSize(), 24);
+	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image[1].R64.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image[2].R64.AsF64, -3.0);
+
+	const Image image2 {std::move(image)};
+	ASSERT_EQ(image2.GetSize(), 3);
+	ASSERT_EQ(image2.GetByteSize(), 24);
+	ASSERT_DOUBLE_EQ(image2[0].R64.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image2[1].R64.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image2[2].R64.AsF64, -3.0);
+}
+
+TEST(Image, MoveAssign)
+{
+	const std::array<const Signal, 3> values {Signal {3.0}, Signal {1.0}, Signal {-3.0}};
+	Image                             image {values};
+	ASSERT_EQ(image.GetSize(), 3);
+	ASSERT_EQ(image.GetByteSize(), 24);
+	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image[1].R64.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image[2].R64.AsF64, -3.0);
+
+	Image image2 { };
+	image2 = std::move(image);
+	ASSERT_EQ(image2.GetSize(), 3);
+	ASSERT_EQ(image2.GetByteSize(), 24);
+	ASSERT_DOUBLE_EQ(image2[0].R64.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image2[1].R64.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image2[2].R64.AsF64, -3.0);
+}
+
+
+#ifdef NOMINAX_DEATH_TESTS
+
+TEST(Image, DeathConstruct1)
+{
+	const auto routine
+	{
+		[]
+		{
+			const std::array<const Signal, 0> values{ };
+			Image image{ values };
+		}
+	};
+
+	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+}
+
+TEST(Image, DeathConstruct2_1)
+{
+	const auto routine
+	{
+		[]
+		{
+			Image image{ reinterpret_cast<const void*>(0xFFAABBCC), 0 };
+		}
+	};
+
+	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+}
+
+TEST(Image, DeathConstruct2_2)
+{
+	const auto routine
+	{
+		[]
+		{
+			Image image{ static_cast<const void*>(nullptr), 0 };
+		}
+	};
+
+	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+}
+
+TEST(Image, DeathConstruct2_3)
+{
+	const auto routine
+	{
+		[]
+		{
+			Image image{ reinterpret_cast<const void*>(0xFFAABBCC), 6 };
+		}
+	};
+
+	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+}
+
+TEST(Image, DeathConstruct3_1)
+{
+	const auto routine
+	{
+		[]
+		{
+			Image image{ reinterpret_cast<const Signal*>(0xFFAABBCC), 0 };
+		}
+	};
+
+	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+}
+
+TEST(Image, DeathConstruct3_2)
+{
+	const auto routine
+	{
+		[]
+		{
+			Image image{ static_cast<const Signal*>(nullptr), 0 };
+		}
+	};
+
+	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+}
+
+TEST(Image, DeathConstruct4_1)
+{
+	const auto routine
+	{
+		[]
+		{
+			Image image{ reinterpret_cast<const U8*>(0xFFAABBCC), 0 };
+		}
+	};
+
+	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+}
+
+TEST(Image, DeathConstruct4_2)
+{
+	const auto routine
+	{
+		[]
+		{
+			Image image{ reinterpret_cast<const U8*>(0xFFAABBCC), 6 };
+		}
+	};
+
+	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+}
+
+TEST(Image, DeathConstruct4_3)
+{
+	const auto routine
+	{
+		[]
+		{
+			Image image{ static_cast<const U8*>(nullptr), 0 };
+		}
+	};
+
+	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+}
+
+#endif

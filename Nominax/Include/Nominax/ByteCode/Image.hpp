@@ -281,8 +281,8 @@ namespace Nominax::ByteCode
 		/// and copies the data into it.
 		/// </summary>
 		/// <param name="data">The blob to copy the data from.</param>
-		/// <param name="size">The size of the data in bytes.</param>
-		Image(const void* data, std::size_t size);
+		/// <param name="byteSize">The size of the data in bytes.</param>
+		Image(const void* data, std::size_t byteSize);
 
 		/// <summary>
 		/// Construct with owning blob.
