@@ -214,6 +214,7 @@ TEST(Environent, Construct)
 	ASSERT_EQ(env.GetKernel(), nullptr);
 }
 
+#ifdef NOMINAX_DEATH_TESTS
 TEST(Environent, ConstructOfflineAccessDeath_GetBootStamp)
 {
 	const Environment env { };
@@ -311,6 +312,8 @@ TEST(Environent, ConstructOfflineAccessDeath_GetExecutionTimeHistory)
 	                          }(), "");
 }
 
+#endif
+
 TEST(Environment, Boot)
 {
 	Environment env { };
@@ -398,6 +401,8 @@ TEST(Environment, BootShutdownHooks)
 	ASSERT_EQ(env.GetKernel(), nullptr);
 }
 
+#if NOMINAX_DEATH_TESTS
+
 TEST(Environment, BootShutdownHooksBad)
 {
 	class MyEnvironment : public Environment
@@ -433,6 +438,8 @@ TEST(Environment, BootShutdownHooksBad)
 	};
 	ASSERT_DEATH_IF_SUPPORTED(env.Boot(descriptor), "");
 }
+
+#endif
 
 TEST(Environment, SystemConfig)
 {
@@ -490,6 +497,8 @@ TEST(Environment, Execution)
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 
+#if NOMINAX_DEATH_TESTS
+
 TEST(Environment, ExecutionMissingPrologue)
 {
 	Stream                      stream { };
@@ -526,6 +535,8 @@ TEST(Environment, ExecutionMissingEpilogue)
 	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
+
+#endif
 
 TEST(Environment, ExecutionHooks)
 {
@@ -571,6 +582,8 @@ TEST(Environment, ExecutionHooks)
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 
+#ifdef NOMINAX_DEATH_TESTS
+
 TEST(Environment, ExecutionHooksBad)
 {
 	Stream                                 stream { };
@@ -601,3 +614,5 @@ TEST(Environment, ExecutionHooksBad)
 	ASSERT_EQ(env.GetExecutionCount(), 0);
 	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
 }
+
+#endif

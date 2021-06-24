@@ -251,6 +251,8 @@ TEST(ReactorClass, MoveConstruct)
 	ASSERT_EQ(reactor2.GetInterruptHandler(), GetDefaultInterruptRoutine());
 }
 
+#ifdef NOMINAX_DEATH_TESTS
+
 TEST(ReactorClass, ZeroStackSizeFault)
 {
 	auto exec
@@ -263,6 +265,8 @@ TEST(ReactorClass, ZeroStackSizeFault)
 	};
 	ASSERT_DEATH_IF_SUPPORTED(exec(), "");
 }
+
+#endif
 
 TEST(ReactorClass, InterruptHandler)
 {

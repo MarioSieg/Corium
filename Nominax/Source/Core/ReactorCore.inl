@@ -596,7 +596,7 @@ namespace Nominax::Core
 			// this reads until space, but we want to read until newline (at the moment):
 			// fread(&sp->AsUtf8, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
 			[[maybe_unused]] // throw runtime exception
-			auto _ {std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin)};
+				auto _ {std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin)};
 		}
 		return;
 
@@ -608,7 +608,7 @@ namespace Nominax::Core
 		return;
 	}
 
-	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME (const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable) -> void
+	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable) -> void
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 
@@ -700,7 +700,7 @@ namespace Nominax::Core
 		ASM_MARKER("reactor begin");
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-		if (NOMINAX_UNLIKELY(!MapJumpTable(input.CodeChunk, input.CodeChunk + input.CodeChunkSize, input.CodeChunkInstructionMap, JUMP_TABLE)))
+		if (NOMINAX_UNLIKELY(!PerformJumpTableMapping(input.CodeChunk, input.CodeChunk + input.CodeChunkSize, input.CodeChunkInstructionMap, JUMP_TABLE)))
 		{
 			output.ShutdownReason = ReactorShutdownReason::Error;
 			return;

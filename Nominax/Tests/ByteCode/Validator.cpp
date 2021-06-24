@@ -900,9 +900,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange2)
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
 }
 
-TEST(ValidatorAlgorithms, FullValidation1Billion)
+TEST(ValidatorAlgorithms, FullValidation1Million)
 {
-	constexpr std::size_t count {200'000'000};
+	constexpr std::size_t count {200'000};
 
 	Stream stream { };
 	stream.Reserve(count * 5 + 10);
