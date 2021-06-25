@@ -371,7 +371,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) const -> const Signal&;
+		auto operator [](std::size_t idx) const -> Signal;
 	};
 
 	inline auto Image::GetByteSize() const -> std::size_t
@@ -459,7 +459,7 @@ namespace Nominax::ByteCode
 		return image.cend();
 	}
 
-	inline auto Image::operator[](const std::size_t idx) const -> const Signal&
+	inline auto Image::operator[](const std::size_t idx) const -> Signal
 	{
 		return *(this->Blob_ + idx);
 	}
@@ -471,8 +471,8 @@ namespace Nominax::ByteCode
 
 	inline auto Image::GetReactorView() const -> std::span<Signal>
 	{
-		auto* const begin {const_cast<Signal*>(&*std::begin(*this))};
-		auto* const end {const_cast<Signal*>(&*std::end(*this))};
+		auto* const begin {this->Blob_};
+		auto* const end {this->Blob_ + this->Size_};
 		return {begin, end};
 	}
 }

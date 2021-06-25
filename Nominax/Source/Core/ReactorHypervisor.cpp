@@ -261,7 +261,7 @@ namespace Nominax::Core
 
 	auto GetFallbackRoutineLink() -> ReactorRoutineLink
 	{
-		return { ReactorCoreSpecialization::Fallback, GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback) };
+		return {ReactorCoreSpecialization::Fallback, GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)};
 	}
 
 	auto GetReactorRoutineFromRegistryByTarget(const ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*
@@ -288,11 +288,21 @@ namespace Nominax::Core
 		{
 			Print(Common::LogLevel::Warning, "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n", QueryCounter);
 		}
-		return { specialization, routine };
+		return {specialization, routine};
 	}
 
 	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target, const void**** outJumpTable) -> void
 	{
 		GetOptimalReactorRoutine(target).second(input, output, outJumpTable);
+	}
+
+	auto QueryJumpTable(const ReactorRoutineLink& routineLink) -> const void**
+	{
+		const void**   jumpTable { };
+		const void** * proxy {&jumpTable};
+		const void**** writer {&proxy};
+		ReactorState   dummy;
+		routineLink.second({ }, dummy, writer);
+		return jumpTable;
 	}
 }

@@ -285,5 +285,12 @@ namespace Nominax
 		/// <param name="outJumpTable"></param>
 		/// <returns></returns>
 		extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target, const void**** outJumpTable = nullptr) -> void;
+
+		/// <summary>
+		/// Queries the jump table from the specified reactor routine.
+		/// </summary>
+		/// <param name="routineLink"></param>
+		/// <returns></returns>
+		extern auto QueryJumpTable(const ReactorRoutineLink& routineLink) -> const void**;
 	}
 }
