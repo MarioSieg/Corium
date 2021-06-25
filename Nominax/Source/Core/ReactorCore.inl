@@ -713,11 +713,11 @@ namespace Nominax::Core
 
 		ASM_MARKER("reactor locals");
 
-		InterruptAccumulator             interruptCode { };                          /* interrupt id flag		*/
-		IntrinsicRoutine* const* const   intrinsicTable {input->IntrinsicTable};     /* intrinsic table hi		*/
+		InterruptAccumulator             interruptCode { };                          /* interrupt id flag			*/
+		IntrinsicRoutine* const* const   intrinsicTable {input->IntrinsicTable};     /* intrinsic table hi			*/
 		InterruptRoutine* const          interruptHandler {input->InterruptHandler}; /* global interrupt routine	*/
-		const Signal* const __restrict__ ipLo {input->CodeChunk};                    /* instruction low ptr		*/
-		const Signal*                    ip {ipLo};                                  /* instruction ptr			*/
+		const Signal* const __restrict__ ipLo {input->CodeChunk};                    /* instruction low ptr			*/
+		const Signal*                    ip {ipLo};                                  /* instruction ptr				*/
 		const Signal*                    bp {ipLo};                                  /* base pointer				*/
 		Record* __restrict__             sp {input->Stack};                          /* stack pointer lo			*/
 
