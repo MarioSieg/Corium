@@ -290,15 +290,6 @@ namespace Nominax::Core
 		Print("Arch: {}\n", NOMINAX_ARCH_NAME);
 		Print("IsPosix: {}\n", NOMINAX_IS_POSIX);
 		Print("Compiled with: {} - C++ 20\n", NOMINAX_COM_NAME);
-		constexpr bool analyzer
-		{
-#ifdef NOMINAX_ANALY
-			true
-#else
-			false
-#endif
-		};
-		Print("Analyzer: {}\n", analyzer);
 		Print("\n");
 		PrintTypeInfoTable();
 		Print("\n");
@@ -357,7 +348,7 @@ namespace Nominax::Core
 	-> std::size_t
 	{
 		reactorStackSize = MapStackSize(reactorStackSize);
-		desiredSize      = !desiredSize ? Environment::FALLBACK_SYSTEM_POOL_SIZE : desiredSize;
+		desiredSize      = desiredSize ? desiredSize : Environment::FALLBACK_SYSTEM_POOL_SIZE;
 		return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
 	}
 

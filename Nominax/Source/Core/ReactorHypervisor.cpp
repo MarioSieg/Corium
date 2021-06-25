@@ -258,9 +258,24 @@ namespace Nominax::Core
 		return REACTOR_REGISTRY;
 	}
 
+	ReactorRoutineLink::ReactorRoutineLink(const ReactorCoreSpecialization specialization, ReactorCoreExecutionRoutine* const executionRoutine, const void** const jumpTable)
+		: Specialization {specialization}, ExecutionRoutine {executionRoutine}, JumpTable {jumpTable}
+	{
+		NOMINAX_PANIC_ASSERT_NOT_NULL(this->ExecutionRoutine, "Routine for reactor routine link is null!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
+	}
+
 	auto GetFallbackRoutineLink() -> ReactorRoutineLink
 	{
-		return {ReactorCoreSpecialization::Fallback, GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)};
+		const auto                   specialization {ReactorCoreSpecialization::Fallback};
+		ReactorCoreExecutionRoutine* routine {GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)};
+		const void**                 jumpTable {QueryJumpTable(*routine)};
+		return
+		{
+			specialization,
+			routine,
+			jumpTable
+		};
 	}
 
 	auto GetReactorRoutineFromRegistryByTarget(const ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*
@@ -275,6 +290,7 @@ namespace Nominax::Core
 		static thread_local constinit U16 QueryCounter;
 		ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
 		ReactorCoreExecutionRoutine*      routine {GetReactorRoutineFromRegistryByTarget(specialization)};
+		const void**                      jumpTable {QueryJumpTable(*routine)};
 		Common::Print
 		(
 			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry Size: {}\n",
@@ -287,19 +303,24 @@ namespace Nominax::Core
 		{
 			Print(Common::LogLevel::Warning, "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n", QueryCounter);
 		}
-		return {specialization, routine};
+		return
+		{
+			specialization,
+			routine,
+			jumpTable
+		};
 	}
 
 	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target, const void**** outJumpTable) -> ReactorShutdownReason
 	{
-		return GetOptimalReactorRoutine(target).second(&input, &output, outJumpTable);
+		return GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable);
 	}
 
-	auto QueryJumpTable(const ReactorRoutineLink& routineLink) -> const void**
+	auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**
 	{
 		const void**   jumpTable { };
 		const void** * proxy {&jumpTable};
 		const void**** writer {&proxy};
-		return routineLink.second(nullptr, nullptr, writer) == ReactorShutdownReason::Success ? jumpTable : nullptr;
+		return routine(nullptr, nullptr, writer) == ReactorShutdownReason::Success ? jumpTable : nullptr;
 	}
 }

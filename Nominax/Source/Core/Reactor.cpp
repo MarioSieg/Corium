@@ -302,7 +302,7 @@ namespace Nominax::Core
 		{
 			PANIC("Reactor {:#X} validation failed with the following reason: {}", this->Id_, validationResult);
 		}
-		ReactorCoreExecutionRoutine* const routine = std::get<1>(this->RoutineLink_);
+		ReactorCoreExecutionRoutine* const routine = this->RoutineLink_.ExecutionRoutine;
 		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");
 		const ReactorShutdownReason result {(*routine)(&this->Input_, &this->Output_, nullptr)};
 		return {result, this->Output_};

@@ -228,9 +228,21 @@ namespace Nominax
 		using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor* descriptor, ReactorState* outputState, const void**** jumpTableQuery) -> ReactorShutdownReason;
 
 		/// <summary>
-		/// Contains a reactor execution routine and info.
+		/// Contains the reactor routine and additional information.
 		/// </summary>
-		using ReactorRoutineLink = std::pair<ReactorCoreSpecialization, ReactorCoreExecutionRoutine*>;
+		struct ReactorRoutineLink
+		{
+			const ReactorCoreSpecialization    Specialization;
+			ReactorCoreExecutionRoutine* const ExecutionRoutine;
+			const void** const                 JumpTable;
+
+			ReactorRoutineLink
+			(
+				ReactorCoreSpecialization    specialization,
+				ReactorCoreExecutionRoutine* executionRoutine,
+				const void**                 jumpTable
+			);
+		};
 
 		/// <summary>
 		/// Contains all available reactor implementations for the current platform.
@@ -286,14 +298,19 @@ namespace Nominax
 		/// <param name="outJumpTable"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target,
-		                                    const void****                  outJumpTable = nullptr) -> ReactorShutdownReason;
+		extern auto SingletonExecutionProxy
+		(
+			const VerboseReactorDescriptor&   input,
+			ReactorState&                     output,
+			const System::CpuFeatureDetector& target,
+			const void****                    outJumpTable = nullptr
+		) -> ReactorShutdownReason;
 
 		/// <summary>
 		/// Queries the jump table from the specified reactor routine.
 		/// </summary>
-		/// <param name="routineLink"></param>
+		/// <param name="routine"></param>
 		/// <returns></returns>
-		extern auto QueryJumpTable(const ReactorRoutineLink& routineLink) -> const void**;
+		extern auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**;
 	}
 }
