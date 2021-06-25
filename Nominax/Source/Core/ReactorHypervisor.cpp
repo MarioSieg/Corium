@@ -267,7 +267,7 @@ namespace Nominax::Core
 
 	auto GetFallbackRoutineLink() -> ReactorRoutineLink
 	{
-		const auto                   specialization {ReactorCoreSpecialization::Fallback};
+		const auto                         specialization {ReactorCoreSpecialization::Fallback};
 		ReactorCoreExecutionRoutine* const routine {GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)};
 		const void** const                 jumpTable {QueryJumpTable(*routine)};
 		return
