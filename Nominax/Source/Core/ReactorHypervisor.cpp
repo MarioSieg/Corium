@@ -268,8 +268,8 @@ namespace Nominax::Core
 	auto GetFallbackRoutineLink() -> ReactorRoutineLink
 	{
 		const auto                   specialization {ReactorCoreSpecialization::Fallback};
-		ReactorCoreExecutionRoutine* routine {GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)};
-		const void**                 jumpTable {QueryJumpTable(*routine)};
+		ReactorCoreExecutionRoutine* const routine {GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)};
+		const void** const                 jumpTable {QueryJumpTable(*routine)};
 		return
 		{
 			specialization,
@@ -297,7 +297,7 @@ namespace Nominax::Core
 			GetReactorCoreSpecializationName(specialization),
 			static_cast<std::uint64_t>(specialization),
 			++QueryCounter,
-			REACTOR_REGISTRY.size()
+			std::size(REACTOR_REGISTRY)
 		);
 		if (NOMINAX_UNLIKELY(QueryCounter > 1))
 		{
