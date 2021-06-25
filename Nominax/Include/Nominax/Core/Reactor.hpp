@@ -368,13 +368,6 @@ namespace Nominax::Core
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>The process memory snapshot in mb when the reactor was spawned.</returns>
-		[[nodiscard]]
-		auto GetSpawnMemorySnapshot() const -> std::size_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
 		/// <returns>The current descriptor of the reactor.</returns>
 		[[nodiscard]]
 		auto GetInputDescriptor() const -> const VerboseReactorDescriptor&;
