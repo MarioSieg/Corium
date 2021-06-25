@@ -608,7 +608,7 @@ namespace Nominax::Core
 		return;
 	}
 
-	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable) -> void
+	__attribute__((hot)) auto NOMINAX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor* input, ReactorState* output, const void**** outJumpTable) -> ReactorShutdownReason
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 
@@ -694,28 +694,32 @@ namespace Nominax::Core
 		if (outJumpTable)
 		{
 			**outJumpTable = const_cast<const void**>(JUMP_TABLE);
-			return;
+			return ReactorShutdownReason::Success;
+		}
+
+		if (NOMINAX_UNLIKELY(!input || !output))
+		{
+			return ReactorShutdownReason::Error;
 		}
 
 		ASM_MARKER("reactor begin");
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-		if (NOMINAX_UNLIKELY(!PerformJumpTableMapping(input.CodeChunk, input.CodeChunk + input.CodeChunkSize, input.CodeChunkInstructionMap, JUMP_TABLE)))
+		if (NOMINAX_UNLIKELY(!PerformJumpTableMapping(input->CodeChunk, input->CodeChunk + input->CodeChunkSize, input->CodeChunkInstructionMap, JUMP_TABLE)))
 		{
-			output.ShutdownReason = ReactorShutdownReason::Error;
-			return;
+			return ReactorShutdownReason::Error;
 		}
 #endif
 
 		ASM_MARKER("reactor locals");
 
-		InterruptAccumulator             interruptCode { };                         /* interrupt id flag		*/
-		IntrinsicRoutine* const* const   intrinsicTable {input.IntrinsicTable};     /* intrinsic table hi		*/
-		InterruptRoutine* const          interruptHandler {input.InterruptHandler}; /* global interrupt routine	*/
-		const Signal* const __restrict__ ipLo {input.CodeChunk};                    /* instruction low ptr		*/
-		const Signal*                    ip {ipLo};                                 /* instruction ptr			*/
-		const Signal*                    bp {ipLo};                                 /* base pointer				*/
-		Record* __restrict__             sp {input.Stack};                          /* stack pointer lo			*/
+		InterruptAccumulator             interruptCode { };                          /* interrupt id flag		*/
+		IntrinsicRoutine* const* const   intrinsicTable {input->IntrinsicTable};     /* intrinsic table hi		*/
+		InterruptRoutine* const          interruptHandler {input->InterruptHandler}; /* global interrupt routine	*/
+		const Signal* const __restrict__ ipLo {input->CodeChunk};                    /* instruction low ptr		*/
+		const Signal*                    ip {ipLo};                                  /* instruction ptr			*/
+		const Signal*                    bp {ipLo};                                  /* base pointer				*/
+		Record* __restrict__             sp {input->Stack};                          /* stack pointer lo			*/
 
 		ASM_MARKER("reactor exec");
 
@@ -1998,13 +2002,14 @@ namespace Nominax::Core
 
 		ASM_MARKER("_terminate_");
 
-		output.ShutdownReason = DetermineShutdownReason(interruptCode);
-		output.Pre            = pre;
-		output.Post           = std::chrono::high_resolution_clock::now();
-		output.Duration       = std::chrono::high_resolution_clock::now() - pre;
-		output.InterruptCode  = interruptCode;
-		output.IpDiff         = ip - input.CodeChunk;
-		output.SpDiff         = sp - input.Stack;
-		output.BpDiff         = ip - bp;
+		output->ShutdownReason = DetermineShutdownReason(interruptCode);
+		output->Pre            = pre;
+		output->Post           = std::chrono::high_resolution_clock::now();
+		output->Duration       = std::chrono::high_resolution_clock::now() - pre;
+		output->InterruptCode  = interruptCode;
+		output->IpDiff         = ip - input->CodeChunk;
+		output->SpDiff         = sp - input->Stack;
+		output->BpDiff         = ip - bp;
+		return output->ShutdownReason;
 	}
 }

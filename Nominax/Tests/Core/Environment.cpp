@@ -491,7 +491,13 @@ TEST(Environment, Execution)
 	Environment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 	ASSERT_EQ(env.GetExecutionCount(), 0);
-	ASSERT_NO_FATAL_FAILURE(env.Execute(std::move(stream)));
+	const auto executor {
+		[&]
+		{
+			ASSERT_EQ(env.Execute(std::move(stream)).first, ReactorShutdownReason::Success);
+		}
+	};
+	ASSERT_NO_FATAL_FAILURE(executor());
 	ASSERT_EQ(env.GetExecutionCount(), 1);
 	ASSERT_EQ(env.GetExecutionTimeHistory().size(), 1);
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());

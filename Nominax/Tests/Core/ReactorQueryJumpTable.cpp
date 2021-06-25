@@ -226,9 +226,9 @@ TEST(Reactor, QueryJumpTable)
 
 TEST(Reactor, QueryJumpTableViaHypervisor)
 {
-	const void** jumpTable{ QueryJumpTable(GetOptimalReactorRoutine({})) };
+	const void** jumpTable {QueryJumpTable(GetOptimalReactorRoutine({ }))};
 	ASSERT_NE(jumpTable, nullptr);
-	for (U64 i{ 0 }; i < static_cast<U64>(Instruction::$Count); ++i)
+	for (U64 i {0}; i < static_cast<U64>(Instruction::$Count); ++i)
 	{
 		ASSERT_NE(jumpTable[i], nullptr);
 	}

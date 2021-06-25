@@ -327,7 +327,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(ByteCode::AppCodeBundle&& bundle) -> const ReactorState&;
+		auto Execute(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 		/// <summary>
 		/// Execute reactor with specified application code bundle.
@@ -335,7 +335,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator ()(ByteCode::AppCodeBundle&& bundle) -> const ReactorState&;
+		auto operator ()(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 		/// <summary>
 		/// 
@@ -466,7 +466,7 @@ namespace Nominax::Core
 		return this->AppCode_;
 	}
 
-	inline auto Reactor::operator()(ByteCode::AppCodeBundle&& bundle) -> const ReactorState&
+	inline auto Reactor::operator()(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 	{
 		return this->Execute(std::move(bundle));
 	}
@@ -478,5 +478,6 @@ namespace Nominax::Core
 	/// <param name="input">The reactor input descriptor.</param>
 	/// <param name="target">The cpu target.</param>
 	/// <returns></returns>
-	extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target = { }, const void**** outJumpTable = nullptr) -> ReactorState;
+	extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target = { },
+	                                    const void****                  outJumpTable                                    = nullptr) -> std::pair<ReactorShutdownReason, ReactorState>;
 }

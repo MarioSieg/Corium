@@ -287,7 +287,7 @@ namespace Nominax::Core
 		);
 	}
 
-	auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) -> const ReactorState&
+	auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 	{
 		this->AppCode_ = std::move(bundle);
 		this->Input_   = CreateDescriptor
@@ -302,16 +302,16 @@ namespace Nominax::Core
 		{
 			PANIC("Reactor {:#X} validation failed with the following reason: {}", this->Id_, validationResult);
 		}
-		auto* const routine = std::get<1>(this->RoutineLink_);
+		ReactorCoreExecutionRoutine* const routine = std::get<1>(this->RoutineLink_);
 		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");
-		(*routine)(this->Input_, this->Output_, nullptr);
-		return this->Output_;
+		const ReactorShutdownReason result {(*routine)(&this->Input_, &this->Output_, nullptr)};
+		return {result, this->Output_};
 	}
 
-	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target, const void**** outJumpTable) -> ReactorState
+	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target, const void**** outJumpTable) -> std::pair<ReactorShutdownReason, ReactorState>
 	{
-		ReactorState output {.Input = &input};
-		SingletonExecutionProxy(input, output, target, outJumpTable);
-		return output;
+		ReactorState                output {.Input = &input};
+		const ReactorShutdownReason result {SingletonExecutionProxy(input, output, target, outJumpTable)};
+		return {result, output};
 	}
 }

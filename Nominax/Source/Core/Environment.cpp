@@ -687,7 +687,7 @@ namespace Nominax::Core
 		);
 	}
 
-	auto Environment::Execute(Stream&& appCode) -> const ReactorState&
+	auto Environment::Execute(Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 
@@ -711,11 +711,11 @@ namespace Nominax::Core
 		const auto& result {(*this->Context_->CorePool)(std::move(appCodeBundle))};
 
 		// Add execution time:
-		const auto micros {std::chrono::duration_cast<std::chrono::duration<F64, std::micro>>(result.Duration)};
+		const auto micros {std::chrono::duration_cast<std::chrono::duration<F64, std::micro>>(result.second.Duration)};
 		this->Context_->ExecutionTimeHistory.push_back(micros);
 
 		// Print exec info:
-		const auto level {result.ShutdownReason == ReactorShutdownReason::Success ? LogLevel::Success : LogLevel::Error};
+		const auto level {result.first == ReactorShutdownReason::Success ? LogLevel::Success : LogLevel::Error};
 		Print(level, "Execution #{} done! Runtime {:.04}\n", this->Context_->ExecutionTimeHistory.size(), std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros));
 		std::cout.flush();
 

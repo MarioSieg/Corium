@@ -361,14 +361,14 @@ namespace Nominax
 			/// </summary>
 			/// <param name="appCode"></param>
 			/// <returns></returns>
-			auto Execute(ByteCode::Stream&& appCode) -> const ReactorState&;
+			auto Execute(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 			/// <summary>
 			/// Execute stream on alpha reactor.
 			/// </summary>
 			/// <param name="appCode"></param>
 			/// <returns></returns>
-			auto operator()(ByteCode::Stream&& appCode) -> const ReactorState&;
+			auto operator()(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 			/// <summary>
 			/// Shutdown runtime environment.
@@ -448,7 +448,7 @@ namespace Nominax
 			auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
 		};
 
-		inline auto Environment::operator()(ByteCode::Stream&& appCode) -> const ReactorState&
+		inline auto Environment::operator()(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>
 		{
 			return this->Execute(std::move(appCode));
 		}

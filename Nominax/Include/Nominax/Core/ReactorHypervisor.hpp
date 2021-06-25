@@ -208,6 +208,7 @@
 #pragma once
 
 #include "ReactorCoreSpecialization.hpp"
+#include "ReactorShutdownReason.hpp"
 
 namespace Nominax
 {
@@ -224,7 +225,7 @@ namespace Nominax
 		/// <summary>
 		/// Signature of the reactor core execution routine.
 		/// </summary>
-		using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor&, ReactorState&, const void****) -> void;
+		using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor* descriptor, ReactorState* outputState, const void**** jumpTableQuery) -> ReactorShutdownReason;
 
 		/// <summary>
 		/// Contains a reactor execution routine and info.
@@ -284,7 +285,9 @@ namespace Nominax
 		/// <param name="output"></param>
 		/// <param name="outJumpTable"></param>
 		/// <returns></returns>
-		extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target, const void**** outJumpTable = nullptr) -> void;
+		[[nodiscard]]
+		extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target,
+		                                    const void****                  outJumpTable = nullptr) -> ReactorShutdownReason;
 
 		/// <summary>
 		/// Queries the jump table from the specified reactor routine.

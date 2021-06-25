@@ -246,12 +246,11 @@ namespace Nominax::Core
 			return ReactorCoreSpecialization::X86_64_AVX;
 		}
 
-		// else, do not use fallback:
-		return ReactorCoreSpecialization::Fallback;
-
 #elif NOMINAX_ARCH_ARM_64
 #	error "ARM64 not yet supported!"
 #endif
+
+		return ReactorCoreSpecialization::Fallback;
 	}
 
 	auto GetReactorRegistry() -> const ReactorRegistry&
@@ -291,9 +290,9 @@ namespace Nominax::Core
 		return {specialization, routine};
 	}
 
-	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target, const void**** outJumpTable) -> void
+	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target, const void**** outJumpTable) -> ReactorShutdownReason
 	{
-		GetOptimalReactorRoutine(target).second(input, output, outJumpTable);
+		return GetOptimalReactorRoutine(target).second(&input, &output, outJumpTable);
 	}
 
 	auto QueryJumpTable(const ReactorRoutineLink& routineLink) -> const void**
@@ -301,8 +300,6 @@ namespace Nominax::Core
 		const void**   jumpTable { };
 		const void** * proxy {&jumpTable};
 		const void**** writer {&proxy};
-		ReactorState   dummy;
-		routineLink.second({ }, dummy, writer);
-		return jumpTable;
+		return routineLink.second(nullptr, nullptr, writer) == ReactorShutdownReason::Success ? jumpTable : nullptr;
 	}
 }

@@ -208,6 +208,7 @@
 #pragma once
 
 #include "../../Include/Nominax/System/Platform.hpp"
+#include "../../Include/Nominax/Core/ReactorShutdownReason.hpp"
 
 namespace Nominax::Core
 {
@@ -221,7 +222,7 @@ namespace Nominax::Core
 	/// <param name="output"></param>
 	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	__attribute__((hot)) extern auto ReactorCore_Fallback(const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable = nullptr) -> void;
+	__attribute__((hot)) extern auto ReactorCore_Fallback(const VerboseReactorDescriptor* input, ReactorState* output, const void**** outJumpTable = nullptr) -> ReactorShutdownReason;
 
 #if NOMINAX_ARCH_X86_64
 
@@ -232,7 +233,7 @@ namespace Nominax::Core
 	/// <param name="output"></param>
 	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	__attribute__((hot)) extern auto ReactorCore_AVX(const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable = nullptr) -> void;
+	__attribute__((hot)) extern auto ReactorCore_AVX(const VerboseReactorDescriptor* input, ReactorState* output, const void**** outJumpTable = nullptr) -> ReactorShutdownReason;
 
 	/// <summary>
 	/// Specialized implementation compiled with AVX, which uses 512-bit ZMM registers.
@@ -241,7 +242,7 @@ namespace Nominax::Core
 	/// <param name="output"></param>
 	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	__attribute__((hot)) extern auto ReactorCore_AVX512F(const VerboseReactorDescriptor& input, ReactorState& output, const void**** outJumpTable = nullptr) -> void;
+	__attribute__((hot)) extern auto ReactorCore_AVX512F(const VerboseReactorDescriptor* input, ReactorState* output, const void**** outJumpTable = nullptr) -> ReactorShutdownReason;
 
 #endif
 }
