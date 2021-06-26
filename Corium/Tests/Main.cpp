@@ -210,6 +210,6 @@
 auto main(int argc, char** argv) -> int
 {
 	testing::InitGoogleTest(&argc, argv);
-	testing::GTEST_FLAG(filter) = "*";
+	testing::GTEST_FLAG(filter) = "Lexer.LexFunction";
 	return RUN_ALL_TESTS();
 }

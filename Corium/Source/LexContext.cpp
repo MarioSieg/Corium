@@ -236,36 +236,27 @@ namespace Corium
 	auto LexContext::ParseAndSubmitIdentifier() -> void
 	{
 		const std::optional<Identifier> identifierOpt {this->GetIdentifierBuffer()};
-
 		if (!identifierOpt)
 		{
 			return;
 		}
 
 		const Identifier identifier {*identifierOpt};
-
-		// check if it's a keyword
-		if (const std::optional<Keyword> keyword {QueryKeyword(identifier)}; keyword)
+		if (const std::optional<Keyword> keyword {QueryKeyword(identifier)}; keyword) // check if it's a keyword
 		{
 			this->Output_.emplace_back(*keyword);
 		}
-
-			// check if it's a "float":
-		else if (const std::optional<F64> f {ConvertFloatLiteral(identifier)}; DetermineLiteralType(identifier) == EstimatedLiteralType::Float && f)
+		else if (const std::optional<F64> f {ConvertFloatLiteral(identifier)}; DetermineLiteralType(identifier) == EstimatedLiteralType::Float && f) // check if it's a "float":
 		{
 			this->Output_.emplace_back(Literal {*f});
 		}
-
-			// check if it's an "int":
-		else if (const std::optional<I64> i {ConvertIntLiteral(identifier)}; i)
+		else if (const std::optional<I64> i {ConvertIntLiteral(identifier)}; i) // check if it's an "int":
 		{
 			this->Output_.emplace_back(Literal {*i});
 		}
-
-			// else it's an identifier:
 		else
 		{
-			this->Output_.emplace_back(identifier);
+			this->Output_.emplace_back(identifier); // else it's an identifier:
 		}
 
 		this->IdentReset();

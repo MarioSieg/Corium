@@ -261,7 +261,7 @@ namespace Nominax::Common
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~DebugAllocator() override;
+		~DebugAllocator() override = default;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.

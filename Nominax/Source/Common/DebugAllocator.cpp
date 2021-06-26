@@ -292,9 +292,4 @@ namespace Nominax::Common
         }
 		Print(TextColor::BrightYellow, "Warning! Some global shutdown deallocations might not be tracked!\n");
 	}
-
-    DebugAllocator::~DebugAllocator()
-    {
-        this->DumpAllocationInfo();
-    }
 }

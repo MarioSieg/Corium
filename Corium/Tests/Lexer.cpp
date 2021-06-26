@@ -209,7 +209,7 @@
 
 TEST(Lexer, LexFunction)
 {
-	TokenStream result { };
+	LexContext context { };
     std::string source
     {
         R"(
@@ -225,9 +225,10 @@ TEST(Lexer, LexFunction)
 		LexSource
 		(
 			std::move(source),
-			result
+			context
 		)
 	};
+	const auto result {std::move(context.GetLexTreeOutput())};
 	ASSERT_EQ(ok, LexResultCode::Ok);
 	ASSERT_EQ(std::size(result), 6);
     ASSERT_EQ(std::get<Keyword>(result[0]), Keyword::Fun);
