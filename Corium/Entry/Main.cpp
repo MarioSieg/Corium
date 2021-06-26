@@ -207,7 +207,9 @@
 
 #include "../Source/Base.hpp"
 #include "../Source/Lexer.hpp"
+#include "../Source/Parser.hpp"
 
+using namespace Corium;
 using namespace Nominax;
 using namespace Arch;
 using namespace ByteCode;
@@ -222,18 +224,19 @@ static auto ParseFile(const std::string_view path, Stream& out) -> void
 	file.ReadFromFileOrPanic(path);
 	std::string source {std::move(file.GetContentText())};
 	source.push_back('\n');
-	Corium::LexContext output { };
-	if (const auto result {LexSource(std::move(source), output)}; result == Corium::LexResultCode::Ok)
+	LexContext output { };
+    const LexResultCode result {LexSource(std::move(source), output)};
+	if (NOMINAX_UNLIKELY(result != LexResultCode::Ok))
 	{
-		// Print parse tree:
-		for (const Corium::Token& x : output.GetLexTreeOutput())
-		{
-			PrintToken(x);
-		}
+        Print(LogLevel::Error, "Failed to lex Corium source code!\n");
+        return;
 	}
-
-	Print('\n');
-
+    const ParseError parseError {Parse(output.GetTokenStream(), output.GetLineMap())};
+	if (NOMINAX_UNLIKELY(parseError.has_value()))
+    {
+        Print(LogLevel::Error, "{}\n", *parseError);
+        return;
+    }
 	out.Prologue();
 	out.Epilogue();
 }

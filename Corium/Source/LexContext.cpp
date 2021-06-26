@@ -244,19 +244,19 @@ namespace Corium
 		const Identifier identifier {*identifierOpt};
 		if (const std::optional<Keyword> keyword {QueryKeyword(identifier)}; keyword) // check if it's a keyword
 		{
-			this->Output_.emplace_back(*keyword);
+            TokPush(*keyword);
 		}
 		else if (const std::optional<F64> f {ConvertFloatLiteral(identifier)}; DetermineLiteralType(identifier) == EstimatedLiteralType::Float && f) // check if it's a "float":
 		{
-			this->Output_.emplace_back(Literal {*f});
+            TokPush(Literal {*f});
 		}
 		else if (const std::optional<I64> i {ConvertIntLiteral(identifier)}; i) // check if it's an "int":
 		{
-			this->Output_.emplace_back(Literal {*i});
+            TokPush(Literal {*i});
 		}
 		else
 		{
-			this->Output_.emplace_back(identifier); // else it's an identifier:
+            TokPush(identifier); // else it's an identifier:
 		}
 
 		this->IdentReset();
@@ -264,97 +264,98 @@ namespace Corium
 
 	auto LexContext::EvalChar(const char* const x) -> void
 	{
-		TokenStream& result {this->Output_};
-
 		switch (*x)
 		{
-		case static_cast<char>(Operator::Equals):
-			result.emplace_back(Operator::Equals);
-			return;
+            case '\n':
+                ++this->CurrentLine_;
+                return;
 
-		case static_cast<char>(Operator::Comma):
-			result.emplace_back(Operator::Comma);
-			return;
+            case '\t':
+            case '\v':
+            case '\f':
+            case '\r':
+            case ' ':
+                this->ParseAndSubmitIdentifier();
+                return;
 
-		case static_cast<char>(Operator::Addition):
-			result.emplace_back(Operator::Addition);
-			return;
+            case static_cast<char>(Operator::Equals):
+                TokPush(Operator::Equals);
+                return;
 
-		case static_cast<char>(Operator::Subtraction):
-			result.emplace_back(Operator::Subtraction);
-			return;
+            case static_cast<char>(Operator::Comma):
+                TokPush(Operator::Comma);
+                return;
 
-		case static_cast<char>(Operator::Multiplication):
-			result.emplace_back(Operator::Multiplication);
-			return;
+            case static_cast<char>(Operator::Addition):
+                TokPush(Operator::Addition);
+                return;
 
-		case static_cast<char>(Operator::Division):
-			result.emplace_back(Operator::Division);
-			return;
+            case static_cast<char>(Operator::Subtraction):
+                TokPush(Operator::Subtraction);
+                return;
 
-		case static_cast<char>(Operator::Modulo):
-			result.emplace_back(Operator::Modulo);
-			return;
+            case static_cast<char>(Operator::Multiplication):
+                TokPush(Operator::Multiplication);
+                return;
 
-		case static_cast<char>(Operator::And):
-			result.emplace_back(Operator::And);
-			return;
+            case static_cast<char>(Operator::Division):
+                TokPush(Operator::Division);
+                return;
 
-		case static_cast<char>(Operator::Or):
-			result.emplace_back(Operator::Or);
-			return;
+            case static_cast<char>(Operator::Modulo):
+                TokPush(Operator::Modulo);
+                return;
 
-		case static_cast<char>(Operator::Xor):
-			result.emplace_back(Operator::Xor);
-			return;
+            case static_cast<char>(Operator::And):
+                TokPush(Operator::And);
+                return;
 
-		case static_cast<char>(Operator::Complement):
-			result.emplace_back(Operator::Complement);
-			return;
+            case static_cast<char>(Operator::Or):
+                TokPush(Operator::Or);
+                return;
 
-		case static_cast<char>(Operator::Not):
-			result.emplace_back(Operator::Not);
-			return;
+            case static_cast<char>(Operator::Xor):
+                TokPush(Operator::Xor);
+                return;
 
-		case static_cast<char>(Operator::Less):
-			result.emplace_back(Operator::Less);
-			return;
+            case static_cast<char>(Operator::Complement):
+                TokPush(Operator::Complement);
+                return;
 
-		case static_cast<char>(Operator::Greater):
-			result.emplace_back(Operator::Greater);
-			return;
+            case static_cast<char>(Operator::Not):
+                TokPush(Operator::Not);
+                return;
 
-		case static_cast<char>(MonoLexeme::ParenthesisLeft):
-			this->ParseAndSubmitIdentifier();
-			result.emplace_back(MonoLexeme::ParenthesisLeft);
-			return;
+            case static_cast<char>(Operator::Less):
+                TokPush(Operator::Less);
+                return;
 
-		case static_cast<char>(MonoLexeme::ParenthesisRight):
-			this->ParseAndSubmitIdentifier();
-			result.emplace_back(MonoLexeme::ParenthesisRight);
-			return;
+            case static_cast<char>(Operator::Greater):
+                TokPush(Operator::Greater);
+                return;
 
-		case static_cast<char>(MonoLexeme::CurlyBracesLeft):
-			this->ParseAndSubmitIdentifier();
-			result.emplace_back(MonoLexeme::CurlyBracesLeft);
-			return;
+            case static_cast<char>(MonoLexeme::ParenthesisLeft):
+                this->ParseAndSubmitIdentifier();
+                TokPush(MonoLexeme::ParenthesisLeft);
+                return;
 
-		case static_cast<char>(MonoLexeme::CurlyBracesRight):
-			this->ParseAndSubmitIdentifier();
-			result.emplace_back(MonoLexeme::CurlyBracesRight);
-			return;
+            case static_cast<char>(MonoLexeme::ParenthesisRight):
+                this->ParseAndSubmitIdentifier();
+                TokPush(MonoLexeme::ParenthesisRight);
+                return;
 
-		case '\n':
-		case '\t':
-		case '\v':
-		case '\f':
-		case '\r':
-		case ' ':
-			this->ParseAndSubmitIdentifier();
-			return;
+            case static_cast<char>(MonoLexeme::CurlyBracesLeft):
+                this->ParseAndSubmitIdentifier();
+                TokPush(MonoLexeme::CurlyBracesLeft);
+                return;
 
-		default:
-			this->IdentPush(x);
+            case static_cast<char>(MonoLexeme::CurlyBracesRight):
+                this->ParseAndSubmitIdentifier();
+                TokPush(MonoLexeme::CurlyBracesRight);
+                return;
+
+            default:
+                this->IdentPush(x);
 		}
 	}
 
@@ -371,8 +372,10 @@ namespace Corium
 	auto LexContext::Reset() -> void
 	{
 		this->Output_.clear();
+		this->OutputLines_.clear();
 		this->SourceText_.clear();
 		this->IdentReset();
+		this->CurrentLine_ = 1;
 	}
 
 	auto LexContext::SetSourceText(std::string&& sourceText) -> void
@@ -389,4 +392,10 @@ namespace Corium
 		}
 		return std::nullopt;
 	}
+
+    auto LexContext::TokPush(Token&& tok) -> void
+    {
+        this->Output_.emplace_back(std::move(tok));
+        this->OutputLines_.emplace_back(this->CurrentLine_);
+    }
 }

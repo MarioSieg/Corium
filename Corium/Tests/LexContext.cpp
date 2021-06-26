@@ -230,9 +230,9 @@ TEST(LexContext, Parenthesis)
 	LexContext ctx { };
 	ctx.EvaluateString("()");
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 2);
-	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[0]), MonoLexeme::ParenthesisLeft);
-	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[1]), MonoLexeme::ParenthesisRight);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 2);
+	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetTokenStream()[0]), MonoLexeme::ParenthesisLeft);
+	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetTokenStream()[1]), MonoLexeme::ParenthesisRight);
 }
 
 TEST(LexContext, Braces)
@@ -240,17 +240,17 @@ TEST(LexContext, Braces)
 	LexContext ctx { };
 	ctx.EvaluateString("{}=");
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 3);
-	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[0]), MonoLexeme::CurlyBracesLeft);
-	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[1]), MonoLexeme::CurlyBracesRight);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[2]), Operator::Equals);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 3);
+	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetTokenStream()[0]), MonoLexeme::CurlyBracesLeft);
+	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetTokenStream()[1]), MonoLexeme::CurlyBracesRight);
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[2]), Operator::Equals);
 }
 
 TEST(LexContext, Control)
 {
 	LexContext ctx { };
 	ctx.EvaluateString("\n\t\v\f\r");
-	ASSERT_TRUE(ctx.GetLexTreeOutput().empty());
+	ASSERT_TRUE(ctx.GetTokenStream().empty());
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 }
 
@@ -261,9 +261,9 @@ TEST(LexContext, ParseIdent)
 	ASSERT_EQ(ctx.GetIdentifierBuffer(), Identifier{ "hello" });
 	ctx.ParseAndSubmitIdentifier();
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
-	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[0]));
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[0]), Identifier{ "hello" });
+	ASSERT_EQ(ctx.GetTokenStream().size(), 1);
+	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[0]));
+	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[0]), Identifier{"hello" });
 }
 
 TEST(LexContext, ParseIdentKeyWord)
@@ -273,9 +273,9 @@ TEST(LexContext, ParseIdentKeyWord)
 	ASSERT_EQ(ctx.GetIdentifierBuffer(), KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]);
 	ctx.ParseAndSubmitIdentifier();
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
-	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
-	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Let);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 1);
+	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetTokenStream()[0]));
+	ASSERT_EQ(std::get<Keyword>(ctx.GetTokenStream()[0]), Keyword::Let);
 }
 
 TEST(LexContext, ParseIdentFloat)
@@ -285,10 +285,10 @@ TEST(LexContext, ParseIdentFloat)
 	ASSERT_EQ(ctx.GetIdentifierBuffer(), "3.1415");
 	ctx.ParseAndSubmitIdentifier();
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[0]));
-	ASSERT_TRUE(std::holds_alternative<F64>(std::get<Literal>(ctx.GetLexTreeOutput()[0])));
-	ASSERT_DOUBLE_EQ(std::get<F64>(std::get<Literal>(ctx.GetLexTreeOutput()[0])), 3.1415);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 1);
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[0]));
+	ASSERT_TRUE(std::holds_alternative<F64>(std::get<Literal>(ctx.GetTokenStream()[0])));
+	ASSERT_DOUBLE_EQ(std::get<F64>(std::get<Literal>(ctx.GetTokenStream()[0])), 3.1415);
 }
 
 TEST(LexContext, ParseIdentInt)
@@ -299,10 +299,10 @@ TEST(LexContext, ParseIdentInt)
 	ASSERT_TRUE(ctx.GetIdentifierBuffer().has_value());
 	ctx.ParseAndSubmitIdentifier();
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[0]));
-	ASSERT_TRUE(std::holds_alternative<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[0])));
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[0])), 12345);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 1);
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[0]));
+	ASSERT_TRUE(std::holds_alternative<I64>(std::get<Literal>(ctx.GetTokenStream()[0])));
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[0])), 12345);
 }
 
 TEST(LexContext, ParseIdentIntSpace)
@@ -310,22 +310,22 @@ TEST(LexContext, ParseIdentIntSpace)
 	LexContext ctx { };
 	ctx.EvaluateString("12345 ");
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[0]));
-	ASSERT_TRUE(std::holds_alternative<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[0])));
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[0])), 12345);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 1);
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[0]));
+	ASSERT_TRUE(std::holds_alternative<I64>(std::get<Literal>(ctx.GetTokenStream()[0])));
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[0])), 12345);
 }
 
 TEST(LexContext, LexLet)
 {
 	LexContext ctx { };
 	ctx.EvaluateString(std::string {KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]} + " noel\n");
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 2);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 2);
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
-	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
-	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Let);
-	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), Identifier{ "noel" });
+	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetTokenStream()[0]));
+	ASSERT_EQ(std::get<Keyword>(ctx.GetTokenStream()[0]), Keyword::Let);
+	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[1]));
+	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[1]), Identifier{"noel" });
 }
 
 
@@ -333,84 +333,84 @@ TEST(LexContext, LexIdentifiers)
 {
 	LexContext ctx { };
 	ctx.EvaluateString("one two\nthree\tfour ");
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 4);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 4);
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
-	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[0]));
-	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
-	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[2]));
-	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[3]));
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[0]), Identifier{ "one" });
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), Identifier{ "two" });
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[2]), Identifier{ "three" });
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[3]), Identifier{ "four" });
+	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[0]));
+	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[1]));
+	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[2]));
+	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[3]));
+	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[0]), Identifier{"one" });
+	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[1]), Identifier{"two" });
+	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[2]), Identifier{"three" });
+	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[3]), Identifier{"four" });
 }
 
 TEST(LexContext, LexArithmeticOperators)
 {
 	LexContext ctx { };
 	ctx.EvaluateString("let x = 10 + 11 - 3 % 1 * 3 / 2\n");
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 14);
-	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
-	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[2]));
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[3]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[4]));
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[5]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[6]));
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[7]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[8]));
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[9]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[10]));
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[11]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[12]));
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[13]));
+	ASSERT_EQ(ctx.GetTokenStream().size(), 14);
+	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetTokenStream()[0]));
+	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[1]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[2]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[3]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[4]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[5]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[6]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[7]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[8]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[9]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[10]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[11]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[12]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[13]));
 
-	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Let);
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), "x");
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[2]), Operator::Equals);
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[3])), 10);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[4]), Operator::Addition);
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[5])), 11);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[6]), Operator::Subtraction);
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[7])), 3);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[8]), Operator::Modulo);
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[9])), 1);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[10]), Operator::Multiplication);
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[11])), 3);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[12]), Operator::Division);
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[13])), 2);
+	ASSERT_EQ(std::get<Keyword>(ctx.GetTokenStream()[0]), Keyword::Let);
+	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[1]), "x");
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[2]), Operator::Equals);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[3])), 10);
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[4]), Operator::Addition);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[5])), 11);
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[6]), Operator::Subtraction);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[7])), 3);
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[8]), Operator::Modulo);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[9])), 1);
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[10]), Operator::Multiplication);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[11])), 3);
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[12]), Operator::Division);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[13])), 2);
 }
 
 TEST(LexContext, LexBitOperators)
 {
 	LexContext ctx { };
 	ctx.EvaluateString("let x = 10 ^ 11 & 3 | 1 ^ ~3\n");
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 13);
-	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
-	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[2]));
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[3]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[4]));
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[5]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[6]));
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[7]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[8]));
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[9]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[10]));
-	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetLexTreeOutput()[11]));
-	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[12]));
+	ASSERT_EQ(ctx.GetTokenStream().size(), 13);
+	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetTokenStream()[0]));
+	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[1]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[2]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[3]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[4]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[5]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[6]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[7]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[8]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[9]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[10]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[11]));
+	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetTokenStream()[12]));
 
-	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Let);
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), "x");
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[2]), Operator::Equals);
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[3])), 10);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[4]), Operator::Xor);
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[5])), 11);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[6]), Operator::And);
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[7])), 3);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[8]), Operator::Or);
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[9])), 1);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[10]), Operator::Xor);
-	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[11]), Operator::Complement);
-	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[12])), 3);
+	ASSERT_EQ(std::get<Keyword>(ctx.GetTokenStream()[0]), Keyword::Let);
+	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[1]), "x");
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[2]), Operator::Equals);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[3])), 10);
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[4]), Operator::Xor);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[5])), 11);
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[6]), Operator::And);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[7])), 3);
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[8]), Operator::Or);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[9])), 1);
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[10]), Operator::Xor);
+	ASSERT_EQ(std::get<Operator>(ctx.GetTokenStream()[11]), Operator::Complement);
+	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetTokenStream()[12])), 3);
 }

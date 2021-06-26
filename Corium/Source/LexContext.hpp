@@ -220,11 +220,14 @@ namespace Corium
 		const char* IdentBegin_ {nullptr};
 		const char* IdentEnd_ {nullptr};
 		TokenStream    Output_ { };
+		TokenLineMap OutputLines_ { };
+		U16 CurrentLine_ {};
 
 		auto GetRawIdentifierBuffer() const -> const char*;
 		auto GetRawIdentifierBufferBlob() const -> const U8*;
 		auto IdentPush(const char* x) -> void;
 		auto IdentReset() -> void;
+		auto TokPush(Token&& tok) -> void;
 
 	public:
 		/// <summary>
@@ -313,23 +316,16 @@ namespace Corium
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>The current lex tree result.</returns>
+		/// <returns>The current token stream result.</returns>
 		[[nodiscard]]
-		auto GetLexTreeOutput() & -> TokenStream&;
+		auto GetTokenStream() & -> TokenStream&;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current lex tree result.</returns>
-		[[nodiscard]]
-		auto GetLexTreeOutput() const && -> const TokenStream&&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current lex tree result.</returns>
-		[[nodiscard]]
-		auto GetLexTreeOutput() && -> TokenStream&&;
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The current toke stream line map.</returns>
+        [[nodiscard]]
+        auto GetLineMap() & -> const TokenLineMap&;
 
 		/// <summary>
 		/// 
@@ -361,20 +357,15 @@ namespace Corium
 		return this->Output_;
 	}
 
-	inline auto LexContext::GetLexTreeOutput() & -> TokenStream&
+	inline auto LexContext::GetTokenStream() & -> TokenStream&
 	{
 		return this->Output_;
 	}
 
-	inline auto LexContext::GetLexTreeOutput() const && -> const TokenStream&&
-	{
-		return std::move(this->Output_);
-	}
-
-	inline auto LexContext::GetLexTreeOutput() && -> TokenStream&&
-	{
-		return std::move(this->Output_);
-	}
+    inline auto LexContext::GetLineMap() & -> const TokenLineMap&
+    {
+	    return this->OutputLines_;
+    }
 
 	inline auto LexContext::GetSourceText() const & -> const std::string&
 	{

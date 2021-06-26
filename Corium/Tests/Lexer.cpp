@@ -228,7 +228,7 @@ TEST(Lexer, LexFunction)
 			context
 		)
 	};
-	const auto result {std::move(context.GetLexTreeOutput())};
+	const auto result {std::move(context.GetTokenStream())};
 	ASSERT_EQ(ok, LexResultCode::Ok);
 	ASSERT_EQ(std::size(result), 6);
     ASSERT_EQ(std::get<Keyword>(result[0]), Keyword::Fun);

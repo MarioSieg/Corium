@@ -7,3 +7,8 @@ fun main () {
 	let y = x + z % 2
 	let x = 10 ^ 11 & 3 | 1 ^ ~3
 }
+
+
+fun test ( {
+
+}
