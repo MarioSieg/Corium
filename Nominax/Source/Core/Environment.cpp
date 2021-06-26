@@ -722,11 +722,6 @@ namespace Nominax::Core
 			return;
 		}
 
-		// Print allocator info:
-#if NOMINAX_DEBUG
-		static_cast<const DebugAllocator*>(GlobalAllocatorProxy)->DumpAllocationInfo();
-#endif
-
 		// Invoke hook:
 		DISPATCH_HOOK(OnPreShutdownHook,);
 
