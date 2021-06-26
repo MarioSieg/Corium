@@ -213,7 +213,7 @@ namespace Nominax::Common
 	auto DebugAllocator::Allocate(void*& out, const std::size_t size) const -> void
 	{
 		Print(TextColor::BrightGreen, "Allocate({}, {} B)\n", out, size);
-		RuntimeAllocator::Allocate(out, size);
+		IAllocator::Allocate(out, size);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
 	}
@@ -221,21 +221,21 @@ namespace Nominax::Common
 	auto DebugAllocator::Reallocate(void*& out, const std::size_t size) const -> void
 	{
 		Print(TextColor::BrightYellow, "Reallocate({}, {} B)\n", out, size);
-		RuntimeAllocator::Reallocate(out, size);
+		IAllocator::Reallocate(out, size);
 		++this->Reallocations_;
 	}
 
 	auto DebugAllocator::Deallocate(void*& out) const -> void
 	{
 		Print(TextColor::BrightRed, "Deallocate({})\n", out);
-		RuntimeAllocator::Deallocate(out);
+		IAllocator::Deallocate(out);
 		++this->Deallocations_;
 	}
 
 	auto DebugAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
 	{
 		Print(TextColor::BrightGreen, "AllocateAligned({}, {} B, {} A)\n", out, size, alignment);
-		RuntimeAllocator::AllocateAligned(out, size, alignment);
+		IAllocator::AllocateAligned(out, size, alignment);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
 	}
@@ -243,14 +243,14 @@ namespace Nominax::Common
 	auto DebugAllocator::ReallocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
 	{
 		Print(TextColor::BrightYellow, "ReallocateAligned({}, {} B, {} A)\n", out, size, alignment);
-		RuntimeAllocator::ReallocateAligned(out, size, alignment);
+		IAllocator::ReallocateAligned(out, size, alignment);
 		++this->Reallocations_;
 	}
 
 	auto DebugAllocator::DeallocateAligned(void*& out) const -> void
 	{
 		Print(TextColor::BrightRed, "DeallocateAligned({})\n", out);
-		RuntimeAllocator::DeallocateAligned(out);
+		IAllocator::DeallocateAligned(out);
 		++this->Deallocations_;
 	}
 

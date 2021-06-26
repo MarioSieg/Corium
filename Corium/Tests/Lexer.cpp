@@ -210,24 +210,31 @@
 TEST(Lexer, LexFunction)
 {
 	TokenStream result { };
-	const auto  ok {
-		LexSource
-		(
-			u8R"(
+    constexpr std::u8string_view source
+    {
+                    u8R"(
 
-			main () {
+			fun main () {
 
 			}
 
-		)",
+		)"
+    };
+	std::u8string src{source};
+	const auto  ok
+	{
+		LexSource
+		(
+			std::move(src),
 			result
 		)
 	};
 	ASSERT_EQ(ok, LexResultCode::Ok);
-	ASSERT_EQ(std::size(result), 5);
-	ASSERT_EQ(std::get<Identifier>(result[0]), u8"main");
-	ASSERT_EQ(std::get<MonoLexeme>(result[1]), MonoLexeme::ParenthesisLeft);
-	ASSERT_EQ(std::get<MonoLexeme>(result[2]), MonoLexeme::ParenthesisRight);
-	ASSERT_EQ(std::get<MonoLexeme>(result[3]), MonoLexeme::CurlyBracesLeft);
-	ASSERT_EQ(std::get<MonoLexeme>(result[4]), MonoLexeme::CurlyBracesRight);
+	ASSERT_EQ(std::size(result), 6);
+    ASSERT_EQ(std::get<Keyword>(result[0]), Keyword::Fun);
+	ASSERT_EQ(std::get<Identifier>(result[1]), Identifier {u8"main"});
+	ASSERT_EQ(std::get<MonoLexeme>(result[2]), MonoLexeme::ParenthesisLeft);
+	ASSERT_EQ(std::get<MonoLexeme>(result[3]), MonoLexeme::ParenthesisRight);
+	ASSERT_EQ(std::get<MonoLexeme>(result[4]), MonoLexeme::CurlyBracesLeft);
+	ASSERT_EQ(std::get<MonoLexeme>(result[5]), MonoLexeme::CurlyBracesRight);
 }

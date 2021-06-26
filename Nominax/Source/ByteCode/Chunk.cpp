@@ -205,6 +205,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <cstring>
+
 #include "../../Include/Nominax/ByteCode/Chunk.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"

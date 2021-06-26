@@ -217,14 +217,13 @@ namespace Nominax::Common
 	/// </summary>
 	class IAllocator
 	{
-	protected:
-		/// <summary>
-		/// Impl constructor.
-		/// </summary>
-		/// <returns></returns>
-		constexpr IAllocator() = default;
-
 	public:
+        /// <summary>
+        /// Impl constructor.
+        /// </summary>
+        /// <returns></returns>
+        constexpr IAllocator() = default;
+
 		/// <summary>
 		/// Copy constructor.
 		/// </summary>
@@ -262,7 +261,7 @@ namespace Nominax::Common
 		/// <param name="out">Output pointer.</param>
 		/// <param name="size">The size of the block in bytes.</param>
 		/// <returns></returns>
-		virtual auto Allocate(void*& out, std::size_t size) const -> void = 0;
+		virtual auto Allocate(void*& out, std::size_t size) const -> void;
 
 		/// <summary>
 		/// Raw reallocate like realloc().
@@ -270,14 +269,14 @@ namespace Nominax::Common
 		/// <param name="out">Output pointer.</param>
 		/// <param name="size">The size of the block in bytes.</param>
 		/// <returns></returns>
-		virtual auto Reallocate(void*& out, std::size_t size) const -> void = 0;
+		virtual auto Reallocate(void*& out, std::size_t size) const -> void;
 
 		/// <summary>
 		/// Raw deallocate like free().
 		/// </summary>
 		/// <param name="out">Input pointer.</param>
 		/// <returns></returns>
-		virtual auto Deallocate(void*& out) const -> void = 0;
+		virtual auto Deallocate(void*& out) const -> void;
 
 
 		/// <summary>
@@ -287,7 +286,7 @@ namespace Nominax::Common
 		/// <param name="alignment"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto AllocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void = 0;
+		virtual auto AllocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void;
 
 		/// <summary>
 		/// 
@@ -296,14 +295,14 @@ namespace Nominax::Common
 		/// <param name="alignment"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto ReallocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void = 0;
+		virtual auto ReallocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void;
 
 		/// <summary>
 		/// Raw deallocate aligned like free().
 		/// </summary>
 		/// <param name="out">Input pointer.</param>
 		/// <returns></returns>
-		virtual auto DeallocateAligned(void*& out) const -> void = 0;
+		virtual auto DeallocateAligned(void*& out) const -> void;
 
 		/// <summary>
 		/// Virtual alloc.
@@ -321,27 +320,18 @@ namespace Nominax::Common
 		virtual auto Vdealloc(void*& out) const -> void;
 	};
 
-	/// <summary>
-	/// Currently used allocator.
-	/// </summary>
-	extern const IAllocator* GlobalCurrentSystemAllocator;
+    /// <summary>
+    /// Fast runtime allocator.
+    /// </summary>
+    inline constinit IAllocator GlobalRuntimeAllocator {};
 
-	/// <summary>
-	/// Fast runtime allocator.
-	/// </summary>
-	extern const IAllocator& GlobalRuntimeAllocator;
+    /// <summary>
+    /// Slow debug allocator.
+    /// </summary>
+    inline constinit IAllocator GlobalDebugAllocator {};
 
-	/// <summary>
-	/// Slow debug allocator.
-	/// </summary>
-	extern const IAllocator& GlobalDebugAllocator;
-
-	/// <summary>
-	/// Queries the best allocator for the current (DEBUG/RELEASE) build type.
-	/// </summary>
-	/// <returns></returns>
-	constexpr auto DetermineAllocator() -> const IAllocator&
-	{
-		return GlobalRuntimeAllocator;
-	}
+    /// <summary>
+    /// Currently used allocator.
+    /// </summary>
+    inline constinit const IAllocator* GlobalCurrentSystemAllocator {&GlobalRuntimeAllocator};
 }

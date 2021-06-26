@@ -246,27 +246,33 @@ namespace Nominax::Common
 	auto TextFile::WriteToFile(std::filesystem::path&& path) -> bool
 	{
 		this->FilePath_ = std::move(path);
-		OutputStream stream {this->FilePath_};
+		std::ofstream stream {this->FilePath_};
 		if (NOMINAX_UNLIKELY(!stream))
 		{
 			return false;
 		}
-		stream << this->Content_;
+		std::string out{};
+		out.resize(std::size(this->Content_));
+		std::memcpy(std::data(out), std::data(this->Content_), std::size(out));
+		stream << out;
 		return true;
 	}
 
 	auto TextFile::ReadFromFile(std::filesystem::path&& path) -> bool
 	{
 		this->FilePath_ = std::move(path);
-		InputStream stream {this->FilePath_};
+		std::ifstream stream {this->FilePath_};
 		if (NOMINAX_UNLIKELY(!stream))
 		{
 			return false;
 		}
 		stream.seekg(0, std::ios::end);
-		this->Content_.reserve(stream.tellg());
+        std::string data{};
+        data.resize(stream.tellg());
 		stream.seekg(0, std::ios::beg);
-		this->Content_.assign(std::istreambuf_iterator<CharType> {stream}, std::istreambuf_iterator<CharType> { });
+		stream.read(std::data(data), std::size(data));
+		this->Content_.resize(std::size(data));
+		std::memcpy(std::data(this->Content_), std::data(data), std::size(data));
 		return true;
 	}
 

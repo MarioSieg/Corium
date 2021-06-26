@@ -281,6 +281,9 @@ namespace Corium
 
 		case Operator::Greater:
 			return "Greater";
+
+        default:
+            return "";
 		}
 	}
 }

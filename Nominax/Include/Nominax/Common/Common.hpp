@@ -229,7 +229,6 @@
 #include "Nop.hpp"
 #include "PanicRoutine.hpp"
 #include "Protocol.hpp"
-#include "RuntimeAllocator.hpp"
 #include "SafeLocalTime.hpp"
 #include "Signal.hpp"
 #include "Stopwatch.hpp"

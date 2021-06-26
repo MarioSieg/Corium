@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "RuntimeAllocator.hpp"
+#include "Allocator.hpp"
 
 namespace Nominax::Common
 {
@@ -216,7 +216,7 @@ namespace Nominax::Common
 	/// It prints the size and address of each allocation
 	/// and counts the bytes.
 	/// </summary>
-	class DebugAllocator final : public RuntimeAllocator
+	class DebugAllocator final : public IAllocator
 	{
 		mutable U64 Allocations_ {0};
 		mutable U64 Reallocations_ {0};
