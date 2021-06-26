@@ -361,4 +361,9 @@ namespace Nominax::Common
 	{
 		return this->BytesAllocated_;
 	}
+
+    /// <summary>
+    /// Slow debug allocator.
+    /// </summary>
+    inline constinit DebugAllocator GlobalDebugAllocator {};
 }

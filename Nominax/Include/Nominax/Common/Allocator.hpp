@@ -324,14 +324,4 @@ namespace Nominax::Common
     /// Fast runtime allocator.
     /// </summary>
     inline constinit IAllocator GlobalRuntimeAllocator {};
-
-    /// <summary>
-    /// Slow debug allocator.
-    /// </summary>
-    inline constinit IAllocator GlobalDebugAllocator {};
-
-    /// <summary>
-    /// Currently used allocator.
-    /// </summary>
-    inline constinit const IAllocator* GlobalCurrentSystemAllocator {&GlobalRuntimeAllocator};
 }

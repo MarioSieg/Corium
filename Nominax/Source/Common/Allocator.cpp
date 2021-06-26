@@ -205,22 +205,21 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Common/Allocator.hpp"
-#include "../../Include/Nominax/Common/DebugAllocator.hpp"
-#include "../../Include/Nominax/System/Platform.hpp"
-
+#include <cstring>
 #include <cstdlib>
+
+#include "../../Include/Nominax/Common/Allocator.hpp"
 
 namespace Nominax::Common
 {
     auto IAllocator::Allocate(void*& out, const std::size_t size) const -> void
     {
-        out = &*static_cast<U8*>(std::malloc(size));
+        out = static_cast<U8*>(std::malloc(size));
     }
 
     auto IAllocator::Reallocate(void*& out, const std::size_t size) const -> void
     {
-        out = &*static_cast<U8*>(std::realloc(out, size));
+        out = static_cast<U8*>(std::realloc(out, size));
     }
 
     auto IAllocator::Deallocate(void*& out) const -> void
@@ -232,19 +231,21 @@ namespace Nominax::Common
     auto IAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
     {
 #if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
-        out = &*static_cast<U8*>(_aligned_malloc(size, alignment));
+        out = static_cast<U8*>(_aligned_malloc(size, alignment));
 #else
-        out = &*static_cast<U8*>(aligned_alloc(size, alignment));
+        out = static_cast<U8*>(aligned_alloc(alignment, size));
 #endif
     }
 
-    auto IAllocator::ReallocateAligned([[maybe_unused]] void*& out, [[maybe_unused]] const std::size_t size, [[maybe_unused]] const std::size_t alignment) const -> void
+    auto IAllocator::ReallocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
     {
 #if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
-        out = &*static_cast<U8*>(_aligned_realloc(out, size, alignment));
+        out = static_cast<U8*>(_aligned_realloc(out, size, alignment));
 #else
-        // todo using posix_memalign
-        __asm__("int3");
+        U8* mem {static_cast<U8*>(aligned_alloc(alignment, size))};
+        std::memcpy(mem, out, size);
+        std::free(out);
+        out = mem;
 #endif
     }
 

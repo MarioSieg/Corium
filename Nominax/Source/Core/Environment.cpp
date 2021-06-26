@@ -578,9 +578,9 @@ namespace Nominax::Core
 
 	Environment::Environment(const IAllocator* const allocator)
 	{
-		if (NOMINAX_UNLIKELY(allocator))
+		if (allocator)
 		{
-			GlobalCurrentSystemAllocator = allocator;
+            GlobalAllocatorProxy = allocator;
 		}
 	}
 
@@ -724,7 +724,7 @@ namespace Nominax::Core
 
 		// Print allocator info:
 #if NOMINAX_DEBUG
-		static_cast<const DebugAllocator*>(GlobalCurrentSystemAllocator)->DumpAllocationInfo();
+		static_cast<const DebugAllocator*>(GlobalAllocatorProxy)->DumpAllocationInfo();
 #endif
 
 		// Invoke hook:

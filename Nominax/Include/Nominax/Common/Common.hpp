@@ -210,6 +210,7 @@
 #include "Algorithm.hpp"
 #include "Alloca.hpp"
 #include "Allocator.hpp"
+#include "AllocatorProxy.hpp"
 #include "AtomicState.hpp"
 #include "BaseTypes.hpp"
 #include "BitRot.hpp"
