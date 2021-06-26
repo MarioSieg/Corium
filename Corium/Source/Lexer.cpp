@@ -212,15 +212,15 @@ using namespace Nominax;
 
 namespace Corium
 {
-	auto LexSource(const std::u8string_view sourceCode, TokenStream& output) -> LexResultCode
+	auto LexSource(std::u8string&& sourceCode, TokenStream& output) -> LexResultCode
 	{
 		if (NOMINAX_UNLIKELY(std::empty(sourceCode)))
 		{
 			return LexResultCode::EmptyFile;
 		}
 
-		LexContext context{};
-		context.EvaluateString(sourceCode);
+		LexContext context { };
+		context.EvaluateString(std::move(sourceCode));
 		output = std::move(context.GetLexTreeOutput());
 
 		return LexResultCode::Ok;

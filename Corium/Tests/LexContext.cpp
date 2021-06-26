@@ -62,7 +62,7 @@ TEST(LexContext, ParseIdent)
 TEST(LexContext, ParseIdentKeyWord)
 {
 	LexContext ctx{};
-	ctx.EvaluateString(KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]);
+	ctx.EvaluateString(std::u8string{ KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)] });
 	ASSERT_EQ(ctx.GetIdentifierBuffer(), KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]);
 	ctx.ParseAndSubmitIdentifier();
 	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());

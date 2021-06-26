@@ -221,7 +221,7 @@ static auto ParseFile(const std::string_view path, Stream& out) -> void
 	TextFile file { };
 	file.ReadFromFileOrPanic(path);
 	Corium::TokenStream output{};
-	if (const auto result {Corium::LexSource(file.GetContentText(), output)}; result == Corium::LexResultCode::Ok)
+	if (const auto result {Corium::LexSource(std::move(file.GetContentText()), output)}; result == Corium::LexResultCode::Ok)
 	{
 		// Print parse tree:
 		for (const Corium::Token& x : output)
@@ -260,8 +260,8 @@ static auto ExecuteNominax
 
 	Environment runtimeEnvironment { };
 	runtimeEnvironment.Boot(descriptor);
-	const ReactorState& result {runtimeEnvironment.Execute(std::move(appCode))};
-	return result.ReturnCode();
+	const auto [_, state] {runtimeEnvironment.Execute(std::move(appCode))};
+	return state.ReturnCode();
 }
 
 auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* const argv) -> int
