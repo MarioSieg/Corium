@@ -16,7 +16,7 @@ namespace Corium
 	/// <summary>
 	/// Separator used for floats.
 	/// </summary>
-	constexpr char8_t FLOAT_SEPARATOR{ u8'.' };
+	constexpr char FLOAT_SEPARATOR{ '.' };
 
 	/// <summary>
 	/// Contains all radix for supported number systems.
@@ -53,7 +53,7 @@ namespace Corium
 	/// </summary>
 	/// <param name="text"></param>
 	/// <returns></returns>
-	inline auto DetermineLiteralType(const std::u8string_view text) -> EstimatedLiteralType
+	inline auto DetermineLiteralType(const std::string_view text) -> EstimatedLiteralType
 	{
 		return
 			text.find(FLOAT_SEPARATOR)
@@ -67,7 +67,7 @@ namespace Corium
 	/// </summary>
 	/// <param name="text">The text representing the number.</param>
 	/// <returns>The float value on success, else nullopt.</returns>
-	extern auto ConvertFloatLiteral(std::u8string_view text) -> std::optional<F64>;
+	extern auto ConvertFloatLiteral(std::string_view text) -> std::optional<F64>;
 
 	/// <summary>
 	/// Tries to convert the text to a valid integer.
@@ -75,5 +75,5 @@ namespace Corium
 	/// <param name="text">The text representing the number.</param>
 	/// <param name="radix">The radix (base) of the number to be used for conversion.</param>
 	/// <returns>The integer value on success, else nullopt.</returns>
-	extern auto ConvertIntLiteral(std::u8string_view text, Radix radix = Radix::Dec) -> std::optional<I64>;
+	extern auto ConvertIntLiteral(std::string_view text, Radix radix = Radix::Dec) -> std::optional<I64>;
 }

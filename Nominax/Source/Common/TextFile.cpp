@@ -210,6 +210,7 @@
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
 #include <algorithm>
+#include <codecvt>
 #include <execution>
 #include <locale>
 #include <fstream>
@@ -251,10 +252,7 @@ namespace Nominax::Common
 		{
 			return false;
 		}
-		std::string out{};
-		out.resize(std::size(this->Content_));
-		std::memcpy(std::data(out), std::data(this->Content_), std::size(out));
-		stream << out;
+		stream << this->Content_;
 		return true;
 	}
 
@@ -267,12 +265,9 @@ namespace Nominax::Common
 			return false;
 		}
 		stream.seekg(0, std::ios::end);
-        std::string data{};
-        data.resize(stream.tellg());
+        this->Content_.resize(stream.tellg());
 		stream.seekg(0, std::ios::beg);
-		stream.read(std::data(data), std::size(data));
-		this->Content_.resize(std::size(data));
-		std::memcpy(std::data(this->Content_), std::data(data), std::size(data));
+		stream.read(std::data(this->Content_), std::size(this->Content_));
 		return true;
 	}
 

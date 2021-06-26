@@ -210,7 +210,7 @@
 
 namespace Corium
 {
-	auto LexContext::IdentPush(const char8_t* x) -> void
+	auto LexContext::IdentPush(const char* x) -> void
 	{
 		if (this->IdentBegin_ && this->IdentEnd_)
 		{
@@ -271,94 +271,94 @@ namespace Corium
 		this->IdentReset();
 	}
 
-	auto LexContext::EvalChar(const char8_t* const x) -> void
+	auto LexContext::EvalChar(const char* const x) -> void
 	{
 		TokenStream& result {this->Output_};
 
 		switch (*x)
 		{
-		case static_cast<char8_t>(Operator::Equals):
+		case static_cast<char>(Operator::Equals):
 			result.emplace_back(Operator::Equals);
 			return;
 
-		case static_cast<char8_t>(Operator::Comma):
+		case static_cast<char>(Operator::Comma):
 			result.emplace_back(Operator::Comma);
 			return;
 
-		case static_cast<char8_t>(Operator::Addition):
+		case static_cast<char>(Operator::Addition):
 			result.emplace_back(Operator::Addition);
 			return;
 
-		case static_cast<char8_t>(Operator::Subtraction):
+		case static_cast<char>(Operator::Subtraction):
 			result.emplace_back(Operator::Subtraction);
 			return;
 
-		case static_cast<char8_t>(Operator::Multiplication):
+		case static_cast<char>(Operator::Multiplication):
 			result.emplace_back(Operator::Multiplication);
 			return;
 
-		case static_cast<char8_t>(Operator::Division):
+		case static_cast<char>(Operator::Division):
 			result.emplace_back(Operator::Division);
 			return;
 
-		case static_cast<char8_t>(Operator::Modulo):
+		case static_cast<char>(Operator::Modulo):
 			result.emplace_back(Operator::Modulo);
 			return;
 
-		case static_cast<char8_t>(Operator::And):
+		case static_cast<char>(Operator::And):
 			result.emplace_back(Operator::And);
 			return;
 
-		case static_cast<char8_t>(Operator::Or):
+		case static_cast<char>(Operator::Or):
 			result.emplace_back(Operator::Or);
 			return;
 
-		case static_cast<char8_t>(Operator::Xor):
+		case static_cast<char>(Operator::Xor):
 			result.emplace_back(Operator::Xor);
 			return;
 
-		case static_cast<char8_t>(Operator::Complement):
+		case static_cast<char>(Operator::Complement):
 			result.emplace_back(Operator::Complement);
 			return;
 
-		case static_cast<char8_t>(Operator::Not):
+		case static_cast<char>(Operator::Not):
 			result.emplace_back(Operator::Not);
 			return;
 
-		case static_cast<char8_t>(Operator::Less):
+		case static_cast<char>(Operator::Less):
 			result.emplace_back(Operator::Less);
 			return;
 
-		case static_cast<char8_t>(Operator::Greater):
+		case static_cast<char>(Operator::Greater):
 			result.emplace_back(Operator::Greater);
 			return;
 
-		case static_cast<char8_t>(MonoLexeme::ParenthesisLeft):
+		case static_cast<char>(MonoLexeme::ParenthesisLeft):
 			this->ParseAndSubmitIdentifier();
 			result.emplace_back(MonoLexeme::ParenthesisLeft);
 			return;
 
-		case static_cast<char8_t>(MonoLexeme::ParenthesisRight):
+		case static_cast<char>(MonoLexeme::ParenthesisRight):
 			this->ParseAndSubmitIdentifier();
 			result.emplace_back(MonoLexeme::ParenthesisRight);
 			return;
 
-		case static_cast<char8_t>(MonoLexeme::CurlyBracesLeft):
+		case static_cast<char>(MonoLexeme::CurlyBracesLeft):
 			this->ParseAndSubmitIdentifier();
 			result.emplace_back(MonoLexeme::CurlyBracesLeft);
 			return;
 
-		case static_cast<char8_t>(MonoLexeme::CurlyBracesRight):
+		case static_cast<char>(MonoLexeme::CurlyBracesRight):
 			this->ParseAndSubmitIdentifier();
 			result.emplace_back(MonoLexeme::CurlyBracesRight);
 			return;
 
-		case u8'\n':
-		case u8'\t':
-		case u8'\v':
-		case u8'\f':
-		case u8'\r':
-		case u8' ':
+		case '\n':
+		case '\t':
+		case '\v':
+		case '\f':
+		case '\r':
+		case ' ':
 			this->ParseAndSubmitIdentifier();
 			return;
 
@@ -367,10 +367,10 @@ namespace Corium
 		}
 	}
 
-	auto LexContext::EvaluateString(std::u8string&& sourceText) -> void
+	auto LexContext::EvaluateString(std::string&& sourceText) -> void
 	{
 		this->SetSourceText(std::move(sourceText));
-		const char8_t *__restrict__ i {&*std::begin(this->SourceText_)}, *const __restrict__ end {&*std::end(this->SourceText_)};
+		const char *__restrict__ i {&*std::begin(this->SourceText_)}, *const __restrict__ end {&*std::end(this->SourceText_)};
 		while (i < end)
 		{
 			this->EvalChar(i++);
@@ -384,7 +384,7 @@ namespace Corium
 		this->IdentReset();
 	}
 
-	auto LexContext::SetSourceText(std::u8string&& sourceText) -> void
+	auto LexContext::SetSourceText(std::string&& sourceText) -> void
 	{
 		this->Reset();
 		this->SourceText_ = std::move(sourceText);

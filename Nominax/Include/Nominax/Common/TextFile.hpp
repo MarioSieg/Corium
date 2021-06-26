@@ -222,12 +222,12 @@ namespace Nominax::Common
 		/// <summary>
 		/// String type alias.
 		/// </summary>
-		using StringType = std::u8string;
+		using StringType = std::string;
 
 		/// <summary>
 		/// String view type.
 		/// </summary>
-		using ViewType = std::u8string_view;
+		using ViewType = std::string_view;
 
 	private:
 		/// <summary>

@@ -212,7 +212,7 @@ using namespace Nominax;
 
 namespace Corium
 {
-	auto LexSource(std::u8string&& sourceCode, TokenStream& output) -> LexResultCode
+	auto LexSource(std::string&& sourceCode, TokenStream& output) -> LexResultCode
 	{
 		if (NOMINAX_UNLIKELY(std::empty(sourceCode)))
 		{

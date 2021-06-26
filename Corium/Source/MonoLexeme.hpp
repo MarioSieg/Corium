@@ -211,12 +211,12 @@
 
 namespace Corium
 {
-	enum class MonoLexeme : char8_t
+	enum class MonoLexeme : char
 	{
-		ParenthesisLeft = u8'(',
-		ParenthesisRight = u8')',
-		CurlyBracesLeft = u8'{',
-		CurlyBracesRight = u8'}',
+		ParenthesisLeft = '(',
+		ParenthesisRight = ')',
+		CurlyBracesLeft = '{',
+		CurlyBracesRight = '}',
 		Identifier
 	};
 

@@ -219,18 +219,18 @@ namespace Corium
 		$Count
 	};
 
-	constexpr std::array<std::u8string_view, static_cast<std::size_t>(Keyword::$Count)> KEYWORD_TABLE
+	constexpr std::array<std::string_view, static_cast<std::size_t>(Keyword::$Count)> KEYWORD_TABLE
 	{
-		u8"let",
-		u8"fun"
+		"let",
+		"fun"
 	};
 
-	constexpr auto GetKeywordLexeme(const Keyword kw) -> std::u8string_view
+	constexpr auto GetKeywordLexeme(const Keyword kw) -> std::string_view
 	{
 		return KEYWORD_TABLE[static_cast<std::size_t>(kw)];
 	}
 
-	constexpr auto QueryKeyword(const std::u8string_view name) -> std::optional<Keyword>
+	constexpr auto QueryKeyword(const std::string_view name) -> std::optional<Keyword>
 	{
 		std::optional<Keyword> ret {std::nullopt};
 		for (std::size_t i {0}; i < static_cast<std::size_t>(Keyword::$Count); ++i)

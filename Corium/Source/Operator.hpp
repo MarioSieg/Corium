@@ -212,22 +212,22 @@ namespace Corium
 	/// <summary>
 	/// Represents an operator.
 	/// </summary>
-	enum class Operator : char8_t
+	enum class Operator : char
 	{
-		Equals			= u8'=',
-		Comma			= u8',',
-		Addition		= u8'+',
-		Subtraction		= u8'-',
-		Multiplication	= u8'*',
-		Division		= u8'/',
-		Modulo			= u8'%',
-		And				= u8'&',
-		Or				= u8'|',
-		Xor				= u8'^',
-		Complement		= u8'~',
-		Not				= u8'!',
-		Less			= u8'<',
-		Greater			= u8'>',
+		Equals			= '=',
+		Comma			= ',',
+		Addition		= '+',
+		Subtraction		= '-',
+		Multiplication	= '*',
+		Division		= '/',
+		Modulo			= '%',
+		And				= '&',
+		Or				= '|',
+		Xor				= '^',
+		Complement		= '~',
+		Not				= '!',
+		Less			= '<',
+		Greater			= '>',
 	};
 
 	/// <summary>

@@ -221,12 +221,12 @@ namespace Corium
 	/// <summary>
 	/// Char used to begin and end comments.
 	/// </summary>
-	constexpr char8_t COMMENT {'#'};
+	constexpr char COMMENT {'#'};
 
 	/// <summary>
 	/// Represents an identifier.
 	/// </summary>
-	using Identifier = std::u8string_view;
+	using Identifier = std::string_view;
 
 	/// <summary>
 	/// Represents a language token.

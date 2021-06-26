@@ -210,9 +210,9 @@
 TEST(Lexer, LexFunction)
 {
 	TokenStream result { };
-    constexpr std::u8string_view source
+    std::string source
     {
-                    u8R"(
+        R"(
 
 			fun main () {
 
@@ -220,19 +220,18 @@ TEST(Lexer, LexFunction)
 
 		)"
     };
-	std::u8string src{source};
 	const auto  ok
 	{
 		LexSource
 		(
-			std::move(src),
+			std::move(source),
 			result
 		)
 	};
 	ASSERT_EQ(ok, LexResultCode::Ok);
 	ASSERT_EQ(std::size(result), 6);
     ASSERT_EQ(std::get<Keyword>(result[0]), Keyword::Fun);
-	ASSERT_EQ(std::get<Identifier>(result[1]), Identifier {u8"main"});
+	ASSERT_EQ(std::get<Identifier>(result[1]), Identifier {"main"});
 	ASSERT_EQ(std::get<MonoLexeme>(result[2]), MonoLexeme::ParenthesisLeft);
 	ASSERT_EQ(std::get<MonoLexeme>(result[3]), MonoLexeme::ParenthesisRight);
 	ASSERT_EQ(std::get<MonoLexeme>(result[4]), MonoLexeme::CurlyBracesLeft);

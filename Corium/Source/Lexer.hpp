@@ -228,5 +228,5 @@ namespace Corium
 	/// </summary>
 	/// <param name="sourceCode"></param>
 	/// <returns></returns>
-	extern auto LexSource(std::u8string&& sourceCode, TokenStream& output) -> LexResultCode;
+	extern auto LexSource(std::string&& sourceCode, TokenStream& output) -> LexResultCode;
 }

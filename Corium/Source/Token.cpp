@@ -217,7 +217,7 @@ namespace Corium
 		}
 		else if (const auto* const keyword = std::get_if<Keyword>(&tok))
 		{
-			Print(Common::TextColor::BrightBlue, "Keyword: {}\n", reinterpret_cast<const char*>(GetKeywordLexeme(*keyword).data()));
+			Print(Common::TextColor::BrightBlue, "Keyword: {}\n", GetKeywordLexeme(*keyword));
 		}
 		else if (const auto* const operator_ = std::get_if<Operator>(&tok))
 		{
@@ -236,10 +236,7 @@ namespace Corium
 		}
 		else if (const auto* const identifier = std::get_if<Identifier>(&tok))
 		{
-			const auto             begin {reinterpret_cast<const char*>(std::data(*identifier))};
-			const auto             end {reinterpret_cast<const char*>(std::data(*identifier) + std::size(*identifier))};
-			const std::string_view view {begin, end};
-			Print(Common::TextColor::BrightBlue, "Identifier: {}\n", view);
+			Print(Common::TextColor::BrightBlue, "Identifier: {}\n", *identifier);
 		}
 	}
 }

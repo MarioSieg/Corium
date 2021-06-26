@@ -210,25 +210,25 @@
 TEST(LexContext, EvalChar)
 {
 	LexContext ctx { };
-	ctx.EvalChar(&u8"hello"[0]);
-	ctx.EvalChar(&u8"hello"[1]);
-	ctx.EvalChar(&u8"hello"[2]);
-	ctx.EvalChar(&u8"hello"[3]);
-	ctx.EvalChar(&u8"hello"[4]);
-	ASSERT_EQ(ctx.GetIdentifierBuffer(), u8"hello");
+	ctx.EvalChar(&"hello"[0]);
+	ctx.EvalChar(&"hello"[1]);
+	ctx.EvalChar(&"hello"[2]);
+	ctx.EvalChar(&"hello"[3]);
+	ctx.EvalChar(&"hello"[4]);
+	ASSERT_EQ(ctx.GetIdentifierBuffer(), "hello");
 }
 
 TEST(LexContext, EvalString)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(u8"hello");
-	ASSERT_EQ(ctx.GetIdentifierBuffer(), u8"hello");
+	ctx.EvaluateString("hello");
+	ASSERT_EQ(ctx.GetIdentifierBuffer(), "hello");
 }
 
 TEST(LexContext, Parenthesis)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(u8"()");
+	ctx.EvaluateString("()");
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 2);
 	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[0]), MonoLexeme::ParenthesisLeft);
@@ -238,7 +238,7 @@ TEST(LexContext, Parenthesis)
 TEST(LexContext, Braces)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(u8"{}=");
+	ctx.EvaluateString("{}=");
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 3);
 	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[0]), MonoLexeme::CurlyBracesLeft);
@@ -249,7 +249,7 @@ TEST(LexContext, Braces)
 TEST(LexContext, Control)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(u8"\n\t\v\f\r");
+	ctx.EvaluateString("\n\t\v\f\r");
 	ASSERT_TRUE(ctx.GetLexTreeOutput().empty());
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 }
@@ -257,19 +257,19 @@ TEST(LexContext, Control)
 TEST(LexContext, ParseIdent)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(u8"hello");
-	ASSERT_EQ(ctx.GetIdentifierBuffer(), Identifier{ u8"hello" });
+	ctx.EvaluateString("hello");
+	ASSERT_EQ(ctx.GetIdentifierBuffer(), Identifier{ "hello" });
 	ctx.ParseAndSubmitIdentifier();
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[0]));
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[0]), Identifier{ u8"hello" });
+	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[0]), Identifier{ "hello" });
 }
 
 TEST(LexContext, ParseIdentKeyWord)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(std::u8string {KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]});
+	ctx.EvaluateString(std::string {KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]});
 	ASSERT_EQ(ctx.GetIdentifierBuffer(), KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]);
 	ctx.ParseAndSubmitIdentifier();
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
@@ -281,8 +281,8 @@ TEST(LexContext, ParseIdentKeyWord)
 TEST(LexContext, ParseIdentFloat)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(u8"3.1415");
-	ASSERT_EQ(ctx.GetIdentifierBuffer(), u8"3.1415");
+	ctx.EvaluateString("3.1415");
+	ASSERT_EQ(ctx.GetIdentifierBuffer(), "3.1415");
 	ctx.ParseAndSubmitIdentifier();
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
@@ -294,8 +294,8 @@ TEST(LexContext, ParseIdentFloat)
 TEST(LexContext, ParseIdentInt)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(u8"12345");
-	ASSERT_EQ(ctx.GetIdentifierBuffer(), u8"12345");
+	ctx.EvaluateString("12345");
+	ASSERT_EQ(ctx.GetIdentifierBuffer(), "12345");
 	ASSERT_TRUE(ctx.GetIdentifierBuffer().has_value());
 	ctx.ParseAndSubmitIdentifier();
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
@@ -308,7 +308,7 @@ TEST(LexContext, ParseIdentInt)
 TEST(LexContext, ParseIdentIntSpace)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(u8"12345 ");
+	ctx.EvaluateString("12345 ");
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
 	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[0]));
@@ -319,36 +319,36 @@ TEST(LexContext, ParseIdentIntSpace)
 TEST(LexContext, LexLet)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(std::u8string {KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]} + u8" noel\n");
+	ctx.EvaluateString(std::string {KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]} + " noel\n");
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 2);
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
 	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Let);
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), Identifier{ u8"noel" });
+	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), Identifier{ "noel" });
 }
 
 
 TEST(LexContext, LexIdentifiers)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(u8"one two\nthree\tfour ");
+	ctx.EvaluateString("one two\nthree\tfour ");
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 4);
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[0]));
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[2]));
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[3]));
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[0]), Identifier{ u8"one" });
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), Identifier{ u8"two" });
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[2]), Identifier{ u8"three" });
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[3]), Identifier{ u8"four" });
+	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[0]), Identifier{ "one" });
+	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), Identifier{ "two" });
+	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[2]), Identifier{ "three" });
+	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[3]), Identifier{ "four" });
 }
 
 TEST(LexContext, LexArithmeticOperators)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(u8"let x = 10 + 11 - 3 % 1 * 3 / 2\n");
+	ctx.EvaluateString("let x = 10 + 11 - 3 % 1 * 3 / 2\n");
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 14);
 	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
@@ -366,7 +366,7 @@ TEST(LexContext, LexArithmeticOperators)
 	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[13]));
 
 	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Let);
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), u8"x");
+	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), "x");
 	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[2]), Operator::Equals);
 	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[3])), 10);
 	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[4]), Operator::Addition);
@@ -384,7 +384,7 @@ TEST(LexContext, LexArithmeticOperators)
 TEST(LexContext, LexBitOperators)
 {
 	LexContext ctx { };
-	ctx.EvaluateString(u8"let x = 10 ^ 11 & 3 | 1 ^ ~3\n");
+	ctx.EvaluateString("let x = 10 ^ 11 & 3 | 1 ^ ~3\n");
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 13);
 	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
@@ -401,7 +401,7 @@ TEST(LexContext, LexBitOperators)
 	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[12]));
 
 	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Let);
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), u8"x");
+	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), "x");
 	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[2]), Operator::Equals);
 	ASSERT_EQ(std::get<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[3])), 10);
 	ASSERT_EQ(std::get<Operator>(ctx.GetLexTreeOutput()[4]), Operator::Xor);
