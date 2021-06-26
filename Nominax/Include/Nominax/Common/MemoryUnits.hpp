@@ -213,14 +213,18 @@
 
 namespace Nominax
 {
-	constexpr U64 BYTE_SCALE {1000};
+	constexpr U64 KB {1000};
+	constexpr U64 MB {KB * KB};
+	constexpr U64 GB {KB * KB * KB};
+	constexpr U64 TB {KB * KB * KB * KB};
+	constexpr U64 PB {KB * KB * KB * KB * KB};
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
 	constexpr auto Bytes2Gigabytes(T bytes) -> T
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(BYTE_SCALE) / static_cast<T>(BYTE_SCALE) / static_cast<T>(BYTE_SCALE);
+		return bytes / static_cast<T>(KB) / static_cast<T>(KB) / static_cast<T>(KB);
 	}
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
@@ -228,7 +232,7 @@ namespace Nominax
 	constexpr auto Bytes2Megabytes(T bytes) -> T
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(BYTE_SCALE) / static_cast<T>(BYTE_SCALE);
+		return bytes / static_cast<T>(KB) / static_cast<T>(KB);
 	}
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
@@ -236,28 +240,28 @@ namespace Nominax
 	constexpr auto Bytes2Kilobytes(T bytes) -> T
 	{
 		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(BYTE_SCALE);
+		return bytes / static_cast<T>(KB);
 	}
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
 	constexpr auto Gigabytes2Bytes(const T gigabytes) -> T
 	{
-		return gigabytes * static_cast<T>(BYTE_SCALE) * static_cast<T>(BYTE_SCALE) * static_cast<T>(BYTE_SCALE);
+		return gigabytes * static_cast<T>(KB) * static_cast<T>(KB) * static_cast<T>(KB);
 	}
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
 	constexpr auto Megabytes2Bytes(const T megabytes) -> T
 	{
-		return megabytes * static_cast<T>(BYTE_SCALE) * static_cast<T>(BYTE_SCALE);
+		return megabytes * static_cast<T>(KB) * static_cast<T>(KB);
 	}
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
 	constexpr auto Kilobytes2Bytes(const T kilobytes) -> T
 	{
-		return kilobytes * static_cast<T>(BYTE_SCALE);
+		return kilobytes * static_cast<T>(KB);
 	}
 
 	constexpr auto operator ""_kb(const unsigned long long int value) -> unsigned long long int

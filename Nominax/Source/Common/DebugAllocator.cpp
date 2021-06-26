@@ -210,9 +210,31 @@
 
 namespace Nominax::Common
 {
+    static constexpr auto GetMemoryUnitInfo(const std::size_t bytes) -> std::pair<std::size_t, std::string_view>
+    {
+        if (bytes == 0 || bytes < KB)
+        {
+            return { bytes, "B" };
+        }
+        if (bytes < MB)
+        {
+            return { bytes / KB, "KB" };
+        }
+        if (bytes < GB)
+        {
+            return { bytes / MB, "MB" };
+        }
+        if (bytes < TB)
+        {
+            return { bytes / GB, "GB" };
+        }
+        return { bytes, "B" };
+    }
+
 	auto DebugAllocator::Allocate(void*& out, const std::size_t size) const -> void
 	{
-		Print(TextColor::BrightGreen, "Allocate({}, {} B)\n", out, size);
+        const auto [count, suffix] {GetMemoryUnitInfo(size)};
+		Print(TextColor::BrightGreen, "Allocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count, suffix);
 		IAllocator::Allocate(out, size);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
@@ -220,21 +242,23 @@ namespace Nominax::Common
 
 	auto DebugAllocator::Reallocate(void*& out, const std::size_t size) const -> void
 	{
-		Print(TextColor::BrightYellow, "Reallocate({}, {} B)\n", out, size);
+        const auto [count, suffix] {GetMemoryUnitInfo(size)};
+		Print(TextColor::BrightYellow, "Reallocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count, suffix);
 		IAllocator::Reallocate(out, size);
 		++this->Reallocations_;
 	}
 
 	auto DebugAllocator::Deallocate(void*& out) const -> void
 	{
-		Print(TextColor::BrightRed, "Deallocate({})\n", out);
+		Print(TextColor::BrightRed, "Deallocate({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
 		IAllocator::Deallocate(out);
 		++this->Deallocations_;
 	}
 
 	auto DebugAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
 	{
-		Print(TextColor::BrightGreen, "AllocateAligned({}, {} B, {} A)\n", out, size, alignment);
+        const auto [count, suffix] {GetMemoryUnitInfo(size)};
+		Print(TextColor::BrightGreen, "AllocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out), count, suffix, alignment);
 		IAllocator::AllocateAligned(out, size, alignment);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
@@ -242,14 +266,15 @@ namespace Nominax::Common
 
 	auto DebugAllocator::ReallocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
 	{
-		Print(TextColor::BrightYellow, "ReallocateAligned({}, {} B, {} A)\n", out, size, alignment);
+        const auto [count, suffix] {GetMemoryUnitInfo(size)};
+        Print(TextColor::BrightGreen, "ReallocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out), count, suffix, alignment);
 		IAllocator::ReallocateAligned(out, size, alignment);
 		++this->Reallocations_;
 	}
 
 	auto DebugAllocator::DeallocateAligned(void*& out) const -> void
 	{
-		Print(TextColor::BrightRed, "DeallocateAligned({})\n", out);
+		Print(TextColor::BrightRed, "DeallocateAligned({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
 		IAllocator::DeallocateAligned(out);
 		++this->Deallocations_;
 	}
