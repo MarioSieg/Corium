@@ -302,7 +302,7 @@ namespace Corium
 		/// </summary>
 		/// <returns>The current identifier buffer.</returns>
 		[[nodiscard]]
-		auto GetIdentifierBuffer() const -> Identifier;
+		auto GetIdentifierBuffer() const -> std::optional<Identifier>;
 
 		/// <summary>
 		/// 
@@ -385,11 +385,5 @@ namespace Corium
 	inline auto LexContext::GetSourceText() const & -> const std::u8string&
 	{
 		return this->SourceText_;
-	}
-
-	inline auto LexContext::SetSourceText(std::u8string&& sourceText) -> void
-	{
-		this->Reset();
-		this->SourceText_ = std::move(sourceText);
 	}
 }

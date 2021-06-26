@@ -220,8 +220,10 @@ static auto ParseFile(const std::string_view path, Stream& out) -> void
 {
 	TextFile file { };
 	file.ReadFromFileOrPanic(path);
-	Corium::TokenStream output{};
-	if (const auto result {Corium::LexSource(std::move(file.GetContentText()), output)}; result == Corium::LexResultCode::Ok)
+	std::u8string source {std::move(file.GetContentText())};
+	source.push_back(u8'\n');
+	Corium::TokenStream output { };
+	if (const auto result {LexSource(std::move(source), output)}; result == Corium::LexResultCode::Ok)
 	{
 		// Print parse tree:
 		for (const Corium::Token& x : output)

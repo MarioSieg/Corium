@@ -235,12 +235,14 @@ namespace Corium
 
 	auto LexContext::ParseAndSubmitIdentifier() -> void
 	{
-		const Identifier identifier {this->GetIdentifierBuffer()};
+		const std::optional<Identifier> identifierOpt {this->GetIdentifierBuffer()};
 
-		if (identifier.empty())
+		if (!identifierOpt)
 		{
 			return;
 		}
+
+		const Identifier identifier {*identifierOpt};
 
 		// check if it's a keyword
 		if (const std::optional<Keyword> keyword {QueryKeyword(identifier)}; keyword)
@@ -367,8 +369,7 @@ namespace Corium
 
 	auto LexContext::EvaluateString(std::u8string&& sourceText) -> void
 	{
-		this->Reset();
-		this->SourceText_ = std::move(sourceText);
+		this->SetSourceText(std::move(sourceText));
 		const char8_t *__restrict__ i {&*std::begin(this->SourceText_)}, *const __restrict__ end {&*std::end(this->SourceText_)};
 		while (i < end)
 		{
@@ -376,15 +377,25 @@ namespace Corium
 		}
 	}
 
-	auto LexContext::GetIdentifierBuffer() const -> Identifier
-	{
-		return this->IdentBegin_ && this->IdentEnd_ ? Identifier {this->IdentBegin_, this->IdentEnd_} : Identifier { };
-	}
-
 	auto LexContext::Reset() -> void
 	{
 		this->Output_.clear();
 		this->SourceText_.clear();
 		this->IdentReset();
+	}
+
+	auto LexContext::SetSourceText(std::u8string&& sourceText) -> void
+	{
+		this->Reset();
+		this->SourceText_ = std::move(sourceText);
+	}
+
+	auto LexContext::GetIdentifierBuffer() const -> std::optional<Identifier>
+	{
+		if (this->IdentBegin_ && this->IdentEnd_)
+		{
+			return Identifier {this->IdentBegin_, this->IdentEnd_};
+		}
+		return std::nullopt;
 	}
 }

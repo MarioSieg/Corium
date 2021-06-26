@@ -229,7 +229,7 @@ TEST(LexContext, Parenthesis)
 {
 	LexContext ctx { };
 	ctx.EvaluateString(u8"()");
-	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());
+	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 2);
 	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[0]), MonoLexeme::ParenthesisLeft);
 	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[1]), MonoLexeme::ParenthesisRight);
@@ -239,7 +239,7 @@ TEST(LexContext, Braces)
 {
 	LexContext ctx { };
 	ctx.EvaluateString(u8"{}=");
-	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());
+	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 3);
 	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[0]), MonoLexeme::CurlyBracesLeft);
 	ASSERT_EQ(std::get<MonoLexeme>(ctx.GetLexTreeOutput()[1]), MonoLexeme::CurlyBracesRight);
@@ -251,7 +251,7 @@ TEST(LexContext, Control)
 	LexContext ctx { };
 	ctx.EvaluateString(u8"\n\t\v\f\r");
 	ASSERT_TRUE(ctx.GetLexTreeOutput().empty());
-	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());
+	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 }
 
 TEST(LexContext, ParseIdent)
@@ -260,7 +260,7 @@ TEST(LexContext, ParseIdent)
 	ctx.EvaluateString(u8"hello");
 	ASSERT_EQ(ctx.GetIdentifierBuffer(), Identifier{ u8"hello" });
 	ctx.ParseAndSubmitIdentifier();
-	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());
+	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[0]));
 	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[0]), Identifier{ u8"hello" });
@@ -272,7 +272,7 @@ TEST(LexContext, ParseIdentKeyWord)
 	ctx.EvaluateString(std::u8string {KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]});
 	ASSERT_EQ(ctx.GetIdentifierBuffer(), KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]);
 	ctx.ParseAndSubmitIdentifier();
-	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());
+	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
 	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
 	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Let);
@@ -284,7 +284,7 @@ TEST(LexContext, ParseIdentFloat)
 	ctx.EvaluateString(u8"3.1415");
 	ASSERT_EQ(ctx.GetIdentifierBuffer(), u8"3.1415");
 	ctx.ParseAndSubmitIdentifier();
-	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());
+	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
 	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[0]));
 	ASSERT_TRUE(std::holds_alternative<F64>(std::get<Literal>(ctx.GetLexTreeOutput()[0])));
@@ -296,9 +296,9 @@ TEST(LexContext, ParseIdentInt)
 	LexContext ctx { };
 	ctx.EvaluateString(u8"12345");
 	ASSERT_EQ(ctx.GetIdentifierBuffer(), u8"12345");
-	ASSERT_FALSE(ctx.GetIdentifierBuffer().empty());
+	ASSERT_TRUE(ctx.GetIdentifierBuffer().has_value());
 	ctx.ParseAndSubmitIdentifier();
-	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());
+	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
 	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[0]));
 	ASSERT_TRUE(std::holds_alternative<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[0])));
@@ -309,7 +309,7 @@ TEST(LexContext, ParseIdentIntSpace)
 {
 	LexContext ctx { };
 	ctx.EvaluateString(u8"12345 ");
-	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());
+	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 1);
 	ASSERT_TRUE(std::holds_alternative<Literal>(ctx.GetLexTreeOutput()[0]));
 	ASSERT_TRUE(std::holds_alternative<I64>(std::get<Literal>(ctx.GetLexTreeOutput()[0])));
@@ -321,31 +321,20 @@ TEST(LexContext, LexLet)
 	LexContext ctx { };
 	ctx.EvaluateString(std::u8string {KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]} + u8" noel\n");
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 2);
-	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());
+	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
 	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Let);
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
 	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), Identifier{ u8"noel" });
 }
 
-TEST(LexContext, LexFunction)
-{
-	LexContext ctx { };
-	ctx.EvaluateString(std::u8string {KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Fun)]} + u8" noel\n");
-	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 2);
-	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());
-	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetLexTreeOutput()[0]));
-	ASSERT_EQ(std::get<Keyword>(ctx.GetLexTreeOutput()[0]), Keyword::Fun);
-	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
-	ASSERT_EQ(std::get<Identifier>(ctx.GetLexTreeOutput()[1]), Identifier{ u8"noel" });
-}
 
 TEST(LexContext, LexIdentifiers)
 {
 	LexContext ctx { };
 	ctx.EvaluateString(u8"one two\nthree\tfour ");
 	ASSERT_EQ(ctx.GetLexTreeOutput().size(), 4);
-	ASSERT_TRUE(ctx.GetIdentifierBuffer().empty());
+	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[0]));
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[1]));
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetLexTreeOutput()[2]));
