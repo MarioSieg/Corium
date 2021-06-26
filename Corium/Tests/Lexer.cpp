@@ -209,9 +209,8 @@
 
 TEST(Lexer, LexFunction)
 {
-	TokenStream    result { };
-	Identifier id { };
-	const auto ok {
+	TokenStream result { };
+	const auto  ok {
 		LexSource
 		(
 			u8R"(

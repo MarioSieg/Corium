@@ -236,7 +236,10 @@ namespace Corium
 		}
 		else if (const auto* const identifier = std::get_if<Identifier>(&tok))
 		{
-			Print(Common::TextColor::BrightBlue, "Identifier: {}\n", reinterpret_cast<const char*>(identifier->c_str()));
+			const auto             begin {reinterpret_cast<const char*>(std::data(*identifier))};
+			const auto             end {reinterpret_cast<const char*>(std::data(*identifier) + std::size(*identifier))};
+			const std::string_view view {begin, end};
+			Print(Common::TextColor::BrightBlue, "Identifier: {}\n", view);
 		}
 	}
 }

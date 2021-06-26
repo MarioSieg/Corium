@@ -212,12 +212,20 @@ namespace Corium
 {
 	auto LexContext::IdentPush(const char8_t* x) -> void
 	{
-		this->IdentifierBuffer_.push_back(*x);
+		if (this->IdentBegin_ && this->IdentEnd_)
+		{
+			++this->IdentEnd_;
+		}
+		else
+		{
+			this->IdentBegin_ = x;
+			this->IdentEnd_   = x + 1;
+		}
 	}
 
 	auto LexContext::IdentReset() -> void
 	{
-		this->IdentifierBuffer_.clear();
+		this->IdentBegin_ = this->IdentEnd_ = nullptr;
 	}
 
 	LexContext::LexContext(const std::size_t expectedOutputSize)
@@ -227,7 +235,7 @@ namespace Corium
 
 	auto LexContext::ParseAndSubmitIdentifier() -> void
 	{
-		const std::u8string_view identifier {this->IdentifierBuffer_};
+		const Identifier identifier {this->GetIdentifierBuffer()};
 
 		if (identifier.empty())
 		{
@@ -255,7 +263,7 @@ namespace Corium
 			// else it's an identifier:
 		else
 		{
-			this->Output_.emplace_back(std::u8string {identifier});
+			this->Output_.emplace_back(identifier);
 		}
 
 		this->IdentReset();
@@ -357,20 +365,20 @@ namespace Corium
 		}
 	}
 
-	auto LexContext::EvalChar(const char8_t x) -> void
-	{
-		this->EvalChar(&x);
-	}
-
 	auto LexContext::EvaluateString(std::u8string&& sourceText) -> void
 	{
 		this->Reset();
 		this->SourceText_ = std::move(sourceText);
-		const auto *__restrict__ i {&*std::begin(this->SourceText_)}, *const __restrict__ end {&*std::end(this->SourceText_)};
+		const char8_t *__restrict__ i {&*std::begin(this->SourceText_)}, *const __restrict__ end {&*std::end(this->SourceText_)};
 		while (i < end)
 		{
 			this->EvalChar(i++);
 		}
+	}
+
+	auto LexContext::GetIdentifierBuffer() const -> Identifier
+	{
+		return this->IdentBegin_ && this->IdentEnd_ ? Identifier {this->IdentBegin_, this->IdentEnd_} : Identifier { };
 	}
 
 	auto LexContext::Reset() -> void

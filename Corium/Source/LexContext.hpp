@@ -216,13 +216,11 @@ namespace Corium
 	/// </summary>
 	class LexContext final
 	{
-		std::u8string SourceText_ { };
-		Identifier    IdentifierBuffer_ { };
-		TokenStream   Output_ { };
+		std::u8string  SourceText_ { };
+		const char8_t* IdentBegin_ {nullptr};
+		const char8_t* IdentEnd_ {nullptr};
+		TokenStream    Output_ { };
 
-		auto GetRawIdentifierBuffer() -> char8_t*;
-		auto GetRawIdentifierBufferLossy() -> char*;
-		auto GetRawIdentifierBufferBlob() -> U8*;
 		auto GetRawIdentifierBuffer() const -> const char8_t*;
 		auto GetRawIdentifierBufferLossy() const -> const char*;
 		auto GetRawIdentifierBufferBlob() const -> const U8*;
@@ -286,13 +284,6 @@ namespace Corium
 		auto EvalChar(const char8_t* x) -> void;
 
 		/// <summary>
-		/// Evaluate single character.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <returns></returns>
-		auto EvalChar(char8_t x) -> void;
-
-		/// <summary>
 		/// Evaluate each character in source text view.
 		/// </summary>
 		/// <param name="sourceText"></param>
@@ -302,9 +293,16 @@ namespace Corium
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="sourceText">Sets the source text to use for evaluation. Resets internal context.</param>
+		/// <returns></returns>
+		auto SetSourceText(std::u8string&& sourceText) -> void;
+
+		/// <summary>
+		/// 
+		/// </summary>
 		/// <returns>The current identifier buffer.</returns>
 		[[nodiscard]]
-		auto GetIdentifierBuffer() const -> const Identifier&;
+		auto GetIdentifierBuffer() const -> Identifier;
 
 		/// <summary>
 		/// 
@@ -349,39 +347,19 @@ namespace Corium
 		auto Reset() -> void;
 	};
 
-	inline auto LexContext::GetIdentifierBuffer() const -> const Identifier&
-	{
-		return this->IdentifierBuffer_;
-	}
-
-	inline auto LexContext::GetRawIdentifierBuffer() -> char8_t*
-	{
-		return std::data(this->IdentifierBuffer_);
-	}
-
-	inline auto LexContext::GetRawIdentifierBufferLossy() -> char*
-	{
-		return reinterpret_cast<char*>(std::data(this->IdentifierBuffer_));
-	}
-
-	inline auto LexContext::GetRawIdentifierBufferBlob() -> U8*
-	{
-		return reinterpret_cast<U8*>(std::data(this->IdentifierBuffer_));
-	}
-
 	inline auto LexContext::GetRawIdentifierBuffer() const -> const char8_t*
 	{
-		return std::data(this->IdentifierBuffer_);
+		return this->IdentBegin_;
 	}
 
 	inline auto LexContext::GetRawIdentifierBufferLossy() const -> const char*
 	{
-		return reinterpret_cast<const char*>(std::data(this->IdentifierBuffer_));
+		return reinterpret_cast<const char*>(this->IdentBegin_);
 	}
 
 	inline auto LexContext::GetRawIdentifierBufferBlob() const -> const U8*
 	{
-		return reinterpret_cast<const U8*>(std::data(this->IdentifierBuffer_));
+		return reinterpret_cast<const U8*>(this->IdentBegin_);
 	}
 
 	inline auto LexContext::GetLexTreeOutput() const & -> const TokenStream&
@@ -407,5 +385,11 @@ namespace Corium
 	inline auto LexContext::GetSourceText() const & -> const std::u8string&
 	{
 		return this->SourceText_;
+	}
+
+	inline auto LexContext::SetSourceText(std::u8string&& sourceText) -> void
+	{
+		this->Reset();
+		this->SourceText_ = std::move(sourceText);
 	}
 }

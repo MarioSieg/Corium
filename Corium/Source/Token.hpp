@@ -226,7 +226,7 @@ namespace Corium
 	/// <summary>
 	/// Represents an identifier.
 	/// </summary>
-	using Identifier = std::u8string;
+	using Identifier = std::u8string_view;
 
 	/// <summary>
 	/// Represents a language token.
