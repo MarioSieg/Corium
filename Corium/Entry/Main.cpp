@@ -207,36 +207,36 @@
 
 #include "../Source/Base.hpp"
 #include "../Source/Lexer.hpp"
-#include "../Source/Parser.hpp"
+#include "../Source/ParseContext.hpp"
 
 using namespace Corium;
-using namespace Nominax;
-using namespace Arch;
-using namespace ByteCode;
-using namespace Core;
-using namespace System;
-using namespace Common;
-using namespace VectorLib;
+using namespace Nominax::Prelude;
 
 static auto ParseFile(const std::string_view path, Stream& out) -> void
 {
-	TextFile file { };
-	file.ReadFromFileOrPanic(path);
-	std::string source {std::move(file.GetContentText())};
-	source.push_back('\n');
-	LexContext output { };
-    const LexResultCode result {LexSource(std::move(source), output)};
-	if (NOMINAX_UNLIKELY(result != LexResultCode::Ok))
-	{
-        Print(LogLevel::Error, "Failed to lex Corium source code!\n");
-        return;
-	}
-    const ParseError parseError {Parse(output.GetTokenStream(), output.GetLineMap())};
-	if (NOMINAX_UNLIKELY(parseError.has_value()))
+	LexContext lexContext { };
+    ParseContext parseContext { };
+
+    {
+        TextFile file { };
+        file.ReadFromFileOrPanic(path);
+        std::string source {std::move(file.GetContentText())};
+        if (NOMINAX_UNLIKELY(source.empty()))
+        {
+            Print("Empty source file!");
+            return;
+        }
+        source.push_back('\n');
+        lexContext.EvaluateString(std::move(source));
+    }
+
+	parseContext.Reset(lexContext.GetTokenStream(), lexContext.GetLineMap());
+	if (const ParseError& parseError {parseContext.Parse()}; NOMINAX_UNLIKELY(parseError.has_value()))
     {
         Print(LogLevel::Error, "{}\n", *parseError);
         return;
     }
+
 	out.Prologue();
 	out.Epilogue();
 }

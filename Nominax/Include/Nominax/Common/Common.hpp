@@ -234,5 +234,6 @@
 #include "Signal.hpp"
 #include "Stopwatch.hpp"
 #include "TextFile.hpp"
+#include "VisitOverload.hpp"
 #include "XorshiftAtomic.hpp"
 #include "XorshiftThreadLocal.hpp"

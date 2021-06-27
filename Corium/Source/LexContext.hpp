@@ -311,7 +311,7 @@ namespace Corium
 		/// </summary>
 		/// <returns>The current lex tree result.</returns>
 		[[nodiscard]]
-		auto GetLexTreeOutput() const & -> const TokenStream&;
+		auto GetTokenStream() const & -> const TokenStream&;
 
 		/// <summary>
 		/// 
@@ -352,7 +352,7 @@ namespace Corium
 		return reinterpret_cast<const U8*>(this->IdentBegin_);
 	}
 
-	inline auto LexContext::GetLexTreeOutput() const & -> const TokenStream&
+	inline auto LexContext::GetTokenStream() const & -> const TokenStream&
 	{
 		return this->Output_;
 	}
