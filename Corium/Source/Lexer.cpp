@@ -206,85 +206,19 @@
 //    limitations under the License.
 
 #include "Lexer.hpp"
+#include "LexContext.hpp"
 
 using namespace Nominax;
 
 namespace Corium
 {
-	auto LexSource(const std::u8string_view sourceCode) noexcept(false) -> LexResult
+	auto LexSource(std::string&& sourceCode, LexContext& context) -> LexResultCode
 	{
 		if (NOMINAX_UNLIKELY(std::empty(sourceCode)))
 		{
-			return {{ }, LexResultCode::EmptyFile};
+			return LexResultCode::EmptyFile;
 		}
-
-		// String to store identifiers in:
-		Identifier identBuffer { };
-		identBuffer.reserve(128);
-
-		// Result:
-		LexTree result { };
-
-
-		bool                                                                            isComment {false};
-		std::for_each(std::cbegin(sourceCode), std::cend(sourceCode), [&](const char8_t current)
-		{
-			if (current == '#' || current == '\n')
-			{
-				isComment ^= true;
-			}
-			else if (!isComment)
-			{
-				EvalChar(current, result, identBuffer);
-			}
-		});
-
-		return {result, LexResultCode::Ok};
-	}
-
-	auto EvalChar(const char8_t x, LexTree& result, Identifier& identifier) noexcept(false) -> void
-	{
-		// Outputs the identifier buffer, if it's not empty.
-		const auto endIdentifier = [&]
-		{
-			if (!identifier.empty())
-			{
-				result.emplace_back(std::move(identifier));
-				identifier.clear();
-			}
-		};
-
-		switch (x)
-		{
-		case static_cast<char8_t>(MonoLexeme::ParenthesisLeft):
-			endIdentifier();
-			result.emplace_back(MonoLexeme::ParenthesisLeft);
-			return;
-
-		case static_cast<char8_t>(MonoLexeme::ParenthesisRight):
-			endIdentifier();
-			result.emplace_back(MonoLexeme::ParenthesisRight);
-			return;
-
-		case static_cast<char8_t>(MonoLexeme::CurlyBracesLeft):
-			endIdentifier();
-			result.emplace_back(MonoLexeme::CurlyBracesLeft);
-			return;
-
-		case static_cast<char8_t>(MonoLexeme::CurlyBracesRight):
-			endIdentifier();
-			result.emplace_back(MonoLexeme::CurlyBracesRight);
-			return;
-
-		case ' ':
-		case '\n':
-		case '\t':
-		case '\v':
-		case '\f':
-		case '\r':
-			return;
-		}
-
-		identifier.push_back(x);
+		context.EvaluateString(std::move(sourceCode));
+		return LexResultCode::Ok;
 	}
 }

@@ -217,39 +217,38 @@ namespace Nominax::Common
 	/// </summary>
 	class IAllocator
 	{
-	protected:
+	public:
 		/// <summary>
 		/// Impl constructor.
 		/// </summary>
 		/// <returns></returns>
-		constexpr IAllocator() noexcept(true) = default;
+		constexpr IAllocator() = default;
 
-	public:
 		/// <summary>
 		/// Copy constructor.
 		/// </summary>
 		/// <param name="other"></param>
-		constexpr IAllocator(const IAllocator& other) noexcept(true) = default;
+		constexpr IAllocator(const IAllocator& other) = default;
 
 		/// <summary>
 		/// Move constructor.
 		/// </summary>
 		/// <param name="other"></param>
-		constexpr IAllocator(IAllocator&& other) noexcept(true) = default;
+		constexpr IAllocator(IAllocator&& other) = default;
 
 		/// <summary>
 		/// Copy assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator =(const IAllocator& other) noexcept(true) -> IAllocator& = default;
+		constexpr auto operator =(const IAllocator& other) -> IAllocator& = default;
 
 		/// <summary>
 		/// Move assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator =(IAllocator&& other) noexcept(true) -> IAllocator& = default;
+		constexpr auto operator =(IAllocator&& other) -> IAllocator& = default;
 
 		/// <summary>
 		/// Destructor.
@@ -262,7 +261,7 @@ namespace Nominax::Common
 		/// <param name="out">Output pointer.</param>
 		/// <param name="size">The size of the block in bytes.</param>
 		/// <returns></returns>
-		virtual auto Allocate(void*& out, std::size_t size) const noexcept(true) -> void = 0;
+		virtual auto Allocate(void*& out, std::size_t size) const -> void;
 
 		/// <summary>
 		/// Raw reallocate like realloc().
@@ -270,14 +269,14 @@ namespace Nominax::Common
 		/// <param name="out">Output pointer.</param>
 		/// <param name="size">The size of the block in bytes.</param>
 		/// <returns></returns>
-		virtual auto Reallocate(void*& out, std::size_t size) const noexcept(true) -> void = 0;
+		virtual auto Reallocate(void*& out, std::size_t size) const -> void;
 
 		/// <summary>
 		/// Raw deallocate like free().
 		/// </summary>
 		/// <param name="out">Input pointer.</param>
 		/// <returns></returns>
-		virtual auto Deallocate(void*& out) const noexcept(true) -> void = 0;
+		virtual auto Deallocate(void*& out) const -> void;
 
 
 		/// <summary>
@@ -287,7 +286,7 @@ namespace Nominax::Common
 		/// <param name="alignment"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto AllocateAligned(void*& out, std::size_t size, std::size_t alignment) const noexcept(true) -> void = 0;
+		virtual auto AllocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void;
 
 		/// <summary>
 		/// 
@@ -296,14 +295,14 @@ namespace Nominax::Common
 		/// <param name="alignment"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto ReallocateAligned(void*& out, std::size_t size, std::size_t alignment) const noexcept(true) -> void = 0;
+		virtual auto ReallocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void;
 
 		/// <summary>
 		/// Raw deallocate aligned like free().
 		/// </summary>
 		/// <param name="out">Input pointer.</param>
 		/// <returns></returns>
-		virtual auto DeallocateAligned(void*& out) const noexcept(true) -> void = 0;
+		virtual auto DeallocateAligned(void*& out) const -> void;
 
 		/// <summary>
 		/// Virtual alloc.
@@ -311,37 +310,18 @@ namespace Nominax::Common
 		/// <param name="out"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto Valloc(void*& out, std::size_t size) const noexcept(true) -> void;
+		virtual auto Valloc(void*& out, std::size_t size) const -> void;
 
 		/// <summary>
 		/// Virtual free.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <returns></returns>
-		virtual auto Vdealloc(void*& out) const noexcept(true) -> void;
+		virtual auto Vdealloc(void*& out) const -> void;
 	};
-
-	/// <summary>
-	/// Currently used allocator.
-	/// </summary>
-	extern constinit const IAllocator* GlobalCurrentSystemAllocator;
 
 	/// <summary>
 	/// Fast runtime allocator.
 	/// </summary>
-	extern constinit const IAllocator& GlobalRuntimeAllocator;
-
-	/// <summary>
-	/// Slow debug allocator.
-	/// </summary>
-	extern constinit const IAllocator& GlobalDebugAllocator;
-
-	/// <summary>
-	/// Queries the best allocator for the current (DEBUG/RELEASE) build type.
-	/// </summary>
-	/// <returns></returns>
-	constexpr auto DetermineAllocator() noexcept(true) -> const IAllocator&
-	{
-		return GlobalRuntimeAllocator;
-	}
+	inline constinit IAllocator GlobalRuntimeAllocator { };
 }

@@ -1,6 +1,6 @@
 // File: Chunk.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 23.06.2021 5:02 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,26 +205,40 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <cstring>
+
 #include "../../Include/Nominax/ByteCode/Chunk.hpp"
+#include "../../Include/Nominax/ByteCode/Stream.hpp"
 #include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
+#include "../../Include/Nominax/System/MacroCfg.hpp"
 
 namespace Nominax::ByteCode
 {
-	auto CalculateInstructionMapping(std::span<const Signal::Discriminator> input, std::span<bool>& output) -> bool
+	auto TransformStreamToImageByCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void
 	{
-		if (NOMINAX_UNLIKELY(std::size(input) != std::size(output)))
+		// allocate image and copy code:
 		{
-			return false;
+			const auto binaryImage {new(std::nothrow) Signal[input.Size()]};
+			std::memcpy(binaryImage, std::data(input.GetCodeBuffer()), std::size(input.GetCodeBuffer()) * sizeof(Signal));
+			output = Image {static_cast<void*>(binaryImage), std::size(input.GetCodeBuffer()) * sizeof(Signal)};
 		}
 
-		auto       iterator {std::begin(input)};
-		const auto end {std::end(input)};
+		// create jump map and execution address mapping:
+		jumpMap.resize(input.Size());
 
-		for (bool* flag = output.data(); NOMINAX_LIKELY(iterator < end); ++iterator, ++flag)
+		const auto& discriminators {input.GetDiscriminatorBuffer()};
+		for (std::size_t i {0}; i < input.Size(); ++i)
 		{
-			*flag = *iterator == Signal::Discriminator::Instruction;
-		}
+#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
 
-		return true;
+			if (discriminators[i] == Signal::Discriminator::JumpAddress)
+			{
+				output[i].Ptr = const_cast<void*>(Core::ComputeRelativeJumpAddress(output.GetBlobData(), output[i].JmpAddress));
+			}
+
+#endif
+			jumpMap[i] = static_cast<U8>(discriminators[i] == Signal::Discriminator::Instruction);
+		}
 	}
 }

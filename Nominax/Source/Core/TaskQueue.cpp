@@ -210,7 +210,7 @@
 
 namespace Nominax::Core
 {
-	auto TaskQueueThread::DispatchJobQueue() noexcept(false) -> void
+	auto TaskQueueThread::DispatchJobQueue() -> void
 	{
 		for (;;)
 		{
@@ -243,7 +243,7 @@ namespace Nominax::Core
 		this->Worker_ = std::thread(&TaskQueueThread::DispatchJobQueue, this);
 	}
 
-	TaskQueueThread::TaskQueueThread(std::pmr::memory_resource& allocator) noexcept(false) : TaskQueue_ {&allocator}
+	TaskQueueThread::TaskQueueThread(std::pmr::memory_resource& allocator) : TaskQueue_ {&allocator}
 	{
 		this->Worker_ = std::thread(&TaskQueueThread::DispatchJobQueue, this);
 	}
@@ -263,7 +263,7 @@ namespace Nominax::Core
 		this->Worker_.join();
 	}
 
-	auto TaskQueueThread::Join() noexcept(false) -> void
+	auto TaskQueueThread::Join() -> void
 	{
 		std::unique_lock lock {this->QueueMutex_};
 		this->SharedCondition_.wait(lock, [this]
@@ -272,7 +272,7 @@ namespace Nominax::Core
 		});
 	}
 
-	auto TaskQueueThread::Enqueue(TaskRoutine&& target) noexcept(false) -> void
+	auto TaskQueueThread::Enqueue(TaskRoutine&& target) -> void
 	{
 		std::lock_guard lock {this->QueueMutex_};
 		this->TaskQueue_.push(std::move(target));

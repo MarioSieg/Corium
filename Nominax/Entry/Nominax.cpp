@@ -207,7 +207,13 @@
 
 #include "../Include/Nominax/Nominax.hpp"
 
-using namespace Nominax::Prelude;
+using namespace Nominax;
+using namespace Arch;
+using namespace ByteCode;
+using namespace Core;
+using namespace System;
+using namespace Common;
+using namespace VectorLib;
 
 auto main(const signed argc, const char* const* const argv) -> signed
 {

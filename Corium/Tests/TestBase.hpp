@@ -209,9 +209,17 @@
 
 #include "gtest/gtest.h"
 #include "../Source/Base.hpp"
-#include "../Source/Keywords.hpp"
-#include "../Source/Lexeme.hpp"
+#include "../Source/Keyword.hpp"
+#include "../Source/Token.hpp"
 #include "../Source/Lexer.hpp"
+#include "../Source/LexContext.hpp"
+#include "../Source/ParseContext.hpp"
 
-using namespace Nominax::Prelude;
+using namespace Nominax;
+using namespace Arch;
+using namespace ByteCode;
+using namespace Core;
+using namespace System;
+using namespace Common;
+using namespace VectorLib;
 using namespace Corium;

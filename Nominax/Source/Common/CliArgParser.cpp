@@ -210,19 +210,19 @@
 
 namespace Nominax::Common
 {
-	CliArgParser::CliArgParser(const signed argc, const char* const* const argv) noexcept(false)
+	CliArgParser::CliArgParser(const signed argc, const char* const* const argv)
 	{
 		Args_.reserve(argc);
 		Args_.insert(argv, argc + argv);
 	}
 
-	auto CliArgParser::AddOption(const std::string_view name, const std::string_view description) noexcept(false) -> bool
+	auto CliArgParser::AddOption(const std::string_view name, const std::string_view description) -> bool
 	{
 		Options_.emplace_back(std::make_pair(name, description));
 		return this->HasFlag(name);
 	}
 
-	auto CliArgParser::PrintAllOptions() noexcept(false) -> void
+	auto CliArgParser::PrintAllOptions() -> void
 	{
 		for (const auto& [k, v] : this->Options_)
 		{
@@ -230,22 +230,22 @@ namespace Nominax::Common
 		}
 	}
 
-	auto CliArgParser::IsEmpty() const noexcept(true) -> bool
+	auto CliArgParser::IsEmpty() const -> bool
 	{
 		return this->Args_.size() <= 1;
 	}
 
-	auto CliArgParser::GetArgs() const noexcept(true) -> const std::unordered_set<std::string_view>&
+	auto CliArgParser::GetArgs() const -> const std::unordered_set<std::string_view>&
 	{
 		return this->Args_;
 	}
 
-	auto CliArgParser::GetOptions() const noexcept(true) -> const std::vector<std::pair<std::string_view, std::string_view>>&
+	auto CliArgParser::GetOptions() const -> const std::vector<std::pair<std::string_view, std::string_view>>&
 	{
 		return this->Options_;
 	}
 
-	auto CliArgParser::HasFlag(const std::string_view key) noexcept(true) -> bool
+	auto CliArgParser::HasFlag(const std::string_view key) -> bool
 	{
 		return std::ranges::find(this->Args_, key) != this->Args_.end();
 	}

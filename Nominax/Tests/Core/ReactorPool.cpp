@@ -230,6 +230,8 @@ TEST(ReactorPool, Construct)
 	ASSERT_EQ(pool.GetReactor(3).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
 }
 
+#ifdef NOMINAX_DEATH_TESTS
+
 TEST(ReactorPool, ZeroSizeFault)
 {
 	ASSERT_DEATH_IF_SUPPORTED([]()
@@ -238,3 +240,5 @@ TEST(ReactorPool, ZeroSizeFault)
 	                          ReactorPool x(Resource, 0, ReactorSpawnDescriptor::Default());
 	                          }(), "");
 }
+
+#endif

@@ -210,6 +210,7 @@
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
 #include <algorithm>
+#include <codecvt>
 #include <execution>
 #include <locale>
 #include <fstream>
@@ -222,7 +223,7 @@ namespace Nominax::Common
 		const TextFile::StringType&         source,
 		const size_t                        offset = 0,
 		const TextFile::ViewType::size_type count  = std::numeric_limits<TextFile::ViewType::size_type>::max()
-	) noexcept(true) -> TextFile::ViewType
+	) -> TextFile::ViewType
 	{
 		if (NOMINAX_LIKELY(offset < source.size()))
 		{
@@ -241,12 +242,12 @@ namespace Nominax::Common
 		std::string&&                     source,
 		const size_t                      offset = 0,
 		const std::string_view::size_type count  = std::numeric_limits<std::string_view::size_type>::max()
-	) noexcept(true) -> std::string_view = delete;
+	) -> std::string_view = delete;
 
-	auto TextFile::WriteToFile(std::filesystem::path&& path) noexcept(false) -> bool
+	auto TextFile::WriteToFile(std::filesystem::path&& path) -> bool
 	{
 		this->FilePath_ = std::move(path);
-		OutputStream stream {this->FilePath_};
+		std::ofstream stream {this->FilePath_};
 		if (NOMINAX_UNLIKELY(!stream))
 		{
 			return false;
@@ -255,22 +256,22 @@ namespace Nominax::Common
 		return true;
 	}
 
-	auto TextFile::ReadFromFile(std::filesystem::path&& path) noexcept(false) -> bool
+	auto TextFile::ReadFromFile(std::filesystem::path&& path) -> bool
 	{
 		this->FilePath_ = std::move(path);
-		InputStream stream {this->FilePath_};
+		std::ifstream stream {this->FilePath_};
 		if (NOMINAX_UNLIKELY(!stream))
 		{
 			return false;
 		}
 		stream.seekg(0, std::ios::end);
-		this->Content_.reserve(stream.tellg());
+        this->Content_.resize(stream.tellg());
 		stream.seekg(0, std::ios::beg);
-		this->Content_.assign(std::istreambuf_iterator<CharType> {stream}, std::istreambuf_iterator<CharType> { });
+		stream.read(std::data(this->Content_), std::size(this->Content_));
 		return true;
 	}
 
-	auto TextFile::ReadFromFileOrPanic(std::filesystem::path&& path) noexcept(false) -> void
+	auto TextFile::ReadFromFileOrPanic(std::filesystem::path&& path) -> void
 	{
 		if (NOMINAX_UNLIKELY(!this->ReadFromFile(std::move(path))))
 		{
@@ -278,12 +279,12 @@ namespace Nominax::Common
 		}
 	}
 
-	auto TextFile::ParallelEraseSpaces() noexcept(false) -> void
+	auto TextFile::ParallelEraseSpaces() -> void
 	{
 		this->Content_.erase
 		(
 			std::remove_if(std::execution::par_unseq, std::begin(this->Content_), std::end(this->Content_),
-			               [](const char c) noexcept(true) -> bool
+			               [](const char c) -> bool
 			               {
 				               return c == ' ';
 			               }),
@@ -291,12 +292,12 @@ namespace Nominax::Common
 		);
 	}
 
-	auto TextFile::ParallelEraseSpacesAndControlChars() noexcept(false) -> void
+	auto TextFile::ParallelEraseSpacesAndControlChars() -> void
 	{
 		this->Content_.erase
 		(
 			std::remove_if(std::execution::par_unseq, std::begin(this->Content_), std::end(this->Content_),
-			               [](const char c) noexcept(true) -> bool
+			               [](const char c) -> bool
 			               {
 				               return std::isspace<char>(c, std::locale::classic());
 			               }),
@@ -304,12 +305,12 @@ namespace Nominax::Common
 		);
 	}
 
-	auto TextFile::ParallelErase(const CharType x) noexcept(false) -> void
+	auto TextFile::ParallelErase(const CharType x) -> void
 	{
 		this->Content_.erase
 		(
 			std::remove_if(std::execution::par_unseq, std::begin(this->Content_), std::end(this->Content_),
-			               [x](const char c) noexcept(true) -> bool
+			               [x](const char c) -> bool
 			               {
 				               return c == x;
 			               }),
@@ -317,19 +318,19 @@ namespace Nominax::Common
 		);
 	}
 
-	auto TextFile::EraseRange(const CharType begin, const CharType end) noexcept(false) -> void
+	auto TextFile::EraseRange(const CharType begin, const CharType end) -> void
 	{
 		const std::size_t beginIndex {this->Content_.find(begin)};
 		const std::size_t endIndex {this->Content_.find(end, beginIndex + 1)};
 		this->Content_.erase(beginIndex, endIndex - beginIndex + 1);
 	}
 
-	auto TextFile::SubString(const std::size_t beginIdx, const std::size_t endIdx) const noexcept(true) -> ViewType
+	auto TextFile::SubString(const std::size_t beginIdx, const std::size_t endIdx) const -> ViewType
 	{
 		return SubstringView(this->Content_, beginIdx, endIdx - beginIdx + 1);
 	}
 
-	auto TextFile::SubStringChar(const CharType beginChar, const CharType endChar) const noexcept(true) -> ViewType
+	auto TextFile::SubStringChar(const CharType beginChar, const CharType endChar) const -> ViewType
 	{
 		const std::size_t beginIndex {this->Content_.find_first_of(beginChar)};
 		const std::size_t endIndex {this->Content_.find_first_of(endChar, beginIndex + 1)};

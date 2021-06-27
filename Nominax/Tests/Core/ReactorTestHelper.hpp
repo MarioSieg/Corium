@@ -211,7 +211,7 @@
 
 constexpr IntrinsicRoutine* MOCK_INTRINSIC_ROUTINE
 {
-	+[]([[maybe_unused]] Record*) noexcept(true) -> void { }
+	+[]([[maybe_unused]] Record*) -> void { }
 };
 
 constexpr std::array MOCK_INTRINSIC_ROUTINE_TABLE
@@ -227,7 +227,7 @@ inline constinit std::array<Record, MOCK_STACK_SIZE> MockStack {Record::Padding(
 
 constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
 {
-	+[](InterruptAccumulator) noexcept(true) -> void { }
+	+[](InterruptAccumulator) -> void { }
 };
 
 constexpr VerboseReactorDescriptor MOCK_REACTOR_INPUT

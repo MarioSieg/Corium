@@ -214,7 +214,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Compute relative jump address.
 	/// </summary>
-	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(ByteCode::Signal* const base, const ByteCode::JumpAddress address) noexcept(true) -> void*
+	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(const ByteCode::Signal* const base, const ByteCode::JumpAddress address) -> const void*
 	{
 		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
 	}
@@ -267,13 +267,13 @@ namespace Nominax::Core
 	/// <returns>true on success, else false.</returns>
 	[[maybe_unused]]
 	[[nodiscard]]
-	extern auto MapJumpTable
+	extern auto PerformJumpTableMapping
 	(
 		ByteCode::Signal* __restrict__       bucket,
 		const ByteCode::Signal* __restrict__ bucketEnd,
 		const bool*                          jumpAddressMap,
 		JumpTable                            jumpTable
-	) noexcept(false) -> bool;
+	) -> bool;
 
 	/// <summary>
 	/// Checks if all pointers inside the jump table are non null.
@@ -286,7 +286,7 @@ namespace Nominax::Core
 	(
 		JumpTable         jumpTable,
 		const std::size_t jumpTableSize
-	) noexcept(true) -> bool
+	) -> bool
 	{
 		if (!jumpTable || !jumpTableSize)
 		{
@@ -303,4 +303,13 @@ namespace Nominax::Core
 		}
 		return true;
 	}
+
+	/// <summary>
+	/// Calculates an instruction mapping.
+	/// Input and output must have the same size.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <returns></returns>
+	extern auto ComputeInstructionMapBinding(std::span<const ByteCode::Signal::Discriminator> input, std::span<bool>& output) -> bool;
 }

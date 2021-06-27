@@ -211,7 +211,7 @@
 
 namespace Nominax::Common
 {
-	auto ILog2DeBruijn(U64 x) noexcept(true) -> U64
+	auto ILog2DeBruijn(U64 x) -> U64
 	{
 		static constexpr std::array<U64, 64> DE_BRUIJN_TABLE
 		{
@@ -243,7 +243,7 @@ namespace Nominax::Common
 		return DE_BRUIJN_TABLE[x * UINT64_C(0x03F6EAF2CD271461) >> UINT64_C(58)];
 	}
 
-	auto LinearizeCoords2D(const U16 x, const U16 y) noexcept(true) -> U32
+	auto LinearizeCoords2D(const U16 x, const U16 y) -> U32
 	{
 		static constexpr std::array<U16, 256> MORTON_TABLE
 		{

@@ -222,12 +222,12 @@ namespace Nominax::Common
 		/// <summary>
 		/// String type alias.
 		/// </summary>
-		using StringType = std::u8string;
+		using StringType = std::string;
 
 		/// <summary>
 		/// String view type.
 		/// </summary>
-		using ViewType = std::u8string_view;
+		using ViewType = std::string_view;
 
 	private:
 		/// <summary>
@@ -260,14 +260,14 @@ namespace Nominax::Common
 		/// Construct empty.
 		/// </summary>
 		/// <returns></returns>
-		TextFile() noexcept(true) = default;
+		TextFile() = default;
 
 		/// <summary>
 		/// Construct with content.
 		/// </summary>
 		/// <param name="content">Content of the file.</param>
 		/// <returns></returns>
-		explicit TextFile(StringType&& content) noexcept(true);
+		explicit TextFile(StringType&& content);
 
 		/// <summary>
 		/// Construct with path and content.
@@ -275,7 +275,7 @@ namespace Nominax::Common
 		/// <param name="path"></param>
 		/// <param name="content"></param>
 		/// <returns></returns>
-		TextFile(std::filesystem::path&& path, StringType&& content) noexcept(true);
+		TextFile(std::filesystem::path&& path, StringType&& content);
 
 		/// <summary>
 		/// No copy.
@@ -315,7 +315,7 @@ namespace Nominax::Common
 		/// <param name="path"></param>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		auto WriteToFile(std::filesystem::path&& path) noexcept(false) -> bool;
+		auto WriteToFile(std::filesystem::path&& path) -> bool;
 
 		/// <summary>
 		/// Reads the content of the file into this class instance content.
@@ -323,89 +323,96 @@ namespace Nominax::Common
 		/// <param name="path"></param>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		auto ReadFromFile(std::filesystem::path&& path) noexcept(false) -> bool;
+		auto ReadFromFile(std::filesystem::path&& path) -> bool;
 
 		/// <summary>
 		/// Reads the content of the file into this class instance and panics on any failture.
 		/// </summary>
 		/// <param name="path"></param>
 		/// <returns></returns>
-		auto ReadFromFileOrPanic(std::filesystem::path&& path) noexcept(false) -> void;
+		auto ReadFromFileOrPanic(std::filesystem::path&& path) -> void;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current text file content.</returns>
 		[[nodiscard]]
-		auto GetContentText() const & noexcept(true) -> const StringType&;
+		auto GetContentText() const & -> const StringType&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current text file content.</returns>
 		[[nodiscard]]
-		auto GetContentText() && noexcept(true) -> StringType&&;
+		auto GetContentText() & -> StringType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current text file content.</returns>
+		[[nodiscard]]
+		auto GetContentText() && -> StringType&&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current file path.</returns>
 		[[nodiscard]]
-		auto GetFilePath() const & noexcept(true) -> const std::filesystem::path&;
+		auto GetFilePath() const & -> const std::filesystem::path&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current file path.</returns>
 		[[nodiscard]]
-		auto GetFilePath() && noexcept(true) -> std::filesystem::path&&;
+		auto GetFilePath() && -> std::filesystem::path&&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>True if the content is empty, else false.</returns>
 		[[nodiscard]]
-		auto IsEmpty() const noexcept(true) -> bool;
+		auto IsEmpty() const -> bool;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The capacity of the content.</returns>
 		[[nodiscard]]
-		auto GetCapacity() const noexcept(true) -> std::size_t;
+		auto GetCapacity() const -> std::size_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the content - the number of characters.</returns>
 		[[nodiscard]]
-		auto GetSize() const noexcept(true) -> std::size_t;
+		auto GetSize() const -> std::size_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the content in bytes (capacity * charSize)</returns>
 		[[nodiscard]]
-		auto GetSizeInBytes() const noexcept(true) -> std::size_t;
+		auto GetSizeInBytes() const -> std::size_t;
 
 		/// <summary>
 		/// Removes all the spaces (' ') from the content in parallel.
 		/// </summary>
 		/// <returns></returns>
-		auto ParallelEraseSpaces() noexcept(false) -> void;
+		auto ParallelEraseSpaces() -> void;
 
 		/// <summary>
 		/// Removes all spaces and control characters from the content in parallel.
 		/// </summary>
 		/// <returns></returns>
-		auto ParallelEraseSpacesAndControlChars() noexcept(false) -> void;
+		auto ParallelEraseSpacesAndControlChars() -> void;
 
 		/// <summary>
 		/// Removes all the occurrences of the character in parallel.
 		/// </summary>
 		/// <param name="x"></param>
 		/// <returns></returns>
-		auto ParallelErase(CharType x) noexcept(false) -> void;
+		auto ParallelErase(CharType x) -> void;
 
 		/// <summary>
 		/// Searches all the ranges between the two chars and removes the text between them and themselves.
@@ -413,7 +420,7 @@ namespace Nominax::Common
 		/// <param name="begin"></param>
 		/// <param name="end"></param>
 		/// <returns></returns>
-		auto EraseRange(CharType begin, CharType end) noexcept(false) -> void;
+		auto EraseRange(CharType begin, CharType end) -> void;
 
 		/// <summary>
 		/// Get a substring string view to the
@@ -423,7 +430,7 @@ namespace Nominax::Common
 		/// <param name="endIdx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto SubString(std::size_t beginIdx, std::size_t endIdx) const noexcept(true) -> ViewType;
+		auto SubString(std::size_t beginIdx, std::size_t endIdx) const -> ViewType;
 
 		/// <summary>
 		/// Get a substring string view to the
@@ -433,148 +440,153 @@ namespace Nominax::Common
 		/// <param name="endChar"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto SubStringChar(CharType beginChar, CharType endChar) const noexcept(true) -> ViewType;
+		auto SubStringChar(CharType beginChar, CharType endChar) const -> ViewType;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto begin() noexcept(true) -> StringType::iterator;
+		auto begin() -> StringType::iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto end() noexcept(true) -> StringType::iterator;
+		auto end() -> StringType::iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto rbegin() noexcept(true) -> StringType::reverse_iterator;
+		auto rbegin() -> StringType::reverse_iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto rend() noexcept(true) -> StringType::reverse_iterator;
+		auto rend() -> StringType::reverse_iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto cbegin() const noexcept(true) -> StringType::const_iterator;
+		auto cbegin() const -> StringType::const_iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto cend() const noexcept(true) -> StringType::const_iterator;
+		auto cend() const -> StringType::const_iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto crbegin() const noexcept(true) -> StringType::const_reverse_iterator;
+		auto crbegin() const -> StringType::const_reverse_iterator;
 
 		/// <summary>
 		/// STL iterator compat.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto crend() const noexcept(true) -> StringType::const_reverse_iterator;
+		auto crend() const -> StringType::const_reverse_iterator;
 	};
 
-	inline TextFile::TextFile(StringType&& content) noexcept(true)
+	inline TextFile::TextFile(StringType&& content)
 		: Content_ {std::move(content)} { }
 
-	inline TextFile::TextFile(std::filesystem::path&& path, StringType&& content) noexcept(true)
+	inline TextFile::TextFile(std::filesystem::path&& path, StringType&& content)
 		: Content_ {std::move(content)},
 		  FilePath_ {std::move(path)} { }
 
-	inline auto TextFile::GetContentText() const & noexcept(true) -> const StringType&
+	inline auto TextFile::GetContentText() const & -> const StringType&
 	{
 		return this->Content_;
 	}
 
-	inline auto TextFile::GetContentText() && noexcept(true) -> StringType&&
+	inline auto TextFile::GetContentText() & -> StringType&
+	{
+		return this->Content_;
+	}
+
+	inline auto TextFile::GetContentText() && -> StringType&&
 	{
 		return std::move(this->Content_);
 	}
 
-	inline auto TextFile::GetFilePath() const & noexcept(true) -> const std::filesystem::path&
+	inline auto TextFile::GetFilePath() const & -> const std::filesystem::path&
 	{
 		return this->FilePath_;
 	}
 
-	inline auto TextFile::GetFilePath() && noexcept(true) -> std::filesystem::path&&
+	inline auto TextFile::GetFilePath() && -> std::filesystem::path&&
 	{
 		return std::move(this->FilePath_);
 	}
 
-	inline auto TextFile::IsEmpty() const noexcept(true) -> bool
+	inline auto TextFile::IsEmpty() const -> bool
 	{
 		return this->Content_.empty();
 	}
 
-	inline auto TextFile::GetCapacity() const noexcept(true) -> std::size_t
+	inline auto TextFile::GetCapacity() const -> std::size_t
 	{
 		return this->Content_.capacity();
 	}
 
-	inline auto TextFile::GetSize() const noexcept(true) -> std::size_t
+	inline auto TextFile::GetSize() const -> std::size_t
 	{
 		return this->Content_.size();
 	}
 
-	inline auto TextFile::GetSizeInBytes() const noexcept(true) -> std::size_t
+	inline auto TextFile::GetSizeInBytes() const -> std::size_t
 	{
 		return this->Content_.capacity() * sizeof(CharType);
 	}
 
-	inline auto TextFile::begin() noexcept(true) -> StringType::iterator
+	inline auto TextFile::begin() -> StringType::iterator
 	{
 		return std::begin(this->Content_);
 	}
 
-	inline auto TextFile::end() noexcept(true) -> StringType::iterator
+	inline auto TextFile::end() -> StringType::iterator
 	{
 		return std::end(this->Content_);
 	}
 
-	inline auto TextFile::rbegin() noexcept(true) -> StringType::reverse_iterator
+	inline auto TextFile::rbegin() -> StringType::reverse_iterator
 	{
 		return std::rbegin(this->Content_);
 	}
 
-	inline auto TextFile::rend() noexcept(true) -> StringType::reverse_iterator
+	inline auto TextFile::rend() -> StringType::reverse_iterator
 	{
 		return std::rend(this->Content_);
 	}
 
-	inline auto TextFile::cbegin() const noexcept(true) -> StringType::const_iterator
+	inline auto TextFile::cbegin() const -> StringType::const_iterator
 	{
 		return std::cbegin(this->Content_);
 	}
 
-	inline auto TextFile::cend() const noexcept(true) -> StringType::const_iterator
+	inline auto TextFile::cend() const -> StringType::const_iterator
 	{
 		return std::cend(this->Content_);
 	}
 
-	inline auto TextFile::crbegin() const noexcept(true) -> StringType::const_reverse_iterator
+	inline auto TextFile::crbegin() const -> StringType::const_reverse_iterator
 	{
 		return std::crbegin(this->Content_);
 	}
 
-	inline auto TextFile::crend() const noexcept(true) -> StringType::const_reverse_iterator
+	inline auto TextFile::crend() const -> StringType::const_reverse_iterator
 	{
 		return std::crend(this->Content_);
 	}
@@ -584,7 +596,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto begin(TextFile& file) noexcept(true) -> TextFile::StringType::iterator
+	inline auto begin(TextFile& file) -> TextFile::StringType::iterator
 	{
 		return file.begin();
 	}
@@ -594,7 +606,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto end(TextFile& file) noexcept(true) -> TextFile::StringType::iterator
+	inline auto end(TextFile& file) -> TextFile::StringType::iterator
 	{
 		return file.end();
 	}
@@ -604,7 +616,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto rbegin(TextFile& file) noexcept(true) -> TextFile::StringType::reverse_iterator
+	inline auto rbegin(TextFile& file) -> TextFile::StringType::reverse_iterator
 	{
 		return file.rbegin();
 	}
@@ -614,7 +626,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto rend(TextFile& file) noexcept(true) -> TextFile::StringType::reverse_iterator
+	inline auto rend(TextFile& file) -> TextFile::StringType::reverse_iterator
 	{
 		return file.rend();
 	}
@@ -624,7 +636,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto cbegin(const TextFile& file) noexcept(true) -> TextFile::StringType::const_iterator
+	inline auto cbegin(const TextFile& file) -> TextFile::StringType::const_iterator
 	{
 		return file.cbegin();
 	}
@@ -634,7 +646,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto cend(const TextFile& file) noexcept(true) -> TextFile::StringType::const_iterator
+	inline auto cend(const TextFile& file) -> TextFile::StringType::const_iterator
 	{
 		return file.cend();
 	}
@@ -644,7 +656,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto crbegin(const TextFile& file) noexcept(true) -> TextFile::StringType::const_reverse_iterator
+	inline auto crbegin(const TextFile& file) -> TextFile::StringType::const_reverse_iterator
 	{
 		return file.crbegin();
 	}
@@ -654,7 +666,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto crend(const TextFile& file) noexcept(true) -> TextFile::StringType::const_reverse_iterator
+	inline auto crend(const TextFile& file) -> TextFile::StringType::const_reverse_iterator
 	{
 		return file.crend();
 	}

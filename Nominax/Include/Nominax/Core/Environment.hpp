@@ -241,7 +241,7 @@ namespace Nominax
 			/// </summary>
 			struct ContextDeleter final
 			{
-				auto operator()(Context* kernel) const noexcept(true) -> void;
+				auto operator()(Context* kernel) const -> void;
 			};
 
 			/// <summary>
@@ -314,7 +314,7 @@ namespace Nominax
 			/// <summary>
 			/// Default constructor. Does not initialize the environment.
 			/// </summary>
-			explicit Environment(const Common::IAllocator* allocator = nullptr) noexcept(true);
+			explicit Environment(const Common::IAllocator* allocator = nullptr);
 
 			/// <summary>
 			/// No copy.
@@ -354,101 +354,101 @@ namespace Nominax
 			/// Will panic if fatal errors are encountered.
 			/// </summary>
 			/// <returns></returns>
-			auto Boot(const EnvironmentDescriptor& descriptor) noexcept(false) -> void;
+			auto Boot(const EnvironmentDescriptor& descriptor) -> void;
 
 			/// <summary>
 			/// Execute stream on alpha reactor.
 			/// </summary>
 			/// <param name="appCode"></param>
 			/// <returns></returns>
-			auto Execute(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorState&;
+			auto Execute(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 			/// <summary>
 			/// Execute stream on alpha reactor.
 			/// </summary>
 			/// <param name="appCode"></param>
 			/// <returns></returns>
-			auto operator()(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorState&;
+			auto operator()(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 			/// <summary>
 			/// Shutdown runtime environment.
 			/// Will panic if fatal errors are encountered.
 			/// </summary>
 			/// <returns></returns>
-			auto Shutdown() noexcept(false) -> void;
+			auto Shutdown() -> void;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>True if the system is booted and online!</returns>
 			[[nodiscard]]
-			auto IsOnline() const noexcept(true) -> bool;
+			auto IsOnline() const -> bool;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The raw kernel pointer. Only useful for internal interop.-</returns>
 			[[nodiscard]]
-			auto GetKernel() const noexcept(true) -> const void*;
+			auto GetKernel() const -> const void*;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The boot time stamp.</returns>
 			[[nodiscard]]
-			auto GetBootStamp() const noexcept(false) -> std::chrono::high_resolution_clock::time_point;
+			auto GetBootStamp() const -> std::chrono::high_resolution_clock::time_point;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The boot time in milliseconds.</returns>
 			[[nodiscard]]
-			auto GetBootTime() const noexcept(false) -> std::chrono::milliseconds;
+			auto GetBootTime() const -> std::chrono::milliseconds;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The system stat snapshot.</returns>
 			[[nodiscard]]
-			auto GetSystemSnapshot() const noexcept(false) -> const System::Snapshot&;
+			auto GetSystemSnapshot() const -> const System::Snapshot&;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The cpu feature detector.</returns>
 			[[nodiscard]]
-			auto GetProcessorFeatureSnapshot() const noexcept(false) -> const System::CpuFeatureDetector&;
+			auto GetProcessorFeatureSnapshot() const -> const System::CpuFeatureDetector&;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The app name for which the environment is hosted for.</returns>
 			[[nodiscard]]
-			auto GetAppName() const noexcept(false) -> const std::pmr::string&;
+			auto GetAppName() const -> const std::pmr::string&;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The size of the system pool in bytes.</returns>
 			[[nodiscard]]
-			auto GetMonotonicSystemPoolSize() const noexcept(false) -> std::size_t;
+			auto GetMonotonicSystemPoolSize() const -> std::size_t;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The count of reactor executions so far.</returns>
 			[[nodiscard]]
-			auto GetExecutionCount() const noexcept(false) -> std::size_t;
+			auto GetExecutionCount() const -> std::size_t;
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <returns>The history of execution times.</returns>
 			[[nodiscard]]
-			auto GetExecutionTimeHistory() const noexcept(false) -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
+			auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
 		};
 
-		inline auto Environment::operator()(ByteCode::Stream&& appCode) noexcept(false) -> const ReactorState&
+		inline auto Environment::operator()(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>
 		{
 			return this->Execute(std::move(appCode));
 		}

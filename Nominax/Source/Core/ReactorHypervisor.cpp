@@ -230,7 +230,7 @@ namespace Nominax::Core
 #endif
 	};
 
-	auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization
+	auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
 	{
 #if NOMINAX_ARCH_X86_64
 
@@ -246,22 +246,36 @@ namespace Nominax::Core
 			return ReactorCoreSpecialization::X86_64_AVX;
 		}
 
-		// else, do not use fallback:
-		return ReactorCoreSpecialization::Fallback;
-
 #elif NOMINAX_ARCH_ARM_64
 #	error "ARM64 not yet supported!"
 #endif
+
+		return ReactorCoreSpecialization::Fallback;
 	}
 
-	auto GetReactorRegistry() noexcept(true) -> const ReactorRegistry&
+	auto GetReactorRegistry() -> const ReactorRegistry&
 	{
 		return REACTOR_REGISTRY;
 	}
 
-	auto GetFallbackRoutineLink() noexcept(true) -> ReactorRoutineLink
+	ReactorRoutineLink::ReactorRoutineLink(const ReactorCoreSpecialization specialization, ReactorCoreExecutionRoutine* const executionRoutine, const void** const jumpTable)
+		: Specialization {specialization}, ExecutionRoutine {executionRoutine}, JumpTable {jumpTable}
 	{
-		return std::make_tuple(ReactorCoreSpecialization::Fallback, GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback));
+		NOMINAX_PANIC_ASSERT_NOT_NULL(this->ExecutionRoutine, "Routine for reactor routine link is null!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
+	}
+
+	auto GetFallbackRoutineLink() -> ReactorRoutineLink
+	{
+		const auto                         specialization {ReactorCoreSpecialization::Fallback};
+		ReactorCoreExecutionRoutine* const routine {GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)};
+		const void** const                 jumpTable {QueryJumpTable(*routine)};
+		return
+		{
+			specialization,
+			routine,
+			jumpTable
+		};
 	}
 
 	auto GetReactorRoutineFromRegistryByTarget(const ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*
@@ -276,23 +290,37 @@ namespace Nominax::Core
 		static thread_local constinit U16 QueryCounter;
 		ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
 		ReactorCoreExecutionRoutine*      routine {GetReactorRoutineFromRegistryByTarget(specialization)};
+		const void**                      jumpTable {QueryJumpTable(*routine)};
 		Common::Print
 		(
 			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry Size: {}\n",
 			GetReactorCoreSpecializationName(specialization),
 			static_cast<std::uint64_t>(specialization),
 			++QueryCounter,
-			REACTOR_REGISTRY.size()
+			std::size(REACTOR_REGISTRY)
 		);
 		if (NOMINAX_UNLIKELY(QueryCounter > 1))
 		{
 			Print(Common::LogLevel::Warning, "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n", QueryCounter);
 		}
-		return std::make_tuple(specialization, routine);
+		return
+		{
+			specialization,
+			routine,
+			jumpTable
+		};
 	}
 
-	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target) noexcept(true) -> void
+	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target, const void**** outJumpTable) -> ReactorShutdownReason
 	{
-		std::get<1>(GetOptimalReactorRoutine(target))(input, output);
+		return GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable);
+	}
+
+	auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**
+	{
+		const void**   jumpTable { };
+		const void** * proxy {&jumpTable};
+		const void**** writer {&proxy};
+		return routine(nullptr, nullptr, writer) == ReactorShutdownReason::Success ? jumpTable : nullptr;
 	}
 }

@@ -209,5 +209,5 @@
 
 namespace Nominax::Common
 {
-	extern auto NominaxMain(signed argc, const char* const* argv) noexcept(false) -> signed;
+	extern auto NominaxMain(signed argc, const char* const* argv) -> signed;
 }

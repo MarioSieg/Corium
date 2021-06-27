@@ -223,12 +223,12 @@ namespace Nominax::ByteCode
 		U64                    Merged;
 	};
 
-	inline auto operator ==(const CharClusterUtf8 left, const CharClusterUtf8 right) noexcept(true) -> bool
+	inline auto operator ==(const CharClusterUtf8 left, const CharClusterUtf8 right) -> bool
 	{
 		return left.Merged == right.Merged;
 	}
 
-	inline auto operator !=(const CharClusterUtf8 left, const CharClusterUtf8 right) noexcept(true) -> bool
+	inline auto operator !=(const CharClusterUtf8 left, const CharClusterUtf8 right) -> bool
 	{
 		return left.Merged == right.Merged;
 	}
@@ -241,7 +241,7 @@ namespace Nominax::ByteCode
 	/// <param name="data"></param>
 	/// <param name="count"></param>
 	/// <returns></returns>
-	constexpr auto operator "" _cluster(const char8_t* const data, const std::size_t count) noexcept(true) -> CharClusterUtf8
+	constexpr auto operator "" _cluster(const char8_t* const data, const std::size_t count) -> CharClusterUtf8
 	{
 		CharClusterUtf8 result { };
 		for (std::size_t i {0}; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
@@ -263,12 +263,12 @@ namespace Nominax::ByteCode
 		U64                     Merged;
 	};
 
-	inline auto operator ==(const CharClusterUtf16 left, const CharClusterUtf16 right) noexcept(true) -> bool
+	inline auto operator ==(const CharClusterUtf16 left, const CharClusterUtf16 right) -> bool
 	{
 		return left.Merged == right.Merged;
 	}
 
-	inline auto operator !=(const CharClusterUtf16 left, const CharClusterUtf16 right) noexcept(true) -> bool
+	inline auto operator !=(const CharClusterUtf16 left, const CharClusterUtf16 right) -> bool
 	{
 		return left.Merged == right.Merged;
 	}
@@ -284,12 +284,12 @@ namespace Nominax::ByteCode
 		U64                     Merged;
 	};
 
-	inline auto operator ==(const CharClusterUtf32 left, const CharClusterUtf32 right) noexcept(true) -> bool
+	inline auto operator ==(const CharClusterUtf32 left, const CharClusterUtf32 right) -> bool
 	{
 		return left.Merged == right.Merged;
 	}
 
-	inline auto operator !=(const CharClusterUtf32 left, const CharClusterUtf32 right) noexcept(true) -> bool
+	inline auto operator !=(const CharClusterUtf32 left, const CharClusterUtf32 right) -> bool
 	{
 		return left.Merged == right.Merged;
 	}

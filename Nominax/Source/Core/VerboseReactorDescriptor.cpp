@@ -211,7 +211,7 @@
 
 namespace Nominax::Core
 {
-	auto VerboseReactorDescriptor::Validate() const noexcept(true) -> ReactorValidationResult
+	auto VerboseReactorDescriptor::Validate() const -> ReactorValidationResult
 	{
 		// validate all pointers:
 		if (NOMINAX_UNLIKELY(!this->CodeChunk || !this->InterruptHandler || !this->Stack))

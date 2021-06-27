@@ -209,7 +209,7 @@
 
 namespace Nominax::Common
 {
-	auto NominaxMain(const signed argc, const char* const* const argv) noexcept(false) -> signed
+	auto NominaxMain(const signed argc, const char* const* const argv) -> signed
 	{
 		{
 			CliArgParser argParser {argc, argv};

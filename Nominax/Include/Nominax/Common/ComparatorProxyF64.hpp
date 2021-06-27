@@ -213,7 +213,7 @@
 
 namespace Nominax::Common
 {
-	__attribute__((always_inline, pure)) inline auto Proxy_F64IsZero(const F64 x) noexcept(true) -> bool
+	__attribute__((always_inline, pure)) inline auto Proxy_F64IsZero(const F64 x) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return F64IsZero(x);
@@ -222,7 +222,7 @@ namespace Nominax::Common
 #endif
 	}
 
-	__attribute__((always_inline, pure)) inline auto Proxy_F64IsOne(const F64 x) noexcept(true) -> bool
+	__attribute__((always_inline, pure)) inline auto Proxy_F64IsOne(const F64 x) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return F64IsOne(x);
@@ -231,7 +231,7 @@ namespace Nominax::Common
 #endif
 	}
 
-	__attribute__((always_inline, pure)) inline auto Proxy_F64Equals(const F64 x, const F64 y) noexcept(true) -> bool
+	__attribute__((always_inline, pure)) inline auto Proxy_F64Equals(const F64 x, const F64 y) -> bool
 	{
 #if NOMINAX_OPT_USE_ZERO_EPSILON
 		return F64Equals(x, y);

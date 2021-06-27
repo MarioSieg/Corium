@@ -246,8 +246,9 @@ TEST(ReactorHypervisor, GetOptionalReactorRoutine)
 {
 	std::array<std::byte, sizeof(CpuFeatureDetector)> features { };
 	const ReactorRoutineLink                          data {GetOptimalReactorRoutine(*reinterpret_cast<CpuFeatureDetector*>(features.data()))};
-	ASSERT_EQ(std::get<0>(data), ReactorCoreSpecialization::Fallback);
-	ASSERT_EQ(std::get<1>(data), GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback));
+	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::Fallback);
+	ASSERT_EQ(data.ExecutionRoutine, GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback));
+	ASSERT_NE(data.JumpTable, nullptr);
 }
 
 #if NOMINAX_ARCH_X86_64
@@ -297,8 +298,9 @@ TEST(ReactorHypervisor, GetOptionalReactorRoutineAvx)
 	CpuFeatureDetector features { };
 	const_cast<FeatureBits&>(*features).Avx = true;
 	const ReactorRoutineLink data {GetOptimalReactorRoutine(features)};
-	ASSERT_EQ(std::get<0>(data), ReactorCoreSpecialization::X86_64_AVX);
-	ASSERT_EQ(std::get<1>(data), GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX));
+	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::X86_64_AVX);
+	ASSERT_EQ(data.ExecutionRoutine, GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX));
+	ASSERT_NE(data.JumpTable, nullptr);
 }
 
 TEST(ReactorHypervisor, GetOptionalReactorRoutineAvx512)
@@ -306,8 +308,9 @@ TEST(ReactorHypervisor, GetOptionalReactorRoutineAvx512)
 	CpuFeatureDetector features { };
 	const_cast<FeatureBits&>(*features).Avx512F = true;
 	const ReactorRoutineLink data {GetOptimalReactorRoutine(features)};
-	ASSERT_EQ(std::get<0>(data), ReactorCoreSpecialization::X86_64_AVX512F);
-	ASSERT_EQ(std::get<1>(data), GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX512F));
+	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::X86_64_AVX512F);
+	ASSERT_EQ(data.ExecutionRoutine, GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX512F));
+	ASSERT_NE(data.JumpTable, nullptr);
 }
 
 #endif

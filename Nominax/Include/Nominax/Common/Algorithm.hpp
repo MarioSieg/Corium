@@ -208,6 +208,7 @@
 #pragma once
 
 #include <atomic>
+#include <climits>
 #include <functional>
 #include <iterator>
 #include <span>
@@ -226,10 +227,10 @@ namespace Nominax::Common
 	/// <param name="x"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T>
-	constexpr auto IsPowerOfTwo(const T x) noexcept(true) -> bool
+	constexpr auto IsPowerOfTwo(const T x) -> bool
 	{
 		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
-		return !(x & x - 1);
+		return !(x & (x - 1));
 	}
 
 	/// <summary>
@@ -238,7 +239,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	constexpr auto RoundUpPow2(U64 x) noexcept(true) -> U64
+	constexpr auto RoundUpPow2(U64 x) -> U64
 	{
 		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
 		--x;
@@ -256,7 +257,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns>The amount of bytes -> min: 1, max: 8</returns>
-	constexpr auto ComputeRequiredBytes(U64 x) noexcept(true) -> U8
+	constexpr auto ComputeRequiredBytes(U64 x) -> U8
 	{
 		U8 bytes {0};
 		do
@@ -274,7 +275,7 @@ namespace Nominax::Common
 	/// <param name="x"></param>
 	/// <param name="y"></param>
 	/// <returns></returns>
-	extern auto LinearizeCoords2D(U16 x, U16 y) noexcept(true) -> U32;
+	extern auto LinearizeCoords2D(U16 x, U16 y) -> U32;
 
 	/// <summary>
 	/// Fallback implementation for "ILog"
@@ -282,14 +283,14 @@ namespace Nominax::Common
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	extern auto ILog2DeBruijn(U64 x) noexcept(true) -> U64;
+	extern auto ILog2DeBruijn(U64 x) -> U64;
 
 	/// <summary>
 	/// Computes the binary logarithm of log2(2)
 	/// </summary>
 	/// <param name="x">Should not be 0!</param>
 	/// <returns></returns>
-	inline auto ILog2(U64 x) noexcept(true) -> U64
+	inline auto ILog2(U64 x) -> U64
 	{
 #if NOMINAX_USE_ARCH_OPT
 		--x;
@@ -320,7 +321,7 @@ namespace Nominax::Common
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename Iter, typename Func, typename... Args> requires RandomAccessIterator<Iter>
-	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) noexcept(false) -> void
+	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) -> void
 	{
 		using ValueType = const typename std::iterator_traits<Iter>::value_type;
 		using Span = std::span<ValueType>;
@@ -360,7 +361,7 @@ namespace Nominax::Common
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename T, typename Func, typename... Args>
-	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const std::span<const T> range, Func&& func, Args&&...args) noexcept(false) -> void
+	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const std::span<const T> range, Func&& func, Args&&...args) -> void
 	{
 		UniformChunkSplit<decltype(std::begin(range)), Func, Args...>(chunkCount, std::begin(range), std::end(range), std::forward<Func>(func), std::forward(args)...);
 	}
@@ -386,7 +387,7 @@ namespace Nominax::Common
 	/// <returns></returns>
 	template <typename VariantType, typename T, std::size_t Index = 0>
 	[[nodiscard]]
-	constexpr auto VariantIndexOf() noexcept(true) -> std::size_t
+	constexpr auto VariantIndexOf() -> std::size_t
 	{
 		if constexpr (Index == std::variant_size_v<VariantType> || std::is_same_v<std::variant_alternative_t<Index, VariantType>, T>)
 		{
@@ -408,7 +409,7 @@ namespace Nominax::Common
 	/// <returns></returns>
 	template <typename T> requires std::is_reference_v<T>
 	[[nodiscard]]
-	constexpr auto AdvanceRef(T&& iter) noexcept(true) -> T&&
+	constexpr auto AdvanceRef(T&& iter) -> T&&
 	{
 		return *(std::addressof(iter) + 1);
 	}
@@ -424,7 +425,7 @@ namespace Nominax::Common
 	/// <returns></returns>
 	template <typename T> requires std::is_reference_v<T>
 	[[nodiscard]]
-	constexpr auto DistanceRef(T&& iter, const std::remove_reference_t<T>* const begin) noexcept(true) -> std::ptrdiff_t
+	constexpr auto DistanceRef(T&& iter, const std::remove_reference_t<T>* const begin) -> std::ptrdiff_t
 	{
 		return std::addressof(iter) - begin;
 	}

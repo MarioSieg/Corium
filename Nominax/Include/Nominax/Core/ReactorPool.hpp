@@ -229,7 +229,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="desired">How many reactors the user requested. If zero, logical cpu count will be used.</param>
 		/// <returns>The best reactor count for the current system.</returns>
-		static auto SmartQueryReactorCount(std::size_t desired = 0) noexcept(false) -> std::size_t;
+		static auto SmartQueryReactorCount(std::size_t desired = 0) -> std::size_t;
 
 		/// <summary>
 		/// Minimal one reactor is required.
@@ -251,7 +251,7 @@ namespace Nominax::Core
 			std::size_t                              reactorCount,
 			const ReactorSpawnDescriptor&            config,
 			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt
-		) noexcept(false);
+		);
 
 		/// <summary>
 		/// No copy.
@@ -261,7 +261,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// No move.
 		/// </summary>
-		ReactorPool(ReactorPool&&) noexcept(true) = delete;
+		ReactorPool(ReactorPool&&) = delete;
 
 		/// <summary>
 		/// No copy.
@@ -283,21 +283,21 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>Returns the pool pointer.</returns>
 		[[nodiscard]]
-		auto GetBuffer() const noexcept(true) -> const Reactor*;
+		auto GetBuffer() const -> const Reactor*;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>Returns the size of the pool.</returns>
 		[[nodiscard]]
-		auto GetSize() const noexcept(true) -> std::size_t;
+		auto GetSize() const -> std::size_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>Returns the config used to create each reactor.</returns>
 		[[nodiscard]]
-		auto GetSpawnConfig() const noexcept(true) -> const ReactorSpawnDescriptor&;
+		auto GetSpawnConfig() const -> const ReactorSpawnDescriptor&;
 
 		/// <summary>
 		/// Returns the reactor at index.
@@ -305,7 +305,7 @@ namespace Nominax::Core
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetReactor(std::size_t idx) const noexcept(false) -> const Reactor&;
+		auto GetReactor(std::size_t idx) const -> const Reactor&;
 
 
 		/// <summary>
@@ -314,78 +314,78 @@ namespace Nominax::Core
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator [](std::size_t idx) const noexcept(false) -> const Reactor&;
+		auto operator [](std::size_t idx) const -> const Reactor&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The first reactor in the pool running on the main thread.</returns>
 		[[nodiscard]]
-		auto GetAlphaReactor() noexcept(true) -> Reactor&;
+		auto GetAlphaReactor() -> Reactor&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The first reactor in the pool running on the main thread.</returns>
 		[[nodiscard]]
-		auto operator *() noexcept(true) -> Reactor&;
+		auto operator *() -> Reactor&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The first reactor in the pool running on the main thread.</returns>
 		[[nodiscard]]
-		auto GetAlphaReactor() const noexcept(true) -> const Reactor&;
+		auto GetAlphaReactor() const -> const Reactor&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The first reactor in the pool running on the main thread.</returns>
 		[[nodiscard]]
-		auto operator *() const noexcept(true) -> const Reactor&;
+		auto operator *() const -> const Reactor&;
 	};
 
-	inline auto ReactorPool::GetBuffer() const noexcept(true) -> const Reactor*
+	inline auto ReactorPool::GetBuffer() const -> const Reactor*
 	{
 		return this->Pool_.data();
 	}
 
-	inline auto ReactorPool::GetSize() const noexcept(true) -> std::size_t
+	inline auto ReactorPool::GetSize() const -> std::size_t
 	{
 		return this->Pool_.size();
 	}
 
-	inline auto ReactorPool::GetSpawnConfig() const noexcept(true) -> const ReactorSpawnDescriptor&
+	inline auto ReactorPool::GetSpawnConfig() const -> const ReactorSpawnDescriptor&
 	{
 		return this->ReactorConfig_;
 	}
 
-	inline auto ReactorPool::GetReactor(const std::size_t idx) const noexcept(false) -> const Reactor&
+	inline auto ReactorPool::GetReactor(const std::size_t idx) const -> const Reactor&
 	{
 		return this->Pool_[idx];
 	}
 
-	inline auto ReactorPool::operator[](const std::size_t idx) const noexcept(false) -> const Reactor&
+	inline auto ReactorPool::operator[](const std::size_t idx) const -> const Reactor&
 	{
 		return this->GetReactor(idx);
 	}
 
-	inline auto ReactorPool::GetAlphaReactor() noexcept(true) -> Reactor&
+	inline auto ReactorPool::GetAlphaReactor() -> Reactor&
 	{
 		return this->Pool_.front();
 	}
 
-	inline auto ReactorPool::operator*() noexcept(true) -> Reactor&
+	inline auto ReactorPool::operator*() -> Reactor&
 	{
 		return this->Pool_.front();
 	}
 
-	inline auto ReactorPool::GetAlphaReactor() const noexcept(true) -> const Reactor&
+	inline auto ReactorPool::GetAlphaReactor() const -> const Reactor&
 	{
 		return this->Pool_.front();
 	}
 
-	inline auto ReactorPool::operator*() const noexcept(true) -> const Reactor&
+	inline auto ReactorPool::operator*() const -> const Reactor&
 	{
 		return this->Pool_.front();
 	}

@@ -211,7 +211,7 @@
 
 namespace Nominax::VectorLib
 {
-	__attribute__((always_inline)) inline auto F64_X2_To_F32_X2(F32* const __restrict__ out, const F64* const __restrict__ in) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F64_X2_To_F32_X2(F32* const __restrict__ out, const F64* const __restrict__ in) -> void
 	{
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
 		const __m128d x = _mm_loadu_pd(in);
@@ -223,7 +223,7 @@ namespace Nominax::VectorLib
 #endif
 	}
 
-	__attribute__((always_inline)) inline auto F64_X4_To_F32_X4(F32* const __restrict__ out, const F64* const __restrict__ in) noexcept(true) -> void
+	__attribute__((always_inline)) inline auto F64_X4_To_F32_X4(F32* const __restrict__ out, const F64* const __restrict__ in) -> void
 	{
 #if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
 		

@@ -219,7 +219,7 @@ namespace Nominax::ByteCode
 		O3 = 3
 	};
 
-	consteval auto DefaultOptimizationLevel() noexcept(true) -> OptimizationLevel
+	consteval auto DefaultOptimizationLevel() -> OptimizationLevel
 	{
 #if NOMINAX_DEBUG
 		return OptimizationLevel::O2;

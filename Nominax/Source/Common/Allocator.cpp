@@ -205,25 +205,66 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <cstring>
+#include <cstdlib>
+
 #include "../../Include/Nominax/Common/Allocator.hpp"
-#include "../../Include/Nominax/Common/RuntimeAllocator.hpp"
-#include "../../Include/Nominax/Common/DebugAllocator.hpp"
 
 namespace Nominax::Common
 {
-	static constexpr RuntimeAllocator SysRuntimeAllocator { };
-	static constexpr DebugAllocator   SysDebugAllocator { };
+    auto IAllocator::Allocate(void*& out, const std::size_t size) const -> void
+    {
+        out = static_cast<U8*>(std::malloc(size));
+    }
 
-	constinit const IAllocator& GlobalRuntimeAllocator {SysRuntimeAllocator};
-	constinit const IAllocator& GlobalDebugAllocator {SysDebugAllocator};
-	constinit const IAllocator* GlobalCurrentSystemAllocator {&DetermineAllocator()};
+    auto IAllocator::Reallocate(void*& out, const std::size_t size) const -> void
+    {
+        out = static_cast<U8*>(std::realloc(out, size));
+    }
 
-	auto IAllocator::Valloc(void*& out, const std::size_t size) const noexcept(true) -> void
+    auto IAllocator::Deallocate(void*& out) const -> void
+    {
+        std::free(out);
+        out = nullptr;
+    }
+
+    auto IAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
+    {
+#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
+        out = static_cast<U8*>(_aligned_malloc(size, alignment));
+#else
+        out = static_cast<U8*>(aligned_alloc(alignment, size));
+#endif
+    }
+
+    auto IAllocator::ReallocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
+    {
+#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
+        out = static_cast<U8*>(_aligned_realloc(out, size, alignment));
+#else
+        U8* mem {static_cast<U8*>(aligned_alloc(alignment, size))};
+        std::memcpy(mem, out, size);
+        std::free(out);
+        out = mem;
+#endif
+    }
+
+    auto IAllocator::DeallocateAligned(void*& out) const -> void
+    {
+#if NOMINAX_OS_WINDOWS && NOMINAX_COM_CLANG
+        _aligned_free(out);
+#else
+        std::free(out);
+#endif
+        out = nullptr;
+    }
+
+	auto IAllocator::Valloc(void*& out, const std::size_t size) const -> void
 	{
 		this->Allocate(out, size);
 	}
 
-	auto IAllocator::Vdealloc(void*& out) const noexcept(true) -> void
+	auto IAllocator::Vdealloc(void*& out) const -> void
 	{
 		this->Deallocate(out);
 	}

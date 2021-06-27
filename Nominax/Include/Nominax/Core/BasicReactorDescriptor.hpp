@@ -230,7 +230,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The detailed descriptor, created from this instance.</returns>
 		[[nodiscard]]
-		auto BuildDetailed() const noexcept(true) -> VerboseReactorDescriptor;
+		auto BuildDetailed() const -> VerboseReactorDescriptor;
 
 		/// <summary>
 		/// Will build a detailed descriptor out of this instance and validate it.
@@ -239,6 +239,6 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Validate() const noexcept(true) -> ReactorValidationResult;
+		auto Validate() const -> ReactorValidationResult;
 	};
 }

@@ -268,11 +268,11 @@ namespace Nominax::Core
 		/// The reactor stack size in bytes.
 		/// Must be divisible by 8!
 		/// </summary>
-		std::size_t StackSize{ 8_mb };
+		std::size_t StackSize {8_mb};
 
 		/// <summary>
 		/// Power preference of the system.
 		/// </summary>
-		PowerPreference PowerPref{ PowerPreference::HighPerformance };
+		PowerPreference PowerPref {PowerPreference::HighPerformance};
 	};
 }

@@ -211,5 +211,5 @@
 
 namespace Nominax::Arch::X86_64
 {
-	extern "C" auto Asm_MockCall() noexcept(true) -> U64;
+	extern "C" auto Asm_MockCall() -> U64;
 }

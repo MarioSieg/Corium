@@ -222,9 +222,9 @@ namespace Nominax::Common
 	/// <param name="alignment"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto IsAlignmentValid(const std::size_t alignment) noexcept(true) -> bool
+	constexpr auto IsAlignmentValid(const std::size_t alignment) -> bool
 	{
-		return alignment && !(alignment & alignment - 1);
+		return alignment && !(alignment & (alignment - 1));
 	}
 
 	static_assert(IsAlignmentValid(alignof(std::max_align_t)), "WTF");
@@ -236,7 +236,7 @@ namespace Nominax::Common
 	/// <param name="alignment">The alignment the address should have.</param>
 	/// <returns>True if valid and corresponding alignment, else false.</returns>
 	[[nodiscard]]
-	constexpr auto IsAlignedTo(void* const ptr, const std::size_t alignment) noexcept(true) -> bool
+	constexpr auto IsAlignedTo(void* const ptr, const std::size_t alignment) -> bool
 	{
 		return std::bit_cast<std::uintptr_t>(ptr) % alignment == 0 && IsAlignmentValid(alignment);
 	}
@@ -248,7 +248,7 @@ namespace Nominax::Common
 	/// <param name="alignment">The alignment the address should have.</param>
 	/// <returns>True if valid and corresponding alignment, else false.</returns>
 	[[nodiscard]]
-	constexpr auto IsAlignedTo(const std::uintptr_t ptr, const std::size_t alignment) noexcept(true) -> bool
+	constexpr auto IsAlignedTo(const std::uintptr_t ptr, const std::size_t alignment) -> bool
 	{
 		return IsAlignedTo(std::bit_cast<void*>(ptr), alignment);
 	}
@@ -260,7 +260,7 @@ namespace Nominax::Common
 	/// <param name="ptr">The pointer address. Can be nullptr!</param>
 	/// <param name="alignment">The alignment, which must be valid.</param>
 	/// <returns>The required offset.</returns>
-	constexpr auto ComputeMissingAlignmentOffset(void* const ptr, const std::size_t alignment) noexcept(true) -> std::size_t
+	constexpr auto ComputeMissingAlignmentOffset(void* const ptr, const std::size_t alignment) -> std::size_t
 	{
 		const auto misalignment = std::bit_cast<std::uintptr_t>(ptr) & (alignment - 1);
 		return misalignment ? alignment - misalignment : 0;
@@ -273,7 +273,7 @@ namespace Nominax::Common
 	/// <param name="ptr">The pointer address. Can be nullptr!</param>
 	/// <param name="alignment">The alignment, which must be valid.</param>
 	/// <returns>The required offset.</returns>
-	constexpr auto ComputeMissingAlignmentOffset(const std::uintptr_t ptr, const std::size_t alignment) noexcept(true) -> std::size_t
+	constexpr auto ComputeMissingAlignmentOffset(const std::uintptr_t ptr, const std::size_t alignment) -> std::size_t
 	{
 		return ComputeMissingAlignmentOffset(std::bit_cast<void*>(ptr), alignment);
 	}
@@ -284,7 +284,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <param name="size"></param>
 	/// <returns></returns>
-	inline auto ComputeMinAlignmentRequiredForSize(const std::size_t size) noexcept(true) -> std::size_t
+	inline auto ComputeMinAlignmentRequiredForSize(const std::size_t size) -> std::size_t
 	{
 		return size >= alignof(std::max_align_t) ? alignof(std::max_align_t) : static_cast<std::size_t>(1) << ILog2(size);
 	}

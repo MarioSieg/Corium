@@ -1,6 +1,6 @@
-// File: Keywords.hpp
+// File: ReactorQueryJumpTable.cpp
 // Author: Mario
-// Created: 11.06.2021 10:40 AM
+// Created: 23.06.2021 5:30 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,35 +205,31 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "ReactorTestHelper.hpp"
 
-#include "Base.hpp"
-
-namespace Corium
+TEST(Reactor, QueryJumpTable)
 {
-	enum class Keyword: Nominax::U8
-	{
-		Let,
+	const VerboseReactorDescriptor reactorDescriptor { };
+	auto                           backup {reactorDescriptor};
 
-		$Count
-	};
-
-	constexpr std::array<std::string_view, static_cast<std::size_t>(Keyword::$Count)> KEYWORD_TABLE
+	const void**  jumpTable { };
+	const void*** proxy {&jumpTable};
+	ASSERT_NE(proxy, nullptr);
+	ASSERT_NO_FATAL_FAILURE(SingletonExecutionProxy(reactorDescriptor, {}, &proxy));
+	ASSERT_NE(jumpTable, nullptr);
+	ASSERT_EQ(std::memcmp(&reactorDescriptor, &backup, sizeof reactorDescriptor), 0);
+	for (U64 i {0}; i < static_cast<U64>(Instruction::$Count); ++i)
 	{
-		"let"
-	};
+		ASSERT_NE(jumpTable[i], nullptr);
+	}
+}
 
-	constexpr auto QueryKeyword(const std::string_view name) noexcept(true) -> std::optional<Keyword>
+TEST(Reactor, QueryJumpTableViaHypervisor)
+{
+	const void** jumpTable {QueryJumpTable(*GetOptimalReactorRoutine({ }).ExecutionRoutine)};
+	ASSERT_NE(jumpTable, nullptr);
+	for (U64 i {0}; i < static_cast<U64>(Instruction::$Count); ++i)
 	{
-		std::optional<Keyword> ret {std::nullopt};
-		for (std::size_t i {0}; i < static_cast<std::size_t>(Keyword::$Count); ++i)
-		{
-			if (KEYWORD_TABLE[i] == name)
-			{
-				ret = static_cast<Keyword>(i);
-				break;
-			}
-		}
-		return ret;
+		ASSERT_NE(jumpTable[i], nullptr);
 	}
 }

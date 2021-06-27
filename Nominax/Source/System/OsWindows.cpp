@@ -217,7 +217,7 @@
 
 namespace Nominax::System::Os
 {
-	auto QuerySystemMemoryTotal() noexcept(false) -> std::size_t
+	auto QuerySystemMemoryTotal() -> std::size_t
 	{
 		MEMORYSTATUSEX status;
 		status.dwLength = sizeof(MEMORYSTATUSEX);
@@ -225,14 +225,14 @@ namespace Nominax::System::Os
 		return status.ullTotalPhys;
 	}
 
-	auto QueryProcessMemoryUsed() noexcept(false) -> std::size_t
+	auto QueryProcessMemoryUsed() -> std::size_t
 	{
 		PROCESS_MEMORY_COUNTERS pmc;
 		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
 		return pmc.WorkingSetSize;
 	}
 
-	auto QueryCpuName() noexcept(false) -> std::string
+	auto QueryCpuName() -> std::string
 	{
 		HKEY key;
 		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
@@ -248,25 +248,25 @@ namespace Nominax::System::Os
 		return id;
 	}
 
-	auto QueryPageSize() noexcept(false) -> std::size_t
+	auto QueryPageSize() -> std::size_t
 	{
 		SYSTEM_INFO sysInfo;
 		GetSystemInfo(&sysInfo);
 		return static_cast<std::size_t>(sysInfo.dwPageSize);
 	}
 
-	auto DylibOpen(const std::string_view filePath) noexcept(false) -> void*
+	auto DylibOpen(const std::string_view filePath) -> void*
 	{
 		return LoadLibraryA(filePath.data());
 	}
 
-	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) noexcept(false) -> void*
+	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
 	{
 		// ReSharper disable once CppRedundantCastExpression
 		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
 	}
 
-	auto DylibClose(void*& handle) noexcept(false) -> void
+	auto DylibClose(void*& handle) -> void
 	{
 		FreeLibrary(static_cast<HMODULE>(handle));
 		handle = nullptr;

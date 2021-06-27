@@ -1,6 +1,6 @@
-// File: NominaxAnaly.cpp
+// File: Keyword.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 11.06.2021 10:40 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,47 +205,42 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/Nominax.hpp"
+#pragma once
 
-using namespace Prelude;
+#include "Base.hpp"
 
-auto main([[maybe_unused]] const signed argc, [[maybe_unused]] const char* const* const argv) -> signed
+namespace Corium
 {
-	const EnvironmentDescriptor descriptor
+	enum class Keyword : U8
 	{
-		.ArgC = argc,
-		.ArgV = argv,
-		.AppName = "Corium"
+		Let,
+		Fun,
+
+		$Count
 	};
 
-	Environment env { };
-	env.Boot(descriptor);
-
-	Stream stream {OptimizationLevel::Off};
-	stream.Prologue();
-
-	stream.With(2, [](ScopedInt var)
+	constexpr std::array<std::string_view, static_cast<std::size_t>(Keyword::$Count)> KEYWORD_TABLE
 	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-		auto i {0};
-		for (; i < 2; ++i)
+		"let",
+		"fun"
+	};
+
+	constexpr auto GetKeywordLexeme(const Keyword kw) -> std::string_view
+	{
+		return KEYWORD_TABLE[static_cast<std::size_t>(kw)];
+	}
+
+	constexpr auto QueryKeyword(const std::string_view name) -> std::optional<Keyword>
+	{
+		std::optional<Keyword> ret {std::nullopt};
+		for (std::size_t i {0}; i < static_cast<std::size_t>(Keyword::$Count); ++i)
 		{
-			var += 1;
-			var *= i;
-			var <<= i - 1;
+			if (KEYWORD_TABLE[i] == name)
+			{
+				ret = static_cast<Keyword>(i);
+				break;
+			}
 		}
-		var %= i;
-	});
-
-	stream << Instruction::Push << u8"Hello:)\n"_cluster;
-	stream << Instruction::Intrin << SystemIntrinsicCallID::IoPortWriteCluster;
-	stream.Epilogue();
-	stream.PrintByteCode();
-
-	env.Execute(std::move(stream));
-	env.Shutdown();
-
-	return 0;
+		return ret;
+	}
 }

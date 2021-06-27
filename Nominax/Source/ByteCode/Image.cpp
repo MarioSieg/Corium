@@ -1,6 +1,6 @@
-// File: Lexeme.hpp
+// File: Image.cpp
 // Author: Mario
-// Created: 08.06.2021 7:09 PM
+// Created: 23.06.2021 5:04 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,55 +205,73 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../Include/Nominax/ByteCode/Image.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
-#include <variant>
-
-#include "Base.hpp"
-
-namespace Corium
+namespace Nominax::ByteCode
 {
-	constexpr char8_t COMMENT_MARKER{ '#' };
-	
-	enum class MonoLexeme: char8_t
+	Image::Image(const std::span<const Signal> blob)
 	{
-		ParenthesisLeft		= u8'(',
-		ParenthesisRight	= u8')',
-		CurlyBracesLeft		= u8'{',
-		CurlyBracesRight	= u8'}',
-		Identifier
-	};
-
-	constexpr auto NameOf(const MonoLexeme lexeme) noexcept(true) -> std::string_view
-	{
-		switch (lexeme)
-		{
-		case MonoLexeme::ParenthesisLeft:
-			return "ParenthesisLeft";
-		case MonoLexeme::ParenthesisRight:
-			return "ParenthesisRight";
-		case MonoLexeme::CurlyBracesLeft:
-			return "CurlyBracesLeft";
-		case MonoLexeme::CurlyBracesRight:
-			return "CurlyBracesRight";
-		default:
-			return "Identifier";
-		}
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(blob.size(), "Byte code image with zero size is invalid!");
+		this->Size_ = std::size(blob);
+		this->Blob_ = new(std::nothrow) Signal[this->Size_];
+		std::memcpy(this->Blob_, std::data(blob), this->Size_ * sizeof(Signal));
 	}
 
-	using Identifier = std::u8string;
-
-	using Lexeme = std::variant<MonoLexeme, Identifier>;
-
-	inline auto PrintLexeme(const Lexeme& lex) noexcept(false) -> void
+	Image::Image(const void* const data, const std::size_t byteSize)
 	{
-		if (const auto* const ml = std::get_if<MonoLexeme>(&lex))
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(byteSize, "Byte code image with zero size is invalid!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(data, "Byte code image with null data is invalid!");
+		NOMINAX_PANIC_ASSERT_TRUE(byteSize % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
+		this->Size_ = byteSize / sizeof(Signal);
+		this->Blob_ = new(std::nothrow) Signal[this->Size_];
+		std::memcpy(this->Blob_, data, byteSize);
+	}
+
+	Image::Image(Signal* const data, const std::size_t size)
+	{
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "Byte code image with zero size is invalid!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(data, "Byte code image with null data is invalid!");
+		this->Blob_ = data;
+		this->Size_ = size;
+	}
+
+	Image::Image(U8* const data, const std::size_t size)
+	{
+		NOMINAX_PANIC_ASSERT_TRUE(size % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
+		NOMINAX_PANIC_ASSERT_NOT_ZERO(size, "Byte code image with zero size is invalid!");
+		NOMINAX_PANIC_ASSERT_NOT_NULL(data, "Byte code image with null data is invalid!");
+
+		this->Size_ = size / sizeof(Signal);
+		this->Blob_ = reinterpret_cast<Signal*>(data);
+	}
+
+	Image::Image(Image&& other) : Blob_ {other.Blob_}, Size_ {other.Size_}
+	{
+		other.Blob_ = nullptr;
+		other.Size_ = 0;
+	}
+
+	auto Image::operator =(Image&& other) -> Image&
+	{
+		if (this->Blob_ && this->Size_)
 		{
-			Print(Nominax::Common::TextColor::BrightBlue, "{}\n", NameOf(*ml));
+			delete[] this->Blob_;
 		}
-		else
-		{
-			Print(Nominax::Common::TextColor::BrightBlue, "Identifier: {}\n", reinterpret_cast<const char*>(std::get_if<Identifier>(&lex)->c_str()));
-		}
+
+		this->Blob_ = other.Blob_;
+		this->Size_ = other.Size_;
+
+		other.Blob_ = nullptr;
+		other.Size_ = 0;
+
+		return *this;
+	}
+
+	Image::~Image()
+	{
+		delete[] this->Blob_;
+		this->Blob_ = nullptr;
+		this->Size_ = 0;
 	}
 }

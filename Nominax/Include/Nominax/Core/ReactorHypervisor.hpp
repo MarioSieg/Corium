@@ -208,6 +208,7 @@
 #pragma once
 
 #include "ReactorCoreSpecialization.hpp"
+#include "ReactorShutdownReason.hpp"
 
 namespace Nominax
 {
@@ -224,12 +225,24 @@ namespace Nominax
 		/// <summary>
 		/// Signature of the reactor core execution routine.
 		/// </summary>
-		using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor&, ReactorState&) -> void;
+		using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor* descriptor, ReactorState* outputState, const void**** jumpTableQuery) -> ReactorShutdownReason;
 
 		/// <summary>
-		/// Contains a reactor execution routine and info.
+		/// Contains the reactor routine and additional information.
 		/// </summary>
-		using ReactorRoutineLink = std::tuple<ReactorCoreSpecialization, ReactorCoreExecutionRoutine*>;
+		struct ReactorRoutineLink
+		{
+			const ReactorCoreSpecialization    Specialization;
+			ReactorCoreExecutionRoutine* const ExecutionRoutine;
+			const void** const                 JumpTable;
+
+			ReactorRoutineLink
+			(
+				ReactorCoreSpecialization    specialization,
+				ReactorCoreExecutionRoutine* executionRoutine,
+				const void**                 jumpTable
+			);
+		};
 
 		/// <summary>
 		/// Contains all available reactor implementations for the current platform.
@@ -242,7 +255,7 @@ namespace Nominax
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		extern auto GetFallbackRoutineLink() noexcept(true) -> ReactorRoutineLink;
+		extern auto GetFallbackRoutineLink() -> ReactorRoutineLink;
 
 		/// <summary>
 		/// Returns the reactor specialization based on the cpu features available.
@@ -250,14 +263,14 @@ namespace Nominax
 		/// <param name="cpuFeatureDetector"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		extern auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) noexcept(true) -> ReactorCoreSpecialization;
+		extern auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current reactor registry.</returns>
 		[[nodiscard]]
-		extern auto GetReactorRegistry() noexcept(true) -> const ReactorRegistry&;
+		extern auto GetReactorRegistry() -> const ReactorRegistry&;
 
 		/// <summary>
 		/// Returns the reactor routine of the corresponding target.
@@ -282,7 +295,22 @@ namespace Nominax
 		/// <param name="target"></param>
 		/// <param name="input"></param>
 		/// <param name="output"></param>
+		/// <param name="outJumpTable"></param>
 		/// <returns></returns>
-		extern auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, ReactorState& output, const System::CpuFeatureDetector& target) noexcept(true) -> void;
+		[[nodiscard]]
+		extern auto SingletonExecutionProxy
+		(
+			const VerboseReactorDescriptor&   input,
+			ReactorState&                     output,
+			const System::CpuFeatureDetector& target,
+			const void****                    outJumpTable = nullptr
+		) -> ReactorShutdownReason;
+
+		/// <summary>
+		/// Queries the jump table from the specified reactor routine.
+		/// </summary>
+		/// <param name="routine"></param>
+		/// <returns></returns>
+		extern auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**;
 	}
 }

@@ -207,21 +207,26 @@
 
 #pragma once
 
-#include "Lexeme.hpp"
 #include "Base.hpp"
+#include "LexContext.hpp"
 
 namespace Corium
 {
+	/// <summary>
+	/// Contains the error code about lexing failture.
+	/// </summary>
 	enum class LexResultCode
 	{
 		Ok,
 		EmptyFile
 	};
 
-	using LexTree = std::vector<Lexeme>;
-
-	using LexResult = std::pair<LexTree, LexResultCode>;
-
-	extern auto LexSource(std::u8string_view sourceCode) noexcept(false) -> LexResult;
-	extern auto EvalChar(char8_t x, LexTree& result, Identifier& identifier) noexcept(false) -> void;
+	/// <summary>
+	/// Creates a new lex context and lexes the result.
+	/// Can be used for one time lexing or tests,
+	/// for other purposes please use the lex contextr.
+	/// </summary>
+	/// <param name="sourceCode"></param>
+	/// <returns></returns>
+	extern auto LexSource(std::string&& sourceCode, LexContext& output) -> LexResultCode;
 }

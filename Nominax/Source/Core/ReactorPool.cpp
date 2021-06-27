@@ -213,7 +213,7 @@
 
 namespace Nominax::Core
 {
-	auto ReactorPool::SmartQueryReactorCount(const std::size_t desired) noexcept(false) -> std::size_t
+	auto ReactorPool::SmartQueryReactorCount(const std::size_t desired) -> std::size_t
 	{
 		return desired < MIN_REACTOR_COUNT ? std::thread::hardware_concurrency() : desired;
 	}
@@ -224,7 +224,7 @@ namespace Nominax::Core
 		const std::size_t                        reactorCount,
 		const ReactorSpawnDescriptor&            config,
 		const std::optional<ReactorRoutineLink>& routineLink
-	) noexcept(false) : Pool_ {&allocator}
+	) : Pool_ {&allocator}
 	{
 		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 

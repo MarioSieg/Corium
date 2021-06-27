@@ -207,26 +207,37 @@
 
 #include "../Source/Base.hpp"
 #include "../Source/Lexer.hpp"
+#include "../Source/ParseContext.hpp"
 
+using namespace Corium;
 using namespace Prelude;
 
-static auto ParseFile(const std::string_view path, Stream& out) noexcept(false) -> void
+static auto CompileSourceFile(const std::string_view path) -> void
 {
-	TextFile file { };
-	file.ReadFromFileOrPanic(path);
-	if (const auto result {Corium::LexSource(file.GetContentText())}; result.second == Corium::LexResultCode::Ok)
+	LexContext   lexContext { };
+	ParseContext parseContext { };
+
 	{
-		// Print parse tree:
-		for (const Corium::Lexeme& x : result.first)
+		TextFile file { };
+		file.ReadFromFileOrPanic(path);
+		std::string source {std::move(file.GetContentText())};
+
+		if (NOMINAX_UNLIKELY(source.empty()))
 		{
-			PrintLexeme(x);
+			Print("Empty source file!");
+			return;
 		}
+
+		source.push_back('\n');
+		lexContext.EvaluateString(std::move(source));
 	}
 
-	Print('\n');
-
-	out.Prologue();
-	out.Epilogue();
+	parseContext.Reset(lexContext.GetTokenStream(), lexContext.GetSourceText());
+	const ParseError& parseError {parseContext.Parse()};
+	if (NOMINAX_UNLIKELY(parseError.has_value()))
+	{
+		Print(LogLevel::Error, "{}\n", *parseError);
+	}
 }
 
 [[maybe_unused]]
@@ -235,7 +246,7 @@ static auto ExecuteNominax
 	Stream&&                 appCode,
 	const int                argc = 0,
 	const char* const* const argv = nullptr
-) noexcept(false) -> int
+) -> int
 {
 	const EnvironmentDescriptor descriptor
 	{
@@ -253,14 +264,16 @@ static auto ExecuteNominax
 
 	Environment runtimeEnvironment { };
 	runtimeEnvironment.Boot(descriptor);
-	const ReactorState& result {runtimeEnvironment.Execute(std::move(appCode))};
-	return result.ReturnCode();
+	const auto [_, state] {runtimeEnvironment.Execute(std::move(appCode))};
+	return state.ReturnCode();
 }
 
 auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* const argv) -> int
 {
 	Stream stream { };
-	ParseFile("../../../Corium/Docs/ParseTest.cor", stream);
+	stream.Prologue();
+	CompileSourceFile("../../../Corium/Docs/ParseTest.cor");
+	stream.Epilogue();
 	stream.PrintByteCode();
 	//return ExecuteNominax(std::move(stream), argc, argv);
 	return 0;

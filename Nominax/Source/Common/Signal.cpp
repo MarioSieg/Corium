@@ -214,7 +214,7 @@ namespace
 
 namespace Nominax::Common
 {
-	auto QuerySignalStatus() noexcept(true) -> std::sig_atomic_t
+	auto QuerySignalStatus() -> std::sig_atomic_t
 	{
 		return SignalStatus;
 	}

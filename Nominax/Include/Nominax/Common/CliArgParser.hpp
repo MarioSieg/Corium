@@ -207,7 +207,9 @@
 
 #pragma once
 
+#include <string_view>
 #include <unordered_set>
+#include <vector>
 
 namespace Nominax::Common
 {
@@ -227,7 +229,7 @@ namespace Nominax::Common
 		/// <param name="argc"></param>
 		/// <param name="argv"></param>
 		/// <returns></returns>
-		CliArgParser(signed argc, const char* const* argv) noexcept(false);
+		CliArgParser(signed argc, const char* const* argv);
 
 		/// <summary>
 		/// No copy.
@@ -240,7 +242,7 @@ namespace Nominax::Common
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		CliArgParser(CliArgParser&& other) noexcept(true) = default;
+		CliArgParser(CliArgParser&& other) = default;
 
 		/// <summary>
 		/// No copy.
@@ -254,7 +256,7 @@ namespace Nominax::Common
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(CliArgParser&& other) noexcept(true) -> CliArgParser& = default;
+		auto operator =(CliArgParser&& other) -> CliArgParser& = default;
 
 		/// <summary>
 		/// Destructor.
@@ -268,7 +270,7 @@ namespace Nominax::Common
 		/// <param name="key"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto HasFlag(std::string_view key) noexcept(true) -> bool;
+		auto HasFlag(std::string_view key) -> bool;
 
 		/// <summary>
 		/// Adds a command line option with description and returns true
@@ -278,13 +280,13 @@ namespace Nominax::Common
 		/// <param name="description"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto AddOption(std::string_view name, std::string_view description = "") noexcept(false) -> bool;
+		auto AddOption(std::string_view name, std::string_view description = "") -> bool;
 
 		/// <summary>
 		/// Prints all the added options with description.
 		/// </summary>
 		/// <returns></returns>
-		auto PrintAllOptions() noexcept(false) -> void;
+		auto PrintAllOptions() -> void;
 
 		/// <summary>
 		/// Returns true if the argument count is less or equal to one,
@@ -292,20 +294,20 @@ namespace Nominax::Common
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto IsEmpty() const noexcept(true) -> bool;
+		auto IsEmpty() const -> bool;
 
 		/// <summary>
 		/// Returns argument set.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetArgs() const noexcept(true) -> const std::unordered_set<std::string_view>&;
+		auto GetArgs() const -> const std::unordered_set<std::string_view>&;
 
 		/// <summary>
 		/// Returns all added options.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetOptions() const noexcept(true) -> const std::vector<std::pair<std::string_view, std::string_view>>&;
+		auto GetOptions() const -> const std::vector<std::pair<std::string_view, std::string_view>>&;
 	};
 }

@@ -214,7 +214,7 @@
 
 namespace Nominax::System
 {
-	static auto MachineRating(const std::size_t threads) noexcept(true) -> char
+	static auto MachineRating(const std::size_t threads) -> char
 	{
 		if (threads <= 2)
 		{
@@ -239,12 +239,12 @@ namespace Nominax::System
 		return 'A';
 	}
 
-	Snapshot::Snapshot() noexcept(false)
+	Snapshot::Snapshot()
 	{
 		this->QueryAll();
 	}
 
-	auto Snapshot::QueryAll() noexcept(false) -> void
+	auto Snapshot::QueryAll() -> void
 	{
 		this->ThreadCount       = std::thread::hardware_concurrency();
 		this->ThreadId          = std::this_thread::get_id();
@@ -254,7 +254,7 @@ namespace Nominax::System
 		this->PageSize          = Os::QueryPageSize();
 	}
 
-	auto Snapshot::Print() const noexcept(false) -> void
+	auto Snapshot::Print() const -> void
 	{
 		using namespace Common;
 

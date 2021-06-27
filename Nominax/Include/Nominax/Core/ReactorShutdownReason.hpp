@@ -226,10 +226,10 @@ namespace Nominax::Core
 	};
 
 	[[nodiscard]]
-	constexpr auto DetermineShutdownReason(const InterruptAccumulator x) noexcept(true) -> ReactorShutdownReason
+	constexpr auto DetermineShutdownReason(const InterruptAccumulator x) -> ReactorShutdownReason
 	{
 		return x == INT_CODE_OK ? ReactorShutdownReason::Success : x < INT_CODE_OK ? ReactorShutdownReason::Error : ReactorShutdownReason::UserException;
 	}
 
-	extern auto PrintShutdownReason(ReactorShutdownReason reason, InterruptAccumulator code = std::numeric_limits<InterruptAccumulator>::min()) noexcept(false) -> void;
+	extern auto PrintShutdownReason(ReactorShutdownReason reason, InterruptAccumulator code = std::numeric_limits<InterruptAccumulator>::min()) -> void;
 }

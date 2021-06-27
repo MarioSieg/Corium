@@ -218,7 +218,7 @@ namespace Nominax::Arch::X86_64
 	/// </summary>
 	struct CpuFeatureBits final
 	{
-		CpuFeatureBits() noexcept(false);
+		CpuFeatureBits();
 
 		// QWORD 1 LO
 
@@ -1299,23 +1299,23 @@ namespace Nominax::Arch::X86_64
 		MergedInfoTable* out1,
 		MergedInfoTable* out2,
 		MergedInfoTable* out3
-	) noexcept(true) -> U32;
+	) -> U32;
 
 	/// <summary>
 	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
 	/// Implementation: Source/Arch/X86_64.CpuId.S
 	/// </summary>
-	extern "C" auto Asm_IsCpuIdSupported() noexcept(true) -> U8;
+	extern "C" auto Asm_IsCpuIdSupported() -> U8;
 
 	/// <summary>
 	/// Returns true if the OS supports AVX YMM registers, else false.
 	/// Warning! Check if os supports OSXSAVE first!
 	/// </summary>
-	extern "C" auto Asm_IsAvxSupportedByOs() noexcept(true) -> U8;
+	extern "C" auto Asm_IsAvxSupportedByOs() -> U8;
 
 	/// <summary>
 	/// Returns true if the OS supports AVX512 ZMM registers, else false.
 	/// Warning! Check if os supports OSXSAVE first!
 	/// </summary>
-	extern "C" auto Asm_IsAvx512SupportedByOs() noexcept(true) -> U8;
+	extern "C" auto Asm_IsAvx512SupportedByOs() -> U8;
 }

@@ -225,7 +225,7 @@ namespace Nominax::ByteCode
 {
 	using namespace Common;
 
-	auto ContainsPrologue(const Stream& input) noexcept(false) -> bool
+	auto ContainsPrologue(const Stream& input) -> bool
 	{
 		constexpr const auto& code {Stream::PrologueCode()};
 		if (NOMINAX_UNLIKELY(input.Size() < code.size()))
@@ -242,7 +242,7 @@ namespace Nominax::ByteCode
 		return true;
 	}
 
-	auto ContainsEpilogue(const Stream& input) noexcept(false) -> bool
+	auto ContainsEpilogue(const Stream& input) -> bool
 	{
 		constexpr const auto& code {Stream::EpilogueCode()};
 		if (NOMINAX_UNLIKELY(input.Size() < code.size()))
@@ -259,32 +259,7 @@ namespace Nominax::ByteCode
 		return true;
 	}
 
-	auto GenerateChunkAndJumpMap(const Stream& input, CodeChunk& output, JumpMap& jumpMap) noexcept(false) -> void
-	{
-		output.resize(input.Size());
-		jumpMap.resize(input.Size());
-
-		for (std::size_t i {0}; i < input.Size(); ++i)
-		{
-			const auto& in {input[i]};
-			auto&       out {output[i]};
-
-			out = in.Value;
-
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-
-			if (in.Contains<JumpAddress>())
-			{
-				// minus one because the address is incremented by the reactor before jumped
-				out.Ptr = Core::ComputeRelativeJumpAddress(output.data(), out.JmpAddress);
-			}
-
-#endif
-			jumpMap[i] = static_cast<U8>(in.Contains<Instruction>());
-		}
-	}
-
-	auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry, U32* const outIndex) noexcept(false) -> ValidationResultCode
+	auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry, U32* const outIndex) -> ValidationResultCode
 	{
 		// Check if empty:
 		if (NOMINAX_UNLIKELY(input.IsEmpty()))
@@ -323,14 +298,14 @@ namespace Nominax::ByteCode
 		AtomicState<ValidationResultCode> error { };
 		std::atomic<U32>                  errorIndex {0};
 
-		const auto& codeBuf {input.CodeBuffer()};
-		const auto& discBuf {input.DiscriminatorBuffer()};
+		const auto& codeBuf {input.GetCodeBuffer()};
+		const auto& discBuf {input.GetDiscriminatorBuffer()};
 		const auto  bufBegin {&*std::begin(discBuf)};
 		const auto  bufEnd {&*std::end(discBuf)};
 
 		auto validationRoutine
 		{
-			[&error, &codeBuf, &input, &intrinsicRegistry, &errorIndex, bufBegin, bufEnd](const Signal::Discriminator& iterator) noexcept(false)
+			[&error, &codeBuf, &input, &intrinsicRegistry, &errorIndex, bufBegin, bufEnd](const Signal::Discriminator& iterator)
 			{
 				const std::ptrdiff_t index {DistanceRef(iterator, bufBegin)};
 				const Signal         signal {codeBuf[index]};
@@ -390,7 +365,7 @@ namespace Nominax::ByteCode
 		return ValidationResultCode::Ok;
 	}
 
-	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) noexcept(true) -> bool
+	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) -> bool
 	{
 		const auto idx {static_cast<std::size_t>(address)};
 
@@ -403,7 +378,7 @@ namespace Nominax::ByteCode
 		return NOMINAX_LIKELY(bucket[idx].Contains<Instruction>());
 	}
 
-	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallID id) noexcept(true) -> bool
+	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallID id) -> bool
 	{
 		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallID::$Count) - 1};
 		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
@@ -411,13 +386,13 @@ namespace Nominax::ByteCode
 		return NOMINAX_LIKELY(value <= max);
 	}
 
-	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicCallID id) noexcept(true) -> bool
+	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicCallID id) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
 		return NOMINAX_LIKELY(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size());
 	}
 
-	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const Signal::Discriminator>& args) noexcept(true) -> ValidationResultCode
+	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const Signal::Discriminator>& args) -> ValidationResultCode
 	{
 		// First check if the argument count is incorrect:
 		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) > args.size()))

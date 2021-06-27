@@ -216,9 +216,9 @@ namespace Nominax::ByteCode
 {
 	using namespace Common;
 
-	auto Stream::PrintByteCode() const noexcept(false) -> void
+	auto Stream::PrintByteCode() const -> void
 	{
-		Print(TextColor::Green, "Len: {}, Size: {}B", this->Size(), this->SizeInBytes());
+		Print(TextColor::Green, "Len: {}, Size: {} B", this->Size(), this->SizeInBytes());
 		for (std::size_t i {0}; i < this->Size(); ++i)
 		{
 			if (this->CodeDisc_[i] == Signal::Discriminator::Instruction)
@@ -234,15 +234,15 @@ namespace Nominax::ByteCode
 		Print("\n\n");
 	}
 
-	auto Stream::PrintMemoryCompositionInfo() const noexcept(false) -> void
+	auto Stream::PrintMemoryCompositionInfo() const -> void
 	{
 		Print("Stream size: {}\n", this->Size());
-		Print("Code buffer: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->Code_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
-		Print("Discriminator buffer: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->CodeDisc_.size()) * static_cast<F32>(sizeof(DiscriminatorStorageType::value_type))));
-		Print("Total: {:.03F}MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
+		Print("Code buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->Code_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
+		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->CodeDisc_.size()) * static_cast<F32>(sizeof(DiscriminatorStorageType::value_type))));
+		Print("Total: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
 	}
 
-	auto Stream::Prologue() noexcept(false) -> Stream&
+	auto Stream::Prologue() -> Stream&
 	{
 		for (const auto& [discriminator, signal] : PrologueCode())
 		{
@@ -252,7 +252,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	auto Stream::Epilogue() noexcept(false) -> Stream&
+	auto Stream::Epilogue() -> Stream&
 	{
 		for (const auto& [discriminator, signal] : EpilogueCode())
 		{
@@ -262,22 +262,22 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	auto Stream::Build(CodeChunk& out, JumpMap& outJumpMap) const noexcept(false) -> ValidationResultCode
+	auto Stream::Build(Image& out, JumpMap& outJumpMap) const -> ValidationResultCode
 	{
 		if (const auto validationResult {ValidateFullPass(*this)}; NOMINAX_UNLIKELY(validationResult != ValidationResultCode::Ok))
 		{
 			return validationResult;
 		}
-		GenerateChunkAndJumpMap(*this, out, outJumpMap);
+		TransformStreamToImageByCopy(*this, out, outJumpMap);
 		return ValidationResultCode::Ok;
 	}
 
-	auto Stream::ContainsPrologue() const noexcept(false) -> bool
+	auto Stream::ContainsPrologue() const -> bool
 	{
 		return ByteCode::ContainsPrologue(*this);
 	}
 
-	auto Stream::ContainsEpilogue() const noexcept(false) -> bool
+	auto Stream::ContainsEpilogue() const -> bool
 	{
 		return ByteCode::ContainsEpilogue(*this);
 	}

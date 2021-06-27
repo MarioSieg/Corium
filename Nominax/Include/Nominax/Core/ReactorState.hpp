@@ -233,21 +233,21 @@ namespace Nominax::Core
 		/// 
 		/// </summary>
 		/// <returns>The return code (interrupt code casted). Zero if success.</returns>
-		constexpr auto ReturnCode() const noexcept(true) -> int;
+		constexpr auto ReturnCode() const -> int;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The result of the program evaluation (the first stack record, if any).</returns>
-		constexpr auto EvaluationResult() const noexcept(true) -> Record;
+		constexpr auto EvaluationResult() const -> Record;
 	};
 
-	constexpr auto ReactorState::ReturnCode() const noexcept(true) -> int 
+	constexpr auto ReactorState::ReturnCode() const -> int
 	{
-		return static_cast<int>(this->InterruptCode);
+		return this->InterruptCode;
 	}
 
-	constexpr auto ReactorState::EvaluationResult() const noexcept(true) -> Record 
+	constexpr auto ReactorState::EvaluationResult() const -> Record
 	{
 		return this->Input->Stack[1];
 	}

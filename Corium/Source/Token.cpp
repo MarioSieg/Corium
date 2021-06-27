@@ -1,6 +1,6 @@
-// File: RuntimeAllocator.hpp
+// File: Token.cpp
 // Author: Mario
-// Created: 09.06.2021 2:19 PM
+// Created: 13.06.2021 9:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,103 +205,38 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "Token.hpp"
 
-#include "Allocator.hpp"
-
-namespace Nominax::Common
+namespace Corium
 {
-	/// <summary>
-	/// Default and fast allocator implementation.
-	/// </summary>
-	class RuntimeAllocator : public IAllocator
+	auto PrintToken(const Token& tok) -> void
 	{
-	public:
-		/// <summary>
-		/// Default constructor.
-		/// </summary>
-		/// <returns></returns>
-		constexpr RuntimeAllocator() noexcept(true) = default;
-
-		/// <summary>
-		/// Copy constructor.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr RuntimeAllocator(const RuntimeAllocator& other) noexcept(true) = default;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr RuntimeAllocator(RuntimeAllocator&& other) noexcept(true) = default;
-
-		/// <summary>
-		/// Copy assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator =(const RuntimeAllocator& other) noexcept(true) -> RuntimeAllocator& = default;
-
-		/// <summary>
-		/// Move assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator =(RuntimeAllocator&& other) noexcept(true) -> RuntimeAllocator& = default;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~RuntimeAllocator() override = default;
-
-		/// <summary>
-		/// Allocate block using std::malloc.
-		/// </summary>
-		/// <param name="out"></param>
-		/// <param name="size"></param>
-		/// <returns></returns>
-		auto Allocate(void*& out, std::size_t size) const noexcept(true) -> void override;
-
-		/// <summary>
-		/// Reallocate using std::realloc.
-		/// </summary>
-		/// <param name="out"></param>
-		/// <param name="size"></param>
-		/// <returns></returns>
-		auto Reallocate(void*& out, std::size_t size) const noexcept(true) -> void override;
-
-		/// <summary>
-		/// Deallocate using std::free.
-		/// </summary>
-		/// <param name="out"></param>
-		/// <returns></returns>
-		auto Deallocate(void*& out) const noexcept(true) -> void override;
-
-		/// <summary>
-		/// Allocate aligned using platform specific intrinsic allocator.
-		/// </summary>
-		/// <param name="out"></param>
-		/// <param name="size"></param>
-		/// <param name="alignment"></param>
-		/// <returns></returns>
-		auto AllocateAligned(void*& out, std::size_t size, std::size_t alignment) const noexcept(true) -> void override;
-
-		/// <summary>
-		/// Reallocate aligned using platform specific intrinsic allocator.
-		/// </summary>
-		/// <param name="out"></param>
-		/// <param name="size"></param>
-		/// <param name="alignment"></param>
-		/// <returns></returns>
-		auto ReallocateAligned(void*& out, std::size_t size, std::size_t alignment) const noexcept(true) -> void override;
-
-		/// <summary>
-		/// Deallocate aligned using platform specific intrinsic allocator.
-		/// </summary>
-		/// <param name="out"></param>
-		/// <returns></returns>
-		auto DeallocateAligned(void*& out) const noexcept(true) -> void override;
-	};
+		if (const auto* const monoLexeme = std::get_if<MonoLexeme>(&tok))
+		{
+			Print(Common::TextColor::BrightBlue, "Lexeme: {}\n", GetLexemeDescription(*monoLexeme));
+		}
+		else if (const auto* const keyword = std::get_if<Keyword>(&tok))
+		{
+			Print(Common::TextColor::BrightBlue, "Keyword: {}\n", GetKeywordLexeme(*keyword));
+		}
+		else if (const auto* const operator_ = std::get_if<Operator>(&tok))
+		{
+			Print(Common::TextColor::BrightBlue, "Operator: {}\n", GetOperatorDescription(*operator_));
+		}
+		else if (const auto* const literal = std::get_if<Literal>(&tok))
+		{
+			if (const auto* const integer = std::get_if<I64>(literal))
+			{
+				Print(Common::TextColor::BrightBlue, "Literal: int {}\n", *integer);
+			}
+			else if (const auto* const floating = std::get_if<F64>(literal))
+			{
+				Print(Common::TextColor::BrightBlue, "Literal: float {}\n", *floating);
+			}
+		}
+		else if (const auto* const identifier = std::get_if<Identifier>(&tok))
+		{
+			Print(Common::TextColor::BrightBlue, "Identifier: {}\n", *identifier);
+		}
+	}
 }

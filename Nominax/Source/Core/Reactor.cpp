@@ -218,11 +218,11 @@ namespace Nominax::Core
 	static auto CreateDescriptor
 	(
 		FixedStack&                             stack,
-		ByteCode::CodeChunk&                    chunk,
+		ByteCode::Image&                        image,
 		ByteCode::JumpMap&                      jumpMap,
 		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
 		InterruptRoutine&                       interruptHandler
-	) noexcept(true) -> VerboseReactorDescriptor
+	) -> VerboseReactorDescriptor
 	{
 		const std::span instrMapTableView
 		{
@@ -231,7 +231,7 @@ namespace Nominax::Core
 		};
 		const auto simpleDescriptor = BasicReactorDescriptor
 		{
-			.CodeChunk = chunk,
+			.CodeChunk = image.GetReactorView(),
 			.CodeChunkInstructionMap = instrMapTableView,
 			.IntrinsicTable = intrinsicTable,
 			.Stack = stack,
@@ -246,7 +246,7 @@ namespace Nominax::Core
 		const ReactorSpawnDescriptor&            descriptor,
 		const std::optional<ReactorRoutineLink>& routineLink,
 		const std::size_t                        poolIdx
-	) noexcept(false) :
+	) :
 		Id_ {Common::Xorshift128ThreadLocal()},
 		PoolIndex_ {poolIdx},
 		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
@@ -258,7 +258,7 @@ namespace Nominax::Core
 		InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : &DefaultInterruptRoutine},
 		RoutineLink_
 		{
-			[&routineLink]() noexcept(true) -> ReactorRoutineLink
+			[&routineLink]() -> ReactorRoutineLink
 			{
 				if (NOMINAX_UNLIKELY(!routineLink))
 				{
@@ -271,12 +271,12 @@ namespace Nominax::Core
 		Common::Print
 		(
 			"Reactor {:010X} "
-			"Stack: {} MB, "          // stack
-			"{} Records, "            // kilo records
-			"Intrinsics: {}, "        // intrinsics
-			"Interrupt Routine: {}, " // interrupt
-			"Power: {}, "             // power preference
-			"Pool: {:02}\n",          // pool index
+			"Stack: {} MB, "
+			"{} Records, "
+			"Intrinsics: {}, "
+			"Interrupt Routine: {}, "
+			"Power: {}, "
+			"Pool: {:02}\n",
 			this->Id_,
 			Bytes2Megabytes(this->Stack_.Size() * sizeof(Record)),
 			this->Stack_.Size(),
@@ -287,7 +287,7 @@ namespace Nominax::Core
 		);
 	}
 
-	auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) noexcept(false) -> const ReactorState&
+	auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 	{
 		this->AppCode_ = std::move(bundle);
 		this->Input_   = CreateDescriptor
@@ -302,16 +302,16 @@ namespace Nominax::Core
 		{
 			PANIC("Reactor {:#X} validation failed with the following reason: {}", this->Id_, validationResult);
 		}
-		auto* const routine = std::get<1>(this->RoutineLink_);
+		ReactorCoreExecutionRoutine* const routine = this->RoutineLink_.ExecutionRoutine;
 		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");
-		(*routine)(this->Input_, this->Output_);
-		return this->Output_;
+		const ReactorShutdownReason result {(*routine)(&this->Input_, &this->Output_, nullptr)};
+		return {result, this->Output_};
 	}
 
-	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target) noexcept(true) -> ReactorState
+	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target, const void**** outJumpTable) -> std::pair<ReactorShutdownReason, ReactorState>
 	{
-		ReactorState output {.Input = &input};
-		SingletonExecutionProxy(input, output, target);
-		return output;
+		ReactorState                output {.Input = &input};
+		const ReactorShutdownReason result {SingletonExecutionProxy(input, output, target, outJumpTable)};
+		return {result, output};
 	}
 }

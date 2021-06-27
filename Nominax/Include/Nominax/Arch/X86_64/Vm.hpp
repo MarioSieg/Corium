@@ -214,12 +214,12 @@ namespace Nominax::Arch::X86_64
 	/// Warning! Do not use this! On most systems it will crash
 	/// because the in instruction cannot get executed from user space.
 	/// </summary>
-	extern "C" auto Asm_VmDetector() noexcept(true) -> bool;
+	extern "C" auto Asm_VmDetector() -> bool;
 
 	/// <summary>
 	/// Detects vm ware using a port read action.
 	/// Warning! Do not use this! On most systems it will crash
 	/// because the in instruction cannot get executed from user space.
 	/// </summary>
-	extern "C" auto Asm_VmWareDetector() noexcept(true) -> bool;
+	extern "C" auto Asm_VmWareDetector() -> bool;
 }

@@ -308,7 +308,7 @@ namespace Nominax::ByteCode
 		/// <param name="discriminator"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		constexpr DiscriminatedSignal(Signal::Discriminator discriminator, Signal value) noexcept(true);
+		constexpr DiscriminatedSignal(Signal::Discriminator discriminator, Signal value);
 
 		/// <summary>
 		/// Check if discriminator matches generic type.
@@ -317,7 +317,7 @@ namespace Nominax::ByteCode
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Contains() const noexcept(true) -> bool;
+		constexpr auto Contains() const -> bool;
 
 		/// <summary>
 		///  Check if discriminator matches generic type and value.
@@ -327,7 +327,7 @@ namespace Nominax::ByteCode
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Contains(T value) const noexcept(true) -> bool;
+		constexpr auto Contains(T value) const -> bool;
 
 		/// <summary>
 		///  Check if discriminator matches generic type,
@@ -337,7 +337,7 @@ namespace Nominax::ByteCode
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto Unwrap() const noexcept(true) -> std::optional<std::remove_reference_t<T>>;
+		constexpr auto Unwrap() const -> std::optional<std::remove_reference_t<T>>;
 
 		/// <summary>
 		/// Converted to T without discriminator checks.
@@ -346,34 +346,34 @@ namespace Nominax::ByteCode
 		/// <returns></returns>
 		template <typename T> requires BytecodeElement<T>
 		[[nodiscard]]
-		constexpr auto UnwrapUnchecked() const noexcept(true) -> std::remove_reference_t<T>;
+		constexpr auto UnwrapUnchecked() const -> std::remove_reference_t<T>;
 
 		/// <summary>
 		/// Equals.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator ==(const DiscriminatedSignal& other) const noexcept(true) -> bool;
+		constexpr auto operator ==(const DiscriminatedSignal& other) const -> bool;
 
 		/// <summary>
 		/// Not equals.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator !=(const DiscriminatedSignal& other) const noexcept(true) -> bool;
+		constexpr auto operator !=(const DiscriminatedSignal& other) const -> bool;
 	};
 
-	constexpr DiscriminatedSignal::DiscriminatedSignal(const Signal::Discriminator discriminator, const Signal value) noexcept(true) : Discriminator {discriminator}, Value {value} { }
+	constexpr DiscriminatedSignal::DiscriminatedSignal(const Signal::Discriminator discriminator, const Signal value) : Discriminator {discriminator}, Value {value} { }
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DiscriminatedSignal::Contains() const noexcept(true) -> bool
+	constexpr auto DiscriminatedSignal::Contains() const -> bool
 	{
 		static_assert(MapStreamType<T>());
 		return this->Discriminator == *MapStreamType<T>();
 	}
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DiscriminatedSignal::Contains(T value) const noexcept(true) -> bool
+	constexpr auto DiscriminatedSignal::Contains(T value) const -> bool
 	{
 		static_assert(MapStreamType<std::remove_reference_t<T>>());
 		const bool result
@@ -385,7 +385,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DiscriminatedSignal::Unwrap() const noexcept(true) -> std::optional<std::remove_reference_t<T>>
+	constexpr auto DiscriminatedSignal::Unwrap() const -> std::optional<std::remove_reference_t<T>>
 	{
 		return this->Contains<T>()
 			       ? std::optional<std::remove_reference_t<T>> {std::bit_cast<T>(this->Value.R64.AsU64)}
@@ -393,17 +393,17 @@ namespace Nominax::ByteCode
 	}
 
 	template <typename T> requires BytecodeElement<T>
-	constexpr auto DiscriminatedSignal::UnwrapUnchecked() const noexcept(true) -> std::remove_reference_t<T>
+	constexpr auto DiscriminatedSignal::UnwrapUnchecked() const -> std::remove_reference_t<T>
 	{
 		return std::bit_cast<T>(this->Value.R64.AsU64);
 	}
 
-	constexpr auto DiscriminatedSignal::operator==(const DiscriminatedSignal& other) const noexcept(true) -> bool
+	constexpr auto DiscriminatedSignal::operator==(const DiscriminatedSignal& other) const -> bool
 	{
 		return this->Value.R64.AsU64 == other.Value.R64.AsU64;
 	}
 
-	constexpr auto DiscriminatedSignal::operator!=(const DiscriminatedSignal& other) const noexcept(true) -> bool
+	constexpr auto DiscriminatedSignal::operator!=(const DiscriminatedSignal& other) const -> bool
 	{
 		return !(*this == other);
 	}

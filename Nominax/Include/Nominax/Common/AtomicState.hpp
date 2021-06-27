@@ -241,69 +241,69 @@ namespace Nominax::Common
 		/// </summary>
 		/// <param name="x"></param>
 		/// <returns></returns>
-		constexpr auto operator ()(T x) noexcept(true) -> void;
+		constexpr auto operator ()(T x) -> void;
 
 		/// <summary>
 		/// Return current error state.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		constexpr auto operator ()() const noexcept(true) -> T;
+		constexpr auto operator ()() const -> T;
 
 		/// <summary>
 		/// Get atomic value container.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		constexpr auto operator *() const noexcept(true) -> const std::atomic<ValueType>&;
+		constexpr auto operator *() const -> const std::atomic<ValueType>&;
 
 		/// <summary>
 		/// Returns true if the current state is
 		/// equals to success state, else false.
 		/// </summary>
 		/// <returns></returns>
-		constexpr operator bool() const noexcept(true);
+		constexpr operator bool() const;
 
 		/// <summary>
 		/// Construct with success state as value.
 		/// </summary>
 		/// <returns></returns>
-		constexpr AtomicState() noexcept(true);
+		constexpr AtomicState();
 
 		/// <summary>
 		/// Construct with custom state.
 		/// </summary>
 		/// <param name="x"></param>
 		/// <returns></returns>
-		explicit constexpr AtomicState(T x) noexcept(true);
+		explicit constexpr AtomicState(T x);
 
 		/// <summary>
 		/// Move constructor.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr AtomicState(AtomicState&& other) noexcept(true) = default;
+		constexpr AtomicState(AtomicState&& other) = default;
 
 		/// <summary>
 		/// Copy constructor.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr AtomicState(const AtomicState& other) noexcept(true) = default;
+		constexpr AtomicState(const AtomicState& other) = default;
 
 		/// <summary>
 		/// Move assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator =(AtomicState&& other) noexcept(true) -> AtomicState& = default;
+		constexpr auto operator =(AtomicState&& other) -> AtomicState& = default;
 
 		/// <summary>
 		/// Copy assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator =(const AtomicState& other) noexcept(true) -> AtomicState& = default;
+		constexpr auto operator =(const AtomicState& other) -> AtomicState& = default;
 
 		/// <summary>
 		/// Destructor.
@@ -319,7 +319,7 @@ namespace Nominax::Common
 	/// <param name="x"></param>
 	/// <returns></returns>
 	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
-	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator()(const T x) noexcept(true) -> void
+	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator()(const T x) -> void
 	{
 		if constexpr (SingletonLock)
 		{
@@ -342,7 +342,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
-	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator()() const noexcept(true) -> T
+	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator()() const -> T
 	{
 		return static_cast<T>(this->Value_.load());
 	}
@@ -352,7 +352,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
-	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator*() const noexcept(true) -> const std::atomic<ValueType>&
+	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator*() const -> const std::atomic<ValueType>&
 	{
 		return this->Value_;
 	}
@@ -363,7 +363,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
-	constexpr AtomicState<T, SuccessState, SingletonLock>::operator bool() const noexcept(true)
+	constexpr AtomicState<T, SuccessState, SingletonLock>::operator bool() const
 	{
 		return (*this)() == SuccessState;
 	}
@@ -373,7 +373,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns></returns>
 	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
-	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState() noexcept(true) : Value_ {static_cast<ValueType>(SuccessState)} { }
+	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState() : Value_ {static_cast<ValueType>(SuccessState)} { }
 
 	/// <summary>
 	/// Construct with custom state.
@@ -381,5 +381,5 @@ namespace Nominax::Common
 	/// <param name="x"></param>
 	/// <returns></returns>
 	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
-	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState(const T x) noexcept(true) : Value_ {static_cast<ValueType>(x)} { }
+	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState(const T x) : Value_ {static_cast<ValueType>(x)} { }
 }

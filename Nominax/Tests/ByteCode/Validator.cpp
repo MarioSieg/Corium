@@ -216,7 +216,7 @@ struct DynamicSignal final
 
 	DataVariant Data {0_uint};
 
-	explicit constexpr operator Signal::Discriminator() const noexcept(true)
+	explicit constexpr operator Signal::Discriminator() const
 	{
 		switch (this->Data.index())
 		{
@@ -416,9 +416,9 @@ TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 
 	constexpr std::array cache {0, 2, 4, 7, 8};
 
-	ASSERT_EQ(ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[0]], &code.DiscriminatorBuffer()[cache[1]]), 1);
-	ASSERT_EQ(ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[1]], &code.DiscriminatorBuffer()[cache[2]]), 1);
-	ASSERT_EQ(ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[2]], &code.DiscriminatorBuffer()[cache[3]]), 2);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[0]], &code.GetDiscriminatorBuffer()[cache[1]]), 1);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[1]], &code.GetDiscriminatorBuffer()[cache[2]]), 1);
+	ASSERT_EQ(ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[2]], &code.GetDiscriminatorBuffer()[cache[3]]), 2);
 	// Only 4 because the last instruction is removed and checked separately.
 	//ASSERT_EQ(ComputeInstructionArgumentOffset(&cache[3]), 0);
 }
@@ -440,23 +440,31 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 	constexpr std::array cache {0, 2, 4, 7, 8};
 
 	// push
-	const auto r1 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[0]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[0]], &code.DiscriminatorBuffer()[cache[1]]))};
+	const auto r1 {
+		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[0]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[0]], &code.GetDiscriminatorBuffer()[cache[1]]))
+	};
 	ASSERT_EQ(r1.size(), 1);
 	ASSERT_TRUE(r1[0] == Signal::Discriminator::I64);
 
 	// push
-	const auto r2 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[1]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[1]], &code.DiscriminatorBuffer()[cache[2]]))};
+	const auto r2 {
+		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[1]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[1]], &code.GetDiscriminatorBuffer()[cache[2]]))
+	};
 	ASSERT_EQ(r2.size(), 1);
 	ASSERT_TRUE(r2[0] == Signal::Discriminator::I64);
 
 	// sto
-	const auto r3 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[2]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[2]], &code.DiscriminatorBuffer()[cache[3]]))};
+	const auto r3 {
+		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[2]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[2]], &code.GetDiscriminatorBuffer()[cache[3]]))
+	};
 	ASSERT_EQ(r3.size(), 2);
 	ASSERT_TRUE(r3[0] == Signal::Discriminator::U64);
 	ASSERT_TRUE(r3[1] == Signal::Discriminator::F64);
 
 	// iadd
-	const auto r4 {ExtractInstructionArguments(&code.DiscriminatorBuffer()[cache[3]], ComputeInstructionArgumentOffset(&code.DiscriminatorBuffer()[cache[3]], &code.DiscriminatorBuffer()[cache[4]]))};
+	const auto r4 {
+		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[3]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[3]], &code.GetDiscriminatorBuffer()[cache[4]]))
+	};
 	ASSERT_TRUE(r4.empty());
 
 	// Only 4 because the last instruction is removed and checked separately. 
@@ -892,9 +900,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange2)
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
 }
 
-TEST(ValidatorAlgorithms, FullValidation1Billion)
+TEST(ValidatorAlgorithms, FullValidation1Million)
 {
-	constexpr std::size_t count {200'000'000};
+	constexpr std::size_t count {200'000};
 
 	Stream stream { };
 	stream.Reserve(count * 5 + 10);

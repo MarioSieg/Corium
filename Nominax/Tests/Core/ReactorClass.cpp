@@ -225,7 +225,6 @@ TEST(ReactorClass, Valid)
 	};
 	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(std::get<1>(reactor.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(reactor.GetInterruptHandler(), GetDefaultInterruptRoutine());
 }
@@ -242,17 +241,17 @@ TEST(ReactorClass, MoveConstruct)
 	};
 	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(std::get<0>(reactor.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(std::get<1>(reactor.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(reactor.GetInterruptHandler(), GetDefaultInterruptRoutine());
 
 	const Reactor reactor2 {std::move(reactor)};
 	ASSERT_EQ(reactor2.GetStack().Size(), 5); // 4 + 1 for padding
 	ASSERT_EQ(reactor2.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(std::get<0>(reactor2.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(std::get<1>(reactor2.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(reactor2.GetInterruptHandler(), GetDefaultInterruptRoutine());
 }
+
+#ifdef NOMINAX_DEATH_TESTS
 
 TEST(ReactorClass, ZeroStackSizeFault)
 {
@@ -266,6 +265,8 @@ TEST(ReactorClass, ZeroStackSizeFault)
 	};
 	ASSERT_DEATH_IF_SUPPORTED(exec(), "");
 }
+
+#endif
 
 TEST(ReactorClass, InterruptHandler)
 {
@@ -304,9 +305,9 @@ TEST(ReactorClass, TryExecuteValid)
 		}
 	};
 	const auto& output {reactor.Execute(std::move(out))};
-	ASSERT_EQ(output.ShutdownReason, ReactorShutdownReason::Success);
-	ASSERT_EQ(output.InterruptCode, 0);
-	ASSERT_EQ(std::memcmp(output.Input, &reactor.GetInputDescriptor(), sizeof(decltype(*output.Input))), 0);
+	ASSERT_EQ(output.first, ReactorShutdownReason::Success);
+	ASSERT_EQ(output.second.InterruptCode, 0);
+	ASSERT_EQ(std::memcmp(output.second.Input, &reactor.GetInputDescriptor(), sizeof(decltype(*output.second.Input))), 0);
 }
 
 TEST(ReactorClass, TryExecuteInvalidZeroCode)

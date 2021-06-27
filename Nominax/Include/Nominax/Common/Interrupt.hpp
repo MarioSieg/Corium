@@ -215,7 +215,7 @@ namespace Nominax::Common
 	/// Trigger a breakpoint, works in release mode too.
 	/// Good for debugging release code or looking at assembler.
 	/// </summary>
-	__attribute__((always_inline, cold)) inline auto BreakpointInterrupt() noexcept(true) -> void
+	__attribute__((always_inline, cold)) inline auto BreakpointInterrupt() -> void
 	{
 #if NOMINAX_ARCH_X86_64
 		__asm__ __volatile__("int $3");

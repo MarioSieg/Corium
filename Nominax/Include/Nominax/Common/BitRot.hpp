@@ -221,7 +221,7 @@ namespace Nominax::Common
 	(
 		U32      value,
 		const U8 shift
-	) noexcept(true) -> U32
+	) -> U32
 	{
 #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
 		return _rotl(value, shift);
@@ -245,7 +245,7 @@ namespace Nominax::Common
 	(
 		U32      value,
 		const U8 shift
-	) noexcept(true) -> U32
+	) -> U32
 	{
 #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
 		return _rotr(value, shift);
@@ -269,7 +269,7 @@ namespace Nominax::Common
 	(
 		U64      value,
 		const U8 shift
-	) noexcept(true) -> U64
+	) -> U64
 	{
 #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
 		return _rotl64(value, shift);
@@ -293,7 +293,7 @@ namespace Nominax::Common
 	(
 		U64      value,
 		const U8 shift
-	) noexcept(true) -> U64
+	) -> U64
 	{
 #if NOMINAX_OS_WINDOWS && NOMINAX_USE_ARCH_OPT && NOMINAX_ARCH_X86_64 && !NOMINAX_COM_GCC
 		return _rotr64(value, shift);
