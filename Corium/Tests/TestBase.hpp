@@ -213,6 +213,7 @@
 #include "../Source/Token.hpp"
 #include "../Source/Lexer.hpp"
 #include "../Source/LexContext.hpp"
+#include "../Source/ParseContext.hpp"
 
 using namespace Nominax;
 using namespace Arch;

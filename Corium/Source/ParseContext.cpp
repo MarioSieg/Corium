@@ -1,4 +1,5 @@
 #include "ParseContext.hpp"
+#include "LexContext.hpp"
 
 #define UNL NOMINAX_UNLIKELY
 
@@ -186,5 +187,15 @@ namespace Corium
         }
         message.push_back('\n');
         return this->ErrorState_ = message;
+    }
+
+    ParseContext::ParseContext(const std::span<const Token> tokenView, const std::string_view sourceText)
+    {
+        this->Reset(tokenView, sourceText);
+    }
+
+    ParseContext::ParseContext(const LexContext& lexContext) : ParseContext{lexContext.GetTokenStream(), lexContext.GetSourceText()}
+    {
+
     }
 }
