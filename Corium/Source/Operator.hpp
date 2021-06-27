@@ -214,20 +214,20 @@ namespace Corium
 	/// </summary>
 	enum class Operator : char
 	{
-		Equals			= '=',
-		Comma			= ',',
-		Addition		= '+',
-		Subtraction		= '-',
-		Multiplication	= '*',
-		Division		= '/',
-		Modulo			= '%',
-		And				= '&',
-		Or				= '|',
-		Xor				= '^',
-		Complement		= '~',
-		Not				= '!',
-		Less			= '<',
-		Greater			= '>',
+		Equals = '=',
+		Comma = ',',
+		Addition = '+',
+		Subtraction = '-',
+		Multiplication = '*',
+		Division = '/',
+		Modulo = '%',
+		And = '&',
+		Or = '|',
+		Xor = '^',
+		Complement = '~',
+		Not = '!',
+		Less = '<',
+		Greater = '>',
 	};
 
 	/// <summary>
@@ -282,8 +282,8 @@ namespace Corium
 		case Operator::Greater:
 			return "Greater";
 
-        default:
-            return "";
+		default:
+			return "";
 		}
 	}
 }

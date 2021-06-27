@@ -213,7 +213,7 @@ namespace Corium
 {
 	enum class MonoLexeme : char
 	{
-	    NewLine = '\n',
+		NewLine = '\n',
 		ParenthesisLeft = '(',
 		ParenthesisRight = ')',
 		CurlyBracesLeft = '{',
@@ -225,18 +225,18 @@ namespace Corium
 	{
 		switch (lexeme)
 		{
-            case MonoLexeme::NewLine:
-                    return "NewLIne";
-            case MonoLexeme::ParenthesisLeft:
-                return "ParenthesisLeft";
-            case MonoLexeme::ParenthesisRight:
-                return "ParenthesisRight";
-            case MonoLexeme::CurlyBracesLeft:
-                return "CurlyBracesLeft";
-            case MonoLexeme::CurlyBracesRight:
-                return "CurlyBracesRight";
-            default:
-                return "Identifier";
+		case MonoLexeme::NewLine:
+			return "NewLIne";
+		case MonoLexeme::ParenthesisLeft:
+			return "ParenthesisLeft";
+		case MonoLexeme::ParenthesisRight:
+			return "ParenthesisRight";
+		case MonoLexeme::CurlyBracesLeft:
+			return "CurlyBracesLeft";
+		case MonoLexeme::CurlyBracesRight:
+			return "CurlyBracesRight";
+		default:
+			return "Identifier";
 		}
 	}
 }
