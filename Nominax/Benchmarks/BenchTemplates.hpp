@@ -221,10 +221,10 @@ using namespace Core;
 
 static const void* Alloc
 {
-    []() -> const void*
-    {
-        return GlobalAllocatorProxy = &GlobalDebugAllocator;
-    }()
+	[]() -> const void*
+	{
+		return GlobalAllocatorProxy = &GlobalDebugAllocator;
+	}()
 };
 
 extern auto LoopBenchmark

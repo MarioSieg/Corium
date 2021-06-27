@@ -212,14 +212,14 @@
 namespace Corium
 {
 	/// <summary>
-	/// Core lexer context.
+	/// Contains all states for lexing source code into a token stream.
 	/// </summary>
 	class LexContext final
 	{
-		std::string  SourceText_ { };
+		std::string SourceText_ { };
 		const char* IdentBegin_ {nullptr};
 		const char* IdentEnd_ {nullptr};
-		TokenStream    Output_ { };
+		TokenStream Output_ { };
 
 		auto GetRawIdentifierBuffer() const -> const char*;
 		auto GetRawIdentifierBufferBlob() const -> const U8*;
@@ -358,8 +358,8 @@ namespace Corium
 		return this->SourceText_;
 	}
 
-    inline auto LexContext::TokPush(Token&& tok) -> void
-    {
-        this->Output_.emplace_back(std::move(tok));
-    }
+	inline auto LexContext::TokPush(Token&& tok) -> void
+	{
+		this->Output_.emplace_back(std::move(tok));
+	}
 }

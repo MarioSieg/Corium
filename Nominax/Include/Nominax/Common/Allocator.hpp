@@ -218,11 +218,11 @@ namespace Nominax::Common
 	class IAllocator
 	{
 	public:
-        /// <summary>
-        /// Impl constructor.
-        /// </summary>
-        /// <returns></returns>
-        constexpr IAllocator() = default;
+		/// <summary>
+		/// Impl constructor.
+		/// </summary>
+		/// <returns></returns>
+		constexpr IAllocator() = default;
 
 		/// <summary>
 		/// Copy constructor.
@@ -320,8 +320,8 @@ namespace Nominax::Common
 		virtual auto Vdealloc(void*& out) const -> void;
 	};
 
-    /// <summary>
-    /// Fast runtime allocator.
-    /// </summary>
-    inline constinit IAllocator GlobalRuntimeAllocator {};
+	/// <summary>
+	/// Fast runtime allocator.
+	/// </summary>
+	inline constinit IAllocator GlobalRuntimeAllocator { };
 }

@@ -210,35 +210,34 @@
 #include "../Source/ParseContext.hpp"
 
 using namespace Corium;
-using namespace Nominax::Prelude;
+using namespace Prelude;
 
 static auto CompileSourceFile(const std::string_view path) -> void
 {
-	LexContext lexContext { };
-    ParseContext parseContext { };
+	LexContext   lexContext { };
+	ParseContext parseContext { };
 
-    {
-        TextFile file { };
-        file.ReadFromFileOrPanic(path);
-        std::string source {std::move(file.GetContentText())};
+	{
+		TextFile file { };
+		file.ReadFromFileOrPanic(path);
+		std::string source {std::move(file.GetContentText())};
 
-        if (NOMINAX_UNLIKELY(source.empty()))
-        {
-            Print("Empty source file!");
-            return;
-        }
+		if (NOMINAX_UNLIKELY(source.empty()))
+		{
+			Print("Empty source file!");
+			return;
+		}
 
-        source.push_back('\n');
-        lexContext.EvaluateString(std::move(source));
-    }
+		source.push_back('\n');
+		lexContext.EvaluateString(std::move(source));
+	}
 
 	parseContext.Reset(lexContext.GetTokenStream(), lexContext.GetSourceText());
-    const ParseError& parseError {parseContext.Parse()};
+	const ParseError& parseError {parseContext.Parse()};
 	if (NOMINAX_UNLIKELY(parseError.has_value()))
-    {
-        Print(LogLevel::Error, "{}\n", *parseError);
-        return;
-    }
+	{
+		Print(LogLevel::Error, "{}\n", *parseError);
+	}
 }
 
 [[maybe_unused]]
@@ -273,7 +272,7 @@ auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* c
 {
 	Stream stream { };
 	stream.Prologue();
-    CompileSourceFile("../../../Corium/Docs/ParseTest.cor");
+	CompileSourceFile("../../../Corium/Docs/ParseTest.cor");
 	stream.Epilogue();
 	stream.PrintByteCode();
 	//return ExecuteNominax(std::move(stream), argc, argv);
