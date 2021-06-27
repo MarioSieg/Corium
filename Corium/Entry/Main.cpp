@@ -212,7 +212,7 @@
 using namespace Corium;
 using namespace Nominax::Prelude;
 
-static auto ParseFile(const std::string_view path, Stream& out) -> void
+static auto CompileSourceFile(const std::string_view path) -> void
 {
 	LexContext lexContext { };
     ParseContext parseContext { };
@@ -239,9 +239,6 @@ static auto ParseFile(const std::string_view path, Stream& out) -> void
         Print(LogLevel::Error, "{}\n", *parseError);
         return;
     }
-
-	out.Prologue();
-	out.Epilogue();
 }
 
 [[maybe_unused]]
@@ -275,7 +272,9 @@ static auto ExecuteNominax
 auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* const argv) -> int
 {
 	Stream stream { };
-	ParseFile("../../../Corium/Docs/ParseTest.cor", stream);
+	stream.Prologue();
+    CompileSourceFile("../../../Corium/Docs/ParseTest.cor");
+	stream.Epilogue();
 	stream.PrintByteCode();
 	//return ExecuteNominax(std::move(stream), argc, argv);
 	return 0;
