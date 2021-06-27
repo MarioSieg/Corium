@@ -4,19 +4,22 @@
 
 namespace Corium
 {
-    auto ParseContext::Reset(const std::span<const Token> tokenView, const std::span<const U16> lineMapView) -> void
+    auto ParseContext::Reset(const std::span<const Token> tokenView, const std::string_view sourceText) -> void
     {
-        NOMINAX_PANIC_ASSERT_LE(std::size(tokenView), std::size(lineMapView), "Token view size must be smaller of equal to line view size!");
-
         this->TokenStreamView_ = tokenView;
-        this->LineMapView_ = lineMapView;
+        this->CurrentLine_ = 1;
         this->ErrorState_ = std::nullopt;
+        this->Needle_ = std::begin(this->TokenStreamView_);
+        this->End_ = std::end(this->TokenStreamView_);
+        this->SourceText_ = sourceText;
     }
 
     auto ParseContext::Parse() -> const std::optional<std::string>&
     {
-        this->Needle_ = std::begin(this->TokenStreamView_);
-        this->End_ = std::end(this->TokenStreamView_);
+        if (UNL(this->Needle_ != std::begin(this->TokenStreamView_) || this->End_ != std::end(this->TokenStreamView_)))
+        {
+            return this->ErrorState_ = "Invalid needle iterator!";
+        }
 
         for (; this->Needle_ < this->End_ && !this->ErrorState_.has_value(); std::advance(this->Needle_, 1))
         {
@@ -50,9 +53,17 @@ namespace Corium
         return this->ErrorState_;
     }
 
-    auto ParseContext::ParseProxy_MonoLexeme([[maybe_unused]] MonoLexeme monoLexeme) -> void
+    auto ParseContext::ParseProxy_MonoLexeme(const MonoLexeme monoLexeme) -> void
     {
+        switch (monoLexeme)
+        {
+            case MonoLexeme::NewLine:
+                ++this->CurrentLine_;
+                return;
 
+            default:
+                return;
+        }
     }
 
     auto ParseContext::ParseProxy_Identifier([[maybe_unused]] const Identifier &identifier) -> void
@@ -135,5 +146,45 @@ namespace Corium
                 return;
             }
         }
+    }
+
+    auto ParseContext::GetNthLineOfSource(const std::size_t lineNumber) const -> std::optional<std::string>
+    {
+        if (UNL(std::empty(this->SourceText_)))
+        {
+            return std::nullopt;
+        }
+
+        std::stringstream  ss;
+        ss.str(std::string{this->SourceText_});
+
+        std::size_t i {1};
+        for(std::string temp{}; std::getline(ss, temp); ++i)
+        {
+            if (i == lineNumber)
+            {
+                return temp;
+            }
+        }
+
+        return std::nullopt;
+    }
+
+    auto ParseContext::FormatAndSetParseError(std::string&& userMessage) -> const ParseError&
+    {
+        const U32 line {this->CurrentLine_};
+        const std::string errorLine{this->GetNthLineOfSource(this->CurrentLine_).template value_or("?")};
+        const std::string lineInfo{Common::Format("Line {}: ", line)};
+        std::string message{ Common::Format("Syntax error: {}\n{}\"{}\"\n", userMessage, lineInfo, errorLine)};
+        for (std::size_t i{0}; i <= std::size(lineInfo); ++i)
+        {
+            message.push_back(' ');
+        }
+        for (std::size_t i{0}; i < std::size(errorLine); ++i)
+        {
+            message.push_back('^');
+        }
+        message.push_back('\n');
+        return this->ErrorState_ = message;
     }
 }

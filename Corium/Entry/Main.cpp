@@ -221,17 +221,20 @@ static auto ParseFile(const std::string_view path, Stream& out) -> void
         TextFile file { };
         file.ReadFromFileOrPanic(path);
         std::string source {std::move(file.GetContentText())};
+
         if (NOMINAX_UNLIKELY(source.empty()))
         {
             Print("Empty source file!");
             return;
         }
+
         source.push_back('\n');
         lexContext.EvaluateString(std::move(source));
     }
 
-	parseContext.Reset(lexContext.GetTokenStream(), lexContext.GetLineMap());
-	if (const ParseError& parseError {parseContext.Parse()}; NOMINAX_UNLIKELY(parseError.has_value()))
+	parseContext.Reset(lexContext.GetTokenStream(), lexContext.GetSourceText());
+    const ParseError& parseError {parseContext.Parse()};
+	if (NOMINAX_UNLIKELY(parseError.has_value()))
     {
         Print(LogLevel::Error, "{}\n", *parseError);
         return;

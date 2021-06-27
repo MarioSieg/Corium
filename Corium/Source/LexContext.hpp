@@ -220,8 +220,6 @@ namespace Corium
 		const char* IdentBegin_ {nullptr};
 		const char* IdentEnd_ {nullptr};
 		TokenStream    Output_ { };
-		TokenLineMap OutputLines_ { };
-		U16 CurrentLine_ {};
 
 		auto GetRawIdentifierBuffer() const -> const char*;
 		auto GetRawIdentifierBufferBlob() const -> const U8*;
@@ -320,13 +318,6 @@ namespace Corium
 		[[nodiscard]]
 		auto GetTokenStream() & -> TokenStream&;
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns>The current toke stream line map.</returns>
-        [[nodiscard]]
-        auto GetLineMap() & -> const TokenLineMap&;
-
 		/// <summary>
 		/// 
 		/// </summary>
@@ -362,13 +353,13 @@ namespace Corium
 		return this->Output_;
 	}
 
-    inline auto LexContext::GetLineMap() & -> const TokenLineMap&
-    {
-	    return this->OutputLines_;
-    }
-
 	inline auto LexContext::GetSourceText() const & -> const std::string&
 	{
 		return this->SourceText_;
 	}
+
+    inline auto LexContext::TokPush(Token&& tok) -> void
+    {
+        this->Output_.emplace_back(std::move(tok));
+    }
 }

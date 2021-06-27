@@ -266,10 +266,6 @@ namespace Corium
 	{
 		switch (*x)
 		{
-            case '\n':
-                ++this->CurrentLine_;
-                return;
-
             case '\t':
             case '\v':
             case '\f':
@@ -334,6 +330,11 @@ namespace Corium
                 TokPush(Operator::Greater);
                 return;
 
+            case static_cast<char>(MonoLexeme::NewLine):
+                this->ParseAndSubmitIdentifier();
+                TokPush(MonoLexeme::NewLine);
+                return;
+
             case static_cast<char>(MonoLexeme::ParenthesisLeft):
                 this->ParseAndSubmitIdentifier();
                 TokPush(MonoLexeme::ParenthesisLeft);
@@ -372,10 +373,8 @@ namespace Corium
 	auto LexContext::Reset() -> void
 	{
 		this->Output_.clear();
-		this->OutputLines_.clear();
 		this->SourceText_.clear();
 		this->IdentReset();
-		this->CurrentLine_ = 1;
 	}
 
 	auto LexContext::SetSourceText(std::string&& sourceText) -> void
@@ -392,10 +391,4 @@ namespace Corium
 		}
 		return std::nullopt;
 	}
-
-    auto LexContext::TokPush(Token&& tok) -> void
-    {
-        this->Output_.emplace_back(std::move(tok));
-        this->OutputLines_.emplace_back(this->CurrentLine_);
-    }
 }

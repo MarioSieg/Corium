@@ -244,9 +244,4 @@ namespace Corium
 	/// Represents a stream of tokens.
 	/// </summary>
 	using TokenStream = std::vector<Token>;
-
-    /// <summary>
-    /// For each token inside the token stream there is a line number in the line map.
-    /// </summary>
-	using TokenLineMap = std::vector<U16>;
 }
