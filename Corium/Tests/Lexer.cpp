@@ -212,13 +212,7 @@ TEST(Lexer, LexFunction)
 	LexContext context { };
     std::string source
     {
-        R"(
-
-			fun main () {
-
-			}
-
-		)"
+        "fun main () {\n}\n"
     };
 	const auto  ok
 	{
@@ -230,11 +224,13 @@ TEST(Lexer, LexFunction)
 	};
 	const auto result {std::move(context.GetTokenStream())};
 	ASSERT_EQ(ok, LexResultCode::Ok);
-	ASSERT_EQ(std::size(result), 6);
+	ASSERT_EQ(std::size(result), 8);
     ASSERT_EQ(std::get<Keyword>(result[0]), Keyword::Fun);
 	ASSERT_EQ(std::get<Identifier>(result[1]), Identifier {"main"});
 	ASSERT_EQ(std::get<MonoLexeme>(result[2]), MonoLexeme::ParenthesisLeft);
 	ASSERT_EQ(std::get<MonoLexeme>(result[3]), MonoLexeme::ParenthesisRight);
 	ASSERT_EQ(std::get<MonoLexeme>(result[4]), MonoLexeme::CurlyBracesLeft);
-	ASSERT_EQ(std::get<MonoLexeme>(result[5]), MonoLexeme::CurlyBracesRight);
+    ASSERT_EQ(std::get<MonoLexeme>(result[5]), MonoLexeme::NewLine);
+	ASSERT_EQ(std::get<MonoLexeme>(result[6]), MonoLexeme::CurlyBracesRight);
+    ASSERT_EQ(std::get<MonoLexeme>(result[7]), MonoLexeme::NewLine);
 }

@@ -249,7 +249,7 @@ TEST(LexContext, Braces)
 TEST(LexContext, Control)
 {
 	LexContext ctx { };
-	ctx.EvaluateString("\n\t\v\f\r");
+	ctx.EvaluateString("\t\v\f\r");
 	ASSERT_TRUE(ctx.GetTokenStream().empty());
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 }
@@ -320,7 +320,7 @@ TEST(LexContext, LexLet)
 {
 	LexContext ctx { };
 	ctx.EvaluateString(std::string {KEYWORD_TABLE[static_cast<std::size_t>(Keyword::Let)]} + " noel\n");
-	ASSERT_EQ(ctx.GetTokenStream().size(), 2);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 3);
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetTokenStream()[0]));
 	ASSERT_EQ(std::get<Keyword>(ctx.GetTokenStream()[0]), Keyword::Let);
@@ -333,23 +333,25 @@ TEST(LexContext, LexIdentifiers)
 {
 	LexContext ctx { };
 	ctx.EvaluateString("one two\nthree\tfour ");
-	ASSERT_EQ(ctx.GetTokenStream().size(), 4);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 5);
 	ASSERT_FALSE(ctx.GetIdentifierBuffer().has_value());
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[0]));
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[1]));
-	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[2]));
+	ASSERT_TRUE(std::holds_alternative<MonoLexeme>(ctx.GetTokenStream()[2]));
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[3]));
+    ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[4]));
 	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[0]), Identifier{"one" });
 	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[1]), Identifier{"two" });
-	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[2]), Identifier{"three" });
-	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[3]), Identifier{"four" });
+    ASSERT_EQ(std::get<MonoLexeme>(ctx.GetTokenStream()[2]), MonoLexeme::NewLine);
+	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[3]), Identifier{"three" });
+	ASSERT_EQ(std::get<Identifier>(ctx.GetTokenStream()[4]), Identifier{"four" });
 }
 
 TEST(LexContext, LexArithmeticOperators)
 {
 	LexContext ctx { };
 	ctx.EvaluateString("let x = 10 + 11 - 3 % 1 * 3 / 2\n");
-	ASSERT_EQ(ctx.GetTokenStream().size(), 14);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 15);
 	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetTokenStream()[0]));
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[1]));
 	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[2]));
@@ -385,7 +387,7 @@ TEST(LexContext, LexBitOperators)
 {
 	LexContext ctx { };
 	ctx.EvaluateString("let x = 10 ^ 11 & 3 | 1 ^ ~3\n");
-	ASSERT_EQ(ctx.GetTokenStream().size(), 13);
+	ASSERT_EQ(ctx.GetTokenStream().size(), 14);
 	ASSERT_TRUE(std::holds_alternative<Keyword>(ctx.GetTokenStream()[0]));
 	ASSERT_TRUE(std::holds_alternative<Identifier>(ctx.GetTokenStream()[1]));
 	ASSERT_TRUE(std::holds_alternative<Operator>(ctx.GetTokenStream()[2]));
