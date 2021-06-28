@@ -265,12 +265,10 @@ namespace Corium
 	{
 		switch (monoLexeme)
 		{
-		case MonoLexeme::NewLine:
-			++this->CurrentLine_;
+		case MonoLexeme::NewLine: ++this->CurrentLine_;
 			return;
 
-		default:
-			return;
+		default: return;
 		}
 	}
 
@@ -280,12 +278,10 @@ namespace Corium
 	{
 		switch (keyword)
 		{
-		case Keyword::Fun:
-			this->ParseFunction();
+		case Keyword::Fun: this->ParseFunction();
 			return;
 
-		default:
-			return;
+		default: return;
 		}
 	}
 

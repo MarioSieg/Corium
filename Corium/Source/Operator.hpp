@@ -240,50 +240,35 @@ namespace Corium
 	{
 		switch (op)
 		{
-		case Operator::Equals:
-			return "Assignment";
+		case Operator::Equals: return "Assignment";
 
-		case Operator::Comma:
-			return "Comma";
+		case Operator::Comma: return "Comma";
 
-		case Operator::Addition:
-			return "Addition";
+		case Operator::Addition: return "Addition";
 
-		case Operator::Subtraction:
-			return "Subtraction";
+		case Operator::Subtraction: return "Subtraction";
 
-		case Operator::Multiplication:
-			return "Multiplication";
+		case Operator::Multiplication: return "Multiplication";
 
-		case Operator::Division:
-			return "Division";
+		case Operator::Division: return "Division";
 
-		case Operator::Modulo:
-			return "Modulo";
+		case Operator::Modulo: return "Modulo";
 
-		case Operator::And:
-			return "And";
+		case Operator::And: return "And";
 
-		case Operator::Or:
-			return "Or";
+		case Operator::Or: return "Or";
 
-		case Operator::Xor:
-			return "Xor";
+		case Operator::Xor: return "Xor";
 
-		case Operator::Complement:
-			return "Complement";
+		case Operator::Complement: return "Complement";
 
-		case Operator::Not:
-			return "Not";
+		case Operator::Not: return "Not";
 
-		case Operator::Less:
-			return "Less";
+		case Operator::Less: return "Less";
 
-		case Operator::Greater:
-			return "Greater";
+		case Operator::Greater: return "Greater";
 
-		default:
-			return "";
+		default: return "";
 		}
 	}
 }

@@ -261,7 +261,7 @@ namespace Nominax::Common
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~DebugAllocator() override = default;
+		virtual ~DebugAllocator() override = default;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
@@ -269,7 +269,7 @@ namespace Nominax::Common
 		/// <param name="out"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		auto Allocate(void*& out, std::size_t size) const -> void override;
+		virtual auto Allocate(void*& out, std::size_t size) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
@@ -277,23 +277,14 @@ namespace Nominax::Common
 		/// <param name="out"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		auto Reallocate(void*& out, std::size_t size) const -> void override;
+		virtual auto Reallocate(void*& out, std::size_t size) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <returns></returns>
-		auto Deallocate(void*& out) const -> void override;
-
-		/// <summary>
-		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
-		/// </summary>
-		/// <param name="out"></param>
-		/// <param name="size"></param>
-		/// <param name="alignment"></param>
-		/// <returns></returns>
-		auto AllocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void override;
+		virtual auto Deallocate(void*& out) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
@@ -302,14 +293,23 @@ namespace Nominax::Common
 		/// <param name="size"></param>
 		/// <param name="alignment"></param>
 		/// <returns></returns>
-		auto ReallocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void override;
+		virtual auto AllocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void override;
+
+		/// <summary>
+		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <param name="alignment"></param>
+		/// <returns></returns>
+		virtual auto ReallocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <returns></returns>
-		auto DeallocateAligned(void*& out) const -> void override;
+		virtual auto DeallocateAligned(void*& out) const -> void override;
 
 		/// <summary>
 		/// 

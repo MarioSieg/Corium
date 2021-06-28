@@ -363,7 +363,8 @@ namespace Nominax::ByteCode
 		constexpr auto operator !=(const DiscriminatedSignal& other) const -> bool;
 	};
 
-	constexpr DiscriminatedSignal::DiscriminatedSignal(const Signal::Discriminator discriminator, const Signal value) : Discriminator {discriminator}, Value {value} { }
+	constexpr DiscriminatedSignal::DiscriminatedSignal(const Signal::Discriminator discriminator, const Signal value) : Discriminator {discriminator},
+	                                                                                                                    Value {value} { }
 
 	template <typename T> requires BytecodeElement<T>
 	constexpr auto DiscriminatedSignal::Contains() const -> bool

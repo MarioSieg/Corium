@@ -270,93 +270,72 @@ namespace Corium
 		case '\v':
 		case '\f':
 		case '\r':
-		case ' ':
-			this->ParseAndSubmitIdentifier();
+		case ' ': this->ParseAndSubmitIdentifier();
 			return;
 
-		case static_cast<char>(Operator::Equals):
-			TokPush(Operator::Equals);
+		case static_cast<char>(Operator::Equals): TokPush(Operator::Equals);
 			return;
 
-		case static_cast<char>(Operator::Comma):
-			TokPush(Operator::Comma);
+		case static_cast<char>(Operator::Comma): TokPush(Operator::Comma);
 			return;
 
-		case static_cast<char>(Operator::Addition):
-			TokPush(Operator::Addition);
+		case static_cast<char>(Operator::Addition): TokPush(Operator::Addition);
 			return;
 
-		case static_cast<char>(Operator::Subtraction):
-			TokPush(Operator::Subtraction);
+		case static_cast<char>(Operator::Subtraction): TokPush(Operator::Subtraction);
 			return;
 
-		case static_cast<char>(Operator::Multiplication):
-			TokPush(Operator::Multiplication);
+		case static_cast<char>(Operator::Multiplication): TokPush(Operator::Multiplication);
 			return;
 
-		case static_cast<char>(Operator::Division):
-			TokPush(Operator::Division);
+		case static_cast<char>(Operator::Division): TokPush(Operator::Division);
 			return;
 
-		case static_cast<char>(Operator::Modulo):
-			TokPush(Operator::Modulo);
+		case static_cast<char>(Operator::Modulo): TokPush(Operator::Modulo);
 			return;
 
-		case static_cast<char>(Operator::And):
-			TokPush(Operator::And);
+		case static_cast<char>(Operator::And): TokPush(Operator::And);
 			return;
 
-		case static_cast<char>(Operator::Or):
-			TokPush(Operator::Or);
+		case static_cast<char>(Operator::Or): TokPush(Operator::Or);
 			return;
 
-		case static_cast<char>(Operator::Xor):
-			TokPush(Operator::Xor);
+		case static_cast<char>(Operator::Xor): TokPush(Operator::Xor);
 			return;
 
-		case static_cast<char>(Operator::Complement):
-			TokPush(Operator::Complement);
+		case static_cast<char>(Operator::Complement): TokPush(Operator::Complement);
 			return;
 
-		case static_cast<char>(Operator::Not):
-			TokPush(Operator::Not);
+		case static_cast<char>(Operator::Not): TokPush(Operator::Not);
 			return;
 
-		case static_cast<char>(Operator::Less):
-			TokPush(Operator::Less);
+		case static_cast<char>(Operator::Less): TokPush(Operator::Less);
 			return;
 
-		case static_cast<char>(Operator::Greater):
-			TokPush(Operator::Greater);
+		case static_cast<char>(Operator::Greater): TokPush(Operator::Greater);
 			return;
 
-		case static_cast<char>(MonoLexeme::NewLine):
-			this->ParseAndSubmitIdentifier();
+		case static_cast<char>(MonoLexeme::NewLine): this->ParseAndSubmitIdentifier();
 			TokPush(MonoLexeme::NewLine);
 			return;
 
-		case static_cast<char>(MonoLexeme::ParenthesisLeft):
-			this->ParseAndSubmitIdentifier();
+		case static_cast<char>(MonoLexeme::ParenthesisLeft): this->ParseAndSubmitIdentifier();
 			TokPush(MonoLexeme::ParenthesisLeft);
 			return;
 
-		case static_cast<char>(MonoLexeme::ParenthesisRight):
-			this->ParseAndSubmitIdentifier();
+		case static_cast<char>(MonoLexeme::ParenthesisRight): this->ParseAndSubmitIdentifier();
 			TokPush(MonoLexeme::ParenthesisRight);
 			return;
 
-		case static_cast<char>(MonoLexeme::CurlyBracesLeft):
-			this->ParseAndSubmitIdentifier();
+		case static_cast<char>(MonoLexeme::CurlyBracesLeft): this->ParseAndSubmitIdentifier();
 			TokPush(MonoLexeme::CurlyBracesLeft);
 			return;
 
-		case static_cast<char>(MonoLexeme::CurlyBracesRight):
-			this->ParseAndSubmitIdentifier();
+		case static_cast<char>(MonoLexeme::CurlyBracesRight): this->ParseAndSubmitIdentifier();
 			TokPush(MonoLexeme::CurlyBracesRight);
 			return;
 
-		default:
-			this->IdentPush(x);
+		default: this->IdentPush(x);
 		}
 	}
 
