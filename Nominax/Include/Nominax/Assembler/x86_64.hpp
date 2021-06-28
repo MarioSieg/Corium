@@ -1,22 +1,22 @@
-// File: Nominax.hpp
+// File: x86_64.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 28.06.2021 7:54 PM
 // Project: NominaxRuntime
-// 
+//
 //                                  Apache License
 //                            Version 2.0, January 2004
 //                         http://www.apache.org/licenses/
-// 
+//
 //    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-// 
+//
 //    1. Definitions.
-// 
+//
 //       "License" shall mean the terms and conditions for use, reproduction,
 //       and distribution as defined by Sections 1 through 9 of this document.
-// 
+//
 //       "Licensor" shall mean the copyright owner or entity authorized by
 //       the copyright owner that is granting the License.
-// 
+//
 //       "Legal Entity" shall mean the union of the acting entity and all
 //       other entities that control, are controlled by, or are under common
 //       control with that entity. For the purposes of this definition,
@@ -24,24 +24,24 @@
 //       direction or management of such entity, whether by contract or
 //       otherwise, or (ii) ownership of fifty percent (50%) or more of the
 //       outstanding shares, or (iii) beneficial ownership of such entity.
-// 
+//
 //       "You" (or "Your") shall mean an individual or Legal Entity
 //       exercising permissions granted by this License.
-// 
+//
 //       "Source" form shall mean the preferred form for making modifications,
 //       including but not limited to software source code, documentation
 //       source, and configuration files.
-// 
+//
 //       "Object" form shall mean any form resulting from mechanical
 //       transformation or translation of a Source form, including but
 //       not limited to compiled object code, generated documentation,
 //       and conversions to other media types.
-// 
+//
 //       "Work" shall mean the work of authorship, whether in Source or
 //       Object form, made available under the License, as indicated by a
 //       copyright notice that is included in or attached to the work
 //       (an example is provided in the Appendix below).
-// 
+//
 //       "Derivative Works" shall mean any work, whether in Source or Object
 //       form, that is based on (or derived from) the Work and for which the
 //       editorial revisions, annotations, elaborations, or other modifications
@@ -49,7 +49,7 @@
 //       of this License, Derivative Works shall not include works that remain
 //       separable from, or merely link (or bind by name) to the interfaces of,
 //       the Work and Derivative Works thereof.
-// 
+//
 //       "Contribution" shall mean any work of authorship, including
 //       the original version of the Work and any modifications or additions
 //       to that Work or Derivative Works thereof, that is intentionally
@@ -63,18 +63,18 @@
 //       Licensor for the purpose of discussing and improving the Work, but
 //       excluding communication that is conspicuously marked or otherwise
 //       designated in writing by the copyright owner as "Not a Contribution."
-// 
+//
 //       "Contributor" shall mean Licensor and any individual or Legal Entity
 //       on behalf of whom a Contribution has been received by Licensor and
 //       subsequently incorporated within the Work.
-// 
+//
 //    2. Grant of Copyright License. Subject to the terms and conditions of
 //       this License, each Contributor hereby grants to You a perpetual,
 //       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
 //       copyright license to reproduce, prepare Derivative Works of,
 //       publicly display, publicly perform, sublicense, and distribute the
 //       Work and such Derivative Works in Source or Object form.
-// 
+//
 //    3. Grant of Patent License. Subject to the terms and conditions of
 //       this License, each Contributor hereby grants to You a perpetual,
 //       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
@@ -90,24 +90,24 @@
 //       or contributory patent infringement, then any patent licenses
 //       granted to You under this License for that Work shall terminate
 //       as of the date such litigation is filed.
-// 
+//
 //    4. Redistribution. You may reproduce and distribute copies of the
 //       Work or Derivative Works thereof in any medium, with or without
 //       modifications, and in Source or Object form, provided that You
 //       meet the following conditions:
-// 
+//
 //       (a) You must give any other recipients of the Work or
 //           Derivative Works a copy of this License; and
-// 
+//
 //       (b) You must cause any modified files to carry prominent notices
 //           stating that You changed the files; and
-// 
+//
 //       (c) You must retain, in the Source form of any Derivative Works
 //           that You distribute, all copyright, patent, trademark, and
 //           attribution notices from the Source form of the Work,
 //           excluding those notices that do not pertain to any part of
 //           the Derivative Works; and
-// 
+//
 //       (d) If the Work includes a "NOTICE" text file as part of its
 //           distribution, then any Derivative Works that You distribute must
 //           include a readable copy of the attribution notices contained
@@ -124,14 +124,14 @@
 //           or as an addendum to the NOTICE text from the Work, provided
 //           that such additional attribution notices cannot be construed
 //           as modifying the License.
-// 
+//
 //       You may add Your own copyright statement to Your modifications and
 //       may provide additional or different license terms and conditions
 //       for use, reproduction, or distribution of Your modifications, or
 //       for any such Derivative Works as a whole, provided Your use,
 //       reproduction, and distribution of the Work otherwise complies with
 //       the conditions stated in this License.
-// 
+//
 //    5. Submission of Contributions. Unless You explicitly state otherwise,
 //       any Contribution intentionally submitted for inclusion in the Work
 //       by You to the Licensor shall be under the terms and conditions of
@@ -139,12 +139,12 @@
 //       Notwithstanding the above, nothing herein shall supersede or modify
 //       the terms of any separate license agreement you may have executed
 //       with Licensor regarding such Contributions.
-// 
+//
 //    6. Trademarks. This License does not grant permission to use the trade
 //       names, trademarks, service marks, or product names of the Licensor,
 //       except as required for reasonable and customary use in describing the
 //       origin of the Work and reproducing the content of the NOTICE file.
-// 
+//
 //    7. Disclaimer of Warranty. Unless required by applicable law or
 //       agreed to in writing, Licensor provides the Work (and each
 //       Contributor provides its Contributions) on an "AS IS" BASIS,
@@ -154,7 +154,7 @@
 //       PARTICULAR PURPOSE. You are solely responsible for determining the
 //       appropriateness of using or redistributing the Work and assume any
 //       risks associated with Your exercise of permissions under this License.
-// 
+//
 //    8. Limitation of Liability. In no event and under no legal theory,
 //       whether in tort (including negligence), contract, or otherwise,
 //       unless required by applicable law (such as deliberate and grossly
@@ -166,7 +166,7 @@
 //       work stoppage, computer failure or malfunction, or any and all
 //       other commercial damages or losses), even if such Contributor
 //       has been advised of the possibility of such damages.
-// 
+//
 //    9. Accepting Warranty or Additional Liability. While redistributing
 //       the Work or Derivative Works thereof, You may choose to offer,
 //       and charge a fee for, acceptance of support, warranty, indemnity,
@@ -177,11 +177,11 @@
 //       defend, and hold each Contributor harmless for any liability
 //       incurred by, or claims asserted against, such Contributor by reason
 //       of your accepting any such warranty or additional liability.
-// 
+//
 //    END OF TERMS AND CONDITIONS
-// 
+//
 //    APPENDIX: How to apply the Apache License to your work.
-// 
+//
 //       To apply the Apache License to your work, attach the following
 //       boilerplate notice, with the fields enclosed by brackets "[]"
 //       replaced with your own identifying information. (Don't include
@@ -190,15 +190,15 @@
 //       file or class name and description of purpose be included on the
 //       same "printed page" as the copyright notice for easier
 //       identification within third-party archives.
-// 
+//
 //    Copyright 2021 Mario Sieg "pinsrq" <mt3000@gmx.de>
-// 
+//
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
 //    You may obtain a copy of the License at
-// 
+//
 //        http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //    Unless required by applicable law or agreed to in writing, software
 //    distributed under the License is distributed on an "AS IS" BASIS,
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -207,22 +207,134 @@
 
 #pragma once
 
-#include "Arch/Arch.hpp"
-#include "Assembler/Assembler.hpp"
-#include "ByteCode/ByteCode.hpp"
-#include "Core/Core.hpp"
-#include "System/System.hpp"
-#include "Common/Common.hpp"
-#include "VectorLib/VectorLib.hpp"
+#include <array>
+#include <string_view>
 
-namespace Nominax::Prelude
+#include "../Common/BaseTypes.hpp"
+
+namespace Nominax::Assembler::X86_64
 {
-	using namespace Nominax;
-	using namespace Arch;
-	using namespace Assembler;
-	using namespace ByteCode;
-	using namespace Core;
-	using namespace System;
-	using namespace Common;
-	using namespace VectorLib;
+    /// <summary>
+    /// +---+---+---+---+---+---+---+---+
+    /// | 0 | 1 | 0 | 0 | W | R | X | B |
+    /// +---+---+---+---+---+---+---+---+
+    /// +-------+--------+-------------+
+    /// | Field | Length | Description |
+    /// +-------+--------+-------------+
+    /// |  0100	| 4 bits | Fixed magic bit pattern
+    ///	|   W	| 1 bit	 | When 1, a 64 - bit operand size is used.Otherwise, when 0, the default operand size is used (which is 32 - bit for most but not all instructions).
+    /// |   R	| 1 bit	 | This 1 - bit value is an extension to the MODRM.reg field. See Registers.
+    /// |   X	| 1 bit	 | This 1 - bit value is an extension to the SIB.index field. See 64 - bit addressing.
+    /// |   B	| 1 bit	 | This 1 - bit value is an extension to the MODRM.rm field or the SIB.base field.See 64 - bit addressing.
+    /// +-------+--------+-------------+
+    /// </summary>
+    /// <param name="w"></param>
+    /// <param name="r"></param>
+    /// <param name="x"></param>
+    /// <param name="b"></param>
+    /// <returns></returns>
+    constexpr auto PackBitsRexPrefix(const bool w, const bool r, const bool x, const bool b) -> U8
+    {
+        U8 rex{ 0x40 };
+        rex |= b;
+        rex |= x << 1;
+        rex |= r << 2;
+        rex |= w << 3;
+        return rex;
+    }
+
+    /// <summary>
+    /// Packs the bits into the specified order:
+    /// +-----------+-----------+-------+
+    /// |  bits567  |  bits234  | bits01|
+    /// +---+---+---+---+---+---+---+---+
+    /// | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+    /// +---+---+---+---+---+---+---+---+
+    /// </summary>
+    constexpr auto PackBitsDupletTripletTriplet(const U8 bits01, const U8 bits234, const U8 bits567) -> U8
+    {
+        U8 trio { bits567 };
+        trio &= ~0xF8;
+        trio |= (bits234 & ~0xF8) << 3;
+        trio |= (bits01 & ~0xFC) << 6;
+        return trio;
+    }
+
+    /// <summary>
+    /// Contains all registers supported by the JIT compiler.
+    /// </summary>
+    enum class Register : U8
+    {
+        RAX,
+        RBX,
+        RCX,
+        RDX,
+        RSI,
+        RDI,
+        RBP,
+        RSP,
+        R8,
+        R9,
+        R10,
+        R11,
+        R12,
+        R13,
+        R14,
+        R15,
+
+        $Count
+    };
+
+    /// <summary>
+    /// Machine code id table for all registers.
+    /// </summary>
+    constexpr std::array<U8, static_cast<std::size_t>(Register::$Count)> REGISTER_ID_TABLE
+    {
+        0x00, 0x03,
+        0x01, 0x02,
+        0x06, 0x07,
+        0x05, 0x04,
+        0x00, 0x01,
+        0x02, 0x03,
+        0x04, 0x05,
+        0x06, 0x07
+    };
+
+    /// <summary>
+    /// Mnemonic name table of all registers.
+    /// </summary>
+    constexpr std::array<std::string_view, static_cast<std::size_t>(Register::$Count)> REGISTER_MNEMONIC_TABLE
+    {
+        "rax",
+        "rbx",
+        "rcx",
+        "rdx",
+        "rsi",
+        "rdi",
+        "rbp",
+        "rsp",
+        "r8",
+        "r9",
+        "r10",
+        "r11",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+    };
+
+    /// <summary>
+    /// These registers must be preserved across function calls.
+    /// </summary>
+    [[maybe_unused]]
+    constexpr std::array CALLE_SAVED_REGISTERS
+    {
+        Register::RBX,
+        Register::RSP,
+        Register::RBP,
+        Register::R12,
+        Register::R13,
+        Register::R14,
+        Register::R15,
+    };
 }
