@@ -302,50 +302,53 @@ namespace Nominax::Core
 	/// </summary>
 	__attribute__((hot)) static auto SyscallIntrin(Record* __restrict__ const sp, const U64 id) -> void
 	{
-		static constexpr const void* __restrict__ JUMP_TABLE[static_cast<std::size_t>(SystemIntrinsicCallID::$Count)] {
-			&& __cos__,
-			&& __sin__,
-			&& __tan__,
-			&& __acos__,
-			&& __asin__,
-			&& __atan__,
-			&& __atan2__,
-			&& __cosh__,
-			&& __sinh__,
-			&& __tanh__,
-			&& __acosh__,
-			&& __asinh__,
-			&& __atanh__,
-			&& __exp__,
-			&& __log__,
-			&& __log10__,
-			&& __exp2__,
-			&& __ilogb__,
-			&& __log2__,
-			&& __pow__,
-			&& __sqrt__,
-			&& __cbrt__,
-			&& __hypot__,
-			&& __ceil__,
-			&& __floor__,
-			&& __round__,
-			&& __rint__,
-			&& __max__,
-			&& __min__,
-			&& __fmax__,
-			&& __fmin__,
-			&& __fdim__,
-			&& __abs__,
-			&& __fabs__,
-			&& __io_port_write_cluster__,
-			&& __io_port_read_cluster__,
-			&& __io_port_flush__
+		static constexpr std::array<const void* __restrict__ const, static_cast<std::size_t>(SystemIntrinsicCallID::$Count)> JUMP_TABLE
+		{
+			&&__cos__,
+			&&__sin__,
+			&&__tan__,
+			&&__acos__,
+			&&__asin__,
+			&&__atan__,
+			&&__atan2__,
+			&&__cosh__,
+			&&__sinh__,
+			&&__tanh__,
+			&&__acosh__,
+			&&__asinh__,
+			&&__atanh__,
+			&&__exp__,
+			&&__log__,
+			&&__log10__,
+			&&__exp2__,
+			&&__ilogb__,
+			&&__log2__,
+			&&__pow__,
+			&&__sqrt__,
+			&&__cbrt__,
+			&&__hypot__,
+			&&__ceil__,
+			&&__floor__,
+			&&__round__,
+			&&__rint__,
+			&&__max__,
+			&&__min__,
+			&&__fmax__,
+			&&__fmin__,
+			&&__fdim__,
+			&&__abs__,
+			&&__fabs__,
+			&&__io_port_write_cluster__,
+			&&__io_port_read_cluster__,
+			&&__io_port_flush__
 		};
 
-		static_assert(ValidateJumpTable(JUMP_TABLE, sizeof JUMP_TABLE / sizeof *JUMP_TABLE));
+		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
+
+		const void* __restrict__ const* const jumpTable {std::data(JUMP_TABLE)};
 
 		goto
-		**(JUMP_TABLE + id);
+		**(jumpTable + id);
 
 	__cos__:
 		__attribute__((hot));
@@ -612,7 +615,7 @@ namespace Nominax::Core
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 
-		static constexpr const void* __restrict__ const JUMP_TABLE[static_cast<std::underlying_type_t<Instruction>>(Instruction::$Count)]
+		static constexpr std::array<const void* __restrict__ const, static_cast<std::underlying_type_t<Instruction>>(Instruction::$Count)> JUMP_TABLE
 		{
 			&& __int__,
 			&& __intrin__,
@@ -689,11 +692,11 @@ namespace Nominax::Core
 			&& __matdiv__,
 		};
 
-		static_assert(ValidateJumpTable(JUMP_TABLE, sizeof JUMP_TABLE / sizeof *JUMP_TABLE));
+		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
 
 		if (outJumpTable)
 		{
-			**outJumpTable = const_cast<const void**>(JUMP_TABLE);
+			**outJumpTable = const_cast<const void**>(std::data(JUMP_TABLE));
 			return ReactorShutdownReason::Success;
 		}
 
@@ -705,7 +708,7 @@ namespace Nominax::Core
 		ASM_MARKER("reactor begin");
 
 #if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-		if (NOMINAX_UNLIKELY(!PerformJumpTableMapping(input->CodeChunk, input->CodeChunk + input->CodeChunkSize, input->CodeChunkInstructionMap, JUMP_TABLE)))
+		if (NOMINAX_UNLIKELY(!PerformJumpTableMapping(input->CodeChunk, input->CodeChunk + input->CodeChunkSize, input->CodeChunkInstructionMap, std::data(JUMP_TABLE))))
 		{
 			return ReactorShutdownReason::Error;
 		}
@@ -713,13 +716,14 @@ namespace Nominax::Core
 
 		ASM_MARKER("reactor locals");
 
-		InterruptAccumulator             interruptCode { };                          /* interrupt id flag			*/
-		IntrinsicRoutine* const* const   intrinsicTable {input->IntrinsicTable};     /* intrinsic table hi			*/
-		InterruptRoutine* const          interruptHandler {input->InterruptHandler}; /* global interrupt routine	*/
-		const Signal* const __restrict__ ipLo {input->CodeChunk};                    /* instruction low ptr			*/
-		const Signal*                    ip {ipLo};                                  /* instruction ptr				*/
-		const Signal*                    bp {ipLo};                                  /* base pointer				*/
-		Record* __restrict__             sp {input->Stack};                          /* stack pointer lo			*/
+		const void* __restrict__ const* const jumpTable {std::data(JUMP_TABLE)};          /* jump table					*/
+		InterruptAccumulator                  interruptCode { };                          /* interrupt id flag			*/
+		IntrinsicRoutine* const* const        intrinsicTable {input->IntrinsicTable};     /* intrinsic table hi			*/
+		InterruptRoutine* const               interruptHandler {input->InterruptHandler}; /* global interrupt routine		*/
+		const Signal* const __restrict__      ipLo {input->CodeChunk};                    /* instruction low ptr			*/
+		const Signal*                         ip {ipLo};                                  /* instruction ptr				*/
+		const Signal*                         bp {ipLo};                                  /* base pointer					*/
+		Record* __restrict__                  sp {input->Stack};                          /* stack pointer lo				*/
 
 		ASM_MARKER("reactor exec");
 
@@ -731,8 +735,8 @@ namespace Nominax::Core
 
 #else
 
-#	define JMP_PTR()		**(JUMP_TABLE + (*++ip).OpCode)
-#	define JMP_PTR_REL()	**(JUMP_TABLE + (*ip).OpCode)
+#	define JMP_PTR()		**(jumpTable + (*++ip).OpCode)
+#	define JMP_PTR_REL()	**(jumpTable + (*ip).OpCode)
 #	define UPDATE_IP()		ip = ipLo + abs - 1
 #endif
 
