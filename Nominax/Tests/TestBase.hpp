@@ -210,10 +210,4 @@
 #include "gtest/gtest.h"
 #include "../Include/Nominax/Nominax.hpp"
 
-using namespace Nominax;
-using namespace ByteCode;
-using namespace Arch;
-using namespace Common;
-using namespace Core;
-using namespace System;
-using namespace VectorLib;
+using namespace Nominax::Prelude;

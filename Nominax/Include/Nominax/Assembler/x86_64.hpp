@@ -208,34 +208,57 @@
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <string_view>
 
 #include "../Common/BaseTypes.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
+    constexpr U8 LOCK {0xF0};
+    constexpr U8 REPNE_REPNZ {0xF2};
+    constexpr U8 REP_REPE_REPZ {0xF3};
+    constexpr U8 REX_W {0x48};
+    constexpr U8 OPERAND_OVERRIDE {0x66};
+    constexpr U8 ADDRESS_OVERRIDE {0x67};
+    constexpr U8 TWO_BYTE_PREFIX {0x0F};
+
     /// <summary>
+    /// ModRM byte field entries.
+    /// </summary>
+    enum class ModRm : U8
+    {
+        RegisterIndirect        = 0b0000'0000,
+        OneByteSignedDisplace   = 0b0000'0001,
+        FourByteSignedDisplace  = 0b0000'0010,
+        RegisterAddressing      = 0b0000'0011
+    };
+
+    /// <summary>
+    /// Scale index byte scale factors.
+    /// </summary>
+    enum class SibScale : U8
+    {
+        Factor1 = 0b0000'0000,
+        Factor2 = 0b0000'0001,
+        Factor4	= 0b0000'0010,
+        Factor8	= 0b0000'0011
+    };
+
+    /// <summary>
+    /// Pack a REX prefix:
     /// +---+---+---+---+---+---+---+---+
     /// | 0 | 1 | 0 | 0 | W | R | X | B |
     /// +---+---+---+---+---+---+---+---+
-    /// +-------+--------+-------------+
-    /// | Field | Length | Description |
-    /// +-------+--------+-------------+
-    /// |  0100	| 4 bits | Fixed magic bit pattern
-    ///	|   W	| 1 bit	 | When 1, a 64 - bit operand size is used.Otherwise, when 0, the default operand size is used (which is 32 - bit for most but not all instructions).
-    /// |   R	| 1 bit	 | This 1 - bit value is an extension to the MODRM.reg field. See Registers.
-    /// |   X	| 1 bit	 | This 1 - bit value is an extension to the SIB.index field. See 64 - bit addressing.
-    /// |   B	| 1 bit	 | This 1 - bit value is an extension to the MODRM.rm field or the SIB.base field.See 64 - bit addressing.
-    /// +-------+--------+-------------+
     /// </summary>
     /// <param name="w"></param>
     /// <param name="r"></param>
     /// <param name="x"></param>
     /// <param name="b"></param>
-    /// <returns></returns>
-    constexpr auto PackBitsRexPrefix(const bool w, const bool r, const bool x, const bool b) -> U8
+    /// <returns>The composed rex prefix.</returns>
+    constexpr auto PackRex(const bool w, const bool r, const bool x, const bool b) -> U8
     {
-        U8 rex{ 0x40 };
+        U8 rex {0x40};
         rex |= b;
         rex |= x << 1;
         rex |= r << 2;
@@ -244,20 +267,219 @@ namespace Nominax::Assembler::X86_64
     }
 
     /// <summary>
+    /// Pack a REX prefix if optional, else return zero.
+    /// </summary>
+    /// <param name="w"></param>
+    /// <param name="r"></param>
+    /// <param name="x"></param>
+    /// <param name="b"></param>
+    /// <returns>The composed rex prefix or zero.</returns>
+    constexpr auto PackRexOpt(const bool w, const bool r, const bool x, const bool b) -> U8
+    {
+        return w || r || x || b ? PackRex(w, r, x, b) : 0;
+    }
+
+    /// <summary>
     /// Packs the bits into the specified order:
     /// +-----------+-----------+-------+
-    /// |  bits567  |  bits234  | bits01|
+    /// | bits01 |  bits234 |  bits567  |
     /// +---+---+---+---+---+---+---+---+
-    /// | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+    /// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
     /// +---+---+---+---+---+---+---+---+
     /// </summary>
-    constexpr auto PackBitsDupletTripletTriplet(const U8 bits01, const U8 bits234, const U8 bits567) -> U8
+    /// <param name="bits01"></param>
+    /// <param name="bits234"></param>
+    /// <param name="bits567"></param>
+    /// <returns>The composed mod rm sib byte.</returns>
+    constexpr auto PackModRm(const U8 bits01, const U8 bits234, const U8 bits567) -> U8
     {
-        U8 trio { bits567 };
+        assert(bits01 & ~0b11 == 0);
+        assert(bits234 & ~0b111 == 0);
+        assert(bits567 & ~0b111 == 0);
+        U8 trio {bits567};
         trio &= ~0xF8;
         trio |= (bits234 & ~0xF8) << 3;
         trio |= (bits01 & ~0xFC) << 6;
         return trio;
+    }
+
+    /// <summary>
+    /// Writes a NOP chain of the specified size into the needle.
+    /// </summary>
+    /// <param name="n">The machine code needle. Must have at least size elements.</param>
+    /// <param name="size">The NOP chain size between 1 and 15 inclusive.</param>
+    constexpr auto InjectNOPChain(U8* n, const U8 size) -> void
+    {
+        assert(size > 1);
+        assert(size < 16);
+
+        switch (size)
+        {
+            case 1:
+                *n = 0x90;
+                return;
+
+            case 2:
+                *n   = 0x40;
+                *++n = 0x90;
+                return;
+
+            case 3:
+                *n   = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x00;
+                return;
+
+            case 4:
+                *n   = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x40;
+                *++n = 0x00;
+                return;
+
+            case 5:
+                *n   = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x44;
+                *++n = 0x00;
+                *++n = 0x00;
+                return;
+
+            case 6:
+                *n   = 0x66;
+                *++n = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x44;
+                *++n = 0x00;
+                *++n = 0x00;
+                return;
+
+            case 7:
+                *n   = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x80;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                return;
+
+            case 8:
+                *n   = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x84;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                return;
+
+            case 9:
+                *n   = 0x66;
+                *++n = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x84;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                return;
+
+            case 10:
+                *n   = 0x66;
+                *++n = 0x2E;
+                *++n = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x84;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                return;
+
+            case 11:
+                *n   = 0x66;
+                *++n = 0x66;
+                *++n = 0x2E;
+                *++n = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x84;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                return;
+
+            case 12:
+                *n   = 0x66;
+                *++n = 0x66;
+                *++n = 0x66;
+                *++n = 0x2E;
+                *++n = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x84;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                return;
+
+            case 13:
+                *n   = 0x66;
+                *++n = 0x66;
+                *++n = 0x66;
+                *++n = 0x66;
+                *++n = 0x2E;
+                *++n = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x84;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                return;
+
+            case 14:
+                *n   = 0x66;
+                *++n = 0x66;
+                *++n = 0x66;
+                *++n = 0x66;
+                *++n = 0x66;
+                *++n = 0x2E;
+                *++n = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x84;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                return;
+
+            case 15:
+                *n   = 0x66;
+                *++n = 0x66;
+                *++n = 0x66;
+                *++n = 0x66;
+                *++n = 0x66;
+                *++n = 0x66;
+                *++n = 0x2E;
+                *++n = 0x0F;
+                *++n = 0x1F;
+                *++n = 0x84;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                *++n = 0x00;
+                return;
+        }
     }
 
     /// <summary>
