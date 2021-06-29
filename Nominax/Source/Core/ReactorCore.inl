@@ -716,6 +716,7 @@ namespace Nominax::Core
 
 		ASM_MARKER("reactor locals");
 
+		[[maybe_unused]]
 		const void* __restrict__ const* const jumpTable {std::data(JUMP_TABLE)};          /* jump table					*/
 		InterruptAccumulator                  interruptCode { };                          /* interrupt id flag			*/
 		IntrinsicRoutine* const* const        intrinsicTable {input->IntrinsicTable};     /* intrinsic table hi			*/

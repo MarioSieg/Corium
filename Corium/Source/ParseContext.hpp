@@ -301,6 +301,28 @@ namespace Corium
 		[[nodiscard]]
 		auto GetNextAtOrNull(std::size_t offset) const -> const Token*;
 
+        /// <summary>
+        /// The count of remaining tokens from the current needle offset.
+        /// </summary>
+        /// <returns>The count of remaining tokens from the current needle offset.</returns>
+		[[nodiscard]]
+		auto GetNextCount() const -> std::size_t;
+
+        /// <summary>
+        /// Gets the token data if types are matching, else nullptr.
+        /// </summary>
+        /// <param name="offset">The offset to get from.</param>
+        /// <returns>Pointer to token data if valid, else nullptr.</returns>
+		template <typename T>
+        [[nodiscard]]
+		auto GetNextIf(std::size_t offset) const -> const T*;
+
+        /// <summary>
+        /// Skips n tokens by advancing the needle.
+        /// </summary>
+        /// <param name="count">The amount of tokens to skip.</param>
+		auto Skip(std::size_t count) -> void;
+
 		/// <summary>
 		/// Resets all the states and data views.
 		/// </summary>
@@ -424,6 +446,12 @@ namespace Corium
 		/// </summary>
 		/// <returns></returns>
 		auto ParseFunction() -> void;
+
+        /// <summary>
+        /// Sets the error state to a well formatted argument.
+        /// </summary>
+        /// <param name="monoLexeme">The mono lexeme to format.</param>
+		auto MakeError(MonoLexeme expected, const MonoLexeme* gotInstead = nullptr) -> void;
 	};
 
 	inline auto ParseContext::GetErrorState() const -> const ParseError&
@@ -446,6 +474,11 @@ namespace Corium
 		return this->End_;
 	}
 
+    inline auto ParseContext::Skip(const std::size_t count) -> void
+    {
+        std::advance(this->Needle_, count);
+    }
+
 	inline auto ParseContext::GetNextAt(const std::size_t offset) const -> const Token&
 	{
 		return this->Needle_[offset];
@@ -460,6 +493,17 @@ namespace Corium
 	{
 		return this->HasNext(offset) ? &this->GetNextAt(offset) : nullptr;
 	}
+
+	inline auto ParseContext::GetNextCount() const -> std::size_t
+    {
+	    return std::distance(this->Needle_, this->End_);
+    }
+
+    template <typename T>
+    inline auto ParseContext::GetNextIf(const std::size_t offset) const -> const T*
+    {
+        return std::get_if<T>(&this->GetNextAt(offset));
+    }
 
 	template <typename T, typename... Ts>
 	inline auto ParseContext::MakeParseError(T&& format, Ts&&...args) -> const ParseError&

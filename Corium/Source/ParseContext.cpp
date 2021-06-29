@@ -291,61 +291,54 @@ namespace Corium
 
 	auto ParseContext::ParseFunction() -> void
 	{
-		// validate function name:
-		{
-			const Token* const functionName {this->GetNextAtOrNull(1)};
-			if (UNL(!functionName))
-			{
-				this->MakeParseError("Expected function name");
-				return;
-			}
+	    constexpr auto argCount { 3 };
+	    const auto tokCount {this->GetNextCount()};
 
-			const Identifier* const identifier {std::get_if<Identifier>(functionName)};
-			if (UNL(!identifier))
-			{
-				this->MakeParseError("Expected function name");
-				return;
-			}
-		}
+	    switch (tokCount)
+        {
+            [[unlikely]] case 0: // missing function name:
+                this->MakeParseError("Expected function name");
+                return;
 
-		// validate parenthesis left
-		{
-			const Token* const leftParen {this->GetNextAtOrNull(2)};
-			if (UNL(!leftParen))
-			{
-				this->MakeParseError("Expected '{}'", static_cast<char>(MonoLexeme::ParenthesisLeft));
-				return;
-			}
+            [[unlikely]] case 1: // missing lparen:
+                this->MakeError(MonoLexeme::ParenthesisLeft, nullptr);
+                return;
 
-			const MonoLexeme* const lexeme {std::get_if<MonoLexeme>(leftParen)};
-			if (UNL(!lexeme || *lexeme != MonoLexeme::ParenthesisLeft))
-			{
-				this->MakeParseError("Expected '{}'", static_cast<char>(MonoLexeme::ParenthesisLeft));
-				return;
-			}
-		}
+            [[unlikely]] case 2: // missing rparen:
+                this->MakeError(MonoLexeme::ParenthesisRight, nullptr);
+                return;
+        }
 
-		// validate parenthesis right:
-		{
-			const Token* const rightParen {this->GetNextAtOrNull(3)};
-			if (UNL(!rightParen))
-			{
-				this->MakeParseError("Expected '{}'", static_cast<char>(MonoLexeme::ParenthesisRight));
-				return;
-			}
+        const Identifier* const identifier {this->GetNextIf<Identifier>(1)};
+        const MonoLexeme* const lparen {this->GetNextIf<MonoLexeme>(2)};
+        const MonoLexeme* const rparen {this->GetNextIf<MonoLexeme>(3)};
 
-			const MonoLexeme* const lexeme {std::get_if<MonoLexeme>(rightParen)};
-			if (UNL(!lexeme || *lexeme != MonoLexeme::ParenthesisRight))
-			{
-				this->MakeParseError("Expected '{}'", static_cast<char>(MonoLexeme::ParenthesisRight));
-			}
-		}
+        if (!identifier) [[unlikely]]
+        {
+            this->MakeParseError("Expected function name");
+            return;
+        }
+
+        if (!lparen || *lparen != MonoLexeme::ParenthesisLeft)  [[unlikely]]
+        {
+            this->MakeError(MonoLexeme::ParenthesisLeft, lparen);
+            return;
+        }
+
+        if (!rparen || *rparen != MonoLexeme::ParenthesisRight)  [[unlikely]]
+        {
+            this->MakeError(MonoLexeme::ParenthesisRight, rparen);
+            return;
+        }
+
+        this->Skip(argCount);
 	}
 
 	auto ParseContext::GetNthLineOfSource(const std::size_t lineNumber) const -> std::optional<std::string>
 	{
-		if (UNL(std::empty(this->SourceText_)))
+		if (std::empty(this->SourceText_))
 		{
+		    [[unlikely]]
 			return std::nullopt;
 		}
 
@@ -388,4 +381,9 @@ namespace Corium
 	}
 
 	ParseContext::ParseContext(const LexContext& lexContext) : ParseContext {lexContext.GetTokenStream(), lexContext.GetSourceText()} { }
+
+    auto ParseContext::MakeError(const MonoLexeme expected, const MonoLexeme* const gotInstead) -> void
+    {
+        this->MakeParseError("Expected '{}', got '{}' instead", static_cast<char>(expected), gotInstead ? static_cast<char>(*gotInstead) : ' ');
+    }
 }
