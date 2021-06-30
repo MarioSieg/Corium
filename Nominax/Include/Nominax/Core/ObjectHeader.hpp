@@ -409,12 +409,12 @@ namespace Nominax::Core
 	static_assert(std::is_standard_layout_v<ObjectHeader>);
 	static_assert(std::is_trivially_copyable_v<ObjectHeader>);
 
-	__attribute__((flatten)) inline auto ObjectHeader::MapToRegionUnchecked(Record* const region) const -> void
+	NOX_FLATTEN inline auto ObjectHeader::MapToRegionUnchecked(Record* const region) const -> void
 	{
 		std::memcpy(region, this, sizeof(ObjectHeader));
 	}
 
-	__attribute__((flatten)) inline auto ObjectHeader::MapToRegionChecked(const std::span<Record> region) const -> bool
+	NOX_FLATTEN inline auto ObjectHeader::MapToRegionChecked(const std::span<Record> region) const -> bool
 	{
 		if (region.size() < 2) [[unlikely]]
 		{
@@ -423,12 +423,12 @@ namespace Nominax::Core
 		return std::memcpy(region.data(), this, sizeof(ObjectHeader));
 	}
 
-	__attribute__((flatten)) inline auto ObjectHeader::MapFromRegionUnchecked(const Record* const region) -> void
+	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionUnchecked(const Record* const region) -> void
 	{
 		std::memcpy(this, region, sizeof(ObjectHeader));
 	}
 
-	__attribute__((flatten)) inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Record> region) -> bool
+	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Record> region) -> bool
 	{
 		if (region.size() < 2)  [[unlikely]]
 		{
@@ -437,22 +437,22 @@ namespace Nominax::Core
 		return std::memcpy(this, region.data(), sizeof(ObjectHeader));
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Record* const region) -> U32
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Record* const region) -> U32
 	{
 		return (*region).AsU32S[0];
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) -> U32
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) -> U32
 	{
 		return (*region).AsU32S[1];
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) -> U32
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) -> U32
 	{
 		return region[1].AsU32S[0];
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) -> ObjectFlagVector
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) -> ObjectFlagVector
 	{
 		const auto flags = ObjectFlagVector
 		{
@@ -461,37 +461,37 @@ namespace Nominax::Core
 		return flags;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const U32 strongRefCount) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Record* const region, const U32 strongRefCount) -> void
 	{
 		(*region).AsU32S[0] = strongRefCount;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Record* const region) -> void
 	{
 		++(*region).AsU32S[0];
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Record* const region) -> void
 	{
 		--(*region).AsU32S[0];
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_Size(Record* const region, const U32 size) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_Size(Record* const region, const U32 size) -> void
 	{
 		(*region).AsU32S[1] = size;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_TypeId(Record* const region, const U32 typeId) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_TypeId(Record* const region, const U32 typeId) -> void
 	{
 		region[1].AsU32S[0] = typeId;
 	}
 
-	__attribute__((flatten)) constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagVector flagVector) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_FlagVector(Record* const region, const ObjectFlagVector flagVector) -> void
 	{
 		region[1].AsU32S[1] = flagVector.Merged;
 	}
 
-	__attribute__((flatten)) inline auto ObjectHeader::RawQueryTypePun(Record* const region) -> ObjectHeader&
+	NOX_FLATTEN inline auto ObjectHeader::RawQueryTypePun(Record* const region) -> ObjectHeader&
 	{
 		return *reinterpret_cast<ObjectHeader*>(region);
 	}

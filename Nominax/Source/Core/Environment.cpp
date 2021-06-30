@@ -320,7 +320,7 @@ namespace Nominax::Core
 		if (sizeInBytes % sizeof(Record) != 0)
 		{
             [[unlikely]]
-			Panic(PAINF, "Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
+			Panic(NOX_PAINF, "Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
 		}
 		return sizeInBytes / sizeof(Record);
 	}
@@ -416,14 +416,14 @@ namespace Nominax::Core
 	/// Helper to allocate a environment pool.
 	/// </summary>
 	[[nodiscard]]
-	__attribute__((alloc_size(1))) static inline auto AllocatePool(const std::size_t size, const std::string_view poolId) -> U8*
+	NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const std::size_t size, const std::string_view poolId) -> U8*
 	{
 		Print("Allocating {} pool with size: {} MB\n", poolId, Bytes2Megabytes(static_cast<F64>(size)));
-		auto* __restrict__ const mem {new(std::nothrow) U8[size]};
+		auto* NOX_RESTRICT const mem {new(std::nothrow) U8[size]};
 		if (!mem)
 		{
             [[unlikely]]
-			Panic(PAINF, "Allocation of monotonic {} pool with size {} MB failed!", poolId, Bytes2Megabytes(static_cast<F64>(size)));
+			Panic(NOX_PAINF, "Allocation of monotonic {} pool with size {} MB failed!", poolId, Bytes2Megabytes(static_cast<F64>(size)));
 		}
 		return mem;
 	}
@@ -438,7 +438,7 @@ namespace Nominax::Core
 	static auto TriggerByteCodeStreamValidationPanic(const ValidationResultCode result, [[maybe_unused]] const Stream& appCode)
 	{
 		// Print error message:
-		Panic(PAINF, "Byte code validation of stream failed: {}\n", result);
+		Panic(NOX_PAINF, "Byte code validation of stream failed: {}\n", result);
 	}
 
 	/// <summary>

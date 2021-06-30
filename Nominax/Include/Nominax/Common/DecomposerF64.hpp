@@ -224,7 +224,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <param name="x">The number to check for zero.</param>
 	/// <returns>True if x is zero, else false.</returns>
-	__attribute__((flatten, pure)) inline auto F64IsZero(const F64 x) -> bool
+	NOX_FLATTEN NOX_PURE inline auto F64IsZero(const F64 x) -> bool
 	{
 		return std::abs(x) < ZERO_TOLERANCE;
 	}
@@ -234,7 +234,7 @@ namespace Nominax::Common
 	/// </summary>
 	/// <param name="x">The number to check for zero.</param>
 	/// <returns>True if x is zero, else false.</returns>
-	__attribute__((flatten, pure)) inline auto F64IsOne(const F64 x) -> bool
+	NOX_FLATTEN NOX_PURE inline auto F64IsOne(const F64 x) -> bool
 	{
 		return F64IsZero(x - 1.0);
 	}
@@ -282,23 +282,23 @@ namespace Nominax::Common
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	__attribute__((flatten, pure)) constexpr auto BitsOf(const F64 x) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto BitsOf(const F64 x) -> U64
 	{
 		static_assert(sizeof(U64) == sizeof(F64));
 		return std::bit_cast<U64>(x);
 	}
 
-	__attribute__((flatten, pure)) constexpr auto ExponentBitsOf(const F64 x) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto ExponentBitsOf(const F64 x) -> U64
 	{
 		return EXPONENT_MASK & BitsOf(x);
 	}
 
-	__attribute__((flatten, pure)) constexpr auto FractionBitsOf(const F64 x) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto FractionBitsOf(const F64 x) -> U64
 	{
 		return FRACTION_MASK & BitsOf(x);
 	}
 
-	__attribute__((flatten, pure)) constexpr auto SignBitOf(const F64 x) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto SignBitOf(const F64 x) -> U64
 	{
 		return SIGN_MASK & BitsOf(x);
 	}
@@ -307,7 +307,7 @@ namespace Nominax::Common
 	/// Returns true if x is NAN, else false.
 	/// NAN = Not A Number
 	/// </summary>
-	__attribute__((flatten, pure)) constexpr auto IsNan(const F64 x) -> bool
+	NOX_FLATTEN NOX_PURE constexpr auto IsNan(const F64 x) -> bool
 	{
 		return ExponentBitsOf(x) == EXPONENT_MASK && FractionBitsOf(x) != 0;
 	}
@@ -316,7 +316,7 @@ namespace Nominax::Common
 	/// Converts an integer from the "sign and magnitude" to the biased representation.
 	/// See https://en.wikipedia.org/wiki/Signed_number_representations for more info.
 	/// </summary>
-	__attribute__((flatten, pure)) constexpr auto SignMagnitudeToBiasedRepresentation(const U64 bits) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto SignMagnitudeToBiasedRepresentation(const U64 bits) -> U64
 	{
 		if (SIGN_MASK & bits)
 		{
@@ -332,7 +332,7 @@ namespace Nominax::Common
 	/// <param name="bitsA">The first bits as biased representation.</param>
 	/// <param name="bitsB">The second bits as biased representation.</param>
 	/// <returns>The unsigned distance.</returns>
-	__attribute__((flatten, pure)) constexpr auto ComputeDistanceBetweenSignAndMagnitude(const U64 bitsA, const U64 bitsB) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto ComputeDistanceBetweenSignAndMagnitude(const U64 bitsA, const U64 bitsB) -> U64
 	{
 		const auto biasedA {SignMagnitudeToBiasedRepresentation(bitsA)};
 		const auto biasedB {SignMagnitudeToBiasedRepresentation(bitsB)};
@@ -350,7 +350,7 @@ namespace Nominax::Common
 	/// <param name="y"></param>
 	/// <returns></returns>
 	template <U32 Ulps = MAX_ULPS>
-	__attribute__((flatten, pure)) constexpr auto F64Equals(const F64 x, const F64 y) -> bool
+	NOX_FLATTEN NOX_PURE constexpr auto F64Equals(const F64 x, const F64 y) -> bool
 	{
 		static_assert(Ulps > 0);
 		// IEEE 754 required that any NAN comparison should yield false.

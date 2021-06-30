@@ -214,11 +214,11 @@
 
 namespace Nominax
 {
-#define PAINF __LINE__, 0, __FILE__, __PRETTY_FUNCTION__
+#define NOX_PAINF __LINE__, 0, __FILE__, __PRETTY_FUNCTION__
 
 	template <typename Str, typename... Args>
 	[[noreturn]]
-	__attribute__((noinline, cold)) auto Panic
+	NOX_COLD NOX_NEVER_INLINE auto Panic
 	(
 	        const U32 line,
 	        const U32 column,
@@ -243,7 +243,7 @@ namespace Nominax
 		if (!( x ))                 				\
 		{                                           \
 		    [[unlikely]]                            \
-            ::Nominax::Panic(PAINF, ( msg ));		\
+            ::Nominax::Panic(NOX_PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -254,7 +254,7 @@ namespace Nominax
 		if (( x ))				                    \
 		{											\
 		    [[unlikely]]                            \
-            ::Nominax::Panic(PAINF, ( msg ));		\
+            ::Nominax::Panic(NOX_PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -270,7 +270,7 @@ namespace Nominax
 		if (( x ) != ( y ))		                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(PAINF, ( msg ));		\
+            ::Nominax::Panic(NOX_PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -282,7 +282,7 @@ namespace Nominax
 		if (( x ) == ( y ))		                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(PAINF, ( msg ));		\
+            ::Nominax::Panic(NOX_PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -293,7 +293,7 @@ namespace Nominax
 		if (!(( x ) < ( y )))		                \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(PAINF, ( msg ));		\
+            ::Nominax::Panic(NOX_PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -304,7 +304,7 @@ namespace Nominax
 		if (!(( x ) <= ( y )))	                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(PAINF, ( msg ));		\
+            ::Nominax::Panic(NOX_PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -315,7 +315,7 @@ namespace Nominax
 		if (!(( x ) > ( y )))		                \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(PAINF, ( msg ));		\
+            ::Nominax::Panic(NOX_PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -326,7 +326,7 @@ namespace Nominax
 		if (!(( x ) >= ( y )))	                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(PAINF, ( msg ));		\
+            ::Nominax::Panic(NOX_PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)

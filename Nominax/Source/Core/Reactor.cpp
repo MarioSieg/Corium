@@ -302,7 +302,7 @@ namespace Nominax::Core
 		if (const auto validationResult {this->Input_.Validate()}; validationResult != ReactorValidationResult::Ok)
 		{
             [[unlikely]]
-			Panic(PAINF, "Reactor {:#X} validation failed with the following reason: {}", this->Id_, validationResult);
+			Panic(NOX_PAINF, "Reactor {:#X} validation failed with the following reason: {}", this->Id_, validationResult);
 		}
 		ReactorCoreExecutionRoutine* const routine = this->RoutineLink_.ExecutionRoutine;
 		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");

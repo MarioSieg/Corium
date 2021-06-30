@@ -231,8 +231,8 @@ namespace Nominax::Core
 
 	auto PerformJumpTableMapping
 	(
-		ByteCode::Signal* __restrict__             bucket,
-		const ByteCode::Signal* const __restrict__ bucketEnd,
+		ByteCode::Signal* NOX_RESTRICT             bucket,
+		const ByteCode::Signal* const NOX_RESTRICT bucketEnd,
 		const bool*                                jumpAddressMap,
 		JumpTable                                  jumpTable
 	) -> bool

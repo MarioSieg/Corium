@@ -217,7 +217,7 @@ namespace Nominax::Common
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) inline auto Rol32
+	[[nodiscard]] NOX_FORCE_INLINE NOX_PURE inline auto Rol32
 	(
 		U32      value,
 		const U8 shift
@@ -241,7 +241,7 @@ namespace Nominax::Common
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) inline auto Ror32
+	[[nodiscard]] NOX_FORCE_INLINE NOX_PURE inline auto Ror32
 	(
 		U32      value,
 		const U8 shift
@@ -265,7 +265,7 @@ namespace Nominax::Common
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) inline auto Rol64
+	[[nodiscard]] NOX_FORCE_INLINE NOX_PURE inline auto Rol64
 	(
 		U64      value,
 		const U8 shift
@@ -289,7 +289,7 @@ namespace Nominax::Common
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
-	[[nodiscard]] __attribute__((always_inline, pure)) inline auto Ror64
+	[[nodiscard]] NOX_FORCE_INLINE NOX_PURE inline auto Ror64
 	(
 		U64      value,
 		const U8 shift

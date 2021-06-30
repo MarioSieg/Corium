@@ -236,7 +236,7 @@ namespace Nominax
 	/// <returns></returns>
 	template <typename T, const std::size_t Count = 1> requires StackAlloca<T, Count>
 	[[nodiscard]]
-	__attribute__((always_inline)) inline auto StackAlloc() -> T*
+	NOX_FORCE_INLINE inline auto StackAlloc() -> T*
 	{
 #if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
 		return static_cast<T*>(::_alloca(sizeof(T) * Count));

@@ -208,13 +208,14 @@
 #pragma once
 
 #include "../ByteCode/Signal.hpp"
+#include "../Common/ComHints.hpp"
 
 namespace Nominax::Core
 {
 	/// <summary>
 	/// Compute relative jump address.
 	/// </summary>
-	__attribute__((flatten, pure)) inline auto ComputeRelativeJumpAddress(const ByteCode::Signal* const base, const ByteCode::JumpAddress address) -> const void*
+	NOX_FLATTEN inline auto ComputeRelativeJumpAddress(const ByteCode::Signal* const base, const ByteCode::JumpAddress address) -> const void*
 	{
 		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
 	}
@@ -222,7 +223,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// 2D jump table pointer type.
 	/// </summary>
-	using JumpTable = const void* __restrict__ const* __restrict__ const;
+	using JumpTable = const void* NOX_RESTRICT const* NOX_RESTRICT const;
 
 	/// <summary>
 	/// Replaces the op-codes in the bucket with the pointers to the labels.
@@ -269,8 +270,8 @@ namespace Nominax::Core
 	[[nodiscard]]
 	extern auto PerformJumpTableMapping
 	(
-		ByteCode::Signal* __restrict__       bucket,
-		const ByteCode::Signal* __restrict__ bucketEnd,
+		ByteCode::Signal* NOX_RESTRICT       bucket,
+		const ByteCode::Signal* NOX_RESTRICT bucketEnd,
 		const bool*                          jumpAddressMap,
 		JumpTable                            jumpTable
 	) -> bool;

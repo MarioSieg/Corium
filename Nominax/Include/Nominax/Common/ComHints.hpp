@@ -207,4 +207,12 @@
 
 #pragma once
 
-#define NOMINAX_EXPECT_VALUE(x, expect) __builtin_expect(( x ), ( expect ))
+#define NOX_EXPECT_VALUE(x, expect)         __builtin_expect(( x ), ( expect ))
+#define NOX_HOT                             __attribute__((hot))
+#define NOX_COLD                            __attribute__((cold))
+#define NOX_FORCE_INLINE                    __attribute__((always_inline))
+#define NOX_NEVER_INLINE                    __attribute__((noinline))
+#define NOX_FLATTEN                         __attribute__((flatten))
+#define NOX_PURE                            __attribute__((flatten))
+#define NOX_ALLOC_SIZE(x)                   __attribute__((alloc_size(( x ))))
+#define NOX_RESTRICT                        __restrict__

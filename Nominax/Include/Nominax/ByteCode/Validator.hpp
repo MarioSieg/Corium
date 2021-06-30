@@ -210,6 +210,7 @@
 #include <span>
 #include <vector>
 
+#include "../Common/ComHints.hpp"
 #include "Chunk.hpp"
 #include "DiscriminatedSignal.hpp"
 #include "ValidationResult.hpp"
@@ -296,7 +297,7 @@ namespace Nominax::ByteCode
 	/// <param name="next"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto ComputeInstructionArgumentOffset(const Signal::Discriminator* __restrict__ const where, const Signal::Discriminator* __restrict__ const next) -> std::ptrdiff_t
+	constexpr auto ComputeInstructionArgumentOffset(const Signal::Discriminator* NOX_RESTRICT const where, const Signal::Discriminator* NOX_RESTRICT const next) -> std::ptrdiff_t
 	{
 		return next - where - 1;
 	}
@@ -308,7 +309,7 @@ namespace Nominax::ByteCode
 	/// <param name="end"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto SearchForNextInstruction(const Signal::Discriminator* __restrict__ current, const Signal::Discriminator* __restrict__ const end) -> const Signal::Discriminator*
+	constexpr auto SearchForNextInstruction(const Signal::Discriminator* NOX_RESTRICT current, const Signal::Discriminator* NOX_RESTRICT const end) -> const Signal::Discriminator*
 	{
 		do
 		{

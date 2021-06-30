@@ -249,7 +249,7 @@ namespace Nominax::Core
 			return nullptr;
 		}
 		const U32                finalObjectSize = ObjectHeader::RECORD_CHUNKS + sizeInRecords;
-		auto* __restrict__ const object          = new Record[finalObjectSize]();
+		auto* NOX_RESTRICT const object          = new Record[finalObjectSize]();
 		assert(object);
 
 		// Write object header:

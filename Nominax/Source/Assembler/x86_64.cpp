@@ -9,7 +9,7 @@ namespace Nominax::Assembler::X86_64
 		NOMINAX_PANIC_ASSERT_LE(size, 15, "Invalid nop chain size!");
 		NOMINAX_PANIC_ASSERT_GE(size, 1, "Invalid nop chain size!");
 		
-		static constexpr std::array<const void* __restrict__ const, 15> JUMP_TABLE
+		static constexpr std::array<const void* NOX_RESTRICT const, 15> JUMP_TABLE
 		{
 			&&inject_1,
 			&&inject_2,

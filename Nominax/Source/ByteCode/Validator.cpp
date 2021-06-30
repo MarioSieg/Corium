@@ -387,7 +387,7 @@ namespace Nominax::ByteCode
 			return false;
 		}
 
-		return NOMINAX_EXPECT_VALUE(bucket[idx].Contains<Instruction>(), true);
+		return NOX_EXPECT_VALUE(bucket[idx].Contains<Instruction>(), true);
 	}
 
 	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallID id) -> bool
@@ -395,13 +395,13 @@ namespace Nominax::ByteCode
 		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallID::$Count) - 1};
 		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
 		static_assert(std::is_unsigned_v<decltype(value)>);
-		return NOMINAX_EXPECT_VALUE(value <= max, true);
+		return NOX_EXPECT_VALUE(value <= max, true);
 	}
 
 	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicCallID id) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
-		return NOMINAX_EXPECT_VALUE(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size(), true);
+		return NOX_EXPECT_VALUE(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size(), true);
 	}
 
 	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const Signal::Discriminator>& args) -> ValidationResultCode

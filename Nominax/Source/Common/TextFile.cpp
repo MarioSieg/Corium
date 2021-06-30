@@ -277,7 +277,7 @@ namespace Nominax::Common
 		if (!this->ReadFromFile(std::move(path)))
 		{
             [[unlikely]]
-			Panic(PAINF, "Failed to read text file from path: {}", path.string());
+			Panic(NOX_PAINF, "Failed to read text file from path: {}", path.string());
 		}
 	}
 

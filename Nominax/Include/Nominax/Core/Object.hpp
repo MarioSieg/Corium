@@ -622,7 +622,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns></returns>
 	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_Equal([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
 	{
 		return false;
 	}
@@ -673,13 +673,13 @@ namespace Nominax::Core
 	auto Object::DeepValueCmp_Equal<void*>(Object a, Object b) -> bool;
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal<char32_t>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_Equal<char32_t>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Equal<U64>(a, b);
 	}
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Equal<void*>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_Equal<void*>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Equal<U64>(a, b);
 	}
@@ -711,7 +711,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<U64>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<U64>(const Object a, const Object b) -> bool
 	{
 		return !DeepValueCmp_Equal<U64>(a, b);
 	}
@@ -723,7 +723,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<I64>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<I64>(const Object a, const Object b) -> bool
 	{
 		return !DeepValueCmp_Equal<I64>(a, b);
 	}
@@ -735,7 +735,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<F64>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<F64>(const Object a, const Object b) -> bool
 	{
 		return !DeepValueCmp_Equal<F64>(a, b);
 	}
@@ -747,7 +747,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<char32_t>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<char32_t>(const Object a, const Object b) -> bool
 	{
 		return !DeepValueCmp_Equal<char32_t>(a, b);
 	}
@@ -759,7 +759,7 @@ namespace Nominax::Core
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_NotEqual<void*>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<void*>(const Object a, const Object b) -> bool
 	{
 		return !DeepValueCmp_Equal<void*>(a, b);
 	}
@@ -830,13 +830,13 @@ namespace Nominax::Core
 	auto Object::DeepValueCmp_Less<void*>(Object a, Object b) -> bool;
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Less<char32_t>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_Less<char32_t>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Less<void*>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_Less<void*>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
@@ -907,13 +907,13 @@ namespace Nominax::Core
 	auto Object::DeepValueCmp_LessEqual<void*>(Object a, Object b) -> bool;
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_LessEqual<char32_t>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_LessEqual<char32_t>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_LessEqual<void*>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_LessEqual<void*>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
@@ -984,13 +984,13 @@ namespace Nominax::Core
 	auto Object::DeepValueCmp_Greater<void*>(Object a, Object b) -> bool;
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Greater<char32_t>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_Greater<char32_t>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_Greater<void*>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_Greater<void*>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
@@ -1061,180 +1061,180 @@ namespace Nominax::Core
 	auto Object::DeepValueCmp_GreaterEqual<void*>(Object a, Object b) -> bool;
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_GreaterEqual<char32_t>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_GreaterEqual<char32_t>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
 
 	template <>
-	__attribute__((flatten)) inline auto Object::DeepValueCmp_GreaterEqual<void*>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_GreaterEqual<void*>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Less<U64>(a, b);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryRawHeader() const -> BlobBlockType*
+	NOX_FLATTEN inline auto IMMUTATOR Object::QueryRawHeader() const -> BlobBlockType*
 	{
 		assert(this->Blob_ != nullptr);
 		return this->Blob_;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::QueryHeader() const -> ObjectHeader
+	NOX_FLATTEN inline auto IMMUTATOR Object::QueryHeader() const -> ObjectHeader
 	{
 		ObjectHeader header;
 		header.MapFromRegionUnchecked(this->QueryRawHeader());
 		return header;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlock() const -> BlobBlockType*
+	NOX_FLATTEN inline auto IMMUTATOR Object::LookupObjectBlock() const -> BlobBlockType*
 	{
 		assert(this->Blob_ != nullptr);
 		return this->Blob_ + ObjectHeader::RECORD_OFFSET;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::LookupObjectBlockEnd() const -> BlobBlockType*
+	NOX_FLATTEN inline auto IMMUTATOR Object::LookupObjectBlockEnd() const -> BlobBlockType*
 	{
 		assert(this->HeaderRead_BlockSize() > 0);
 		return this->LookupObjectBlock() + this->HeaderRead_BlockSize();
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::IsUnderlyingObjectBlockNull() const -> bool
+	NOX_FLATTEN inline auto IMMUTATOR Object::IsUnderlyingObjectBlockNull() const -> bool
 	{
 		return this->LookupObjectBlock() == nullptr;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::IsBlobNull() const -> bool
+	NOX_FLATTEN inline auto IMMUTATOR Object::IsBlobNull() const -> bool
 	{
 		return this->Blob_ == nullptr;
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::BlobSize() const -> std::size_t
+	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSize() const -> std::size_t
 	{
 		return ObjectHeader::RECORD_CHUNKS + ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::BlobSizeInBytes() const -> std::size_t
+	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSizeInBytes() const -> std::size_t
 	{
 		return BlobSize() * sizeof(Record);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const -> std::size_t
+	NOX_FLATTEN inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const -> std::size_t
 	{
 		return this->HeaderRead_BlockSize() * sizeof(Record);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const -> U32
+	NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const -> U32
 	{
 		return ObjectHeader::ReadMapping_StrongRefCount(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_BlockSize() const -> U32
+	NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_BlockSize() const -> U32
 	{
 		return ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::HeaderRead_TypeId() const -> U32
+	NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_TypeId() const -> U32
 	{
 		return ObjectHeader::ReadMapping_TypeId(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::Header_ReadFlagVector() const -> ObjectFlagVector
+	NOX_FLATTEN inline auto IMMUTATOR Object::Header_ReadFlagVector() const -> ObjectFlagVector
 	{
 		return ObjectHeader::ReadMapping_FlagVector(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_IncrementStrongRefCount() const -> void
+	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_IncrementStrongRefCount() const -> void
 	{
 		ObjectHeader::WriteMapping_IncrementStrongRefCount(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_DecrementStrongRefCount() const -> void
+	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_DecrementStrongRefCount() const -> void
 	{
 		ObjectHeader::WriteMapping_DecrementStrongRefCount(this->QueryRawHeader());
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::operator++() const -> void
+	NOX_FLATTEN inline auto MUTATOR Object::operator++() const -> void
 	{
 		this->HeaderWrite_IncrementStrongRefCount();
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::operator--() const -> void
+	NOX_FLATTEN inline auto MUTATOR Object::operator--() const -> void
 	{
 		this->HeaderWrite_DecrementStrongRefCount();
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::operator++(int) const -> void
+	NOX_FLATTEN inline auto MUTATOR Object::operator++(int) const -> void
 	{
 		this->HeaderWrite_IncrementStrongRefCount();
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::operator--(int) const -> void
+	NOX_FLATTEN inline auto MUTATOR Object::operator--(int) const -> void
 	{
 		this->HeaderWrite_DecrementStrongRefCount();
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_StrongRefCount(const U32 strongRefCount) const -> void
+	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_StrongRefCount(const U32 strongRefCount) const -> void
 	{
 		ObjectHeader::WriteMapping_StrongRefCount(this->QueryRawHeader(), strongRefCount);
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_Size(const U32 size) const -> void
+	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_Size(const U32 size) const -> void
 	{
 		ObjectHeader::WriteMapping_Size(this->QueryRawHeader(), size);
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_TypeId(const U32 typeId) const -> void
+	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_TypeId(const U32 typeId) const -> void
 	{
 		ObjectHeader::WriteMapping_TypeId(this->QueryRawHeader(), typeId);
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagVector flagVector) const -> void
+	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagVector flagVector) const -> void
 	{
 		ObjectHeader::WriteMapping_FlagVector(this->QueryRawHeader(), flagVector);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator*() const -> BlobBlockType*
+	NOX_FLATTEN inline auto IMMUTATOR Object::operator*() const -> BlobBlockType*
 	{
 		return this->LookupObjectBlock();
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator->() const -> BlobBlockType*
+	NOX_FLATTEN inline auto IMMUTATOR Object::operator->() const -> BlobBlockType*
 	{
 		return this->LookupObjectBlock();
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator~() const -> BlobBlockType*
+	NOX_FLATTEN inline auto IMMUTATOR Object::operator~() const -> BlobBlockType*
 	{
 		return this->LookupObjectBlockEnd();
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) -> BlobBlockType&
+	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const std::size_t idx) -> BlobBlockType&
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}
 
-	__attribute__((flatten)) inline auto IMMUTATOR Object::operator[](const std::size_t idx) const -> BlobBlockType
+	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const std::size_t idx) const -> BlobBlockType
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto IMMUTATOR Object::begin() const -> BlobBlockType*
+	NOX_FLATTEN inline auto IMMUTATOR Object::begin() const -> BlobBlockType*
 	{
 		return this->LookupObjectBlock();
 	}
 
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto IMMUTATOR Object::end() const -> BlobBlockType*
+	NOX_FLATTEN inline auto IMMUTATOR Object::end() const -> BlobBlockType*
 	{
 		return this->LookupObjectBlockEnd();
 	}
 
-	__attribute__((flatten)) inline auto MUTATOR Object::ZeroObjectBlock() const -> void
+	NOX_FLATTEN inline auto MUTATOR Object::ZeroObjectBlock() const -> void
 	{
 		std::memset(this->LookupObjectBlock(), 0, this->ObjectBlockSizeInBytes());
 	}
 
-	__attribute__((flatten)) inline auto Object::ShallowCmp(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::ShallowCmp(const Object a, const Object b) -> bool
 	{
 		return a.Blob_ == b.Blob_;
 	}
@@ -1247,7 +1247,7 @@ namespace Nominax::Core
 	/// <param name="object"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto begin(const Object object) -> Object::BlobBlockType*
+	NOX_FLATTEN inline auto begin(const Object object) -> Object::BlobBlockType*
 	{
 		return object.LookupObjectBlock();
 	}
@@ -1260,7 +1260,7 @@ namespace Nominax::Core
 	/// <param name="object"></param>
 	/// <returns></returns>
 	// ReSharper disable once CppInconsistentNaming
-	__attribute__((flatten)) inline auto end(const Object object) -> Object::BlobBlockType*
+	NOX_FLATTEN inline auto end(const Object object) -> Object::BlobBlockType*
 	{
 		return object.LookupObjectBlockEnd();
 	}

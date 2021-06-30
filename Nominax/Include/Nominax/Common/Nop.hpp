@@ -212,7 +212,7 @@ namespace Nominax::Common
 	/// <summary>
 	/// No operation.
 	/// </summary>
-	__attribute__((always_inline, cold)) inline auto NoOperation() -> void
+	NOX_FORCE_INLINE NOX_COLD inline auto NoOperation() -> void
 	{
 		__asm__ __volatile__("nop");
 	}
