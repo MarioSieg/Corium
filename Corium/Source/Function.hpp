@@ -211,11 +211,16 @@
 
 namespace Corium
 {
-	struct FunctionInfo final
+	struct Function final
 	{
+        static constexpr std::size_t OFFSET_IDENTIFIER {1};
+        static constexpr std::size_t OFFSET_PARENTHESIS_LEFT {2};
+        static constexpr std::size_t OFFSET_PARENTHESIS_RIGHT {3};
+        static constexpr std::size_t OFFSET_BRACES_LEFT {4};
+
 		Identifier      Name { };
 		TokenStreamView Body { };
 	};
 
-	using FunctionTable = std::vector<FunctionInfo>;
+	using FunctionTable = std::vector<Function>;
 }

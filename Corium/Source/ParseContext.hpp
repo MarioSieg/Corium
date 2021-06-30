@@ -346,6 +346,14 @@ namespace Corium
 		[[nodiscard]]
 		auto GetNextIf(std::size_t offset) const -> const T*;
 
+        /// <summary>
+        /// Searches for the next char and returns the needle, else null.
+        /// </summary>
+        /// <param name="what">The token to find the next of.</param>
+        /// <returns>Pointer to token data if found, else nullptr.</returns>
+        [[nodiscard]]
+		auto FindNextOrNull(const Token& what) -> const Token*;
+
 		/// <summary>
 		/// Skips n tokens by advancing the needle.
 		/// </summary>
@@ -582,6 +590,12 @@ namespace Corium
 	{
 		return this->FunctionTable_;
 	}
+
+    inline auto ParseContext::FindNextOrNull(const Token& what) -> const Token*
+    {
+        const auto found{std::find(this->Needle_, this->End_, what)};
+        return found == this->End_ ? nullptr : &*found;
+    }
 
 	extern auto Parse(std::span<const Token> TokenStreamView, std::span<const U16> lines) -> ParseError;
 }

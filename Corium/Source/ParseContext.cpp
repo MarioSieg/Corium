@@ -227,7 +227,7 @@ namespace Corium
 		if (this->Needle_ != std::begin(this->TokenStreamView_) || this->End_ != std::end(this->TokenStreamView_))
 		{
 			[[unlikely]]
-				this->ErrorState_ = {ParseErrorCode::ContextError, "Invalid needle iterator!"};
+			this->ErrorState_ = {ParseErrorCode::ContextError, "Invalid needle iterator!"};
 			return this->ErrorState_;
 		}
 
@@ -302,82 +302,65 @@ namespace Corium
 
 		switch (tokCount)
 		{
-			[[unlikely]]
-		case 0: // missing function name:
-			this->MakeParseError(ParseErrorCode::MissingIdentifier, "Expected function name");
-			return;
+            [[unlikely]]
+            case 0: // missing function name:
+                this->MakeParseError(ParseErrorCode::MissingIdentifier, "Expected function name");
+                return;
 
-			[[unlikely]]
-		case 1: // missing lparen:
-			this->MakeSpecializedError(MonoLexeme::ParenthesisLeft, nullptr);
-			return;
+            [[unlikely]]
+            case 1: // missing lparen:
+                this->MakeSpecializedError(MonoLexeme::ParenthesisLeft, nullptr);
+                return;
 
-			[[unlikely]]
-		case 2: // missing rparen:
-			this->MakeSpecializedError(MonoLexeme::ParenthesisRight, nullptr);
-			return;
+            [[unlikely]]
+            case 2: // missing rparen:
+                this->MakeSpecializedError(MonoLexeme::ParenthesisRight, nullptr);
+                return;
 
-			[[unlikely]]
-		case 3: // missing lbrace:
-			this->MakeSpecializedError(MonoLexeme::CurlyBracesLeft, nullptr);
-			return;
+            [[unlikely]]
+            case 3: // missing lbrace:
+                this->MakeSpecializedError(MonoLexeme::CurlyBracesLeft, nullptr);
+                return;
 
-			[[likely]]
-		default: // we have all args let's check types:
-		{
-			const Identifier* const ident {this->GetNextIf<Identifier>(1)};
-			const MonoLexeme* const lparen {this->GetNextIf<MonoLexeme>(2)};
-			const MonoLexeme* const rparen {this->GetNextIf<MonoLexeme>(3)};
-			const MonoLexeme* const lbrace {this->GetNextIf<MonoLexeme>(4)};
+            [[likely]]
+            default: // we have all args let's check types:
+            {
+                const Identifier* const identifier {this->GetNextIf<Identifier>(Function::OFFSET_IDENTIFIER)};
+                const MonoLexeme* const parenthesisLeft {this->GetNextIf<MonoLexeme>(Function::OFFSET_PARENTHESIS_LEFT)};
+                const MonoLexeme* const parenthesisRight {this->GetNextIf<MonoLexeme>(Function::OFFSET_PARENTHESIS_RIGHT)};
+                const MonoLexeme* const braceLeft {this->GetNextIf<MonoLexeme>(Function::OFFSET_BRACES_LEFT)};
 
-			if (!ident)
-			[[unlikely]]
-			{
-				this->MakeParseError(ParseErrorCode::MissingIdentifier, "Expected function name");
-				return;
-			}
+                if (!identifier) [[unlikely]]
+                {
+                    this->MakeParseError(ParseErrorCode::MissingIdentifier, "Expected function name");
+                    return;
+                }
 
-			if (!lparen || *lparen != MonoLexeme::ParenthesisLeft)
-			[[unlikely]]
-			{
-				this->MakeSpecializedError(MonoLexeme::ParenthesisLeft, lparen);
-				return;
-			}
+                if (!parenthesisLeft || *parenthesisLeft != MonoLexeme::ParenthesisLeft) [[unlikely]]
+                {
+                    this->MakeSpecializedError(MonoLexeme::ParenthesisLeft, parenthesisLeft);
+                    return;
+                }
 
-			if (!rparen || *rparen != MonoLexeme::ParenthesisRight)
-			[[unlikely]]
-			{
-				this->MakeSpecializedError(MonoLexeme::ParenthesisRight, rparen);
-				return;
-			}
+                if (!parenthesisRight || *parenthesisRight != MonoLexeme::ParenthesisRight) [[unlikely]]
+                {
+                    this->MakeSpecializedError(MonoLexeme::ParenthesisRight, parenthesisRight);
+                    return;
+                }
 
-			if (!lbrace || *lbrace != MonoLexeme::CurlyBracesLeft)
-			[[unlikely]]
-			{
-				this->MakeSpecializedError(MonoLexeme::CurlyBracesLeft, lbrace);
-				return;
-			}
+                if (!braceLeft || *braceLeft != MonoLexeme::CurlyBracesLeft) [[unlikely]]
+                {
+                    this->MakeSpecializedError(MonoLexeme::CurlyBracesLeft, braceLeft);
+                    return;
+                }
 
-			// find closing rparen:
-			const auto rbrace {&*std::find(this->Needle_, this->End_, Token {MonoLexeme::CurlyBracesRight})};
-			if (rbrace == &*this->End_)
-			[[unlikely]]
-			{
-				this->MakeSpecializedError(MonoLexeme::CurlyBracesRight, lbrace);
-				return;
-			}
+                this->FunctionTable_.emplace_back(Function
+                {
+                    .Name = *identifier,
+                });
 
-			// function body is { *here* }
-			const TokenStreamView functionBody {&this->GetNextAt(4), rbrace};
-
-			this->FunctionTable_.emplace_back(FunctionInfo
-				{
-					.Name = *ident,
-					.Body = functionBody
-				});
-
-			this->Skip(argCount);
-		}
+                this->Skip(argCount);
+            }
 		}
 	}
 
@@ -460,15 +443,10 @@ namespace Corium
 		using Common::Print;
 
 		Print(Common::LogLevel::Error, "Function Table\n");
-		for (const FunctionInfo& info : this->FunctionTable_)
+		for (const Function& info : this->FunctionTable_)
 		{
 			Print("{}\n", info.Name);
-			for (const Token& tok : info.Body)
-			{
-				Print('\t');
-				PrintToken(tok);
-			}
-			Print("\n");
 		}
 	}
+
 }
