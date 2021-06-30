@@ -209,7 +209,7 @@
 #include "../../Include/Nominax/ByteCode/Mnemonic.hpp"
 #include "../../Include/Nominax/ByteCode/Validator.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/ComHints.hpp"
 #include "../../Include/Nominax/Common/MemoryUnits.hpp"
 
 namespace Nominax::ByteCode
@@ -264,8 +264,9 @@ namespace Nominax::ByteCode
 
 	auto Stream::Build(Image& out, JumpMap& outJumpMap) const -> ValidationResultCode
 	{
-		if (const auto validationResult {ValidateFullPass(*this)}; NOMINAX_UNLIKELY(validationResult != ValidationResultCode::Ok))
+		if (const auto validationResult {ValidateFullPass(*this)}; validationResult != ValidationResultCode::Ok)
 		{
+            [[unlikely]]
 			return validationResult;
 		}
 		TransformStreamToImageByCopy(*this, out, outJumpMap);

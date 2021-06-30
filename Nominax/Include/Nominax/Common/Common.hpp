@@ -214,7 +214,7 @@
 #include "AtomicState.hpp"
 #include "BaseTypes.hpp"
 #include "BitRot.hpp"
-#include "BranchHint.hpp"
+#include "ComHints.hpp"
 #include "CliArgParser.hpp"
 #include "Entry.hpp"
 #include "ComparatorProxyF64.hpp"

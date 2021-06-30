@@ -209,7 +209,7 @@
 
 #include "../../Include/Nominax/ByteCode/Chunk.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/ComHints.hpp"
 #include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 

@@ -209,7 +209,7 @@
 
 #include "../../Include/Nominax/Core/ReactorHypervisor.hpp"
 #include "../../Include/Nominax/Common/Protocol.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/ComHints.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Include/Nominax/System/CpuFeatureDetector.hpp"
 
@@ -299,8 +299,9 @@ namespace Nominax::Core
 			++QueryCounter,
 			std::size(REACTOR_REGISTRY)
 		);
-		if (NOMINAX_UNLIKELY(QueryCounter > 1))
+		if (QueryCounter > 1)
 		{
+            [[unlikely]]
 			Print(Common::LogLevel::Warning, "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n", QueryCounter);
 		}
 		return

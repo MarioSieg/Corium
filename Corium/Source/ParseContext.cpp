@@ -208,8 +208,6 @@
 #include "ParseContext.hpp"
 #include "LexContext.hpp"
 
-#define UNL NOMINAX_UNLIKELY
-
 namespace Corium
 {
 	auto ParseContext::Reset(const std::span<const Token> tokenView, const std::string_view sourceText) -> void
@@ -224,8 +222,9 @@ namespace Corium
 
 	auto ParseContext::Parse() -> const std::optional<std::string>&
 	{
-		if (UNL(this->Needle_ != std::begin(this->TokenStreamView_) || this->End_ != std::end(this->TokenStreamView_)))
+		if (this->Needle_ != std::begin(this->TokenStreamView_) || this->End_ != std::end(this->TokenStreamView_))
 		{
+            [[unlikely]]
 			return this->ErrorState_ = "Invalid needle iterator!";
 		}
 

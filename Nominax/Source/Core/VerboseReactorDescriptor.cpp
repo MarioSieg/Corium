@@ -207,15 +207,16 @@
 
 #include "../../Include/Nominax/Core/VerboseReactorDescriptor.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/ComHints.hpp"
 
 namespace Nominax::Core
 {
 	auto VerboseReactorDescriptor::Validate() const -> ReactorValidationResult
 	{
 		// validate all pointers:
-		if (NOMINAX_UNLIKELY(!this->CodeChunk || !this->InterruptHandler || !this->Stack))
+		if (!this->CodeChunk || !this->InterruptHandler || !this->Stack)
 		{
+            [[unlikely]]
 			return ReactorValidationResult::NullPtr;
 		}
 
@@ -229,38 +230,43 @@ namespace Nominax::Core
 #endif
 
 		// validate the size for the corresponding pointers:
-		if (NOMINAX_UNLIKELY(!this->CodeChunkSize || !this->StackSize))
+		if (!this->CodeChunkSize || !this->StackSize)
 		{
+            [[unlikely]]
 			return ReactorValidationResult::ZeroSize;
 		}
 
 		// first instruction will be skipped and must be NOP:
-		if (NOMINAX_UNLIKELY(CodeChunk->Instr != ByteCode::Instruction::NOp))
+		if (CodeChunk->Instr != ByteCode::Instruction::NOp)
 		{
+            [[unlikely]]
 			return ReactorValidationResult::MissingCodePrologue;
 		}
 
 		// last instruction must be interrupt:
-		if (NOMINAX_UNLIKELY(CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != ByteCode::Instruction::Int))
+		if (CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != ByteCode::Instruction::Int)
 		{
+            [[unlikely]]
 			return ReactorValidationResult::MissingCodeEpilogue;
 		}
 
 		// first stack entry is never used and must be nop-padding:
-		if (NOMINAX_UNLIKELY(*Stack != Record::Padding()))
+		if (*Stack != Record::Padding())
 		{
+            [[unlikely]]
 			return ReactorValidationResult::MissingStackPrologue;
 		}
 
-		if (NOMINAX_LIKELY(this->IntrinsicTable))
+		if (this->IntrinsicTable) [[likely]]
 		{
 			// validate intrinsic routines:
 			auto* const*       begin = this->IntrinsicTable;
 			auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
-			while (NOMINAX_LIKELY(begin < end))
+			while (begin < end)
 			{
-				if (NOMINAX_UNLIKELY(!*begin++))
+				if (!*begin++)
 				{
+                    [[unlikely]]
 					return ReactorValidationResult::NullIntrinsicRoutine;
 				}
 			}

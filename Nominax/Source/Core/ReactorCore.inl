@@ -220,7 +220,7 @@
 #include "../../Include/Nominax/Common/Nop.hpp"
 #include "../../Include/Nominax/Common/BitRot.hpp"
 #include "../../Include/Nominax/Common/ComparatorProxyF64.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/ComHints.hpp"
 
 #include "../../Include/Nominax/ByteCode/SystemIntrinsic.hpp"
 #include "../../Include/Nominax/ByteCode/Instruction.hpp"
@@ -700,8 +700,9 @@ namespace Nominax::Core
 			return ReactorShutdownReason::Success;
 		}
 
-		if (NOMINAX_UNLIKELY(!input || !output))
+		if (!input || !output)
 		{
+            [[unlikely]]
 			return ReactorShutdownReason::Error;
 		}
 
@@ -757,8 +758,9 @@ namespace Nominax::Core
 
 			interruptCode = (*++ip).R64.AsI32;
 			interruptHandler(interruptCode);
-			if (NOMINAX_UNLIKELY(interruptCode <= 0))
+			if (interruptCode <= 0)
 			{
+                [[unlikely]]
 				goto _terminate_;
 			}
 		}

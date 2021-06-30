@@ -260,8 +260,9 @@ namespace Nominax::Core
 		{
 			[&routineLink]() -> ReactorRoutineLink
 			{
-				if (NOMINAX_UNLIKELY(!routineLink))
+				if (!routineLink)
 				{
+                    [[unlikely]]
 					Print(Common::LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
 				}
 				return routineLink ? *routineLink : GetOptimalReactorRoutine({ });
@@ -298,9 +299,10 @@ namespace Nominax::Core
 			this->IntrinsicTable_,
 			*this->InterruptHandler_
 		);
-		if (const auto validationResult {this->Input_.Validate()}; NOMINAX_UNLIKELY(validationResult != ReactorValidationResult::Ok))
+		if (const auto validationResult {this->Input_.Validate()}; validationResult != ReactorValidationResult::Ok)
 		{
-			PANIC("Reactor {:#X} validation failed with the following reason: {}", this->Id_, validationResult);
+            [[unlikely]]
+			Panic(PAINF, "Reactor {:#X} validation failed with the following reason: {}", this->Id_, validationResult);
 		}
 		ReactorCoreExecutionRoutine* const routine = this->RoutineLink_.ExecutionRoutine;
 		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");

@@ -210,31 +210,40 @@
 #include <iostream>
 
 #include "Protocol.hpp"
-#include "BranchHint.hpp"
+#include "ComHints.hpp"
 
-namespace Nominax::Common
+namespace Nominax
 {
+#define PAINF __LINE__, 0, __FILE__, __PRETTY_FUNCTION__
+
 	template <typename Str, typename... Args>
 	[[noreturn]]
-	inline auto Panic(const Str& formatString, const char* const file = nullptr, const signed line = 0, Args&&...args) -> void
+	__attribute__((noinline, cold)) auto Panic
+	(
+	        const U32 line,
+	        const U32 column,
+	        const char* const file,
+	        const char* const routine,
+	        Str&& formatString,
+	        Args&&...args
+    ) -> void
 	{
-		Print(TextColor::Red, "\n!! FATAL NOMINAX RUNTIME ERROR !!\n");
-		Print(TextColor::White, "Source File: {}, Source Line: {}\n", file ? file : "?", line);
+	    using namespace Common;
+		Print(TextColor::Red, "\n! NOMINAX RUNTIME PANIC !\n");
+		Print(TextColor::White,"Line: {}\nColumn: {}\nSubroutine: {}\nFile: {}\n", line, column, routine ? routine : "?", file ? file : "?");
 		Print(TextColor::White, formatString, std::forward<Args>(args)...);
-		Print(TextColor::Red, "\n!! FATAL NOMINAX RUNTIME ERROR !!\n");
 		std::cout.flush();
 		std::abort();
 	}
 }
 
-#define PANIC(msg, ...) ::Nominax::Common::Panic( (msg), __FILE__, __LINE__, __VA_ARGS__)
-
 #define NOMINAX_PANIC_ASSERT_TRUE(x, msg)			\
 	do												\
 	{												\
-		if (NOMINAX_UNLIKELY(!( x )))				\
-		{											\
-                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
+		if (!( x ))                 				\
+		{                                           \
+		    [[unlikely]]                            \
+            ::Nominax::Panic(PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -242,31 +251,26 @@ namespace Nominax::Common
 #define NOMINAX_PANIC_ASSERT_FALSE(x, msg)			\
 	do												\
 	{												\
-		if (NOMINAX_UNLIKELY(( x )))				\
+		if (( x ))				                    \
 		{											\
-                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
+		    [[unlikely]]                            \
+            ::Nominax::Panic(PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
 
-#define NOMINAX_PANIC_ASSERT_NULL(x, msg)			\
-	NOMINAX_PANIC_ASSERT_FALSE(x, msg)
-
-#define NOMINAX_PANIC_ASSERT_NOT_NULL(x, msg)		\
-	NOMINAX_PANIC_ASSERT_TRUE(x, msg)
-
-#define NOMINAX_PANIC_ASSERT_ZERO(x, msg)			\
-	NOMINAX_PANIC_ASSERT_FALSE(x, msg)
-
-#define NOMINAX_PANIC_ASSERT_NOT_ZERO(x, msg)		\
-	NOMINAX_PANIC_ASSERT_TRUE(x, msg)
+#define NOMINAX_PANIC_ASSERT_NULL(x, msg) NOMINAX_PANIC_ASSERT_FALSE(x, msg)
+#define NOMINAX_PANIC_ASSERT_NOT_NULL(x, msg) NOMINAX_PANIC_ASSERT_TRUE(x, msg)
+#define NOMINAX_PANIC_ASSERT_ZERO(x, msg) NOMINAX_PANIC_ASSERT_FALSE(x, msg)
+#define NOMINAX_PANIC_ASSERT_NOT_ZERO(x, msg) NOMINAX_PANIC_ASSERT_TRUE(x, msg)
 
 #define NOMINAX_PANIC_ASSERT_EQ(x, y, msg)			\
 	do												\
 	{												\
-		if (NOMINAX_UNLIKELY(( x ) != ( y )))		\
+		if (( x ) != ( y ))		                    \
 		{											\
-                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
+            [[unlikely]]                            \
+            ::Nominax::Panic(PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -275,9 +279,10 @@ namespace Nominax::Common
 #define NOMINAX_PANIC_ASSERT_NE(x, y, msg)			\
 	do												\
 	{												\
-		if (NOMINAX_UNLIKELY(( x ) == ( y )))		\
+		if (( x ) == ( y ))		                    \
 		{											\
-                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
+            [[unlikely]]                            \
+            ::Nominax::Panic(PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -285,9 +290,10 @@ namespace Nominax::Common
 #define NOMINAX_PANIC_ASSERT_L(x, y, msg)			\
 	do												\
 	{												\
-		if (NOMINAX_UNLIKELY(!(( x ) < ( y ))))		\
+		if (!(( x ) < ( y )))		                \
 		{											\
-                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
+            [[unlikely]]                            \
+            ::Nominax::Panic(PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -295,9 +301,10 @@ namespace Nominax::Common
 #define NOMINAX_PANIC_ASSERT_LE(x, y, msg)			\
 	do												\
 	{												\
-		if (NOMINAX_UNLIKELY(!(( x ) <= ( y ))))	\
+		if (!(( x ) <= ( y )))	                    \
 		{											\
-                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
+            [[unlikely]]                            \
+            ::Nominax::Panic(PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -305,9 +312,10 @@ namespace Nominax::Common
 #define NOMINAX_PANIC_ASSERT_G(x, y, msg)			\
 	do												\
 	{												\
-		if (NOMINAX_UNLIKELY(!(( x ) > ( y ))))		\
+		if (!(( x ) > ( y )))		                \
 		{											\
-                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
+            [[unlikely]]                            \
+            ::Nominax::Panic(PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)
@@ -315,9 +323,10 @@ namespace Nominax::Common
 #define NOMINAX_PANIC_ASSERT_GE(x, y, msg)			\
 	do												\
 	{												\
-		if (NOMINAX_UNLIKELY(!(( x ) >= ( y ))))	\
+		if (!(( x ) >= ( y )))	                    \
 		{											\
-                        ::Nominax::Common::Panic(( msg ), __FILE__, __LINE__);		\
+            [[unlikely]]                            \
+            ::Nominax::Panic(PAINF, ( msg ));		\
 		}											\
 	}												\
 	while(false)

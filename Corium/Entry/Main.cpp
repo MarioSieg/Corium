@@ -222,7 +222,7 @@ static auto CompileSourceFile(const std::string_view path) -> void
 		file.ReadFromFileOrPanic(path);
 		std::string source {std::move(file.GetContentText())};
 
-		if (NOMINAX_UNLIKELY(source.empty()))
+		if (source.empty()) [[unlikely]]
 		{
 			Print("Empty source file!");
 			return;
@@ -234,7 +234,7 @@ static auto CompileSourceFile(const std::string_view path) -> void
 
 	parseContext.Reset(lexContext.GetTokenStream(), lexContext.GetSourceText());
 	const ParseError& parseError {parseContext.Parse()};
-	if (NOMINAX_UNLIKELY(parseError.has_value()))
+	if (parseError.has_value()) [[unlikely]]
 	{
 		Print(LogLevel::Error, "{}\n", *parseError);
 	}

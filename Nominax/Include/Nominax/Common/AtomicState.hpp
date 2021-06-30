@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "BranchHint.hpp"
+#include "ComHints.hpp"
 
 #include <atomic>
 #include <type_traits>
@@ -323,10 +323,11 @@ namespace Nominax::Common
 	{
 		if constexpr (SingletonLock)
 		{
-			if (NOMINAX_UNLIKELY(x != SuccessState)) // Only store if error state
+			if (x != SuccessState) [[unlikely]] // Only store if error state
 			{
-				if (NOMINAX_LIKELY(this->Value_.load() == static_cast<ValueType>(SuccessState))) // Only store if untouched state
+				if (this->Value_.load() == static_cast<ValueType>(SuccessState)) // Only store if untouched state
 				{
+                    [[likely]]
 					this->Value_.store(static_cast<ValueType>(x));
 				}
 			}

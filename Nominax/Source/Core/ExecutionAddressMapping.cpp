@@ -212,15 +212,16 @@ namespace Nominax::Core
 {
 	auto ComputeInstructionMapBinding(std::span<const ByteCode::Signal::Discriminator> input, std::span<bool>& output) -> bool
 	{
-		if (NOMINAX_UNLIKELY(std::size(input) != std::size(output)))
+		if (std::size(input) != std::size(output))
 		{
+            [[unlikely]]
 			return false;
 		}
 
 		auto       iterator {std::begin(input)};
 		const auto end {std::end(input)};
 
-		for (bool* flag = output.data(); NOMINAX_LIKELY(iterator < end); ++iterator, ++flag)
+		for (bool* flag = output.data(); iterator < end; ++iterator, ++flag)
 		{
 			*flag = *iterator == ByteCode::Signal::Discriminator::Instruction;
 		}
@@ -248,7 +249,7 @@ namespace Nominax::Core
 		++bucket;
 		++jumpAddressMap;
 
-		while (NOMINAX_UNLIKELY(bucket < bucketEnd))
+		while (bucket < bucketEnd)
 		{
 			if (*jumpAddressMap)
 			{

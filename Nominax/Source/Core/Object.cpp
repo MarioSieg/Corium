@@ -213,8 +213,9 @@ namespace Nominax::Core
 {
 	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) const -> bool
 	{
-		if (NOMINAX_UNLIKELY(buffer.size() < this->HeaderRead_BlockSize()))
+		if (buffer.size() < this->HeaderRead_BlockSize())
 		{
+            [[unlikely]]
 			return false;
 		}
 
@@ -238,13 +239,12 @@ namespace Nominax::Core
 	auto Object::DeepCmp(const Object a, const Object b) -> bool
 	{
 		return a.HeaderRead_BlockSize() == b.HeaderRead_BlockSize()
-			       ? std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.ObjectBlockSizeInBytes()) == 0
-			       : false;
+		&& std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.ObjectBlockSizeInBytes()) == 0;
 	}
 
 	auto Object::AllocateUnique(const U32 sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
 	{
-		if (NOMINAX_UNLIKELY(sizeInRecords == 0))
+		if (sizeInRecords == 0)  [[unlikely]]
 		{
 			return nullptr;
 		}

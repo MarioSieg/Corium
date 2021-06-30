@@ -214,7 +214,7 @@
 #include <span>
 #include <variant>
 
-#include "BranchHint.hpp"
+#include "ComHints.hpp"
 #include "BaseTypes.hpp"
 #include "../System/MacroCfg.hpp"
 
@@ -329,7 +329,7 @@ namespace Nominax::Common
 		const auto length {std::distance(begin, end)};
 		const bool mismatch {chunkCount <= 1 || static_cast<std::size_t>(length) % chunkCount};
 
-		if (NOMINAX_UNLIKELY(mismatch))
+		if (mismatch) [[unlikely]]
 		{
 			const Span range {begin, end};
 			std::invoke(std::forward<Func>(func), range, static_cast<std::size_t>(0), std::forward<Args>(args)...);

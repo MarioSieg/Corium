@@ -207,6 +207,4 @@
 
 #pragma once
 
-#define NOMINAX_LIKELY(x) __builtin_expect(!!( x ), 1)
-#define NOMINAX_UNLIKELY(x) __builtin_expect(!!( x ), 0)
 #define NOMINAX_EXPECT_VALUE(x, expect) __builtin_expect(( x ), ( expect ))

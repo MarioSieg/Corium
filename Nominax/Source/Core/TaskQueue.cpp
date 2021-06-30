@@ -206,7 +206,7 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/Core/TaskQueue.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/ComHints.hpp"
 
 namespace Nominax::Core
 {
@@ -250,8 +250,9 @@ namespace Nominax::Core
 
 	TaskQueueThread::~TaskQueueThread()
 	{
-		if (NOMINAX_UNLIKELY(!this->Worker_.joinable()))
+		if (!this->Worker_.joinable())
 		{
+            [[unlikely]]
 			return;
 		}
 

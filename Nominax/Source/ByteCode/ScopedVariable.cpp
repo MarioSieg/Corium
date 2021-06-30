@@ -209,7 +209,7 @@
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 #include "../../Include/Nominax/Common/DecomposerF64.hpp"
 #include "../../Include/Nominax/Common/Algorithm.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/ComHints.hpp"
 #include "../../Include/Nominax/Common/ComparatorProxyF64.hpp"
 
 namespace Nominax::ByteCode
@@ -223,7 +223,7 @@ namespace Nominax::ByteCode
 	// ReSharper disable once CppMemberFunctionMayBeConst
 	auto ScopedVariable<F64>::Push(const F64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// If zero, optimize with special push zero instruction.
 			if (Proxy_F64IsZero(value))
@@ -256,7 +256,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<I64>::Push(const I64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// If zero, optimize with special push zero instruction.
 			if (value == 0)
@@ -289,7 +289,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<U64>::Push(const U64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// If zero, optimize with special push zero instruction.
 			if (value == 0)
@@ -321,7 +321,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<F64>::Add(const F64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// With 0 it's a no-op
 			if (Proxy_F64IsZero(value))
@@ -344,7 +344,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<I64>::Add(const I64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// With 0 it's a no-op
 			if (value == 0)
@@ -367,7 +367,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<U64>::Add(const U64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// With 0 it's a no-op
 			if (value == 0)
@@ -391,7 +391,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<F64>::Sub(const F64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// With 0 it's a no-op
 			if (Proxy_F64IsZero(value))
@@ -414,7 +414,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<I64>::Sub(const I64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// With 0 it's a no-op
 			if (value == 0)
@@ -437,7 +437,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<U64>::Sub(const U64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// With 0 it's a no-op
 			if (value == 0)
@@ -460,7 +460,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<F64>::Mul(const F64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// By 0 or 1 is a no-op:
 			if (Proxy_F64IsZero(value) || Proxy_F64IsOne(value))
@@ -476,7 +476,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<I64>::Mul(I64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// By 0 or 1 is a no-op:
 			if (value == 0 || value == 1)
@@ -501,7 +501,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<U64>::Mul(U64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// By 0 or 1 is a no-op:
 			if (value == 0 || value == 1)
@@ -526,7 +526,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<F64>::Div(const F64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// x / x is always 1
 			if (this->Attached_.Back().Contains(value))
@@ -550,7 +550,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<I64>::Div(I64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// x / x is always 1
 			if (this->Attached_.Back().Contains(value))
@@ -584,7 +584,7 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<U64>::Div(U64 value) -> ScopedVariable&
 	{
-		if (NOMINAX_LIKELY(this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1))
+		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// x / x is always 1
 			if (this->Attached_.Back().Contains(value))

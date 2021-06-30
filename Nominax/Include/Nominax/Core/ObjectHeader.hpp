@@ -212,7 +212,7 @@
 
 #include "ObjectFlagVector.hpp"
 #include "Record.hpp"
-#include "../Common/BranchHint.hpp"
+#include "../Common/ComHints.hpp"
 
 namespace Nominax::Core
 {
@@ -416,7 +416,7 @@ namespace Nominax::Core
 
 	__attribute__((flatten)) inline auto ObjectHeader::MapToRegionChecked(const std::span<Record> region) const -> bool
 	{
-		if (NOMINAX_UNLIKELY(region.size() < 2))
+		if (region.size() < 2) [[unlikely]]
 		{
 			return false;
 		}
@@ -430,7 +430,7 @@ namespace Nominax::Core
 
 	__attribute__((flatten)) inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Record> region) -> bool
 	{
-		if (NOMINAX_UNLIKELY(region.size() < 2))
+		if (region.size() < 2)  [[unlikely]]
 		{
 			return false;
 		}

@@ -317,9 +317,10 @@ namespace Nominax::Core
 	/// <returns></returns>
 	static inline auto MapStackSize(const std::size_t sizeInBytes) -> std::size_t
 	{
-		if (NOMINAX_UNLIKELY(sizeInBytes % sizeof(Record) != 0))
+		if (sizeInBytes % sizeof(Record) != 0)
 		{
-			PANIC("Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
+            [[unlikely]]
+			Panic(PAINF, "Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
 		}
 		return sizeInBytes / sizeof(Record);
 	}
@@ -419,9 +420,10 @@ namespace Nominax::Core
 	{
 		Print("Allocating {} pool with size: {} MB\n", poolId, Bytes2Megabytes(static_cast<F64>(size)));
 		auto* __restrict__ const mem {new(std::nothrow) U8[size]};
-		if (NOMINAX_UNLIKELY(!mem))
+		if (!mem)
 		{
-			PANIC("Allocation of monotonic {} pool with size {} MB failed!", poolId, Bytes2Megabytes(static_cast<F64>(size)));
+            [[unlikely]]
+			Panic(PAINF, "Allocation of monotonic {} pool with size {} MB failed!", poolId, Bytes2Megabytes(static_cast<F64>(size)));
 		}
 		return mem;
 	}
@@ -436,7 +438,7 @@ namespace Nominax::Core
 	static auto TriggerByteCodeStreamValidationPanic(const ValidationResultCode result, [[maybe_unused]] const Stream& appCode)
 	{
 		// Print error message:
-		PANIC("Byte code validation of stream failed: {}\n", result);
+		Panic(PAINF, "Byte code validation of stream failed: {}\n", result);
 	}
 
 	/// <summary>
@@ -531,9 +533,10 @@ namespace Nominax::Core
 			OptimalReactorRoutine
 		}
 	{
-		if (NOMINAX_LIKELY(descriptor.ArgC && descriptor.ArgV))
+		if (descriptor.ArgC && descriptor.ArgV)
 		{
 			// copy arguments:
+            [[likely]]
 			this->Arguments.insert(descriptor.ArgV + 1, descriptor.ArgV + descriptor.ArgC);
 		}
 
@@ -591,8 +594,9 @@ namespace Nominax::Core
 
 	auto Environment::Boot(const EnvironmentDescriptor& descriptor) -> void
 	{
-		if (NOMINAX_UNLIKELY(this->Context_))
+		if (this->Context_)
 		{
+            [[unlikely]]
 			return;
 		}
 
@@ -683,8 +687,9 @@ namespace Nominax::Core
 		VALIDATE_ONLINE_BOOT_STATE();
 
 		AppCodeBundle appCodeBundle { };
-		if (const auto result {appCode.Build(appCodeBundle)}; NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
+		if (const auto result {appCode.Build(appCodeBundle)}; result != ValidationResultCode::Ok)
 		{
+            [[unlikely]]
 			TriggerByteCodeStreamValidationPanic(result, appCode);
 		}
 
@@ -717,8 +722,9 @@ namespace Nominax::Core
 
 	auto Environment::Shutdown() -> void
 	{
-		if (NOMINAX_UNLIKELY(!this->Context_))
+		if (!this->Context_)
 		{
+            [[unlikely]]
 			return;
 		}
 

@@ -234,7 +234,7 @@ namespace Nominax::Core
 		this->Pool_.reserve(reactorCount);
 		for (std::size_t i {0}; i < reactorCount; ++i)
 		{
-			if (NOMINAX_UNLIKELY(!routineLink))
+			if (!routineLink)
 			{
 				Print(Common::LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
 			}

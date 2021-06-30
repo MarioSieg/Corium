@@ -214,8 +214,9 @@ namespace Corium
 {
 	auto LexSource(std::string&& sourceCode, LexContext& context) -> LexResultCode
 	{
-		if (NOMINAX_UNLIKELY(std::empty(sourceCode)))
+		if (std::empty(sourceCode))
 		{
+            [[unlikely]]
 			return LexResultCode::EmptyFile;
 		}
 		context.EvaluateString(std::move(sourceCode));

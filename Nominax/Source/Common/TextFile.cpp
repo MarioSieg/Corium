@@ -206,7 +206,7 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/Common/TextFile.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/ComHints.hpp"
 #include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
 #include <algorithm>
@@ -225,13 +225,12 @@ namespace Nominax::Common
 		const TextFile::ViewType::size_type count  = std::numeric_limits<TextFile::ViewType::size_type>::max()
 	) -> TextFile::ViewType
 	{
-		if (NOMINAX_LIKELY(offset < source.size()))
+		if (offset < source.size()) [[likely]]
 		{
 			return
 			{
 				source.data() + offset,
-				std::min(source.size() - offset,
-				         count)
+				std::min(source.size() - offset, count)
 			};
 		}
 		return { };
@@ -248,8 +247,9 @@ namespace Nominax::Common
 	{
 		this->FilePath_ = std::move(path);
 		std::ofstream stream {this->FilePath_};
-		if (NOMINAX_UNLIKELY(!stream))
+		if (!stream)
 		{
+		    [[likely]]
 			return false;
 		}
 		stream << this->Content_;
@@ -260,8 +260,9 @@ namespace Nominax::Common
 	{
 		this->FilePath_ = std::move(path);
 		std::ifstream stream {this->FilePath_};
-		if (NOMINAX_UNLIKELY(!stream))
+		if (!stream)
 		{
+            [[unlikely]]
 			return false;
 		}
 		stream.seekg(0, std::ios::end);
@@ -273,9 +274,10 @@ namespace Nominax::Common
 
 	auto TextFile::ReadFromFileOrPanic(std::filesystem::path&& path) -> void
 	{
-		if (NOMINAX_UNLIKELY(!this->ReadFromFile(std::move(path))))
+		if (!this->ReadFromFile(std::move(path)))
 		{
-			PANIC("Failed to read text file from path: {}", path.string());
+            [[unlikely]]
+			Panic(PAINF, "Failed to read text file from path: {}", path.string());
 		}
 	}
 

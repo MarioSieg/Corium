@@ -214,7 +214,7 @@
 
 #include "../../Include/Nominax/Common/Algorithm.hpp"
 #include "../../Include/Nominax/Common/AtomicState.hpp"
-#include "../../Include/Nominax/Common/BranchHint.hpp"
+#include "../../Include/Nominax/Common/ComHints.hpp"
 #include "../../Include/Nominax/Common/Stopwatch.hpp"
 
 #include "../../Include/Nominax/System/MacroCfg.hpp"
@@ -228,14 +228,16 @@ namespace Nominax::ByteCode
 	auto ContainsPrologue(const Stream& input) -> bool
 	{
 		constexpr const auto& code {Stream::PrologueCode()};
-		if (NOMINAX_UNLIKELY(input.Size() < code.size()))
+		if (input.Size() < code.size())
 		{
+            [[unlikely]]
 			return false;
 		}
 		for (std::size_t i {0}; i < code.size(); ++i)
 		{
-			if (NOMINAX_UNLIKELY(code[i] != input[i]))
+			if (code[i] != input[i])
 			{
+                [[unlikely]]
 				return false;
 			}
 		}
@@ -245,14 +247,16 @@ namespace Nominax::ByteCode
 	auto ContainsEpilogue(const Stream& input) -> bool
 	{
 		constexpr const auto& code {Stream::EpilogueCode()};
-		if (NOMINAX_UNLIKELY(input.Size() < code.size()))
+		if (input.Size() < code.size())
 		{
+            [[unlikely]]
 			return false;
 		}
 		for (std::size_t i {0}, j {input.Size() - code.size()}; i < code.size(); ++i)
 		{
-			if (NOMINAX_UNLIKELY(code[i] != input[j + i]))
+			if (code[i] != input[j + i])
 			{
+                [[unlikely]]
 				return false;
 			}
 		}
@@ -262,34 +266,39 @@ namespace Nominax::ByteCode
 	auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry, U32* const outIndex) -> ValidationResultCode
 	{
 		// Check if empty:
-		if (NOMINAX_UNLIKELY(input.IsEmpty()))
+		if (input.IsEmpty())
 		{
+            [[unlikely]]
 			return ValidationResultCode::Empty;
 		}
 
 		// Check if we've reached the pointer compression limit:
-		if (NOMINAX_UNLIKELY(input.Size() >= std::numeric_limits<U32>::max()))
+		if (input.Size() >= std::numeric_limits<U32>::max())
 		{
+            [[unlikely]]
 			return ValidationResultCode::SignalLimitReached;
 		}
 
 		// Check if prologue code is contained:
-		if (NOMINAX_UNLIKELY(!ContainsPrologue(input)))
+		if (!ContainsPrologue(input))
 		{
+            [[unlikely]]
 			return ValidationResultCode::MissingPrologueCode;
 		}
 
 		// Check if epilogue code is contained:
-		if (NOMINAX_UNLIKELY(!ContainsEpilogue(input)))
+		if (!ContainsEpilogue(input))
 		{
+            [[unlikely]]
 			return ValidationResultCode::MissingEpilogueCode;
 		}
 
 		// Validate that user intrinsic calls are non null:
 		for (IntrinsicRoutine* const routine : intrinsicRegistry)
 		{
-			if (NOMINAX_UNLIKELY(!routine))
+			if (!routine)
 			{
+                [[unlikely]]
 				return ValidationResultCode::InvalidUserIntrinsicCall;
 			}
 		}
@@ -337,7 +346,7 @@ namespace Nominax::ByteCode
 				default: ;
 				}
 
-				if (NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
+				if (result != ValidationResultCode::Ok)  [[unlikely]]
 				{
 					errorIndex.store(index);
 					error(result);
@@ -348,17 +357,19 @@ namespace Nominax::ByteCode
 		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf), validationRoutine);
 
 		// Return error if the error value is not okay
-		if (NOMINAX_UNLIKELY(!error))
+		if (!error)  [[unlikely]]
 		{
-			if (NOMINAX_LIKELY(outIndex))
+			if (outIndex)
 			{
+                [[unlikely]]
 				*outIndex = errorIndex.load();
 			}
 			return error();
 		}
 
-		if (NOMINAX_LIKELY(outIndex))
+		if (outIndex)
 		{
+            [[unlikely]]
 			*outIndex = 0;
 		}
 
@@ -370,12 +381,13 @@ namespace Nominax::ByteCode
 		const auto idx {static_cast<std::size_t>(address)};
 
 		// validate that jump address is inside the range of the bucket:
-		if (NOMINAX_UNLIKELY(bucket.Size() <= idx))
+		if (bucket.Size() <= idx)
 		{
+            [[unlikely]]
 			return false;
 		}
 
-		return NOMINAX_LIKELY(bucket[idx].Contains<Instruction>());
+		return NOMINAX_EXPECT_VALUE(bucket[idx].Contains<Instruction>(), true);
 	}
 
 	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallID id) -> bool
@@ -383,26 +395,28 @@ namespace Nominax::ByteCode
 		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallID::$Count) - 1};
 		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
 		static_assert(std::is_unsigned_v<decltype(value)>);
-		return NOMINAX_LIKELY(value <= max);
+		return NOMINAX_EXPECT_VALUE(value <= max, true);
 	}
 
 	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicCallID id) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
-		return NOMINAX_LIKELY(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size());
+		return NOMINAX_EXPECT_VALUE(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size(), true);
 	}
 
 	auto ValidateInstructionArguments(const Instruction instruction, const std::span<const Signal::Discriminator>& args) -> ValidationResultCode
 	{
 		// First check if the argument count is incorrect:
-		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) > args.size()))
+		if (LookupInstructionArgumentCount(instruction) > args.size())
 		{
+            [[unlikely]]
 			return ValidationResultCode::NotEnoughArgumentsForInstruction;
 		}
 
 		// First check if the argument count is incorrect:
-		if (NOMINAX_UNLIKELY(LookupInstructionArgumentCount(instruction) < args.size()))
+		if (LookupInstructionArgumentCount(instruction) < args.size())
 		{
+            [[unlikely]]
 			return ValidationResultCode::TooManyArgumentsForInstruction;
 		}
 
@@ -415,9 +429,10 @@ namespace Nominax::ByteCode
 			const TypeIndexTable& required {LookupInstructionArgumentTypes(instruction)[i]};
 			const bool            isWithinAllowedIndices {std::find(std::begin(required), std::end(required), discriminator) != std::end(required)};
 
-			if (NOMINAX_UNLIKELY(!isWithinAllowedIndices))
+			if (!isWithinAllowedIndices)
 			{
 				// if not, validation failed:
+                [[unlikely]]
 				return ValidationResultCode::ArgumentTypeMismatch;
 			}
 		}

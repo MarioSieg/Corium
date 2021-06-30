@@ -211,7 +211,7 @@
 #include "Instruction.hpp"
 #include "Stream.hpp"
 #include "StreamScalar.hpp"
-#include "../Common/BranchHint.hpp"
+#include "../Common/ComHints.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -487,7 +487,7 @@ namespace Nominax::ByteCode
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::DoNothing() -> ScopedVariable&
 	{
-		if (NOMINAX_UNLIKELY(this->Attached_.GetOptimizationLevel() == OptimizationLevel::Off))
+		if (this->Attached_.GetOptimizationLevel() == OptimizationLevel::Off)
 		{
 			// ReSharper disable once CppRedundantTemplateKeyword
 			this->Attached_.template Do<Instruction::NOp>();
