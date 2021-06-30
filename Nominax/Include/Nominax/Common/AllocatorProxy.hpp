@@ -217,7 +217,7 @@ namespace Nominax::Common
 	/// </summary>
 	inline constinit const IAllocator* GlobalAllocatorProxy
 	{
-#if NOMINAX_DEBUG && NOMINAX_DBG_ALLOC
+#if NOX_DEBUG && NOX_DBG_ALLOC
         &GlobalDebugAllocator
 #else
 		&GlobalRuntimeAllocator

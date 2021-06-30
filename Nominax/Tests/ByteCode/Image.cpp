@@ -289,7 +289,7 @@ TEST(Image, MoveAssign)
 }
 
 
-#ifdef NOMINAX_DEATH_TESTS
+#ifdef NOX_DEATH_TESTS
 
 TEST(Image, DeathConstruct1)
 {

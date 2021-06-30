@@ -260,7 +260,7 @@ namespace Nominax::Common
 	template <typename Str, typename... Args>
 	inline auto Print([[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
 	{
-#ifndef NOMINAX_TEST
+#ifndef NOX_TEST
 		fmt::print(formatString, std::forward<Args>(args)...);
 #endif
 	}
@@ -303,7 +303,7 @@ namespace Nominax::Common
 	template <typename Str, typename... Args>
 	auto Print([[maybe_unused]] const LogLevel level, [[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
 	{
-#ifndef NOMINAX_TEST
+#ifndef NOX_TEST
 		auto color = TextColor::White;
 		switch (level)
 		{
@@ -336,7 +336,7 @@ namespace Nominax::Common
 	template <typename Str, typename... Args>
 	inline auto Print([[maybe_unused]] const TextColor color, [[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
 	{
-#ifndef NOMINAX_TEST
+#ifndef NOX_TEST
 		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
 #endif
 	}

@@ -239,7 +239,7 @@ namespace Nominax::Core
 
 	static_assert(sizeof(Vector512) == 64);
 
-#if NOMINAX_ARCH_X86_32
+#if NOX_ARCH_X86_32
 
 	using GprRegisterLane = std::array<U32, 8>;
 	using VectorRegisterLane128 = std::array<Vector128, 8>;
@@ -253,7 +253,7 @@ namespace Nominax::Core
 	/// <returns></returns>
 	extern auto RegisterDump_X86_32(std::ostream& out, const GprRegisterLane& gpr) -> void;
 
-#elif NOMINAX_ARCH_X86_64
+#elif NOX_ARCH_X86_64
 
 	using GprRegisterLane = std::array<U64, 16>;
 	using VectorRegisterLane128 = std::array<Vector128, 16>;
@@ -276,7 +276,7 @@ namespace Nominax::Core
 		const VectorRegisterLane256& ymm
 	) -> void;
 
-#elif NOMINAX_ARCH_ARM_64
+#elif NOX_ARCH_ARM_64
 
 	using GprRegisterLane = std::array<U64, 16>;
 	using VectorRegisterLane128 = std::array<Vector128, 16>;

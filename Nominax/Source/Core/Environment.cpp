@@ -286,10 +286,10 @@ namespace Nominax::Core
 		Print(SYSTEM_LOGO_TEXT);
 		Print(SYSTEM_COPYRIGHT_TEXT);
 		Print("\nNominax Version: v.{}.{}\n", SYSTEM_VERSION.Major, SYSTEM_VERSION.Minor);
-		Print("Platform: {} {}\n", NOMINAX_OS_NAME, NOMINAX_ARCH_SIZE_NAME);
-		Print("Arch: {}\n", NOMINAX_ARCH_NAME);
-		Print("IsPosix: {}\n", NOMINAX_IS_POSIX);
-		Print("Compiled with: {} - C++ 20\n", NOMINAX_COM_NAME);
+		Print("Platform: {} {}\n", NOX_OS_NAME, NOX_ARCH_SIZE_NAME);
+		Print("Arch: {}\n", NOX_ARCH_NAME);
+		Print("IsPosix: {}\n", NOX_IS_POSIX);
+		Print("Compiled with: {} - C++ 20\n", NOX_COM_NAME);
 		Print("\n");
 		PrintTypeInfoTable();
 		Print("\n");
@@ -299,7 +299,7 @@ namespace Nominax::Core
 	do													\
 	{													\
 		Print("Dispatching hook: " #method "\n");		\
-		NOMINAX_PANIC_ASSERT_TRUE						\
+		NOX_PANIC_ASSERT_TRUE						\
 		(												\
 			this-> method (__VA_ARGS__),				\
 			"\" "#method "\" returned false!"			\
@@ -307,7 +307,7 @@ namespace Nominax::Core
 	}													\
 	while(false)
 
-#define VALIDATE_ONLINE_BOOT_STATE() NOMINAX_PANIC_ASSERT_TRUE(this->IsOnline(), "Environment is offline!")
+#define VALIDATE_ONLINE_BOOT_STATE() NOX_PANIC_ASSERT_TRUE(this->IsOnline(), "Environment is offline!")
 
 	/// <summary>
 	/// Checks if the byte stack size is divisible by sizeof(Record) and panics if not.
@@ -627,7 +627,7 @@ namespace Nominax::Core
 		// No, we cannot use std::make_unique because we want it noexcept!
 		// ReSharper disable once CppSmartPointerVsMakeFunction
 		this->Context_ = std::unique_ptr<Context, ContextDeleter>(new(std::nothrow) Context(descriptor));
-		NOMINAX_PANIC_ASSERT_NOT_NULL(this->Context_, "Context allocation failed!");
+		NOX_PANIC_ASSERT_NOT_NULL(this->Context_, "Context allocation failed!");
 
 		// Invoke hook:
 		DISPATCH_HOOK(OnPostBootHook,);

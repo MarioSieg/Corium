@@ -208,7 +208,7 @@
 #include "../../Include/Nominax/System/Os.hpp"
 #include "../../Include/Nominax/System/Platform.hpp"
 
-#if NOMINAX_OS_WINDOWS
+#if NOX_OS_WINDOWS
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>

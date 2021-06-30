@@ -209,7 +209,6 @@
 
 #include "../../Include/Nominax/ByteCode/Chunk.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
-#include "../../Include/Nominax/Common/ComHints.hpp"
 #include "../../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 #include "../../Include/Nominax/System/MacroCfg.hpp"
 
@@ -230,7 +229,7 @@ namespace Nominax::ByteCode
 		const auto& discriminators {input.GetDiscriminatorBuffer()};
 		for (std::size_t i {0}; i < input.Size(); ++i)
 		{
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
 			if (discriminators[i] == Signal::Discriminator::JumpAddress)
 			{

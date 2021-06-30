@@ -209,9 +209,9 @@
 
 #include "../System/MacroCfg.hpp"
 
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT
+#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT
 #	include <immintrin.h>
-#elif NOMINAX_ARCH_ARM_64 && NOMINAX_USE_ARCH_OPT && defined(__ARM_NEON)
+#elif NOX_ARCH_ARM_64 && NOX_USE_ARCH_OPT && defined(__ARM_NEON)
 #	include <arm_neon.h>
 #endif
 

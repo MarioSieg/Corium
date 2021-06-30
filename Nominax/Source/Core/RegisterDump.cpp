@@ -212,7 +212,7 @@
 
 namespace Nominax::Core
 {
-#if NOMINAX_ARCH_X86_32
+#if NOX_ARCH_X86_32
 	
 	auto RegisterDump_X86_32(std::ostream& out, const GprRegisterLane& gpr) -> void
 	{
@@ -226,7 +226,7 @@ namespace Nominax::Core
 		out << "\n%esp = " << std::bitset<32>{gpr[7]};
 	}
 
-#elif NOMINAX_ARCH_X86_64
+#elif NOX_ARCH_X86_64
 
 	/// <summary>
 	/// Read and dump all the register values into the stream.
@@ -317,7 +317,7 @@ namespace Nominax::Core
 		out << '\n';
 	}
 
-#elif NOMINAX_ARCH_ARM_64
+#elif NOX_ARCH_ARM_64
 #	error "Not yet implemented!"
 #else
 #	error "Unknown arch!"

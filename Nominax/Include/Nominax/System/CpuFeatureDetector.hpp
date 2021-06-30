@@ -209,13 +209,13 @@
 
 #include "Platform.hpp"
 
-#if NOMINAX_ARCH_X86_64
+#if NOX_ARCH_X86_64
 #   include "../Arch/X86_64.hpp"
 #endif
 
 namespace Nominax::System
 {
-#if NOMINAX_ARCH_X86_64
+#if NOX_ARCH_X86_64
 	/// <summary>
 	/// Architecture dependent cpu feature flags.
 	/// </summary>

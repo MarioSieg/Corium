@@ -220,10 +220,11 @@ namespace Nominax::Core
 			return ReactorValidationResult::NullPtr;
 		}
 
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
-		if (NOMINAX_UNLIKELY(!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize)))
+		if (!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize - 1))
 		{
+		    [[unlikely]]
 			return ReactorValidationResult::NullPtr;
 		}
 

@@ -220,7 +220,7 @@ namespace Nominax::Common
 	template <typename T>
 	inline auto DisOpt(T& x) -> void
 	{
-#if NOMINAX_COM_CLANG
+#if NOX_COM_CLANG
 		__asm__ __volatile__("" : "+r,m"(x) : : "memory");
 #else
 		__asm__ __volatile__("" : "+m,r"(x) :: "memory");

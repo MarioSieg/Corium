@@ -220,19 +220,19 @@ namespace Nominax::Core
 	static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
 	{
 		&ReactorCore_Fallback,
-#if NOMINAX_ARCH_X86_64
+#if NOX_ARCH_X86_64
 
 		&ReactorCore_AVX,
 		&ReactorCore_AVX512F,
 
-#elif NOMINAX_ARCH_ARM_64
+#elif NOX_ARCH_ARM_64
 #	error "ARM64 not yet supported!"
 #endif
 	};
 
 	auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
 	{
-#if NOMINAX_ARCH_X86_64
+#if NOX_ARCH_X86_64
 
 		// if we have AVX 512, use AVX 512:
 		if (cpuFeatureDetector->Avx512F)
@@ -246,7 +246,7 @@ namespace Nominax::Core
 			return ReactorCoreSpecialization::X86_64_AVX;
 		}
 
-#elif NOMINAX_ARCH_ARM_64
+#elif NOX_ARCH_ARM_64
 #	error "ARM64 not yet supported!"
 #endif
 
@@ -261,8 +261,8 @@ namespace Nominax::Core
 	ReactorRoutineLink::ReactorRoutineLink(const ReactorCoreSpecialization specialization, ReactorCoreExecutionRoutine* const executionRoutine, const void** const jumpTable)
 		: Specialization {specialization}, ExecutionRoutine {executionRoutine}, JumpTable {jumpTable}
 	{
-		NOMINAX_PANIC_ASSERT_NOT_NULL(this->ExecutionRoutine, "Routine for reactor routine link is null!");
-		NOMINAX_PANIC_ASSERT_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
+		NOX_PANIC_ASSERT_NOT_NULL(this->ExecutionRoutine, "Routine for reactor routine link is null!");
+		NOX_PANIC_ASSERT_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
 	}
 
 	auto GetFallbackRoutineLink() -> ReactorRoutineLink
@@ -281,7 +281,7 @@ namespace Nominax::Core
 	auto GetReactorRoutineFromRegistryByTarget(const ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*
 	{
 		ReactorCoreExecutionRoutine* routine {REACTOR_REGISTRY[static_cast<std::underlying_type_t<decltype(target)>>(target)]};
-		NOMINAX_PANIC_ASSERT_NOT_NULL(routine, "Reactor core execution routine is nullptr!");
+		NOX_PANIC_ASSERT_NOT_NULL(routine, "Reactor core execution routine is nullptr!");
 		return routine;
 	}
 

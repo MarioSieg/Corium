@@ -471,7 +471,7 @@ namespace Nominax::ByteCode
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::Unwrap() const -> T
 	{
-#if NOMINAX_DEBUG
+#if NOX_DEBUG
 		return this->Attached_.Back().template Unwrap<T>().value();
 #else
 		return *this->Attached_.Back().template Unwrap<T>();

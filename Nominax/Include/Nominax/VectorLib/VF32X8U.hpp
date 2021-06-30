@@ -219,14 +219,14 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X8_Add_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 		
 		__m256 x = _mm256_loadu_ps(inout);
 		const __m256 y = _mm256_loadu_ps(in);
 		x = _mm256_add_ps(x, y);
 		_mm256_storeu_ps(inout, x);
 		
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 		
 		__m128 x1 = _mm_loadu_ps(inout);
 		__m128 x2 = _mm_loadu_ps(inout + 4);
@@ -259,14 +259,14 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X8_Sub_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
 		__m256 x = _mm256_loadu_ps(inout);
 		const __m256 y = _mm256_loadu_ps(in);
 		x = _mm256_sub_ps(x, y);
 		_mm256_storeu_ps(inout, x);
 
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
 		__m128 x1 = _mm_loadu_ps(inout);
 		__m128 x2 = _mm_loadu_ps(inout + 4);
@@ -299,14 +299,14 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X8_Mul_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
 		__m256 x = _mm256_loadu_ps(inout);
 		const __m256 y = _mm256_loadu_ps(in);
 		x = _mm256_mul_ps(x, y);
 		_mm256_storeu_ps(inout, x);
 
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
 		__m128 x1 = _mm_loadu_ps(inout);
 		__m128 x2 = _mm_loadu_ps(inout + 4);
@@ -339,14 +339,14 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X8_Div_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
 		__m256 x = _mm256_loadu_ps(inout);
 		const __m256 y = _mm256_loadu_ps(in);
 		x = _mm256_div_ps(x, y);
 		_mm256_storeu_ps(inout, x);
 
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
 		__m128 x1 = _mm_loadu_ps(inout);
 		__m128 x2 = _mm_loadu_ps(inout + 4);

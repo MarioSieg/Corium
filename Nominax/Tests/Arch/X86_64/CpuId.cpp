@@ -210,7 +210,7 @@
 
 #include "../../TestBase.hpp"
 
-#if NOMINAX_ARCH_X86_64
+#if NOX_ARCH_X86_64
 
 TEST(AssemblyCalls, IsCpudIdSupported)
 {

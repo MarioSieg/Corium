@@ -225,7 +225,7 @@ namespace Nominax::Core
 	/// <returns></returns>
 	NOX_HOT extern auto ReactorCore_Fallback(const VerboseReactorDescriptor* input, ReactorState* output, const void**** outJumpTable = nullptr) -> ReactorShutdownReason;
 
-#if NOMINAX_ARCH_X86_64
+#if NOX_ARCH_X86_64
 
 	/// <summary>
 	/// Specialized implementation compiled with AVX, which uses 256-bit YMM registers.

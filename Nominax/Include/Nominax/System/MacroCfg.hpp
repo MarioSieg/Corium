@@ -212,27 +212,27 @@
 /// <summary>
 /// Use architecture specific optimizations such as assembly or intrinsics?
 /// </summary>
-#define NOMINAX_USE_ARCH_OPT true
+#define NOX_USE_ARCH_OPT true
 
 /// <summary>
 /// Insert assembly comments with the instruction name into the assembler code, to find the section in the compiled output.
 /// Should be disabled when building for release.
 /// </summary>
-#define NOMINAX_REACTOR_ASM_MARKERS NOMINAX_DEBUG
+#define NOX_REACTOR_ASM_MARKERS NOX_DEBUG
 
 /// <summary>
 ///
 /// </summary>
-#define NOMINAX_VERBOSE_ALLOCATOR NOMINAX_DEBUG
+#define NOX_VERBOSE_ALLOCATOR NOX_DEBUG
 
 
-#define NOMINAX_OPT_USE_ZERO_EPSILON NOMINAX_DEBUG
+#define NOX_OPT_USE_ZERO_EPSILON NOX_DEBUG
 
 /// <summary>
 /// If enabled, the jump table addresses are directly mapped as pointers into the byte-code signals.
 /// </summary>
-#if NOMINAX_RELEASE && !defined(NOMINAX_TEST)
-#	define NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING true
+#if NOX_RELEASE && !defined(NOX_TEST)
+#	define NOX_OPT_EXECUTION_ADDRESS_MAPPING true
 #else
-#	define NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING false
+#	define NOX_OPT_EXECUTION_ADDRESS_MAPPING false
 #endif

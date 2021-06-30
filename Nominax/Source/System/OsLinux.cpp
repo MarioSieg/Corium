@@ -208,7 +208,7 @@
 #include "../../Include/Nominax/System/Os.hpp"
 #include "../../Include/Nominax/System/Platform.hpp"
 
-#if NOMINAX_OS_LINUX
+#if NOX_OS_LINUX
 
 #include <cstdio>
 #include <fstream>

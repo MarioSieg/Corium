@@ -215,9 +215,9 @@ namespace Nominax::Common
 	auto SafeLocalTime(const std::time_t& time) -> std::tm
 	{
 		std::tm buffer { };
-#if NOMINAX_COM_GCC
+#if NOX_COM_GCC
 		localtime_r(&time, &buffer);
-#elif NOMINAX_OS_WINDOWS
+#elif NOX_OS_WINDOWS
 		localtime_s(&buffer, &time);
 #else
 		static std::mutex mtx;

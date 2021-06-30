@@ -221,7 +221,7 @@ namespace Nominax::Arch::X86_64
 	CpuFeatureBits::CpuFeatureBits()
 	{
 		// check if cpuid is supported on system
-		NOMINAX_PANIC_ASSERT_TRUE(Asm_IsCpuIdSupported(), "CPUID instruction is not supported on system!");
+		NOX_PANIC_ASSERT_TRUE(Asm_IsCpuIdSupported(), "CPUID instruction is not supported on system!");
 
 		// Raw DATA.
 		std::array<U8, sizeof(CpuFeatureBits)> data { };

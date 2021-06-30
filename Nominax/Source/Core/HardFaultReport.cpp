@@ -258,7 +258,7 @@ namespace Nominax::Core
 		[[maybe_unused]] VectorRegisterLane256 v256 { };
 
 		{
-#if NOMINAX_ARCH_X86_32
+#if NOX_ARCH_X86_32
 			/// <summary>
 			/// Read 32-bit GPR registers.
 			/// Output is:
@@ -339,7 +339,7 @@ namespace Nominax::Core
 			// dump registers
 			RegisterDump_X86_32(out, gpr);
 
-#elif NOMINAX_ARCH_X86_64
+#elif NOX_ARCH_X86_64
 			/// <summary>
 			/// Read 64-bit GPR registers.
 			/// Output is:
@@ -795,10 +795,10 @@ namespace Nominax::Core
 		out << "         System\n";
 		out << "=========================\n";
 		out << "Nominax Version: " << SYSTEM_VERSION << '\n';
-		out << "Platform: " NOMINAX_OS_NAME " " NOMINAX_ARCH_SIZE_NAME << '\n';
-		out << "Arch: " << NOMINAX_ARCH_NAME << '\n';
-		out << "Posix: " << std::boolalpha << NOMINAX_IS_POSIX << '\n';
-		out << "Compiler: " << NOMINAX_COM_NAME " - C++ 20" << '\n';
+		out << "Platform: " NOX_OS_NAME " " NOX_ARCH_SIZE_NAME << '\n';
+		out << "Arch: " << NOX_ARCH_NAME << '\n';
+		out << "Posix: " << std::boolalpha << NOX_IS_POSIX << '\n';
+		out << "Compiler: " << NOX_COM_NAME " - C++ 20" << '\n';
 		out << "CPU: " << System::Os::QueryCpuName() << '\n';
 		out << "CPU Threads: " << std::thread::hardware_concurrency() << '\n';
 		out << "System RAM: " << Bytes2Megabytes(System::Os::QuerySystemMemoryTotal()) << " MB\n";

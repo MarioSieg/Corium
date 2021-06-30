@@ -237,13 +237,13 @@ namespace Nominax::Core
 		JumpTable                                  jumpTable
 	) -> bool
 	{
-		NOMINAX_PANIC_ASSERT_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");
-		NOMINAX_PANIC_ASSERT_NOT_NULL(bucketEnd, "Code chunk bucket table end was nullptr!");
-		NOMINAX_PANIC_ASSERT_NOT_NULL(jumpAddressMap, "Jump address map was nullptr!");
-		NOMINAX_PANIC_ASSERT_NOT_NULL(jumpTable, "Jump table was nullptr!");
-		NOMINAX_PANIC_ASSERT_NOT_NULL(*jumpTable, "First element of jump table was nullptr!");
-		NOMINAX_PANIC_ASSERT_TRUE(*jumpAddressMap, "First element of jump address map was false, but should be true because of code prologue!");
-		NOMINAX_PANIC_ASSERT_EQ(bucket->Instr, ByteCode::Instruction::NOp, "Missing code prologue in code bucket!");
+		NOX_PANIC_ASSERT_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");
+		NOX_PANIC_ASSERT_NOT_NULL(bucketEnd, "Code chunk bucket table end was nullptr!");
+		NOX_PANIC_ASSERT_NOT_NULL(jumpAddressMap, "Jump address map was nullptr!");
+		NOX_PANIC_ASSERT_NOT_NULL(jumpTable, "Jump table was nullptr!");
+		NOX_PANIC_ASSERT_NOT_NULL(*jumpTable, "First element of jump table was nullptr!");
+		NOX_PANIC_ASSERT_TRUE(*jumpAddressMap, "First element of jump address map was false, but should be true because of code prologue!");
+		NOX_PANIC_ASSERT_EQ(bucket->Instr, ByteCode::Instruction::NOp, "Missing code prologue in code bucket!");
 
 		// skip first "nop" padding instruction:
 		++bucket;

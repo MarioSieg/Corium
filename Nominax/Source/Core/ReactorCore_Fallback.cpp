@@ -205,6 +205,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#define NOMINAX_REACTOR_IMPL_NAME ReactorCore_Fallback
+#define NOX_REACTOR_IMPL_NAME ReactorCore_Fallback
 #include "ReactorCore.inl"
-#undef NOMINAX_REACTOR_IMPL_NAME
+#undef NOX_REACTOR_IMPL_NAME

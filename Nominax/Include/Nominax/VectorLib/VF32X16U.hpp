@@ -219,14 +219,14 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X16_Add_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX512F__)
+#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 		
 		__m512 x = _mm512_loadu_ps(inout);
 		const __m512 y = _mm512_loadu_ps(in);
 		x = _mm512_add_ps(x, y);
 		_mm512_storeu_ps(inout, x);
 		
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
 		__m256 x1 = _mm256_loadu_ps(inout);
 		__m256 x2 = _mm256_loadu_ps(inout + 8);
@@ -237,7 +237,7 @@ namespace Nominax::VectorLib
 		_mm256_storeu_ps(inout, x1);
 		_mm256_storeu_ps(inout + 8, x2);
 
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
 		__m128 x1 = _mm_loadu_ps(inout);
 		__m128 x2 = _mm_loadu_ps(inout + 4);
@@ -285,14 +285,14 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X16_Sub_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX512F__)
+#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
 		__m512 x = _mm512_loadu_ps(inout);
 		const __m512 y = _mm512_loadu_ps(in);
 		x = _mm512_sub_ps(x, y);
 		_mm512_storeu_ps(inout, x);
 
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
 		__m256 x1 = _mm256_loadu_ps(inout);
 		__m256 x2 = _mm256_loadu_ps(inout + 8);
@@ -303,7 +303,7 @@ namespace Nominax::VectorLib
 		_mm256_storeu_ps(inout, x1);
 		_mm256_storeu_ps(inout + 8, x2);
 
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
 		__m128 x1 = _mm_loadu_ps(inout);
 		__m128 x2 = _mm_loadu_ps(inout + 4);
@@ -351,14 +351,14 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X16_Mul_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX512F__)
+#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
 		__m512 x = _mm512_loadu_ps(inout);
 		const __m512 y = _mm512_loadu_ps(in);
 		x = _mm512_mul_ps(x, y);
 		_mm512_storeu_ps(inout, x);
 
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
 		__m256 x1 = _mm256_loadu_ps(inout);
 		__m256 x2 = _mm256_loadu_ps(inout + 8);
@@ -369,7 +369,7 @@ namespace Nominax::VectorLib
 		_mm256_storeu_ps(inout, x1);
 		_mm256_storeu_ps(inout + 8, x2);
 
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
 		__m128 x1 = _mm_loadu_ps(inout);
 		__m128 x2 = _mm_loadu_ps(inout + 4);
@@ -417,14 +417,14 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X16_Div_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX512F__)
+#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
 		__m512 x = _mm512_loadu_ps(inout);
 		const __m512 y = _mm512_loadu_ps(in);
 		x = _mm512_div_ps(x, y);
 		_mm512_storeu_ps(inout, x);
 
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__AVX__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
 		__m256 x1 = _mm256_loadu_ps(inout);
 		__m256 x2 = _mm256_loadu_ps(inout + 8);
@@ -435,7 +435,7 @@ namespace Nominax::VectorLib
 		_mm256_storeu_ps(inout, x1);
 		_mm256_storeu_ps(inout + 8, x2);
 
-#elif NOMINAX_ARCH_X86_64 && NOMINAX_USE_ARCH_OPT && defined(__SSE__)
+#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
 		__m128 x1 = _mm_loadu_ps(inout);
 		__m128 x2 = _mm_loadu_ps(inout + 4);

@@ -214,7 +214,7 @@
 
 namespace Nominax
 {
-#define NOX_PAINF __LINE__, 0, __FILE__, __PRETTY_FUNCTION__
+#define NOX_PAINF __LINE__, 0, __FILE__, __FUNCTION__
 
 	template <typename Str, typename... Args>
 	[[noreturn]]
@@ -237,7 +237,7 @@ namespace Nominax
 	}
 }
 
-#define NOMINAX_PANIC_ASSERT_TRUE(x, msg)			\
+#define NOX_PANIC_ASSERT_TRUE(x, msg)			\
 	do												\
 	{												\
 		if (!( x ))                 				\
@@ -248,7 +248,7 @@ namespace Nominax
 	}												\
 	while(false)
 
-#define NOMINAX_PANIC_ASSERT_FALSE(x, msg)			\
+#define NOX_PANIC_ASSERT_FALSE(x, msg)			\
 	do												\
 	{												\
 		if (( x ))				                    \
@@ -259,12 +259,12 @@ namespace Nominax
 	}												\
 	while(false)
 
-#define NOMINAX_PANIC_ASSERT_NULL(x, msg) NOMINAX_PANIC_ASSERT_FALSE(x, msg)
-#define NOMINAX_PANIC_ASSERT_NOT_NULL(x, msg) NOMINAX_PANIC_ASSERT_TRUE(x, msg)
-#define NOMINAX_PANIC_ASSERT_ZERO(x, msg) NOMINAX_PANIC_ASSERT_FALSE(x, msg)
-#define NOMINAX_PANIC_ASSERT_NOT_ZERO(x, msg) NOMINAX_PANIC_ASSERT_TRUE(x, msg)
+#define NOX_PANIC_ASSERT_NULL(x, msg) NOX_PANIC_ASSERT_FALSE(x, msg)
+#define NOX_PANIC_ASSERT_NOT_NULL(x, msg) NOX_PANIC_ASSERT_TRUE(x, msg)
+#define NOX_PANIC_ASSERT_ZERO(x, msg) NOX_PANIC_ASSERT_FALSE(x, msg)
+#define NOX_PANIC_ASSERT_NOT_ZERO(x, msg) NOX_PANIC_ASSERT_TRUE(x, msg)
 
-#define NOMINAX_PANIC_ASSERT_EQ(x, y, msg)			\
+#define NOX_PANIC_ASSERT_EQ(x, y, msg)			\
 	do												\
 	{												\
 		if (( x ) != ( y ))		                    \
@@ -276,7 +276,7 @@ namespace Nominax
 	while(false)
 
 
-#define NOMINAX_PANIC_ASSERT_NE(x, y, msg)			\
+#define NOX_PANIC_ASSERT_NE(x, y, msg)			\
 	do												\
 	{												\
 		if (( x ) == ( y ))		                    \
@@ -287,7 +287,7 @@ namespace Nominax
 	}												\
 	while(false)
 
-#define NOMINAX_PANIC_ASSERT_L(x, y, msg)			\
+#define NOX_PANIC_ASSERT_L(x, y, msg)			\
 	do												\
 	{												\
 		if (!(( x ) < ( y )))		                \
@@ -298,7 +298,7 @@ namespace Nominax
 	}												\
 	while(false)
 
-#define NOMINAX_PANIC_ASSERT_LE(x, y, msg)			\
+#define NOX_PANIC_ASSERT_LE(x, y, msg)			\
 	do												\
 	{												\
 		if (!(( x ) <= ( y )))	                    \
@@ -309,7 +309,7 @@ namespace Nominax
 	}												\
 	while(false)
 
-#define NOMINAX_PANIC_ASSERT_G(x, y, msg)			\
+#define NOX_PANIC_ASSERT_G(x, y, msg)			\
 	do												\
 	{												\
 		if (!(( x ) > ( y )))		                \
@@ -320,7 +320,7 @@ namespace Nominax
 	}												\
 	while(false)
 
-#define NOMINAX_PANIC_ASSERT_GE(x, y, msg)			\
+#define NOX_PANIC_ASSERT_GE(x, y, msg)			\
 	do												\
 	{												\
 		if (!(( x ) >= ( y )))	                    \

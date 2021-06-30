@@ -209,9 +209,9 @@
 
 TEST(ReactorHypervisor, ReactorRegistry)
 {
-#if NOMINAX_ARCH_X86_64
+#if NOX_ARCH_X86_64
 	ASSERT_EQ(GetReactorRegistry().size(), static_cast<std::size_t>(ReactorCoreSpecialization::Count));
-#elif NOMINAX_ARCH_ARM_64
+#elif NOX_ARCH_ARM_64
 	ASSERT_EQ(GetReactorRegistry().size(), static_cast<std::size_t>(ReactorCoreSpecialization::Count));
 #endif
 }
@@ -251,7 +251,7 @@ TEST(ReactorHypervisor, GetOptionalReactorRoutine)
 	ASSERT_NE(data.JumpTable, nullptr);
 }
 
-#if NOMINAX_ARCH_X86_64
+#if NOX_ARCH_X86_64
 
 TEST(ReactorHypervisor, FeatureSelectAvx)
 {

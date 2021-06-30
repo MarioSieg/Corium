@@ -5,9 +5,9 @@ namespace Nominax::Assembler::X86_64
 {
 	auto InjectNopChain(U8* n, const U8 size) -> void
 	{
-		NOMINAX_PANIC_ASSERT_NOT_NULL(n, "Null needle!");
-		NOMINAX_PANIC_ASSERT_LE(size, 15, "Invalid nop chain size!");
-		NOMINAX_PANIC_ASSERT_GE(size, 1, "Invalid nop chain size!");
+		NOX_PANIC_ASSERT_NOT_NULL(n, "Null needle!");
+		NOX_PANIC_ASSERT_LE(size, 15, "Invalid nop chain size!");
+		NOX_PANIC_ASSERT_GE(size, 1, "Invalid nop chain size!");
 		
 		static constexpr std::array<const void* NOX_RESTRICT const, 15> JUMP_TABLE
 		{

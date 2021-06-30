@@ -226,7 +226,7 @@ namespace Nominax::Core
 		const std::optional<ReactorRoutineLink>& routineLink
 	) : Pool_ {&allocator}
 	{
-		NOMINAX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
+		NOX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 
 		Common::Print("Initializing reactor pool...\n", reactorCount);
 		Common::Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT, FALLBACK_REACTOR_COUNT, reactorCount);

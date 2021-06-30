@@ -473,7 +473,7 @@ TEST(Assembler_x86_64, InjectNopChain_15)
 	}
 }
 
-#ifdef NOMINAX_DEATH_TESTS
+#ifdef NOX_DEATH_TESTS
 
 TEST(Assembler_x86_64, InjectNopChain_Null_Error)
 {

@@ -209,7 +209,7 @@
 
 #include "../System/Platform.hpp"
 
-#if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
+#if NOX_OS_WINDOWS && !NOX_COM_GCC
 #	include <malloc.h>
 #else
 #	include <alloca.h>
@@ -238,7 +238,7 @@ namespace Nominax
 	[[nodiscard]]
 	NOX_FORCE_INLINE inline auto StackAlloc() -> T*
 	{
-#if NOMINAX_OS_WINDOWS && !NOMINAX_COM_GCC
+#if NOX_OS_WINDOWS && !NOX_COM_GCC
 		return static_cast<T*>(::_alloca(sizeof(T) * Count));
 #else
 		return static_cast<T*>(::alloca(sizeof(T) * Count));

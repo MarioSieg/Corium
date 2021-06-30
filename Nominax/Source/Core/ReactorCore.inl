@@ -611,85 +611,85 @@ namespace Nominax::Core
 		return;
 	}
 
-	NOX_HOT auto NOMINAX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor* input, ReactorState* output, const void**** outJumpTable) -> ReactorShutdownReason
+	NOX_HOT auto NOX_REACTOR_IMPL_NAME (const VerboseReactorDescriptor* input, ReactorState* output, const void**** outJumpTable) -> ReactorShutdownReason
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 
 		static constexpr std::array<const void* NOX_RESTRICT const, static_cast<std::underlying_type_t<Instruction>>(Instruction::$Count)> JUMP_TABLE
 		{
-			&& __int__,
-			&& __intrin__,
-			&& __cintrin__,
-			&& __call__,
-			&& __ret__,
-			&& __mov__,
-			&& __sto__,
-			&& __push__,
-			&& __pop__,
-			&& __pop2__,
-			&& __dupl__,
-			&& __dupl2__,
-			&& __swap__,
-			&& __nop__,
-			&& __jmp__,
-			&& __jmprel__,
-			&& __jz__,
-			&& __jnz__,
-			&& __jo_cmpi__,
-			&& __jo_cmpf__,
-			&& __jno_cmpi__,
-			&& __jno_cmpf__,
-			&& __je_cmpi__,
-			&& __je_cmpf__,
-			&& __jne_cmpi__,
-			&& __jne_cmpf__,
-			&& __ja_cmpi__,
-			&& __ja_cmpf__,
-			&& __jl_cmpi__,
-			&& __jl_cmpf__,
-			&& __jae_cmpi__,
-			&& __jae_cmpf__,
-			&& __jle_cmpi__,
-			&& __jle_cmpf__,
-			&& __ipushz__,
-			&& __ipusho__,
-			&& __fpusho__,
-			&& __iinc__,
-			&& __idec__,
-			&& __iadd__,
-			&& __isub__,
-			&& __imul__,
-			&& __idiv__,
-			&& __imod__,
-			&& __iand__,
-			&& __ior__,
-			&& __ixor__,
-			&& __icom__,
-			&& __isal__,
-			&& __isar__,
-			&& __irol__,
-			&& __iror__,
-			&& __ineg__,
-			&& __fadd__,
-			&& __fsub__,
-			&& __fmul__,
-			&& __fdiv__,
-			&& __fmod__,
-			&& __fneg__,
-			&& __finc__,
-			&& __fdec__,
-			&& __vecpush__,
-			&& __vecpop__,
-			&& __vecadd__,
-			&& __vecsub__,
-			&& __vecmul__,
-			&& __vecdiv__,
-			&& __matpush__,
-			&& __matpop__,
-			&& __matadd__,
-			&& __matsub__,
-			&& __matmul__,
-			&& __matdiv__,
+			&&__int__,
+			&&__intrin__,
+			&&__cintrin__,
+			&&__call__,
+			&&__ret__,
+			&&__mov__,
+			&&__sto__,
+			&&__push__,
+			&&__pop__,
+			&&__pop2__,
+			&&__dupl__,
+			&&__dupl2__,
+			&&__swap__,
+			&&__nop__,
+			&&__jmp__,
+			&&__jmprel__,
+			&&__jz__,
+			&&__jnz__,
+			&&__jo_cmpi__,
+			&&__jo_cmpf__,
+			&&__jno_cmpi__,
+			&&__jno_cmpf__,
+			&&__je_cmpi__,
+			&&__je_cmpf__,
+			&&__jne_cmpi__,
+			&&__jne_cmpf__,
+			&&__ja_cmpi__,
+			&&__ja_cmpf__,
+			&&__jl_cmpi__,
+			&&__jl_cmpf__,
+			&&__jae_cmpi__,
+			&&__jae_cmpf__,
+			&&__jle_cmpi__,
+			&&__jle_cmpf__,
+			&&__ipushz__,
+			&&__ipusho__,
+			&&__fpusho__,
+			&&__iinc__,
+			&&__idec__,
+			&&__iadd__,
+			&&__isub__,
+			&&__imul__,
+			&&__idiv__,
+			&&__imod__,
+			&&__iand__,
+			&&__ior__,
+			&&__ixor__,
+			&&__icom__,
+			&&__isal__,
+			&&__isar__,
+			&&__irol__,
+			&&__iror__,
+			&&__ineg__,
+			&&__fadd__,
+			&&__fsub__,
+			&&__fmul__,
+			&&__fdiv__,
+			&&__fmod__,
+			&&__fneg__,
+			&&__finc__,
+			&&__fdec__,
+			&&__vecpush__,
+			&&__vecpop__,
+			&&__vecadd__,
+			&&__vecsub__,
+			&&__vecmul__,
+			&&__vecdiv__,
+			&&__matpush__,
+			&&__matpop__,
+			&&__matadd__,
+			&&__matsub__,
+			&&__matmul__,
+			&&__matdiv__
 		};
 
 		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
@@ -708,9 +708,19 @@ namespace Nominax::Core
 
 		ASM_MARKER("reactor begin");
 
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
-		if (NOMINAX_UNLIKELY(!PerformJumpTableMapping(input->CodeChunk, input->CodeChunk + input->CodeChunkSize, input->CodeChunkInstructionMap, std::data(JUMP_TABLE))))
+#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
+		if
+		(
+		        !PerformJumpTableMapping
+		        (
+		                input->CodeChunk,
+		                input->CodeChunk + input->CodeChunkSize,
+		                input->CodeChunkInstructionMap,
+		                std::data(JUMP_TABLE)
+                )
+        )
 		{
+		    [[unlikely]]
 			return ReactorShutdownReason::Error;
 		}
 #endif
@@ -729,7 +739,7 @@ namespace Nominax::Core
 
 		ASM_MARKER("reactor exec");
 
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
 #	define JMP_PTR()		*((*++ip).Ptr)
 #	define JMP_PTR_REL()	*((*ip).Ptr)
@@ -923,7 +933,7 @@ namespace Nominax::Core
 			ASM_MARKER("__jmp__");
 
 			const U64 abs {(*++ip).R64.AsU64}; // absolute address
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 			ip = reinterpret_cast<const Signal*>(abs);
 #else
 			ip = ipLo + abs; // ip = begin + offset
@@ -939,7 +949,7 @@ namespace Nominax::Core
 			ASM_MARKER("__jmprel__");
 
 			const U64 rel {(*++ip).R64.AsU64}; // relative address
-#if NOMINAX_OPT_EXECUTION_ADDRESS_MAPPING
+#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 			ip = reinterpret_cast<const Signal*>(rel);
 #else
 			ip += rel; // ip +-= rel

@@ -207,64 +207,64 @@
 
 #pragma once
 
-#define NOMINAX_OS_WINDOWS	false
-#define NOMINAX_OS_MAC		false
-#define NOMINAX_OS_LINUX	false
-#define NOMINAX_OS_ANDROID	false
-#define NOMINAX_OS_IOS		false
-#define NOMINAX_ARCH_X86_64	false
-#define NOMINAX_ARCH_ARM_64	false
-#define NOMINAX_RELEASE		false
-#define NOMINAX_DEBUG		false
-#define NOMINAX_COM_GCC		false
-#define NOMINAX_COM_CLANG	false
-#define NOMINAX_COM_MINGW	false
+#define NOX_OS_WINDOWS	false
+#define NOX_OS_MAC		false
+#define NOX_OS_LINUX	false
+#define NOX_OS_ANDROID	false
+#define NOX_OS_IOS		false
+#define NOX_ARCH_X86_64	false
+#define NOX_ARCH_ARM_64	false
+#define NOX_RELEASE		false
+#define NOX_DEBUG		false
+#define NOX_COM_GCC		false
+#define NOX_COM_CLANG	false
+#define NOX_COM_MINGW	false
 
 #if NDEBUG
-#	undef NOMINAX_RELEASE
-#	define NOMINAX_RELEASE true
-#	define NOMINAX_IF_DEBUG(expr)
+#	undef NOX_RELEASE
+#	define NOX_RELEASE true
+#	define NOX_DEBUG_ONLY(expr)
 #else
-#	undef NOMINAX_DEBUG
-#	define NOMINAX_DEBUG true
-#	define NOMINAX_DEBUG_ONLY(expr) expr
+#	undef NOX_DEBUG
+#	define NOX_DEBUG true
+#	define NOX_DEBUG_ONLY(expr) expr
 #endif
 
 #if defined(_WIN64) || defined(__CYGWIN__)
-#	undef NOMINAX_OS_WINDOWS
-#	define NOMINAX_OS_WINDOWS true
-#	define NOMINAX_OS_NAME "Windows"
+#	undef NOX_OS_WINDOWS
+#	define NOX_OS_WINDOWS true
+#	define NOX_OS_NAME "Windows"
 #elif defined(__APPLE__)
 #	include <TargetConditionals.h>
 #	if TARGET_OS_MAC
-#		undef NOMINAX_OS_MAC
-#		define NOMINAX_OS_MAC true
-#		define NOMINAX_OS_NAME "MacOS"
+#		undef NOX_OS_MAC
+#		define NOX_OS_MAC true
+#		define NOX_OS_NAME "MacOS"
 #	elif defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
-#		undef NOMINAX_OS_IOS
-#		define NOMINAX_OS_IOS true
-#		define NOMINAX_OS_NAME "iOS"
+#		undef NOX_OS_IOS
+#		define NOX_OS_IOS true
+#		define NOX_OS_NAME "iOS"
 #	else
 #		error "platform.hpp: Unknown Apple OS!"
 #	endif
 #elif defined(__linux__)
 #	ifdef __ANDROID__
-#		undef NOMINAX_OS_ANDROID
-#		define NOMINAX_OS_ANDROID true
-#		define NOMINAX_OS_NAME "Android"
+#		undef NOX_OS_ANDROID
+#		define NOX_OS_ANDROID true
+#		define NOX_OS_NAME "Android"
 #	else
-#	undef NOMINAX_OS_LINUX
-#	define NOMINAX_OS_LINUX true
-#	define NOMINAX_OS_NAME "Linux"
+#	undef NOX_OS_LINUX
+#	define NOX_OS_LINUX true
+#	define NOX_OS_NAME "Linux"
 #	endif
 #else
 #	error "platform.hpp: Unknown operating system!"
 #endif
 
 #if defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(_M_X64) || defined(_M_AMD64)
-#	undef NOMINAX_ARCH_X86_64
-#	define NOMINAX_ARCH_X86_64 true
-#	define NOMINAX_ARCH_NAME "x86-64"
+#	undef NOX_ARCH_X86_64
+#	define NOX_ARCH_X86_64 true
+#	define NOX_ARCH_NAME "x86-64"
 #elif defined(i386)			\
 	|| defined(__i386)		\
 	|| defined(__i386__)	\
@@ -279,29 +279,29 @@
 #elif (defined(__arm__) || defined(_M_ARM)) && !defined(__aarch64__)
 #       error "32 bit is not supported - neither x86-32 or ARM 32"
 #elif defined(__aarch64__)
-#	undef NOMINAX_ARCH_ARM_64
-#	define NOMINAX_ARCH_ARM_64 true
-#	define NOMINAX_ARCH_NAME "ARM-64"
+#	undef NOX_ARCH_ARM_64
+#	define NOX_ARCH_ARM_64 true
+#	define NOX_ARCH_NAME "ARM-64"
 #else
 #	error "platform.hpp: Unknown architecture!"
 #endif
 
-#	define NOMINAX_ARCH_SIZE_NAME "64-Bit"
+#	define NOX_ARCH_SIZE_NAME "64-Bit"
 
-#define NOMINAX_IS_POSIX (NOMINAX_OS_LINUX || NOMINAX_OS_ANDROID || NOMINAX_OS_MAC || NOMINAX_OS_IOS)
+#define NOX_IS_POSIX (NOX_OS_LINUX || NOX_OS_ANDROID || NOX_OS_MAC || NOX_OS_IOS)
 
 #ifdef __GNUC__
-#	undef NOMINAX_COM_GCC
-#	define NOMINAX_COM_GCC true
-#	define NOMINAX_COM_NAME "GCC"
+#	undef NOX_COM_GCC
+#	define NOX_COM_GCC true
+#	define NOX_COM_NAME "GCC"
 #elif defined(__clang__)
-#	undef NOMINAX_COM_CLANG
-#	define NOMINAX_COM_CLANG true
-#	define NOMINAX_COM_NAME "Clang"
+#	undef NOX_COM_CLANG
+#	define NOX_COM_CLANG true
+#	define NOX_COM_NAME "Clang"
 #elif defined(__MINGW32__) || defined(__MINGW32__)
-#	undef NOMINAX_COM_MINGW
-#	define NOMINAX_COM_MINGW true
-#	define NOMINAX_COM_NAME "MinGW"
+#	undef NOX_COM_MINGW
+#	define NOX_COM_MINGW true
+#	define NOX_COM_NAME "MinGW"
 #endif
 
 #include "../Common/BaseTypes.hpp"

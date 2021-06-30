@@ -215,7 +215,7 @@ namespace Nominax::Common
 {
 	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsZero(const F64 x) -> bool
 	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
+#if NOX_OPT_USE_ZERO_EPSILON
 		return F64IsZero(x);
 #else
 		return x == 0.0;
@@ -224,7 +224,7 @@ namespace Nominax::Common
 
 	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsOne(const F64 x) -> bool
 	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
+#if NOX_OPT_USE_ZERO_EPSILON
 		return F64IsOne(x);
 #else
 		return x == 1.0;
@@ -233,7 +233,7 @@ namespace Nominax::Common
 
 	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64Equals(const F64 x, const F64 y) -> bool
 	{
-#if NOMINAX_OPT_USE_ZERO_EPSILON
+#if NOX_OPT_USE_ZERO_EPSILON
 		return F64Equals(x, y);
 #else
 		return x == y;

@@ -229,7 +229,7 @@ TEST(Common, IsAlignmentValid)
 TEST(Common, IsAlignedTo)
 {
 	void* ptr {nullptr};
-#if NOMINAX_32_BIT
+#if NOX_32_BIT
 	ASSERT_TRUE(IsAlignedTo(ptr, 4));
 #else
 	ASSERT_TRUE(IsAlignedTo(ptr, 8));

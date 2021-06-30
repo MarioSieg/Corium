@@ -242,9 +242,9 @@ namespace Nominax::System
 	struct Snapshot final
 	{
 		std::thread::id  ThreadId { };
-		std::string_view OperatingSystemName {NOMINAX_OS_NAME};
-		std::string_view ArchitectureName {NOMINAX_ARCH_NAME};
-		std::string_view CompilerName {NOMINAX_COM_NAME};
+		std::string_view OperatingSystemName {NOX_OS_NAME};
+		std::string_view ArchitectureName {NOX_ARCH_NAME};
+		std::string_view CompilerName {NOX_COM_NAME};
 		std::size_t      ThreadCount { };
 		std::string      CpuName { };
 		std::size_t      TotalSystemMemory { };

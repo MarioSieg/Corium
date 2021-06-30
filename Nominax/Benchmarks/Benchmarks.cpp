@@ -229,7 +229,7 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 
 	for (auto _ : state)
 	{
-		if (const auto result {ValidateFullPass(stream)}; NOMINAX_UNLIKELY(result != ValidationResultCode::Ok))
+		if (const auto result {ValidateFullPass(stream)}; NOX_UNLIKELY(result != ValidationResultCode::Ok))
 		{
 			const auto message = BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[static_cast<std::size_t>(result)];
 			state.SkipWithError(message.data());

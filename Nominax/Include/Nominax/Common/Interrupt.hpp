@@ -217,10 +217,10 @@ namespace Nominax::Common
 	/// </summary>
 	NOX_FORCE_INLINE NOX_COLD inline auto BreakpointInterrupt() -> void
 	{
-#if NOMINAX_ARCH_X86_64
+#if NOX_ARCH_X86_64
 		__asm__ __volatile__("int $3");
-#elif NOMINAX_ARCH_ARM_64
-#if NOMINAX_OS_MAC || NOMINAX_OS_IOS
+#elif NOX_ARCH_ARM_64
+#if NOX_OS_MAC || NOX_OS_IOS
 		__asm__ __volatile__("trap");
 #else
 		__asm__ __volatile__("bkpt 0");

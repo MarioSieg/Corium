@@ -295,38 +295,38 @@ auto formatter<DiscriminatedSignal, char, void>::format(const DiscriminatedSigna
 	switch (value.Discriminator)
 	{
 	case Dis::U64:
-		return format_to(ctx.out(), NOMINAX_LEX_TYPE_U64 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsU64);
+		return format_to(ctx.out(), NOX_LEX_TYPE_U64 " " NOX_LEX_IMM "{}", value.Value.R64.AsU64);
 
 	case Dis::I64:
-		return format_to(ctx.out(), NOMINAX_LEX_TYPE_I64 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsI64);
+		return format_to(ctx.out(), NOX_LEX_TYPE_I64 " " NOX_LEX_IMM "{}", value.Value.R64.AsI64);
 
 	case Dis::F64:
-		return format_to(ctx.out(), NOMINAX_LEX_TYPE_F64 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsF64);
+		return format_to(ctx.out(), NOX_LEX_TYPE_F64 " " NOX_LEX_IMM "{}", value.Value.R64.AsF64);
 
 	case Dis::CharClusterUtf8:
-		return format_to(ctx.out(), NOMINAX_LEX_TYPE_CC1 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsUtf8);
+		return format_to(ctx.out(), NOX_LEX_TYPE_CC1 " " NOX_LEX_IMM "{}", value.Value.R64.AsUtf8);
 
 	case Dis::CharClusterUtf16:
-		return format_to(ctx.out(), NOMINAX_LEX_TYPE_CC2 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsUtf16);
+		return format_to(ctx.out(), NOX_LEX_TYPE_CC2 " " NOX_LEX_IMM "{}", value.Value.R64.AsUtf16);
 
 	case Dis::CharClusterUtf32:
-		return format_to(ctx.out(), NOMINAX_LEX_TYPE_CC4 " " NOMINAX_LEX_IMM "{}", value.Value.R64.AsUtf32);
+		return format_to(ctx.out(), NOX_LEX_TYPE_CC4 " " NOX_LEX_IMM "{}", value.Value.R64.AsUtf32);
 
 	case Dis::OpCode:
 	case Dis::Instruction:
 		return format_to(ctx.out(), "{}", value.Value.Instr);
 
 	case Dis::SystemIntrinsicCallID:
-		return format_to(ctx.out(), NOMINAX_LEX_TYPE_SIC " " NOMINAX_LEX_IMM "{}", static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value.Value.SystemIntrinID));
+		return format_to(ctx.out(), NOX_LEX_TYPE_SIC " " NOX_LEX_IMM "{}", static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value.Value.SystemIntrinID));
 
 	case Dis::UserIntrinsicCallID:
-		return format_to(ctx.out(), NOMINAX_LEX_TYPE_UIC " " NOMINAX_LEX_IMM "{}", static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value.Value.UserIntrinID));
+		return format_to(ctx.out(), NOX_LEX_TYPE_UIC " " NOX_LEX_IMM "{}", static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value.Value.UserIntrinID));
 
 	case Dis::JumpAddress:
-		return format_to(ctx.out(), NOMINAX_LEX_TYPE_UIC " " NOMINAX_LEX_IMM "{}", static_cast<std::underlying_type_t<JumpAddress>>(value.Value.JmpAddress));
+		return format_to(ctx.out(), NOX_LEX_TYPE_UIC " " NOX_LEX_IMM "{}", static_cast<std::underlying_type_t<JumpAddress>>(value.Value.JmpAddress));
 
 	default:
 	case Dis::Ptr:
-		return format_to(ctx.out(), NOMINAX_LEX_TYPE_CC4 " " NOMINAX_LEX_IMM "{:X}", value.Value.R64.AsU64);
+		return format_to(ctx.out(), NOX_LEX_TYPE_CC4 " " NOX_LEX_IMM "{:X}", value.Value.R64.AsU64);
 	}
 }

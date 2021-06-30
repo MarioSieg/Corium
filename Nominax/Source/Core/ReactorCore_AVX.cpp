@@ -207,11 +207,11 @@
 
 #include "../../Include/Nominax/System/Platform.hpp"
 
-#if NOMINAX_ARCH_X86_64
+#if NOX_ARCH_X86_64
 #	if !defined(__AVX__) || !__AVX__
 #		error "This reactore core requires AVX!"
 #	endif
-#	define NOMINAX_REACTOR_IMPL_NAME ReactorCore_AVX
+#	define NOX_REACTOR_IMPL_NAME ReactorCore_AVX
 #		include "ReactorCore.inl"
-#	undef NOMINAX_REACTOR_IMPL_NAME
+#	undef NOX_REACTOR_IMPL_NAME
 #endif

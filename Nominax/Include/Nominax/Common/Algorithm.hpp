@@ -292,7 +292,7 @@ namespace Nominax::Common
 	/// <returns></returns>
 	inline auto ILog2(U64 x) -> U64
 	{
-#if NOMINAX_USE_ARCH_OPT
+#if NOX_USE_ARCH_OPT
 		--x;
 		return sizeof x * CHAR_BIT - __builtin_clzll(x);
 #else

@@ -269,7 +269,7 @@ namespace Nominax::Core
 			.StackSize = stackSize,
 			.SharedIntrinsicTable = { },
 			.InterruptHandler = nullptr,
-#if NOMINAX_ARCH_ARM_64
+#if NOX_ARCH_ARM_64
 			.PowerPref = PowerPreference::LowPowerUsage
 #else
 			.PowerPref = PowerPreference::HighPerformance
