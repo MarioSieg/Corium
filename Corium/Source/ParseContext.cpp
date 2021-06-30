@@ -212,23 +212,23 @@ namespace Corium
 {
 	auto ParseContext::Reset(const TokenStreamView tokenView, const SourceCode sourceText) -> void
 	{
-		this->TokenStreamView_ = tokenView;
-		this->ErrorState_.first = ParseErrorCode::Ok;
-		this->ErrorState_.second = {};
-		this->Needle_          = std::begin(this->TokenStreamView_);
-		this->End_             = std::end(this->TokenStreamView_);
-		this->SourceText_      = sourceText;
-        this->CurrentLine_     = 1;
+		this->TokenStreamView_   = tokenView;
+		this->ErrorState_.first  = ParseErrorCode::Ok;
+		this->ErrorState_.second = { };
+		this->Needle_            = std::begin(this->TokenStreamView_);
+		this->End_               = std::end(this->TokenStreamView_);
+		this->SourceText_        = sourceText;
+		this->CurrentLine_       = 1;
 		this->FunctionTable_.clear();
 	}
 
-	auto ParseContext::Parse() -> const ParseError &
+	auto ParseContext::Parse() -> const ParseError&
 	{
 		if (this->Needle_ != std::begin(this->TokenStreamView_) || this->End_ != std::end(this->TokenStreamView_))
 		{
-            [[unlikely]]
-			this->ErrorState_ = {ParseErrorCode::ContextError, "Invalid needle iterator!"};
-            return this->ErrorState_;
+			[[unlikely]]
+				this->ErrorState_ = {ParseErrorCode::ContextError, "Invalid needle iterator!"};
+			return this->ErrorState_;
 		}
 
 		while (this->Needle_ < this->End_ && this->ErrorState_.first == ParseErrorCode::Ok)
@@ -258,7 +258,7 @@ namespace Corium
 						this->ParseProxy_Literal(literal);
 					}
 				}, *this->Needle_);
-            this->Skip(1);
+			this->Skip(1);
 		}
 
 		return this->ErrorState_;
@@ -268,8 +268,7 @@ namespace Corium
 	{
 		switch (monoLexeme)
 		{
-		case MonoLexeme::NewLine:
-		    ++this->CurrentLine_;
+		case MonoLexeme::NewLine: ++this->CurrentLine_;
 			return;
 
 		default: return;
@@ -282,13 +281,11 @@ namespace Corium
 	{
 		switch (keyword)
 		{
-		case Keyword::Fun:
-		    this->ParseFunction();
+		case Keyword::Fun: this->ParseFunction();
 			return;
 
-        case Keyword::Let:
-            this->ParseLet();
-            return;
+		case Keyword::Let: this->ParseLet();
+			return;
 
 		default: return;
 		}
@@ -300,97 +297,98 @@ namespace Corium
 
 	auto ParseContext::ParseFunction() -> void
 	{
-	    constexpr auto argCount { 4 };
-	    const auto tokCount {this->GetNextCount()};
+		constexpr auto argCount {4};
+		const auto     tokCount {this->GetNextCount()};
 
-	    switch (tokCount)
-        {
-            [[unlikely]]
-            case 0: // missing function name:
-                this->MakeParseError(ParseErrorCode::MissingIdentifier, "Expected function name");
-                return;
+		switch (tokCount)
+		{
+			[[unlikely]]
+		case 0: // missing function name:
+			this->MakeParseError(ParseErrorCode::MissingIdentifier, "Expected function name");
+			return;
 
-            [[unlikely]]
-            case 1: // missing lparen:
-                this->MakeSpecializedError(MonoLexeme::ParenthesisLeft, nullptr);
-                return;
+			[[unlikely]]
+		case 1: // missing lparen:
+			this->MakeSpecializedError(MonoLexeme::ParenthesisLeft, nullptr);
+			return;
 
-            [[unlikely]]
-            case 2: // missing rparen:
-                this->MakeSpecializedError(MonoLexeme::ParenthesisRight, nullptr);
-                return;
+			[[unlikely]]
+		case 2: // missing rparen:
+			this->MakeSpecializedError(MonoLexeme::ParenthesisRight, nullptr);
+			return;
 
-            [[unlikely]]
-            case 3: // missing lbrace:
-                this->MakeSpecializedError(MonoLexeme::CurlyBracesLeft, nullptr);
-                return;
+			[[unlikely]]
+		case 3: // missing lbrace:
+			this->MakeSpecializedError(MonoLexeme::CurlyBracesLeft, nullptr);
+			return;
 
-            [[likely]]
-            default: // we have all args let's check types:
-            {
-                const Identifier* const ident{this->GetNextIf<Identifier>(1)};
-                const MonoLexeme* const lparen{this->GetNextIf<MonoLexeme>(2)};
-                const MonoLexeme* const rparen{this->GetNextIf<MonoLexeme>(3)};
-                const MonoLexeme* const lbrace{this->GetNextIf<MonoLexeme>(4)};
+			[[likely]]
+		default: // we have all args let's check types:
+		{
+			const Identifier* const ident {this->GetNextIf<Identifier>(1)};
+			const MonoLexeme* const lparen {this->GetNextIf<MonoLexeme>(2)};
+			const MonoLexeme* const rparen {this->GetNextIf<MonoLexeme>(3)};
+			const MonoLexeme* const lbrace {this->GetNextIf<MonoLexeme>(4)};
 
-                if (!ident) [[unlikely]]
-                {
-                    this->MakeParseError(ParseErrorCode::MissingIdentifier, "Expected function name");
-                    return;
-                }
+			if (!ident)
+			[[unlikely]]
+			{
+				this->MakeParseError(ParseErrorCode::MissingIdentifier, "Expected function name");
+				return;
+			}
 
-                if (!lparen || *lparen != MonoLexeme::ParenthesisLeft)  [[unlikely]]
-                {
-                    this->MakeSpecializedError(MonoLexeme::ParenthesisLeft, lparen);
-                    return;
-                }
+			if (!lparen || *lparen != MonoLexeme::ParenthesisLeft)
+			[[unlikely]]
+			{
+				this->MakeSpecializedError(MonoLexeme::ParenthesisLeft, lparen);
+				return;
+			}
 
-                if (!rparen || *rparen != MonoLexeme::ParenthesisRight)  [[unlikely]]
-                {
-                    this->MakeSpecializedError(MonoLexeme::ParenthesisRight, rparen);
-                    return;
-                }
+			if (!rparen || *rparen != MonoLexeme::ParenthesisRight)
+			[[unlikely]]
+			{
+				this->MakeSpecializedError(MonoLexeme::ParenthesisRight, rparen);
+				return;
+			}
 
-                if (!lbrace || *lbrace != MonoLexeme::CurlyBracesLeft)  [[unlikely]]
-                {
-                    this->MakeSpecializedError(MonoLexeme::CurlyBracesLeft, lbrace);
-                    return;
-                }
+			if (!lbrace || *lbrace != MonoLexeme::CurlyBracesLeft)
+			[[unlikely]]
+			{
+				this->MakeSpecializedError(MonoLexeme::CurlyBracesLeft, lbrace);
+				return;
+			}
 
-                // find closing rparen:
-                const auto rbrace {&*std::find(this->Needle_, this->End_, Token{MonoLexeme::CurlyBracesRight})};
-                if (rbrace == &*this->End_) [[unlikely]]
-                {
-                    this->MakeSpecializedError(MonoLexeme::CurlyBracesRight, lbrace);
-                    return;
-                }
+			// find closing rparen:
+			const auto rbrace {&*std::find(this->Needle_, this->End_, Token {MonoLexeme::CurlyBracesRight})};
+			if (rbrace == &*this->End_)
+			[[unlikely]]
+			{
+				this->MakeSpecializedError(MonoLexeme::CurlyBracesRight, lbrace);
+				return;
+			}
 
-                // function body is { *here* }
-                const TokenStreamView functionBody {&this->GetNextAt(4), rbrace};
+			// function body is { *here* }
+			const TokenStreamView functionBody {&this->GetNextAt(4), rbrace};
 
-                this->FunctionTable_.emplace_back(FunctionInfo
-                {
-                   .Name = *ident,
-                   .Body = functionBody
-                });
+			this->FunctionTable_.emplace_back(FunctionInfo
+				{
+					.Name = *ident,
+					.Body = functionBody
+				});
 
-                this->Skip(argCount);
-            }
-            return;
-        }
+			this->Skip(argCount);
+		}
+		}
 	}
 
-    auto ParseContext::ParseLet() -> void
-    {
-
-    }
+	auto ParseContext::ParseLet() -> void { }
 
 	auto ParseContext::GetNthLineOfSource(const std::size_t lineNumber) const -> std::optional<std::string>
 	{
 		if (std::empty(this->SourceText_))
 		{
-		    [[unlikely]]
-			return std::nullopt;
+			[[unlikely]]
+				return std::nullopt;
 		}
 
 		std::stringstream ss;
@@ -410,11 +408,11 @@ namespace Corium
 
 	auto ParseContext::FormatAndSetParseError(const ParseErrorCode code, std::string&& userMessage) -> const ParseError&
 	{
-		const U32         line {this->CurrentLine_};
-		const std::string errorLine {this->GetNthLineOfSource(this->CurrentLine_).value_or("?")};
-		const std::string lineInfo {Common::Format("Line {}: ", line)};
+		const U32              line {this->CurrentLine_};
+		const std::string      errorLine {this->GetNthLineOfSource(this->CurrentLine_).value_or("?")};
+		const std::string      lineInfo {Common::Format("Line {}: ", line)};
 		const std::string_view parseErrorMessage {PARSE_ERROR_MESSAGES[static_cast<std::size_t>(code)]};
-		std::string  message {Common::Format("Syntax error: {} {}!\n{}\"{}\"\n", parseErrorMessage, userMessage, lineInfo, errorLine)};
+		std::string            message {Common::Format("Syntax error: {} {}!\n{}\"{}\"\n", parseErrorMessage, userMessage, lineInfo, errorLine)};
 		message.reserve(std::size(message) + std::size(lineInfo) + std::size(errorLine) + 2);
 		for (std::size_t i {0}; i <= std::size(lineInfo); ++i)
 		{
@@ -436,44 +434,41 @@ namespace Corium
 
 	ParseContext::ParseContext(const LexContext& lexContext) : ParseContext {lexContext.GetTokenStream(), lexContext.GetSourceText()} { }
 
-    auto ParseContext::MakeSpecializedError(const MonoLexeme expected, const MonoLexeme* const gotInstead) -> void
-    {
-        ParseErrorCode code;
+	auto ParseContext::MakeSpecializedError(const MonoLexeme expected, const MonoLexeme* const gotInstead) -> void
+	{
+		ParseErrorCode code;
 
-	    switch (expected)
-        {
-            case MonoLexeme::ParenthesisLeft:
-            case MonoLexeme::ParenthesisRight:
-                code = ParseErrorCode ::MissingParentheses;
-            break;
+		switch (expected)
+		{
+		case MonoLexeme::ParenthesisLeft:
+		case MonoLexeme::ParenthesisRight: code = ParseErrorCode::MissingParentheses;
+			break;
 
-            case MonoLexeme::CurlyBracesLeft:
-            case MonoLexeme::CurlyBracesRight:
-                code = ParseErrorCode ::MissingBraces;
-                break;
+		case MonoLexeme::CurlyBracesLeft:
+		case MonoLexeme::CurlyBracesRight: code = ParseErrorCode::MissingBraces;
+			break;
 
-            default:
-                code = ParseErrorCode::ContextError;
-            break;
-        }
+		default: code = ParseErrorCode::ContextError;
+			break;
+		}
 
-        this->MakeParseError(code, "Expected '{}', got '{}' instead", static_cast<char>(expected), gotInstead ? static_cast<char>(*gotInstead) : ' ');
-    }
+		this->MakeParseError(code, "Expected '{}', got '{}' instead", static_cast<char>(expected), gotInstead ? static_cast<char>(*gotInstead) : ' ');
+	}
 
-    auto ParseContext::PrintParseStates() const -> void
-    {
-	    using Common::Print;
+	auto ParseContext::PrintParseStates() const -> void
+	{
+		using Common::Print;
 
-        Print(Common::LogLevel::Error, "Function Table\n");
-        for (const FunctionInfo& info : this->FunctionTable_)
-        {
-            Print("{}\n", info.Name);
-            for (const Token& tok : info.Body)
-            {
-                Print('\t');
-                PrintToken(tok);
-            }
-            Print("\n");
-        }
-    }
+		Print(Common::LogLevel::Error, "Function Table\n");
+		for (const FunctionInfo& info : this->FunctionTable_)
+		{
+			Print("{}\n", info.Name);
+			for (const Token& tok : info.Body)
+			{
+				Print('\t');
+				PrintToken(tok);
+			}
+			Print("\n");
+		}
+	}
 }

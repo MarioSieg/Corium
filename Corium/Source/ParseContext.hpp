@@ -221,40 +221,40 @@ namespace Corium
 	/// </summary>
 	class ParseContext final
 	{
-        /// <summary>
-        /// The current error state. If .first is != Ok then parsing will stop.
-        /// </summary>
-		ParseError              ErrorState_ { ParseErrorCode::Ok, {}};
+		/// <summary>
+		/// The current error state. If .first is != Ok then parsing will stop.
+		/// </summary>
+		ParseError ErrorState_ {ParseErrorCode::Ok, { }};
 
-        /// <summary>
-        /// The whole read only token stream.
-        /// </summary>
-        TokenStreamView             TokenStreamView_ { };
+		/// <summary>
+		/// The whole read only token stream.
+		/// </summary>
+		TokenStreamView TokenStreamView_ { };
 
-        /// <summary>
-        /// The current iteration needle.
-        /// </summary>
-        TokenStreamView::iterator   Needle_ {nullptr};
+		/// <summary>
+		/// The current iteration needle.
+		/// </summary>
+		TokenStreamView::iterator Needle_ {nullptr};
 
-        /// <summary>
-        /// The end needle of the whole token stream.
-        /// </summary>
-        TokenStreamView::iterator   End_ {nullptr};
+		/// <summary>
+		/// The end needle of the whole token stream.
+		/// </summary>
+		TokenStreamView::iterator End_ {nullptr};
 
-        /// <summary>
-        /// The whole read only source code.
-        /// </summary>
-		SourceCode              SourceText_ { };
+		/// <summary>
+		/// The whole read only source code.
+		/// </summary>
+		SourceCode SourceText_ { };
 
-        /// <summary>
-        /// The current line index (one based).
-        /// </summary>
-		U32                     CurrentLine_ { };
+		/// <summary>
+		/// The current line index (one based).
+		/// </summary>
+		U32 CurrentLine_ { };
 
-        /// <summary>
-        /// A table containing all currently defined functions.
-        /// </summary>
-        FunctionTable           FunctionTable_ { };
+		/// <summary>
+		/// A table containing all currently defined functions.
+		/// </summary>
+		FunctionTable FunctionTable_ { };
 
 	public:
 		/// <summary>
@@ -330,26 +330,26 @@ namespace Corium
 		[[nodiscard]]
 		auto GetNextAtOrNull(std::size_t offset) const -> const Token*;
 
-        /// <summary>
-        /// The count of remaining tokens from the current needle offset.
-        /// </summary>
-        /// <returns>The count of remaining tokens from the current needle offset.</returns>
+		/// <summary>
+		/// The count of remaining tokens from the current needle offset.
+		/// </summary>
+		/// <returns>The count of remaining tokens from the current needle offset.</returns>
 		[[nodiscard]]
 		auto GetNextCount() const -> std::size_t;
 
-        /// <summary>
-        /// Gets the token data if types are matching, else nullptr.
-        /// </summary>
-        /// <param name="offset">The offset to get from.</param>
-        /// <returns>Pointer to token data if valid, else nullptr.</returns>
+		/// <summary>
+		/// Gets the token data if types are matching, else nullptr.
+		/// </summary>
+		/// <param name="offset">The offset to get from.</param>
+		/// <returns>Pointer to token data if valid, else nullptr.</returns>
 		template <typename T>
-        [[nodiscard]]
+		[[nodiscard]]
 		auto GetNextIf(std::size_t offset) const -> const T*;
 
-        /// <summary>
-        /// Skips n tokens by advancing the needle.
-        /// </summary>
-        /// <param name="count">The amount of tokens to skip.</param>
+		/// <summary>
+		/// Skips n tokens by advancing the needle.
+		/// </summary>
+		/// <param name="count">The amount of tokens to skip.</param>
 		auto Skip(std::size_t count) -> void;
 
 		/// <summary>
@@ -409,11 +409,11 @@ namespace Corium
 		[[nodiscard]]
 		auto GetSourceText() const -> std::string_view;
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns>The current function table.</returns>
-        auto GetFunctionTable() const -> const FunctionTable&;
+		/// <summary>
+		///
+		/// </summary>
+		/// <returns>The current function table.</returns>
+		auto GetFunctionTable() const -> const FunctionTable&;
 
 		/// <summary>
 		/// 
@@ -422,12 +422,12 @@ namespace Corium
 		[[nodiscard]]
 		auto GetCurrentLine() const -> U32;
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns>True if there is an error in the state, else false.</returns>
-        [[nodiscard]]
-        auto HasError() const -> bool;
+		/// <summary>
+		///
+		/// </summary>
+		/// <returns>True if there is an error in the state, else false.</returns>
+		[[nodiscard]]
+		auto HasError() const -> bool;
 
 		/// <summary>
 		/// Format and set's the current error state with custom message.
@@ -488,20 +488,20 @@ namespace Corium
 		/// </summary>
 		auto ParseFunction() -> void;
 
-        /// <summary>
-        /// Parses a let variable declaration from the current needle state.
-        /// </summary>
+		/// <summary>
+		/// Parses a let variable declaration from the current needle state.
+		/// </summary>
 		auto ParseLet() -> void;
 
-        /// <summary>
-        /// Sets the error state to a well formatted argument.
-        /// </summary>
-        /// <param name="monoLexeme">The mono lexeme to format.</param>
-		auto MakeSpecializedError(const MonoLexeme expected, const MonoLexeme *const gotInstead = nullptr) -> void;
+		/// <summary>
+		/// Sets the error state to a well formatted argument.
+		/// </summary>
+		/// <param name="monoLexeme">The mono lexeme to format.</param>
+		auto MakeSpecializedError(const MonoLexeme expected, const MonoLexeme* const gotInstead = nullptr) -> void;
 
-        /// <summary>
-        /// Prints the function and type tables.
-        /// </summary>
+		/// <summary>
+		/// Prints the function and type tables.
+		/// </summary>
 		auto PrintParseStates() const -> void;
 	};
 
@@ -525,10 +525,10 @@ namespace Corium
 		return this->End_;
 	}
 
-    inline auto ParseContext::Skip(const std::size_t count) -> void
-    {
-        std::advance(this->Needle_, count);
-    }
+	inline auto ParseContext::Skip(const std::size_t count) -> void
+	{
+		std::advance(this->Needle_, count);
+	}
 
 	inline auto ParseContext::GetNextAt(const std::size_t offset) const -> const Token&
 	{
@@ -546,20 +546,20 @@ namespace Corium
 	}
 
 	inline auto ParseContext::GetNextCount() const -> std::size_t
-    {
-	    return std::distance(this->Needle_, this->End_);
-    }
+	{
+		return std::distance(this->Needle_, this->End_);
+	}
 
-    inline auto ParseContext::HasError() const -> bool
-    {
-        return this->ErrorState_.first != ParseErrorCode::Ok;
-    }
+	inline auto ParseContext::HasError() const -> bool
+	{
+		return this->ErrorState_.first != ParseErrorCode::Ok;
+	}
 
-    template <typename T>
-    inline auto ParseContext::GetNextIf(const std::size_t offset) const -> const T*
-    {
-        return std::get_if<T>(&this->GetNextAt(offset));
-    }
+	template <typename T>
+	inline auto ParseContext::GetNextIf(const std::size_t offset) const -> const T*
+	{
+		return std::get_if<T>(&this->GetNextAt(offset));
+	}
 
 	template <typename T, typename... Ts>
 	inline auto ParseContext::MakeParseError(const ParseErrorCode code, T&& format, Ts&&...args) -> const ParseError&
@@ -578,10 +578,10 @@ namespace Corium
 		return this->CurrentLine_;
 	}
 
-    inline auto ParseContext::GetFunctionTable() const -> const FunctionTable&
-    {
-        return this->FunctionTable_;
-    }
+	inline auto ParseContext::GetFunctionTable() const -> const FunctionTable&
+	{
+		return this->FunctionTable_;
+	}
 
 	extern auto Parse(std::span<const Token> TokenStreamView, std::span<const U16> lines) -> ParseError;
 }

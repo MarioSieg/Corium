@@ -216,8 +216,8 @@ namespace Corium
 	{
 		if (std::empty(sourceCode))
 		{
-            [[unlikely]]
-			return LexResultCode::EmptyFile;
+			[[unlikely]]
+				return LexResultCode::EmptyFile;
 		}
 		context.EvaluateString(std::move(sourceCode));
 		return LexResultCode::Ok;
