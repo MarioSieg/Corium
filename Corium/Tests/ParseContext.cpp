@@ -150,6 +150,8 @@ TEST(ParseContext, ParseFunctionValid)
     ASSERT_EQ(context.GetNeedle()[-1], std::end(tokens)[-1]);
     ASSERT_EQ(context.GetNeedle(), context.GetNeedleEnd());
     ASSERT_EQ(context.GetCurrentLine(), 3);
+    ASSERT_EQ(std::size(context.GetFunctionTable()), 1);
+    ASSERT_EQ(context.GetFunctionTable()[0].Name, "test");
     context.Reset(tokens, source);
     ASSERT_EQ(context.Parse().first, ParseErrorCode::Ok);
 }
@@ -174,6 +176,7 @@ TEST(ParseContext, ParseFunctionInvalidMissingName)
     ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::MissingIdentifier);
     ASSERT_TRUE(context.HasError());
     ASSERT_EQ(context.GetCurrentLine(), 1);
+    ASSERT_TRUE(std::empty(context.GetFunctionTable()));
 }
 
 TEST(ParseContext, ParseFunctionInvalidMissingLeftParenthesis)
@@ -196,6 +199,7 @@ TEST(ParseContext, ParseFunctionInvalidMissingLeftParenthesis)
     ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::MissingParentheses);
     ASSERT_TRUE(context.HasError());
     ASSERT_EQ(context.GetCurrentLine(), 1);
+    ASSERT_TRUE(std::empty(context.GetFunctionTable()));
 }
 
 TEST(ParseContext, ParseFunctionInvalidMissingRightParenthesis)
@@ -218,6 +222,7 @@ TEST(ParseContext, ParseFunctionInvalidMissingRightParenthesis)
     ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::MissingParentheses);
     ASSERT_TRUE(context.HasError());
     ASSERT_EQ(context.GetCurrentLine(), 1);
+    ASSERT_TRUE(std::empty(context.GetFunctionTable()));
 }
 
 TEST(ParseContext, ParseFunctionInvalidMissingLeftBrace)
@@ -238,4 +243,5 @@ TEST(ParseContext, ParseFunctionInvalidMissingLeftBrace)
     ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::MissingBraces);
     ASSERT_TRUE(context.HasError());
     ASSERT_EQ(context.GetCurrentLine(), 1);
+    ASSERT_TRUE(std::empty(context.GetFunctionTable()));
 }

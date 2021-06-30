@@ -244,4 +244,14 @@ namespace Corium
 	/// Represents a stream of tokens.
 	/// </summary>
 	using TokenStream = std::vector<Token>;
+
+    /// <summary>
+    /// Type used for read only source code.
+    /// </summary>
+    using SourceCode = std::string_view;
+
+    /// <summary>
+    /// Type used for read only token stream.
+    /// </summary>
+    using TokenStreamView = std::span<const Token>;
 }

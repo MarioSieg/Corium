@@ -210,15 +210,16 @@
 
 namespace Corium
 {
-	auto ParseContext::Reset(const std::span<const Token> tokenView, const std::string_view sourceText) -> void
+	auto ParseContext::Reset(const TokenStreamView tokenView, const SourceCode sourceText) -> void
 	{
 		this->TokenStreamView_ = tokenView;
-		this->CurrentLine_     = 1;
 		this->ErrorState_.first = ParseErrorCode::Ok;
 		this->ErrorState_.second = {};
 		this->Needle_          = std::begin(this->TokenStreamView_);
 		this->End_             = std::end(this->TokenStreamView_);
 		this->SourceText_      = sourceText;
+        this->CurrentLine_     = 1;
+		this->FunctionTable_.clear();
 	}
 
 	auto ParseContext::Parse() -> const ParseError &
@@ -281,8 +282,13 @@ namespace Corium
 	{
 		switch (keyword)
 		{
-		case Keyword::Fun: this->ParseFunction();
+		case Keyword::Fun:
+		    this->ParseFunction();
 			return;
+
+        case Keyword::Let:
+            this->ParseLet();
+            return;
 
 		default: return;
 		}
@@ -351,11 +357,33 @@ namespace Corium
                     return;
                 }
 
+                // find closing rparen:
+                const auto rbrace {&*std::find(this->Needle_, this->End_, Token{MonoLexeme::CurlyBracesRight})};
+                if (rbrace == &*this->End_) [[unlikely]]
+                {
+                    this->MakeSpecializedError(MonoLexeme::CurlyBracesRight, lbrace);
+                    return;
+                }
+
+                // function body is { *here* }
+                const TokenStreamView functionBody {&this->GetNextAt(4), rbrace};
+
+                this->FunctionTable_.emplace_back(FunctionInfo
+                {
+                   .Name = *ident,
+                   .Body = functionBody
+                });
+
                 this->Skip(argCount);
             }
             return;
         }
 	}
+
+    auto ParseContext::ParseLet() -> void
+    {
+
+    }
 
 	auto ParseContext::GetNthLineOfSource(const std::size_t lineNumber) const -> std::optional<std::string>
 	{
@@ -401,7 +429,7 @@ namespace Corium
 		return this->ErrorState_;
 	}
 
-	ParseContext::ParseContext(const std::span<const Token> tokenView, const std::string_view sourceText)
+	ParseContext::ParseContext(const TokenStreamView tokenView, const SourceCode sourceText)
 	{
 		this->Reset(tokenView, sourceText);
 	}
@@ -430,5 +458,22 @@ namespace Corium
         }
 
         this->MakeParseError(code, "Expected '{}', got '{}' instead", static_cast<char>(expected), gotInstead ? static_cast<char>(*gotInstead) : ' ');
+    }
+
+    auto ParseContext::PrintParseStates() const -> void
+    {
+	    using Common::Print;
+
+        Print(Common::LogLevel::Error, "Function Table\n");
+        for (const FunctionInfo& info : this->FunctionTable_)
+        {
+            Print("{}\n", info.Name);
+            for (const Token& tok : info.Body)
+            {
+                Print('\t');
+                PrintToken(tok);
+            }
+            Print("\n");
+        }
     }
 }

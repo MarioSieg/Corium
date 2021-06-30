@@ -207,57 +207,54 @@
 
 #pragma once
 
-#include <array>
-#include <string_view>
-
 #include "Token.hpp"
+#include "Function.hpp"
+#include "ParseError.hpp"
+#include "Scope.hpp"
 
 namespace Corium
 {
 	class LexContext;
-
-    /// <summary>
-    /// Contains all possible error codes for the parser.
-    /// </summary>
-	enum class ParseErrorCode: U8
-    {
-        Ok = 0,
-        ContextError,
-        MissingParentheses,
-        MissingBraces,
-        MissingIdentifier,
-
-        $Count
-	};
-
-    /// <summary>
-    /// Contains all possible error code messages.
-    /// </summary>
-    constexpr std::array<std::string_view, static_cast<std::size_t>(ParseErrorCode::$Count)> PARSE_ERROR_MESSAGES
-    {
-        "OK",
-        "Internal parse context error!",
-        "Missing parenthesis!",
-        "Missing brackets!",
-        "Missing identifier!"
-    };
-
-    /// <summary>
-    /// Represents an error state of the parser.
-    /// </summary>
-    using ParseError = std::pair<ParseErrorCode, std::string>;
 
 	/// <summary>
 	/// Contains all states for token stream parsing.
 	/// </summary>
 	class ParseContext final
 	{
-		ParseError                       ErrorState_ { ParseErrorCode::Ok, {}};
-		std::span<const Token>           TokenStreamView_ { };
-		std::span<const Token>::iterator Needle_ {nullptr};
-		std::span<const Token>::iterator End_ {nullptr};
-		std::string_view                 SourceText_ { };
-		U32                              CurrentLine_ { };
+        /// <summary>
+        /// The current error state. If .first is != Ok then parsing will stop.
+        /// </summary>
+		ParseError              ErrorState_ { ParseErrorCode::Ok, {}};
+
+        /// <summary>
+        /// The whole read only token stream.
+        /// </summary>
+        TokenStreamView             TokenStreamView_ { };
+
+        /// <summary>
+        /// The current iteration needle.
+        /// </summary>
+        TokenStreamView::iterator   Needle_ {nullptr};
+
+        /// <summary>
+        /// The end needle of the whole token stream.
+        /// </summary>
+        TokenStreamView::iterator   End_ {nullptr};
+
+        /// <summary>
+        /// The whole read only source code.
+        /// </summary>
+		SourceCode              SourceText_ { };
+
+        /// <summary>
+        /// The current line index (one based).
+        /// </summary>
+		U32                     CurrentLine_ { };
+
+        /// <summary>
+        /// A table containing all currently defined functions.
+        /// </summary>
+        FunctionTable           FunctionTable_ { };
 
 	public:
 		/// <summary>
@@ -276,7 +273,7 @@ namespace Corium
 		/// </summary>
 		/// <param name="tokenView"></param>
 		/// <param name="sourceText"></param>
-		ParseContext(std::span<const Token> tokenView, std::string_view sourceText);
+		ParseContext(TokenStreamView tokenView, SourceCode sourceText);
 
 		/// <summary>
 		/// Move constructor.
@@ -361,7 +358,7 @@ namespace Corium
 		/// <param name="tokenView"></param>
 		/// <param name="sourceText"></param>
 		/// <returns></returns>
-		auto Reset(std::span<const Token> tokenView, std::string_view sourceText) -> void;
+		auto Reset(TokenStreamView tokenView, SourceCode sourceText) -> void;
 
 		/// <summary>
 		/// Returns the line at index (one based), if any, else nullopt.
@@ -389,21 +386,21 @@ namespace Corium
 		/// </summary>
 		/// <returns>The current token stream data view.</returns>
 		[[nodiscard]]
-		auto GetTokenStreamView() const -> const std::span<const Token>&;
+		auto GetTokenStreamView() const -> const TokenStreamView&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current iteration needle.</returns>
 		[[nodiscard]]
-		auto GetNeedle() const -> std::span<const Token>::iterator;
+		auto GetNeedle() const -> TokenStreamView::iterator;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current iteration end needle.</returns>
 		[[nodiscard]]
-		auto GetNeedleEnd() const -> std::span<const Token>::iterator;
+		auto GetNeedleEnd() const -> TokenStreamView::iterator;
 
 		/// <summary>
 		///
@@ -411,6 +408,12 @@ namespace Corium
 		/// <returns>The current source text for the token stream.</returns>
 		[[nodiscard]]
 		auto GetSourceText() const -> std::string_view;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The current function table.</returns>
+        auto GetFunctionTable() const -> const FunctionTable&;
 
 		/// <summary>
 		/// 
@@ -483,14 +486,23 @@ namespace Corium
 		/// <summary>
 		/// Parses a function from the current needle state.
 		/// </summary>
-		/// <returns></returns>
 		auto ParseFunction() -> void;
+
+        /// <summary>
+        /// Parses a let variable declaration from the current needle state.
+        /// </summary>
+		auto ParseLet() -> void;
 
         /// <summary>
         /// Sets the error state to a well formatted argument.
         /// </summary>
         /// <param name="monoLexeme">The mono lexeme to format.</param>
 		auto MakeSpecializedError(const MonoLexeme expected, const MonoLexeme *const gotInstead = nullptr) -> void;
+
+        /// <summary>
+        /// Prints the function and type tables.
+        /// </summary>
+		auto PrintParseStates() const -> void;
 	};
 
 	inline auto ParseContext::GetErrorState() const -> const ParseError&
@@ -498,17 +510,17 @@ namespace Corium
 		return this->ErrorState_;
 	}
 
-	inline auto ParseContext::GetTokenStreamView() const -> const std::span<const Token>&
+	inline auto ParseContext::GetTokenStreamView() const -> const TokenStreamView&
 	{
 		return this->TokenStreamView_;
 	}
 
-	inline auto ParseContext::GetNeedle() const -> std::span<const Token>::iterator
+	inline auto ParseContext::GetNeedle() const -> TokenStreamView::iterator
 	{
 		return this->Needle_;
 	}
 
-	inline auto ParseContext::GetNeedleEnd() const -> std::span<const Token>::iterator
+	inline auto ParseContext::GetNeedleEnd() const -> TokenStreamView::iterator
 	{
 		return this->End_;
 	}
@@ -566,5 +578,10 @@ namespace Corium
 		return this->CurrentLine_;
 	}
 
-	extern auto Parse(std::span<const Token> tokenStream, std::span<const U16> lines) -> ParseError;
+    inline auto ParseContext::GetFunctionTable() const -> const FunctionTable&
+    {
+        return this->FunctionTable_;
+    }
+
+	extern auto Parse(std::span<const Token> TokenStreamView, std::span<const U16> lines) -> ParseError;
 }

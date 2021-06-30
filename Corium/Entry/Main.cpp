@@ -237,7 +237,9 @@ static auto CompileSourceFile(const std::string_view path) -> void
 	if (parseError.first != ParseErrorCode::Ok)  [[unlikely]]
 	{
 		Print(LogLevel::Error, "{}\n", parseError.second);
+		return;
 	}
+	parseContext.PrintParseStates();
 }
 
 [[maybe_unused]]
