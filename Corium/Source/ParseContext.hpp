@@ -207,20 +207,52 @@
 
 #pragma once
 
+#include <array>
+#include <string_view>
+
 #include "Token.hpp"
 
 namespace Corium
 {
-	using ParseError = std::optional<std::string>;
-
 	class LexContext;
+
+    /// <summary>
+    /// Contains all possible error codes for the parser.
+    /// </summary>
+	enum class ParseErrorCode: U8
+    {
+        Ok = 0,
+        ContextError,
+        MissingParentheses,
+        MissingBraces,
+        MissingIdentifier,
+
+        $Count
+	};
+
+    /// <summary>
+    /// Contains all possible error code messages.
+    /// </summary>
+    constexpr std::array<std::string_view, static_cast<std::size_t>(ParseErrorCode::$Count)> PARSE_ERROR_MESSAGES
+    {
+        "OK",
+        "Internal parse context error!",
+        "Missing parenthesis!",
+        "Missing brackets!",
+        "Missing identifier!"
+    };
+
+    /// <summary>
+    /// Represents an error state of the parser.
+    /// </summary>
+    using ParseError = std::pair<ParseErrorCode, std::string>;
 
 	/// <summary>
 	/// Contains all states for token stream parsing.
 	/// </summary>
 	class ParseContext final
 	{
-		ParseError                       ErrorState_ {std::nullopt};
+		ParseError                       ErrorState_ { ParseErrorCode::Ok, {}};
 		std::span<const Token>           TokenStreamView_ { };
 		std::span<const Token>::iterator Needle_ {nullptr};
 		std::span<const Token>::iterator End_ {nullptr};
@@ -387,6 +419,13 @@ namespace Corium
 		[[nodiscard]]
 		auto GetCurrentLine() const -> U32;
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>True if there is an error in the state, else false.</returns>
+        [[nodiscard]]
+        auto HasError() const -> bool;
+
 		/// <summary>
 		/// Format and set's the current error state with custom message.
 		/// </summary>
@@ -396,7 +435,7 @@ namespace Corium
 		/// <param name="args"></param>
 		/// <returns></returns>
 		template <typename T, typename... Ts>
-		auto MakeParseError(T&& format, Ts&&...args) -> const ParseError&;
+		auto MakeParseError(ParseErrorCode code, T&& format, Ts&&...args) -> const ParseError&;
 
 		/// <summary>
 		/// Format user message with line info and error indicator.
@@ -404,7 +443,7 @@ namespace Corium
 		/// <param name="userMessage"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto FormatAndSetParseError(std::string&& userMessage) -> const ParseError&;
+		auto FormatAndSetParseError(ParseErrorCode code, std::string&& userMessage) -> const ParseError&;
 
 		/// <summary>
 		/// Parse proxy.
@@ -451,7 +490,7 @@ namespace Corium
         /// Sets the error state to a well formatted argument.
         /// </summary>
         /// <param name="monoLexeme">The mono lexeme to format.</param>
-		auto MakeError(MonoLexeme expected, const MonoLexeme* gotInstead = nullptr) -> void;
+		auto MakeSpecializedError(const MonoLexeme expected, const MonoLexeme *const gotInstead = nullptr) -> void;
 	};
 
 	inline auto ParseContext::GetErrorState() const -> const ParseError&
@@ -499,6 +538,11 @@ namespace Corium
 	    return std::distance(this->Needle_, this->End_);
     }
 
+    inline auto ParseContext::HasError() const -> bool
+    {
+        return this->ErrorState_.first != ParseErrorCode::Ok;
+    }
+
     template <typename T>
     inline auto ParseContext::GetNextIf(const std::size_t offset) const -> const T*
     {
@@ -506,10 +550,10 @@ namespace Corium
     }
 
 	template <typename T, typename... Ts>
-	inline auto ParseContext::MakeParseError(T&& format, Ts&&...args) -> const ParseError&
+	inline auto ParseContext::MakeParseError(const ParseErrorCode code, T&& format, Ts&&...args) -> const ParseError&
 	{
 		std::string formattedMessage {Common::Format(std::forward<T>(format), std::forward<Ts>(args)...)};
-		return this->FormatAndSetParseError(std::move(formattedMessage));
+		return this->FormatAndSetParseError(code, std::move(formattedMessage));
 	}
 
 	inline auto ParseContext::GetSourceText() const -> std::string_view

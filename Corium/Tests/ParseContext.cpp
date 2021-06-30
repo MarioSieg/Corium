@@ -30,7 +30,7 @@ TEST(ParseContext, Construct)
     ASSERT_EQ(context.GetSourceText(), EXAMPLE_SOURCE_TEXT);
     ASSERT_EQ(*context.GetNeedle(), *std::begin(EXAMPLE_TOKENS));
     ASSERT_EQ(context.GetNeedleEnd()[-1], std::end(EXAMPLE_TOKENS)[-1]);
-    ASSERT_FALSE(context.GetErrorState().has_value());
+    ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::Ok);
 }
 
 TEST(ParseContext, ConstructEmpty)
@@ -40,7 +40,7 @@ TEST(ParseContext, ConstructEmpty)
     ASSERT_EQ(&*context.GetNeedleEnd(), nullptr);
     ASSERT_TRUE(std::empty(context.GetTokenStreamView()));
     ASSERT_TRUE(std::empty(context.GetSourceText()));
-    ASSERT_FALSE(context.GetErrorState().has_value());
+    ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::Ok);
 }
 
 TEST(ParseContext, GetNextAt)
@@ -63,6 +63,18 @@ TEST(ParseContext, HasNext)
     ASSERT_FALSE(context.HasNext(std::size(EXAMPLE_TOKENS) + 2));
 }
 
+TEST(ParseContext, Skip)
+{
+    ParseContext context{EXAMPLE_TOKENS, EXAMPLE_SOURCE_TEXT};
+    for (std::size_t i {0}; i < std::size(EXAMPLE_TOKENS); ++i)
+    {
+        context.Skip(1);
+    }
+    ASSERT_FALSE(context.HasNext(0));
+    ASSERT_FALSE(context.HasNext(std::size(EXAMPLE_TOKENS) + 1));
+    ASSERT_FALSE(context.HasNext(std::size(EXAMPLE_TOKENS) + 2));
+}
+
 TEST(ParseContext, GetNextAtOrNull)
 {
     ParseContext context{EXAMPLE_TOKENS, EXAMPLE_SOURCE_TEXT};
@@ -74,6 +86,17 @@ TEST(ParseContext, GetNextAtOrNull)
     ASSERT_EQ(context.GetNextAtOrNull(std::size(EXAMPLE_TOKENS) + 2), nullptr);
 }
 
+TEST(ParseContext, GetNextIf)
+{
+    ParseContext context{EXAMPLE_TOKENS, EXAMPLE_SOURCE_TEXT};
+    ASSERT_NE(context.GetNextIf<Keyword>(0), nullptr);
+    ASSERT_NE(context.GetNextIf<Identifier>(1), nullptr);
+    ASSERT_NE(context.GetNextIf<Operator>(2), nullptr);
+    ASSERT_EQ(*context.GetNextIf<Keyword>(0), Keyword::Let);
+    ASSERT_EQ(*context.GetNextIf<Identifier>(1), Identifier{"x"});
+    ASSERT_EQ(*context.GetNextIf<Operator>(2), Operator::Equals);
+}
+
 TEST(ParseContext, Reset)
 {
     ParseContext context{};
@@ -81,9 +104,9 @@ TEST(ParseContext, Reset)
     ASSERT_EQ(&*context.GetNeedleEnd(), nullptr);
     ASSERT_TRUE(std::empty(context.GetTokenStreamView()));
     ASSERT_TRUE(std::empty(context.GetSourceText()));
-    ASSERT_FALSE(context.GetErrorState().has_value());
+    ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::Ok);
     context.Reset(EXAMPLE_TOKENS, EXAMPLE_SOURCE_TEXT);
-    ASSERT_FALSE(context.GetErrorState().has_value());
+    ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::Ok);
     ASSERT_EQ(std::size(context.GetTokenStreamView()), std::size(EXAMPLE_TOKENS));
     ASSERT_EQ(context.GetSourceText(), EXAMPLE_SOURCE_TEXT);
     ASSERT_EQ(*context.GetNeedle(), *std::begin(EXAMPLE_TOKENS));
@@ -120,16 +143,18 @@ TEST(ParseContext, ParseFunctionValid)
     ParseContext context{tokens, source};
     ASSERT_EQ(context.GetCurrentLine(), 1);
     ASSERT_NO_FATAL_FAILURE(context.Parse());
-    ASSERT_FALSE(context.GetErrorState().has_value());
+    ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::Ok);
+    ASSERT_TRUE(std::empty(context.GetErrorState().second));
+    ASSERT_FALSE(context.HasError());
     ASSERT_EQ(context.GetSourceText(), source);
     ASSERT_EQ(context.GetNeedle()[-1], std::end(tokens)[-1]);
     ASSERT_EQ(context.GetNeedle(), context.GetNeedleEnd());
     ASSERT_EQ(context.GetCurrentLine(), 3);
     context.Reset(tokens, source);
-    ASSERT_FALSE(context.Parse().has_value());
+    ASSERT_EQ(context.Parse().first, ParseErrorCode::Ok);
 }
 
-TEST(ParseContext, ParseFunctionInvalid)
+TEST(ParseContext, ParseFunctionInvalidMissingName)
 {
     const std::string_view source{"fun () {\n}\n"};
     const std::array<const Token, 8> tokens
@@ -145,7 +170,72 @@ TEST(ParseContext, ParseFunctionInvalid)
     ParseContext context{tokens, source};
     ASSERT_EQ(context.GetCurrentLine(), 1);
     ASSERT_NO_FATAL_FAILURE(context.Parse());
-    ASSERT_TRUE(context.GetErrorState().has_value());
-    ASSERT_FALSE(std::empty(*context.GetErrorState()));
+    ASSERT_FALSE(std::empty(context.GetErrorState().second));
+    ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::MissingIdentifier);
+    ASSERT_TRUE(context.HasError());
+    ASSERT_EQ(context.GetCurrentLine(), 1);
+}
+
+TEST(ParseContext, ParseFunctionInvalidMissingLeftParenthesis)
+{
+    const std::string_view source{"fun test ) {\n}\n"};
+    const std::array<const Token, 8> tokens
+            {
+                    Keyword::Fun,
+                    Identifier{"test"},
+                    MonoLexeme::ParenthesisRight,
+                    MonoLexeme::CurlyBracesLeft,
+                    MonoLexeme::NewLine,
+                    MonoLexeme::CurlyBracesRight,
+                    MonoLexeme::NewLine
+            };
+    ParseContext context{tokens, source};
+    ASSERT_EQ(context.GetCurrentLine(), 1);
+    ASSERT_NO_FATAL_FAILURE(context.Parse());
+    ASSERT_FALSE(std::empty(context.GetErrorState().second));
+    ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::MissingParentheses);
+    ASSERT_TRUE(context.HasError());
+    ASSERT_EQ(context.GetCurrentLine(), 1);
+}
+
+TEST(ParseContext, ParseFunctionInvalidMissingRightParenthesis)
+{
+    const std::string_view source{"fun test ( {\n}\n"};
+    const std::array<const Token, 8> tokens
+            {
+                    Keyword::Fun,
+                    Identifier{"test"},
+                    MonoLexeme::ParenthesisLeft,
+                    MonoLexeme::CurlyBracesLeft,
+                    MonoLexeme::NewLine,
+                    MonoLexeme::CurlyBracesRight,
+                    MonoLexeme::NewLine
+            };
+    ParseContext context{tokens, source};
+    ASSERT_EQ(context.GetCurrentLine(), 1);
+    ASSERT_NO_FATAL_FAILURE(context.Parse());
+    ASSERT_FALSE(std::empty(context.GetErrorState().second));
+    ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::MissingParentheses);
+    ASSERT_TRUE(context.HasError());
+    ASSERT_EQ(context.GetCurrentLine(), 1);
+}
+
+TEST(ParseContext, ParseFunctionInvalidMissingLeftBrace)
+{
+    const std::string_view source{"fun test () }"};
+    const std::array<const Token, 8> tokens
+            {
+                    Keyword::Fun,
+                    Identifier{"test"},
+                    MonoLexeme::ParenthesisLeft,
+                    MonoLexeme::ParenthesisRight,
+                    MonoLexeme::CurlyBracesRight,
+            };
+    ParseContext context{tokens, source};
+    ASSERT_EQ(context.GetCurrentLine(), 1);
+    ASSERT_NO_FATAL_FAILURE(context.Parse());
+    ASSERT_FALSE(std::empty(context.GetErrorState().second));
+    ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::MissingBraces);
+    ASSERT_TRUE(context.HasError());
     ASSERT_EQ(context.GetCurrentLine(), 1);
 }

@@ -234,9 +234,9 @@ static auto CompileSourceFile(const std::string_view path) -> void
 
 	parseContext.Reset(lexContext.GetTokenStream(), lexContext.GetSourceText());
 	const ParseError& parseError {parseContext.Parse()};
-	if (parseError.has_value()) [[unlikely]]
+	if (parseError.first != ParseErrorCode::Ok)  [[unlikely]]
 	{
-		Print(LogLevel::Error, "{}\n", *parseError);
+		Print(LogLevel::Error, "{}\n", parseError.second);
 	}
 }
 
