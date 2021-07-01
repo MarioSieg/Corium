@@ -1,0 +1,29 @@
+<digit> ::= [0-9]
+<letter> ::= [A-Z] | [a-z]
+<symbol> ::= (<digit> | <letter> | " ")
+<text> ::= (<symbol> | <text> <symbol>)
+<space> ::= " " | "\n" | "\t" | "\r"
+<whitespace> ::= <space> | <whitespace> <space>
+
+<comment> ::= "#" <text>
+<multi_comment> ::= "##" <text> "##"
+
+<ident> ::= <letter> | <ident> <letter>
+<arithmetic_operator> ::= "+" | "-" | "*" | "/" | "%"
+<arithmetic_operator_assign> ::= "+=" | "-=" | "*=" | "/=" | "%="
+<bit_operator> ::= "&" | "|" | "^" | "~" | "<<" | ">>" | "<<<" | ">>>" | "<-" | "->"
+<bit_operator_assign> ::= "&=" | "|=" | "^=" | "<<=" | ">>=" | "<<<=" | "=>>>" | "<-=" | "->="
+<logical_operator> ::= "&&" | "||" | "^^" | "!"
+<comparison_operator> ::= "==" | "!=" | "<" | "<=" | ">" | ">="
+<operator> ::= <arithmetic_operator> | <arithmetic_operator_assign> | <bit_operator> | <bit_operator_assign> | <logical_operator> | <comparison_operator>
+
+<int> ::= ("-" | "+")? <digit> | <int> <digit>
+<float> ::= <int> "." <int>
+<bool> ::= "true" | "false"
+<char> ::= "'" <symbol> "'"
+<string> ::= "\"" <text> "\""
+<literal> ::= <int> | <float> | <bool> | <char> | <string>
+
+<free_ident> ::= <whitespace>? <ident> <whitespace>?
+<let_scheme> ::= "let " <free_ident> "=" <whitespace>? <literal> <whitespace>? "\n"
+<fun_scheme> ::= "fun " <free_ident> "(" <whitespace>? ")" <whitespace>? "{" <text>? "}"
