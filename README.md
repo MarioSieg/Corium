@@ -29,14 +29,13 @@ The source code for the language parser is in the [Corium](https://github.com/Ma
 As you might know,<br>
 there are already plenty of programming languages out there.<br>
 Many programming can be divided into two groups (the so called two language problem):<br>
-There are very hight level languages such as Python or Java and<br>
+There are very high level languages such as Python or Java and<br>
 many performance critical code is written in a more lower level language <br>
 such as C, C++ or Rust. This is highly inefficient as it requires more knowledge,<br>
-testing and time. It is also more error prone.<br>
+testing and time. Of course it is also more error prone.<br>
 Corium allows for code which is clean, portable, easy to write and still very fast.<br>
-This might sound like the "Julia" language, but Corium relies much more on simplicity.<br>
-With a semicolon free, easy to read C like syntax, it's easy to learn the language.<br>
-The core language features are enough to write good code, but not too much to become bloated.<br>
+With semicolons and an easy to read C-like syntax, Corium is easy to learn.<br>
+The core language features are enough for all kinds of projects, but not too much to become bloated.<br>
 It has a great and easy to use debugger, package manager and linter.<br>
 Just get your favourite editor like VisualStudioCode, IntelliJ or something else,<br>
 and start coding!<br>
@@ -177,7 +176,7 @@ function.
 So let's follow the tradition and start with hello world:
 
 ```
-main () {
+fun main () {
     print("Hello, World")
 }
 ```
@@ -185,15 +184,16 @@ main () {
 Methods and functions are declared by the following scheme:
 
 ```
-<FunctionName> ( <Parameters> ) <ReturnType> {
+fun <FunctionName> ( <Parameters> ) <ReturnType> {
 
 }
 ```
 
+As you can see above, functions are declared using the ```fun``` keyword.
 Let's write a function which takes no parameters and returns nothing:
 
 ```
-sayHello () {
+fun sayHello () {
     print("Say hello to my little friend!")
 }
 ```
@@ -211,7 +211,7 @@ but of course the priting mechanism is different.<br>
 Lets write another functions which returns a number:<br>
 
 ```
-getNumber () int {
+fun getNumber () int {
     return 5
 }
 ```
@@ -237,7 +237,7 @@ Parameters are written in the following scheme:<br>
 A simple square function could look like:
 
 ```
-square (float x) float {
+fun square (float x) float {
     return x * x
 }
 ```
@@ -363,3 +363,4 @@ In fact, it's possible to write the whole ```compare``` statement<br>
 using linked ```if else``` statements, but that's ugly and far less clean.<br>
 
 <h3>Loops</h3>
+Comming soon...
