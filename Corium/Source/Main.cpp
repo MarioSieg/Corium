@@ -1,6 +1,6 @@
-// File: Keyword.hpp
+// File: Main.cpp
 // Author: Mario
-// Created: 11.06.2021 10:40 AM
+// Created: 09.04.2021 5:11 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,42 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include "Base.hpp"
-
-namespace Corium
+auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* const argv) -> int
 {
-	enum class Keyword : U8
-	{
-		Let,
-		Fun,
-
-		$Count
-	};
-
-	constexpr std::array<std::string_view, static_cast<std::size_t>(Keyword::$Count)> KEYWORD_TABLE
-	{
-		"let",
-		"fun"
-	};
-
-	constexpr auto GetKeywordLexeme(const Keyword kw) -> std::string_view
-	{
-		return KEYWORD_TABLE[static_cast<std::size_t>(kw)];
-	}
-
-	constexpr auto QueryKeyword(const std::string_view name) -> std::optional<Keyword>
-	{
-		std::optional<Keyword> ret {std::nullopt};
-		for (std::size_t i {0}; i < static_cast<std::size_t>(Keyword::$Count); ++i)
-		{
-			if (KEYWORD_TABLE[i] == name)
-			{
-				ret = static_cast<Keyword>(i);
-				break;
-			}
-		}
-		return ret;
-	}
+	return 0;
 }
