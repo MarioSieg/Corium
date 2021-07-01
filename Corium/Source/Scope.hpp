@@ -208,15 +208,68 @@
 #pragma once
 
 #include "Base.hpp"
+#include "MonoLexeme.hpp"
 
 namespace Corium
 {
+	constexpr auto SCOPE_ENTER{ MonoLexeme::CurlyBracesLeft };
+	constexpr auto SCOPE_EXIT{ MonoLexeme::CurlyBracesRight };
+
 	/// <summary>
-	/// Represents the scope of a declaration.
+	/// Helper to detect local scope.
 	/// </summary>
-	enum class Scope : U8
+	class ScopeChecker final
 	{
-		Global,
-		Local
+		U32 OpenedScopes_{0};
+		U32 ClosedScopes_{0};
+
+	public:
+		/// <summary>
+		/// Triggers an scope enter.
+		/// </summary>
+		/// <returns></returns>
+		constexpr auto EnterScope() -> void;
+
+		/// <summary>
+		/// Triggers an scope leave.
+		/// </summary>
+		/// <returns></returns>
+		constexpr auto LeaveScope() -> void;
+
+		/// <summary>
+		/// Check of a mismatch of enter and leave.
+		/// </summary>
+		/// <returns>True if there is a leak, else false.</returns>
+		[[nodiscard]]
+		constexpr auto HasLeak() const -> bool;
+
+		constexpr auto GetOpenedScopeCount() const -> U32;
+
+		constexpr auto GetClosedScopeCount() const -> U32;
 	};
+
+	constexpr auto ScopeChecker::EnterScope() -> void
+	{
+		++this->OpenedScopes_;
+	}
+
+	constexpr auto ScopeChecker::LeaveScope() -> void
+	{
+		++this->ClosedScopes_;
+	}
+
+	constexpr auto ScopeChecker::HasLeak() const -> bool
+	{
+		return this->OpenedScopes_ != this->ClosedScopes_;
+	}
+
+	constexpr auto ScopeChecker::GetOpenedScopeCount() const -> U32
+	{
+		return this->OpenedScopes_;
+	}
+	
+	constexpr auto ScopeChecker::GetClosedScopeCount() const -> U32
+	{
+		return this->ClosedScopes_;
+	}
 }

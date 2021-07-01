@@ -210,6 +210,13 @@
 
 namespace Corium
 {
+	ParseContext::ParseContext(const TokenStreamView tokenView, const SourceCode sourceText)
+	{
+		this->Reset(tokenView, sourceText);
+	}
+
+	ParseContext::ParseContext(const LexContext& lexContext) : ParseContext{ lexContext.GetTokenStream(), lexContext.GetSourceText() } { }
+	
 	auto ParseContext::Reset(const TokenStreamView tokenView, const SourceCode sourceText) -> void
 	{
 		this->TokenStreamView_   = tokenView;
@@ -220,6 +227,7 @@ namespace Corium
 		this->SourceText_        = sourceText;
 		this->CurrentLine_       = 1;
 		this->FunctionTable_.clear();
+		this->ScopeChecker_ = {};
 	}
 
 	auto ParseContext::Parse() -> const ParseError&
@@ -233,6 +241,7 @@ namespace Corium
 
 		while (this->Needle_ < this->End_ && this->ErrorState_.first == ParseErrorCode::Ok)
 		{
+			PrintToken(*this->Needle_);
 			std::visit
 			(
 				Common::Overload
@@ -268,10 +277,23 @@ namespace Corium
 	{
 		switch (monoLexeme)
 		{
-		case MonoLexeme::NewLine: ++this->CurrentLine_;
-			return;
+			case MonoLexeme::NewLine:
+				++this->CurrentLine_;
+				return;
 
-		default: return;
+			case SCOPE_ENTER:
+				this->ScopeChecker_.EnterScope();
+				return;
+				
+			case SCOPE_EXIT:
+				this->ScopeChecker_.LeaveScope();
+				if (this->ScopeChecker_.HasLeak())
+				{
+					this->MakeSpecializedError(SCOPE_EXIT);
+				}
+				return;
+			
+			default: ;
 		}
 	}
 
@@ -281,13 +303,15 @@ namespace Corium
 	{
 		switch (keyword)
 		{
-		case Keyword::Fun: this->ParseFunction();
-			return;
+			case Keyword::Fun:
+				this->ParseFunction();
+				return;
 
-		case Keyword::Let: this->ParseLet();
-			return;
+			case Keyword::Let:
+				this->ParseLet();
+				return;
 
-		default: return;
+			default: ;
 		}
 	}
 
@@ -297,10 +321,7 @@ namespace Corium
 
 	auto ParseContext::ParseFunction() -> void
 	{
-		constexpr auto argCount {4};
-		const auto     tokCount {this->GetNextCount()};
-
-		switch (tokCount)
+		switch (const auto tokCount {this->GetNextCount()}; tokCount)
 		{
             [[unlikely]]
             case 0: // missing function name:
@@ -353,13 +374,11 @@ namespace Corium
                     this->MakeSpecializedError(MonoLexeme::CurlyBracesLeft, braceLeft);
                     return;
                 }
-
+            	
                 this->FunctionTable_.emplace_back(Function
                 {
                     .Name = *identifier,
                 });
-
-                this->Skip(argCount);
             }
 		}
 	}
@@ -371,7 +390,7 @@ namespace Corium
 		if (std::empty(this->SourceText_))
 		{
 			[[unlikely]]
-				return std::nullopt;
+			return std::nullopt;
 		}
 
 		std::stringstream ss;
@@ -410,32 +429,35 @@ namespace Corium
 		return this->ErrorState_;
 	}
 
-	ParseContext::ParseContext(const TokenStreamView tokenView, const SourceCode sourceText)
-	{
-		this->Reset(tokenView, sourceText);
-	}
-
-	ParseContext::ParseContext(const LexContext& lexContext) : ParseContext {lexContext.GetTokenStream(), lexContext.GetSourceText()} { }
-
 	auto ParseContext::MakeSpecializedError(const MonoLexeme expected, const MonoLexeme* const gotInstead) -> void
 	{
 		ParseErrorCode code;
 
 		switch (expected)
 		{
-		case MonoLexeme::ParenthesisLeft:
-		case MonoLexeme::ParenthesisRight: code = ParseErrorCode::MissingParentheses;
-			break;
+			case MonoLexeme::ParenthesisLeft:
+			case MonoLexeme::ParenthesisRight:
+				code = ParseErrorCode::MissingParentheses;
+				break;
 
-		case MonoLexeme::CurlyBracesLeft:
-		case MonoLexeme::CurlyBracesRight: code = ParseErrorCode::MissingBraces;
-			break;
+			case MonoLexeme::CurlyBracesLeft:
+			case MonoLexeme::CurlyBracesRight:
+				code = ParseErrorCode::MissingBraces;
+				break;
 
-		default: code = ParseErrorCode::ContextError;
-			break;
+			default:
+				code = ParseErrorCode::ContextError;
+				break;
 		}
 
-		this->MakeParseError(code, "Expected '{}', got '{}' instead", static_cast<char>(expected), gotInstead ? static_cast<char>(*gotInstead) : ' ');
+		if (gotInstead && *gotInstead != MonoLexeme::NewLine)
+		{
+			this->MakeParseError(code, "Expected '{}', got '{}' instead", static_cast<char>(expected), static_cast<char>(*gotInstead));
+		}
+		else
+		{
+			this->MakeParseError(code, "Expected '{}'", static_cast<char>(expected));
+		}
 	}
 
 	auto ParseContext::PrintParseStates() const -> void

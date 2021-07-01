@@ -256,6 +256,11 @@ namespace Corium
 		/// </summary>
 		FunctionTable FunctionTable_ { };
 
+		/// <summary>
+		/// Used to check scopes.
+		/// </summary>
+		ScopeChecker ScopeChecker_{ };
+
 	public:
 		/// <summary>
 		/// Constructor.
@@ -352,7 +357,7 @@ namespace Corium
         /// <param name="what">The token to find the next of.</param>
         /// <returns>Pointer to token data if found, else nullptr.</returns>
         [[nodiscard]]
-		auto FindNextOrNull(const Token& what) -> const Token*;
+		auto FindNextOrNull(const Token& what) const -> const Token*;
 
 		/// <summary>
 		/// Skips n tokens by advancing the needle.
@@ -421,6 +426,7 @@ namespace Corium
 		///
 		/// </summary>
 		/// <returns>The current function table.</returns>
+		[[nodiscard]]
 		auto GetFunctionTable() const -> const FunctionTable&;
 
 		/// <summary>
@@ -442,6 +448,7 @@ namespace Corium
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <typeparam name="...Ts"></typeparam>
+		/// <param name="code"></param>
 		/// <param name="format"></param>
 		/// <param name="args"></param>
 		/// <returns></returns>
@@ -451,6 +458,7 @@ namespace Corium
 		/// <summary>
 		/// Format user message with line info and error indicator.
 		/// </summary>
+		/// <param name="code"></param>
 		/// <param name="userMessage"></param>
 		/// <returns></returns>
 		[[nodiscard]]
@@ -504,8 +512,9 @@ namespace Corium
 		/// <summary>
 		/// Sets the error state to a well formatted argument.
 		/// </summary>
-		/// <param name="monoLexeme">The mono lexeme to format.</param>
-		auto MakeSpecializedError(const MonoLexeme expected, const MonoLexeme* const gotInstead = nullptr) -> void;
+		/// <param name="expected">The mono lexeme which was expected..</param>
+		/// <param name="gotInstead">The mono lexeme we got instead.</param>
+		auto MakeSpecializedError(MonoLexeme expected, const MonoLexeme* const gotInstead = nullptr) -> void;
 
 		/// <summary>
 		/// Prints the function and type tables.
@@ -591,11 +600,11 @@ namespace Corium
 		return this->FunctionTable_;
 	}
 
-    inline auto ParseContext::FindNextOrNull(const Token& what) -> const Token*
+    inline auto ParseContext::FindNextOrNull(const Token& what) const -> const Token*
     {
         const auto found{std::find(this->Needle_, this->End_, what)};
         return found == this->End_ ? nullptr : &*found;
     }
 
-	extern auto Parse(std::span<const Token> TokenStreamView, std::span<const U16> lines) -> ParseError;
+	extern auto Parse(std::span<const Token> tokenStreamView, std::span<const U16> lines) -> ParseError;
 }
