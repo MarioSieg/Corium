@@ -321,6 +321,12 @@ namespace Corium
 
 	auto ParseContext::ParseFunction() -> void
 	{
+		// check if we are declaring a function inside a function:
+		if (this->ScopeChecker_.IsLocalScope()) [[unlikely]]
+		{
+			this->MakeParseError(ParseErrorCode::MissingBraces, "Expected '{}' before function declaration", MonoLexeme::CurlyBracesRight);
+		}
+		
 		switch (const auto tokCount {this->GetNextCount()}; tokCount)
 		{
             [[unlikely]]

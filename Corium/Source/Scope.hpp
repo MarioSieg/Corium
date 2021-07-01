@@ -212,8 +212,24 @@
 
 namespace Corium
 {
+	/// <summary>
+	/// Lexeme used to determine scope entry.
+	/// </summary>
 	constexpr auto SCOPE_ENTER{ MonoLexeme::CurlyBracesLeft };
+
+	/// <summary>
+	/// Lexeme used to determine scope exit.
+	/// </summary>
 	constexpr auto SCOPE_EXIT{ MonoLexeme::CurlyBracesRight };
+
+	/// <summary>
+	/// Contains all possible code scopes.
+	/// </summary>
+	enum class Scope : U8
+	{
+		Local,
+		Global
+	};
 
 	/// <summary>
 	/// Helper to detect local scope.
@@ -222,19 +238,20 @@ namespace Corium
 	{
 		U32 OpenedScopes_{0};
 		U32 ClosedScopes_{0};
+		bool IsLocalScope_{ false };
 
 	public:
 		/// <summary>
 		/// Triggers an scope enter.
 		/// </summary>
 		/// <returns></returns>
-		constexpr auto EnterScope() -> void;
+		constexpr auto EnterScope() -> bool;
 
 		/// <summary>
 		/// Triggers an scope leave.
 		/// </summary>
 		/// <returns></returns>
-		constexpr auto LeaveScope() -> void;
+		constexpr auto LeaveScope() -> bool;
 
 		/// <summary>
 		/// Check of a mismatch of enter and leave.
@@ -246,16 +263,20 @@ namespace Corium
 		constexpr auto GetOpenedScopeCount() const -> U32;
 
 		constexpr auto GetClosedScopeCount() const -> U32;
+
+		constexpr auto IsLocalScope() const -> bool;
 	};
 
-	constexpr auto ScopeChecker::EnterScope() -> void
+	constexpr auto ScopeChecker::EnterScope() -> bool
 	{
 		++this->OpenedScopes_;
+		return this->IsLocalScope_ ^= true;
 	}
 
-	constexpr auto ScopeChecker::LeaveScope() -> void
+	constexpr auto ScopeChecker::LeaveScope() ->bool
 	{
 		++this->ClosedScopes_;
+		return !(this->IsLocalScope_ ^= true);
 	}
 
 	constexpr auto ScopeChecker::HasLeak() const -> bool
@@ -271,5 +292,10 @@ namespace Corium
 	constexpr auto ScopeChecker::GetClosedScopeCount() const -> U32
 	{
 		return this->ClosedScopes_;
+	}
+
+	constexpr auto ScopeChecker::IsLocalScope() const -> bool
+	{
+		return this->IsLocalScope_;
 	}
 }

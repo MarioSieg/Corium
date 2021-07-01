@@ -225,6 +225,27 @@ TEST(ParseContext, ParseFunctionInvalidMissingRightParenthesis)
     ASSERT_TRUE(std::empty(context.GetFunctionTable()));
 }
 
+TEST(ParseContext, ParseFunctionInvalidMissingRightBrace)
+{
+    const std::string_view source{ "fun test () {" };
+    const std::array<const Token, 8> tokens
+    {
+            Keyword::Fun,
+            Identifier{"test"},
+            MonoLexeme::ParenthesisLeft,
+            MonoLexeme::ParenthesisRight,
+            MonoLexeme::CurlyBracesLeft,
+    };
+    ParseContext context{ tokens, source };
+    ASSERT_EQ(context.GetCurrentLine(), 1);
+    ASSERT_NO_FATAL_FAILURE(context.Parse());
+    ASSERT_FALSE(std::empty(context.GetErrorState().second));
+    ASSERT_EQ(context.GetErrorState().first, ParseErrorCode::MissingBraces);
+    ASSERT_TRUE(context.HasError());
+    ASSERT_EQ(context.GetCurrentLine(), 1);
+    ASSERT_TRUE(std::empty(context.GetFunctionTable()));
+}
+
 TEST(ParseContext, ParseFunctionInvalidMissingLeftBrace)
 {
     const std::string_view source{"fun test () }"};
