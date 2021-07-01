@@ -62,6 +62,18 @@ The source code is in the [Nominax](https://github.com/MarioSieg/Corium/tree/mas
 For more technical information, check out the Nominax [ReadMe](https://github.com/MarioSieg/Corium/blob/dev/Nominax/README.md).
 </h4>
 
+<h2> Sponsors </h2>
+<h4>
+A special thanks to all of my sponsors!<br>
+Thank you for supporting my work,
+this gives me a lot of motivation.<br>
+Sponsors in chronological order:<br>
+
+* Jean Igrec https://github.com/Jigrec
+* Andreas Partsch https://github.com/4ndre4s
+
+</h4>
+
 <h2> Roadmap </h2>
 
 [Trello Board](https://trello.com/b/QiBdAQrb/nominax)
