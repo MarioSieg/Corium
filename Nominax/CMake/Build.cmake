@@ -18,6 +18,3 @@ INCLUDE("Nominax/CMake/Externs.cmake")
 
 # benchmark:
 INCLUDE("Nominax/CMake/Benchmark.cmake")
-
-# add entry executables
-INCLUDE("Nominax/CMake/NominaxExe.cmake")

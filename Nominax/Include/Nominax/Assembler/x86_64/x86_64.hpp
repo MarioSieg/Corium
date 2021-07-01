@@ -1,4 +1,4 @@
-// File: Assembler.hpp
+// File: x86_64.hpp
 // Author: Mario
 // Created: 29.06.2021 8:43 PM
 // Project: NominaxRuntime
@@ -207,5 +207,5 @@
 
 #pragma once
 
-
-#include "x86_64/x86_64.hpp"
+#include "Encoding.hpp"
+#include "Register.hpp"

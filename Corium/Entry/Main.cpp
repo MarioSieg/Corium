@@ -222,7 +222,8 @@ static auto CompileSourceFile(const std::string_view path) -> void
 		file.ReadFromFileOrPanic(path);
 		std::string source {std::move(file.GetContentText())};
 
-		if (source.empty()) [[unlikely]]
+		if (source.empty())
+		[[unlikely]]
 		{
 			Print("Empty source file!");
 			return;
@@ -234,7 +235,8 @@ static auto CompileSourceFile(const std::string_view path) -> void
 
 	parseContext.Reset(lexContext.GetTokenStream(), lexContext.GetSourceText());
 	const ParseError& parseError {parseContext.Parse()};
-	if (parseError.first != ParseErrorCode::Ok)  [[unlikely]]
+	if (parseError.first != ParseErrorCode::Ok)
+	[[unlikely]]
 	{
 		Print(LogLevel::Error, "{}\n", parseError.second);
 		return;

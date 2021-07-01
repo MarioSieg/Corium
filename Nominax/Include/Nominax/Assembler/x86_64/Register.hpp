@@ -1,6 +1,6 @@
-// File: x86_64.hpp
+// File: Register.hpp
 // Author: Mario
-// Created: 29.06.2021 8:43 PM
+// Created: 01.07.2021 4:53 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -211,105 +211,10 @@
 #include <cassert>
 #include <string_view>
 
-#include "../Common/BaseTypes.hpp"
+#include "../../Common/BaseTypes.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
-	constexpr U8 LOCK {0xF0};
-	constexpr U8 REPNE_REPNZ {0xF2};
-	constexpr U8 REP_REPE_REPZ {0xF3};
-	constexpr U8 REX_W {0x48};
-	constexpr U8 OPERAND_OVERRIDE {0x66};
-	constexpr U8 ADDRESS_OVERRIDE {0x67};
-	constexpr U8 TWO_BYTE_PREFIX {0x0F};
-
-	/// <summary>
-	/// ModRM byte field entries.
-	/// </summary>
-	enum class ModRm : U8
-	{
-		RegisterIndirect = 0b0000'0000,
-		OneByteSignedDisplace = 0b0000'0001,
-		FourByteSignedDisplace = 0b0000'0010,
-		RegisterAddressing = 0b0000'0011
-	};
-
-	/// <summary>
-	/// Scale index byte scale factors.
-	/// </summary>
-	enum class SibScale : U8
-	{
-		Factor1 = 0b0000'0000,
-		Factor2 = 0b0000'0001,
-		Factor4 = 0b0000'0010,
-		Factor8 = 0b0000'0011
-	};
-
-	/// <summary>
-	/// Pack a REX prefix:
-	/// +---+---+---+---+---+---+---+---+
-	/// | 0 | 1 | 0 | 0 | W | R | X | B |
-	/// +---+---+---+---+---+---+---+---+
-	/// </summary>
-	/// <param name="w"></param>
-	/// <param name="r"></param>
-	/// <param name="x"></param>
-	/// <param name="b"></param>
-	/// <returns>The composed rex prefix.</returns>
-	constexpr auto PackRex(const bool w, const bool r, const bool x, const bool b) -> U8
-	{
-		U8 rex {0x40};
-		rex |= b;
-		rex |= x << 1;
-		rex |= r << 2;
-		rex |= w << 3;
-		return rex;
-	}
-
-	/// <summary>
-	/// Pack a REX prefix if optional, else return zero.
-	/// </summary>
-	/// <param name="w"></param>
-	/// <param name="r"></param>
-	/// <param name="x"></param>
-	/// <param name="b"></param>
-	/// <returns>The composed rex prefix or zero.</returns>
-	constexpr auto PackRexOpt(const bool w, const bool r, const bool x, const bool b) -> U8
-	{
-		return w || r || x || b ? PackRex(w, r, x, b) : 0;
-	}
-
-	/// <summary>
-	/// Packs the bits into the specified order:
-	/// +-----------+-----------+-------+
-	/// | bits01 |  bits234 |  bits567  |
-	/// +---+---+---+---+---+---+---+---+
-	/// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
-	/// +---+---+---+---+---+---+---+---+
-	/// </summary>
-	/// <param name="bits01"></param>
-	/// <param name="bits234"></param>
-	/// <param name="bits567"></param>
-	/// <returns>The composed mod rm sib byte.</returns>
-	constexpr auto PackModRm(const U8 bits01, const U8 bits234, const U8 bits567) -> U8
-	{
-		assert((bits01 & ~0b11) == 0);
-		assert((bits234 & ~0b111) == 0);
-		assert((bits567 & ~0b111) == 0);
-		U8 trio {bits567};
-		trio &= ~0xF8;
-		trio |= (bits234 & ~0xF8) << 3;
-		trio |= (bits01 & ~0xFC) << 6;
-		return trio;
-	}
-
-	/// <summary>
-	/// Writes a NOP chain of the specified size into the needle.
-	/// </summary>
-	/// <param name="needle">The machine code needle. Must have at least size elements.</param>
-	/// <param name="size">The NOP chain size between 1 and 15 inclusive.</param>
-	extern auto InjectNopChain(U8* needle, U8 size) -> void;
-
 	/// <summary>
 	/// Contains all registers supported by the JIT compiler.
 	/// </summary>
