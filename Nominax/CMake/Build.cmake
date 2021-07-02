@@ -9,6 +9,7 @@ SET_SOURCE_FILES_PROPERTIES("Nominax/Source/Core/ReactorCore_AVX.cpp" PROPERTIES
 SET_SOURCE_FILES_PROPERTIES("Nominax/Source/Core/ReactorCore_AVX512F.cpp" PROPERTIES COMPILE_FLAGS "-mavx512f")
 
 ADD_LIBRARY("NominaxRuntime" STATIC "${NOMINAX_SOURCES}")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-std=c++20")
 
 # unit tests:
 INCLUDE("Nominax/CMake/UnitTests.cmake")

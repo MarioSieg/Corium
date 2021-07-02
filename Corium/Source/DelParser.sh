@@ -1,0 +1,12 @@
+rm CoriumBaseListener.cpp 
+rm CoriumLexer.cpp 
+rm CoriumLexer.interp 
+rm CoriumListener.cpp 
+rm CoriumParser.cpp 
+rm Corium.tokens 
+rm CoriumBaseListener.h 
+rm Corium.interp 
+rm CoriumLexer.h 
+rm CoriumLexer.tokens
+rm CoriumListener.h 
+rm CoriumParser.h
