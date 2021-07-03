@@ -1,5 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.18)
 
+SET("CMAKE_CXX_STANDARD_REQUIRED" TRUE)
+
 # Set helper values:
 SET(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 SET(CMAKE_C_COMPILER_WORKS TRUE)
@@ -15,7 +17,6 @@ OPTION("CORIUM_BUILD_BENCHMARKS" "Build the benchmarks for all projects" ON)
 INCLUDE("CMake/Assembly.cmake")
 INCLUDE("CMake/UnitTests.cmake")
 INCLUDE("CMake/Benchmarks.cmake")
-INCLUDE("CMake/CompilerFlags.cmake")
 
 INCLUDE("Nominax/CMake/Build.cmake")
 INCLUDE("Corium/CMake/Build.cmake")

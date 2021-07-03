@@ -205,7 +205,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <string>
+#include <fstream>
+
 auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* const argv) -> int
 {
-	return 0;
+
 }

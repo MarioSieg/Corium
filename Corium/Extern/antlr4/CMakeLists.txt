@@ -166,7 +166,7 @@ if (ANTLR4_INSTALL)
       "Installation directory for include files, relative to ${CMAKE_INSTALL_PREFIX}.")
 
   configure_package_config_file(
-    cmake/antlr4-runtime.cmake.in
+          cmake/antlr4-runtime.cmake.in
     ${project_runtime_config}
     INSTALL_DESTINATION ${ANTLR4_CMAKE_DIR}/antlr4-runtime
     PATH_VARS 
@@ -183,12 +183,12 @@ if (ANTLR4_INSTALL)
   
   write_basic_package_version_file(
     ${version_runtime_config}
-    VERSION ${ANTLR_VERSION}
+          VERSION ${ANTLR_VERSION}
     COMPATIBILITY SameMajorVersion )
 
   write_basic_package_version_file(
     ${version_generator_config}
-    VERSION ${ANTLR_VERSION}
+          VERSION ${ANTLR_VERSION}
     COMPATIBILITY SameMajorVersion )
 
   install(EXPORT ${targets_export_name}
