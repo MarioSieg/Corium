@@ -1,5 +1,7 @@
 FILE(GLOB_RECURSE "CORIUM_SOURCES" "Corium/Source/*.cpp"  "Corium/Source/*.hpp")
 ADD_EXECUTABLE("CoriumC" "${CORIUM_SOURCES}")
+TARGET_COMPILE_OPTIONS("CoriumC" PRIVATE "-std=c++17")
+TARGET_COMPILE_OPTIONS("CoriumC" PRIVATE "-fexceptions")
 
 FILE(GLOB_RECURSE "CORIUM_PARSER_SOURCES" "Corium/Parser/*.cpp"  "Corium/Parser/*.h")
 ADD_LIBRARY("CoriumParser" STATIC "${CORIUM_PARSER_SOURCES}")
