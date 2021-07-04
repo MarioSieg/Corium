@@ -2,8 +2,12 @@ lexer grammar CoriumLexer;
 
 // Keywords:
 
-LET:            'let';
+BOOL:           'bool';
+CHAR:           'char';
+FLOAT:          'float';
 FUN:            'fun';
+INT:            'int';
+LET:            'let';
 
 // int literals:
 INT_LITERAL_DEC: ('0' | [1-9] (Digits? | '_' + Digits));
@@ -35,6 +39,9 @@ RBRACK:             ']';
 SEMI:               ';';
 COMMA:              ',';
 DOT:                '.';
+
+// operators:
+ASSIGN:             '=';
 
 // identifier:
 IDENT: Letter LetterOrDigit*;
