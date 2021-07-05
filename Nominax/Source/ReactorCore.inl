@@ -219,9 +219,6 @@
 #include "../Include/Nominax/Common.hpp"
 #include "../Include/Nominax/ByteCode.hpp"
 
-#include "../Include/Nominax/VectorLib/VF64X4U.hpp"
-#include "../Include/Nominax/VectorLib/VF64X16U.hpp"
-
 namespace Nominax::Core
 {
 	using Common::BreakpointInterrupt;
