@@ -1,4 +1,4 @@
-// File: Reactor.cpp
+// File: ReactorCores.hpp
 // Author: Mario
 // Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
@@ -205,115 +205,46 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Core/Reactor.hpp"
-#include "../../Include/Nominax/Core/BasicReactorDescriptor.hpp"
-#include "../../Include/Nominax/Core/ReactorHypervisor.hpp"
-#include "../../Include/Nominax/Common/PanicRoutine.hpp"
-#include "../../Include/Nominax/Common/Protocol.hpp"
-#include "../../Include/Nominax/Common/XorshiftThreadLocal.hpp"
+#pragma once
+
+#include "../Include/Nominax/Common/ComHints.hpp"
+#include "../Include/Nominax/System/Platform.hpp"
+#include "../Include/Nominax/Core/ReactorShutdownReason.hpp"
 
 namespace Nominax::Core
 {
-	[[maybe_unused]]
-	static auto CreateDescriptor
-	(
-		FixedStack&                             stack,
-		ByteCode::Image&                        image,
-		ByteCode::JumpMap&                      jumpMap,
-		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
-		InterruptRoutine&                       interruptHandler
-	) -> VerboseReactorDescriptor
-	{
-		const std::span instrMapTableView
-		{
-			reinterpret_cast<const bool*>(jumpMap.data()),
-			reinterpret_cast<const bool*>(jumpMap.data() + jumpMap.size())
-		};
-		const auto simpleDescriptor = BasicReactorDescriptor
-		{
-			.CodeChunk = image.GetReactorView(),
-			.CodeChunkInstructionMap = instrMapTableView,
-			.IntrinsicTable = intrinsicTable,
-			.Stack = stack,
-			.InterruptHandler = interruptHandler
-		};
-		return simpleDescriptor.BuildDetailed();
-	}
+	struct ReactorState;
+	struct VerboseReactorDescriptor;
 
-	Reactor::Reactor
-	(
-		std::pmr::memory_resource&               allocator,
-		const ReactorSpawnDescriptor&            descriptor,
-		const std::optional<ReactorRoutineLink>& routineLink,
-		const std::size_t                        poolIdx
-	) :
-		Id_ {Common::Xorshift128ThreadLocal()},
-		PoolIndex_ {poolIdx},
-		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
-		PowerPreference_ {descriptor.PowerPref},
-		Input_ { },
-		Output_ {&Input_},
-		Stack_ {allocator, descriptor.StackSize},
-		IntrinsicTable_ {descriptor.SharedIntrinsicTable},
-		InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : &DefaultInterruptRoutine},
-		RoutineLink_
-		{
-			[&routineLink]() -> ReactorRoutineLink
-			{
-				if (!routineLink)
-				{
-                    [[unlikely]]
-					Print(Common::LogLevel::Warning, "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
-				}
-				return routineLink ? *routineLink : GetOptimalReactorRoutine({ });
-			}()
-		}
-	{
-		Common::Print
-		(
-			"Reactor {:010X} "
-			"Stack: {} MB, "
-			"{} Records, "
-			"Intrinsics: {}, "
-			"Interrupt Routine: {}, "
-			"Power: {}, "
-			"Pool: {:02}\n",
-			this->Id_,
-			Bytes2Megabytes(this->Stack_.Size() * sizeof(Record)),
-			this->Stack_.Size(),
-			this->IntrinsicTable_.size(),
-			this->InterruptHandler_ == &DefaultInterruptRoutine ? "Def" : "Usr",
-			this->PowerPreference_ == PowerPreference::HighPerformance ? "Perf" : "Safe",
-			this->PoolIndex_
-		);
-	}
+	/// <summary>
+	/// Generic fallback implementation, for all architectures.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
+	/// <returns></returns>
+	extern ReactorShutdownReason ReactorCore_Fallback(const VerboseReactorDescriptor* input, ReactorState* output,
+	                                                  const void**** outJumpTable = nullptr);
 
-	auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
-	{
-		this->AppCode_ = std::move(bundle);
-		this->Input_   = CreateDescriptor
-		(
-			this->Stack_,
-			std::get<0>(this->AppCode_),
-			std::get<1>(this->AppCode_),
-			this->IntrinsicTable_,
-			*this->InterruptHandler_
-		);
-		if (const auto validationResult {this->Input_.Validate()}; validationResult != ReactorValidationResult::Ok)
-		{
-            [[unlikely]]
-			Panic(NOX_PAINF, "Reactor {:#X} validation failed with the following reason: {}", this->Id_, validationResult);
-		}
-		ReactorCoreExecutionRoutine* const routine = this->RoutineLink_.ExecutionRoutine;
-		NOX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");
-		const ReactorShutdownReason result {(*routine)(&this->Input_, &this->Output_, nullptr)};
-		return {result, this->Output_};
-	}
+#if NOX_ARCH_X86_64
 
-	auto SingletonExecutionProxy(const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target, const void**** outJumpTable) -> std::pair<ReactorShutdownReason, ReactorState>
-	{
-		ReactorState                output {.Input = &input};
-		const ReactorShutdownReason result {SingletonExecutionProxy(input, output, target, outJumpTable)};
-		return {result, output};
-	}
+	/// <summary>
+	/// Specialized implementation compiled with AVX, which uses 256-bit YMM registers.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
+	/// <returns></returns>
+	NOX_HOT extern auto ReactorCore_AVX(const VerboseReactorDescriptor* input, ReactorState* output, const void**** outJumpTable = nullptr) -> ReactorShutdownReason;
+
+	/// <summary>
+	/// Specialized implementation compiled with AVX, which uses 512-bit ZMM registers.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
+	/// <returns></returns>
+	NOX_HOT extern auto ReactorCore_AVX512F(const VerboseReactorDescriptor* input, ReactorState* output, const void**** outJumpTable = nullptr) -> ReactorShutdownReason;
+
+#endif
 }

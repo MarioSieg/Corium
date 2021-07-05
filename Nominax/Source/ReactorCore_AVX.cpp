@@ -1,4 +1,4 @@
-// File: ReactorShutdownReason.cpp
+// File: ReactorCore_AVX.cpp
 // Author: Mario
 // Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
@@ -205,28 +205,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Core/ReactorShutdownReason.hpp"
-#include "../../Include/Nominax/Common/Protocol.hpp"
+#include "../Include/Nominax/System/Platform.hpp"
 
-namespace Nominax::Core
-{
-	auto PrintShutdownReason(const ReactorShutdownReason reason, const InterruptAccumulator code) -> void
-	{
-		using namespace Common;
-
-		switch (reason)
-		{
-		case ReactorShutdownReason::Success:
-			Print(TextColor::BrightGreen, "OK ({:#X})\n", code);
-			break;
-
-		case ReactorShutdownReason::Error:
-			Print(TextColor::Red, "Fatal Runtime Error ({:#X})\n", code);
-			break;
-
-		case ReactorShutdownReason::UserException:
-			Print(TextColor::Red, "Exception ({:#X})\n", code);
-			break;
-		}
-	}
-}
+#if NOX_ARCH_X86_64
+#	if !defined(__AVX__) || !__AVX__
+#		error "This reactore core requires AVX!"
+#	endif
+#	define NOX_REACTOR_IMPL_NAME ReactorCore_AVX
+#		include "ReactorCore.inl"
+#	undef NOX_REACTOR_IMPL_NAME
+#endif
