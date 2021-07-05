@@ -11,27 +11,27 @@ TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-mssse3")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-msahf")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-mcx16")
 
-IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC") # detect clang-cl
+SET_PROPERTY(TARGET "NominaxRuntime" PROPERTY CXX_STANDARD 20)
+
+IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Xclang -Wall")
-	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Xclang -std=c++20")
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Xclang -Werror")
 
-	IF(CMAKE_BUILD_TYPE STREQUAL "Release") 	# if release, set more optimization flags:
+	IF(CMAKE_BUILD_TYPE STREQUAL "Release")
 		TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "/EHsc")
 		TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "/D_HAS_EXCEPTIONS=0")
-		TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE " -Xclang -Ofast")
+		TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Xclang -Ofast")
 		TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Xclang -flto")
 		TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Xclang -ffp-exception-behavior=ignore")
 	ENDIF()
 
-	IF(${CORIUM_FAST_MATH} AND CMAKE_BUILD_TYPE STREQUAL "Release") 	# if fast math is enabled, add flags:
+	IF(${CORIUM_FAST_MATH} AND CMAKE_BUILD_TYPE STREQUAL "Release")
 		TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Xclang -ffast-math")
 	ENDIF()
 
 ELSE()
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wall")
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wextra")
-	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-std=c++20")
 
 	IF(CMAKE_BUILD_TYPE STREQUAL "Release")
 		TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Ofast")
