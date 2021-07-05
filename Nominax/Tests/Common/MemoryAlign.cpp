@@ -229,11 +229,11 @@ TEST(Common, IsAlignmentValid)
 TEST(Common, IsAlignedTo)
 {
 	void* ptr {nullptr};
-#if NOX_32_BIT
+	#if NOX_32_BIT
 	ASSERT_TRUE(IsAlignedTo(ptr, 4));
-#else
+	#else
 	ASSERT_TRUE(IsAlignedTo(ptr, 8));
-#endif
+	#endif
 
 	alignas(16) void* a {nullptr};
 	ASSERT_TRUE(IsAlignedTo(a, 16));

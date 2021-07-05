@@ -1,6 +1,6 @@
 // File: ReactorCores.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 05.07.2021 4:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "../Include/Nominax/Common/ComHints.hpp"
+#include "../Include/Nominax/Common.hpp"
 #include "../Include/Nominax/System/Platform.hpp"
 #include "../Include/Nominax/Core/ReactorShutdownReason.hpp"
 
@@ -223,10 +223,13 @@ namespace Nominax::Core
 	/// <param name="output"></param>
 	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	extern ReactorShutdownReason ReactorCore_Fallback(const VerboseReactorDescriptor* input, ReactorState* output,
-	                                                  const void**** outJumpTable = nullptr);
+	extern auto ReactorCore_Fallback
+	(
+		const VerboseReactorDescriptor* input, ReactorState* output,
+		const void****                  outJumpTable = nullptr
+	) -> ReactorShutdownReason;
 
-#if NOX_ARCH_X86_64
+	#if NOX_ARCH_X86_64
 
 	/// <summary>
 	/// Specialized implementation compiled with AVX, which uses 256-bit YMM registers.
@@ -235,8 +238,11 @@ namespace Nominax::Core
 	/// <param name="output"></param>
 	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	NOX_HOT extern ReactorShutdownReason ReactorCore_AVX(const VerboseReactorDescriptor* input, ReactorState* output,
-	                                                     const void**** outJumpTable = nullptr);
+	NOX_HOT extern auto ReactorCore_AVX
+	(
+		const VerboseReactorDescriptor* input, ReactorState* output,
+		const void****                  outJumpTable = nullptr
+	) -> ReactorShutdownReason;
 
 	/// <summary>
 	/// Specialized implementation compiled with AVX, which uses 512-bit ZMM registers.
@@ -245,9 +251,12 @@ namespace Nominax::Core
 	/// <param name="output"></param>
 	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	NOX_HOT extern ReactorShutdownReason ReactorCore_AVX512F(const VerboseReactorDescriptor* input,
-	                                                         ReactorState* output,
-	                                                         const void**** outJumpTable = nullptr);
+	NOX_HOT extern auto ReactorCore_AVX512F
+	(
+		const VerboseReactorDescriptor* input,
+		ReactorState*                   output,
+		const void****                  outJumpTable = nullptr
+	) -> ReactorShutdownReason;
 
-#endif
+	#endif
 }

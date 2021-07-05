@@ -211,7 +211,7 @@
 #include <memory_resource>
 
 #include "Reactor.hpp"
-#include "../Common/PanicRoutine.hpp"
+#include "../Common.hpp"
 
 namespace Nominax::Core
 {

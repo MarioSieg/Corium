@@ -215,15 +215,15 @@
 
 namespace Nominax::System
 {
-#if NOX_ARCH_X86_64
+	#if NOX_ARCH_X86_64
 	/// <summary>
 	/// Architecture dependent cpu feature flags.
 	/// </summary>
 	using FeatureBits = Arch::X86_64::CpuFeatureBits;
-#else
+	#else
     using FeatureBits = void;
 #   error "ARM is not yet implemented!"
-#endif
+	#endif
 
 	static_assert(std::is_default_constructible_v<FeatureBits>);
 

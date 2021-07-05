@@ -219,34 +219,34 @@ namespace Nominax::VectorLib
 {
 	constexpr std::size_t V128_ALIGN
 	{
-#ifdef __SSE__
+		#ifdef __SSE__
 		16
-#else
+		#else
 		alignof(F32)
-#endif
+		#endif
 	};
 
 	constexpr std::size_t V256_ALIGN
 	{
-#if defined(__AVX__)
+		#if defined(__AVX__)
 		32
-#elif defined(__SSE__)
+		#elif defined(__SSE__)
 		16
-#else
+		#else
 		alignof(F32)
-#endif
+		#endif
 	};
 
 	constexpr std::size_t V512_ALIGN
 	{
-#if defined(__AVX512F__)
+		#if defined(__AVX512F__)
 		64
-#elif defined(__AVX__)
+		#elif defined(__AVX__)
 		32
-#elif defined(__SSE__)
+		#elif defined(__SSE__)
 		16
-#else
+		#else
 		alignof(F32)
-#endif
+		#endif
 	};
 }

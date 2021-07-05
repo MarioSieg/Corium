@@ -213,7 +213,7 @@
 #include <memory_resource>
 
 #include "../ByteCode.hpp"
-#include "../Common/Allocator.hpp"
+#include "../Common.hpp"
 #include "EnvironmentDescriptor.hpp"
 #include "ReactorState.hpp"
 

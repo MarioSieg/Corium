@@ -303,5 +303,3 @@
 #	define NOX_COM_MINGW true
 #	define NOX_COM_NAME "MinGW"
 #endif
-
-#include "../Common/BaseTypes.hpp"

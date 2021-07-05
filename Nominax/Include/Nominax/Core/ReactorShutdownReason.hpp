@@ -220,9 +220,9 @@ namespace Nominax::Core
 		Error,
 		UserException,
 
-#if NOX_STACK_OVERFLOW_CHECKS
+		#if NOX_STACK_OVERFLOW_CHECKS
 		StackOverFlow
-#endif
+		#endif
 	};
 
 	[[nodiscard]]

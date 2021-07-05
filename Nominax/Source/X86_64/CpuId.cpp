@@ -1,6 +1,6 @@
 // File: CpuId.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 05.07.2021 4:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -209,8 +209,7 @@
 #include <bit>
 
 #include "../../Include/Nominax/Arch/X86_64/CpuId.hpp"
-#include "../../Include/Nominax/Common/Protocol.hpp"
-#include "../../Include/Nominax/Common/PanicRoutine.hpp"
+#include "../../Include/Nominax/Common.hpp"
 
 #define PRINT_CPU_FEATURE(name, has) Print(( has ) ? TextColor::Green : TextColor::Red, "{0: <18} ", name)
 
@@ -224,11 +223,11 @@ namespace Nominax::Arch::X86_64
 		NOX_PANIC_ASSERT_TRUE(Asm_IsCpuIdSupported(), "CPUID instruction is not supported on system!");
 
 		// Raw DATA.
-		std::array<U8, sizeof(CpuFeatureBits)> data{};
-		std::array<MergedInfoTable, 3> chunk{};
+		std::array<U8, sizeof(CpuFeatureBits)> data { };
+		std::array<MergedInfoTable, 3>         chunk { };
 
 		// Call cpuid assembly routine:
-		U32 r{Asm_CpuId(&chunk[0], &chunk[1], &chunk[2])};
+		U32 r {Asm_CpuId(&chunk[0], &chunk[1], &chunk[2])};
 
 		// Copy parameter output quads
 		std::memcpy(data.data(), chunk.data(), sizeof(MergedInfoTable) * 3);
@@ -269,7 +268,7 @@ namespace Nominax::Arch::X86_64
 		this->Avx5124Vnniw &= avx512OsSupport;
 	}
 
-	void CpuFeatureBits::PrintFeatures() const
+	auto CpuFeatureBits::PrintFeatures() const -> void
 	{
 		PRINT_CPU_FEATURE("FPU", this->Fpu);
 		PRINT_CPU_FEATURE("VME", this->Vme);

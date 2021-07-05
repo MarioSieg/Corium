@@ -211,7 +211,7 @@
 #include <memory_resource>
 #include <vector>
 
-#include "../Common/MemoryUnits.hpp"
+#include "../Common.hpp"
 #include "Record.hpp"
 
 namespace Nominax::Core

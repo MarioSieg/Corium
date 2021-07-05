@@ -211,8 +211,10 @@
 
 namespace Nominax::VectorLib
 {
-	NOX_FORCE_INLINE inline auto F64_X2_To_F32_X2(F32* const NOX_RESTRICT out, const F64* const NOX_RESTRICT in) -> void
-	{
+	NOX_FORCE_INLINE inline auto F64_X2_To_F32_X2(F32 * const NOX_RESTRICT out, const F64 * const NOX_RESTRICT in)
+	->
+	void
+{
 #if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 		const __m128d x = _mm_loadu_pd(in);
 		const __m128 y = _mm_cvtpd_ps(x);
@@ -223,8 +225,10 @@ namespace Nominax::VectorLib
 #endif
 	}
 
-	NOX_FORCE_INLINE inline auto F64_X4_To_F32_X4(F32* const NOX_RESTRICT out, const F64* const NOX_RESTRICT in) -> void
-	{
+	NOX_FORCE_INLINE inline auto F64_X4_To_F32_X4(F32 * const NOX_RESTRICT out, const F64 * const NOX_RESTRICT in)
+	->
+	void
+{
 #if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 		
 		const __m256d x = _mm256_loadu_pd(in);		// 32 B - 4 * F64

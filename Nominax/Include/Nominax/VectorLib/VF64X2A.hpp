@@ -219,19 +219,19 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F64_X2_Add_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
 	{
-#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
+		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
 		__m128d x = _mm_load_pd(inout);
 		const __m128d y = _mm_load_pd(in);
 		x = _mm_add_pd(x, y);
 		_mm_store_pd(inout, x);
 
-#else
+		#else
 
 		inout[0] += in[0];
 		inout[1] += in[1];
 
-#endif
+		#endif
 	}
 
 	/// <summary>
@@ -242,19 +242,19 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F64_X2_Sub_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
 	{
-#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
+		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
 		__m128d x = _mm_load_pd(inout);
 		const __m128d y = _mm_load_pd(in);
 		x = _mm_sub_pd(x, y);
 		_mm_store_pd(inout, x);
 
-#else
+		#else
 
 		inout[0] + -in[0];
 		inout[1] -= in[1];
 
-#endif
+		#endif
 	}
 
 	/// <summary>
@@ -265,19 +265,19 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F64_X2_Mul_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
 	{
-#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
+		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
 		__m128d x = _mm_load_pd(inout);
 		const __m128d y = _mm_load_pd(in);
 		x = _mm_mul_pd(x, y);
 		_mm_store_pd(inout, x);
 
-#else
+		#else
 
 		inout[0] *= in[0];
 		inout[1] *= in[1];
 
-#endif
+		#endif
 	}
 
 	/// <summary>
@@ -288,18 +288,18 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F64_X2_Div_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
 	{
-#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
+		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
 		__m128d x = _mm_load_pd(inout);
 		const __m128d y = _mm_load_pd(in);
 		x = _mm_div_pd(x, y);
 		_mm_store_pd(inout, x);
 
-#else
+		#else
 
 		inout[0] /= in[0];
 		inout[1] /= in[1];
 
-#endif
+		#endif
 	}
 }

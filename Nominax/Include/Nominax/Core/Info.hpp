@@ -209,7 +209,7 @@
 
 #include <ostream>
 
-#include "../Common/BaseTypes.hpp"
+#include "../Common.hpp"
 
 namespace Nominax::Core
 {

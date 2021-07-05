@@ -212,7 +212,7 @@
 #include "ByteCode.hpp"
 #include "Core/Core.hpp"
 #include "System/System.hpp"
-#include "Common/Common.hpp"
+#include "Common.hpp"
 #include "VectorLib/VectorLib.hpp"
 
 namespace Nominax::Prelude

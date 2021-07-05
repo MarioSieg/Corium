@@ -269,11 +269,11 @@ namespace Nominax::Core
 			.StackSize = stackSize,
 			.SharedIntrinsicTable = { },
 			.InterruptHandler = nullptr,
-#if NOX_ARCH_ARM_64
+			#if NOX_ARCH_ARM_64
 			.PowerPref = PowerPreference::LowPowerUsage
-#else
+			#else
 			.PowerPref = PowerPreference::HighPerformance
-#endif
+			#endif
 		};
 	}
 }

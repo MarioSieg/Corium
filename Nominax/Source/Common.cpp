@@ -1,14 +1,217 @@
-#include <atomic>
-#include <algorithm>
-#include <execution>
-#include <fstream>
+// File: Common.cpp
+// Author: Mario
+// Created: 05.07.2021 4:43 PM
+// Project: NominaxRuntime
+// 
+//                                  Apache License
+//                            Version 2.0, January 2004
+//                         http://www.apache.org/licenses/
+// 
+//    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+// 
+//    1. Definitions.
+// 
+//       "License" shall mean the terms and conditions for use, reproduction,
+//       and distribution as defined by Sections 1 through 9 of this document.
+// 
+//       "Licensor" shall mean the copyright owner or entity authorized by
+//       the copyright owner that is granting the License.
+// 
+//       "Legal Entity" shall mean the union of the acting entity and all
+//       other entities that control, are controlled by, or are under common
+//       control with that entity. For the purposes of this definition,
+//       "control" means (i) the power, direct or indirect, to cause the
+//       direction or management of such entity, whether by contract or
+//       otherwise, or (ii) ownership of fifty percent (50%) or more of the
+//       outstanding shares, or (iii) beneficial ownership of such entity.
+// 
+//       "You" (or "Your") shall mean an individual or Legal Entity
+//       exercising permissions granted by this License.
+// 
+//       "Source" form shall mean the preferred form for making modifications,
+//       including but not limited to software source code, documentation
+//       source, and configuration files.
+// 
+//       "Object" form shall mean any form resulting from mechanical
+//       transformation or translation of a Source form, including but
+//       not limited to compiled object code, generated documentation,
+//       and conversions to other media types.
+// 
+//       "Work" shall mean the work of authorship, whether in Source or
+//       Object form, made available under the License, as indicated by a
+//       copyright notice that is included in or attached to the work
+//       (an example is provided in the Appendix below).
+// 
+//       "Derivative Works" shall mean any work, whether in Source or Object
+//       form, that is based on (or derived from) the Work and for which the
+//       editorial revisions, annotations, elaborations, or other modifications
+//       represent, as a whole, an original work of authorship. For the purposes
+//       of this License, Derivative Works shall not include works that remain
+//       separable from, or merely link (or bind by name) to the interfaces of,
+//       the Work and Derivative Works thereof.
+// 
+//       "Contribution" shall mean any work of authorship, including
+//       the original version of the Work and any modifications or additions
+//       to that Work or Derivative Works thereof, that is intentionally
+//       submitted to Licensor for inclusion in the Work by the copyright owner
+//       or by an individual or Legal Entity authorized to submit on behalf of
+//       the copyright owner. For the purposes of this definition, "submitted"
+//       means any form of electronic, verbal, or written communication sent
+//       to the Licensor or its representatives, including but not limited to
+//       communication on electronic mailing lists, source code control systems,
+//       and issue tracking systems that are managed by, or on behalf of, the
+//       Licensor for the purpose of discussing and improving the Work, but
+//       excluding communication that is conspicuously marked or otherwise
+//       designated in writing by the copyright owner as "Not a Contribution."
+// 
+//       "Contributor" shall mean Licensor and any individual or Legal Entity
+//       on behalf of whom a Contribution has been received by Licensor and
+//       subsequently incorporated within the Work.
+// 
+//    2. Grant of Copyright License. Subject to the terms and conditions of
+//       this License, each Contributor hereby grants to You a perpetual,
+//       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+//       copyright license to reproduce, prepare Derivative Works of,
+//       publicly display, publicly perform, sublicense, and distribute the
+//       Work and such Derivative Works in Source or Object form.
+// 
+//    3. Grant of Patent License. Subject to the terms and conditions of
+//       this License, each Contributor hereby grants to You a perpetual,
+//       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+//       (except as stated in this section) patent license to make, have made,
+//       use, offer to sell, sell, import, and otherwise transfer the Work,
+//       where such license applies only to those patent claims licensable
+//       by such Contributor that are necessarily infringed by their
+//       Contribution(s) alone or by combination of their Contribution(s)
+//       with the Work to which such Contribution(s) was submitted. If You
+//       institute patent litigation against any entity (including a
+//       cross-claim or counterclaim in a lawsuit) alleging that the Work
+//       or a Contribution incorporated within the Work constitutes direct
+//       or contributory patent infringement, then any patent licenses
+//       granted to You under this License for that Work shall terminate
+//       as of the date such litigation is filed.
+// 
+//    4. Redistribution. You may reproduce and distribute copies of the
+//       Work or Derivative Works thereof in any medium, with or without
+//       modifications, and in Source or Object form, provided that You
+//       meet the following conditions:
+// 
+//       (a) You must give any other recipients of the Work or
+//           Derivative Works a copy of this License; and
+// 
+//       (b) You must cause any modified files to carry prominent notices
+//           stating that You changed the files; and
+// 
+//       (c) You must retain, in the Source form of any Derivative Works
+//           that You distribute, all copyright, patent, trademark, and
+//           attribution notices from the Source form of the Work,
+//           excluding those notices that do not pertain to any part of
+//           the Derivative Works; and
+// 
+//       (d) If the Work includes a "NOTICE" text file as part of its
+//           distribution, then any Derivative Works that You distribute must
+//           include a readable copy of the attribution notices contained
+//           within such NOTICE file, excluding those notices that do not
+//           pertain to any part of the Derivative Works, in at least one
+//           of the following places: within a NOTICE text file distributed
+//           as part of the Derivative Works; within the Source form or
+//           documentation, if provided along with the Derivative Works; or,
+//           within a display generated by the Derivative Works, if and
+//           wherever such third-party notices normally appear. The contents
+//           of the NOTICE file are for informational purposes only and
+//           do not modify the License. You may add Your own attribution
+//           notices within Derivative Works that You distribute, alongside
+//           or as an addendum to the NOTICE text from the Work, provided
+//           that such additional attribution notices cannot be construed
+//           as modifying the License.
+// 
+//       You may add Your own copyright statement to Your modifications and
+//       may provide additional or different license terms and conditions
+//       for use, reproduction, or distribution of Your modifications, or
+//       for any such Derivative Works as a whole, provided Your use,
+//       reproduction, and distribution of the Work otherwise complies with
+//       the conditions stated in this License.
+// 
+//    5. Submission of Contributions. Unless You explicitly state otherwise,
+//       any Contribution intentionally submitted for inclusion in the Work
+//       by You to the Licensor shall be under the terms and conditions of
+//       this License, without any additional terms or conditions.
+//       Notwithstanding the above, nothing herein shall supersede or modify
+//       the terms of any separate license agreement you may have executed
+//       with Licensor regarding such Contributions.
+// 
+//    6. Trademarks. This License does not grant permission to use the trade
+//       names, trademarks, service marks, or product names of the Licensor,
+//       except as required for reasonable and customary use in describing the
+//       origin of the Work and reproducing the content of the NOTICE file.
+// 
+//    7. Disclaimer of Warranty. Unless required by applicable law or
+//       agreed to in writing, Licensor provides the Work (and each
+//       Contributor provides its Contributions) on an "AS IS" BASIS,
+//       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+//       implied, including, without limitation, any warranties or conditions
+//       of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+//       PARTICULAR PURPOSE. You are solely responsible for determining the
+//       appropriateness of using or redistributing the Work and assume any
+//       risks associated with Your exercise of permissions under this License.
+// 
+//    8. Limitation of Liability. In no event and under no legal theory,
+//       whether in tort (including negligence), contract, or otherwise,
+//       unless required by applicable law (such as deliberate and grossly
+//       negligent acts) or agreed to in writing, shall any Contributor be
+//       liable to You for damages, including any direct, indirect, special,
+//       incidental, or consequential damages of any character arising as a
+//       result of this License or out of the use or inability to use the
+//       Work (including but not limited to damages for loss of goodwill,
+//       work stoppage, computer failure or malfunction, or any and all
+//       other commercial damages or losses), even if such Contributor
+//       has been advised of the possibility of such damages.
+// 
+//    9. Accepting Warranty or Additional Liability. While redistributing
+//       the Work or Derivative Works thereof, You may choose to offer,
+//       and charge a fee for, acceptance of support, warranty, indemnity,
+//       or other liability obligations and/or rights consistent with this
+//       License. However, in accepting such obligations, You may act only
+//       on Your own behalf and on Your sole responsibility, not on behalf
+//       of any other Contributor, and only if You agree to indemnify,
+//       defend, and hold each Contributor harmless for any liability
+//       incurred by, or claims asserted against, such Contributor by reason
+//       of your accepting any such warranty or additional liability.
+// 
+//    END OF TERMS AND CONDITIONS
+// 
+//    APPENDIX: How to apply the Apache License to your work.
+// 
+//       To apply the Apache License to your work, attach the following
+//       boilerplate notice, with the fields enclosed by brackets "[]"
+//       replaced with your own identifying information. (Don't include
+//       the brackets!)  The text should be enclosed in the appropriate
+//       comment syntax for the file format. We also recommend that a
+//       file or class name and description of purpose be included on the
+//       same "printed page" as the copyright notice for easier
+//       identification within third-party archives.
+// 
+//    Copyright 2021 Mario Sieg "pinsrq" <mt3000@gmx.de>
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
 
-#include "../../Nominax/Include/Nominax/Common/Common.hpp"
+#include "../../Nominax/Include/Nominax/Common.hpp"
 #include "../../Nominax/Include/Nominax/ByteCode.hpp"
+#include "../../Nominax/Include/Nominax/Core/Info.hpp"
 
 namespace Nominax::Common
 {
-	U64 ILog2DeBruijn(U64 x)
+	auto ILog2DeBruijn(U64 x) -> U64
 	{
 		static constexpr std::array<U64, 64> DE_BRUIJN_TABLE
 		{
@@ -40,7 +243,7 @@ namespace Nominax::Common
 		return DE_BRUIJN_TABLE[x * UINT64_C(0x03F6EAF2CD271461) >> UINT64_C(58)];
 	}
 
-	U32 LinearizeCoords2D(const U16 x, const U16 y)
+	auto LinearizeCoords2D(const U16 x, const U16 y) -> U32
 	{
 		static constexpr std::array<U16, 256> MORTON_TABLE
 		{
@@ -82,30 +285,30 @@ namespace Nominax::Common
 			0xFF];
 	}
 
-	U32 Xorshift32Atomic()
+	auto Xorshift32Atomic() -> U32
 	{
-		static constinit std::atomic_uint32_t seed32{0x12B9B0A1};
+		static constinit std::atomic_uint32_t seed32 {0x12B9B0A1};
 		seed32 ^= seed32 << 0xD;
 		seed32 ^= seed32 >> 0x11;
 		seed32 ^= seed32 << 0x5;
 		return seed32;
 	}
 
-	U64 Xorshift64Atomic()
+	auto Xorshift64Atomic() -> U64
 	{
-		static constinit std::atomic_uint64_t seed64{0x139408DCBBF7A44};
+		static constinit std::atomic_uint64_t seed64 {0x139408DCBBF7A44};
 		seed64 ^= seed64 << 0xD;
 		seed64 ^= seed64 >> 0x7;
 		seed64 ^= seed64 << 0x11;
 		return seed64;
 	}
 
-	U32 Xorshift128Atomic()
+	auto Xorshift128Atomic() -> U32
 	{
-		static constinit std::atomic_uint32_t x{0x75BCD15};
-		static constinit std::atomic_uint32_t y{0x159A55E5};
-		static constinit std::atomic_uint32_t z{0x1F123BB5};
-		static constinit std::atomic_uint32_t w{0x5491333};
+		static constinit std::atomic_uint32_t x {0x75BCD15};
+		static constinit std::atomic_uint32_t y {0x159A55E5};
+		static constinit std::atomic_uint32_t z {0x1F123BB5};
+		static constinit std::atomic_uint32_t w {0x5491333};
 
 		const uint32_t t = x ^ x << 0xB;
 		x.exchange(y);
@@ -115,92 +318,92 @@ namespace Nominax::Common
 		return w;
 	}
 
-	U32 Xorshift32ThreadLocal()
+	auto Xorshift32ThreadLocal() -> U32
 	{
-		static constinit thread_local U32 seed32{0x12B9B0A1};
+		static constinit thread_local U32 seed32 {0x12B9B0A1};
 		seed32 ^= seed32 << 0xD;
 		seed32 ^= seed32 >> 0x11;
 		seed32 ^= seed32 << 0x5;
 		return seed32;
 	}
 
-	U64 Xorshift64ThreadLocal()
+	auto Xorshift64ThreadLocal() -> U64
 	{
-		static constinit thread_local U64 seed64{0x139408DCBBF7A44};
+		static constinit thread_local U64 seed64 {0x139408DCBBF7A44};
 		seed64 ^= seed64 << 0xD;
 		seed64 ^= seed64 >> 0x7;
 		seed64 ^= seed64 << 0x11;
 		return seed64;
 	}
 
-	U32 Xorshift128ThreadLocal()
+	auto Xorshift128ThreadLocal() -> U32
 	{
-		static constinit thread_local U32 x{0x75BCD15};
-		static constinit thread_local U32 y{0x159A55E5};
-		static constinit thread_local U32 z{0x1F123BB5};
-		static constinit thread_local U32 w{0x5491333};
+		static constinit thread_local U32 x {0x75BCD15};
+		static constinit thread_local U32 y {0x159A55E5};
+		static constinit thread_local U32 z {0x1F123BB5};
+		static constinit thread_local U32 w {0x5491333};
 
 		const uint32_t t = x ^ x << 0xB;
-		x = y;
-		y = z;
-		z = w;
+		x                = y;
+		y                = z;
+		z                = w;
 		w ^= w >> 0xD ^ t ^ t >> 0x8;
 		return w;
 	}
 
-	void IAllocator::Allocate(void*& out, const std::size_t size) const
+	auto IAllocator::Allocate(void*& out, const std::size_t size) const -> void
 	{
 		out = static_cast<U8*>(std::malloc(size));
 	}
 
-	void IAllocator::Reallocate(void*& out, const std::size_t size) const
+	auto IAllocator::Reallocate(void*& out, const std::size_t size) const -> void
 	{
 		out = static_cast<U8*>(std::realloc(out, size));
 	}
 
-	void IAllocator::Deallocate(void*& out) const
+	auto IAllocator::Deallocate(void*& out) const -> void
 	{
 		std::free(out);
 		out = nullptr;
 	}
 
-	void IAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const
+	auto IAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
 	{
-#if NOX_OS_WINDOWS && NOX_COM_CLANG
+		#if NOX_OS_WINDOWS && NOX_COM_CLANG
 		out = static_cast<U8*>(_aligned_malloc(size, alignment));
-#else
+		#else
 		out = static_cast<U8*>(aligned_alloc(alignment, size));
-#endif
+		#endif
 	}
 
-	void IAllocator::ReallocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const
+	auto IAllocator::ReallocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
 	{
-#if NOX_OS_WINDOWS && NOX_COM_CLANG
+		#if NOX_OS_WINDOWS && NOX_COM_CLANG
 		out = static_cast<U8*>(_aligned_realloc(out, size, alignment));
-#else
-		auto mem{static_cast<U8*>(aligned_alloc(alignment, size))};
+		#else
+		const auto mem {static_cast<U8*>(aligned_alloc(alignment, size))};
 		std::memcpy(mem, out, size);
 		std::free(out);
 		out = mem;
-#endif
+		#endif
 	}
 
-	void IAllocator::DeallocateAligned(void*& out) const
+	auto IAllocator::DeallocateAligned(void*& out) const -> void
 	{
-#if NOX_OS_WINDOWS && NOX_COM_CLANG
+		#if NOX_OS_WINDOWS && NOX_COM_CLANG
 		_aligned_free(out);
-#else
+		#else
 		std::free(out);
-#endif
+		#endif
 		out = nullptr;
 	}
 
-	void IAllocator::Valloc(void*& out, const std::size_t size) const
+	auto IAllocator::Valloc(void*& out, const std::size_t size) const -> void
 	{
 		this->Allocate(out, size);
 	}
 
-	void IAllocator::Vdealloc(void*& out) const
+	auto IAllocator::Vdealloc(void*& out) const -> void
 	{
 		this->Deallocate(out);
 	}
@@ -211,13 +414,13 @@ namespace Nominax::Common
 		Args_.insert(argv, argc + argv);
 	}
 
-	bool CliArgParser::AddOption(const std::string_view name, const std::string_view description)
+	auto CliArgParser::AddOption(const std::string_view name, const std::string_view description) -> bool
 	{
 		Options_.emplace_back(std::make_pair(name, description));
 		return this->HasFlag(name);
 	}
 
-	void CliArgParser::PrintAllOptions()
+	auto CliArgParser::PrintAllOptions() -> void
 	{
 		for (const auto& [k, v] : this->Options_)
 		{
@@ -225,27 +428,27 @@ namespace Nominax::Common
 		}
 	}
 
-	bool CliArgParser::IsEmpty() const
+	auto CliArgParser::IsEmpty() const -> bool
 	{
 		return this->Args_.size() <= 1;
 	}
 
-	const std::unordered_set<std::string_view>& CliArgParser::GetArgs() const
+	auto CliArgParser::GetArgs() const -> const std::unordered_set<std::string_view>&
 	{
 		return this->Args_;
 	}
 
-	const std::vector<std::pair<std::string_view, std::string_view>>& CliArgParser::GetOptions() const
+	auto CliArgParser::GetOptions() const -> const std::vector<std::pair<std::string_view, std::string_view>>&
 	{
 		return this->Options_;
 	}
 
-	bool CliArgParser::HasFlag(const std::string_view key)
+	auto CliArgParser::HasFlag(const std::string_view key) -> bool
 	{
 		return std::ranges::find(this->Args_, key) != this->Args_.end();
 	}
 
-	static constexpr std::pair<std::size_t, std::string_view> GetMemoryUnitInfo(const std::size_t bytes)
+	static constexpr auto GetMemoryUnitInfo(const std::size_t bytes) -> std::pair<std::size_t, std::string_view>
 	{
 		if (bytes == 0 || bytes < KB)
 		{
@@ -266,60 +469,60 @@ namespace Nominax::Common
 		return {bytes, "B"};
 	}
 
-	void DebugAllocator::Allocate(void*& out, const std::size_t size) const
+	auto DebugAllocator::Allocate(void*& out, const std::size_t size) const -> void
 	{
 		IAllocator::Allocate(out, size);
-		const auto [count, suffix]{GetMemoryUnitInfo(size)};
+		const auto [count, suffix] {GetMemoryUnitInfo(size)};
 		Print(TextColor::BrightGreen, "Allocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count, suffix);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
 	}
 
-	void DebugAllocator::Reallocate(void*& out, const std::size_t size) const
+	auto DebugAllocator::Reallocate(void*& out, const std::size_t size) const -> void
 	{
 		IAllocator::Reallocate(out, size);
-		const auto [count, suffix]{GetMemoryUnitInfo(size)};
+		const auto [count, suffix] {GetMemoryUnitInfo(size)};
 		Print(TextColor::BrightYellow, "Reallocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count,
 		      suffix);
 		++this->Reallocations_;
 	}
 
-	void DebugAllocator::Deallocate(void*& out) const
+	auto DebugAllocator::Deallocate(void*& out) const -> void
 	{
 		Print(TextColor::BrightRed, "Deallocate({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
 		IAllocator::Deallocate(out);
 		++this->Deallocations_;
 	}
 
-	void DebugAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const
+	auto DebugAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
 	{
 		IAllocator::AllocateAligned(out, size, alignment);
-		const auto [count, suffix]{GetMemoryUnitInfo(size)};
+		const auto [count, suffix] {GetMemoryUnitInfo(size)};
 		Print(TextColor::BrightGreen, "AllocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out),
 		      count, suffix, alignment);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
 	}
 
-	void DebugAllocator::ReallocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const
+	auto DebugAllocator::ReallocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
 	{
 		IAllocator::ReallocateAligned(out, size, alignment);
-		const auto [count, suffix]{GetMemoryUnitInfo(size)};
+		const auto [count, suffix] {GetMemoryUnitInfo(size)};
 		Print(TextColor::BrightGreen, "ReallocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out),
 		      count, suffix, alignment);
 		++this->Reallocations_;
 	}
 
-	void DebugAllocator::DeallocateAligned(void*& out) const
+	auto DebugAllocator::DeallocateAligned(void*& out) const -> void
 	{
 		Print(TextColor::BrightRed, "DeallocateAligned({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
 		IAllocator::DeallocateAligned(out);
 		++this->Deallocations_;
 	}
 
-	void DebugAllocator::DumpAllocationInfo() const
+	auto DebugAllocator::DumpAllocationInfo() const -> void
 	{
-		const auto [count, suffix]{GetMemoryUnitInfo(this->BytesAllocated_)};
+		const auto [count, suffix] {GetMemoryUnitInfo(this->BytesAllocated_)};
 		Print(TextColor::BrightGreen, "Allocations: {}\n", this->Allocations_);
 		Print(TextColor::BrightGreen, "Reallocations: {}\n", this->Reallocations_);
 		Print(TextColor::BrightGreen, "Deallocations: {}\n", this->Deallocations_);
@@ -331,13 +534,13 @@ namespace Nominax::Common
 		Print(TextColor::BrightYellow, "Warning! Some global shutdown deallocations might not be tracked!\n");
 	}
 
-	signed NominaxMain(const signed argc, const char* const* const argv)
+	auto NominaxMain(const signed argc, const char* const* const argv) -> signed
 	{
 		{
-			CliArgParser argParser{argc, argv};
-			const auto help{argParser.AddOption("-h", "print help") || argParser.IsEmpty()};
-			const auto isa{argParser.AddOption("-i", "print virtual instruction set")};
-			const auto ver{argParser.AddOption("-v", "print version")};
+			CliArgParser argParser {argc, argv};
+			const auto   help {argParser.AddOption("-h", "print help") || argParser.IsEmpty()};
+			const auto   isa {argParser.AddOption("-i", "print virtual instruction set")};
+			const auto   ver {argParser.AddOption("-v", "print version")};
 
 			if (help)
 			{
@@ -348,12 +551,12 @@ namespace Nominax::Common
 			{
 				Print("{: < 10} |  {: < 8}| {: < 3} | {: < 3} | {: < 3} |\n\n", "Mnemonic", "OpCode", "Imm", "Psh",
 				      "Pop");
-				for (U64 i{0}; i < static_cast<U64>(ByteCode::Instruction::$Count); ++i)
+				for (U64 i {0}; i < static_cast<U64>(ByteCode::Instruction::$Count); ++i)
 				{
-					const auto& mnemonic{ByteCode::INSTRUCTION_MNEMONICS[i]};
-					const auto immCount{ByteCode::INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[i].size()};
-					const auto pushCount{ByteCode::INSTRUCTION_PUSH_COUNTS[i]};
-					const auto popCount{ByteCode::INSTRUCTION_POP_COUNTS[i]};
+					const auto& mnemonic {ByteCode::INSTRUCTION_MNEMONICS[i]};
+					const auto  immCount {ByteCode::INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[i].size()};
+					const auto  pushCount {ByteCode::INSTRUCTION_PUSH_COUNTS[i]};
+					const auto  popCount {ByteCode::INSTRUCTION_POP_COUNTS[i]};
 					Print("{: < 10} |   {:#04x}   | {: < 3} | {: < 3} | {: < 3} |\n", mnemonic, i, immCount, pushCount,
 					      popCount);
 				}
@@ -367,29 +570,32 @@ namespace Nominax::Common
 		return 0;
 	}
 
-	std::tm SafeLocalTime(const std::time_t& time)
+	auto SafeLocalTime(const std::time_t& time) -> std::tm
 	{
-		std::tm buffer{};
-#if NOX_COM_GCC
+		std::tm buffer { };
+		#if NOX_COM_GCC
 		localtime_r(&time, &buffer);
-#elif NOX_OS_WINDOWS
+		#elif NOX_OS_WINDOWS
 		localtime_s(&buffer, &time);
-#else
+		#else
 		static std::mutex mtx;
 		std::lock_guard<std::mutex> lock(mtx);
 		buffer = *std::localtime(&_time);
-#endif
+		#endif
 		return buffer;
 	}
 
-	static constinit volatile std::sig_atomic_t SignalStatus{0};
+	/// <summary>
+	/// Global per thread signal status.
+	/// </summary>
+	static constinit volatile thread_local std::sig_atomic_t SignalStatus {0};
 
-	std::sig_atomic_t QuerySignalStatus()
+	auto QuerySignalStatus() -> std::sig_atomic_t
 	{
 		return SignalStatus;
 	}
 
-	void InstallSignalHandlers(auto (&handler)(std::sig_atomic_t) -> void)
+	auto InstallSignalHandlers(auto (&handler)(std::sig_atomic_t) -> void) -> void
 	{
 		std::signal(SIGINT, &handler);
 		std::signal(SIGILL, &handler);
@@ -399,7 +605,7 @@ namespace Nominax::Common
 		std::signal(SIGABRT, &handler);
 	}
 
-	void UninstallSignalHandlers()
+	auto UninstallSignalHandlers() -> void
 	{
 		std::signal(SIGINT, SIG_DFL);
 		std::signal(SIGILL, SIG_DFL);
@@ -410,12 +616,12 @@ namespace Nominax::Common
 	}
 
 	[[nodiscard]]
-	static inline TextFile::ViewType SubstringView
+	static inline auto SubstringView
 	(
-		const TextFile::StringType& source,
-		const size_t offset = 0,
-		const TextFile::ViewType::size_type count = std::numeric_limits<TextFile::ViewType::size_type>::max()
-	)
+		const TextFile::StringType&         source,
+		const size_t                        offset = 0,
+		const TextFile::ViewType::size_type count  = std::numeric_limits<TextFile::ViewType::size_type>::max()
+	) -> TextFile::ViewType
 	{
 		if (offset < source.size())
 		[[likely]]
@@ -426,20 +632,20 @@ namespace Nominax::Common
 				std::min(source.size() - offset, count)
 			};
 		}
-		return {};
+		return { };
 	}
 
-	static inline std::string_view SubstringView
+	static inline auto SubstringView
 	(
-		std::string&& source,
-		size_t offset = 0,
-		std::string_view::size_type count = std::numeric_limits<std::string_view::size_type>::max()
-	) = delete;
+		std::string&&               source,
+		size_t                      offset = 0,
+		std::string_view::size_type count  = std::numeric_limits<std::string_view::size_type>::max()
+	) -> std::string_view = delete;
 
-	bool TextFile::WriteToFile(std::filesystem::path&& path)
+	auto TextFile::WriteToFile(std::filesystem::path&& path) -> bool
 	{
 		this->FilePath_ = std::move(path);
-		std::ofstream stream{this->FilePath_};
+		std::ofstream stream {this->FilePath_};
 		if (!stream)
 		{
 			[[likely]]
@@ -449,10 +655,10 @@ namespace Nominax::Common
 		return true;
 	}
 
-	bool TextFile::ReadFromFile(std::filesystem::path&& path)
+	auto TextFile::ReadFromFile(std::filesystem::path&& path) -> bool
 	{
 		this->FilePath_ = std::move(path);
-		std::ifstream stream{this->FilePath_};
+		std::ifstream stream {this->FilePath_};
 		if (!stream)
 		{
 			[[unlikely]]
@@ -465,7 +671,7 @@ namespace Nominax::Common
 		return true;
 	}
 
-	void TextFile::ReadFromFileOrPanic(std::filesystem::path&& path)
+	auto TextFile::ReadFromFileOrPanic(std::filesystem::path&& path) -> void
 	{
 		if (!this->ReadFromFile(std::move(path)))
 		{
@@ -474,7 +680,7 @@ namespace Nominax::Common
 		}
 	}
 
-	void TextFile::ParallelEraseSpaces()
+	auto TextFile::ParallelEraseSpaces() -> void
 	{
 		this->Content_.erase
 		(
@@ -487,7 +693,7 @@ namespace Nominax::Common
 		);
 	}
 
-	void TextFile::ParallelEraseSpacesAndControlChars()
+	auto TextFile::ParallelEraseSpacesAndControlChars() -> void
 	{
 		this->Content_.erase
 		(
@@ -500,7 +706,7 @@ namespace Nominax::Common
 		);
 	}
 
-	void TextFile::ParallelErase(const CharType x)
+	auto TextFile::ParallelErase(const CharType x) -> void
 	{
 		this->Content_.erase
 		(
@@ -513,167 +719,37 @@ namespace Nominax::Common
 		);
 	}
 
-	void TextFile::EraseRange(const CharType begin, const CharType end)
+	auto TextFile::EraseRange(const CharType begin, const CharType end) -> void
 	{
-		const std::size_t beginIndex{this->Content_.find(begin)};
-		const std::size_t endIndex{this->Content_.find(end, beginIndex + 1)};
+		const std::size_t beginIndex {this->Content_.find(begin)};
+		const std::size_t endIndex {this->Content_.find(end, beginIndex + 1)};
 		this->Content_.erase(beginIndex, endIndex - beginIndex + 1);
 	}
 
-	TextFile::ViewType TextFile::SubString(const std::size_t beginIdx, const std::size_t endIdx) const
+	auto TextFile::SubString(const std::size_t beginIdx, const std::size_t endIdx) const -> TextFile::ViewType
 	{
 		return SubstringView(this->Content_, beginIdx, endIdx - beginIdx + 1);
 	}
 
-	TextFile::ViewType TextFile::SubStringChar(const CharType beginChar, const CharType endChar) const
+	auto TextFile::SubStringChar(const CharType beginChar, const CharType endChar) const -> TextFile::ViewType
 	{
-		const std::size_t beginIndex{this->Content_.find_first_of(beginChar)};
-		const std::size_t endIndex{this->Content_.find_first_of(endChar, beginIndex + 1)};
+		const std::size_t beginIndex {this->Content_.find_first_of(beginChar)};
+		const std::size_t endIndex {this->Content_.find_first_of(endChar, beginIndex + 1)};
 		return SubstringView(this->Content_, beginIndex, endIndex - beginIndex + 1);
 	}
 }
 
-using namespace fmt;
-using namespace Nominax;
-using namespace ByteCode;
-using namespace Core;
-
-FormatOutput formatter<Instruction, char, void>::format(const Instruction& value,
-                                                        format_context& ctx) const
-{
-	return format_to
-	(
-		ctx.out(),
-		"{}",
-		INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)]
-	);
-}
-
-FormatOutput formatter<SystemIntrinsicCallID, char, void>::format(const SystemIntrinsicCallID& value,
-                                                                  format_context& ctx) const
-{
-	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value));
-}
-
-FormatOutput formatter<UserIntrinsicCallID, char, void>::format(const UserIntrinsicCallID& value,
-                                                                format_context& ctx) const
-{
-	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value));
-}
-
-FormatOutput formatter<JumpAddress, char, void>::format(const JumpAddress& value, format_context& ctx) const
-{
-	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<JumpAddress>>(value));
-}
-
-FormatOutput formatter<CharClusterUtf8, char, void>::format(const CharClusterUtf8& value,
-                                                            format_context& ctx) const
-{
-	static_assert(sizeof(char8_t) == sizeof(U8));
-	return format_to(ctx.out(),
-	                 R"(\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<U16>(value.Chars[0]),
-	                 static_cast<U16>(value.Chars[1]),
-	                 static_cast<U16>(value.Chars[2]),
-	                 static_cast<U16>(value.Chars[3]),
-	                 static_cast<U16>(value.Chars[4]),
-	                 static_cast<U16>(value.Chars[5]),
-	                 static_cast<U16>(value.Chars[6]),
-	                 static_cast<U16>(value.Chars[7])
-	);
-}
-
-FormatOutput formatter<CharClusterUtf16, char, void>::format(const CharClusterUtf16& value, format_context& ctx) const
-{
-	static_assert(sizeof(char16_t) == sizeof(U16));
-	return format_to(ctx.out(),
-	                 R"(\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<U16>(value.Chars[0]), static_cast<U16>(value.Chars[1]),
-	                 static_cast<U16>(value.Chars[2]), static_cast<U16>(value.Chars[3])
-	);
-}
-
-FormatOutput formatter<CharClusterUtf32, char, void>::format(const CharClusterUtf32& value, format_context& ctx) const
-{
-	static_assert(sizeof(char32_t) == sizeof(U32));
-	return format_to(ctx.out(),
-	                 "\\{:X}\\{:X}",
-	                 static_cast<U32>(value.Chars[0]), static_cast<U32>(value.Chars[1])
-	);
-}
-
-FormatOutput formatter<ValidationResultCode, char, void>::format(const ValidationResultCode& value,
-                                                                 format_context& ctx) const
-{
-	const auto idx{static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
-	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);
-}
-
-FormatOutput formatter<ReactorValidationResult, char, void>::format(const ReactorValidationResult& value,
-                                                                    format_context& ctx) const
-{
-	const auto idx{static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
-	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
-}
-
-FormatOutput formatter<DiscriminatedSignal, char, void>::format(const DiscriminatedSignal& value,
-                                                                format_context& ctx) const
-{
-	using Dis = Signal::Discriminator;
-
-	switch (value.Discriminator)
-	{
-	case Dis::U64:
-		return format_to(ctx.out(), NOX_LEX_TYPE_U64 " " NOX_LEX_IMM "{}", value.Value.R64.AsU64);
-
-	case Dis::I64:
-		return format_to(ctx.out(), NOX_LEX_TYPE_I64 " " NOX_LEX_IMM "{}", value.Value.R64.AsI64);
-
-	case Dis::F64:
-		return format_to(ctx.out(), NOX_LEX_TYPE_F64 " " NOX_LEX_IMM "{}", value.Value.R64.AsF64);
-
-	case Dis::CharClusterUtf8:
-		return format_to(ctx.out(), NOX_LEX_TYPE_CC1 " " NOX_LEX_IMM "{}", reinterpret_cast<const char*>(&value.Value.R64));
-
-	case Dis::CharClusterUtf16:
-		return format_to(ctx.out(), NOX_LEX_TYPE_CC2 " " NOX_LEX_IMM "{}", reinterpret_cast<const char*>(&value.Value.R64)); // TODO CVT
-
-	case Dis::CharClusterUtf32:
-		return format_to(ctx.out(), NOX_LEX_TYPE_CC4 " " NOX_LEX_IMM "{}", reinterpret_cast<const char*>(&value.Value.R64)); // TODO CVT
-
-	case Dis::OpCode:
-	case Dis::Instruction:
-		return format_to(ctx.out(), "{}", value.Value.Instr);
-
-	case Dis::SystemIntrinsicCallID:
-		return format_to(ctx.out(), NOX_LEX_TYPE_SIC " " NOX_LEX_IMM "{}",
-		                 static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value.Value.SystemIntrinID));
-
-	case Dis::UserIntrinsicCallID:
-		return format_to(ctx.out(), NOX_LEX_TYPE_UIC " " NOX_LEX_IMM "{}",
-		                 static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value.Value.UserIntrinID));
-
-	case Dis::JumpAddress:
-		return format_to(ctx.out(), NOX_LEX_TYPE_UIC " " NOX_LEX_IMM "{}",
-		                 static_cast<std::underlying_type_t<JumpAddress>>(value.Value.JmpAddress));
-
-	default:
-	case Dis::Ptr:
-		return format_to(ctx.out(), NOX_LEX_TYPE_CC4 " " NOX_LEX_IMM "{:X}", value.Value.R64.AsU64);
-	}
-}
-
-void* operator new(const std::size_t size)
+auto operator new(const std::size_t size) -> void*
 {
 	void* mem;
-	Common::GlobalAllocatorProxy->Allocate(mem, size);
+	Nominax::Common::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
-void* operator new[](const std::size_t size)
+auto operator new[](const std::size_t size) -> void*
 {
 	void* mem;
-	Common::GlobalAllocatorProxy->Allocate(mem, size);
+	Nominax::Common::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
@@ -695,17 +771,17 @@ auto operator new[](const std::size_t size, const std::align_val_t alignment)  -
 
 #endif
 
-void* operator new(const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true)
+auto operator new(const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
 	void* mem;
-	Common::GlobalAllocatorProxy->Allocate(mem, size);
+	Nominax::Common::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
-void* operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true)
+auto operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
 	void* mem;
-	Common::GlobalAllocatorProxy->Allocate(mem, size);
+	Nominax::Common::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
@@ -727,22 +803,22 @@ auto operator new[](const std::size_t size, const std::align_val_t alignment, [[
 
 #endif
 
-void operator delete(void* mem) noexcept(true)
+auto operator delete(void* mem) noexcept(true) -> void
 {
-	Common::GlobalAllocatorProxy->Deallocate(mem);
+	Nominax::Common::GlobalAllocatorProxy->Deallocate(mem);
 }
 
-void operator delete(void* mem, std::size_t) noexcept(true)
+auto operator delete(void* mem, std::size_t) noexcept(true) -> void
 {
-	Common::GlobalAllocatorProxy->Deallocate(mem);
+	Nominax::Common::GlobalAllocatorProxy->Deallocate(mem);
 }
 
-void operator delete[](void* mem) noexcept(true)
+auto operator delete[](void* mem) noexcept(true) -> void
 {
-	Common::GlobalAllocatorProxy->Deallocate(mem);
+	Nominax::Common::GlobalAllocatorProxy->Deallocate(mem);
 }
 
-void operator delete[](void* mem, std::size_t) noexcept(true)
+auto operator delete[](void* mem, std::size_t) noexcept(true) -> void
 {
-	Common::GlobalAllocatorProxy->Deallocate(mem);
+	Nominax::Common::GlobalAllocatorProxy->Deallocate(mem);
 }

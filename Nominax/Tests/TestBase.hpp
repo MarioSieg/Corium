@@ -210,4 +210,4 @@
 #include "gtest/gtest.h"
 #include "../Include/Nominax/Nominax.hpp"
 
-using namespace Nominax::Prelude;
+using namespace Prelude;

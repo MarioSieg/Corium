@@ -208,7 +208,7 @@
 #pragma once
 
 #include "../ByteCode.hpp"
-#include "../Common/ComHints.hpp"
+#include "../Common.hpp"
 
 namespace Nominax::Core
 {

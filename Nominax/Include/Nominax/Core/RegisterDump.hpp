@@ -209,7 +209,7 @@
 
 #include <array>
 
-#include "../Common/BaseTypes.hpp"
+#include "../Common.hpp"
 #include "../System/Platform.hpp"
 
 namespace Nominax::Core
@@ -239,7 +239,7 @@ namespace Nominax::Core
 
 	static_assert(sizeof(Vector512) == 64);
 
-#if NOX_ARCH_X86_32
+	#if NOX_ARCH_X86_32
 
 	using GprRegisterLane = std::array<U32, 8>;
 	using VectorRegisterLane128 = std::array<Vector128, 8>;
@@ -253,7 +253,7 @@ namespace Nominax::Core
 	/// <returns></returns>
 	extern auto RegisterDump_X86_32(std::ostream& out, const GprRegisterLane& gpr) -> void;
 
-#elif NOX_ARCH_X86_64
+	#elif NOX_ARCH_X86_64
 
 	using GprRegisterLane = std::array<U64, 16>;
 	using VectorRegisterLane128 = std::array<Vector128, 16>;
@@ -276,14 +276,14 @@ namespace Nominax::Core
 		const VectorRegisterLane256& ymm
 	) -> void;
 
-#elif NOX_ARCH_ARM_64
+	#elif NOX_ARCH_ARM_64
 
 	using GprRegisterLane = std::array<U64, 16>;
 	using VectorRegisterLane128 = std::array<Vector128, 16>;
 	using VectorRegisterLane256 = std::array<Vector256, 1>;
 
 #	error "Not yet implemented!"
-#else
+	#else
 #	error "Unknown arch!"
-#endif
+	#endif
 }

@@ -209,11 +209,11 @@
 
 TEST(ReactorHypervisor, ReactorRegistry)
 {
-#if NOX_ARCH_X86_64
+	#if NOX_ARCH_X86_64
 	ASSERT_EQ(GetReactorRegistry().size(), static_cast<std::size_t>(ReactorCoreSpecialization::Count));
-#elif NOX_ARCH_ARM_64
+	#elif NOX_ARCH_ARM_64
 	ASSERT_EQ(GetReactorRegistry().size(), static_cast<std::size_t>(ReactorCoreSpecialization::Count));
-#endif
+	#endif
 }
 
 TEST(ReactorHypervisor, ReactorRegistryNonNull)

@@ -1,6 +1,6 @@
-// File: TextFile.hpp
+// File: Utils.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 05.07.2021 6:28 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,467 +207,128 @@
 
 #pragma once
 
-#include <filesystem>
-#include <string>
-#include <string_view>
+#include "ByteCode.hpp"
+#include "Common.hpp"
+#include "Core/Core.hpp"
 
-namespace Nominax::Common
+using FormatOutput = fmt::format_context::iterator;
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::Instruction>
 {
-	/// <summary>
-	/// Helper to work with text files.
-	/// </summary>
-	class TextFile final
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx)
 	{
-	public:
-		/// <summary>
-		/// String type alias.
-		/// </summary>
-		using StringType = std::string;
-
-		/// <summary>
-		/// String view type.
-		/// </summary>
-		using ViewType = std::string_view;
-
-	private:
-		/// <summary>
-		/// The content of the file.
-		/// </summary>
-		StringType Content_ { };
-
-		/// <summary>
-		/// The path of the file.
-		/// </summary>
-		std::filesystem::path FilePath_ { };
-
-	public:
-		/// <summary>
-		/// The character type.
-		/// </summary>
-		using CharType = decltype(Content_)::value_type;
-
-		/// <summary>
-		/// The type for the file input stream.
-		/// </summary>
-		using InputStream = std::basic_ifstream<CharType, std::char_traits<CharType>>;
-
-		/// <summary>
-		/// The type for the file output stream.
-		/// </summary>
-		using OutputStream = std::basic_ofstream<CharType, std::char_traits<CharType>>;
-
-		/// <summary>
-		/// Construct empty.
-		/// </summary>
-		/// <returns></returns>
-		TextFile() = default;
-
-		/// <summary>
-		/// Construct with content.
-		/// </summary>
-		/// <param name="content">Content of the file.</param>
-		/// <returns></returns>
-		explicit TextFile(StringType&& content);
-
-		/// <summary>
-		/// Construct with path and content.
-		/// </summary>
-		/// <param name="path"></param>
-		/// <param name="content"></param>
-		/// <returns></returns>
-		TextFile(std::filesystem::path&& path, StringType&& content);
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		/// <param name="other"></param>
-		TextFile(const TextFile& other) = delete;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name="other"></param>
-		TextFile(TextFile&& other) = default;
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(const TextFile& other) -> TextFile& = delete;
-
-		/// <summary>
-		/// Move assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(TextFile&& other) -> TextFile& = default;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~TextFile() = default;
-
-		/// <summary>
-		/// Writes the content into the specified path
-		/// and saves the path argument into this class instance content.
-		/// </summary>
-		/// <param name="path"></param>
-		/// <returns>True on success, else false.</returns>
-		[[nodiscard]]
-		auto WriteToFile(std::filesystem::path&& path) -> bool;
-
-		/// <summary>
-		/// Reads the content of the file into this class instance content.
-		/// </summary>
-		/// <param name="path"></param>
-		/// <returns>True on success, else false.</returns>
-		[[nodiscard]]
-		auto ReadFromFile(std::filesystem::path&& path) -> bool;
-
-		/// <summary>
-		/// Reads the content of the file into this class instance and panics on any failture.
-		/// </summary>
-		/// <param name="path"></param>
-		/// <returns></returns>
-		auto ReadFromFileOrPanic(std::filesystem::path&& path) -> void;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current text file content.</returns>
-		[[nodiscard]]
-		auto GetContentText() const & -> const StringType&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current text file content.</returns>
-		[[nodiscard]]
-		auto GetContentText() & -> StringType&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current text file content.</returns>
-		[[nodiscard]]
-		auto GetContentText() && -> StringType&&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current file path.</returns>
-		[[nodiscard]]
-		auto GetFilePath() const & -> const std::filesystem::path&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current file path.</returns>
-		[[nodiscard]]
-		auto GetFilePath() && -> std::filesystem::path&&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>True if the content is empty, else false.</returns>
-		[[nodiscard]]
-		auto IsEmpty() const -> bool;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The capacity of the content.</returns>
-		[[nodiscard]]
-		auto GetCapacity() const -> std::size_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The size of the content - the number of characters.</returns>
-		[[nodiscard]]
-		auto GetSize() const -> std::size_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The size of the content in bytes (capacity * charSize)</returns>
-		[[nodiscard]]
-		auto GetSizeInBytes() const -> std::size_t;
-
-		/// <summary>
-		/// Removes all the spaces (' ') from the content in parallel.
-		/// </summary>
-		/// <returns></returns>
-		auto ParallelEraseSpaces() -> void;
-
-		/// <summary>
-		/// Removes all spaces and control characters from the content in parallel.
-		/// </summary>
-		/// <returns></returns>
-		auto ParallelEraseSpacesAndControlChars() -> void;
-
-		/// <summary>
-		/// Removes all the occurrences of the character in parallel.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <returns></returns>
-		auto ParallelErase(CharType x) -> void;
-
-		/// <summary>
-		/// Searches all the ranges between the two chars and removes the text between them and themselves.
-		/// </summary>
-		/// <param name="begin"></param>
-		/// <param name="end"></param>
-		/// <returns></returns>
-		auto EraseRange(CharType begin, CharType end) -> void;
-
-		/// <summary>
-		/// Get a substring string view to the
-		/// content between the two indices (both inclusive).
-		/// </summary>
-		/// <param name="beginIdx"></param>
-		/// <param name="endIdx"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto SubString(std::size_t beginIdx, std::size_t endIdx) const -> ViewType;
-
-		/// <summary>
-		/// Get a substring string view to the
-		/// content between the two first chars found (both inclusive).
-		/// </summary>
-		/// <param name="beginChar"></param>
-		/// <param name="endChar"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto SubStringChar(CharType beginChar, CharType endChar) const -> ViewType;
-
-		/// <summary>
-		/// STL iterator compat.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto begin() -> StringType::iterator;
-
-		/// <summary>
-		/// STL iterator compat.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto end() -> StringType::iterator;
-
-		/// <summary>
-		/// STL iterator compat.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto rbegin() -> StringType::reverse_iterator;
-
-		/// <summary>
-		/// STL iterator compat.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto rend() -> StringType::reverse_iterator;
-
-		/// <summary>
-		/// STL iterator compat.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto cbegin() const -> StringType::const_iterator;
-
-		/// <summary>
-		/// STL iterator compat.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto cend() const -> StringType::const_iterator;
-
-		/// <summary>
-		/// STL iterator compat.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto crbegin() const -> StringType::const_reverse_iterator;
-
-		/// <summary>
-		/// STL iterator compat.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto crend() const -> StringType::const_reverse_iterator;
-	};
-
-	inline TextFile::TextFile(StringType&& content)
-		: Content_ {std::move(content)} { }
-
-	inline TextFile::TextFile(std::filesystem::path&& path, StringType&& content)
-		: Content_ {std::move(content)},
-		  FilePath_ {std::move(path)} { }
-
-	inline auto TextFile::GetContentText() const & -> const StringType&
-	{
-		return this->Content_;
+		return ctx.begin();
 	}
 
-	inline auto TextFile::GetContentText() & -> StringType&
+	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicCallID>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx)
 	{
-		return this->Content_;
+		return ctx.begin();
 	}
 
-	inline auto TextFile::GetContentText() && -> StringType&&
+	auto format(const Nominax::ByteCode::SystemIntrinsicCallID& value, format_context& ctx) const -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::UserIntrinsicCallID>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx)
 	{
-		return std::move(this->Content_);
+		return ctx.begin();
 	}
 
-	inline auto TextFile::GetFilePath() const & -> const std::filesystem::path&
+	auto format(const Nominax::ByteCode::UserIntrinsicCallID& value, format_context& ctx) const -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::JumpAddress>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx)
 	{
-		return this->FilePath_;
+		return ctx.begin();
 	}
 
-	inline auto TextFile::GetFilePath() && -> std::filesystem::path&&
+	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx)
 	{
-		return std::move(this->FilePath_);
+		return ctx.begin();
 	}
 
-	inline auto TextFile::IsEmpty() const -> bool
+	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx)
 	{
-		return this->Content_.empty();
+		return ctx.begin();
 	}
 
-	inline auto TextFile::GetCapacity() const -> std::size_t
+	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx)
 	{
-		return this->Content_.capacity();
+		return ctx.begin();
 	}
 
-	inline auto TextFile::GetSize() const -> std::size_t
+	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx)
 	{
-		return this->Content_.size();
+		return ctx.begin();
 	}
 
-	inline auto TextFile::GetSizeInBytes() const -> std::size_t
+	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::Core::ReactorValidationResult>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx)
 	{
-		return this->Content_.capacity() * sizeof(CharType);
+		return ctx.begin();
 	}
 
-	inline auto TextFile::begin() -> StringType::iterator
+	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
+};
+
+template <>
+struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
+{
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx)
 	{
-		return std::begin(this->Content_);
+		return ctx.begin();
 	}
 
-	inline auto TextFile::end() -> StringType::iterator
-	{
-		return std::end(this->Content_);
-	}
-
-	inline auto TextFile::rbegin() -> StringType::reverse_iterator
-	{
-		return std::rbegin(this->Content_);
-	}
-
-	inline auto TextFile::rend() -> StringType::reverse_iterator
-	{
-		return std::rend(this->Content_);
-	}
-
-	inline auto TextFile::cbegin() const -> StringType::const_iterator
-	{
-		return std::cbegin(this->Content_);
-	}
-
-	inline auto TextFile::cend() const -> StringType::const_iterator
-	{
-		return std::cend(this->Content_);
-	}
-
-	inline auto TextFile::crbegin() const -> StringType::const_reverse_iterator
-	{
-		return std::crbegin(this->Content_);
-	}
-
-	inline auto TextFile::crend() const -> StringType::const_reverse_iterator
-	{
-		return std::crend(this->Content_);
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto begin(TextFile& file) -> TextFile::StringType::iterator
-	{
-		return file.begin();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto end(TextFile& file) -> TextFile::StringType::iterator
-	{
-		return file.end();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto rbegin(TextFile& file) -> TextFile::StringType::reverse_iterator
-	{
-		return file.rbegin();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto rend(TextFile& file) -> TextFile::StringType::reverse_iterator
-	{
-		return file.rend();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto cbegin(const TextFile& file) -> TextFile::StringType::const_iterator
-	{
-		return file.cbegin();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto cend(const TextFile& file) -> TextFile::StringType::const_iterator
-	{
-		return file.cend();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto crbegin(const TextFile& file) -> TextFile::StringType::const_reverse_iterator
-	{
-		return file.crbegin();
-	}
-
-	/// <summary>
-	/// STL iterator compat.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto crend(const TextFile& file) -> TextFile::StringType::const_reverse_iterator
-	{
-		return file.crend();
-	}
-}
+	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
+};

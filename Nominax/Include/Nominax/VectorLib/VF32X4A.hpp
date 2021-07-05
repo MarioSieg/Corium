@@ -219,21 +219,21 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X4_Add_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
+		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
 		__m128 x = _mm_load_ps(inout);
 		const __m128 y = _mm_load_ps(in);
 		x = _mm_add_ps(x, y);
 		_mm_store_ps(inout, x);
 
-#else
+		#else
 
 		inout[0] += in[0];
 		inout[1] += in[1];
 		inout[2] += in[2];
 		inout[3] += in[3];
 
-#endif
+		#endif
 	}
 
 	/// <summary>
@@ -244,21 +244,21 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X4_Sub_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
+		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
 		__m128 x = _mm_load_ps(inout);
 		const __m128 y = _mm_load_ps(in);
 		x = _mm_sub_ps(x, y);
 		_mm_store_ps(inout, x);
 
-#else
+		#else
 
 		inout[0] -= in[0];
 		inout[1] -= in[1];
 		inout[2] -= in[2];
 		inout[3] -= in[3];
 
-#endif
+		#endif
 	}
 
 	/// <summary>
@@ -269,21 +269,21 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X4_Mul_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
+		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
 		__m128 x = _mm_load_ps(inout);
 		const __m128 y = _mm_load_ps(in);
 		x = _mm_mul_ps(x, y);
 		_mm_store_ps(inout, x);
 
-#else
+		#else
 
 		inout[0] *= in[0];
 		inout[1] *= in[1];
 		inout[2] *= in[2];
 		inout[3] *= in[3];
 
-#endif
+		#endif
 	}
 
 	/// <summary>
@@ -294,20 +294,20 @@ namespace Nominax::VectorLib
 	/// <returns></returns>
 	NOX_FORCE_INLINE inline auto F32_X4_Div_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
 	{
-#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
+		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
 		__m128 x = _mm_load_ps(inout);
 		const __m128 y = _mm_load_ps(in);
 		x = _mm_div_ps(x, y);
 		_mm_store_ps(inout, x);
 
-#else
+		#else
 
 		inout[0] /= in[0];
 		inout[1] /= in[1];
 		inout[2] /= in[2];
 		inout[3] /= in[3];
 
-#endif
+		#endif
 	}
 }

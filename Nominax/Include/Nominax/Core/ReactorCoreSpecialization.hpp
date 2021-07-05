@@ -221,14 +221,14 @@ namespace Nominax::Core
 	{
 		Fallback,
 
-#if NOX_ARCH_X86_64
+		#if NOX_ARCH_X86_64
 
 		X86_64_AVX,
 		X86_64_AVX512F,
 
-#elif NOX_ARCH_ARM_64
+		#elif NOX_ARCH_ARM_64
 #	error "ARM64 not yet supported!"
-#endif
+		#endif
 
 		Count
 	};
@@ -240,18 +240,18 @@ namespace Nominax::Core
 	/// <returns></returns>
 	constexpr auto GetReactorCoreSpecializationName(const ReactorCoreSpecialization target) -> std::string_view
 	{
-#if NOX_ARCH_X86_64
+		#if NOX_ARCH_X86_64
 		switch (target)
 		{
-		case ReactorCoreSpecialization::X86_64_AVX:
-			return "X86-64 AVX";
-		case ReactorCoreSpecialization::X86_64_AVX512F:
-			return "X86-64 AVX512F";
-		default:
-			return "Generic Fallback";
+			case ReactorCoreSpecialization::X86_64_AVX:
+				return "X86-64 AVX";
+			case ReactorCoreSpecialization::X86_64_AVX512F:
+				return "X86-64 AVX512F";
+			default:
+				return "Generic Fallback";
 		}
-#elif NOX_ARCH_ARM_64
+		#elif NOX_ARCH_ARM_64
 #	error "ARM64 not yet supported!"
-#endif
+		#endif
 	}
 }

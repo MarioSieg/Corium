@@ -1,6 +1,6 @@
 // File: ReactorCore.inl
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 05.07.2021 4:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -216,12 +216,7 @@
 #include "../Include/Nominax/Core/Interrupt.hpp"
 #include "../Include/Nominax/Core/ExecutionAddressMapping.hpp"
 
-#include "../Include/Nominax/Common/Interrupt.hpp"
-#include "../Include/Nominax/Common/Nop.hpp"
-#include "../Include/Nominax/Common/BitRot.hpp"
-#include "../Include/Nominax/Common/ComparatorProxyF64.hpp"
-#include "../Include/Nominax/Common/ComHints.hpp"
-
+#include "../Include/Nominax/Common.hpp"
 #include "../Include/Nominax/ByteCode.hpp"
 
 #include "../Include/Nominax/VectorLib/VF64X4U.hpp"
@@ -256,7 +251,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Operator for F64 precision F32ing point modulo.
 	/// </summary>
-	NOX_FORCE_INLINE static inline void operator %=(Record& self, const F64 value)
+	NOX_FORCE_INLINE static inline auto operator %=(Record& self, const F64 value) -> void
 	{
 		self.AsF64 = std::fmod(self.AsF64, value);
 	}
@@ -267,11 +262,11 @@ namespace Nominax::Core
 	 * These should be disabled when building for release.
 	 * Asm volatile is like a black box and never touched by the compiler so it might affect code generation/ordering!
 	 */
-#if NOMINAX_REACTOR_ASM_MARKERS
+	#if NOMINAX_REACTOR_ASM_MARKERS
 #	define ASM_MARKER(msg) __asm__ __volatile__("#" msg)
-#else
-#	define ASM_MARKER(msg)
-#endif
+	#else
+	#	define ASM_MARKER(msg)
+	#endif
 
 	/// <summary>
 	/// Implementation for the "intrin" instruction.
@@ -298,7 +293,7 @@ namespace Nominax::Core
 	/// So stack[-1] will be overwritten and contains the result.
 	/// stack[0] will still contain arg2.
 	/// </summary>
-	NOX_HOT static void SyscallIntrin(Record* NOX_RESTRICT const sp, const U64 id)
+	NOX_HOT static auto SyscallIntrin(Record* NOX_RESTRICT const sp, const U64 id) -> void
 	{
 		static constexpr std::array<const void* NOX_RESTRICT const, static_cast<std::size_t>(
 			                            SystemIntrinsicCallID::$Count)> JUMP_TABLE
@@ -344,7 +339,7 @@ namespace Nominax::Core
 
 		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
 
-		const void* NOX_RESTRICT const* const jumpTable{std::data(JUMP_TABLE)};
+		const void* NOX_RESTRICT const* const jumpTable {std::data(JUMP_TABLE)};
 
 		goto
 		**(jumpTable + id);
@@ -598,7 +593,7 @@ namespace Nominax::Core
 			// this reads until space, but we want to read until newline (at the moment):
 			// fread(&sp->AsUtf8, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
 			[[maybe_unused]] // throw runtime exception
-				auto _{std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin)};
+				auto _ {std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin)};
 		}
 		return;
 
@@ -610,8 +605,11 @@ namespace Nominax::Core
 		return;
 	}
 
-	NOX_HOT ReactorShutdownReason NOX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor* input, ReactorState* output,
-	                                                    const void**** outJumpTable)
+	NOX_HOT auto NOX_REACTOR_IMPL_NAME
+	(
+		const VerboseReactorDescriptor* input, ReactorState* output,
+		const void****                  outJumpTable
+	) -> ReactorShutdownReason
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 
@@ -709,22 +707,22 @@ namespace Nominax::Core
 
 		ASM_MARKER("reactor begin");
 
-#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
+		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 		if
 		(
-		        !PerformJumpTableMapping
-		        (
-		                input->CodeChunk,
-		                input->CodeChunk + input->CodeChunkSize,
-		                input->CodeChunkInstructionMap,
-		                std::data(JUMP_TABLE)
-                )
-        )
+			!PerformJumpTableMapping
+			(
+				input->CodeChunk,
+				input->CodeChunk + input->CodeChunkSize,
+				input->CodeChunkInstructionMap,
+				std::data(JUMP_TABLE)
+			)
+		)
 		{
-		    [[unlikely]]
-			return ReactorShutdownReason::Error;
+			[[unlikely]]
+				return ReactorShutdownReason::Error;
 		}
-#endif
+		#endif
 
 		ASM_MARKER("reactor locals");
 
@@ -732,34 +730,34 @@ namespace Nominax::Core
 			const void*NOX_RESTRICT
 				const
 				* const
-				jumpTable{std::data(JUMP_TABLE)}; /* jump table					*/
-		InterruptAccumulator interruptCode{}; /* interrupt id flag			*/
-		IntrinsicRoutine* const* const intrinsicTable{input->IntrinsicTable}; /* intrinsic table hi			*/
-		InterruptRoutine* const interruptHandler{input->InterruptHandler}; /* global interrupt routine		*/
-		const Signal* const NOX_RESTRICT ipLo{input->CodeChunk}; /* instruction low ptr			*/
-		const Signal* ip{ipLo}; /* instruction ptr				*/
-		const Signal* bp{ipLo}; /* base pointer					*/
-		Record* NOX_RESTRICT sp{input->Stack}; /* stack pointer lo				*/
+				jumpTable {std::data(JUMP_TABLE)};                                   /* jump table					*/
+		InterruptAccumulator             interruptCode { };                          /* interrupt id flag			*/
+		IntrinsicRoutine* const* const   intrinsicTable {input->IntrinsicTable};     /* intrinsic table hi			*/
+		InterruptRoutine* const          interruptHandler {input->InterruptHandler}; /* global interrupt routine		*/
+		const Signal* const NOX_RESTRICT ipLo {input->CodeChunk};                    /* instruction low ptr			*/
+		const Signal*                    ip {ipLo};                                  /* instruction ptr				*/
+		const Signal*                    bp {ipLo};                                  /* base pointer					*/
+		Record* NOX_RESTRICT             sp {input->Stack};                          /* stack pointer lo				*/
 
 		ASM_MARKER("reactor exec");
 
-#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
+		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
-#	define JMP_PTR()		*((*++ip).Ptr)
-#	define JMP_PTR_REL()	*((*ip).Ptr)
-#	define UPDATE_IP()		ip = reinterpret_cast<const Signal*>(abs)
+		#	define JMP_PTR()		*((*++ip).Ptr)
+		#	define JMP_PTR_REL()	*((*ip).Ptr)
+		#	define UPDATE_IP()		ip = reinterpret_cast<const Signal*>(abs)
 
-#else
+		#else
 
 #	define JMP_PTR()		**(jumpTable + (*++ip).OpCode)
 #	define JMP_PTR_REL()	**(jumpTable + (*ip).OpCode)
 #	define UPDATE_IP()		ip = ipLo + abs - 1
-#endif
+		#endif
 
 		/*
 		 * Compute vector memory offset relative to %sp
 		 */
-#define VEC_MOFFS(x) (sp - (( x ) + 1))
+		#define VEC_MOFFS(x) (sp - (( x ) + 1))
 
 		// exec first:
 		goto
@@ -810,9 +808,9 @@ namespace Nominax::Core
 
 			// ip + 1 is the procedure to jump to, so
 			// ip + 2 is the next instruction
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
-			bp = ip + 1; // store the address to return to in the base pointer
-			ip = ipLo + abs; // ip = begin + offset
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			bp = ip + 1;                       // store the address to return to in the base pointer
+			ip = ipLo + abs;                   // ip = begin + offset
 		}
 		goto
 		JMP_PTR_REL();
@@ -835,7 +833,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__mov__");
 
-			const U64 dst{(*++ip).R64.AsU64}; // imm() -> arg 1 (reg) - dst
+			const U64 dst {(*++ip).R64.AsU64};       // imm() -> arg 1 (reg) - dst
 			*(sp + dst) = *(sp + (*++ip).R64.AsU64); // poke(dst) = poke(imm())
 		}
 		goto
@@ -847,7 +845,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__sto__");
 
-			const U64 dst{(*++ip).R64.AsU64}; // imm() -> arg 1 (reg) - dst
+			const U64 dst {(*++ip).R64.AsU64};       // imm() -> arg 1 (reg) - dst
 			(*(sp + dst)).AsU64 = (*++ip).R64.AsU64; // poke(dst) = imm()
 		}
 		goto
@@ -888,8 +886,8 @@ namespace Nominax::Core
 		NOX_HOT;
 		{
 			ASM_MARKER("__dupl__");
-			const auto top{*sp}; // peek()
-			*++sp = top; // push(peek())
+			const auto top {*sp}; // peek()
+			*++sp = top;          // push(peek())
 		}
 		goto
 		JMP_PTR();
@@ -900,9 +898,9 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__dupl2__");
 
-			const auto top{*sp}; // peek
-			*++sp = top; // push(peek())
-			*++sp = top; // push(peek())
+			const auto top {*sp}; // peek
+			*++sp = top;          // push(peek())
+			*++sp = top;          // push(peek())
 		}
 		goto
 		JMP_PTR();
@@ -913,9 +911,9 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__swap__");
 
-			const auto top{*sp}; // backup = top()
-			*sp = *(sp - 1); // top() = poke(1)
-			*(sp - 1) = top; // poke(1) = backup
+			const auto top {*sp};  // backup = top()
+			*sp       = *(sp - 1); // top() = poke(1)
+			*(sp - 1) = top;       // poke(1) = backup
 		}
 		goto
 		JMP_PTR();
@@ -936,12 +934,12 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jmp__");
 
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
-#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
+			#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 			ip = reinterpret_cast<const Signal*>(abs);
-#else
+			#else
 			ip = ipLo + abs; // ip = begin + offset
-#endif
+			#endif
 		}
 		goto
 		JMP_PTR_REL();
@@ -952,12 +950,12 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jmprel__");
 
-			const U64 rel{(*++ip).R64.AsU64}; // relative address
-#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
+			const U64 rel {(*++ip).R64.AsU64}; // relative address
+			#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 			ip = reinterpret_cast<const Signal*>(rel);
-#else
+			#else
 			ip += rel; // ip +-= rel
-#endif
+			#endif
 		}
 		goto
 		JMP_PTR_REL();
@@ -968,7 +966,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jz__");
 
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp--).AsI64 == 0)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -983,7 +981,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jnz__");
 
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp--).AsI64 != 0)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -998,7 +996,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jo_cmpi__");
 
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp--).AsI64 == 1)
 			{
 				// pop()
@@ -1014,7 +1012,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jo_cmpf__");
 
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if (Proxy_F64IsOne((*sp--).AsF64))
 			{
 				// pop()
@@ -1030,7 +1028,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jno_cmpi__");
 
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp--).AsI64 != 1)
 			{
 				// pop()
@@ -1046,7 +1044,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jno_cmpf__");
 
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if (!Proxy_F64IsOne((*sp--).AsF64))
 			{
 				// pop()
@@ -1062,8 +1060,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__je_cmpi__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 == (*(sp + 1)).AsI64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1079,8 +1077,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__je_cmpf__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if (Proxy_F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1096,8 +1094,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jne_cmpi__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 != (*(sp + 1)).AsI64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1113,8 +1111,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jne_cmpf__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if (!Proxy_F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1130,8 +1128,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__ja_cmpi__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 > (*(sp + 1)).AsI64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1147,8 +1145,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__ja_cmpf__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsF64 > (*(sp + 1)).AsF64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1164,8 +1162,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jl_cmpi__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 < (*(sp + 1)).AsI64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1181,8 +1179,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jl_cmpf__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsF64 < (*(sp + 1)).AsF64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1198,8 +1196,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jae_cmpi__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 >= (*(sp + 1)).AsI64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1215,8 +1213,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jae_cmpf__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsF64 >= (*(sp + 1)).AsF64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1232,8 +1230,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jle_cmpi__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsI64 <= (*(sp + 1)).AsI64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1249,8 +1247,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__jle_cmpf__");
 
-			--sp; // pop()
-			const U64 abs{(*++ip).R64.AsU64}; // absolute address
+			--sp;                              // pop()
+			const U64 abs {(*++ip).R64.AsU64}; // absolute address
 			if ((*sp).AsF64 <= (*(sp + 1)).AsF64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
@@ -1315,7 +1313,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__iadd__");
 
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsI64 += (*(sp + 1)).AsI64; // peek() += poke(1)
 
 		goto
@@ -1326,7 +1324,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__isub__");
 
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsI64 -= (*(sp + 1)).AsI64; // peek() -= poke(1)
 
 		goto
@@ -1337,7 +1335,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__imul__");
 
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsI64 *= (*(sp + 1)).AsI64; // peek() *= poke(1)
 
 		goto
@@ -1348,7 +1346,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__idiv__");
 
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsI64 /= (*(sp + 1)).AsI64; // peek() /= poke(1)
 
 		goto
@@ -1359,7 +1357,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__imod__");
 
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsI64 %= (*(sp + 1)).AsI64; // peek() %= poke(1)
 
 		goto
@@ -1369,7 +1367,7 @@ namespace Nominax::Core
 	__iand__:
 		NOX_HOT;
 		ASM_MARKER("__iand__");
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsI64 &= (*(sp + 1)).AsI64; // peek() &= poke(1)
 		goto
 		JMP_PTR();
@@ -1379,7 +1377,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__ior__");
 
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsI64 |= (*(sp + 1)).AsI64; // peek() |= poke(1)
 
 		goto
@@ -1390,7 +1388,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__ixor__");
 
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsI64 ^= (*(sp + 1)).AsI64; // peek() ^= poke(1)
 
 		goto
@@ -1411,7 +1409,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__isal__");
 
-		--sp; // pop
+		--sp;                              // pop
 		(*sp).AsI64 <<= (*(sp + 1)).AsI64; // peek() <<= poke(1)
 
 		goto
@@ -1422,7 +1420,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__isar__");
 
-		--sp; // pop
+		--sp;                              // pop
 		(*sp).AsI64 >>= (*(sp + 1)).AsI64; // peek() >>= poke(1)
 
 		goto
@@ -1465,7 +1463,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__fadd__");
 
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsF64 += (*(sp + 1)).AsF64; // peek() += poke(1)
 
 		goto
@@ -1476,7 +1474,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__fsub__");
 
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsF64 -= (*(sp + 1)).AsF64; // peek() -= poke(1)
 
 		goto
@@ -1487,7 +1485,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__fmul__");
 
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsF64 *= (*(sp + 1)).AsF64; // peek() *= poke(1)
 
 		goto
@@ -1498,7 +1496,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__fdiv__");
 
-		--sp; // pop
+		--sp;                             // pop
 		(*sp).AsF64 /= (*(sp + 1)).AsF64; // peek() /= poke(1)
 
 		goto
@@ -1509,7 +1507,7 @@ namespace Nominax::Core
 		NOX_HOT;
 		ASM_MARKER("__fmod__");
 
-		--sp; // pop
+		--sp;                     // pop
 		*sp %= (*(sp + 1)).AsF64; // peek() %= poke(1)
 
 		goto
@@ -2024,13 +2022,13 @@ namespace Nominax::Core
 		ASM_MARKER("_terminate_");
 
 		output->ShutdownReason = DetermineShutdownReason(interruptCode);
-		output->Pre = pre;
-		output->Post = std::chrono::high_resolution_clock::now();
-		output->Duration = std::chrono::high_resolution_clock::now() - pre;
-		output->InterruptCode = interruptCode;
-		output->IpDiff = ip - input->CodeChunk;
-		output->SpDiff = sp - input->Stack;
-		output->BpDiff = ip - bp;
+		output->Pre            = pre;
+		output->Post           = std::chrono::high_resolution_clock::now();
+		output->Duration       = std::chrono::high_resolution_clock::now() - pre;
+		output->InterruptCode  = interruptCode;
+		output->IpDiff         = ip - input->CodeChunk;
+		output->SpDiff         = sp - input->Stack;
+		output->BpDiff         = ip - bp;
 		return output->ShutdownReason;
 	}
 }

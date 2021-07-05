@@ -1,6 +1,6 @@
-// File: MemoryUnits.hpp
+// File: Utils.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 05.07.2021 6:19 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,77 +205,155 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../Include/Nominax/Utils.hpp"
 
-#include <algorithm>
+using namespace Nominax;
+using namespace ByteCode;
+using namespace Core;
+using namespace fmt;
 
-#include "BaseTypes.hpp"
-
-namespace Nominax
+auto formatter<Instruction, char, void>::format
+(
+	const Instruction& value,
+	format_context&    ctx
+) const -> FormatOutput
 {
-	constexpr U64 KB {1000};
-	constexpr U64 MB {KB * KB};
-	constexpr U64 GB {KB * KB * KB};
-	constexpr U64 TB {KB * KB * KB * KB};
-	constexpr U64 PB {KB * KB * KB * KB * KB};
+	return format_to
+	(
+		ctx.out(),
+		"{}",
+		INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)]
+	);
+}
 
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Bytes2Gigabytes(T bytes) -> T
-	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(KB) / static_cast<T>(KB) / static_cast<T>(KB);
-	}
+auto formatter<SystemIntrinsicCallID, char, void>::format
+(
+	const SystemIntrinsicCallID& value,
+	format_context&              ctx
+) const -> FormatOutput
+{
+	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value));
+}
 
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Bytes2Megabytes(T bytes) -> T
-	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(KB) / static_cast<T>(KB);
-	}
+auto formatter<UserIntrinsicCallID, char, void>::format
+(
+	const UserIntrinsicCallID& value,
+	format_context&            ctx
+) const -> FormatOutput
+{
+	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value));
+}
 
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Bytes2Kilobytes(T bytes) -> T
-	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(KB);
-	}
+auto formatter<JumpAddress, char, void>::format(const JumpAddress& value, format_context& ctx) const -> FormatOutput
+{
+	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<JumpAddress>>(value));
+}
 
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Gigabytes2Bytes(const T gigabytes) -> T
-	{
-		return gigabytes * static_cast<T>(KB) * static_cast<T>(KB) * static_cast<T>(KB);
-	}
+auto formatter<CharClusterUtf8, char, void>::format
+(
+	const CharClusterUtf8& value,
+	format_context&        ctx
+) const -> FormatOutput
+{
+	static_assert(sizeof(char8_t) == sizeof(U8));
+	return format_to(ctx.out(),
+	                 R"(\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X})",
+	                 static_cast<U16>(value.Chars[0]),
+	                 static_cast<U16>(value.Chars[1]),
+	                 static_cast<U16>(value.Chars[2]),
+	                 static_cast<U16>(value.Chars[3]),
+	                 static_cast<U16>(value.Chars[4]),
+	                 static_cast<U16>(value.Chars[5]),
+	                 static_cast<U16>(value.Chars[6]),
+	                 static_cast<U16>(value.Chars[7])
+	);
+}
 
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Megabytes2Bytes(const T megabytes) -> T
-	{
-		return megabytes * static_cast<T>(KB) * static_cast<T>(KB);
-	}
+auto formatter<CharClusterUtf16, char, void>::format(const CharClusterUtf16& value, format_context& ctx) const -> FormatOutput
+{
+	static_assert(sizeof(char16_t) == sizeof(U16));
+	return format_to(ctx.out(),
+	                 R"(\{:X}\{:X}\{:X}\{:X})",
+	                 static_cast<U16>(value.Chars[0]), static_cast<U16>(value.Chars[1]),
+	                 static_cast<U16>(value.Chars[2]), static_cast<U16>(value.Chars[3])
+	);
+}
 
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Kilobytes2Bytes(const T kilobytes) -> T
-	{
-		return kilobytes * static_cast<T>(KB);
-	}
+auto formatter<CharClusterUtf32, char, void>::format(const CharClusterUtf32& value, format_context& ctx) const -> FormatOutput
+{
+	static_assert(sizeof(char32_t) == sizeof(U32));
+	return format_to(ctx.out(),
+	                 "\\{:X}\\{:X}",
+	                 static_cast<U32>(value.Chars[0]), static_cast<U32>(value.Chars[1])
+	);
+}
 
-	constexpr auto operator ""_kb(const unsigned long long int value) -> unsigned long long int
-	{
-		return Kilobytes2Bytes<decltype(value)>(value);
-	}
+auto formatter<ValidationResultCode, char, void>::format
+(
+	const ValidationResultCode& value,
+	format_context&             ctx
+) const -> FormatOutput
+{
+	const auto idx {static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
+	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);
+}
 
-	constexpr auto operator ""_mb(const unsigned long long int value) -> unsigned long long int
-	{
-		return Megabytes2Bytes<decltype(value)>(value);
-	}
+auto formatter<ReactorValidationResult, char, void>::format
+(
+	const ReactorValidationResult& value,
+	format_context&                ctx
+) const -> FormatOutput
+{
+	const auto idx {static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
+	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
+}
 
-	constexpr auto operator ""_gb(const unsigned long long int value) -> unsigned long long int
+auto formatter<DiscriminatedSignal, char, void>::format
+(
+	const DiscriminatedSignal& value,
+	format_context&            ctx
+) const -> FormatOutput
+{
+	using Dis = Signal::Discriminator;
+
+	switch (value.Discriminator)
 	{
-		return Gigabytes2Bytes<decltype(value)>(value);
+		case Dis::U64:
+			return format_to(ctx.out(), NOX_LEX_TYPE_U64 " " NOX_LEX_IMM "{}", value.Value.R64.AsU64);
+
+		case Dis::I64:
+			return format_to(ctx.out(), NOX_LEX_TYPE_I64 " " NOX_LEX_IMM "{}", value.Value.R64.AsI64);
+
+		case Dis::F64:
+			return format_to(ctx.out(), NOX_LEX_TYPE_F64 " " NOX_LEX_IMM "{}", value.Value.R64.AsF64);
+
+		case Dis::CharClusterUtf8:
+			return format_to(ctx.out(), NOX_LEX_TYPE_CC1 " " NOX_LEX_IMM "{}", reinterpret_cast<const char*>(&value.Value.R64));
+
+		case Dis::CharClusterUtf16:
+			return format_to(ctx.out(), NOX_LEX_TYPE_CC2 " " NOX_LEX_IMM "{}", reinterpret_cast<const char*>(&value.Value.R64)); // TODO CVT
+
+		case Dis::CharClusterUtf32:
+			return format_to(ctx.out(), NOX_LEX_TYPE_CC4 " " NOX_LEX_IMM "{}", reinterpret_cast<const char*>(&value.Value.R64)); // TODO CVT
+
+		case Dis::OpCode:
+		case Dis::Instruction:
+			return format_to(ctx.out(), "{}", value.Value.Instr);
+
+		case Dis::SystemIntrinsicCallID:
+			return format_to(ctx.out(), NOX_LEX_TYPE_SIC " " NOX_LEX_IMM "{}",
+			                 static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value.Value.SystemIntrinID));
+
+		case Dis::UserIntrinsicCallID:
+			return format_to(ctx.out(), NOX_LEX_TYPE_UIC " " NOX_LEX_IMM "{}",
+			                 static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value.Value.UserIntrinID));
+
+		case Dis::JumpAddress:
+			return format_to(ctx.out(), NOX_LEX_TYPE_UIC " " NOX_LEX_IMM "{}",
+			                 static_cast<std::underlying_type_t<JumpAddress>>(value.Value.JmpAddress));
+
+		default:
+		case Dis::Ptr:
+			return format_to(ctx.out(), NOX_LEX_TYPE_CC4 " " NOX_LEX_IMM "{:X}", value.Value.R64.AsU64);
 	}
 }

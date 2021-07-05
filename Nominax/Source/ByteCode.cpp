@@ -1,37 +1,241 @@
-#include "../../Nominax/Include/Nominax/ByteCode.hpp"
-#include "../../Nominax/Include/Nominax/Common/PanicRoutine.hpp"
-#include "../../Nominax/Include/Nominax/Common/Algorithm.hpp"
-#include "../../Nominax/Include/Nominax/Common/ComparatorProxyF64.hpp"
-#include "../../Nominax/Include/Nominax/Common/AtomicState.hpp"
+// File: ByteCode.cpp
+// Author: Mario
+// Created: 05.07.2021 4:43 PM
+// Project: NominaxRuntime
+// 
+//                                  Apache License
+//                            Version 2.0, January 2004
+//                         http://www.apache.org/licenses/
+// 
+//    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+// 
+//    1. Definitions.
+// 
+//       "License" shall mean the terms and conditions for use, reproduction,
+//       and distribution as defined by Sections 1 through 9 of this document.
+// 
+//       "Licensor" shall mean the copyright owner or entity authorized by
+//       the copyright owner that is granting the License.
+// 
+//       "Legal Entity" shall mean the union of the acting entity and all
+//       other entities that control, are controlled by, or are under common
+//       control with that entity. For the purposes of this definition,
+//       "control" means (i) the power, direct or indirect, to cause the
+//       direction or management of such entity, whether by contract or
+//       otherwise, or (ii) ownership of fifty percent (50%) or more of the
+//       outstanding shares, or (iii) beneficial ownership of such entity.
+// 
+//       "You" (or "Your") shall mean an individual or Legal Entity
+//       exercising permissions granted by this License.
+// 
+//       "Source" form shall mean the preferred form for making modifications,
+//       including but not limited to software source code, documentation
+//       source, and configuration files.
+// 
+//       "Object" form shall mean any form resulting from mechanical
+//       transformation or translation of a Source form, including but
+//       not limited to compiled object code, generated documentation,
+//       and conversions to other media types.
+// 
+//       "Work" shall mean the work of authorship, whether in Source or
+//       Object form, made available under the License, as indicated by a
+//       copyright notice that is included in or attached to the work
+//       (an example is provided in the Appendix below).
+// 
+//       "Derivative Works" shall mean any work, whether in Source or Object
+//       form, that is based on (or derived from) the Work and for which the
+//       editorial revisions, annotations, elaborations, or other modifications
+//       represent, as a whole, an original work of authorship. For the purposes
+//       of this License, Derivative Works shall not include works that remain
+//       separable from, or merely link (or bind by name) to the interfaces of,
+//       the Work and Derivative Works thereof.
+// 
+//       "Contribution" shall mean any work of authorship, including
+//       the original version of the Work and any modifications or additions
+//       to that Work or Derivative Works thereof, that is intentionally
+//       submitted to Licensor for inclusion in the Work by the copyright owner
+//       or by an individual or Legal Entity authorized to submit on behalf of
+//       the copyright owner. For the purposes of this definition, "submitted"
+//       means any form of electronic, verbal, or written communication sent
+//       to the Licensor or its representatives, including but not limited to
+//       communication on electronic mailing lists, source code control systems,
+//       and issue tracking systems that are managed by, or on behalf of, the
+//       Licensor for the purpose of discussing and improving the Work, but
+//       excluding communication that is conspicuously marked or otherwise
+//       designated in writing by the copyright owner as "Not a Contribution."
+// 
+//       "Contributor" shall mean Licensor and any individual or Legal Entity
+//       on behalf of whom a Contribution has been received by Licensor and
+//       subsequently incorporated within the Work.
+// 
+//    2. Grant of Copyright License. Subject to the terms and conditions of
+//       this License, each Contributor hereby grants to You a perpetual,
+//       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+//       copyright license to reproduce, prepare Derivative Works of,
+//       publicly display, publicly perform, sublicense, and distribute the
+//       Work and such Derivative Works in Source or Object form.
+// 
+//    3. Grant of Patent License. Subject to the terms and conditions of
+//       this License, each Contributor hereby grants to You a perpetual,
+//       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+//       (except as stated in this section) patent license to make, have made,
+//       use, offer to sell, sell, import, and otherwise transfer the Work,
+//       where such license applies only to those patent claims licensable
+//       by such Contributor that are necessarily infringed by their
+//       Contribution(s) alone or by combination of their Contribution(s)
+//       with the Work to which such Contribution(s) was submitted. If You
+//       institute patent litigation against any entity (including a
+//       cross-claim or counterclaim in a lawsuit) alleging that the Work
+//       or a Contribution incorporated within the Work constitutes direct
+//       or contributory patent infringement, then any patent licenses
+//       granted to You under this License for that Work shall terminate
+//       as of the date such litigation is filed.
+// 
+//    4. Redistribution. You may reproduce and distribute copies of the
+//       Work or Derivative Works thereof in any medium, with or without
+//       modifications, and in Source or Object form, provided that You
+//       meet the following conditions:
+// 
+//       (a) You must give any other recipients of the Work or
+//           Derivative Works a copy of this License; and
+// 
+//       (b) You must cause any modified files to carry prominent notices
+//           stating that You changed the files; and
+// 
+//       (c) You must retain, in the Source form of any Derivative Works
+//           that You distribute, all copyright, patent, trademark, and
+//           attribution notices from the Source form of the Work,
+//           excluding those notices that do not pertain to any part of
+//           the Derivative Works; and
+// 
+//       (d) If the Work includes a "NOTICE" text file as part of its
+//           distribution, then any Derivative Works that You distribute must
+//           include a readable copy of the attribution notices contained
+//           within such NOTICE file, excluding those notices that do not
+//           pertain to any part of the Derivative Works, in at least one
+//           of the following places: within a NOTICE text file distributed
+//           as part of the Derivative Works; within the Source form or
+//           documentation, if provided along with the Derivative Works; or,
+//           within a display generated by the Derivative Works, if and
+//           wherever such third-party notices normally appear. The contents
+//           of the NOTICE file are for informational purposes only and
+//           do not modify the License. You may add Your own attribution
+//           notices within Derivative Works that You distribute, alongside
+//           or as an addendum to the NOTICE text from the Work, provided
+//           that such additional attribution notices cannot be construed
+//           as modifying the License.
+// 
+//       You may add Your own copyright statement to Your modifications and
+//       may provide additional or different license terms and conditions
+//       for use, reproduction, or distribution of Your modifications, or
+//       for any such Derivative Works as a whole, provided Your use,
+//       reproduction, and distribution of the Work otherwise complies with
+//       the conditions stated in this License.
+// 
+//    5. Submission of Contributions. Unless You explicitly state otherwise,
+//       any Contribution intentionally submitted for inclusion in the Work
+//       by You to the Licensor shall be under the terms and conditions of
+//       this License, without any additional terms or conditions.
+//       Notwithstanding the above, nothing herein shall supersede or modify
+//       the terms of any separate license agreement you may have executed
+//       with Licensor regarding such Contributions.
+// 
+//    6. Trademarks. This License does not grant permission to use the trade
+//       names, trademarks, service marks, or product names of the Licensor,
+//       except as required for reasonable and customary use in describing the
+//       origin of the Work and reproducing the content of the NOTICE file.
+// 
+//    7. Disclaimer of Warranty. Unless required by applicable law or
+//       agreed to in writing, Licensor provides the Work (and each
+//       Contributor provides its Contributions) on an "AS IS" BASIS,
+//       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+//       implied, including, without limitation, any warranties or conditions
+//       of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+//       PARTICULAR PURPOSE. You are solely responsible for determining the
+//       appropriateness of using or redistributing the Work and assume any
+//       risks associated with Your exercise of permissions under this License.
+// 
+//    8. Limitation of Liability. In no event and under no legal theory,
+//       whether in tort (including negligence), contract, or otherwise,
+//       unless required by applicable law (such as deliberate and grossly
+//       negligent acts) or agreed to in writing, shall any Contributor be
+//       liable to You for damages, including any direct, indirect, special,
+//       incidental, or consequential damages of any character arising as a
+//       result of this License or out of the use or inability to use the
+//       Work (including but not limited to damages for loss of goodwill,
+//       work stoppage, computer failure or malfunction, or any and all
+//       other commercial damages or losses), even if such Contributor
+//       has been advised of the possibility of such damages.
+// 
+//    9. Accepting Warranty or Additional Liability. While redistributing
+//       the Work or Derivative Works thereof, You may choose to offer,
+//       and charge a fee for, acceptance of support, warranty, indemnity,
+//       or other liability obligations and/or rights consistent with this
+//       License. However, in accepting such obligations, You may act only
+//       on Your own behalf and on Your sole responsibility, not on behalf
+//       of any other Contributor, and only if You agree to indemnify,
+//       defend, and hold each Contributor harmless for any liability
+//       incurred by, or claims asserted against, such Contributor by reason
+//       of your accepting any such warranty or additional liability.
+// 
+//    END OF TERMS AND CONDITIONS
+// 
+//    APPENDIX: How to apply the Apache License to your work.
+// 
+//       To apply the Apache License to your work, attach the following
+//       boilerplate notice, with the fields enclosed by brackets "[]"
+//       replaced with your own identifying information. (Don't include
+//       the brackets!)  The text should be enclosed in the appropriate
+//       comment syntax for the file format. We also recommend that a
+//       file or class name and description of purpose be included on the
+//       same "printed page" as the copyright notice for easier
+//       identification within third-party archives.
+// 
+//    Copyright 2021 Mario Sieg "pinsrq" <mt3000@gmx.de>
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
 
-#include <execution>
+#include "../../Nominax/Include/Nominax/ByteCode.hpp"
+#include "../../Nominax/Include/Nominax/Common.hpp"
+#include "../../Nominax/Include/Nominax/Utils.hpp"
+#include "../../Nominax/Include/Nominax/Core/Core.hpp"
 
 namespace Nominax::ByteCode
 {
-	void TransformStreamToImageByCopy(const Stream& input, Image& output, JumpMap& jumpMap)
+	auto TransformStreamToImageByCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void
 	{
 		// allocate image and copy code:
 		{
-			const auto binaryImage{new(std::nothrow) Signal[input.Size()]};
+			const auto binaryImage {new(std::nothrow) Signal[input.Size()]};
 			std::memcpy(binaryImage, std::data(input.GetCodeBuffer()),
 			            std::size(input.GetCodeBuffer()) * sizeof(Signal));
-			output = Image{static_cast<void*>(binaryImage), std::size(input.GetCodeBuffer()) * sizeof(Signal)};
+			output = Image {static_cast<void*>(binaryImage), std::size(input.GetCodeBuffer()) * sizeof(Signal)};
 		}
 
 		// create jump map and execution address mapping:
 		jumpMap.resize(input.Size());
 
-		const auto& discriminators{input.GetDiscriminatorBuffer()};
-		for (std::size_t i{0}; i < input.Size(); ++i)
+		const auto& discriminators {input.GetDiscriminatorBuffer()};
+		for (std::size_t i {0}; i < input.Size(); ++i)
 		{
-#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
+			#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
 			if (discriminators[i] == Signal::Discriminator::JumpAddress)
 			{
 				output[i].Ptr = const_cast<void*>(Core::ComputeRelativeJumpAddress(output.GetBlobData(), output[i].JmpAddress));
 			}
 
-#endif
+			#endif
 			jumpMap[i] = static_cast<U8>(discriminators[i] == Signal::Discriminator::Instruction);
 		}
 	}
@@ -72,13 +276,14 @@ namespace Nominax::ByteCode
 		this->Blob_ = reinterpret_cast<Signal*>(data);
 	}
 
-	Image::Image(Image&& other) : Blob_{other.Blob_}, Size_{other.Size_}
+	Image::Image(Image&& other) : Blob_ {other.Blob_},
+	                              Size_ {other.Size_}
 	{
 		other.Blob_ = nullptr;
 		other.Size_ = 0;
 	}
 
-	Image& Image::operator =(Image&& other)
+	auto Image::operator =(Image&& other) -> Image&
 	{
 		if (this->Blob_ && this->Size_)
 		{
@@ -108,7 +313,7 @@ namespace Nominax::ByteCode
 
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst
-	ScopedVariable<F64>& ScopedVariable<F64>::Push(const F64 value)
+	auto ScopedVariable<F64>::Push(const F64 value) -> ScopedVariable<F64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -141,7 +346,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::Push(const I64 value)
+	auto ScopedVariable<I64>::Push(const I64 value) -> ScopedVariable<I64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -174,7 +379,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::Push(const U64 value)
+	auto ScopedVariable<U64>::Push(const U64 value) -> ScopedVariable<U64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -206,7 +411,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<F64>& ScopedVariable<F64>::Add(const F64 value)
+	auto ScopedVariable<F64>::Add(const F64 value) -> ScopedVariable<F64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -229,7 +434,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::Add(const I64 value)
+	auto ScopedVariable<I64>::Add(const I64 value) -> ScopedVariable<I64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -252,7 +457,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::Add(const U64 value)
+	auto ScopedVariable<U64>::Add(const U64 value) -> ScopedVariable<U64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -276,7 +481,7 @@ namespace Nominax::ByteCode
 
 
 	template <>
-	ScopedVariable<F64>& ScopedVariable<F64>::Sub(const F64 value)
+	auto ScopedVariable<F64>::Sub(const F64 value) -> ScopedVariable<F64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -299,7 +504,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::Sub(const I64 value)
+	auto ScopedVariable<I64>::Sub(const I64 value) -> ScopedVariable<I64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -322,7 +527,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::Sub(const U64 value)
+	auto ScopedVariable<U64>::Sub(const U64 value) -> ScopedVariable<U64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -345,7 +550,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<F64>& ScopedVariable<F64>::Mul(const F64 value)
+	auto ScopedVariable<F64>::Mul(const F64 value) -> ScopedVariable<F64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -361,7 +566,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::Mul(I64 value)
+	auto ScopedVariable<I64>::Mul(I64 value) -> ScopedVariable<I64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -386,7 +591,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::Mul(U64 value)
+	auto ScopedVariable<U64>::Mul(U64 value) -> ScopedVariable<U64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -411,7 +616,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<F64>& ScopedVariable<F64>::Div(const F64 value)
+	auto ScopedVariable<F64>::Div(const F64 value) -> ScopedVariable<F64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -435,7 +640,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::Div(I64 value)
+	auto ScopedVariable<I64>::Div(I64 value) -> ScopedVariable<I64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -469,7 +674,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::Div(U64 value)
+	auto ScopedVariable<U64>::Div(U64 value) -> ScopedVariable<U64>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -502,7 +707,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<F64>& ScopedVariable<F64>::Mod(const F64 value)
+	auto ScopedVariable<F64>::Mod(const F64 value) -> ScopedVariable<F64>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::FMod>();
@@ -510,7 +715,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::Mod(const I64 value)
+	auto ScopedVariable<I64>::Mod(const I64 value) -> ScopedVariable<I64>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IMod>();
@@ -518,7 +723,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::Mod(const U64 value)
+	auto ScopedVariable<U64>::Mod(const U64 value) -> ScopedVariable<U64>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IMod>();
@@ -526,7 +731,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::And(const I64 value)
+	auto ScopedVariable<I64>::And(const I64 value) -> ScopedVariable<I64>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IAnd>();
@@ -534,7 +739,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::And(const U64 value)
+	auto ScopedVariable<U64>::And(const U64 value) -> ScopedVariable<U64>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IAnd>();
@@ -542,7 +747,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::Or(const I64 value)
+	auto ScopedVariable<I64>::Or(const I64 value) -> ScopedVariable<I64>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IOr>();
@@ -551,7 +756,7 @@ namespace Nominax::ByteCode
 
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::Or(const U64 value)
+	auto ScopedVariable<U64>::Or(const U64 value) -> ScopedVariable<U64>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IOr>();
@@ -559,7 +764,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::Xor(const I64 value)
+	auto ScopedVariable<I64>::Xor(const I64 value) -> ScopedVariable<I64>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IXor>();
@@ -567,7 +772,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::Xor(const U64 value)
+	auto ScopedVariable<U64>::Xor(const U64 value) -> ScopedVariable<U64>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IXor>();
@@ -575,7 +780,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::ShiftLeft(const I64 value)
+	auto ScopedVariable<I64>::ShiftLeft(const I64 value) -> ScopedVariable<I64>&
 	{
 		if (value == 0)
 		{
@@ -587,7 +792,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::ShiftLeft(const U64 value)
+	auto ScopedVariable<U64>::ShiftLeft(const U64 value) -> ScopedVariable<U64>&
 	{
 		if (value == 0)
 		{
@@ -599,7 +804,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::ShiftRight(const I64 value)
+	auto ScopedVariable<I64>::ShiftRight(const I64 value) -> ScopedVariable<I64>&
 	{
 		if (value == 0)
 		{
@@ -611,7 +816,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::ShiftRight(const U64 value)
+	auto ScopedVariable<U64>::ShiftRight(const U64 value) -> ScopedVariable<U64>&
 	{
 		if (value == 0)
 		{
@@ -623,7 +828,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::RotateLeft(const I64 value)
+	auto ScopedVariable<I64>::RotateLeft(const I64 value) -> ScopedVariable<I64>&
 	{
 		if (value == 0)
 		{
@@ -635,7 +840,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::RotateLeft(const U64 value)
+	auto ScopedVariable<U64>::RotateLeft(const U64 value) -> ScopedVariable<U64>&
 	{
 		if (value == 0)
 		{
@@ -647,7 +852,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<I64>& ScopedVariable<I64>::RotateRight(const I64 value)
+	auto ScopedVariable<I64>::RotateRight(const I64 value) -> ScopedVariable<I64>&
 	{
 		if (value == 0)
 		{
@@ -659,7 +864,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	ScopedVariable<U64>& ScopedVariable<U64>::RotateRight(const U64 value)
+	auto ScopedVariable<U64>::RotateRight(const U64 value) -> ScopedVariable<U64>&
 	{
 		if (value == 0)
 		{
@@ -672,10 +877,10 @@ namespace Nominax::ByteCode
 
 	using namespace Common;
 
-	void Stream::PrintByteCode() const
+	auto Stream::PrintByteCode() const -> void
 	{
 		Print(TextColor::Green, "Len: {}, Size: {} B", this->Size(), this->SizeInBytes());
-		for (std::size_t i{0}; i < this->Size(); ++i)
+		for (std::size_t i {0}; i < this->Size(); ++i)
 		{
 			if (this->CodeDisc_[i] == Signal::Discriminator::Instruction)
 			{
@@ -690,7 +895,7 @@ namespace Nominax::ByteCode
 		Print("\n\n");
 	}
 
-	void Stream::PrintMemoryCompositionInfo() const
+	auto Stream::PrintMemoryCompositionInfo() const -> void
 	{
 		Print("Stream size: {}\n", this->Size());
 		Print("Code buffer: {:.03F} MB\n",
@@ -702,7 +907,7 @@ namespace Nominax::ByteCode
 		Print("Total: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
 	}
 
-	Stream& Stream::Prologue()
+	auto Stream::Prologue() -> Stream&
 	{
 		for (const auto& [discriminator, signal] : PrologueCode())
 		{
@@ -712,7 +917,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	Stream& Stream::Epilogue()
+	auto Stream::Epilogue() -> Stream&
 	{
 		for (const auto& [discriminator, signal] : EpilogueCode())
 		{
@@ -722,9 +927,9 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	ValidationResultCode Stream::Build(Image& out, JumpMap& outJumpMap) const
+	auto Stream::Build(Image& out, JumpMap& outJumpMap) const -> ValidationResultCode
 	{
-		if (const auto validationResult{ValidateFullPass(*this)}; validationResult != ValidationResultCode::Ok)
+		if (const auto validationResult {ValidateFullPass(*this)}; validationResult != ValidationResultCode::Ok)
 		{
 			[[unlikely]]
 				return validationResult;
@@ -733,25 +938,25 @@ namespace Nominax::ByteCode
 		return ValidationResultCode::Ok;
 	}
 
-	bool Stream::ContainsPrologue() const
+	auto Stream::ContainsPrologue() const -> bool
 	{
 		return ByteCode::ContainsPrologue(*this);
 	}
 
-	bool Stream::ContainsEpilogue() const
+	auto Stream::ContainsEpilogue() const -> bool
 	{
 		return ByteCode::ContainsEpilogue(*this);
 	}
 
-	bool ContainsPrologue(const Stream& input)
+	auto ContainsPrologue(const Stream& input) -> bool
 	{
-		constexpr const auto& code{Stream::PrologueCode()};
+		constexpr const auto& code {Stream::PrologueCode()};
 		if (input.Size() < code.size())
 		{
 			[[unlikely]]
 				return false;
 		}
-		for (std::size_t i{0}; i < code.size(); ++i)
+		for (std::size_t i {0}; i < code.size(); ++i)
 		{
 			if (code[i] != input[i])
 			{
@@ -762,15 +967,15 @@ namespace Nominax::ByteCode
 		return true;
 	}
 
-	bool ContainsEpilogue(const Stream& input)
+	auto ContainsEpilogue(const Stream& input) -> bool
 	{
-		constexpr const auto& code{Stream::EpilogueCode()};
+		constexpr const auto& code {Stream::EpilogueCode()};
 		if (input.Size() < code.size())
 		{
 			[[unlikely]]
 				return false;
 		}
-		for (std::size_t i{0}, j{input.Size() - code.size()}; i < code.size(); ++i)
+		for (std::size_t i {0}, j {input.Size() - code.size()}; i < code.size(); ++i)
 		{
 			if (code[i] != input[j + i])
 			{
@@ -781,8 +986,11 @@ namespace Nominax::ByteCode
 		return true;
 	}
 
-	ValidationResultCode ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry,
-	                                      U32* const outIndex)
+	auto ValidateFullPass
+	(
+		const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry,
+		U32* const    outIndex
+	) -> ValidationResultCode
 	{
 		// Check if empty:
 		if (input.IsEmpty())
@@ -823,50 +1031,50 @@ namespace Nominax::ByteCode
 		}
 
 		// Error state:
-		AtomicState<ValidationResultCode> error{};
-		std::atomic<U32> errorIndex{0};
+		AtomicState<ValidationResultCode> error { };
+		std::atomic<U32>                  errorIndex {0};
 
-		const auto& codeBuf{input.GetCodeBuffer()};
-		const auto& discBuf{input.GetDiscriminatorBuffer()};
-		const auto bufBegin{&*std::begin(discBuf)};
-		const auto bufEnd{&*std::end(discBuf)};
+		const auto& codeBuf {input.GetCodeBuffer()};
+		const auto& discBuf {input.GetDiscriminatorBuffer()};
+		const auto  bufBegin {&*std::begin(discBuf)};
+		const auto  bufEnd {&*std::end(discBuf)};
 
 		auto validationRoutine
 		{
 			[&](const Signal::Discriminator& iterator)
 			{
-				const std::ptrdiff_t index{DistanceRef(iterator, bufBegin)};
-				const Signal signal{codeBuf[index]};
-				auto result{ValidationResultCode::Ok};
+				const std::ptrdiff_t index {DistanceRef(iterator, bufBegin)};
+				const Signal         signal {codeBuf[index]};
+				auto                 result {ValidationResultCode::Ok};
 
 				switch (iterator)
 				{
 						// validate instruction:
 					case Signal::Discriminator::Instruction:
-						{
-							const auto* const next{SearchForNextInstruction(&iterator, bufEnd)};
-							const auto args{
-								ExtractInstructionArguments(&iterator, ComputeInstructionArgumentOffset(&iterator, next))
-							};
-							result = ValidateInstructionArguments(signal.Instr, args); // validate args
-						}
-						break;
+					{
+						const auto* const next {SearchForNextInstruction(&iterator, bufEnd)};
+						const auto        args {
+							ExtractInstructionArguments(&iterator, ComputeInstructionArgumentOffset(&iterator, next))
+						};
+						result = ValidateInstructionArguments(signal.Instr, args); // validate args
+					}
+					break;
 
 					case Signal::Discriminator::JumpAddress:
-						{
-							result = ValidateJumpAddress(input, signal.JmpAddress)
-								         ? ValidationResultCode::Ok
-								         : ValidationResultCode::InvalidJumpAddress;
-						}
-						break;
+					{
+						result = ValidateJumpAddress(input, signal.JmpAddress)
+							         ? ValidationResultCode::Ok
+							         : ValidationResultCode::InvalidJumpAddress;
+					}
+					break;
 
 					case Signal::Discriminator::UserIntrinsicCallID:
-						{
-							result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID)
-								         ? ValidationResultCode::Ok
-								         : ValidationResultCode::InvalidUserIntrinsicCall;
-						}
-						break;
+					{
+						result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID)
+							         ? ValidationResultCode::Ok
+							         : ValidationResultCode::InvalidUserIntrinsicCall;
+					}
+					break;
 
 					default: ;
 				}
@@ -904,9 +1112,9 @@ namespace Nominax::ByteCode
 		return ValidationResultCode::Ok;
 	}
 
-	bool ValidateJumpAddress(const Stream& bucket, const JumpAddress address)
+	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) -> bool
 	{
-		const auto idx{static_cast<std::size_t>(address)};
+		const auto idx {static_cast<std::size_t>(address)};
 
 		// validate that jump address is inside the range of the bucket:
 		if (bucket.Size() <= idx)
@@ -918,22 +1126,25 @@ namespace Nominax::ByteCode
 		return NOX_EXPECT_VALUE(bucket[idx].Contains<Instruction>(), true);
 	}
 
-	bool ValidateSystemIntrinsicCall(const SystemIntrinsicCallID id)
+	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallID id) -> bool
 	{
-		constexpr auto max{static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallID::$Count) - 1};
-		const auto value{static_cast<std::underlying_type_t<decltype(id)>>(id)};
+		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallID::$Count) - 1};
+		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
 		static_assert(std::is_unsigned_v<decltype(value)>);
 		return NOX_EXPECT_VALUE(value <= max, true);
 	}
 
-	bool ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicCallID id)
+	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicCallID id) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
 		return NOX_EXPECT_VALUE(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size(), true);
 	}
 
-	ValidationResultCode ValidateInstructionArguments(const Instruction instruction,
-	                                                  const std::span<const Signal::Discriminator>& args)
+	auto ValidateInstructionArguments
+	(
+		const Instruction                             instruction,
+		const std::span<const Signal::Discriminator>& args
+	) -> ValidationResultCode
 	{
 		// First check if the argument count is incorrect:
 		if (LookupInstructionArgumentCount(instruction) > args.size())
@@ -949,14 +1160,14 @@ namespace Nominax::ByteCode
 				return ValidationResultCode::TooManyArgumentsForInstruction;
 		}
 
-		for (std::size_t i{0}; i < args.size(); ++i)
+		for (std::size_t i {0}; i < args.size(); ++i)
 		{
-			const Signal::Discriminator discriminator{args[i]};
+			const Signal::Discriminator discriminator {args[i]};
 
 			// Check if our given type index is within the required indices:
 
-			const TypeIndexTable& required{LookupInstructionArgumentTypes(instruction)[i]};
-			const bool isWithinAllowedIndices{
+			const TypeIndexTable& required {LookupInstructionArgumentTypes(instruction)[i]};
+			const bool            isWithinAllowedIndices {
 				std::find(std::begin(required), std::end(required), discriminator) != std::end(required)
 			};
 

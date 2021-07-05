@@ -213,13 +213,13 @@
 #include <span>
 #include <vector>
 
-#include "../Common/BaseTypes.hpp"
+#include "../Common.hpp"
 #include "ObjectHeader.hpp"
 
 namespace Nominax::Core
 {
-#define MUTATOR
-#define IMMUTATOR
+	#define MUTATOR
+	#define IMMUTATOR
 
 	/// <summary>
 	/// Represents any heap allocated object.
@@ -1265,6 +1265,6 @@ namespace Nominax::Core
 		return object.LookupObjectBlockEnd();
 	}
 
-#undef MUTATOR
-#undef IMMUTATOR
+	#undef MUTATOR
+	#undef IMMUTATOR
 }

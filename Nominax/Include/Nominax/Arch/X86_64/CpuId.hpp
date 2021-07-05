@@ -209,7 +209,7 @@
 
 #include <type_traits>
 
-#include "../../Common/BaseTypes.hpp"
+#include "../../Common.hpp"
 
 namespace Nominax::Arch::X86_64
 {

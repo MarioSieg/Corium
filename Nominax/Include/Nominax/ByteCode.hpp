@@ -215,8 +215,7 @@
 #include <optional>
 #include <vector>
 
-#include "Common/BaseTypes.hpp"
-#include "Common/ComHints.hpp"
+#include "Common.hpp"
 #include "Core/Record.hpp"
 
 namespace Nominax::Core
@@ -1034,11 +1033,11 @@ namespace Nominax::ByteCode
 
 	consteval auto DefaultOptimizationLevel() -> OptimizationLevel
 	{
-#if NOX_DEBUG
+		#if NOX_DEBUG
 		return OptimizationLevel::O2;
-#else
+		#else
 		return OptimizationLevel::O3;
-#endif
+		#endif
 	}
 
 	/// <summary>
@@ -2576,62 +2575,62 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Specify immediate constant operand.
 	/// </summary>
-#define NOX_LEX_IMM "%"
+	#define NOX_LEX_IMM "%"
 
 	/// <summary>
 	/// Begin byte code comment.
 	/// </summary>
-#define NOX_LEX_COMMENT "#"
+	#define NOX_LEX_COMMENT "#"
 
 	/// <summary>
 	///
 	/// </summary>
-#define NOX_LEX_TYPE "*"
+	#define NOX_LEX_TYPE "*"
 
 	/// <summary>
 	///
 	/// </summary>
-#define NOX_LEX_TYPE_U64 NOX_LEX_TYPE "u64"
+	#define NOX_LEX_TYPE_U64 NOX_LEX_TYPE "u64"
 
 	/// <summary>
 	///
 	/// </summary>
-#define NOX_LEX_TYPE_I64 NOX_LEX_TYPE "i64"
+	#define NOX_LEX_TYPE_I64 NOX_LEX_TYPE "i64"
 
 	/// <summary>
 	///
 	/// </summary>
-#define NOX_LEX_TYPE_F64 NOX_LEX_TYPE "f64"
+	#define NOX_LEX_TYPE_F64 NOX_LEX_TYPE "f64"
 
 	/// <summary>
 	/// CharClusterUtf8 (1 byte)
 	/// </summary>
-#define NOX_LEX_TYPE_CC1 NOX_LEX_TYPE "cc1"
+	#define NOX_LEX_TYPE_CC1 NOX_LEX_TYPE "cc1"
 
 	/// <summary>
 	/// CharClusterUtf16 (2 byte)
 	/// </summary>
-#define NOX_LEX_TYPE_CC2 NOX_LEX_TYPE "cc2"
+	#define NOX_LEX_TYPE_CC2 NOX_LEX_TYPE "cc2"
 
 	/// <summary>
 	///CharClusterUtf32 (4 byte)
 	/// </summary>
-#define NOX_LEX_TYPE_CC4 NOX_LEX_TYPE "cc4"
+	#define NOX_LEX_TYPE_CC4 NOX_LEX_TYPE "cc4"
 
 	/// <summary>
 	/// System intrinsic call id.
 	/// </summary>
-#define NOX_LEX_TYPE_SIC NOX_LEX_TYPE "sys"
+	#define NOX_LEX_TYPE_SIC NOX_LEX_TYPE "sys"
 
 	/// <summary>
 	/// User intrinsic call id.
 	/// </summary>
-#define NOX_LEX_TYPE_UIC NOX_LEX_TYPE "usr"
+	#define NOX_LEX_TYPE_UIC NOX_LEX_TYPE "usr"
 
 	/// <summary>
 	/// Jump address.
 	/// </summary>
-#define NOX_LEX_TYPE_JMP NOX_LEX_TYPE "jma"
+	#define NOX_LEX_TYPE_JMP NOX_LEX_TYPE "jma"
 
 	/// <summary>
 	/// Single stack-bounded variable.
@@ -2910,11 +2909,11 @@ namespace Nominax::ByteCode
 	template <typename T> requires StreamScalar<T>
 	inline auto ScopedVariable<T>::Unwrap() const -> T
 	{
-#if NOX_DEBUG
+		#if NOX_DEBUG
 				return this->Attached_.Back().template Unwrap<T>().value();
-#else
+		#else
 		return *this->Attached_.Back().template Unwrap<T>();
-#endif
+		#endif
 	}
 
 	template <typename T> requires StreamScalar<T>

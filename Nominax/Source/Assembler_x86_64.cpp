@@ -1,6 +1,6 @@
-// File: Encoding.cpp
+// File: Assembler_x86_64.cpp
 // Author: Mario
-// Created: 29.06.2021 9:15 PM
+// Created: 05.07.2021 4:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -206,11 +206,11 @@
 //    limitations under the License.
 
 #include "../Include/Nominax/Assembler/x86_64/Encoding.hpp"
-#include "../Include/Nominax/Common/PanicRoutine.hpp"
+#include "../Include/Nominax/Common.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
-	void InjectNopChain(U8* n, const U8 size)
+	auto InjectNopChain(U8* n, const U8 size) -> void
 	{
 		NOX_PANIC_ASSERT_NOT_NULL(n, "Null needle!");
 		NOX_PANIC_ASSERT_LE(size, 15, "Invalid nop chain size!");

@@ -210,10 +210,10 @@
 #if NOX_ARCH_X86_64
 TEST(AssemblyCalls, MockCall)
 {
-#if NOX_OS_WINDOWS
+	#if NOX_OS_WINDOWS
 	ASSERT_EQ(Arch::X86_64::Asm_MockCall(), 0xFF);
-#else
+	#else
 	ASSERT_EQ(Arch::X86_64::Asm_MockCall(), 1234);
-#endif
+	#endif
 }
 #endif

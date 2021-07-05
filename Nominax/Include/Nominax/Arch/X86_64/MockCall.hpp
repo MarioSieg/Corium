@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "../../Common/BaseTypes.hpp"
+#include "../../Common.hpp"
 
 namespace Nominax::Arch::X86_64
 {
