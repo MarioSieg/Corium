@@ -1,4 +1,4 @@
-// File: OsLinux.cpp
+// File: CpuId.cpp
 // Author: Mario
 // Created: 06.06.2021 5:38 PM
 // Project: NominaxRuntime
@@ -205,81 +205,372 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/System/Os.hpp"
-#include "../../Include/Nominax/System/Platform.hpp"
+#include <array>
+#include <bit>
 
-#if NOX_OS_LINUX
+#include "../../Include/Nominax/Arch/X86_64/CpuId.hpp"
+#include "../../Include/Nominax/Common/Protocol.hpp"
+#include "../../Include/Nominax/Common/PanicRoutine.hpp"
 
-#include <cstdio>
-#include <fstream>
-#include <string>
+#define PRINT_CPU_FEATURE(name, has) Print(( has ) ? TextColor::Green : TextColor::Red, "{0: <18} ", name)
 
-#include <dlfcn.h>
-#include <unistd.h>
-
-namespace Nominax::System::Os
+namespace Nominax::Arch::X86_64
 {
-	auto QuerySystemMemoryTotal()  -> std::size_t
+	using namespace Common;
+
+	CpuFeatureBits::CpuFeatureBits()
 	{
-		const long pages = sysconf(_SC_PHYS_PAGES);
-		const long page_size = sysconf(_SC_PAGE_SIZE);
-		return static_cast<std::size_t>(pages * page_size);
+		// check if cpuid is supported on system
+		NOX_PANIC_ASSERT_TRUE(Asm_IsCpuIdSupported(), "CPUID instruction is not supported on system!");
+
+		// Raw DATA.
+		std::array<U8, sizeof(CpuFeatureBits)> data{};
+		std::array<MergedInfoTable, 3> chunk{};
+
+		// Call cpuid assembly routine:
+		U32 r{Asm_CpuId(&chunk[0], &chunk[1], &chunk[2])};
+
+		// Copy parameter output quads
+		std::memcpy(data.data(), chunk.data(), sizeof(MergedInfoTable) * 3);
+
+		// Copy return value:
+		std::memcpy(data.data() + sizeof(MergedInfoTable) * 3, &r, sizeof(U32));
+
+		// Update this
+		*this = std::bit_cast<CpuFeatureBits>(data);
+
+		// Validate OS support and update flags for AVX:
+		const bool avxOsSupport = this->OsXSave ? Asm_IsAvxSupportedByOs() : false;
+
+		// Update flags requiring os support for AVX:
+		this->Avx &= avxOsSupport;
+		this->Avx2 &= avxOsSupport;
+		this->F16C &= avxOsSupport;
+		this->Avx2 &= avxOsSupport;
+
+		// Validate OS support and update flags for AVX 512:
+		const bool avx512OsSupport = this->OsXSave ? avxOsSupport && Asm_IsAvx512SupportedByOs() : false;
+
+		// Update flags requiring OS support for AVX 512:
+		this->Avx512F &= avx512OsSupport;
+		this->Avx512Dq &= avx512OsSupport;
+		this->Avx512Ifma &= avx512OsSupport;
+		this->Avx512Pf &= avx512OsSupport;
+		this->Avx512Er &= avx512OsSupport;
+		this->Avx512Cd &= avx512OsSupport;
+		this->Avx512Bw &= avx512OsSupport;
+		this->Avx512Vl &= avx512OsSupport;
+		this->Avx512Vbmi &= avx512OsSupport;
+		this->Avx512Vbmi2 &= avx512OsSupport;
+		this->Avx512Vnni &= avx512OsSupport;
+		this->Avx512Bitalg &= avx512OsSupport;
+		this->Avx512VPopCntdq &= avx512OsSupport;
+		this->Avx5124FMaps &= avx512OsSupport;
+		this->Avx5124Vnniw &= avx512OsSupport;
 	}
 
-	auto QueryProcessMemoryUsed()  -> std::size_t {
-		auto* const file = fopen("/proc/self/statm", "r");
-		if (file == nullptr)
-		{
-			return 0;
-		}
-		long pages = 0;
-		const auto items = fscanf(file, "%*s%ld", &pages);
-		fclose(file);
-		return static_cast<std::size_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
-	}
-
-	auto QueryCpuName()  -> std::string
+	void CpuFeatureBits::PrintFeatures() const
 	{
-		std::ifstream cpuinfo("/proc/cpuinfo");
+		PRINT_CPU_FEATURE("FPU", this->Fpu);
+		PRINT_CPU_FEATURE("VME", this->Vme);
+		PRINT_CPU_FEATURE("DE", this->De);
+		PRINT_CPU_FEATURE("PSE", this->Pse);
 
-		if (!cpuinfo.is_open() || !cpuinfo)
-		{
-			return "Unknown";
-		}
+		Print('\n');
 
-		for (std::string line; std::getline(cpuinfo, line); )
-		{
-			if (line.find("model name") == 0)
-			{
-				const auto colon_id = line.find_first_of(':');
-				const auto nonspace_id = line.find_first_not_of(" \t", colon_id + 1);
-				return line.c_str() + nonspace_id;
-			}
-		}
+		PRINT_CPU_FEATURE("TSC", this->Tsc);
+		PRINT_CPU_FEATURE("MSR", this->Msr);
+		PRINT_CPU_FEATURE("PAE", this->Pae);
+		PRINT_CPU_FEATURE("MCE", this->Mce);
 
-		return {};
-	}
+		Print('\n');
 
-	auto QueryPageSize() ->std::size_t
-	{
-		return static_cast<std::size_t>(sysconf(_SC_PAGE_SIZE));
-	}
+		PRINT_CPU_FEATURE("CMPXCHG8", this->Cx8);
+		PRINT_CPU_FEATURE("APIC", this->Apic);
+		PRINT_CPU_FEATURE("SEP", this->Sep);
+		PRINT_CPU_FEATURE("MTRR", this->Mtrr);
 
-	auto DylibOpen(const std::string_view file_)  -> void*
-	{
-		return ::dlopen(file_.data(), RTLD_LOCAL | RTLD_LAZY);
-	}
+		Print('\n');
 
-	auto DylibLookupSymbol(void* const handle_, const std::string_view symbol_)  -> void*
-	{
-		return ::dlsym(handle_, symbol_.data());
-	}
+		PRINT_CPU_FEATURE("PGE", this->Pge);
+		PRINT_CPU_FEATURE("MCA", this->Mca);
+		PRINT_CPU_FEATURE("CMOV", this->CMov);
+		PRINT_CPU_FEATURE("PAT", this->Pat);
 
-	auto DylibClose(void*& handle_)  -> void
-	{
-		::dlclose(handle_);
-		handle_ = nullptr;
+		Print('\n');
+
+		PRINT_CPU_FEATURE("PSE36", this->Pse36);
+		PRINT_CPU_FEATURE("PSN", this->Psn);
+		PRINT_CPU_FEATURE("CLFSH", this->Clfsh);
+		PRINT_CPU_FEATURE("DS", this->Ds);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("ACPI", this->Acpi);
+		PRINT_CPU_FEATURE("MMX", this->Mmx);
+		PRINT_CPU_FEATURE("FXSR", this->Fxsr);
+		PRINT_CPU_FEATURE("SSE", this->Sse);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("SSE2", this->Sse2);
+		PRINT_CPU_FEATURE("SS", this->Ss);
+		PRINT_CPU_FEATURE("HTT", this->Htt);
+		PRINT_CPU_FEATURE("TM", this->Tm);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("IA64", this->Ia64);
+		PRINT_CPU_FEATURE("PBE", this->Pbe);
+		PRINT_CPU_FEATURE("SSE3", this->Sse3);
+		PRINT_CPU_FEATURE("PCLMULDQD", this->PclMulDqd);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("DTES64", this->DTes64);
+		PRINT_CPU_FEATURE("Monitor", this->Monitor);
+		PRINT_CPU_FEATURE("DSCPL", this->DsCpl);
+		PRINT_CPU_FEATURE("SMX", this->Smx);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("EST", this->Est);
+		PRINT_CPU_FEATURE("TM2", this->Tm2);
+		PRINT_CPU_FEATURE("SSSE3", this->Sse3);
+		PRINT_CPU_FEATURE("CNXTID", this->CnxtId);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("SDBG", this->Sdbg);
+		PRINT_CPU_FEATURE("FMA3", this->Fma3);
+		PRINT_CPU_FEATURE("CMPXCHG16", this->Cx16);
+		PRINT_CPU_FEATURE("XPTR", this->Xtpr);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("PDCM", this->Pdcm);
+		PRINT_CPU_FEATURE("PCID", this->Pcid);
+		PRINT_CPU_FEATURE("DCA", this->Dca);
+		PRINT_CPU_FEATURE("SSE4.1", this->Sse41);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("SSE4.2", this->Sse42);
+		PRINT_CPU_FEATURE("X2APIC", this->X2Apic);
+		PRINT_CPU_FEATURE("MOVBE", this->MovBe);
+		PRINT_CPU_FEATURE("POPCNT", this->PopCnt);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("TSCDeadline", this->TscDeadline);
+		PRINT_CPU_FEATURE("AES", this->Aes);
+		PRINT_CPU_FEATURE("XSave", this->XSave);
+		PRINT_CPU_FEATURE("OsXSave", this->OsXSave);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("AVX", this->Avx);
+		PRINT_CPU_FEATURE("F16C", this->F16C);
+		PRINT_CPU_FEATURE("RDRND", this->RdRnd);
+		PRINT_CPU_FEATURE("HyperVisor", this->HyperVisor);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("FSGSBase", this->FsGsBase);
+		PRINT_CPU_FEATURE("TSCAdjust", this->TscAdjust);
+		PRINT_CPU_FEATURE("SGX", this->Sgx);
+		PRINT_CPU_FEATURE("BMI1", this->Bmi1);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("HLE", this->Hle);
+		PRINT_CPU_FEATURE("AVX2", this->Avx2);
+		PRINT_CPU_FEATURE("FDPExcept", this->FdpExcept);
+		PRINT_CPU_FEATURE("SMEP", this->Smep);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("BMI2", this->Bmi2);
+		PRINT_CPU_FEATURE("ERMS", this->Erms);
+		PRINT_CPU_FEATURE("INVPCID", this->InvPcid);
+		PRINT_CPU_FEATURE("RTM", this->Rtm);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("PQM", this->Pqm);
+		PRINT_CPU_FEATURE("FPUCSDSDEPR", this->FpuCsDsDepr);
+		PRINT_CPU_FEATURE("MPX", this->Mpx);
+		PRINT_CPU_FEATURE("PQE", this->Pqe);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("AVX512F", this->Avx512F);
+		PRINT_CPU_FEATURE("AVX512DQ", this->Avx512Dq);
+		PRINT_CPU_FEATURE("RDSEED", this->RdSeed);
+		PRINT_CPU_FEATURE("ADX", this->Adx);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("SMAP", this->SMap);
+		PRINT_CPU_FEATURE("AVX512IFMA", this->Avx512Ifma);
+		PRINT_CPU_FEATURE("PCommit", this->PCommit);
+		PRINT_CPU_FEATURE("CLFlushOpt", this->ClFlushOpt);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("CLWB", this->Clwb);
+		PRINT_CPU_FEATURE("IntelPt", this->IntelPt);
+		PRINT_CPU_FEATURE("AVX512PF", this->Avx512Pf);
+		PRINT_CPU_FEATURE("AVX512ER", this->Avx512Er);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("AVX512CD", this->Avx512Cd);
+		PRINT_CPU_FEATURE("SHA", this->Sha);
+		PRINT_CPU_FEATURE("AVX512BW", this->Avx512Bw);
+		PRINT_CPU_FEATURE("AVX512VL", this->Avx512Vl);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("PreFetchWt1", this->PreFetchWt1);
+		PRINT_CPU_FEATURE("AVX512VBMI1", this->Avx512Vbmi);
+		PRINT_CPU_FEATURE("UMIP", this->Umip);
+		PRINT_CPU_FEATURE("PKU", this->Pku);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("OSPKE", this->OsPke);
+		PRINT_CPU_FEATURE("WaitPKG", this->WaitPkg);
+		PRINT_CPU_FEATURE("AVX512VBMI2", this->Avx512Vbmi2);
+		PRINT_CPU_FEATURE("CETSS", this->CetSS);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("GFNI", this->Gfni);
+		PRINT_CPU_FEATURE("VAES", this->VAes);
+		PRINT_CPU_FEATURE("VPCLMULDQD", this->VPclMulDqd);
+		PRINT_CPU_FEATURE("AVX512VNNI", this->Avx512Vnni);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("AVX512BITALG", this->Avx512Bitalg);
+		PRINT_CPU_FEATURE("AVX512VPOPCNTDQ", this->Avx512VPopCntdq);
+		PRINT_CPU_FEATURE("5LevelPaging", this->Level5Paging);
+		PRINT_CPU_FEATURE("RDPID", this->RdPid);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("CLDemote", this->ClDemote);
+		PRINT_CPU_FEATURE("MOVDIRI", this->MovDiri);
+		PRINT_CPU_FEATURE("MOVDIR64B", this->MovDir64B);
+		PRINT_CPU_FEATURE("EQNCMD", this->EnqCmd);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("SGXLC", this->SgxLc);
+		PRINT_CPU_FEATURE("PKS", this->Pks);
+		PRINT_CPU_FEATURE("AVX512VNNIW", this->Avx5124Vnniw);
+		PRINT_CPU_FEATURE("AVX512FMAPS", this->Avx5124FMaps);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("FSRM", this->Fsrm);
+		PRINT_CPU_FEATURE("AVX512VP2INTERSECT", this->Avx512Vp2Intersect);
+		PRINT_CPU_FEATURE("SRBDSCTRL", this->SrbdsCtrl);
+		PRINT_CPU_FEATURE("MDCLEAR", this->MdClear);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("TSXForceAbort", this->TsxForceAbort);
+		PRINT_CPU_FEATURE("Serialize", this->Serialize);
+		PRINT_CPU_FEATURE("Hybrid", this->Hybrid);
+		PRINT_CPU_FEATURE("TSXLDTRK", this->Tsxldtrk);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("PConfig", this->PConfig);
+		PRINT_CPU_FEATURE("LBR", this->Lbr);
+		PRINT_CPU_FEATURE("CETIBT", this->CetIbt);
+		PRINT_CPU_FEATURE("AMXBF16", this->AmxBf16);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("AMXTile", this->AmxTile);
+		PRINT_CPU_FEATURE("AMXInt8", this->AmxInt8);
+		PRINT_CPU_FEATURE("SpecCTRL", this->SpecCtrl);
+		PRINT_CPU_FEATURE("STIBP", this->Stibp);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("L1DFlush", this->L1DFlush);
+		PRINT_CPU_FEATURE("IA32ArchCompat", this->Ia32CoreCompat);
+		PRINT_CPU_FEATURE("IA32CoreCompat", this->Ia32CoreCompat);
+		PRINT_CPU_FEATURE("SSBD", this->Ssbd);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("LAHFLM", this->LahfLm);
+		PRINT_CPU_FEATURE("CMPLegacy", this->CmpLegacy);
+		PRINT_CPU_FEATURE("SVM", this->Svm);
+		PRINT_CPU_FEATURE("ExtAPIC", this->ExtApic);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("CR8Legacy", this->Cr8Legacy);
+		PRINT_CPU_FEATURE("ABM", this->Abm);
+		PRINT_CPU_FEATURE("SSE4A", this->Sse4a);
+		PRINT_CPU_FEATURE("MisAlignSSE", this->MisAlignSse);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("3DNowPrefetch", this->D3NowPrefetch);
+		PRINT_CPU_FEATURE("OSVW", this->OsVw);
+		PRINT_CPU_FEATURE("IBS", this->Ibs);
+		PRINT_CPU_FEATURE("XOP", this->Xop);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("SKInit", this->SkInit);
+		PRINT_CPU_FEATURE("WDT", this->Wdt);
+		PRINT_CPU_FEATURE("LWP", this->Lwp);
+		PRINT_CPU_FEATURE("FMA4", this->Fma4);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("TCE", this->Tce);
+		PRINT_CPU_FEATURE("NodeIDMSR", this->NodeIdMsr);
+		PRINT_CPU_FEATURE("TBM", this->Tbm);
+		PRINT_CPU_FEATURE("TopoExt", this->TopoExt);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("PerfCTRCore", this->PerfCtrCore);
+		PRINT_CPU_FEATURE("PerfCTRNB", this->PerCtrNb);
+		PRINT_CPU_FEATURE("DBX", this->Dbx);
+		PRINT_CPU_FEATURE("PerfTSC", this->PerfTsc);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("PCXL2I", this->PcxL2i);
+		PRINT_CPU_FEATURE("SYSCALL", this->SysCall);
+		PRINT_CPU_FEATURE("MP", this->Mp);
+		PRINT_CPU_FEATURE("NX", this->Nx);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("MMXExt", this->MmmxExt);
+		PRINT_CPU_FEATURE("FXSROpt", this->FxsrOpt);
+		PRINT_CPU_FEATURE("PDPE1GB", this->Pdpe1Gb);
+		PRINT_CPU_FEATURE("RDTSCP", this->Rdtscp);
+
+		Print('\n');
+
+		PRINT_CPU_FEATURE("LM", this->LongMode);
+		PRINT_CPU_FEATURE("3DNowExt", this->D3NowExt);
+		PRINT_CPU_FEATURE("3DNow", this->D3Now);
+
+		Print('\n');
 	}
 }
 
-#endif
+#undef PRINT_CPU_FEATURE

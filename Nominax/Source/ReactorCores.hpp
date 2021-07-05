@@ -235,7 +235,8 @@ namespace Nominax::Core
 	/// <param name="output"></param>
 	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	NOX_HOT extern auto ReactorCore_AVX(const VerboseReactorDescriptor* input, ReactorState* output, const void**** outJumpTable = nullptr) -> ReactorShutdownReason;
+	NOX_HOT extern ReactorShutdownReason ReactorCore_AVX(const VerboseReactorDescriptor* input, ReactorState* output,
+	                                                     const void**** outJumpTable = nullptr);
 
 	/// <summary>
 	/// Specialized implementation compiled with AVX, which uses 512-bit ZMM registers.
@@ -244,7 +245,9 @@ namespace Nominax::Core
 	/// <param name="output"></param>
 	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	NOX_HOT extern auto ReactorCore_AVX512F(const VerboseReactorDescriptor* input, ReactorState* output, const void**** outJumpTable = nullptr) -> ReactorShutdownReason;
+	NOX_HOT extern ReactorShutdownReason ReactorCore_AVX512F(const VerboseReactorDescriptor* input,
+	                                                         ReactorState* output,
+	                                                         const void**** outJumpTable = nullptr);
 
 #endif
 }

@@ -7,6 +7,9 @@ SET_SOURCE_FILES_PROPERTIES("Nominax/Source/ReactorCore_AVX512F.cpp" PROPERTIES 
 
 ADD_LIBRARY("NominaxRuntime" STATIC "${NOMINAX_SOURCES}")
 
+# assembler code macros:
+INCLUDE("Nominax/CMake/Assembly.cmake")
+
 # compiler optimization flags:
 INCLUDE("Nominax/CMake/CompilerFlags.cmake")
 

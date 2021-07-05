@@ -258,7 +258,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Operator for F64 precision F32ing point modulo.
 	/// </summary>
-	NOX_FORCE_INLINE static inline auto operator %=(Record& self, const F64 value) -> void
+	NOX_FORCE_INLINE static inline void operator %=(Record& self, const F64 value)
 	{
 		self.AsF64 = std::fmod(self.AsF64, value);
 	}
@@ -300,11 +300,10 @@ namespace Nominax::Core
 	/// So stack[-1] will be overwritten and contains the result.
 	/// stack[0] will still contain arg2.
 	/// </summary>
-	NOX_HOT static auto SyscallIntrin(Record * NOX_RESTRICT const sp, const U64 id)
-	->
-	void
-{
-		static constexpr std::array<const void* NOX_RESTRICT const, static_cast<std::size_t>(SystemIntrinsicCallID::$Count)> JUMP_TABLE
+	NOX_HOT static void SyscallIntrin(Record* NOX_RESTRICT const sp, const U64 id)
+	{
+		static constexpr std::array<const void* NOX_RESTRICT const, static_cast<std::size_t>(
+			                            SystemIntrinsicCallID::$Count)> JUMP_TABLE
 		{
 			&&__cos__,
 			&&__sin__,
@@ -347,7 +346,7 @@ namespace Nominax::Core
 
 		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
 
-		const void* NOX_RESTRICT const* const jumpTable {std::data(JUMP_TABLE)};
+		const void* NOX_RESTRICT const* const jumpTable{std::data(JUMP_TABLE)};
 
 		goto
 		**(jumpTable + id);
@@ -601,7 +600,7 @@ namespace Nominax::Core
 			// this reads until space, but we want to read until newline (at the moment):
 			// fread(&sp->AsUtf8, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
 			[[maybe_unused]] // throw runtime exception
-				auto _ {std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin)};
+				auto _{std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin)};
 		}
 		return;
 
@@ -613,8 +612,8 @@ namespace Nominax::Core
 		return;
 	}
 
-	NOX_HOT auto NOX_REACTOR_IMPL_NAME (const VerboseReactorDescriptor* input, ReactorState* output,
-	                                    const void**** outJumpTable) -> ReactorShutdownReason
+	NOX_HOT ReactorShutdownReason NOX_REACTOR_IMPL_NAME(const VerboseReactorDescriptor* input, ReactorState* output,
+	                                                    const void**** outJumpTable)
 	{
 		const auto pre = std::chrono::high_resolution_clock::now();
 
@@ -732,17 +731,17 @@ namespace Nominax::Core
 		ASM_MARKER("reactor locals");
 
 		[[maybe_unused]]
-			const void *NOX_RESTRICT
-		const
-		*const
-		jumpTable{std::data(JUMP_TABLE)}; /* jump table					*/
+			const void*NOX_RESTRICT
+				const
+				* const
+				jumpTable{std::data(JUMP_TABLE)}; /* jump table					*/
 		InterruptAccumulator interruptCode{}; /* interrupt id flag			*/
 		IntrinsicRoutine* const* const intrinsicTable{input->IntrinsicTable}; /* intrinsic table hi			*/
 		InterruptRoutine* const interruptHandler{input->InterruptHandler}; /* global interrupt routine		*/
-		const Signal* const NOX_RESTRICT      ipLo{input->CodeChunk}; /* instruction low ptr			*/
+		const Signal* const NOX_RESTRICT ipLo{input->CodeChunk}; /* instruction low ptr			*/
 		const Signal* ip{ipLo}; /* instruction ptr				*/
 		const Signal* bp{ipLo}; /* base pointer					*/
-		Record* NOX_RESTRICT                  sp{input->Stack}; /* stack pointer lo				*/
+		Record* NOX_RESTRICT sp{input->Stack}; /* stack pointer lo				*/
 
 		ASM_MARKER("reactor exec");
 
@@ -1169,7 +1168,7 @@ namespace Nominax::Core
 
 			--sp; // pop()
 			const U64 abs{(*++ip).R64.AsU64}; // absolute address
-			if ((*sp).AsI64<(*(sp + 1)).AsI64)
+			if ((*sp).AsI64 < (*(sp + 1)).AsI64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}
@@ -1186,7 +1185,7 @@ namespace Nominax::Core
 
 			--sp; // pop()
 			const U64 abs{(*++ip).R64.AsU64}; // absolute address
-			if ((*sp).AsF64<(*(sp + 1)).AsF64)
+			if ((*sp).AsF64 < (*(sp + 1)).AsF64)
 			{
 				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
 			}

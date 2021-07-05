@@ -1,6 +1,6 @@
-// File: OsWindows.cpp
+// File: Encoding.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 29.06.2021 9:15 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,72 +205,202 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/System/Os.hpp"
-#include "../../Include/Nominax/System/Platform.hpp"
+#include "../Include/Nominax/Assembler/x86_64/Encoding.hpp"
+#include "../Include/Nominax/Common/PanicRoutine.hpp"
 
-#if NOX_OS_WINDOWS
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <WinUser.h>
-#include <Psapi.h>
-
-namespace Nominax::System::Os
+namespace Nominax::Assembler::X86_64
 {
-	auto QuerySystemMemoryTotal() -> std::size_t
+	void InjectNopChain(U8* n, const U8 size)
 	{
-		MEMORYSTATUSEX status;
-		status.dwLength = sizeof(MEMORYSTATUSEX);
-		GlobalMemoryStatusEx(&status);
-		return status.ullTotalPhys;
-	}
+		NOX_PANIC_ASSERT_NOT_NULL(n, "Null needle!");
+		NOX_PANIC_ASSERT_LE(size, 15, "Invalid nop chain size!");
+		NOX_PANIC_ASSERT_GE(size, 1, "Invalid nop chain size!");
 
-	auto QueryProcessMemoryUsed() -> std::size_t
-	{
-		PROCESS_MEMORY_COUNTERS pmc;
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
-		return pmc.WorkingSetSize;
-	}
-
-	auto QueryCpuName() -> std::string
-	{
-		HKEY key;
-		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &key))
+		static constexpr std::array<const void* NOX_RESTRICT const, 15> JUMP_TABLE
 		{
-			return "Unknown";
-		}
-		TCHAR id[64 + 1];
-		DWORD idLen = sizeof id;
-		if (const auto data = static_cast<LPBYTE>(static_cast<void*>(id)); RegQueryValueExA(key, "ProcessorNameString", nullptr, nullptr, data, &idLen))
-		{
-			return "Unknown";
-		}
-		return id;
-	}
+			&&inject_1,
+			&&inject_2,
+			&&inject_3,
+			&&inject_4,
+			&&inject_5,
+			&&inject_6,
+			&&inject_7,
+			&&inject_8,
+			&&inject_9,
+			&&inject_10,
+			&&inject_11,
+			&&inject_12,
+			&&inject_13,
+			&&inject_14,
+			&&inject_15
+		};
 
-	auto QueryPageSize() -> std::size_t
-	{
-		SYSTEM_INFO sysInfo;
-		GetSystemInfo(&sysInfo);
-		return static_cast<std::size_t>(sysInfo.dwPageSize);
-	}
+		goto
+		*JUMP_TABLE[size - 1];
 
-	auto DylibOpen(const std::string_view filePath) -> void*
-	{
-		return LoadLibraryA(filePath.data());
-	}
+	inject_1:
+		*n = 0x90;
+		return;
 
-	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
-	{
-		// ReSharper disable once CppRedundantCastExpression
-		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
-	}
+	inject_2:
+		*n = 0x40;
+		*++n = 0x90;
+		return;
 
-	auto DylibClose(void*& handle) -> void
-	{
-		FreeLibrary(static_cast<HMODULE>(handle));
-		handle = nullptr;
+	inject_3:
+		*n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x00;
+		return;
+
+	inject_4:
+		*n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x40;
+		*++n = 0x00;
+		return;
+
+	inject_5:
+		*n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x44;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_6:
+		*n = 0x66;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x44;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_7:
+		*n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x80;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_8:
+		*n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_9:
+		*n = 0x66;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_10:
+		*n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_11:
+		*n = 0x66;
+		*++n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_12:
+		*n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_13:
+		*n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_14:
+		*n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_15:
+		*n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
 	}
 }
-
-#endif
