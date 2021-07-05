@@ -3,6 +3,7 @@ out/
 .idea/
 Build/
 dist/
+gen/
 CMakeSettings.json
 CMakeLists.txt.user
 reactor.asm
