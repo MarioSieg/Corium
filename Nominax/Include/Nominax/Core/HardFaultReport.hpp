@@ -210,7 +210,7 @@
 #include <ostream>
 
 #include "Record.hpp"
-#include "../ByteCode/Signal.hpp"
+#include "../ByteCode.hpp"
 
 namespace Nominax::Core
 {

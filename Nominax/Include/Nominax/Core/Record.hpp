@@ -210,8 +210,6 @@
 #include <array>
 #include <type_traits>
 
-#include "../ByteCode/CharCluster.hpp"
-
 namespace Nominax::Core
 {
 	/// <summary>
@@ -284,21 +282,6 @@ namespace Nominax::Core
 		/// Use as F32's array.
 		/// </summary>
 		std::array<F32, 2> AsF32S;
-
-		/// <summary>
-		/// Use as UTF-8 cluster.
-		/// </summary>
-		ByteCode::CharClusterUtf8 AsUtf8;
-
-		/// <summary>
-		/// Use as UTF-16 cluster.
-		/// </summary>
-		ByteCode::CharClusterUtf16 AsUtf16;
-
-		/// <summary>
-		/// Use as UTF-32 cluster.
-		/// </summary>
-		ByteCode::CharClusterUtf32 AsUtf32;
 
 		/// <summary>
 		/// Default construct.
@@ -398,27 +381,6 @@ namespace Nominax::Core
 		explicit constexpr Record(std::array<F32, 2> value);
 
 		/// <summary>
-		/// Construct from UTF-8 cluster.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(ByteCode::CharClusterUtf8 value);
-
-		/// <summary>
-		/// Construct from UTF-16 cluster.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(ByteCode::CharClusterUtf16 value);
-
-		/// <summary>
-		/// Construct from UTF-32 cluster.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(ByteCode::CharClusterUtf32 value);
-
-		/// <summary>
 		/// Returns true if value contains non zero, else false.
 		/// </summary>
 		/// <returns></returns>
@@ -486,9 +448,6 @@ namespace Nominax::Core
 	constexpr Record::Record(const std::array<U32, 2> value) : AsU32S {value} {}
 	constexpr Record::Record(const std::array<I32, 2> value) : AsI32S {value} {}
 	constexpr Record::Record(const std::array<F32, 2> value) : AsF32S {value} {}
-	constexpr Record::Record(const ByteCode::CharClusterUtf8 value) : AsUtf8 {value} {}
-	constexpr Record::Record(const ByteCode::CharClusterUtf16 value) : AsUtf16 {value} {}
-	constexpr Record::Record(const ByteCode::CharClusterUtf32 value) : AsUtf32 {value} {}
 
 	constexpr Record::operator bool() const
 	{

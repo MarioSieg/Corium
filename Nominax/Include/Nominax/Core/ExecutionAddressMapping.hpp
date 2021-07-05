@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "../ByteCode/Signal.hpp"
+#include "../ByteCode.hpp"
 #include "../Common/ComHints.hpp"
 
 namespace Nominax::Core

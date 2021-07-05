@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include "../../Nominax/Include/Nominax/Common/Common.hpp"
-#include "../../Nominax/Include/Nominax/ByteCode/ByteCode.hpp"
+#include "../../Nominax/Include/Nominax/ByteCode.hpp"
 
 namespace Nominax::Common
 {
@@ -633,13 +633,13 @@ FormatOutput formatter<DiscriminatedSignal, char, void>::format(const Discrimina
 		return format_to(ctx.out(), NOX_LEX_TYPE_F64 " " NOX_LEX_IMM "{}", value.Value.R64.AsF64);
 
 	case Dis::CharClusterUtf8:
-		return format_to(ctx.out(), NOX_LEX_TYPE_CC1 " " NOX_LEX_IMM "{}", value.Value.R64.AsUtf8);
+		return format_to(ctx.out(), NOX_LEX_TYPE_CC1 " " NOX_LEX_IMM "{}", reinterpret_cast<const char*>(&value.Value.R64));
 
 	case Dis::CharClusterUtf16:
-		return format_to(ctx.out(), NOX_LEX_TYPE_CC2 " " NOX_LEX_IMM "{}", value.Value.R64.AsUtf16);
+		return format_to(ctx.out(), NOX_LEX_TYPE_CC2 " " NOX_LEX_IMM "{}", reinterpret_cast<const char*>(&value.Value.R64)); // TODO CVT
 
 	case Dis::CharClusterUtf32:
-		return format_to(ctx.out(), NOX_LEX_TYPE_CC4 " " NOX_LEX_IMM "{}", value.Value.R64.AsUtf32);
+		return format_to(ctx.out(), NOX_LEX_TYPE_CC4 " " NOX_LEX_IMM "{}", reinterpret_cast<const char*>(&value.Value.R64)); // TODO CVT
 
 	case Dis::OpCode:
 	case Dis::Instruction:

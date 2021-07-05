@@ -222,9 +222,7 @@
 #include "../Include/Nominax/Common/ComparatorProxyF64.hpp"
 #include "../Include/Nominax/Common/ComHints.hpp"
 
-#include "../Include/Nominax/ByteCode/SystemIntrinsic.hpp"
-#include "../Include/Nominax/ByteCode/Instruction.hpp"
-#include "../Include/Nominax/ByteCode/Signal.hpp"
+#include "../Include/Nominax/ByteCode.hpp"
 
 #include "../Include/Nominax/VectorLib/VF64X4U.hpp"
 #include "../Include/Nominax/VectorLib/VF64X16U.hpp"

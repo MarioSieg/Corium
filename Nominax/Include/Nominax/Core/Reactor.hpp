@@ -217,8 +217,7 @@
 #include "ReactorSpawnDescriptor.hpp"
 #include "ReactorHypervisor.hpp"
 
-#include "../ByteCode/UserIntrinsic.hpp"
-#include "../ByteCode/Stream.hpp"
+#include "../ByteCode.hpp"
 #include "../System/CpuFeatureDetector.hpp"
 
 namespace Nominax::Core

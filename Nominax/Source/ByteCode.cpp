@@ -1,4 +1,4 @@
-#include "../../Nominax/Include/Nominax/ByteCode/ByteCode.hpp"
+#include "../../Nominax/Include/Nominax/ByteCode.hpp"
 #include "../../Nominax/Include/Nominax/Common/PanicRoutine.hpp"
 #include "../../Nominax/Include/Nominax/Common/Algorithm.hpp"
 #include "../../Nominax/Include/Nominax/Common/ComparatorProxyF64.hpp"
@@ -100,120 +100,6 @@ namespace Nominax::ByteCode
 		this->Blob_ = nullptr;
 		this->Size_ = 0;
 	}
-
-	using Dis = Signal::Discriminator;;
-
-	static constexpr std::array ANY_TYPE
-	{
-		Dis::U64,
-		Dis::I64,
-		Dis::F64,
-		Dis::CharClusterUtf8,
-		Dis::CharClusterUtf16,
-		Dis::CharClusterUtf32
-	};
-
-	const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::$Count)>
-	INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
-	{
-		PerInstructionArgTypes{{Dis::I64}}, // int
-		{{Dis::SystemIntrinsicCallID}}, // intrin
-		{{Dis::UserIntrinsicCallID}}, // cintrin
-		{{Dis::U64}}, // call
-		{}, // ret
-		{{Dis::U64}, {Dis::U64}}, // mov
-		{{Dis::U64}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}}, // sto
-		{{std::begin(ANY_TYPE), std::end(ANY_TYPE)}}, // push
-		{}, // pop
-		{}, // pop2
-		{}, // dupl
-		{}, // dupl2
-		{}, // swap
-		{}, // nop
-		{{Dis::JumpAddress}}, // jmp
-		{{Dis::JumpAddress}}, // jmprel
-		{{Dis::JumpAddress}}, // jz
-		{{Dis::JumpAddress}}, // jnz
-		{{Dis::JumpAddress}}, // jo_cmpi
-		{{Dis::JumpAddress}}, // jo_cmpf
-		{{Dis::JumpAddress}}, // jno_cmpi
-		{{Dis::JumpAddress}}, // jno_cmpf
-		{{Dis::JumpAddress}}, // je_cmpi
-		{{Dis::JumpAddress}}, // je_cmpf
-		{{Dis::JumpAddress}}, // jne_cmpi
-		{{Dis::JumpAddress}}, // jne_cmpf
-		{{Dis::JumpAddress}}, // ja_cmpi
-		{{Dis::JumpAddress}}, // ja_cmpf
-		{{Dis::JumpAddress}}, // jl_cmpi
-		{{Dis::JumpAddress}}, // jl_cmpf
-		{{Dis::JumpAddress}}, // jae_cmpi
-		{{Dis::JumpAddress}}, // jae_cmpf
-		{{Dis::JumpAddress}}, // jle_cmpi
-		{{Dis::JumpAddress}}, // jle_cmpf
-		{}, // pushz
-		{}, // ipusho
-		{}, // fpusho
-		{}, // iinc
-		{}, // idec
-		{}, // iadd
-		{}, // isub
-		{}, // imul
-		{}, // idiv
-		{}, // imod
-		{}, // iand
-		{}, // ior
-		{}, // ixor
-		{}, // icom
-		{}, // isal
-		{}, // isar
-		{}, // irol
-		{}, // iror
-		{}, // ineg
-		{}, // fadd
-		{}, // fsub
-		{}, // fmul
-		{}, // fdiv
-		{}, // fmod
-		{}, // fneg
-		{}, // finc
-		{}, // fdec
-		{
-			// vpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)}
-		},
-		{}, // vpop
-		{}, // vadd
-		{}, // vsub
-		{}, // vmul
-		{}, // vdiv
-		{
-			// matpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-		},
-		{}, // matpop
-		{}, // matadd
-		{}, // matsub
-		{}, // matmul
-		{} // matdiv
-	};
 
 	using Common::ILog2;
 	using Common::Proxy_F64IsZero;
@@ -936,7 +822,7 @@ namespace Nominax::ByteCode
 			}
 		}
 
-		// Error code:
+		// Error state:
 		AtomicState<ValidationResultCode> error{};
 		std::atomic<U32> errorIndex{0};
 
@@ -947,8 +833,7 @@ namespace Nominax::ByteCode
 
 		auto validationRoutine
 		{
-			[&error, &codeBuf, &input, &intrinsicRegistry, &errorIndex, bufBegin, bufEnd](
-			const Signal::Discriminator& iterator)
+			[&](const Signal::Discriminator& iterator)
 			{
 				const std::ptrdiff_t index{DistanceRef(iterator, bufBegin)};
 				const Signal signal{codeBuf[index]};
@@ -956,45 +841,46 @@ namespace Nominax::ByteCode
 
 				switch (iterator)
 				{
-					// validate instruction:
-				case Signal::Discriminator::Instruction:
-					{
-						const auto* const next{SearchForNextInstruction(&iterator, bufEnd)};
-						const auto args{
-							ExtractInstructionArguments(&iterator, ComputeInstructionArgumentOffset(&iterator, next))
-						};
-						result = ValidateInstructionArguments(signal.Instr, args); // validate args
-					}
-					break;
+						// validate instruction:
+					case Signal::Discriminator::Instruction:
+						{
+							const auto* const next{SearchForNextInstruction(&iterator, bufEnd)};
+							const auto args{
+								ExtractInstructionArguments(&iterator, ComputeInstructionArgumentOffset(&iterator, next))
+							};
+							result = ValidateInstructionArguments(signal.Instr, args); // validate args
+						}
+						break;
 
-				case Signal::Discriminator::JumpAddress:
-					{
-						result = ValidateJumpAddress(input, signal.JmpAddress)
-							         ? ValidationResultCode::Ok
-							         : ValidationResultCode::InvalidJumpAddress;
-					}
-					break;
+					case Signal::Discriminator::JumpAddress:
+						{
+							result = ValidateJumpAddress(input, signal.JmpAddress)
+								         ? ValidationResultCode::Ok
+								         : ValidationResultCode::InvalidJumpAddress;
+						}
+						break;
 
-				case Signal::Discriminator::UserIntrinsicCallID:
-					{
-						result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID)
-							         ? ValidationResultCode::Ok
-							         : ValidationResultCode::InvalidUserIntrinsicCall;
-					}
-					break;
+					case Signal::Discriminator::UserIntrinsicCallID:
+						{
+							result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID)
+								         ? ValidationResultCode::Ok
+								         : ValidationResultCode::InvalidUserIntrinsicCall;
+						}
+						break;
 
-				default: ;
+					default: ;
 				}
 
 				if (result != ValidationResultCode::Ok)
 				[[unlikely]]
 				{
-					errorIndex.store(index);
+					errorIndex.store(static_cast<U32>(index));
 					error(result);
 				}
 			}
 		};
 
+		// Validate in parallel:
 		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf), validationRoutine);
 
 		// Return error if the error value is not okay

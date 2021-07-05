@@ -209,7 +209,7 @@
 
 #include "Arch/Arch.hpp"
 #include "Assembler/Assembler.hpp"
-#include "ByteCode/ByteCode.hpp"
+#include "ByteCode.hpp"
 #include "Core/Core.hpp"
 #include "System/System.hpp"
 #include "Common/Common.hpp"

@@ -212,7 +212,7 @@
 #include <memory>
 #include <memory_resource>
 
-#include "../ByteCode/Stream.hpp"
+#include "../ByteCode.hpp"
 #include "../Common/Allocator.hpp"
 #include "EnvironmentDescriptor.hpp"
 #include "ReactorState.hpp"
