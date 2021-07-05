@@ -477,19 +477,19 @@ TEST(Assembler_x86_64, InjectNopChain_15)
 
 TEST(Assembler_x86_64, InjectNopChain_Null_Error)
 {
-	ASSERT_DEATH(InjectNOPChain(nullptr, 0), "");
+	ASSERT_DEATH(InjectNopChain(nullptr, 0), "");
 }
 
 TEST(Assembler_x86_64, InjectNopChain_0_Error)
 {
 	U8 x{};
-	ASSERT_DEATH(InjectNOPChain(&x, 0), "");
+	ASSERT_DEATH(InjectNopChain(&x, 0), "");
 }
 
 TEST(Assembler_x86_64, InjectNopChain_16_Error)
 {
 	U8 x{};
-	ASSERT_DEATH(InjectNOPChain(&x, 16), "");
+	ASSERT_DEATH(InjectNopChain(&x, 16), "");
 }
 
 #endif

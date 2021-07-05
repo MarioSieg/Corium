@@ -1,6 +1,6 @@
-// File: ReactorHypervisor.hpp
+// File: VM_Impl_AVX.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 05.07.2021 4:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,112 +205,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../Include/Nominax/System/Platform.hpp"
 
-#include "ReactorCoreSpecialization.hpp"
-#include "ReactorShutdownReason.hpp"
-
-namespace Nominax
-{
-	namespace System
-	{
-		struct CpuFeatureDetector;
-	}
-
-	namespace Core
-	{
-		struct ReactorState;
-		struct VerboseReactorDescriptor;
-
-		/// <summary>
-		/// Signature of the reactor core execution routine.
-		/// </summary>
-		using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor* descriptor, ReactorState* outputState, const void**** jumpTableQuery) -> ReactorShutdownReason;
-
-		/// <summary>
-		/// Contains the reactor routine and additional information.
-		/// </summary>
-		struct ReactorRoutineLink
-		{
-			const ReactorCoreSpecialization    Specialization;
-			ReactorCoreExecutionRoutine* const ExecutionRoutine;
-			const void** const                 JumpTable;
-
-			ReactorRoutineLink
-			(
-				ReactorCoreSpecialization    specialization,
-				ReactorCoreExecutionRoutine* executionRoutine,
-				const void**                 jumpTable
-			);
-		};
-
-		/// <summary>
-		/// Contains all available reactor implementations for the current platform.
-		/// </summary>
-		using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)>;
-
-		/// <summary>
-		/// Returns the fallback reactor routine with no platform specific optimizations,
-		/// available on all platforms and all CPUs.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		extern auto GetFallbackRoutineLink() -> ReactorRoutineLink;
-
-		/// <summary>
-		/// Returns the reactor specialization based on the cpu features available.
-		/// </summary>
-		/// <param name="cpuFeatureDetector"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		extern auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current reactor registry.</returns>
-		[[nodiscard]]
-		extern auto GetReactorRegistry() -> const ReactorRegistry&;
-
-		/// <summary>
-		/// Returns the reactor routine of the corresponding target.
-		/// </summary>
-		/// <param name="target"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		extern auto GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*;
-
-		/// <summary>
-		/// Selects the best reactor routine matching the cpu features and saves it.
-		/// </summary>
-		/// <param name="features"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		extern auto GetOptimalReactorRoutine(const System::CpuFeatureDetector& features) -> ReactorRoutineLink;
-
-		/// <summary>
-		/// Helpers to quickly execute a reactor with specified cpu features.
-		/// Good for testing and debugging.
-		/// </summary>
-		/// <param name="target"></param>
-		/// <param name="input"></param>
-		/// <param name="output"></param>
-		/// <param name="outJumpTable"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		extern auto SingletonExecutionProxy
-		(
-			const VerboseReactorDescriptor&   input,
-			ReactorState&                     output,
-			const System::CpuFeatureDetector& target,
-			const void****                    outJumpTable = nullptr
-		) -> ReactorShutdownReason;
-
-		/// <summary>
-		/// Queries the jump table from the specified reactor routine.
-		/// </summary>
-		/// <param name="routine"></param>
-		/// <returns></returns>
-		extern auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**;
-	}
-}
+#if NOX_ARCH_X86_64
+#	if !defined(__AVX__) || !__AVX__
+#		error "This reactore core requires AVX!"
+#	endif
+#	define NOX_REACTOR_IMPL_NAME ReactorCore_AVX
+#		include "VM.inl"
+#	undef NOX_REACTOR_IMPL_NAME
+#endif

@@ -2,8 +2,8 @@
 FILE(GLOB_RECURSE "NOMINAX_SOURCES" "Nominax/Source/*.cpp" "Nominax/Source/*.S" "Include/Nominax/*.hpp")
 
 # Set more optimizations for special reactors:
-SET_SOURCE_FILES_PROPERTIES("Nominax/Source/ReactorCore_AVX.cpp" PROPERTIES COMPILE_FLAGS "-mavx")
-SET_SOURCE_FILES_PROPERTIES("Nominax/Source/ReactorCore_AVX512F.cpp" PROPERTIES COMPILE_FLAGS "-mavx512f")
+SET_SOURCE_FILES_PROPERTIES("Nominax/Source/VM_Impl_AVX.cpp" PROPERTIES COMPILE_FLAGS "-mavx")
+SET_SOURCE_FILES_PROPERTIES("Nominax/Source/VM_Impl_AVX512F.cpp" PROPERTIES COMPILE_FLAGS "-mavx512f")
 
 ADD_LIBRARY("NominaxRuntime" STATIC "${NOMINAX_SOURCES}")
 

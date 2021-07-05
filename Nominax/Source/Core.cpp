@@ -211,7 +211,7 @@
 #include <sstream>
 #include <string_view>
 
-#include "../../Nominax/Include/Nominax/Core/Core.hpp"
+#include "../../Nominax/Include/Nominax/Core.hpp"
 #include "../../Nominax/Include/Nominax/Common.hpp"
 #include "../../Nominax/Include/Nominax/System/System.hpp"
 
@@ -289,7 +289,7 @@ namespace Nominax
 		static auto PrintTypeInfoTable() -> void
 		{
 			Common::Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
-			PrintTypeInfo<Record>("Record");
+			PrintTypeInfo<Common::Record>("Common::Record");
 			PrintTypeInfo<ByteCode::Signal>("Signal");
 			PrintTypeInfo<ByteCode::Signal::Discriminator>("SignalDisc");
 			PrintTypeInfo<Object>("Object");
@@ -335,19 +335,19 @@ namespace Nominax
 		#define VALIDATE_ONLINE_BOOT_STATE() NOX_PANIC_ASSERT_TRUE(this->IsOnline(), "Environment is offline!")
 
 		/// <summary>
-		/// Checks if the byte stack size is divisible by sizeof(Record) and panics if not.
+		/// Checks if the byte stack size is divisible by sizeof(Common::Record) and panics if not.
 		/// Returns the counts of records.
 		/// </summary>
 		/// <param name="appCode"></param>
 		/// <returns></returns>
 		static inline auto MapStackSize(const std::size_t sizeInBytes) -> std::size_t
 		{
-			if (sizeInBytes % sizeof(Record) != 0)
+			if (sizeInBytes % sizeof(Common::Record) != 0)
 			{
 				[[unlikely]]
-					Panic(NOX_PAINF, "Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
+					Panic(NOX_PAINF, "Invalid stack size: {}! Must be a multiple of sizeof(Common::Record) -> 8!", sizeInBytes);
 			}
-			return sizeInBytes / sizeof(Record);
+			return sizeInBytes / sizeof(Common::Record);
 		}
 
 		/// <summary>
@@ -359,7 +359,7 @@ namespace Nominax
 		/// S = final size
 		/// C = reactor count
 		/// Z = reactor stack size
-		/// R = sizeof(Record)
+		/// R = sizeof(Common::Record)
 		/// </summary>
 		/// <param name="desiredSize"></param>
 		/// <param name="reactorCount"></param>
@@ -374,7 +374,7 @@ namespace Nominax
 		{
 			reactorStackSize = MapStackSize(reactorStackSize);
 			desiredSize      = desiredSize ? desiredSize : Environment::FALLBACK_SYSTEM_POOL_SIZE;
-			return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
+			return desiredSize + reactorCount * (reactorStackSize * sizeof(Common::Record));
 		}
 
 		/// <summary>
@@ -908,7 +908,7 @@ namespace Nominax
 			this->Buffer_.resize(sizeInRecords);
 
 			// insert padding:
-			this->Buffer_.front() = Record::Padding();
+			this->Buffer_.front() = Common::Record::Padding();
 		}
 
 		static constexpr std::string_view CRASH_DIRECTORY {"Crashes/"};
@@ -928,7 +928,7 @@ namespace Nominax
 		auto WriteHardFaultReport
 		(
 			std::ostream&                 out,
-			const Record* const           sp,
+			const Common::Record* const   sp,
 			const ByteCode::Signal* const ip,
 			const ByteCode::Signal* const bp,
 			const std::size_t             stackSize,
@@ -1550,7 +1550,7 @@ namespace Nominax
 		/// <returns></returns>
 		auto WriteHardFaultReport
 		(
-			const Record* const           sp,
+			const Common::Record* const   sp,
 			const ByteCode::Signal* const ip,
 			const ByteCode::Signal* const bp,
 			const std::size_t             stackSize,
@@ -1593,7 +1593,7 @@ namespace Nominax
 			return &DefaultInterruptRoutine;
 		}
 
-		auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) const -> bool
+		auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Common::Record> buffer) const -> bool
 		{
 			if (buffer.size() < this->HeaderRead_BlockSize())
 			{
@@ -1606,13 +1606,13 @@ namespace Nominax
 			return true;
 		}
 
-		auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) const -> void
+		auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Common::Record>& buffer) const -> void
 		{
 			buffer.resize(this->HeaderRead_BlockSize());
 			std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
 		}
 
-		auto Object::CopyBlob(std::vector<Record>& buffer) const -> void
+		auto Object::CopyBlob(std::vector<Common::Record>& buffer) const -> void
 		{
 			buffer.resize(this->BlobSize());
 			std::memcpy(buffer.data(), this->Blob_, this->BlobSizeInBytes());
@@ -1624,7 +1624,7 @@ namespace Nominax
 				&& std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.ObjectBlockSizeInBytes()) == 0;
 		}
 
-		auto Object::AllocateUnique(const U32 sizeInRecords) -> std::unique_ptr<Object, Object::UniquePtrObjectDeleter>
+		auto Object::AllocateUnique(const U32 sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
 		{
 			if (sizeInRecords == 0)
 			[[unlikely]]
@@ -1632,7 +1632,7 @@ namespace Nominax
 				return nullptr;
 			}
 			const U32                finalObjectSize = ObjectHeader::RECORD_CHUNKS + sizeInRecords;
-			auto* NOX_RESTRICT const object          = new Record[finalObjectSize]();
+			auto* NOX_RESTRICT const object          = new Common::Record[finalObjectSize]();
 			assert(object);
 
 			// Write object header:
@@ -2111,7 +2111,7 @@ namespace Nominax
 				"Power: {}, "
 				"Pool: {:02}\n",
 				this->Id_,
-				Common::Bytes2Megabytes(this->Stack_.Size() * sizeof(Record)),
+				Common::Bytes2Megabytes(this->Stack_.Size() * sizeof(Common::Record)),
 				this->Stack_.Size(),
 				this->IntrinsicTable_.size(),
 				this->InterruptHandler_ == &DefaultInterruptRoutine ? "Def" : "Usr",
@@ -2596,7 +2596,7 @@ namespace Nominax
 			}
 
 			// first stack entry is never used and must be nop-padding:
-			if (*Stack != Record::Padding())
+			if (*Stack != Common::Record::Padding())
 			{
 				[[unlikely]]
 					return ReactorValidationResult::MissingStackPrologue;

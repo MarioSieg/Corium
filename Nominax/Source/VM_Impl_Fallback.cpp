@@ -1,6 +1,6 @@
-// File: RegisterDump.hpp
+// File: VM_Impl_Fallback.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 05.07.2021 4:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,85 +205,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include <array>
-
-#include "../Common.hpp"
-#include "../System/Platform.hpp"
-
-namespace Nominax::Core
-{
-	/// <summary>
-	/// 128 bit vector type for SIMD data
-	/// SSE %XMM registers on x86
-	/// ARM Neon registers on ARM
-	/// </summary>
-	using Vector128 = std::array<U64, 2>;
-
-	static_assert(sizeof(Vector128) == 16);
-
-	/// <summary>
-	/// 256 bit vector register type.
-	/// AVX %YMM registers on x86
-	/// </summary>
-	using Vector256 = std::array<U64, 4>;
-
-	static_assert(sizeof(Vector256) == 32);
-
-	/// <summary>
-	/// 512 bit vector register type.
-	/// AVX-512 %ZMM registers on x86
-	/// </summary>
-	using Vector512 = std::array<U64, 8>;
-
-	static_assert(sizeof(Vector512) == 64);
-
-	#if NOX_ARCH_X86_32
-
-	using GprRegisterLane = std::array<U32, 8>;
-	using VectorRegisterLane128 = std::array<Vector128, 8>;
-	using VectorRegisterLane256 = std::array<Vector256, 1>;
-
-	/// <summary>
-	/// Read and dump all the register values into the stream.
-	/// </summary>
-	/// <param name="out"></param>
-	/// <param name="gpr"></param>
-	/// <returns></returns>
-	extern auto RegisterDump_X86_32(std::ostream& out, const GprRegisterLane& gpr) -> void;
-
-	#elif NOX_ARCH_X86_64
-
-	using GprRegisterLane = std::array<U64, 16>;
-	using VectorRegisterLane128 = std::array<Vector128, 16>;
-	using VectorRegisterLane256 = std::array<Vector256, 16>;
-
-	/// <summary>
-	/// Read and dump all the register values into the stream.
-	/// </summary>
-	/// <param name="out"></param>
-	/// <param name="gpr"></param>
-	/// <param name="xmm"></param>
-	/// <param name="ymm"></param>
-	/// <param name="zmm"></param>
-	/// <returns></returns>
-	extern auto RegisterDump_X86_64
-	(
-		std::ostream&                out,
-		const GprRegisterLane&       gpr,
-		const VectorRegisterLane128& xmm,
-		const VectorRegisterLane256& ymm
-	) -> void;
-
-	#elif NOX_ARCH_ARM_64
-
-	using GprRegisterLane = std::array<U64, 16>;
-	using VectorRegisterLane128 = std::array<Vector128, 16>;
-	using VectorRegisterLane256 = std::array<Vector256, 1>;
-
-#	error "Not yet implemented!"
-	#else
-#	error "Unknown arch!"
-	#endif
-}
+#define NOX_REACTOR_IMPL_NAME ReactorCore_Fallback
+#include "VM.inl"
+#undef NOX_REACTOR_IMPL_NAME

@@ -1,4 +1,4 @@
-// File: ReactorCore.inl
+// File: VM.inl
 // Author: Mario
 // Created: 05.07.2021 4:43 PM
 // Project: NominaxRuntime
@@ -211,16 +211,13 @@
 
 #include "ReactorCores.hpp"
 
-#include "../Include/Nominax/Core/VerboseReactorDescriptor.hpp"
-#include "../Include/Nominax/Core/ReactorState.hpp"
-#include "../Include/Nominax/Core/Interrupt.hpp"
-#include "../Include/Nominax/Core/ExecutionAddressMapping.hpp"
-
-#include "../Include/Nominax/Common.hpp"
 #include "../Include/Nominax/ByteCode.hpp"
+#include "../Include/Nominax/Common.hpp"
+#include "../Include/Nominax/Core.hpp"
 
 namespace Nominax::Core
 {
+	using Common::Record;
 	using Common::BreakpointInterrupt;
 	using Common::NoOperation;
 	using Common::Rol64;

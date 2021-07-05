@@ -1,6 +1,6 @@
-// File: ObjectFlagVector.hpp
+// File: VM_Impl_AVX512F.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 05.07.2021 4:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,180 +205,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../Include/Nominax/System/Platform.hpp"
 
-namespace Nominax::Core
-{
-	/// <summary>
-	/// Contains all flags in the flag vector field in the object header.
-	/// </summary>
-	union ObjectFlagVector final
-	{
-		struct
-		{
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag0 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag1 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag2 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag3 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag4 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag5 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag6 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag7 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag8 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag9 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag10 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag11 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag12 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag13 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag14 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag15 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag16 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag17 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag18 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag19 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag20 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag21 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag22 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag23 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag24 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag25 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag26 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag27 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag28 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag29 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag30 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag31 : 1;
-		} Flags;
-
-		U32 Merged;
-	};
-
-	static_assert(sizeof(ObjectFlagVector) == sizeof(U32));
-}
+#if NOX_ARCH_X86_64
+#	if !defined(__AVX512F__) || !__AVX512F__
+#		error "This reactore core requires AVX512F!"
+#	endif
+#	define NOX_REACTOR_IMPL_NAME ReactorCore_AVX512F
+#		include "VM.inl"
+#	undef NOX_REACTOR_IMPL_NAME
+#endif

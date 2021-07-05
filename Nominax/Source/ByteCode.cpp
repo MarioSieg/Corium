@@ -208,7 +208,7 @@
 #include "../../Nominax/Include/Nominax/ByteCode.hpp"
 #include "../../Nominax/Include/Nominax/Common.hpp"
 #include "../../Nominax/Include/Nominax/Utils.hpp"
-#include "../../Nominax/Include/Nominax/Core/Core.hpp"
+#include "../../Nominax/Include/Nominax/Core.hpp"
 
 namespace Nominax::ByteCode
 {

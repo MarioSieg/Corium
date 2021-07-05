@@ -207,7 +207,7 @@
 
 #include "../../Nominax/Include/Nominax/Common.hpp"
 #include "../../Nominax/Include/Nominax/ByteCode.hpp"
-#include "../../Nominax/Include/Nominax/Core/Info.hpp"
+#include "../../Nominax/Include/Nominax/Core.hpp"
 
 namespace Nominax::Common
 {
@@ -726,12 +726,12 @@ namespace Nominax::Common
 		this->Content_.erase(beginIndex, endIndex - beginIndex + 1);
 	}
 
-	auto TextFile::SubString(const std::size_t beginIdx, const std::size_t endIdx) const -> TextFile::ViewType
+	auto TextFile::SubString(const std::size_t beginIdx, const std::size_t endIdx) const -> ViewType
 	{
 		return SubstringView(this->Content_, beginIdx, endIdx - beginIdx + 1);
 	}
 
-	auto TextFile::SubStringChar(const CharType beginChar, const CharType endChar) const -> TextFile::ViewType
+	auto TextFile::SubStringChar(const CharType beginChar, const CharType endChar) const -> ViewType
 	{
 		const std::size_t beginIndex {this->Content_.find_first_of(beginChar)};
 		const std::size_t endIndex {this->Content_.find_first_of(endChar, beginIndex + 1)};

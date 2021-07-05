@@ -223,6 +223,7 @@
 #include <iosfwd>
 #include <iostream>
 #include <iterator>
+#include <memory_resource>
 #include <string>
 #include <string_view>
 #include <span>
@@ -2636,6 +2637,291 @@ namespace Nominax::Common
 	/// </summary>
 	/// <returns>A random generated number.</returns>
 	extern auto Xorshift128ThreadLocal() -> U32;
+
+	/// <summary>
+	/// 64-bit memory record.
+	/// Contains either: Record32, void*, U64, I64, F64
+	/// </summary>
+	union alignas(alignof(I64)) Record
+	{
+		/// <summary>
+		/// Use as U32.
+		/// </summary>
+		U32 AsU32;
+
+		/// <summary>
+		/// Use as I32.
+		/// </summary>
+		I32 AsI32;
+
+		/// <summary>
+		/// Use as F32.
+		/// </summary>
+		F32 AsF32;
+
+		/// <summary>
+		/// Use as U64.
+		/// </summary>
+		U64 AsU64;
+
+		/// <summary>
+		/// Use as I64.
+		/// </summary>
+		I64 AsI64;
+
+		/// <summary>
+		/// Use as F64.
+		/// </summary>
+		F64 AsF64;
+
+		/// <summary>
+		/// Use as PTR 64.
+		/// </summary>
+		void* AsPtr;
+
+		/// <summary>
+		/// Use as ASCII/UTF-8 char.
+		/// </summary>
+		char8_t AsChar8;
+
+		/// <summary>
+		/// Use as UTF-16 char.
+		/// </summary>
+		char16_t AsChar16;
+
+		/// <summary>
+		/// Use as UTF-32 char.
+		/// </summary>
+		char32_t AsChar32;
+
+		/// <summary>
+		/// Use as U32's array.
+		/// </summary>
+		std::array<U32, 2> AsU32S;
+
+		/// <summary>
+		/// Use as I32's array.
+		/// </summary>
+		std::array<I32, 2> AsI32S;
+
+		/// <summary>
+		/// Use as F32's array.
+		/// </summary>
+		std::array<F32, 2> AsF32S;
+
+		/// <summary>
+		/// Default construct.
+		/// </summary>
+		/// <returns></returns>
+		Record() = default;
+
+		/// <summary>
+		/// Construct from U32 and zero upper 32 bits.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(U32 value);
+
+		/// <summary>
+		/// Construct from I32 and zero upper 32 bits.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(I32 value);
+
+		/// <summary>
+		/// Construct from F32 and zero upper 32 bits.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(F32 value);
+
+		/// <summary>
+		/// Construct from U64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(U64 value);
+
+		/// <summary>
+		/// Construct from I64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(I64 value);
+
+		/// <summary>
+		/// Construct from F64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(F64 value);
+
+		/// <summary>
+		/// Construct from PTR 64.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(void* value);
+
+		/// <summary>
+		/// Construct from ASCII/UTF-8 char.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(char8_t value);
+
+		/// <summary>
+		/// Construct from UTF-16 char.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(char16_t value);
+
+		/// <summary>
+		/// Construct from UTF-32 char.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(char32_t value);
+
+		/// <summary>
+		/// Construct from U32 array.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(std::array<U32, 2> value);
+
+		/// <summary>
+		/// Construct from I32 array.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(std::array<I32, 2> value);
+
+		/// <summary>
+		/// Construct from F32 array.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		explicit constexpr Record(std::array<F32, 2> value);
+
+		/// <summary>
+		/// Returns true if value contains non zero, else false.
+		/// </summary>
+		/// <returns></returns>
+		explicit constexpr operator bool() const;
+
+		/// <summary>
+		/// Equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator ==(Record other) const -> bool;
+
+		/// <summary>
+		/// Not equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator !=(Record other) const -> bool;
+
+		/// <summary>
+		/// Less.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator <(Record other) const -> bool;
+
+		/// <summary>
+		/// Above.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator >(Record other) const -> bool;
+
+		/// <summary>
+		/// Less equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator <=(Record other) const -> bool;
+
+		/// <summary>
+		/// Above equal.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator >=(Record other) const -> bool;
+
+		/// <summary>
+		/// Get stack padding value.
+		/// </summary>
+		/// <returns></returns>
+		static constexpr auto Padding() -> Record;
+	};
+
+	constexpr Record::Record(const U32 value) : AsU32 {value} {}
+	constexpr Record::Record(const I32 value) : AsI32 {value} {}
+	constexpr Record::Record(const F32 value) : AsF32 {value} {}
+	constexpr Record::Record(const U64 value) : AsU64 {value} {}
+	constexpr Record::Record(const I64 value) : AsI64 {value} {}
+	constexpr Record::Record(const F64 value) : AsF64 {value} {}
+	constexpr Record::Record(void* const value) : AsPtr {value} {}
+	constexpr Record::Record(const char8_t value) : AsChar8 {value} {}
+	constexpr Record::Record(const char16_t value) : AsChar16 {value} {}
+	constexpr Record::Record(const char32_t value) : AsChar32 {value} {}
+	constexpr Record::Record(const std::array<U32, 2> value) : AsU32S {value} {}
+	constexpr Record::Record(const std::array<I32, 2> value) : AsI32S {value} {}
+	constexpr Record::Record(const std::array<F32, 2> value) : AsF32S {value} {}
+
+	constexpr Record::operator bool() const
+	{
+		return this->AsU64;
+	}
+
+	constexpr auto Record::operator ==(const Record other) const -> bool
+	{
+		return this->AsU64 == other.AsU64;
+	}
+
+	constexpr auto Record::operator !=(const Record other) const -> bool
+	{
+		return !(*this == other);
+	}
+
+	constexpr auto Record::operator <(const Record other) const -> bool
+	{
+		return this->AsU64 < other.AsU64;
+	}
+
+	constexpr auto Record::operator >(const Record other) const -> bool
+	{
+		return this->AsU64 > other.AsU64;
+	}
+
+	constexpr auto Record::operator <=(const Record other) const -> bool
+	{
+		return this->AsU64 <= other.AsU64;
+	}
+
+	constexpr auto Record::operator >=(const Record other) const -> bool
+	{
+		return this->AsU64 >= other.AsU64;
+	}
+
+	constexpr auto Record::Padding() -> Record
+	{
+		return Record {0xFF'FF'FF'FF'FF'FF'FF'FF};
+	}
+
+	static_assert(sizeof(F32) == sizeof(I32));
+	static_assert(sizeof(F64) == sizeof(I64));
+	static_assert(sizeof(Record) == sizeof(I64));
+	static_assert(alignof(Record) == alignof(I64));
+	static_assert(std::is_standard_layout_v<Record>);
+	static_assert(std::is_trivial_v<Record>);
+	static_assert(std::is_default_constructible_v<Record>);
 }
 
 #if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT

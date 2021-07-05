@@ -208,8 +208,8 @@
 #pragma once
 
 #include "../Include/Nominax/Common.hpp"
+#include "../Include/Nominax/Core.hpp"
 #include "../Include/Nominax/System/Platform.hpp"
-#include "../Include/Nominax/Core/ReactorShutdownReason.hpp"
 
 namespace Nominax::Core
 {
