@@ -235,7 +235,6 @@ namespace Nominax::Core
 	using VectorLib::F64_X16_Mul_Unaligned;
 	using VectorLib::F64_X16_Div_Unaligned;
 
-
 	using ByteCode::SystemIntrinsicCallID;
 	using ByteCode::Instruction;
 	using ByteCode::IntrinsicRoutine;
@@ -721,31 +720,29 @@ namespace Nominax::Core
 		ASM_MARKER("reactor locals");
 
 		[[maybe_unused]]
-			const void*NOX_RESTRICT
-				const
-				* const
-				jumpTable {std::data(JUMP_TABLE)};                                   /* jump table					*/
-		InterruptAccumulator             interruptCode { };                          /* interrupt id flag			*/
-		IntrinsicRoutine* const* const   intrinsicTable {input->IntrinsicTable};     /* intrinsic table hi			*/
-		InterruptRoutineProxy* const     interruptHandler {input->InterruptHandler}; /* global interrupt routine		*/
-		const Signal* const NOX_RESTRICT ipLo {input->CodeChunk};                    /* instruction low ptr			*/
-		const Signal*                    ip {ipLo};                                  /* instruction ptr				*/
-		const Signal*                    bp {ipLo};                                  /* base pointer					*/
-		Record* NOX_RESTRICT             sp {input->Stack};                          /* stack pointer lo				*/
+			const void* NOX_RESTRICT const* const jumpTable {std::data(JUMP_TABLE)};          /* jump table						*/
+		InterruptAccumulator                      interruptCode { };                          /* interrupt id flag				*/
+		IntrinsicRoutine* const* const            intrinsicTable {input->IntrinsicTable};     /* intrinsic table hi				*/
+		InterruptRoutineProxy* const              interruptHandler {input->InterruptHandler}; /* global interrupt routine			*/
+		const Signal* const NOX_RESTRICT          ipLo {input->CodeChunk};                    /* instruction low ptr				*/
+		const Signal*                             ip {ipLo};                                  /* instruction ptr					*/
+		const Signal*                             bp {ipLo};                                  /* base pointer						*/
+		Record* NOX_RESTRICT                      sp {input->Stack};                          /* stack pointer lo					*/
 
 		ASM_MARKER("reactor exec");
 
 		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
-		#	define JMP_PTR()		*((*++ip).Ptr)
-		#	define JMP_PTR_REL()	*((*ip).Ptr)
-		#	define UPDATE_IP()		ip = reinterpret_cast<const Signal*>(abs)
+		#define JMP_PTR()		*((*++ip).Ptr)
+		#define JMP_PTR_REL()	*((*ip).Ptr)
+		#define UPDATE_IP()		ip = reinterpret_cast<const Signal*>(abs)
 
 		#else
 
-#	define JMP_PTR()		**(jumpTable + (*++ip).OpCode)
-#	define JMP_PTR_REL()	**(jumpTable + (*ip).OpCode)
-#	define UPDATE_IP()		ip = ipLo + abs - 1
+		#define JMP_PTR()		**(jumpTable + (*++ip).OpCode)
+		#define JMP_PTR_REL()	**(jumpTable + (*ip).OpCode)
+		#define UPDATE_IP()		ip = ipLo + abs - 1
+		
 		#endif
 
 		/*

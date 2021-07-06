@@ -833,7 +833,7 @@ namespace Nominax::Common
 		using namespace Assembler::X86_64::Routines;
 
 		// check if cpuid is supported on system
-		NOX_PANIC_ASSERT_TRUE(Asm_IsCpuIdSupported(), "CPUID instruction is not supported on system!");
+		NOX_PAS_TRUE(Asm_IsCpuIdSupported(), "CPUID instruction is not supported on system!");
 
 		// Raw DATA.
 		std::array<U8, sizeof(CpuFeatureBits)> data { };
