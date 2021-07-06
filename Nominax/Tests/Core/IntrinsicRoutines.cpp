@@ -1033,7 +1033,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortWrite)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
+	ASSERT_EQ(std::strcmp(reinterpret_cast<const char*>(&o.second.Input->Stack[1]), "Hey =)\n"), 0);
 	ASSERT_EQ(o.second.InterruptCode, -12345);
 	ASSERT_EQ(o.second.SpDiff, 1);
 }
@@ -1058,7 +1058,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortRead)
 
 	const auto o {SingletonExecutionProxy(input)};
 
-	ASSERT_EQ(o.second.Input->Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
+	ASSERT_EQ(std::strcmp(reinterpret_cast<const char*>(&o.second.Input->Stack[1]), "Hey =)\n"), 0);
 	ASSERT_EQ(o.second.InterruptCode, -12345);
 	ASSERT_EQ(o.second.SpDiff, 1);
 }
@@ -1083,7 +1083,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortFlush)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsUtf8, u8"Hey =)\n"_cluster);
+	ASSERT_EQ(std::strcmp(reinterpret_cast<const char*>(&o.second.Input->Stack[1]), "Hey =)\n"), 0);
 	ASSERT_EQ(o.second.InterruptCode, -12345);
 	ASSERT_EQ(o.second.SpDiff, 1);
 }

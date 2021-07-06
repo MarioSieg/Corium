@@ -251,7 +251,7 @@ TEST(ReactorClass, MoveConstruct)
 	ASSERT_EQ(reactor2.GetInterruptHandler(), GetDefaultInterruptRoutine());
 }
 
-#ifdef NOMINAX_DEATH_TESTS
+#ifdef NOX_DEATH_TESTS
 
 TEST(ReactorClass, ZeroStackSizeFault)
 {

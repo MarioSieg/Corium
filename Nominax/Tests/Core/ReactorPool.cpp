@@ -230,7 +230,7 @@ TEST(ReactorPool, Construct)
 	ASSERT_EQ(pool.GetReactor(3).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
 }
 
-#ifdef NOMINAX_DEATH_TESTS
+#ifdef NOX_DEATH_TESTS
 
 TEST(ReactorPool, ZeroSizeFault)
 {

@@ -205,7 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Core/TaskQueueThreadPool.hpp"
+#include "../TestBase.hpp"
 
 namespace Nominax::Core
 {
@@ -217,14 +217,15 @@ namespace Nominax::Core
 		}
 	}
 
-	TaskQueueThreadPool::TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator)
-		: Allocator_ {&allocator}, Threads {Allocator_} { }
+	TaskQueueThreadPool::TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator) : Allocator_ {&allocator},
+	                                                                                           Threads {Allocator_} { }
 
 	TaskQueueThreadPool::TaskQueueThreadPool
 	(
 		std::pmr::monotonic_buffer_resource& allocator,
 		const std::size_t                    threadCount
-	) : Allocator_ {&allocator}, Threads {Allocator_}
+	) : Allocator_ {&allocator},
+	    Threads {Allocator_}
 	{
 		for (std::size_t i {0}; i < threadCount; ++i)
 		{

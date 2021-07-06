@@ -1,0 +1,49 @@
+<let_scheme> ::= "let " <ident> (" " <ident>)? "=" <literal> "\n"
+<fun_scheme> ::= "fun " <ident> "(" (<whitespace> | <parameters>)? ")" (<whitespace> | <ident>)? "{" <text>? "}"
+
+<comment> ::= "#" <text>
+
+<multi_comment> ::= "##" <text> "##"
+
+<int> ::= ("-" | "+")? <digit> | <int> <digit>
+
+<float> ::= <int> "." <int>
+
+<bool> ::= "true" | "false"
+
+<char> ::= "'" <symbol> "'"
+
+<string> ::= "\"" <text> "\""
+
+<literal> ::= <whitespace>? <literal_content> <whitespace>?
+
+<ident> ::= <whitespace>? <ident_content> <whitespace>?
+
+<ident_content> ::= <letter> | <ident_content> <letter>
+
+<parameter> ::= <ident> " " <ident>
+
+<parameters> ::= <parameter> | <parameters> "," <parameter>
+
+<literal_content> ::= 
+    <int>   |
+    <float> |
+    <bool>  |
+    <char>  |
+    <string>
+
+<space> ::= 
+    " "  |
+    "\n" |
+    "\t" |
+    "\r"
+
+<whitespace> ::= <space> | <whitespace> <space>
+
+<symbol> ::= <digit> | <letter> | <space>
+
+<text> ::= <symbol> | <text> <symbol>
+
+<digit> ::= [0-1]
+
+<letter> ::=  [A-Z] | [a-z]

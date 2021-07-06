@@ -214,7 +214,7 @@ TEST(Environent, Construct)
 	ASSERT_EQ(env.GetKernel(), nullptr);
 }
 
-#ifdef NOMINAX_DEATH_TESTS
+#ifdef NOX_DEATH_TESTS
 TEST(Environent, ConstructOfflineAccessDeath_GetBootStamp)
 {
 	const Environment env { };
@@ -401,7 +401,7 @@ TEST(Environment, BootShutdownHooks)
 	ASSERT_EQ(env.GetKernel(), nullptr);
 }
 
-#if NOMINAX_DEATH_TESTS
+#if NOX_DEATH_TESTS
 
 TEST(Environment, BootShutdownHooksBad)
 {
@@ -503,7 +503,7 @@ TEST(Environment, Execution)
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 
-#if NOMINAX_DEATH_TESTS
+#if NOX_DEATH_TESTS
 
 TEST(Environment, ExecutionMissingPrologue)
 {
@@ -588,7 +588,7 @@ TEST(Environment, ExecutionHooks)
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 
-#ifdef NOMINAX_DEATH_TESTS
+#ifdef NOX_DEATH_TESTS
 
 TEST(Environment, ExecutionHooksBad)
 {

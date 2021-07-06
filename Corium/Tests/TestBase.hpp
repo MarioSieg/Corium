@@ -214,12 +214,8 @@
 #include "../Source/Lexer.hpp"
 #include "../Source/LexContext.hpp"
 #include "../Source/ParseContext.hpp"
+#include "../Source/InfixExpressionEvaluator.hpp"
+#include "../Source/Scope.hpp"
 
-using namespace Nominax;
-using namespace Arch;
-using namespace ByteCode;
-using namespace Core;
-using namespace System;
-using namespace Common;
-using namespace VectorLib;
+using namespace Nominax::Prelude;
 using namespace Corium;

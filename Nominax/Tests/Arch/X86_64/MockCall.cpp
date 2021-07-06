@@ -207,13 +207,13 @@
 
 #include "../../TestBase.hpp"
 
-#if NOMINAX_ARCH_X86_64
+#if NOX_ARCH_X86_64
 TEST(AssemblyCalls, MockCall)
 {
-#if NOMINAX_OS_WINDOWS
-	ASSERT_EQ(X86_64::Asm_MockCall(), 0xFF);
-#else
-	ASSERT_EQ(X86_64::Asm_MockCall(), 1234);
-#endif
+	#if NOX_OS_WINDOWS
+	ASSERT_EQ(X86_64::Routines::Asm_MockCall(), 0xFF);
+	#else
+	ASSERT_EQ(X86_64::Routines::Asm_MockCall(), 1234);
+	#endif
 }
 #endif
