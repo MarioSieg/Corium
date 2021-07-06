@@ -554,7 +554,7 @@ namespace Nominax
 			SysInfoSnapshot {InitSysInfo()},
 			CpuFeatures {InitCpuFeatures()},
 			OptimalReactorRoutine {
-				descriptor.ForceFallback ? GetFallbackRoutineLink() : GetOptimalReactorRoutine(CpuFeatures)
+				descriptor.ForceFallback ? HyperVisor::GetFallbackRoutineLink() : HyperVisor::GetOptimalReactorRoutine(CpuFeatures)
 			},
 			CorePool {
 				SystemPoolResource, ReactorCount, ReactorSpawnDescriptor
@@ -2094,7 +2094,7 @@ namespace Nominax
 							Print(Common::LogLevel::Warning,
 							      "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
 					}
-					return routineLink ? *routineLink : GetOptimalReactorRoutine({ });
+					return routineLink ? *routineLink : HyperVisor::GetOptimalReactorRoutine({ });
 				}()
 			}
 		{
@@ -2151,6 +2151,19 @@ namespace Nominax
 			return {result, output};
 		}
 
+		ReactorRoutineLink::ReactorRoutineLink
+		(
+			const ReactorCoreSpecialization    specialization,
+			ReactorCoreExecutionRoutine* const executionRoutine,
+			const void** const                 jumpTable
+		) : Specialization {specialization},
+		    ExecutionRoutine {executionRoutine},
+		    JumpTable {jumpTable}
+		{
+			NOX_PANIC_ASSERT_NOT_NULL(this->ExecutionRoutine, "Routine for reactor routine link is null!");
+			NOX_PANIC_ASSERT_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
+		}
+
 		static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(
 			                            ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
 		{
@@ -2165,7 +2178,7 @@ namespace Nominax
 			#endif
 		};
 
-		auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
+		auto HyperVisor::SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
 		{
 			#if NOX_ARCH_X86_64
 
@@ -2188,28 +2201,17 @@ namespace Nominax
 			return ReactorCoreSpecialization::Fallback;
 		}
 
-		auto GetReactorRegistry() -> const ReactorRegistry&
+		auto HyperVisor::GetReactorRegistry() -> const ReactorRegistry&
 		{
 			return REACTOR_REGISTRY;
 		}
 
-		ReactorRoutineLink::ReactorRoutineLink
-		(
-			const ReactorCoreSpecialization    specialization,
-			ReactorCoreExecutionRoutine* const executionRoutine,
-			const void** const                 jumpTable
-		) : Specialization {specialization},
-		    ExecutionRoutine {executionRoutine},
-		    JumpTable {jumpTable}
+		auto HyperVisor::GetFallbackRoutineLink() -> ReactorRoutineLink
 		{
-			NOX_PANIC_ASSERT_NOT_NULL(this->ExecutionRoutine, "Routine for reactor routine link is null!");
-			NOX_PANIC_ASSERT_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
-		}
+			constexpr auto specialization {ReactorCoreSpecialization::Fallback};
 
-		auto GetFallbackRoutineLink() -> ReactorRoutineLink
-		{
-			const auto                         specialization {ReactorCoreSpecialization::Fallback};
-			ReactorCoreExecutionRoutine* const routine {
+			ReactorCoreExecutionRoutine* const routine
+			{
 				GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)
 			};
 			const void** const jumpTable {QueryJumpTable(*routine)};
@@ -2221,7 +2223,7 @@ namespace Nominax
 			};
 		}
 
-		auto GetReactorRoutineFromRegistryByTarget(const ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*
+		auto HyperVisor::GetReactorRoutineFromRegistryByTarget(const ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*
 		{
 			ReactorCoreExecutionRoutine* routine {
 				REACTOR_REGISTRY[static_cast<std::underlying_type_t<decltype(target)>>(target)]
@@ -2230,7 +2232,7 @@ namespace Nominax
 			return routine;
 		}
 
-		auto GetOptimalReactorRoutine(const System::CpuFeatureDetector& features) -> ReactorRoutineLink
+		auto HyperVisor::GetOptimalReactorRoutine(const System::CpuFeatureDetector& features) -> ReactorRoutineLink
 		{
 			static thread_local constinit U16 QueryCounter;
 			ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
@@ -2266,7 +2268,7 @@ namespace Nominax
 			const void****                    outJumpTable
 		) -> ReactorShutdownReason
 		{
-			return GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable);
+			return HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable);
 		}
 
 		auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**
@@ -2304,9 +2306,10 @@ namespace Nominax
 					Print(Common::LogLevel::Warning,
 					      "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
 				}
-				this->Pool_.emplace_back(Reactor {
-					allocator, config, routineLink ? *routineLink : GetOptimalReactorRoutine({ }), i
-				});
+				this->Pool_.emplace_back(Reactor
+					{
+						allocator, config, routineLink ? *routineLink : HyperVisor::GetOptimalReactorRoutine({ }), i
+					});
 			}
 
 			Common::Print('\n');
