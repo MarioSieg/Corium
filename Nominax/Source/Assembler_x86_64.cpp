@@ -206,7 +206,7 @@
 //    limitations under the License.
 
 #include "../Include/Nominax/Assembler/x86_64/Encoding.hpp"
-#include "../Include/Nominax/Common.hpp"
+#include "../Include/Nominax/Foundation.hpp"
 
 namespace Nominax::Assembler::X86_64
 {

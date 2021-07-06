@@ -205,7 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/System/Platform.hpp"
+#include "../Include/Nominax/Foundation.hpp"
 
 #if NOX_ARCH_X86_64
 #	if !defined(__AVX__) || !__AVX__

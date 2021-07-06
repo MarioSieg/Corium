@@ -212,8 +212,7 @@
 #include <string_view>
 
 #include "../../Nominax/Include/Nominax/Core.hpp"
-#include "../../Nominax/Include/Nominax/Common.hpp"
-#include "../../Nominax/Include/Nominax/System/System.hpp"
+#include "../../Nominax/Include/Nominax/Foundation.hpp"
 
 #include "ReactorCores.hpp"
 

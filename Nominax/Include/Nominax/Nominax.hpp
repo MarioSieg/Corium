@@ -211,8 +211,7 @@
 #include "Assembler/Assembler.hpp"
 #include "ByteCode.hpp"
 #include "Core.hpp"
-#include "System/System.hpp"
-#include "Common.hpp"
+#include "Foundation.hpp"
 
 namespace Nominax::Prelude
 {

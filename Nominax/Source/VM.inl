@@ -212,7 +212,7 @@
 #include "ReactorCores.hpp"
 
 #include "../Include/Nominax/ByteCode.hpp"
-#include "../Include/Nominax/Common.hpp"
+#include "../Include/Nominax/Foundation.hpp"
 #include "../Include/Nominax/Core.hpp"
 
 namespace Nominax::Core

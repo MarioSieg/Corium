@@ -206,7 +206,7 @@
 //    limitations under the License.
 
 #include "../../Nominax/Include/Nominax/ByteCode.hpp"
-#include "../../Nominax/Include/Nominax/Common.hpp"
+#include "../../Nominax/Include/Nominax/Foundation.hpp"
 #include "../../Nominax/Include/Nominax/Utils.hpp"
 #include "../../Nominax/Include/Nominax/Core.hpp"
 

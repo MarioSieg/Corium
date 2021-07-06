@@ -208,15 +208,7 @@
 #pragma once
 
 #include "ByteCode.hpp"
-#include "Common.hpp"
-
-#include "System/CpuFeatureDetector.hpp"
-
-namespace Nominax::System
-{
-	struct CpuFeatureDetector;
-	struct Snapshot;
-}
+#include "Foundation.hpp"
 
 namespace Nominax::Core
 {

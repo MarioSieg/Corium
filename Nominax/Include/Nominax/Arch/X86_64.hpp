@@ -207,6 +207,5 @@
 
 #pragma once
 
-#include "X86_64/CpuId.hpp"
 #include "X86_64/MockCall.hpp"
 #include "X86_64/Vm.hpp"

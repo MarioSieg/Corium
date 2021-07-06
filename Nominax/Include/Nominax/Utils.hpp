@@ -208,7 +208,7 @@
 #pragma once
 
 #include "ByteCode.hpp"
-#include "Common.hpp"
+#include "Foundation.hpp"
 #include "Core.hpp"
 
 using FormatOutput = fmt::format_context::iterator;

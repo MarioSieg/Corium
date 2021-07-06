@@ -209,7 +209,7 @@
 
 #include <cassert>
 
-#include "../../Common.hpp"
+#include "../../Foundation.hpp"
 
 namespace Nominax::Assembler::X86_64
 {

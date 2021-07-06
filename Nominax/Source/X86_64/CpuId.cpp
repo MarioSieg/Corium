@@ -208,8 +208,7 @@
 #include <array>
 #include <bit>
 
-#include "../../Include/Nominax/Arch/X86_64/CpuId.hpp"
-#include "../../Include/Nominax/Common.hpp"
+#include "../../Include/Nominax/Foundation.hpp"
 
 #define PRINT_CPU_FEATURE(name, has) Print(( has ) ? TextColor::Green : TextColor::Red, "{0: <18} ", name)
 

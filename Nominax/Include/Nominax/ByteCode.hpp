@@ -215,7 +215,7 @@
 #include <optional>
 #include <vector>
 
-#include "Common.hpp"
+#include "Foundation.hpp"
 
 namespace Nominax::ByteCode
 {

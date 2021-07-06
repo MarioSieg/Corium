@@ -211,7 +211,7 @@
 #include <cassert>
 #include <string_view>
 
-#include "../../Common.hpp"
+#include "../../Foundation.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
