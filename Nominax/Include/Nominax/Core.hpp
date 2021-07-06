@@ -1177,63 +1177,6 @@ namespace Nominax::Core
 	extern auto ComputeInstructionMapBinding(std::span<const ByteCode::Signal::Discriminator> input, std::span<bool>& output) -> bool;
 
 	/// <summary>
-	/// Writes a full error dump into the stream.
-	/// </summary>
-	/// <param name="out"></param>
-	/// <param name="sp"></param>
-	/// <param name="ip"></param>
-	/// <param name="bp"></param>
-	/// <param name="stackSize"></param>
-	/// <param name="codeSize"></param>
-	/// <param name="message"></param>
-	/// <param name="stackDumpSize"></param>
-	/// <param name="codeDumpSize"></param>
-	/// <returns></returns>
-	auto WriteHardFaultReport
-	(
-		std::ostream&           out,
-		const Common::Record*   sp,
-		const ByteCode::Signal* ip,
-		const ByteCode::Signal* bp,
-		std::size_t             stackSize,
-		std::size_t             codeSize,
-		std::string_view        message       = "",
-		std::size_t             stackDumpSize = 64,
-		std::size_t             codeDumpSize  = 64
-	) -> void;
-
-	/// <summary>
-	/// Writes a full error dump into std::cerr and into a file.
-	/// </summary>
-	/// <param name="sp"></param>
-	/// <param name="ip"></param>
-	/// <param name="bp"></param>
-	/// <param name="stackSize"></param>
-	/// <param name="codeSize"></param>
-	/// <param name="message"></param>
-	/// <param name="stackDumpSize"></param>
-	/// <param name="codeDumpSize"></param>
-	/// <returns></returns>
-	auto WriteHardFaultReport
-	(
-		const Common::Record*   sp,
-		const ByteCode::Signal* ip,
-		const ByteCode::Signal* bp,
-		std::size_t             stackSize,
-		std::size_t             codeSize,
-		std::string_view        message       = "",
-		std::size_t             stackDumpSize = 64,
-		std::size_t             codeDumpSize  = 64
-	) -> void;
-
-	/// <summary>
-	/// Write a hard fault report to crash file.
-	/// </summary>
-	/// <param name="message"></param>
-	/// <returns></returns>
-	auto WriteHardFaultReport(std::string_view message) -> void;
-
-	/// <summary>
 	/// Contains all flags in the flag vector field in the object header.
 	/// </summary>
 	union ObjectFlagVector final
