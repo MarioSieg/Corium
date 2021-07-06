@@ -727,7 +727,7 @@ namespace Nominax::Core
 				jumpTable {std::data(JUMP_TABLE)};                                   /* jump table					*/
 		InterruptAccumulator             interruptCode { };                          /* interrupt id flag			*/
 		IntrinsicRoutine* const* const   intrinsicTable {input->IntrinsicTable};     /* intrinsic table hi			*/
-		InterruptRoutine* const          interruptHandler {input->InterruptHandler}; /* global interrupt routine		*/
+		InterruptRoutineProxy* const     interruptHandler {input->InterruptHandler}; /* global interrupt routine		*/
 		const Signal* const NOX_RESTRICT ipLo {input->CodeChunk};                    /* instruction low ptr			*/
 		const Signal*                    ip {ipLo};                                  /* instruction ptr				*/
 		const Signal*                    bp {ipLo};                                  /* base pointer					*/
@@ -2015,7 +2015,7 @@ namespace Nominax::Core
 
 		ASM_MARKER("_terminate_");
 
-		output->ShutdownReason = DetermineShutdownReason(interruptCode);
+		output->ShutdownReason = MapIntAccum2ShutdownReason(interruptCode);
 		output->Pre            = pre;
 		output->Post           = std::chrono::high_resolution_clock::now();
 		output->Duration       = std::chrono::high_resolution_clock::now() - pre;

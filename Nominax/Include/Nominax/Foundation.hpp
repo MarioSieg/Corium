@@ -1377,12 +1377,12 @@ namespace Nominax::Common
 		__asm__ __volatile__("int3");
 		#elif NOX_ARCH_ARM_64
 		#if NOX_OS_MAC || NOX_OS_IOS
-			__asm__ __volatile__("trap");
+				__asm__ __volatile__("trap");
 		#else
-			__asm__ __volatile__("bkpt 0");
+				__asm__ __volatile__("bkpt 0");
 		#endif
 		#else
-		*reinterpret_cast<volatile I32*>(3) = 3;
+			*reinterpret_cast<volatile I32*>(3) = 3;
 		#endif
 	}
 
@@ -1396,7 +1396,7 @@ namespace Nominax::Common
 	inline auto DisOpt(T& x) -> void
 	{
 		#if NOX_COM_CLANG
-				__asm__ __volatile__("" : "+r,m"(x) :: "memory");
+			__asm__ __volatile__("" : "+r,m"(x) : : "memory");
 		#else
 		__asm__ __volatile__("" : "+m,r"(x) :: "memory");
 		#endif
@@ -1411,7 +1411,11 @@ namespace Nominax::Common
 	template <typename T>
 	inline auto DisOpt(const T& x) -> void
 	{
-		__asm__ __volatile__("" : "r,m"(x) :: "memory");
+		#if NOX_COM_CLANG
+			__asm__ __volatile__("" : "r,m"(x) : : "memory");
+		#else
+		__asm__ __volatile__("" : "m,r"(x) :: "memory");
+		#endif
 	}
 
 	// @formatter:off
@@ -1451,10 +1455,34 @@ namespace Nominax::Common
 	/// <summary>
 	/// No operation LOL
 	/// </summary>
-	NOX_FORCE_INLINE NOX_COLD inline auto NoOperation() -> void
+	NOX_FORCE_INLINE inline auto NoOperation() -> void
 	{
 		__asm__ __volatile__("nop");
 	}
+
+	/// <summary>
+	/// Signal status flag.
+	/// </summary>
+	extern constinit volatile thread_local std::sig_atomic_t SignalStatus;
+
+	/// <summary>
+	/// Query current signal status.
+	/// </summary>
+	/// <returns></returns>
+	extern auto QuerySignalStatus() -> std::sig_atomic_t;
+
+	/// <summary>
+	/// Install global signal handler.
+	/// </summary>
+	/// <param name="handler"></param>
+	/// <returns></returns>
+	extern auto InstallSignalHandlers(auto (&handler)(std::sig_atomic_t) -> void) -> void;
+
+	/// <summary>
+	/// Reset all signal handles to default.
+	/// </summary>
+	/// <returns></returns>
+	extern auto UninstallSignalHandlers() -> void;
 
 	/// <summary>
 	/// Helper to parse command line interface arguments.
@@ -1910,25 +1938,6 @@ namespace Nominax::Common
 	/// <returns></returns>
 	[[nodiscard]]
 	extern auto SafeLocalTime(const std::time_t& time) -> std::tm;
-
-	/// <summary>
-	/// Query current signal status.
-	/// </summary>
-	/// <returns></returns>
-	extern auto QuerySignalStatus() -> std::sig_atomic_t;
-
-	/// <summary>
-	/// Install global signal handler.
-	/// </summary>
-	/// <param name="handler"></param>
-	/// <returns></returns>
-	extern auto InstallSignalHandlers(auto (&handler)(std::sig_atomic_t) -> void) -> void;
-
-	/// <summary>
-	/// Reset all signal handles to default.
-	/// </summary>
-	/// <returns></returns>
-	extern auto UninstallSignalHandlers() -> void;
 
 	/// <summary>
 	/// Represents a monotonic stopwatch.
@@ -6825,19 +6834,19 @@ namespace Nominax::Arch::X86_64
 	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
 	/// Implementation: Source/Arch/X86_64.CpuId.S
 	/// </summary>
-	extern "C" auto Asm_IsCpuIdSupported() -> U8;
+	extern "C" auto Asm_IsCpuIdSupported() -> bool;
 
 	/// <summary>
 	/// Returns true if the OS supports AVX YMM registers, else false.
 	/// Warning! Check if os supports OSXSAVE first!
 	/// </summary>
-	extern "C" auto Asm_IsAvxSupportedByOs() -> U8;
+	extern "C" auto Asm_IsAvxSupportedByOs() -> bool;
 
 	/// <summary>
 	/// Returns true if the OS supports AVX512 ZMM registers, else false.
 	/// Warning! Check if os supports OSXSAVE first!
 	/// </summary>
-	extern "C" auto Asm_IsAvx512SupportedByOs() -> U8;
+	extern "C" auto Asm_IsAvx512SupportedByOs() -> bool;
 }
 
 

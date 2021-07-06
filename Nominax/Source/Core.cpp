@@ -862,10 +862,10 @@ namespace Nominax
 
 		auto PerformJumpTableMapping
 		(
-			ByteCode::Signal* NOX_RESTRICT             bucket,
-			const ByteCode::Signal* const NOX_RESTRICT bucketEnd,
-			const bool*                                jumpAddressMap,
-			JumpTable                                  jumpTable
+			ByteCode::Signal* NOX_RESTRICT                     bucket,
+			const ByteCode::Signal* const NOX_RESTRICT         bucketEnd,
+			const bool*                                        jumpAddressMap,
+			const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
 		) -> bool
 		{
 			NOX_PANIC_ASSERT_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");
@@ -873,9 +873,7 @@ namespace Nominax
 			NOX_PANIC_ASSERT_NOT_NULL(jumpAddressMap, "Jump address map was nullptr!");
 			NOX_PANIC_ASSERT_NOT_NULL(jumpTable, "Jump table was nullptr!");
 			NOX_PANIC_ASSERT_NOT_NULL(*jumpTable, "First element of jump table was nullptr!");
-			NOX_PANIC_ASSERT_TRUE(*jumpAddressMap,
-			                      "First element of jump address map was false, but should be true because of code prologue!")
-			;
+			NOX_PANIC_ASSERT_TRUE(*jumpAddressMap, "First element of jump address map was false, but should be true because of code prologue!");
 			NOX_PANIC_ASSERT_EQ(bucket->Instr, ByteCode::Instruction::NOp, "Missing code prologue in code bucket!");
 
 			// skip first "nop" padding instruction:
@@ -1587,7 +1585,7 @@ namespace Nominax
 
 		auto DefaultInterruptRoutine(InterruptAccumulator) -> void { }
 
-		auto GetDefaultInterruptRoutine() -> InterruptRoutine*
+		auto GetDefaultInterruptRoutine() -> InterruptRoutineProxy*
 		{
 			return &DefaultInterruptRoutine;
 		}
@@ -2051,7 +2049,7 @@ namespace Nominax
 			ByteCode::Image&                        image,
 			ByteCode::JumpMap&                      jumpMap,
 			ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
-			InterruptRoutine&                       interruptHandler
+			InterruptRoutineProxy&                  interruptHandler
 		) -> VerboseReactorDescriptor
 		{
 			const std::span instrMapTableView

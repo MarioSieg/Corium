@@ -588,7 +588,7 @@ namespace Nominax::Common
 	/// <summary>
 	/// Global per thread signal status.
 	/// </summary>
-	static constinit volatile thread_local std::sig_atomic_t SignalStatus {0};
+	constinit volatile thread_local std::sig_atomic_t SignalStatus {0};
 
 	auto QuerySignalStatus() -> std::sig_atomic_t
 	{

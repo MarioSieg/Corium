@@ -250,7 +250,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// The function prototype for interrupt handlers.
 	/// </summary>
-	using InterruptRoutine = auto(InterruptAccumulator) -> void;
+	using InterruptRoutineProxy = auto(InterruptAccumulator) -> void;
 
 	/// <summary>
 	/// Interrupt code indicating a fatal reactor error.
@@ -279,7 +279,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <returns>A pointer to the default interrupt routine.</returns>
 	[[nodiscard]]
-	extern auto GetDefaultInterruptRoutine() -> InterruptRoutine*;
+	extern auto GetDefaultInterruptRoutine() -> InterruptRoutineProxy*;
 
 	/// <summary>
 	/// Contains all results of a reactor validation.
@@ -313,15 +313,51 @@ namespace Nominax::Core
 	/// </summary>
 	struct VerboseReactorDescriptor final
 	{
-		ByteCode::Signal*                  CodeChunk {nullptr};
-		const bool*                        CodeChunkInstructionMap {nullptr};
-		std::size_t                        CodeChunkSize {0};
-		ByteCode::IntrinsicRoutine* const* IntrinsicTable {nullptr};
-		std::size_t                        IntrinsicTableSize {0};
-		InterruptRoutine*                  InterruptHandler {nullptr};
-		Common::Record*                    Stack {nullptr};
-		std::size_t                        StackSize {0};
+		/// <summary>
+		/// Code chunk data pointer.
+		/// </summary>
+		ByteCode::Signal* CodeChunk {nullptr};
 
+		/// <summary>
+		/// Instruction map data pointer.
+		/// </summary>
+		const bool* CodeChunkInstructionMap {nullptr};
+
+		/// <summary>
+		/// Code chunk and instruction map length.
+		/// </summary>
+		std::size_t CodeChunkSize {0};
+
+		/// <summary>
+		/// Intrinsic routine registry data pointer.
+		/// </summary>
+		ByteCode::IntrinsicRoutine* const* IntrinsicTable {nullptr};
+
+		/// <summary>
+		/// Intrinsic routine registry length.
+		/// </summary>
+		std::size_t IntrinsicTableSize {0};
+
+		/// <summary>
+		/// Interrupt routine proxy.
+		/// </summary>
+		InterruptRoutineProxy* InterruptHandler {nullptr};
+
+		/// <summary>
+		/// Stack data pointer.
+		/// </summary>
+		Common::Record* Stack {nullptr};
+
+		/// <summary>
+		/// Stack length.
+		/// </summary>
+		std::size_t StackSize {0};
+
+		/// <summary>
+		/// Checks if the current descriptor is valid for
+		/// reactor execution or creation.
+		/// </summary>
+		/// <returns>Validation result.</returns>
 		[[nodiscard]]
 		auto Validate() const -> ReactorValidationResult;
 	};
@@ -332,11 +368,30 @@ namespace Nominax::Core
 	/// </summary>
 	struct BasicReactorDescriptor final
 	{
-		std::span<ByteCode::Signal>            CodeChunk;
-		std::span<const bool>                  CodeChunkInstructionMap;
+		/// <summary>
+		/// Code image view.
+		/// </summary>
+		std::span<ByteCode::Signal> CodeChunk;
+
+		/// <summary>
+		/// Instruction mapping view.
+		/// </summary>
+		std::span<const bool> CodeChunkInstructionMap;
+
+		/// <summary>
+		/// Intrinsic routine view.
+		/// </summary>
 		std::span<ByteCode::IntrinsicRoutine*> IntrinsicTable;
-		std::span<Common::Record>              Stack;
-		InterruptRoutine&                      InterruptHandler;
+
+		/// <summary>
+		/// Stack view.
+		/// </summary>
+		std::span<Common::Record> Stack;
+
+		/// <summary>
+		/// Interrupt routine proxy.
+		/// </summary>
+		InterruptRoutineProxy& InterruptHandler;
 
 		/// <summary>
 		/// Will build a detailed descriptor out of this instance and return it.
@@ -362,9 +417,15 @@ namespace Nominax::Core
 	class [[nodiscard]] FixedStack final
 	{
 	public:
+		/// <summary>
+		/// Storage type for the reactor stack.
+		/// </summary>
 		using StorageType = std::pmr::vector<Common::Record>;
 
 	private:
+		/// <summary>
+		/// Internal buffer.
+		/// </summary>
 		StorageType Buffer_;
 
 	public:
@@ -443,6 +504,7 @@ namespace Nominax::Core
 		/// If the size is zero, fatal termination.
 		/// It will set the first element to padding, so it allocates one more than specified.
 		/// </summary>
+		/// <param name="allocator"></param>
 		/// <param name="sizeInRecords">Size in records. If the size is zero, fatal termination.</param>
 		/// <returns></returns>
 		explicit FixedStack(std::pmr::memory_resource& allocator, std::size_t sizeInRecords);
@@ -573,7 +635,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Interrupt handler.
 		/// </summary>
-		InterruptRoutine* InterruptHandler { };
+		InterruptRoutineProxy* InterruptHandler { };
 
 		/// <summary>
 		/// Reactor power preference.
@@ -587,6 +649,26 @@ namespace Nominax::Core
 		static constexpr auto Default(std::size_t stackSize = FixedStack::SIZE_LARGE) -> ReactorSpawnDescriptor;
 	};
 
+	/// <summary>
+	/// Get platform specific best fitting power preference.
+	/// </summary>
+	/// <returns>The power preference most matching the current platform.</returns>
+	constexpr auto GetPlatformPowerPreference() -> PowerPreference
+	{
+		// ARM-64 is a low power device (probably mobile) so we enable power
+		// safe mode by default:
+		#if NOX_ARCH_ARM_64
+			return PowerPreference::LowPowerUsage;
+		#else
+		return PowerPreference::HighPerformance;
+		#endif
+	}
+
+	/// <summary>
+	/// Construct default reactor spawn descriptor.
+	/// </summary>
+	/// <param name="stackSize"></param>
+	/// <returns></returns>
 	constexpr auto ReactorSpawnDescriptor::Default(const std::size_t stackSize) -> ReactorSpawnDescriptor
 	{
 		return ReactorSpawnDescriptor
@@ -594,11 +676,7 @@ namespace Nominax::Core
 			.StackSize = stackSize,
 			.SharedIntrinsicTable = { },
 			.InterruptHandler = nullptr,
-			#if NOX_ARCH_ARM_64
-			.PowerPref = PowerPreference::LowPowerUsage
-			#else
-			.PowerPref = PowerPreference::HighPerformance
-			#endif
+			.PowerPref = GetPlatformPowerPreference()
 		};
 	}
 
@@ -610,7 +688,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Argument count.
 		/// </summary>
-		signed ArgC {0};
+		I32 ArgC {0};
 
 		/// <summary>
 		/// Argument vector.
@@ -665,19 +743,34 @@ namespace Nominax::Core
 		PowerPreference PowerPref {PowerPreference::HighPerformance};
 	};
 
-	enum class ReactorShutdownReason
+	/// <summary>
+	/// Result type from a reactor shutdown.
+	/// </summary>
+	enum class ReactorShutdownReason : U8
 	{
+		/// <summary>
+		/// Terminated normally.
+		/// </summary>
 		Success = 0,
-		Error,
-		UserException,
 
-		#if NOX_STACK_OVERFLOW_CHECKS
-		StackOverFlow
-		#endif
+		/// <summary>
+		/// Internal reactor error.
+		/// </summary>
+		Error,
+
+		/// <summary>
+		/// User space exception.
+		/// </summary>
+		UserException
 	};
 
+	/// <summary>
+	/// Map interrupt accumulator to shutdown reason.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto DetermineShutdownReason(const InterruptAccumulator x) -> ReactorShutdownReason
+	constexpr auto MapIntAccum2ShutdownReason(const InterruptAccumulator x) -> ReactorShutdownReason
 	{
 		return x == INT_CODE_OK ? ReactorShutdownReason::Success : x < INT_CODE_OK ? ReactorShutdownReason::Error : ReactorShutdownReason::UserException;
 	}
@@ -689,30 +782,67 @@ namespace Nominax::Core
 	/// </summary>
 	struct ReactorState final
 	{
-		const VerboseReactorDescriptor*                Input {nullptr};
-		ReactorShutdownReason                          ShutdownReason {ReactorShutdownReason::Success};
+		/// <summary>
+		/// The input descriptor (if any).
+		/// </summary>
+		const VerboseReactorDescriptor* Input {nullptr};
+
+		/// <summary>
+		/// The shutdown reason.
+		/// </summary>
+		ReactorShutdownReason ShutdownReason {ReactorShutdownReason::Success};
+
+		/// <summary>
+		/// Pre execution time stamp.
+		/// </summary>
 		std::chrono::high_resolution_clock::time_point Pre { };
+
+		/// <summary>
+		/// Post execution time stamp.
+		/// </summary>
 		std::chrono::high_resolution_clock::time_point Post { };
-		std::chrono::high_resolution_clock::duration   Duration { };
-		InterruptAccumulator                           InterruptCode { };
-		std::ptrdiff_t                                 IpDiff { };
-		std::ptrdiff_t                                 SpDiff { };
-		std::ptrdiff_t                                 BpDiff { };
+
+		/// <summary>
+		/// Duration diff between pre and post execution time stamp.
+		/// </summary>
+		std::chrono::high_resolution_clock::duration Duration { };
+
+		/// <summary>
+		/// Interrupt accumulator code.
+		/// </summary>
+		InterruptAccumulator InterruptCode { };
+
+		/// <summary>
+		/// Instruction pointer diff.
+		/// </summary>
+		std::ptrdiff_t IpDiff { };
+
+		/// <summary>
+		/// Stack pointer diff.
+		/// </summary>
+		std::ptrdiff_t SpDiff { };
+
+		/// <summary>
+		/// Base pointer diff.
+		/// </summary>
+		std::ptrdiff_t BpDiff { };
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The return code (interrupt code casted). Zero if success.</returns>
-		constexpr auto ReturnCode() const -> int;
+		[[nodiscard]]
+		constexpr auto ReturnCode() const -> I32;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The result of the program evaluation (the first stack record, if any).</returns>
+		[[nodiscard]]
 		constexpr auto EvaluationResult() const -> Common::Record;
 	};
 
-	constexpr auto ReactorState::ReturnCode() const -> int
+	constexpr auto ReactorState::ReturnCode() const -> I32
 	{
 		return this->InterruptCode;
 	}
@@ -958,11 +1088,6 @@ namespace Nominax::Core
 	}
 
 	/// <summary>
-	/// 2D jump table pointer type.
-	/// </summary>
-	using JumpTable = const void* NOX_RESTRICT const* NOX_RESTRICT const;
-
-	/// <summary>
 	/// Replaces the op-codes in the bucket with the pointers to the labels.
 	/// This improves performance because no array lookup is needed.
 	/// The jump assembly generated on my machine (x86-64, clang):
@@ -1007,10 +1132,10 @@ namespace Nominax::Core
 	[[nodiscard]]
 	extern auto PerformJumpTableMapping
 	(
-		ByteCode::Signal* NOX_RESTRICT       bucket,
-		const ByteCode::Signal* NOX_RESTRICT bucketEnd,
-		const bool*                          jumpAddressMap,
-		JumpTable                            jumpTable
+		ByteCode::Signal* NOX_RESTRICT                     bucket,
+		const ByteCode::Signal* NOX_RESTRICT               bucketEnd,
+		const bool*                                        jumpAddressMap,
+		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
 	) -> bool;
 
 	/// <summary>
@@ -1022,8 +1147,8 @@ namespace Nominax::Core
 	/// <returns>true if all entries are valid, else false.</returns>
 	consteval auto ValidateJumpTable
 	(
-		JumpTable         jumpTable,
-		const std::size_t jumpTableSize
+		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable,
+		const std::size_t                                  jumpTableSize
 	) -> bool
 	{
 		if (!jumpTable || !jumpTableSize)
@@ -1031,14 +1156,14 @@ namespace Nominax::Core
 			return false;
 		}
 
-		const auto* current {jumpTable};
-		for (const auto* const end {jumpTable + jumpTableSize}; current < end; ++current)
+		for (const auto *current {jumpTable}, *const end {jumpTable + jumpTableSize}; current < end; ++current)
 		{
 			if (!*current)
 			{
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -1942,7 +2067,7 @@ namespace Nominax::Core
 		/// Allocates a mock object for use in tests or debug stuff.
 		/// Do not use for real allocation!
 		/// </summary>
-		/// <param name="sizeInRecords">BUG-PRONE The size of the object in RECORDS NOT in BYTES</param>
+		/// <param name="sizeInRecords">The size of the object in RECORDS NOT in BYTES</param>
 		/// <returns>The mock object.</returns>
 		static auto AllocateUnique(U32 sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
 	};
@@ -2017,12 +2142,24 @@ namespace Nominax::Core
 	template <>
 	auto Object::DeepValueCmp_Equal<void*>(Object a, Object b) -> bool;
 
+	/// <summary>
+	/// Specialization for bitwise compare of void*.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_Equal<char32_t>(const Object a, const Object b) -> bool
 	{
 		return DeepValueCmp_Equal<U64>(a, b);
 	}
 
+	/// <summary>
+	/// Specialization for bitwise compare of void*.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_Equal<void*>(const Object a, const Object b) -> bool
 	{
@@ -2622,11 +2759,16 @@ namespace Nominax::Core
 
 		#if NOX_ARCH_X86_64
 
+		/// <summary>
+		/// Advanced vector extensions -> 256-bit (YMM* registers) -> VEX
+		/// </summary>
 		X86_64_AVX,
+
+		/// <summary>
+		/// Advanced vector extensions 512 -> 512-bit (ZMM* registers, K* mask registers) -> EVEX
+		/// </summary>
 		X86_64_AVX512F,
 
-		#elif NOX_ARCH_ARM_64
-#	error "ARM64 not yet supported!"
 		#endif
 
 		Count
@@ -2639,19 +2781,20 @@ namespace Nominax::Core
 	/// <returns></returns>
 	constexpr auto GetReactorCoreSpecializationName(const ReactorCoreSpecialization target) -> std::string_view
 	{
-		#if NOX_ARCH_X86_64
 		switch (target)
 		{
+				#if NOX_ARCH_X86_64
+
 			case ReactorCoreSpecialization::X86_64_AVX:
 				return "X86-64 AVX";
+
 			case ReactorCoreSpecialization::X86_64_AVX512F:
 				return "X86-64 AVX512F";
+				#endif
+
 			default:
 				return "Generic Fallback";
 		}
-		#elif NOX_ARCH_ARM_64
-#	error "ARM64 not yet supported!"
-		#endif
 	}
 
 	/// <summary>
@@ -2664,16 +2807,65 @@ namespace Nominax::Core
 	/// </summary>
 	struct ReactorRoutineLink
 	{
-		const ReactorCoreSpecialization    Specialization;
-		ReactorCoreExecutionRoutine* const ExecutionRoutine;
-		const void** const                 JumpTable;
+		/// <summary>
+		/// Specialization type.
+		/// </summary>
+		const ReactorCoreSpecialization Specialization;
 
+		/// <summary>
+		/// Execution routine link.
+		/// </summary>
+		ReactorCoreExecutionRoutine* const ExecutionRoutine;
+
+		/// <summary>
+		/// Jump table link.
+		/// </summary>
+		const void** const JumpTable;
+
+		/// <summary>
+		/// Construct and validate parameters.
+		/// Panics if any parameter is null.
+		/// </summary>
+		/// <param name="specialization"></param>
+		/// <param name="executionRoutine"></param>
+		/// <param name="jumpTable"></param>
 		ReactorRoutineLink
 		(
 			ReactorCoreSpecialization    specialization,
 			ReactorCoreExecutionRoutine* executionRoutine,
 			const void**                 jumpTable
 		);
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		ReactorRoutineLink(const ReactorRoutineLink& other) = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		/// <param name="other"></param>
+		ReactorRoutineLink(ReactorRoutineLink&& other) = delete;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const ReactorRoutineLink& other) -> ReactorRoutineLink& = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(ReactorRoutineLink&& other) -> ReactorRoutineLink& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~ReactorRoutineLink() = default;
 	};
 
 	/// <summary>
@@ -2682,43 +2874,87 @@ namespace Nominax::Core
 	using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)>;
 
 	/// <summary>
-	/// Returns the fallback reactor routine with no platform specific optimizations,
-	/// available on all platforms and all CPUs.
+	/// The reactor hyper visor manages the correct selection
+	/// of reactor execution routines for the current runtime.
 	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	extern auto GetFallbackRoutineLink() -> ReactorRoutineLink;
+	class HyperVisor final
+	{
+	public:
+		/// <summary>
+		/// static class
+		/// </summary>
+		HyperVisor() = delete;
 
-	/// <summary>
-	/// Returns the reactor specialization based on the cpu features available.
-	/// </summary>
-	/// <param name="cpuFeatureDetector"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	extern auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
+		/// <summary>
+		/// static class
+		/// </summary>
+		/// <param name="other"></param>
+		HyperVisor(const HyperVisor& other) = delete;
 
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <returns>The current reactor registry.</returns>
-	[[nodiscard]]
-	extern auto GetReactorRegistry() -> const ReactorRegistry&;
+		/// <summary>
+		/// static class
+		/// </summary>
+		/// <param name="other"></param>
+		HyperVisor(HyperVisor&& other) = delete;
 
-	/// <summary>
-	/// Returns the reactor routine of the corresponding target.
-	/// </summary>
-	/// <param name="target"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	extern auto GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*;
+		/// <summary>
+		/// static class
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const HyperVisor& other) -> HyperVisor& = delete;
 
-	/// <summary>
-	/// Selects the best reactor routine matching the cpu features and saves it.
-	/// </summary>
-	/// <param name="features"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	extern auto GetOptimalReactorRoutine(const System::CpuFeatureDetector& features) -> ReactorRoutineLink;
+		/// <summary>
+		/// static class
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(HyperVisor&& other) -> HyperVisor& = delete;
+
+		/// <summary>
+		/// static class
+		/// </summary>
+		~HyperVisor() = delete;
+
+		/// <summary>
+		/// Returns the fallback reactor routine with no platform specific optimizations,
+		/// available on all platforms and all CPUs.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto GetFallbackRoutineLink() -> ReactorRoutineLink;
+
+		/// <summary>
+		/// Returns the reactor specialization based on the cpu features available.
+		/// </summary>
+		/// <param name="cpuFeatureDetector"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current reactor registry.</returns>
+		[[nodiscard]]
+		static auto GetReactorRegistry() -> const ReactorRegistry&;
+
+		/// <summary>
+		/// Returns the reactor routine of the corresponding target.
+		/// </summary>
+		/// <param name="target"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*;
+
+		/// <summary>
+		/// Selects the best reactor routine matching the cpu features and saves it.
+		/// </summary>
+		/// <param name="features"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto GetOptimalReactorRoutine(const System::CpuFeatureDetector& features) -> ReactorRoutineLink;
+	};
 
 	/// <summary>
 	/// Helpers to quickly execute a reactor with specified cpu features.
@@ -2799,7 +3035,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// The interrupt routine using for reactor interrupts.
 		/// </summary>
-		InterruptRoutine* InterruptHandler_;
+		InterruptRoutineProxy* InterruptHandler_;
 
 		/// <summary>
 		/// Contains the reactor routine.
@@ -2928,7 +3164,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetInterruptHandler() const -> InterruptRoutine*;
+		auto GetInterruptHandler() const -> InterruptRoutineProxy*;
 	};
 
 	inline auto Reactor::GetId() const -> std::uint32_t
@@ -2961,7 +3197,7 @@ namespace Nominax::Core
 		return this->IntrinsicTable_;
 	}
 
-	inline auto Reactor::GetInterruptHandler() const -> InterruptRoutine*
+	inline auto Reactor::GetInterruptHandler() const -> InterruptRoutineProxy*
 	{
 		return this->InterruptHandler_;
 	}
@@ -3199,24 +3435,21 @@ namespace Nominax::Core
 
 	static_assert(sizeof(Vector512) == 64);
 
-	#if NOX_ARCH_X86_32
-
-	using GprRegisterLane = std::array<U32, 8>;
-	using VectorRegisterLane128 = std::array<Vector128, 8>;
-	using VectorRegisterLane256 = std::array<Vector256, 1>;
+	#if NOX_ARCH_X86_64
 
 	/// <summary>
-	/// Read and dump all the register values into the stream.
+	/// Hardware specific register lane.
 	/// </summary>
-	/// <param name="out"></param>
-	/// <param name="gpr"></param>
-	/// <returns></returns>
-	extern auto RegisterDump_X86_32(std::ostream& out, const GprRegisterLane& gpr) -> void;
-
-	#elif NOX_ARCH_X86_64
-
 	using GprRegisterLane = std::array<U64, 16>;
+
+	/// <summary>
+	/// Hardware specific register lane.
+	/// </summary>
 	using VectorRegisterLane128 = std::array<Vector128, 16>;
+
+	/// <summary>
+	/// Hardware specific register lane.
+	/// </summary>
 	using VectorRegisterLane256 = std::array<Vector256, 16>;
 
 	/// <summary>
@@ -3238,8 +3471,19 @@ namespace Nominax::Core
 
 	#elif NOX_ARCH_ARM_64
 
+	/// <summary>
+	/// Hardware specific register lane.
+	/// </summary>
 	using GprRegisterLane = std::array<U64, 16>;
+
+	/// <summary>
+	/// Hardware specific register lane.
+	/// </summary>
 	using VectorRegisterLane128 = std::array<Vector128, 16>;
+
+	/// <summary>
+	/// Hardware specific register lane.
+	/// </summary>
 	using VectorRegisterLane256 = std::array<Vector256, 1>;
 
 #	error "Not yet implemented!"
