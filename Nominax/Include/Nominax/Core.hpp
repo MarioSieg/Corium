@@ -1036,14 +1036,14 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The system stat snapshot.</returns>
 		[[nodiscard]]
-		auto GetSystemSnapshot() const -> const System::Snapshot&;
+		auto GetSystemSnapshot() const -> const Common::Snapshot&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The cpu feature detector.</returns>
 		[[nodiscard]]
-		auto GetProcessorFeatureSnapshot() const -> const System::CpuFeatureDetector&;
+		auto GetProcessorFeatureSnapshot() const -> const Common::CpuFeatureDetector&;
 
 		/// <summary>
 		/// 
@@ -2899,7 +2899,7 @@ namespace Nominax::Core
 		/// <param name="cpuFeatureDetector"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
+		static auto SmartSelectReactor(const Common::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
 
 		/// <summary>
 		/// 
@@ -2922,7 +2922,7 @@ namespace Nominax::Core
 		/// <param name="features"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto GetOptimalReactorRoutine(const System::CpuFeatureDetector& features) -> ReactorRoutineLink;
+		static auto GetOptimalReactorRoutine(const Common::CpuFeatureDetector& features) -> ReactorRoutineLink;
 	};
 
 	/// <summary>
@@ -2939,7 +2939,7 @@ namespace Nominax::Core
 	(
 		const VerboseReactorDescriptor&   input,
 		ReactorState&                     output,
-		const System::CpuFeatureDetector& target,
+		const Common::CpuFeatureDetector& target,
 		const void****                    outJumpTable = nullptr
 	) -> ReactorShutdownReason;
 
@@ -3200,7 +3200,7 @@ namespace Nominax::Core
 	/// <returns></returns>
 	extern auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target = { },
+		const VerboseReactorDescriptor& input, const Common::CpuFeatureDetector& target = { },
 		const void****                  outJumpTable                                    = nullptr
 	) -> std::pair<ReactorShutdownReason, ReactorState>;
 

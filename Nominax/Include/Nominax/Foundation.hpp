@@ -210,6 +210,7 @@
 #include <algorithm>
 #include <atomic>
 #include <bit>
+#include <cassert>
 #include <climits>
 #include <csignal>
 #include <cstddef>
@@ -5740,7 +5741,7 @@ namespace Nominax::VectorLib
 	}
 }
 
-namespace Nominax::Arch::X86_64
+namespace Nominax::Common
 {
 	/// <summary>
 	/// Contains all feature bits for a x86-64 cpu.
@@ -6793,76 +6794,7 @@ namespace Nominax::Arch::X86_64
 
 	static_assert(sizeof(CpuFeatureBits) == 30);
 	static_assert(std::is_trivially_copyable_v<CpuFeatureBits>);
-
-	/// <summary>
-	/// Contains merged info table.
-	/// One 64-bit instance contains two 32-bit info tables.
-	/// </summary>
-	union MergedInfoTable
-	{
-		U64 Merged { };
-
-		struct
-		{
-			U32 Table1;
-			U32 Table2;
-		};
-	};
-
-	static_assert(sizeof(MergedInfoTable) == 8);
-	static_assert(std::is_trivially_copyable_v<MergedInfoTable>);
-
-	/// <summary>
-	/// Assembly routine which calls cpuid
-	/// multiple time to determine all cpu features.
-	/// The first 6 feature tables are returned via
-	/// out1, out2 and out3. Each contains two info tables.
-	/// (See MergedInfoTable). The last info table is returned
-	/// as return value. Do not use this function, better use
-	/// CpuFeatureBits instead, which calls this function in the
-	/// constructor.
-	/// Implementation: Source/Arch/X86_64.CpuId.S
-	/// </summary>
-	extern "C" auto Asm_CpuId
-	(
-		MergedInfoTable* out1,
-		MergedInfoTable* out2,
-		MergedInfoTable* out3
-	) -> U32;
-
-	/// <summary>
-	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
-	/// Implementation: Source/Arch/X86_64.CpuId.S
-	/// </summary>
-	extern "C" auto Asm_IsCpuIdSupported() -> bool;
-
-	/// <summary>
-	/// Returns true if the OS supports AVX YMM registers, else false.
-	/// Warning! Check if os supports OSXSAVE first!
-	/// </summary>
-	extern "C" auto Asm_IsAvxSupportedByOs() -> bool;
-
-	/// <summary>
-	/// Returns true if the OS supports AVX512 ZMM registers, else false.
-	/// Warning! Check if os supports OSXSAVE first!
-	/// </summary>
-	extern "C" auto Asm_IsAvx512SupportedByOs() -> bool;
-}
-
-
-namespace Nominax::System
-{
-	#if NOX_ARCH_X86_64
-	/// <summary>
-	/// Architecture dependent cpu feature flags.
-	/// </summary>
-	using FeatureBits = Arch::X86_64::CpuFeatureBits;
-	#else
-		using FeatureBits = void;
-#   error "ARM is not yet implemented!"
-	#endif
-
-	static_assert(std::is_default_constructible_v<FeatureBits>);
+	static_assert(std::is_default_constructible_v<CpuFeatureBits>);
 
 	/// <summary>
 	/// Detects architecture dependent cpu features.
@@ -6873,7 +6805,7 @@ namespace Nominax::System
 		/// <summary>
 		/// Architecture dependent bits.
 		/// </summary>
-		const FeatureBits Features_;
+		const CpuFeatureBits Features_;
 
 	public:
 		/// <summary>
@@ -6910,12 +6842,12 @@ namespace Nominax::System
 		/// <summary>
 		/// Access the architecture dependent feature bits directly.
 		/// </summary>
-		auto operator ->() const -> const FeatureBits*;
+		auto operator ->() const -> const CpuFeatureBits*;
 
 		/// <summary>
 		/// Access the architecture dependent feature bits directly.
 		/// </summary>
-		auto operator *() const -> const FeatureBits&;
+		auto operator *() const -> const CpuFeatureBits&;
 
 		/// <summary>
 		/// Prints all the architecture dependent features in different colors.
@@ -6923,38 +6855,35 @@ namespace Nominax::System
 		auto Print() const -> void;
 	};
 
-	inline auto CpuFeatureDetector::operator ->() const -> const FeatureBits*
+	inline auto CpuFeatureDetector::operator ->() const -> const CpuFeatureBits*
 	{
 		return &this->Features_;
 	}
 
-	inline auto CpuFeatureDetector::operator *() const -> const FeatureBits&
+	inline auto CpuFeatureDetector::operator *() const -> const CpuFeatureBits&
 	{
 		return this->Features_;
 	}
 
-	namespace Os
-	{
-		[[nodiscard]]
-		extern auto QuerySystemMemoryTotal() -> std::size_t;
+	[[nodiscard]]
+	extern auto QuerySystemMemoryTotal() -> std::size_t;
 
-		[[nodiscard]]
-		extern auto QueryProcessMemoryUsed() -> std::size_t;
+	[[nodiscard]]
+	extern auto QueryProcessMemoryUsed() -> std::size_t;
 
-		[[nodiscard]]
-		extern auto QueryCpuName() -> std::string;
+	[[nodiscard]]
+	extern auto QueryCpuName() -> std::string;
 
-		[[nodiscard]]
-		extern auto QueryPageSize() -> std::size_t;
+	[[nodiscard]]
+	extern auto QueryPageSize() -> std::size_t;
 
-		[[nodiscard]]
-		extern auto DylibOpen(std::string_view filePath) -> void*;
+	[[nodiscard]]
+	extern auto DylibOpen(std::string_view filePath) -> void*;
 
-		[[nodiscard]]
-		extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
+	[[nodiscard]]
+	extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
 
-		extern auto DylibClose(void*& handle) -> void;
-	}
+	extern auto DylibClose(void*& handle) -> void;
 
 	struct Snapshot final
 	{
@@ -7103,15 +7032,15 @@ namespace Nominax::System
 	static_assert(!std::is_trivially_copy_assignable_v<DynamicLibrary>);
 	static_assert(!std::is_trivially_move_assignable_v<DynamicLibrary>);
 
-	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ {Os::DylibOpen(filePath)} { }
+	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ {DylibOpen(filePath)} { }
 
 	inline DynamicLibrary::DynamicLibrary(const std::filesystem::path& filePath) : Handle_ {
-		Os::DylibOpen(filePath.string())
+		DylibOpen(filePath.string())
 	} { }
 
 	inline DynamicLibrary::~DynamicLibrary()
 	{
-		Os::DylibClose(this->Handle_);
+		DylibClose(this->Handle_);
 	}
 
 	inline DynamicLibrary::operator bool() const
@@ -7121,7 +7050,7 @@ namespace Nominax::System
 
 	inline auto DynamicLibrary::operator[](const std::string_view symbolName) const -> std::optional<DynamicProcedure>
 	{
-		void* const symbolHandle = Os::DylibLookupSymbol(this->Handle_, symbolName);
+		void* const symbolHandle = DylibLookupSymbol(this->Handle_, symbolName);
 		return symbolHandle ? std::optional {DynamicProcedure {symbolHandle}} : std::nullopt;
 	}
 }

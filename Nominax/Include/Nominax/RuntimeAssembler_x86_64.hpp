@@ -1,6 +1,6 @@
-// File: MockCall.hpp
+// File: RuntimeAssembler_x86_64.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 06.07.2021 2:12 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,9 +207,257 @@
 
 #pragma once
 
-#include "../../Foundation.hpp"
+#include "Foundation.hpp"
 
-namespace Nominax::Arch::X86_64
+namespace Nominax::Assembler::X86_64
 {
-	extern "C" auto Asm_MockCall() -> U64;
+	namespace Routines
+	{
+		/// <summary>
+		/// Returns a special constant value depending on the OS for testing.
+		/// </summary>
+		extern "C" auto Asm_MockCall() -> U64;
+
+		/// <summary>
+		/// Tries to detect a VM using time stamp counter.
+		/// Warning! Do not use this! On most systems it will crash
+		/// because the in instruction cannot get executed from user space.
+		/// </summary>
+		extern "C" auto Asm_VmDetector() -> bool;
+
+		/// <summary>
+		/// Detects vm ware using a port read action.
+		/// Warning! Do not use this! On most systems it will crash
+		/// because the in instruction cannot get executed from user space.
+		/// </summary>
+		extern "C" auto Asm_VmWareDetector() -> bool;
+
+
+		/// <summary>
+		/// Contains merged info table.
+		/// One 64-bit instance contains two 32-bit info tables.
+		/// </summary>
+		union MergedInfoTable
+		{
+			U64 Merged { };
+
+			struct
+			{
+				U32 Table1;
+				U32 Table2;
+			};
+		};
+
+		static_assert(sizeof(MergedInfoTable) == 8);
+		static_assert(std::is_trivially_copyable_v<MergedInfoTable>);
+
+		/// <summary>
+		/// Assembly routine which calls cpuid
+		/// multiple time to determine all cpu features.
+		/// The first 6 feature tables are returned via
+		/// out1, out2 and out3. Each contains two info tables.
+		/// (See MergedInfoTable). The last info table is returned
+		/// as return value. Do not use this function, better use
+		/// CpuFeatureBits instead, which calls this function in the
+		/// constructor.
+		/// Implementation: Source/Arch/X86_64.CpuId.S
+		/// </summary>
+		extern "C" auto Asm_CpuId
+		(
+			MergedInfoTable* out1,
+			MergedInfoTable* out2,
+			MergedInfoTable* out3
+		) -> U32;
+
+		/// <summary>
+		/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
+		/// Implementation: Source/Arch/X86_64.CpuId.S
+		/// </summary>
+		extern "C" auto Asm_IsCpuIdSupported() -> bool;
+
+		/// <summary>
+		/// Returns true if the OS supports AVX YMM registers, else false.
+		/// Warning! Check if os supports OSXSAVE first!
+		/// </summary>
+		extern "C" auto Asm_IsAvxSupportedByOs() -> bool;
+
+		/// <summary>
+		/// Returns true if the OS supports AVX512 ZMM registers, else false.
+		/// Warning! Check if os supports OSXSAVE first!
+		/// </summary>
+		extern "C" auto Asm_IsAvx512SupportedByOs() -> bool;
+	}
+
+	constexpr U8 LOCK {0xF0};
+	constexpr U8 REPNE_REPNZ {0xF2};
+	constexpr U8 REP_REPE_REPZ {0xF3};
+	constexpr U8 REX_W {0x48};
+	constexpr U8 OPERAND_OVERRIDE {0x66};
+	constexpr U8 ADDRESS_OVERRIDE {0x67};
+	constexpr U8 TWO_BYTE_PREFIX {0x0F};
+
+	/// <summary>
+	/// ModRM byte field entries.
+	/// </summary>
+	enum class ModRm : U8
+	{
+		RegisterIndirect = 0b0000'0000,
+		OneByteSignedDisplace = 0b0000'0001,
+		FourByteSignedDisplace = 0b0000'0010,
+		RegisterAddressing = 0b0000'0011
+	};
+
+	/// <summary>
+	/// Scale index byte scale factors.
+	/// </summary>
+	enum class SibScale : U8
+	{
+		Factor1 = 0b0000'0000,
+		Factor2 = 0b0000'0001,
+		Factor4 = 0b0000'0010,
+		Factor8 = 0b0000'0011
+	};
+
+	/// <summary>
+	/// Pack a REX prefix:
+	/// +---+---+---+---+---+---+---+---+
+	/// | 0 | 1 | 0 | 0 | W | R | X | B |
+	/// +---+---+---+---+---+---+---+---+
+	/// </summary>
+	/// <param name="w"></param>
+	/// <param name="r"></param>
+	/// <param name="x"></param>
+	/// <param name="b"></param>
+	/// <returns>The composed rex prefix.</returns>
+	constexpr auto PackRex(const bool w, const bool r, const bool x, const bool b) -> U8
+	{
+		U8 rex {0x40};
+		rex |= b;
+		rex |= x << 1;
+		rex |= r << 2;
+		rex |= w << 3;
+		return rex;
+	}
+
+	/// <summary>
+	/// Pack a REX prefix if optional, else return zero.
+	/// </summary>
+	/// <param name="w"></param>
+	/// <param name="r"></param>
+	/// <param name="x"></param>
+	/// <param name="b"></param>
+	/// <returns>The composed rex prefix or zero.</returns>
+	constexpr auto PackRexOpt(const bool w, const bool r, const bool x, const bool b) -> U8
+	{
+		return w || r || x || b ? PackRex(w, r, x, b) : 0;
+	}
+
+	/// <summary>
+	/// Packs the bits into the specified order:
+	/// +-----------+-----------+-------+
+	/// | bits01 |  bits234 |  bits567  |
+	/// +---+---+---+---+---+---+---+---+
+	/// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+	/// +---+---+---+---+---+---+---+---+
+	/// </summary>
+	/// <param name="bits01"></param>
+	/// <param name="bits234"></param>
+	/// <param name="bits567"></param>
+	/// <returns>The composed mod rm sib byte.</returns>
+	constexpr auto PackModRm(const U8 bits01, const U8 bits234, const U8 bits567) -> U8
+	{
+		assert((bits01 & ~0b11) == 0);
+		assert((bits234 & ~0b111) == 0);
+		assert((bits567 & ~0b111) == 0);
+		U8 trio {bits567};
+		trio &= ~0xF8;
+		trio |= (bits234 & ~0xF8) << 3;
+		trio |= (bits01 & ~0xFC) << 6;
+		return trio;
+	}
+
+	/// <summary>
+	/// Writes a NOP chain of the specified size into the needle.
+	/// </summary>
+	/// <param name="needle">The machine code needle. Must have at least size elements.</param>
+	/// <param name="size">The NOP chain size between 1 and 15 inclusive.</param>
+	extern auto InjectNopChain(U8* needle, U8 size) -> void;
+
+	/// <summary>
+	/// Contains all registers supported by the JIT compiler.
+	/// </summary>
+	enum class Register : U8
+	{
+		RAX,
+		RBX,
+		RCX,
+		RDX,
+		RSI,
+		RDI,
+		RBP,
+		RSP,
+		R8,
+		R9,
+		R10,
+		R11,
+		R12,
+		R13,
+		R14,
+		R15,
+
+		$Count
+	};
+
+	/// <summary>
+	/// Machine code id table for all registers.
+	/// </summary>
+	constexpr std::array<U8, static_cast<std::size_t>(Register::$Count)> REGISTER_ID_TABLE
+	{
+		0x00, 0x03,
+		0x01, 0x02,
+		0x06, 0x07,
+		0x05, 0x04,
+		0x00, 0x01,
+		0x02, 0x03,
+		0x04, 0x05,
+		0x06, 0x07
+	};
+
+	/// <summary>
+	/// Mnemonic name table of all registers.
+	/// </summary>
+	constexpr std::array<std::string_view, static_cast<std::size_t>(Register::$Count)> REGISTER_MNEMONIC_TABLE
+	{
+		"rax",
+		"rbx",
+		"rcx",
+		"rdx",
+		"rsi",
+		"rdi",
+		"rbp",
+		"rsp",
+		"r8",
+		"r9",
+		"r10",
+		"r11",
+		"r12",
+		"r13",
+		"r14",
+		"r15"
+	};
+
+	/// <summary>
+	/// These registers must be preserved across function calls.
+	/// </summary>
+	[[maybe_unused]]
+	constexpr std::array CALLE_SAVED_REGISTERS
+	{
+		Register::RBX,
+		Register::RSP,
+		Register::RBP,
+		Register::R12,
+		Register::R13,
+		Register::R14,
+		Register::R15,
+	};
 }

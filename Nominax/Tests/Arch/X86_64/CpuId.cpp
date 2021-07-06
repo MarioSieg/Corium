@@ -214,13 +214,13 @@
 
 TEST(AssemblyCalls, IsCpudIdSupported)
 {
-	const auto supported {Arch::X86_64::Asm_IsCpuIdSupported()};
+	const auto supported {X86_64::Routines::Asm_IsCpuIdSupported()};
 	ASSERT_TRUE(supported);
 }
 
 TEST(AssemblyCalls, CpuId)
 {
-	const Arch::X86_64::CpuFeatureBits bits { };
+	const CpuFeatureBits bits { };
 	ASSERT_TRUE(bits.Fpu);
 	ASSERT_TRUE(bits.Mmx);
 	ASSERT_TRUE(bits.Sse);

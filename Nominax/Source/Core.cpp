@@ -247,10 +247,10 @@ namespace Nominax
 		/// Query and print machine info.
 		/// </summary>
 		/// <returns></returns>
-		static auto InitSysInfo() -> System::Snapshot
+		static auto InitSysInfo() -> Common::Snapshot
 		{
 			Common::Print('\n');
-			System::Snapshot snapshot { };
+			Common::Snapshot snapshot { };
 			snapshot.Print();
 			return snapshot;
 		}
@@ -259,10 +259,10 @@ namespace Nominax
 		/// Query and print cpu features.
 		/// </summary>
 		/// <returns></returns>Common::
-		static auto InitCpuFeatures() -> System::CpuFeatureDetector
+		static auto InitCpuFeatures() -> Common::CpuFeatureDetector
 		{
 			Common::Print('\n');
-			System::CpuFeatureDetector cpuFeatureDetector { };
+			Common::CpuFeatureDetector cpuFeatureDetector { };
 			cpuFeatureDetector.Print();
 			Common::Print('\n');
 			return cpuFeatureDetector;
@@ -525,8 +525,8 @@ namespace Nominax
 			std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
 			const std::chrono::high_resolution_clock::time_point     BootStamp;
 			std::chrono::milliseconds                                BootTime;
-			const System::Snapshot                                   SysInfoSnapshot;
-			const System::CpuFeatureDetector                         CpuFeatures;
+			const Common::Snapshot                                   SysInfoSnapshot;
+			const Common::CpuFeatureDetector                         CpuFeatures;
 			const ReactorRoutineLink                                 OptimalReactorRoutine;
 			ReactorPool                                              CorePool;
 
@@ -669,7 +669,7 @@ namespace Nominax
 			const auto tok {std::chrono::high_resolution_clock::now()};
 
 			// Get memory snapshot:
-			const std::size_t memSnapshot {System::Os::QueryProcessMemoryUsed()};
+			const std::size_t memSnapshot {Common::QueryProcessMemoryUsed()};
 			const F64         memUsagePercent {
 				ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory)
 			};
@@ -801,13 +801,13 @@ namespace Nominax
 			return this->Context_->BootTime;
 		}
 
-		auto Environment::GetSystemSnapshot() const -> const System::Snapshot&
+		auto Environment::GetSystemSnapshot() const -> const Common::Snapshot&
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 			return this->Context_->SysInfoSnapshot;
 		}
 
-		auto Environment::GetProcessorFeatureSnapshot() const -> const System::CpuFeatureDetector&
+		auto Environment::GetProcessorFeatureSnapshot() const -> const Common::CpuFeatureDetector&
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 			return this->Context_->CpuFeatures;
@@ -1484,10 +1484,10 @@ namespace Nominax
 			out << "Arch: " << NOX_ARCH_NAME << '\n';
 			out << "Posix: " << std::boolalpha << NOX_IS_POSIX << '\n';
 			out << "Compiler: " << NOX_COM_NAME " - C++ 20" << '\n';
-			out << "CPU: " << System::Os::QueryCpuName() << '\n';
+			out << "CPU: " << Common::QueryCpuName() << '\n';
 			out << "CPU Threads: " << std::thread::hardware_concurrency() << '\n';
-			out << "System RAM: " << Common::Bytes2Megabytes(System::Os::QuerySystemMemoryTotal()) << " MB\n";
-			out << "Process RAM: " << Common::Bytes2Megabytes(System::Os::QueryProcessMemoryUsed()) << " MB\n";
+			out << "System RAM: " << Common::Bytes2Megabytes(Common::QuerySystemMemoryTotal()) << " MB\n";
+			out << "Process RAM: " << Common::Bytes2Megabytes(Common::QueryProcessMemoryUsed()) << " MB\n";
 			out << '\n';
 			out << "MS = " << (!message.empty() && message.data() ? message : "none") << '\n';
 			out << "SP = &0x" << std::hex << sp << '\n';
@@ -2142,7 +2142,7 @@ namespace Nominax
 
 		auto SingletonExecutionProxy
 		(
-			const VerboseReactorDescriptor& input, const System::CpuFeatureDetector& target,
+			const VerboseReactorDescriptor& input, const Common::CpuFeatureDetector& target,
 			const void****                  outJumpTable
 		) -> std::pair<ReactorShutdownReason, ReactorState>
 		{
@@ -2178,7 +2178,7 @@ namespace Nominax
 			#endif
 		};
 
-		auto HyperVisor::SmartSelectReactor(const System::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
+		auto HyperVisor::SmartSelectReactor(const Common::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
 		{
 			#if NOX_ARCH_X86_64
 
@@ -2232,7 +2232,7 @@ namespace Nominax
 			return routine;
 		}
 
-		auto HyperVisor::GetOptimalReactorRoutine(const System::CpuFeatureDetector& features) -> ReactorRoutineLink
+		auto HyperVisor::GetOptimalReactorRoutine(const Common::CpuFeatureDetector& features) -> ReactorRoutineLink
 		{
 			static thread_local constinit U16 QueryCounter;
 			ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
@@ -2264,7 +2264,7 @@ namespace Nominax
 		auto SingletonExecutionProxy
 		(
 			const VerboseReactorDescriptor&   input, ReactorState& output,
-			const System::CpuFeatureDetector& target,
+			const Common::CpuFeatureDetector& target,
 			const void****                    outJumpTable
 		) -> ReactorShutdownReason
 		{
