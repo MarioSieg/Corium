@@ -207,22 +207,17 @@
 
 #pragma once
 
-#include "Arch/Arch.hpp"
-#include "Assembler/Assembler.hpp"
-#include "ByteCode/ByteCode.hpp"
-#include "Core/Core.hpp"
-#include "System/System.hpp"
-#include "Common/Common.hpp"
-#include "VectorLib/VectorLib.hpp"
+#include "RuntimeAssembler_x86_64.hpp"
+#include "ByteCode.hpp"
+#include "Core.hpp"
+#include "Foundation.hpp"
 
 namespace Nominax::Prelude
 {
 	using namespace Nominax;
-	using namespace Arch;
 	using namespace Assembler;
 	using namespace ByteCode;
 	using namespace Core;
-	using namespace System;
 	using namespace Common;
 	using namespace VectorLib;
 }

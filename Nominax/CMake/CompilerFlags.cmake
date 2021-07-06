@@ -1,0 +1,35 @@
+# Print info:
+IF(CMAKE_BUILD_TYPE STREQUAL "Release")
+	MESSAGE("Release build, using all optimization flags")
+ENDIF()
+
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-mmmx")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-msse")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-msse2")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-msse3")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-mssse3")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-msahf")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-mcx16")
+
+SET_PROPERTY(TARGET "NominaxRuntime" PROPERTY CXX_STANDARD 20)
+
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wall")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wextra")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-std=c++20")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wc++20-compat")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wc++20-compat-pedantic")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-gnu-label-as-value")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-unknown-attributes")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-dollar-in-identifier-extension")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-c++98-compat")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-c++98-compat-pedantic")
+
+IF(CMAKE_BUILD_TYPE STREQUAL "Release")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Ofast")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-fno-exceptions")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-fomit-frame-pointer")
+ENDIF()
+
+IF(${CORIUM_FAST_MATH} AND CMAKE_BUILD_TYPE STREQUAL "Release")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-ffast-math")
+ENDIF()

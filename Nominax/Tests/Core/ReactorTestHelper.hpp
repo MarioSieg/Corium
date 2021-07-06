@@ -225,7 +225,7 @@ constexpr auto MOCK_STACK_SIZE = 32; // 32 records
 
 inline constinit std::array<Record, MOCK_STACK_SIZE> MockStack {Record::Padding()};
 
-constexpr InterruptRoutine* MOCK_INTERRUPT_HANDLER
+constexpr InterruptRoutineProxy* MOCK_INTERRUPT_HANDLER
 {
 	+[](InterruptAccumulator) -> void { }
 };

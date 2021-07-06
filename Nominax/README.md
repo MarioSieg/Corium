@@ -13,6 +13,7 @@
 * Security Systems
 * Byte Code Compression
 * Byte Code Validation
+* Byte Code Caching
 * Freestanding Library
 * Embeddable
 * JIT Compiler
@@ -20,14 +21,3 @@
 * AVX
 * AVX 512
 * ARM Neon
-
-
-<h2>Data Record</h2>
-Used as stack record and object memory field.
-
-![Record](https://i.imgur.com/31n1HMW.jpg)
-
-<h2>Signal</h2>
-The VM reactor contigously processes each signal in the byte code.
-
-![Signal](https://i.imgur.com/nQ4M7SZ.jpg)

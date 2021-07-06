@@ -220,28 +220,28 @@ struct DynamicSignal final
 	{
 		switch (this->Data.index())
 		{
-		case 0:
-			return Signal::Discriminator::Instruction;
-		case 1:
-			return Signal::Discriminator::SystemIntrinsicCallID;
-		case 2:
-			return Signal::Discriminator::UserIntrinsicCallID;
-		case 3:
-			return Signal::Discriminator::JumpAddress;
-		case 4:
-			return Signal::Discriminator::U64;
-		case 5:
-			return Signal::Discriminator::I64;
-		case 6:
-			return Signal::Discriminator::F64;
-		case 7:
-			return Signal::Discriminator::CharClusterUtf8;
-		case 8:
-			return Signal::Discriminator::CharClusterUtf16;
-		case 9:
-			return Signal::Discriminator::CharClusterUtf32;
-		default:
-			return Signal::Discriminator::Ptr;
+			case 0:
+				return Signal::Discriminator::Instruction;
+			case 1:
+				return Signal::Discriminator::SystemIntrinsicCallID;
+			case 2:
+				return Signal::Discriminator::UserIntrinsicCallID;
+			case 3:
+				return Signal::Discriminator::JumpAddress;
+			case 4:
+				return Signal::Discriminator::U64;
+			case 5:
+				return Signal::Discriminator::I64;
+			case 6:
+				return Signal::Discriminator::F64;
+			case 7:
+				return Signal::Discriminator::CharClusterUtf8;
+			case 8:
+				return Signal::Discriminator::CharClusterUtf16;
+			case 9:
+				return Signal::Discriminator::CharClusterUtf32;
+			default:
+				return Signal::Discriminator::Ptr;
 		}
 	}
 };

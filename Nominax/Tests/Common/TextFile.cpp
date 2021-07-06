@@ -260,7 +260,7 @@ TEST(TextFile, Write)
 	std::basic_ifstream<char> in {"TestTextFile.txt"};
 	ASSERT_TRUE(in);
 	const std::string str((std::istreambuf_iterator<char>(in)),
-	                        std::istreambuf_iterator<char>());
+	                      std::istreambuf_iterator<char>());
 	ASSERT_EQ(str, "test&*%$!");
 }
 
