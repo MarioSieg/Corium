@@ -232,7 +232,7 @@ TEST(Image, Construct2)
 TEST(Image, Construct3)
 {
 	auto* const values {new Signal[3] {Signal {3.0}, Signal {1.0}, Signal {-3.0}}};
-	Image       image {values, 3 * sizeof(Signal) };
+	Image       image {values, 3 * sizeof(Signal)};
 	ASSERT_EQ(image.GetSize(), 3);
 	ASSERT_EQ(image.GetByteSize(), 24);
 	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);

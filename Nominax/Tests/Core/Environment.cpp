@@ -356,25 +356,25 @@ TEST(Environment, BootShutdownHooks)
 
 	class MyEnvironment : public Environment
 	{
-		auto OnPostBootHook() -> bool override
+		virtual auto OnPostBootHook() -> bool override
 		{
 			++x;
 			return true;
 		}
 
-		auto OnPostShutdownHook() -> bool override
+		virtual auto OnPostShutdownHook() -> bool override
 		{
 			++x;
 			return true;
 		}
 
-		auto OnPreBootHook() -> bool override
+		virtual auto OnPreBootHook() -> bool override
 		{
 			++x;
 			return true;
 		}
 
-		auto OnPreShutdownHook() -> bool override
+		virtual auto OnPreShutdownHook() -> bool override
 		{
 			++x;
 			return true;
@@ -564,14 +564,14 @@ TEST(Environment, ExecutionHooks)
 
 	class MyEnvironment : public Environment
 	{
-		auto OnPreExecutionHook(const AppCodeBundle& appCodeBundle) -> bool override
+		virtual auto OnPreExecutionHook(const CodeImageBundle& appCodeBundle) -> bool override
 		{
 			streamSize = std::get<1>(appCodeBundle).size();
 			++counter;
 			return true;
 		}
 
-		auto OnPostExecutionHook() -> bool override
+		virtual auto OnPostExecutionHook() -> bool override
 		{
 			++counter;
 			return true;

@@ -900,7 +900,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>True on success, panic on false.</returns>
 		[[nodiscard]]
-		virtual auto OnPreExecutionHook(const ByteCode::AppCodeBundle& appCodeBundle) -> bool;
+		virtual auto OnPreExecutionHook(const ByteCode::CodeImageBundle& appCodeBundle) -> bool;
 
 		/// <summary>
 		/// This hook is executed after any code execution.
@@ -990,23 +990,50 @@ namespace Nominax::Core
 		/// <summary>
 		/// Execute stream on alpha reactor.
 		/// </summary>
-		/// <param name="appCode"></param>
+		/// <param name="image"></param>
 		/// <returns></returns>
-		auto Execute(ByteCode::AppCodeBundle& appCode) -> ExecutionResult;
+		[[nodiscard]]
+		auto Execute(ByteCode::CodeImageBundle& image) -> ExecutionResult;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <returns></returns>
+		[[nodiscard]]
 		auto Execute(ByteCode::Stream&& stream) -> ExecutionResult;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
 		/// </summary>
-		/// <param name="appCode"></param>
+		/// <param name="stream"></param>
 		/// <returns></returns>
-		auto operator()(ByteCode::AppCodeBundle& appCode) -> ExecutionResult;
+		[[nodiscard]]
+		auto Execute(const ByteCode::Stream& stream) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="image"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator()(ByteCode::CodeImageBundle& image) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator()(ByteCode::Stream&& stream) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator()(const ByteCode::Stream& stream) -> ExecutionResult;
 
 		/// <summary>
 		/// Shutdown runtime environment.
@@ -1086,9 +1113,19 @@ namespace Nominax::Core
 		auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
 	};
 
-	inline auto Environment::operator()(ByteCode::AppCodeBundle& appCode) -> ExecutionResult
+	inline auto Environment::operator()(ByteCode::CodeImageBundle& image) -> ExecutionResult
 	{
-		return this->Execute(appCode);
+		return this->Execute(image);
+	}
+
+	inline auto Environment::operator()(ByteCode::Stream&& stream) -> ExecutionResult
+	{
+		return this->Execute(std::move(stream));
+	}
+
+	inline auto Environment::operator()(const ByteCode::Stream& stream) -> ExecutionResult
+	{
+		return this->Execute(stream);
 	}
 
 	/// <summary>
@@ -3004,7 +3041,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(ByteCode::AppCodeBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto Execute(ByteCode::CodeImageBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 		/// <summary>
 		/// Execute reactor with specified application code bundle.
@@ -3012,7 +3049,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator ()(ByteCode::AppCodeBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto operator ()(ByteCode::CodeImageBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 		/// <summary>
 		/// 
@@ -3124,7 +3161,7 @@ namespace Nominax::Core
 		return this->Output_;
 	}
 
-	inline auto Reactor::operator()(ByteCode::AppCodeBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
+	inline auto Reactor::operator()(ByteCode::CodeImageBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 	{
 		return this->Execute(bundle);
 	}

@@ -1,6 +1,6 @@
 // File: Core.cpp
 // Author: Mario
-// Created: 05.07.2021 4:43 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -593,7 +593,7 @@ namespace Nominax
 			return true;
 		}
 
-		auto Environment::OnPreExecutionHook([[maybe_unused]] const ByteCode::AppCodeBundle& appCodeBundle) -> bool
+		auto Environment::OnPreExecutionHook([[maybe_unused]] const ByteCode::CodeImageBundle& appCodeBundle) -> bool
 		{
 			return true;
 		}
@@ -718,19 +718,19 @@ namespace Nominax
 			);
 		}
 
-		auto Environment::Execute(ByteCode::AppCodeBundle& appCode) -> ExecutionResult
+		auto Environment::Execute(ByteCode::CodeImageBundle& image) -> ExecutionResult
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 
 			// Invoke hook:
-			DISPATCH_HOOK(OnPreExecutionHook, appCode);
+			DISPATCH_HOOK(OnPreExecutionHook, image);
 
 			// Info
 			Print(Common::LogLevel::Warning, "Executing...\n");
 			std::cout.flush();
 
 			// Execute on alpha reactor:
-			const auto& result {(*this->Context_->CorePool)(appCode)};
+			const auto& result {(*this->Context_->CorePool)(image)};
 
 			// Add execution time:
 			const auto micros {
@@ -753,9 +753,16 @@ namespace Nominax
 
 		auto Environment::Execute(ByteCode::Stream&& stream) -> ExecutionResult
 		{
-			ByteCode::AppCodeBundle codeImage{};
-			NOX_PAS_EQ(stream.Build(codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
-			stream = {};
+			ByteCode::CodeImageBundle codeImage { };
+			NOX_PAS_EQ(ByteCode::Stream::Build(std::move(stream), codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
+			stream = { };
+			return (*this)(codeImage);
+		}
+
+		auto Environment::Execute(const ByteCode::Stream& stream) -> ExecutionResult
+		{
+			ByteCode::CodeImageBundle codeImage { };
+			NOX_PAS_EQ(ByteCode::Stream::Build(stream, codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
 			return (*this)(codeImage);
 		}
 
@@ -1440,7 +1447,7 @@ namespace Nominax
 			);
 		}
 
-		auto Reactor::Execute(ByteCode::AppCodeBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
+		auto Reactor::Execute(ByteCode::CodeImageBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 		{
 			this->Input_ = CreateDescriptor
 			(

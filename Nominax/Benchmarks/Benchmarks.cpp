@@ -258,11 +258,15 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 	stream.Epilogue();
 	stream.PrintMemoryCompositionInfo();
 
+	const auto size {stream.Size()};
+
 	for (auto _ : state)
 	{
 		Image   chunk { };
 		JumpMap jumpMap { };
-		TransformStreamToImageByCopy(stream, chunk, jumpMap);
+		TransformStreamToImageByMove(std::move(stream), chunk, jumpMap);
+		NOX_PAS_EQ(chunk.GetSize(), size, "Invalid chunk!");
+		NOX_PAS_EQ(jumpMap.size(), size, "Invalid jump map!");
 	}
 }
 

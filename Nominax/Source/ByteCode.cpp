@@ -1,6 +1,6 @@
 // File: ByteCode.cpp
 // Author: Mario
-// Created: 05.07.2021 4:43 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -214,30 +214,44 @@ namespace Nominax::ByteCode
 {
 	auto TransformStreamToImageByCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void
 	{
-		// allocate image and copy code:
+		Stream copy {input};
+		return TransformStreamToImageByMove(std::move(copy), output, jumpMap);
+	}
+
+	auto TransformStreamToImageByMove(Stream&& input, Image& output, JumpMap& jumpMap) -> void
+	{
+		const std::size_t inSize {input.Size()};
+		NOX_PAS_NOT_ZERO(input.Size(), "Empty streams are forbidden!");
+
+		const Stream::DiscriminatorStorageType& discriminators {input.GetDiscriminatorBuffer()};
+		output = Image {std::move(input.GetCodeBuffer())};
+		const Signal* const base {output.GetBlobData()};
+
+		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
+
+		const auto addressMapper
 		{
-			const auto binaryImage {new(std::nothrow) Signal[input.Size()]};
-			std::memcpy(binaryImage, std::data(input.GetCodeBuffer()),
-			            std::size(input.GetCodeBuffer()) * sizeof(Signal));
-			output = Image {static_cast<void*>(binaryImage), std::size(input.GetCodeBuffer()) * sizeof(Signal)};
-		}
-
-		// create jump map and execution address mapping:
-		jumpMap.resize(input.Size());
-
-		const auto& discriminators {input.GetDiscriminatorBuffer()};
-		for (std::size_t i {0}; i < input.Size(); ++i)
-		{
-			#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-
-			if (discriminators[i] == Signal::Discriminator::JumpAddress)
+			[&](const Signal& x) -> Signal
 			{
-				output[i].Ptr = const_cast<void*>(Core::ComputeRelativeJumpAddress(output.GetBlobData(), output[i].JmpAddress));
+				const std::ptrdiff_t index {&x - &*std::begin(output)};
+				const bool           isAddress {discriminators[index] == Signal::Discriminator::JumpAddress};
+				return isAddress ? Signal {const_cast<void*>(Core::ComputeRelativeJumpAddress(base, x.JmpAddress))} : x;
 			}
+		};
 
-			#endif
-			jumpMap[i] = static_cast<U8>(discriminators[i] == Signal::Discriminator::Instruction);
-		}
+		std::transform(std::execution::par_unseq, std::begin(output), std::end(output), std::begin(output), addressMapper);
+
+		#endif
+		const auto jumpTransformer
+		{
+			[](const Signal::Discriminator x) -> U8
+			{
+				return static_cast<U8>(x == Signal::Discriminator::Instruction);
+			}
+		};
+
+		jumpMap.resize(inSize);
+		std::transform(std::execution::par_unseq, std::cbegin(discriminators), std::cend(discriminators), std::begin(jumpMap), jumpTransformer);
 	}
 
 	Image::Image(const std::span<const Signal> blob)
@@ -256,10 +270,7 @@ namespace Nominax::ByteCode
 		std::memcpy(std::data(this->Blob_), data, byteSize);
 	}
 
-	Image::Image(std::vector<Signal>&& buffer) : Blob_ {std::move(buffer)}
-	{
-		
-	}
+	Image::Image(std::vector<Signal>&& buffer) : Blob_ {std::move(buffer)} { }
 
 	using Common::ILog2;
 	using Common::Proxy_F64IsZero;
@@ -882,14 +893,27 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	auto Stream::Build(Image& out, JumpMap& outJumpMap) const -> ValidationResultCode
+	auto Stream::Build(Stream&& stream, CodeImageBundle& out) -> ValidationResultCode
 	{
-		if (const auto validationResult {ValidateFullPass(*this)}; validationResult != ValidationResultCode::Ok)
+		const ValidationResultCode validationResult {ValidateFullPass(stream)};
+		if (validationResult != ValidationResultCode::Ok)
 		{
 			[[unlikely]]
 				return validationResult;
 		}
-		TransformStreamToImageByCopy(*this, out, outJumpMap);
+		TransformStreamToImageByMove(std::move(stream), out.first, out.second);
+		return ValidationResultCode::Ok;
+	}
+
+	auto Stream::Build(const Stream& stream, CodeImageBundle& out) -> ValidationResultCode
+	{
+		const ValidationResultCode validationResult {ValidateFullPass(stream)};
+		if (validationResult != ValidationResultCode::Ok)
+		{
+			[[unlikely]]
+				return validationResult;
+		}
+		TransformStreamToImageByCopy(stream, out.first, out.second);
 		return ValidationResultCode::Ok;
 	}
 

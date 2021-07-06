@@ -291,8 +291,8 @@ TEST(ReactorClass, TryExecuteValid)
 		var += 1;
 		var /= 1;
 	}).Epilogue();
-	AppCodeBundle out { };
-	stream.Build(out);
+	CodeImageBundle out { };
+	ASSERT_EQ(Stream::Build(stream, out), ValidationResultCode::Ok);
 	Reactor reactor
 	{
 		Resource,
@@ -309,9 +309,9 @@ TEST(ReactorClass, TryExecuteValid)
 
 TEST(ReactorClass, TryExecuteInvalidZeroCode)
 {
-	const Stream  stream {OptimizationLevel::Off};
-	AppCodeBundle out { };
-	ASSERT_EQ(stream.Build(out), ValidationResultCode::Empty);
+	const Stream    stream {OptimizationLevel::Off};
+	CodeImageBundle out { };
+	ASSERT_EQ(Stream::Build(stream, out), ValidationResultCode::Empty);
 	Reactor reactor
 	{
 		Resource,

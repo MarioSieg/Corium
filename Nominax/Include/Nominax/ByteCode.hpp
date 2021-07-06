@@ -1670,33 +1670,33 @@ namespace Nominax::ByteCode
 		/// No copying.
 		/// </summary>
 		/// <param name="other"></param>
-		Image(const Image & other) = delete;
+		Image(const Image& other) = delete;
 
 		/// <summary>
 		/// Move constructor.
 		/// </summary>
 		/// <param name="other"></param>
-		Image(Image && other) = default;
+		Image(Image&& other) = default;
 
 		/// <summary>
 		/// No copying.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(const Image & other)->Image & = delete;
+		auto operator =(const Image& other) -> Image& = delete;
 
 		/// <summary>
 		/// Copy assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(Image && other)->Image & = default;
+		auto operator =(Image&& other) -> Image& = default;
 
 		/// <summary>
 		/// Destructor.
 		/// </summary>
 		~Image() = default;
-		
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -1744,14 +1744,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns>Iterator.</returns>
 		[[nodiscard]]
-		auto begin() ->std::vector<Signal>::iterator;
+		auto begin() -> std::vector<Signal>::iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns>Iterator.</returns>
 		[[nodiscard]]
-		auto end() ->std::vector<Signal>::iterator;
+		auto end() -> std::vector<Signal>::iterator;
 
 		/// <summary>
 		/// STL iterator interface.
@@ -1852,7 +1852,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	/// <returns>Iterator.</returns>
 	[[nodiscard]]
-	inline auto cbegin(const Image& image) ->	std::vector<Signal>::const_iterator
+	inline auto cbegin(const Image& image) -> std::vector<Signal>::const_iterator
 	{
 		return image.cbegin();
 	}
@@ -1862,7 +1862,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	/// <returns>Iterator.</returns>
 	[[nodiscard]]
-	inline auto cend(const Image& image) ->	std::vector<Signal>::const_iterator
+	inline auto cend(const Image& image) -> std::vector<Signal>::const_iterator
 	{
 		return image.cend();
 	}
@@ -1950,7 +1950,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Execution ready byte code and jump map.
 	/// </summary>
-	using AppCodeBundle = std::pair<Image, JumpMap>;
+	using CodeImageBundle = std::pair<Image, JumpMap>;
 
 	/// <summary>
 	/// Dynamic byte code stream.
@@ -2045,11 +2045,11 @@ namespace Nominax::ByteCode
 		Stream(Stream&& other) = default;
 
 		/// <summary>
-		/// No copy.
+		/// Copy constructor.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		Stream(const Stream& other) = delete;
+		Stream(const Stream& other) = default;
 
 		/// <summary>
 		/// Move assignment operator.
@@ -2059,11 +2059,11 @@ namespace Nominax::ByteCode
 		auto operator =(Stream&& other) -> Stream& = default;
 
 		/// <summary>
-		/// No copy.
+		/// Copy assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(const Stream& other) -> Stream& = delete;
+		auto operator =(const Stream& other) -> Stream& = default;
 
 		/// <summary>
 		/// Destructor.
@@ -2075,14 +2075,56 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns>The underlying code buffer.</returns>
 		[[nodiscard]]
-		auto GetCodeBuffer() const -> const CodeStorageType&;
+		auto GetCodeBuffer() & -> CodeStorageType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying code buffer.</returns>
+		[[nodiscard]]
+		auto GetCodeBuffer() const & -> const CodeStorageType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying code buffer.</returns>
+		[[nodiscard]]
+		auto GetCodeBuffer() && -> CodeStorageType&&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying code buffer.</returns>
+		[[nodiscard]]
+		auto GetCodeBuffer() const && -> const CodeStorageType&&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The underlying discriminator buffer.</returns>
 		[[nodiscard]]
-		auto GetDiscriminatorBuffer() const -> const DiscriminatorStorageType&;
+		auto GetDiscriminatorBuffer() & -> DiscriminatorStorageType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying discriminator buffer.</returns>
+		[[nodiscard]]
+		auto GetDiscriminatorBuffer() const & -> const DiscriminatorStorageType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying discriminator buffer.</returns>
+		[[nodiscard]]
+		auto GetDiscriminatorBuffer() && -> DiscriminatorStorageType&&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying discriminator buffer.</returns>
+		[[nodiscard]]
+		auto GetDiscriminatorBuffer() const && -> const DiscriminatorStorageType&&;
 
 		/// <summary>
 		/// 
@@ -2294,19 +2336,20 @@ namespace Nominax::ByteCode
 		auto With(V value, F&& functor) -> Stream&;
 
 		/// <summary>
-		/// Validate and build code chunk plus jump map.
+		/// Validate and build code chunk plus jump map into app code bundle.
 		/// </summary>
+		/// <param name="stream"></param>
 		/// <param name="out"></param>
-		/// <param name="outJumpMap"></param>
 		/// <returns></returns>
-		auto Build(Image& out, JumpMap& outJumpMap) const -> ValidationResultCode;
+		static auto Build(Stream&& stream, CodeImageBundle& out) -> ValidationResultCode;
 
 		/// <summary>
 		/// Validate and build code chunk plus jump map into app code bundle.
 		/// </summary>
+		/// <param name="stream"></param>
 		/// <param name="out"></param>
 		/// <returns></returns>
-		auto Build(AppCodeBundle& out) const -> ValidationResultCode;
+		static auto Build(const Stream& stream, CodeImageBundle& out) -> ValidationResultCode;
 
 		/// <summary>
 		/// Get current optimization level.
@@ -2350,11 +2393,6 @@ namespace Nominax::ByteCode
 	inline auto Stream::SetOptimizationLevel(const OptimizationLevel optimizationLevel) -> void
 	{
 		this->OptimizationLevel_ = optimizationLevel;
-	}
-
-	inline auto Stream::Build(AppCodeBundle& out) const -> ValidationResultCode
-	{
-		return this->Build(std::get<0>(out), std::get<1>(out));
 	}
 
 	template <Instruction I, typename... Ts> requires ValidInstruction<I, Ts...> && ValidInstructionArgument<Ts...>
@@ -2404,14 +2442,44 @@ namespace Nominax::ByteCode
 		return this->Code_.empty() && this->CodeDisc_.empty();
 	}
 
-	inline auto Stream::GetCodeBuffer() const -> const CodeStorageType&
+	inline auto Stream::GetCodeBuffer() & -> CodeStorageType&
 	{
 		return this->Code_;
 	}
 
-	inline auto Stream::GetDiscriminatorBuffer() const -> const DiscriminatorStorageType&
+	inline auto Stream::GetCodeBuffer() const & -> const CodeStorageType&
+	{
+		return this->Code_;
+	}
+
+	inline auto Stream::GetCodeBuffer() && -> CodeStorageType&&
+	{
+		return std::move(this->Code_);
+	}
+
+	inline auto Stream::GetCodeBuffer() const && -> const CodeStorageType&&
+	{
+		return std::move(this->Code_);
+	}
+
+	inline auto Stream::GetDiscriminatorBuffer() & -> DiscriminatorStorageType&
 	{
 		return this->CodeDisc_;
+	}
+
+	inline auto Stream::GetDiscriminatorBuffer() const & -> const DiscriminatorStorageType&
+	{
+		return this->CodeDisc_;
+	}
+
+	inline auto Stream::GetDiscriminatorBuffer() && -> DiscriminatorStorageType&&
+	{
+		return std::move(this->CodeDisc_);
+	}
+
+	inline auto Stream::GetDiscriminatorBuffer() const && -> const DiscriminatorStorageType&&
+	{
+		return std::move(this->CodeDisc_);
 	}
 
 	inline auto Stream::Clear() -> void
@@ -2548,12 +2616,21 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Builds a byte code image chunk and a jump map out of the stream.
 	/// The memory for the chunk image is newly allocated which might be slower.
-	/// If you execute a stream once, use TransformStreamMove.
+	/// If you execute a stream once, use TransformStreamToImageByMove.
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="output"></param>
 	/// <param name="jumpMap"></param>
 	extern auto TransformStreamToImageByCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void;
+
+
+	/// <summary>
+	/// Builds a byte code image chunk and a jump map out of the stream.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="jumpMap"></param>
+	extern auto TransformStreamToImageByMove(Stream&& input, Image& output, JumpMap& jumpMap) -> void;
 
 	/*
 	 * Stop crying, we use macros instead of "constexpr char"
