@@ -718,29 +718,19 @@ namespace Nominax
 			);
 		}
 
-		auto Environment::Execute(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>
+		auto Environment::Execute(ByteCode::AppCodeBundle& appCode) -> ExecutionResult
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 
-			ByteCode::AppCodeBundle appCodeBundle { };
-			if (const auto result {appCode.Build(appCodeBundle)}; result != ByteCode::ValidationResultCode::Ok)
-			{
-				[[unlikely]]
-					TriggerByteCodeStreamValidationPanic(result, appCode);
-			}
-
-			// Deallocate stream:
-			appCode = { };
-
 			// Invoke hook:
-			DISPATCH_HOOK(OnPreExecutionHook, appCodeBundle);
+			DISPATCH_HOOK(OnPreExecutionHook, appCode);
 
 			// Info
 			Print(Common::LogLevel::Warning, "Executing...\n");
 			std::cout.flush();
 
 			// Execute on alpha reactor:
-			const auto& result {(*this->Context_->CorePool)(std::move(appCodeBundle))};
+			const auto& result {(*this->Context_->CorePool)(appCode)};
 
 			// Add execution time:
 			const auto micros {
@@ -759,6 +749,14 @@ namespace Nominax
 			// Invoke hook:
 			DISPATCH_HOOK(OnPostExecutionHook,);
 			return result;
+		}
+
+		auto Environment::Execute(ByteCode::Stream&& stream) -> ExecutionResult
+		{
+			ByteCode::AppCodeBundle codeImage{};
+			NOX_PAS_EQ(stream.Build(codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
+			stream = {};
+			return (*this)(codeImage);
 		}
 
 		auto Environment::Shutdown() -> void
@@ -1442,14 +1440,13 @@ namespace Nominax
 			);
 		}
 
-		auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
+		auto Reactor::Execute(ByteCode::AppCodeBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 		{
-			this->AppCode_ = std::move(bundle);
-			this->Input_   = CreateDescriptor
+			this->Input_ = CreateDescriptor
 			(
 				this->Stack_,
-				std::get<0>(this->AppCode_),
-				std::get<1>(this->AppCode_),
+				std::get<0>(bundle),
+				std::get<1>(bundle),
 				this->IntrinsicTable_,
 				*this->InterruptHandler_
 			);

@@ -1950,7 +1950,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Execution ready byte code and jump map.
 	/// </summary>
-	using AppCodeBundle = std::tuple<Image, JumpMap>;
+	using AppCodeBundle = std::pair<Image, JumpMap>;
 
 	/// <summary>
 	/// Dynamic byte code stream.

@@ -853,8 +853,13 @@ namespace Nominax::Core
 	}
 
 	/// <summary>
-		/// Represents the whole runtime environment.
-		/// </summary>
+	/// Results from a VM execution.
+	/// </summary>
+	using ExecutionResult = std::pair<ReactorShutdownReason, const ReactorState&>;
+
+	/// <summary>
+	/// Represents the whole runtime environment.
+	/// </summary>
 	class [[nodiscard]] Environment
 	{
 		/// <summary>
@@ -987,14 +992,21 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="appCode"></param>
 		/// <returns></returns>
-		auto Execute(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto Execute(ByteCode::AppCodeBundle& appCode) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		auto Execute(ByteCode::Stream&& stream) -> ExecutionResult;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
 		/// </summary>
 		/// <param name="appCode"></param>
 		/// <returns></returns>
-		auto operator()(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto operator()(ByteCode::AppCodeBundle& appCode) -> ExecutionResult;
 
 		/// <summary>
 		/// Shutdown runtime environment.
@@ -1074,9 +1086,9 @@ namespace Nominax::Core
 		auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
 	};
 
-	inline auto Environment::operator()(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>
+	inline auto Environment::operator()(ByteCode::AppCodeBundle& appCode) -> ExecutionResult
 	{
-		return this->Execute(std::move(appCode));
+		return this->Execute(appCode);
 	}
 
 	/// <summary>
@@ -2935,11 +2947,6 @@ namespace Nominax::Core
 		FixedStack Stack_;
 
 		/// <summary>
-		/// Current app code bundle.
-		/// </summary>
-		ByteCode::AppCodeBundle AppCode_;
-
-		/// <summary>
 		/// The table of custom intrinsic routines.
 		/// </summary>
 		ByteCode::UserIntrinsicRoutineRegistry IntrinsicTable_;
@@ -2997,7 +3004,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto Execute(ByteCode::AppCodeBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 		/// <summary>
 		/// Execute reactor with specified application code bundle.
@@ -3005,7 +3012,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator ()(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto operator ()(ByteCode::AppCodeBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 		/// <summary>
 		/// 
@@ -3056,13 +3063,6 @@ namespace Nominax::Core
 		/// <returns>The current stack.</returns>
 		[[nodiscard]]
 		auto GetStack() const -> const FixedStack&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The current app code bundle.</returns>
-		[[nodiscard]]
-		auto GetCodeBundle() const -> const ByteCode::AppCodeBundle&;
 
 		/// <summary>
 		/// 
@@ -3124,14 +3124,9 @@ namespace Nominax::Core
 		return this->Output_;
 	}
 
-	inline auto Reactor::GetCodeBundle() const -> const ByteCode::AppCodeBundle&
+	inline auto Reactor::operator()(ByteCode::AppCodeBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 	{
-		return this->AppCode_;
-	}
-
-	inline auto Reactor::operator()(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
-	{
-		return this->Execute(std::move(bundle));
+		return this->Execute(bundle);
 	}
 
 	/// <summary>
