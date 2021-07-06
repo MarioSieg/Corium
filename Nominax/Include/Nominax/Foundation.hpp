@@ -2059,7 +2059,7 @@ namespace Nominax
 		std::abort();
 	}
 
-	#define NOX_PANIC_ASSERT_TRUE(x, msg)				\
+	#define NOX_PAS_TRUE(x, msg)				\
 	do												\
 	{												\
 		if (!( x ))                 				\
@@ -2070,7 +2070,7 @@ namespace Nominax
 	}												\
 	while(false)
 
-	#define NOX_PANIC_ASSERT_FALSE(x, msg)				\
+	#define NOX_PAS_FALSE(x, msg)				\
 	do												\
 	{												\
 		if (( x ))				                    \
@@ -2081,12 +2081,12 @@ namespace Nominax
 	}												\
 	while(false)
 
-	#define NOX_PANIC_ASSERT_NULL(x, msg) NOX_PANIC_ASSERT_FALSE(x, msg)
-	#define NOX_PANIC_ASSERT_NOT_NULL(x, msg) NOX_PANIC_ASSERT_TRUE(x, msg)
-	#define NOX_PANIC_ASSERT_ZERO(x, msg) NOX_PANIC_ASSERT_FALSE(x, msg)
-	#define NOX_PANIC_ASSERT_NOT_ZERO(x, msg) NOX_PANIC_ASSERT_TRUE(x, msg)
+	#define NOX_PAS_NULL(x, msg) NOX_PAS_FALSE(x, msg)
+	#define NOX_PAS_NOT_NULL(x, msg) NOX_PAS_TRUE(x, msg)
+	#define NOX_PAS_ZERO(x, msg) NOX_PAS_FALSE(x, msg)
+	#define NOX_PAS_NOT_ZERO(x, msg) NOX_PAS_TRUE(x, msg)
 
-	#define NOX_PANIC_ASSERT_EQ(x, y, msg)				\
+	#define NOX_PAS_EQ(x, y, msg)				\
 	do												\
 	{												\
 		if (( x ) != ( y ))		                    \
@@ -2098,7 +2098,7 @@ namespace Nominax
 	while(false)
 
 
-	#define NOX_PANIC_ASSERT_NE(x, y, msg)				\
+	#define NOX_PAS_NE(x, y, msg)				\
 	do												\
 	{												\
 		if (( x ) == ( y ))		                    \
@@ -2109,7 +2109,7 @@ namespace Nominax
 	}												\
 	while(false)
 
-	#define NOX_PANIC_ASSERT_L(x, y, msg)				\
+	#define NOX_PAS_L(x, y, msg)				\
 	do												\
 	{												\
 		if (!(( x ) < ( y )))		                \
@@ -2120,7 +2120,7 @@ namespace Nominax
 	}												\
 	while(false)
 
-	#define NOX_PANIC_ASSERT_LE(x, y, msg)				\
+	#define NOX_PAS_LE(x, y, msg)				\
 	do												\
 	{												\
 		if (!(( x ) <= ( y )))	                    \
@@ -2131,7 +2131,7 @@ namespace Nominax
 	}												\
 	while(false)
 
-	#define NOX_PANIC_ASSERT_G(x, y, msg)				\
+	#define NOX_PAS_G(x, y, msg)				\
 	do												\
 	{												\
 		if (!(( x ) > ( y )))		                \
@@ -2142,7 +2142,7 @@ namespace Nominax
 	}												\
 	while(false)
 
-	#define NOX_PANIC_ASSERT_GE(x, y, msg)				\
+	#define NOX_PAS_GE(x, y, msg)				\
 	do												\
 	{												\
 		if (!(( x ) >= ( y )))	                    \

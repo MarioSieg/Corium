@@ -323,7 +323,7 @@ namespace Nominax
 	do														\
 	{														\
 		Common::Print("Dispatching hook: " #method "\n");	\
-		NOX_PANIC_ASSERT_TRUE								\
+		NOX_PAS_TRUE								\
 		(													\
 			this-> method (__VA_ARGS__),					\	
 			"\" "#method "\" returned false!"				\
@@ -331,7 +331,7 @@ namespace Nominax
 	}														\
 	while(false)
 
-		#define VALIDATE_ONLINE_BOOT_STATE() NOX_PANIC_ASSERT_TRUE(this->IsOnline(), "Environment is offline!")
+		#define VALIDATE_ONLINE_BOOT_STATE() NOX_PAS_TRUE(this->IsOnline(), "Environment is offline!")
 
 		/// <summary>
 		/// Checks if the byte stack size is divisible by sizeof(Common::Record) and panics if not.
@@ -661,7 +661,7 @@ namespace Nominax
 			// No, we cannot use std::make_unique because we want it noexcept!
 			// ReSharper disable once CppSmartPointerVsMakeFunction
 			this->Context_ = std::unique_ptr<Context, ContextDeleter>(new(std::nothrow) Context(descriptor));
-			NOX_PANIC_ASSERT_NOT_NULL(this->Context_, "Context allocation failed!");
+			NOX_PAS_NOT_NULL(this->Context_, "Context allocation failed!");
 
 			// Invoke hook:
 			DISPATCH_HOOK(OnPostBootHook,);
@@ -868,13 +868,13 @@ namespace Nominax
 			const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
 		) -> bool
 		{
-			NOX_PANIC_ASSERT_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");
-			NOX_PANIC_ASSERT_NOT_NULL(bucketEnd, "Code chunk bucket table end was nullptr!");
-			NOX_PANIC_ASSERT_NOT_NULL(jumpAddressMap, "Jump address map was nullptr!");
-			NOX_PANIC_ASSERT_NOT_NULL(jumpTable, "Jump table was nullptr!");
-			NOX_PANIC_ASSERT_NOT_NULL(*jumpTable, "First element of jump table was nullptr!");
-			NOX_PANIC_ASSERT_TRUE(*jumpAddressMap, "First element of jump address map was false, but should be true because of code prologue!");
-			NOX_PANIC_ASSERT_EQ(bucket->Instr, ByteCode::Instruction::NOp, "Missing code prologue in code bucket!");
+			NOX_PAS_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");
+			NOX_PAS_NOT_NULL(bucketEnd, "Code chunk bucket table end was nullptr!");
+			NOX_PAS_NOT_NULL(jumpAddressMap, "Jump address map was nullptr!");
+			NOX_PAS_NOT_NULL(jumpTable, "Jump table was nullptr!");
+			NOX_PAS_NOT_NULL(*jumpTable, "First element of jump table was nullptr!");
+			NOX_PAS_TRUE(*jumpAddressMap, "First element of jump address map was false, but should be true because of code prologue!");
+			NOX_PAS_EQ(bucket->Instr, ByteCode::Instruction::NOp, "Missing code prologue in code bucket!");
 
 			// skip first "nop" padding instruction:
 			++bucket;
@@ -896,7 +896,7 @@ namespace Nominax
 
 		FixedStack::FixedStack(std::pmr::memory_resource& allocator, std::size_t sizeInRecords) : Buffer_ {&allocator}
 		{
-			NOX_PANIC_ASSERT_NOT_ZERO(sizeInRecords, "Fixed stack with zero size was requested!");
+			NOX_PAS_NOT_ZERO(sizeInRecords, "Fixed stack with zero size was requested!");
 
 			// because first padding element.
 			++sizeInRecords;
@@ -1460,7 +1460,7 @@ namespace Nominax
 					      validationResult);
 			}
 			ReactorCoreExecutionRoutine* const routine = this->RoutineLink_.ExecutionRoutine;
-			NOX_PANIC_ASSERT_NOT_NULL(routine, "Reactor execution routine is nullptr!");
+			NOX_PAS_NOT_NULL(routine, "Reactor execution routine is nullptr!");
 			const ReactorShutdownReason result {(*routine)(&this->Input_, &this->Output_, nullptr)};
 			return {result, this->Output_};
 		}
@@ -1485,8 +1485,8 @@ namespace Nominax
 		    ExecutionRoutine {executionRoutine},
 		    JumpTable {jumpTable}
 		{
-			NOX_PANIC_ASSERT_NOT_NULL(this->ExecutionRoutine, "Routine for reactor routine link is null!");
-			NOX_PANIC_ASSERT_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
+			NOX_PAS_NOT_NULL(this->ExecutionRoutine, "Routine for reactor routine link is null!");
+			NOX_PAS_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
 		}
 
 		static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(
@@ -1553,7 +1553,7 @@ namespace Nominax
 			ReactorCoreExecutionRoutine* routine {
 				REACTOR_REGISTRY[static_cast<std::underlying_type_t<decltype(target)>>(target)]
 			};
-			NOX_PANIC_ASSERT_NOT_NULL(routine, "Reactor core execution routine is nullptr!");
+			NOX_PAS_NOT_NULL(routine, "Reactor core execution routine is nullptr!");
 			return routine;
 		}
 
@@ -1617,7 +1617,7 @@ namespace Nominax
 			const std::optional<ReactorRoutineLink>& routineLink
 		) : Pool_ {&allocator}
 		{
-			NOX_PANIC_ASSERT_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
+			NOX_PAS_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 
 			Common::Print("Initializing reactor pool...\n", reactorCount);
 			Common::Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT,
