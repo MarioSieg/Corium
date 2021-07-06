@@ -1633,10 +1633,70 @@ namespace Nominax::ByteCode
 	/// </summary>
 	class Image final
 	{
-		Signal*     Blob_ {nullptr};
-		std::size_t Size_ {0};
+		/// <summary>
+		/// Internal buffer.
+		/// </summary>
+		std::vector<Signal> Blob_;
 
 	public:
+		/// <summary>
+		/// Construct empty image.
+		/// </summary>
+		Image() = default;
+
+		/// <summary>
+		/// Construct with by copying blob.
+		/// Allocates an internal blob for the image
+		/// and copies the data into it.
+		/// </summary>
+		/// <param name="blob">The blob to copy the data from.</param>
+		explicit Image(std::span<const Signal> blob);
+
+		/// <summary>
+		/// Construct with owning blob.
+		/// </summary>
+		explicit Image(std::vector<Signal>&& buffer);
+
+		/// <summary>
+		/// Construct by coping blob.
+		/// Allocates an internal blob for the image
+		/// and copies the data into it.
+		/// </summary>
+		/// <param name="data">The blob to copy the data from.</param>
+		/// <param name="byteSize">The size of the data in bytes.</param>
+		Image(const void* data, std::size_t byteSize);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		Image(const Image & other) = delete;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		Image(Image && other) = default;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const Image & other)->Image & = delete;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(Image && other)->Image & = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~Image() = default;
+		
 		/// <summary>
 		/// 
 		/// </summary>
@@ -1677,104 +1737,35 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetReactorView() const -> std::span<Signal>;
-
-		/// <summary>
-		/// Construct empty image.
-		/// </summary>
-		Image() = default;
-
-		/// <summary>
-		/// Construct with by copying blob.
-		/// Allocates an internal blob for the image
-		/// and copies the data into it.
-		/// </summary>
-		/// <param name="blob">The blob to copy the data from.</param>
-		explicit Image(std::span<const Signal> blob);
-
-		/// <summary>
-		/// Construct by coping blob.
-		/// Allocates an internal blob for the image
-		/// and copies the data into it.
-		/// </summary>
-		/// <param name="data">The blob to copy the data from.</param>
-		/// <param name="byteSize">The size of the data in bytes.</param>
-		Image(const void* data, std::size_t byteSize);
-
-		/// <summary>
-		/// Construct with owning blob.
-		/// Assumes that the data is owned by this instance after construction.
-		/// </summary>
-		/// <param name="data">The data to be used as buffer.</param>
-		/// <param name="size">The size of the data in records.</param>
-		Image(Signal* data, std::size_t size);
-
-		/// <summary>
-		/// Construct with blob.
-		/// Assumes that the data is owned by this instance after construction.
-		/// </summary>
-		/// <param name="data">The data to be used as buffer.</param>
-		/// <param name="size">The size of the data in bytes.</param>
-		Image(U8* data, std::size_t size);
-
-		/// <summary>
-		/// No copying.
-		/// </summary>
-		/// <param name="other"></param>
-		Image(const Image& other) = delete;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name="other"></param>
-		Image(Image&& other);
-
-		/// <summary>
-		/// No copying.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(const Image& other) -> Image& = delete;
-
-		/// <summary>
-		/// Copy assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(Image&& other) -> Image&;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~Image();
+		auto GetReactorView() -> std::span<Signal>;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns>Iterator.</returns>
 		[[nodiscard]]
-		auto begin() const -> const Signal*;
+		auto begin() ->std::vector<Signal>::iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns>Iterator.</returns>
 		[[nodiscard]]
-		auto end() const -> const Signal*;
+		auto end() ->std::vector<Signal>::iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns>Iterator.</returns>
 		[[nodiscard]]
-		auto cbegin() const -> const Signal*;
+		auto cbegin() const -> std::vector<Signal>::const_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns>Iterator.</returns>
 		[[nodiscard]]
-		auto cend() const -> const Signal*;
+		auto cend() const -> std::vector<Signal>::const_iterator;
 
 		/// <summary>
 		/// Subscript operator.
@@ -1793,47 +1784,47 @@ namespace Nominax::ByteCode
 
 	inline auto Image::GetByteSize() const -> std::size_t
 	{
-		return this->Size_ * sizeof(Signal);
+		return std::size(this->Blob_) * sizeof(Signal);
 	}
 
 	inline auto Image::GetSize() const -> std::size_t
 	{
-		return this->Size_;
+		return std::size(this->Blob_);
 	}
 
 	inline auto Image::GetBlobData() const -> const Signal*
 	{
-		return this->Blob_;
+		return std::data(this->Blob_);
 	}
 
 	inline auto Image::GetByteData() const -> const U8*
 	{
-		return reinterpret_cast<const U8*>(this->Blob_);
+		return reinterpret_cast<const U8*>(std::data(this->Blob_));
 	}
 
 	inline auto Image::IsEmpty() const -> bool
 	{
-		return !this->Size_ || !this->Blob_;
+		return std::empty(this->Blob_);
 	}
 
-	inline auto Image::begin() const -> const Signal*
+	inline auto Image::begin() -> std::vector<Signal>::iterator
 	{
-		return this->Blob_;
+		return std::begin(this->Blob_);
 	}
 
-	inline auto Image::end() const -> const Signal*
+	inline auto Image::end() -> std::vector<Signal>::iterator
 	{
-		return this->Blob_ + this->Size_;
+		return std::end(this->Blob_);
 	}
 
-	inline auto Image::cbegin() const -> const Signal*
+	inline auto Image::cbegin() const -> std::vector<Signal>::const_iterator
 	{
-		return this->Blob_;
+		return std::cbegin(this->Blob_);
 	}
 
-	inline auto Image::cend() const -> const Signal*
+	inline auto Image::cend() const -> std::vector<Signal>::const_iterator
 	{
-		return this->Blob_ + this->Size_;
+		return std::cend(this->Blob_);
 	}
 
 	/// <summary>
@@ -1841,7 +1832,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	/// <returns>Iterator.</returns>
 	[[nodiscard]]
-	inline auto begin(const Image& image) -> const Signal*
+	inline auto begin(Image& image) -> std::vector<Signal>::iterator
 	{
 		return image.begin();
 	}
@@ -1851,7 +1842,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	/// <returns>Iterator.</returns>
 	[[nodiscard]]
-	inline auto end(const Image& image) -> const Signal*
+	inline auto end(Image& image) -> std::vector<Signal>::iterator
 	{
 		return image.end();
 	}
@@ -1861,7 +1852,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	/// <returns>Iterator.</returns>
 	[[nodiscard]]
-	inline auto cbegin(const Image& image) -> const Signal*
+	inline auto cbegin(const Image& image) ->	std::vector<Signal>::const_iterator
 	{
 		return image.cbegin();
 	}
@@ -1871,25 +1862,25 @@ namespace Nominax::ByteCode
 	/// </summary>
 	/// <returns>Iterator.</returns>
 	[[nodiscard]]
-	inline auto cend(const Image& image) -> const Signal*
+	inline auto cend(const Image& image) ->	std::vector<Signal>::const_iterator
 	{
 		return image.cend();
 	}
 
 	inline auto Image::operator[](const std::size_t idx) const -> Signal
 	{
-		return *(this->Blob_ + idx);
+		return this->Blob_[idx];
 	}
 
 	inline auto Image::operator[](const std::size_t idx) -> Signal&
 	{
-		return *(this->Blob_ + idx);
+		return this->Blob_[idx];
 	}
 
-	inline auto Image::GetReactorView() const -> std::span<Signal>
+	inline auto Image::GetReactorView() -> std::span<Signal>
 	{
-		auto* const begin {this->Blob_};
-		auto* const end {this->Blob_ + this->Size_};
+		auto* const begin {&*this->begin()};
+		auto* const end {&*this->end()};
 		return {begin, end};
 	}
 

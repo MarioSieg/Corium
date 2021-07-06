@@ -242,10 +242,9 @@ namespace Nominax::ByteCode
 
 	Image::Image(const std::span<const Signal> blob)
 	{
-		NOX_PAS_NOT_ZERO(blob.size(), "Byte code image with zero size is invalid!");
-		this->Size_ = std::size(blob);
-		this->Blob_ = new(std::nothrow) Signal[this->Size_];
-		std::memcpy(this->Blob_, std::data(blob), this->Size_ * sizeof(Signal));
+		NOX_PAS_FALSE(std::empty(blob), "Byte code image with zero size is invalid!");
+		this->Blob_.resize(std::size(blob));
+		std::copy(std::cbegin(blob), std::cend(blob), std::begin(this->Blob_));
 	}
 
 	Image::Image(const void* const data, const std::size_t byteSize)
@@ -253,57 +252,13 @@ namespace Nominax::ByteCode
 		NOX_PAS_NOT_ZERO(byteSize, "Byte code image with zero size is invalid!");
 		NOX_PAS_NOT_NULL(data, "Byte code image with null data is invalid!");
 		NOX_PAS_TRUE(byteSize % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
-		this->Size_ = byteSize / sizeof(Signal);
-		this->Blob_ = new(std::nothrow) Signal[this->Size_];
-		std::memcpy(this->Blob_, data, byteSize);
+		this->Blob_.resize(byteSize / sizeof(Signal));
+		std::memcpy(std::data(this->Blob_), data, byteSize);
 	}
 
-	Image::Image(Signal* const data, const std::size_t size)
+	Image::Image(std::vector<Signal>&& buffer) : Blob_ {std::move(buffer)}
 	{
-		NOX_PAS_NOT_ZERO(size, "Byte code image with zero size is invalid!");
-		NOX_PAS_NOT_NULL(data, "Byte code image with null data is invalid!");
-		this->Blob_ = data;
-		this->Size_ = size;
-	}
-
-	Image::Image(U8* const data, const std::size_t size)
-	{
-		NOX_PAS_TRUE(size % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
-		NOX_PAS_NOT_ZERO(size, "Byte code image with zero size is invalid!");
-		NOX_PAS_NOT_NULL(data, "Byte code image with null data is invalid!");
-
-		this->Size_ = size / sizeof(Signal);
-		this->Blob_ = reinterpret_cast<Signal*>(data);
-	}
-
-	Image::Image(Image&& other) : Blob_ {other.Blob_},
-	                              Size_ {other.Size_}
-	{
-		other.Blob_ = nullptr;
-		other.Size_ = 0;
-	}
-
-	auto Image::operator =(Image&& other) -> Image&
-	{
-		if (this->Blob_ && this->Size_)
-		{
-			delete[] this->Blob_;
-		}
-
-		this->Blob_ = other.Blob_;
-		this->Size_ = other.Size_;
-
-		other.Blob_ = nullptr;
-		other.Size_ = 0;
-
-		return *this;
-	}
-
-	Image::~Image()
-	{
-		delete[] this->Blob_;
-		this->Blob_ = nullptr;
-		this->Size_ = 0;
+		
 	}
 
 	using Common::ILog2;
