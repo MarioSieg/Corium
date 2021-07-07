@@ -1,13 +1,14 @@
-lexer grammar CoriumLexer;
+grammar Corium;
 
 // Keywords:
-
 BOOL:           'bool';
 CHAR:           'char';
 FLOAT:          'float';
 FUN:            'fun';
 INT:            'int';
 LET:            'let';
+NATIVE:         'native';
+CONST:          'const';
 
 // int literals:
 INT_LITERAL_DEC: ('0' | [1-9] (Digits? | '_' + Digits));
@@ -26,7 +27,7 @@ BOOL_LITERAL: 'true' | 'false';
 CHAR_LITERAL: '\'' (~['\\\r\n] | EscapeSequence) '\'';
 
 // string literal:
-STRING_LITERAL: '"' (~["\\\r\n] | EscapeSequence) '"';
+STRING_LITERAL: '"' (~["\\\r\n] | EscapeSequence)* '"';
 
 // separators:
 
@@ -47,7 +48,8 @@ ASSIGN:             '=';
 IDENT: Letter LetterOrDigit*;
 
 // whitespace and comments:
-WHITESPACE:             [\t\r\n]+ -> channel(HIDDEN);
+SINGLE_SPACE:           ' ';
+WHITESPACE:             [ \t\r\n\u000C]+ -> channel(HIDDEN);
 SINGLE_LINE_COMMENT:    '#' ~[\r\n]* -> channel(HIDDEN);
 MULTI_LINE_COMMENT:     '##' .*? '##' -> channel(HIDDEN);
 
@@ -59,3 +61,31 @@ fragment HexDigit: [0-9a-fA-F];
 fragment Digits: [0-9] ([0-9_]* [0-9])?;
 fragment LetterOrDigit: Letter | [0-9];
 fragment Letter: [a-zA-Z];
+
+variableDeclaration:
+    SINGLE_SPACE
+    IDENT
+    SINGLE_SPACE
+    ASSIGN
+    SINGLE_SPACE
+    literal;
+
+localVariableDeclaration: LET variableDeclaration;
+constVariableDeclaration: CONST variableDeclaration;
+
+literal:
+    (INT_LITERAL_DEC |
+    INT_LITERAL_HEX |
+    INT_LITERAL_OCT |
+    INT_LITERAL_BIN) |
+    (FLOAT_LITERAL_DEC |
+    FLOAT_LITERAL_HEX) |
+    BOOL_LITERAL |
+    CHAR_LITERAL |
+    STRING_LITERAL;
+
+primitiveType:
+    INT |
+    FLOAT |
+    CHAR |
+    BOOL;

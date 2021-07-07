@@ -1,5 +1,5 @@
 
-// Generated from CoriumLexer.g4 by ANTLR 4.7.2
+// Generated from Corium.g4 by ANTLR 4.9
 
 #pragma once
 
@@ -12,15 +12,16 @@
 class  CoriumLexer : public antlr4::Lexer {
 public:
   enum {
-    BOOL = 1, CHAR = 2, FLOAT = 3, FUN = 4, INT = 5, LET = 6, INT_LITERAL_DEC = 7, 
-    INT_LITERAL_HEX = 8, INT_LITERAL_OCT = 9, INT_LITERAL_BIN = 10, FLOAT_LITERAL_DEC = 11, 
-    FLOAT_LITERAL_HEX = 12, BOOL_LITERAL = 13, CHAR_LITERAL = 14, STRING_LITERAL = 15, 
-    LPAREN = 16, RPAREN = 17, LBRACE = 18, RBRACE = 19, LBRACK = 20, RBRACK = 21, 
-    SEMI = 22, COMMA = 23, DOT = 24, ASSIGN = 25, IDENT = 26, WHITESPACE = 27, 
-    SINGLE_LINE_COMMENT = 28, MULTI_LINE_COMMENT = 29
+    BOOL = 1, CHAR = 2, FLOAT = 3, FUN = 4, INT = 5, LET = 6, NATIVE = 7, 
+    CONST = 8, INT_LITERAL_DEC = 9, INT_LITERAL_HEX = 10, INT_LITERAL_OCT = 11, 
+    INT_LITERAL_BIN = 12, FLOAT_LITERAL_DEC = 13, FLOAT_LITERAL_HEX = 14, 
+    BOOL_LITERAL = 15, CHAR_LITERAL = 16, STRING_LITERAL = 17, LPAREN = 18, 
+    RPAREN = 19, LBRACE = 20, RBRACE = 21, LBRACK = 22, RBRACK = 23, SEMI = 24, 
+    COMMA = 25, DOT = 26, ASSIGN = 27, IDENT = 28, SINGLE_SPACE = 29, WHITESPACE = 30, 
+    SINGLE_LINE_COMMENT = 31, MULTI_LINE_COMMENT = 32
   };
 
-  CoriumLexer(antlr4::CharStream *input);
+  explicit CoriumLexer(antlr4::CharStream *input);
   ~CoriumLexer();
 
   virtual std::string getGrammarFileName() const override;

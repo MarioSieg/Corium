@@ -1,2 +1,2 @@
-antlr4 -o . -Dlanguage=Cpp CoriumLexer.g4
-antlr4 -o . -Dlanguage=Cpp CoriumParser.g4
+alias antlr4='java -jar /usr/local/lib/antlr-4.9-complete.jar'
+antlr4 -o . -Dlanguage=Cpp Corium.g4
