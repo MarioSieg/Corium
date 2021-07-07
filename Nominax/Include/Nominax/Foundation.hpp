@@ -211,6 +211,7 @@
 #include <atomic>
 #include <bit>
 #include <cassert>
+#include <condition_variable>
 #include <climits>
 #include <csignal>
 #include <cstddef>
@@ -225,26 +226,76 @@
 #include <iostream>
 #include <iterator>
 #include <memory_resource>
+#include <mutex>
 #include <string>
 #include <string_view>
 #include <span>
+#include <thread>
 #include <type_traits>
 #include <unordered_set>
 #include <variant>
 
 namespace Nominax
 {
+	/// <summary>
+	/// True if we are compiling for Windows, else false.
+	/// </summary>
 	#define NOX_OS_WINDOWS	false
+
+	/// <summary>
+	///True if we are compiling for macOS, else false.
+	/// </summary>
 	#define NOX_OS_MAC		false
+
+	/// <summary>
+	// True if we are compiling for Linux, else false.
+	/// </summary>
 	#define NOX_OS_LINUX	false
+
+	/// <summary>
+	///True if we are compiling for Android, else false.
+	/// </summary>
 	#define NOX_OS_ANDROID	false
+
+	/// <summary>
+	///True if we are compiling for iOS, else false.
+	/// </summary>
 	#define NOX_OS_IOS		false
+
+	/// <summary>
+	///True if we are compiling for x86-64 (AMD 64) (CISC)
+	/// </summary>
 	#define NOX_ARCH_X86_64	false
+
+	/// <summary>
+	///True if we are compiling for ARM 64 (RISC)
+	/// </summary>
 	#define NOX_ARCH_ARM_64	false
+
+	/// <summary>
+	///True if we are compiling in release mode
+	///for max performance.
+	/// </summary>
 	#define NOX_RELEASE		false
+
+	/// <summary>
+	///True if we are compiling for debug mode.
+	/// </summary>
 	#define NOX_DEBUG		false
+
+	/// <summary>
+	///True if we are compiling using the (GCC) GNU Compiler Collection.
+	/// </summary>
 	#define NOX_COM_GCC		false
+
+	/// <summary>
+	///True if we are compiling using LLVM Clang.
+	/// </summary>
 	#define NOX_COM_CLANG	false
+
+	/// <summary>
+	///True if we are compiling using MinGW (Minimalist GNU for Windows).
+	/// </summary>
 	#define NOX_COM_MINGW	false
 
 	#if NDEBUG
@@ -326,6 +377,87 @@ namespace Nominax
 	#endif
 
 	/// <summary>
+	/// Use architecture specific optimizations such as assembly or intrinsics?
+	/// </summary>
+	#define NOX_USE_ARCH_OPT true
+
+	/// <summary>
+	/// Insert assembly comments with the instruction name into the assembler code, to find the section in the compiled output.
+	/// Should be disabled when building for release.
+	/// </summary>
+	#define NOX_REACTOR_ASM_MARKERS NOX_DEBUG
+
+	/// <summary>
+	///
+	/// </summary>
+	#define NOX_VERBOSE_ALLOCATOR NOX_DEBUG
+
+
+	#define NOX_OPT_USE_ZERO_EPSILON NOX_DEBUG
+
+	/// <summary>
+	/// If enabled, the jump table addresses are directly mapped as pointers into the byte-code signals.
+	/// </summary>
+	#if NOX_RELEASE && !defined(NOX_TEST)
+	#	define NOX_OPT_EXECUTION_ADDRESS_MAPPING true
+	#else
+	#	define NOX_OPT_EXECUTION_ADDRESS_MAPPING false
+	#endif
+
+	/// <summary>
+	/// Optimize the branches for the condition that 'x' is equal to 'expect'.
+	/// </summary>
+	#define NOX_EXPECT_VALUE(x, expect)         __builtin_expect(( x ), ( expect ))
+
+	/// <summary>
+	/// Marks a hot function.
+	/// Hot path functions are optimized more and get a better code layout.
+	/// </summary>
+	#define NOX_HOT                             __attribute__((hot))
+
+	/// <summary>
+	/// Marks a cold function.
+	/// Cold path functions are optimized less and get worse code layout,
+	/// but make more space for hot functions.
+	/// </summary>
+	#define NOX_COLD                            __attribute__((cold))
+
+	/// <summary>
+	/// Always inline this function.
+	/// </summary>
+	#define NOX_FORCE_INLINE                    __attribute__((always_inline))
+
+	/// <summary>
+	/// Never ever inline this function.
+	/// </summary>
+	#define NOX_NEVER_INLINE                    __attribute__((noinline))
+
+	/// <summary>
+	/// Smart inline this function.
+	/// </summary>
+	#define NOX_FLATTEN                         __attribute__((flatten))
+
+	/// <summary>
+	/// A pure function is a function that has the following properties:
+	/// * The function return values are identical for identical arguments.
+	/// * The function application has no side effects.
+	/// Thus a pure function is a computational analogue of a mathematical function.
+	/// </summary>
+	#define NOX_PURE                            __attribute__((pure))
+
+	/// <summary>
+	/// The alloc_size attribute is used to tell the compiler that the function return value points to memory,
+	/// where the size is given by one or two of the functions parameters.
+	/// GCC uses this information to improve the correctness of __builtin_object_size.
+	/// </summary>
+	#define NOX_ALLOC_SIZE(x)                   __attribute__((alloc_size(( x ))))
+
+	/// <summary>
+	/// Tells the compile that two pointers never alias each other.
+	/// </summary>
+	#define NOX_RESTRICT                        __restrict__
+
+	/// <summary>
 	/// 8 bit unsigned integer.
 	/// </summary>
 	using U8 = std::uint8_t;
@@ -366,6 +498,11 @@ namespace Nominax
 	using I64 = std::int64_t;
 
 	/// <summary>
+	/// 32 bit half precision float
+	/// </summary>
+	using F16 = U16;
+
+	/// <summary>
 	/// 32 bit single precision float
 	/// </summary>
 	using F32 = float;
@@ -383,6 +520,7 @@ namespace Nominax
 	static_assert(sizeof(I32) == 4);
 	static_assert(sizeof(U64) == 8);
 	static_assert(sizeof(I64) == 8);
+	static_assert(sizeof(F16) == 2);
 	static_assert(sizeof(F32) == 4);
 	static_assert(sizeof(F64) == 8);
 }
@@ -395,44 +533,6 @@ namespace Nominax
 
 namespace Nominax::Common
 {
-	/// <summary>
-	/// Use architecture specific optimizations such as assembly or intrinsics?
-	/// </summary>
-	#define NOX_USE_ARCH_OPT true
-
-	/// <summary>
-	/// Insert assembly comments with the instruction name into the assembler code, to find the section in the compiled output.
-	/// Should be disabled when building for release.
-	/// </summary>
-	#define NOX_REACTOR_ASM_MARKERS NOX_DEBUG
-
-	/// <summary>
-	///
-	/// </summary>
-	#define NOX_VERBOSE_ALLOCATOR NOX_DEBUG
-
-
-	#define NOX_OPT_USE_ZERO_EPSILON NOX_DEBUG
-
-	/// <summary>
-	/// If enabled, the jump table addresses are directly mapped as pointers into the byte-code signals.
-	/// </summary>
-	#if NOX_RELEASE && !defined(NOX_TEST)
-	#	define NOX_OPT_EXECUTION_ADDRESS_MAPPING true
-	#else
-	#	define NOX_OPT_EXECUTION_ADDRESS_MAPPING false
-	#endif
-
-	#define NOX_EXPECT_VALUE(x, expect)         __builtin_expect(( x ), ( expect ))
-	#define NOX_HOT                             __attribute__((hot))
-	#define NOX_COLD                            __attribute__((cold))
-	#define NOX_FORCE_INLINE                    __attribute__((always_inline))
-	#define NOX_NEVER_INLINE                    __attribute__((noinline))
-	#define NOX_FLATTEN                         __attribute__((flatten))
-	#define NOX_PURE                            __attribute__((flatten))
-	#define NOX_ALLOC_SIZE(x)                   __attribute__((alloc_size(( x ))))
-	#define NOX_RESTRICT                        __restrict__
-
 	/// <summary>
 	/// Generic runtime entry point.
 	/// </summary>
@@ -472,6 +572,109 @@ namespace Nominax::Common
 		x |= x >> 16;
 		x |= x >> 32;
 		return ++x;
+	}
+
+	/// <summary>
+	/// Convert half precision 16-bit float to 32-bit single precision float.
+	/// </summary>
+	/// <param name="src"></param>
+	/// <returns></returns>
+	constexpr auto FP16ToFP32(const F16 src) -> F32
+	{
+		const U32 h {src};
+		U32       sign {(h >> 15) & 1};
+		U32       exp {(h >> 10) & 0x1F};
+		U32       man {(h & 0x3FF) << 13};
+
+		if (exp == 0x1F)
+		{
+			man = man ? (sign = 0, 0x7FFFFF) : 0;
+			exp = 0xFF;
+		}
+		else if (!exp)
+		{
+			if (man)
+			{
+				exp = 0x71;
+				U32 msb;
+				do
+				{
+					msb = man & 0x400000;
+					man <<= 1;
+					++exp;
+				}
+				while (!msb);
+				man &= 0x7FFFFF;
+			}
+		}
+		else
+		{
+			exp += 0x70;
+		}
+		sign <<= 31;
+		exp <<= 23;
+		return sign | exp | man;
+	}
+
+	/// <summary>
+	/// Convert 32-bit single precision float to half precision 16-bit float.
+	/// </summary>
+	/// <param name="src"></param>
+	/// <returns></returns>
+	constexpr auto FP32ToFP16(const F32 src) -> F16
+	{
+		const U32 x {std::bit_cast<U32>(src)};
+		const U32 u {x & 0x7FFFFFFF};
+
+		if (u > 0x7F800000)
+		{
+			// Remove +NaN/-NaN
+			return 0x7FFF;
+		}
+
+		const U32 sign {(x >> 16) & 0x8000};
+		if (u > 0x477FEFFF)
+		{
+			return sign | 0x7C00U;
+		}
+		if (u < 0x33000001)
+		{
+			return sign | 0x0000;
+		}
+
+		U32 exp {(u >> 23) & 0xFF};
+		U32 man {u & 0x7FFFFF};
+		U32 shi;
+
+		if (exp > 0x70)
+		{
+			shi = 13;
+			exp -= 0x70;
+		}
+		else
+		{
+			shi = 0x7E - exp;
+			exp = 0;
+			man |= 0x800000;
+		}
+
+		const U32 lsb {static_cast<U32>(1) << shi};
+		const U32 lsbS1 {lsb >> 1};
+		const U32 lsbM1 {lsb - 1};
+		const U32 rem {man & lsbM1};
+		man >>= shi;
+		if (rem > lsbM1 || (rem == lsbS1 && man & 1))
+		{
+			++man;
+			if (man & 0x3FF == 0)
+			{
+				++exp;
+				man = 0;
+			}
+		}
+
+		exp <<= 10;
+		return static_cast<U16>(sign | exp | man);
 	}
 
 	/// <summary>
@@ -602,19 +805,6 @@ namespace Nominax::Common
 	{
 		UniformChunkSplit<decltype(std::begin(range)), Func, Args...>(chunkCount, std::begin(range), std::end(range), std::forward<Func>(func), std::forward(args)...);
 	}
-
-	/// <summary>
-	///  std::visit auto overload helper
-	/// </summary>
-	/// <typeparam name="...Ts">The call types.</typeparam>
-	template <typename... Ts>
-	struct Overloaded : Ts...
-	{
-		using Ts::operator()...;
-	};
-
-	template <typename... Ts>
-	Overloaded(Ts&&...) -> Overloaded<Ts...>;
 
 	/// <summary>
 	/// Computes the index of T inside the variant type.
@@ -769,12 +959,37 @@ namespace Nominax::Common
 		return size >= alignof(std::max_align_t) ? alignof(std::max_align_t) : static_cast<std::size_t>(1) << ILog2(size);
 	}
 
+	/// <summary>
+	/// Kilobytes.
+	/// </summary>
 	constexpr U64 KB {1000};
+
+	/// <summary>
+	/// Megabytes.
+	/// </summary>
 	constexpr U64 MB {KB * KB};
+
+	/// <summary>
+	/// Gigabytes.
+	/// </summary>
 	constexpr U64 GB {KB * KB * KB};
+
+	/// <summary>
+	/// Terabytes.
+	/// </summary>
 	constexpr U64 TB {KB * KB * KB * KB};
+
+	/// <summary>
+	/// Petabytes.
+	/// </summary>
 	constexpr U64 PB {KB * KB * KB * KB * KB};
 
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="bytes"></param>
+	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
 	constexpr auto Bytes2Gigabytes(T bytes) -> T
@@ -783,6 +998,12 @@ namespace Nominax::Common
 		return bytes / static_cast<T>(KB) / static_cast<T>(KB) / static_cast<T>(KB);
 	}
 
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="bytes"></param>
+	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
 	constexpr auto Bytes2Megabytes(T bytes) -> T
@@ -791,6 +1012,12 @@ namespace Nominax::Common
 		return bytes / static_cast<T>(KB) / static_cast<T>(KB);
 	}
 
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="bytes"></param>
+	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
 	constexpr auto Bytes2Kilobytes(T bytes) -> T
@@ -799,6 +1026,12 @@ namespace Nominax::Common
 		return bytes / static_cast<T>(KB);
 	}
 
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="gigabytes"></param>
+	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
 	constexpr auto Gigabytes2Bytes(const T gigabytes) -> T
@@ -806,6 +1039,12 @@ namespace Nominax::Common
 		return gigabytes * static_cast<T>(KB) * static_cast<T>(KB) * static_cast<T>(KB);
 	}
 
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="megabytes"></param>
+	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
 	constexpr auto Megabytes2Bytes(const T megabytes) -> T
@@ -813,6 +1052,12 @@ namespace Nominax::Common
 		return megabytes * static_cast<T>(KB) * static_cast<T>(KB);
 	}
 
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="kilobytes"></param>
+	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]]
 	constexpr auto Kilobytes2Bytes(const T kilobytes) -> T
@@ -1108,7 +1353,7 @@ namespace Nominax::Common
 	/// <typeparam name="SuccessState">The enumeration type success code like Ok.</typeparam>
 	/// <typeparam name="SingletonLock">If true the state is only updated when it is untouched (first time).</typeparam>
 	template <typename T, const T SuccessState = T::Ok, const bool SingletonLock = true> requires std::is_enum_v<T>
-	struct AtomicState final
+	class AtomicState final
 	{
 		/// <summary>
 		/// Underlying value type of enum.
@@ -1117,7 +1362,9 @@ namespace Nominax::Common
 
 		static_assert(std::atomic<ValueType>::is_always_lock_free);
 
-	private:
+		/// <summary>
+		/// Atomic storage.
+		/// </summary>
 		std::atomic<ValueType> Value_;
 
 	public:
@@ -1657,16 +1904,31 @@ namespace Nominax::Common
 		return std::bit_cast<U64>(x);
 	}
 
+	/// <summary>
+	/// Extract exponent bits.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
 	NOX_FLATTEN NOX_PURE constexpr auto ExponentBitsOf(const F64 x) -> U64
 	{
 		return EXPONENT_MASK & BitsOf(x);
 	}
 
+	/// <summary>
+	/// Extract fraction bits.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
 	NOX_FLATTEN NOX_PURE constexpr auto FractionBitsOf(const F64 x) -> U64
 	{
 		return FRACTION_MASK & BitsOf(x);
 	}
 
+	/// <summary>
+	/// Extract sign bit.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
 	NOX_FLATTEN NOX_PURE constexpr auto SignBitOf(const F64 x) -> U64
 	{
 		return SIGN_MASK & BitsOf(x);
@@ -1731,6 +1993,11 @@ namespace Nominax::Common
 		return ComputeDistanceBetweenSignAndMagnitude(BitsOf(x), BitsOf(y)) <= Ulps;
 	}
 
+	/// <summary>
+	/// Proxy gate for correct float comparison based on macro config.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
 	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsZero(const F64 x) -> bool
 	{
 		#if NOX_OPT_USE_ZERO_EPSILON
@@ -1740,6 +2007,11 @@ namespace Nominax::Common
 		#endif
 	}
 
+	/// <summary>
+	/// Proxy gate for correct float comparison based on macro config.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
 	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsOne(const F64 x) -> bool
 	{
 		#if NOX_OPT_USE_ZERO_EPSILON
@@ -1749,6 +2021,11 @@ namespace Nominax::Common
 		#endif
 	}
 
+	/// <summary>
+	/// Proxy gate for correct float comparison based on macro config.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
 	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64Equals(const F64 x, const F64 y) -> bool
 	{
 		#if NOX_OPT_USE_ZERO_EPSILON
@@ -1795,6 +2072,9 @@ namespace Nominax::Common
 
 namespace Nominax::Common
 {
+	/// <summary>
+	/// Represents a printable text color (if the terminal supports it).
+	/// </summary>
 	enum class TextColor : std::underlying_type_t<fmt::terminal_color>
 	{
 		Black = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::black),
@@ -2022,23 +2302,55 @@ namespace Nominax::Common
 
 namespace Nominax
 {
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
 	constexpr auto operator ""_kb(const U64 value) -> U64
 	{
 		return Common::Kilobytes2Bytes<decltype(value)>(value);
 	}
 
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
 	constexpr auto operator ""_mb(const U64 value) -> U64
 	{
 		return Common::Megabytes2Bytes<decltype(value)>(value);
 	}
 
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
 	constexpr auto operator ""_gb(const U64 value) -> U64
 	{
 		return Common::Gigabytes2Bytes<decltype(value)>(value);
 	}
 
+	/// <summary>
+	/// Merges information about the current source file and the line.
+	/// This will be replaced by C++ 20 std::source_location,
+	/// but currently it's not yet implemented :(
+	/// </summary>
 	#define NOX_PAINF __LINE__, 0, __FILE__, __FUNCTION__
 
+	/// <summary>
+	/// Terminates the process with an error messages in the terminal.
+	/// </summary>
+	/// <typeparam name="Str"></typeparam>
+	/// <typeparam name="...Args"></typeparam>
+	/// <param name="line"></param>
+	/// <param name="column"></param>
+	/// <param name="file"></param>
+	/// <param name="routine"></param>
+	/// <param name="formatString"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
 	template <typename Str, typename... Args>
 	[[noreturn]]
 	NOX_COLD NOX_NEVER_INLINE auto Panic
@@ -2059,7 +2371,11 @@ namespace Nominax
 		std::abort();
 	}
 
-	#define NOX_PAS_TRUE(x, msg)				\
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_TRUE(x, msg)					\
 	do												\
 	{												\
 		if (!( x ))                 				\
@@ -2070,7 +2386,11 @@ namespace Nominax
 	}												\
 	while(false)
 
-	#define NOX_PAS_FALSE(x, msg)				\
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_FALSE(x, msg)					\
 	do												\
 	{												\
 		if (( x ))				                    \
@@ -2081,12 +2401,35 @@ namespace Nominax
 	}												\
 	while(false)
 
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
 	#define NOX_PAS_NULL(x, msg) NOX_PAS_FALSE(x, msg)
+
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
 	#define NOX_PAS_NOT_NULL(x, msg) NOX_PAS_TRUE(x, msg)
+
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
 	#define NOX_PAS_ZERO(x, msg) NOX_PAS_FALSE(x, msg)
+
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
 	#define NOX_PAS_NOT_ZERO(x, msg) NOX_PAS_TRUE(x, msg)
 
-	#define NOX_PAS_EQ(x, y, msg)				\
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_EQ(x, y, msg)					\
 	do												\
 	{												\
 		if (( x ) != ( y ))		                    \
@@ -2097,8 +2440,11 @@ namespace Nominax
 	}												\
 	while(false)
 
-
-	#define NOX_PAS_NE(x, y, msg)				\
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_NE(x, y, msg)					\
 	do												\
 	{												\
 		if (( x ) == ( y ))		                    \
@@ -2109,7 +2455,11 @@ namespace Nominax
 	}												\
 	while(false)
 
-	#define NOX_PAS_L(x, y, msg)				\
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_L(x, y, msg)					\
 	do												\
 	{												\
 		if (!(( x ) < ( y )))		                \
@@ -2120,7 +2470,11 @@ namespace Nominax
 	}												\
 	while(false)
 
-	#define NOX_PAS_LE(x, y, msg)				\
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_LE(x, y, msg)					\
 	do												\
 	{												\
 		if (!(( x ) <= ( y )))	                    \
@@ -2131,7 +2485,11 @@ namespace Nominax
 	}												\
 	while(false)
 
-	#define NOX_PAS_G(x, y, msg)				\
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_G(x, y, msg)					\
 	do												\
 	{												\
 		if (!(( x ) > ( y )))		                \
@@ -2142,7 +2500,11 @@ namespace Nominax
 	}												\
 	while(false)
 
-	#define NOX_PAS_GE(x, y, msg)				\
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_GE(x, y, msg)					\
 	do												\
 	{												\
 		if (!(( x ) >= ( y )))	                    \
@@ -5021,6 +5383,7 @@ namespace Nominax::VectorLib
 		x2 = _mm_add_pd(x2, y2);
 		_mm_store_pd(inout, x1);
 		_mm_store_pd(inout + 2, x2);
+		
 		#else
 
 		inout[0] += in[0];
@@ -5056,6 +5419,7 @@ namespace Nominax::VectorLib
 		x2 = _mm_sub_pd(x2, y2);
 		_mm_store_pd(inout, x1);
 		_mm_store_pd(inout + 2, x2);
+		
 		#else
 
 		inout[0] -= in[0];
@@ -5091,6 +5455,7 @@ namespace Nominax::VectorLib
 		x2 = _mm_mul_pd(x2, y2);
 		_mm_store_pd(inout, x1);
 		_mm_store_pd(inout + 2, x2);
+		
 		#else
 
 		inout[0] *= in[0];
@@ -5126,6 +5491,7 @@ namespace Nominax::VectorLib
 		x2 = _mm_div_pd(x2, y2);
 		_mm_store_pd(inout, x1);
 		_mm_store_pd(inout + 2, x2);
+		
 		#else
 
 		inout[0] /= in[0];
@@ -5161,6 +5527,7 @@ namespace Nominax::VectorLib
 		x2 = _mm_add_pd(x2, y2);
 		_mm_storeu_pd(inout, x1);
 		_mm_storeu_pd(inout + 2, x2);
+		
 		#else
 
 		inout[0] += in[0];
@@ -5196,6 +5563,7 @@ namespace Nominax::VectorLib
 		x2 = _mm_sub_pd(x2, y2);
 		_mm_storeu_pd(inout, x1);
 		_mm_storeu_pd(inout + 2, x2);
+		
 		#else
 
 		inout[0] -= in[0];
@@ -5231,6 +5599,7 @@ namespace Nominax::VectorLib
 		x2 = _mm_mul_pd(x2, y2);
 		_mm_storeu_pd(inout, x1);
 		_mm_storeu_pd(inout + 2, x2);
+		
 		#else
 
 		inout[0] *= in[0];
@@ -5266,6 +5635,7 @@ namespace Nominax::VectorLib
 		x2 = _mm_div_pd(x2, y2);
 		_mm_storeu_pd(inout, x1);
 		_mm_storeu_pd(inout + 2, x2);
+		
 		#else
 
 		inout[0] /= in[0];

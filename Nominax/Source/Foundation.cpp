@@ -1,6 +1,6 @@
 // File: Foundation.cpp
 // Author: Mario
-// Created: 05.07.2021 4:43 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -282,8 +282,7 @@ namespace Nominax::Common
 			0x5540, 0x5541, 0x5544, 0x5545, 0x5550, 0x5551, 0x5554, 0x5555
 		};
 
-		return MORTON_TABLE[y >> 8] << 17 | MORTON_TABLE[x >> 8] << 16 | MORTON_TABLE[y & 0xFF] << 1 | MORTON_TABLE[x &
-			0xFF];
+		return MORTON_TABLE[y >> 8] << 17 | MORTON_TABLE[x >> 8] << 16 | MORTON_TABLE[y & 0xFF] << 1 | MORTON_TABLE[x & 0xFF];
 	}
 
 	auto Xorshift32Atomic() -> U32
