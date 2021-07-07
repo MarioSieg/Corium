@@ -227,6 +227,8 @@
 #include <iterator>
 #include <memory_resource>
 #include <mutex>
+#include <optional>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <span>
@@ -666,7 +668,7 @@ namespace Nominax::Common
 		if (rem > lsbM1 || (rem == lsbS1 && man & 1))
 		{
 			++man;
-			if (man & 0x3FF == 0)
+			if ((man & 0x3FF) == 0)
 			{
 				++exp;
 				man = 0;
@@ -1650,22 +1652,6 @@ namespace Nominax::Common
 		#endif
 	}
 
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(const T& x) -> void
-	{
-		#if NOX_COM_CLANG
-			__asm__ __volatile__("" : "r,m"(x) : : "memory");
-		#else
-		__asm__ __volatile__("" : "m,r"(x) :: "memory");
-		#endif
-	}
-
 	// @formatter:off
 
 	/// <summary>
@@ -2307,7 +2293,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator ""_kb(const U64 value) -> U64
+	constexpr auto operator ""_kb(const unsigned long long value) -> U64
 	{
 		return Common::Kilobytes2Bytes<decltype(value)>(value);
 	}
@@ -2317,7 +2303,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator ""_mb(const U64 value) -> U64
+	constexpr auto operator ""_mb(const unsigned long long value) -> U64
 	{
 		return Common::Megabytes2Bytes<decltype(value)>(value);
 	}
@@ -2327,7 +2313,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator ""_gb(const U64 value) -> U64
+	constexpr auto operator ""_gb(const unsigned long long value) -> U64
 	{
 		return Common::Gigabytes2Bytes<decltype(value)>(value);
 	}

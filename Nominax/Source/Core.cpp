@@ -319,17 +319,17 @@ namespace Nominax
 			Common::Print("\n");
 		}
 
-		#define DISPATCH_HOOK(method, ...)							\
-	do														\
-	{														\
-		Common::Print("Dispatching hook: " #method "\n");	\
-		NOX_PAS_TRUE								\
-		(													\
-			this-> method (__VA_ARGS__),					\	
-			"\" "#method "\" returned false!"				\
-		);													\
-	}														\
-	while(false)
+		#define DISPATCH_HOOK(method, ...)				        \
+        do														\
+        {														\
+            Common::Print("Dispatching hook: " #method "\n");	\
+            NOX_PAS_TRUE								        \
+            (													\
+                this-> method (__VA_ARGS__),					\
+                "\" "#method "\" returned false!"				\
+            );													\
+        }														\
+        while(false)
 
 		#define VALIDATE_ONLINE_BOOT_STATE() NOX_PAS_TRUE(this->IsOnline(), "Environment is offline!")
 
