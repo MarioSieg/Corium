@@ -1,0 +1,16 @@
+module io
+
+native fun print(x int)
+native fun print(x float)
+native fun print(x bool)
+native fun print(x char)
+native fun print(message string)
+
+native fun printLn(x int)
+native fun printLn(x float)
+native fun printLn(x bool)
+native fun printLn(x char)
+native fun printLn(message string)
+
+native fun readLine() string
+native fun read() string
