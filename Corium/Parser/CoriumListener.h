@@ -14,14 +14,11 @@
 class  CoriumListener : public antlr4::tree::ParseTreeListener {
 public:
 
-  virtual void enterVariableDeclaration(CoriumParser::VariableDeclarationContext *ctx) = 0;
-  virtual void exitVariableDeclaration(CoriumParser::VariableDeclarationContext *ctx) = 0;
+  virtual void enterCompilationUnit(CoriumParser::CompilationUnitContext *ctx) = 0;
+  virtual void exitCompilationUnit(CoriumParser::CompilationUnitContext *ctx) = 0;
 
   virtual void enterLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext *ctx) = 0;
   virtual void exitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext *ctx) = 0;
-
-  virtual void enterConstVariableDeclaration(CoriumParser::ConstVariableDeclarationContext *ctx) = 0;
-  virtual void exitConstVariableDeclaration(CoriumParser::ConstVariableDeclarationContext *ctx) = 0;
 
   virtual void enterLiteral(CoriumParser::LiteralContext *ctx) = 0;
   virtual void exitLiteral(CoriumParser::LiteralContext *ctx) = 0;

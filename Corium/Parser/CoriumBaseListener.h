@@ -16,14 +16,11 @@
 class  CoriumBaseListener : public CoriumListener {
 public:
 
-  virtual void enterVariableDeclaration(CoriumParser::VariableDeclarationContext * /*ctx*/) override { }
-  virtual void exitVariableDeclaration(CoriumParser::VariableDeclarationContext * /*ctx*/) override { }
+  virtual void enterCompilationUnit(CoriumParser::CompilationUnitContext * /*ctx*/) override { }
+  virtual void exitCompilationUnit(CoriumParser::CompilationUnitContext * /*ctx*/) override { }
 
   virtual void enterLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext * /*ctx*/) override { }
   virtual void exitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext * /*ctx*/) override { }
-
-  virtual void enterConstVariableDeclaration(CoriumParser::ConstVariableDeclarationContext * /*ctx*/) override { }
-  virtual void exitConstVariableDeclaration(CoriumParser::ConstVariableDeclarationContext * /*ctx*/) override { }
 
   virtual void enterLiteral(CoriumParser::LiteralContext * /*ctx*/) override { }
   virtual void exitLiteral(CoriumParser::LiteralContext * /*ctx*/) override { }

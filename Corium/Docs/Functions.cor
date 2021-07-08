@@ -1,8 +1,8 @@
-calculateAge (birthYear int, currentYear int) int {
+fun calculateAge (birthYear int, currentYear int) int {
 	return currentYear - birthYear
 }
 
-main () {
+fun main () {
 	let andysBirthYear = 1968
 	let currentYear = 2021
 	let andysAge = calculateAge(andysBirthYear, currentYear)

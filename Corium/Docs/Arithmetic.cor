@@ -1,7 +1,7 @@
 # Define variables with type and value:
 # The type can be elided here, but we do it explictly 
 
-main () {
+fun main () {
 	let a int = 3
 	let b float = 2.5
 	let c char = 'O'

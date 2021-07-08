@@ -48,30 +48,32 @@ ASSIGN:             '=';
 IDENT: Letter LetterOrDigit*;
 
 // whitespace and comments:
-SINGLE_SPACE:           ' ';
-WHITESPACE:             [ \t\r\n\u000C]+ -> channel(HIDDEN);
 SINGLE_LINE_COMMENT:    '#' ~[\r\n]* -> channel(HIDDEN);
 MULTI_LINE_COMMENT:     '##' .*? '##' -> channel(HIDDEN);
 
+NEW_LINE:               '\n';
+WHITESPACE:              ' '+;
+
 // Fragments:
-fragment EscapeSequence: '\\' [btnfr"'\\] | '\\' ([0-3]? [0-7])? [0-7] | '\\' 'u' + HexDigit HexDigit HexDigit HexDigit;
-fragment ExponentPart: [eE] [+-]? Digits;
-fragment HexDigits: HexDigit((HexDigit | '_')* HexDigit)?;
-fragment HexDigit: [0-9a-fA-F];
-fragment Digits: [0-9] ([0-9_]* [0-9])?;
-fragment LetterOrDigit: Letter | [0-9];
-fragment Letter: [a-zA-Z];
+fragment EscapeSequence:    '\\' [btnfr"'\\] | '\\' ([0-3]? [0-7])? [0-7] | '\\' 'u' + HexDigit HexDigit HexDigit HexDigit;
+fragment ExponentPart:      [eE] [+-]? Digits;
+fragment HexDigits:         HexDigit((HexDigit | '_')* HexDigit)?;
+fragment HexDigit:          [0-9a-fA-F];
+fragment Digits:            [0-9] ([0-9_]* [0-9])?;
+fragment LetterOrDigit:     Letter | [0-9];
+fragment Letter:            [a-zA-Z];
 
-variableDeclaration:
-    SINGLE_SPACE
+compilationUnit: localVariableDeclaration*;
+
+localVariableDeclaration:
+    LET
+    WHITESPACE
     IDENT
-    SINGLE_SPACE
+    WHITESPACE
     ASSIGN
-    SINGLE_SPACE
-    literal;
-
-localVariableDeclaration: LET variableDeclaration;
-constVariableDeclaration: CONST variableDeclaration;
+    WHITESPACE
+    literal
+    NEW_LINE;
 
 literal:
     (INT_LITERAL_DEC |
