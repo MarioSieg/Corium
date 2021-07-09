@@ -23,10 +23,10 @@ public:
 
   enum {
     RuleCompilationUnit = 0, RuleModuleDeclaration = 1, RuleCompilationUnitStatement = 2, 
-    RuleNativeFunctionDeclaration = 3, RuleFunctionDeclaration = 4, RuleFunctionBlockStatement = 5, 
-    RuleLocalVariableDeclaration = 6, RuleConstVariableDeclaration = 7, 
-    RuleParameterList = 8, RuleParameter = 9, RuleTypeName = 10, RuleBuiltinType = 11, 
-    RuleQualifiedName = 12, RuleLiteral = 13, RuleIntLiteral = 14, RuleFloatLiteral = 15
+    RuleNativeFunctionDeclaration = 3, RuleFunctionDeclaration = 4, RuleFunctionHeader = 5, 
+    RuleFunctionBlockStatement = 6, RuleLocalVariableDeclaration = 7, RuleConstVariableDeclaration = 8, 
+    RuleParameterList = 9, RuleParameter = 10, RuleTypeName = 11, RuleBuiltinType = 12, 
+    RuleQualifiedName = 13, RuleLiteral = 14, RuleIntLiteral = 15, RuleFloatLiteral = 16
   };
 
   explicit CoriumParser(antlr4::TokenStream *input);
@@ -44,6 +44,7 @@ public:
   class CompilationUnitStatementContext;
   class NativeFunctionDeclarationContext;
   class FunctionDeclarationContext;
+  class FunctionHeaderContext;
   class FunctionBlockStatementContext;
   class LocalVariableDeclarationContext;
   class ConstVariableDeclarationContext;
@@ -107,11 +108,7 @@ public:
     NativeFunctionDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *NATIVE();
-    antlr4::tree::TerminalNode *FUN();
-    antlr4::tree::TerminalNode *IDENT();
-    antlr4::tree::TerminalNode *LPAREN();
-    antlr4::tree::TerminalNode *RPAREN();
-    ParameterListContext *parameterList();
+    FunctionHeaderContext *functionHeader();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -124,13 +121,9 @@ public:
   public:
     FunctionDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *FUN();
-    antlr4::tree::TerminalNode *IDENT();
-    antlr4::tree::TerminalNode *LPAREN();
-    antlr4::tree::TerminalNode *RPAREN();
+    FunctionHeaderContext *functionHeader();
     antlr4::tree::TerminalNode *LBRACE();
     antlr4::tree::TerminalNode *RBRACE();
-    ParameterListContext *parameterList();
     std::vector<FunctionBlockStatementContext *> functionBlockStatement();
     FunctionBlockStatementContext* functionBlockStatement(size_t i);
 
@@ -140,6 +133,24 @@ public:
   };
 
   FunctionDeclarationContext* functionDeclaration();
+
+  class  FunctionHeaderContext : public antlr4::ParserRuleContext {
+  public:
+    FunctionHeaderContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *FUN();
+    antlr4::tree::TerminalNode *IDENT();
+    antlr4::tree::TerminalNode *LPAREN();
+    antlr4::tree::TerminalNode *RPAREN();
+    ParameterListContext *parameterList();
+    TypeNameContext *typeName();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  FunctionHeaderContext* functionHeader();
 
   class  FunctionBlockStatementContext : public antlr4::ParserRuleContext {
   public:

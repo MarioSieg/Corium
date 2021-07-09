@@ -29,6 +29,9 @@ public:
   virtual void enterFunctionDeclaration(CoriumParser::FunctionDeclarationContext *ctx) = 0;
   virtual void exitFunctionDeclaration(CoriumParser::FunctionDeclarationContext *ctx) = 0;
 
+  virtual void enterFunctionHeader(CoriumParser::FunctionHeaderContext *ctx) = 0;
+  virtual void exitFunctionHeader(CoriumParser::FunctionHeaderContext *ctx) = 0;
+
   virtual void enterFunctionBlockStatement(CoriumParser::FunctionBlockStatementContext *ctx) = 0;
   virtual void exitFunctionBlockStatement(CoriumParser::FunctionBlockStatementContext *ctx) = 0;
 

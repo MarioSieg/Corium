@@ -31,6 +31,9 @@ public:
   virtual void enterFunctionDeclaration(CoriumParser::FunctionDeclarationContext * /*ctx*/) override { }
   virtual void exitFunctionDeclaration(CoriumParser::FunctionDeclarationContext * /*ctx*/) override { }
 
+  virtual void enterFunctionHeader(CoriumParser::FunctionHeaderContext * /*ctx*/) override { }
+  virtual void exitFunctionHeader(CoriumParser::FunctionHeaderContext * /*ctx*/) override { }
+
   virtual void enterFunctionBlockStatement(CoriumParser::FunctionBlockStatementContext * /*ctx*/) override { }
   virtual void exitFunctionBlockStatement(CoriumParser::FunctionBlockStatementContext * /*ctx*/) override { }
 

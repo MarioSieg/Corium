@@ -86,22 +86,23 @@ compilationUnitStatement:
 
 nativeFunctionDeclaration:
     NATIVE
-    FUN
-    IDENT
-    LPAREN
-    parameterList?
-    RPAREN
+    functionHeader
     ;
 
 functionDeclaration:
+    functionHeader
+    LBRACE
+    functionBlockStatement*
+    RBRACE
+    ;
+
+functionHeader:
     FUN
     IDENT
     LPAREN
     parameterList?
     RPAREN
-    LBRACE
-    functionBlockStatement*
-    RBRACE
+    typeName?
     ;
 
 functionBlockStatement:

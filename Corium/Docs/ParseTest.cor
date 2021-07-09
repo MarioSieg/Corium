@@ -2,13 +2,13 @@ module ParseTest
 
 const Year = 2021
 
-native fun exit()
+native fun exit(exitCode int)
 
-fun f(x float) {
+fun f(x float) float {
 
 }
 
-fun pow(x float, v float) {
+fun pow(x float, v float) float {
 
 }
 
