@@ -17,14 +17,35 @@ public:
   virtual void enterCompilationUnit(CoriumParser::CompilationUnitContext *ctx) = 0;
   virtual void exitCompilationUnit(CoriumParser::CompilationUnitContext *ctx) = 0;
 
+  virtual void enterModuleDeclaration(CoriumParser::ModuleDeclarationContext *ctx) = 0;
+  virtual void exitModuleDeclaration(CoriumParser::ModuleDeclarationContext *ctx) = 0;
+
+  virtual void enterCompilationUnitStatement(CoriumParser::CompilationUnitStatementContext *ctx) = 0;
+  virtual void exitCompilationUnitStatement(CoriumParser::CompilationUnitStatementContext *ctx) = 0;
+
+  virtual void enterFunctionDeclaration(CoriumParser::FunctionDeclarationContext *ctx) = 0;
+  virtual void exitFunctionDeclaration(CoriumParser::FunctionDeclarationContext *ctx) = 0;
+
+  virtual void enterFunctionBlockStatement(CoriumParser::FunctionBlockStatementContext *ctx) = 0;
+  virtual void exitFunctionBlockStatement(CoriumParser::FunctionBlockStatementContext *ctx) = 0;
+
   virtual void enterLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext *ctx) = 0;
   virtual void exitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext *ctx) = 0;
+
+  virtual void enterConstVariableDeclaration(CoriumParser::ConstVariableDeclarationContext *ctx) = 0;
+  virtual void exitConstVariableDeclaration(CoriumParser::ConstVariableDeclarationContext *ctx) = 0;
 
   virtual void enterLiteral(CoriumParser::LiteralContext *ctx) = 0;
   virtual void exitLiteral(CoriumParser::LiteralContext *ctx) = 0;
 
-  virtual void enterPrimitiveType(CoriumParser::PrimitiveTypeContext *ctx) = 0;
-  virtual void exitPrimitiveType(CoriumParser::PrimitiveTypeContext *ctx) = 0;
+  virtual void enterIntLiteral(CoriumParser::IntLiteralContext *ctx) = 0;
+  virtual void exitIntLiteral(CoriumParser::IntLiteralContext *ctx) = 0;
+
+  virtual void enterFloatLiteral(CoriumParser::FloatLiteralContext *ctx) = 0;
+  virtual void exitFloatLiteral(CoriumParser::FloatLiteralContext *ctx) = 0;
+
+  virtual void enterBuiltinType(CoriumParser::BuiltinTypeContext *ctx) = 0;
+  virtual void exitBuiltinType(CoriumParser::BuiltinTypeContext *ctx) = 0;
 
 
 };

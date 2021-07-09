@@ -363,3 +363,27 @@ TEST(Algorithms, BitRotRight64)
 	ASSERT_EQ(Ror64(2, 4), std::rotr<U64>(2, 4));
 	ASSERT_EQ(Ror64(1234567, 22), std::rotr<U64>(1234567, 22));
 }
+
+TEST(Algorithms, BitRotLeft32Generic)
+{
+    ASSERT_EQ(Rol32(2, 4), RolGeneric<U32>(2, 4));
+    ASSERT_EQ(Rol32(1234567, 22), RolGeneric<U32>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotLeft64Generic)
+{
+    ASSERT_EQ(Rol64(2, 4), RolGeneric<U64>(2, 4));
+    ASSERT_EQ(Rol64(1234567, 22), RolGeneric<U64>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotRight32Generic)
+{
+    ASSERT_EQ(Ror32(2, 4), RorGeneric<U32>(2, 4));
+    ASSERT_EQ(Ror32(1234567, 22), RorGeneric<U32>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotRight64Generic)
+{
+    ASSERT_EQ(Ror64(2, 4), RorGeneric<U64>(2, 4));
+    ASSERT_EQ(Ror64(1234567, 22), RorGeneric<U64>(1234567, 22));
+}

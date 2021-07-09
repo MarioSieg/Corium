@@ -6,9 +6,14 @@ CHAR:           'char';
 FLOAT:          'float';
 FUN:            'fun';
 INT:            'int';
+STRING:         'string';
 LET:            'let';
 NATIVE:         'native';
 CONST:          'const';
+MODULE:         'module';
+CLASS:          'class';
+STRUCT:         'struct';
+STATIC:         'static';
 
 // int literals:
 INT_LITERAL_DEC: ('0' | [1-9] (Digits? | '_' + Digits));
@@ -48,11 +53,9 @@ ASSIGN:             '=';
 IDENT: Letter LetterOrDigit*;
 
 // whitespace and comments:
+SPACE:                  [ \t\r\n\u000C]+ -> channel(HIDDEN);
 SINGLE_LINE_COMMENT:    '#' ~[\r\n]* -> channel(HIDDEN);
 MULTI_LINE_COMMENT:     '##' .*? '##' -> channel(HIDDEN);
-
-NEW_LINE:               '\n';
-WHITESPACE:              ' '+;
 
 // Fragments:
 fragment EscapeSequence:    '\\' [btnfr"'\\] | '\\' ([0-3]? [0-7])? [0-7] | '\\' 'u' + HexDigit HexDigit HexDigit HexDigit;
@@ -60,34 +63,41 @@ fragment ExponentPart:      [eE] [+-]? Digits;
 fragment HexDigits:         HexDigit((HexDigit | '_')* HexDigit)?;
 fragment HexDigit:          [0-9a-fA-F];
 fragment Digits:            [0-9] ([0-9_]* [0-9])?;
-fragment LetterOrDigit:     Letter | [0-9];
+fragment LetterOrDigit:     Letter | [0-9] | '_';
 fragment Letter:            [a-zA-Z];
 
-compilationUnit: localVariableDeclaration*;
+compilationUnit: moduleDeclaration compilationUnitStatement* EOF;
 
-localVariableDeclaration:
-    LET
-    WHITESPACE
-    IDENT
-    WHITESPACE
-    ASSIGN
-    WHITESPACE
-    literal
-    NEW_LINE;
+moduleDeclaration: MODULE IDENT;
+
+compilationUnitStatement: functionDeclaration | constVariableDeclaration | SPACE;
+
+functionDeclaration: FUN IDENT LPAREN RPAREN LBRACE functionBlockStatement* RBRACE;
+functionBlockStatement: localVariableDeclaration | constVariableDeclaration;
+
+localVariableDeclaration: LET (builtinType | IDENT) ASSIGN literal;
+constVariableDeclaration: CONST (builtinType | IDENT) ASSIGN literal;
 
 literal:
-    (INT_LITERAL_DEC |
-    INT_LITERAL_HEX |
-    INT_LITERAL_OCT |
-    INT_LITERAL_BIN) |
-    (FLOAT_LITERAL_DEC |
-    FLOAT_LITERAL_HEX) |
+    intLiteral |
+    floatLiteral |
     BOOL_LITERAL |
     CHAR_LITERAL |
     STRING_LITERAL;
 
-primitiveType:
+intLiteral:
+    INT_LITERAL_DEC |
+    INT_LITERAL_HEX |
+    INT_LITERAL_OCT |
+    INT_LITERAL_BIN;
+
+floatLiteral:
+    FLOAT_LITERAL_DEC |
+    FLOAT_LITERAL_HEX;
+
+builtinType:
     INT |
     FLOAT |
     CHAR |
-    BOOL;
+    BOOL|
+    STRING;

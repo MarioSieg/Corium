@@ -1521,10 +1521,37 @@ namespace Nominax::Common
 	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
 	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState(const T x) : Value_ {static_cast<ValueType>(x)} { }
 
+    /// <summary>
+    /// Generic bit rotation left.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="shift"></param>
+    /// <returns>The bit shifted value.</returns>
+	template <typename T> requires std::is_unsigned_v<T>
+    [[nodiscard]]
+    NOX_FORCE_INLINE NOX_PURE constexpr auto RolGeneric(const T value, const U8 shift) -> T
+    {
+        return ((value) << (shift)) | ((value) >> (-static_cast<I32>(shift) & (CHAR_BIT * sizeof(value) - 1)));
+    }
+
+    /// <summary>
+    /// Generic bit rotation right.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="shift"></param>
+    /// <returns>The bit shifted value.</returns>
+    template <typename T> requires std::is_unsigned_v<T>
+    [[nodiscard]]
+    NOX_FORCE_INLINE NOX_PURE constexpr auto RorGeneric(const T value, const U8 shift) -> T
+    {
+        return (((value) << (-static_cast<I32>(shift) & (CHAR_BIT * sizeof(value) - 1))) | ((value) >> (shift)));
+    }
+
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
-	[[nodiscard]] NOX_FORCE_INLINE NOX_PURE inline auto Rol32
+	[[nodiscard]]
+	NOX_FORCE_INLINE NOX_PURE inline auto Rol32
 	(
 		U32      value,
 		const U8 shift
@@ -1541,14 +1568,15 @@ namespace Nominax::Common
 		);
 		return value;
 		#else
-		return std::rotl<decltype(value)>(value, shift);
+		return RolGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
-	[[nodiscard]] NOX_FORCE_INLINE NOX_PURE inline auto Ror32
+	[[nodiscard]]
+	NOX_FORCE_INLINE NOX_PURE inline auto Ror32
 	(
 		U32      value,
 		const U8 shift
@@ -1565,14 +1593,15 @@ namespace Nominax::Common
 		);
 		return value;
 		#else
-		return std::rotr<decltype(value)>(value, shift);
+		return RorGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
-	[[nodiscard]] NOX_FORCE_INLINE NOX_PURE inline auto Rol64
+	[[nodiscard]]
+	NOX_FORCE_INLINE NOX_PURE inline auto Rol64
 	(
 		U64      value,
 		const U8 shift
@@ -1589,14 +1618,15 @@ namespace Nominax::Common
 		);
 		return value;
 		#else
-		return std::rotl<U64>(value, shift);
+		return RolGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
-	[[nodiscard]] NOX_FORCE_INLINE NOX_PURE inline auto Ror64
+	[[nodiscard]]
+	NOX_FORCE_INLINE NOX_PURE inline auto Ror64
 	(
 		U64      value,
 		const U8 shift
@@ -1613,7 +1643,7 @@ namespace Nominax::Common
 		);
 		return value;
 		#else
-		return std::rotr<U64>(value, shift);
+        return RorGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
@@ -1624,12 +1654,12 @@ namespace Nominax::Common
 	NOX_FORCE_INLINE NOX_COLD inline auto BreakpointInterrupt() -> void
 	{
 		#if NOX_ARCH_X86_64
-		__asm__ __volatile__("int3");
+		__asm__("int3");
 		#elif NOX_ARCH_ARM_64
 		#if NOX_OS_MAC || NOX_OS_IOS
-				__asm__ __volatile__("trap");
+				__asm__("trap");
 		#else
-				__asm__ __volatile__("bkpt 0");
+				__asm__("bkpt 0");
 		#endif
 		#else
 			*reinterpret_cast<volatile I32*>(3) = 3;

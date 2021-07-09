@@ -1,3 +1,9 @@
-let y = 0xFFS
-let pi = 3.14
-let name = "Hello there :)"
+module ParseTest
+
+const Year = 2021
+
+# main function:
+fun Main ()
+{
+    let years = 10
+}

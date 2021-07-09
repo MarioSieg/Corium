@@ -1558,7 +1558,6 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		[[deprecated("unsafe")]]
 		static auto RawQueryTypePun(Common::Record* region) -> ObjectHeader&;
 
 		/// <summary>
