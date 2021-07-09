@@ -84,22 +84,23 @@ CoriumParser::CompilationUnitContext* CoriumParser::compilationUnit() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(22);
+    setState(32);
     moduleDeclaration();
-    setState(26);
+    setState(36);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & ((1ULL << CoriumParser::FUN)
+      | (1ULL << CoriumParser::NATIVE)
       | (1ULL << CoriumParser::CONST)
       | (1ULL << CoriumParser::SPACE))) != 0)) {
-      setState(23);
+      setState(33);
       compilationUnitStatement();
-      setState(28);
+      setState(38);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(29);
+    setState(39);
     match(CoriumParser::EOF);
    
   }
@@ -122,8 +123,8 @@ tree::TerminalNode* CoriumParser::ModuleDeclarationContext::MODULE() {
   return getToken(CoriumParser::MODULE, 0);
 }
 
-tree::TerminalNode* CoriumParser::ModuleDeclarationContext::IDENT() {
-  return getToken(CoriumParser::IDENT, 0);
+CoriumParser::QualifiedNameContext* CoriumParser::ModuleDeclarationContext::qualifiedName() {
+  return getRuleContext<CoriumParser::QualifiedNameContext>(0);
 }
 
 
@@ -156,10 +157,10 @@ CoriumParser::ModuleDeclarationContext* CoriumParser::moduleDeclaration() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(31);
+    setState(41);
     match(CoriumParser::MODULE);
-    setState(32);
-    match(CoriumParser::IDENT);
+    setState(42);
+    qualifiedName();
    
   }
   catch (RecognitionException &e) {
@@ -179,6 +180,10 @@ CoriumParser::CompilationUnitStatementContext::CompilationUnitStatementContext(P
 
 CoriumParser::FunctionDeclarationContext* CoriumParser::CompilationUnitStatementContext::functionDeclaration() {
   return getRuleContext<CoriumParser::FunctionDeclarationContext>(0);
+}
+
+CoriumParser::NativeFunctionDeclarationContext* CoriumParser::CompilationUnitStatementContext::nativeFunctionDeclaration() {
+  return getRuleContext<CoriumParser::NativeFunctionDeclarationContext>(0);
 }
 
 CoriumParser::ConstVariableDeclarationContext* CoriumParser::CompilationUnitStatementContext::constVariableDeclaration() {
@@ -218,26 +223,33 @@ CoriumParser::CompilationUnitStatementContext* CoriumParser::compilationUnitStat
     exitRule();
   });
   try {
-    setState(37);
+    setState(48);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case CoriumParser::FUN: {
         enterOuterAlt(_localctx, 1);
-        setState(34);
+        setState(44);
         functionDeclaration();
         break;
       }
 
-      case CoriumParser::CONST: {
+      case CoriumParser::NATIVE: {
         enterOuterAlt(_localctx, 2);
-        setState(35);
+        setState(45);
+        nativeFunctionDeclaration();
+        break;
+      }
+
+      case CoriumParser::CONST: {
+        enterOuterAlt(_localctx, 3);
+        setState(46);
         constVariableDeclaration();
         break;
       }
 
       case CoriumParser::SPACE: {
-        enterOuterAlt(_localctx, 3);
-        setState(36);
+        enterOuterAlt(_localctx, 4);
+        setState(47);
         match(CoriumParser::SPACE);
         break;
       }
@@ -245,6 +257,96 @@ CoriumParser::CompilationUnitStatementContext* CoriumParser::compilationUnitStat
     default:
       throw NoViableAltException(this);
     }
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- NativeFunctionDeclarationContext ------------------------------------------------------------------
+
+CoriumParser::NativeFunctionDeclarationContext::NativeFunctionDeclarationContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* CoriumParser::NativeFunctionDeclarationContext::NATIVE() {
+  return getToken(CoriumParser::NATIVE, 0);
+}
+
+tree::TerminalNode* CoriumParser::NativeFunctionDeclarationContext::FUN() {
+  return getToken(CoriumParser::FUN, 0);
+}
+
+tree::TerminalNode* CoriumParser::NativeFunctionDeclarationContext::IDENT() {
+  return getToken(CoriumParser::IDENT, 0);
+}
+
+tree::TerminalNode* CoriumParser::NativeFunctionDeclarationContext::LPAREN() {
+  return getToken(CoriumParser::LPAREN, 0);
+}
+
+tree::TerminalNode* CoriumParser::NativeFunctionDeclarationContext::RPAREN() {
+  return getToken(CoriumParser::RPAREN, 0);
+}
+
+CoriumParser::ParameterListContext* CoriumParser::NativeFunctionDeclarationContext::parameterList() {
+  return getRuleContext<CoriumParser::ParameterListContext>(0);
+}
+
+
+size_t CoriumParser::NativeFunctionDeclarationContext::getRuleIndex() const {
+  return CoriumParser::RuleNativeFunctionDeclaration;
+}
+
+void CoriumParser::NativeFunctionDeclarationContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterNativeFunctionDeclaration(this);
+}
+
+void CoriumParser::NativeFunctionDeclarationContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitNativeFunctionDeclaration(this);
+}
+
+CoriumParser::NativeFunctionDeclarationContext* CoriumParser::nativeFunctionDeclaration() {
+  NativeFunctionDeclarationContext *_localctx = _tracker.createInstance<NativeFunctionDeclarationContext>(_ctx, getState());
+  enterRule(_localctx, 6, CoriumParser::RuleNativeFunctionDeclaration);
+  size_t _la = 0;
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(50);
+    match(CoriumParser::NATIVE);
+    setState(51);
+    match(CoriumParser::FUN);
+    setState(52);
+    match(CoriumParser::IDENT);
+    setState(53);
+    match(CoriumParser::LPAREN);
+    setState(55);
+    _errHandler->sync(this);
+
+    _la = _input->LA(1);
+    if (_la == CoriumParser::IDENT) {
+      setState(54);
+      parameterList();
+    }
+    setState(57);
+    match(CoriumParser::RPAREN);
    
   }
   catch (RecognitionException &e) {
@@ -286,6 +388,10 @@ tree::TerminalNode* CoriumParser::FunctionDeclarationContext::RBRACE() {
   return getToken(CoriumParser::RBRACE, 0);
 }
 
+CoriumParser::ParameterListContext* CoriumParser::FunctionDeclarationContext::parameterList() {
+  return getRuleContext<CoriumParser::ParameterListContext>(0);
+}
+
 std::vector<CoriumParser::FunctionBlockStatementContext *> CoriumParser::FunctionDeclarationContext::functionBlockStatement() {
   return getRuleContexts<CoriumParser::FunctionBlockStatementContext>();
 }
@@ -313,7 +419,7 @@ void CoriumParser::FunctionDeclarationContext::exitRule(tree::ParseTreeListener 
 
 CoriumParser::FunctionDeclarationContext* CoriumParser::functionDeclaration() {
   FunctionDeclarationContext *_localctx = _tracker.createInstance<FunctionDeclarationContext>(_ctx, getState());
-  enterRule(_localctx, 6, CoriumParser::RuleFunctionDeclaration);
+  enterRule(_localctx, 8, CoriumParser::RuleFunctionDeclaration);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -325,29 +431,37 @@ CoriumParser::FunctionDeclarationContext* CoriumParser::functionDeclaration() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(39);
+    setState(59);
     match(CoriumParser::FUN);
-    setState(40);
+    setState(60);
     match(CoriumParser::IDENT);
-    setState(41);
+    setState(61);
     match(CoriumParser::LPAREN);
-    setState(42);
+    setState(63);
+    _errHandler->sync(this);
+
+    _la = _input->LA(1);
+    if (_la == CoriumParser::IDENT) {
+      setState(62);
+      parameterList();
+    }
+    setState(65);
     match(CoriumParser::RPAREN);
-    setState(43);
+    setState(66);
     match(CoriumParser::LBRACE);
-    setState(47);
+    setState(70);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == CoriumParser::LET
 
     || _la == CoriumParser::CONST) {
-      setState(44);
+      setState(67);
       functionBlockStatement();
-      setState(49);
+      setState(72);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(50);
+    setState(73);
     match(CoriumParser::RBRACE);
    
   }
@@ -393,7 +507,7 @@ void CoriumParser::FunctionBlockStatementContext::exitRule(tree::ParseTreeListen
 
 CoriumParser::FunctionBlockStatementContext* CoriumParser::functionBlockStatement() {
   FunctionBlockStatementContext *_localctx = _tracker.createInstance<FunctionBlockStatementContext>(_ctx, getState());
-  enterRule(_localctx, 8, CoriumParser::RuleFunctionBlockStatement);
+  enterRule(_localctx, 10, CoriumParser::RuleFunctionBlockStatement);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -403,19 +517,19 @@ CoriumParser::FunctionBlockStatementContext* CoriumParser::functionBlockStatemen
     exitRule();
   });
   try {
-    setState(54);
+    setState(77);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case CoriumParser::LET: {
         enterOuterAlt(_localctx, 1);
-        setState(52);
+        setState(75);
         localVariableDeclaration();
         break;
       }
 
       case CoriumParser::CONST: {
         enterOuterAlt(_localctx, 2);
-        setState(53);
+        setState(76);
         constVariableDeclaration();
         break;
       }
@@ -444,20 +558,16 @@ tree::TerminalNode* CoriumParser::LocalVariableDeclarationContext::LET() {
   return getToken(CoriumParser::LET, 0);
 }
 
+CoriumParser::TypeNameContext* CoriumParser::LocalVariableDeclarationContext::typeName() {
+  return getRuleContext<CoriumParser::TypeNameContext>(0);
+}
+
 tree::TerminalNode* CoriumParser::LocalVariableDeclarationContext::ASSIGN() {
   return getToken(CoriumParser::ASSIGN, 0);
 }
 
 CoriumParser::LiteralContext* CoriumParser::LocalVariableDeclarationContext::literal() {
   return getRuleContext<CoriumParser::LiteralContext>(0);
-}
-
-CoriumParser::BuiltinTypeContext* CoriumParser::LocalVariableDeclarationContext::builtinType() {
-  return getRuleContext<CoriumParser::BuiltinTypeContext>(0);
-}
-
-tree::TerminalNode* CoriumParser::LocalVariableDeclarationContext::IDENT() {
-  return getToken(CoriumParser::IDENT, 0);
 }
 
 
@@ -479,7 +589,7 @@ void CoriumParser::LocalVariableDeclarationContext::exitRule(tree::ParseTreeList
 
 CoriumParser::LocalVariableDeclarationContext* CoriumParser::localVariableDeclaration() {
   LocalVariableDeclarationContext *_localctx = _tracker.createInstance<LocalVariableDeclarationContext>(_ctx, getState());
-  enterRule(_localctx, 10, CoriumParser::RuleLocalVariableDeclaration);
+  enterRule(_localctx, 12, CoriumParser::RuleLocalVariableDeclaration);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -490,33 +600,13 @@ CoriumParser::LocalVariableDeclarationContext* CoriumParser::localVariableDeclar
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(56);
+    setState(79);
     match(CoriumParser::LET);
-    setState(59);
-    _errHandler->sync(this);
-    switch (_input->LA(1)) {
-      case CoriumParser::BOOL:
-      case CoriumParser::CHAR:
-      case CoriumParser::FLOAT:
-      case CoriumParser::INT:
-      case CoriumParser::STRING: {
-        setState(57);
-        builtinType();
-        break;
-      }
-
-      case CoriumParser::IDENT: {
-        setState(58);
-        match(CoriumParser::IDENT);
-        break;
-      }
-
-    default:
-      throw NoViableAltException(this);
-    }
-    setState(61);
+    setState(80);
+    typeName();
+    setState(81);
     match(CoriumParser::ASSIGN);
-    setState(62);
+    setState(82);
     literal();
    
   }
@@ -539,20 +629,16 @@ tree::TerminalNode* CoriumParser::ConstVariableDeclarationContext::CONST() {
   return getToken(CoriumParser::CONST, 0);
 }
 
+CoriumParser::TypeNameContext* CoriumParser::ConstVariableDeclarationContext::typeName() {
+  return getRuleContext<CoriumParser::TypeNameContext>(0);
+}
+
 tree::TerminalNode* CoriumParser::ConstVariableDeclarationContext::ASSIGN() {
   return getToken(CoriumParser::ASSIGN, 0);
 }
 
 CoriumParser::LiteralContext* CoriumParser::ConstVariableDeclarationContext::literal() {
   return getRuleContext<CoriumParser::LiteralContext>(0);
-}
-
-CoriumParser::BuiltinTypeContext* CoriumParser::ConstVariableDeclarationContext::builtinType() {
-  return getRuleContext<CoriumParser::BuiltinTypeContext>(0);
-}
-
-tree::TerminalNode* CoriumParser::ConstVariableDeclarationContext::IDENT() {
-  return getToken(CoriumParser::IDENT, 0);
 }
 
 
@@ -574,7 +660,7 @@ void CoriumParser::ConstVariableDeclarationContext::exitRule(tree::ParseTreeList
 
 CoriumParser::ConstVariableDeclarationContext* CoriumParser::constVariableDeclaration() {
   ConstVariableDeclarationContext *_localctx = _tracker.createInstance<ConstVariableDeclarationContext>(_ctx, getState());
-  enterRule(_localctx, 12, CoriumParser::RuleConstVariableDeclaration);
+  enterRule(_localctx, 14, CoriumParser::RuleConstVariableDeclaration);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -585,9 +671,206 @@ CoriumParser::ConstVariableDeclarationContext* CoriumParser::constVariableDeclar
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(64);
+    setState(84);
     match(CoriumParser::CONST);
-    setState(67);
+    setState(85);
+    typeName();
+    setState(86);
+    match(CoriumParser::ASSIGN);
+    setState(87);
+    literal();
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- ParameterListContext ------------------------------------------------------------------
+
+CoriumParser::ParameterListContext::ParameterListContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+std::vector<CoriumParser::ParameterContext *> CoriumParser::ParameterListContext::parameter() {
+  return getRuleContexts<CoriumParser::ParameterContext>();
+}
+
+CoriumParser::ParameterContext* CoriumParser::ParameterListContext::parameter(size_t i) {
+  return getRuleContext<CoriumParser::ParameterContext>(i);
+}
+
+std::vector<tree::TerminalNode *> CoriumParser::ParameterListContext::COMMA() {
+  return getTokens(CoriumParser::COMMA);
+}
+
+tree::TerminalNode* CoriumParser::ParameterListContext::COMMA(size_t i) {
+  return getToken(CoriumParser::COMMA, i);
+}
+
+
+size_t CoriumParser::ParameterListContext::getRuleIndex() const {
+  return CoriumParser::RuleParameterList;
+}
+
+void CoriumParser::ParameterListContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterParameterList(this);
+}
+
+void CoriumParser::ParameterListContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitParameterList(this);
+}
+
+CoriumParser::ParameterListContext* CoriumParser::parameterList() {
+  ParameterListContext *_localctx = _tracker.createInstance<ParameterListContext>(_ctx, getState());
+  enterRule(_localctx, 16, CoriumParser::RuleParameterList);
+  size_t _la = 0;
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(89);
+    parameter();
+    setState(94);
+    _errHandler->sync(this);
+    _la = _input->LA(1);
+    while (_la == CoriumParser::COMMA) {
+      setState(90);
+      match(CoriumParser::COMMA);
+      setState(91);
+      parameter();
+      setState(96);
+      _errHandler->sync(this);
+      _la = _input->LA(1);
+    }
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- ParameterContext ------------------------------------------------------------------
+
+CoriumParser::ParameterContext::ParameterContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* CoriumParser::ParameterContext::IDENT() {
+  return getToken(CoriumParser::IDENT, 0);
+}
+
+CoriumParser::TypeNameContext* CoriumParser::ParameterContext::typeName() {
+  return getRuleContext<CoriumParser::TypeNameContext>(0);
+}
+
+
+size_t CoriumParser::ParameterContext::getRuleIndex() const {
+  return CoriumParser::RuleParameter;
+}
+
+void CoriumParser::ParameterContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterParameter(this);
+}
+
+void CoriumParser::ParameterContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitParameter(this);
+}
+
+CoriumParser::ParameterContext* CoriumParser::parameter() {
+  ParameterContext *_localctx = _tracker.createInstance<ParameterContext>(_ctx, getState());
+  enterRule(_localctx, 18, CoriumParser::RuleParameter);
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(97);
+    match(CoriumParser::IDENT);
+    setState(98);
+    typeName();
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- TypeNameContext ------------------------------------------------------------------
+
+CoriumParser::TypeNameContext::TypeNameContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+CoriumParser::BuiltinTypeContext* CoriumParser::TypeNameContext::builtinType() {
+  return getRuleContext<CoriumParser::BuiltinTypeContext>(0);
+}
+
+CoriumParser::QualifiedNameContext* CoriumParser::TypeNameContext::qualifiedName() {
+  return getRuleContext<CoriumParser::QualifiedNameContext>(0);
+}
+
+
+size_t CoriumParser::TypeNameContext::getRuleIndex() const {
+  return CoriumParser::RuleTypeName;
+}
+
+void CoriumParser::TypeNameContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterTypeName(this);
+}
+
+void CoriumParser::TypeNameContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitTypeName(this);
+}
+
+CoriumParser::TypeNameContext* CoriumParser::typeName() {
+  TypeNameContext *_localctx = _tracker.createInstance<TypeNameContext>(_ctx, getState());
+  enterRule(_localctx, 20, CoriumParser::RuleTypeName);
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    setState(102);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case CoriumParser::BOOL:
@@ -595,24 +878,182 @@ CoriumParser::ConstVariableDeclarationContext* CoriumParser::constVariableDeclar
       case CoriumParser::FLOAT:
       case CoriumParser::INT:
       case CoriumParser::STRING: {
-        setState(65);
+        enterOuterAlt(_localctx, 1);
+        setState(100);
         builtinType();
         break;
       }
 
       case CoriumParser::IDENT: {
-        setState(66);
-        match(CoriumParser::IDENT);
+        enterOuterAlt(_localctx, 2);
+        setState(101);
+        qualifiedName();
         break;
       }
 
     default:
       throw NoViableAltException(this);
     }
-    setState(69);
-    match(CoriumParser::ASSIGN);
-    setState(70);
-    literal();
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- BuiltinTypeContext ------------------------------------------------------------------
+
+CoriumParser::BuiltinTypeContext::BuiltinTypeContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* CoriumParser::BuiltinTypeContext::INT() {
+  return getToken(CoriumParser::INT, 0);
+}
+
+tree::TerminalNode* CoriumParser::BuiltinTypeContext::FLOAT() {
+  return getToken(CoriumParser::FLOAT, 0);
+}
+
+tree::TerminalNode* CoriumParser::BuiltinTypeContext::CHAR() {
+  return getToken(CoriumParser::CHAR, 0);
+}
+
+tree::TerminalNode* CoriumParser::BuiltinTypeContext::BOOL() {
+  return getToken(CoriumParser::BOOL, 0);
+}
+
+tree::TerminalNode* CoriumParser::BuiltinTypeContext::STRING() {
+  return getToken(CoriumParser::STRING, 0);
+}
+
+
+size_t CoriumParser::BuiltinTypeContext::getRuleIndex() const {
+  return CoriumParser::RuleBuiltinType;
+}
+
+void CoriumParser::BuiltinTypeContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterBuiltinType(this);
+}
+
+void CoriumParser::BuiltinTypeContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitBuiltinType(this);
+}
+
+CoriumParser::BuiltinTypeContext* CoriumParser::builtinType() {
+  BuiltinTypeContext *_localctx = _tracker.createInstance<BuiltinTypeContext>(_ctx, getState());
+  enterRule(_localctx, 22, CoriumParser::RuleBuiltinType);
+  size_t _la = 0;
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(104);
+    _la = _input->LA(1);
+    if (!((((_la & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & ((1ULL << CoriumParser::BOOL)
+      | (1ULL << CoriumParser::CHAR)
+      | (1ULL << CoriumParser::FLOAT)
+      | (1ULL << CoriumParser::INT)
+      | (1ULL << CoriumParser::STRING))) != 0))) {
+    _errHandler->recoverInline(this);
+    }
+    else {
+      _errHandler->reportMatch(this);
+      consume();
+    }
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- QualifiedNameContext ------------------------------------------------------------------
+
+CoriumParser::QualifiedNameContext::QualifiedNameContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+std::vector<tree::TerminalNode *> CoriumParser::QualifiedNameContext::IDENT() {
+  return getTokens(CoriumParser::IDENT);
+}
+
+tree::TerminalNode* CoriumParser::QualifiedNameContext::IDENT(size_t i) {
+  return getToken(CoriumParser::IDENT, i);
+}
+
+std::vector<tree::TerminalNode *> CoriumParser::QualifiedNameContext::DOT() {
+  return getTokens(CoriumParser::DOT);
+}
+
+tree::TerminalNode* CoriumParser::QualifiedNameContext::DOT(size_t i) {
+  return getToken(CoriumParser::DOT, i);
+}
+
+
+size_t CoriumParser::QualifiedNameContext::getRuleIndex() const {
+  return CoriumParser::RuleQualifiedName;
+}
+
+void CoriumParser::QualifiedNameContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterQualifiedName(this);
+}
+
+void CoriumParser::QualifiedNameContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CoriumListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitQualifiedName(this);
+}
+
+CoriumParser::QualifiedNameContext* CoriumParser::qualifiedName() {
+  QualifiedNameContext *_localctx = _tracker.createInstance<QualifiedNameContext>(_ctx, getState());
+  enterRule(_localctx, 24, CoriumParser::RuleQualifiedName);
+  size_t _la = 0;
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(106);
+    match(CoriumParser::IDENT);
+    setState(111);
+    _errHandler->sync(this);
+    _la = _input->LA(1);
+    while (_la == CoriumParser::IDENT) {
+      setState(107);
+      match(CoriumParser::IDENT);
+      setState(108);
+      match(CoriumParser::DOT);
+      setState(113);
+      _errHandler->sync(this);
+      _la = _input->LA(1);
+    }
    
   }
   catch (RecognitionException &e) {
@@ -669,7 +1110,7 @@ void CoriumParser::LiteralContext::exitRule(tree::ParseTreeListener *listener) {
 
 CoriumParser::LiteralContext* CoriumParser::literal() {
   LiteralContext *_localctx = _tracker.createInstance<LiteralContext>(_ctx, getState());
-  enterRule(_localctx, 14, CoriumParser::RuleLiteral);
+  enterRule(_localctx, 26, CoriumParser::RuleLiteral);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -679,7 +1120,7 @@ CoriumParser::LiteralContext* CoriumParser::literal() {
     exitRule();
   });
   try {
-    setState(77);
+    setState(119);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case CoriumParser::INT_LITERAL_DEC:
@@ -687,7 +1128,7 @@ CoriumParser::LiteralContext* CoriumParser::literal() {
       case CoriumParser::INT_LITERAL_OCT:
       case CoriumParser::INT_LITERAL_BIN: {
         enterOuterAlt(_localctx, 1);
-        setState(72);
+        setState(114);
         intLiteral();
         break;
       }
@@ -695,28 +1136,28 @@ CoriumParser::LiteralContext* CoriumParser::literal() {
       case CoriumParser::FLOAT_LITERAL_DEC:
       case CoriumParser::FLOAT_LITERAL_HEX: {
         enterOuterAlt(_localctx, 2);
-        setState(73);
+        setState(115);
         floatLiteral();
         break;
       }
 
       case CoriumParser::BOOL_LITERAL: {
         enterOuterAlt(_localctx, 3);
-        setState(74);
+        setState(116);
         match(CoriumParser::BOOL_LITERAL);
         break;
       }
 
       case CoriumParser::CHAR_LITERAL: {
         enterOuterAlt(_localctx, 4);
-        setState(75);
+        setState(117);
         match(CoriumParser::CHAR_LITERAL);
         break;
       }
 
       case CoriumParser::STRING_LITERAL: {
         enterOuterAlt(_localctx, 5);
-        setState(76);
+        setState(118);
         match(CoriumParser::STRING_LITERAL);
         break;
       }
@@ -776,7 +1217,7 @@ void CoriumParser::IntLiteralContext::exitRule(tree::ParseTreeListener *listener
 
 CoriumParser::IntLiteralContext* CoriumParser::intLiteral() {
   IntLiteralContext *_localctx = _tracker.createInstance<IntLiteralContext>(_ctx, getState());
-  enterRule(_localctx, 16, CoriumParser::RuleIntLiteral);
+  enterRule(_localctx, 28, CoriumParser::RuleIntLiteral);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -788,7 +1229,7 @@ CoriumParser::IntLiteralContext* CoriumParser::intLiteral() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(79);
+    setState(121);
     _la = _input->LA(1);
     if (!((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & ((1ULL << CoriumParser::INT_LITERAL_DEC)
@@ -845,7 +1286,7 @@ void CoriumParser::FloatLiteralContext::exitRule(tree::ParseTreeListener *listen
 
 CoriumParser::FloatLiteralContext* CoriumParser::floatLiteral() {
   FloatLiteralContext *_localctx = _tracker.createInstance<FloatLiteralContext>(_ctx, getState());
-  enterRule(_localctx, 18, CoriumParser::RuleFloatLiteral);
+  enterRule(_localctx, 30, CoriumParser::RuleFloatLiteral);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -857,93 +1298,11 @@ CoriumParser::FloatLiteralContext* CoriumParser::floatLiteral() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(81);
+    setState(123);
     _la = _input->LA(1);
     if (!(_la == CoriumParser::FLOAT_LITERAL_DEC
 
     || _la == CoriumParser::FLOAT_LITERAL_HEX)) {
-    _errHandler->recoverInline(this);
-    }
-    else {
-      _errHandler->reportMatch(this);
-      consume();
-    }
-   
-  }
-  catch (RecognitionException &e) {
-    _errHandler->reportError(this, e);
-    _localctx->exception = std::current_exception();
-    _errHandler->recover(this, _localctx->exception);
-  }
-
-  return _localctx;
-}
-
-//----------------- BuiltinTypeContext ------------------------------------------------------------------
-
-CoriumParser::BuiltinTypeContext::BuiltinTypeContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
-}
-
-tree::TerminalNode* CoriumParser::BuiltinTypeContext::INT() {
-  return getToken(CoriumParser::INT, 0);
-}
-
-tree::TerminalNode* CoriumParser::BuiltinTypeContext::FLOAT() {
-  return getToken(CoriumParser::FLOAT, 0);
-}
-
-tree::TerminalNode* CoriumParser::BuiltinTypeContext::CHAR() {
-  return getToken(CoriumParser::CHAR, 0);
-}
-
-tree::TerminalNode* CoriumParser::BuiltinTypeContext::BOOL() {
-  return getToken(CoriumParser::BOOL, 0);
-}
-
-tree::TerminalNode* CoriumParser::BuiltinTypeContext::STRING() {
-  return getToken(CoriumParser::STRING, 0);
-}
-
-
-size_t CoriumParser::BuiltinTypeContext::getRuleIndex() const {
-  return CoriumParser::RuleBuiltinType;
-}
-
-void CoriumParser::BuiltinTypeContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<CoriumListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterBuiltinType(this);
-}
-
-void CoriumParser::BuiltinTypeContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<CoriumListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitBuiltinType(this);
-}
-
-CoriumParser::BuiltinTypeContext* CoriumParser::builtinType() {
-  BuiltinTypeContext *_localctx = _tracker.createInstance<BuiltinTypeContext>(_ctx, getState());
-  enterRule(_localctx, 20, CoriumParser::RuleBuiltinType);
-  size_t _la = 0;
-
-#if __cplusplus > 201703L
-  auto onExit = finally([=, this] {
-#else
-  auto onExit = finally([=] {
-#endif
-    exitRule();
-  });
-  try {
-    enterOuterAlt(_localctx, 1);
-    setState(83);
-    _la = _input->LA(1);
-    if (!((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & ((1ULL << CoriumParser::BOOL)
-      | (1ULL << CoriumParser::CHAR)
-      | (1ULL << CoriumParser::FLOAT)
-      | (1ULL << CoriumParser::INT)
-      | (1ULL << CoriumParser::STRING))) != 0))) {
     _errHandler->recoverInline(this);
     }
     else {
@@ -970,9 +1329,10 @@ atn::ATN CoriumParser::_atn;
 std::vector<uint16_t> CoriumParser::_serializedATN;
 
 std::vector<std::string> CoriumParser::_ruleNames = {
-  "compilationUnit", "moduleDeclaration", "compilationUnitStatement", "functionDeclaration", 
-  "functionBlockStatement", "localVariableDeclaration", "constVariableDeclaration", 
-  "literal", "intLiteral", "floatLiteral", "builtinType"
+  "compilationUnit", "moduleDeclaration", "compilationUnitStatement", "nativeFunctionDeclaration", 
+  "functionDeclaration", "functionBlockStatement", "localVariableDeclaration", 
+  "constVariableDeclaration", "parameterList", "parameter", "typeName", 
+  "builtinType", "qualifiedName", "literal", "intLiteral", "floatLiteral"
 };
 
 std::vector<std::string> CoriumParser::_literalNames = {
@@ -1011,62 +1371,87 @@ CoriumParser::Initializer::Initializer() {
 
   _serializedATN = {
     0x3, 0x608b, 0xa72a, 0x8133, 0xb9ed, 0x417c, 0x3be7, 0x7786, 0x5964, 
-    0x3, 0x26, 0x58, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
+    0x3, 0x26, 0x80, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
     0x4, 0x4, 0x5, 0x9, 0x5, 0x4, 0x6, 0x9, 0x6, 0x4, 0x7, 0x9, 0x7, 0x4, 
     0x8, 0x9, 0x8, 0x4, 0x9, 0x9, 0x9, 0x4, 0xa, 0x9, 0xa, 0x4, 0xb, 0x9, 
-    0xb, 0x4, 0xc, 0x9, 0xc, 0x3, 0x2, 0x3, 0x2, 0x7, 0x2, 0x1b, 0xa, 0x2, 
-    0xc, 0x2, 0xe, 0x2, 0x1e, 0xb, 0x2, 0x3, 0x2, 0x3, 0x2, 0x3, 0x3, 0x3, 
-    0x3, 0x3, 0x3, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x5, 0x4, 0x28, 0xa, 0x4, 
-    0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x7, 0x5, 
-    0x30, 0xa, 0x5, 0xc, 0x5, 0xe, 0x5, 0x33, 0xb, 0x5, 0x3, 0x5, 0x3, 0x5, 
-    0x3, 0x6, 0x3, 0x6, 0x5, 0x6, 0x39, 0xa, 0x6, 0x3, 0x7, 0x3, 0x7, 0x3, 
-    0x7, 0x5, 0x7, 0x3e, 0xa, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x8, 
-    0x3, 0x8, 0x3, 0x8, 0x5, 0x8, 0x46, 0xa, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 
-    0x8, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x5, 0x9, 0x50, 
-    0xa, 0x9, 0x3, 0xa, 0x3, 0xa, 0x3, 0xb, 0x3, 0xb, 0x3, 0xc, 0x3, 0xc, 
-    0x3, 0xc, 0x2, 0x2, 0xd, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0xe, 0x10, 0x12, 
-    0x14, 0x16, 0x2, 0x5, 0x3, 0x2, 0x10, 0x13, 0x3, 0x2, 0x14, 0x15, 0x4, 
-    0x2, 0x3, 0x5, 0x7, 0x8, 0x2, 0x57, 0x2, 0x18, 0x3, 0x2, 0x2, 0x2, 0x4, 
-    0x21, 0x3, 0x2, 0x2, 0x2, 0x6, 0x27, 0x3, 0x2, 0x2, 0x2, 0x8, 0x29, 
-    0x3, 0x2, 0x2, 0x2, 0xa, 0x38, 0x3, 0x2, 0x2, 0x2, 0xc, 0x3a, 0x3, 0x2, 
-    0x2, 0x2, 0xe, 0x42, 0x3, 0x2, 0x2, 0x2, 0x10, 0x4f, 0x3, 0x2, 0x2, 
-    0x2, 0x12, 0x51, 0x3, 0x2, 0x2, 0x2, 0x14, 0x53, 0x3, 0x2, 0x2, 0x2, 
-    0x16, 0x55, 0x3, 0x2, 0x2, 0x2, 0x18, 0x1c, 0x5, 0x4, 0x3, 0x2, 0x19, 
-    0x1b, 0x5, 0x6, 0x4, 0x2, 0x1a, 0x19, 0x3, 0x2, 0x2, 0x2, 0x1b, 0x1e, 
-    0x3, 0x2, 0x2, 0x2, 0x1c, 0x1a, 0x3, 0x2, 0x2, 0x2, 0x1c, 0x1d, 0x3, 
-    0x2, 0x2, 0x2, 0x1d, 0x1f, 0x3, 0x2, 0x2, 0x2, 0x1e, 0x1c, 0x3, 0x2, 
-    0x2, 0x2, 0x1f, 0x20, 0x7, 0x2, 0x2, 0x3, 0x20, 0x3, 0x3, 0x2, 0x2, 
-    0x2, 0x21, 0x22, 0x7, 0xc, 0x2, 0x2, 0x22, 0x23, 0x7, 0x23, 0x2, 0x2, 
-    0x23, 0x5, 0x3, 0x2, 0x2, 0x2, 0x24, 0x28, 0x5, 0x8, 0x5, 0x2, 0x25, 
-    0x28, 0x5, 0xe, 0x8, 0x2, 0x26, 0x28, 0x7, 0x24, 0x2, 0x2, 0x27, 0x24, 
-    0x3, 0x2, 0x2, 0x2, 0x27, 0x25, 0x3, 0x2, 0x2, 0x2, 0x27, 0x26, 0x3, 
-    0x2, 0x2, 0x2, 0x28, 0x7, 0x3, 0x2, 0x2, 0x2, 0x29, 0x2a, 0x7, 0x6, 
-    0x2, 0x2, 0x2a, 0x2b, 0x7, 0x23, 0x2, 0x2, 0x2b, 0x2c, 0x7, 0x19, 0x2, 
-    0x2, 0x2c, 0x2d, 0x7, 0x1a, 0x2, 0x2, 0x2d, 0x31, 0x7, 0x1b, 0x2, 0x2, 
-    0x2e, 0x30, 0x5, 0xa, 0x6, 0x2, 0x2f, 0x2e, 0x3, 0x2, 0x2, 0x2, 0x30, 
-    0x33, 0x3, 0x2, 0x2, 0x2, 0x31, 0x2f, 0x3, 0x2, 0x2, 0x2, 0x31, 0x32, 
-    0x3, 0x2, 0x2, 0x2, 0x32, 0x34, 0x3, 0x2, 0x2, 0x2, 0x33, 0x31, 0x3, 
-    0x2, 0x2, 0x2, 0x34, 0x35, 0x7, 0x1c, 0x2, 0x2, 0x35, 0x9, 0x3, 0x2, 
-    0x2, 0x2, 0x36, 0x39, 0x5, 0xc, 0x7, 0x2, 0x37, 0x39, 0x5, 0xe, 0x8, 
-    0x2, 0x38, 0x36, 0x3, 0x2, 0x2, 0x2, 0x38, 0x37, 0x3, 0x2, 0x2, 0x2, 
-    0x39, 0xb, 0x3, 0x2, 0x2, 0x2, 0x3a, 0x3d, 0x7, 0x9, 0x2, 0x2, 0x3b, 
-    0x3e, 0x5, 0x16, 0xc, 0x2, 0x3c, 0x3e, 0x7, 0x23, 0x2, 0x2, 0x3d, 0x3b, 
-    0x3, 0x2, 0x2, 0x2, 0x3d, 0x3c, 0x3, 0x2, 0x2, 0x2, 0x3e, 0x3f, 0x3, 
-    0x2, 0x2, 0x2, 0x3f, 0x40, 0x7, 0x22, 0x2, 0x2, 0x40, 0x41, 0x5, 0x10, 
-    0x9, 0x2, 0x41, 0xd, 0x3, 0x2, 0x2, 0x2, 0x42, 0x45, 0x7, 0xb, 0x2, 
-    0x2, 0x43, 0x46, 0x5, 0x16, 0xc, 0x2, 0x44, 0x46, 0x7, 0x23, 0x2, 0x2, 
-    0x45, 0x43, 0x3, 0x2, 0x2, 0x2, 0x45, 0x44, 0x3, 0x2, 0x2, 0x2, 0x46, 
-    0x47, 0x3, 0x2, 0x2, 0x2, 0x47, 0x48, 0x7, 0x22, 0x2, 0x2, 0x48, 0x49, 
-    0x5, 0x10, 0x9, 0x2, 0x49, 0xf, 0x3, 0x2, 0x2, 0x2, 0x4a, 0x50, 0x5, 
-    0x12, 0xa, 0x2, 0x4b, 0x50, 0x5, 0x14, 0xb, 0x2, 0x4c, 0x50, 0x7, 0x16, 
-    0x2, 0x2, 0x4d, 0x50, 0x7, 0x17, 0x2, 0x2, 0x4e, 0x50, 0x7, 0x18, 0x2, 
-    0x2, 0x4f, 0x4a, 0x3, 0x2, 0x2, 0x2, 0x4f, 0x4b, 0x3, 0x2, 0x2, 0x2, 
-    0x4f, 0x4c, 0x3, 0x2, 0x2, 0x2, 0x4f, 0x4d, 0x3, 0x2, 0x2, 0x2, 0x4f, 
-    0x4e, 0x3, 0x2, 0x2, 0x2, 0x50, 0x11, 0x3, 0x2, 0x2, 0x2, 0x51, 0x52, 
-    0x9, 0x2, 0x2, 0x2, 0x52, 0x13, 0x3, 0x2, 0x2, 0x2, 0x53, 0x54, 0x9, 
-    0x3, 0x2, 0x2, 0x54, 0x15, 0x3, 0x2, 0x2, 0x2, 0x55, 0x56, 0x9, 0x4, 
-    0x2, 0x2, 0x56, 0x17, 0x3, 0x2, 0x2, 0x2, 0x9, 0x1c, 0x27, 0x31, 0x38, 
-    0x3d, 0x45, 0x4f, 
+    0xb, 0x4, 0xc, 0x9, 0xc, 0x4, 0xd, 0x9, 0xd, 0x4, 0xe, 0x9, 0xe, 0x4, 
+    0xf, 0x9, 0xf, 0x4, 0x10, 0x9, 0x10, 0x4, 0x11, 0x9, 0x11, 0x3, 0x2, 
+    0x3, 0x2, 0x7, 0x2, 0x25, 0xa, 0x2, 0xc, 0x2, 0xe, 0x2, 0x28, 0xb, 0x2, 
+    0x3, 0x2, 0x3, 0x2, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x4, 0x3, 0x4, 
+    0x3, 0x4, 0x3, 0x4, 0x5, 0x4, 0x33, 0xa, 0x4, 0x3, 0x5, 0x3, 0x5, 0x3, 
+    0x5, 0x3, 0x5, 0x3, 0x5, 0x5, 0x5, 0x3a, 0xa, 0x5, 0x3, 0x5, 0x3, 0x5, 
+    0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x5, 0x6, 0x42, 0xa, 0x6, 0x3, 
+    0x6, 0x3, 0x6, 0x3, 0x6, 0x7, 0x6, 0x47, 0xa, 0x6, 0xc, 0x6, 0xe, 0x6, 
+    0x4a, 0xb, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x7, 0x3, 0x7, 0x5, 0x7, 0x50, 
+    0xa, 0x7, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 0x9, 
+    0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 
+    0x7, 0xa, 0x5f, 0xa, 0xa, 0xc, 0xa, 0xe, 0xa, 0x62, 0xb, 0xa, 0x3, 0xb, 
+    0x3, 0xb, 0x3, 0xb, 0x3, 0xc, 0x3, 0xc, 0x5, 0xc, 0x69, 0xa, 0xc, 0x3, 
+    0xd, 0x3, 0xd, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x7, 0xe, 0x70, 0xa, 0xe, 
+    0xc, 0xe, 0xe, 0xe, 0x73, 0xb, 0xe, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 
+    0xf, 0x3, 0xf, 0x5, 0xf, 0x7a, 0xa, 0xf, 0x3, 0x10, 0x3, 0x10, 0x3, 
+    0x11, 0x3, 0x11, 0x3, 0x11, 0x2, 0x2, 0x12, 0x2, 0x4, 0x6, 0x8, 0xa, 
+    0xc, 0xe, 0x10, 0x12, 0x14, 0x16, 0x18, 0x1a, 0x1c, 0x1e, 0x20, 0x2, 
+    0x5, 0x4, 0x2, 0x3, 0x5, 0x7, 0x8, 0x3, 0x2, 0x10, 0x13, 0x3, 0x2, 0x14, 
+    0x15, 0x2, 0x7e, 0x2, 0x22, 0x3, 0x2, 0x2, 0x2, 0x4, 0x2b, 0x3, 0x2, 
+    0x2, 0x2, 0x6, 0x32, 0x3, 0x2, 0x2, 0x2, 0x8, 0x34, 0x3, 0x2, 0x2, 0x2, 
+    0xa, 0x3d, 0x3, 0x2, 0x2, 0x2, 0xc, 0x4f, 0x3, 0x2, 0x2, 0x2, 0xe, 0x51, 
+    0x3, 0x2, 0x2, 0x2, 0x10, 0x56, 0x3, 0x2, 0x2, 0x2, 0x12, 0x5b, 0x3, 
+    0x2, 0x2, 0x2, 0x14, 0x63, 0x3, 0x2, 0x2, 0x2, 0x16, 0x68, 0x3, 0x2, 
+    0x2, 0x2, 0x18, 0x6a, 0x3, 0x2, 0x2, 0x2, 0x1a, 0x6c, 0x3, 0x2, 0x2, 
+    0x2, 0x1c, 0x79, 0x3, 0x2, 0x2, 0x2, 0x1e, 0x7b, 0x3, 0x2, 0x2, 0x2, 
+    0x20, 0x7d, 0x3, 0x2, 0x2, 0x2, 0x22, 0x26, 0x5, 0x4, 0x3, 0x2, 0x23, 
+    0x25, 0x5, 0x6, 0x4, 0x2, 0x24, 0x23, 0x3, 0x2, 0x2, 0x2, 0x25, 0x28, 
+    0x3, 0x2, 0x2, 0x2, 0x26, 0x24, 0x3, 0x2, 0x2, 0x2, 0x26, 0x27, 0x3, 
+    0x2, 0x2, 0x2, 0x27, 0x29, 0x3, 0x2, 0x2, 0x2, 0x28, 0x26, 0x3, 0x2, 
+    0x2, 0x2, 0x29, 0x2a, 0x7, 0x2, 0x2, 0x3, 0x2a, 0x3, 0x3, 0x2, 0x2, 
+    0x2, 0x2b, 0x2c, 0x7, 0xc, 0x2, 0x2, 0x2c, 0x2d, 0x5, 0x1a, 0xe, 0x2, 
+    0x2d, 0x5, 0x3, 0x2, 0x2, 0x2, 0x2e, 0x33, 0x5, 0xa, 0x6, 0x2, 0x2f, 
+    0x33, 0x5, 0x8, 0x5, 0x2, 0x30, 0x33, 0x5, 0x10, 0x9, 0x2, 0x31, 0x33, 
+    0x7, 0x24, 0x2, 0x2, 0x32, 0x2e, 0x3, 0x2, 0x2, 0x2, 0x32, 0x2f, 0x3, 
+    0x2, 0x2, 0x2, 0x32, 0x30, 0x3, 0x2, 0x2, 0x2, 0x32, 0x31, 0x3, 0x2, 
+    0x2, 0x2, 0x33, 0x7, 0x3, 0x2, 0x2, 0x2, 0x34, 0x35, 0x7, 0xa, 0x2, 
+    0x2, 0x35, 0x36, 0x7, 0x6, 0x2, 0x2, 0x36, 0x37, 0x7, 0x23, 0x2, 0x2, 
+    0x37, 0x39, 0x7, 0x19, 0x2, 0x2, 0x38, 0x3a, 0x5, 0x12, 0xa, 0x2, 0x39, 
+    0x38, 0x3, 0x2, 0x2, 0x2, 0x39, 0x3a, 0x3, 0x2, 0x2, 0x2, 0x3a, 0x3b, 
+    0x3, 0x2, 0x2, 0x2, 0x3b, 0x3c, 0x7, 0x1a, 0x2, 0x2, 0x3c, 0x9, 0x3, 
+    0x2, 0x2, 0x2, 0x3d, 0x3e, 0x7, 0x6, 0x2, 0x2, 0x3e, 0x3f, 0x7, 0x23, 
+    0x2, 0x2, 0x3f, 0x41, 0x7, 0x19, 0x2, 0x2, 0x40, 0x42, 0x5, 0x12, 0xa, 
+    0x2, 0x41, 0x40, 0x3, 0x2, 0x2, 0x2, 0x41, 0x42, 0x3, 0x2, 0x2, 0x2, 
+    0x42, 0x43, 0x3, 0x2, 0x2, 0x2, 0x43, 0x44, 0x7, 0x1a, 0x2, 0x2, 0x44, 
+    0x48, 0x7, 0x1b, 0x2, 0x2, 0x45, 0x47, 0x5, 0xc, 0x7, 0x2, 0x46, 0x45, 
+    0x3, 0x2, 0x2, 0x2, 0x47, 0x4a, 0x3, 0x2, 0x2, 0x2, 0x48, 0x46, 0x3, 
+    0x2, 0x2, 0x2, 0x48, 0x49, 0x3, 0x2, 0x2, 0x2, 0x49, 0x4b, 0x3, 0x2, 
+    0x2, 0x2, 0x4a, 0x48, 0x3, 0x2, 0x2, 0x2, 0x4b, 0x4c, 0x7, 0x1c, 0x2, 
+    0x2, 0x4c, 0xb, 0x3, 0x2, 0x2, 0x2, 0x4d, 0x50, 0x5, 0xe, 0x8, 0x2, 
+    0x4e, 0x50, 0x5, 0x10, 0x9, 0x2, 0x4f, 0x4d, 0x3, 0x2, 0x2, 0x2, 0x4f, 
+    0x4e, 0x3, 0x2, 0x2, 0x2, 0x50, 0xd, 0x3, 0x2, 0x2, 0x2, 0x51, 0x52, 
+    0x7, 0x9, 0x2, 0x2, 0x52, 0x53, 0x5, 0x16, 0xc, 0x2, 0x53, 0x54, 0x7, 
+    0x22, 0x2, 0x2, 0x54, 0x55, 0x5, 0x1c, 0xf, 0x2, 0x55, 0xf, 0x3, 0x2, 
+    0x2, 0x2, 0x56, 0x57, 0x7, 0xb, 0x2, 0x2, 0x57, 0x58, 0x5, 0x16, 0xc, 
+    0x2, 0x58, 0x59, 0x7, 0x22, 0x2, 0x2, 0x59, 0x5a, 0x5, 0x1c, 0xf, 0x2, 
+    0x5a, 0x11, 0x3, 0x2, 0x2, 0x2, 0x5b, 0x60, 0x5, 0x14, 0xb, 0x2, 0x5c, 
+    0x5d, 0x7, 0x20, 0x2, 0x2, 0x5d, 0x5f, 0x5, 0x14, 0xb, 0x2, 0x5e, 0x5c, 
+    0x3, 0x2, 0x2, 0x2, 0x5f, 0x62, 0x3, 0x2, 0x2, 0x2, 0x60, 0x5e, 0x3, 
+    0x2, 0x2, 0x2, 0x60, 0x61, 0x3, 0x2, 0x2, 0x2, 0x61, 0x13, 0x3, 0x2, 
+    0x2, 0x2, 0x62, 0x60, 0x3, 0x2, 0x2, 0x2, 0x63, 0x64, 0x7, 0x23, 0x2, 
+    0x2, 0x64, 0x65, 0x5, 0x16, 0xc, 0x2, 0x65, 0x15, 0x3, 0x2, 0x2, 0x2, 
+    0x66, 0x69, 0x5, 0x18, 0xd, 0x2, 0x67, 0x69, 0x5, 0x1a, 0xe, 0x2, 0x68, 
+    0x66, 0x3, 0x2, 0x2, 0x2, 0x68, 0x67, 0x3, 0x2, 0x2, 0x2, 0x69, 0x17, 
+    0x3, 0x2, 0x2, 0x2, 0x6a, 0x6b, 0x9, 0x2, 0x2, 0x2, 0x6b, 0x19, 0x3, 
+    0x2, 0x2, 0x2, 0x6c, 0x71, 0x7, 0x23, 0x2, 0x2, 0x6d, 0x6e, 0x7, 0x23, 
+    0x2, 0x2, 0x6e, 0x70, 0x7, 0x21, 0x2, 0x2, 0x6f, 0x6d, 0x3, 0x2, 0x2, 
+    0x2, 0x70, 0x73, 0x3, 0x2, 0x2, 0x2, 0x71, 0x6f, 0x3, 0x2, 0x2, 0x2, 
+    0x71, 0x72, 0x3, 0x2, 0x2, 0x2, 0x72, 0x1b, 0x3, 0x2, 0x2, 0x2, 0x73, 
+    0x71, 0x3, 0x2, 0x2, 0x2, 0x74, 0x7a, 0x5, 0x1e, 0x10, 0x2, 0x75, 0x7a, 
+    0x5, 0x20, 0x11, 0x2, 0x76, 0x7a, 0x7, 0x16, 0x2, 0x2, 0x77, 0x7a, 0x7, 
+    0x17, 0x2, 0x2, 0x78, 0x7a, 0x7, 0x18, 0x2, 0x2, 0x79, 0x74, 0x3, 0x2, 
+    0x2, 0x2, 0x79, 0x75, 0x3, 0x2, 0x2, 0x2, 0x79, 0x76, 0x3, 0x2, 0x2, 
+    0x2, 0x79, 0x77, 0x3, 0x2, 0x2, 0x2, 0x79, 0x78, 0x3, 0x2, 0x2, 0x2, 
+    0x7a, 0x1d, 0x3, 0x2, 0x2, 0x2, 0x7b, 0x7c, 0x9, 0x3, 0x2, 0x2, 0x7c, 
+    0x1f, 0x3, 0x2, 0x2, 0x2, 0x7d, 0x7e, 0x9, 0x4, 0x2, 0x2, 0x7e, 0x21, 
+    0x3, 0x2, 0x2, 0x2, 0xc, 0x26, 0x32, 0x39, 0x41, 0x48, 0x4f, 0x60, 0x68, 
+    0x71, 0x79, 
   };
 
   atn::ATNDeserializer deserializer;

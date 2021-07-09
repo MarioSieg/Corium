@@ -66,38 +66,104 @@ fragment Digits:            [0-9] ([0-9_]* [0-9])?;
 fragment LetterOrDigit:     Letter | [0-9] | '_';
 fragment Letter:            [a-zA-Z];
 
-compilationUnit: moduleDeclaration compilationUnitStatement* EOF;
+compilationUnit:
+    moduleDeclaration
+    compilationUnitStatement*
+    EOF
+    ;
 
-moduleDeclaration: MODULE IDENT;
+moduleDeclaration:
+    MODULE
+    qualifiedName
+    ;
 
-compilationUnitStatement: functionDeclaration | constVariableDeclaration | SPACE;
+compilationUnitStatement:
+    functionDeclaration |
+    nativeFunctionDeclaration |
+    constVariableDeclaration |
+    SPACE
+    ;
 
-functionDeclaration: FUN IDENT LPAREN RPAREN LBRACE functionBlockStatement* RBRACE;
-functionBlockStatement: localVariableDeclaration | constVariableDeclaration;
+nativeFunctionDeclaration:
+    NATIVE
+    FUN
+    IDENT
+    LPAREN
+    parameterList?
+    RPAREN
+    ;
 
-localVariableDeclaration: LET (builtinType | IDENT) ASSIGN literal;
-constVariableDeclaration: CONST (builtinType | IDENT) ASSIGN literal;
+functionDeclaration:
+    FUN
+    IDENT
+    LPAREN
+    parameterList?
+    RPAREN
+    LBRACE
+    functionBlockStatement*
+    RBRACE
+    ;
 
-literal:
-    intLiteral |
-    floatLiteral |
-    BOOL_LITERAL |
-    CHAR_LITERAL |
-    STRING_LITERAL;
+functionBlockStatement:
+    localVariableDeclaration |
+    constVariableDeclaration
+    ;
 
-intLiteral:
-    INT_LITERAL_DEC |
-    INT_LITERAL_HEX |
-    INT_LITERAL_OCT |
-    INT_LITERAL_BIN;
+localVariableDeclaration:
+    LET typeName
+    ASSIGN
+    literal
+    ;
 
-floatLiteral:
-    FLOAT_LITERAL_DEC |
-    FLOAT_LITERAL_HEX;
+constVariableDeclaration:
+    CONST typeName
+    ASSIGN
+    literal
+    ;
+
+parameterList:
+    parameter
+    (COMMA parameter)*
+    ;
+
+parameter:
+    IDENT
+    typeName;
+
+typeName:
+    builtinType |
+    qualifiedName
+    ;
 
 builtinType:
     INT |
     FLOAT |
     CHAR |
     BOOL|
-    STRING;
+    STRING
+    ;
+
+qualifiedName:
+    IDENT
+    (IDENT DOT)*
+    ;
+
+literal:
+    intLiteral |
+    floatLiteral |
+    BOOL_LITERAL |
+    CHAR_LITERAL |
+    STRING_LITERAL
+    ;
+
+intLiteral:
+    INT_LITERAL_DEC |
+    INT_LITERAL_HEX |
+    INT_LITERAL_OCT |
+    INT_LITERAL_BIN
+    ;
+
+floatLiteral:
+    FLOAT_LITERAL_DEC |
+    FLOAT_LITERAL_HEX
+    ;

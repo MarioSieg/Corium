@@ -2,8 +2,18 @@ module ParseTest
 
 const Year = 2021
 
+native fun exit()
+
+fun f(x float) {
+
+}
+
+fun pow(x float, v float) {
+
+}
+
 # main function:
-fun Main ()
-{
+fun Main () {
     let years = 10
+    const name = "Mario"
 }
