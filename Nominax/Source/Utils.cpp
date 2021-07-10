@@ -352,7 +352,6 @@ auto formatter<DiscriminatedSignal, char, void>::format
 			return format_to(ctx.out(), NOX_LEX_TYPE_UIC " " NOX_LEX_IMM "{}",
 			                 static_cast<std::underlying_type_t<JumpAddress>>(value.Value.JmpAddress));
 
-		default:
 		case Dis::Ptr:
 			return format_to(ctx.out(), NOX_LEX_TYPE_CC4 " " NOX_LEX_IMM "{:X}", value.Value.R64.AsU64);
 	}

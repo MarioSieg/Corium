@@ -391,12 +391,19 @@ namespace Nominax
 	#define NOX_REACTOR_ASM_MARKERS NOX_DEBUG
 
 	/// <summary>
-	///
+	/// Dump allocations.
 	/// </summary>
 	#define NOX_VERBOSE_ALLOCATOR NOX_DEBUG
 
-
+	/// <summary>
+	/// Use a slower but more correct floating point comparison algorithm.
+	/// </summary>
 	#define NOX_OPT_USE_ZERO_EPSILON NOX_DEBUG
+
+	/// <summary>
+	/// Insert instruction markers into the VM reactor assembly code.
+	/// </summary>
+	#define NOX_REACTOR_ASM_MARKERS NOX_DEBUG
 
 	/// <summary>
 	/// If enabled, the jump table addresses are directly mapped as pointers into the byte-code signals.
@@ -418,12 +425,46 @@ namespace Nominax
 	/// </summary>
 	#define NOX_HOT                             __attribute__((hot))
 
+	#if NOX_COM_GCC
+
+		/// <summary>
+		/// Marks a hot label.
+		/// Hot paths are optimized more and get a better code layout.
+		/// </summary>
+		#define NOX_HOT_LABEL NOX_HOT
+
+	#else
+
+		/// <summary>
+		/// Marks a hot label.
+		/// Hot paths are optimized more and get a better code layout.
+		/// </summary>
+		#define NOX_HOT_LABEL
+		
+	#endif
+
 	/// <summary>
 	/// Marks a cold function.
 	/// Cold path functions are optimized less and get worse code layout,
 	/// but make more space for hot functions.
 	/// </summary>
 	#define NOX_COLD                            __attribute__((cold))
+
+	#if NOX_COM_GCC
+
+	/// <summary>
+	/// Marks a cold label.
+	/// </summary>
+	#define NOX_COLD_LABEL NOX_COLD
+
+	#else
+
+	/// <summary>
+	/// Marks cold label.
+	/// </summary>
+	#define NOX_COLD_LABEL
+
+	#endif
 
 	/// <summary>
 	/// Always inline this function.
@@ -616,7 +657,7 @@ namespace Nominax::Foundation
 		}
 		sign <<= 31;
 		exp <<= 23;
-		return sign | exp | man;
+		return static_cast<F32>(sign | exp | man);
 	}
 
 	/// <summary>

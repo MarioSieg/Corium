@@ -215,4 +215,3 @@ Asm_IsAvxSupportedByOs:
     cmpb    $0b00000110, %al        # compare value
     seteb   %al                     # if equals & supported, set al to 1 else 0
     retq                            # return
-    

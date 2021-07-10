@@ -232,7 +232,6 @@ namespace Nominax::Assembler::X86_64
 		/// </summary>
 		extern "C" auto Asm_VmWareDetector() -> bool;
 
-
 		/// <summary>
 		/// Contains merged info table.
 		/// One 64-bit instance contains two 32-bit info tables.
@@ -241,7 +240,7 @@ namespace Nominax::Assembler::X86_64
 		{
 			U64 Merged { };
 
-			struct
+			struct Extracted final
 			{
 				U32 Table1;
 				U32 Table2;

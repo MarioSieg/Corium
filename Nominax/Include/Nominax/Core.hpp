@@ -3369,62 +3369,6 @@ namespace Nominax::Core
 
 	static_assert(sizeof(Vector512) == 64);
 
-	#if NOX_ARCH_X86_64
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using GprRegisterLane = std::array<U64, 16>;
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using VectorRegisterLane128 = std::array<Vector128, 16>;
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using VectorRegisterLane256 = std::array<Vector256, 16>;
-
-	/// <summary>
-	/// Read and dump all the register values into the stream.
-	/// </summary>
-	/// <param name="out"></param>
-	/// <param name="gpr"></param>
-	/// <param name="xmm"></param>
-	/// <param name="ymm"></param>
-	/// <param name="zmm"></param>
-	/// <returns></returns>
-	extern auto RegisterDump_X86_64
-	(
-		std::ostream&                out,
-		const GprRegisterLane&       gpr,
-		const VectorRegisterLane128& xmm,
-		const VectorRegisterLane256& ymm
-	) -> void;
-
-	#elif NOX_ARCH_ARM_64
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using GprRegisterLane = std::array<U64, 16>;
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using VectorRegisterLane128 = std::array<Vector128, 16>;
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using VectorRegisterLane256 = std::array<Vector256, 1>;
-
-#	error "Not yet implemented!"
-	#else
-#	error "Unknown arch!"
-	#endif
-
 	/// <summary>
 	/// Task routine function.
 	/// </summary>

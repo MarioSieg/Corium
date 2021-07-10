@@ -255,8 +255,8 @@ namespace Nominax::Core
 	 * These should be disabled when building for release.
 	 * Asm volatile is like a black box and never touched by the compiler so it might affect code generation/ordering!
 	 */
-	#if NOMINAX_REACTOR_ASM_MARKERS
-#	define ASM_MARKER(msg) __asm__ __volatile__("#" msg)
+	#if NOX_REACTOR_ASM_MARKERS
+	#	define ASM_MARKER(msg) __asm__ __volatile__("#" msg)
 	#else
 	#	define ASM_MARKER(msg)
 	#endif
@@ -338,250 +338,252 @@ namespace Nominax::Core
 		**(jumpTable + id);
 
 	__cos__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::cos((*sp).AsF64);
 
 		return;
 
 	__sin__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::sin((*sp).AsF64);
 
 		return;
 
 	__tan__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::tan((*sp).AsF64);
 
 		return;
 
-	__acos__: NOX_HOT;
+	__acos__:
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::acos((*sp).AsF64);
 
 		return;
 
 	__asin__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::asin((*sp).AsF64);
 
 		return;
 
 	__atan__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::atan((*sp).AsF64);
 
 		return;
 
 	__atan2__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*(sp - 1)).AsF64 = std::atan2((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__cosh__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::cosh((*sp).AsF64);
 
 		return;
 
 	__sinh__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::sinh((*sp).AsF64);
 
 		return;
 
 	__tanh__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::tanh((*sp).AsF64);
 
 		return;
 
 	__acosh__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::acosh((*sp).AsF64);
 
 		return;
 
 	__asinh__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::asinh((*sp).AsF64);
 
 		return;
 
 	__atanh__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::atanh((*sp).AsF64);
 
 		return;
 
 	__exp__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::exp((*sp).AsF64);
 
 		return;
 
 	__log__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::log((*sp).AsF64);
 
 		return;
 
 	__log10__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::log10((*sp).AsF64);
 
 		return;
 
 	__exp2__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::exp2((*sp).AsF64);
 
 		return;
 
-	__ilogb__: NOX_HOT;
+	__ilogb__:
+		NOX_HOT_LABEL;
 
 		(*sp).AsI64 = std::ilogb((*sp).AsF64);
 
 		return;
 
 	__log2__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::log2((*sp).AsF64);
 
 		return;
 
 	__pow__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*(sp - 1)).AsF64 = std::pow((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__sqrt__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::sqrt((*sp).AsF64);
 
 		return;
 
 	__cbrt__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::cbrt((*sp).AsF64);
 
 		return;
 
 	__hypot__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*(sp - 1)).AsF64 = std::hypot((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__ceil__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::ceil((*sp).AsF64);
 
 		return;
 
 	__floor__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::floor((*sp).AsF64);
 
 		return;
 
 	__round__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::round((*sp).AsF64);
 
 		return;
 
 	__rint__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::rint((*sp).AsF64);
 
 		return;
 
 	__max__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*(sp - 1)).AsI64 = std::max((*(sp - 1)).AsI64, (*sp).AsI64);
 
 		return;
 
 	__min__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*(sp - 1)).AsI64 = std::min((*(sp - 1)).AsI64, (*sp).AsI64);
 
 		return;
 
 	__fmax__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*(sp - 1)).AsF64 = std::max((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__fmin__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*(sp - 1)).AsF64 = std::min((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__fdim__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*(sp - 1)).AsF64 = std::fdim((*(sp - 1)).AsF64, (*sp).AsF64);
 
 		return;
 
 	__abs__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsI64 = std::abs((*sp).AsI64);
 
 		return;
 
 	__fabs__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 
 		(*sp).AsF64 = std::abs((*sp).AsF64);
 
 		return;
-
+		
 	__io_port_write_cluster__:
-		NOX_HOT;
+		NOX_COLD_LABEL;
 
 		std::fwrite(sp, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdout);
 
 		return;
 
 	__io_port_read_cluster__:
-		NOX_HOT;
+		NOX_COLD_LABEL;
 		{
 			// this reads until space, but we want to read until newline (at the moment):
 			// fread(&sp->AsUtf8, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
@@ -591,7 +593,7 @@ namespace Nominax::Core
 		return;
 
 	__io_port_flush__:
-		NOX_HOT;
+		NOX_COLD_LABEL;
 
 		std::fflush(stdout);
 
@@ -604,8 +606,6 @@ namespace Nominax::Core
 		const void****                  outJumpTable
 	) -> ReactorShutdownReason
 	{
-		const auto pre = std::chrono::high_resolution_clock::now();
-
 		static constexpr std::array<const void*NOX_RESTRICT const, static_cast<std::underlying_type_t<Instruction>>(
 			                            Instruction::$Count)> JUMP_TABLE
 		{
@@ -717,6 +717,8 @@ namespace Nominax::Core
 		}
 		#endif
 
+		const auto pre = std::chrono::high_resolution_clock::now();
+
 		ASM_MARKER("reactor locals");
 
 		[[maybe_unused]]
@@ -755,7 +757,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 	__int__:
-		NOX_COLD;
+		NOX_COLD_LABEL;
 		{
 			ASM_MARKER("__int__");
 
@@ -772,7 +774,7 @@ namespace Nominax::Core
 
 
 	__intrin__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__intrin__");
 
 		SyscallIntrin(sp, (*++ip).R64.AsU64); // syscall(sp, imm())
@@ -782,7 +784,7 @@ namespace Nominax::Core
 
 
 	__cintrin__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		BreakpointInterrupt();
 		ASM_MARKER("__cintrin__");
 
@@ -793,7 +795,7 @@ namespace Nominax::Core
 
 
 	__call__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__call__");
 
@@ -808,7 +810,7 @@ namespace Nominax::Core
 
 
 	__ret__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__ret__");
 
@@ -820,7 +822,7 @@ namespace Nominax::Core
 
 
 	__mov__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__mov__");
 
@@ -832,7 +834,7 @@ namespace Nominax::Core
 
 
 	__sto__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__sto__");
 
@@ -844,7 +846,7 @@ namespace Nominax::Core
 
 
 	__push__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__push__");
 
 		*++sp = (*++ip).R64; // push(imm())
@@ -854,7 +856,7 @@ namespace Nominax::Core
 
 
 	__pop__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__pop__");
 
 		--sp;
@@ -864,7 +866,7 @@ namespace Nominax::Core
 
 
 	__pop2__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__pop2__");
 
 		sp -= 2;
@@ -874,7 +876,7 @@ namespace Nominax::Core
 
 
 	__dupl__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__dupl__");
 			const auto top {*sp}; // peek()
@@ -885,7 +887,7 @@ namespace Nominax::Core
 
 
 	__dupl2__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__dupl2__");
 
@@ -898,7 +900,7 @@ namespace Nominax::Core
 
 
 	__swap__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__swap__");
 
@@ -911,7 +913,7 @@ namespace Nominax::Core
 
 
 	__nop__:
-		NOX_COLD;
+		NOX_COLD_LABEL;
 		ASM_MARKER("__nop__");
 
 		NoOperation();
@@ -921,7 +923,7 @@ namespace Nominax::Core
 
 
 	__jmp__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jmp__");
 
@@ -937,7 +939,7 @@ namespace Nominax::Core
 
 
 	__jmprel__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jmprel__");
 
@@ -953,7 +955,7 @@ namespace Nominax::Core
 
 
 	__jz__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jz__");
 
@@ -968,7 +970,7 @@ namespace Nominax::Core
 
 
 	__jnz__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jnz__");
 
@@ -983,7 +985,7 @@ namespace Nominax::Core
 
 
 	__jo_cmpi__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jo_cmpi__");
 
@@ -999,7 +1001,7 @@ namespace Nominax::Core
 
 
 	__jo_cmpf__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jo_cmpf__");
 
@@ -1015,7 +1017,7 @@ namespace Nominax::Core
 
 
 	__jno_cmpi__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jno_cmpi__");
 
@@ -1031,7 +1033,7 @@ namespace Nominax::Core
 
 
 	__jno_cmpf__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jno_cmpf__");
 
@@ -1047,7 +1049,7 @@ namespace Nominax::Core
 
 
 	__je_cmpi__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__je_cmpi__");
 
@@ -1064,7 +1066,7 @@ namespace Nominax::Core
 
 
 	__je_cmpf__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__je_cmpf__");
 
@@ -1081,7 +1083,7 @@ namespace Nominax::Core
 
 
 	__jne_cmpi__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jne_cmpi__");
 
@@ -1098,7 +1100,7 @@ namespace Nominax::Core
 
 
 	__jne_cmpf__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jne_cmpf__");
 
@@ -1115,7 +1117,7 @@ namespace Nominax::Core
 
 
 	__ja_cmpi__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__ja_cmpi__");
 
@@ -1132,7 +1134,7 @@ namespace Nominax::Core
 
 
 	__ja_cmpf__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__ja_cmpf__");
 
@@ -1149,7 +1151,7 @@ namespace Nominax::Core
 
 
 	__jl_cmpi__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jl_cmpi__");
 
@@ -1166,7 +1168,7 @@ namespace Nominax::Core
 
 
 	__jl_cmpf__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jl_cmpf__");
 
@@ -1183,7 +1185,7 @@ namespace Nominax::Core
 
 
 	__jae_cmpi__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jae_cmpi__");
 
@@ -1200,7 +1202,7 @@ namespace Nominax::Core
 
 
 	__jae_cmpf__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jae_cmpf__");
 
@@ -1217,7 +1219,7 @@ namespace Nominax::Core
 
 
 	__jle_cmpi__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jle_cmpi__");
 
@@ -1234,7 +1236,7 @@ namespace Nominax::Core
 
 
 	__jle_cmpf__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jle_cmpf__");
 
@@ -1251,7 +1253,7 @@ namespace Nominax::Core
 
 
 	__ipushz__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__ipushz__");
 
 		(*++sp).AsI64 = 0; // push(0)
@@ -1261,7 +1263,7 @@ namespace Nominax::Core
 
 
 	__ipusho__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__ipusho__");
 
 		(*++sp).AsI64 = 1; // push(1)
@@ -1271,7 +1273,7 @@ namespace Nominax::Core
 
 
 	__fpusho__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__fpusho__");
 
 		(*++sp).AsF64 = 1.0; // push(1)
@@ -1281,7 +1283,7 @@ namespace Nominax::Core
 
 
 	__iinc__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__iinc__");
 
 		++(*sp).AsI64;
@@ -1291,7 +1293,7 @@ namespace Nominax::Core
 
 
 	__idec__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__idec__");
 
 		--(*sp).AsI64;
@@ -1301,7 +1303,7 @@ namespace Nominax::Core
 
 
 	__iadd__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__iadd__");
 
 		--sp;                             // pop
@@ -1312,7 +1314,7 @@ namespace Nominax::Core
 
 
 	__isub__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__isub__");
 
 		--sp;                             // pop
@@ -1323,7 +1325,7 @@ namespace Nominax::Core
 
 
 	__imul__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__imul__");
 
 		--sp;                             // pop
@@ -1334,7 +1336,7 @@ namespace Nominax::Core
 
 
 	__idiv__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__idiv__");
 
 		--sp;                             // pop
@@ -1345,7 +1347,7 @@ namespace Nominax::Core
 
 
 	__imod__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__imod__");
 
 		--sp;                             // pop
@@ -1356,7 +1358,7 @@ namespace Nominax::Core
 
 
 	__iand__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__iand__");
 		--sp;                             // pop
 		(*sp).AsI64 &= (*(sp + 1)).AsI64; // peek() &= poke(1)
@@ -1365,7 +1367,7 @@ namespace Nominax::Core
 
 
 	__ior__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__ior__");
 
 		--sp;                             // pop
@@ -1376,7 +1378,7 @@ namespace Nominax::Core
 
 
 	__ixor__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__ixor__");
 
 		--sp;                             // pop
@@ -1387,7 +1389,7 @@ namespace Nominax::Core
 
 
 	__icom__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__icom__");
 
 		(*sp).AsI64 = ~(*sp).AsI64;
@@ -1397,7 +1399,7 @@ namespace Nominax::Core
 
 
 	__isal__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__isal__");
 
 		--sp;                              // pop
@@ -1408,7 +1410,7 @@ namespace Nominax::Core
 
 
 	__isar__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__isar__");
 
 		--sp;                              // pop
@@ -1419,7 +1421,7 @@ namespace Nominax::Core
 
 
 	__irol__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__irol__");
 
 		--sp; // pop
@@ -1430,7 +1432,7 @@ namespace Nominax::Core
 
 
 	__iror__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__iror__");
 
 		--sp; // pop
@@ -1441,7 +1443,7 @@ namespace Nominax::Core
 
 
 	__ineg__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__ineg__");
 
 		(*sp).AsI64 = -(*sp).AsI64;
@@ -1451,7 +1453,7 @@ namespace Nominax::Core
 
 
 	__fadd__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__fadd__");
 
 		--sp;                             // pop
@@ -1462,7 +1464,7 @@ namespace Nominax::Core
 
 
 	__fsub__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__fsub__");
 
 		--sp;                             // pop
@@ -1473,7 +1475,7 @@ namespace Nominax::Core
 
 
 	__fmul__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__fmul__");
 
 		--sp;                             // pop
@@ -1484,7 +1486,7 @@ namespace Nominax::Core
 
 
 	__fdiv__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__fdiv__");
 
 		--sp;                             // pop
@@ -1495,7 +1497,7 @@ namespace Nominax::Core
 
 
 	__fmod__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__fmod__");
 
 		--sp;                     // pop
@@ -1506,7 +1508,7 @@ namespace Nominax::Core
 
 
 	__fneg__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__fneg__");
 
 		(*sp).AsF64 = -(*sp).AsF64;
@@ -1516,7 +1518,7 @@ namespace Nominax::Core
 
 
 	__finc__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__finc__");
 
 		++(*sp).AsF64;
@@ -1526,7 +1528,7 @@ namespace Nominax::Core
 
 
 	__fdec__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__fdec__");
 
 		--(*sp).AsF64;
@@ -1536,7 +1538,7 @@ namespace Nominax::Core
 
 
 	__vecpush__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__vecpush__");
 
 		/*
@@ -1560,7 +1562,7 @@ namespace Nominax::Core
 
 
 	__vecpop__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__vecpop__");
 
 		sp -= 4;
@@ -1569,7 +1571,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 	__vecadd__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__vecadd__");
 
 		/*
@@ -1597,7 +1599,7 @@ namespace Nominax::Core
 
 
 	__vecsub__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__vecsub__");
 
 		/*
@@ -1626,7 +1628,7 @@ namespace Nominax::Core
 
 
 	__vecmul__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__vecmul__");
 
 		/*
@@ -1655,7 +1657,7 @@ namespace Nominax::Core
 
 
 	__vecdiv__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__vecdiv__");
 
 		/*
@@ -1683,7 +1685,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 	__matpush__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__matpush__");
 
 		/*
@@ -1731,7 +1733,7 @@ namespace Nominax::Core
 
 
 	__matpop__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__matpop__");
 
 		sp -= 16;
@@ -1740,7 +1742,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 	__matadd__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__matadd__");
 
 		/*
@@ -1806,7 +1808,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 	__matsub__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__matsub__");
 
 		/*
@@ -1872,7 +1874,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 	__matmul__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__matmul__");
 
 		/*
@@ -1938,7 +1940,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 	__matdiv__:
-		NOX_HOT;
+		NOX_HOT_LABEL;
 		ASM_MARKER("__matdiv__");
 
 		/*
@@ -2005,10 +2007,12 @@ namespace Nominax::Core
 		JMP_PTR();
 
 		[[maybe_unused]]
-	_hard_fault_err_: NOX_COLD;
+	_hard_fault_err_:
+		NOX_COLD_LABEL;
 		interruptCode = INT_CODE_FATAL_ERROR;
 
-	_terminate_: NOX_COLD;
+	_terminate_:
+		NOX_COLD_LABEL;
 
 		ASM_MARKER("_terminate_");
 

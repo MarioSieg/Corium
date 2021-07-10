@@ -228,4 +228,3 @@ Asm_IsCpuIdSupported:
     movq    %rbp, %rsp          # stack frame epilogue
     popq    %rbp                # stack frame epilogue
     retq                        # return
-    
