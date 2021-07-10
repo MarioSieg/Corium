@@ -220,7 +220,7 @@ namespace Nominax::ByteCode
 
 	auto TransformStreamToImageByMove(Stream&& input, Image& output, JumpMap& jumpMap) -> void
 	{
-		const std::size_t inSize {input.Size()};
+		const U64 inSize {input.Size()};
 		NOX_PAS_NOT_ZERO(input.Size(), "Empty streams are forbidden!");
 
 		const Stream::DiscriminatorStorageType& discriminators {input.GetDiscriminatorBuffer()};
@@ -259,7 +259,7 @@ namespace Nominax::ByteCode
 		std::copy(std::cbegin(blob), std::cend(blob), std::begin(this->Blob_));
 	}
 
-	Image::Image(const void* const data, const std::size_t byteSize)
+	Image::Image(const void* const data, const U64 byteSize)
 	{
 		NOX_PAS_NOT_ZERO(byteSize, "Byte code image with zero size is invalid!");
 		NOX_PAS_NOT_NULL(data, "Byte code image with null data is invalid!");
@@ -844,7 +844,7 @@ namespace Nominax::ByteCode
 	auto Stream::PrintByteCode() const -> void
 	{
 		Print(TextColor::Green, "Len: {}, Size: {} B", this->Size(), this->SizeInBytes());
-		for (std::size_t i {0}; i < this->Size(); ++i)
+		for (U64 i {0}; i < this->Size(); ++i)
 		{
 			if (this->CodeDisc_[i] == Signal::Discriminator::Instruction)
 			{
@@ -933,7 +933,7 @@ namespace Nominax::ByteCode
 			[[unlikely]]
 				return false;
 		}
-		for (std::size_t i {0}; i < code.size(); ++i)
+		for (U64 i {0}; i < code.size(); ++i)
 		{
 			if (code[i] != input[i])
 			{
@@ -952,7 +952,7 @@ namespace Nominax::ByteCode
 			[[unlikely]]
 				return false;
 		}
-		for (std::size_t i {0}, j {input.Size() - code.size()}; i < code.size(); ++i)
+		for (U64 i {0}, j {input.Size() - code.size()}; i < code.size(); ++i)
 		{
 			if (code[i] != input[j + i])
 			{
@@ -1091,7 +1091,7 @@ namespace Nominax::ByteCode
 
 	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) -> bool
 	{
-		const auto idx {static_cast<std::size_t>(address)};
+		const auto idx {static_cast<U64>(address)};
 
 		// validate that jump address is inside the range of the bucket:
 		if (bucket.Size() <= idx)
@@ -1137,7 +1137,7 @@ namespace Nominax::ByteCode
 				return ValidationResultCode::TooManyArgumentsForInstruction;
 		}
 
-		for (std::size_t i {0}; i < args.size(); ++i)
+		for (U64 i {0}; i < args.size(); ++i)
 		{
 			const Signal::Discriminator discriminator {args[i]};
 

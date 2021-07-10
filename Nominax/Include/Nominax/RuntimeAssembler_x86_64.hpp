@@ -410,7 +410,7 @@ namespace Nominax::Assembler::X86_64
 	/// <summary>
 	/// Machine code id table for all registers.
 	/// </summary>
-	constexpr std::array<U8, static_cast<std::size_t>(Register::$Count)> REGISTER_ID_TABLE
+	constexpr std::array<U8, static_cast<U64>(Register::$Count)> REGISTER_ID_TABLE
 	{
 		0x00, 0x03,
 		0x01, 0x02,
@@ -425,7 +425,7 @@ namespace Nominax::Assembler::X86_64
 	/// <summary>
 	/// Mnemonic name table of all registers.
 	/// </summary>
-	constexpr std::array<std::string_view, static_cast<std::size_t>(Register::$Count)> REGISTER_MNEMONIC_TABLE
+	constexpr std::array<std::string_view, static_cast<U64>(Register::$Count)> REGISTER_MNEMONIC_TABLE
 	{
 		"rax",
 		"rbx",

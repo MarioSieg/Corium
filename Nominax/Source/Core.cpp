@@ -339,12 +339,12 @@ namespace Nominax
 		/// </summary>
 		/// <param name="sizeInBytes"></param>
 		/// <returns></returns>
-		static inline auto MapStackSize(const std::size_t sizeInBytes) -> std::size_t
+		static inline auto MapStackSize(const U64 sizeInBytes) -> U64
 		{
 			if (sizeInBytes % sizeof(Foundation::Record) != 0)
 			{
 				[[unlikely]]
-				Panic(NOX_PAINF, "Invalid stack size: {}! Must be a multiple of sizeof(Common::Record) -> 8!", sizeInBytes);
+					Panic(NOX_PAINF, "Invalid stack size: {}! Must be a multiple of sizeof(Common::Record) -> 8!", sizeInBytes);
 			}
 			return sizeInBytes / sizeof(Foundation::Record);
 		}
@@ -366,10 +366,10 @@ namespace Nominax
 		/// <returns></returns>
 		static inline auto ComputePoolSize
 		(
-			std::size_t       desiredSize,
-			const std::size_t reactorCount,
-			std::size_t       reactorStackSize
-		) -> std::size_t
+			U64       desiredSize,
+			const U64 reactorCount,
+			U64       reactorStackSize
+		) -> U64
 		{
 			reactorStackSize = MapStackSize(reactorStackSize);
 			desiredSize      = desiredSize ? desiredSize : Environment::FALLBACK_SYSTEM_POOL_SIZE;
@@ -392,7 +392,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="desiredSize"></param>
 		/// <returns></returns>
-		static constexpr auto ClampBootPoolSize(const std::size_t desiredSize) -> std::size_t
+		static constexpr auto ClampBootPoolSize(const U64 desiredSize) -> U64
 		{
 			return std::clamp(desiredSize, Environment::BOOT_POOL_SIZE_MIN, Environment::BOOT_POOL_SIZE_MAX);
 		}
@@ -407,7 +407,7 @@ namespace Nominax
 		[[maybe_unused]]
 		static auto PrintByteCodeErrorSector
 		(
-			const std::size_t                    idx, const ByteCode::Stream& appCode,
+			const U64                            idx, const ByteCode::Stream& appCode,
 			const ByteCode::ValidationResultCode code
 		)
 		{
@@ -418,7 +418,7 @@ namespace Nominax
 				|| code == ByteCode::ValidationResultCode::ArgumentTypeMismatch
 			};
 
-			for (std::size_t i {idx}; i < idx + 8 && i < appCode.Size(); ++i)
+			for (U64 i {idx}; i < idx + 8 && i < appCode.Size(); ++i)
 			{
 				if (appCode[i].Contains<ByteCode::Instruction>())
 				{
@@ -443,7 +443,7 @@ namespace Nominax
 		/// Helper to allocate a environment pool.
 		/// </summary>
 		[[nodiscard]]
-		NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const std::size_t size, const std::string_view poolId) -> U8*
+		NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const U64 size, const std::string_view poolId) -> U8*
 		{
 			Foundation::Print("Allocating {} pool with size: {} MB\n", poolId, Foundation::Bytes2Megabytes(static_cast<F64>(size)));
 			auto* NOX_RESTRICT const mem {new(std::nothrow) U8[size]};
@@ -463,7 +463,7 @@ namespace Nominax
 		/// <param name="max"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static constexpr auto ComputeMemoryPercent(const std::size_t used, const std::size_t max) -> F64
+		static constexpr auto ComputeMemoryPercent(const U64 used, const U64 max) -> F64
 		{
 			return static_cast<F64>(used) * 100.0 / static_cast<F64>(max);
 		}
@@ -480,7 +480,7 @@ namespace Nominax
 		(
 			std::pmr::monotonic_buffer_resource& resource,
 			const std::unique_ptr<U8[]>&         buffer,
-			const std::size_t                    size
+			const U64                            size
 		) -> std::pair<std::ptrdiff_t, F64>
 		{
 			const U8* const      needle {static_cast<U8*>(resource.allocate(sizeof(U8), alignof(U8)))};
@@ -496,11 +496,11 @@ namespace Nominax
 		/// <returns></returns>
 		struct Environment::Context final
 		{
-			const std::size_t                                        ReactorCount;
-			const std::size_t                                        BootPoolSize;
+			const U64                                                ReactorCount;
+			const U64                                                BootPoolSize;
 			const std::unique_ptr<U8[]>                              BootPool;
 			std::pmr::monotonic_buffer_resource                      BootPoolResource;
-			const std::size_t                                        SystemPoolSize;
+			const U64                                                SystemPoolSize;
 			const std::unique_ptr<U8[]>                              SystemPool;
 			std::pmr::monotonic_buffer_resource                      SystemPoolResource;
 			std::pmr::unordered_set<std::pmr::string>                Arguments;
@@ -652,8 +652,8 @@ namespace Nominax
 			const auto tok {std::chrono::high_resolution_clock::now()};
 
 			// Get memory snapshot:
-			const std::size_t memSnapshot {Foundation::Os::QueryProcessMemoryUsed()};
-			const F64         memUsagePercent {
+			const U64 memSnapshot {Foundation::Os::QueryProcessMemoryUsed()};
+			const F64 memUsagePercent {
 				ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory)
 			};
 
@@ -807,13 +807,13 @@ namespace Nominax
 			return this->Context_->AppName;
 		}
 
-		auto Environment::GetMonotonicSystemPoolSize() const -> std::size_t
+		auto Environment::GetMonotonicSystemPoolSize() const -> U64
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 			return this->Context_->SystemPoolSize;
 		}
 
-		auto Environment::GetExecutionCount() const -> std::size_t
+		auto Environment::GetExecutionCount() const -> U64
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 			return this->Context_->ExecutionTimeHistory.size();
@@ -862,7 +862,7 @@ namespace Nominax
 			return true;
 		}
 
-		FixedStack::FixedStack(std::pmr::memory_resource& allocator, std::size_t sizeInRecords) : Buffer_ {&allocator}
+		FixedStack::FixedStack(std::pmr::memory_resource& allocator, U64 sizeInRecords) : Buffer_ {&allocator}
 		{
 			NOX_PAS_NOT_ZERO(sizeInRecords, "Fixed stack with zero size was requested!");
 
@@ -1366,7 +1366,7 @@ namespace Nominax
 			std::pmr::memory_resource&               allocator,
 			const ReactorSpawnDescriptor&            descriptor,
 			const std::optional<ReactorRoutineLink>& routineLink,
-			const std::size_t                        poolIdx
+			const U64                                poolIdx
 		) :
 			Id_ {Foundation::Xorshift128ThreadLocal()},
 			PoolIndex_ {poolIdx},
@@ -1456,7 +1456,7 @@ namespace Nominax
 			NOX_PAS_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
 		}
 
-		static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(
+		static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<U64>(
 			                            ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
 		{
 			&ReactorCore_Fallback,
@@ -1571,7 +1571,7 @@ namespace Nominax
 			return routine(nullptr, nullptr, writer) == ReactorShutdownReason::Success ? jumpTable : nullptr;
 		}
 
-		auto ReactorPool::SmartQueryReactorCount(const std::size_t desired) -> std::size_t
+		auto ReactorPool::SmartQueryReactorCount(const U64 desired) -> U64
 		{
 			return desired < MIN_REACTOR_COUNT ? std::thread::hardware_concurrency() : desired;
 		}
@@ -1579,7 +1579,7 @@ namespace Nominax
 		ReactorPool::ReactorPool
 		(
 			std::pmr::memory_resource&               allocator,
-			const std::size_t                        reactorCount,
+			const U64                                reactorCount,
 			const ReactorSpawnDescriptor&            config,
 			const std::optional<ReactorRoutineLink>& routineLink
 		) : Pool_ {&allocator}
@@ -1591,7 +1591,7 @@ namespace Nominax
 			                  FALLBACK_REACTOR_COUNT, reactorCount);
 
 			this->Pool_.reserve(reactorCount);
-			for (std::size_t i {0}; i < reactorCount; ++i)
+			for (U64 i {0}; i < reactorCount; ++i)
 			{
 				if (!routineLink)
 				{

@@ -288,7 +288,7 @@ namespace Nominax::Core
 	/// </summary>
 	NOX_HOT static auto SyscallIntrin(Record* NOX_RESTRICT const sp, const U64 id) -> void
 	{
-		static constexpr std::array<const void* NOX_RESTRICT const, static_cast<std::size_t>(
+		static constexpr std::array<const void* NOX_RESTRICT const, static_cast<U64>(
 			                            SystemIntrinsicCallID::$Count)> JUMP_TABLE
 		{
 			&&__cos__,
@@ -574,7 +574,7 @@ namespace Nominax::Core
 		(*sp).AsF64 = std::abs((*sp).AsF64);
 
 		return;
-		
+
 	__io_port_write_cluster__:
 		NOX_COLD_LABEL;
 

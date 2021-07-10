@@ -351,12 +351,12 @@ namespace Nominax::Foundation
 		return w;
 	}
 
-	auto IAllocator::Allocate(void*& out, const std::size_t size) const -> void
+	auto IAllocator::Allocate(void*& out, const U64 size) const -> void
 	{
 		out = static_cast<U8*>(std::malloc(size));
 	}
 
-	auto IAllocator::Reallocate(void*& out, const std::size_t size) const -> void
+	auto IAllocator::Reallocate(void*& out, const U64 size) const -> void
 	{
 		out = static_cast<U8*>(std::realloc(out, size));
 	}
@@ -367,7 +367,7 @@ namespace Nominax::Foundation
 		out = nullptr;
 	}
 
-	auto IAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
+	auto IAllocator::AllocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
 	{
 		#if NOX_OS_WINDOWS && NOX_COM_CLANG
 		out = static_cast<U8*>(_aligned_malloc(size, alignment));
@@ -376,7 +376,7 @@ namespace Nominax::Foundation
 		#endif
 	}
 
-	auto IAllocator::ReallocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
+	auto IAllocator::ReallocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
 	{
 		#if NOX_OS_WINDOWS && NOX_COM_CLANG
 		out = static_cast<U8*>(_aligned_realloc(out, size, alignment));
@@ -398,7 +398,7 @@ namespace Nominax::Foundation
 		out = nullptr;
 	}
 
-	auto IAllocator::Valloc(void*& out, const std::size_t size) const -> void
+	auto IAllocator::Valloc(void*& out, const U64 size) const -> void
 	{
 		this->Allocate(out, size);
 	}
@@ -448,7 +448,7 @@ namespace Nominax::Foundation
 		return std::ranges::find(this->Args_, key) != this->Args_.end();
 	}
 
-	static constexpr auto GetMemoryUnitInfo(const std::size_t bytes) -> std::pair<std::size_t, std::string_view>
+	static constexpr auto GetMemoryUnitInfo(const U64 bytes) -> std::pair<U64, std::string_view>
 	{
 		if (bytes == 0 || bytes < KB)
 		{
@@ -469,7 +469,7 @@ namespace Nominax::Foundation
 		return {bytes, "B"};
 	}
 
-	auto DebugAllocator::Allocate(void*& out, const std::size_t size) const -> void
+	auto DebugAllocator::Allocate(void*& out, const U64 size) const -> void
 	{
 		IAllocator::Allocate(out, size);
 		const auto [count, suffix] {GetMemoryUnitInfo(size)};
@@ -478,7 +478,7 @@ namespace Nominax::Foundation
 		this->BytesAllocated_ += size;
 	}
 
-	auto DebugAllocator::Reallocate(void*& out, const std::size_t size) const -> void
+	auto DebugAllocator::Reallocate(void*& out, const U64 size) const -> void
 	{
 		IAllocator::Reallocate(out, size);
 		const auto [count, suffix] {GetMemoryUnitInfo(size)};
@@ -494,7 +494,7 @@ namespace Nominax::Foundation
 		++this->Deallocations_;
 	}
 
-	auto DebugAllocator::AllocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
+	auto DebugAllocator::AllocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
 	{
 		IAllocator::AllocateAligned(out, size, alignment);
 		const auto [count, suffix] {GetMemoryUnitInfo(size)};
@@ -504,7 +504,7 @@ namespace Nominax::Foundation
 		this->BytesAllocated_ += size;
 	}
 
-	auto DebugAllocator::ReallocateAligned(void*& out, const std::size_t size, const std::size_t alignment) const -> void
+	auto DebugAllocator::ReallocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
 	{
 		IAllocator::ReallocateAligned(out, size, alignment);
 		const auto [count, suffix] {GetMemoryUnitInfo(size)};
@@ -721,32 +721,32 @@ namespace Nominax::Foundation
 
 	auto TextFile::EraseRange(const CharType begin, const CharType end) -> void
 	{
-		const std::size_t beginIndex {this->Content_.find(begin)};
-		const std::size_t endIndex {this->Content_.find(end, beginIndex + 1)};
+		const U64 beginIndex {this->Content_.find(begin)};
+		const U64 endIndex {this->Content_.find(end, beginIndex + 1)};
 		this->Content_.erase(beginIndex, endIndex - beginIndex + 1);
 	}
 
-	auto TextFile::SubString(const std::size_t beginIdx, const std::size_t endIdx) const -> ViewType
+	auto TextFile::SubString(const U64 beginIdx, const U64 endIdx) const -> ViewType
 	{
 		return SubstringView(this->Content_, beginIdx, endIdx - beginIdx + 1);
 	}
 
 	auto TextFile::SubStringChar(const CharType beginChar, const CharType endChar) const -> ViewType
 	{
-		const std::size_t beginIndex {this->Content_.find_first_of(beginChar)};
-		const std::size_t endIndex {this->Content_.find_first_of(endChar, beginIndex + 1)};
+		const U64 beginIndex {this->Content_.find_first_of(beginChar)};
+		const U64 endIndex {this->Content_.find_first_of(endChar, beginIndex + 1)};
 		return SubstringView(this->Content_, beginIndex, endIndex - beginIndex + 1);
 	}
 }
 
-auto operator new(const std::size_t size) -> void*
+auto operator new(const Nominax::U64 size) -> void*
 {
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
-auto operator new[](const std::size_t size) -> void*
+auto operator new[](const Nominax::U64 size) -> void*
 {
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
@@ -755,30 +755,30 @@ auto operator new[](const std::size_t size) -> void*
 
 #if false
 
-auto operator new(const std::size_t size, const std::align_val_t alignment)  -> void*
+auto operator new(const Nominax::U64 size, const std::align_val_t alignment)  -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<std::size_t>(alignment));
+	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
 	return mem;
 }
 
-auto operator new[](const std::size_t size, const std::align_val_t alignment)  -> void*
+auto operator new[](const Nominax::U64 size, const std::align_val_t alignment)  -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<std::size_t>(alignment));
+	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
 	return mem;
 }
 
 #endif
 
-auto operator new(const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
+auto operator new(const Nominax::U64 size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
-auto operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
+auto operator new[](const Nominax::U64 size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
@@ -787,17 +787,17 @@ auto operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_
 
 #if false
 
-auto operator new(const std::size_t size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag)  -> void*
+auto operator new(const Nominax::U64 size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag)  -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<std::size_t>(alignment));
+	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
 	return mem;
 }
 
-auto operator new[](const std::size_t size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag)  -> void*
+auto operator new[](const Nominax::U64 size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag)  -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<std::size_t>(alignment));
+	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
 	return mem;
 }
 
@@ -808,7 +808,7 @@ auto operator delete(void* mem) noexcept(true) -> void
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }
 
-auto operator delete(void* mem, std::size_t) noexcept(true) -> void
+auto operator delete(void* mem, Nominax::U64) noexcept(true) -> void
 {
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }
@@ -818,7 +818,7 @@ auto operator delete[](void* mem) noexcept(true) -> void
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }
 
-auto operator delete[](void* mem, std::size_t) noexcept(true) -> void
+auto operator delete[](void* mem, Nominax::U64) noexcept(true) -> void
 {
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }
@@ -842,9 +842,9 @@ namespace Nominax::Foundation
 		U8* const needle {std::data(buffer)};
 		std::memcpy(needle, std::data(merged), sizeof merged);
 		std::memcpy(needle + sizeof merged, &result, sizeof result);
-		for (std::size_t i {0}; i < sizeof buffer; ++i)
+		for (U64 i {0}; i < sizeof buffer; ++i)
 		{
-			for (std::size_t j {0}; j < CHAR_BIT; ++j)
+			for (U64 j {0}; j < CHAR_BIT; ++j)
 			{
 				this->FeatureBits_[i * CHAR_BIT + j] = buffer[i] & 1 << j;
 			}
@@ -883,7 +883,7 @@ namespace Nominax::Foundation
 
 	auto CpuFeatureDetector::Dump() const -> void
 	{
-		for (std::size_t i {0}; i < std::size(this->FeatureBits_); ++i)
+		for (U64 i {0}; i < std::size(this->FeatureBits_); ++i)
 		{
 			if (!std::empty(CPU_FEATURE_BIT_NAMES[i]))
 			{
@@ -946,14 +946,14 @@ namespace Nominax::Foundation
 
 	namespace Nominax::Common
 	{
-		auto Os::QuerySystemMemoryTotal()  -> std::size_t
+		auto Os::QuerySystemMemoryTotal()  -> U64
 		{
 			const long pages = sysconf(_SC_PHYS_PAGES);
 			const long page_size = sysconf(_SC_PAGE_SIZE);
-			return static_cast<std::size_t>(pages * page_size);
+			return static_cast<U64>(pages * page_size);
 		}
 
-		auto Os::QueryProcessMemoryUsed()  -> std::size_t {
+		auto Os::QueryProcessMemoryUsed()  -> U64 {
 			auto* const file = fopen("/proc/self/statm", "r");
 			if (file == nullptr)
 			{
@@ -962,7 +962,7 @@ namespace Nominax::Foundation
 			long pages = 0;
 			const auto items = fscanf(file, "%*s%ld", &pages);
 			fclose(file);
-			return static_cast<std::size_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
+			return static_cast<U64>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
 		}
 
 		auto Os::QueryCpuName()  -> std::string
@@ -987,9 +987,9 @@ namespace Nominax::Foundation
 			return {};
 		}
 
-		auto Os::QueryPageSize() ->std::size_t
+		auto Os::QueryPageSize() ->U64
 		{
-			return static_cast<std::size_t>(sysconf(_SC_PAGE_SIZE));
+			return static_cast<U64>(sysconf(_SC_PAGE_SIZE));
 		}
 
 		auto Os::DylibOpen(const std::string_view file_)  -> void*
@@ -1020,7 +1020,7 @@ namespace Nominax::Foundation
 
 namespace Nominax::Foundation
 {
-	auto Os::QuerySystemMemoryTotal() -> std::size_t
+	auto Os::QuerySystemMemoryTotal() -> U64
 	{
 		MEMORYSTATUSEX status;
 		status.dwLength = sizeof(MEMORYSTATUSEX);
@@ -1028,7 +1028,7 @@ namespace Nominax::Foundation
 		return status.ullTotalPhys;
 	}
 
-	auto Os::QueryProcessMemoryUsed() -> std::size_t
+	auto Os::QueryProcessMemoryUsed() -> U64
 	{
 		PROCESS_MEMORY_COUNTERS pmc;
 		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
@@ -1053,11 +1053,11 @@ namespace Nominax::Foundation
 		return id;
 	}
 
-	auto Os::QueryPageSize() -> std::size_t
+	auto Os::QueryPageSize() -> U64
 	{
 		SYSTEM_INFO sysInfo;
 		GetSystemInfo(&sysInfo);
-		return static_cast<std::size_t>(sysInfo.dwPageSize);
+		return static_cast<U64>(sysInfo.dwPageSize);
 	}
 
 	auto Os::DylibOpen(const std::string_view filePath) -> void*

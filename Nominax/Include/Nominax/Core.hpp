@@ -326,7 +326,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Code chunk and instruction map length.
 		/// </summary>
-		std::size_t CodeChunkSize {0};
+		U64 CodeChunkSize {0};
 
 		/// <summary>
 		/// Intrinsic routine registry data pointer.
@@ -336,7 +336,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Intrinsic routine registry length.
 		/// </summary>
-		std::size_t IntrinsicTableSize {0};
+		U64 IntrinsicTableSize {0};
 
 		/// <summary>
 		/// Interrupt routine proxy.
@@ -351,7 +351,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Stack length.
 		/// </summary>
-		std::size_t StackSize {0};
+		U64 StackSize {0};
 
 		/// <summary>
 		/// Checks if the current descriptor is valid for
@@ -433,19 +433,19 @@ namespace Nominax::Core
 		/// Small 1 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_SMALL {1_mb / sizeof(Foundation::Record)};
+		static constexpr U64 SIZE_SMALL {1_mb / sizeof(Foundation::Record)};
 
 		/// <summary>
 		/// Medium sizes 4 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_MEDIUM {4_mb / sizeof(Foundation::Record)};
+		static constexpr U64 SIZE_MEDIUM {4_mb / sizeof(Foundation::Record)};
 
 		/// <summary>
 		/// Medium sizes 8 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_LARGE {8_mb / sizeof(Foundation::Record)};
+		static constexpr U64 SIZE_LARGE {8_mb / sizeof(Foundation::Record)};
 		/// <summary>
 		/// 
 		/// </summary>
@@ -465,7 +465,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The size of the memory buffer in records.</returns>
 		[[nodiscard]]
-		auto Size() const -> std::size_t;
+		auto Size() const -> U64;
 
 		/// <summary>
 		/// STL Compat
@@ -507,7 +507,7 @@ namespace Nominax::Core
 		/// <param name="allocator"></param>
 		/// <param name="sizeInRecords">Size in records. If the size is zero, fatal termination.</param>
 		/// <returns></returns>
-		explicit FixedStack(std::pmr::memory_resource& allocator, std::size_t sizeInRecords);
+		explicit FixedStack(std::pmr::memory_resource& allocator, U64 sizeInRecords);
 
 		/// <summary>
 		/// No copy.
@@ -548,7 +548,7 @@ namespace Nominax::Core
 		return this->Buffer_.data();
 	}
 
-	inline auto FixedStack::Size() const -> std::size_t
+	inline auto FixedStack::Size() const -> U64
 	{
 		return this->Buffer_.size();
 	}
@@ -625,7 +625,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// The stack size in records.
 		/// </summary>
-		std::size_t StackSize {FixedStack::SIZE_LARGE};
+		U64 StackSize {FixedStack::SIZE_LARGE};
 
 		/// <summary>
 		/// The intrinsic routines.
@@ -646,7 +646,7 @@ namespace Nominax::Core
 		/// Get platform dependent default configuration.
 		/// </summary>
 		/// <returns></returns>
-		static constexpr auto Default(std::size_t stackSize = FixedStack::SIZE_LARGE) -> ReactorSpawnDescriptor;
+		static constexpr auto Default(U64 stackSize = FixedStack::SIZE_LARGE) -> ReactorSpawnDescriptor;
 	};
 
 	/// <summary>
@@ -669,7 +669,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="stackSize"></param>
 	/// <returns></returns>
-	constexpr auto ReactorSpawnDescriptor::Default(const std::size_t stackSize) -> ReactorSpawnDescriptor
+	constexpr auto ReactorSpawnDescriptor::Default(const U64 stackSize) -> ReactorSpawnDescriptor
 	{
 		return ReactorSpawnDescriptor
 		{
@@ -718,24 +718,24 @@ namespace Nominax::Core
 		/// <summary>
 		/// The size of the boot pool
 		/// </summary>
-		std::size_t BootPoolSize {128_kb};
+		U64 BootPoolSize {128_kb};
 
 		/// <summary>
 		/// The size of the system memory pool size.
 		/// </summary>
-		std::size_t SystemPoolSize {512_kb};
+		U64 SystemPoolSize {512_kb};
 
 		/// <summary>
 		/// The count of reactors.
 		/// If 0, the system will use the number of CPU threads.
 		/// </summary>
-		std::size_t ReactorCount {0};
+		U64 ReactorCount {0};
 
 		/// <summary>
 		/// The reactor stack size in bytes.
 		/// Must be divisible by 8!
 		/// </summary>
-		std::size_t StackSize {8_mb};
+		U64 StackSize {8_mb};
 
 		/// <summary>
 		/// Power preference of the system.
@@ -927,19 +927,19 @@ namespace Nominax::Core
 		/// <summary>
 		/// Size in bytes of the system pool, if the given count was invalid.
 		/// </summary>
-		static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {256_kb};
+		static constexpr U64 FALLBACK_SYSTEM_POOL_SIZE {256_kb};
 		static_assert(FALLBACK_SYSTEM_POOL_SIZE);
 
 		/// <summary>
 		/// The min size of the boot pool.
 		/// </summary>
-		static constexpr std::size_t BOOT_POOL_SIZE_MIN {32_kb};
+		static constexpr U64 BOOT_POOL_SIZE_MIN {32_kb};
 		static_assert(BOOT_POOL_SIZE_MIN);
 
 		/// <summary>
 		/// The max size of the boot pool.
 		/// </summary>
-		static constexpr std::size_t BOOT_POOL_SIZE_MAX {256_kb};
+		static constexpr U64 BOOT_POOL_SIZE_MAX {256_kb};
 		static_assert(BOOT_POOL_SIZE_MAX);
 
 		/// <summary>
@@ -1096,14 +1096,14 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The size of the system pool in bytes.</returns>
 		[[nodiscard]]
-		auto GetMonotonicSystemPoolSize() const -> std::size_t;
+		auto GetMonotonicSystemPoolSize() const -> U64;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The count of reactor executions so far.</returns>
 		[[nodiscard]]
-		auto GetExecutionCount() const -> std::size_t;
+		auto GetExecutionCount() const -> U64;
 
 		/// <summary>
 		/// 
@@ -1197,7 +1197,7 @@ namespace Nominax::Core
 	consteval auto ValidateJumpTable
 	(
 		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable,
-		const std::size_t                                  jumpTableSize
+		const U64                                          jumpTableSize
 	) -> bool
 	{
 		if (!jumpTable || !jumpTableSize)
@@ -1559,7 +1559,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// The count of header field blocks => 4 (StrongRefCount, Size, TypeId, FlagVector)
 		/// </summary>
-		static constexpr std::size_t BLOCKS {4};
+		static constexpr U64 BLOCKS {4};
 
 		/// <summary>
 		/// The offset in records from the blob base pointer.
@@ -1839,7 +1839,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The size in records of the object header plus the size of object it self.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR BlobSize() const -> std::size_t;
+		auto IMMUTATOR BlobSize() const -> U64;
 
 		/// <summary>
 		/// The size in bytes of the whole data blob:
@@ -1847,7 +1847,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The size in bytes of the whole object header plus the whole size of object it self.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR BlobSizeInBytes() const -> std::size_t;
+		auto IMMUTATOR BlobSizeInBytes() const -> U64;
 
 		/// <summary>
 		/// Returns the size of the object block in bytes.
@@ -1855,7 +1855,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto IMMUTATOR ObjectBlockSizeInBytes() const -> std::size_t;
+		auto IMMUTATOR ObjectBlockSizeInBytes() const -> U64;
 
 		/// <summary>
 		/// Tries to copy the object block into the buffer.
@@ -1924,14 +1924,14 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto IMMUTATOR operator [](std::size_t idx) -> BlobBlockType&;
+		auto IMMUTATOR operator [](U64 idx) -> BlobBlockType&;
 
 		/// <summary>
 		/// Unchecked subscript in object block.
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto IMMUTATOR operator [](std::size_t idx) const -> BlobBlockType;
+		auto IMMUTATOR operator [](U64 idx) const -> BlobBlockType;
 
 		/// <summary>
 		/// Sets the object block to zero - all object fields will be zero.
@@ -2571,17 +2571,17 @@ namespace Nominax::Core
 		return this->Blob_ == nullptr;
 	}
 
-	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSize() const -> std::size_t
+	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSize() const -> U64
 	{
 		return ObjectHeader::RECORD_CHUNKS + ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 	}
 
-	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSizeInBytes() const -> std::size_t
+	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSizeInBytes() const -> U64
 	{
 		return BlobSize() * sizeof(Foundation::Record);
 	}
 
-	NOX_FLATTEN inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const -> std::size_t
+	NOX_FLATTEN inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const -> U64
 	{
 		return this->HeaderRead_BlockSize() * sizeof(Foundation::Record);
 	}
@@ -2671,12 +2671,12 @@ namespace Nominax::Core
 		return this->LookupObjectBlockEnd();
 	}
 
-	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const std::size_t idx) -> BlobBlockType&
+	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const U64 idx) -> BlobBlockType&
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}
 
-	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const std::size_t idx) const -> BlobBlockType
+	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const U64 idx) const -> BlobBlockType
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}
@@ -2735,7 +2735,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Contains all sub implementations for the reactor core.
 	/// </summary>
-	enum class ReactorCoreSpecialization : std::size_t
+	enum class ReactorCoreSpecialization : U64
 	{
 		Fallback,
 
@@ -2822,7 +2822,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Contains all available reactor implementations for the current platform.
 	/// </summary>
-	using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)>;
+	using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<U64>(ReactorCoreSpecialization::Count)>;
 
 	/// <summary>
 	/// The reactor hyper visor manages the correct selection
@@ -2945,7 +2945,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// The reactor pool index of this reactor.
 		/// </summary>
-		std::size_t PoolIndex_;
+		U64 PoolIndex_;
 
 		/// <summary>
 		/// Time stamp when the reactor was spawned.
@@ -2997,7 +2997,7 @@ namespace Nominax::Core
 			std::pmr::memory_resource&               allocator,
 			const ReactorSpawnDescriptor&            descriptor,
 			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt,
-			std::size_t                              poolIdx     = 0
+			U64                                      poolIdx     = 0
 		);
 
 		/// <summary>
@@ -3053,7 +3053,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The index of this rector in the hosting reactor pool</returns>
 		[[nodiscard]]
-		auto GetPoolIndex() const -> std::size_t;
+		auto GetPoolIndex() const -> U64;
 
 		/// <summary>
 		/// 
@@ -3111,7 +3111,7 @@ namespace Nominax::Core
 		return this->Id_;
 	}
 
-	inline auto Reactor::GetPoolIndex() const -> std::size_t
+	inline auto Reactor::GetPoolIndex() const -> U64
 	{
 		return this->PoolIndex_;
 	}
@@ -3183,17 +3183,17 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="desired">How many reactors the user requested. If zero, logical cpu count will be used.</param>
 		/// <returns>The best reactor count for the current system.</returns>
-		static auto SmartQueryReactorCount(std::size_t desired = 0) -> std::size_t;
+		static auto SmartQueryReactorCount(U64 desired = 0) -> U64;
 
 		/// <summary>
 		/// Minimal one reactor is required.
 		/// </summary>
-		static constexpr std::size_t MIN_REACTOR_COUNT {1};
+		static constexpr U64 MIN_REACTOR_COUNT {1};
 
 		/// <summary>
 		/// Fallback reactor count.
 		/// </summary>
-		static constexpr std::size_t FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
+		static constexpr U64 FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
 
 		/// <summary>
 		/// Construct and initialize all new reactors.
@@ -3202,7 +3202,7 @@ namespace Nominax::Core
 		ReactorPool
 		(
 			std::pmr::memory_resource&               resource,
-			std::size_t                              reactorCount,
+			U64                                      reactorCount,
 			const ReactorSpawnDescriptor&            config,
 			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt
 		);
@@ -3244,7 +3244,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>Returns the size of the pool.</returns>
 		[[nodiscard]]
-		auto GetSize() const -> std::size_t;
+		auto GetSize() const -> U64;
 
 		/// <summary>
 		/// 
@@ -3259,7 +3259,7 @@ namespace Nominax::Core
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetReactor(std::size_t idx) const -> const Reactor&;
+		auto GetReactor(U64 idx) const -> const Reactor&;
 
 
 		/// <summary>
@@ -3268,7 +3268,7 @@ namespace Nominax::Core
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator [](std::size_t idx) const -> const Reactor&;
+		auto operator [](U64 idx) const -> const Reactor&;
 
 		/// <summary>
 		/// 
@@ -3304,7 +3304,7 @@ namespace Nominax::Core
 		return this->Pool_.data();
 	}
 
-	inline auto ReactorPool::GetSize() const -> std::size_t
+	inline auto ReactorPool::GetSize() const -> U64
 	{
 		return this->Pool_.size();
 	}
@@ -3314,12 +3314,12 @@ namespace Nominax::Core
 		return this->ReactorConfig_;
 	}
 
-	inline auto ReactorPool::GetReactor(const std::size_t idx) const -> const Reactor&
+	inline auto ReactorPool::GetReactor(const U64 idx) const -> const Reactor&
 	{
 		return this->Pool_[idx];
 	}
 
-	inline auto ReactorPool::operator[](const std::size_t idx) const -> const Reactor&
+	inline auto ReactorPool::operator[](const U64 idx) const -> const Reactor&
 	{
 		return this->GetReactor(idx);
 	}
@@ -3491,7 +3491,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The remaining amount of tasks in the queue.</returns>
 		[[nodiscard]]
-		auto GetRemainingTaskCount() const -> std::size_t;
+		auto GetRemainingTaskCount() const -> U64;
 
 		/// <summary>
 		/// 
@@ -3516,7 +3516,7 @@ namespace Nominax::Core
 		return this->Worker_;
 	}
 
-	inline auto TaskQueueThread::GetRemainingTaskCount() const -> std::size_t
+	inline auto TaskQueueThread::GetRemainingTaskCount() const -> U64
 	{
 		return this->TaskQueue_.size();
 	}
@@ -3555,7 +3555,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="threadCount"></param>
 		/// <returns></returns>
-		explicit TaskQueueThreadPool(std::size_t threadCount);
+		explicit TaskQueueThreadPool(U64 threadCount);
 
 		/// <summary>
 		/// Construct empty with allocator.
@@ -3570,7 +3570,7 @@ namespace Nominax::Core
 		/// <param name="allocator"></param>
 		/// <param name="threadCount"></param>
 		/// <returns></returns>
-		TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator, std::size_t threadCount);
+		TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator, U64 threadCount);
 
 		/// <summary>
 		/// No copying.
@@ -3621,7 +3621,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		auto Resize(std::size_t size) -> void;
+		auto Resize(U64 size) -> void;
 
 		/// <summary>
 		/// Pushes a new task queue thread into the queue.
@@ -3635,7 +3635,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The amount of threads.</returns>
 		[[nodiscard]]
-		auto GetSize() const -> std::size_t;
+		auto GetSize() const -> U64;
 
 		/// <summary>
 		/// STL iterator interface.
@@ -3700,12 +3700,12 @@ namespace Nominax::Core
 		this->Threads.clear();
 	}
 
-	inline auto TaskQueueThreadPool::Resize(const std::size_t size) -> void
+	inline auto TaskQueueThreadPool::Resize(const U64 size) -> void
 	{
 		this->Threads.resize(size);
 	}
 
-	inline auto TaskQueueThreadPool::GetSize() const -> std::size_t
+	inline auto TaskQueueThreadPool::GetSize() const -> U64
 	{
 		return this->Threads.size();
 	}

@@ -305,7 +305,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all instruction mnemonics.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_MNEMONICS
+	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::$Count)> INSTRUCTION_MNEMONICS
 	{
 		"int",
 		"intrin",
@@ -472,7 +472,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of stack pushes each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_PUSH_COUNTS
+	constexpr std::array<U8, static_cast<U64>(Instruction::$Count)> INSTRUCTION_PUSH_COUNTS
 	{
 		0,
 		0,
@@ -546,7 +546,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of stack pops each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_POP_COUNTS
+	constexpr std::array<U8, static_cast<U64>(Instruction::$Count)> INSTRUCTION_POP_COUNTS
 	{
 		0,
 		0,
@@ -620,7 +620,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains a short descriptions for all instructions.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_DESCRIPTIONS
+	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::$Count)> INSTRUCTION_DESCRIPTIONS
 	{
 		"interrupt reactor execution",
 		"call intrinsic system routine",
@@ -694,7 +694,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the count of required immediate arguments for each instruction.
 	/// </summary>
-	constexpr std::array<U8, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
+	constexpr std::array<U8, static_cast<U64>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
 	{
 		1, // int
 		1,
@@ -884,10 +884,10 @@ namespace Nominax::ByteCode
 	/// <param name="data"></param>
 	/// <param name="count"></param>
 	/// <returns></returns>
-	constexpr auto operator "" _cluster(const char8_t* const data, const std::size_t count) -> CharClusterUtf8
+	constexpr auto operator "" _cluster(const char8_t* const data, const U64 count) -> CharClusterUtf8
 	{
 		CharClusterUtf8 result { };
-		for (std::size_t i {0}; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
+		for (U64 i {0}; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
 		{
 			result.Chars[i] = data[i];
 		}
@@ -999,7 +999,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Size of the extracted fault code section.
 	/// </summary>
-	constexpr std::size_t CROPPED_FAULT_CODE_DUMP_SIZE {8};
+	constexpr U64 CROPPED_FAULT_CODE_DUMP_SIZE {8};
 
 	/// <summary>
 	/// Contains all byte code validation error messages.
@@ -1497,7 +1497,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all immediate argument types for each instruction.
 	/// </summary>
-	inline const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
+	inline const std::array<PerInstructionArgTypes, static_cast<U64>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
 		PerInstructionArgTypes {{Signal::Discriminator::I64}},                      // int
 		{{Signal::Discriminator::SystemIntrinsicCallID}},                           // intrin
@@ -1606,7 +1606,7 @@ namespace Nominax::ByteCode
 	[[nodiscard]]
 	inline auto LookupInstructionArgumentTypes(const Instruction instruction) -> const PerInstructionArgTypes&
 	{
-		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<std::size_t>(instruction)];
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)];
 	}
 
 
@@ -1614,18 +1614,18 @@ namespace Nominax::ByteCode
 	/// 
 	/// </summary>
 	[[nodiscard]]
-	inline auto LookupInstructionArgumentCount(const Instruction instruction) -> std::size_t
+	inline auto LookupInstructionArgumentCount(const Instruction instruction) -> U64
 	{
-		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<std::size_t>(instruction)].size();
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)].size();
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[[nodiscard]]
-	inline auto LookupInstructionArgumentAllowedTypeCount(const Instruction instruction, const std::size_t argumentIndex) -> std::size_t
+	inline auto LookupInstructionArgumentAllowedTypeCount(const Instruction instruction, const U64 argumentIndex) -> U64
 	{
-		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<std::size_t>(instruction)][argumentIndex].size();
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)][argumentIndex].size();
 	}
 
 	/// <summary>
@@ -1664,7 +1664,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="data">The blob to copy the data from.</param>
 		/// <param name="byteSize">The size of the data in bytes.</param>
-		Image(const void* data, std::size_t byteSize);
+		Image(const void* data, U64 byteSize);
 
 		/// <summary>
 		/// No copying.
@@ -1702,14 +1702,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns>The size of the blob in bytes.</returns>
 		[[nodiscard]]
-		auto GetByteSize() const -> std::size_t;
+		auto GetByteSize() const -> U64;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the blob (amount of signals).</returns>
 		[[nodiscard]]
-		auto GetSize() const -> std::size_t;
+		auto GetSize() const -> U64;
 
 		/// <summary>
 		/// 
@@ -1772,22 +1772,22 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) -> Signal&;
+		auto operator [](U64 idx) -> Signal&;
 
 		/// <summary>
 		/// Subscript operator.
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) const -> Signal;
+		auto operator [](U64 idx) const -> Signal;
 	};
 
-	inline auto Image::GetByteSize() const -> std::size_t
+	inline auto Image::GetByteSize() const -> U64
 	{
 		return std::size(this->Blob_) * sizeof(Signal);
 	}
 
-	inline auto Image::GetSize() const -> std::size_t
+	inline auto Image::GetSize() const -> U64
 	{
 		return std::size(this->Blob_);
 	}
@@ -1867,12 +1867,12 @@ namespace Nominax::ByteCode
 		return image.cend();
 	}
 
-	inline auto Image::operator[](const std::size_t idx) const -> Signal
+	inline auto Image::operator[](const U64 idx) const -> Signal
 	{
 		return this->Blob_[idx];
 	}
 
-	inline auto Image::operator[](const std::size_t idx) -> Signal&
+	inline auto Image::operator[](const U64 idx) -> Signal&
 	{
 		return this->Blob_[idx];
 	}
@@ -2022,7 +2022,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		static constexpr auto MandatoryCodeSize() -> std::size_t;
+		static constexpr auto MandatoryCodeSize() -> U64;
 
 		/// <summary>
 		/// Construct empty stream.
@@ -2151,21 +2151,21 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		auto Resize(std::size_t size) -> void;
+		auto Resize(U64 size) -> void;
 
 		/// <summary>
 		/// Reserve buffer size.
 		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		auto Reserve(std::size_t size) -> void;
+		auto Reserve(U64 size) -> void;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the stream.</returns>
 		[[nodiscard]]
-		auto Size() const -> std::size_t;
+		auto Size() const -> U64;
 
 		/// <summary>
 		/// Returns true if the stream contains
@@ -2180,7 +2180,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns>The size of the stream in bytes.</returns>
 		[[nodiscard]]
-		auto SizeInBytes() const -> std::size_t;
+		auto SizeInBytes() const -> U64;
 
 		/// <summary>
 		/// Push stream entry.
@@ -2277,7 +2277,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) const -> DiscriminatedSignal;
+		auto operator [](U64 idx) const -> DiscriminatedSignal;
 
 		/// <summary>
 		/// Insert instruction manually with immediate arguments.
@@ -2376,7 +2376,7 @@ namespace Nominax::ByteCode
 		return EPILOGUE_CODE;
 	}
 
-	constexpr auto Stream::MandatoryCodeSize() -> std::size_t
+	constexpr auto Stream::MandatoryCodeSize() -> U64
 	{
 		return PrologueCode().size() + EpilogueCode().size();
 	}
@@ -2432,7 +2432,7 @@ namespace Nominax::ByteCode
 		return {this->CodeDisc_.back(), this->Code_.back()};
 	}
 
-	inline auto Stream::operator[](const std::size_t idx) const -> DiscriminatedSignal
+	inline auto Stream::operator[](const U64 idx) const -> DiscriminatedSignal
 	{
 		return {this->CodeDisc_[idx], this->Code_[idx]};
 	}
@@ -2488,27 +2488,27 @@ namespace Nominax::ByteCode
 		this->CodeDisc_.clear();
 	}
 
-	inline auto Stream::Resize(const std::size_t size) -> void
+	inline auto Stream::Resize(const U64 size) -> void
 	{
 		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.resize(size);
 		this->CodeDisc_.resize(size);
 	}
 
-	inline auto Stream::Reserve(const std::size_t size) -> void
+	inline auto Stream::Reserve(const U64 size) -> void
 	{
 		assert(this->Code_.size() == this->CodeDisc_.size());
 		this->Code_.reserve(size);
 		this->CodeDisc_.reserve(size);
 	}
 
-	inline auto Stream::Size() const -> std::size_t
+	inline auto Stream::Size() const -> U64
 	{
 		assert(this->Code_.size() == this->CodeDisc_.size());
 		return this->Code_.size();
 	}
 
-	inline auto Stream::SizeInBytes() const -> std::size_t
+	inline auto Stream::SizeInBytes() const -> U64
 	{
 		assert(this->Code_.size() == this->CodeDisc_.size());
 		return
@@ -3303,7 +3303,7 @@ namespace Nominax::ByteCode
 	/// <param name="offset"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const std::size_t offset) -> std::span<const Signal::Discriminator>
+	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const U64 offset) -> std::span<const Signal::Discriminator>
 	{
 		return {where + 1, where + 1 + offset};
 	}

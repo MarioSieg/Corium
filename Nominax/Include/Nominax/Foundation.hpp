@@ -427,11 +427,11 @@ namespace Nominax
 
 	#if NOX_COM_GCC
 
-		/// <summary>
-		/// Marks a hot label.
-		/// Hot paths are optimized more and get a better code layout.
-		/// </summary>
-		#define NOX_HOT_LABEL NOX_HOT
+	/// <summary>
+	/// Marks a hot label.
+	/// Hot paths are optimized more and get a better code layout.
+	/// </summary>
+	#define NOX_HOT_LABEL NOX_HOT
 
 	#else
 
@@ -805,23 +805,23 @@ namespace Nominax::Foundation
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename Iter, typename Func, typename... Args> requires RandomAccessIterator<Iter>
-	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) -> void
+	constexpr auto UniformChunkSplit(const U64 chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) -> void
 	{
 		using ValueType = const typename std::iterator_traits<Iter>::value_type;
 		using Span = std::span<ValueType>;
 
 		const auto length {std::distance(begin, end)};
-		const bool mismatch {chunkCount <= 1 || static_cast<std::size_t>(length) % chunkCount};
+		const bool mismatch {chunkCount <= 1 || static_cast<U64>(length) % chunkCount};
 
 		if (mismatch)
 		{
 			const Span range {begin, end};
-			std::invoke(std::forward<Func>(func), range, static_cast<std::size_t>(0), std::forward<Args>(args)...);
+			std::invoke(std::forward<Func>(func), range, static_cast<U64>(0), std::forward<Args>(args)...);
 		}
 		else
 		{
-			const auto chunkSize {static_cast<std::size_t>(length) / chunkCount};
-			for (std::size_t i {0}; i < chunkCount; ++i)
+			const auto chunkSize {static_cast<U64>(length) / chunkCount};
+			for (U64 i {0}; i < chunkCount; ++i)
 			{
 				const Iter beginChunk {begin + chunkSize * i};
 				const Iter endChunk {i == chunkCount - 1 ? end : beginChunk + chunkSize};
@@ -845,7 +845,7 @@ namespace Nominax::Foundation
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename T, typename Func, typename... Args>
-	constexpr auto UniformChunkSplit(const std::size_t chunkCount, const std::span<const T> range, Func&& func, Args&&...args) -> void
+	constexpr auto UniformChunkSplit(const U64 chunkCount, const std::span<const T> range, Func&& func, Args&&...args) -> void
 	{
 		UniformChunkSplit<decltype(std::begin(range)), Func, Args...>(chunkCount, std::begin(range), std::end(range), std::forward<Func>(func), std::forward(args)...);
 	}
@@ -856,9 +856,9 @@ namespace Nominax::Foundation
 	/// <typeparam name="VariantType"></typeparam>
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
-	template <typename VariantType, typename T, std::size_t Index = 0>
+	template <typename VariantType, typename T, U64 Index = 0>
 	[[nodiscard]]
-	constexpr auto VariantIndexOf() -> std::size_t
+	constexpr auto VariantIndexOf() -> U64
 	{
 		if constexpr (Index == std::variant_size_v<VariantType> || std::is_same_v<std::variant_alternative_t<Index, VariantType>, T>)
 		{
@@ -904,7 +904,7 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Restrict stack allocations type.
 	/// </summary>
-	template <typename T, const std::size_t C>
+	template <typename T, const U64 C>
 	concept StackAlloca = requires
 	{
 		std::is_trivial_v<T>; // trivial types only
@@ -918,7 +918,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
-	template <typename T, const std::size_t Count = 1> requires StackAlloca<T, Count>
+	template <typename T, const U64 Count = 1> requires StackAlloca<T, Count>
 	[[nodiscard]]
 	NOX_FORCE_INLINE inline auto StackAlloc() -> T*
 	{
@@ -936,7 +936,7 @@ namespace Nominax::Foundation
 	/// <param name="alignment"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto IsAlignmentValid(const std::size_t alignment) -> bool
+	constexpr auto IsAlignmentValid(const U64 alignment) -> bool
 	{
 		return alignment && !(alignment & (alignment - 1));
 	}
@@ -950,7 +950,7 @@ namespace Nominax::Foundation
 	/// <param name="alignment">The alignment the address should have.</param>
 	/// <returns>True if valid and corresponding alignment, else false.</returns>
 	[[nodiscard]]
-	constexpr auto IsAlignedTo(void* const ptr, const std::size_t alignment) -> bool
+	constexpr auto IsAlignedTo(void* const ptr, const U64 alignment) -> bool
 	{
 		return std::bit_cast<std::uintptr_t>(ptr) % alignment == 0 && IsAlignmentValid(alignment);
 	}
@@ -962,7 +962,7 @@ namespace Nominax::Foundation
 	/// <param name="alignment">The alignment the address should have.</param>
 	/// <returns>True if valid and corresponding alignment, else false.</returns>
 	[[nodiscard]]
-	constexpr auto IsAlignedTo(const std::uintptr_t ptr, const std::size_t alignment) -> bool
+	constexpr auto IsAlignedTo(const std::uintptr_t ptr, const U64 alignment) -> bool
 	{
 		return IsAlignedTo(std::bit_cast<void*>(ptr), alignment);
 	}
@@ -974,7 +974,7 @@ namespace Nominax::Foundation
 	/// <param name="ptr">The pointer address. Can be nullptr!</param>
 	/// <param name="alignment">The alignment, which must be valid.</param>
 	/// <returns>The required offset.</returns>
-	constexpr auto ComputeMissingAlignmentOffset(void* const ptr, const std::size_t alignment) -> std::size_t
+	constexpr auto ComputeMissingAlignmentOffset(void* const ptr, const U64 alignment) -> U64
 	{
 		const auto misalignment = std::bit_cast<std::uintptr_t>(ptr) & (alignment - 1);
 		return misalignment ? alignment - misalignment : 0;
@@ -987,7 +987,7 @@ namespace Nominax::Foundation
 	/// <param name="ptr">The pointer address. Can be nullptr!</param>
 	/// <param name="alignment">The alignment, which must be valid.</param>
 	/// <returns>The required offset.</returns>
-	constexpr auto ComputeMissingAlignmentOffset(const std::uintptr_t ptr, const std::size_t alignment) -> std::size_t
+	constexpr auto ComputeMissingAlignmentOffset(const std::uintptr_t ptr, const U64 alignment) -> U64
 	{
 		return ComputeMissingAlignmentOffset(std::bit_cast<void*>(ptr), alignment);
 	}
@@ -998,9 +998,9 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="size"></param>
 	/// <returns></returns>
-	inline auto ComputeMinAlignmentRequiredForSize(const std::size_t size) -> std::size_t
+	inline auto ComputeMinAlignmentRequiredForSize(const U64 size) -> U64
 	{
-		return size >= alignof(std::max_align_t) ? alignof(std::max_align_t) : static_cast<std::size_t>(1) << ILog2(size);
+		return size >= alignof(std::max_align_t) ? alignof(std::max_align_t) : static_cast<U64>(1) << ILog2(size);
 	}
 
 	/// <summary>
@@ -1158,7 +1158,7 @@ namespace Nominax::Foundation
 		/// <param name="out">Output pointer.</param>
 		/// <param name="size">The size of the block in bytes.</param>
 		/// <returns></returns>
-		virtual auto Allocate(void*& out, std::size_t size) const -> void;
+		virtual auto Allocate(void*& out, U64 size) const -> void;
 
 		/// <summary>
 		/// Raw reallocate like realloc().
@@ -1166,7 +1166,7 @@ namespace Nominax::Foundation
 		/// <param name="out">Output pointer.</param>
 		/// <param name="size">The size of the block in bytes.</param>
 		/// <returns></returns>
-		virtual auto Reallocate(void*& out, std::size_t size) const -> void;
+		virtual auto Reallocate(void*& out, U64 size) const -> void;
 
 		/// <summary>
 		/// Raw deallocate like free().
@@ -1183,7 +1183,7 @@ namespace Nominax::Foundation
 		/// <param name="alignment"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto AllocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void;
+		virtual auto AllocateAligned(void*& out, U64 size, U64 alignment) const -> void;
 
 		/// <summary>
 		/// 
@@ -1192,7 +1192,7 @@ namespace Nominax::Foundation
 		/// <param name="alignment"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto ReallocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void;
+		virtual auto ReallocateAligned(void*& out, U64 size, U64 alignment) const -> void;
 
 		/// <summary>
 		/// Raw deallocate aligned like free().
@@ -1207,7 +1207,7 @@ namespace Nominax::Foundation
 		/// <param name="out"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto Valloc(void*& out, std::size_t size) const -> void;
+		virtual auto Valloc(void*& out, U64 size) const -> void;
 
 		/// <summary>
 		/// Virtual free.
@@ -1280,7 +1280,7 @@ namespace Nominax::Foundation
 		/// <param name="out"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto Allocate(void*& out, std::size_t size) const -> void override;
+		virtual auto Allocate(void*& out, U64 size) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
@@ -1288,7 +1288,7 @@ namespace Nominax::Foundation
 		/// <param name="out"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto Reallocate(void*& out, std::size_t size) const -> void override;
+		virtual auto Reallocate(void*& out, U64 size) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
@@ -1304,7 +1304,7 @@ namespace Nominax::Foundation
 		/// <param name="size"></param>
 		/// <param name="alignment"></param>
 		/// <returns></returns>
-		virtual auto AllocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void override;
+		virtual auto AllocateAligned(void*& out, U64 size, U64 alignment) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
@@ -1313,7 +1313,7 @@ namespace Nominax::Foundation
 		/// <param name="size"></param>
 		/// <param name="alignment"></param>
 		/// <returns></returns>
-		virtual auto ReallocateAligned(void*& out, std::size_t size, std::size_t alignment) const -> void override;
+		virtual auto ReallocateAligned(void*& out, U64 size, U64 alignment) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
@@ -2742,21 +2742,21 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>The capacity of the content.</returns>
 		[[nodiscard]]
-		auto GetCapacity() const -> std::size_t;
+		auto GetCapacity() const -> U64;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the content - the number of characters.</returns>
 		[[nodiscard]]
-		auto GetSize() const -> std::size_t;
+		auto GetSize() const -> U64;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the content in bytes (capacity * charSize)</returns>
 		[[nodiscard]]
-		auto GetSizeInBytes() const -> std::size_t;
+		auto GetSizeInBytes() const -> U64;
 
 		/// <summary>
 		/// Removes all the spaces (' ') from the content in parallel.
@@ -2793,7 +2793,7 @@ namespace Nominax::Foundation
 		/// <param name="endIdx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto SubString(std::size_t beginIdx, std::size_t endIdx) const -> ViewType;
+		auto SubString(U64 beginIdx, U64 endIdx) const -> ViewType;
 
 		/// <summary>
 		/// Get a substring string view to the
@@ -2897,17 +2897,17 @@ namespace Nominax::Foundation
 		return this->Content_.empty();
 	}
 
-	inline auto TextFile::GetCapacity() const -> std::size_t
+	inline auto TextFile::GetCapacity() const -> U64
 	{
 		return this->Content_.capacity();
 	}
 
-	inline auto TextFile::GetSize() const -> std::size_t
+	inline auto TextFile::GetSize() const -> U64
 	{
 		return this->Content_.size();
 	}
 
-	inline auto TextFile::GetSizeInBytes() const -> std::size_t
+	inline auto TextFile::GetSizeInBytes() const -> U64
 	{
 		return this->Content_.capacity() * sizeof(CharType);
 	}
@@ -3362,7 +3362,7 @@ namespace Nominax::Foundation
 
 namespace Nominax::VectorLib
 {
-	constexpr std::size_t V128_ALIGN
+	constexpr U64 V128_ALIGN
 	{
 		#ifdef __SSE__
 		16
@@ -3371,7 +3371,7 @@ namespace Nominax::VectorLib
 		#endif
 	};
 
-	constexpr std::size_t V256_ALIGN
+	constexpr U64 V256_ALIGN
 	{
 		#if defined(__AVX__)
 		32
@@ -3382,7 +3382,7 @@ namespace Nominax::VectorLib
 		#endif
 	};
 
-	constexpr std::size_t V512_ALIGN
+	constexpr U64 V512_ALIGN
 	{
 		#if defined(__AVX512F__)
 		64
@@ -7052,7 +7052,7 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Contains all CPU feature names.
 	/// </summary>
-	constexpr std::array<std::string_view, static_cast<std::size_t>(CpuFeatureBits::$Count)> CPU_FEATURE_BIT_NAMES
+	constexpr std::array<std::string_view, static_cast<U64>(CpuFeatureBits::$Count)> CPU_FEATURE_BIT_NAMES
 	{
 		#if NOX_ARCH_X86_64
 		"FPU",
@@ -7287,17 +7287,17 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Feature mask.
 	/// </summary>
-	using CpuFeatureMask = std::array<bool, static_cast<std::size_t>(CpuFeatureBits::$Count)>;
+	using CpuFeatureMask = std::array<bool, static_cast<U64>(CpuFeatureBits::$Count)>;
 
 	/// <summary>
 	/// Bitmask storage type.
 	/// </summary>
-	using CpuFeatureMaskBitStorage = std::bitset<static_cast<std::size_t>(CpuFeatureBits::$Count)>;
+	using CpuFeatureMaskBitStorage = std::bitset<static_cast<U64>(CpuFeatureBits::$Count)>;
 
 	/// <summary>
 	/// Feature mask.
 	/// </summary>
-	using CpuFeatureMaskBuffer = std::array<U8, static_cast<std::size_t>(CpuFeatureBits::$Count) / CHAR_BIT>;
+	using CpuFeatureMaskBuffer = std::array<U8, static_cast<U64>(CpuFeatureBits::$Count) / CHAR_BIT>;
 
 	/// <summary>
 	/// Detects architecture dependent cpu features.
@@ -7375,12 +7375,12 @@ namespace Nominax::Foundation
 
 	inline auto CpuFeatureDetector::operator[](CpuFeatureBits bit) -> bool&
 	{
-		return this->FeatureBits_[static_cast<std::size_t>(bit)];
+		return this->FeatureBits_[static_cast<U64>(bit)];
 	}
 
 	inline auto CpuFeatureDetector::operator[](const CpuFeatureBits bit) const -> bool
 	{
-		return this->FeatureBits_[static_cast<std::size_t>(bit)];
+		return this->FeatureBits_[static_cast<U64>(bit)];
 	}
 
 	inline auto CpuFeatureDetector::operator*() const -> const CpuFeatureMask&
@@ -7434,7 +7434,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="threads"></param>
 	/// <returns></returns>
-	constexpr auto MachineRating(const std::size_t threads) -> MachineClass
+	constexpr auto MachineRating(const U64 threads) -> MachineClass
 	{
 		if (threads <= 2)
 		{
@@ -7505,14 +7505,14 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>The total system memory in bytes.</returns>
 		[[nodiscard]]
-		static auto QuerySystemMemoryTotal() -> std::size_t;
+		static auto QuerySystemMemoryTotal() -> U64;
 
 		/// <summary>
 		/// Query system info.
 		/// </summary>
 		/// <returns>The amount of memory used by the current process in bytes.</returns>
 		[[nodiscard]]
-		static auto QueryProcessMemoryUsed() -> std::size_t;
+		static auto QueryProcessMemoryUsed() -> U64;
 
 		/// <summary>
 		/// Query system info.
@@ -7526,7 +7526,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>The size of a page in bytes.</returns>
 		[[nodiscard]]
-		static auto QueryPageSize() -> std::size_t;
+		static auto QueryPageSize() -> U64;
 
 		/// <summary>
 		/// Open dynamic library file.
@@ -7581,7 +7581,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Amount of CPU supported threads.
 		/// </summary>
-		std::size_t ThreadCount { };
+		U64 ThreadCount { };
 
 		/// <summary>
 		/// Name of the CPU.
@@ -7591,17 +7591,17 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// The total amount of memory in bytes.
 		/// </summary>
-		std::size_t TotalSystemMemory { };
+		U64 TotalSystemMemory { };
 
 		/// <summary>
 		/// The total amount of process memory in bytes.
 		/// </summary>
-		std::size_t ProcessMemory { };
+		U64 ProcessMemory { };
 
 		/// <summary>
 		/// The size of a page in bytes.
 		/// </summary>
-		std::size_t PageSize { };
+		U64 PageSize { };
 
 		/// <summary>
 		/// Construct and query data.
