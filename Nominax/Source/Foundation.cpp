@@ -943,7 +943,7 @@ namespace Nominax::Foundation
 #include <dlfcn.h>
 #include <unistd.h>
 
-	namespace Nominax::Common
+	namespace Nominax::Foundation
 	{
 		auto Os::QuerySystemMemoryTotal()  -> U64
 		{

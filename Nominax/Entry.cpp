@@ -207,7 +207,7 @@
 
 #include "Include/Nominax/Nominax.hpp"
 
-using namespace Prelude;
+using namespace Nominax::Prelude;
 
 auto main() -> I32
 {
