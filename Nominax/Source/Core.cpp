@@ -263,7 +263,7 @@ namespace Nominax
 		{
 			Common::Print('\n');
 			Common::CpuFeatureDetector cpuFeatureDetector { };
-			cpuFeatureDetector.Print();
+			cpuFeatureDetector.Dump();
 			Common::Print('\n');
 			return cpuFeatureDetector;
 		}
@@ -1512,13 +1512,13 @@ namespace Nominax
 			#if NOX_ARCH_X86_64
 
 			// if we have AVX 512, use AVX 512:
-			if (cpuFeatureDetector->Avx512F)
+			if (cpuFeatureDetector[Common::CpuFeatureBits::Avx512F])
 			{
 				return ReactorCoreSpecialization::X86_64_AVX512F;
 			}
 
 			// if we have AVX, use AVX:
-			if (cpuFeatureDetector->Avx)
+			if (cpuFeatureDetector[Common::CpuFeatureBits::Avx])
 			{
 				return ReactorCoreSpecialization::X86_64_AVX;
 			}

@@ -825,371 +825,65 @@ auto operator delete[](void* mem, std::size_t) noexcept(true) -> void
 
 namespace Nominax::Common
 {
-	#define PRINT_CPU_FEATURE(name, has) Print(( has ) ? TextColor::Green : TextColor::Red, "{0: <18} ", name)
-
-	CpuFeatureBits::CpuFeatureBits()
+	CpuFeatureDetector::CpuFeatureDetector() : FeatureBits_ { }
 	{
 		using namespace Assembler::X86_64::Routines;
+		using Cfb = CpuFeatureBits;
 
 		// check if cpuid is supported on system
 		NOX_PAS_TRUE(Asm_IsCpuIdSupported(), "CPUID instruction is not supported on system!");
 
-		// Raw DATA.
-		std::array<U8, sizeof(CpuFeatureBits)> data { };
-		std::array<MergedInfoTable, 3>         chunk { };
-
-		// Call cpuid assembly routine:
-		U32 r {Asm_CpuId(&chunk[0], &chunk[1], &chunk[2])};
-
-		// Copy parameter output quads
-		std::memcpy(data.data(), chunk.data(), sizeof(MergedInfoTable) * 3);
-
-		// Copy return value:
-		std::memcpy(data.data() + sizeof(MergedInfoTable) * 3, &r, sizeof(U32));
-
-		// Update this
-		*this = std::bit_cast<CpuFeatureBits>(data);
+		CpuFeatureMaskBuffer           buffer { };
+		std::array<MergedInfoTable, 3> merged { };
+		U32                            result;
+		result = Asm_CpuId(&merged[0], &merged[1], &merged[2]);
+		U8* const needle{ std::data(buffer) };
+		std::memcpy(needle, std::data(merged), sizeof merged);
+		std::memcpy(needle + sizeof merged, &result, sizeof result);
+		for (std::size_t i {0}; i < sizeof buffer; ++i)
+		{
+			for (std::size_t j {0}; j < CHAR_BIT; ++j)
+			{
+				this->FeatureBits_[i * CHAR_BIT + j] = buffer[i] & 1 << j;
+			}
+		}
 
 		// Validate OS support and update flags for AVX:
-		const bool avxOsSupport = this->OsXSave ? Asm_IsAvxSupportedByOs() : false;
+		const bool avxOsSupport {(*this)[Cfb::OsXSave] && Asm_IsAvxSupportedByOs()};
+		(*this)[Cfb::Avx] &= avxOsSupport;
+		(*this)[Cfb::Avx2] &= avxOsSupport;
+		(*this)[Cfb::F16C] &= avxOsSupport;
 
-		// Update flags requiring os support for AVX:
-		this->Avx &= avxOsSupport;
-		this->Avx2 &= avxOsSupport;
-		this->F16C &= avxOsSupport;
-		this->Avx2 &= avxOsSupport;
-
-		// Validate OS support and update flags for AVX 512:
-		const bool avx512OsSupport = this->OsXSave ? avxOsSupport && Asm_IsAvx512SupportedByOs() : false;
-
-		// Update flags requiring OS support for AVX 512:
-		this->Avx512F &= avx512OsSupport;
-		this->Avx512Dq &= avx512OsSupport;
-		this->Avx512Ifma &= avx512OsSupport;
-		this->Avx512Pf &= avx512OsSupport;
-		this->Avx512Er &= avx512OsSupport;
-		this->Avx512Cd &= avx512OsSupport;
-		this->Avx512Bw &= avx512OsSupport;
-		this->Avx512Vl &= avx512OsSupport;
-		this->Avx512Vbmi &= avx512OsSupport;
-		this->Avx512Vbmi2 &= avx512OsSupport;
-		this->Avx512Vnni &= avx512OsSupport;
-		this->Avx512Bitalg &= avx512OsSupport;
-		this->Avx512VPopCntdq &= avx512OsSupport;
-		this->Avx5124FMaps &= avx512OsSupport;
-		this->Avx5124Vnniw &= avx512OsSupport;
+		// Validate OS support and update flags for AVX-512 F:
+		const bool avx512OsSupport {avxOsSupport && (*this)[Cfb::OsXSave] && Asm_IsAvx512SupportedByOs()};
+		(*this)[Cfb::Avx512F] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Dq] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Ifma] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Pf] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Er] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Cd] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Bw] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Vl] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Vbmi] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Vmbi2] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Gfni] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Vnni] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Bitalg] &= avx512OsSupport;
+		(*this)[Cfb::Avx512PopCntdq] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Vnniw4] &= avx512OsSupport;
+		(*this)[Cfb::Avx512FMaps4] &= avx512OsSupport;
+		(*this)[Cfb::Avx512Vp2Intersect] &= avx512OsSupport;
 	}
 
-	auto CpuFeatureBits::PrintFeatures() const -> void
+	auto CpuFeatureDetector::Dump() const -> void
 	{
-		PRINT_CPU_FEATURE("FPU", this->Fpu);
-		PRINT_CPU_FEATURE("VME", this->Vme);
-		PRINT_CPU_FEATURE("DE", this->De);
-		PRINT_CPU_FEATURE("PSE", this->Pse);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("TSC", this->Tsc);
-		PRINT_CPU_FEATURE("MSR", this->Msr);
-		PRINT_CPU_FEATURE("PAE", this->Pae);
-		PRINT_CPU_FEATURE("MCE", this->Mce);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("CMPXCHG8", this->Cx8);
-		PRINT_CPU_FEATURE("APIC", this->Apic);
-		PRINT_CPU_FEATURE("SEP", this->Sep);
-		PRINT_CPU_FEATURE("MTRR", this->Mtrr);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("PGE", this->Pge);
-		PRINT_CPU_FEATURE("MCA", this->Mca);
-		PRINT_CPU_FEATURE("CMOV", this->CMov);
-		PRINT_CPU_FEATURE("PAT", this->Pat);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("PSE36", this->Pse36);
-		PRINT_CPU_FEATURE("PSN", this->Psn);
-		PRINT_CPU_FEATURE("CLFSH", this->Clfsh);
-		PRINT_CPU_FEATURE("DS", this->Ds);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("ACPI", this->Acpi);
-		PRINT_CPU_FEATURE("MMX", this->Mmx);
-		PRINT_CPU_FEATURE("FXSR", this->Fxsr);
-		PRINT_CPU_FEATURE("SSE", this->Sse);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("SSE2", this->Sse2);
-		PRINT_CPU_FEATURE("SS", this->Ss);
-		PRINT_CPU_FEATURE("HTT", this->Htt);
-		PRINT_CPU_FEATURE("TM", this->Tm);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("IA64", this->Ia64);
-		PRINT_CPU_FEATURE("PBE", this->Pbe);
-		PRINT_CPU_FEATURE("SSE3", this->Sse3);
-		PRINT_CPU_FEATURE("PCLMULDQD", this->PclMulDqd);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("DTES64", this->DTes64);
-		PRINT_CPU_FEATURE("Monitor", this->Monitor);
-		PRINT_CPU_FEATURE("DSCPL", this->DsCpl);
-		PRINT_CPU_FEATURE("SMX", this->Smx);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("EST", this->Est);
-		PRINT_CPU_FEATURE("TM2", this->Tm2);
-		PRINT_CPU_FEATURE("SSSE3", this->Sse3);
-		PRINT_CPU_FEATURE("CNXTID", this->CnxtId);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("SDBG", this->Sdbg);
-		PRINT_CPU_FEATURE("FMA3", this->Fma3);
-		PRINT_CPU_FEATURE("CMPXCHG16", this->Cx16);
-		PRINT_CPU_FEATURE("XPTR", this->Xtpr);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("PDCM", this->Pdcm);
-		PRINT_CPU_FEATURE("PCID", this->Pcid);
-		PRINT_CPU_FEATURE("DCA", this->Dca);
-		PRINT_CPU_FEATURE("SSE4.1", this->Sse41);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("SSE4.2", this->Sse42);
-		PRINT_CPU_FEATURE("X2APIC", this->X2Apic);
-		PRINT_CPU_FEATURE("MOVBE", this->MovBe);
-		PRINT_CPU_FEATURE("POPCNT", this->PopCnt);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("TSCDeadline", this->TscDeadline);
-		PRINT_CPU_FEATURE("AES", this->Aes);
-		PRINT_CPU_FEATURE("XSave", this->XSave);
-		PRINT_CPU_FEATURE("OsXSave", this->OsXSave);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("AVX", this->Avx);
-		PRINT_CPU_FEATURE("F16C", this->F16C);
-		PRINT_CPU_FEATURE("RDRND", this->RdRnd);
-		PRINT_CPU_FEATURE("HyperVisor", this->HyperVisor);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("FSGSBase", this->FsGsBase);
-		PRINT_CPU_FEATURE("TSCAdjust", this->TscAdjust);
-		PRINT_CPU_FEATURE("SGX", this->Sgx);
-		PRINT_CPU_FEATURE("BMI1", this->Bmi1);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("HLE", this->Hle);
-		PRINT_CPU_FEATURE("AVX2", this->Avx2);
-		PRINT_CPU_FEATURE("FDPExcept", this->FdpExcept);
-		PRINT_CPU_FEATURE("SMEP", this->Smep);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("BMI2", this->Bmi2);
-		PRINT_CPU_FEATURE("ERMS", this->Erms);
-		PRINT_CPU_FEATURE("INVPCID", this->InvPcid);
-		PRINT_CPU_FEATURE("RTM", this->Rtm);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("PQM", this->Pqm);
-		PRINT_CPU_FEATURE("FPUCSDSDEPR", this->FpuCsDsDepr);
-		PRINT_CPU_FEATURE("MPX", this->Mpx);
-		PRINT_CPU_FEATURE("PQE", this->Pqe);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("AVX512F", this->Avx512F);
-		PRINT_CPU_FEATURE("AVX512DQ", this->Avx512Dq);
-		PRINT_CPU_FEATURE("RDSEED", this->RdSeed);
-		PRINT_CPU_FEATURE("ADX", this->Adx);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("SMAP", this->SMap);
-		PRINT_CPU_FEATURE("AVX512IFMA", this->Avx512Ifma);
-		PRINT_CPU_FEATURE("PCommit", this->PCommit);
-		PRINT_CPU_FEATURE("CLFlushOpt", this->ClFlushOpt);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("CLWB", this->Clwb);
-		PRINT_CPU_FEATURE("IntelPt", this->IntelPt);
-		PRINT_CPU_FEATURE("AVX512PF", this->Avx512Pf);
-		PRINT_CPU_FEATURE("AVX512ER", this->Avx512Er);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("AVX512CD", this->Avx512Cd);
-		PRINT_CPU_FEATURE("SHA", this->Sha);
-		PRINT_CPU_FEATURE("AVX512BW", this->Avx512Bw);
-		PRINT_CPU_FEATURE("AVX512VL", this->Avx512Vl);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("PreFetchWt1", this->PreFetchWt1);
-		PRINT_CPU_FEATURE("AVX512VBMI1", this->Avx512Vbmi);
-		PRINT_CPU_FEATURE("UMIP", this->Umip);
-		PRINT_CPU_FEATURE("PKU", this->Pku);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("OSPKE", this->OsPke);
-		PRINT_CPU_FEATURE("WaitPKG", this->WaitPkg);
-		PRINT_CPU_FEATURE("AVX512VBMI2", this->Avx512Vbmi2);
-		PRINT_CPU_FEATURE("CETSS", this->CetSS);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("GFNI", this->Gfni);
-		PRINT_CPU_FEATURE("VAES", this->VAes);
-		PRINT_CPU_FEATURE("VPCLMULDQD", this->VPclMulDqd);
-		PRINT_CPU_FEATURE("AVX512VNNI", this->Avx512Vnni);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("AVX512BITALG", this->Avx512Bitalg);
-		PRINT_CPU_FEATURE("AVX512VPOPCNTDQ", this->Avx512VPopCntdq);
-		PRINT_CPU_FEATURE("5LevelPaging", this->Level5Paging);
-		PRINT_CPU_FEATURE("RDPID", this->RdPid);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("CLDemote", this->ClDemote);
-		PRINT_CPU_FEATURE("MOVDIRI", this->MovDiri);
-		PRINT_CPU_FEATURE("MOVDIR64B", this->MovDir64B);
-		PRINT_CPU_FEATURE("EQNCMD", this->EnqCmd);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("SGXLC", this->SgxLc);
-		PRINT_CPU_FEATURE("PKS", this->Pks);
-		PRINT_CPU_FEATURE("AVX512VNNIW", this->Avx5124Vnniw);
-		PRINT_CPU_FEATURE("AVX512FMAPS", this->Avx5124FMaps);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("FSRM", this->Fsrm);
-		PRINT_CPU_FEATURE("AVX512VP2INTERSECT", this->Avx512Vp2Intersect);
-		PRINT_CPU_FEATURE("SRBDSCTRL", this->SrbdsCtrl);
-		PRINT_CPU_FEATURE("MDCLEAR", this->MdClear);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("TSXForceAbort", this->TsxForceAbort);
-		PRINT_CPU_FEATURE("Serialize", this->Serialize);
-		PRINT_CPU_FEATURE("Hybrid", this->Hybrid);
-		PRINT_CPU_FEATURE("TSXLDTRK", this->Tsxldtrk);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("PConfig", this->PConfig);
-		PRINT_CPU_FEATURE("LBR", this->Lbr);
-		PRINT_CPU_FEATURE("CETIBT", this->CetIbt);
-		PRINT_CPU_FEATURE("AMXBF16", this->AmxBf16);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("AMXTile", this->AmxTile);
-		PRINT_CPU_FEATURE("AMXInt8", this->AmxInt8);
-		PRINT_CPU_FEATURE("SpecCTRL", this->SpecCtrl);
-		PRINT_CPU_FEATURE("STIBP", this->Stibp);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("L1DFlush", this->L1DFlush);
-		PRINT_CPU_FEATURE("IA32ArchCompat", this->Ia32CoreCompat);
-		PRINT_CPU_FEATURE("IA32CoreCompat", this->Ia32CoreCompat);
-		PRINT_CPU_FEATURE("SSBD", this->Ssbd);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("LAHFLM", this->LahfLm);
-		PRINT_CPU_FEATURE("CMPLegacy", this->CmpLegacy);
-		PRINT_CPU_FEATURE("SVM", this->Svm);
-		PRINT_CPU_FEATURE("ExtAPIC", this->ExtApic);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("CR8Legacy", this->Cr8Legacy);
-		PRINT_CPU_FEATURE("ABM", this->Abm);
-		PRINT_CPU_FEATURE("SSE4A", this->Sse4a);
-		PRINT_CPU_FEATURE("MisAlignSSE", this->MisAlignSse);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("3DNowPrefetch", this->D3NowPrefetch);
-		PRINT_CPU_FEATURE("OSVW", this->OsVw);
-		PRINT_CPU_FEATURE("IBS", this->Ibs);
-		PRINT_CPU_FEATURE("XOP", this->Xop);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("SKInit", this->SkInit);
-		PRINT_CPU_FEATURE("WDT", this->Wdt);
-		PRINT_CPU_FEATURE("LWP", this->Lwp);
-		PRINT_CPU_FEATURE("FMA4", this->Fma4);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("TCE", this->Tce);
-		PRINT_CPU_FEATURE("NodeIDMSR", this->NodeIdMsr);
-		PRINT_CPU_FEATURE("TBM", this->Tbm);
-		PRINT_CPU_FEATURE("TopoExt", this->TopoExt);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("PerfCTRCore", this->PerfCtrCore);
-		PRINT_CPU_FEATURE("PerfCTRNB", this->PerCtrNb);
-		PRINT_CPU_FEATURE("DBX", this->Dbx);
-		PRINT_CPU_FEATURE("PerfTSC", this->PerfTsc);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("PCXL2I", this->PcxL2i);
-		PRINT_CPU_FEATURE("SYSCALL", this->SysCall);
-		PRINT_CPU_FEATURE("MP", this->Mp);
-		PRINT_CPU_FEATURE("NX", this->Nx);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("MMXExt", this->MmmxExt);
-		PRINT_CPU_FEATURE("FXSROpt", this->FxsrOpt);
-		PRINT_CPU_FEATURE("PDPE1GB", this->Pdpe1Gb);
-		PRINT_CPU_FEATURE("RDTSCP", this->Rdtscp);
-
-		Print('\n');
-
-		PRINT_CPU_FEATURE("LM", this->LongMode);
-		PRINT_CPU_FEATURE("3DNowExt", this->D3NowExt);
-		PRINT_CPU_FEATURE("3DNow", this->D3Now);
-
-		Print('\n');
-	}
-
-	#undef PRINT_CPU_FEATURE
-
-	CpuFeatureDetector::CpuFeatureDetector() : Features_ { } { }
-
-	auto CpuFeatureDetector::Print() const -> void
-	{
-		this->Features_.PrintFeatures();
+		for (std::size_t i {0}; i < std::size(this->FeatureBits_); ++i)
+		{
+			if (!std::empty(CPU_FEATURE_BIT_NAMES[i]))
+			{
+				Print("{}: {}\n", CPU_FEATURE_BIT_NAMES[i], this->FeatureBits_[i]);
+			}
+		}
 	}
 
 	static auto MachineRating(const std::size_t threads) -> char

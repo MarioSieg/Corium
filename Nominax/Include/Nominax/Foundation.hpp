@@ -210,6 +210,7 @@
 #include <algorithm>
 #include <atomic>
 #include <bit>
+#include <bitset>
 #include <cassert>
 #include <condition_variable>
 #include <climits>
@@ -1521,31 +1522,31 @@ namespace Nominax::Common
 	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
 	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState(const T x) : Value_ {static_cast<ValueType>(x)} { }
 
-    /// <summary>
-    /// Generic bit rotation left.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <param name="shift"></param>
-    /// <returns>The bit shifted value.</returns>
+	/// <summary>
+	/// Generic bit rotation left.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <param name="shift"></param>
+	/// <returns>The bit shifted value.</returns>
 	template <typename T> requires std::is_unsigned_v<T>
-    [[nodiscard]]
-    NOX_FORCE_INLINE NOX_PURE constexpr auto RolGeneric(const T value, const U8 shift) -> T
-    {
-        return ((value) << (shift)) | ((value) >> (-static_cast<I32>(shift) & (CHAR_BIT * sizeof(value) - 1)));
-    }
+	[[nodiscard]]
+	NOX_FORCE_INLINE NOX_PURE constexpr auto RolGeneric(const T value, const U8 shift) -> T
+	{
+		return ((value) << (shift)) | ((value) >> (-static_cast<I32>(shift) & (CHAR_BIT * sizeof(value) - 1)));
+	}
 
-    /// <summary>
-    /// Generic bit rotation right.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <param name="shift"></param>
-    /// <returns>The bit shifted value.</returns>
-    template <typename T> requires std::is_unsigned_v<T>
-    [[nodiscard]]
-    NOX_FORCE_INLINE NOX_PURE constexpr auto RorGeneric(const T value, const U8 shift) -> T
-    {
-        return (((value) << (-static_cast<I32>(shift) & (CHAR_BIT * sizeof(value) - 1))) | ((value) >> (shift)));
-    }
+	/// <summary>
+	/// Generic bit rotation right.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <param name="shift"></param>
+	/// <returns>The bit shifted value.</returns>
+	template <typename T> requires std::is_unsigned_v<T>
+	[[nodiscard]]
+	NOX_FORCE_INLINE NOX_PURE constexpr auto RorGeneric(const T value, const U8 shift) -> T
+	{
+		return (((value) << (-static_cast<I32>(shift) & (CHAR_BIT * sizeof(value) - 1))) | ((value) >> (shift)));
+	}
 
 	/// <summary>
 	/// Fast, platform dependent implementation for a bitwise left rotation.
@@ -1643,7 +1644,7 @@ namespace Nominax::Common
 		);
 		return value;
 		#else
-        return RorGeneric<decltype(value)>(value, shift);
+		return RorGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
@@ -6129,1058 +6130,1123 @@ namespace Nominax::VectorLib
 
 namespace Nominax::Common
 {
-	/// <summary>
-	/// Contains all feature bits for a x86-64 cpu.
-	/// </summary>
-	struct CpuFeatureBits final
+	enum class CpuFeatureBits : U8
 	{
-		CpuFeatureBits();
-
-		// QWORD 1 LO
-
 		/// <summary>
 		/// Onboard x87 FPU
 		/// </summary>
-		bool Fpu : 1 { };
+		Fpu = 0,
 
 		/// <summary>
 		/// Virtual 8086 mode extensions (such as VIF, VIP, PIV)
 		/// </summary>
-		bool Vme : 1 { };
+		Vme = 1,
 
 		/// <summary>
 		/// Debugging extensions (CR4 bit 3)
 		/// </summary>
-		bool De : 1 { };
+		De = 2,
 
 		/// <summary>
 		/// Page Size Extension
 		/// </summary>
-		bool Pse : 1 { };
+		Pse = 3,
 
 		/// <summary>
 		/// Time Stamp Counter
 		/// </summary>
-		bool Tsc : 1 { };
+		Tsc = 4,
 
 		/// <summary>
 		/// Model-specific registers
 		/// </summary>
-		bool Msr : 1 { };
+		Msr = 5,
 
 		/// <summary>
 		/// Physical Address Extension
 		/// </summary>
-		bool Pae : 1 { };
+		Pae = 6,
 
 		/// <summary>
 		/// Machine Check Exception
 		/// </summary>
-		bool Mce : 1 { };
+		Mce = 7,
 
 		/// <summary>
 		/// CMPXCHG8 (compare-and-swap) instruction
 		/// </summary>
-		bool Cx8 : 1 { };
+		Cx8 = 8,
 
 		/// <summary>
-		/// Onboard Advanced Programmable Interrupt Controller
+		/// On-board Advanced Programmable Interrupt Controller
 		/// </summary>
-		bool Apic : 1 { };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved0 : 1 { };
+		Apic = 9,
 
 		/// <summary>
 		/// SYSENTER and SYSEXIT instructions
 		/// </summary>
-		bool Sep : 1 { };
+		Sep = 11,
 
 		/// <summary>
 		/// Memory Type Range Registers
 		/// </summary>
-		bool Mtrr : 1 { };
+		Mtrr = 12,
 
 		/// <summary>
 		/// Page Global Enable bit in CR4
 		/// </summary>
-		bool Pge : 1 { };
+		Pge = 13,
 
 		/// <summary>
 		/// Machine check architecture
 		/// </summary>
-		bool Mca : 1 { };
+		Mca = 14,
 
 		/// <summary>
 		///	Conditional move and FCMOV instructions
 		/// </summary>
-		bool CMov : 1 { };
+		CMov = 15,
 
 		/// <summary>
 		/// Page Attribute Table
 		/// </summary>
-		bool Pat : 1 { };
+		Pat = 16,
 
 		/// <summary>
 		/// 36-bit page size extension
 		/// </summary>
-		bool Pse36 : 1 { };
+		Pse36 = 17,
 
 		/// <summary>
 		/// Processor Serial Number
 		/// </summary>
-		bool Psn : 1 { };
+		Psn = 18,
 
 		/// <summary>
 		/// CLFLUSH instruction (SSE2)
 		/// </summary>
-		bool Clfsh : 1 { };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved1 : 1 { };
+		Clfsh = 19,
 
 		/// <summary>
 		/// Debug store: save trace of executed jumps
 		/// </summary>
-		bool Ds : 1 { };
+		Ds = 21,
 
 		/// <summary>
 		/// Onboard thermal control MSRs for ACPI
 		/// </summary>
-		bool Acpi : 1 { };
+		Acpi = 22,
+
 
 		/// <summary>
 		/// MMX instructions
 		/// </summary>
-		bool Mmx : 1 { };
+		Mmx = 23,
 
 		/// <summary>
 		/// FXSAVE, FXRESTOR instructions, CR4 bit 9
 		/// </summary>
-		bool Fxsr : 1 { };
+		Fxsr = 24,
 
 		/// <summary>
 		/// SSE instructions (a.k.a. Katmai New Instructions)
 		/// </summary>
-		bool Sse : 1 { };
+		Sse = 25,
 
 		/// <summary>
 		/// SSE2 instructions
 		/// </summary>
-		bool Sse2 : 1 { };
+		Sse2 = 26,
 
 		/// <summary>
 		/// CPU cache implements self-snoop
 		/// </summary>
-		bool Ss : 1 { };
+		Ss = 27,
 
 		/// <summary>
 		/// Hyper-threading
 		/// </summary>
-		bool Htt : 1 { };
+		Htt = 28,
 
 		/// <summary>
 		/// Thermal monitor automatically limits temperature
 		/// </summary>
-		bool Tm : 1 { };
+		Tm = 29,
 
 		/// <summary>
 		/// IA64 processor emulating x86
 		/// </summary>
-		bool Ia64 : 1 { };
+		Ia64 = 30,
 
 		/// <summary>
 		/// Pending Break Enable (PBE# pin) wakeup capability
 		/// </summary>
-		bool Pbe : 1 { };
-
-		// QWORD 1 HI
+		Pbe = 31,
 
 		/// <summary>
 		/// Prescott New Instructions-SSE3 (PNI)
-		/// </summary>
-		bool Sse3 : 1 { };
+		/// </summary>		
+		Sse3 = 32,
 
 		/// <summary>
 		/// Carry-less Multiplication (CLMUL)
 		/// </summary>
-		bool PclMulDqd : 1 { };
+		PclMulDqd = 33,
 
 		/// <summary>
 		/// 64-bit debug store (edx bit 21)
 		/// </summary>
-		bool DTes64 : 1 { };
+		DTes64 = 34,
 
 		/// <summary>
 		/// MONITOR and MWAIT instructions (SSE3)
 		/// </summary>
-		bool Monitor : 1 { };
+		Monitor = 35,
 
 		/// <summary>
 		/// CPL qualified debug store
 		/// </summary>
-		bool DsCpl : 1 { };
+		DsCpl = 36,
 
 		/// <summary>
 		/// Virtual Machine eXtensions
 		/// </summary>
-		bool Vmx : 1 { };
+		Vmx = 37,
 
 		/// <summary>
 		/// Safer Mode Extensions (LaGrande)
 		/// </summary>
-		bool Smx : 1 { };
+		Smx = 38,
 
 		/// <summary>
 		/// Enhanced SpeedStep
 		/// </summary>
-		bool Est : 1 { };
+		Est = 39,
 
 		/// <summary>
 		/// Thermal Monitor 2
 		/// </summary>
-		bool Tm2 : 1 { };
+		Tm2 = 40,
 
 		/// <summary>
 		/// Supplemental SSE3 instructions
 		/// </summary>
-		bool Ssse3 : 1 { };
+		Ssse3 = 41,
 
 		/// <summary>
 		/// L1 Context ID
 		/// </summary>
-		bool CnxtId : 1 { };
+		CnxtId = 42,
 
 		/// <summary>
 		/// Silicon Debug interface
 		/// </summary>
-		bool Sdbg : 1 { };
+		Sdbg = 43,
 
 		/// <summary>
 		/// Fused multiply-add (FMA3)
 		/// </summary>
-		bool Fma3 : 1 { };
+		Fma3 = 44,
 
 		/// <summary>
 		/// CMPXCHG16B instruction
 		/// </summary>
-		bool Cx16 : 1 { };
+		Cx16 = 45,
 
 		/// <summary>
 		/// Can disable sending task priority messages
 		/// </summary>
-		bool Xtpr : 1 { };
+		Xtpr = 46,
 
 		/// <summary>
 		/// Perfmon & debug capability
 		/// </summary>
-		bool Pdcm : 1 { };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved2 : 1 { };
+		Pdcm = 47,
 
 		/// <summary>
 		/// Process context identifiers (CR4 bit 17)
 		/// </summary>
-		bool Pcid : 1 { };
+		Pcid = 49,
 
 		/// <summary>
 		/// Direct cache access for DMA writes
 		/// </summary>
-		bool Dca : 1 { };
+		Dca = 50,
 
 		/// <summary>
 		/// SSE4.1 instructions
 		/// </summary>
-		bool Sse41 : 1 { };
+		Sse41 = 51,
 
 		/// <summary>
 		/// SSE4.2 instructions
 		/// </summary>
-		bool Sse42 : 1 { };
+		Sse42 = 52,
 
 		/// <summary>
 		/// x2APIC
 		/// </summary>
-		bool X2Apic : 1 { };
+		X2Apic = 53,
 
 		/// <summary>
 		/// MOVBE instruction (big-endian)
 		/// </summary>
-		bool MovBe : 1 { };
+		MovBe = 54,
 
 		/// <summary>
 		/// POPCNT instruction
 		/// </summary>
-		bool PopCnt : 1 { };
+		PopCnt = 55,
 
 		/// <summary>
 		/// APIC implements one-shot operation using a TSC deadline value
 		/// </summary>
-		bool TscDeadline : 1 { };
+		TscDeadLine = 56,
 
 		/// <summary>
 		/// AES instruction set
 		/// </summary>
-		bool Aes : 1 { };
+		Aes = 57,
 
 		/// <summary>
 		/// XSAVE, XRESTOR, XSETBV, XGETBV
 		/// </summary>
-		bool XSave : 1 { };
+		XSave = 58,
 
 		/// <summary>
 		/// XSAVE enabled by OS
 		/// </summary>
-		bool OsXSave : 1 { };
+		OsXSave = 59,
 
 		/// <summary>
 		/// Advanced Vector Extensions
 		/// </summary>
-		bool Avx : 1 { };
+		Avx = 60,
 
 		/// <summary>
 		/// F16C (half-precision) FP feature
 		/// </summary>
-		bool F16C : 1 { };
+		F16C = 61,
 
 		/// <summary>
 		/// RDRAND (on-chip random number generator) feature
 		/// </summary>
-		bool RdRnd : 1 { };
+		RdRand = 62,
 
 		/// <summary>
-		/// Hypervisor present (always zero on physical CPUs)
+		/// HyperVisor present (always zero on physical CPUs)
 		/// </summary>
-		bool HyperVisor : 1 { };
-
-		// QWORD 2 LO
+		HyperVisor = 63,
 
 		/// <summary>
 		/// Access to base of %fs and %gs
 		/// </summary>
-		bool FsGsBase : 1 { };
+		FsGsBase = 64,
 
 		/// <summary>
 		/// IA32_TSC_ADJUST
 		/// </summary>
-		bool TscAdjust : 1 { };
+		TscAdjust = 65,
 
 		/// <summary>
 		/// Software Guard Extensions
 		/// </summary>
-		bool Sgx : 1 { };
+		Sgx = 66,
 
 		/// <summary>
 		/// Bit Manipulation Instruction Set 1
 		/// </summary>
-		bool Bmi1 : 1 { };
+		Bmi1 = 67,
 
 		/// <summary>
 		/// TSX Hardware Lock Elision
 		/// </summary>
-		bool Hle : 1 { };
+		Hle = 68,
 
 		/// <summary>
 		/// Advanced Vector Extensions 2
 		/// </summary>
-		bool Avx2 : 1 { };
+		Avx2 = 69,
 
 		/// <summary>
 		/// FDP_EXCPTN_ONLY
 		/// </summary>
-		bool FdpExcept : 1 { };
+		FdpExcept = 70,
 
 		/// <summary>
 		/// Supervisor Mode Execution Prevention
 		/// </summary>
-		bool Smep : 1 { };
+		Smep = 71,
 
 		/// <summary>
 		/// Bit Manipulation Instruction Set 2
 		/// </summary>
-		bool Bmi2 : 1 { };
+		Bmi2 = 72,
 
 		/// <summary>
 		/// Enhanced REP MOVSB/STOSB
 		/// </summary>
-		bool Erms : 1 { };
+		Erms = 73,
 
 		/// <summary>
 		/// INVPCID instruction
 		/// </summary>
-		bool InvPcid : 1 { };
+		InvPcid = 74,
 
 		/// <summary>
 		/// TSX Restricted Transactional Memory
 		/// </summary>
-		bool Rtm : 1 { };
+		Rtm = 75,
 
 		/// <summary>
 		/// Platform Quality of Service Monitoring
 		/// </summary>
-		bool Pqm : 1 { };
+		Pqm = 76,
 
 		/// <summary>
-		/// 	FPU CS and FPU DS deprecated
+		/// FPU CS and FPU DS deprecated
 		/// </summary>
-		bool FpuCsDsDepr : 1 { };
+		FpuCsDsDepr = 77,
 
 		/// <summary>
-		/// 	Intel MPX (Memory Protection Extensions)
+		/// Intel MPX (Memory Protection Extensions)
 		/// </summary>
-		bool Mpx : 1 { };
+		Mpx = 78,
 
 		/// <summary>
-		/// 	Platform Quality of Service Enforcement
+		/// Platform Quality of Service Enforcement
 		/// </summary>
-		bool Pqe : 1 { };
+		Pwe = 79,
 
 		/// <summary>
-		/// 	AVX-512 Foundation
+		/// AVX-512 Foundation
 		/// </summary>
-		bool Avx512F : 1 { };
+		Avx512F = 80,
 
 		/// <summary>
 		/// AVX-512 Doubleword and Quadword Instructions
 		/// </summary>
-		bool Avx512Dq : 1 { };
+		Avx512Dq = 81,
 
 		/// <summary>
 		/// RDSEED instruction
 		/// </summary>
-		bool RdSeed : 1 { };
+		RdSeed = 82,
 
 		/// <summary>
 		/// Intel ADX (Multi-Precision Add-Carry Instruction Extensions)
 		/// </summary>
-		bool Adx : 1 { };
+		Adx = 83,
 
 		/// <summary>
-		/// 	Supervisor Mode Access Prevention
+		/// Supervisor Mode Access Prevention
 		/// </summary>
-		bool SMap : 1 { };
+		SMap = 84,
 
 		/// <summary>
 		/// Integer Fused Multiply-Add Instructions
 		/// </summary>
-		bool Avx512Ifma : 1 { };
+		Avx512Ifma = 85,
 
 		/// <summary>
 		/// PCOMMIT instruction
 		/// </summary>
-		bool PCommit : 1 { };
+		PCommit = 86,
 
 		/// <summary>
 		/// CLFLUSHOPT instruction
 		/// </summary>
-		bool ClFlushOpt : 1 { };
+		ClFlushOpt = 87,
 
 		/// <summary>
-		/// 	CLWB instruction
+		/// CLWB instruction
 		/// </summary>
-		bool Clwb : 1 { };
+		Clwb = 88,
 
 		/// <summary>
-		/// 	Intel Processor Trace
+		/// Intel Processor Trace
 		/// </summary>
-		bool IntelPt : 1 { };
+		IntelPt = 89,
 
 		/// <summary>
-		/// Prefetch Instructions
+		/// AVX 512 Prefetch Instructions
 		/// </summary>
-		bool Avx512Pf : 1 { };
+		Avx512Pf = 90,
 
 		/// <summary>
 		///  Exponential and Reciprocal Instructions
 		/// </summary>
-		bool Avx512Er : 1 { };
+		Avx512Er = 91,
 
 		/// <summary>
 		/// Conflict Detection Instructions
 		/// </summary>
-		bool Avx512Cd : 1 { };
+		Avx512Cd = 92,
 
 		/// <summary>
-		/// 	Intel SHA extensions
+		/// Intel secure hashing algorithm extensions
 		/// </summary>
-		bool Sha : 1 { };
+		Sha = 93,
 
 		/// <summary>
-		/// Byte and Word Instructions
+		/// Byte and word Instructions
 		/// </summary>
-		bool Avx512Bw : 1 { };
+		Avx512Bw = 94,
 
 		/// <summary>
 		/// Vector Length Extensions
 		/// </summary>
-		bool Avx512Vl : 1 { };
-
-		// QWORD 2 HI
+		Avx512Vl = 95,
 
 		/// <summary>
 		/// PREFETCHWT1 instruction
 		/// </summary>
-		bool PreFetchWt1 : 1 { };
+		PreFetchWt1 = 96,
 
 		/// <summary>
 		/// Vector Bit Manipulation Instructions
 		/// </summary>
-		bool Avx512Vbmi : 1 { };
+		Avx512Vbmi = 97,
 
 		/// <summary>
 		/// User-mode Instruction Prevention
 		/// </summary>
-		bool Umip : 1 { };
+		Umip = 98,
 
 		/// <summary>
 		/// Memory Protection Keys for User-mode pages
 		/// </summary>
-		bool Pku : 1 { };
+		Pku = 99,
 
 		/// <summary>
 		/// PKU enabled by OS
 		/// </summary>
-		bool OsPke : 1 { };
+		OsPku = 100,
 
 		/// <summary>
 		/// Timed pause and user-level monitor/wait
 		/// </summary>
-		bool WaitPkg : 1 { };
+		WaitPkg = 101,
 
 		/// <summary>
 		/// AVX-512 Vector Bit Manipulation Instructions 2
 		/// </summary>
-		bool Avx512Vbmi2 : 1 { };
+		Avx512Vmbi2 = 102,
 
 		/// <summary>
-		/// 	Control flow enforcement (CET) shadow stack
+		/// Control flow enforcement (CET) shadow stack
 		/// </summary>
-		bool CetSS : 1 { };
+		CetSs = 103,
 
 		/// <summary>
-		/// 	Galois Field instructions
+		/// AVX-512	galois field instructions
 		/// </summary>
-		bool Gfni : 1 { };
+		Avx512Gfni = 104,
 
 		/// <summary>
 		/// Vector AES instruction set (VEX-256/EVEX)
 		/// </summary>
-		bool VAes : 1 { };
+		VAes = 105,
 
 		/// <summary>
-		/// 	CLMUL instruction set (VEX-256/EVEX)
+		/// Vector CLMUL instruction set (VEX-256/EVEX)
 		/// </summary>
-		bool VPclMulDqd : 1 { };
+		VPclMulDqd = 106,
 
 		/// <summary>
-		/// Vector Neural Network Instructions
+		/// AVX-512 vector neural network instructions
 		/// </summary>
-		bool Avx512Vnni : 1 { };
+		Avx512Vnni = 107,
 
 		/// <summary>
-		/// BITALG instructions
+		/// AVX-512 bit algorithm instructions
 		/// </summary>
-		bool Avx512Bitalg : 1 { };
+		Avx512Bitalg = 108,
 
 		/// <summary>
-		/// Unused
+		/// AVX-512 vector population count double and qword
 		/// </summary>
-		bool Reserved3 : 1 { };
+		Avx512PopCntdq = 110,
 
 		/// <summary>
-		/// 	AVX-512 Vector Population Count Double and Quad-word
+		/// 5-level paging
 		/// </summary>
-		bool Avx512VPopCntdq : 1 { };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved4 : 1 { };
-
-		/// <summary>
-		/// 	5-level paging
-		/// </summary>
-		bool Level5Paging : 1 { };
-
-		/// <summary>
-		/// Unused.
-		/// The value of userspace MPX Address-Width Adjust used by the BNDLDX and BNDSTX Intel MPX instructions in 64-bit mode
-		/// </summary>
-		U8 IngoredM0 : 5 { };
+		Level5Paging = 112,
 
 		/// <summary>
 		/// Read Processor ID and IA32_TSC_AUX
 		/// </summary>
-		bool RdPid : 1 { };
+		RdPid = 118,
 
 		/// <summary>
-		/// Unused
+		/// Cache line demote
 		/// </summary>
-		bool Reserved5 : 1 { };
-
-		/// <summary>
-		/// Unused.
-		/// </summary>
-		bool Reserved6 : 1 { };
-
-		/// <summary>
-		/// 	Cache line demote
-		/// </summary>
-		bool ClDemote : 1 { };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved7 : 1 { };
+		ClDemote = 121,
 
 		/// <summary>
 		/// 
 		/// </summary>
-		bool MovDiri : 1 { };
+		MovDiri = 123,
 
 		/// <summary>
 		/// 
 		/// </summary>
-		bool MovDir64B : 1 { };
+		MovDir64B = 124,
 
 		/// <summary>
 		/// Enqueue Stores
 		/// </summary>
-		bool EnqCmd : 1 { };
+		EnqCmd = 125,
 
 		/// <summary>
 		/// SGX Launch Configuration
 		/// </summary>
-		bool SgxLc : 1 { };
+		SgxLc = 126,
 
 		/// <summary>
 		/// Protection keys for supervisor-mode pages
 		/// </summary>
-		bool Pks : 1 { };
-
-		// U64 3 LO
+		Pks = 127,
 
 		/// <summary>
-		/// Unused
+		/// AVX-512 4 register neural network instructions
 		/// </summary>
-		bool Reserved8 : 1{ };
+		Avx512Vnniw4 = 130,
 
 		/// <summary>
-		/// Unused
+		/// AVX-512 4 register multiply accumulation single precision
 		/// </summary>
-		bool Reserved9 : 1{ };
-
-		/// <summary>
-		/// 4-register Neural Network Instructions
-		/// </summary>
-		bool Avx5124Vnniw : 1{ };
-
-		/// <summary>
-		/// 4-register Multiply Accumulation Single precision
-		/// </summary>
-		bool Avx5124FMaps : 1{ };
+		Avx512FMaps4 = 131,
 
 		/// <summary>
 		/// Fast Short REP MOVSB
 		/// </summary>
-		bool Fsrm : 1{ };
+		Fsrm = 132,
 
 		/// <summary>
-		/// Unused
+		/// AVX-512 intersection
 		/// </summary>
-		bool Reserved10 : 1{ };
+		Avx512Vp2Intersect = 136,
 
 		/// <summary>
-		/// Unused
+		/// Special register system bump pool data sampling mitigations
 		/// </summary>
-		bool Reserved11 : 1{ };
+		SrbdsCtrl = 137,
 
 		/// <summary>
-		/// Unused
+		/// Clears CPU buffers
 		/// </summary>
-		bool Reserved12 : 1{ };
-
-		/// <summary>
-		/// Doubleword and Quadword Instructions
-		/// </summary>
-		bool Avx512Vp2Intersect : 1{ };
-
-		/// <summary>
-		/// Special Register SystemBumpPool Data Sampling Mitigations
-		/// </summary>
-		bool SrbdsCtrl : 1{ };
-
-		/// <summary>
-		/// 	VERW instruction clears CPU buffers
-		/// </summary>
-		bool MdClear : 1{ };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved13 : 1{ };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved14 : 1{ };
+		MdClear = 138,
 
 		/// <summary>
 		/// 
 		/// </summary>
-		bool TsxForceAbort : 1{ };
+		TsxForceAbort = 141,
 
 		/// <summary>
-		/// 	Serialize instruction execution
+		/// Serialize instruction execution
 		/// </summary>
-		bool Serialize : 1{ };
+		Serialize = 142,
 
 		/// <summary>
 		/// 
 		/// </summary>
-		bool Hybrid : 1{ };
+		Hybrid = 143,
 
 		/// <summary>
-		/// 	TSX suspend load address tracking
+		/// TSX suspend load address tracking
 		/// </summary>
-		bool Tsxldtrk : 1{ };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved15 : 1{ };
+		TsxLdTrk = 144,
 
 		/// <summary>
 		/// Platform configuration (Memory Encryption Technologies Instructions)
 		/// </summary>
-		bool PConfig : 1{ };
+		PConfig = 146,
 
 		/// <summary>
-		/// 	Architectural Last Branch Records
+		/// Architectural Last Branch Records
 		/// </summary>
-		bool Lbr : 1{ };
+		Pbr = 147,
 
 		/// <summary>
 		/// Control flow enforcement (CET) indirect branch tracking
 		/// </summary>
-		bool CetIbt : 1{ };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved16 : 1{ };
+		CetIbt = 148,
 
 		/// <summary>
 		/// Tile computation on bfloat16 numbers
 		/// </summary>
-		bool AmxBf16 : 1{ };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved17 : 1{ };
+		AmxBf16 = 150,
 
 		/// <summary>
 		/// Tile architecture
 		/// </summary>
-		bool AmxTile : 1{ };
+		AmxTile = 152,
 
 		/// <summary>
-		/// Tile computation on 8-bit integers
+		///  Tile computation on 8-bit integers
 		/// </summary>
-		bool AmxInt8 : 1{ };
+		AmxInt8 = 153,
 
 		/// <summary>
-		/// Speculation Control, part of Indirect Branch Control (IBC):
-		/// Indirect Branch Restricted Speculation(IBRS) and
-		/// Indirect Branch Prediction Barrier(IBPB)
-		/// </summary>
-		bool SpecCtrl : 1{ };
+		/// Speculation Control, part of Indirect Branch 
+		/// Indirect Branch Restricted Speculation(IBRS)
+		///	SpecIndirect Branch Prediction Barrier(IBPB)
+		///	</summary>
+		Ctrl = 154,
 
 		/// <summary>
-		/// 	Single Thread Indirect Branch Predictor, part of IBC
+		/// Single thread indirect branch predictor, part of IBC
 		/// </summary>
-		bool Stibp : 1{ };
+		Stibp = 155,
 
 		/// <summary>
-		/// 	IA32_FLUSH_CMD MSR
+		/// IA32_FLUSH_CMD MSR
 		/// </summary>
-		bool L1DFlush : 1{ };
+		L1DFlush = 156,
 
 		/// <summary>
-		/// Speculative Side Channel Mitigations
+		/// Speculative side channel mitigations
 		/// </summary>
-		bool Ia32ArchCompat : 1{ };
+		Ia32ArchCompat = 157,
 
 		/// <summary>
 		/// Support for a MSR listing model-specific core capabilities
 		/// </summary>
-		bool Ia32CoreCompat : 1{ };
+		Ia32CoreCompat = 158,
 
 		/// <summary>
-		/// 	Speculative Store Bypass Disable,
-		/// 	as mitigation for Speculative Store Bypass (IA32_SPEC_CTRL)
+		/// Speculative Store Bypass Disable,
+		/// as mitigation for Speculative Store Bypass (IA32_SPEC_CTRL)
 		/// </summary>
-		bool Ssbd : 1{ };
-
-		// U64 3 HI
+		Ssbd = 159,
 
 		/// <summary>
 		/// LAHF/SAHF in long mode
 		/// </summary>
-		bool LahfLm : 1{ };
+		LahfLm = 160,
 
 		/// <summary>
-		/// 	Hyperthreading not valid
+		/// Hyperthreading not valid
 		/// </summary>
-		bool CmpLegacy : 1 { };
+		CmpLegacy = 161,
 
 		/// <summary>
-		/// 	Secure Virtual Machine
+		/// Secure Virtual Machine
 		/// </summary>
-		bool Svm : 1 { };
+		Svm = 162,
 
 		/// <summary>
-		/// 	Extended APIC space
+		/// Extended APIC space
 		/// </summary>
-		bool ExtApic : 1 { };
+		ExtApic = 163,
 
 		/// <summary>
 		/// CR8 in 32-bit mode
 		/// </summary>
-		bool Cr8Legacy : 1 { };
+		Cr8Legacy = 164,
 
 		/// <summary>
-		/// 	Advanced bit manipulation (lzcnt and popcnt)
+		/// Advanced bit manipulation (lzcnt and popcnt)
 		/// </summary>
-		bool Abm : 1 { };
+		Avm = 165,
 
 		/// <summary>
-		/// 	SSE4a
+		/// SSE4a
 		/// </summary>
-		bool Sse4a : 1 { };
+		Sse4A = 166,
 
 		/// <summary>
 		/// Misaligned SSE mode
 		/// </summary>
-		bool MisAlignSse : 1 { };
+		MisAlignedSse = 167,
 
 		/// <summary>
 		/// PREFETCH and PREFETCHW instructions
 		/// </summary>
-		bool D3NowPrefetch : 1 { };
+		D3NowPrefetch = 168,
 
 		/// <summary>
-		/// 	OS Visible Workaround
+		/// OS Visible Workaround
 		/// </summary>
-		bool OsVw : 1 { };
+		OsVw = 169,
 
 		/// <summary>
-		/// 	Instruction Based Sampling
+		/// Instruction based sampling
 		/// </summary>
-		bool Ibs : 1 { };
+		Ibs = 170,
 
 		/// <summary>
-		/// 	XOP instruction set
+		/// XOP instruction set
 		/// </summary>
-		bool Xop : 1 { };
+		Xop = 171,
 
 		/// <summary>
 		/// SKINIT/STGI instructions
 		/// </summary>
-		bool SkInit : 1 { };
+		SkInit = 172,
 
 		/// <summary>
-		/// 	Watchdog timer
+		/// Watchdog timer
 		/// </summary>
-		bool Wdt : 1 { };
+		Dgt = 173,
 
 		/// <summary>
-		/// Unused
+		/// Light Weight Profiling[25]
 		/// </summary>
-		bool Reserved18 : 1 { };
+		Lwp = 175,
 
 		/// <summary>
-		/// 	Light Weight Profiling[25]
+		/// 4 operands fused multiply-add
 		/// </summary>
-		bool Lwp : 1 { };
+		Fma4 = 176,
 
 		/// <summary>
-		/// 	4 operands fused multiply-add
+		/// Translation cache extension
 		/// </summary>
-		bool Fma4 : 1 { };
+		Tce = 177,
 
 		/// <summary>
-		/// 	Translation Cache Extension
+		/// NodeID MSR
 		/// </summary>
-		bool Tce : 1 { };
+		NodeIdMdr = 179,
 
 		/// <summary>
-		/// Unused
+		/// Trailing bit manipulation
 		/// </summary>
-		bool Reserved19 : 1 { };
+		Tbm = 181,
 
 		/// <summary>
-		/// 	NodeID MSR
+		/// Topology extensions
 		/// </summary>
-		bool NodeIdMsr : 1 { };
+		TopoExt = 182,
 
 		/// <summary>
-		/// Unused
+		///  Core performance counter extensions
 		/// </summary>
-		bool Reserved20 : 1 { };
+		PerfCtrCore = 183,
 
 		/// <summary>
-		/// Trailing Bit Manipulation
+		/// NB performance counter extensions
 		/// </summary>
-		bool Tbm : 1 { };
+		PerCtrNb = 184,
 
 		/// <summary>
-		/// 	Topology Extensions
+		/// Data breakpoint extensions
 		/// </summary>
-		bool TopoExt : 1 { };
+		Dbx = 186,
 
 		/// <summary>
-		/// Core performance counter extensions
+		/// Performance TSC
 		/// </summary>
-		bool PerfCtrCore : 1 { };
+		PerfTsc = 187,
 
 		/// <summary>
-		/// 	NB performance counter extensions
+		/// L2I perf counter extensions
 		/// </summary>
-		bool PerCtrNb : 1 { };
+		PcxL2i = 188,
 
 		/// <summary>
-		/// Unused
+		///  SYSCALL and SYSRET instructions
 		/// </summary>
-		bool Reserved21 : 1 { };
+		SysCall = 203,
 
 		/// <summary>
-		/// 	Data breakpoint extensions
+		/// Multiprocessor capable
 		/// </summary>
-		bool Dbx : 1 { };
+		MpCap = 211,
 
 		/// <summary>
-		/// 	Performance TSC
+		/// NX bit
 		/// </summary>
-		bool PerfTsc : 1 { };
+		Nx = 212,
 
 		/// <summary>
-		/// 	L2I perf counter extensions
+		/// Extended MMX
 		/// </summary>
-		bool PcxL2i : 1 { };
+		MmxEx = 214,
 
 		/// <summary>
-		/// Unused
+		/// FXSAVE/FXRSTOR optimizations
 		/// </summary>
-		bool Reserved22 : 1 { };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved23 : 1 { };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved24 : 1 { };
-
-		// DWORD RET
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		U16 Ignored0 : 11 { };
-
-		/// <summary>
-		/// SYSCALL and SYSRET instructions
-		/// </summary>
-		bool SysCall : 1 { };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		U8 Ignored1 : 7 { };
-
-		/// <summary>
-		/// Multiprocessor Capable
-		/// </summary>
-		bool Mp : 1 { };
-
-		/// <summary>
-		/// 	NX bit
-		/// </summary>
-		bool Nx : 1 { };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved25 : 1 { };
-
-		/// <summary>
-		/// 	Extended MMX
-		/// </summary>
-		bool MmmxExt : 1 { };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		U8 Ignored2 : 2 { };
-
-		/// <summary>
-		/// 	FXSAVE/FXRSTOR optimizations
-		/// </summary>
-		bool FxsrOpt : 1 { };
+		FxsrOpt = 217,
 
 		/// <summary>
 		/// Gigabyte pages
 		/// </summary>
-		bool Pdpe1Gb : 1 { };
+		Pdpe1Gb = 218,
 
 		/// <summary>
 		/// RDTSCP instruction
 		/// </summary>
-		bool Rdtscp : 1 { };
-
-		/// <summary>
-		/// Unused
-		/// </summary>
-		bool Reserved26 : 1 { };
+		RdTscP = 219,
 
 		/// <summary>
 		/// Long mode
 		/// </summary>
-		bool LongMode : 1 { };
+		LongMode = 221,
 
 		/// <summary>
-		/// 	Extended 3DNow!
+		/// Extended 3DNow
 		/// </summary>
-		bool D3NowExt : 1 { };
+		D3NowExt = 222,
 
 		/// <summary>
-		/// 	3DNow!
+		/// 3DNow!
 		/// </summary>
-		bool D3Now : 1 { };
+		D3Now = 223,
 
 		/// <summary>
-		/// Prints all the features into a table
-		/// coloring the available features green
-		/// and the unavailable red.
+		/// Amount of bits.
 		/// </summary>
-		/// <returns></returns>
-		auto PrintFeatures() const -> void;
+		$Count
 	};
 
-	static_assert(sizeof(CpuFeatureBits) == 30);
-	static_assert(std::is_trivially_copyable_v<CpuFeatureBits>);
-	static_assert(std::is_default_constructible_v<CpuFeatureBits>);
+	/// <summary>
+	/// Contains all CPU feature names.
+	/// </summary>
+	constexpr std::array<std::string_view, static_cast<std::size_t>(CpuFeatureBits::$Count)> CPU_FEATURE_BIT_NAMES
+	{
+		"FPU",
+		"VME",
+		"DE",
+		"PSE",
+		"TSC",
+		"MSR",
+		"PAE",
+		"MCE",
+		"CX8",
+		"APIC",
+		{ },
+		"SEP",
+		"MTRR",
+		"PGE",
+		"MCA",
+		"CMOV",
+		"PAT",
+		"PSE36",
+		"PSN",
+		"CLFSH",
+		{ },
+		"DS",
+		"ACPI",
+		"MMX",
+		"FXSR",
+		"SSE",
+		"SSE2",
+		"SS",
+		"HTT",
+		"TM",
+		"IA64",
+		"PBE",
+		"SSE3",
+		"PCLMULDQD",
+		"DTES64",
+		"MONITOR",
+		"DSCPL",
+		"VMX",
+		"SMX",
+		"EST",
+		"TM2",
+		"SSSE3",
+		"CNXTID",
+		"SDBG",
+		"FMA3",
+		"CX16",
+		"XTPR",
+		"PDCM",
+		{ },
+		"PCID",
+		"DCA",
+		"SSE41",
+		"SSE42",
+		"X2APIC",
+		"MOVBE",
+		"POPCNT",
+		"TSCDEADLINE",
+		"AES",
+		"XSAVE",
+		"OSXSAVE",
+		"AVX",
+		"F16C",
+		"RDRAND",
+		"HYPERVISOR",
+		"FSGSBASE",
+		"TSCADJUST",
+		"SGX",
+		"BMI1",
+		"HLE",
+		"AVX2",
+		"FDPEXCEPT",
+		"SMEP",
+		"BMI2",
+		"ERMS",
+		"INVPCID",
+		"RTM",
+		"PQM",
+		"FPUCSDSDEPR",
+		"MPX",
+		"PWE",
+		"AVX512F",
+		"AVX512DQ",
+		"RDSEED",
+		"ADX",
+		"SMAP",
+		"AVX512IFMA",
+		"PCOMMIT",
+		"CLFLUSHOPT",
+		"CLWB",
+		"INTELPT",
+		"AVX512PF",
+		"AVX512ER",
+		"AVX512CD",
+		"SHA",
+		"AVX512BW",
+		"AVX512VL",
+		"PREFETCHWT1",
+		"AVX512VBMI",
+		"UMIP",
+		"PKU",
+		"OSPKU",
+		"WAITPKG",
+		"AVX512VMBI2",
+		"CETSS",
+		"AVX512GFNI",
+		"VAES",
+		"VPCLMULDQD",
+		"AVX512VNNI",
+		"AVX512BITALG",
+		{ },
+		"AVX512POPCNTDQ",
+		{ },
+		"LEVEL5PAGING",
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		"RDPID",
+		{ },
+		{ },
+		"CLDEMOTE",
+		{ },
+		"MOVDIRI",
+		"MOVDIR64B",
+		"ENQCMD",
+		"SGXLC",
+		"PKS",
+		{ },
+		{ },
+		"AVX512VNNIW4",
+		"AVX512FMAPS4",
+		"FSRM",
+		{ },
+		{ },
+		{ },
+		"AVX512VP2INTERSECT",
+		"SRBDSCTRL",
+		"MDCLEAR",
+		{ },
+		{ },
+		"TSXFORCEABORT",
+		"SERIALIZE",
+		"HYBRID",
+		"TSXLDTRK",
+		{ },
+		"PCONFIG",
+		"PBR",
+		"CETIBT",
+		{ },
+		"AMXBF16",
+		{ },
+		"AMXTILE",
+		"AMXINT8",
+		"CTRL",
+		"STIBP",
+		"L1DFLUSH",
+		"IA32ARCHCOMPAT",
+		"IA32CORECOMPAT",
+		"SSBD",
+		"LAHFLM",
+		"CMPLEGACY",
+		"SVM",
+		"EXTAPIC",
+		"CR8LEGACY",
+		"AVM",
+		"SSE4A",
+		"MISALIGNEDSSE",
+		"D3NOWPREFETCH",
+		"OSVW",
+		"IBS",
+		"XOP",
+		"SKINIT",
+		"DGT",
+		{ },
+		"LWP",
+		"FMA4",
+		"TCE",
+		{ },
+		"NODEIDMDR",
+		{ },
+		"TBM",
+		"TOPOEXT",
+		"PERFCTRCORE",
+		"PERCTRNB",
+		{ },
+		"DBX",
+		"PERFTSC",
+		"PCXL2I",
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		"SYSCALL",
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		{ },
+		"MPCAP",
+		"NX",
+		{ },
+		"MMXEX",
+		{ },
+		{ },
+		"FXSROPT",
+		"PDPE1GB",
+		"RDTSCP",
+		{ },
+		"LONGMODE",
+		"D3NOWEXT",
+		"D3NOW"
+	};
+
+	/// <summary>
+	/// Feature mask.
+	/// </summary>
+	using CpuFeatureMask = std::array<bool, static_cast<std::size_t>(CpuFeatureBits::$Count)>;
+
+	/// <summary>
+	/// Bitmask storage type.
+	/// </summary>
+	using CpuFeatureMaskBitStorage = std::bitset<static_cast<std::size_t>(CpuFeatureBits::$Count)>;
+
+	/// <summary>
+	/// Feature mask.
+	/// </summary>
+	using CpuFeatureMaskBuffer = std::array<U8, static_cast<std::size_t>(CpuFeatureBits::$Count) / CHAR_BIT>;
 
 	/// <summary>
 	/// Detects architecture dependent cpu features.
@@ -7191,7 +7257,14 @@ namespace Nominax::Common
 		/// <summary>
 		/// Architecture dependent bits.
 		/// </summary>
-		const CpuFeatureBits Features_;
+		CpuFeatureMask FeatureBits_;
+
+		/// <summary>
+		/// Get or set support for special feature.
+		/// </summary>
+		/// <param name="bit"></param>
+		/// <returns></returns>
+		auto operator [](CpuFeatureBits bit) -> bool&;
 
 	public:
 		/// <summary>
@@ -7228,64 +7301,196 @@ namespace Nominax::Common
 		/// <summary>
 		/// Access the architecture dependent feature bits directly.
 		/// </summary>
-		auto operator ->() const -> const CpuFeatureBits*;
+		[[nodiscard]]
+		auto operator ->() const -> const CpuFeatureMask*;
 
 		/// <summary>
 		/// Access the architecture dependent feature bits directly.
 		/// </summary>
-		auto operator *() const -> const CpuFeatureBits&;
+		[[nodiscard]]
+		auto operator *() const -> const CpuFeatureMask&;
+
+		/// <summary>
+		/// Check support for special feature.
+		/// </summary>
+		/// <param name="bit"></param>
+		/// <returns></returns>
+		auto operator [](CpuFeatureBits bit) const -> bool;
 
 		/// <summary>
 		/// Prints all the architecture dependent features in different colors.
 		/// </summary>
-		auto Print() const -> void;
+		auto Dump() const -> void;
 	};
 
-	inline auto CpuFeatureDetector::operator ->() const -> const CpuFeatureBits*
+	inline auto CpuFeatureDetector::operator[](CpuFeatureBits bit) -> bool&
 	{
-		return &this->Features_;
+		return this->FeatureBits_[static_cast<std::size_t>(bit)];
 	}
 
-	inline auto CpuFeatureDetector::operator *() const -> const CpuFeatureBits&
+	inline auto CpuFeatureDetector::operator[](const CpuFeatureBits bit) const -> bool
 	{
-		return this->Features_;
+		return this->FeatureBits_[static_cast<std::size_t>(bit)];
 	}
 
+	inline auto CpuFeatureDetector::operator*() const -> const CpuFeatureMask&
+	{
+		return this->FeatureBits_;
+	}
+
+	inline auto CpuFeatureDetector::operator->() const -> const CpuFeatureMask*
+	{
+		return &this->FeatureBits_;
+	}
+
+	/// <summary>
+	/// Query system info.
+	/// </summary>
+	/// <returns>The total system memory in bytes.</returns>
 	[[nodiscard]]
 	extern auto QuerySystemMemoryTotal() -> std::size_t;
 
+	/// <summary>
+	/// Query system info.
+	/// </summary>
+	/// <returns>The amount of memory used by the current process in bytes.</returns>
 	[[nodiscard]]
 	extern auto QueryProcessMemoryUsed() -> std::size_t;
 
+	/// <summary>
+	/// Query system info.
+	/// </summary>
+	/// <returns>The name of the CPU.</returns>
 	[[nodiscard]]
 	extern auto QueryCpuName() -> std::string;
 
+	/// <summary>
+	/// Query system info.
+	/// </summary>
+	/// <returns>The size of a page in bytes.</returns>
 	[[nodiscard]]
 	extern auto QueryPageSize() -> std::size_t;
 
+	/// <summary>
+	/// Open dynamic library file.
+	/// </summary>
+	/// <param name="filePath"></param>
+	/// <returns></returns>
 	[[nodiscard]]
 	extern auto DylibOpen(std::string_view filePath) -> void*;
 
+	/// <summary>
+	/// Lookup symbol in dynamic library.
+	/// </summary>
+	/// <param name="handle"></param>
+	/// <param name="symbolName"></param>
+	/// <returns></returns>
 	[[nodiscard]]
 	extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
 
+	/// <summary>
+	/// Close dynamic library.
+	/// </summary>
+	/// <param name="handle"></param>
+	/// <returns></returns>
 	extern auto DylibClose(void*& handle) -> void;
 
+	/// <summary>
+	/// Contains information about the current system and stats.
+	/// </summary>
 	struct Snapshot final
 	{
-		std::thread::id  ThreadId { };
-		std::string_view OperatingSystemName {NOX_OS_NAME};
-		std::string_view ArchitectureName {NOX_ARCH_NAME};
-		std::string_view CompilerName {NOX_COM_NAME};
-		std::size_t      ThreadCount { };
-		std::string      CpuName { };
-		std::size_t      TotalSystemMemory { };
-		std::size_t      ProcessMemory { };
-		std::size_t      PageSize { };
+		/// <summary>
+		/// The current thread id.
+		/// </summary>
+		std::thread::id ThreadId { };
 
+		/// <summary>
+		/// Name of the operating system.
+		/// </summary>
+		std::string_view OperatingSystemName {NOX_OS_NAME};
+
+		/// <summary>
+		/// Architecture name.
+		/// </summary>
+		std::string_view ArchitectureName {NOX_ARCH_NAME};
+
+		/// <summary>
+		/// Name of the compiler.
+		/// </summary>
+		std::string_view CompilerName {NOX_COM_NAME};
+
+		/// <summary>
+		/// Amount of CPU supported threads.
+		/// </summary>
+		std::size_t ThreadCount { };
+
+		/// <summary>
+		/// Name of the CPU.
+		/// </summary>
+		std::string CpuName { };
+
+		/// <summary>
+		/// The total amount of memory in bytes.
+		/// </summary>
+		std::size_t TotalSystemMemory { };
+
+		/// <summary>
+		/// The total amount of process memory in bytes.
+		/// </summary>
+		std::size_t ProcessMemory { };
+
+		/// <summary>
+		/// The size of a page in bytes.
+		/// </summary>
+		std::size_t PageSize { };
+
+		/// <summary>
+		/// Construct and query data.
+		/// </summary>
 		Snapshot();
 
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		Snapshot(const Snapshot& other) = default;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		Snapshot(Snapshot&& other) = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const Snapshot& other) -> Snapshot& = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(Snapshot&& other) -> Snapshot& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~Snapshot() = default;
+
+		/// <summary>
+		/// Query and refresh data.
+		/// </summary>
+		/// <returns></returns>
 		auto QueryAll() -> void;
+
+		/// <summary>
+		/// Print the data.
+		/// </summary>
+		/// <returns></returns>
 		auto Print() const -> void;
 	};
 

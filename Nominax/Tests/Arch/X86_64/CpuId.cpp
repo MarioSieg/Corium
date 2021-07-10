@@ -220,13 +220,13 @@ TEST(AssemblyCalls, IsCpudIdSupported)
 
 TEST(AssemblyCalls, CpuId)
 {
-	const CpuFeatureBits bits { };
-	ASSERT_TRUE(bits.Fpu);
-	ASSERT_TRUE(bits.Mmx);
-	ASSERT_TRUE(bits.Sse);
-	ASSERT_TRUE(bits.Sse2);
-	ASSERT_TRUE(bits.Sse3);
-	ASSERT_TRUE(bits.Ssse3);
+	const CpuFeatureDetector features { };
+	ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
+	ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
+	ASSERT_TRUE(features[CpuFeatureBits::Sse]);
+	ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
+	ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
+	ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
 }
 
 #endif
