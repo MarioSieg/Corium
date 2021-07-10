@@ -1,6 +1,6 @@
-// File: Utils.cpp
+// File: Entry.cpp
 // Author: Mario
-// Created: 06.07.2021 4:08 PM
+// Created: 10.07.2021 9:20 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,150 +205,27 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/Utils.hpp"
+#include "Include/Nominax/Nominax.hpp"
 
-using namespace Nominax;
-using namespace ByteCode;
-using namespace Core;
-using namespace fmt;
+using namespace Prelude;
 
-auto formatter<Instruction, char, void>::format
-(
-	const Instruction& value,
-	format_context&    ctx
-) const -> FormatOutput
+auto main() -> I32
 {
-	return format_to
-	(
-		ctx.out(),
-		"{}",
-		INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)]
-	);
-}
-
-auto formatter<SystemIntrinsicCallID, char, void>::format
-(
-	const SystemIntrinsicCallID& value,
-	format_context&              ctx
-) const -> FormatOutput
-{
-	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value));
-}
-
-auto formatter<UserIntrinsicCallID, char, void>::format
-(
-	const UserIntrinsicCallID& value,
-	format_context&            ctx
-) const -> FormatOutput
-{
-	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value));
-}
-
-auto formatter<JumpAddress, char, void>::format(const JumpAddress& value, format_context& ctx) const -> FormatOutput
-{
-	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<JumpAddress>>(value));
-}
-
-auto formatter<CharClusterUtf8, char, void>::format
-(
-	const CharClusterUtf8& value,
-	format_context&        ctx
-) const -> FormatOutput
-{
-	static_assert(sizeof(char8_t) == sizeof(U8));
-	return format_to(ctx.out(),
-	                 R"(\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<U16>(value.Chars[0]),
-	                 static_cast<U16>(value.Chars[1]),
-	                 static_cast<U16>(value.Chars[2]),
-	                 static_cast<U16>(value.Chars[3]),
-	                 static_cast<U16>(value.Chars[4]),
-	                 static_cast<U16>(value.Chars[5]),
-	                 static_cast<U16>(value.Chars[6]),
-	                 static_cast<U16>(value.Chars[7])
-	);
-}
-
-auto formatter<CharClusterUtf16, char, void>::format(const CharClusterUtf16& value, format_context& ctx) const -> FormatOutput
-{
-	static_assert(sizeof(char16_t) == sizeof(U16));
-	return format_to(ctx.out(),
-	                 R"(\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<U16>(value.Chars[0]), static_cast<U16>(value.Chars[1]),
-	                 static_cast<U16>(value.Chars[2]), static_cast<U16>(value.Chars[3])
-	);
-}
-
-auto formatter<CharClusterUtf32, char, void>::format(const CharClusterUtf32& value, format_context& ctx) const -> FormatOutput
-{
-	static_assert(sizeof(char32_t) == sizeof(U32));
-	return format_to(ctx.out(),
-	                 "\\{:X}\\{:X}",
-	                 static_cast<U32>(value.Chars[0]), static_cast<U32>(value.Chars[1])
-	);
-}
-
-auto formatter<ValidationResultCode, char, void>::format
-(
-	const ValidationResultCode& value,
-	format_context&             ctx
-) const -> FormatOutput
-{
-	const auto idx {static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
-	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);
-}
-
-auto formatter<ReactorValidationResult, char, void>::format
-(
-	const ReactorValidationResult& value,
-	format_context&                ctx
-) const -> FormatOutput
-{
-	const auto idx {static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
-	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
-}
-
-auto formatter<DiscriminatedSignal, char, void>::format
-(
-	const DiscriminatedSignal& value,
-	format_context&            ctx
-) const -> FormatOutput
-{
-	using Dis = Signal::Discriminator;
-
-	switch (value.Discriminator)
+	Stream stream { };
+	stream.Prologue();
+	stream.With(3, [](ScopedInt x)
 	{
-		case Dis::U64:
-			return format_to(ctx.out(), "%u64 ${}", value.Value.R64.AsU64);
-
-		case Dis::I64:
-			return format_to(ctx.out(), "%i64 ${}", value.Value.R64.AsI64);
-
-		case Dis::F64:
-			return format_to(ctx.out(), "%f64 ${}", value.Value.R64.AsF64);
-
-		case Dis::CharClusterUtf8:
-		case Dis::CharClusterUtf16:
-		case Dis::CharClusterUtf32:
-			return format_to(ctx.out(), "{}", reinterpret_cast<const char*>(&value.Value.R64));
-
-		case Dis::OpCode:
-		case Dis::Instruction:
-			return format_to(ctx.out(), "*{}", value.Value.Instr);
-
-		case Dis::SystemIntrinsicCallID:
-			return format_to(ctx.out(), "&{}",
-			                 static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value.Value.SystemIntrinID));
-
-		case Dis::UserIntrinsicCallID:
-			return format_to(ctx.out(), "&{}",
-			                 static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value.Value.UserIntrinID));
-
-		case Dis::JumpAddress:
-			return format_to(ctx.out(), "#{}",
-			                 static_cast<std::underlying_type_t<JumpAddress>>(value.Value.JmpAddress));
-
-		case Dis::Ptr:
-			return format_to(ctx.out(), "#{:X}", value.Value.R64.AsU64);
-	}
+		x *= 10;
+		x += 1;
+		x *= 10;
+		x &= -10;
+		x *= -5;
+		x -= 10;
+		x -= 1;
+		x -= 1;
+		x += 1;
+	});
+	stream.Epilogue();
+	stream.DumpByteCode();
+	return 0;
 }

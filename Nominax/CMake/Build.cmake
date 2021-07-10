@@ -21,3 +21,7 @@ INCLUDE("Nominax/CMake/Externs.cmake")
 
 # benchmark:
 INCLUDE("Nominax/CMake/Benchmark.cmake")
+
+ADD_EXECUTABLE("Nominax" "Nominax/Entry.cpp")
+TARGET_LINK_LIBRARIES("Nominax" "NominaxRuntime")
+SET_PROPERTY(TARGET "Nominax" PROPERTY CXX_STANDARD 20)

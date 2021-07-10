@@ -841,21 +841,30 @@ namespace Nominax::ByteCode
 
 	using namespace Foundation;
 
-	auto Stream::PrintByteCode() const -> void
+	auto Stream::DumpByteCode() const -> void
 	{
-		Print(TextColor::Green, "Len: {}, Size: {} B", this->Size(), this->SizeInBytes());
+		Print("Len: {}, Size: {} B\n", this->Size(), this->SizeInBytes());
+
 		for (U64 i {0}; i < this->Size(); ++i)
 		{
-			if (this->CodeDisc_[i] == Signal::Discriminator::Instruction)
-			{
-				Print(TextColor::Green, "\n&{:08X}: ", i);
-				Print(TextColor::Cyan, "{}", this->Code_[i].Instr);
-			}
-			else
-			{
-				Print(TextColor::Magenta, " {}", (*this)[i]);
-			}
+			const auto bytes {std::bit_cast<std::array<U8, sizeof(Signal)>>(this->CodeBuffer_[i])};
+			const auto isInstr {this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction};
+			Print(TextColor::Green, "&{:#018X} ", reinterpret_cast<std::uintptr_t>(&this->CodeBuffer_[i]));
+			Print
+			(
+				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
+				bytes[0],
+				bytes[1],
+				bytes[2],
+				bytes[3],
+				bytes[4],
+				bytes[5],
+				bytes[6],
+				bytes[7]
+			);
+			Print(isInstr ? TextColor::Blue : TextColor::Magenta, "{}\n", (*this)[i]);
 		}
+
 		Print("\n\n");
 	}
 
@@ -864,9 +873,9 @@ namespace Nominax::ByteCode
 		Print("Stream size: {}\n", this->Size());
 		Print("Code buffer: {:.03F} MB\n",
 		      Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->Code_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
+			      static_cast<F32>(this->CodeBuffer_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
 		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeDisc_.size()) * static_cast<F32>(sizeof(
+			      static_cast<F32>(this->CodeDiscriminatorBuffer_.size()) * static_cast<F32>(sizeof(
 				      DiscriminatorStorageType::value_type))));
 		Print("Total: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
 	}
@@ -875,8 +884,8 @@ namespace Nominax::ByteCode
 	{
 		for (const auto& [discriminator, signal] : PrologueCode())
 		{
-			this->CodeDisc_.emplace_back(discriminator);
-			this->Code_.emplace_back(signal);
+			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
+			this->CodeBuffer_.emplace_back(signal);
 		}
 		return *this;
 	}
@@ -885,8 +894,8 @@ namespace Nominax::ByteCode
 	{
 		for (const auto& [discriminator, signal] : EpilogueCode())
 		{
-			this->CodeDisc_.emplace_back(discriminator);
-			this->Code_.emplace_back(signal);
+			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
+			this->CodeBuffer_.emplace_back(signal);
 		}
 		return *this;
 	}
