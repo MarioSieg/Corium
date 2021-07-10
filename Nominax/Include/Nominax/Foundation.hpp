@@ -6132,6 +6132,8 @@ namespace Nominax::Common
 {
 	enum class CpuFeatureBits : U8
 	{
+		#if NOX_ARCH_X86_64
+
 		/// <summary>
 		/// Onboard x87 FPU
 		/// </summary>
@@ -6996,6 +6998,10 @@ namespace Nominax::Common
 		/// </summary>
 		D3Now = 223,
 
+		#else
+#error "Unimplemented architecture!"
+		#endif
+
 		/// <summary>
 		/// Amount of bits.
 		/// </summary>
@@ -7007,6 +7013,7 @@ namespace Nominax::Common
 	/// </summary>
 	constexpr std::array<std::string_view, static_cast<std::size_t>(CpuFeatureBits::$Count)> CPU_FEATURE_BIT_NAMES
 	{
+		#if NOX_ARCH_X86_64
 		"FPU",
 		"VME",
 		"DE",
@@ -7231,6 +7238,9 @@ namespace Nominax::Common
 		"LONGMODE",
 		"D3NOWEXT",
 		"D3NOW"
+		#else
+#error "Unimplemented architecture!"
+		#endif
 	};
 
 	/// <summary>
@@ -7251,9 +7261,8 @@ namespace Nominax::Common
 	/// <summary>
 	/// Detects architecture dependent cpu features.
 	/// </summary>
-	struct CpuFeatureDetector final
+	class CpuFeatureDetector final
 	{
-	private:
 		/// <summary>
 		/// Architecture dependent bits.
 		/// </summary>
@@ -7318,7 +7327,7 @@ namespace Nominax::Common
 		auto operator [](CpuFeatureBits bit) const -> bool;
 
 		/// <summary>
-		/// Prints all the architecture dependent features in different colors.
+		/// Prints all the architecture dependent features as booleans with names.
 		/// </summary>
 		auto Dump() const -> void;
 	};

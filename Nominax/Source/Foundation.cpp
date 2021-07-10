@@ -827,6 +827,8 @@ namespace Nominax::Common
 {
 	CpuFeatureDetector::CpuFeatureDetector() : FeatureBits_ { }
 	{
+		#if NOX_ARCH_X86_64
+		
 		using namespace Assembler::X86_64::Routines;
 		using Cfb = CpuFeatureBits;
 
@@ -873,6 +875,10 @@ namespace Nominax::Common
 		(*this)[Cfb::Avx512Vnniw4] &= avx512OsSupport;
 		(*this)[Cfb::Avx512FMaps4] &= avx512OsSupport;
 		(*this)[Cfb::Avx512Vp2Intersect] &= avx512OsSupport;
+
+		#else
+			#error "Unimplemented architecture!"
+		#endif
 	}
 
 	auto CpuFeatureDetector::Dump() const -> void
