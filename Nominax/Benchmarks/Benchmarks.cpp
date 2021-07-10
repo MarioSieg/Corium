@@ -207,6 +207,13 @@
 
 #include "BenchTemplates.hpp"
 
+auto Loop1Billion(State& state) -> void
+{
+    LoopBenchmark(state, [](Stream&) {}, 1'000'000'000);
+}
+
+BENCHMARK(Loop1Billion)->Unit(kSecond);
+
 auto ValidateAlgorithm1BillionEntries(State& state) -> void
 {
 	constexpr std::size_t count {200'000'000};
@@ -271,12 +278,5 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 }
 
 BENCHMARK(TransformAlgorithm1BillionEntries)->Unit(kSecond);
-
-auto Loop1Billion(State& state) -> void
-{
-	LoopBenchmark(state, [](Stream&) {}, 1'000'000'000);
-}
-
-BENCHMARK(Loop1Billion)->Unit(kSecond);
 
 BENCHMARK_MAIN();

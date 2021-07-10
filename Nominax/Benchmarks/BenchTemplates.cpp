@@ -248,8 +248,11 @@ auto LoopBenchmark
 	stream << Instruction::Int;
 	stream << 0_int;
 
+	CodeImageBundle bundle {};
+	Stream::Build(std::move(stream), bundle);
+
 	for (auto& env {*Env}; auto _ : state)
 	{
-		env.Execute(std::move(stream));
+        env.Execute(bundle);
 	}
 }
