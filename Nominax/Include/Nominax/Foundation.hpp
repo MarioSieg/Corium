@@ -542,7 +542,7 @@ namespace Nominax
 	using I64 = std::int64_t;
 
 	/// <summary>
-	/// 32 bit half precision float
+	/// 16 bit half precision float
 	/// </summary>
 	using F16 = U16;
 
@@ -1891,7 +1891,7 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Zero tolerance epsilon.
 	/// </summary>
-	constexpr auto ZERO_TOLERANCE {1e-6}; // 8 * 1.19209290E-07F
+	constexpr auto F64_ZERO_TOLERANCE {1e-6}; // 8 * 1.19209290E-07F
 
 	/// <summary>
 	/// Returns true if x is zero, else false.
@@ -1900,7 +1900,7 @@ namespace Nominax::Foundation
 	/// <returns>True if x is zero, else false.</returns>
 	NOX_FLATTEN NOX_PURE inline auto F64IsZero(const F64 x) -> bool
 	{
-		return std::abs(x) < ZERO_TOLERANCE;
+		return std::abs(x) < F64_ZERO_TOLERANCE;
 	}
 
 	/// <summary>
@@ -1919,37 +1919,37 @@ namespace Nominax::Foundation
 	/// If the ULP value is zero, the two numbers must be exactly the same.
 	/// See http://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/ by Bruce Dawson
 	/// </summary>
-	constexpr U32 MAX_ULPS {4};
+	constexpr U32 F64_MAX_ULPS {4};
 
 	/// <summary>
 	/// Bit count inside F64.
 	/// </summary>
-	constexpr auto BIT_COUNT {8 * sizeof(F64)};
+	constexpr auto F64_BIT_COUNT {8 * sizeof(F64)};
 
 	/// <summary>
 	/// Fraction bit count.
 	/// </summary>
-	constexpr auto FRACTION_BITS {std::numeric_limits<F64>::digits - 1};
+	constexpr auto F64_FRACTION_BITS {std::numeric_limits<F64>::digits - 1};
 
 	/// <summary>
 	/// Exponent bit count.
 	/// </summary>
-	constexpr auto EXPONENT_BITS {BIT_COUNT - 1 - FRACTION_BITS};
+	constexpr auto F64_EXPONENT_BITS {F64_BIT_COUNT - 1 - F64_FRACTION_BITS};
 
 	/// <summary>
 	/// Mask to extract sign bit.
 	/// </summary>
-	constexpr auto SIGN_MASK {UINT64_C(1) << (BIT_COUNT - 1)};
+	constexpr auto F64_SIGN_MASK {UINT64_C(1) << (F64_BIT_COUNT - 1)};
 
 	/// <summary>
 	/// Mask to extract fraction.
 	/// </summary>
-	constexpr auto FRACTION_MASK {~UINT64_C(0) >> (EXPONENT_BITS + 1)};
+	constexpr auto F64_FRACTION_MASK {~UINT64_C(0) >> (F64_EXPONENT_BITS + 1)};
 
 	/// <summary>
 	/// Mask to extract exponent.
 	/// </summary>
-	constexpr auto EXPONENT_MASK {~(SIGN_MASK | FRACTION_MASK)};
+	constexpr auto F64_EXPONENT_MASK {~(F64_SIGN_MASK | F64_FRACTION_MASK)};
 
 	/// <summary>
 	/// Returns the bit representation of the F64.
@@ -1969,7 +1969,7 @@ namespace Nominax::Foundation
 	/// <returns></returns>
 	NOX_FLATTEN NOX_PURE constexpr auto ExponentBitsOf(const F64 x) -> U64
 	{
-		return EXPONENT_MASK & BitsOf(x);
+		return F64_EXPONENT_MASK & BitsOf(x);
 	}
 
 	/// <summary>
@@ -1979,7 +1979,7 @@ namespace Nominax::Foundation
 	/// <returns></returns>
 	NOX_FLATTEN NOX_PURE constexpr auto FractionBitsOf(const F64 x) -> U64
 	{
-		return FRACTION_MASK & BitsOf(x);
+		return F64_FRACTION_MASK & BitsOf(x);
 	}
 
 	/// <summary>
@@ -1989,7 +1989,7 @@ namespace Nominax::Foundation
 	/// <returns></returns>
 	NOX_FLATTEN NOX_PURE constexpr auto SignBitOf(const F64 x) -> U64
 	{
-		return SIGN_MASK & BitsOf(x);
+		return F64_SIGN_MASK & BitsOf(x);
 	}
 
 	/// <summary>
@@ -1998,7 +1998,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	NOX_FLATTEN NOX_PURE constexpr auto IsNan(const F64 x) -> bool
 	{
-		return ExponentBitsOf(x) == EXPONENT_MASK && FractionBitsOf(x) != 0;
+		return ExponentBitsOf(x) == F64_EXPONENT_MASK && FractionBitsOf(x) != 0;
 	}
 
 	/// <summary>
@@ -2007,11 +2007,11 @@ namespace Nominax::Foundation
 	/// </summary>
 	NOX_FLATTEN NOX_PURE constexpr auto SignMagnitudeToBiasedRepresentation(const U64 bits) -> U64
 	{
-		if (SIGN_MASK & bits)
+		if (F64_SIGN_MASK & bits)
 		{
 			return ~bits + 1;
 		}
-		return SIGN_MASK | bits;
+		return F64_SIGN_MASK | bits;
 	}
 
 	/// <summary>
@@ -2038,7 +2038,7 @@ namespace Nominax::Foundation
 	/// <param name="x"></param>
 	/// <param name="y"></param>
 	/// <returns></returns>
-	template <U32 Ulps = MAX_ULPS>
+	template <U32 Ulps = F64_MAX_ULPS>
 	NOX_FLATTEN NOX_PURE constexpr auto F64Equals(const F64 x, const F64 y) -> bool
 	{
 		static_assert(Ulps > 0);
