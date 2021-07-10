@@ -248,14 +248,14 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
 	ASSERT_EQ(obj->Header_ReadFlagVector().Merged, 0);
 
-	ObjectHeader::WriteMapping_StrongRefCount(obj->QueryRawHeader(), 32);
+	ObjectHeader::WriteMapping_MetaField(obj->QueryRawHeader(), 32);
 	ObjectHeader::WriteMapping_Size(obj->QueryRawHeader(), obj->HeaderRead_BlockSize());
 	ObjectHeader::WriteMapping_TypeId(obj->QueryRawHeader(), 0xFF'FF'AA'BB);
 	ObjectHeader::WriteMapping_FlagVector(obj->QueryRawHeader(), ObjectFlagVector {.Merged = 0xABC});
-	ObjectHeader::WriteMapping_IncrementStrongRefCount(obj->QueryRawHeader());
-	ObjectHeader::WriteMapping_IncrementStrongRefCount(obj->QueryRawHeader());
-	ObjectHeader::WriteMapping_IncrementStrongRefCount(obj->QueryRawHeader());
-	ObjectHeader::WriteMapping_DecrementStrongRefCount(obj->QueryRawHeader());
+	ObjectHeader::WriteMapping_IncrementMetaField(obj->QueryRawHeader());
+	ObjectHeader::WriteMapping_IncrementMetaField(obj->QueryRawHeader());
+	ObjectHeader::WriteMapping_IncrementMetaField(obj->QueryRawHeader());
+	ObjectHeader::WriteMapping_DecrementMetaField(obj->QueryRawHeader());
 
 	auto& obj2 {*obj};
 	// ReSharper disable once CppDiscardedPostfixOperatorResult
@@ -272,7 +272,7 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0xFF'FF'AA'BB);
 	ASSERT_EQ(obj->Header_ReadFlagVector().Merged, 0xABC);
 
-	obj->HeaderWrite_StrongRefCount(0);
+	obj->HeaderWrite_MetaField(0);
 	obj->HeaderWrite_Size(0);
 	obj->HeaderWrite_TypeId(0);
 	obj->HeaderWrite_FlagVector(ObjectFlagVector { });
@@ -286,7 +286,7 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 TEST(Object, BlobCopy)
 {
 	auto obj {Object::AllocateUnique(4)};
-	obj->HeaderWrite_IncrementStrongRefCount();
+	obj->HeaderWrite_IncrementMetaField();
 	obj->HeaderWrite_TypeId(22);
 	obj->HeaderWrite_FlagVector(ObjectFlagVector {.Merged = 0xABC});
 	obj->operator[](0).AsU64 = 0xFF'FF;
@@ -311,7 +311,7 @@ TEST(Object, BlobCopy)
 TEST(Object, BlockCopy)
 {
 	auto obj {Object::AllocateUnique(4)};
-	obj->HeaderWrite_IncrementStrongRefCount();
+	obj->HeaderWrite_IncrementMetaField();
 	obj->HeaderWrite_TypeId(22);
 	obj->HeaderWrite_FlagVector(ObjectFlagVector {.Merged = 0xABC});
 	obj->operator[](0).AsU64 = 0xFF'FF;
