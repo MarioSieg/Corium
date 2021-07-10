@@ -225,13 +225,11 @@ namespace Nominax::ByteCode
 
 		const Stream::DiscriminatorStorageType& discriminators {input.GetDiscriminatorBuffer()};
 		output = Image {std::move(input.GetCodeBuffer())};
-		const Signal* const base {output.GetBlobData()};
 
 		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-
 		const auto addressMapper
 		{
-			[&](const Signal& x) -> Signal
+			[&, base {output.GetBlobData()}](const Signal& x) -> Signal
 			{
 				const std::ptrdiff_t index {&x - &*std::begin(output)};
 				const bool           isAddress {discriminators[index] == Signal::Discriminator::JumpAddress};
@@ -240,8 +238,8 @@ namespace Nominax::ByteCode
 		};
 
 		std::transform(std::execution::par_unseq, std::begin(output), std::end(output), std::begin(output), addressMapper);
+        #endif
 
-		#endif
 		const auto jumpTransformer
 		{
 			[](const Signal::Discriminator x) -> U8
