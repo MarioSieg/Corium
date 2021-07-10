@@ -1,6 +1,6 @@
-// File: TaskQueueThreadPool.cpp
+// File: VM_Impl_Debug.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.07.2021 9:00 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,49 +205,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
-
-namespace Nominax::Core
-{
-	TaskQueueThreadPool::TaskQueueThreadPool(const U64 threadCount)
-	{
-		for (U64 i {0}; i < threadCount; ++i)
-		{
-			this->Threads.emplace_back(std::make_unique<TaskQueueThread>());
-		}
-	}
-
-	TaskQueueThreadPool::TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator) : Allocator_ {&allocator},
-	                                                                                           Threads {Allocator_} { }
-
-	TaskQueueThreadPool::TaskQueueThreadPool
-	(
-		std::pmr::monotonic_buffer_resource& allocator,
-		const U64                            threadCount
-	) : Allocator_ {&allocator},
-	    Threads {Allocator_}
-	{
-		for (U64 i {0}; i < threadCount; ++i)
-		{
-			this->Threads.emplace_back(std::make_unique<TaskQueueThread>(allocator));
-		}
-	}
-
-	auto TaskQueueThreadPool::JoinAll() -> void
-	{
-		for (auto& thread : this->Threads)
-		{
-			thread->Join();
-		}
-	}
-
-	auto TaskQueueThreadPool::Push() -> void
-	{
-		this->Threads.emplace_back
-		(
-			this->Allocator_
-				? std::make_unique<TaskQueueThread>(*this->Allocator_)
-				: std::make_unique<TaskQueueThread>()
-		);
-	}
-}
+#define NOX_REACTOR_IMPL_NAME ReactorCore_Debug
+#include "VM.inl"
+#undef NOX_REACTOR_IMPL_NAME

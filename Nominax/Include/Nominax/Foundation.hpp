@@ -301,7 +301,7 @@ namespace Nominax
 	/// </summary>
 	#define NOX_COM_MINGW	false
 
-	#if NDEBUG
+	#ifdef NDEBUG
 	#	undef NOX_RELEASE
 	#	define NOX_RELEASE true
 	#	define NOX_DEBUG_ONLY(expr)
@@ -435,11 +435,11 @@ namespace Nominax
 
 	#else
 
-		/// <summary>
-		/// Marks a hot label.
-		/// Hot paths are optimized more and get a better code layout.
-		/// </summary>
-		#define NOX_HOT_LABEL
+	/// <summary>
+	/// Marks a hot label.
+	/// Hot paths are optimized more and get a better code layout.
+	/// </summary>
+	#define NOX_HOT_LABEL
 		
 	#endif
 
@@ -1383,7 +1383,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	inline constinit const IAllocator* GlobalAllocatorProxy
 	{
-		#if NOX_DEBUG && NOX_DBG_ALLOC
+		#if NOX_DEBUG && NOX_VERBOSE_ALLOCATOR
 		&GlobalDebugAllocator
 		#else
 		&GlobalRuntimeAllocator

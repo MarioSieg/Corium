@@ -271,7 +271,7 @@ TEST(Assembler_x86_64, InjectNopChain_1)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x90};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -285,7 +285,7 @@ TEST(Assembler_x86_64, InjectNopChain_2)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x40, 0x90};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -299,7 +299,7 @@ TEST(Assembler_x86_64, InjectNopChain_3)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -313,7 +313,7 @@ TEST(Assembler_x86_64, InjectNopChain_4)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x40, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -327,7 +327,7 @@ TEST(Assembler_x86_64, InjectNopChain_5)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x44, 0x00, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -341,7 +341,7 @@ TEST(Assembler_x86_64, InjectNopChain_6)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -355,7 +355,7 @@ TEST(Assembler_x86_64, InjectNopChain_7)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -369,7 +369,7 @@ TEST(Assembler_x86_64, InjectNopChain_8)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -383,7 +383,7 @@ TEST(Assembler_x86_64, InjectNopChain_9)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -397,7 +397,7 @@ TEST(Assembler_x86_64, InjectNopChain_10)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -411,7 +411,7 @@ TEST(Assembler_x86_64, InjectNopChain_11)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -425,7 +425,7 @@ TEST(Assembler_x86_64, InjectNopChain_12)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -439,7 +439,7 @@ TEST(Assembler_x86_64, InjectNopChain_13)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -453,7 +453,7 @@ TEST(Assembler_x86_64, InjectNopChain_14)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}
@@ -467,7 +467,7 @@ TEST(Assembler_x86_64, InjectNopChain_15)
 	ASSERT_EQ(buffer[0], 0);
 	ASSERT_EQ(buffer[len + 1], 0);
 	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
-	for (std::size_t i {0}; const U8 x : refData)
+	for (U64 i {0}; const U8 x : refData)
 	{
 		ASSERT_EQ(buffer[++i], x);
 	}

@@ -2737,21 +2737,25 @@ namespace Nominax::Core
 	/// </summary>
 	enum class ReactorCoreSpecialization : U64
 	{
+		/// <summary>
+		/// Fast fallback implementation - available on all platforms.
+		/// </summary>
 		Fallback,
 
-		#if NOX_ARCH_X86_64
+		/// <summary>
+		/// Slow debug implementation - available on all platforms.
+		/// </summary>
+		Debug,
 
 		/// <summary>
-		/// Advanced vector extensions -> 256-bit (YMM* registers) -> VEX
+		/// AMD 64 optimized implementation for advanced vector extensions -> 256-bit (YMM* registers) -> VEX
 		/// </summary>
-		X86_64_AVX,
+		Amd64_Avx,
 
 		/// <summary>
-		/// Advanced vector extensions 512 -> 512-bit (ZMM* registers, K* mask registers) -> EVEX
+		/// AMD 64 optimized implementation for advanced vector extensions 512 -> 512-bit (ZMM* registers, K* mask registers) -> EVEX
 		/// </summary>
-		X86_64_AVX512F,
-
-		#endif
+		Amd64_Avx512F,
 
 		Count
 	};
@@ -2765,17 +2769,21 @@ namespace Nominax::Core
 	{
 		switch (target)
 		{
-				#if NOX_ARCH_X86_64
+			case ReactorCoreSpecialization::Fallback:
+				return "Fallback";
 
-			case ReactorCoreSpecialization::X86_64_AVX:
+			case ReactorCoreSpecialization::Debug:
+				return "Debug";
+
+			case ReactorCoreSpecialization::Amd64_Avx:
 				return "X86-64 AVX";
 
-			case ReactorCoreSpecialization::X86_64_AVX512F:
+			case ReactorCoreSpecialization::Amd64_Avx512F:
 				return "X86-64 AVX512F";
-				#endif
 
+				[[unlikely]]
 			default:
-				return "Generic Fallback";
+				return { };
 		}
 	}
 
@@ -2868,12 +2876,20 @@ namespace Nominax::Core
 		~HyperVisor() = delete;
 
 		/// <summary>
-		/// Returns the fallback reactor routine with no platform specific optimizations,
-		/// available on all platforms and all CPUs.
+		/// Returns the fallback reactor routine with no platform specific optimizations.
+		/// This is always available, independent of any platform.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
 		static auto GetFallbackRoutineLink() -> ReactorRoutineLink;
+
+		/// <summary>
+		/// Returns the reactor used for debugging.
+		/// This is always available, independent of any platform.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto GetDebugRoutineLink() -> ReactorRoutineLink;
 
 		/// <summary>
 		/// Returns the reactor specialization based on the cpu features available.

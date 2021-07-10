@@ -209,7 +209,7 @@
 
 TEST(ValidatorAlgorithms, FullValidationManual)
 {
-	constexpr std::size_t count{ 200'000'000 };
+	constexpr U64 count{ 200'000'000 };
 
 	Stream stream{ };
 	stream.Reserve(count * 5 + 10);

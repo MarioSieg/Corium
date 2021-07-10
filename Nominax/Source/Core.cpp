@@ -1456,17 +1456,16 @@ namespace Nominax
 			NOX_PAS_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
 		}
 
-		static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<U64>(
-			                            ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
+		static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<U64>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
 		{
 			&ReactorCore_Fallback,
+			&ReactorCore_Debug,
+
 			#if NOX_ARCH_X86_64
 
-			&ReactorCore_AVX,
-			&ReactorCore_AVX512F,
+			&ReactorCore_Avx,
+			&ReactorCore_Avx512F,
 
-			#elif NOX_ARCH_ARM_64
-		#	error "ARM64 not yet supported!"
 			#endif
 		};
 
@@ -1477,13 +1476,13 @@ namespace Nominax
 			// if we have AVX 512, use AVX 512:
 			if (cpuFeatureDetector[Foundation::CpuFeatureBits::Avx512F])
 			{
-				return ReactorCoreSpecialization::X86_64_AVX512F;
+				return ReactorCoreSpecialization::Amd64_Avx512F;
 			}
 
 			// if we have AVX, use AVX:
 			if (cpuFeatureDetector[Foundation::CpuFeatureBits::Avx])
 			{
-				return ReactorCoreSpecialization::X86_64_AVX;
+				return ReactorCoreSpecialization::Amd64_Avx;
 			}
 
 			#elif NOX_ARCH_ARM_64
@@ -1515,10 +1514,28 @@ namespace Nominax
 			};
 		}
 
+		auto HyperVisor::GetDebugRoutineLink() -> ReactorRoutineLink
+		{
+			constexpr auto specialization {ReactorCoreSpecialization::Debug};
+
+			ReactorCoreExecutionRoutine* const routine
+			{
+				GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Debug)
+			};
+			const void** const jumpTable {QueryJumpTable(*routine)};
+			return
+			{
+				specialization,
+				routine,
+				jumpTable
+			};
+		}
+
 		auto HyperVisor::GetReactorRoutineFromRegistryByTarget(const ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*
 		{
-			ReactorCoreExecutionRoutine* routine {
-				REACTOR_REGISTRY[static_cast<std::underlying_type_t<decltype(target)>>(target)]
+			ReactorCoreExecutionRoutine* const routine
+			{
+				REACTOR_REGISTRY[static_cast<U64>(target)]
 			};
 			NOX_PAS_NOT_NULL(routine, "Reactor core execution routine is nullptr!");
 			return routine;

@@ -1,4 +1,4 @@
-// File: VM_Impl_AVX512F.cpp
+// File: VM_Impl_Avx512F.cpp
 // Author: Mario
 // Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
@@ -211,7 +211,7 @@
 #	if !defined(__AVX512F__) || !__AVX512F__
 #		error "This reactore core requires AVX512F!"
 #	endif
-#	define NOX_REACTOR_IMPL_NAME ReactorCore_AVX512F
+#	define NOX_REACTOR_IMPL_NAME ReactorCore_Avx512F
 #		include "VM.inl"
 #	undef NOX_REACTOR_IMPL_NAME
 #endif
