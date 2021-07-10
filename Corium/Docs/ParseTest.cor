@@ -8,7 +8,7 @@ fun f(x float) float {
 
 }
 
-fun pow(x float, v float) float {
+fun add(x float, v float) float {
 
 }
 

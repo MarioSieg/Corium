@@ -111,13 +111,15 @@ functionBlockStatement:
     ;
 
 localVariableDeclaration:
-    LET typeName
+    LET
+    typeName
     ASSIGN
     literal
     ;
 
 constVariableDeclaration:
-    CONST typeName
+    CONST
+    typeName
     ASSIGN
     literal
     ;
