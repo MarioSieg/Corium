@@ -1,6 +1,6 @@
 // File: Utils.cpp
 // Author: Mario
-// Created: 05.07.2021 6:19 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License

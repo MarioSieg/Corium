@@ -247,10 +247,10 @@ namespace Nominax
 		/// Query and print machine info.
 		/// </summary>
 		/// <returns></returns>
-		static auto InitSysInfo() -> Common::Snapshot
+		static auto InitSysInfo() -> Foundation::Snapshot
 		{
-			Common::Print('\n');
-			Common::Snapshot snapshot { };
+			Foundation::Print('\n');
+			Foundation::Snapshot snapshot { };
 			snapshot.Print();
 			return snapshot;
 		}
@@ -259,12 +259,12 @@ namespace Nominax
 		/// Query and print cpu features.
 		/// </summary>
 		/// <returns></returns>Common::
-		static auto InitCpuFeatures() -> Common::CpuFeatureDetector
+		static auto InitCpuFeatures() -> Foundation::CpuFeatureDetector
 		{
-			Common::Print('\n');
-			Common::CpuFeatureDetector cpuFeatureDetector { };
+			Foundation::Print('\n');
+			Foundation::CpuFeatureDetector cpuFeatureDetector { };
 			cpuFeatureDetector.Dump();
-			Common::Print('\n');
+			Foundation::Print('\n');
 			return cpuFeatureDetector;
 		}
 
@@ -277,7 +277,7 @@ namespace Nominax
 		template <typename T>
 		static inline auto PrintTypeInfo(const std::string_view name) -> void
 		{
-			Common::Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
+			Foundation::Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
 		}
 
 		/// <summary>
@@ -287,8 +287,8 @@ namespace Nominax
 		/// <returns></returns>
 		static auto PrintTypeInfoTable() -> void
 		{
-			Common::Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
-			PrintTypeInfo<Common::Record>("Common::Record");
+			Foundation::Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
+			PrintTypeInfo<Foundation::Record>("Common::Record");
 			PrintTypeInfo<ByteCode::Signal>("Signal");
 			PrintTypeInfo<ByteCode::Signal::Discriminator>("SignalDisc");
 			PrintTypeInfo<Object>("Object");
@@ -307,28 +307,28 @@ namespace Nominax
 		/// <returns></returns>
 		auto PrintSystemInfo() -> void
 		{
-			Common::Print(SYSTEM_LOGO_TEXT);
-			Common::Print(SYSTEM_COPYRIGHT_TEXT);
-			Common::Print("\nNominax Version: v.{}.{}\n", SYSTEM_VERSION.Major, SYSTEM_VERSION.Minor);
-			Common::Print("Platform: {} {}\n", NOX_OS_NAME, NOX_ARCH_SIZE_NAME);
-			Common::Print("Arch: {}\n", NOX_ARCH_NAME);
-			Common::Print("IsPosix: {}\n", NOX_IS_POSIX);
-			Common::Print("Compiled with: {} - C++ 20\n", NOX_COM_NAME);
-			Common::Print("\n");
+			Foundation::Print(SYSTEM_LOGO_TEXT);
+			Foundation::Print(SYSTEM_COPYRIGHT_TEXT);
+			Foundation::Print("\nNominax Version: v.{}.{}\n", SYSTEM_VERSION.Major, SYSTEM_VERSION.Minor);
+			Foundation::Print("Platform: {} {}\n", NOX_OS_NAME, NOX_ARCH_SIZE_NAME);
+			Foundation::Print("Arch: {}\n", NOX_ARCH_NAME);
+			Foundation::Print("IsPosix: {}\n", NOX_IS_POSIX);
+			Foundation::Print("Compiled with: {} - C++ 20\n", NOX_COM_NAME);
+			Foundation::Print("\n");
 			PrintTypeInfoTable();
-			Common::Print("\n");
+			Foundation::Print("\n");
 		}
 
-		#define DISPATCH_HOOK(method, ...)				        \
-        do														\
-        {														\
-            Common::Print("Dispatching hook: " #method "\n");	\
-            NOX_PAS_TRUE								        \
-            (													\
-                this-> method (__VA_ARGS__),					\
-                "\" "#method "\" returned false!"				\
-            );													\
-        }														\
+		#define DISPATCH_HOOK(method, ...)							\
+        do															\
+        {															\
+            Foundation::Print("Dispatching hook: " #method "\n");	\
+            NOX_PAS_TRUE											\
+            (														\
+                this-> method (__VA_ARGS__),						\
+                "\" "#method "\" returned false!"					\
+            );														\
+        }															\
         while(false)
 
 		#define VALIDATE_ONLINE_BOOT_STATE() NOX_PAS_TRUE(this->IsOnline(), "Environment is offline!")
@@ -341,12 +341,12 @@ namespace Nominax
 		/// <returns></returns>
 		static inline auto MapStackSize(const std::size_t sizeInBytes) -> std::size_t
 		{
-			if (sizeInBytes % sizeof(Common::Record) != 0)
+			if (sizeInBytes % sizeof(Foundation::Record) != 0)
 			{
 				[[unlikely]]
 					Panic(NOX_PAINF, "Invalid stack size: {}! Must be a multiple of sizeof(Common::Record) -> 8!", sizeInBytes);
 			}
-			return sizeInBytes / sizeof(Common::Record);
+			return sizeInBytes / sizeof(Foundation::Record);
 		}
 
 		/// <summary>
@@ -373,7 +373,7 @@ namespace Nominax
 		{
 			reactorStackSize = MapStackSize(reactorStackSize);
 			desiredSize      = desiredSize ? desiredSize : Environment::FALLBACK_SYSTEM_POOL_SIZE;
-			return desiredSize + reactorCount * (reactorStackSize * sizeof(Common::Record));
+			return desiredSize + reactorCount * (reactorStackSize * sizeof(Foundation::Record));
 		}
 
 		/// <summary>
@@ -422,21 +422,21 @@ namespace Nominax
 			{
 				if (appCode[i].Contains<ByteCode::Instruction>())
 				{
-					Print(Common::TextColor::Green, "\n{:#018X}: ", i);
-					Print(Common::TextColor::BrightBlue, "{}", appCode[i].Value.R64.AsU64);
+					Print(Foundation::TextColor::Green, "\n{:#018X}: ", i);
+					Print(Foundation::TextColor::BrightBlue, "{}", appCode[i].Value.R64.AsU64);
 				}
 				else
 				{
-					Print(Common::TextColor::Magenta, " {}", appCode[i].Value.R64.AsU64);
+					Print(Foundation::TextColor::Magenta, " {}", appCode[i].Value.R64.AsU64);
 				}
 
 				if (isInstructionFault && i == idx)
 				{
-					Print(Common::LogLevel::Error, " {} ->", code);
+					Print(Foundation::LogLevel::Error, " {} ->", code);
 				}
 			}
 
-			Common::Print('\n');
+			Foundation::Print('\n');
 		}
 
 		/// <summary>
@@ -445,13 +445,13 @@ namespace Nominax
 		[[nodiscard]]
 		NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const std::size_t size, const std::string_view poolId) -> U8*
 		{
-			Common::Print("Allocating {} pool with size: {} MB\n", poolId, Common::Bytes2Megabytes(static_cast<F64>(size)));
+			Foundation::Print("Allocating {} pool with size: {} MB\n", poolId, Foundation::Bytes2Megabytes(static_cast<F64>(size)));
 			auto* NOX_RESTRICT const mem {new(std::nothrow) U8[size]};
 			if (!mem)
 			{
 				[[unlikely]]
 					Panic(NOX_PAINF, "Allocation of monotonic {} pool with size {} MB failed!", poolId,
-					      Common::Bytes2Megabytes(static_cast<F64>(size)));
+					      Foundation::Bytes2Megabytes(static_cast<F64>(size)));
 			}
 			return mem;
 		}
@@ -525,8 +525,8 @@ namespace Nominax
 			std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
 			const std::chrono::high_resolution_clock::time_point     BootStamp;
 			std::chrono::milliseconds                                BootTime;
-			const Common::Snapshot                                   SysInfoSnapshot;
-			const Common::CpuFeatureDetector                         CpuFeatures;
+			const Foundation::Snapshot                               SysInfoSnapshot;
+			const Foundation::CpuFeatureDetector                     CpuFeatures;
 			const ReactorRoutineLink                                 OptimalReactorRoutine;
 			ReactorPool                                              CorePool;
 
@@ -613,11 +613,11 @@ namespace Nominax
 			return true;
 		}
 
-		Environment::Environment(const Common::IAllocator* const allocator)
+		Environment::Environment(const Foundation::IAllocator* const allocator)
 		{
 			if (allocator)
 			{
-				Common::GlobalAllocatorProxy = allocator;
+				Foundation::GlobalAllocatorProxy = allocator;
 			}
 		}
 
@@ -637,25 +637,25 @@ namespace Nominax
 			// Basic setup:
 			std::ios_base::sync_with_stdio(!descriptor.FastHostIoSync);
 			PrintSystemInfo();
-			Common::Print("Booting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
+			Foundation::Print("Booting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
 			const auto tik {std::chrono::high_resolution_clock::now()};
 
 			// Invoke hook:
 			DISPATCH_HOOK(OnPreBootHook,);
 
-			Common::Print
+			Foundation::Print
 			(
 				"Monotonic boot pool fixed size: {} MB, Min: {} MB, Max: {} MB\n",
-				Common::Bytes2Megabytes(static_cast<F64>(descriptor.BootPoolSize)),
-				Common::Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MIN)),
-				Common::Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MAX))
+				Foundation::Bytes2Megabytes(static_cast<F64>(descriptor.BootPoolSize)),
+				Foundation::Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MIN)),
+				Foundation::Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MAX))
 			);
 
-			Common::Print
+			Foundation::Print
 			(
 				"Monotonic system pool fixed size: {} MB, Fallback: {} MB\n",
-				Common::Bytes2Megabytes(descriptor.SystemPoolSize),
-				Common::Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
+				Foundation::Bytes2Megabytes(descriptor.SystemPoolSize),
+				Foundation::Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
 			);
 
 			// No, we cannot use std::make_unique because we want it noexcept!
@@ -669,7 +669,7 @@ namespace Nominax
 			const auto tok {std::chrono::high_resolution_clock::now()};
 
 			// Get memory snapshot:
-			const std::size_t memSnapshot {Common::QueryProcessMemoryUsed()};
+			const std::size_t memSnapshot {Foundation::Os::QueryProcessMemoryUsed()};
 			const F64         memUsagePercent {
 				ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory)
 			};
@@ -697,7 +697,7 @@ namespace Nominax
 			const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
 			this->Context_->BootTime = ms;
 
-			Common::Print
+			Foundation::Print
 			(
 				"Runtime environment online!\n"
 				"Process memory snapshot: {:.02f} % [{} MB / {} MB]\n"
@@ -706,14 +706,14 @@ namespace Nominax
 				"Boot time: {}\n"
 				"\n",
 				memUsagePercent,
-				Common::Bytes2Megabytes(static_cast<F64>(memSnapshot)),
-				Common::Bytes2Megabytes(static_cast<F64>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
+				Foundation::Bytes2Megabytes(static_cast<F64>(memSnapshot)),
+				Foundation::Bytes2Megabytes(static_cast<F64>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
 				bootPoolPer,
-				Common::Bytes2Kilobytes(static_cast<F64>(bootPoolSize)),
-				Common::Bytes2Kilobytes(static_cast<F64>(this->Context_->BootPoolSize)),
+				Foundation::Bytes2Kilobytes(static_cast<F64>(bootPoolSize)),
+				Foundation::Bytes2Kilobytes(static_cast<F64>(this->Context_->BootPoolSize)),
 				sysPoolPer,
-				Common::Bytes2Megabytes(static_cast<F64>(sysPoolSize)),
-				Common::Bytes2Megabytes(static_cast<F64>(this->Context_->SystemPoolSize)),
+				Foundation::Bytes2Megabytes(static_cast<F64>(sysPoolSize)),
+				Foundation::Bytes2Megabytes(static_cast<F64>(this->Context_->SystemPoolSize)),
 				ms
 			);
 		}
@@ -726,7 +726,7 @@ namespace Nominax
 			DISPATCH_HOOK(OnPreExecutionHook, image);
 
 			// Info
-			Print(Common::LogLevel::Warning, "Executing...\n");
+			Print(Foundation::LogLevel::Warning, "Executing...\n");
 			std::cout.flush();
 
 			// Execute on alpha reactor:
@@ -740,7 +740,7 @@ namespace Nominax
 
 			// Print exec info:
 			const auto level {
-				result.first == ReactorShutdownReason::Success ? Common::LogLevel::Success : Common::LogLevel::Error
+				result.first == ReactorShutdownReason::Success ? Foundation::LogLevel::Success : Foundation::LogLevel::Error
 			};
 			Print(level, "Execution #{} done! Runtime {:.04}\n", this->Context_->ExecutionTimeHistory.size(),
 			      std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros));
@@ -806,13 +806,13 @@ namespace Nominax
 			return this->Context_->BootTime;
 		}
 
-		auto Environment::GetSystemSnapshot() const -> const Common::Snapshot&
+		auto Environment::GetSystemSnapshot() const -> const Foundation::Snapshot&
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 			return this->Context_->SysInfoSnapshot;
 		}
 
-		auto Environment::GetProcessorFeatureSnapshot() const -> const Common::CpuFeatureDetector&
+		auto Environment::GetProcessorFeatureSnapshot() const -> const Foundation::CpuFeatureDetector&
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 			return this->Context_->CpuFeatures;
@@ -842,28 +842,8 @@ namespace Nominax
 			return this->Context_->ExecutionTimeHistory;
 		}
 
-		auto ComputeInstructionMapBinding
-		(
-			std::span<const ByteCode::Signal::Discriminator> input,
-			std::span<bool>&                                 output
-		) -> bool
-		{
-			if (std::size(input) != std::size(output))
-			{
-				[[unlikely]]
-					return false;
-			}
-
-			auto       iterator {std::begin(input)};
-			const auto end {std::end(input)};
-
-			for (bool* flag = output.data(); iterator < end; ++iterator, ++flag)
-			{
-				*flag = *iterator == ByteCode::Signal::Discriminator::Instruction;
-			}
-
-			return true;
-		}
+		#undef VALIDATE_ONLINE_BOOT_STATE
+		#undef DISPATCH_HOOK
 
 		auto PerformJumpTableMapping
 		(
@@ -910,7 +890,7 @@ namespace Nominax
 			this->Buffer_.resize(sizeInRecords);
 
 			// insert padding:
-			this->Buffer_.front() = Common::Record::Padding();
+			this->Buffer_.front() = Foundation::Record::Padding();
 		}
 
 		auto DefaultInterruptRoutine(InterruptAccumulator) -> void { }
@@ -920,7 +900,7 @@ namespace Nominax
 			return &DefaultInterruptRoutine;
 		}
 
-		auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Common::Record> buffer) const -> bool
+		auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Foundation::Record> buffer) const -> bool
 		{
 			if (buffer.size() < this->HeaderRead_BlockSize())
 			{
@@ -933,13 +913,13 @@ namespace Nominax
 			return true;
 		}
 
-		auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Common::Record>& buffer) const -> void
+		auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Foundation::Record>& buffer) const -> void
 		{
 			buffer.resize(this->HeaderRead_BlockSize());
 			std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
 		}
 
-		auto Object::CopyBlob(std::vector<Common::Record>& buffer) const -> void
+		auto Object::CopyBlob(std::vector<Foundation::Record>& buffer) const -> void
 		{
 			buffer.resize(this->BlobSize());
 			std::memcpy(buffer.data(), this->Blob_, this->BlobSizeInBytes());
@@ -959,7 +939,7 @@ namespace Nominax
 				return nullptr;
 			}
 			const U32                finalObjectSize = ObjectHeader::RECORD_CHUNKS + sizeInRecords;
-			auto* NOX_RESTRICT const object          = new Common::Record[finalObjectSize]();
+			auto* NOX_RESTRICT const object          = new Foundation::Record[finalObjectSize]();
 			assert(object);
 
 			// Write object header:
@@ -1405,7 +1385,7 @@ namespace Nominax
 			const std::optional<ReactorRoutineLink>& routineLink,
 			const std::size_t                        poolIdx
 		) :
-			Id_ {Common::Xorshift128ThreadLocal()},
+			Id_ {Foundation::Xorshift128ThreadLocal()},
 			PoolIndex_ {poolIdx},
 			SpawnStamp_ {std::chrono::high_resolution_clock::now()},
 			PowerPreference_ {descriptor.PowerPref},
@@ -1421,14 +1401,14 @@ namespace Nominax
 					if (!routineLink)
 					{
 						[[unlikely]]
-							Print(Common::LogLevel::Warning,
+							Print(Foundation::LogLevel::Warning,
 							      "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
 					}
 					return routineLink ? *routineLink : HyperVisor::GetOptimalReactorRoutine({ });
 				}()
 			}
 		{
-			Common::Print
+			Foundation::Print
 			(
 				"Reactor {:010X} "
 				"Stack: {} MB, "
@@ -1438,7 +1418,7 @@ namespace Nominax
 				"Power: {}, "
 				"Pool: {:02}\n",
 				this->Id_,
-				Common::Bytes2Megabytes(this->Stack_.Size() * sizeof(Common::Record)),
+				Foundation::Bytes2Megabytes(this->Stack_.Size() * sizeof(Foundation::Record)),
 				this->Stack_.Size(),
 				this->IntrinsicTable_.size(),
 				this->InterruptHandler_ == &DefaultInterruptRoutine ? "Def" : "Usr",
@@ -1471,7 +1451,7 @@ namespace Nominax
 
 		auto SingletonExecutionProxy
 		(
-			const VerboseReactorDescriptor& input, const Common::CpuFeatureDetector& target,
+			const VerboseReactorDescriptor& input, const Foundation::CpuFeatureDetector& target,
 			const void****                  outJumpTable
 		) -> std::pair<ReactorShutdownReason, ReactorState>
 		{
@@ -1507,18 +1487,18 @@ namespace Nominax
 			#endif
 		};
 
-		auto HyperVisor::SmartSelectReactor(const Common::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
+		auto HyperVisor::SmartSelectReactor(const Foundation::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
 		{
 			#if NOX_ARCH_X86_64
 
 			// if we have AVX 512, use AVX 512:
-			if (cpuFeatureDetector[Common::CpuFeatureBits::Avx512F])
+			if (cpuFeatureDetector[Foundation::CpuFeatureBits::Avx512F])
 			{
 				return ReactorCoreSpecialization::X86_64_AVX512F;
 			}
 
 			// if we have AVX, use AVX:
-			if (cpuFeatureDetector[Common::CpuFeatureBits::Avx])
+			if (cpuFeatureDetector[Foundation::CpuFeatureBits::Avx])
 			{
 				return ReactorCoreSpecialization::X86_64_AVX;
 			}
@@ -1561,13 +1541,13 @@ namespace Nominax
 			return routine;
 		}
 
-		auto HyperVisor::GetOptimalReactorRoutine(const Common::CpuFeatureDetector& features) -> ReactorRoutineLink
+		auto HyperVisor::GetOptimalReactorRoutine(const Foundation::CpuFeatureDetector& features) -> ReactorRoutineLink
 		{
 			static thread_local constinit U16 QueryCounter;
 			ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
 			ReactorCoreExecutionRoutine*      routine {GetReactorRoutineFromRegistryByTarget(specialization)};
 			const void**                      jumpTable {QueryJumpTable(*routine)};
-			Common::Print
+			Foundation::Print
 			(
 				"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry Size: {}\n",
 				GetReactorCoreSpecializationName(specialization),
@@ -1578,7 +1558,7 @@ namespace Nominax
 			if (QueryCounter > 1)
 			{
 				[[unlikely]]
-					Print(Common::LogLevel::Warning,
+					Print(Foundation::LogLevel::Warning,
 					      "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n",
 					      QueryCounter);
 			}
@@ -1592,9 +1572,9 @@ namespace Nominax
 
 		auto SingletonExecutionProxy
 		(
-			const VerboseReactorDescriptor&   input, ReactorState& output,
-			const Common::CpuFeatureDetector& target,
-			const void****                    outJumpTable
+			const VerboseReactorDescriptor&       input, ReactorState& output,
+			const Foundation::CpuFeatureDetector& target,
+			const void****                        outJumpTable
 		) -> ReactorShutdownReason
 		{
 			return HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable);
@@ -1623,16 +1603,16 @@ namespace Nominax
 		{
 			NOX_PAS_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 
-			Common::Print("Initializing reactor pool...\n", reactorCount);
-			Common::Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT,
-			              FALLBACK_REACTOR_COUNT, reactorCount);
+			Foundation::Print("Initializing reactor pool...\n", reactorCount);
+			Foundation::Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT,
+			                  FALLBACK_REACTOR_COUNT, reactorCount);
 
 			this->Pool_.reserve(reactorCount);
 			for (std::size_t i {0}; i < reactorCount; ++i)
 			{
 				if (!routineLink)
 				{
-					Print(Common::LogLevel::Warning,
+					Print(Foundation::LogLevel::Warning,
 					      "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
 				}
 				this->Pool_.emplace_back(Reactor
@@ -1641,19 +1621,19 @@ namespace Nominax
 					});
 			}
 
-			Common::Print('\n');
+			Foundation::Print('\n');
 		}
 
 		ReactorPool::~ReactorPool()
 		{
 			const auto size {this->Pool_.size()};
 			this->Pool_.clear();
-			Common::Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
+			Foundation::Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
 		}
 
 		auto PrintShutdownReason(const ReactorShutdownReason reason, const InterruptAccumulator code) -> void
 		{
-			using namespace Common;
+			using namespace Foundation;
 
 			switch (reason)
 			{
@@ -1925,7 +1905,7 @@ namespace Nominax
 			}
 
 			// first stack entry is never used and must be nop-padding:
-			if (*Stack != Common::Record::Padding())
+			if (*Stack != Foundation::Record::Padding())
 			{
 				[[unlikely]]
 					return ReactorValidationResult::MissingStackPrologue;

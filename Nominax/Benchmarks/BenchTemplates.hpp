@@ -215,7 +215,7 @@
 using namespace benchmark;
 
 using namespace Nominax;
-using namespace Common;
+using namespace Foundation;
 using namespace ByteCode;
 using namespace Core;
 

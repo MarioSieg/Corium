@@ -847,7 +847,7 @@ namespace Nominax::ByteCode
 	/// Custom intrinsic routine function prototype.
 	/// Contains the stack pointer as parameter.
 	/// </summary>
-	using IntrinsicRoutine = auto (Common::Record*) -> void;
+	using IntrinsicRoutine = auto (Foundation::Record*) -> void;
 	static_assert(std::is_function_v<IntrinsicRoutine>);
 
 	/// <summary>
@@ -1112,7 +1112,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as Record64.
 		/// </summary>
-		Common::Record R64;
+		Foundation::Record R64;
 
 		/// <summary>
 		/// Reinterpret as instruction.
@@ -1155,7 +1155,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(Common::Record value);
+		explicit constexpr Signal(Foundation::Record value);
 
 		/// <summary>
 		/// Construct from instruction.
@@ -1242,7 +1242,7 @@ namespace Nominax::ByteCode
 		explicit constexpr Signal(JumpAddress value);
 	};
 
-	constexpr Signal::Signal(const Common::Record value) : R64 {value} {}
+	constexpr Signal::Signal(const Foundation::Record value) : R64 {value} {}
 	constexpr Signal::Signal(const Instruction value) : Instr {value} {}
 	constexpr Signal::Signal(const SystemIntrinsicCallID value) : SystemIntrinID {value} {}
 	constexpr Signal::Signal(const UserIntrinsicCallID value) : UserIntrinID {value} {}

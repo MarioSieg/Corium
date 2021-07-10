@@ -218,6 +218,6 @@ namespace Nominax::Prelude
 	using namespace Assembler;
 	using namespace ByteCode;
 	using namespace Core;
-	using namespace Common;
+	using namespace Foundation;
 	using namespace VectorLib;
 }

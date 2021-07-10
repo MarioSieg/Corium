@@ -210,7 +210,7 @@
 #include "../../Nominax/Include/Nominax/Core.hpp"
 #include "../../Nominax/Include/Nominax/RuntimeAssembler_x86_64.hpp"
 
-namespace Nominax::Common
+namespace Nominax::Foundation
 {
 	auto ILog2DeBruijn(U64 x) -> U64
 	{
@@ -742,14 +742,14 @@ namespace Nominax::Common
 auto operator new(const std::size_t size) -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->Allocate(mem, size);
+	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
 auto operator new[](const std::size_t size) -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->Allocate(mem, size);
+	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
@@ -774,14 +774,14 @@ auto operator new[](const std::size_t size, const std::align_val_t alignment)  -
 auto operator new(const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->Allocate(mem, size);
+	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
 auto operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->Allocate(mem, size);
+	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
@@ -805,30 +805,30 @@ auto operator new[](const std::size_t size, const std::align_val_t alignment, [[
 
 auto operator delete(void* mem) noexcept(true) -> void
 {
-	Nominax::Common::GlobalAllocatorProxy->Deallocate(mem);
+	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }
 
 auto operator delete(void* mem, std::size_t) noexcept(true) -> void
 {
-	Nominax::Common::GlobalAllocatorProxy->Deallocate(mem);
+	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }
 
 auto operator delete[](void* mem) noexcept(true) -> void
 {
-	Nominax::Common::GlobalAllocatorProxy->Deallocate(mem);
+	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }
 
 auto operator delete[](void* mem, std::size_t) noexcept(true) -> void
 {
-	Nominax::Common::GlobalAllocatorProxy->Deallocate(mem);
+	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }
 
-namespace Nominax::Common
+namespace Nominax::Foundation
 {
 	CpuFeatureDetector::CpuFeatureDetector() : FeatureBits_ { }
 	{
 		#if NOX_ARCH_X86_64
-		
+
 		using namespace Assembler::X86_64::Routines;
 		using Cfb = CpuFeatureBits;
 
@@ -839,7 +839,7 @@ namespace Nominax::Common
 		std::array<MergedInfoTable, 3> merged { };
 		U32                            result;
 		result = Asm_CpuId(&merged[0], &merged[1], &merged[2]);
-		U8* const needle{ std::data(buffer) };
+		U8* const needle {std::data(buffer)};
 		std::memcpy(needle, std::data(merged), sizeof merged);
 		std::memcpy(needle + sizeof merged, &result, sizeof result);
 		for (std::size_t i {0}; i < sizeof buffer; ++i)
@@ -892,31 +892,6 @@ namespace Nominax::Common
 		}
 	}
 
-	static auto MachineRating(const std::size_t threads) -> char
-	{
-		if (threads <= 2)
-		{
-			return 'F';
-		}
-		if (threads <= 4)
-		{
-			return 'E';
-		}
-		if (threads <= 8)
-		{
-			return 'D';
-		}
-		if (threads <= 16)
-		{
-			return 'C';
-		}
-		if (threads <= 32)
-		{
-			return 'B';
-		}
-		return 'A';
-	}
-
 	Snapshot::Snapshot()
 	{
 		this->QueryAll();
@@ -926,15 +901,15 @@ namespace Nominax::Common
 	{
 		this->ThreadCount       = std::thread::hardware_concurrency();
 		this->ThreadId          = std::this_thread::get_id();
-		this->CpuName           = QueryCpuName();
-		this->TotalSystemMemory = QuerySystemMemoryTotal();
-		this->ProcessMemory     = QueryProcessMemoryUsed();
-		this->PageSize          = QueryPageSize();
+		this->CpuName           = Os::QueryCpuName();
+		this->TotalSystemMemory = Os::QuerySystemMemoryTotal();
+		this->ProcessMemory     = Os::QueryProcessMemoryUsed();
+		this->PageSize          = Os::QueryPageSize();
 	}
 
 	auto Snapshot::Print() const -> void
 	{
-		using namespace Common;
+		using namespace Foundation;
 
 		const auto&
 		[
@@ -949,14 +924,14 @@ namespace Nominax::Common
 			PageSize
 		] = *this;
 
-		Common::Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
-		Common::Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
-		Common::Print("CPU: {}\n", CpuName);
-		Common::Print("CPU Hardware threads: {}\n", ThreadCount);
-		Common::Print("CPU Machine class: {}\n", MachineRating(ThreadCount));
-		Common::Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
-		Common::Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
-		Common::Print("Page size: {}B\n", PageSize);
+		Foundation::Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
+		Foundation::Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
+		Foundation::Print("CPU: {}\n", CpuName);
+		Foundation::Print("CPU Hardware threads: {}\n", ThreadCount);
+		Foundation::Print("CPU Machine class: {}\n", static_cast<char>(MachineRating(ThreadCount)));
+		Foundation::Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
+		Foundation::Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
+		Foundation::Print("Page size: {}B\n", PageSize);
 	}
 }
 
@@ -971,14 +946,14 @@ namespace Nominax::Common
 
 	namespace Nominax::Common
 	{
-		auto QuerySystemMemoryTotal()  -> std::size_t
+		auto Os::QuerySystemMemoryTotal()  -> std::size_t
 		{
 			const long pages = sysconf(_SC_PHYS_PAGES);
 			const long page_size = sysconf(_SC_PAGE_SIZE);
 			return static_cast<std::size_t>(pages * page_size);
 		}
 
-		auto QueryProcessMemoryUsed()  -> std::size_t {
+		auto Os::QueryProcessMemoryUsed()  -> std::size_t {
 			auto* const file = fopen("/proc/self/statm", "r");
 			if (file == nullptr)
 			{
@@ -990,7 +965,7 @@ namespace Nominax::Common
 			return static_cast<std::size_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
 		}
 
-		auto QueryCpuName()  -> std::string
+		auto Os::QueryCpuName()  -> std::string
 		{
 			std::ifstream cpuinfo("/proc/cpuinfo");
 
@@ -1012,22 +987,22 @@ namespace Nominax::Common
 			return {};
 		}
 
-		auto QueryPageSize() ->std::size_t
+		auto Os::QueryPageSize() ->std::size_t
 		{
 			return static_cast<std::size_t>(sysconf(_SC_PAGE_SIZE));
 		}
 
-		auto DylibOpen(const std::string_view file_)  -> void*
+		auto Os::DylibOpen(const std::string_view file_)  -> void*
 		{
 			return ::dlopen(file_.data(), RTLD_LOCAL | RTLD_LAZY);
 		}
 
-		auto DylibLookupSymbol(void* const handle_, const std::string_view symbol_)  -> void*
+		auto Os::DylibLookupSymbol(void* const handle_, const std::string_view symbol_)  -> void*
 		{
 			return ::dlsym(handle_, symbol_.data());
 		}
 
-		auto DylibClose(void*& handle_)  -> void
+		auto Os::DylibClose(void*& handle_)  -> void
 		{
 			::dlclose(handle_);
 			handle_ = nullptr;
@@ -1043,9 +1018,9 @@ namespace Nominax::Common
 #include <WinUser.h>
 #include <Psapi.h>
 
-namespace Nominax::Common
+namespace Nominax::Foundation
 {
-	auto QuerySystemMemoryTotal() -> std::size_t
+	auto Os::QuerySystemMemoryTotal() -> std::size_t
 	{
 		MEMORYSTATUSEX status;
 		status.dwLength = sizeof(MEMORYSTATUSEX);
@@ -1053,14 +1028,14 @@ namespace Nominax::Common
 		return status.ullTotalPhys;
 	}
 
-	auto QueryProcessMemoryUsed() -> std::size_t
+	auto Os::QueryProcessMemoryUsed() -> std::size_t
 	{
 		PROCESS_MEMORY_COUNTERS pmc;
 		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
 		return pmc.WorkingSetSize;
 	}
 
-	auto QueryCpuName() -> std::string
+	auto Os::QueryCpuName() -> std::string
 	{
 		HKEY key;
 		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ,
@@ -1078,25 +1053,25 @@ namespace Nominax::Common
 		return id;
 	}
 
-	auto QueryPageSize() -> std::size_t
+	auto Os::QueryPageSize() -> std::size_t
 	{
 		SYSTEM_INFO sysInfo;
 		GetSystemInfo(&sysInfo);
 		return static_cast<std::size_t>(sysInfo.dwPageSize);
 	}
 
-	auto DylibOpen(const std::string_view filePath) -> void*
+	auto Os::DylibOpen(const std::string_view filePath) -> void*
 	{
 		return LoadLibraryA(filePath.data());
 	}
 
-	auto DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
+	auto Os::DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
 	{
 		// ReSharper disable once CppRedundantCastExpression
 		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
 	}
 
-	auto DylibClose(void*& handle) -> void
+	auto Os::DylibClose(void*& handle) -> void
 	{
 		FreeLibrary(static_cast<HMODULE>(handle));
 		handle = nullptr;

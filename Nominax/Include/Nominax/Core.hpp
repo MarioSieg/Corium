@@ -346,7 +346,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Stack data pointer.
 		/// </summary>
-		Common::Record* Stack {nullptr};
+		Foundation::Record* Stack {nullptr};
 
 		/// <summary>
 		/// Stack length.
@@ -386,7 +386,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Stack view.
 		/// </summary>
-		std::span<Common::Record> Stack;
+		std::span<Foundation::Record> Stack;
 
 		/// <summary>
 		/// Interrupt routine proxy.
@@ -420,7 +420,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Storage type for the reactor stack.
 		/// </summary>
-		using StorageType = std::pmr::vector<Common::Record>;
+		using StorageType = std::pmr::vector<Foundation::Record>;
 
 	private:
 		/// <summary>
@@ -433,32 +433,32 @@ namespace Nominax::Core
 		/// Small 1 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_SMALL {1_mb / sizeof(Common::Record)};
+		static constexpr std::size_t SIZE_SMALL {1_mb / sizeof(Foundation::Record)};
 
 		/// <summary>
 		/// Medium sizes 4 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_MEDIUM {4_mb / sizeof(Common::Record)};
+		static constexpr std::size_t SIZE_MEDIUM {4_mb / sizeof(Foundation::Record)};
 
 		/// <summary>
 		/// Medium sizes 8 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_LARGE {8_mb / sizeof(Common::Record)};
+		static constexpr std::size_t SIZE_LARGE {8_mb / sizeof(Foundation::Record)};
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The memory buffer pointer.</returns>
 		[[nodiscard]]
-		auto Buffer() -> Common::Record*;
+		auto Buffer() -> Foundation::Record*;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The memory buffer pointer.</returns>
 		[[nodiscard]]
-		auto Buffer() const -> const Common::Record*;
+		auto Buffer() const -> const Foundation::Record*;
 
 		/// <summary>
 		/// 
@@ -538,12 +538,12 @@ namespace Nominax::Core
 		~FixedStack() = default;
 	};
 
-	inline auto FixedStack::Buffer() -> Common::Record*
+	inline auto FixedStack::Buffer() -> Foundation::Record*
 	{
 		return this->Buffer_.data();
 	}
 
-	inline auto FixedStack::Buffer() const -> const Common::Record*
+	inline auto FixedStack::Buffer() const -> const Foundation::Record*
 	{
 		return this->Buffer_.data();
 	}
@@ -839,7 +839,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The result of the program evaluation (the first stack record, if any).</returns>
 		[[nodiscard]]
-		constexpr auto EvaluationResult() const -> Common::Record;
+		constexpr auto EvaluationResult() const -> Foundation::Record;
 	};
 
 	constexpr auto ReactorState::ReturnCode() const -> I32
@@ -847,7 +847,7 @@ namespace Nominax::Core
 		return this->InterruptCode;
 	}
 
-	constexpr auto ReactorState::EvaluationResult() const -> Common::Record
+	constexpr auto ReactorState::EvaluationResult() const -> Foundation::Record
 	{
 		return this->Input->Stack[1];
 	}
@@ -945,7 +945,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Default constructor. Does not initialize the environment.
 		/// </summary>
-		explicit Environment(const Common::IAllocator* allocator = nullptr);
+		explicit Environment(const Foundation::IAllocator* allocator = nullptr);
 
 		/// <summary>
 		/// No copy.
@@ -1075,14 +1075,14 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The system stat snapshot.</returns>
 		[[nodiscard]]
-		auto GetSystemSnapshot() const -> const Common::Snapshot&;
+		auto GetSystemSnapshot() const -> const Foundation::Snapshot&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The cpu feature detector.</returns>
 		[[nodiscard]]
-		auto GetProcessorFeatureSnapshot() const -> const Common::CpuFeatureDetector&;
+		auto GetProcessorFeatureSnapshot() const -> const Foundation::CpuFeatureDetector&;
 
 		/// <summary>
 		/// 
@@ -1215,15 +1215,6 @@ namespace Nominax::Core
 
 		return true;
 	}
-
-	/// <summary>
-	/// Calculates an instruction mapping.
-	/// Input and output must have the same size.
-	/// </summary>
-	/// <param name="input"></param>
-	/// <param name="output"></param>
-	/// <returns></returns>
-	extern auto ComputeInstructionMapBinding(std::span<const ByteCode::Signal::Discriminator> input, std::span<bool>& output) -> bool;
 
 	/// <summary>
 	/// Contains all flags in the flag vector field in the object header.
@@ -1442,7 +1433,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		auto MapToRegionUnchecked(Common::Record* region) const -> void;
+		auto MapToRegionUnchecked(Foundation::Record* region) const -> void;
 
 		/// <summary>
 		/// Maps this record into the specified memory region.
@@ -1451,7 +1442,7 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
 		[[nodiscard]]
-		auto MapToRegionChecked(std::span<Common::Record> region) const -> bool;
+		auto MapToRegionChecked(std::span<Foundation::Record> region) const -> bool;
 
 		/// <summary>
 		/// Maps this record from the specified memory region.
@@ -1460,7 +1451,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		auto MapFromRegionUnchecked(const Common::Record* region) -> void;
+		auto MapFromRegionUnchecked(const Foundation::Record* region) -> void;
 
 		/// <summary>
 		/// Maps this record from the specified memory region.
@@ -1469,7 +1460,7 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
 		[[nodiscard]]
-		auto MapFromRegionChecked(std::span<const Common::Record> region) -> bool;
+		auto MapFromRegionChecked(std::span<const Foundation::Record> region) -> bool;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the strong ref count.
@@ -1477,7 +1468,7 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <returns>The current value of the strong ref count.</returns>
 		[[nodiscard]]
-		static constexpr auto ReadMapping_StrongRefCount(const Common::Record* region) -> U32;
+		static constexpr auto ReadMapping_StrongRefCount(const Foundation::Record* region) -> U32;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the size.
@@ -1485,7 +1476,7 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <returns>The current value of the size field.</returns>
 		[[nodiscard]]
-		static constexpr auto ReadMapping_Size(const Common::Record* region) -> U32;
+		static constexpr auto ReadMapping_Size(const Foundation::Record* region) -> U32;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the type id.
@@ -1493,7 +1484,7 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <returns>The current value of the type id.</returns>
 		[[nodiscard]]
-		static constexpr auto ReadMapping_TypeId(const Common::Record* region) -> U32;
+		static constexpr auto ReadMapping_TypeId(const Foundation::Record* region) -> U32;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the flag vector.
@@ -1501,7 +1492,7 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <returns>The current value of the flag vector.</returns>
 		[[nodiscard ]]
-		static constexpr auto ReadMapping_FlagVector(const Common::Record* region) -> ObjectFlagVector;
+		static constexpr auto ReadMapping_FlagVector(const Foundation::Record* region) -> ObjectFlagVector;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the strong ref count field.
@@ -1509,7 +1500,7 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <param name="strongRefCount">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_StrongRefCount(Common::Record* region, U32 strongRefCount) -> void;
+		static constexpr auto WriteMapping_StrongRefCount(Foundation::Record* region, U32 strongRefCount) -> void;
 
 		/// <summary>
 		/// Implicit map the region to an object header and increment the strong reference counter by one.
@@ -1517,7 +1508,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_IncrementStrongRefCount(Common::Record* region) -> void;
+		static constexpr auto WriteMapping_IncrementStrongRefCount(Foundation::Record* region) -> void;
 
 		/// <summary>
 		/// Implicit map the region to an object header and decrement the strong reference counter by one.
@@ -1525,7 +1516,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_DecrementStrongRefCount(Common::Record* region) -> void;
+		static constexpr auto WriteMapping_DecrementStrongRefCount(Foundation::Record* region) -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the size field.
@@ -1533,7 +1524,7 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <param name="size">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_Size(Common::Record* region, U32 size) -> void;
+		static constexpr auto WriteMapping_Size(Foundation::Record* region, U32 size) -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the type id field.
@@ -1541,7 +1532,7 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <param name="typeId">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_TypeId(Common::Record* region, U32 typeId) -> void;
+		static constexpr auto WriteMapping_TypeId(Foundation::Record* region, U32 typeId) -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the flag vector field.
@@ -1549,7 +1540,7 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <param name="flagVector">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_FlagVector(Common::Record* region, ObjectFlagVector flagVector) -> void;
+		static constexpr auto WriteMapping_FlagVector(Foundation::Record* region, ObjectFlagVector flagVector) -> void;
 
 		/// <summary>
 		/// Type-pun a region to an object header
@@ -1558,7 +1549,7 @@ namespace Nominax::Core
 		/// <param name="region"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto RawQueryTypePun(Common::Record* region) -> ObjectHeader&;
+		static auto RawQueryTypePun(Foundation::Record* region) -> ObjectHeader&;
 
 		/// <summary>
 		/// The size of each header block field.
@@ -1573,7 +1564,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// The offset in records from the blob base pointer.
 		/// </summary>
-		static constexpr std::uintptr_t RECORD_OFFSET {STRIDE * BLOCKS / sizeof(Common::Record)};
+		static constexpr std::uintptr_t RECORD_OFFSET {STRIDE * BLOCKS / sizeof(Foundation::Record)};
 
 		/// <summary>
 		/// The amount of records required to store the header.
@@ -1590,12 +1581,12 @@ namespace Nominax::Core
 	static_assert(std::is_standard_layout_v<ObjectHeader>);
 	static_assert(std::is_trivially_copyable_v<ObjectHeader>);
 
-	NOX_FLATTEN inline auto ObjectHeader::MapToRegionUnchecked(Common::Record* const region) const -> void
+	NOX_FLATTEN inline auto ObjectHeader::MapToRegionUnchecked(Foundation::Record* const region) const -> void
 	{
 		std::memcpy(region, this, sizeof(ObjectHeader));
 	}
 
-	NOX_FLATTEN inline auto ObjectHeader::MapToRegionChecked(const std::span<Common::Record> region) const -> bool
+	NOX_FLATTEN inline auto ObjectHeader::MapToRegionChecked(const std::span<Foundation::Record> region) const -> bool
 	{
 		if (region.size() < 2)
 		[[unlikely]]
@@ -1605,12 +1596,12 @@ namespace Nominax::Core
 		return std::memcpy(region.data(), this, sizeof(ObjectHeader));
 	}
 
-	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionUnchecked(const Common::Record* const region) -> void
+	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionUnchecked(const Foundation::Record* const region) -> void
 	{
 		std::memcpy(this, region, sizeof(ObjectHeader));
 	}
 
-	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Common::Record> region) -> bool
+	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Foundation::Record> region) -> bool
 	{
 		if (region.size() < 2)
 		[[unlikely]]
@@ -1620,22 +1611,22 @@ namespace Nominax::Core
 		return std::memcpy(this, region.data(), sizeof(ObjectHeader));
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Common::Record* const region) -> U32
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Foundation::Record* const region) -> U32
 	{
 		return (*region).AsU32S[0];
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_Size(const Common::Record* const region) -> U32
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_Size(const Foundation::Record* const region) -> U32
 	{
 		return (*region).AsU32S[1];
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_TypeId(const Common::Record* const region) -> U32
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_TypeId(const Foundation::Record* const region) -> U32
 	{
 		return region[1].AsU32S[0];
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_FlagVector(const Common::Record* const region) -> ObjectFlagVector
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_FlagVector(const Foundation::Record* const region) -> ObjectFlagVector
 	{
 		const auto flags = ObjectFlagVector
 		{
@@ -1644,37 +1635,37 @@ namespace Nominax::Core
 		return flags;
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Common::Record* const region, const U32 strongRefCount) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Foundation::Record* const region, const U32 strongRefCount) -> void
 	{
 		(*region).AsU32S[0] = strongRefCount;
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Common::Record* const region) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Foundation::Record* const region) -> void
 	{
 		++(*region).AsU32S[0];
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Common::Record* const region) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Foundation::Record* const region) -> void
 	{
 		--(*region).AsU32S[0];
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_Size(Common::Record* const region, const U32 size) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_Size(Foundation::Record* const region, const U32 size) -> void
 	{
 		(*region).AsU32S[1] = size;
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_TypeId(Common::Record* const region, const U32 typeId) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_TypeId(Foundation::Record* const region, const U32 typeId) -> void
 	{
 		region[1].AsU32S[0] = typeId;
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_FlagVector(Common::Record* const region, const ObjectFlagVector flagVector) -> void
+	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_FlagVector(Foundation::Record* const region, const ObjectFlagVector flagVector) -> void
 	{
 		region[1].AsU32S[1] = flagVector.Merged;
 	}
 
-	NOX_FLATTEN inline auto ObjectHeader::RawQueryTypePun(Common::Record* const region) -> ObjectHeader&
+	NOX_FLATTEN inline auto ObjectHeader::RawQueryTypePun(Foundation::Record* const region) -> ObjectHeader&
 	{
 		return *reinterpret_cast<ObjectHeader*>(region);
 	}
@@ -1688,7 +1679,7 @@ namespace Nominax::Core
 	class Object final
 	{
 	public:
-		using BlobBlockType = Common::Record;
+		using BlobBlockType = Foundation::Record;
 
 	private:
 		friend class RuntimeObjectAllocator;
@@ -2587,12 +2578,12 @@ namespace Nominax::Core
 
 	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSizeInBytes() const -> std::size_t
 	{
-		return BlobSize() * sizeof(Common::Record);
+		return BlobSize() * sizeof(Foundation::Record);
 	}
 
 	NOX_FLATTEN inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const -> std::size_t
 	{
-		return this->HeaderRead_BlockSize() * sizeof(Common::Record);
+		return this->HeaderRead_BlockSize() * sizeof(Foundation::Record);
 	}
 
 	NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const -> U32
@@ -2890,7 +2881,7 @@ namespace Nominax::Core
 		/// <param name="cpuFeatureDetector"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto SmartSelectReactor(const Common::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
+		static auto SmartSelectReactor(const Foundation::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
 
 		/// <summary>
 		/// 
@@ -2913,7 +2904,7 @@ namespace Nominax::Core
 		/// <param name="features"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto GetOptimalReactorRoutine(const Common::CpuFeatureDetector& features) -> ReactorRoutineLink;
+		static auto GetOptimalReactorRoutine(const Foundation::CpuFeatureDetector& features) -> ReactorRoutineLink;
 	};
 
 	/// <summary>
@@ -2928,10 +2919,10 @@ namespace Nominax::Core
 	[[nodiscard]]
 	extern auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor&   input,
-		ReactorState&                     output,
-		const Common::CpuFeatureDetector& target,
-		const void****                    outJumpTable = nullptr
+		const VerboseReactorDescriptor&       input,
+		ReactorState&                         output,
+		const Foundation::CpuFeatureDetector& target,
+		const void****                        outJumpTable = nullptr
 	) -> ReactorShutdownReason;
 
 	/// <summary>
@@ -3174,8 +3165,8 @@ namespace Nominax::Core
 	/// <returns></returns>
 	extern auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor& input, const Common::CpuFeatureDetector& target = { },
-		const void****                  outJumpTable                                    = nullptr
+		const VerboseReactorDescriptor& input, const Foundation::CpuFeatureDetector& target = { },
+		const void****                  outJumpTable                                        = nullptr
 	) -> std::pair<ReactorShutdownReason, ReactorState>;
 
 	/// <summary>

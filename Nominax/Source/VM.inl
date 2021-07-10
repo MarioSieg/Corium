@@ -1,6 +1,6 @@
 // File: VM.inl
 // Author: Mario
-// Created: 05.07.2021 4:43 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -217,14 +217,14 @@
 
 namespace Nominax::Core
 {
-	using Common::Record;
-	using Common::BreakpointInterrupt;
-	using Common::NoOperation;
-	using Common::Rol64;
-	using Common::Ror64;
-	using Common::Proxy_F64Equals;
-	using Common::Proxy_F64IsOne;
-	using Common::Proxy_F64IsZero;
+	using Foundation::Record;
+	using Foundation::BreakpointInterrupt;
+	using Foundation::NoOperation;
+	using Foundation::Rol64;
+	using Foundation::Ror64;
+	using Foundation::Proxy_F64Equals;
+	using Foundation::Proxy_F64IsOne;
+	using Foundation::Proxy_F64IsZero;
 
 	using VectorLib::F64_X4_Add_Unaligned;
 	using VectorLib::F64_X4_Sub_Unaligned;

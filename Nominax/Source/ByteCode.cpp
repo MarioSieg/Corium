@@ -238,7 +238,7 @@ namespace Nominax::ByteCode
 		};
 
 		std::transform(std::execution::par_unseq, std::begin(output), std::end(output), std::begin(output), addressMapper);
-        #endif
+		#endif
 
 		const auto jumpTransformer
 		{
@@ -270,10 +270,10 @@ namespace Nominax::ByteCode
 
 	Image::Image(std::vector<Signal>&& buffer) : Blob_ {std::move(buffer)} { }
 
-	using Common::ILog2;
-	using Common::Proxy_F64IsZero;
-	using Common::Proxy_F64IsOne;
-	using Common::IsPowerOfTwo;
+	using Foundation::ILog2;
+	using Foundation::Proxy_F64IsZero;
+	using Foundation::Proxy_F64IsOne;
+	using Foundation::IsPowerOfTwo;
 
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst
@@ -839,7 +839,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	using namespace Common;
+	using namespace Foundation;
 
 	auto Stream::PrintByteCode() const -> void
 	{

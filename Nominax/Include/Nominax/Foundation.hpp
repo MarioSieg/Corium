@@ -534,7 +534,7 @@ namespace Nominax
 #	include <alloca.h>
 #endif
 
-namespace Nominax::Common
+namespace Nominax::Foundation
 {
 	/// <summary>
 	/// Generic runtime entry point.
@@ -2087,7 +2087,7 @@ namespace Nominax::Common
 #include <fmt/chrono.h>
 #include <fmt/color.h>
 
-namespace Nominax::Common
+namespace Nominax::Foundation
 {
 	/// <summary>
 	/// Represents a printable text color (if the terminal supports it).
@@ -2326,7 +2326,7 @@ namespace Nominax
 	/// <returns></returns>
 	constexpr auto operator ""_kb(const unsigned long long value) -> U64
 	{
-		return Common::Kilobytes2Bytes<decltype(value)>(value);
+		return Foundation::Kilobytes2Bytes<decltype(value)>(value);
 	}
 
 	/// <summary>
@@ -2336,7 +2336,7 @@ namespace Nominax
 	/// <returns></returns>
 	constexpr auto operator ""_mb(const unsigned long long value) -> U64
 	{
-		return Common::Megabytes2Bytes<decltype(value)>(value);
+		return Foundation::Megabytes2Bytes<decltype(value)>(value);
 	}
 
 	/// <summary>
@@ -2346,7 +2346,7 @@ namespace Nominax
 	/// <returns></returns>
 	constexpr auto operator ""_gb(const unsigned long long value) -> U64
 	{
-		return Common::Gigabytes2Bytes<decltype(value)>(value);
+		return Foundation::Gigabytes2Bytes<decltype(value)>(value);
 	}
 
 	/// <summary>
@@ -2380,7 +2380,7 @@ namespace Nominax
 		Args&&...         args
 	) -> void
 	{
-		using namespace Common;
+		using namespace Foundation;
 		Print(TextColor::Red, "\n! NOMINAX RUNTIME PANIC !\n");
 		Print(TextColor::White, "Line: {}\nColumn: {}\nSubroutine: {}\nFile: {}\n", line, column, routine ? routine : "?", file ? file : "?");
 		Print(TextColor::White, formatString, std::forward<Args>(args)...);
@@ -2533,7 +2533,7 @@ namespace Nominax
 	while(false)
 }
 
-namespace Nominax::Common
+namespace Nominax::Foundation
 {
 	/// <summary>
 	/// Helper to work with text files.
@@ -6128,7 +6128,7 @@ namespace Nominax::VectorLib
 	}
 }
 
-namespace Nominax::Common
+namespace Nominax::Foundation
 {
 	enum class CpuFeatureBits : U8
 	{
@@ -7353,56 +7353,164 @@ namespace Nominax::Common
 	}
 
 	/// <summary>
-	/// Query system info.
+	/// Represents a machine rating.
 	/// </summary>
-	/// <returns>The total system memory in bytes.</returns>
-	[[nodiscard]]
-	extern auto QuerySystemMemoryTotal() -> std::size_t;
+	enum class MachineClass : char
+	{
+		/// <summary>
+		/// Excellent
+		/// </summary>
+		A = 'A',
+
+		/// <summary>
+		/// Very Good
+		/// </summary>
+		B = 'B',
+
+		/// <summary>
+		/// Good
+		/// </summary>
+		C = 'C',
+
+		/// <summary>
+		/// Okay
+		/// </summary>
+		D = 'D',
+
+		/// <summary>
+		/// Bad
+		/// </summary>
+		E = 'E',
+
+		/// <summary>
+		/// Potato
+		/// </summary>
+		F = 'F'
+	};
 
 	/// <summary>
-	/// Query system info.
+	/// Query machine class based on CPU threads.
 	/// </summary>
-	/// <returns>The amount of memory used by the current process in bytes.</returns>
-	[[nodiscard]]
-	extern auto QueryProcessMemoryUsed() -> std::size_t;
-
-	/// <summary>
-	/// Query system info.
-	/// </summary>
-	/// <returns>The name of the CPU.</returns>
-	[[nodiscard]]
-	extern auto QueryCpuName() -> std::string;
-
-	/// <summary>
-	/// Query system info.
-	/// </summary>
-	/// <returns>The size of a page in bytes.</returns>
-	[[nodiscard]]
-	extern auto QueryPageSize() -> std::size_t;
-
-	/// <summary>
-	/// Open dynamic library file.
-	/// </summary>
-	/// <param name="filePath"></param>
+	/// <param name="threads"></param>
 	/// <returns></returns>
-	[[nodiscard]]
-	extern auto DylibOpen(std::string_view filePath) -> void*;
+	constexpr auto MachineRating(const std::size_t threads) -> MachineClass
+	{
+		if (threads <= 2)
+		{
+			return MachineClass::F;
+		}
+		if (threads <= 4)
+		{
+			return MachineClass::E;
+		}
+		if (threads <= 8)
+		{
+			return MachineClass::D;
+		}
+		if (threads <= 16)
+		{
+			return MachineClass::C;
+		}
+		if (threads <= 32)
+		{
+			return MachineClass::B;
+		}
+		return MachineClass::A;
+	}
 
 	/// <summary>
-	/// Lookup symbol in dynamic library.
+	/// Contains operating specific routines.
 	/// </summary>
-	/// <param name="handle"></param>
-	/// <param name="symbolName"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	extern auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
+	struct Os final
+	{
+		/// <summary>
+		/// Static class!
+		/// </summary>
+		Os() = delete;
 
-	/// <summary>
-	/// Close dynamic library.
-	/// </summary>
-	/// <param name="handle"></param>
-	/// <returns></returns>
-	extern auto DylibClose(void*& handle) -> void;
+		/// <summary>
+		/// Static class!
+		/// </summary>
+		/// <param name="other"></param>
+		Os(const Os& other) = delete;
+
+		/// <summary>
+		/// Static class!
+		/// </summary>
+		/// <param name="other"></param>
+		Os(Os&& other) = delete;
+
+		/// <summary>
+		/// Static class!
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const Os& other) -> Os& = delete;
+
+		/// <summary>
+		/// Static class!
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(Os&& other) -> Os& = delete;
+
+		/// <summary>
+		/// Static class!
+		/// </summary>
+		~Os() = delete;
+
+		/// <summary>
+		/// Query system info.
+		/// </summary>
+		/// <returns>The total system memory in bytes.</returns>
+		[[nodiscard]]
+		static auto QuerySystemMemoryTotal() -> std::size_t;
+
+		/// <summary>
+		/// Query system info.
+		/// </summary>
+		/// <returns>The amount of memory used by the current process in bytes.</returns>
+		[[nodiscard]]
+		static auto QueryProcessMemoryUsed() -> std::size_t;
+
+		/// <summary>
+		/// Query system info.
+		/// </summary>
+		/// <returns>The name of the CPU.</returns>
+		[[nodiscard]]
+		static auto QueryCpuName() -> std::string;
+
+		/// <summary>
+		/// Query system info.
+		/// </summary>
+		/// <returns>The size of a page in bytes.</returns>
+		[[nodiscard]]
+		static auto QueryPageSize() -> std::size_t;
+
+		/// <summary>
+		/// Open dynamic library file.
+		/// </summary>
+		/// <param name="filePath"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto DylibOpen(std::string_view filePath) -> void*;
+
+		/// <summary>
+		/// Lookup symbol in dynamic library.
+		/// </summary>
+		/// <param name="handle"></param>
+		/// <param name="symbolName"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
+
+		/// <summary>
+		/// Close dynamic library.
+		/// </summary>
+		/// <param name="handle"></param>
+		/// <returns></returns>
+		static auto DylibClose(void*& handle) -> void;
+	};
 
 	/// <summary>
 	/// Contains information about the current system and stats.
@@ -7582,28 +7690,28 @@ namespace Nominax::Common
 		/// <summary>
 		/// No moving, copying
 		/// </summary>
-		/// <param name=""></param>
-		DynamicLibrary(const DynamicLibrary&) = delete;
+		/// <param name="other"></param>
+		DynamicLibrary(const DynamicLibrary& other) = delete;
 
 		/// <summary>
 		/// No moving, copying
 		/// </summary>
-		/// <param name=""></param>
-		DynamicLibrary(DynamicLibrary&&) = delete;
+		/// <param name="other"></param>
+		DynamicLibrary(DynamicLibrary&& other) = delete;
 
 		/// <summary>
 		/// No moving, copying
 		/// </summary>
-		/// <param name=""></param>
+		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(const DynamicLibrary&) -> DynamicLibrary& = delete;
+		auto operator =(const DynamicLibrary& other) -> DynamicLibrary& = delete;
 
 		/// <summary>
 		/// No moving, copying
 		/// </summary>
-		/// <param name=""></param>
+		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(DynamicLibrary&&) -> DynamicLibrary& = delete;
+		auto operator =(DynamicLibrary&& other) -> DynamicLibrary& = delete;
 
 		/// <summary>
 		/// Destructor, release library handle.
@@ -7632,15 +7740,15 @@ namespace Nominax::Common
 	static_assert(!std::is_trivially_copy_assignable_v<DynamicLibrary>);
 	static_assert(!std::is_trivially_move_assignable_v<DynamicLibrary>);
 
-	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ {DylibOpen(filePath)} { }
+	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ {Os::DylibOpen(filePath)} { }
 
 	inline DynamicLibrary::DynamicLibrary(const std::filesystem::path& filePath) : Handle_ {
-		DylibOpen(filePath.string())
+		Os::DylibOpen(filePath.string())
 	} { }
 
 	inline DynamicLibrary::~DynamicLibrary()
 	{
-		DylibClose(this->Handle_);
+		Os::DylibClose(this->Handle_);
 	}
 
 	inline DynamicLibrary::operator bool() const
@@ -7650,7 +7758,7 @@ namespace Nominax::Common
 
 	inline auto DynamicLibrary::operator[](const std::string_view symbolName) const -> std::optional<DynamicProcedure>
 	{
-		void* const symbolHandle = DylibLookupSymbol(this->Handle_, symbolName);
+		void* const symbolHandle = Os::DylibLookupSymbol(this->Handle_, symbolName);
 		return symbolHandle ? std::optional {DynamicProcedure {symbolHandle}} : std::nullopt;
 	}
 }
