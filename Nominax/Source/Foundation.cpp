@@ -353,48 +353,33 @@ namespace Nominax::Foundation
 
 	auto IAllocator::Allocate(void*& out, const U64 size) const -> void
 	{
-		out = static_cast<U8*>(std::malloc(size));
+		out = SystemAllocator::AllocateChecked(size);
 	}
 
 	auto IAllocator::Reallocate(void*& out, const U64 size) const -> void
 	{
-		out = static_cast<U8*>(std::realloc(out, size));
+		out = SystemAllocator::ReallocateChecked(out, size);
 	}
 
 	auto IAllocator::Deallocate(void*& out) const -> void
 	{
-		std::free(out);
+		SystemAllocator::DeallocateChecked(out);
 		out = nullptr;
 	}
 
 	auto IAllocator::AllocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
 	{
-		#if NOX_OS_WINDOWS && NOX_COM_CLANG
-		out = static_cast<U8*>(_aligned_malloc(size, alignment));
-		#else
-		out = static_cast<U8*>(aligned_alloc(alignment, size));
-		#endif
+		out = SystemAllocator::AllocateAlignedChecked(size, alignment);
 	}
 
 	auto IAllocator::ReallocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
 	{
-		#if NOX_OS_WINDOWS && NOX_COM_CLANG
-		out = static_cast<U8*>(_aligned_realloc(out, size, alignment));
-		#else
-		const auto mem {static_cast<U8*>(aligned_alloc(alignment, size))};
-		std::memcpy(mem, out, size);
-		std::free(out);
-		out = mem;
-		#endif
+		out = SystemAllocator::ReallocateAlignedChecked(out, size, alignment);
 	}
 
 	auto IAllocator::DeallocateAligned(void*& out) const -> void
 	{
-		#if NOX_OS_WINDOWS && NOX_COM_CLANG
-		_aligned_free(out);
-		#else
-		std::free(out);
-		#endif
+		SystemAllocator::DeallocateAlignedChecked(out);
 		out = nullptr;
 	}
 
