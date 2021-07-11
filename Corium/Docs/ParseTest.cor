@@ -5,15 +5,15 @@ const Year = 2021
 native fun exit(exitCode int)
 
 fun f(x float) float {
-
+    return x * x + 10 % x * f(10 + 3 + x)
 }
 
 fun add(x float, v float) float {
-
+    return x + v
 }
 
 # main function:
 fun Main () {
-    let years = 10
+    let years = add(2000, 21)
     const name = "Mario"
 }

@@ -29,11 +29,17 @@ public:
   virtual void enterFunctionDeclaration(CoriumParser::FunctionDeclarationContext *ctx) = 0;
   virtual void exitFunctionDeclaration(CoriumParser::FunctionDeclarationContext *ctx) = 0;
 
+  virtual void enterFunctionCall(CoriumParser::FunctionCallContext *ctx) = 0;
+  virtual void exitFunctionCall(CoriumParser::FunctionCallContext *ctx) = 0;
+
   virtual void enterFunctionHeader(CoriumParser::FunctionHeaderContext *ctx) = 0;
   virtual void exitFunctionHeader(CoriumParser::FunctionHeaderContext *ctx) = 0;
 
   virtual void enterFunctionBlockStatement(CoriumParser::FunctionBlockStatementContext *ctx) = 0;
   virtual void exitFunctionBlockStatement(CoriumParser::FunctionBlockStatementContext *ctx) = 0;
+
+  virtual void enterReturnStatement(CoriumParser::ReturnStatementContext *ctx) = 0;
+  virtual void exitReturnStatement(CoriumParser::ReturnStatementContext *ctx) = 0;
 
   virtual void enterLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext *ctx) = 0;
   virtual void exitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext *ctx) = 0;
@@ -55,6 +61,12 @@ public:
 
   virtual void enterQualifiedName(CoriumParser::QualifiedNameContext *ctx) = 0;
   virtual void exitQualifiedName(CoriumParser::QualifiedNameContext *ctx) = 0;
+
+  virtual void enterExpressionList(CoriumParser::ExpressionListContext *ctx) = 0;
+  virtual void exitExpressionList(CoriumParser::ExpressionListContext *ctx) = 0;
+
+  virtual void enterExpression(CoriumParser::ExpressionContext *ctx) = 0;
+  virtual void exitExpression(CoriumParser::ExpressionContext *ctx) = 0;
 
   virtual void enterLiteral(CoriumParser::LiteralContext *ctx) = 0;
   virtual void exitLiteral(CoriumParser::LiteralContext *ctx) = 0;

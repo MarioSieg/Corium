@@ -205,34 +205,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <iostream>
-
-#include "antlr4-runtime.h"
-#include "../Parser/CoriumParser.h"
-#include "../Parser/CoriumLexer.h"
-
-using namespace antlr4;
-using namespace std;
+#include "Compiler.hpp"
 
 auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* const argv) -> int
 {
-    constexpr auto* const file{"../../../Corium/Docs/ParseTest.cor"};
-
-    ifstream stream{file};
-
-    cout << "Compiling Corium file: " << file << '\n';
-
-    ANTLRInputStream input{stream};
-    CoriumLexer lexer{&input};
-    CommonTokenStream tokens{&lexer};
-
-    tokens.fill();
-    for (auto token : tokens.getTokens()) {
-        std::cout << token->toString() << std::endl;
-    }
-
-    CoriumParser parser{&tokens};
-    auto* output{parser.compilationUnit()};
-    std::cout << output->toString() << '\n';
+    Corium::Compiler compiler{};
+    compiler.CompileAllInDir("../../../Corium/Docs/");
     return 0;
 }

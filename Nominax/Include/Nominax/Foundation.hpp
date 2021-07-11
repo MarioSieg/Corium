@@ -216,8 +216,10 @@
 #include <condition_variable>
 #include <climits>
 #include <csignal>
+#include <cstring>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <ctime>
 #include <execution>
 #include <filesystem>

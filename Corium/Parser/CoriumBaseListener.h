@@ -31,11 +31,17 @@ public:
   virtual void enterFunctionDeclaration(CoriumParser::FunctionDeclarationContext * /*ctx*/) override { }
   virtual void exitFunctionDeclaration(CoriumParser::FunctionDeclarationContext * /*ctx*/) override { }
 
+  virtual void enterFunctionCall(CoriumParser::FunctionCallContext * /*ctx*/) override { }
+  virtual void exitFunctionCall(CoriumParser::FunctionCallContext * /*ctx*/) override { }
+
   virtual void enterFunctionHeader(CoriumParser::FunctionHeaderContext * /*ctx*/) override { }
   virtual void exitFunctionHeader(CoriumParser::FunctionHeaderContext * /*ctx*/) override { }
 
   virtual void enterFunctionBlockStatement(CoriumParser::FunctionBlockStatementContext * /*ctx*/) override { }
   virtual void exitFunctionBlockStatement(CoriumParser::FunctionBlockStatementContext * /*ctx*/) override { }
+
+  virtual void enterReturnStatement(CoriumParser::ReturnStatementContext * /*ctx*/) override { }
+  virtual void exitReturnStatement(CoriumParser::ReturnStatementContext * /*ctx*/) override { }
 
   virtual void enterLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext * /*ctx*/) override { }
   virtual void exitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext * /*ctx*/) override { }
@@ -57,6 +63,12 @@ public:
 
   virtual void enterQualifiedName(CoriumParser::QualifiedNameContext * /*ctx*/) override { }
   virtual void exitQualifiedName(CoriumParser::QualifiedNameContext * /*ctx*/) override { }
+
+  virtual void enterExpressionList(CoriumParser::ExpressionListContext * /*ctx*/) override { }
+  virtual void exitExpressionList(CoriumParser::ExpressionListContext * /*ctx*/) override { }
+
+  virtual void enterExpression(CoriumParser::ExpressionContext * /*ctx*/) override { }
+  virtual void exitExpression(CoriumParser::ExpressionContext * /*ctx*/) override { }
 
   virtual void enterLiteral(CoriumParser::LiteralContext * /*ctx*/) override { }
   virtual void exitLiteral(CoriumParser::LiteralContext * /*ctx*/) override { }
