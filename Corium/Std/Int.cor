@@ -1,0 +1,6 @@
+module int
+
+const MinValue = 0x8000_0000_0000_0000
+const MaxValue = 0x7FFF_FFFF_FFFF_FFFF
+const ByteSize = 8
+const BitCount = ByteSize * 8
