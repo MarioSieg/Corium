@@ -1,4 +1,4 @@
-module io
+module std.io
 
 native fun print(x int)
 native fun print(x float)

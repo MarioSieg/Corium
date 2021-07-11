@@ -25,6 +25,12 @@ public:
   virtual void enterCompilationUnitStatement(CoriumParser::CompilationUnitStatementContext * /*ctx*/) override { }
   virtual void exitCompilationUnitStatement(CoriumParser::CompilationUnitStatementContext * /*ctx*/) override { }
 
+  virtual void enterClassDeclaration(CoriumParser::ClassDeclarationContext * /*ctx*/) override { }
+  virtual void exitClassDeclaration(CoriumParser::ClassDeclarationContext * /*ctx*/) override { }
+
+  virtual void enterClassBlockStatement(CoriumParser::ClassBlockStatementContext * /*ctx*/) override { }
+  virtual void exitClassBlockStatement(CoriumParser::ClassBlockStatementContext * /*ctx*/) override { }
+
   virtual void enterNativeFunctionDeclaration(CoriumParser::NativeFunctionDeclarationContext * /*ctx*/) override { }
   virtual void exitNativeFunctionDeclaration(CoriumParser::NativeFunctionDeclarationContext * /*ctx*/) override { }
 

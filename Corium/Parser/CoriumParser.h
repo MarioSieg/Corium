@@ -13,31 +13,32 @@ class  CoriumParser : public antlr4::Parser {
 public:
   enum {
     BOOL = 1, CHAR = 2, FLOAT = 3, FUN = 4, INT = 5, STRING = 6, LET = 7, 
-    NATIVE = 8, CONST = 9, MODULE = 10, CLASS = 11, STRUCT = 12, STATIC = 13, 
-    RETURN = 14, INT_LITERAL_DEC = 15, INT_LITERAL_HEX = 16, INT_LITERAL_OCT = 17, 
-    INT_LITERAL_BIN = 18, FLOAT_LITERAL_DEC = 19, FLOAT_LITERAL_HEX = 20, 
-    BOOL_LITERAL = 21, CHAR_LITERAL = 22, STRING_LITERAL = 23, LPAREN = 24, 
-    RPAREN = 25, LBRACE = 26, RBRACE = 27, LBRACK = 28, RBRACK = 29, SEMI = 30, 
-    COMMA = 31, DOT = 32, ASSIGN = 33, PLUS = 34, PLUS_ASSIGN = 35, MINUS = 36, 
-    MINUS_ASSIGN = 37, MULTIPLY = 38, MULTIPLY_ASSIGN = 39, DIVIDE = 40, 
-    DIVIDE_ASSIGN = 41, MODULO = 42, MODULO_ASSIGN = 43, BIT_AND = 44, BIT_AND_ASSIGN = 45, 
-    BIT_OR = 46, BIT_OR_ASSIGN = 47, BIT_XOR = 48, BIT_XOR_ASSIGN = 49, 
-    BIT_NOT = 50, BIT_SHL = 51, BIT_SHL_ASSIGN = 52, BIT_SHR = 53, BIT_SHR_ASSIGN = 54, 
-    BIT_ROL = 55, BIT_ROL_ASSIGN = 56, BIT_ROR = 57, BIT_ROR_ASSIGN = 58, 
-    INCREMENT = 59, DECREMENT = 60, LOGICAL_NOT = 61, LOGICAL_AND = 62, 
-    LOGICAL_OR = 63, LOGICAL_XOR = 64, EQUALS = 65, NOT_EQUALS = 66, LESS = 67, 
-    LESS_EQUALS = 68, GREATER = 69, GREATER_EQUALS = 70, IDENT = 71, SPACE = 72, 
-    SINGLE_LINE_COMMENT = 73, MULTI_LINE_COMMENT = 74
+    NATIVE = 8, CONST = 9, MODULE = 10, CLASS = 11, STRUCT = 12, RETURN = 13, 
+    SELF = 14, SELF_TYPE = 15, INT_LITERAL_DEC = 16, INT_LITERAL_HEX = 17, 
+    INT_LITERAL_OCT = 18, INT_LITERAL_BIN = 19, FLOAT_LITERAL_DEC = 20, 
+    FLOAT_LITERAL_HEX = 21, BOOL_LITERAL = 22, CHAR_LITERAL = 23, STRING_LITERAL = 24, 
+    LPAREN = 25, RPAREN = 26, LBRACE = 27, RBRACE = 28, LBRACK = 29, RBRACK = 30, 
+    SEMI = 31, COMMA = 32, DOT = 33, ASSIGN = 34, PLUS = 35, PLUS_ASSIGN = 36, 
+    MINUS = 37, MINUS_ASSIGN = 38, MULTIPLY = 39, MULTIPLY_ASSIGN = 40, 
+    DIVIDE = 41, DIVIDE_ASSIGN = 42, MODULO = 43, MODULO_ASSIGN = 44, BIT_AND = 45, 
+    BIT_AND_ASSIGN = 46, BIT_OR = 47, BIT_OR_ASSIGN = 48, BIT_XOR = 49, 
+    BIT_XOR_ASSIGN = 50, BIT_NOT = 51, BIT_SHL = 52, BIT_SHL_ASSIGN = 53, 
+    BIT_SHR = 54, BIT_SHR_ASSIGN = 55, BIT_USHL = 56, BIT_USHL_ASSIGN = 57, 
+    BIT_USHR = 58, BIT_USHR_ASSIGN = 59, BIT_ROL = 60, BIT_ROL_ASSIGN = 61, 
+    BIT_ROR = 62, BIT_ROR_ASSIGN = 63, INCREMENT = 64, DECREMENT = 65, LOGICAL_NOT = 66, 
+    LOGICAL_AND = 67, LOGICAL_OR = 68, LOGICAL_XOR = 69, EQUALS = 70, NOT_EQUALS = 71, 
+    LESS = 72, LESS_EQUALS = 73, GREATER = 74, GREATER_EQUALS = 75, IDENT = 76, 
+    SPACE = 77, SINGLE_LINE_COMMENT = 78, MULTI_LINE_COMMENT = 79
   };
 
   enum {
     RuleCompilationUnit = 0, RuleModuleDeclaration = 1, RuleCompilationUnitStatement = 2, 
-    RuleNativeFunctionDeclaration = 3, RuleFunctionDeclaration = 4, RuleFunctionCall = 5, 
-    RuleFunctionHeader = 6, RuleFunctionBlockStatement = 7, RuleReturnStatement = 8, 
-    RuleLocalVariableDeclaration = 9, RuleConstVariableDeclaration = 10, 
-    RuleParameterList = 11, RuleParameter = 12, RuleTypeName = 13, RuleBuiltinType = 14, 
-    RuleQualifiedName = 15, RuleExpressionList = 16, RuleExpression = 17, 
-    RuleLiteral = 18, RuleIntLiteral = 19, RuleFloatLiteral = 20
+    RuleClassDeclaration = 3, RuleClassBlockStatement = 4, RuleNativeFunctionDeclaration = 5, 
+    RuleFunctionDeclaration = 6, RuleFunctionCall = 7, RuleFunctionHeader = 8, 
+    RuleFunctionBlockStatement = 9, RuleReturnStatement = 10, RuleLocalVariableDeclaration = 11, 
+    RuleConstVariableDeclaration = 12, RuleParameterList = 13, RuleParameter = 14, 
+    RuleTypeName = 15, RuleBuiltinType = 16, RuleQualifiedName = 17, RuleExpressionList = 18, 
+    RuleExpression = 19, RuleLiteral = 20, RuleIntLiteral = 21, RuleFloatLiteral = 22
   };
 
   explicit CoriumParser(antlr4::TokenStream *input);
@@ -53,6 +54,8 @@ public:
   class CompilationUnitContext;
   class ModuleDeclarationContext;
   class CompilationUnitStatementContext;
+  class ClassDeclarationContext;
+  class ClassBlockStatementContext;
   class NativeFunctionDeclarationContext;
   class FunctionDeclarationContext;
   class FunctionCallContext;
@@ -107,6 +110,7 @@ public:
     CompilationUnitStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     FunctionDeclarationContext *functionDeclaration();
+    ClassDeclarationContext *classDeclaration();
     NativeFunctionDeclarationContext *nativeFunctionDeclaration();
     ConstVariableDeclarationContext *constVariableDeclaration();
     antlr4::tree::TerminalNode *SPACE();
@@ -117,6 +121,40 @@ public:
   };
 
   CompilationUnitStatementContext* compilationUnitStatement();
+
+  class  ClassDeclarationContext : public antlr4::ParserRuleContext {
+  public:
+    ClassDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LBRACE();
+    antlr4::tree::TerminalNode *RBRACE();
+    antlr4::tree::TerminalNode *CLASS();
+    antlr4::tree::TerminalNode *STRUCT();
+    antlr4::tree::TerminalNode *IDENT();
+    BuiltinTypeContext *builtinType();
+    std::vector<ClassBlockStatementContext *> classBlockStatement();
+    ClassBlockStatementContext* classBlockStatement(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  ClassDeclarationContext* classDeclaration();
+
+  class  ClassBlockStatementContext : public antlr4::ParserRuleContext {
+  public:
+    ClassBlockStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ConstVariableDeclarationContext *constVariableDeclaration();
+    FunctionDeclarationContext *functionDeclaration();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  ClassBlockStatementContext* classBlockStatement();
 
   class  NativeFunctionDeclarationContext : public antlr4::ParserRuleContext {
   public:
@@ -170,9 +208,10 @@ public:
     FunctionHeaderContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *FUN();
-    QualifiedNameContext *qualifiedName();
+    antlr4::tree::TerminalNode *IDENT();
     antlr4::tree::TerminalNode *LPAREN();
     antlr4::tree::TerminalNode *RPAREN();
+    antlr4::tree::TerminalNode *SELF();
     ParameterListContext *parameterList();
     TypeNameContext *typeName();
 
@@ -190,6 +229,7 @@ public:
     LocalVariableDeclarationContext *localVariableDeclaration();
     ConstVariableDeclarationContext *constVariableDeclaration();
     ReturnStatementContext *returnStatement();
+    ExpressionContext *expression();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -297,6 +337,7 @@ public:
     antlr4::tree::TerminalNode *CHAR();
     antlr4::tree::TerminalNode *BOOL();
     antlr4::tree::TerminalNode *STRING();
+    antlr4::tree::TerminalNode *SELF_TYPE();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -339,19 +380,58 @@ public:
 
   class  ExpressionContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *prefix = nullptr;
     antlr4::Token *bop = nullptr;
+    antlr4::Token *postfix = nullptr;
     ExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *IDENT();
+    antlr4::tree::TerminalNode *SELF();
     LiteralContext *literal();
     FunctionCallContext *functionCall();
     std::vector<ExpressionContext *> expression();
     ExpressionContext* expression(size_t i);
     antlr4::tree::TerminalNode *PLUS();
     antlr4::tree::TerminalNode *MINUS();
+    antlr4::tree::TerminalNode *INCREMENT();
+    antlr4::tree::TerminalNode *DECREMENT();
+    antlr4::tree::TerminalNode *LOGICAL_NOT();
+    antlr4::tree::TerminalNode *BIT_NOT();
     antlr4::tree::TerminalNode *MULTIPLY();
     antlr4::tree::TerminalNode *DIVIDE();
     antlr4::tree::TerminalNode *MODULO();
+    antlr4::tree::TerminalNode *LOGICAL_AND();
+    antlr4::tree::TerminalNode *LOGICAL_OR();
+    antlr4::tree::TerminalNode *LOGICAL_XOR();
+    antlr4::tree::TerminalNode *EQUALS();
+    antlr4::tree::TerminalNode *NOT_EQUALS();
+    antlr4::tree::TerminalNode *LESS();
+    antlr4::tree::TerminalNode *LESS_EQUALS();
+    antlr4::tree::TerminalNode *GREATER();
+    antlr4::tree::TerminalNode *GREATER_EQUALS();
+    antlr4::tree::TerminalNode *BIT_AND();
+    antlr4::tree::TerminalNode *BIT_OR();
+    antlr4::tree::TerminalNode *BIT_XOR();
+    antlr4::tree::TerminalNode *BIT_SHL();
+    antlr4::tree::TerminalNode *BIT_SHR();
+    antlr4::tree::TerminalNode *BIT_USHL();
+    antlr4::tree::TerminalNode *BIT_USHR();
+    antlr4::tree::TerminalNode *BIT_ROL();
+    antlr4::tree::TerminalNode *BIT_ROR();
+    antlr4::tree::TerminalNode *ASSIGN();
+    antlr4::tree::TerminalNode *PLUS_ASSIGN();
+    antlr4::tree::TerminalNode *MINUS_ASSIGN();
+    antlr4::tree::TerminalNode *MULTIPLY_ASSIGN();
+    antlr4::tree::TerminalNode *DIVIDE_ASSIGN();
+    antlr4::tree::TerminalNode *MODULO_ASSIGN();
+    antlr4::tree::TerminalNode *BIT_AND_ASSIGN();
+    antlr4::tree::TerminalNode *BIT_OR_ASSIGN();
+    antlr4::tree::TerminalNode *BIT_SHL_ASSIGN();
+    antlr4::tree::TerminalNode *BIT_SHR_ASSIGN();
+    antlr4::tree::TerminalNode *BIT_USHL_ASSIGN();
+    antlr4::tree::TerminalNode *BIT_USHR_ASSIGN();
+    antlr4::tree::TerminalNode *BIT_ROL_ASSIGN();
+    antlr4::tree::TerminalNode *BIT_ROR_ASSIGN();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

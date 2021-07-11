@@ -1,4 +1,4 @@
-module math
+module std.math
 
 const E = 2.7182818284590452354
 const Pi = 3.14159265358979323846
@@ -17,9 +17,9 @@ native fun aconh(x float) float
 native fun atanh(x float) float
 
 fun toRadians(degrees float) float {
-    degrees / 180.0 * PI
+    return degrees / 180.0 * PI
 }
 
 fun toDegrees(radians float) float {
-    radians * 180.0 / PI
+    return radians * 180.0 / PI
 }

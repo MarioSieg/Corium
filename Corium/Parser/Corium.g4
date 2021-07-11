@@ -13,8 +13,9 @@ CONST:          'const';
 MODULE:         'module';
 CLASS:          'class';
 STRUCT:         'struct';
-STATIC:         'static';
 RETURN:         'return';
+SELF:           'self';
+SELF_TYPE:      'Self';
 
 // int literals:
 INT_LITERAL_DEC: ('0' | [1-9] (Digits? | '_' + Digits));
@@ -70,9 +71,13 @@ BIT_SHL:            '<<';
 BIT_SHL_ASSIGN:     BIT_SHL ASSIGN;
 BIT_SHR:            '>>';
 BIT_SHR_ASSIGN:     BIT_SHL ASSIGN;
-BIT_ROL:            '<<<';
+BIT_USHL:            '<<<';
+BIT_USHL_ASSIGN:     BIT_SHL ASSIGN;
+BIT_USHR:            '>>>';
+BIT_USHR_ASSIGN:     BIT_SHL ASSIGN;
+BIT_ROL:            '<<*';
 BIT_ROL_ASSIGN:     BIT_ROL ASSIGN;
-BIT_ROR:            '>>>';
+BIT_ROR:            '>>*';
 BIT_ROR_ASSIGN:     BIT_ROR ASSIGN;
 INCREMENT:          '++';
 DECREMENT:          '--';
@@ -119,9 +124,24 @@ moduleDeclaration
 
 compilationUnitStatement
     : functionDeclaration
+    | classDeclaration
     | nativeFunctionDeclaration
     | constVariableDeclaration
     | SPACE
+    ;
+
+classDeclaration
+    :
+    (CLASS | STRUCT)
+    (IDENT | builtinType)
+    LBRACE
+    classBlockStatement*
+    RBRACE
+    ;
+
+classBlockStatement
+    : constVariableDeclaration
+    | functionDeclaration
     ;
 
 nativeFunctionDeclaration
@@ -149,8 +169,9 @@ functionCall
 functionHeader
     :
     FUN
-    qualifiedName
+    IDENT
     LPAREN
+    SELF?
     parameterList?
     RPAREN
     typeName?
@@ -160,6 +181,7 @@ functionBlockStatement
     : localVariableDeclaration
     | constVariableDeclaration
     | returnStatement
+    | expression
     ;
 
 returnStatement
@@ -206,12 +228,13 @@ builtinType
     | CHAR
     | BOOL
     | STRING
+    | SELF_TYPE
     ;
 
 qualifiedName
     :
     IDENT
-    (IDENT DOT)*
+    (DOT IDENT)*
     ;
 
 expressionList
@@ -222,9 +245,35 @@ expressionList
 
 expression
     : IDENT
+    | SELF
     | literal
     | functionCall
+    | expression postfix=(INCREMENT | DECREMENT)
+    | prefix=(PLUS | MINUS | INCREMENT | DECREMENT) expression
+    | prefix=(LOGICAL_NOT | BIT_NOT) expression
     | expression bop=(PLUS | MINUS | MULTIPLY | DIVIDE | MODULO) expression
+    | expression bop=(LOGICAL_AND | LOGICAL_OR | LOGICAL_XOR) expression
+    | expression bop=(EQUALS | NOT_EQUALS | LESS | LESS_EQUALS | GREATER | GREATER_EQUALS) expression
+    | expression bop=(BIT_AND | BIT_OR | BIT_XOR | BIT_SHL | BIT_SHR | BIT_USHL | BIT_USHR | BIT_ROL | BIT_ROR) expression
+    | <assoc=right> expression
+        bop=
+        (
+            ASSIGN
+            | PLUS_ASSIGN
+            | MINUS_ASSIGN
+            | MULTIPLY_ASSIGN
+            | DIVIDE_ASSIGN
+            | MODULO_ASSIGN
+            | BIT_AND_ASSIGN
+            | BIT_OR_ASSIGN
+            | BIT_AND_ASSIGN
+            | BIT_SHL_ASSIGN
+            | BIT_SHR_ASSIGN
+            | BIT_USHL_ASSIGN
+            | BIT_USHR_ASSIGN
+            | BIT_ROL_ASSIGN
+            | BIT_ROR_ASSIGN
+        ) expression
     ;
 
 literal

@@ -18,15 +18,13 @@ namespace Corium
         antlr4::ANTLRInputStream input{stream};
         CoriumLexer lexer{&input};
         antlr4::CommonTokenStream tokens{&lexer};
-
         tokens.fill();
-        for (auto token : tokens.getTokens()) {
-            std::cout << token->toString() << std::endl;
-        }
-
         CoriumParser parser{&tokens};
         auto* output{parser.compilationUnit()};
-        std::cout << output->toString() << '\n';
+        if (!output->isEmpty())
+        {
+            std::cout << output->toString() << '\n';
+        }
         return true;
     }
     catch(...)
@@ -42,14 +40,14 @@ namespace Corium
     auto Compiler::CompileAllInDir(const std::filesystem::path &dir) -> bool
     {
         std::uint32_t compiledFiles {};
-        for (const auto& file : std::filesystem::directory_iterator{dir})
+        for (const auto& file : std::filesystem::recursive_directory_iterator{dir})
         {
             const auto& path{file.path()};
             if (!path.has_extension() || path.extension() != FILE_EXTENSION)
             {
                 continue;
             }
-            Print(LogLevel::Warning, "Compiling {}...\n", path.string());
+            Print(LogLevel::Warning, "Compiling: {}\n", path.string());
             if (!this->CompileFile(path))
             {
                 return false;

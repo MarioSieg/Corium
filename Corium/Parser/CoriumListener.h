@@ -23,6 +23,12 @@ public:
   virtual void enterCompilationUnitStatement(CoriumParser::CompilationUnitStatementContext *ctx) = 0;
   virtual void exitCompilationUnitStatement(CoriumParser::CompilationUnitStatementContext *ctx) = 0;
 
+  virtual void enterClassDeclaration(CoriumParser::ClassDeclarationContext *ctx) = 0;
+  virtual void exitClassDeclaration(CoriumParser::ClassDeclarationContext *ctx) = 0;
+
+  virtual void enterClassBlockStatement(CoriumParser::ClassBlockStatementContext *ctx) = 0;
+  virtual void exitClassBlockStatement(CoriumParser::ClassBlockStatementContext *ctx) = 0;
+
   virtual void enterNativeFunctionDeclaration(CoriumParser::NativeFunctionDeclarationContext *ctx) = 0;
   virtual void exitNativeFunctionDeclaration(CoriumParser::NativeFunctionDeclarationContext *ctx) = 0;
 
