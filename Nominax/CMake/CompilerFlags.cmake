@@ -1,8 +1,3 @@
-# Print info:
-IF(CMAKE_BUILD_TYPE STREQUAL "Release")
-	MESSAGE("Release build, using all optimization flags")
-ENDIF()
-
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-mmmx")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-msse")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-msse2")
@@ -17,7 +12,6 @@ TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wall")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Werror")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wextra")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-error=unused-function")
-
 
 IF (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
 
@@ -58,6 +52,7 @@ ELSE()
 ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Release")
+	MESSAGE("Added optimization flags for release build...")
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Ofast")
 
 	IF (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")

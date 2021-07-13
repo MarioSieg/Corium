@@ -156,3 +156,4 @@ if(ANTLR4_SHARED_LIBRARIES)
   set_target_properties(antlr4_shared PROPERTIES
                         IMPORTED_IMPLIB ${ANTLR4_SHARED_LIBRARIES})
 endif()
+
