@@ -347,6 +347,7 @@ auto formatter<DiscriminatedSignal, char, void>::format
 		case Dis::JumpAddress:
 			return format_to(ctx.out(), "#{}",
 			                 static_cast<std::underlying_type_t<JumpAddress>>(value.Value.JmpAddress));
+	    default:
 		case Dis::Ptr:
 			return format_to(ctx.out(), "#{:X}", value.Value.R64.AsU64);
 	}
