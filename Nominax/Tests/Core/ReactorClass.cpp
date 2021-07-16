@@ -284,8 +284,8 @@ TEST(ReactorClass, InterruptHandler)
 
 TEST(ReactorClass, TryExecuteValid)
 {
-	const EnvironmentDescriptor desc{};
-	Environment env{};
+	const EnvironmentDescriptor desc { };
+	Environment                 env { };
 	env.Boot(desc);
 	Stream                                   stream {OptimizationLevel::Off};
 	stream.Prologue().With(2, [](ScopedInt&& var)
@@ -312,11 +312,11 @@ TEST(ReactorClass, TryExecuteValid)
 
 TEST(ReactorClass, TryExecuteInvalidZeroCode)
 {
-	const EnvironmentDescriptor desc{};
-	Environment env{};
+	const EnvironmentDescriptor desc { };
+	Environment                 env { };
 	env.Boot(desc);
-	const Stream    stream {OptimizationLevel::Off};
-	Image out { };
+	const Stream stream {OptimizationLevel::Off};
+	Image        out { };
 	ASSERT_EQ(Stream::Build(stream, env.GetOptimizationHints(), out), ValidationResultCode::Empty);
 	Reactor reactor
 	{

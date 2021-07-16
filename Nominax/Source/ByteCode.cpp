@@ -214,9 +214,9 @@ namespace Nominax::ByteCode
 {
 	auto PerformJumpTableMapping
 	(
-		ByteCode::Signal* NOX_RESTRICT                     bucket,
-		const ByteCode::Signal* const NOX_RESTRICT         bucketEnd,
-		const bool* jumpAddressMap,
+		Signal* NOX_RESTRICT                               bucket,
+		const Signal* const NOX_RESTRICT                   bucketEnd,
+		const bool*                                        jumpAddressMap,
 		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
 	) -> bool
 	{
@@ -245,12 +245,12 @@ namespace Nominax::ByteCode
 
 		return true;
 	}
-	
+
 	auto TransformStreamToImageByCopy
 	(
-		const Stream& input,
+		const Stream&            input,
 		const OptimizationHints& optHints,
-		Image& output
+		Image&                   output
 	) -> void
 	{
 		Stream copy {input};
@@ -259,44 +259,44 @@ namespace Nominax::ByteCode
 
 	auto TransformStreamToImageByMove
 	(
-		Stream&& input,
+		Stream&&                                  input,
 		[[maybe_unused]] const OptimizationHints& optHints,
-		Image& output
+		Image&                                    output
 	) -> void
 	{
 		if (input.IsEmpty())
 		{
 			[[unlikely]]
-			return;
+				return;
 		}
 
 		output = Image {std::move(input.GetCodeBuffer())};
 
 		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-			const Stream::DiscriminatorStorageType& discriminators{ input.GetDiscriminatorBuffer() };
-			const void** jumpTable{ &optHints.JumpTable };
-		
-			const auto addressMapper
+		const Stream::DiscriminatorStorageType& discriminators {input.GetDiscriminatorBuffer()};
+		const void**                            jumpTable {&optHints.JumpTable};
+
+		const auto addressMapper
+		{
+			[&, base {output.GetBlobData()}](const Signal& x)-> Signal
 			{
-				[&, base {output.GetBlobData()}] (const Signal& x)->Signal
+				const std::ptrdiff_t index {&x - &*std::begin(output)};
+				if (discriminators[index] == Signal::Discriminator::JumpAddress)
 				{
-					const std::ptrdiff_t index {&x - &*std::begin(output)};
-					if (discriminators[index] == Signal::Discriminator::JumpAddress)
-					{
-						return Signal{ const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress)) };
-					}
-					if (discriminators[index] == Signal::Discriminator::Instruction)
-					{
-						return Signal{ const_cast<void*>(*(jumpTable + x.OpCode)) };
-					}
-					return x;
+					return Signal {const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress))};
 				}
-			};
-			std::transform(std::execution::par_unseq, std::begin(output), std::end(output), std::begin(output), addressMapper);
+				if (discriminators[index] == Signal::Discriminator::Instruction)
+				{
+					return Signal {const_cast<void*>(*(jumpTable + x.OpCode))};
+				}
+				return x;
+			}
+		};
+		std::transform(std::execution::par_unseq, std::begin(output), std::end(output), std::begin(output), addressMapper);
 		#endif
 	}
 
-	Image::Image(std::vector<Signal>&& buffer) : Blob_{ std::move(buffer) } { }
+	Image::Image(std::vector<Signal>&& buffer) : Blob_ {std::move(buffer)} { }
 
 	Image::Image(const std::span<const Signal> blob)
 	{
@@ -318,16 +318,16 @@ namespace Nominax::ByteCode
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		std::memcpy(std::data(out.Magic), std::data(SerializationImageHeader::MAGIC_ID), sizeof out.Magic);
-		out.CodeImageSize = std::size(this->CodeBuffer_);
+		out.CodeImageSize          = std::size(this->CodeBuffer_);
 		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);
 		out.EncryptDecrypt();
 	}
 
 	auto Stream::Serialize(std::ofstream& out) const -> bool
 	{
-		SerializationImageHeader header{};
-		constexpr U64 codeSectionMarker{ STREAM_IMAGE_CODE_SECTION_MARKER };
-		constexpr U64 discriminatorSectionMarker{ STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER };
+		SerializationImageHeader header { };
+		constexpr U64            codeSectionMarker {STREAM_IMAGE_CODE_SECTION_MARKER};
+		constexpr U64            discriminatorSectionMarker {STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER};
 
 		// header
 		this->GetSerializationImageHeader(header);
@@ -342,17 +342,17 @@ namespace Nominax::ByteCode
 		out.write(reinterpret_cast<const char*>(std::data(this->CodeDiscriminatorBuffer_)), std::size(this->CodeDiscriminatorBuffer_) * sizeof(DiscriminatorStorageType::value_type));
 		return true;
 	}
-	
+
 	auto Stream::Deserialize(std::ifstream& in) -> bool
 	{
-		SerializationImageHeader header{};
+		SerializationImageHeader header { };
 		in.read(reinterpret_cast<char*>(&header), sizeof(SerializationImageHeader));
-		for (U64 i {0}; i < std::size(Stream::SerializationImageHeader::MAGIC_ID); ++i)
+		for (U64 i {0}; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
 		{
-			if (header.Magic[i] != Stream::SerializationImageHeader::MAGIC_ID[i])
+			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
 			{
 				[[unlikely]]
-				return false;
+					return false;
 			}
 		}
 
@@ -360,16 +360,16 @@ namespace Nominax::ByteCode
 		if (!header.CodeImageSize || !header.DiscriminatorImageSize)
 		{
 			[[unlikely]]
-			return false;
+				return false;
 		}
 
 		// validate code section marker
-		U64 codeSectionMarker{};
+		U64 codeSectionMarker { };
 		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof(U64));
 		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
 		{
 			[[unlikely]]
-			return false;
+				return false;
 		}
 
 		// load code section:
@@ -378,19 +378,19 @@ namespace Nominax::ByteCode
 		in.read(reinterpret_cast<char*>(std::data(this->CodeBuffer_)), header.CodeImageSize * sizeof(CodeStorageType::value_type));
 
 		// validate discriminator section marker
-		U64 discriminatorSectionMarker{};
+		U64 discriminatorSectionMarker { };
 		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof(U64));
 		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
 		{
 			[[unlikely]]
-			return false;
+				return false;
 		}
 
 		// load discriminator section:
 		this->CodeDiscriminatorBuffer_.clear();
 		this->CodeDiscriminatorBuffer_.resize(header.CodeImageSize);
 		in.read(reinterpret_cast<char*>(std::data(this->CodeDiscriminatorBuffer_)), header.DiscriminatorImageSize * sizeof(CodeStorageType::value_type));
-		
+
 		return true;
 	}
 

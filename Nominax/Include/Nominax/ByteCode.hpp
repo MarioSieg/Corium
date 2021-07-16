@@ -1956,28 +1956,28 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Code section marker.
 		/// </summary>
-		static constexpr U64 STREAM_IMAGE_CODE_SECTION_MARKER{ 0x9FCF'2A4B'F10F'BEBA };
+		static constexpr U64 STREAM_IMAGE_CODE_SECTION_MARKER {0x9FCF'2A4B'F10F'BEBA};
 
 		/// <summary>
 		/// Discriminator section marker.
 		/// </summary>
-		static constexpr U64 STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER{ 0x922C'232B'D183'ADDE };
+		static constexpr U64 STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER {0x922C'232B'D183'ADDE};
 
 		/// <summary>
 		/// Encryption for the sizes.
 		/// </summary>
-		static constexpr U64 ENCRYPTION_KEY_ALPHA{ 0x160B490091BE68 };
+		static constexpr U64 ENCRYPTION_KEY_ALPHA {0x160B490091BE68};
 
 		/// <summary>
 		/// Encryption for the sizes.
 		/// </summary>
-		static constexpr U64 ENCRYPTION_KEY_BETA{ 0x54746EC3DF441 };
+		static constexpr U64 ENCRYPTION_KEY_BETA {0x54746EC3DF441};
 
 		/// <summary>
 		/// Encryption for the sizes.
 		/// </summary>
-		static constexpr U64 ENCRYPTION_KEY_GAMMA{ 0x1672E3969FF6FC8 };
-	
+		static constexpr U64 ENCRYPTION_KEY_GAMMA {0x1672E3969FF6FC8};
+
 	public:
 		/// <summary>
 		/// Contains the file header of a serialized stream image.
@@ -1987,8 +1987,8 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// Image identifier.
 			/// </summary>
-			static constexpr std::string_view MAGIC_ID{ "&NOMINAX*IMAGE#" };
-			
+			static constexpr std::string_view MAGIC_ID {"&NOMINAX*IMAGE#"};
+
 			/// <summary>
 			/// Magic number string.
 			/// </summary>
@@ -2010,12 +2010,12 @@ namespace Nominax::ByteCode
 			/// <returns></returns>
 			constexpr auto EncryptDecrypt()
 			{
-				constexpr U64 alpha{ ENCRYPTION_KEY_ALPHA }, beta{ ENCRYPTION_KEY_BETA }, gamma{ ENCRYPTION_KEY_GAMMA };
+				constexpr U64 alpha {ENCRYPTION_KEY_ALPHA}, beta {ENCRYPTION_KEY_BETA}, gamma {ENCRYPTION_KEY_GAMMA};
 				this->CodeImageSize ^= alpha ^ gamma ^ beta;
 				this->DiscriminatorImageSize ^= beta ^ alpha ^ gamma;
 			}
 		};
-		
+
 		static_assert(std::is_standard_layout_v<SerializationImageHeader>);
 
 		/// <summary>
@@ -2038,7 +2038,7 @@ namespace Nominax::ByteCode
 		/// <param name="out"></param>
 		/// <returns></returns>
 		auto GetSerializationImageHeader(SerializationImageHeader& out) const -> void;
-		
+
 		/// <summary>
 		/// Data structure to store the whole byte code.
 		/// </summary>
@@ -2689,7 +2689,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Compute relative jump address.
 	/// </summary>
-	NOX_FORCE_INLINE inline auto ComputeRelativeJumpAddress(const ByteCode::Signal* const base, const ByteCode::JumpAddress address) -> const void*
+	NOX_FORCE_INLINE inline auto ComputeRelativeJumpAddress(const Signal* const base, const JumpAddress address) -> const void*
 	{
 		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
 	}
@@ -2739,9 +2739,9 @@ namespace Nominax::ByteCode
 	[[nodiscard]]
 	extern auto PerformJumpTableMapping
 	(
-		ByteCode::Signal* NOX_RESTRICT                     bucket,
-		const ByteCode::Signal* NOX_RESTRICT               bucketEnd,
-		const bool* jumpAddressMap,
+		Signal* NOX_RESTRICT                               bucket,
+		const Signal* NOX_RESTRICT                         bucketEnd,
+		const bool*                                        jumpAddressMap,
 		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
 	) -> bool;
 
@@ -2757,9 +2757,9 @@ namespace Nominax::ByteCode
 	/// <param name="jumpMap"></param>
 	extern auto TransformStreamToImageByCopy
 	(
-		const Stream& input,
+		const Stream&            input,
 		const OptimizationHints& optHints,
-		Image& output
+		Image&                   output
 	) -> void;
 
 	/// <summary>
@@ -2771,9 +2771,9 @@ namespace Nominax::ByteCode
 	/// <param name="jumpMap"></param>
 	extern auto TransformStreamToImageByMove
 	(
-		Stream&& input,
+		Stream&&                 input,
 		const OptimizationHints& optHints,
-		Image& output
+		Image&                   output
 	) -> void;
 
 	/// <summary>

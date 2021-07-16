@@ -1143,7 +1143,7 @@ namespace Nominax::Core
 			return false;
 		}
 
-		for (const auto* current{ jumpTable }, * const end{ jumpTable + jumpTableSize }; current < end; ++current)
+		for (const auto *current {jumpTable}, *const end {jumpTable + jumpTableSize}; current < end; ++current)
 		{
 			if (!*current)
 			{

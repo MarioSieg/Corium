@@ -603,17 +603,17 @@ namespace Nominax::Core
 	NOX_HOT auto NOX_REACTOR_IMPL_NAME
 	(
 		const VerboseReactorDescriptor* input,
-		ReactorState* output,
+		ReactorState*                   output,
 		const void****                  outJumpTable
 	) -> ReactorShutdownReason
 	{
 		static constexpr std::array
-		<
-			const void*NOX_RESTRICT const,
-			static_cast<std::underlying_type_t<Instruction>>(Instruction::$Count)
-		>
-		JUMP_TABLE
-		{
+			<
+				const void*NOX_RESTRICT const,
+				static_cast<std::underlying_type_t<Instruction>>(Instruction::$Count)
+			>
+			JUMP_TABLE
+			{
 			&&__int__,
 			&&__intrin__,
 			&&__cintrin__,
@@ -687,7 +687,7 @@ namespace Nominax::Core
 			&&__matsub__,
 			&&__matmul__,
 			&&__matdiv__
-		};
+			};
 
 		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
 

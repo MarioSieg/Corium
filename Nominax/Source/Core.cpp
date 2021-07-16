@@ -330,11 +330,11 @@ namespace Nominax
         }															\
         while(false)
 
-#if NOX_TESTING || NOX_DEBUG	
+		#if NOX_TESTING || NOX_DEBUG
 		#define VALIDATE_ONLINE_BOOT_STATE() NOX_PAS_TRUE(this->IsOnline(), "Environment is offline!")
-#else
+		#else
 		#define VALIDATE_ONLINE_BOOT_STATE()
-#endif
+		#endif
 
 		/// <summary>
 		/// Checks if the byte stack size is divisible by sizeof(Common::Record) and panics if not.
@@ -831,7 +831,7 @@ namespace Nominax
 		auto Environment::GetOptimizationHints() const -> ByteCode::OptimizationHints
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
-			const void*& jumpTable{ *this->Context_->OptimalReactorRoutine.JumpTable };
+			const void*& jumpTable {*this->Context_->OptimalReactorRoutine.JumpTable};
 			return
 			{
 				jumpTable
@@ -866,7 +866,7 @@ namespace Nominax
 		static auto CreateDescriptor
 		(
 			FixedStack&                             stack,
-			const ByteCode::Image&					image,
+			const ByteCode::Image&                  image,
 			ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
 			InterruptRoutineProxy&                  interruptHandler
 		) -> VerboseReactorDescriptor
@@ -929,7 +929,7 @@ namespace Nominax
 				this->PoolIndex_
 			);
 		}
-		
+
 		auto Reactor::Execute(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 		{
 			this->Input_ = CreateDescriptor
@@ -939,12 +939,12 @@ namespace Nominax
 				this->IntrinsicTable_,
 				*this->InterruptHandler_
 			);
-			const auto validationResult{ this->Input_.Validate() };
+			const auto validationResult {this->Input_.Validate()};
 			if (validationResult != ReactorValidationResult::Ok)
 			{
-				const std::string_view message{ REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)] };
+				const std::string_view message {REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]};
 				[[unlikely]]
-				Panic(NOX_PAINF, "Reactor {:#X} validation failed with the following reason: {}", this->Id_, message);
+					Panic(NOX_PAINF, "Reactor {:#X} validation failed with the following reason: {}", this->Id_, message);
 			}
 			ReactorCoreExecutionRoutine* const routine = this->RoutineLink_.ExecutionRoutine;
 			NOX_PAS_NOT_NULL(routine, "Reactor execution routine is nullptr!");
@@ -1257,11 +1257,11 @@ namespace Nominax
 					return ReactorValidationResult::ZeroSize;
 			}
 
-			
+
 			// If we are using execution address mapping,
 			// all instructions are pointers so we cannot check the instruction type
-			
-#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
+
+			#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
 			// first instruction will be skipped and must be NOP:
 			if (CodeChunk->Instr != ByteCode::Instruction::NOp)
@@ -1277,7 +1277,7 @@ namespace Nominax
 					return ReactorValidationResult::MissingCodeEpilogue;
 			}
 
-#endif
+			#endif
 
 			// first stack entry is never used and must be nop-padding:
 			if (*Stack != Foundation::Record::Padding())
@@ -1286,17 +1286,18 @@ namespace Nominax
 					return ReactorValidationResult::MissingStackPrologue;
 			}
 
-			if (this->IntrinsicTable) [[likely]]
+			if (this->IntrinsicTable)
+			[[likely]]
 			{
 				// validate intrinsic routines:
-				auto* const* begin { this->IntrinsicTable};
-				auto* const* const end{ this->IntrinsicTable + this->IntrinsicTableSize };
+				auto* const*       begin {this->IntrinsicTable};
+				auto* const* const end {this->IntrinsicTable + this->IntrinsicTableSize};
 				while (begin < end)
 				{
 					if (!*begin++)
 					{
 						[[unlikely]]
-						return ReactorValidationResult::NullIntrinsicRoutine;
+							return ReactorValidationResult::NullIntrinsicRoutine;
 					}
 				}
 			}
