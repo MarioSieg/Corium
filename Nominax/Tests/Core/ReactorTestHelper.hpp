@@ -233,7 +233,6 @@ constexpr InterruptRoutineProxy* MOCK_INTERRUPT_HANDLER
 constexpr VerboseReactorDescriptor MOCK_REACTOR_INPUT
 {
 	.CodeChunk = nullptr,
-	.CodeChunkInstructionMap = nullptr,
 	.CodeChunkSize = 0,
 	.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 	.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),

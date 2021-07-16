@@ -316,12 +316,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Code chunk data pointer.
 		/// </summary>
-		ByteCode::Signal* CodeChunk {nullptr};
-
-		/// <summary>
-		/// Instruction map data pointer.
-		/// </summary>
-		const bool* CodeChunkInstructionMap {nullptr};
+		const ByteCode::Signal* CodeChunk {nullptr};
 
 		/// <summary>
 		/// Code chunk and instruction map length.
@@ -371,12 +366,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Code image view.
 		/// </summary>
-		std::span<ByteCode::Signal> CodeChunk;
-
-		/// <summary>
-		/// Instruction mapping view.
-		/// </summary>
-		std::span<const bool> CodeChunkInstructionMap;
+		std::span<const ByteCode::Signal> CodeChunk;
 
 		/// <summary>
 		/// Intrinsic routine view.
@@ -900,7 +890,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>True on success, panic on false.</returns>
 		[[nodiscard]]
-		virtual auto OnPreExecutionHook(const ByteCode::CodeImageBundle& appCodeBundle) -> bool;
+		virtual auto OnPreExecutionHook(const ByteCode::Image& appCodeBundle) -> bool;
 
 		/// <summary>
 		/// This hook is executed after any code execution.
@@ -993,7 +983,7 @@ namespace Nominax::Core
 		/// <param name="image"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(ByteCode::CodeImageBundle& image) -> ExecutionResult;
+		auto Execute(const ByteCode::Image& image) -> ExecutionResult;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -1017,7 +1007,7 @@ namespace Nominax::Core
 		/// <param name="image"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator()(ByteCode::CodeImageBundle& image) -> ExecutionResult;
+		auto operator()(ByteCode::Image& image) -> ExecutionResult;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -1111,9 +1101,16 @@ namespace Nominax::Core
 		/// <returns>The history of execution times.</returns>
 		[[nodiscard]]
 		auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The local optimization info for the current machine.</returns>
+		[[nodiscard]]
+		auto GetOptimizationHints() const -> ByteCode::OptimizationHints;
 	};
 
-	inline auto Environment::operator()(ByteCode::CodeImageBundle& image) -> ExecutionResult
+	inline auto Environment::operator()(ByteCode::Image& image) -> ExecutionResult
 	{
 		return this->Execute(image);
 	}
@@ -1127,65 +1124,6 @@ namespace Nominax::Core
 	{
 		return this->Execute(stream);
 	}
-
-	/// <summary>
-	/// Compute relative jump address.
-	/// </summary>
-	NOX_FLATTEN inline auto ComputeRelativeJumpAddress(const ByteCode::Signal* const base, const ByteCode::JumpAddress address) -> const void*
-	{
-		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
-	}
-
-	/// <summary>
-	/// Replaces the op-codes in the bucket with the pointers to the labels.
-	/// This improves performance because no array lookup is needed.
-	/// The jump assembly generated on my machine (x86-64, clang):
-	/// With jump table mapping:
-	/// jmpq	*(%r14)
-	/// Without jump table mapping:
-	/// jmpq	*(%rcx,%rax,8)
-	/// This easily gives some 300-500 milliseconds performance improvement on my machine.
-	/// Important: The signal bucket is modified.
-	/// After mapping, each signal which was an instruction now contains a void* to the jump label.
-	/// That means, that the original instructions/opcodes are gone.
-	/// For example, let's say the first instruction was push 32, so the signal was:
-	/// [1] -> 7	[type: instruction]
-	/// [2] -> 32	[type: i64]
-	/// After mapping the content will be:
-	/// [1] -> 0x00D273F27A	[type: void*]
-	/// [2] -> 32			[type: i64]
-	/// Because all opcodes are gone, accessing the bucket and using the opcode values after mapping is not allowed!
-	/// Because the Signal type is not discriminated (like DynamicSignal), we do not know which signal contains an instruction.
-	/// For that we have the instruction map, which must have the same size as the bucket.
-	/// For each bucket entry there is a signal map entry, which is true if the bucket entry at the same index is an instruction else false.
-	/// Example:
-	/// bucket[1] = push	| instructionMap[1] = true
-	/// bucket[2] = 3		| instructionMap[2] = false
-	/// bucket[3] = pushz	| instructionMap[3] = true
-	/// bucket[4] = nop		| instructionMap[4] = true
-	///
-	/// ** Update 10.05.2021 **
-	/// For further optimization jump target addresses are not also converted to pointers.
-	/// When you specify a branch like
-	/// jz 3
-	/// the byte code position of 3 will be replaced by the real pointer value,
-	/// to avoid more calculation.
-	/// But this mapping is done in the byte code builder, not here because it does not require the jump table.
-	/// </summary>
-	/// <param name="bucket">The byte code bucket to use as mapping target.</param>
-	/// <param name="bucketEnd">The incremented end pointer of the byte code bucket, calculated as: bucket + bucketLength</param>
-	/// <param name="jumpAddressMap">The instruction map. Must have the same size as the byte code bucket.</param>
-	/// <param name="jumpTable">The jump table. Must contain an address for each instruction.</param>
-	/// <returns>true on success, else false.</returns>
-	[[maybe_unused]]
-	[[nodiscard]]
-	extern auto PerformJumpTableMapping
-	(
-		ByteCode::Signal* NOX_RESTRICT                     bucket,
-		const ByteCode::Signal* NOX_RESTRICT               bucketEnd,
-		const bool*                                        jumpAddressMap,
-		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
-	) -> bool;
 
 	/// <summary>
 	/// Checks if all pointers inside the jump table are non null.
@@ -1205,7 +1143,7 @@ namespace Nominax::Core
 			return false;
 		}
 
-		for (const auto *current {jumpTable}, *const end {jumpTable + jumpTableSize}; current < end; ++current)
+		for (const auto* current{ jumpTable }, * const end{ jumpTable + jumpTableSize }; current < end; ++current)
 		{
 			if (!*current)
 			{
@@ -1531,7 +1469,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(ByteCode::CodeImageBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto Execute(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 		/// <summary>
 		/// Execute reactor with specified application code bundle.
@@ -1539,7 +1477,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator ()(ByteCode::CodeImageBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto operator ()(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 		/// <summary>
 		/// 
@@ -1651,7 +1589,7 @@ namespace Nominax::Core
 		return this->Output_;
 	}
 
-	inline auto Reactor::operator()(ByteCode::CodeImageBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
+	inline auto Reactor::operator()(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 	{
 		return this->Execute(bundle);
 	}

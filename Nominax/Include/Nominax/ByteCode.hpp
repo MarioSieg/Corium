@@ -1140,8 +1140,8 @@ namespace Nominax::ByteCode
 		void* Ptr;
 
 		/// <summary>
-			/// Reinterpret as jump target.
-			/// </summary>
+		/// Reinterpret as jump target.
+		/// </summary>
 		JumpAddress JmpAddress;
 
 		/// <summary>
@@ -1737,7 +1737,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetReactorView() -> std::span<Signal>;
+		auto GetReactorView() const -> std::span<const Signal>;
 
 		/// <summary>
 		/// STL iterator interface.
@@ -1877,10 +1877,10 @@ namespace Nominax::ByteCode
 		return this->Blob_[idx];
 	}
 
-	inline auto Image::GetReactorView() -> std::span<Signal>
+	inline auto Image::GetReactorView() const -> std::span<const Signal>
 	{
-		auto* const begin {&*std::begin(*this)};
-		auto* const end {&*std::end(*this)};
+		const auto* const begin {&*std::cbegin(this->Blob_)};
+		const auto* const end {&*std::cend(this->Blob_)};
 		return {begin, end};
 	}
 
@@ -1941,16 +1941,12 @@ namespace Nominax::ByteCode
 	};
 
 	/// <summary>
-	/// Contains the boolean values for the jump map.
-	/// We cannot use vector<bool> because it's a specialization
-	/// and does not allow pointer to it's elements, because they are stored as bits.
+	/// Contains optimization data.
 	/// </summary>
-	using JumpMap = std::vector<U8>;
-
-	/// <summary>
-	/// Execution ready byte code and jump map.
-	/// </summary>
-	using CodeImageBundle = std::pair<Image, JumpMap>;
+	struct OptimizationHints final
+	{
+		const void*& JumpTable;
+	};
 
 	/// <summary>
 	/// Dynamic byte code stream.
@@ -2423,18 +2419,20 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Validate and build code chunk plus jump map into app code bundle.
 		/// </summary>
+		/// <param name="optInfo"></param>
 		/// <param name="stream"></param>
 		/// <param name="out"></param>
 		/// <returns></returns>
-		static auto Build(Stream&& stream, CodeImageBundle& out) -> ValidationResultCode;
+		static auto Build(Stream&& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode;
 
 		/// <summary>
 		/// Validate and build code chunk plus jump map into app code bundle.
 		/// </summary>
+		/// <param name="optInfo"></param>
 		/// <param name="stream"></param>
 		/// <param name="out"></param>
 		/// <returns></returns>
-		static auto Build(const Stream& stream, CodeImageBundle& out) -> ValidationResultCode;
+		static auto Build(const Stream& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode;
 
 		/// <summary>
 		/// Get current optimization level.
@@ -2689,14 +2687,64 @@ namespace Nominax::ByteCode
 	}
 
 	/// <summary>
-	/// Contains the boolean values for the jump map.
-	/// We cannot use vector<bool> because it's a specialization
-	/// and does not allow pointer to it's elements, because they are stored as bits.
+	/// Compute relative jump address.
 	/// </summary>
-	using JumpMap = std::vector<U8>;
+	NOX_FORCE_INLINE inline auto ComputeRelativeJumpAddress(const ByteCode::Signal* const base, const ByteCode::JumpAddress address) -> const void*
+	{
+		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
+	}
 
-	static_assert(sizeof(U8) == sizeof(bool));
-	static_assert(alignof(U8) == alignof(bool));
+	/// <summary>
+	/// Replaces the op-codes in the bucket with the pointers to the labels.
+	/// This improves performance because no array lookup is needed.
+	/// The jump assembly generated on my machine (x86-64, clang):
+	/// With jump table mapping:
+	/// jmpq	*(%r14)
+	/// Without jump table mapping:
+	/// jmpq	*(%rcx,%rax,8)
+	/// This easily gives some 300-500 milliseconds performance improvement on my machine.
+	/// Important: The signal bucket is modified.
+	/// After mapping, each signal which was an instruction now contains a void* to the jump label.
+	/// That means, that the original instructions/opcodes are gone.
+	/// For example, let's say the first instruction was push 32, so the signal was:
+	/// [1] -> 7	[type: instruction]
+	/// [2] -> 32	[type: i64]
+	/// After mapping the content will be:
+	/// [1] -> 0x00D273F27A	[type: void*]
+	/// [2] -> 32			[type: i64]
+	/// Because all opcodes are gone, accessing the bucket and using the opcode values after mapping is not allowed!
+	/// Because the Signal type is not discriminated (like DynamicSignal), we do not know which signal contains an instruction.
+	/// For that we have the instruction map, which must have the same size as the bucket.
+	/// For each bucket entry there is a signal map entry, which is true if the bucket entry at the same index is an instruction else false.
+	/// Example:
+	/// bucket[1] = push	| instructionMap[1] = true
+	/// bucket[2] = 3		| instructionMap[2] = false
+	/// bucket[3] = pushz	| instructionMap[3] = true
+	/// bucket[4] = nop		| instructionMap[4] = true
+	///
+	/// ** Update 10.05.2021 **
+	/// For further optimization jump target addresses are not also converted to pointers.
+	/// When you specify a branch like
+	/// jz 3
+	/// the byte code position of 3 will be replaced by the real pointer value,
+	/// to avoid more calculation.
+	/// But this mapping is done in the byte code builder, not here because it does not require the jump table.
+	/// </summary>
+	/// <param name="bucket">The byte code bucket to use as mapping target.</param>
+	/// <param name="bucketEnd">The incremented end pointer of the byte code bucket, calculated as: bucket + bucketLength</param>
+	/// <param name="jumpAddressMap">The instruction map. Must have the same size as the byte code bucket.</param>
+	/// <param name="jumpTable">The jump table. Must contain an address for each instruction.</param>
+	/// <returns>true on success, else false.</returns>
+	[[maybe_unused]]
+	[[nodiscard]]
+	extern auto PerformJumpTableMapping
+	(
+		ByteCode::Signal* NOX_RESTRICT                     bucket,
+		const ByteCode::Signal* NOX_RESTRICT               bucketEnd,
+		const bool* jumpAddressMap,
+		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
+	) -> bool;
+
 
 	/// <summary>
 	/// Builds a byte code image chunk and a jump map out of the stream.
@@ -2704,18 +2752,29 @@ namespace Nominax::ByteCode
 	/// If you execute a stream once, use TransformStreamToImageByMove.
 	/// </summary>
 	/// <param name="input"></param>
+	/// <param name="optHints"></param>
 	/// <param name="output"></param>
 	/// <param name="jumpMap"></param>
-	extern auto TransformStreamToImageByCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void;
-
+	extern auto TransformStreamToImageByCopy
+	(
+		const Stream& input,
+		const OptimizationHints& optHints,
+		Image& output
+	) -> void;
 
 	/// <summary>
 	/// Builds a byte code image chunk and a jump map out of the stream.
 	/// </summary>
 	/// <param name="input"></param>
+	/// <param name="optHints"></param>
 	/// <param name="output"></param>
 	/// <param name="jumpMap"></param>
-	extern auto TransformStreamToImageByMove(Stream&& input, Image& output, JumpMap& jumpMap) -> void;
+	extern auto TransformStreamToImageByMove
+	(
+		Stream&& input,
+		const OptimizationHints& optHints,
+		Image& output
+	) -> void;
 
 	/// <summary>
 	/// Single stack-bounded variable.

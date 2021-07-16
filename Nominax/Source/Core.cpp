@@ -227,14 +227,13 @@ namespace Nominax
 		{
 			return
 			{
-				.CodeChunk = this->CodeChunk.data(),
-				.CodeChunkInstructionMap = this->CodeChunkInstructionMap.data(),
-				.CodeChunkSize = this->CodeChunk.size(),
-				.IntrinsicTable = this->IntrinsicTable.data(),
-				.IntrinsicTableSize = this->IntrinsicTable.size(),
+				.CodeChunk = std::data(this->CodeChunk),
+				.CodeChunkSize = std::size(this->CodeChunk),
+				.IntrinsicTable = std::data(this->IntrinsicTable),
+				.IntrinsicTableSize = std::size(this->IntrinsicTable),
 				.InterruptHandler = &this->InterruptHandler,
-				.Stack = this->Stack.data(),
-				.StackSize = this->Stack.size(),
+				.Stack = std::data(this->Stack),
+				.StackSize = std::size(this->Stack),
 			};
 		}
 
@@ -331,7 +330,11 @@ namespace Nominax
         }															\
         while(false)
 
+#if NOX_TESTING || NOX_DEBUG	
 		#define VALIDATE_ONLINE_BOOT_STATE() NOX_PAS_TRUE(this->IsOnline(), "Environment is offline!")
+#else
+		#define VALIDATE_ONLINE_BOOT_STATE()
+#endif
 
 		/// <summary>
 		/// Checks if the byte stack size is divisible by sizeof(Common::Record) and panics if not.
@@ -576,7 +579,7 @@ namespace Nominax
 			return true;
 		}
 
-		auto Environment::OnPreExecutionHook([[maybe_unused]] const ByteCode::CodeImageBundle& appCodeBundle) -> bool
+		auto Environment::OnPreExecutionHook([[maybe_unused]] const ByteCode::Image& appCodeBundle) -> bool
 		{
 			return true;
 		}
@@ -701,7 +704,7 @@ namespace Nominax
 			);
 		}
 
-		auto Environment::Execute(ByteCode::CodeImageBundle& image) -> ExecutionResult
+		auto Environment::Execute(const ByteCode::Image& image) -> ExecutionResult
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 
@@ -736,16 +739,16 @@ namespace Nominax
 
 		auto Environment::Execute(ByteCode::Stream&& stream) -> ExecutionResult
 		{
-			ByteCode::CodeImageBundle codeImage { };
-			NOX_PAS_EQ(ByteCode::Stream::Build(std::move(stream), codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
+			ByteCode::Image codeImage { };
+			NOX_PAS_EQ(ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
 			stream = { };
 			return (*this)(codeImage);
 		}
 
 		auto Environment::Execute(const ByteCode::Stream& stream) -> ExecutionResult
 		{
-			ByteCode::CodeImageBundle codeImage { };
-			NOX_PAS_EQ(ByteCode::Stream::Build(stream, codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
+			ByteCode::Image codeImage { };
+			NOX_PAS_EQ(ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
 			return (*this)(codeImage);
 		}
 
@@ -825,42 +828,18 @@ namespace Nominax
 			return this->Context_->ExecutionTimeHistory;
 		}
 
+		auto Environment::GetOptimizationHints() const -> ByteCode::OptimizationHints
+		{
+			VALIDATE_ONLINE_BOOT_STATE();
+			const void*& jumpTable{ *this->Context_->OptimalReactorRoutine.JumpTable };
+			return
+			{
+				jumpTable
+			};
+		}
+
 		#undef VALIDATE_ONLINE_BOOT_STATE
 		#undef DISPATCH_HOOK
-
-		auto PerformJumpTableMapping
-		(
-			ByteCode::Signal* NOX_RESTRICT                     bucket,
-			const ByteCode::Signal* const NOX_RESTRICT         bucketEnd,
-			const bool*                                        jumpAddressMap,
-			const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
-		) -> bool
-		{
-			NOX_PAS_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");
-			NOX_PAS_NOT_NULL(bucketEnd, "Code chunk bucket table end was nullptr!");
-			NOX_PAS_NOT_NULL(jumpAddressMap, "Jump address map was nullptr!");
-			NOX_PAS_NOT_NULL(jumpTable, "Jump table was nullptr!");
-			NOX_PAS_NOT_NULL(*jumpTable, "First element of jump table was nullptr!");
-			NOX_PAS_TRUE(*jumpAddressMap, "First element of jump address map was false, but should be true because of code prologue!");
-			NOX_PAS_EQ(bucket->Instr, ByteCode::Instruction::NOp, "Missing code prologue in code bucket!");
-
-			// skip first "nop" padding instruction:
-			++bucket;
-			++jumpAddressMap;
-
-			while (bucket < bucketEnd)
-			{
-				if (*jumpAddressMap)
-				{
-					bucket->Ptr = const_cast<void*>(*(jumpTable + bucket->OpCode));
-				}
-
-				++bucket;
-				++jumpAddressMap;
-			}
-
-			return true;
-		}
 
 		FixedStack::FixedStack(std::pmr::memory_resource& allocator, U64 sizeInRecords) : Buffer_ {&allocator}
 		{
@@ -887,21 +866,14 @@ namespace Nominax
 		static auto CreateDescriptor
 		(
 			FixedStack&                             stack,
-			ByteCode::Image&                        image,
-			ByteCode::JumpMap&                      jumpMap,
+			const ByteCode::Image&					image,
 			ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
 			InterruptRoutineProxy&                  interruptHandler
 		) -> VerboseReactorDescriptor
 		{
-			const std::span instrMapTableView
-			{
-				reinterpret_cast<const bool*>(jumpMap.data()),
-				reinterpret_cast<const bool*>(jumpMap.data() + jumpMap.size())
-			};
 			const auto simpleDescriptor = BasicReactorDescriptor
 			{
 				.CodeChunk = image.GetReactorView(),
-				.CodeChunkInstructionMap = instrMapTableView,
 				.IntrinsicTable = intrinsicTable,
 				.Stack = stack,
 				.InterruptHandler = interruptHandler
@@ -957,22 +929,22 @@ namespace Nominax
 				this->PoolIndex_
 			);
 		}
-
-		auto Reactor::Execute(ByteCode::CodeImageBundle& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
+		
+		auto Reactor::Execute(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 		{
 			this->Input_ = CreateDescriptor
 			(
 				this->Stack_,
-				std::get<0>(bundle),
-				std::get<1>(bundle),
+				bundle,
 				this->IntrinsicTable_,
 				*this->InterruptHandler_
 			);
-			if (const auto validationResult {this->Input_.Validate()}; validationResult != ReactorValidationResult::Ok)
+			const auto validationResult{ this->Input_.Validate() };
+			if (validationResult != ReactorValidationResult::Ok)
 			{
+				const std::string_view message{ REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)] };
 				[[unlikely]]
-					Panic(NOX_PAINF, "Reactor {:#X} validation failed with the following reason: {}", this->Id_,
-					      validationResult);
+				Panic(NOX_PAINF, "Reactor {:#X} validation failed with the following reason: {}", this->Id_, message);
 			}
 			ReactorCoreExecutionRoutine* const routine = this->RoutineLink_.ExecutionRoutine;
 			NOX_PAS_NOT_NULL(routine, "Reactor execution routine is nullptr!");
@@ -1278,22 +1250,18 @@ namespace Nominax
 					return ReactorValidationResult::NullPtr;
 			}
 
-			#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-
-			if (!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize - 1))
-			{
-				[[unlikely]]
-					return ReactorValidationResult::NullPtr;
-			}
-
-			#endif
-
 			// validate the size for the corresponding pointers:
 			if (!this->CodeChunkSize || !this->StackSize)
 			{
 				[[unlikely]]
 					return ReactorValidationResult::ZeroSize;
 			}
+
+			
+			// If we are using execution address mapping,
+			// all instructions are pointers so we cannot check the instruction type
+			
+#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
 			// first instruction will be skipped and must be NOP:
 			if (CodeChunk->Instr != ByteCode::Instruction::NOp)
@@ -1309,6 +1277,8 @@ namespace Nominax
 					return ReactorValidationResult::MissingCodeEpilogue;
 			}
 
+#endif
+
 			// first stack entry is never used and must be nop-padding:
 			if (*Stack != Foundation::Record::Padding())
 			{
@@ -1316,18 +1286,17 @@ namespace Nominax
 					return ReactorValidationResult::MissingStackPrologue;
 			}
 
-			if (this->IntrinsicTable)
-			[[likely]]
+			if (this->IntrinsicTable) [[likely]]
 			{
 				// validate intrinsic routines:
-				auto* const*       begin = this->IntrinsicTable;
-				auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
+				auto* const* begin { this->IntrinsicTable};
+				auto* const* const end{ this->IntrinsicTable + this->IntrinsicTableSize };
 				while (begin < end)
 				{
 					if (!*begin++)
 					{
 						[[unlikely]]
-							return ReactorValidationResult::NullIntrinsicRoutine;
+						return ReactorValidationResult::NullIntrinsicRoutine;
 					}
 				}
 			}
