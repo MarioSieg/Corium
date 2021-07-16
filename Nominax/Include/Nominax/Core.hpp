@@ -433,19 +433,19 @@ namespace Nominax::Core
 		/// Small 1 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr U64 SIZE_SMALL {1_mb / sizeof(Foundation::Record)};
+		static constexpr U64 SIZE_SMALL {1_mB / sizeof(Foundation::Record)};
 
 		/// <summary>
 		/// Medium sizes 4 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr U64 SIZE_MEDIUM {4_mb / sizeof(Foundation::Record)};
+		static constexpr U64 SIZE_MEDIUM {4_mB / sizeof(Foundation::Record)};
 
 		/// <summary>
 		/// Medium sizes 8 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr U64 SIZE_LARGE {8_mb / sizeof(Foundation::Record)};
+		static constexpr U64 SIZE_LARGE {8_mB / sizeof(Foundation::Record)};
 		/// <summary>
 		/// 
 		/// </summary>
@@ -718,12 +718,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// The size of the boot pool
 		/// </summary>
-		U64 BootPoolSize {128_kb};
+		U64 BootPoolSize {128_kB};
 
 		/// <summary>
 		/// The size of the system memory pool size.
 		/// </summary>
-		U64 SystemPoolSize {512_kb};
+		U64 SystemPoolSize {512_kB};
 
 		/// <summary>
 		/// The count of reactors.
@@ -735,7 +735,7 @@ namespace Nominax::Core
 		/// The reactor stack size in bytes.
 		/// Must be divisible by 8!
 		/// </summary>
-		U64 StackSize {8_mb};
+		U64 StackSize {8_mB};
 
 		/// <summary>
 		/// Power preference of the system.
@@ -927,19 +927,19 @@ namespace Nominax::Core
 		/// <summary>
 		/// Size in bytes of the system pool, if the given count was invalid.
 		/// </summary>
-		static constexpr U64 FALLBACK_SYSTEM_POOL_SIZE {256_kb};
+		static constexpr U64 FALLBACK_SYSTEM_POOL_SIZE {256_kB};
 		static_assert(FALLBACK_SYSTEM_POOL_SIZE);
 
 		/// <summary>
 		/// The min size of the boot pool.
 		/// </summary>
-		static constexpr U64 BOOT_POOL_SIZE_MIN {32_kb};
+		static constexpr U64 BOOT_POOL_SIZE_MIN {32_kB};
 		static_assert(BOOT_POOL_SIZE_MIN);
 
 		/// <summary>
 		/// The max size of the boot pool.
 		/// </summary>
-		static constexpr U64 BOOT_POOL_SIZE_MAX {256_kb};
+		static constexpr U64 BOOT_POOL_SIZE_MAX {256_kB};
 		static_assert(BOOT_POOL_SIZE_MAX);
 
 		/// <summary>
@@ -1215,7 +1215,7 @@ namespace Nominax::Core
 
 		return true;
 	}
-	
+
 	/// <summary>
 	/// Contains all sub implementations for the reactor core.
 	/// </summary>

@@ -586,6 +586,142 @@ namespace Nominax
 	static_assert(sizeof(F32) == 4);
 	static_assert(sizeof(F64) == 8);
 
+	/// <summary>
+/// Kilobytes.
+/// </summary>
+	constexpr U64 KB {1000};
+
+	/// <summary>
+	/// Megabytes.
+	/// </summary>
+	constexpr U64 MB {KB * KB};
+
+	/// <summary>
+	/// Gigabytes.
+	/// </summary>
+	constexpr U64 GB {KB * KB * KB};
+
+	/// <summary>
+	/// Terabytes.
+	/// </summary>
+	constexpr U64 TB {KB * KB * KB * KB};
+
+	/// <summary>
+	/// Petabytes.
+	/// </summary>
+	constexpr U64 PB {KB * KB * KB * KB * KB};
+
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="bytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Bytes2Gigabytes(T bytes) -> T
+	{
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+		return bytes / static_cast<T>(KB) / static_cast<T>(KB) / static_cast<T>(KB);
+	}
+
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="bytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Bytes2Megabytes(T bytes) -> T
+	{
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+		return bytes / static_cast<T>(KB) / static_cast<T>(KB);
+	}
+
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="bytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Bytes2Kilobytes(T bytes) -> T
+	{
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+		return bytes / static_cast<T>(KB);
+	}
+
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="gigabytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Gigabytes2Bytes(const T gigabytes) -> T
+	{
+		return gigabytes * static_cast<T>(KB) * static_cast<T>(KB) * static_cast<T>(KB);
+	}
+
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="megabytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Megabytes2Bytes(const T megabytes) -> T
+	{
+		return megabytes * static_cast<T>(KB) * static_cast<T>(KB);
+	}
+
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="kilobytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Kilobytes2Bytes(const T kilobytes) -> T
+	{
+		return kilobytes * static_cast<T>(KB);
+	}
+
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator ""_kB(const unsigned long long value) -> U64
+	{
+		return Kilobytes2Bytes<decltype(value)>(value);
+	}
+
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator ""_mB(const unsigned long long value) -> U64
+	{
+		return Megabytes2Bytes<decltype(value)>(value);
+	}
+
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator ""_gB(const unsigned long long value) -> U64
+	{
+		return Gigabytes2Bytes<decltype(value)>(value);
+	}
+
 	namespace Foundation
 	{
 		/// <summary>
@@ -796,6 +932,22 @@ namespace Nominax
 		Overload(Ts ...) -> Overload<Ts...>;
 
 		/// <summary>
+		/// Calculates and returns the next element in the array using pointer arithmetic.
+		/// Is is important that T is a reference to an element in the array and NOT the last one.
+		/// This is useful to get the next element when using std::for_each with parallel execution.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="iter"></param>
+		/// <param name="begin"></param>
+		/// <returns></returns>
+		template <typename T> requires std::is_reference_v<T>
+		[[nodiscard]]
+		constexpr auto DistanceRef(T&& iter, const std::remove_reference_t<T>* const begin) -> std::ptrdiff_t
+		{
+			return std::addressof(iter) - begin;
+		}
+
+		/// <summary>
 		/// Restricts to random access iterator.
 		/// </summary>
 		template <typename Iter>
@@ -896,48 +1048,245 @@ namespace Nominax
 			return *(std::addressof(iter) + 1);
 		}
 
-		/// <summary>
-		/// Calculates and returns the next element in the array using pointer arithmetic.
-		/// Is is important that T is a reference to an element in the array and NOT the last one.
-		/// This is useful to get the next element when using std::for_each with parallel execution.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="iter"></param>
-		/// <param name="begin"></param>
-		/// <returns></returns>
-		template <typename T> requires std::is_reference_v<T>
-		[[nodiscard]]
-		constexpr auto DistanceRef(T&& iter, const std::remove_reference_t<T>* const begin) -> std::ptrdiff_t
-		{
-			return std::addressof(iter) - begin;
-		}
+		#if NOX_OS_WINDOWS
+		#define NOX_ALLOCA_STUB ::_alloca
+		#else
+			#define NOX_ALLOCA_STUB ::alloca
+		#endif
 
 		/// <summary>
-		/// Restrict stack allocations type.
+		/// Above this size memory will be allocated on the heap
+		/// instead of the stack.
+		/// </summary>
+		constexpr U64 STACK_ALLOC_HEAP_THRESHOLD {4_kB};
+
+		/// <summary>
+		/// Restrict fixed stack allocation type.
 		/// </summary>
 		template <typename T, const U64 C>
-		concept StackAlloca = requires
+		concept FixedStackAllocatable = requires
 		{
-			std::is_trivial_v<T>; // trivial types only
-			C != 0;               // must at least be one
-			sizeof(T) != 0;       // must at least be one
-			sizeof(T) * C < 1024; // no more than 1KB
+			std::is_trivial_v<T>;                       // trivial types only
+			C != 0;                                     // must at least be one
+			sizeof(T) != 0;                             // must at least be one
+			sizeof(T) * C < STACK_ALLOC_HEAP_THRESHOLD; // no more than 4 kB
+		};
+
+		template <typename T, const U64 C> requires FixedStackAllocatable<T, C>
+		struct FixedStackAllocationProxy final
+		{
+			static constexpr U64 BYTE_SIZE {C * sizeof(T)};
 		};
 
 		/// <summary>
-		/// Allocate small structure/array on stack using alloca.
+		/// Performs a parameter checked stack allocation with fixed size.
 		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		template <typename T, const U64 Count = 1> requires StackAlloca<T, Count>
-		[[nodiscard]]
-		NOX_FORCE_INLINE inline auto StackAlloc() -> T*
+		/// <param name="type">The generic type to allocation. Must be a POD type.</param>
+		/// <param name="count">The amount of "type" to allocate. Here, the fixed version this is restricted and must be known at compile time..</param>
+		/// <returns>The pointer to the allocated object which stays as long as the function scope exists.</returns>
+		#define FixedStackAllocation(type, count)	\
+			static_cast< type *>(NOX_ALLOCA_STUB(FixedStackAllocationProxy< type, ( count ) >::BYTE_SIZE ))
+
+		/// <summary>
+		/// Restrict dynamic stack allocation type.
+		/// </summary>
+		template <typename T>
+		concept DynamicStackAllocatable = requires
 		{
-			#if NOX_OS_WINDOWS && !NOX_COM_GCC
-		return static_cast<T*>(::_alloca(sizeof(T) * Count));
-			#else
-			return static_cast<T*>(::alloca(sizeof(T) * Count));
-			#endif
+			std::is_trivial_v<T>;
+		};
+
+		/// <summary>
+		/// RAII release guard for objects which were too large for stack allocations,
+		/// so they where allocated on the heap instead.
+		/// </summary>
+		template <typename T> requires DynamicStackAllocatable<T>
+		class HybridStackGuard final
+		{
+			T* const NOX_RESTRICT Blob_;
+			const bool            IsHeap_;
+
+		public:
+			/// <summary>
+			/// Construct with heap flag and memory.
+			/// </summary>
+			/// <returns></returns>
+			explicit constexpr HybridStackGuard(bool isOnHeap, T& memory);
+
+			/// <summary>
+			/// No copying.
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			HybridStackGuard(const HybridStackGuard& other) = delete;
+
+			/// <summary>
+			/// No moving.
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			/// <returns></returns>
+			HybridStackGuard(HybridStackGuard&& other) = delete;
+
+			/// <summary>
+			/// No copying.
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			/// <returns></returns>
+			auto operator =(const HybridStackGuard& other) -> HybridStackGuard& = delete;
+
+			/// <summary>
+			/// No moving.
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			/// <returns></returns>
+			auto operator =(HybridStackGuard&& other) -> HybridStackGuard& = delete;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			/// <returns>True if the pointer is heap allocated, else false.</returns>
+			constexpr operator bool() const &;
+
+			/// <summary>
+			/// Direct access.
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			constexpr auto operator ->() & -> T*;
+
+			/// <summary>
+			/// Direct access.
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			constexpr auto operator ->() const & -> const T*;
+
+			/// <summary>
+			/// Direct access.
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			constexpr auto operator *() & -> T&;
+
+			/// <summary>
+			/// Direct access.
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			constexpr auto operator *() const & -> const T&;
+
+			/// <summary>
+			/// Unchecked subscript.
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			/// /// <param name="idx"></param>
+			/// /// <returns></returns>
+			constexpr auto operator [](U64 idx) & -> T&;
+
+			/// <summary>
+			/// Unchecked subscript.
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			/// <param name="idx"></param>
+			/// <returns></returns>
+			constexpr auto operator [](U64 idx) const & -> const T&;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			/// <returns>True if the pointer is heap allocated, else false.</returns>
+			[[nodiscard]]
+			constexpr auto IsHeapAllocated() const & -> bool;
+
+			/// <summary>
+			/// Destruct which releases the heap memory,
+			/// if heap allocated.
+			/// </summary>
+			~HybridStackGuard();
+		};
+
+		template <typename T> requires DynamicStackAllocatable<T>
+		constexpr HybridStackGuard<T>::HybridStackGuard(const bool isOnHeap, T& memory) : Blob_ {&memory},
+		                                                                                  IsHeap_ {isOnHeap} { }
+
+		template <typename T> requires DynamicStackAllocatable<T>
+		constexpr HybridStackGuard<T>::operator bool() const &
+		{
+			return this->IsHeap_;
+		}
+
+		template <typename T> requires DynamicStackAllocatable<T>
+		constexpr auto HybridStackGuard<T>::operator->() & -> T*
+		{
+			return this->Blob_;
+		}
+
+		template <typename T> requires DynamicStackAllocatable<T>
+		constexpr auto HybridStackGuard<T>::operator->() const & -> const T*
+		{
+			return this->Blob_;
+		}
+
+		template <typename T> requires DynamicStackAllocatable<T>
+		constexpr auto HybridStackGuard<T>::operator*() & -> T&
+		{
+			return *this->Blob_;
+		}
+
+		template <typename T> requires DynamicStackAllocatable<T>
+		constexpr auto HybridStackGuard<T>::operator*() const & -> const T&
+		{
+			return *this->Blob_;
+		}
+
+		template <typename T> requires DynamicStackAllocatable<T>
+		constexpr auto HybridStackGuard<T>::operator[](const U64 idx) & -> T&
+		{
+			return *(this->Blob_ + idx);
+		}
+
+		template <typename T> requires DynamicStackAllocatable<T>
+		constexpr auto HybridStackGuard<T>::operator[](const U64 idx) const & -> const T&
+		{
+			return *(this->Blob_ + idx);
+		}
+
+		template <typename T> requires DynamicStackAllocatable<T>
+		constexpr auto HybridStackGuard<T>::IsHeapAllocated() const & -> bool
+		{
+			return this->IsHeap_;
+		}
+
+		template <typename T> requires DynamicStackAllocatable<T>
+		inline HybridStackGuard<T>::~HybridStackGuard()
+		{
+			if (this->IsHeapAllocated() && this->Blob_)
+			{
+				delete[] this->Blob_;
+			}
+		}
+
+		/// <summary>
+		/// Helper routine to determine if the memory
+		/// for a dynamically stack allocation should be allocated
+		/// on the heap or not.
+		/// </summary>
+		template <typename T>
+		constexpr auto IsHybridHeap(const U64 count) -> bool
+		{
+			return count * sizeof(T) > STACK_ALLOC_HEAP_THRESHOLD;
+		}
+
+		/// <summary>
+		/// Performs a parameter checked stack allocation with dynamic size.
+		/// </summary>
+		/// <param name="type">The generic type to allocation. Must be a POD type.</param>
+		/// <param name="count">The amount of "type" to allocate. Here, the dynamic version allows dynamic values,
+		/// but if the byte size is above "STACK_ALLOC_HEAP_THRESHOLD", the memory is allocated on the heap instead.</param>
+		/// <returns>The stack guard which released the memory on exit.</returns>
+		#define DynamicStackAllocation(type, count)										\
+		{																				\
+			IsHybridHeap < type >( count ),												\
+			IsHybridHeap < type >( count )												\
+			? *static_cast< type *>(new type [ count ])									\
+			: *static_cast< type *>(NOX_ALLOCA_STUB( ( count ) * sizeof( type ) ))		\
 		}
 
 		/// <summary>
@@ -1012,112 +1361,6 @@ namespace Nominax
 		inline auto ComputeMinAlignmentRequiredForSize(const U64 size) -> U64
 		{
 			return size >= alignof(std::max_align_t) ? alignof(std::max_align_t) : static_cast<U64>(1) << ILog2(size);
-		}
-
-		/// <summary>
-		/// Kilobytes.
-		/// </summary>
-		constexpr U64 KB {1000};
-
-		/// <summary>
-		/// Megabytes.
-		/// </summary>
-		constexpr U64 MB {KB * KB};
-
-		/// <summary>
-		/// Gigabytes.
-		/// </summary>
-		constexpr U64 GB {KB * KB * KB};
-
-		/// <summary>
-		/// Terabytes.
-		/// </summary>
-		constexpr U64 TB {KB * KB * KB * KB};
-
-		/// <summary>
-		/// Petabytes.
-		/// </summary>
-		constexpr U64 PB {KB * KB * KB * KB * KB};
-
-		/// <summary>
-		/// Convert between memory units.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="bytes"></param>
-		/// <returns></returns>
-		template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-		[[nodiscard]]
-		constexpr auto Bytes2Gigabytes(T bytes) -> T
-		{
-			bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-			return bytes / static_cast<T>(KB) / static_cast<T>(KB) / static_cast<T>(KB);
-		}
-
-		/// <summary>
-		/// Convert between memory units.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="bytes"></param>
-		/// <returns></returns>
-		template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-		[[nodiscard]]
-		constexpr auto Bytes2Megabytes(T bytes) -> T
-		{
-			bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-			return bytes / static_cast<T>(KB) / static_cast<T>(KB);
-		}
-
-		/// <summary>
-		/// Convert between memory units.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="bytes"></param>
-		/// <returns></returns>
-		template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-		[[nodiscard]]
-		constexpr auto Bytes2Kilobytes(T bytes) -> T
-		{
-			bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-			return bytes / static_cast<T>(KB);
-		}
-
-		/// <summary>
-		/// Convert between memory units.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="gigabytes"></param>
-		/// <returns></returns>
-		template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-		[[nodiscard]]
-		constexpr auto Gigabytes2Bytes(const T gigabytes) -> T
-		{
-			return gigabytes * static_cast<T>(KB) * static_cast<T>(KB) * static_cast<T>(KB);
-		}
-
-		/// <summary>
-		/// Convert between memory units.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="megabytes"></param>
-		/// <returns></returns>
-		template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-		[[nodiscard]]
-		constexpr auto Megabytes2Bytes(const T megabytes) -> T
-		{
-			return megabytes * static_cast<T>(KB) * static_cast<T>(KB);
-		}
-
-		/// <summary>
-		/// Convert between memory units.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="kilobytes"></param>
-		/// <returns></returns>
-		template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-		[[nodiscard]]
-		constexpr auto Kilobytes2Bytes(const T kilobytes) -> T
-		{
-			return kilobytes * static_cast<T>(KB);
 		}
 
 		/// <summary>
@@ -2676,36 +2919,6 @@ namespace Nominax
 			[[nodiscard]]
 			virtual auto Deserialize(std::ifstream& in) -> bool = 0;
 		};
-	}
-
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator ""_kb(const unsigned long long value) -> U64
-	{
-		return Foundation::Kilobytes2Bytes<decltype(value)>(value);
-	}
-
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator ""_mb(const unsigned long long value) -> U64
-	{
-		return Foundation::Megabytes2Bytes<decltype(value)>(value);
-	}
-
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator ""_gb(const unsigned long long value) -> U64
-	{
-		return Foundation::Gigabytes2Bytes<decltype(value)>(value);
 	}
 
 	/// <summary>

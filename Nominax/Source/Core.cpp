@@ -445,13 +445,13 @@ namespace Nominax
 		[[nodiscard]]
 		NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const U64 size, const std::string_view poolId) -> U8*
 		{
-			Foundation::Print("Allocating {} pool with size: {} MB\n", poolId, Foundation::Bytes2Megabytes(static_cast<F64>(size)));
+			Foundation::Print("Allocating {} pool with size: {} MB\n", poolId, Bytes2Megabytes(static_cast<F64>(size)));
 			auto* NOX_RESTRICT const mem {new(std::nothrow) U8[size]};
 			if (!mem)
 			{
 				[[unlikely]]
 					Panic(NOX_PAINF, "Allocation of monotonic {} pool with size {} MB failed!", poolId,
-					      Foundation::Bytes2Megabytes(static_cast<F64>(size)));
+					      Bytes2Megabytes(static_cast<F64>(size)));
 			}
 			return mem;
 		}
@@ -629,16 +629,16 @@ namespace Nominax
 			Foundation::Print
 			(
 				"Monotonic boot pool fixed size: {} MB, Min: {} MB, Max: {} MB\n",
-				Foundation::Bytes2Megabytes(static_cast<F64>(descriptor.BootPoolSize)),
-				Foundation::Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MIN)),
-				Foundation::Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MAX))
+				Bytes2Megabytes(static_cast<F64>(descriptor.BootPoolSize)),
+				Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MIN)),
+				Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MAX))
 			);
 
 			Foundation::Print
 			(
 				"Monotonic system pool fixed size: {} MB, Fallback: {} MB\n",
-				Foundation::Bytes2Megabytes(descriptor.SystemPoolSize),
-				Foundation::Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
+				Bytes2Megabytes(descriptor.SystemPoolSize),
+				Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
 			);
 
 			// No, we cannot use std::make_unique because we want it noexcept!
@@ -689,14 +689,14 @@ namespace Nominax
 				"Boot time: {}\n"
 				"\n",
 				memUsagePercent,
-				Foundation::Bytes2Megabytes(static_cast<F64>(memSnapshot)),
-				Foundation::Bytes2Megabytes(static_cast<F64>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
+				Bytes2Megabytes(static_cast<F64>(memSnapshot)),
+				Bytes2Megabytes(static_cast<F64>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
 				bootPoolPer,
-				Foundation::Bytes2Kilobytes(static_cast<F64>(bootPoolSize)),
-				Foundation::Bytes2Kilobytes(static_cast<F64>(this->Context_->BootPoolSize)),
+				Bytes2Kilobytes(static_cast<F64>(bootPoolSize)),
+				Bytes2Kilobytes(static_cast<F64>(this->Context_->BootPoolSize)),
 				sysPoolPer,
-				Foundation::Bytes2Megabytes(static_cast<F64>(sysPoolSize)),
-				Foundation::Bytes2Megabytes(static_cast<F64>(this->Context_->SystemPoolSize)),
+				Bytes2Megabytes(static_cast<F64>(sysPoolSize)),
+				Bytes2Megabytes(static_cast<F64>(this->Context_->SystemPoolSize)),
 				ms
 			);
 		}
@@ -949,7 +949,7 @@ namespace Nominax
 				"Power: {}, "
 				"Pool: {:02}\n",
 				this->Id_,
-				Foundation::Bytes2Megabytes(this->Stack_.Size() * sizeof(Foundation::Record)),
+				Bytes2Megabytes(this->Stack_.Size() * sizeof(Foundation::Record)),
 				this->Stack_.Size(),
 				this->IntrinsicTable_.size(),
 				this->InterruptHandler_ == &DefaultInterruptRoutine ? "Def" : "Usr",
