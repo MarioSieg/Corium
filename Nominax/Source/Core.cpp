@@ -843,12 +843,9 @@ namespace Nominax
 		#undef VALIDATE_ONLINE_BOOT_STATE
 		#undef DISPATCH_HOOK
 
-		FixedStack::FixedStack(std::pmr::memory_resource& allocator, U64 sizeInRecords) : Buffer_ {&allocator}
+		FixedStack::FixedStack(std::pmr::memory_resource& allocator, const U64 sizeInRecords) : Buffer_ {&allocator}
 		{
 			NOX_PAS_NOT_ZERO(sizeInRecords, "Fixed stack with zero size was requested!");
-
-			// because first padding element.
-			++sizeInRecords;
 
 			// allocate:
 			this->Buffer_.resize(sizeInRecords);

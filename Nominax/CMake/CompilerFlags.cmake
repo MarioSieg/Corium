@@ -39,6 +39,7 @@ IF (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" ST
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-comma")
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-undefined-func-template")
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-unused-const-variable")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-covered-switch-default")
 
 ELSEIF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
