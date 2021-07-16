@@ -207,9 +207,16 @@
 
 #include "Compiler.hpp"
 
+#include <Nominax/Nominax.hpp>
+
 auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* const argv) -> int
 {
     Corium::Compiler compiler{};
-    compiler.CompileAllInDir("../../../Corium/");
+    const bool result{compiler.CompileAllInDir(std::filesystem::current_path())};
+    if (!result) [[unlikely]]
+    {
+        Nominax::Foundation::Print("Failed to compile Corium!\n");
+        return -1;
+    }
     return 0;
 }

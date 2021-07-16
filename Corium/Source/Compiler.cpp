@@ -15,6 +15,11 @@ namespace Corium
     try
     {
         std::ifstream stream{file};
+        if (!stream)
+        {
+            [[nodiscard]]
+            return false;
+        }
         antlr4::ANTLRInputStream input{stream};
         CoriumLexer lexer{&input};
         antlr4::CommonTokenStream tokens{&lexer};
@@ -37,8 +42,14 @@ namespace Corium
         return this->CompileAllInDir(std::filesystem::current_path());
     }
 
-    auto Compiler::CompileAllInDir(const std::filesystem::path &dir) -> bool
+    auto Compiler::CompileAllInDir(const std::filesystem::path& dir) -> bool
     {
+        if (!std::filesystem::exists(dir))
+        {
+            Print(LogLevel::Error, "No Corium ({}) files found in dir: {}\n", FILE_EXTENSION, dir.string());
+            [[nodiscard]]
+            return false;
+        }
         std::uint32_t compiledFiles {};
         for (const auto& file : std::filesystem::recursive_directory_iterator{dir})
         {
