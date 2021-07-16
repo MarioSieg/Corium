@@ -433,6 +433,11 @@ namespace Nominax
 	#define NOX_EXPECT_VALUE(x, expect)         __builtin_expect(( x ), ( expect ))
 
 	/// <summary>
+	/// Generates a cache prefetch instruction if the target supports it.
+	/// </summary>
+	#define NOX_CACHE_PREFETCH(ptr)				__builtin_prefetch(ptr)
+
+	/// <summary>
 	/// Marks a hot function.
 	/// Hot path functions are optimized more and get a better code layout.
 	/// </summary>

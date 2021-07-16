@@ -278,21 +278,20 @@ namespace Nominax::ByteCode
 
 		const auto addressMapper
 		{
-			[&, base {output.GetBlobData()}](const Signal& x)-> Signal
+			[&, base {output.GetBlobData()}, begin{&*std::begin(output)}](Signal& x)
 			{
-				const std::ptrdiff_t index {&x - &*std::begin(output)};
-				if (discriminators[index] == Signal::Discriminator::JumpAddress)
-				{
-					return Signal {const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress))};
-				}
+				const std::ptrdiff_t index {&x - begin};
 				if (discriminators[index] == Signal::Discriminator::Instruction)
 				{
-					return Signal {const_cast<void*>(*(jumpTable + x.OpCode))};
+					x = Signal {const_cast<void*>(*(jumpTable + x.OpCode))};
 				}
-				return x;
+				else if (discriminators[index] == Signal::Discriminator::JumpAddress)
+				{
+					x = Signal{ const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress)) };
+				}
 			}
 		};
-		std::transform(std::execution::par_unseq, std::begin(output), std::end(output), std::begin(output), addressMapper);
+		std::for_each(std::execution::par_unseq, std::begin(output), std::end(output), addressMapper);
 		#endif
 	}
 
