@@ -2490,27 +2490,27 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::Resize(const U64 size) -> void
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.resize(size);
 		this->CodeDiscriminatorBuffer_.resize(size);
 	}
 
 	inline auto Stream::Reserve(const U64 size) -> void
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.reserve(size);
 		this->CodeDiscriminatorBuffer_.reserve(size);
 	}
 
 	inline auto Stream::Size() const -> U64
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		return this->CodeBuffer_.size();
 	}
 
 	inline auto Stream::SizeInBytes() const -> U64
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		return
 			this->CodeBuffer_.size()
 			* sizeof(Signal)
@@ -2520,7 +2520,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const Instruction instr) -> Stream&
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {instr});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Instruction);
 		return *this;
@@ -2528,7 +2528,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const SystemIntrinsicCallID intrin) -> Stream&
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {intrin});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::SystemIntrinsicCallID);
 		return *this;
@@ -2536,7 +2536,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const UserIntrinsicCallID intrin) -> Stream&
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {intrin});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::UserIntrinsicCallID);
 		return *this;
@@ -2544,7 +2544,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator<<(const JumpAddress address) -> Stream&
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {address});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::JumpAddress);
 		return *this;
@@ -2552,7 +2552,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const U64 value) -> Stream&
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::U64);
 		return *this;
@@ -2560,7 +2560,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const I64 value) -> Stream&
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::I64);
 		return *this;
@@ -2568,7 +2568,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const F64 value) -> Stream&
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::F64);
 		return *this;
@@ -2581,7 +2581,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const CharClusterUtf8 value) -> Stream&
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf8);
 		return *this;
@@ -2589,7 +2589,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator<<(const CharClusterUtf16 value) -> Stream&
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf16);
 		return *this;
@@ -2597,17 +2597,17 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator<<(const CharClusterUtf32 value) -> Stream&
 	{
-		assert(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size());
+		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf32);
 		return *this;
 	}
 
 	/// <summary>
-		/// Contains the boolean values for the jump map.
-		/// We cannot use vector<bool> because it's a specialization
-		/// and does not allow pointer to it's elements, because they are stored as bits.
-		/// </summary>
+	/// Contains the boolean values for the jump map.
+	/// We cannot use vector<bool> because it's a specialization
+	/// and does not allow pointer to it's elements, because they are stored as bits.
+	/// </summary>
 	using JumpMap = std::vector<U8>;
 
 	static_assert(sizeof(U8) == sizeof(bool));

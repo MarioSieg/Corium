@@ -2824,11 +2824,181 @@ namespace Nominax
 		}											\
 	}												\
 	while(false)
+
+	#if NOX_DEBUG
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_TRUE(x, msg)		NOX_PAS_TRUE(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_FALSE(x, msg)		NOX_PAS_FALSE(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_NULL(x, msg)		NOX_PAS_NULL(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_NOT_NULL(x, msg)	NOX_PAS_NOT_NULL(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_ZERO(x, msg)		NOX_PAS_ZERO(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_NOT_ZERO(x, msg)	NOX_PAS_NOT_ZERO(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_EQ(x, y, msg)		NOX_PAS_EQ(x, y, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_NE(x, y, msg)		NOX_PAS_NE(x, y, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_L(x, y, msg)		NOX_PAS_L(x, y, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_LE(x, y, msg)		NOX_PAS_LE(x, y, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_G(x, y, msg)		NOX_PAS_G(x, y, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_GE(x, y, msg)		NOX_PAS_GE(x, y, msg)
+		
+	#else
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_TRUE(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_FALSE(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_NULL(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_NOT_NULL(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_ZERO(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_NOT_ZERO(x, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_EQ(x, y, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_NE(x, y, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_L(x, y, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_LE(x, y, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_G(x, y, msg)
+
+		/// <summary>
+		/// Only active when building for DEBUG.
+		/// Checks the condition and panics with the specified message,
+		/// if the condition is not true.
+		/// </summary>
+		#define NOX_DBG_PAS_GE(x, y, msg)
+	#endif
 }
 
 namespace Nominax::Foundation
 {
-
 	NOX_FLATTEN inline auto SystemAllocator::AllocateChecked(const U64 size) -> void*
 	{
 		void* mem{ Allocate(size) };
@@ -9043,26 +9213,6 @@ namespace Nominax::Foundation
     }
 
     /// <summary>
-    /// Prevent using with invalid type.
-    /// Allowed are the record types:
-    /// U64
-    /// I64
-    /// F64
-    /// char32_t
-    /// void*
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="a"></param>
-    /// <param name="b"></param>
-    /// <returns></returns>
-    template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-    inline auto Object::DeepValueCmp_NotEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
-    {
-        assert(false);
-        return false;
-    }
-
-    /// <summary>
     /// Specialization for bitwise compare of U64.
     /// </summary>
     /// <param name="a"></param>
@@ -9123,26 +9273,6 @@ namespace Nominax::Foundation
     }
 
     /// <summary>
-    /// Prevent using with invalid type.
-    /// Allowed are the record types:
-    /// U64
-    /// I64
-    /// F64
-    /// char32_t
-    /// void*
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="a"></param>
-    /// <param name="b"></param>
-    /// <returns></returns>
-    template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-    inline auto Object::DeepValueCmp_Less([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
-    {
-        assert(false);
-        return false;
-    }
-
-    /// <summary>
     /// Specialization for bitwise compare of U64.
     /// </summary>
     /// <param name="a"></param>
@@ -9197,26 +9327,6 @@ namespace Nominax::Foundation
     NOX_FLATTEN inline auto Object::DeepValueCmp_Less<void*>(const Object a, const Object b) -> bool
     {
         return DeepValueCmp_Less<U64>(a, b);
-    }
-
-    /// <summary>
-    /// Prevent using with invalid type.
-    /// Allowed are the record types:
-    /// U64
-    /// I64
-    /// F64
-    /// char32_t
-    /// void*
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="a"></param>
-    /// <param name="b"></param>
-    /// <returns></returns>
-    template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-    inline auto Object::DeepValueCmp_LessEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
-    {
-        assert(false);
-        return false;
     }
 
     /// <summary>
@@ -9277,26 +9387,6 @@ namespace Nominax::Foundation
     }
 
     /// <summary>
-    /// Prevent using with invalid type.
-    /// Allowed are the record types:
-    /// U64
-    /// I64
-    /// F64
-    /// char32_t
-    /// void*
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="a"></param>
-    /// <param name="b"></param>
-    /// <returns></returns>
-    template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-    inline auto Object::DeepValueCmp_Greater([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
-    {
-        assert(false);
-        return false;
-    }
-
-    /// <summary>
     /// Specialization for bitwise compare of U64.
     /// </summary>
     /// <param name="a"></param>
@@ -9351,26 +9441,6 @@ namespace Nominax::Foundation
     NOX_FLATTEN inline auto Object::DeepValueCmp_Greater<void*>(const Object a, const Object b) -> bool
     {
         return DeepValueCmp_Less<U64>(a, b);
-    }
-
-    /// <summary>
-    /// Prevent using with invalid type.
-    /// Allowed are the record types:
-    /// U64
-    /// I64
-    /// F64
-    /// char32_t
-    /// void*
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="a"></param>
-    /// <param name="b"></param>
-    /// <returns></returns>
-    template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-    inline auto Object::DeepValueCmp_GreaterEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
-    {
-        assert(false);
-        return false;
     }
 
     /// <summary>
@@ -9432,7 +9502,7 @@ namespace Nominax::Foundation
 
     NOX_FLATTEN inline auto IMMUTATOR Object::QueryRawHeader() const -> BlobBlockType*
     {
-        assert(this->Blob_ != nullptr);
+        NOX_DBG_PAS_TRUE(this->Blob_ != nullptr, "Blob is null");
         return this->Blob_;
     }
 
@@ -9445,13 +9515,13 @@ namespace Nominax::Foundation
 
     NOX_FLATTEN inline auto IMMUTATOR Object::LookupObjectBlock() const -> BlobBlockType*
     {
-        assert(this->Blob_ != nullptr);
+        NOX_DBG_PAS_TRUE(this->Blob_ != nullptr, "Blob is null");
         return this->Blob_ + ObjectHeader::RECORD_OFFSET;
     }
 
     NOX_FLATTEN inline auto IMMUTATOR Object::LookupObjectBlockEnd() const -> BlobBlockType*
     {
-        assert(this->HeaderRead_BlockSize() > 0);
+        NOX_DBG_PAS_TRUE(this->HeaderRead_BlockSize() > 0, "Invalid header block size");
         return this->LookupObjectBlock() + this->HeaderRead_BlockSize();
     }
 
