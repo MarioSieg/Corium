@@ -273,8 +273,8 @@ namespace Nominax::ByteCode
 		output = Image {std::move(input.GetCodeBuffer())};
 
 		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-		const Stream::DiscriminatorStorageType& discriminators {input.GetDiscriminatorBuffer()};
-		const void**                            jumpTable {&optHints.JumpTable};
+		const auto&  discriminators {input.GetDiscriminatorBuffer()};
+		const void** jumpTable {&optHints.JumpTable};
 
 		const auto addressMapper
 		{
@@ -287,7 +287,7 @@ namespace Nominax::ByteCode
 				}
 				else if (discriminators[index] == Signal::Discriminator::JumpAddress)
 				{
-					x = Signal{ const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress)) };
+					x = Signal {const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress))};
 				}
 			}
 		};

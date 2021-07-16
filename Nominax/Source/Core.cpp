@@ -707,14 +707,14 @@ namespace Nominax
 		auto Environment::Execute(const ByteCode::Image& image) -> ExecutionResult
 		{
 			using namespace Foundation;
-			
+
 			VALIDATE_ONLINE_BOOT_STATE();
 
 			// Invoke hook:
 			DISPATCH_HOOK(OnPreExecutionHook, image);
 
 			// Info
-			Print(Foundation::LogLevel::Warning, "Executing...\n");
+			Print(LogLevel::Warning, "Executing...\n");
 			std::cout.flush();
 
 			// Execute on alpha reactor:
@@ -730,7 +730,7 @@ namespace Nominax
 
 			// Print exec info:
 			const auto level {result.first == Rsr::Success ? LogLevel::Success : LogLevel::Error};
-			const auto time{ std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros) };
+			const auto time {std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros)};
 			Print(level, "Execution #{} done! Runtime {:.04}\n", this->Context_->ExecutionTimeHistory.size(), time);
 			std::cout.flush();
 
