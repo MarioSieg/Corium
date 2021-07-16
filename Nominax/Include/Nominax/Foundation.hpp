@@ -8554,10 +8554,16 @@ namespace Nominax
 		}
 
 		/// <summary>
+		/// Type used for storing information in the meta header.
+		/// </summary>
+		using MetaHeaderScalar = U64;
+
+		/// <summary>
 		/// Contains all flags in the flag vector field in the object header.
 		/// </summary>
 		union ObjectFlagVector final
 		{
+			#if NOX_DEBUG
 			struct
 			{
 				/// <summary>
@@ -8719,12 +8725,173 @@ namespace Nominax
 				///
 				/// </summary>
 				bool Flag31 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag32 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag33 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag34 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag35 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag36 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag37 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag38 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag39 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag40 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag41 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag42 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag43 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag44 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag45 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag46 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag47 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag48 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag49 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag50 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag51 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag52 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag53 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag54 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag55 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag56 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag57 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag58 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag59 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag60 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag61 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag62 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag63 : 1;
 			} Flags;
 
-			U32 Merged;
+			#endif
+			MetaHeaderScalar Merged;
 		};
 
-		static_assert(sizeof(ObjectFlagVector) == sizeof(U32));
+		static_assert(sizeof(ObjectFlagVector) == sizeof(MetaHeaderScalar));
 
 		/// Every heap allocated object has an object header.
 		/// The object header contains various meta data about the object.
@@ -8732,31 +8899,31 @@ namespace Nominax
 		///
 		/// Offset	   Description	  Size
 		/// +-----------------------+
-		/// | 0 | Strong Ref Count  | 32 Bit
+		/// | 0 | Strong Ref Count  | 64 Bit - sizeof(MetaHeaderScalar64)
 		/// +-----------------------+
-		/// | 1 |  Size in Records	| 32 Bit
+		/// | 1 | Size in Records	| 64 Bit - sizeof(MetaHeaderScalar64)
 		/// +-----------------------+
-		/// | 2 | Type ID			| 32 Bit
+		/// | 2 | Type ID			| 64 Bit - sizeof(MetaHeaderScalar64)
 		/// +-----------------------+
-		/// | 3 | Flag Vector		| 32 Bit
+		/// | 3 | Flag Vector		| 64 Bit - sizeof(MetaHeaderScalar64)
 		/// +-----------------------+
-		/// Total size : 128 Bit(16 Bytes)
-		struct ObjectHeader final
+		/// Total size : 256 Bit(32 Bytes)
+		struct alignas(alignof(MetaHeaderScalar)) ObjectHeader final
 		{
 			/// <summary>
 			/// Reference counter for strong references.
 			/// </summary>
-			U32 MetaField {0};
+			MetaHeaderScalar MetaField {0};
 
 			/// <summary>
 			/// Object size in records.
 			/// </summary>
-			U32 Size {0};
+			MetaHeaderScalar Size {0};
 
 			/// <summary>
 			/// Type index for type DB.
 			/// </summary>
-			U32 TypeId {0};
+			MetaHeaderScalar TypeId {0};
 
 			/// <summary>
 			/// Flag vector for object states.
@@ -8805,7 +8972,7 @@ namespace Nominax
 			/// <param name="region"></param>
 			/// <returns>The current value of the strong ref count.</returns>
 			[[nodiscard]]
-			static constexpr auto ReadMapping_MetaField(const Record* region) -> U32;
+			static constexpr auto ReadMapping_MetaField(const Record* region) -> MetaHeaderScalar;
 
 			/// <summary>
 			/// Map an object header to the region and return the current value of the size.
@@ -8813,7 +8980,7 @@ namespace Nominax
 			/// <param name="region"></param>
 			/// <returns>The current value of the size field.</returns>
 			[[nodiscard]]
-			static constexpr auto ReadMapping_Size(const Record* region) -> U32;
+			static constexpr auto ReadMapping_Size(const Record* region) -> MetaHeaderScalar;
 
 			/// <summary>
 			/// Map an object header to the region and return the current value of the type id.
@@ -8821,7 +8988,7 @@ namespace Nominax
 			/// <param name="region"></param>
 			/// <returns>The current value of the type id.</returns>
 			[[nodiscard]]
-			static constexpr auto ReadMapping_TypeId(const Record* region) -> U32;
+			static constexpr auto ReadMapping_TypeId(const Record* region) -> MetaHeaderScalar;
 
 			/// <summary>
 			/// Map an object header to the region and return the current value of the flag vector.
@@ -8835,9 +9002,9 @@ namespace Nominax
 			/// Map an object header to the region and writes the value into the strong ref count field.
 			/// </summary>
 			/// <param name="region"></param>
-			/// <param name="MetaField">The value to write.</param>
+			/// <param name="metaField">The value to write.</param>
 			/// <returns></returns>
-			static constexpr auto WriteMapping_MetaField(Record* region, U32 MetaField) -> void;
+			static constexpr auto WriteMapping_MetaField(Record* region, MetaHeaderScalar metaField) -> void;
 
 			/// <summary>
 			/// Implicit map the region to an object header and increment the strong reference counter by one.
@@ -8861,7 +9028,7 @@ namespace Nominax
 			/// <param name="region"></param>
 			/// <param name="size">The value to write.</param>
 			/// <returns></returns>
-			static constexpr auto WriteMapping_Size(Record* region, U32 size) -> void;
+			static constexpr auto WriteMapping_Size(Record* region, MetaHeaderScalar size) -> void;
 
 			/// <summary>
 			/// Map an object header to the region and writes the value into the type id field.
@@ -8869,7 +9036,7 @@ namespace Nominax
 			/// <param name="region"></param>
 			/// <param name="typeId">The value to write.</param>
 			/// <returns></returns>
-			static constexpr auto WriteMapping_TypeId(Record* region, U32 typeId) -> void;
+			static constexpr auto WriteMapping_TypeId(Record* region, MetaHeaderScalar typeId) -> void;
 
 			/// <summary>
 			/// Map an object header to the region and writes the value into the flag vector field.
@@ -8886,35 +9053,35 @@ namespace Nominax
 			/// <param name="region"></param>
 			/// <returns></returns>
 			[[nodiscard]]
-			static auto RawQueryTypePun(Record* region) -> ObjectHeader&;
+			static auto ReadMappedHeaderFromRegion(Record* region) -> ObjectHeader&;
 
 			/// <summary>
 			/// The size of each header block field.
 			/// </summary>
-			static constexpr auto STRIDE {sizeof(U32)};
+			static constexpr auto STRIDE {sizeof(MetaHeaderScalar)};
 
 			/// <summary>
 			/// The count of header field blocks => 4 (MetaField, Size, TypeId, FlagVector)
 			/// </summary>
-			static constexpr U64 BLOCKS {4};
+			static constexpr U64 RECORD_BLOCKS {4};
 
 			/// <summary>
 			/// The offset in records from the blob base pointer.
 			/// </summary>
-			static constexpr std::uintptr_t RECORD_OFFSET {STRIDE * BLOCKS / sizeof(Record)};
+			static constexpr std::uintptr_t RECORD_OFFSET {STRIDE * RECORD_BLOCKS / sizeof(Record)};
 
 			/// <summary>
 			/// The amount of records required to store the header.
 			/// </summary>
 			static constexpr U32 RECORD_CHUNKS {RECORD_OFFSET};
 
-			static_assert(STRIDE == 4);
-			static_assert(BLOCKS == 4);
+			static_assert(STRIDE == sizeof(MetaHeaderScalar));
+			static_assert(RECORD_BLOCKS == 4);
 		};
 
-		static_assert(sizeof(ObjectHeader) == ObjectHeader::BLOCKS * ObjectHeader::STRIDE);
-		static_assert(sizeof(ObjectHeader) == 16);
-		static_assert(sizeof(ObjectHeader) % ObjectHeader::BLOCKS == 0); // Ok, ok we know the size must be 16 bytes!
+		static_assert(sizeof(ObjectHeader) == ObjectHeader::RECORD_BLOCKS * ObjectHeader::STRIDE);
+		static_assert(sizeof(ObjectHeader) == 32);
+		static_assert(sizeof(ObjectHeader) % ObjectHeader::RECORD_BLOCKS == 0); // Ok, ok we know the size must be 16 bytes!
 		static_assert(std::is_standard_layout_v<ObjectHeader>);
 		static_assert(std::is_trivially_copyable_v<ObjectHeader>);
 
@@ -8928,12 +9095,12 @@ namespace Nominax
 
 		NOX_FLATTEN inline auto ObjectHeader::MapToRegionChecked(const std::span<Record> region) const -> bool
 		{
-			if (region.size() < 2)
-			[[unlikely]]
+			if (std::size(region) < RECORD_BLOCKS)
 			{
-				return false;
+				[[unlikely]]
+					return false;
 			}
-			return std::memcpy(region.data(), this, sizeof(ObjectHeader));
+			return std::memcpy(std::data(region), this, sizeof(ObjectHeader));
 		}
 
 		NOX_FLATTEN inline auto ObjectHeader::MapFromRegionUnchecked(const Record* const region) -> void
@@ -8943,44 +9110,45 @@ namespace Nominax
 
 		NOX_FLATTEN inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Record> region) -> bool
 		{
-			if (region.size() < 2)
-			[[unlikely]]
+			if (std::size(region) < RECORD_BLOCKS)
 			{
-				return false;
+				[[unlikely]]
+					return false;
 			}
-			return std::memcpy(this, region.data(), sizeof(ObjectHeader));
+			return std::memcpy(this, std::data(region), sizeof(ObjectHeader));
 		}
 
-		NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_MetaField(const Record* const region) -> U32
+		NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_MetaField(const Record* const region) -> MetaHeaderScalar
 		{
-			return (*region).AsU32S[0];
+			return (*region).AsU64;
 		}
 
-		NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) -> U32
+		NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) -> MetaHeaderScalar
 		{
-			return (*region).AsU32S[1];
+			return (*(region + 1)).AsU64;
 		}
 
-		NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) -> U32
+		NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) -> MetaHeaderScalar
 		{
-			return region[1].AsU32S[0];
+			return (*(region + 2)).AsU64;
 		}
 
 		NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) -> ObjectFlagVector
 		{
 			const auto flags = ObjectFlagVector
 			{
-				.Merged = region[1].AsU32S[1]
+				.Merged = (*(region + 3)).AsU64
 			};
 			return flags;
 		}
 
 		NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_MetaField
 		(
-			Record* const region, const U32 MetaField
+			Record* const          region,
+			const MetaHeaderScalar metaField
 		) -> void
 		{
-			(*region).AsU32S[0] = MetaField;
+			(*region).AsU64 = metaField;
 		}
 
 		NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_IncrementMetaField
@@ -8988,7 +9156,7 @@ namespace Nominax
 			Record* const region
 		) -> void
 		{
-			++(*region).AsU32S[0];
+			++(*region).AsU64;
 		}
 
 		NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_DecrementMetaField
@@ -8996,34 +9164,37 @@ namespace Nominax
 			Record* const region
 		) -> void
 		{
-			--(*region).AsU32S[0];
+			--(*region).AsU64;
 		}
 
 		NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_Size
 		(
-			Record* const region, const U32 size
+			Record* const          region,
+			const MetaHeaderScalar size
 		) -> void
 		{
-			(*region).AsU32S[1] = size;
+			(*(region + 1)).AsU64 = size;
 		}
 
 		NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_TypeId
 		(
-			Record* const region, const U32 typeId
+			Record* const          region,
+			const MetaHeaderScalar typeId
 		) -> void
 		{
-			region[1].AsU32S[0] = typeId;
+			(*(region + 2)).AsU64 = typeId;
 		}
 
 		NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_FlagVector
 		(
-			Record* const region, const ObjectFlagVector flagVector
+			Record* const          region,
+			const ObjectFlagVector flagVector
 		) -> void
 		{
-			region[1].AsU32S[1] = flagVector.Merged;
+			(*(region + 3)).AsU64 = flagVector.Merged;
 		}
 
-		NOX_FLATTEN inline auto ObjectHeader::RawQueryTypePun
+		NOX_FLATTEN inline auto ObjectHeader::ReadMappedHeaderFromRegion
 		(
 			Record* const region
 		) -> ObjectHeader&
@@ -9065,21 +9236,21 @@ namespace Nominax
 			/// </summary>
 			/// <returns>The strong reference count field from the object header.</returns>
 			[[nodiscard]]
-			auto IMMUTATOR HeaderRead_StrongReferenceCount() const -> U32;
+			auto IMMUTATOR HeaderRead_StrongReferenceCount() const -> MetaHeaderScalar;
 
 			/// <summary>
 			///
 			/// </summary>
 			/// <returns>The size of the object in records. The size field from the object header.</returns>
 			[[nodiscard]]
-			auto IMMUTATOR HeaderRead_BlockSize() const -> U32;
+			auto IMMUTATOR HeaderRead_BlockSize() const -> MetaHeaderScalar;
 
 			/// <summary>
 			///
 			/// </summary>
 			/// <returns>The type id field from the object header.</returns>
 			[[nodiscard]]
-			auto IMMUTATOR HeaderRead_TypeId() const -> U32;
+			auto IMMUTATOR HeaderRead_TypeId() const -> MetaHeaderScalar;
 
 			/// <summary>
 			///
@@ -9093,7 +9264,7 @@ namespace Nominax
 			/// </summary>
 			/// <param name="MetaField">The new value to write.</param>
 			/// <returns></returns>
-			auto MUTATOR HeaderWrite_MetaField(U32 MetaField) const -> void;
+			auto MUTATOR HeaderWrite_MetaField(MetaHeaderScalar metaField) const -> void;
 
 			/// <summary>
 			/// Increments the object header strong reference counter by one.
@@ -9136,14 +9307,14 @@ namespace Nominax
 			/// </summary>
 			/// <param name="size">The new value to write.</param>
 			/// <returns></returns>
-			auto MUTATOR HeaderWrite_Size(U32 size) const -> void;
+			auto MUTATOR HeaderWrite_Size(MetaHeaderScalar size) const -> void;
 
 			/// <summary>
 			/// Writes the value of typeId into the TypeId object header field.
 			/// </summary>
 			/// <param name="typeId">The new value to write.</param>
 			/// <returns></returns>
-			auto MUTATOR HeaderWrite_TypeId(U32 typeId) const -> void;
+			auto MUTATOR HeaderWrite_TypeId(MetaHeaderScalar typeId) const -> void;
 
 			/// <summary>
 			/// Writes the value of flagVector into the ObjectFlags object header field.
@@ -9847,17 +10018,17 @@ namespace Nominax
 			return this->HeaderRead_BlockSize() * sizeof(Record);
 		}
 
-		NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const -> U32
+		NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const -> MetaHeaderScalar
 		{
 			return ObjectHeader::ReadMapping_MetaField(this->QueryRawHeader());
 		}
 
-		NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_BlockSize() const -> U32
+		NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_BlockSize() const -> MetaHeaderScalar
 		{
 			return ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 		}
 
-		NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_TypeId() const -> U32
+		NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_TypeId() const -> MetaHeaderScalar
 		{
 			return ObjectHeader::ReadMapping_TypeId(this->QueryRawHeader());
 		}
@@ -9897,17 +10068,17 @@ namespace Nominax
 			this->HeaderWrite_DecrementMetaField();
 		}
 
-		NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_MetaField(const U32 MetaField) const -> void
+		NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_MetaField(const MetaHeaderScalar metaField) const -> void
 		{
-			ObjectHeader::WriteMapping_MetaField(this->QueryRawHeader(), MetaField);
+			ObjectHeader::WriteMapping_MetaField(this->QueryRawHeader(), metaField);
 		}
 
-		NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_Size(const U32 size) const -> void
+		NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_Size(const MetaHeaderScalar size) const -> void
 		{
 			ObjectHeader::WriteMapping_Size(this->QueryRawHeader(), size);
 		}
 
-		NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_TypeId(const U32 typeId) const -> void
+		NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_TypeId(const MetaHeaderScalar typeId) const -> void
 		{
 			ObjectHeader::WriteMapping_TypeId(this->QueryRawHeader(), typeId);
 		}

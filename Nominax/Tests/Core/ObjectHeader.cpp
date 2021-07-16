@@ -212,32 +212,32 @@ TEST(ObjectHeaderReinterpretation, FieldAccess)
 	ObjectHeader object
 	{
 		.MetaField = 1234,
-		.Size = 0xFF'FF'FF'FF,
+		.Size = 0xFF'FF'FF'FF'FF'FF'FF'FF,
 		.TypeId = 666,
 		.FlagVector = {.Merged = 0xFF'FF'FF'AA}
 	};
 
-	std::array<Record, 2> header { };
+	std::array<Record, 4> header { };
 
 	static_assert(sizeof header == sizeof object);
 
 	object.MapToRegionUnchecked(header.data());
 
-	ASSERT_EQ(header[0].AsU32S[0], 1234);
-	ASSERT_EQ(header[0].AsU32S[1], 0xFF'FF'FF'FF);
-	ASSERT_EQ(header[1].AsU32S[0], 666);
-	ASSERT_EQ(header[1].AsU32S[1], 0xFF'FF'FF'AA);
+	ASSERT_EQ(header[0].AsU64, 1234);
+	ASSERT_EQ(header[1].AsU64, 0xFF'FF'FF'FF'FF'FF'FF'FF);
+	ASSERT_EQ(header[2].AsU64, 666);
+	ASSERT_EQ(header[3].AsU64, 0xFF'FF'FF'AA);
 
 	ASSERT_EQ(ObjectHeader::ReadMapping_MetaField(header.data()), 1234);
-	ASSERT_EQ(ObjectHeader::ReadMapping_Size(header.data()), 0xFF'FF'FF'FF);
+	ASSERT_EQ(ObjectHeader::ReadMapping_Size(header.data()), 0xFF'FF'FF'FF'FF'FF'FF'FF);
 	ASSERT_EQ(ObjectHeader::ReadMapping_TypeId(header.data()), 666);
 	ASSERT_EQ(ObjectHeader::ReadMapping_FlagVector(header.data()).Merged, 0xFF'FF'FF'AA);
 
-	auto& punned = ObjectHeader::RawQueryTypePun(header.data());
-	ASSERT_EQ(punned.MetaField, 1234);
-	ASSERT_EQ(punned.Size, 0xFF'FF'FF'FF);
-	ASSERT_EQ(punned.TypeId, 666);
-	ASSERT_EQ(punned.FlagVector.Merged, 0xFF'FF'FF'AA);
+	auto& mapped = ObjectHeader::ReadMappedHeaderFromRegion(header.data());
+	ASSERT_EQ(mapped.MetaField, 1234);
+	ASSERT_EQ(mapped.Size, 0xFF'FF'FF'FF'FF'FF'FF'FF);
+	ASSERT_EQ(mapped.TypeId, 666);
+	ASSERT_EQ(mapped.FlagVector.Merged, 0xFF'FF'FF'AA);
 }
 
 TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
@@ -250,7 +250,7 @@ TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
 		.FlagVector = {.Merged = 0xFF'FF'FF'AA}
 	};
 
-	std::array<Record, 2> header { };
+	std::array<Record, 4> header { };
 	auto*                 data {std::data(header)};
 
 	static_assert(sizeof header == sizeof object);
@@ -262,10 +262,10 @@ TEST(ObjectHeaderReinterpretation, FieldAccessMapping)
 	ObjectHeader::WriteMapping_TypeId(data, 0xFF);
 	ObjectHeader::WriteMapping_FlagVector(data, {.Merged = 1234});
 
-	ASSERT_EQ(data[0].AsU32S[0], 3);
-	ASSERT_EQ(data[0].AsU32S[1], 5);
-	ASSERT_EQ(data[1].AsU32S[0], 0xFF);
-	ASSERT_EQ(data[1].AsU32S[1], 1234);
+	ASSERT_EQ(data[0].AsU64, 3);
+	ASSERT_EQ(data[1].AsU64, 5);
+	ASSERT_EQ(data[2].AsU64, 0xFF);
+	ASSERT_EQ(data[3].AsU64, 1234);
 
 	ASSERT_EQ(ObjectHeader::ReadMapping_MetaField(data), 3);
 	ASSERT_EQ(ObjectHeader::ReadMapping_Size(data), 5);
