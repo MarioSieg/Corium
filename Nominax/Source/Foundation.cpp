@@ -569,6 +569,28 @@ namespace Nominax::Foundation
 		return buffer;
 	}
 
+	auto ISerializable::SerializeToFile(const std::filesystem::path& file) const -> bool
+	{
+		std::ofstream stream{ file };
+		if (!stream)
+		{
+			[[unlikely]]
+			return false;
+		}
+		return this->Serialize(stream);
+	}
+	
+	auto ISerializable::DeserializeFromFile(const std::filesystem::path& file) -> bool
+	{
+		std::ifstream stream{ file };
+		if (!stream)
+		{
+			[[unlikely]]
+			return false;
+		}
+		return this->Deserialize(stream);
+	}
+
 	/// <summary>
 	/// Global per thread signal status.
 	/// </summary>

@@ -252,11 +252,13 @@ namespace Nominax::ByteCode
 		std::transform(std::execution::par_unseq, std::cbegin(discriminators), std::cend(discriminators), std::begin(jumpMap), jumpTransformer);
 	}
 
+	Image::Image(std::vector<Signal>&& buffer) : Blob_{ std::move(buffer) } { }
+
 	Image::Image(const std::span<const Signal> blob)
 	{
 		NOX_PAS_FALSE(std::empty(blob), "Byte code image with zero size is invalid!");
 		this->Blob_.resize(std::size(blob));
-		std::copy(std::cbegin(blob), std::cend(blob), std::begin(this->Blob_));
+		std::copy(std::execution::par_unseq, std::cbegin(blob), std::cend(blob), std::begin(this->Blob_));
 	}
 
 	Image::Image(const void* const data, const U64 byteSize)
@@ -268,7 +270,85 @@ namespace Nominax::ByteCode
 		std::memcpy(std::data(this->Blob_), data, byteSize);
 	}
 
-	Image::Image(std::vector<Signal>&& buffer) : Blob_ {std::move(buffer)} { }
+	auto Stream::GetSerializationImageHeader(SerializationImageHeader& out) const -> void
+	{
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		std::memcpy(std::data(out.Magic), std::data(SerializationImageHeader::MAGIC_ID), sizeof out.Magic);
+		out.CodeImageSize = std::size(this->CodeBuffer_);
+		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);
+		out.EncryptDecrypt();
+	}
+
+	auto Stream::Serialize(std::ofstream& out) const -> bool
+	{
+		SerializationImageHeader header{};
+		constexpr U64 codeSectionMarker{ STREAM_IMAGE_CODE_SECTION_MARKER };
+		constexpr U64 discriminatorSectionMarker{ STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER };
+
+		// header
+		this->GetSerializationImageHeader(header);
+		out.write(reinterpret_cast<const char*>(&header), sizeof(SerializationImageHeader));
+
+		// code section
+		out.write(reinterpret_cast<const char*>(&codeSectionMarker), sizeof(U64));
+		out.write(reinterpret_cast<const char*>(std::data(this->CodeBuffer_)), std::size(this->CodeBuffer_) * sizeof(CodeStorageType::value_type));
+
+		// discriminator section
+		out.write(reinterpret_cast<const char*>(&discriminatorSectionMarker), sizeof(U64));
+		out.write(reinterpret_cast<const char*>(std::data(this->CodeDiscriminatorBuffer_)), std::size(this->CodeDiscriminatorBuffer_) * sizeof(DiscriminatorStorageType::value_type));
+		return true;
+	}
+	
+	auto Stream::Deserialize(std::ifstream& in) -> bool
+	{
+		SerializationImageHeader header{};
+		in.read(reinterpret_cast<char*>(&header), sizeof(SerializationImageHeader));
+		for (U64 i {0}; i < std::size(Stream::SerializationImageHeader::MAGIC_ID); ++i)
+		{
+			if (header.Magic[i] != Stream::SerializationImageHeader::MAGIC_ID[i])
+			{
+				[[unlikely]]
+				return false;
+			}
+		}
+
+		header.EncryptDecrypt();
+		if (!header.CodeImageSize || !header.DiscriminatorImageSize)
+		{
+			[[unlikely]]
+			return false;
+		}
+
+		// validate code section marker
+		U64 codeSectionMarker{};
+		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof(U64));
+		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
+		{
+			[[unlikely]]
+			return false;
+		}
+
+		// load code section:
+		this->CodeBuffer_.clear();
+		this->CodeBuffer_.resize(header.CodeImageSize);
+		in.read(reinterpret_cast<char*>(std::data(this->CodeBuffer_)), header.CodeImageSize * sizeof(CodeStorageType::value_type));
+
+		// validate discriminator section marker
+		U64 discriminatorSectionMarker{};
+		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof(U64));
+		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
+		{
+			[[unlikely]]
+			return false;
+		}
+
+		// load discriminator section:
+		this->CodeDiscriminatorBuffer_.clear();
+		this->CodeDiscriminatorBuffer_.resize(header.CodeImageSize);
+		in.read(reinterpret_cast<char*>(std::data(this->CodeDiscriminatorBuffer_)), header.DiscriminatorImageSize * sizeof(CodeStorageType::value_type));
+		
+		return true;
+	}
 
 	using Foundation::ILog2;
 	using Foundation::Proxy_F64IsZero;

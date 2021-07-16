@@ -1879,8 +1879,8 @@ namespace Nominax::ByteCode
 
 	inline auto Image::GetReactorView() -> std::span<Signal>
 	{
-		auto* const begin {&*this->begin()};
-		auto* const end {&*this->end()};
+		auto* const begin {&*std::begin(*this)};
+		auto* const end {&*std::end(*this)};
 		return {begin, end};
 	}
 
@@ -1955,9 +1955,94 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Dynamic byte code stream.
 	/// </summary>
-	class Stream final
+	class Stream final : public Foundation::ISerializable
 	{
+		/// <summary>
+		/// Code section marker.
+		/// </summary>
+		static constexpr U64 STREAM_IMAGE_CODE_SECTION_MARKER{ 0x9FCF'2A4B'F10F'BEBA };
+
+		/// <summary>
+		/// Discriminator section marker.
+		/// </summary>
+		static constexpr U64 STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER{ 0x922C'232B'D183'ADDE };
+
+		/// <summary>
+		/// Encryption for the sizes.
+		/// </summary>
+		static constexpr U64 ENCRYPTION_KEY_ALPHA{ 0x160B490091BE68 };
+
+		/// <summary>
+		/// Encryption for the sizes.
+		/// </summary>
+		static constexpr U64 ENCRYPTION_KEY_BETA{ 0x54746EC3DF441 };
+
+		/// <summary>
+		/// Encryption for the sizes.
+		/// </summary>
+		static constexpr U64 ENCRYPTION_KEY_GAMMA{ 0x1672E3969FF6FC8 };
+	
 	public:
+		/// <summary>
+		/// Contains the file header of a serialized stream image.
+		/// </summary>
+		struct SerializationImageHeader final
+		{
+			/// <summary>
+			/// Image identifier.
+			/// </summary>
+			static constexpr std::string_view MAGIC_ID{ "&NOMINAX*IMAGE#" };
+			
+			/// <summary>
+			/// Magic number string.
+			/// </summary>
+			std::array<char, std::size(MAGIC_ID)> Magic;
+
+			/// <summary>
+			/// The amount of code buffer entries.
+			/// </summary>
+			U64 CodeImageSize;
+
+			/// <summary>
+			/// The amount of discriminator buffer entries.
+			/// </summary>
+			U64 DiscriminatorImageSize;
+
+			/// <summary>
+			/// Encrypt descriptor values.
+			/// </summary>
+			/// <returns></returns>
+			constexpr auto EncryptDecrypt()
+			{
+				constexpr U64 alpha{ ENCRYPTION_KEY_ALPHA }, beta{ ENCRYPTION_KEY_BETA }, gamma{ ENCRYPTION_KEY_GAMMA };
+				this->CodeImageSize ^= alpha ^ gamma ^ beta;
+				this->DiscriminatorImageSize ^= beta ^ alpha ^ gamma;
+			}
+		};
+		
+		static_assert(std::is_standard_layout_v<SerializationImageHeader>);
+
+		/// <summary>
+		/// Serialize to file stream.
+		/// </summary>
+		/// <returns>True on success, else false.</returns>
+		[[nodiscard]]
+		virtual auto Serialize(std::ofstream& out) const -> bool override;
+
+		/// <summary>
+		/// Deserialize from file stream.
+		/// </summary>
+		/// <returns>True on success, else false.</returns>
+		[[nodiscard]]
+		virtual auto Deserialize(std::ifstream& in) -> bool override;
+
+		/// <summary>
+		/// Query image header from this stream.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <returns></returns>
+		auto GetSerializationImageHeader(SerializationImageHeader& out) const -> void;
+		
 		/// <summary>
 		/// Data structure to store the whole byte code.
 		/// </summary>
@@ -2068,7 +2153,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~Stream() = default;
+		virtual ~Stream() override = default;
 
 		/// <summary>
 		/// 
@@ -2439,7 +2524,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::IsEmpty() const -> bool
 	{
-		return this->CodeBuffer_.empty() && this->CodeDiscriminatorBuffer_.empty();
+		return std::empty(this->CodeBuffer_) && std::empty(this->CodeDiscriminatorBuffer_);
 	}
 
 	inline auto Stream::GetCodeBuffer() & -> CodeStorageType&
@@ -2490,37 +2575,37 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::Resize(const U64 size) -> void
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.resize(size);
 		this->CodeDiscriminatorBuffer_.resize(size);
 	}
 
 	inline auto Stream::Reserve(const U64 size) -> void
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.reserve(size);
 		this->CodeDiscriminatorBuffer_.reserve(size);
 	}
 
 	inline auto Stream::Size() const -> U64
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
-		return this->CodeBuffer_.size();
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		return std::size(this->CodeBuffer_);
 	}
 
 	inline auto Stream::SizeInBytes() const -> U64
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		return
-			this->CodeBuffer_.size()
+			std::size(this->CodeBuffer_)
 			* sizeof(Signal)
-			+ this->CodeDiscriminatorBuffer_.size()
+			+ std::size(this->CodeDiscriminatorBuffer_)
 			* sizeof(Signal::Discriminator);
 	}
 
 	inline auto Stream::operator <<(const Instruction instr) -> Stream&
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {instr});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Instruction);
 		return *this;
@@ -2528,7 +2613,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const SystemIntrinsicCallID intrin) -> Stream&
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {intrin});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::SystemIntrinsicCallID);
 		return *this;
@@ -2536,7 +2621,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const UserIntrinsicCallID intrin) -> Stream&
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {intrin});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::UserIntrinsicCallID);
 		return *this;
@@ -2544,7 +2629,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator<<(const JumpAddress address) -> Stream&
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {address});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::JumpAddress);
 		return *this;
@@ -2552,7 +2637,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const U64 value) -> Stream&
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::U64);
 		return *this;
@@ -2560,7 +2645,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const I64 value) -> Stream&
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::I64);
 		return *this;
@@ -2568,7 +2653,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const F64 value) -> Stream&
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::F64);
 		return *this;
@@ -2581,7 +2666,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const CharClusterUtf8 value) -> Stream&
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf8);
 		return *this;
@@ -2589,7 +2674,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator<<(const CharClusterUtf16 value) -> Stream&
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf16);
 		return *this;
@@ -2597,7 +2682,7 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator<<(const CharClusterUtf32 value) -> Stream&
 	{
-		NOX_DBG_PAS_TRUE(this->CodeBuffer_.size() == this->CodeDiscriminatorBuffer_.size(), "Stream size mismatch");
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf32);
 		return *this;
@@ -3130,13 +3215,13 @@ namespace Nominax::ByteCode
 	using ScopedF32 = ScopedVariable<F64>;
 
 	/// <summary>
-/// Validates a jump address. To be valid the jump address must be:
-/// 1. Inside the range of the bucket addresses
-/// 2. The target must be a instruction
-/// </summary>
-/// <param name="bucket"></param>
-/// <param name="address"></param>
-/// <returns></returns>
+	/// Validates a jump address. To be valid the jump address must be:
+	/// 1. Inside the range of the bucket addresses
+	/// 2. The target must be a instruction
+	/// </summary>
+	/// <param name="bucket"></param>
+	/// <param name="address"></param>
+	/// <returns></returns>
 	[[nodiscard]]
 	extern auto ValidateJumpAddress(const Stream& bucket, JumpAddress address) -> bool;
 
