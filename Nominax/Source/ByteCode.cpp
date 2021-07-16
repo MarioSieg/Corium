@@ -239,12 +239,14 @@ namespace Nominax::ByteCode
 		output = Image {std::move(input.GetCodeBuffer())};
 
 		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-		const auto&  discriminators {input.GetDiscriminatorBuffer()};
-		const void** jumpTable {&optHints.JumpTable};
+		const auto* const NOX_RESTRICT                     discriminators {&*std::begin(input.GetDiscriminatorBuffer())};
+		const auto* const NOX_RESTRICT* const NOX_RESTRICT jumpTable {&optHints.JumpTable};
+		const auto* const NOX_RESTRICT                     base {output.GetBlobData()};
+		const auto* const NOX_RESTRICT                     begin {&*std::begin(output)};
 
 		const auto addressMapper
 		{
-			[&, base {output.GetBlobData()}, begin{&*std::begin(output)}](Signal& x)
+			[&](Signal& x)
 			{
 				const std::ptrdiff_t index {&x - begin};
 				if (discriminators[index] == Signal::Discriminator::Instruction)
