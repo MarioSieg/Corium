@@ -212,40 +212,6 @@
 
 namespace Nominax::ByteCode
 {
-	auto PerformJumpTableMapping
-	(
-		Signal* NOX_RESTRICT                               bucket,
-		const Signal* const NOX_RESTRICT                   bucketEnd,
-		const bool*                                        jumpAddressMap,
-		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
-	) -> bool
-	{
-		NOX_PAS_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");
-		NOX_PAS_NOT_NULL(bucketEnd, "Code chunk bucket table end was nullptr!");
-		NOX_PAS_NOT_NULL(jumpAddressMap, "Jump address map was nullptr!");
-		NOX_PAS_NOT_NULL(jumpTable, "Jump table was nullptr!");
-		NOX_PAS_NOT_NULL(*jumpTable, "First element of jump table was nullptr!");
-		NOX_PAS_TRUE(*jumpAddressMap, "First element of jump address map was false, but should be true because of code prologue!");
-		NOX_PAS_EQ(bucket->Instr, ByteCode::Instruction::NOp, "Missing code prologue in code bucket!");
-
-		// skip first "nop" padding instruction:
-		++bucket;
-		++jumpAddressMap;
-
-		while (bucket < bucketEnd)
-		{
-			if (*jumpAddressMap)
-			{
-				bucket->Ptr = const_cast<void*>(*(jumpTable + bucket->OpCode));
-			}
-
-			++bucket;
-			++jumpAddressMap;
-		}
-
-		return true;
-	}
-
 	auto TransformStreamToImageByCopy
 	(
 		const Stream&            input,

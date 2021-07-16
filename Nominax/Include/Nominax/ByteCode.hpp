@@ -2729,24 +2729,6 @@ namespace Nominax::ByteCode
 	/// the byte code position of 3 will be replaced by the real pointer value,
 	/// to avoid more calculation.
 	/// But this mapping is done in the byte code builder, not here because it does not require the jump table.
-	/// </summary>
-	/// <param name="bucket">The byte code bucket to use as mapping target.</param>
-	/// <param name="bucketEnd">The incremented end pointer of the byte code bucket, calculated as: bucket + bucketLength</param>
-	/// <param name="jumpAddressMap">The instruction map. Must have the same size as the byte code bucket.</param>
-	/// <param name="jumpTable">The jump table. Must contain an address for each instruction.</param>
-	/// <returns>true on success, else false.</returns>
-	[[maybe_unused]]
-	[[nodiscard]]
-	extern auto PerformJumpTableMapping
-	(
-		Signal* NOX_RESTRICT                               bucket,
-		const Signal* NOX_RESTRICT                         bucketEnd,
-		const bool*                                        jumpAddressMap,
-		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
-	) -> bool;
-
-
-	/// <summary>
 	/// Builds a byte code image chunk and a jump map out of the stream.
 	/// The memory for the chunk image is newly allocated which might be slower.
 	/// If you execute a stream once, use TransformStreamToImageByMove.
@@ -2754,7 +2736,6 @@ namespace Nominax::ByteCode
 	/// <param name="input"></param>
 	/// <param name="optHints"></param>
 	/// <param name="output"></param>
-	/// <param name="jumpMap"></param>
 	extern auto TransformStreamToImageByCopy
 	(
 		const Stream&            input,
@@ -2768,7 +2749,6 @@ namespace Nominax::ByteCode
 	/// <param name="input"></param>
 	/// <param name="optHints"></param>
 	/// <param name="output"></param>
-	/// <param name="jumpMap"></param>
 	extern auto TransformStreamToImageByMove
 	(
 		Stream&&                 input,
