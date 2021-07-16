@@ -1054,9 +1054,9 @@ namespace Nominax
 		}
 
 		#if NOX_OS_WINDOWS
-		#define NOX_ALLOCA_STUB ::_alloca
+		    #define NOX_ALLOCA_STUB(size) ::_alloca(size)
 		#else
-			#define NOX_ALLOCA_STUB ::alloca
+			#define NOX_ALLOCA_STUB(size) ::alloca(size)
 		#endif
 
 		/// <summary>
@@ -1090,7 +1090,7 @@ namespace Nominax
 		/// <param name="count">The amount of "type" to allocate. Here, the fixed version this is restricted and must be known at compile time..</param>
 		/// <returns>The pointer to the allocated object which stays as long as the function scope exists.</returns>
 		#define FixedStackAllocation(type, count)	\
-			static_cast< type *>(NOX_ALLOCA_STUB(FixedStackAllocationProxy< type, ( count ) >::BYTE_SIZE ))
+			static_cast< type *>(NOX_ALLOCA_STUB(( FixedStackAllocationProxy< type, ( count ) >::BYTE_SIZE )))
 
 		/// <summary>
 		/// Restrict dynamic stack allocation type.
