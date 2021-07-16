@@ -207,20 +207,6 @@
 
 #include "BenchTemplates.hpp"
 
-// First environment with optimizations on:
-static std::unique_ptr Env
-{
-	[]() -> auto
-	{
-		auto                  env {std::make_unique<Environment>()};
-		EnvironmentDescriptor descriptor { };
-		descriptor.AppName        = "NominaxBenchmark";
-		descriptor.FastHostIoSync = false;
-		env->Boot(descriptor);
-		return env;
-	}()
-};
-
 auto LoopBenchmark
 (
 	State&                                      state,
@@ -248,8 +234,8 @@ auto LoopBenchmark
 	stream << Instruction::Int;
 	stream << 0_int;
 
-	CodeImageBundle bundle {};
-	Stream::Build(std::move(stream), bundle);
+	Image bundle {};
+	Stream::Build(std::move(stream), Env->GetOptimizationHints(), bundle);
 
 	for (auto& env {*Env}; auto _ : state)
 	{

@@ -219,6 +219,19 @@ using namespace Foundation;
 using namespace ByteCode;
 using namespace Core;
 
+inline std::unique_ptr Env
+{
+	[] () -> auto
+	{
+		auto                  env {std::make_unique<Environment>()};
+		EnvironmentDescriptor descriptor { };
+		descriptor.AppName = "NominaxBenchmark";
+		descriptor.FastHostIoSync = false;
+		env->Boot(descriptor);
+		return env;
+	}()
+};
+
 extern auto LoopBenchmark
 (
 	State&                                      state,

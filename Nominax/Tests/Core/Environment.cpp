@@ -564,9 +564,9 @@ TEST(Environment, ExecutionHooks)
 
 	class MyEnvironment : public Environment
 	{
-		virtual auto OnPreExecutionHook(const CodeImageBundle& appCodeBundle) -> bool override
+		virtual auto OnPreExecutionHook(const Image& image) -> bool override
 		{
-			streamSize = std::get<1>(appCodeBundle).size();
+			streamSize = image.GetSize();
 			++counter;
 			return true;
 		}

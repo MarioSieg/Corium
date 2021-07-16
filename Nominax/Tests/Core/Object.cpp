@@ -220,12 +220,12 @@ TEST(Object, BlockMappingReadWriteData)
 	ASSERT_NE(obj, nullptr);
 	ASSERT_NE(obj->LookupObjectBlock(), nullptr);
 	ASSERT_EQ(obj->HeaderRead_BlockSize(), 4);
-	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + 2);
-	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + 2 + 4);
+	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + 4);
+	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + 4 + 4);
 	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS);
 	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS + obj->HeaderRead_BlockSize());
-	ASSERT_EQ(obj->BlobSize(), 6);
-	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record));
+	ASSERT_EQ(obj->BlobSize(), 8);
+	ASSERT_EQ(obj->BlobSizeInBytes(), 64);
 	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
 	ASSERT_EQ(obj->Header_ReadFlagVector().Merged, 0);
@@ -238,12 +238,12 @@ TEST(Object, BlockMappingReadWriteHeaderData)
 	ASSERT_NE(obj, nullptr);
 	ASSERT_NE(obj->LookupObjectBlock(), nullptr);
 	ASSERT_EQ(obj->HeaderRead_BlockSize(), 4);
-	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + 2);
-	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + 2 + 4);
+	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + 4);
+	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + 4 + 4);
 	ASSERT_EQ(obj->LookupObjectBlock(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS);
 	ASSERT_EQ(obj->LookupObjectBlockEnd(), obj->QueryRawHeader() + ObjectHeader::RECORD_CHUNKS + obj->HeaderRead_BlockSize());
-	ASSERT_EQ(obj->BlobSize(), 6);
-	ASSERT_EQ(obj->BlobSizeInBytes(), 6 * sizeof(Record));
+	ASSERT_EQ(obj->BlobSize(), 8);
+	ASSERT_EQ(obj->BlobSizeInBytes(), 64);
 	ASSERT_EQ(obj->HeaderRead_StrongReferenceCount(), 0);
 	ASSERT_EQ(obj->HeaderRead_TypeId(), 0);
 	ASSERT_EQ(obj->Header_ReadFlagVector().Merged, 0);
@@ -297,15 +297,14 @@ TEST(Object, BlobCopy)
 	std::vector<Record> buffer { };
 	obj->CopyBlob(buffer);
 
-	ASSERT_EQ(buffer.at(0).AsU32S[0], 1);
-	ASSERT_EQ(buffer.at(0).AsU32S[1], 4);
-	ASSERT_EQ(buffer.at(1).AsU32S[0], 22);
-	ASSERT_EQ(buffer.at(1).AsU32S[1], 0xABC);
-
-	ASSERT_EQ(buffer.at(2).AsU64, 0xFF'FF);
-	ASSERT_DOUBLE_EQ(buffer.at(3).AsF64, 0.09929292);
-	ASSERT_EQ(buffer.at(4).AsU64, 0xABCDEF);
-	ASSERT_EQ(buffer.at(5).AsI64, -0xABCDEF);
+	ASSERT_EQ(buffer.at(0).AsU64, 1);
+	ASSERT_EQ(buffer.at(1).AsU64, 4);
+	ASSERT_EQ(buffer.at(2).AsU64, 22);
+	ASSERT_EQ(buffer.at(3).AsU64, 0xABC);
+	ASSERT_EQ(buffer.at(4).AsU64, 0xFF'FF);
+	ASSERT_DOUBLE_EQ(buffer.at(5).AsF64, 0.09929292);
+	ASSERT_EQ(buffer.at(6).AsU64, 0xABCDEF);
+	ASSERT_EQ(buffer.at(7).AsI64, -0xABCDEF);
 }
 
 TEST(Object, BlockCopy)

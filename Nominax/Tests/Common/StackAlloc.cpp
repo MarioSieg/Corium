@@ -207,12 +207,46 @@
 
 #include "../TestBase.hpp"
 
-TEST(StackAlloc, StackAlloc)
+TEST(StackAlloc, FixedStackAlloc)
 {
-	int* ptr {StackAlloc<int, 2>()};
+	auto ptr = FixedStackAllocation(I32, 2);
 	ASSERT_NE(ptr, nullptr);
 	ptr[0] = 3;
 	ptr[1] = -2;
 	ASSERT_EQ(ptr[0], 3);
 	ASSERT_EQ(ptr[1], -2);
+}
+
+TEST(StackAlloc, DynamicHybridStackAlloc)
+{
+	constexpr U64         count {10};
+	HybridStackGuard<I32> ptr DynamicStackAllocation(I32, count);
+	ASSERT_FALSE(ptr.IsHeapAllocated());
+
+	for (U64 i {0}; i < count; ++i)
+	{
+		ptr[i] = static_cast<I32>(i);
+	}
+
+	for (U64 i {0}; i < count; ++i)
+	{
+		ASSERT_EQ(ptr[i], i);
+	}
+}
+
+TEST(StackAlloc, DynamicHybridStackAllocHeap)
+{
+	constexpr U64         count {STACK_ALLOC_HEAP_THRESHOLD};
+	HybridStackGuard<I32> ptr DynamicStackAllocation(I32, count);
+	ASSERT_TRUE(ptr.IsHeapAllocated());
+
+	for (U64 i {0}; i < count; ++i)
+	{
+		ptr[i] = static_cast<I32>(i);
+	}
+
+	for (U64 i {0}; i < count; ++i)
+	{
+		ASSERT_EQ(ptr[i], i);
+	}
 }

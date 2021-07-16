@@ -207,6 +207,8 @@
 
 #include "BenchTemplates.hpp"
 
+
+
 auto Loop1Billion(State& state) -> void
 {
     LoopBenchmark(state, [](Stream&) {}, 1'000'000'000);
@@ -269,11 +271,9 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 
 	for (auto _ : state)
 	{
-		Image   chunk { };
-		JumpMap jumpMap { };
-		TransformStreamToImageByMove(std::move(stream), chunk, jumpMap);
+		Image   chunk { };;
+		TransformStreamToImageByMove(std::move(stream), Env->GetOptimizationHints(), chunk);
 		NOX_PAS_EQ(chunk.GetSize(), size, "Invalid chunk!");
-		NOX_PAS_EQ(jumpMap.size(), size, "Invalid jump map!");
 	}
 }
 

@@ -602,13 +602,18 @@ namespace Nominax::Core
 
 	NOX_HOT auto NOX_REACTOR_IMPL_NAME
 	(
-		const VerboseReactorDescriptor* input, ReactorState* output,
+		const VerboseReactorDescriptor* input,
+		ReactorState*                   output,
 		const void****                  outJumpTable
 	) -> ReactorShutdownReason
 	{
-		static constexpr std::array<const void*NOX_RESTRICT const, static_cast<std::underlying_type_t<Instruction>>(
-			                            Instruction::$Count)> JUMP_TABLE
-		{
+		static constexpr std::array
+			<
+				const void*NOX_RESTRICT const,
+				static_cast<std::underlying_type_t<Instruction>>(Instruction::$Count)
+			>
+			JUMP_TABLE
+			{
 			&&__int__,
 			&&__intrin__,
 			&&__cintrin__,
@@ -682,7 +687,7 @@ namespace Nominax::Core
 			&&__matsub__,
 			&&__matmul__,
 			&&__matdiv__
-		};
+			};
 
 		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
 
@@ -700,26 +705,7 @@ namespace Nominax::Core
 
 		ASM_MARKER("reactor begin");
 
-		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-		if
-		(
-			!PerformJumpTableMapping
-			(
-				input->CodeChunk,
-				input->CodeChunk + input->CodeChunkSize,
-				input->CodeChunkInstructionMap,
-				std::data(JUMP_TABLE)
-			)
-		)
-		{
-			[[unlikely]]
-				return ReactorShutdownReason::Error;
-		}
-		#endif
-
 		const auto pre = std::chrono::high_resolution_clock::now();
-
-		ASM_MARKER("reactor locals");
 
 		[[maybe_unused]]
 			const void* NOX_RESTRICT const* const jumpTable {std::data(JUMP_TABLE)};          /* jump table						*/
