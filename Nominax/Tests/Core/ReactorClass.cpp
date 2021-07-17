@@ -221,7 +221,8 @@ TEST(ReactorClass, Valid)
 		ReactorSpawnDescriptor
 		{
 			.StackSize = 4
-		}
+		},
+		HyperVisor::GetFallbackRoutineLink()
 	};
 	ASSERT_EQ(reactor.GetStack().Size(), 4);
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
@@ -236,7 +237,8 @@ TEST(ReactorClass, MoveConstruct)
 		ReactorSpawnDescriptor
 		{
 			.StackSize = 4
-		}
+		},
+		HyperVisor::GetFallbackRoutineLink()
 	};
 	ASSERT_EQ(reactor.GetStack().Size(), 4);
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
@@ -257,7 +259,7 @@ TEST(ReactorClass, ZeroStackSizeFault)
 		[]()
 		{
 			[[maybe_unused]]
-				Reactor bad {Resource, ReactorSpawnDescriptor {.StackSize = 0}};
+				Reactor bad {Resource, ReactorSpawnDescriptor {.StackSize = 0}, HyperVisor::GetFallbackRoutineLink()};
 		}
 	};
 	ASSERT_DEATH_IF_SUPPORTED(exec(), "");
@@ -276,7 +278,8 @@ TEST(ReactorClass, InterruptHandler)
 			.StackSize = 4,
 			.SharedIntrinsicTable = { },
 			.InterruptHandler = interrupt
-		}
+		},
+		HyperVisor::GetFallbackRoutineLink()
 	};
 	ASSERT_EQ(reactor.GetStack().Size(), 4);
 	ASSERT_EQ(reactor.GetInterruptHandler(), interrupt);
@@ -302,7 +305,8 @@ TEST(ReactorClass, TryExecuteValid)
 		ReactorSpawnDescriptor
 		{
 			.StackSize = FixedStack::SIZE_LARGE
-		}
+		},
+		HyperVisor::GetFallbackRoutineLink()
 	};
 	const auto& output {reactor.Execute(out)};
 	ASSERT_EQ(output.first, ReactorShutdownReason::Success);
@@ -324,6 +328,7 @@ TEST(ReactorClass, TryExecuteInvalidZeroCode)
 		ReactorSpawnDescriptor
 		{
 			.StackSize = FixedStack::SIZE_LARGE
-		}
+		},
+		HyperVisor::GetFallbackRoutineLink()
 	};
 }

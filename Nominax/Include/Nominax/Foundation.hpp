@@ -1054,7 +1054,7 @@ namespace Nominax
 		}
 
 		#if NOX_OS_WINDOWS
-		    #define NOX_ALLOCA_STUB(size) ::_alloca(size)
+		#define NOX_ALLOCA_STUB(size) ::_alloca(size)
 		#else
 			#define NOX_ALLOCA_STUB(size) ::alloca(size)
 		#endif
@@ -8566,7 +8566,7 @@ namespace Nominax
 		/// <summary>
 		/// Contains all flags in the flag vector field in the object header.
 		/// </summary>
-		union ObjectFlagVector final
+		union alignas(alignof(MetaHeaderScalar)) ObjectFlagVector final
 		{
 			#if NOX_DEBUG
 			struct

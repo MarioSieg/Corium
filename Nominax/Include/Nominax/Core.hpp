@@ -1432,10 +1432,10 @@ namespace Nominax::Core
 		/// </summary>
 		explicit Reactor
 		(
-			std::pmr::memory_resource&               allocator,
-			const ReactorSpawnDescriptor&            descriptor,
-			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt,
-			U64                                      poolIdx     = 0
+			std::pmr::memory_resource&    allocator,
+			const ReactorSpawnDescriptor& descriptor,
+			const ReactorRoutineLink&     routineLink,
+			U64                           poolIdx = 0
 		);
 
 		/// <summary>
@@ -1639,7 +1639,7 @@ namespace Nominax::Core
 		/// </summary>
 		ReactorPool
 		(
-			std::pmr::memory_resource&               resource,
+			std::pmr::memory_resource&               allocator,
 			U64                                      reactorCount,
 			const ReactorSpawnDescriptor&            config,
 			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt

@@ -208,10 +208,9 @@
 #include "BenchTemplates.hpp"
 
 
-
 auto Loop1Billion(State& state) -> void
 {
-    LoopBenchmark(state, [](Stream&) {}, 1'000'000'000);
+	LoopBenchmark(state, [](Stream&) {}, 1'000'000'000);
 }
 
 BENCHMARK(Loop1Billion)->Unit(kSecond);
@@ -221,7 +220,7 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 	constexpr std::size_t count {200'000'000};
 
 	Stream stream { };
-	stream.Reserve(Stream::MandatoryCodeSize() + count * 5);
+	stream.Reserve(Stream::GuardCodeSize() + count * 5);
 	stream.Prologue();
 
 	for (std::size_t i {0}; i < count; ++i)
@@ -252,7 +251,7 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 {
 	constexpr std::size_t count {200'000'000};
 	Stream                stream { };
-	stream.Reserve(Stream::MandatoryCodeSize() + count * 5);
+	stream.Reserve(Stream::GuardCodeSize() + count * 5);
 	stream.Prologue();
 
 	for (std::size_t i {0}; i < count; ++i)
@@ -271,7 +270,7 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 
 	for (auto _ : state)
 	{
-		Image   chunk { };;
+		Image chunk { };
 		TransformStreamToImageByMove(std::move(stream), Env->GetOptimizationHints(), chunk);
 		NOX_PAS_EQ(chunk.GetSize(), size, "Invalid chunk!");
 	}

@@ -571,22 +571,22 @@ namespace Nominax::Foundation
 
 	auto ISerializable::SerializeToFile(const std::filesystem::path& file) const -> bool
 	{
-		std::ofstream stream{ file };
+		std::ofstream stream {file};
 		if (!stream)
 		{
 			[[unlikely]]
-			return false;
+				return false;
 		}
 		return this->Serialize(stream);
 	}
-	
+
 	auto ISerializable::DeserializeFromFile(const std::filesystem::path& file) -> bool
 	{
-		std::ifstream stream{ file };
+		std::ifstream stream {file};
 		if (!stream)
 		{
 			[[unlikely]]
-			return false;
+				return false;
 		}
 		return this->Deserialize(stream);
 	}
@@ -744,455 +744,455 @@ namespace Nominax::Foundation
 		return SubstringView(this->Content_, beginIndex, endIndex - beginIndex + 1);
 	}
 
-    auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Foundation::Record> buffer) const -> bool
-    {
-        if (buffer.size() < this->HeaderRead_BlockSize())
-        {
-            [[unlikely]]
-            return false;
-        }
-
-        std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
-
-        return true;
-    }
-
-    auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Foundation::Record>& buffer) const -> void
-    {
-        buffer.resize(this->HeaderRead_BlockSize());
-        std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
-    }
-
-    auto Object::CopyBlob(std::vector<Foundation::Record>& buffer) const -> void
-    {
-        buffer.resize(this->BlobSize());
-        std::memcpy(buffer.data(), this->Blob_, this->BlobSizeInBytes());
-    }
-
-    auto Object::DeepCmp(const Object a, const Object b) -> bool
-    {
-        return a.HeaderRead_BlockSize() == b.HeaderRead_BlockSize()
-               && std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.ObjectBlockSizeInBytes()) == 0;
-    }
-
-    auto Object::AllocateUnique(const U32 sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
-    {
-        if (sizeInRecords == 0)
-        {
-            [[unlikely]]
-            return nullptr;
-        }
-        const U32                finalObjectSize {ObjectHeader::RECORD_CHUNKS + sizeInRecords};
-        auto* NOX_RESTRICT const object          {new Foundation::Record[finalObjectSize]()};
-
-        // Write object header:
-        ObjectHeader::WriteMapping_MetaField(object, 0);
-
-        // !! Important !! Write the size:
-        ObjectHeader::WriteMapping_Size(object, sizeInRecords);
-
-        // Use pointer as dummy type id:
-        ObjectHeader::WriteMapping_TypeId(object, 0);
-
-        // Write empty flag vector:
-        ObjectHeader::WriteMapping_FlagVector(object, ObjectFlagVector { });
-
-        return std::unique_ptr<Object, UniquePtrObjectDeleter>
-        {
-            new Object {object},
-            UniquePtrObjectDeleter()
-        };
-    }
-
-    template <>
-    auto Object::DeepValueCmp_Equal<U64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (x->AsU64 != y->AsU64)
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_Equal<I64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (x->AsI64 != y->AsI64)
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_Equal<F64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (x->AsF64 != y->AsF64)
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_Less<U64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsU64 < y->AsU64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_Less<I64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsI64 < y->AsI64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_Less<F64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsF64 < y->AsF64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_LessEqual<U64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsU64 <= y->AsU64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_LessEqual<I64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsI64 <= y->AsI64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_LessEqual<F64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsF64 <= y->AsF64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_Greater<U64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsU64 > y->AsU64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_Greater<I64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsI64 > y->AsI64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_Greater<F64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsF64 > y->AsF64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_GreaterEqual<U64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsU64 >= y->AsU64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_GreaterEqual<I64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsI64 >= y->AsI64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
-
-    template <>
-    auto Object::DeepValueCmp_GreaterEqual<F64>(const Object a, const Object b) -> bool
-    {
-        // If their size is not equal, their values cannot be equal too.
-        if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-        {
-            return false;
-        }
-
-        const auto* x {*a};
-        const auto* w {~a};
-        const auto* y {*b};
-
-        while (x < w)
-        {
-            if (!(x->AsF64 >= y->AsF64))
-            {
-                return false;
-            }
-            ++x;
-            ++y;
-        }
-
-        return true;
-    }
+	auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Record> buffer) const -> bool
+	{
+		if (buffer.size() < this->HeaderRead_BlockSize())
+		{
+			[[unlikely]]
+				return false;
+		}
+
+		std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
+
+		return true;
+	}
+
+	auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Record>& buffer) const -> void
+	{
+		buffer.resize(this->HeaderRead_BlockSize());
+		std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
+	}
+
+	auto Object::CopyBlob(std::vector<Record>& buffer) const -> void
+	{
+		buffer.resize(this->BlobSize());
+		std::memcpy(buffer.data(), this->Blob_, this->BlobSizeInBytes());
+	}
+
+	auto Object::DeepCmp(const Object a, const Object b) -> bool
+	{
+		return a.HeaderRead_BlockSize() == b.HeaderRead_BlockSize()
+			&& std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.ObjectBlockSizeInBytes()) == 0;
+	}
+
+	auto Object::AllocateUnique(const U32 sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
+	{
+		if (sizeInRecords == 0)
+		{
+			[[unlikely]]
+				return nullptr;
+		}
+		const U32                finalObjectSize {ObjectHeader::RECORD_CHUNKS + sizeInRecords};
+		auto* NOX_RESTRICT const object {new Record[finalObjectSize]()};
+
+		// Write object header:
+		ObjectHeader::WriteMapping_MetaField(object, 0);
+
+		// !! Important !! Write the size:
+		ObjectHeader::WriteMapping_Size(object, sizeInRecords);
+
+		// Use pointer as dummy type id:
+		ObjectHeader::WriteMapping_TypeId(object, 0);
+
+		// Write empty flag vector:
+		ObjectHeader::WriteMapping_FlagVector(object, ObjectFlagVector { });
+
+		return std::unique_ptr<Object, UniquePtrObjectDeleter>
+		{
+			new Object {object},
+			UniquePtrObjectDeleter()
+		};
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Equal<U64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (x->AsU64 != y->AsU64)
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Equal<I64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (x->AsI64 != y->AsI64)
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Equal<F64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (x->AsF64 != y->AsF64)
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Less<U64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsU64 < y->AsU64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Less<I64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsI64 < y->AsI64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Less<F64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsF64 < y->AsF64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_LessEqual<U64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsU64 <= y->AsU64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_LessEqual<I64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsI64 <= y->AsI64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_LessEqual<F64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsF64 <= y->AsF64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Greater<U64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsU64 > y->AsU64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Greater<I64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsI64 > y->AsI64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_Greater<F64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsF64 > y->AsF64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_GreaterEqual<U64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsU64 >= y->AsU64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_GreaterEqual<I64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsI64 >= y->AsI64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
+
+	template <>
+	auto Object::DeepValueCmp_GreaterEqual<F64>(const Object a, const Object b) -> bool
+	{
+		// If their size is not equal, their values cannot be equal too.
+		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
+		{
+			return false;
+		}
+
+		const auto* x {*a};
+		const auto* w {~a};
+		const auto* y {*b};
+
+		while (x < w)
+		{
+			if (!(x->AsF64 >= y->AsF64))
+			{
+				return false;
+			}
+			++x;
+			++y;
+		}
+
+		return true;
+	}
 }
 
 auto operator new(const Nominax::U64 size) -> void*
@@ -1291,6 +1291,7 @@ namespace Nominax::Foundation
 		// check if cpuid is supported on system
 		NOX_PAS_TRUE(Asm_IsCpuIdSupported(), "CPUID instruction is not supported on system!");
 
+		// extract gathered CPU feature bits:
 		CpuFeatureMaskBuffer           buffer { };
 		std::array<MergedInfoTable, 3> merged { };
 		U32                            result;
@@ -1339,6 +1340,7 @@ namespace Nominax::Foundation
 
 	auto CpuFeatureDetector::Dump() const -> void
 	{
+		Print("CPU feature detection result:\n");
 		for (U64 i {0}; i < std::size(this->FeatureBits_); ++i)
 		{
 			if (!std::empty(CPU_FEATURE_BIT_NAMES[i]))

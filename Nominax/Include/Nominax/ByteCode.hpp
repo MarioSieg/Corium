@@ -2103,7 +2103,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		static constexpr auto MandatoryCodeSize() -> U64;
+		static constexpr auto GuardCodeSize() -> U64;
 
 		/// <summary>
 		/// Construct empty stream.
@@ -2459,12 +2459,12 @@ namespace Nominax::ByteCode
 		return EPILOGUE_CODE;
 	}
 
-	constexpr auto Stream::MandatoryCodeSize() -> U64
+	constexpr auto Stream::GuardCodeSize() -> U64
 	{
-		return PrologueCode().size() + EpilogueCode().size();
+		return std::size(PrologueCode()) + std::size(EpilogueCode());
 	}
 
-	static_assert(Stream::MandatoryCodeSize() == Stream::PrologueCode().size() + Stream::EpilogueCode().size());
+	static_assert(Stream::GuardCodeSize() == Stream::PrologueCode().size() + Stream::EpilogueCode().size());
 
 	inline Stream::Stream(const OptimizationLevel optimizationLevel) : OptimizationLevel_ {optimizationLevel} { }
 
@@ -2494,7 +2494,7 @@ namespace Nominax::ByteCode
 	template <typename F, typename V> requires StreamWithExpressionType<F, V>
 	inline auto Stream::With(const V value, F&& functor) -> Stream&
 	{
-		if constexpr (std::is_same_v<signed, V>)
+		if constexpr (std::is_same_v<I32, V>)
 		{
 			functor(ScopedVariable<I64> {*this, static_cast<I64>(value)});
 		}
