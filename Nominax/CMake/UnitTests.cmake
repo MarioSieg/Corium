@@ -15,6 +15,9 @@ IF (${CORIUM_BUILD_UNIT_TESTS})
 	TARGET_INCLUDE_DIRECTORIES("NominaxUnitTest" PUBLIC "${TEST_INCLUDE}")
 	TARGET_LINK_LIBRARIES("NominaxUnitTest" "gtest")
 	TARGET_LINK_LIBRARIES("NominaxUnitTest" "NominaxRuntimeTest")
+	TARGET_COMPILE_OPTIONS("NominaxUnitTest" PRIVATE "-static")
+	TARGET_COMPILE_OPTIONS("NominaxUnitTest" PRIVATE "-static-libgcc")
+	TARGET_COMPILE_OPTIONS("NominaxUnitTest" PRIVATE "-static-libstdc++")
 	ADD_COMPILE_DEFINITIONS("NOX_TESTING")
 
 	# with GCC we need to link posix threads

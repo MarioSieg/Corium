@@ -267,7 +267,6 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 	stream.PrintMemoryCompositionInfo();
 
 	const auto size {stream.Size()};
-
 	for (auto _ : state)
 	{
 		Image chunk { };
@@ -276,6 +275,6 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 	}
 }
 
-BENCHMARK(TransformAlgorithm1BillionEntries)->Unit(kSecond);
+BENCHMARK(TransformAlgorithm1BillionEntries)->Unit(kSecond)->Iterations(1);
 
 BENCHMARK_MAIN();

@@ -10,6 +10,9 @@ TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-msse3")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-mssse3")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-msahf")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-mcx16")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static-libgcc")
+TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static-libstdc++")
 
 SET_PROPERTY(TARGET "NominaxRuntime" PROPERTY CXX_STANDARD 20)
 
