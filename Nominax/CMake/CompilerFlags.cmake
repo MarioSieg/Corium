@@ -10,9 +10,6 @@ TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-msse3")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-mssse3")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-msahf")
 TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-mcx16")
-TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static")
-TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static-libgcc")
-TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static-libstdc++")
 
 SET_PROPERTY(TARGET "NominaxRuntime" PROPERTY CXX_STANDARD 20)
 
@@ -54,10 +51,16 @@ ELSEIF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-unknown-attributes")
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-gnu-label-as-value")
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-dollar-in-identifier-extension")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Xclang -static")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Xclang -static-libgcc")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Xclang -static-libstdc++")
 
 ELSE()
 
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-std=c++20")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static-libgcc")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static-libstdc++")
 
 ENDIF()
 
