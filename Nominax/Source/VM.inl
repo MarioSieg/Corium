@@ -256,7 +256,7 @@ namespace Nominax::Core
 	 * Asm volatile is like a black box and never touched by the compiler so it might affect code generation/ordering!
 	 */
 	#if NOX_REACTOR_ASM_MARKERS
-	#	define ASM_MARKER(msg) __asm__ __volatile__("#" msg)
+	#	define ASM_MARKER(msg) asm volatile("#" msg)
 	#else
 	#	define ASM_MARKER(msg)
 	#endif

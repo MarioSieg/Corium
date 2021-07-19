@@ -1,4 +1,4 @@
-If we are on Windows
+If we are on Windows (#ifdef __WIN__)
 the arguments are passed inside:
 
 Arg0 : %RCX

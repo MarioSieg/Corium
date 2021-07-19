@@ -348,7 +348,7 @@ namespace Nominax
 			if (sizeInBytes % sizeof(Record) != 0)
 			{
 				[[unlikely]]
-					Panic(NOX_PAINF, "Invalid stack size: {}! Must be a multiple of sizeof(Common::Record) -> 8!", sizeInBytes);
+					Panic(NOX_PANIC_INFO, "Invalid stack size: {}! Must be a multiple of sizeof(Common::Record) -> 8!", sizeInBytes);
 			}
 			return sizeInBytes / sizeof(Record);
 		}
@@ -454,7 +454,7 @@ namespace Nominax
 			if (!mem)
 			{
 				[[unlikely]]
-					Panic(NOX_PAINF, "Allocation of monotonic {} pool with size {} MB failed!", poolId,
+					Panic(NOX_PANIC_INFO, "Allocation of monotonic {} pool with size {} MB failed!", poolId,
 					      Bytes2Megabytes(static_cast<F64>(size)));
 			}
 			return mem;
@@ -942,7 +942,7 @@ namespace Nominax
 			{
 				const std::string_view message {REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]};
 				[[unlikely]]
-					Panic(NOX_PAINF, "Reactor {:#X} validation failed with the following reason: {}", this->Id_, message);
+					Panic(NOX_PANIC_INFO, "Reactor {:#X} validation failed with the following reason: {}", this->Id_, message);
 			}
 			ReactorCoreExecutionRoutine* const routine = this->RoutineLink_.ExecutionRoutine;
 			NOX_PAS_NOT_NULL(routine, "Reactor execution routine is nullptr!");

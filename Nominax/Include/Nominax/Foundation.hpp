@@ -565,6 +565,11 @@ namespace Nominax
 	using I64 = std::int64_t;
 
 	/// <summary>
+	/// 64-bit unsigned pointer.
+	/// </summary>
+	using UIP64 = U64;
+
+	/// <summary>
 	/// 16 bit half precision float
 	/// </summary>
 	using F16 = U16;
@@ -587,13 +592,15 @@ namespace Nominax
 	static_assert(sizeof(I32) == 4);
 	static_assert(sizeof(U64) == 8);
 	static_assert(sizeof(I64) == 8);
+	static_assert(sizeof(UIP64) == 8);
+	static_assert(sizeof(std::uintptr_t) == 8);
 	static_assert(sizeof(F16) == 2);
 	static_assert(sizeof(F32) == 4);
 	static_assert(sizeof(F64) == 8);
 
 	/// <summary>
-/// Kilobytes.
-/// </summary>
+	/// Kilobytes.
+	/// </summary>
 	constexpr U64 KB {1000};
 
 	/// <summary>
@@ -1365,7 +1372,7 @@ namespace Nominax
 		[[nodiscard]]
 		constexpr auto IsAlignedTo(void* const ptr, const U64 alignment) -> bool
 		{
-			return std::bit_cast<std::uintptr_t>(ptr) % alignment == 0 && IsAlignmentValid(alignment);
+			return std::bit_cast<UIP64>(ptr) % alignment == 0 && IsAlignmentValid(alignment);
 		}
 
 		/// <summary>
@@ -1375,7 +1382,7 @@ namespace Nominax
 		/// <param name="alignment">The alignment the address should have.</param>
 		/// <returns>True if valid and corresponding alignment, else false.</returns>
 		[[nodiscard]]
-		constexpr auto IsAlignedTo(const std::uintptr_t ptr, const U64 alignment) -> bool
+		constexpr auto IsAlignedTo(const UIP64 ptr, const U64 alignment) -> bool
 		{
 			return IsAlignedTo(std::bit_cast<void*>(ptr), alignment);
 		}
@@ -1389,7 +1396,7 @@ namespace Nominax
 		/// <returns>The required offset.</returns>
 		constexpr auto ComputeMissingAlignmentOffset(void* const ptr, const U64 alignment) -> U64
 		{
-			const auto misalignment = std::bit_cast<std::uintptr_t>(ptr) & (alignment - 1);
+			const auto misalignment = std::bit_cast<UIP64>(ptr) & (alignment - 1);
 			return misalignment ? alignment - misalignment : 0;
 		}
 
@@ -1400,7 +1407,7 @@ namespace Nominax
 		/// <param name="ptr">The pointer address. Can be nullptr!</param>
 		/// <param name="alignment">The alignment, which must be valid.</param>
 		/// <returns>The required offset.</returns>
-		constexpr auto ComputeMissingAlignmentOffset(const std::uintptr_t ptr, const U64 alignment) -> U64
+		constexpr auto ComputeMissingAlignmentOffset(const UIP64 ptr, const U64 alignment) -> U64
 		{
 			return ComputeMissingAlignmentOffset(std::bit_cast<void*>(ptr), alignment);
 		}
@@ -2153,7 +2160,7 @@ namespace Nominax
 			#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
 		return _rotl(value, shift);
 			#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-		__asm__ __volatile__
+		asm volatile
 		(
 			"roll %%cl, %0"
 			: "=r"(value)
@@ -2178,7 +2185,7 @@ namespace Nominax
 			#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
 		return _rotr(value, shift);
 			#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-		__asm__ __volatile__
+		asm volatile
 		(
 			"rorl %%cl, %0"
 			: "=r"(value)
@@ -2203,7 +2210,7 @@ namespace Nominax
 			#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
 		return _rotl64(value, shift);
 			#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-		__asm__ __volatile__
+		asm volatile
 		(
 			"rolq %%cl, %0"
 			: "=r"(value)
@@ -2228,7 +2235,7 @@ namespace Nominax
 			#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
 		return _rotr64(value, shift);
 			#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-		__asm__ __volatile__
+		asm volatile
 		(
 			"rorq %%cl, %0"
 			: "=r"(value)
@@ -2269,9 +2276,9 @@ namespace Nominax
 		inline auto DisOpt(T& x) -> void
 		{
 			#if NOX_COM_CLANG
-			__asm__ __volatile__("" : "+r,m"(x) : : "memory");
+			asm volatile("" : "+r,m"(x) : : "memory");
 			#else
-			__asm__ __volatile__("" : "+m,r"(x) :: "memory");
+			asm volatile("" : "+m,r"(x) :: "memory");
 			#endif
 		}
 
@@ -2284,7 +2291,7 @@ namespace Nominax
 	[[maybe_unused]]
 	NOX_FORCE_INLINE inline auto ReadFence()  -> void
 	{
-		__asm__ __volatile__("" : : : "memory");
+		asm volatile("" : : : "memory");
 	}
 
 	/// <summary>
@@ -2294,7 +2301,7 @@ namespace Nominax
 	[[maybe_unused]]
 	NOX_FORCE_INLINE inline auto WriteFence()  -> void
 	{
-		__asm__ __volatile__("" : : : "memory");
+		asm volatile("" : : : "memory");
 	}
 
 	/// <summary>
@@ -2304,7 +2311,7 @@ namespace Nominax
 	[[maybe_unused]]
 	NOX_FORCE_INLINE inline auto ReadWriteFence()  -> void
 	{
-		__asm__ __volatile__("" : : : "memory");
+		asm volatile("" : : : "memory");
 	}
 
 		// @formatter:on
@@ -2314,7 +2321,7 @@ namespace Nominax
 		/// </summary>
 		NOX_FORCE_INLINE inline auto NoOperation() -> void
 		{
-			__asm__ __volatile__("nop");
+			asm volatile("nop");
 		}
 
 		/// <summary>
@@ -2974,12 +2981,30 @@ namespace Nominax
 		};
 	}
 
+	struct PanicDescriptor final
+	{
+		U32              Line { };
+		std::string_view FileName { };
+		std::string_view RoutineName { };
+		std::string_view Message { };
+		bool             DumpRegisters {true};
+	};
+
+	/// <summary>
+	/// Implementation of the panic routine.
+	/// </summary>
+	/// <param name="panicDescriptor"></param>
+	/// <returns></returns>
+	[[noreturn]]
+	NOX_COLD NOX_NEVER_INLINE
+	extern auto PanicTerminationImpl(const PanicDescriptor& panicDescriptor) -> void;
+
 	/// <summary>
 	/// Merges information about the current source file and the line.
 	/// This will be replaced by C++ 20 std::source_location,
 	/// but currently it's not yet implemented :(
 	/// </summary>
-	#define NOX_PAINF __LINE__, 0, __FILE__, __FUNCTION__
+	#define NOX_PANIC_INFO __LINE__, __FILE__, __FUNCTION__
 
 	/// <summary>
 	/// Terminates the process with an error messages in the terminal.
@@ -2987,7 +3012,6 @@ namespace Nominax
 	/// <typeparam name="Str"></typeparam>
 	/// <typeparam name="...Args"></typeparam>
 	/// <param name="line"></param>
-	/// <param name="column"></param>
 	/// <param name="file"></param>
 	/// <param name="routine"></param>
 	/// <param name="formatString"></param>
@@ -2995,22 +3019,26 @@ namespace Nominax
 	/// <returns></returns>
 	template <typename Str, typename... Args>
 	[[noreturn]]
-	NOX_COLD NOX_NEVER_INLINE auto Panic
+	NOX_COLD NOX_NEVER_INLINE
+	auto Panic
 	(
-		const U32         line,
-		const U32         column,
-		const char* const file,
-		const char* const routine,
-		Str&&             formatString,
-		Args&&...         args
+		const U32              line,
+		const std::string_view file,
+		const std::string_view routine,
+		Str&&                  formatString,
+		Args&&...              args
 	) -> void
 	{
-		using namespace Foundation;
-		Print(TextColor::Red, "\n! NOMINAX RUNTIME PANIC !\n");
-		Print(TextColor::White, "Line: {}\nColumn: {}\nSubroutine: {}\nFile: {}\n", line, column, routine ? routine : "?", file ? file : "?");
-		Print(TextColor::White, formatString, std::forward<Args>(args)...);
-		std::cout.flush();
-		std::abort();
+		const auto            message {Foundation::Format(formatString, std::forward<Args>(args)...)};
+		const PanicDescriptor desc
+		{
+			.Line = line,
+			.FileName = file,
+			.RoutineName = routine,
+			.Message = message,
+			.DumpRegisters = true
+		};
+		PanicTerminationImpl(desc);
 	}
 
 	/// <summary>
@@ -3023,7 +3051,7 @@ namespace Nominax
 		if (!( x ))                 				\
 		{                                           \
 		    [[unlikely]]                            \
-            ::Nominax::Panic(NOX_PAINF, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3038,7 +3066,7 @@ namespace Nominax
 		if (( x ))				                    \
 		{											\
 		    [[unlikely]]                            \
-            ::Nominax::Panic(NOX_PAINF, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3077,7 +3105,7 @@ namespace Nominax
 		if (( x ) != ( y ))		                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(NOX_PAINF, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3092,7 +3120,7 @@ namespace Nominax
 		if (( x ) == ( y ))		                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(NOX_PAINF, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3107,7 +3135,7 @@ namespace Nominax
 		if (!(( x ) < ( y )))		                \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(NOX_PAINF, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3122,7 +3150,7 @@ namespace Nominax
 		if (!(( x ) <= ( y )))	                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(NOX_PAINF, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3137,7 +3165,7 @@ namespace Nominax
 		if (!(( x ) > ( y )))		                \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(NOX_PAINF, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3152,7 +3180,7 @@ namespace Nominax
 		if (!(( x ) >= ( y )))	                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic(NOX_PAINF, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -9121,7 +9149,7 @@ namespace Nominax
 			/// <summary>
 			/// The offset in records from the blob base pointer.
 			/// </summary>
-			static constexpr std::uintptr_t RECORD_OFFSET {STRIDE * RECORD_BLOCKS / sizeof(Record)};
+			static constexpr UIP64 RECORD_OFFSET {STRIDE * RECORD_BLOCKS / sizeof(Record)};
 
 			/// <summary>
 			/// The amount of records required to store the header.

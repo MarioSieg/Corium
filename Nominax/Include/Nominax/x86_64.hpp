@@ -1,4 +1,4 @@
-// File: RuntimeAssembler_x86_64.hpp
+// File: x86_64.hpp
 // Author: Mario
 // Created: 06.07.2021 2:12 PM
 // Project: NominaxRuntime
@@ -233,24 +233,6 @@ namespace Nominax::Assembler::X86_64
 		extern "C" auto Asm_VmWareDetector() -> bool;
 
 		/// <summary>
-		/// Contains merged info table.
-		/// One 64-bit instance contains two 32-bit info tables.
-		/// </summary>
-		union MergedInfoTable
-		{
-			U64 Merged { };
-
-			struct Extracted final
-			{
-				U32 Table1;
-				U32 Table2;
-			};
-		};
-
-		static_assert(sizeof(MergedInfoTable) == 8);
-		static_assert(std::is_trivially_copyable_v<MergedInfoTable>);
-
-		/// <summary>
 		/// Assembly routine which calls cpuid
 		/// multiple time to determine all cpu features.
 		/// The first 6 feature tables are returned via
@@ -263,10 +245,32 @@ namespace Nominax::Assembler::X86_64
 		/// </summary>
 		extern "C" auto Asm_CpuId
 		(
-			MergedInfoTable* out1,
-			MergedInfoTable* out2,
-			MergedInfoTable* out3
+			U64* out1,
+			U64* out2,
+			U64* out3
 		) -> U32;
+
+		/// <summary>
+		/// Queries the 16 GPR 64-bit registers and the 16 XMM 128-bit registers.
+		/// </summary>
+		extern "C" auto QueryRegSet(U64 gpr[16], U64 sse[32]) -> void;
+
+		/// <summary>
+		/// Queries the value of the %rip instruction pointer.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		inline auto QueryRip() -> const void*
+		{
+			UIP64 rip;
+			asm volatile
+			(
+				"call 1f \n\t"
+				"1: popq %0"
+				: "=r"(rip)
+			);
+			return reinterpret_cast<const void*>(rip);
+		}
 
 		/// <summary>
 		/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
@@ -365,7 +369,7 @@ namespace Nominax::Assembler::X86_64
 	/// <returns>The composed mod rm sib byte.</returns>
 	constexpr auto PackModRm(const U8 bits01, const U8 bits234, const U8 bits567) -> U8
 	{
-		NOX_DBG_PAS_TRUE((bits01 & ~0b11) == 0,	  "Mask mismatch -> 2 bits requested");
+		NOX_DBG_PAS_TRUE((bits01 & ~0b11) == 0, "Mask mismatch -> 2 bits requested");
 		NOX_DBG_PAS_TRUE((bits234 & ~0b111) == 0, "Mask mismatch -> 3 bits requested");
 		NOX_DBG_PAS_TRUE((bits567 & ~0b111) == 0, "Mask mismatch -> 3 bits requested");
 		U8 trio {bits567};
