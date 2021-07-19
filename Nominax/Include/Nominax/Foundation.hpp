@@ -3026,7 +3026,7 @@ namespace Nominax
 	/// This will be replaced by C++ 20 std::source_location,
 	/// but currently it's not yet implemented :(
 	/// </summary>
-	#define NOX_PANIC_INFO __LINE__, __FILE__, __FUNCTION__
+	#define NOX_PANIC_INFO() __LINE__, __FILE__, __FUNCTION__
 
 	/// <summary>
 	/// Terminates the process with an error messages in the terminal.
@@ -3073,7 +3073,7 @@ namespace Nominax
 		if (!( x ))                 				\
 		{                                           \
 		    [[unlikely]]                            \
-            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3088,7 +3088,7 @@ namespace Nominax
 		if (( x ))				                    \
 		{											\
 		    [[unlikely]]                            \
-            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3127,7 +3127,7 @@ namespace Nominax
 		if (( x ) != ( y ))		                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3142,7 +3142,7 @@ namespace Nominax
 		if (( x ) == ( y ))		                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3157,7 +3157,7 @@ namespace Nominax
 		if (!(( x ) < ( y )))		                \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3172,7 +3172,7 @@ namespace Nominax
 		if (!(( x ) <= ( y )))	                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3187,7 +3187,7 @@ namespace Nominax
 		if (!(( x ) > ( y )))		                \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
 		}											\
 	}												\
 	while(false)
@@ -3202,7 +3202,7 @@ namespace Nominax
 		if (!(( x ) >= ( y )))	                    \
 		{											\
             [[unlikely]]                            \
-            ::Nominax::Panic( NOX_PANIC_INFO, ( msg ));	\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
 		}											\
 	}												\
 	while(false)
