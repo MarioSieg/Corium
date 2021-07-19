@@ -246,16 +246,16 @@ namespace Nominax::ByteCode
 
 		const auto addressMapper
 		{
-			[&](Signal& x)
+			[=](Signal& x)
 			{
-				const std::ptrdiff_t index {&x - begin};
-				if (discriminators[index] == Signal::Discriminator::Instruction)
+				const Signal::Discriminator discriminator {discriminators[&x - begin]};
+				if (discriminator == Signal::Discriminator::Instruction)
 				{
-					x = Signal {const_cast<void*>(*(jumpTable + x.OpCode))};
+					x.Ptr = const_cast<void*>(*(jumpTable + x.OpCode));
 				}
-				else if (discriminators[index] == Signal::Discriminator::JumpAddress)
+				else if (discriminator == Signal::Discriminator::JumpAddress)
 				{
-					x = Signal {const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress))};
+					x.Ptr = const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress));
 				}
 			}
 		};

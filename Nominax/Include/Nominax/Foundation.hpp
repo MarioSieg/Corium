@@ -1039,6 +1039,54 @@ namespace Nominax
 		}
 
 		/// <summary>
+		/// Sign EXtend the integer.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		constexpr auto Sex(const I8 x) -> U8
+		{
+			return x >> (CHAR_BIT * sizeof(x) - 1);
+		}
+
+		/// <summary>
+		/// Sign EXtend the integer.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		constexpr auto Sex(const I16 x) -> U16
+		{
+			return x >> (CHAR_BIT * sizeof(x) - 1);
+		}
+
+		/// <summary>
+		/// Sign EXtend the integer.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		constexpr auto Sex(const I32 x) -> U32
+		{
+			return x >> (CHAR_BIT * sizeof(x) - 1);
+		}
+
+		/// <summary>
+		/// Sign EXtend the integer.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		constexpr auto Sex(const I64 x) -> U64
+		{
+			return x >> (CHAR_BIT * sizeof(x) - 1);
+		}
+
+		/// <summary>
 		/// Calculates and returns the next element in the array using pointer arithmetic.
 		/// Is is important that T is a reference to an element in the array and NOT the last one.
 		/// This is useful to get the next element when using std::for_each with parallel execution.
