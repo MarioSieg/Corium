@@ -2981,13 +2981,35 @@ namespace Nominax
 		};
 	}
 
+	/// <summary>
+	/// Contains info for the panic handler.
+	/// </summary>
 	struct PanicDescriptor final
 	{
-		U32              Line { };
+		/// <summary>
+		/// The source code line - if any.
+		/// </summary>
+		U32 Line { };
+
+		/// <summary>
+		/// The source file name  - if any.
+		/// </summary>
 		std::string_view FileName { };
+
+		/// <summary>
+		/// The name of the subroutine - if any.
+		/// </summary>
 		std::string_view RoutineName { };
+
+		/// <summary>
+		/// The callsite message - if any.
+		/// </summary>
 		std::string_view Message { };
-		bool             DumpRegisters {true};
+
+		/// <summary>
+		/// If true, the content of the registers is dumped, else false.
+		/// </summary>
+		bool DumpRegisters {true};
 	};
 
 	/// <summary>
