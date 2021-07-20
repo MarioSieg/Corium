@@ -280,7 +280,7 @@ namespace Nominax::Assembler::X86_64
 		[[nodiscard]]
 		inline auto QueryRip() -> const void*
 		{
-			UIP64 rip;
+			Uip64 rip;
 			asm volatile
 			(
 				"call 1f \n\t"

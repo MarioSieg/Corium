@@ -460,7 +460,7 @@ namespace Nominax
 		{
 			IAllocator::Allocate(out, size);
 			const auto [count, suffix] {GetMemoryUnitInfo(size)};
-			Print(TextColor::BrightGreen, "Allocate({:#X}, {} {})\n", reinterpret_cast<UIP64>(out), count, suffix);
+			Print(TextColor::BrightGreen, "Allocate({:#X}, {} {})\n", reinterpret_cast<Uip64>(out), count, suffix);
 			++this->Allocations_;
 			this->BytesAllocated_ += size;
 		}
@@ -469,14 +469,14 @@ namespace Nominax
 		{
 			IAllocator::Reallocate(out, size);
 			const auto [count, suffix] {GetMemoryUnitInfo(size)};
-			Print(TextColor::BrightYellow, "Reallocate({:#X}, {} {})\n", reinterpret_cast<UIP64>(out), count,
+			Print(TextColor::BrightYellow, "Reallocate({:#X}, {} {})\n", reinterpret_cast<Uip64>(out), count,
 			      suffix);
 			++this->Reallocations_;
 		}
 
 		auto DebugAllocator::Deallocate(void*& out) const -> void
 		{
-			Print(TextColor::BrightRed, "Deallocate({:#X})\n", reinterpret_cast<UIP64>(out));
+			Print(TextColor::BrightRed, "Deallocate({:#X})\n", reinterpret_cast<Uip64>(out));
 			IAllocator::Deallocate(out);
 			++this->Deallocations_;
 		}
@@ -485,7 +485,7 @@ namespace Nominax
 		{
 			IAllocator::AllocateAligned(out, size, alignment);
 			const auto [count, suffix] {GetMemoryUnitInfo(size)};
-			Print(TextColor::BrightGreen, "AllocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<UIP64>(out),
+			Print(TextColor::BrightGreen, "AllocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<Uip64>(out),
 			      count, suffix, alignment);
 			++this->Allocations_;
 			this->BytesAllocated_ += size;
@@ -495,14 +495,14 @@ namespace Nominax
 		{
 			IAllocator::ReallocateAligned(out, size, alignment);
 			const auto [count, suffix] {GetMemoryUnitInfo(size)};
-			Print(TextColor::BrightGreen, "ReallocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<UIP64>(out),
+			Print(TextColor::BrightGreen, "ReallocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<Uip64>(out),
 			      count, suffix, alignment);
 			++this->Reallocations_;
 		}
 
 		auto DebugAllocator::DeallocateAligned(void*& out) const -> void
 		{
-			Print(TextColor::BrightRed, "DeallocateAligned({:#X})\n", reinterpret_cast<UIP64>(out));
+			Print(TextColor::BrightRed, "DeallocateAligned({:#X})\n", reinterpret_cast<Uip64>(out));
 			IAllocator::DeallocateAligned(out);
 			++this->Deallocations_;
 		}
@@ -1204,7 +1204,7 @@ namespace Nominax
 		#if NOX_ARCH_X86_64
 		U64   gpr[16] { };
 		U64   sse[32] { };
-		UIP64 rip { };
+		Uip64 rip { };
 		if (panicDescriptor.DumpRegisters)
 		{
 			using namespace Assembler::X86_64::Routines;
@@ -1250,7 +1250,7 @@ namespace Nominax
 			{
 				Print("{} = {:016X}\n", GPR_LUT[i], gpr[i]);
 			}
-			for (U64 i {0}; i < (sizeof sse / sizeof *sse) >> 1; ++i)
+			for (U64 i {0}; i < sizeof sse / sizeof *sse >> 1; ++i)
 			{
 				Print("%xmm{}{} = ", i, i < 10 ? " " : "");
 				Print("{:016X}", sse[i]);
