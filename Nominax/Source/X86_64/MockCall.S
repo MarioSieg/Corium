@@ -205,10 +205,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl Asm_MockCall
+.globl MockCall
 
 # Header: Arch/X86_64/CpuId.hpp
-Asm_MockCall:
+MockCall:
     xorl    %eax, %eax
 #ifdef __WIN__
     movb	$0xFF, %al

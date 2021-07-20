@@ -525,6 +525,11 @@ namespace Nominax
 	#define NOX_RESTRICT                        __restrict__
 
 	/// <summary>
+	/// Marks that a routine is implemented in assembler code.
+	/// </summary>
+	#define NOX_ASM_ROUTINE
+
+	/// <summary>
 	/// 8 bit unsigned integer.
 	/// </summary>
 	using U8 = std::uint8_t;
@@ -8226,7 +8231,7 @@ namespace Nominax
 			auto Dump() const -> void;
 		};
 
-		inline auto CpuFeatureDetector::operator[](CpuFeatureBits bit) -> bool&
+		inline auto CpuFeatureDetector::operator[](const CpuFeatureBits bit) -> bool&
 		{
 			return this->FeatureBits_[static_cast<U64>(bit)];
 		}

@@ -1,6 +1,6 @@
-// File: CpuId.cpp
+// File: x86_64.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 29.06.2021 8:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,28 +205,291 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
-
 #include "../../TestBase.hpp"
 
-#if NOX_ARCH_X86_64
+using namespace X86_64;
 
-TEST(AssemblyCalls, IsCpudIdSupported)
+TEST(Assembler_x86_64, PackRex_Empty)
 {
-	const auto supported {X86_64::Routines::Asm_IsCpuIdSupported()};
-	ASSERT_TRUE(supported);
+	const U8 rex {PackRex(false, false, false, false)};
+	ASSERT_EQ(rex, 0x40);
 }
 
-TEST(AssemblyCalls, CpuId)
+TEST(Assembler_x86_64, PackRex_W)
 {
-	const CpuFeatureDetector features { };
-	ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-	ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-	ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-	ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-	ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-	ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
+	const U8 rex {PackRex(true, false, false, false)};
+	ASSERT_EQ(rex, 0x40 | (1 << 3));
+}
+
+TEST(Assembler_x86_64, PackRex_R)
+{
+	const U8 rex {PackRex(false, true, false, false)};
+	ASSERT_EQ(rex, 0x40 | (1 << 2));
+}
+
+TEST(Assembler_x86_64, PackRex_X)
+{
+	const U8 rex {PackRex(false, false, true, false)};
+	ASSERT_EQ(rex, 0x40 | (1 << 1));
+}
+
+TEST(Assembler_x86_64, PackRex_B)
+{
+	const U8 rex {PackRex(false, false, false, true)};
+	ASSERT_EQ(rex, 0x40 | 1);
+}
+
+TEST(Assembler_x86_64, PackRex_WRXB)
+{
+	const U8 rex {PackRex(true, true, true, true)};
+	ASSERT_EQ(rex, 0x40 | 0b1111);
+}
+
+TEST(Assembler_x86_64, PackPackBits233)
+{
+	const U8 trio {PackModRm(0b11, 0b010, 0b101)};
+	ASSERT_EQ(trio, 0b11'010'101);
+}
+
+TEST(Assembler_x86_64, PackPackBits233_One)
+{
+	const U8 trio {PackModRm(0b11, 0b111, 0b111)};
+	ASSERT_EQ(trio, 0xFF);
+}
+
+TEST(Assembler_x86_64, PackPackBitsZero)
+{
+	const U8 trio {PackModRm(0, 0, 0)};
+	ASSERT_EQ(trio, 0);
+}
+
+TEST(Assembler_x86_64, InjectNopChain_1)
+{
+	constexpr auto          len {1};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x90};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_2)
+{
+	constexpr auto          len {2};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x40, 0x90};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_3)
+{
+	constexpr auto          len {3};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_4)
+{
+	constexpr auto          len {4};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x40, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_5)
+{
+	constexpr auto          len {5};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x44, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_6)
+{
+	constexpr auto          len {6};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_7)
+{
+	constexpr auto          len {7};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_8)
+{
+	constexpr auto          len {8};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_9)
+{
+	constexpr auto          len {9};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_10)
+{
+	constexpr auto          len {10};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_11)
+{
+	constexpr auto          len {11};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_12)
+{
+	constexpr auto          len {12};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_13)
+{
+	constexpr auto          len {13};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_14)
+{
+	constexpr auto          len {14};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_15)
+{
+	constexpr auto          len {15};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+#ifdef NOX_DEATH_TESTS
+
+TEST(Assembler_x86_64, InjectNopChain_Null_Error)
+{
+	ASSERT_DEATH(InjectNopChain(nullptr, 0), "");
+}
+
+TEST(Assembler_x86_64, InjectNopChain_0_Error)
+{
+	U8 x{};
+	ASSERT_DEATH(InjectNopChain(&x, 0), "");
+}
+
+TEST(Assembler_x86_64, InjectNopChain_16_Error)
+{
+	U8 x{};
+	ASSERT_DEATH(InjectNopChain(&x, 16), "");
 }
 
 #endif

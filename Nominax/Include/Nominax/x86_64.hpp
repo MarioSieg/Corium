@@ -216,21 +216,21 @@ namespace Nominax::Assembler::X86_64
 		/// <summary>
 		/// Returns a special constant value depending on the OS for testing.
 		/// </summary>
-		extern "C" auto Asm_MockCall() -> U64;
+		extern "C" NOX_ASM_ROUTINE auto MockCall() -> U64;
 
 		/// <summary>
 		/// Tries to detect a VM using time stamp counter.
 		/// Warning! Do not use this! On most systems it will crash
 		/// because the in instruction cannot get executed from user space.
 		/// </summary>
-		extern "C" auto Asm_VmDetector() -> bool;
+		extern "C" NOX_ASM_ROUTINE auto VmDetector() -> bool;
 
 		/// <summary>
 		/// Detects vm ware using a port read action.
 		/// Warning! Do not use this! On most systems it will crash
 		/// because the in instruction cannot get executed from user space.
 		/// </summary>
-		extern "C" auto Asm_VmWareDetector() -> bool;
+		extern "C" NOX_ASM_ROUTINE auto VmWareDetector() -> bool;
 
 		/// <summary>
 		/// Assembly routine which calls cpuid
@@ -243,7 +243,7 @@ namespace Nominax::Assembler::X86_64
 		/// constructor.
 		/// Implementation: Source/Arch/X86_64.CpuId.S
 		/// </summary>
-		extern "C" auto Asm_CpuId
+		extern "C" NOX_ASM_ROUTINE auto CpuId
 		(
 			U64* out1,
 			U64* out2,
@@ -253,7 +253,25 @@ namespace Nominax::Assembler::X86_64
 		/// <summary>
 		/// Queries the 16 GPR 64-bit registers and the 16 XMM 128-bit registers.
 		/// </summary>
-		extern "C" auto QueryRegSet(U64 gpr[16], U64 sse[32]) -> void;
+		extern "C" NOX_ASM_ROUTINE auto QueryRegSet(U64 gpr[16], U64 sse[32]) -> void;
+
+		/// <summary>
+		/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
+		/// Implementation: Source/Arch/X86_64.CpuId.S
+		/// </summary>
+		extern "C" NOX_ASM_ROUTINE auto IsCpuIdSupported() -> bool;
+
+		/// <summary>
+		/// Returns true if the OS supports AVX YMM registers, else false.
+		/// Warning! Check if os supports OSXSAVE first!
+		/// </summary>
+		extern "C" NOX_ASM_ROUTINE auto IsAvxSupportedByOs() -> bool;
+
+		/// <summary>
+		/// Returns true if the OS supports AVX512 ZMM registers, else false.
+		/// Warning! Check if os supports OSXSAVE first!
+		/// </summary>
+		extern "C" NOX_ASM_ROUTINE auto IsAvx512SupportedByOs() -> bool;
 
 		/// <summary>
 		/// Queries the value of the %rip instruction pointer.
@@ -271,24 +289,6 @@ namespace Nominax::Assembler::X86_64
 			);
 			return reinterpret_cast<const void*>(rip);
 		}
-
-		/// <summary>
-		/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
-		/// Implementation: Source/Arch/X86_64.CpuId.S
-		/// </summary>
-		extern "C" auto Asm_IsCpuIdSupported() -> bool;
-
-		/// <summary>
-		/// Returns true if the OS supports AVX YMM registers, else false.
-		/// Warning! Check if os supports OSXSAVE first!
-		/// </summary>
-		extern "C" auto Asm_IsAvxSupportedByOs() -> bool;
-
-		/// <summary>
-		/// Returns true if the OS supports AVX512 ZMM registers, else false.
-		/// Warning! Check if os supports OSXSAVE first!
-		/// </summary>
-		extern "C" auto Asm_IsAvx512SupportedByOs() -> bool;
 	}
 
 	constexpr U8 LOCK {0xF0};
