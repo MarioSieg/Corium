@@ -572,7 +572,7 @@ namespace Nominax
 	/// <summary>
 	/// 64-bit unsigned pointer.
 	/// </summary>
-	using UIP64 = U64;
+	using Uip64 = U64;
 
 	/// <summary>
 	/// 16 bit half precision float
@@ -597,7 +597,7 @@ namespace Nominax
 	static_assert(sizeof(I32) == 4);
 	static_assert(sizeof(U64) == 8);
 	static_assert(sizeof(I64) == 8);
-	static_assert(sizeof(UIP64) == 8);
+	static_assert(sizeof(Uip64) == 8);
 	static_assert(sizeof(std::uintptr_t) == 8);
 	static_assert(sizeof(F16) == 2);
 	static_assert(sizeof(F32) == 4);
@@ -1377,7 +1377,7 @@ namespace Nominax
 		[[nodiscard]]
 		constexpr auto IsAlignedTo(void* const ptr, const U64 alignment) -> bool
 		{
-			return std::bit_cast<UIP64>(ptr) % alignment == 0 && IsAlignmentValid(alignment);
+			return std::bit_cast<Uip64>(ptr) % alignment == 0 && IsAlignmentValid(alignment);
 		}
 
 		/// <summary>
@@ -1387,7 +1387,7 @@ namespace Nominax
 		/// <param name="alignment">The alignment the address should have.</param>
 		/// <returns>True if valid and corresponding alignment, else false.</returns>
 		[[nodiscard]]
-		constexpr auto IsAlignedTo(const UIP64 ptr, const U64 alignment) -> bool
+		constexpr auto IsAlignedTo(const Uip64 ptr, const U64 alignment) -> bool
 		{
 			return IsAlignedTo(std::bit_cast<void*>(ptr), alignment);
 		}
@@ -1401,7 +1401,7 @@ namespace Nominax
 		/// <returns>The required offset.</returns>
 		constexpr auto ComputeMissingAlignmentOffset(void* const ptr, const U64 alignment) -> U64
 		{
-			const auto misalignment = std::bit_cast<UIP64>(ptr) & (alignment - 1);
+			const auto misalignment = std::bit_cast<Uip64>(ptr) & (alignment - 1);
 			return misalignment ? alignment - misalignment : 0;
 		}
 
@@ -1412,7 +1412,7 @@ namespace Nominax
 		/// <param name="ptr">The pointer address. Can be nullptr!</param>
 		/// <param name="alignment">The alignment, which must be valid.</param>
 		/// <returns>The required offset.</returns>
-		constexpr auto ComputeMissingAlignmentOffset(const UIP64 ptr, const U64 alignment) -> U64
+		constexpr auto ComputeMissingAlignmentOffset(const Uip64 ptr, const U64 alignment) -> U64
 		{
 			return ComputeMissingAlignmentOffset(std::bit_cast<void*>(ptr), alignment);
 		}
@@ -9176,7 +9176,7 @@ namespace Nominax
 			/// <summary>
 			/// The offset in records from the blob base pointer.
 			/// </summary>
-			static constexpr UIP64 RECORD_OFFSET {STRIDE * RECORD_BLOCKS / sizeof(Record)};
+			static constexpr Uip64 RECORD_OFFSET {STRIDE * RECORD_BLOCKS / sizeof(Record)};
 
 			/// <summary>
 			/// The amount of records required to store the header.

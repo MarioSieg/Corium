@@ -940,7 +940,7 @@ namespace Nominax::ByteCode
 		{
 			const auto bytes {std::bit_cast<std::array<U8, sizeof(Signal)>>(this->CodeBuffer_[i])};
 			const auto isInstr {this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction};
-			Print(TextColor::Green, "&{:#018X} ", reinterpret_cast<UIP64>(&this->CodeBuffer_[i]));
+			Print(TextColor::Green, "&{:#018X} ", reinterpret_cast<Uip64>(&this->CodeBuffer_[i]));
 			Print
 			(
 				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
