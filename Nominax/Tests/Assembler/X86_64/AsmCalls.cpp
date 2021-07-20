@@ -294,6 +294,37 @@ TEST(AssemblyCalls, Avx512OsSupport)
 	ASSERT_NO_FATAL_FAILURE(exec());
 }
 
+TEST(AssemblyCalls, CpuIdInvocation)
+{
+	const auto exec
+	{
+		[&]
+		{
+			U64       a, b, c;
+			const U32 d{ CpuId(&a, &b, &c) };
+			ASSERT_NE(a, 0);
+			ASSERT_NE(b, 0);
+			ASSERT_NE(c, 0);
+			ASSERT_NE(d, 0);
+		}
+	};
+	ASSERT_NO_FATAL_FAILURE(exec());
+}
+
+TEST(AssemblyCalls, QueryReg)
+{
+	const auto exec
+	{
+		[&]
+		{
+			U64 gpr[16];
+			U64 sse[32];
+			QueryRegSet(gpr, sse);
+		}
+	};
+	ASSERT_NO_FATAL_FAILURE(exec());
+}
+
 TEST(AssemblyCalls, MockCall)
 {
 	const auto exec
