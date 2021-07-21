@@ -5361,7 +5361,7 @@ namespace Nominax
 		x1 = _mm512_add_pd(x1, y1);
 		x2 = _mm512_add_pd(x2, y2);
 		_mm512_store_pd(inout, x1);
-		_mm512_store_pd(inout + 8, x1);
+		_mm512_store_pd(inout + 8, x2);
 
 			#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -5455,7 +5455,7 @@ namespace Nominax
 		x1 = _mm512_sub_pd(x1, y1);
 		x2 = _mm512_sub_pd(x2, y2);
 		_mm512_store_pd(inout, x1);
-		_mm512_store_pd(inout + 8, x1);
+		_mm512_store_pd(inout + 8, x2);
 
 			#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -5549,7 +5549,7 @@ namespace Nominax
 		x1 = _mm512_mul_pd(x1, y1);
 		x2 = _mm512_mul_pd(x2, y2);
 		_mm512_store_pd(inout, x1);
-		_mm512_store_pd(inout + 8, x1);
+		_mm512_store_pd(inout + 8, x2);
 
 			#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -5643,7 +5643,7 @@ namespace Nominax
 		x1 = _mm512_div_pd(x1, y1);
 		x2 = _mm512_div_pd(x2, y2);
 		_mm512_store_pd(inout, x1);
-		_mm512_store_pd(inout + 8, x1);
+		_mm512_store_pd(inout + 8, x2);
 
 			#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -5737,7 +5737,7 @@ namespace Nominax
 		x1 = _mm512_add_pd(x1, y1);
 		x2 = _mm512_add_pd(x2, y2);
 		_mm512_storeu_pd(inout, x1);
-		_mm512_storeu_pd(inout + 8, x1);
+		_mm512_storeu_pd(inout + 8, x2);
 
 			#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -5831,7 +5831,7 @@ namespace Nominax
 		x1 = _mm512_sub_pd(x1, y1);
 		x2 = _mm512_sub_pd(x2, y2);
 		_mm512_storeu_pd(inout, x1);
-		_mm512_storeu_pd(inout + 8, x1);
+		_mm512_storeu_pd(inout + 8, x2);
 
 			#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -5925,7 +5925,7 @@ namespace Nominax
 		x1 = _mm512_mul_pd(x1, y1);
 		x2 = _mm512_mul_pd(x2, y2);
 		_mm512_storeu_pd(inout, x1);
-		_mm512_storeu_pd(inout + 8, x1);
+		_mm512_storeu_pd(inout + 8, x2);
 
 			#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -6019,7 +6019,7 @@ namespace Nominax
 		x1 = _mm512_div_pd(x1, y1);
 		x2 = _mm512_div_pd(x2, y2);
 		_mm512_storeu_pd(inout, x1);
-		_mm512_storeu_pd(inout + 8, x1);
+		_mm512_storeu_pd(inout + 8, x2);
 
 			#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
