@@ -393,8 +393,6 @@ TEST(Environment, BootShutdownHooks)
 	ASSERT_EQ(x, 2);
 	ASSERT_NE(env.GetKernel(), nullptr);
 	ASSERT_TRUE(env.IsOnline());
-	ASSERT_NE(env.GetBootTime().count(), 0);
-	ASSERT_NE(env.GetBootStamp().time_since_epoch().count(), 0);
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 	ASSERT_EQ(x, 4);
 	ASSERT_FALSE(env.IsOnline());
