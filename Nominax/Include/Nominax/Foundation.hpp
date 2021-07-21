@@ -3421,7 +3421,7 @@ namespace Nominax
 
 		NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedAndZeroChecked(const U64 size, const U64 alignment) -> void*
 		{
-			void* const mem {AllocateAligned(size, alignment)};
+			void* const mem {AllocateAlignedAndZero(size, alignment)};
 			NOX_PAS_NOT_NULL(mem, "Allocation error!");
 			return mem;
 		}

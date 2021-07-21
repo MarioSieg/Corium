@@ -1,6 +1,6 @@
-// File: Environment.cpp
+// File: AllocatorProxy.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 22.07.2021 1:00 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,416 +207,98 @@
 
 #include "../TestBase.hpp"
 
-TEST(Environent, Construct)
+TEST(SystemAllocatorProxy, Allocate)
 {
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
+	void* ptr;
+	GlobalRuntimeAllocator.Allocate(ptr, sizeof(I32));
+	ASSERT_NE(ptr, nullptr);
+	*static_cast<I32*>(ptr) = 10;
+	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
+	GlobalRuntimeAllocator.Deallocate(ptr);
 }
 
-#ifdef NOX_DEATH_TESTS
-TEST(Environent, ConstructOfflineAccessDeath_GetBootStamp)
+TEST(SystemAllocatorProxy, AllocateAligned)
 {
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          auto x{ env.GetBootStamp() };
-	                          }(), "");
+	void* ptr;
+	GlobalRuntimeAllocator.AllocateAligned(ptr, sizeof(I32), alignof(I32));
+	ASSERT_NE(ptr, nullptr);
+	ASSERT_TRUE(IsAlignedTo(ptr, alignof(I32)));
+	*static_cast<I32*>(ptr) = 10;
+	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
+	GlobalRuntimeAllocator.DeallocateAligned(ptr);
 }
 
-
-TEST(Environent, ConstructOfflineAccessDeath_GetBootTime)
+TEST(SystemAllocatorProxy, Reallocate)
 {
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          auto x{ env.GetBootTime() };
-	                          }(), "");
+	void* ptr;
+	GlobalRuntimeAllocator.Allocate(ptr, sizeof(I32));
+	ASSERT_NE(ptr, nullptr);
+	*static_cast<I32*>(ptr) = 10;
+	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
+	GlobalRuntimeAllocator.Reallocate(ptr, 2 * sizeof(I32));
+	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
+	static_cast<I32*>(ptr)[1] = -4;
+	ASSERT_EQ(static_cast<I32*>(ptr)[1], -4);
+	GlobalRuntimeAllocator.Deallocate(ptr);
 }
 
-TEST(Environent, ConstructOfflineAccessDeath_GetSystemSnapshot)
+TEST(SystemAllocatorProxy, ReallocateAligned)
 {
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetSystemSnapshot() };
-	                          }(), "");
+	void* ptr;
+	GlobalRuntimeAllocator.AllocateAligned(ptr, sizeof(I32), alignof(I32));
+	ASSERT_NE(ptr, nullptr);
+	ASSERT_TRUE(IsAlignedTo(ptr, alignof(I32)));
+	*static_cast<I32*>(ptr) = 10;
+	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
+	GlobalRuntimeAllocator.ReallocateAligned(ptr, 2 * sizeof(I32), alignof(I32));
+	ASSERT_TRUE(IsAlignedTo(ptr, alignof(I32)));
+	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
+	static_cast<I32*>(ptr)[1] = -4;
+	ASSERT_EQ(static_cast<I32*>(ptr)[1], -4);
+	GlobalRuntimeAllocator.DeallocateAligned(ptr);
 }
 
-TEST(Environent, ConstructOfflineAccessDeath_GetProcessorFeatureSnapshot)
+TEST(SystemAllocatorProxy, Deallocate)
 {
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetProcessorFeatureSnapshot() };
-	                          }(), "");
+	void* ptr;
+	GlobalRuntimeAllocator.Allocate(ptr, sizeof(I32));
+	ASSERT_NE(ptr, nullptr);
+	GlobalRuntimeAllocator.Deallocate(ptr);
+	ASSERT_EQ(ptr, nullptr);
 }
 
-TEST(Environent, ConstructOfflineAccessDeath_GetAppName)
+TEST(SystemAllocatorProxy, DeallocateAligned)
 {
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetAppName() };
-	                          }(), "");
+	void* ptr;
+	GlobalRuntimeAllocator.AllocateAligned(ptr, sizeof(I32), alignof(I32));
+	ASSERT_NE(ptr, nullptr);
+	GlobalRuntimeAllocator.DeallocateAligned(ptr);
+	ASSERT_EQ(ptr, nullptr);
 }
 
-TEST(Environent, ConstructOfflineAccessDeath_GetMonotonicSystemPoolSize)
+TEST(SystemAllocatorProxy, HugeAllocation_1GB_Unaligned)
 {
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetMonotonicSystemPoolSize() };
-	                          }(), "");
+	void* ptr;
+	GlobalRuntimeAllocator.Allocate(ptr, 1024 * 1024 * 1024);
+	ASSERT_NE(ptr, nullptr);
+	static_cast<U8*>(ptr)[0]                      = static_cast<U8>(0xBABE);
+	static_cast<U8*>(ptr)[1024 * 1024 * 1024 - 1] = static_cast<U8>(0xBABE);
+	ASSERT_EQ(static_cast<U8*>(ptr)[0], static_cast<U8>(0xBABE));
+	ASSERT_EQ(static_cast<U8*>(ptr)[1024 * 1024 * 1024 - 1], static_cast<U8>(0xBABE));
+	GlobalRuntimeAllocator.Deallocate(ptr);
+	ASSERT_EQ(ptr, nullptr);
 }
 
-TEST(Environent, ConstructOfflineAccessDeath_GetExecutionCount)
+TEST(SystemAllocatorProxy, HugeAllocation_1GB_Aligned)
 {
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetExecutionCount() };
-	                          }(), "");
+	void* ptr;
+	GlobalRuntimeAllocator.AllocateAligned(ptr, 1024 * 1024 * 1024, alignof(U8));
+	ASSERT_NE(ptr, nullptr);
+	ASSERT_TRUE(IsAlignedTo(ptr, alignof(U8)));
+	static_cast<U8*>(ptr)[0]                      = static_cast<U8>(0xBABE);
+	static_cast<U8*>(ptr)[1024 * 1024 * 1024 - 1] = static_cast<U8>(0xBABE);
+	ASSERT_EQ(static_cast<U8*>(ptr)[0], static_cast<U8>(0xBABE));
+	ASSERT_EQ(static_cast<U8*>(ptr)[1024 * 1024 * 1024 - 1], static_cast<U8>(0xBABE));
+	GlobalRuntimeAllocator.DeallocateAligned(ptr);
+	ASSERT_EQ(ptr, nullptr);
 }
-
-TEST(Environent, ConstructOfflineAccessDeath_GetExecutionTimeHistory)
-{
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetExecutionTimeHistory() };
-	                          }(), "");
-}
-
-#endif
-
-TEST(Environment, Boot)
-{
-	Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	const EnvironmentDescriptor descriptor
-	{
-
-	};
-	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_EQ(env.GetExecutionCount(), 0);
-	ASSERT_NE(env.GetKernel(), nullptr);
-	ASSERT_TRUE(env.IsOnline());
-	ASSERT_NE(env.GetBootTime().count(), 0);
-	ASSERT_NE(env.GetBootStamp().time_since_epoch().count(), 0);
-}
-
-TEST(Environment, BootShutdown)
-{
-	Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	const EnvironmentDescriptor descriptor
-	{
-
-	};
-	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_NE(env.GetKernel(), nullptr);
-	ASSERT_TRUE(env.IsOnline());
-	ASSERT_NE(env.GetBootTime().count(), 0);
-	ASSERT_NE(env.GetBootStamp().time_since_epoch().count(), 0);
-	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-}
-
-TEST(Environment, BootShutdownHooks)
-{
-	static constinit int x;
-
-	class MyEnvironment : public Environment
-	{
-		virtual auto OnPostBootHook() -> bool override
-		{
-			++x;
-			return true;
-		}
-
-		virtual auto OnPostShutdownHook() -> bool override
-		{
-			++x;
-			return true;
-		}
-
-		virtual auto OnPreBootHook() -> bool override
-		{
-			++x;
-			return true;
-		}
-
-		virtual auto OnPreShutdownHook() -> bool override
-		{
-			++x;
-			return true;
-		}
-	};
-
-	MyEnvironment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	const EnvironmentDescriptor descriptor
-	{
-
-	};
-	ASSERT_EQ(x, 0);
-	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_EQ(x, 2);
-	ASSERT_NE(env.GetKernel(), nullptr);
-	ASSERT_TRUE(env.IsOnline());
-	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
-	ASSERT_EQ(x, 4);
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-}
-
-#if NOX_DEATH_TESTS
-
-TEST(Environment, BootShutdownHooksBad)
-{
-	class MyEnvironment : public Environment
-	{
-	protected:
-		auto OnPreBootHook() -> bool override
-		{
-			return false;
-		}
-
-		auto OnPostBootHook() -> bool override
-		{
-			return false;
-		}
-
-		auto OnPreShutdownHook() -> bool override
-		{
-			return false;
-		}
-
-		auto OnPostShutdownHook() -> bool override
-		{
-			return false;
-		}
-	};
-
-	MyEnvironment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-	const EnvironmentDescriptor descriptor
-	{
-
-	};
-	ASSERT_DEATH_IF_SUPPORTED(env.Boot(descriptor), "");
-}
-
-#endif
-
-TEST(Environment, SystemConfig)
-{
-	Environment                 env { };
-	const char*                 args[3] {"Ignored", "Hey", "Ho"};
-	const EnvironmentDescriptor descriptor
-	{
-		.ArgC = sizeof args / sizeof*args,
-		.ArgV = args,
-		.AppName = "Hey:)",
-		.SystemPoolSize = 0
-	};
-	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-
-	ASSERT_EQ(env.GetAppName(), "Hey:)");
-}
-
-TEST(Environment, PoolSizeZero)
-{
-	Environment                 env { };
-	const char*                 args[3] {"Ignored", "Hey", "Ho"};
-	const EnvironmentDescriptor descriptor
-	{
-		.ArgC = sizeof args / sizeof *args,
-		.ArgV = args,
-		.AppName = "Hey:)",
-		.SystemPoolSize = 0,
-		.ReactorCount = 2
-	};
-	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-
-	ASSERT_EQ(env.GetAppName(), "Hey:)");
-	ASSERT_EQ(env.GetMonotonicSystemPoolSize(), Environment::FALLBACK_SYSTEM_POOL_SIZE + descriptor.ReactorCount * descriptor.StackSize);
-}
-
-TEST(Environment, Execution)
-{
-	Stream                                 stream { };
-	stream.Prologue().With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	});
-	stream.Epilogue();
-
-	const EnvironmentDescriptor descriptor { };
-
-	Environment env { };
-	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_EQ(env.GetExecutionCount(), 0);
-	const auto executor {
-		[&]
-		{
-			ASSERT_EQ(env.Execute(std::move(stream)).first, ReactorShutdownReason::Success);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(executor());
-	ASSERT_EQ(env.GetExecutionCount(), 1);
-	ASSERT_EQ(env.GetExecutionTimeHistory().size(), 1);
-	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
-}
-
-#if NOX_DEATH_TESTS
-
-TEST(Environment, ExecutionMissingPrologue)
-{
-	Stream                      stream { };
-	stream.With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	});
-	stream.Epilogue();
-
-	const EnvironmentDescriptor descriptor { };
-
-	Environment env { };
-	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
-	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
-}
-
-TEST(Environment, ExecutionMissingEpilogue)
-{
-	Stream                                 stream { };
-	stream.Prologue().With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	});
-
-	const EnvironmentDescriptor descriptor { };
-
-	Environment env { };
-	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
-	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
-}
-
-#endif
-
-TEST(Environment, ExecutionHooks)
-{
-	Stream                                 stream { };
-	stream.Prologue().With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	});
-	stream.Epilogue();
-
-	const auto ssize {stream.Size()};
-
-	static U64 streamSize;
-	static int counter;
-
-	const EnvironmentDescriptor descriptor { };
-
-	class MyEnvironment : public Environment
-	{
-		virtual auto OnPreExecutionHook(const Image& image) -> bool override
-		{
-			streamSize = image.GetSize();
-			++counter;
-			return true;
-		}
-
-		virtual auto OnPostExecutionHook() -> bool override
-		{
-			++counter;
-			return true;
-		}
-	};
-	MyEnvironment env { };
-	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_EQ(env.GetExecutionCount(), 0);
-	ASSERT_NO_FATAL_FAILURE(env.Execute(std::move(stream)));
-	ASSERT_EQ(env.GetExecutionCount(), 1);
-	ASSERT_EQ(counter, 2);
-	ASSERT_EQ(streamSize, ssize);
-	ASSERT_EQ(env.GetExecutionTimeHistory().size(), 1);
-	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
-}
-
-#ifdef NOX_DEATH_TESTS
-
-TEST(Environment, ExecutionHooksBad)
-{
-	Stream                                 stream { };
-	stream.Prologue().With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	});
-	stream.Epilogue();
-
-	const EnvironmentDescriptor descriptor { };
-
-	class MyEnvironment : public Environment
-	{
-		auto OnPreExecutionHook([[maybe_unused]] const Image& appCodeBundle) -> bool override
-		{
-			return false;
-		}
-
-		auto OnPostExecutionHook() -> bool override
-		{
-			return true;
-		}
-	};
-	MyEnvironment env { };
-	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_EQ(env.GetExecutionCount(), 0);
-	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
-}
-
-#endif
