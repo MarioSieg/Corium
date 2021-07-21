@@ -207,13 +207,78 @@
 
 #include "BenchTemplates.hpp"
 
-
 auto Loop1Billion(State& state) -> void
 {
 	LoopBenchmark(state, [](Stream&) {}, 1'000'000'000);
 }
 
 BENCHMARK(Loop1Billion)->Unit(kSecond);
+
+auto Loop1BillionVectors(State& state) -> void
+{
+	LoopBenchmark(state, [](Stream& stream)
+	{
+		stream << Instruction::VecPush;
+		stream << 1.0;
+		stream << 2.0;
+		stream << 3.0;
+		stream << 8.0;
+		stream << Instruction::VecPush;
+		stream << 4.0;
+		stream << 2.0;
+		stream << 0.5;
+		stream << 4.0;
+		stream << Instruction::VecDiv;
+		stream << Instruction::VecPop;
+	}, 1'000'000'000);
+}
+
+BENCHMARK(Loop1BillionVectors)->Unit(kSecond);
+
+auto Loop1BillionMatrices(State& state) -> void
+{
+	LoopBenchmark(state, [](Stream& stream)
+	{
+		stream << Instruction::MatPush;
+		stream << 1.0;
+		stream << 4.0;
+		stream << 3.0;
+		stream << 4.0;
+		stream << 1.0;
+		stream << 2.0;
+		stream << 3.0;
+		stream << 2.0;
+		stream << 1.0;
+		stream << 2.0;
+		stream << 3.0;
+		stream << 4.0;
+		stream << 1.0;
+		stream << 2.0;
+		stream << 3.0;
+		stream << 6.0;
+		stream << Instruction::MatPush;
+		stream << 1.0;
+		stream << 2.0;
+		stream << 3.0;
+		stream << 4.0;
+		stream << 1.0;
+		stream << 2.0;
+		stream << 3.0;
+		stream << 2.0;
+		stream << 1.0;
+		stream << 2.0;
+		stream << 3.0;
+		stream << 4.0;
+		stream << 1.0;
+		stream << 2.0;
+		stream << 3.0;
+		stream << 6.0;
+		stream << Instruction::MatAdd;
+		stream << Instruction::MatPop;
+	}, 1'000'000'000);
+}
+
+BENCHMARK(Loop1BillionMatrices)->Unit(kSecond);
 
 auto ValidateAlgorithm1BillionEntries(State& state) -> void
 {
