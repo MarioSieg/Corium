@@ -1,4 +1,5 @@
 ![](https://img.shields.io/codacy/grade/34055444cb164f28ab2f3978a73cab56?style=flat-square)
+![](https://img.shields.io/github/workflow/status/MarioSieg/Corium/CMake/master)
 ![](https://img.shields.io/tokei/lines/github/mariosieg/nominax?style=flat-square)
 ![](https://img.shields.io/github/license/mariosieg/nominax?style=flat-square)
 ![](https://img.shields.io/github/commit-activity/m/MarioSieg/NominaxRuntime)
