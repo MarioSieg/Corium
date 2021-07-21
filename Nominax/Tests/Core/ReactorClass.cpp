@@ -221,11 +221,11 @@ TEST(ReactorClass, Valid)
 		ReactorSpawnDescriptor
 		{
 			.StackSize = 4
-		}
+		},
+		HyperVisor::GetFallbackRoutineLink()
 	};
-	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor.GetStack().Size(), 4);
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(std::get<1>(reactor.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(reactor.GetInterruptHandler(), GetDefaultInterruptRoutine());
 }
 
@@ -237,17 +237,16 @@ TEST(ReactorClass, MoveConstruct)
 		ReactorSpawnDescriptor
 		{
 			.StackSize = 4
-		}
+		},
+		HyperVisor::GetFallbackRoutineLink()
 	};
-	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor.GetStack().Size(), 4);
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(std::get<1>(reactor.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(reactor.GetInterruptHandler(), GetDefaultInterruptRoutine());
 
 	const Reactor reactor2 {std::move(reactor)};
-	ASSERT_EQ(reactor2.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor2.GetStack().Size(), 4);
 	ASSERT_EQ(reactor2.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(std::get<1>(reactor2.GetCodeBundle()).size(), 0);
 	ASSERT_EQ(reactor2.GetInterruptHandler(), GetDefaultInterruptRoutine());
 }
 
@@ -260,7 +259,7 @@ TEST(ReactorClass, ZeroStackSizeFault)
 		[]()
 		{
 			[[maybe_unused]]
-				Reactor bad {Resource, ReactorSpawnDescriptor {.StackSize = 0}};
+				Reactor bad {Resource, ReactorSpawnDescriptor {.StackSize = 0}, HyperVisor::GetFallbackRoutineLink()};
 		}
 	};
 	ASSERT_DEATH_IF_SUPPORTED(exec(), "");
@@ -279,14 +278,18 @@ TEST(ReactorClass, InterruptHandler)
 			.StackSize = 4,
 			.SharedIntrinsicTable = { },
 			.InterruptHandler = interrupt
-		}
+		},
+		HyperVisor::GetFallbackRoutineLink()
 	};
-	ASSERT_EQ(reactor.GetStack().Size(), 5); // 4 + 1 for padding
+	ASSERT_EQ(reactor.GetStack().Size(), 4);
 	ASSERT_EQ(reactor.GetInterruptHandler(), interrupt);
 }
 
 TEST(ReactorClass, TryExecuteValid)
 {
+	const EnvironmentDescriptor desc { };
+	Environment                 env { };
+	env.Boot(desc);
 	Stream                                   stream {OptimizationLevel::Off};
 	stream.Prologue().With(2, [](ScopedInt&& var)
 	{
@@ -294,17 +297,18 @@ TEST(ReactorClass, TryExecuteValid)
 		var += 1;
 		var /= 1;
 	}).Epilogue();
-	AppCodeBundle out { };
-	stream.Build(out);
+	Image out { };
+	ASSERT_EQ(Stream::Build(stream, env.GetOptimizationHints(), out), ValidationResultCode::Ok);
 	Reactor reactor
 	{
 		Resource,
 		ReactorSpawnDescriptor
 		{
 			.StackSize = FixedStack::SIZE_LARGE
-		}
+		},
+		HyperVisor::GetFallbackRoutineLink()
 	};
-	const auto& output {reactor.Execute(std::move(out))};
+	const auto& output {reactor.Execute(out)};
 	ASSERT_EQ(output.first, ReactorShutdownReason::Success);
 	ASSERT_EQ(output.second.InterruptCode, 0);
 	ASSERT_EQ(std::memcmp(output.second.Input, &reactor.GetInputDescriptor(), sizeof(decltype(*output.second.Input))), 0);
@@ -312,15 +316,19 @@ TEST(ReactorClass, TryExecuteValid)
 
 TEST(ReactorClass, TryExecuteInvalidZeroCode)
 {
-	const Stream  stream {OptimizationLevel::Off};
-	AppCodeBundle out { };
-	ASSERT_EQ(stream.Build(out), ValidationResultCode::Empty);
+	const EnvironmentDescriptor desc { };
+	Environment                 env { };
+	env.Boot(desc);
+	const Stream stream {OptimizationLevel::Off};
+	Image        out { };
+	ASSERT_EQ(Stream::Build(stream, env.GetOptimizationHints(), out), ValidationResultCode::Empty);
 	Reactor reactor
 	{
 		Resource,
 		ReactorSpawnDescriptor
 		{
 			.StackSize = FixedStack::SIZE_LARGE
-		}
+		},
+		HyperVisor::GetFallbackRoutineLink()
 	};
 }

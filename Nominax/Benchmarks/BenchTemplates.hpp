@@ -215,15 +215,20 @@
 using namespace benchmark;
 
 using namespace Nominax;
-using namespace Common;
+using namespace Foundation;
 using namespace ByteCode;
 using namespace Core;
 
-static const void* Alloc
+inline std::unique_ptr Env
 {
-	[]() -> const void*
+	[] () -> auto
 	{
-		return GlobalAllocatorProxy = &GlobalDebugAllocator;
+		auto                  env {std::make_unique<Environment>()};
+		EnvironmentDescriptor descriptor { };
+		descriptor.AppName = "NominaxBenchmark";
+		descriptor.FastHostIoSync = false;
+		env->Boot(descriptor);
+		return env;
 	}()
 };
 

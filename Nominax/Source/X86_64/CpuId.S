@@ -205,10 +205,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl Asm_CpuId
+.globl CpuId
 
 # Header: Arch/X86_64/CpuId.hpp
-Asm_CpuId:
+CpuId:
     pushq   %rbp                # stack frame prologue
     movq    %rsp, %rbp          # stack frame prologue
     pushq   %rbx
@@ -272,4 +272,3 @@ Asm_CpuId:
     movq    %rbp, %rsp          # stack frame epilogue
     popq    %rbp                # stack frame epilogue
     retq                        # return
-    

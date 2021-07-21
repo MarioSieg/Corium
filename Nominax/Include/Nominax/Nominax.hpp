@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "RuntimeAssembler_x86_64.hpp"
+#include "x86_64.hpp"
 #include "ByteCode.hpp"
 #include "Core.hpp"
 #include "Foundation.hpp"
@@ -218,6 +218,6 @@ namespace Nominax::Prelude
 	using namespace Assembler;
 	using namespace ByteCode;
 	using namespace Core;
-	using namespace Common;
+	using namespace Foundation;
 	using namespace VectorLib;
 }

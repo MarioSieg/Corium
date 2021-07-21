@@ -1,6 +1,6 @@
 // File: ByteCode.cpp
 // Author: Mario
-// Created: 05.07.2021 4:43 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -212,104 +212,159 @@
 
 namespace Nominax::ByteCode
 {
-	auto TransformStreamToImageByCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void
+	auto TransformStreamToImageByCopy
+	(
+		const Stream&            input,
+		const OptimizationHints& optHints,
+		Image&                   output
+	) -> void
 	{
-		// allocate image and copy code:
-		{
-			const auto binaryImage {new(std::nothrow) Signal[input.Size()]};
-			std::memcpy(binaryImage, std::data(input.GetCodeBuffer()),
-			            std::size(input.GetCodeBuffer()) * sizeof(Signal));
-			output = Image {static_cast<void*>(binaryImage), std::size(input.GetCodeBuffer()) * sizeof(Signal)};
-		}
-
-		// create jump map and execution address mapping:
-		jumpMap.resize(input.Size());
-
-		const auto& discriminators {input.GetDiscriminatorBuffer()};
-		for (std::size_t i {0}; i < input.Size(); ++i)
-		{
-			#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-
-			if (discriminators[i] == Signal::Discriminator::JumpAddress)
-			{
-				output[i].Ptr = const_cast<void*>(Core::ComputeRelativeJumpAddress(output.GetBlobData(), output[i].JmpAddress));
-			}
-
-			#endif
-			jumpMap[i] = static_cast<U8>(discriminators[i] == Signal::Discriminator::Instruction);
-		}
+		Stream copy {input};
+		return TransformStreamToImageByMove(std::move(copy), optHints, output);
 	}
+
+	auto TransformStreamToImageByMove
+	(
+		Stream&&                                  input,
+		[[maybe_unused]] const OptimizationHints& optHints,
+		Image&                                    output
+	) -> void
+	{
+		if (input.IsEmpty())
+		{
+			[[unlikely]]
+				return;
+		}
+
+		output = Image {std::move(input.GetCodeBuffer())};
+
+		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
+		const auto* const NOX_RESTRICT                     discriminators {&*std::begin(input.GetDiscriminatorBuffer())};
+		const auto* const NOX_RESTRICT* const NOX_RESTRICT jumpTable {&optHints.JumpTable};
+		const auto* const NOX_RESTRICT                     base {output.GetBlobData()};
+		const auto* const NOX_RESTRICT                     begin {&*std::begin(output)};
+
+		const auto addressMapper
+		{
+			[=](Signal& x)
+			{
+				const Signal::Discriminator discriminator {discriminators[&x - begin]};
+				if (discriminator == Signal::Discriminator::Instruction)
+				{
+					x.Ptr = const_cast<void*>(*(jumpTable + x.OpCode));
+				}
+				else if (discriminator == Signal::Discriminator::JumpAddress)
+				{
+					x.Ptr = const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress));
+				}
+			}
+		};
+		std::for_each(std::execution::par_unseq, std::begin(output), std::end(output), addressMapper);
+		#endif
+	}
+
+	Image::Image(std::vector<Signal>&& buffer) : Blob_ {std::move(buffer)} { }
 
 	Image::Image(const std::span<const Signal> blob)
 	{
-		NOX_PAS_NOT_ZERO(blob.size(), "Byte code image with zero size is invalid!");
-		this->Size_ = std::size(blob);
-		this->Blob_ = new(std::nothrow) Signal[this->Size_];
-		std::memcpy(this->Blob_, std::data(blob), this->Size_ * sizeof(Signal));
+		NOX_PAS_FALSE(std::empty(blob), "Byte code image with zero size is invalid!");
+		this->Blob_.resize(std::size(blob));
+		std::copy(std::execution::par_unseq, std::cbegin(blob), std::cend(blob), std::begin(this->Blob_));
 	}
 
-	Image::Image(const void* const data, const std::size_t byteSize)
+	Image::Image(const void* const data, const U64 byteSize)
 	{
 		NOX_PAS_NOT_ZERO(byteSize, "Byte code image with zero size is invalid!");
 		NOX_PAS_NOT_NULL(data, "Byte code image with null data is invalid!");
 		NOX_PAS_TRUE(byteSize % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
-		this->Size_ = byteSize / sizeof(Signal);
-		this->Blob_ = new(std::nothrow) Signal[this->Size_];
-		std::memcpy(this->Blob_, data, byteSize);
+		this->Blob_.resize(byteSize / sizeof(Signal));
+		std::memcpy(std::data(this->Blob_), data, byteSize);
 	}
 
-	Image::Image(Signal* const data, const std::size_t size)
+	auto Stream::GetSerializationImageHeader(SerializationImageHeader& out) const -> void
 	{
-		NOX_PAS_NOT_ZERO(size, "Byte code image with zero size is invalid!");
-		NOX_PAS_NOT_NULL(data, "Byte code image with null data is invalid!");
-		this->Blob_ = data;
-		this->Size_ = size;
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		std::memcpy(std::data(out.Magic), std::data(SerializationImageHeader::MAGIC_ID), sizeof out.Magic);
+		out.CodeImageSize          = std::size(this->CodeBuffer_);
+		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);
+		out.EncryptDecrypt();
 	}
 
-	Image::Image(U8* const data, const std::size_t size)
+	auto Stream::Serialize(std::ofstream& out) const -> bool
 	{
-		NOX_PAS_TRUE(size % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
-		NOX_PAS_NOT_ZERO(size, "Byte code image with zero size is invalid!");
-		NOX_PAS_NOT_NULL(data, "Byte code image with null data is invalid!");
+		SerializationImageHeader header { };
+		constexpr U64            codeSectionMarker {STREAM_IMAGE_CODE_SECTION_MARKER};
+		constexpr U64            discriminatorSectionMarker {STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER};
 
-		this->Size_ = size / sizeof(Signal);
-		this->Blob_ = reinterpret_cast<Signal*>(data);
+		// header
+		this->GetSerializationImageHeader(header);
+		out.write(reinterpret_cast<const char*>(&header), sizeof(SerializationImageHeader));
+
+		// code section
+		out.write(reinterpret_cast<const char*>(&codeSectionMarker), sizeof(U64));
+		out.write(reinterpret_cast<const char*>(std::data(this->CodeBuffer_)), std::size(this->CodeBuffer_) * sizeof(CodeStorageType::value_type));
+
+		// discriminator section
+		out.write(reinterpret_cast<const char*>(&discriminatorSectionMarker), sizeof(U64));
+		out.write(reinterpret_cast<const char*>(std::data(this->CodeDiscriminatorBuffer_)), std::size(this->CodeDiscriminatorBuffer_) * sizeof(DiscriminatorStorageType::value_type));
+		return true;
 	}
 
-	Image::Image(Image&& other) : Blob_ {other.Blob_},
-	                              Size_ {other.Size_}
+	auto Stream::Deserialize(std::ifstream& in) -> bool
 	{
-		other.Blob_ = nullptr;
-		other.Size_ = 0;
-	}
-
-	auto Image::operator =(Image&& other) -> Image&
-	{
-		if (this->Blob_ && this->Size_)
+		SerializationImageHeader header { };
+		in.read(reinterpret_cast<char*>(&header), sizeof(SerializationImageHeader));
+		for (U64 i {0}; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
 		{
-			delete[] this->Blob_;
+			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
+			{
+				[[unlikely]]
+					return false;
+			}
 		}
 
-		this->Blob_ = other.Blob_;
-		this->Size_ = other.Size_;
+		header.EncryptDecrypt();
+		if (!header.CodeImageSize || !header.DiscriminatorImageSize)
+		{
+			[[unlikely]]
+				return false;
+		}
 
-		other.Blob_ = nullptr;
-		other.Size_ = 0;
+		// validate code section marker
+		U64 codeSectionMarker { };
+		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof(U64));
+		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
+		{
+			[[unlikely]]
+				return false;
+		}
 
-		return *this;
+		// load code section:
+		this->CodeBuffer_.clear();
+		this->CodeBuffer_.resize(header.CodeImageSize);
+		in.read(reinterpret_cast<char*>(std::data(this->CodeBuffer_)), header.CodeImageSize * sizeof(CodeStorageType::value_type));
+
+		// validate discriminator section marker
+		U64 discriminatorSectionMarker { };
+		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof(U64));
+		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
+		{
+			[[unlikely]]
+				return false;
+		}
+
+		// load discriminator section:
+		this->CodeDiscriminatorBuffer_.clear();
+		this->CodeDiscriminatorBuffer_.resize(header.CodeImageSize);
+		in.read(reinterpret_cast<char*>(std::data(this->CodeDiscriminatorBuffer_)), header.DiscriminatorImageSize * sizeof(CodeStorageType::value_type));
+
+		return true;
 	}
 
-	Image::~Image()
-	{
-		delete[] this->Blob_;
-		this->Blob_ = nullptr;
-		this->Size_ = 0;
-	}
-
-	using Common::ILog2;
-	using Common::Proxy_F64IsZero;
-	using Common::Proxy_F64IsOne;
-	using Common::IsPowerOfTwo;
+	using Foundation::ILog2;
+	using Foundation::Proxy_F64IsZero;
+	using Foundation::Proxy_F64IsOne;
+	using Foundation::IsPowerOfTwo;
 
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst
@@ -875,23 +930,32 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	using namespace Common;
+	using namespace Foundation;
 
-	auto Stream::PrintByteCode() const -> void
+	auto Stream::DumpByteCode() const -> void
 	{
-		Print(TextColor::Green, "Len: {}, Size: {} B", this->Size(), this->SizeInBytes());
-		for (std::size_t i {0}; i < this->Size(); ++i)
+		Print("Len: {}, Size: {} B\n", this->Size(), this->SizeInBytes());
+
+		for (U64 i {0}; i < this->Size(); ++i)
 		{
-			if (this->CodeDisc_[i] == Signal::Discriminator::Instruction)
-			{
-				Print(TextColor::Green, "\n&{:08X}: ", i);
-				Print(TextColor::Cyan, "{}", this->Code_[i].Instr);
-			}
-			else
-			{
-				Print(TextColor::Magenta, " {}", (*this)[i]);
-			}
+			const auto bytes {std::bit_cast<std::array<U8, sizeof(Signal)>>(this->CodeBuffer_[i])};
+			const auto isInstr {this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction};
+			Print(TextColor::Green, "&{:#018X} ", reinterpret_cast<Uip64>(&this->CodeBuffer_[i]));
+			Print
+			(
+				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
+				bytes[0],
+				bytes[1],
+				bytes[2],
+				bytes[3],
+				bytes[4],
+				bytes[5],
+				bytes[6],
+				bytes[7]
+			);
+			Print(isInstr ? TextColor::Blue : TextColor::Magenta, "{}\n", (*this)[i]);
 		}
+
 		Print("\n\n");
 	}
 
@@ -900,9 +964,9 @@ namespace Nominax::ByteCode
 		Print("Stream size: {}\n", this->Size());
 		Print("Code buffer: {:.03F} MB\n",
 		      Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->Code_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
+			      static_cast<F32>(this->CodeBuffer_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
 		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeDisc_.size()) * static_cast<F32>(sizeof(
+			      static_cast<F32>(this->CodeDiscriminatorBuffer_.size()) * static_cast<F32>(sizeof(
 				      DiscriminatorStorageType::value_type))));
 		Print("Total: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
 	}
@@ -911,8 +975,8 @@ namespace Nominax::ByteCode
 	{
 		for (const auto& [discriminator, signal] : PrologueCode())
 		{
-			this->CodeDisc_.emplace_back(discriminator);
-			this->Code_.emplace_back(signal);
+			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
+			this->CodeBuffer_.emplace_back(signal);
 		}
 		return *this;
 	}
@@ -921,20 +985,33 @@ namespace Nominax::ByteCode
 	{
 		for (const auto& [discriminator, signal] : EpilogueCode())
 		{
-			this->CodeDisc_.emplace_back(discriminator);
-			this->Code_.emplace_back(signal);
+			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
+			this->CodeBuffer_.emplace_back(signal);
 		}
 		return *this;
 	}
 
-	auto Stream::Build(Image& out, JumpMap& outJumpMap) const -> ValidationResultCode
+	auto Stream::Build(Stream&& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
 	{
-		if (const auto validationResult {ValidateFullPass(*this)}; validationResult != ValidationResultCode::Ok)
+		const ValidationResultCode validationResult {ValidateFullPass(stream)};
+		if (validationResult != ValidationResultCode::Ok)
 		{
 			[[unlikely]]
 				return validationResult;
 		}
-		TransformStreamToImageByCopy(*this, out, outJumpMap);
+		TransformStreamToImageByMove(std::move(stream), optInfo, out);
+		return ValidationResultCode::Ok;
+	}
+
+	auto Stream::Build(const Stream& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
+	{
+		const ValidationResultCode validationResult {ValidateFullPass(stream)};
+		if (validationResult != ValidationResultCode::Ok)
+		{
+			[[unlikely]]
+				return validationResult;
+		}
+		TransformStreamToImageByCopy(stream, optInfo, out);
 		return ValidationResultCode::Ok;
 	}
 
@@ -956,7 +1033,7 @@ namespace Nominax::ByteCode
 			[[unlikely]]
 				return false;
 		}
-		for (std::size_t i {0}; i < code.size(); ++i)
+		for (U64 i {0}; i < code.size(); ++i)
 		{
 			if (code[i] != input[i])
 			{
@@ -975,7 +1052,7 @@ namespace Nominax::ByteCode
 			[[unlikely]]
 				return false;
 		}
-		for (std::size_t i {0}, j {input.Size() - code.size()}; i < code.size(); ++i)
+		for (U64 i {0}, j {input.Size() - code.size()}; i < code.size(); ++i)
 		{
 			if (code[i] != input[j + i])
 			{
@@ -1114,7 +1191,7 @@ namespace Nominax::ByteCode
 
 	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) -> bool
 	{
-		const auto idx {static_cast<std::size_t>(address)};
+		const auto idx {static_cast<U64>(address)};
 
 		// validate that jump address is inside the range of the bucket:
 		if (bucket.Size() <= idx)
@@ -1160,7 +1237,7 @@ namespace Nominax::ByteCode
 				return ValidationResultCode::TooManyArgumentsForInstruction;
 		}
 
-		for (std::size_t i {0}; i < args.size(); ++i)
+		for (U64 i {0}; i < args.size(); ++i)
 		{
 			const Signal::Discriminator discriminator {args[i]};
 

@@ -1,6 +1,6 @@
-// File: CpuId.cpp
+// File: Entry.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.07.2021 9:20 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,28 +205,38 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#include "Include/Nominax/Nominax.hpp"
 
-#include "../../TestBase.hpp"
+using namespace Nominax::Prelude;
+using namespace Core;
 
-#if NOX_ARCH_X86_64
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+auto main(const int argc, const char* const* const argv) -> I32
 {
-	const auto supported {X86_64::Routines::Asm_IsCpuIdSupported()};
-	ASSERT_TRUE(supported);
-}
+	const EnvironmentDescriptor environmentDescriptor
+	{
+		.ArgC = argc,
+		.ArgV = argv
+	};
 
-TEST(AssemblyCalls, CpuId)
-{
-	const CpuFeatureBits bits { };
-	ASSERT_TRUE(bits.Fpu);
-	ASSERT_TRUE(bits.Mmx);
-	ASSERT_TRUE(bits.Sse);
-	ASSERT_TRUE(bits.Sse2);
-	ASSERT_TRUE(bits.Sse3);
-	ASSERT_TRUE(bits.Ssse3);
-}
+	Environment environment { };
+	environment.Boot(environmentDescriptor);
 
-#endif
+	Stream stream { };
+	stream.Prologue();
+	stream.With(3, [](ScopedInt x)
+	{
+		x *= 10;
+		x += 1;
+		x *= 10;
+		x &= -10;
+		x *= -5;
+		x -= 10;
+		x -= 1;
+		x -= 1;
+		x += 1;
+	});
+	stream.Epilogue();
+	stream.DumpByteCode();
+	environment.Shutdown();
+	return 0;
+}

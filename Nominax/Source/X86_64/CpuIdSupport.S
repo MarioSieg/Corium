@@ -205,16 +205,16 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl Asm_IsCpuIdSupported
+.globl IsCpuIdSupported
 
 # Header: Arch/X86_64/CpuId.hpp
-Asm_IsCpuIdSupported:
+IsCpuIdSupported:
     pushq   %rbp                # stack frame prologue
     movq    %rsp, %rbp          # stack frame prologue
     pushq   %rbx
     pushfq                      # backup flags
     pushfq                      # store flags
-    xorl    $0x00200000, (%rsp) # invert id bit in flags
+    xorl    $(1 << 21), (%rsp)  # invert id bit in flags
     popfq                       # load stored eflags with inverted id bit
     pushfq                      # store flags again with maybe inverted id bit
     popq    %rax                # store flags into rax with maybe inverted id bit
@@ -222,10 +222,10 @@ Asm_IsCpuIdSupported:
     popfq                       # restore original flags from backup
     movl    %eax, %ebx          # backup eax into ebx
     xorl    %eax, %eax          # clear eax
+    andl    $(1 << 21), %ebx    # mask off
     testl   %ebx, %ebx          # test if ebx is non zero
     setneb  %al                 # set al to 1 if ebx was non zero, else 0
     popq    %rbx
     movq    %rbp, %rsp          # stack frame epilogue
     popq    %rbp                # stack frame epilogue
     retq                        # return
-    

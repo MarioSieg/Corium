@@ -902,13 +902,13 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange2)
 
 TEST(ValidatorAlgorithms, FullValidation1Million)
 {
-	constexpr std::size_t count {200'000};
+	constexpr U64 count {200'000};
 
 	Stream stream { };
 	stream.Reserve(count * 5 + 10);
 	stream.Prologue();
 
-	for (std::size_t i {0}; i < count; ++i)
+	for (U64 i {0}; i < count; ++i)
 	{
 		stream << Instruction::Jmp;
 		stream << JumpAddress {0};

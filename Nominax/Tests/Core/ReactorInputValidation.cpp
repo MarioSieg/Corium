@@ -212,7 +212,6 @@ TEST(ReactorInputValidation, ValidInput)
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
-		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = MockCode.size(),
 		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
@@ -229,7 +228,6 @@ TEST(ReactorInputValidation, NullPointers)
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = nullptr,
-		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = 0,
 		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = 0,
@@ -246,7 +244,6 @@ TEST(ReactorInputValidation, ZeroMemorySizes)
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
-		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = 0,
 		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = 0,
@@ -266,7 +263,6 @@ TEST(ReactorInputValidation, NullPointerIntrinsicRoutines)
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
-		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = MockCode.size(),
 		.IntrinsicTable = intrinsicRoutines.data(),
 		.IntrinsicTableSize = intrinsicRoutines.size(),
@@ -283,7 +279,6 @@ TEST(ReactorInputValidation, ValidIntrinsicRoutines)
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
-		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = MockCode.size(),
 		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
@@ -300,7 +295,6 @@ TEST(ReactorInputValidation, MissingCodePrologue)
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data() + 1,
-		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = MockCode.size() - 1,
 		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
@@ -323,7 +317,6 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue1)
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = code.data(),
-		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = code.size(),
 		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
@@ -345,7 +338,6 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue2)
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = code.data(),
-		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = code.size(),
 		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
@@ -367,7 +359,6 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue3)
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = code.data(),
-		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = code.size(),
 		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
@@ -384,7 +375,6 @@ TEST(ReactorInputValidation, MissingStackPrologue)
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
-		.CodeChunkInstructionMap = nullptr,
 		.CodeChunkSize = MockCode.size(),
 		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),

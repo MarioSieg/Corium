@@ -356,25 +356,25 @@ TEST(Environment, BootShutdownHooks)
 
 	class MyEnvironment : public Environment
 	{
-		auto OnPostBootHook() -> bool override
+		virtual auto OnPostBootHook() -> bool override
 		{
 			++x;
 			return true;
 		}
 
-		auto OnPostShutdownHook() -> bool override
+		virtual auto OnPostShutdownHook() -> bool override
 		{
 			++x;
 			return true;
 		}
 
-		auto OnPreBootHook() -> bool override
+		virtual auto OnPreBootHook() -> bool override
 		{
 			++x;
 			return true;
 		}
 
-		auto OnPreShutdownHook() -> bool override
+		virtual auto OnPreShutdownHook() -> bool override
 		{
 			++x;
 			return true;
@@ -557,21 +557,21 @@ TEST(Environment, ExecutionHooks)
 
 	const auto ssize {stream.Size()};
 
-	static std::size_t streamSize;
-	static int         counter;
+	static U64 streamSize;
+	static int counter;
 
 	const EnvironmentDescriptor descriptor { };
 
 	class MyEnvironment : public Environment
 	{
-		auto OnPreExecutionHook(const AppCodeBundle& appCodeBundle) -> bool override
+		virtual auto OnPreExecutionHook(const Image& image) -> bool override
 		{
-			streamSize = std::get<1>(appCodeBundle).size();
+			streamSize = image.GetSize();
 			++counter;
 			return true;
 		}
 
-		auto OnPostExecutionHook() -> bool override
+		virtual auto OnPostExecutionHook() -> bool override
 		{
 			++counter;
 			return true;

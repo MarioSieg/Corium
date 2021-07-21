@@ -1,6 +1,6 @@
 // File: ReactorCores.hpp
 // Author: Mario
-// Created: 05.07.2021 4:43 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -212,8 +212,14 @@
 
 namespace Nominax::Core
 {
-	struct ReactorState;
-	struct VerboseReactorDescriptor;
+	#define NOX_DECL_VM_CORE(name)					\
+	[[nodiscard]]								\
+	NOX_HOT extern auto ReactorCore_##name		\
+	(											\
+		const VerboseReactorDescriptor* input,	\
+		ReactorState* output,					\
+		const void**** outJumpTable = nullptr	\
+	) -> ReactorShutdownReason
 
 	/// <summary>
 	/// Generic fallback implementation, for all architectures.
@@ -222,11 +228,16 @@ namespace Nominax::Core
 	/// <param name="output"></param>
 	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	extern auto ReactorCore_Fallback
-	(
-		const VerboseReactorDescriptor* input, ReactorState* output,
-		const void****                  outJumpTable = nullptr
-	) -> ReactorShutdownReason;
+	NOX_DECL_VM_CORE(Fallback);
+
+	/// <summary>
+	/// Generic debug implementation, for all architectures.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
+	/// <returns></returns>
+	NOX_DECL_VM_CORE(Debug);
 
 	#if NOX_ARCH_X86_64
 
@@ -237,11 +248,7 @@ namespace Nominax::Core
 	/// <param name="output"></param>
 	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	NOX_HOT extern auto ReactorCore_AVX
-	(
-		const VerboseReactorDescriptor* input, ReactorState* output,
-		const void****                  outJumpTable = nullptr
-	) -> ReactorShutdownReason;
+	NOX_DECL_VM_CORE(Avx);
 
 	/// <summary>
 	/// Specialized implementation compiled with AVX, which uses 512-bit ZMM registers.
@@ -250,12 +257,9 @@ namespace Nominax::Core
 	/// <param name="output"></param>
 	/// <param name="outJumpTable"></param>
 	/// <returns></returns>
-	NOX_HOT extern auto ReactorCore_AVX512F
-	(
-		const VerboseReactorDescriptor* input,
-		ReactorState*                   output,
-		const void****                  outJumpTable = nullptr
-	) -> ReactorShutdownReason;
+	NOX_DECL_VM_CORE(Avx512F);
 
 	#endif
+
+	#undef NOX_DECL_VM_CORE
 }

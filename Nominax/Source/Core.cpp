@@ -1,6 +1,6 @@
 // File: Core.cpp
 // Author: Mario
-// Created: 05.07.2021 4:43 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -223,18 +223,19 @@ namespace Nominax
 
 	namespace Core
 	{
+		using namespace Foundation;
+
 		auto BasicReactorDescriptor::BuildDetailed() const -> VerboseReactorDescriptor
 		{
 			return
 			{
-				.CodeChunk = this->CodeChunk.data(),
-				.CodeChunkInstructionMap = this->CodeChunkInstructionMap.data(),
-				.CodeChunkSize = this->CodeChunk.size(),
-				.IntrinsicTable = this->IntrinsicTable.data(),
-				.IntrinsicTableSize = this->IntrinsicTable.size(),
+				.CodeChunk = std::data(this->CodeChunk),
+				.CodeChunkSize = std::size(this->CodeChunk),
+				.IntrinsicTable = std::data(this->IntrinsicTable),
+				.IntrinsicTableSize = std::size(this->IntrinsicTable),
 				.InterruptHandler = &this->InterruptHandler,
-				.Stack = this->Stack.data(),
-				.StackSize = this->Stack.size(),
+				.Stack = std::data(this->Stack),
+				.StackSize = std::size(this->Stack),
 			};
 		}
 
@@ -247,10 +248,10 @@ namespace Nominax
 		/// Query and print machine info.
 		/// </summary>
 		/// <returns></returns>
-		static auto InitSysInfo() -> Common::Snapshot
+		static auto InitSysInfo() -> Snapshot
 		{
-			Common::Print('\n');
-			Common::Snapshot snapshot { };
+			Print('\n');
+			Snapshot snapshot { };
 			snapshot.Print();
 			return snapshot;
 		}
@@ -259,12 +260,12 @@ namespace Nominax
 		/// Query and print cpu features.
 		/// </summary>
 		/// <returns></returns>Common::
-		static auto InitCpuFeatures() -> Common::CpuFeatureDetector
+		static auto InitCpuFeatures() -> CpuFeatureDetector
 		{
-			Common::Print('\n');
-			Common::CpuFeatureDetector cpuFeatureDetector { };
-			cpuFeatureDetector.Print();
-			Common::Print('\n');
+			Print('\n');
+			CpuFeatureDetector cpuFeatureDetector { };
+			cpuFeatureDetector.Dump();
+			Print('\n');
 			return cpuFeatureDetector;
 		}
 
@@ -277,18 +278,17 @@ namespace Nominax
 		template <typename T>
 		static inline auto PrintTypeInfo(const std::string_view name) -> void
 		{
-			Common::Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
+			Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
 		}
 
 		/// <summary>
 		/// Print size and alignment of common types.
 		/// </summary>
-		/// <param name="threads"></param>
 		/// <returns></returns>
 		static auto PrintTypeInfoTable() -> void
 		{
-			Common::Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
-			PrintTypeInfo<Common::Record>("Common::Record");
+			Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
+			PrintTypeInfo<Record>("Record");
 			PrintTypeInfo<ByteCode::Signal>("Signal");
 			PrintTypeInfo<ByteCode::Signal::Discriminator>("SignalDisc");
 			PrintTypeInfo<Object>("Object");
@@ -307,46 +307,50 @@ namespace Nominax
 		/// <returns></returns>
 		auto PrintSystemInfo() -> void
 		{
-			Common::Print(SYSTEM_LOGO_TEXT);
-			Common::Print(SYSTEM_COPYRIGHT_TEXT);
-			Common::Print("\nNominax Version: v.{}.{}\n", SYSTEM_VERSION.Major, SYSTEM_VERSION.Minor);
-			Common::Print("Platform: {} {}\n", NOX_OS_NAME, NOX_ARCH_SIZE_NAME);
-			Common::Print("Arch: {}\n", NOX_ARCH_NAME);
-			Common::Print("IsPosix: {}\n", NOX_IS_POSIX);
-			Common::Print("Compiled with: {} - C++ 20\n", NOX_COM_NAME);
-			Common::Print("\n");
+			Print(SYSTEM_LOGO_TEXT);
+			Print(SYSTEM_COPYRIGHT_TEXT);
+			Print("\nNominax Version: v.{}.{}\n", SYSTEM_VERSION.Major, SYSTEM_VERSION.Minor);
+			Print("Platform: {} {}\n", NOX_OS_NAME, NOX_ARCH_SIZE_NAME);
+			Print("Arch: {}\n", NOX_ARCH_NAME);
+			Print("IsPosix: {}\n", NOX_IS_POSIX);
+			Print("Compiled with: {} - C++ 20\n", NOX_COM_NAME);
+			Print('\n');
 			PrintTypeInfoTable();
-			Common::Print("\n");
+			Print('\n');
 		}
 
 		#define DISPATCH_HOOK(method, ...)							\
-	do														\
-	{														\
-		Common::Print("Dispatching hook: " #method "\n");	\
-		NOX_PAS_TRUE								\
-		(													\
-			this-> method (__VA_ARGS__),					\	
-			"\" "#method "\" returned false!"				\
-		);													\
-	}														\
-	while(false)
+        do															\
+        {															\
+            Foundation::Print("Dispatching hook: " #method "\n");	\
+            NOX_PAS_TRUE											\
+            (														\
+                this-> method (__VA_ARGS__),						\
+                "\" "#method "\" returned false!"					\
+            );														\
+        }															\
+        while(false)
 
+		#if NOX_TESTING || NOX_DEBUG
 		#define VALIDATE_ONLINE_BOOT_STATE() NOX_PAS_TRUE(this->IsOnline(), "Environment is offline!")
+		#else
+		#define VALIDATE_ONLINE_BOOT_STATE()
+		#endif
 
 		/// <summary>
 		/// Checks if the byte stack size is divisible by sizeof(Common::Record) and panics if not.
 		/// Returns the counts of records.
 		/// </summary>
-		/// <param name="appCode"></param>
+		/// <param name="sizeInBytes"></param>
 		/// <returns></returns>
-		static inline auto MapStackSize(const std::size_t sizeInBytes) -> std::size_t
+		static inline auto MapStackSize(const U64 sizeInBytes) -> U64
 		{
-			if (sizeInBytes % sizeof(Common::Record) != 0)
+			if (sizeInBytes % sizeof(Record) != 0)
 			{
 				[[unlikely]]
-					Panic(NOX_PAINF, "Invalid stack size: {}! Must be a multiple of sizeof(Common::Record) -> 8!", sizeInBytes);
+					Panic(NOX_PANIC_INFO(), "Invalid stack size: {}! Must be a multiple of sizeof(Common::Record) -> 8!", sizeInBytes);
 			}
-			return sizeInBytes / sizeof(Common::Record);
+			return sizeInBytes / sizeof(Record);
 		}
 
 		/// <summary>
@@ -366,14 +370,14 @@ namespace Nominax
 		/// <returns></returns>
 		static inline auto ComputePoolSize
 		(
-			std::size_t       desiredSize,
-			const std::size_t reactorCount,
-			std::size_t       reactorStackSize
-		) -> std::size_t
+			U64       desiredSize,
+			const U64 reactorCount,
+			U64       reactorStackSize
+		) -> U64
 		{
 			reactorStackSize = MapStackSize(reactorStackSize);
 			desiredSize      = desiredSize ? desiredSize : Environment::FALLBACK_SYSTEM_POOL_SIZE;
-			return desiredSize + reactorCount * (reactorStackSize * sizeof(Common::Record));
+			return desiredSize + reactorCount * (reactorStackSize * sizeof(Record));
 		}
 
 		/// <summary>
@@ -392,7 +396,7 @@ namespace Nominax
 		/// </summary>
 		/// <param name="desiredSize"></param>
 		/// <returns></returns>
-		static constexpr auto ClampBootPoolSize(const std::size_t desiredSize) -> std::size_t
+		static constexpr auto ClampBootPoolSize(const U64 desiredSize) -> U64
 		{
 			return std::clamp(desiredSize, Environment::BOOT_POOL_SIZE_MIN, Environment::BOOT_POOL_SIZE_MAX);
 		}
@@ -407,7 +411,7 @@ namespace Nominax
 		[[maybe_unused]]
 		static auto PrintByteCodeErrorSector
 		(
-			const std::size_t                    idx, const ByteCode::Stream& appCode,
+			const U64                            idx, const ByteCode::Stream& appCode,
 			const ByteCode::ValidationResultCode code
 		)
 		{
@@ -418,59 +422,42 @@ namespace Nominax
 				|| code == ByteCode::ValidationResultCode::ArgumentTypeMismatch
 			};
 
-			for (std::size_t i {idx}; i < idx + 8 && i < appCode.Size(); ++i)
+			for (U64 i {idx}; i < idx + 8 && i < appCode.Size(); ++i)
 			{
 				if (appCode[i].Contains<ByteCode::Instruction>())
 				{
-					Print(Common::TextColor::Green, "\n{:#018X}: ", i);
-					Print(Common::TextColor::BrightBlue, "{}", appCode[i].Value.R64.AsU64);
+					Print(TextColor::Green, "\n{:#018X}: ", i);
+					Print(TextColor::BrightBlue, "{}", appCode[i].Value.R64.AsU64);
 				}
 				else
 				{
-					Print(Common::TextColor::Magenta, " {}", appCode[i].Value.R64.AsU64);
+					Print(TextColor::Magenta, " {}", appCode[i].Value.R64.AsU64);
 				}
 
 				if (isInstructionFault && i == idx)
 				{
-					Print(Common::LogLevel::Error, " {} ->", code);
+					Print(LogLevel::Error, " {} ->", code);
 				}
 			}
 
-			Common::Print('\n');
+			Print('\n');
 		}
 
 		/// <summary>
 		/// Helper to allocate a environment pool.
 		/// </summary>
 		[[nodiscard]]
-		NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const std::size_t size, const std::string_view poolId) -> U8*
+		NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const U64 size, const std::string_view poolId) -> U8*
 		{
-			Common::Print("Allocating {} pool with size: {} MB\n", poolId, Common::Bytes2Megabytes(static_cast<F64>(size)));
+			Print("Allocating {} pool with size: {} MB\n", poolId, Bytes2Megabytes(static_cast<F64>(size)));
 			auto* NOX_RESTRICT const mem {new(std::nothrow) U8[size]};
 			if (!mem)
 			{
 				[[unlikely]]
-					Panic(NOX_PAINF, "Allocation of monotonic {} pool with size {} MB failed!", poolId,
-					      Common::Bytes2Megabytes(static_cast<F64>(size)));
+					Panic(NOX_PANIC_INFO(), "Allocation of monotonic {} pool with size {} MB failed!", poolId,
+					      Bytes2Megabytes(static_cast<F64>(size)));
 			}
 			return mem;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="result"></param>
-		/// <param name="appCode"></param>
-		/// <returns></returns>
-		[[noreturn]]
-		static auto TriggerByteCodeStreamValidationPanic
-		(
-			const ByteCode::ValidationResultCode     result,
-			[[maybe_unused]] const ByteCode::Stream& appCode
-		)
-		{
-			// Print error message:
-			Panic(NOX_PAINF, "Byte code validation of stream failed: {}\n", result);
 		}
 
 		/// <summary>
@@ -480,7 +467,7 @@ namespace Nominax
 		/// <param name="max"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static constexpr auto ComputeMemoryPercent(const std::size_t used, const std::size_t max) -> F64
+		static constexpr auto ComputeMemoryPercent(const U64 used, const U64 max) -> F64
 		{
 			return static_cast<F64>(used) * 100.0 / static_cast<F64>(max);
 		}
@@ -497,7 +484,7 @@ namespace Nominax
 		(
 			std::pmr::monotonic_buffer_resource& resource,
 			const std::unique_ptr<U8[]>&         buffer,
-			const std::size_t                    size
+			const U64                            size
 		) -> std::pair<std::ptrdiff_t, F64>
 		{
 			const U8* const      needle {static_cast<U8*>(resource.allocate(sizeof(U8), alignof(U8)))};
@@ -507,17 +494,28 @@ namespace Nominax
 		}
 
 		/// <summary>
+		/// Query execution routine for environment.
+		/// </summary>
+		/// <param name="fallback"></param>
+		/// <param name="cpu"></param>
+		/// <returns></returns>
+		static inline auto QueryExecRoutine(const bool fallback, const CpuFeatureDetector& cpu)
+		{
+			return fallback ? HyperVisor::GetFallbackRoutineLink() : HyperVisor::GetOptimalReactorRoutine(cpu);
+		}
+
+		/// <summary>
 		/// Contains all the runtime variables required for the runtime system.
 		/// </summary>
 		/// <param name="descriptor"></param>
 		/// <returns></returns>
 		struct Environment::Context final
 		{
-			const std::size_t                                        ReactorCount;
-			const std::size_t                                        BootPoolSize;
+			const U64                                                ReactorCount;
+			const U64                                                BootPoolSize;
 			const std::unique_ptr<U8[]>                              BootPool;
 			std::pmr::monotonic_buffer_resource                      BootPoolResource;
-			const std::size_t                                        SystemPoolSize;
+			const U64                                                SystemPoolSize;
 			const std::unique_ptr<U8[]>                              SystemPool;
 			std::pmr::monotonic_buffer_resource                      SystemPoolResource;
 			std::pmr::unordered_set<std::pmr::string>                Arguments;
@@ -525,8 +523,8 @@ namespace Nominax
 			std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
 			const std::chrono::high_resolution_clock::time_point     BootStamp;
 			std::chrono::milliseconds                                BootTime;
-			const Common::Snapshot                                   SysInfoSnapshot;
-			const Common::CpuFeatureDetector                         CpuFeatures;
+			const Snapshot                                           SysInfoSnapshot;
+			const CpuFeatureDetector                                 CpuFeatures;
 			const ReactorRoutineLink                                 OptimalReactorRoutine;
 			ReactorPool                                              CorePool;
 
@@ -553,10 +551,9 @@ namespace Nominax
 			BootTime { },
 			SysInfoSnapshot {InitSysInfo()},
 			CpuFeatures {InitCpuFeatures()},
-			OptimalReactorRoutine {
-				descriptor.ForceFallback ? HyperVisor::GetFallbackRoutineLink() : HyperVisor::GetOptimalReactorRoutine(CpuFeatures)
-			},
-			CorePool {
+			OptimalReactorRoutine {QueryExecRoutine(descriptor.ForceFallback, CpuFeatures)},
+			CorePool
+			{
 				SystemPoolResource, ReactorCount, ReactorSpawnDescriptor
 				{
 					.StackSize = MapStackSize(descriptor.StackSize),
@@ -570,8 +567,7 @@ namespace Nominax
 			if (descriptor.ArgC && descriptor.ArgV)
 			{
 				// copy arguments:
-				[[likely]]
-					this->Arguments.insert(descriptor.ArgV + 1, descriptor.ArgV + descriptor.ArgC);
+				this->Arguments.insert(descriptor.ArgV + 1, descriptor.ArgV + descriptor.ArgC);
 			}
 
 			// copy app name:
@@ -593,7 +589,7 @@ namespace Nominax
 			return true;
 		}
 
-		auto Environment::OnPreExecutionHook([[maybe_unused]] const ByteCode::AppCodeBundle& appCodeBundle) -> bool
+		auto Environment::OnPreExecutionHook([[maybe_unused]] const ByteCode::Image& appCodeBundle) -> bool
 		{
 			return true;
 		}
@@ -613,11 +609,11 @@ namespace Nominax
 			return true;
 		}
 
-		Environment::Environment(const Common::IAllocator* const allocator)
+		Environment::Environment(const IAllocator* const allocator)
 		{
 			if (allocator)
 			{
-				Common::GlobalAllocatorProxy = allocator;
+				GlobalAllocatorProxy = allocator;
 			}
 		}
 
@@ -637,25 +633,25 @@ namespace Nominax
 			// Basic setup:
 			std::ios_base::sync_with_stdio(!descriptor.FastHostIoSync);
 			PrintSystemInfo();
-			Common::Print("Booting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
+			Print("Booting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
 			const auto tik {std::chrono::high_resolution_clock::now()};
 
 			// Invoke hook:
 			DISPATCH_HOOK(OnPreBootHook,);
 
-			Common::Print
+			Print
 			(
 				"Monotonic boot pool fixed size: {} MB, Min: {} MB, Max: {} MB\n",
-				Common::Bytes2Megabytes(static_cast<F64>(descriptor.BootPoolSize)),
-				Common::Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MIN)),
-				Common::Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MAX))
+				Bytes2Megabytes(static_cast<F64>(descriptor.BootPoolSize)),
+				Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MIN)),
+				Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MAX))
 			);
 
-			Common::Print
+			Print
 			(
 				"Monotonic system pool fixed size: {} MB, Fallback: {} MB\n",
-				Common::Bytes2Megabytes(descriptor.SystemPoolSize),
-				Common::Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
+				Bytes2Megabytes(descriptor.SystemPoolSize),
+				Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
 			);
 
 			// No, we cannot use std::make_unique because we want it noexcept!
@@ -669,13 +665,12 @@ namespace Nominax
 			const auto tok {std::chrono::high_resolution_clock::now()};
 
 			// Get memory snapshot:
-			const std::size_t memSnapshot {Common::QueryProcessMemoryUsed()};
-			const F64         memUsagePercent {
-				ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory)
-			};
+			const U64 memSnapshot {Os::QueryProcessMemoryUsed()};
+			const F64 memUsagePercent {ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory)};
 
 			// Query pool info
-			const auto [bootPoolSize, bootPoolPer] {
+			const auto [bootPoolSize, bootPoolPer]
+			{
 				QueryMemoryResourceUsage
 				(
 					this->Context_->BootPoolResource,
@@ -685,7 +680,8 @@ namespace Nominax
 			};
 
 			// Query pool info
-			const auto [sysPoolSize, sysPoolPer] {
+			const auto [sysPoolSize, sysPoolPer]
+			{
 				QueryMemoryResourceUsage
 				(
 					this->Context_->SystemPoolResource,
@@ -697,7 +693,7 @@ namespace Nominax
 			const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
 			this->Context_->BootTime = ms;
 
-			Common::Print
+			Print
 			(
 				"Runtime environment online!\n"
 				"Process memory snapshot: {:.02f} % [{} MB / {} MB]\n"
@@ -706,59 +702,67 @@ namespace Nominax
 				"Boot time: {}\n"
 				"\n",
 				memUsagePercent,
-				Common::Bytes2Megabytes(static_cast<F64>(memSnapshot)),
-				Common::Bytes2Megabytes(static_cast<F64>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
+				Bytes2Megabytes(static_cast<F64>(memSnapshot)),
+				Bytes2Megabytes(static_cast<F64>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
 				bootPoolPer,
-				Common::Bytes2Kilobytes(static_cast<F64>(bootPoolSize)),
-				Common::Bytes2Kilobytes(static_cast<F64>(this->Context_->BootPoolSize)),
+				Bytes2Kilobytes(static_cast<F64>(bootPoolSize)),
+				Bytes2Kilobytes(static_cast<F64>(this->Context_->BootPoolSize)),
 				sysPoolPer,
-				Common::Bytes2Megabytes(static_cast<F64>(sysPoolSize)),
-				Common::Bytes2Megabytes(static_cast<F64>(this->Context_->SystemPoolSize)),
+				Bytes2Megabytes(static_cast<F64>(sysPoolSize)),
+				Bytes2Megabytes(static_cast<F64>(this->Context_->SystemPoolSize)),
 				ms
 			);
 		}
 
-		auto Environment::Execute(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>
+		auto Environment::Execute(const ByteCode::Image& image) -> ExecutionResult
 		{
+			using namespace Foundation;
+
 			VALIDATE_ONLINE_BOOT_STATE();
 
-			ByteCode::AppCodeBundle appCodeBundle { };
-			if (const auto result {appCode.Build(appCodeBundle)}; result != ByteCode::ValidationResultCode::Ok)
-			{
-				[[unlikely]]
-					TriggerByteCodeStreamValidationPanic(result, appCode);
-			}
-
-			// Deallocate stream:
-			appCode = { };
-
 			// Invoke hook:
-			DISPATCH_HOOK(OnPreExecutionHook, appCodeBundle);
+			DISPATCH_HOOK(OnPreExecutionHook, image);
 
 			// Info
-			Print(Common::LogLevel::Warning, "Executing...\n");
+			Print(LogLevel::Warning, "Executing...\n");
 			std::cout.flush();
 
 			// Execute on alpha reactor:
-			const auto& result {(*this->Context_->CorePool)(std::move(appCodeBundle))};
+			const auto& result {(*this->Context_->CorePool)(image)};
 
 			// Add execution time:
-			const auto micros {
+			const auto micros
+			{
 				std::chrono::duration_cast<std::chrono::duration<F64, std::micro>>(result.second.Duration)
 			};
-			this->Context_->ExecutionTimeHistory.push_back(micros);
+			this->Context_->ExecutionTimeHistory.emplace_back(micros);
+
+			using Rsr = ReactorShutdownReason;
 
 			// Print exec info:
-			const auto level {
-				result.first == ReactorShutdownReason::Success ? Common::LogLevel::Success : Common::LogLevel::Error
-			};
-			Print(level, "Execution #{} done! Runtime {:.04}\n", this->Context_->ExecutionTimeHistory.size(),
-			      std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros));
+			const auto level {result.first == Rsr::Success ? LogLevel::Success : LogLevel::Error};
+			const auto time {std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros)};
+			Print(level, "Execution #{} done! Runtime {:.04}\n", this->Context_->ExecutionTimeHistory.size(), time);
 			std::cout.flush();
 
 			// Invoke hook:
 			DISPATCH_HOOK(OnPostExecutionHook,);
 			return result;
+		}
+
+		auto Environment::Execute(ByteCode::Stream&& stream) -> ExecutionResult
+		{
+			ByteCode::Image codeImage { };
+			NOX_PAS_EQ(ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
+			stream = { };
+			return (*this)(codeImage);
+		}
+
+		auto Environment::Execute(const ByteCode::Stream& stream) -> ExecutionResult
+		{
+			ByteCode::Image codeImage { };
+			NOX_PAS_EQ(ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
+			return (*this)(codeImage);
 		}
 
 		auto Environment::Shutdown() -> void
@@ -801,13 +805,13 @@ namespace Nominax
 			return this->Context_->BootTime;
 		}
 
-		auto Environment::GetSystemSnapshot() const -> const Common::Snapshot&
+		auto Environment::GetSystemSnapshot() const -> const Snapshot&
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 			return this->Context_->SysInfoSnapshot;
 		}
 
-		auto Environment::GetProcessorFeatureSnapshot() const -> const Common::CpuFeatureDetector&
+		auto Environment::GetProcessorFeatureSnapshot() const -> const CpuFeatureDetector&
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 			return this->Context_->CpuFeatures;
@@ -819,13 +823,13 @@ namespace Nominax
 			return this->Context_->AppName;
 		}
 
-		auto Environment::GetMonotonicSystemPoolSize() const -> std::size_t
+		auto Environment::GetMonotonicSystemPoolSize() const -> U64
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 			return this->Context_->SystemPoolSize;
 		}
 
-		auto Environment::GetExecutionCount() const -> std::size_t
+		auto Environment::GetExecutionCount() const -> U64
 		{
 			VALIDATE_ONLINE_BOOT_STATE();
 			return this->Context_->ExecutionTimeHistory.size();
@@ -837,75 +841,28 @@ namespace Nominax
 			return this->Context_->ExecutionTimeHistory;
 		}
 
-		auto ComputeInstructionMapBinding
-		(
-			std::span<const ByteCode::Signal::Discriminator> input,
-			std::span<bool>&                                 output
-		) -> bool
+		auto Environment::GetOptimizationHints() const -> ByteCode::OptimizationHints
 		{
-			if (std::size(input) != std::size(output))
+			VALIDATE_ONLINE_BOOT_STATE();
+			const void*& jumpTable {*this->Context_->OptimalReactorRoutine.JumpTable};
+			return
 			{
-				[[unlikely]]
-					return false;
-			}
-
-			auto       iterator {std::begin(input)};
-			const auto end {std::end(input)};
-
-			for (bool* flag = output.data(); iterator < end; ++iterator, ++flag)
-			{
-				*flag = *iterator == ByteCode::Signal::Discriminator::Instruction;
-			}
-
-			return true;
+				jumpTable
+			};
 		}
 
-		auto PerformJumpTableMapping
-		(
-			ByteCode::Signal* NOX_RESTRICT                     bucket,
-			const ByteCode::Signal* const NOX_RESTRICT         bucketEnd,
-			const bool*                                        jumpAddressMap,
-			const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
-		) -> bool
-		{
-			NOX_PAS_NOT_NULL(bucket, "Code chunk bucket table was nullptr!");
-			NOX_PAS_NOT_NULL(bucketEnd, "Code chunk bucket table end was nullptr!");
-			NOX_PAS_NOT_NULL(jumpAddressMap, "Jump address map was nullptr!");
-			NOX_PAS_NOT_NULL(jumpTable, "Jump table was nullptr!");
-			NOX_PAS_NOT_NULL(*jumpTable, "First element of jump table was nullptr!");
-			NOX_PAS_TRUE(*jumpAddressMap, "First element of jump address map was false, but should be true because of code prologue!");
-			NOX_PAS_EQ(bucket->Instr, ByteCode::Instruction::NOp, "Missing code prologue in code bucket!");
+		#undef VALIDATE_ONLINE_BOOT_STATE
+		#undef DISPATCH_HOOK
 
-			// skip first "nop" padding instruction:
-			++bucket;
-			++jumpAddressMap;
-
-			while (bucket < bucketEnd)
-			{
-				if (*jumpAddressMap)
-				{
-					bucket->Ptr = const_cast<void*>(*(jumpTable + bucket->OpCode));
-				}
-
-				++bucket;
-				++jumpAddressMap;
-			}
-
-			return true;
-		}
-
-		FixedStack::FixedStack(std::pmr::memory_resource& allocator, std::size_t sizeInRecords) : Buffer_ {&allocator}
+		FixedStack::FixedStack(std::pmr::memory_resource& allocator, const U64 sizeInRecords) : Buffer_ {&allocator}
 		{
 			NOX_PAS_NOT_ZERO(sizeInRecords, "Fixed stack with zero size was requested!");
-
-			// because first padding element.
-			++sizeInRecords;
 
 			// allocate:
 			this->Buffer_.resize(sizeInRecords);
 
 			// insert padding:
-			this->Buffer_.front() = Common::Record::Padding();
+			this->Buffer_.front() = Record::Padding();
 		}
 
 		auto DefaultInterruptRoutine(InterruptAccumulator) -> void { }
@@ -915,477 +872,18 @@ namespace Nominax
 			return &DefaultInterruptRoutine;
 		}
 
-		auto Object::ShallowCopyObjectBlockToBuffer(const std::span<Common::Record> buffer) const -> bool
-		{
-			if (buffer.size() < this->HeaderRead_BlockSize())
-			{
-				[[unlikely]]
-					return false;
-			}
-
-			std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
-
-			return true;
-		}
-
-		auto Object::ShallowCopyObjectBlockToBuffer(std::vector<Common::Record>& buffer) const -> void
-		{
-			buffer.resize(this->HeaderRead_BlockSize());
-			std::memcpy(buffer.data(), this->LookupObjectBlock(), this->ObjectBlockSizeInBytes());
-		}
-
-		auto Object::CopyBlob(std::vector<Common::Record>& buffer) const -> void
-		{
-			buffer.resize(this->BlobSize());
-			std::memcpy(buffer.data(), this->Blob_, this->BlobSizeInBytes());
-		}
-
-		auto Object::DeepCmp(const Object a, const Object b) -> bool
-		{
-			return a.HeaderRead_BlockSize() == b.HeaderRead_BlockSize()
-				&& std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.ObjectBlockSizeInBytes()) == 0;
-		}
-
-		auto Object::AllocateUnique(const U32 sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
-		{
-			if (sizeInRecords == 0)
-			[[unlikely]]
-			{
-				return nullptr;
-			}
-			const U32                finalObjectSize = ObjectHeader::RECORD_CHUNKS + sizeInRecords;
-			auto* NOX_RESTRICT const object          = new Common::Record[finalObjectSize]();
-			assert(object);
-
-			// Write object header:
-			// No ref count:
-			ObjectHeader::WriteMapping_StrongRefCount(object, 0);
-
-			// !! Important !! Write the size:
-			ObjectHeader::WriteMapping_Size(object, sizeInRecords);
-
-			// Use pointer as dummy type id:
-			ObjectHeader::WriteMapping_TypeId(object, 0);
-
-			// Write empty flag vector:
-			ObjectHeader::WriteMapping_FlagVector(object, ObjectFlagVector { });
-
-			return std::unique_ptr<Object, UniquePtrObjectDeleter>
-			{
-				new Object {object},
-				UniquePtrObjectDeleter()
-			};
-		}
-
-		template <>
-		auto Object::DeepValueCmp_Equal<U64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (x->AsU64 != y->AsU64)
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_Equal<I64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (x->AsI64 != y->AsI64)
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_Equal<F64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (x->AsF64 != y->AsF64)
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_Less<U64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsU64 < y->AsU64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_Less<I64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsI64 < y->AsI64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_Less<F64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsF64 < y->AsF64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_LessEqual<U64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsU64 <= y->AsU64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_LessEqual<I64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsI64 <= y->AsI64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_LessEqual<F64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsF64 <= y->AsF64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_Greater<U64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsU64 > y->AsU64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_Greater<I64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsI64 > y->AsI64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_Greater<F64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsF64 > y->AsF64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_GreaterEqual<U64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsU64 >= y->AsU64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_GreaterEqual<I64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsI64 >= y->AsI64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
-		template <>
-		auto Object::DeepValueCmp_GreaterEqual<F64>(const Object a, const Object b) -> bool
-		{
-			// If their size is not equal, their values cannot be equal too.
-			if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
-			{
-				return false;
-			}
-
-			const auto* x {*a};
-			const auto* w {~a};
-			const auto* y {*b};
-
-			while (x < w)
-			{
-				if (!(x->AsF64 >= y->AsF64))
-				{
-					return false;
-				}
-				++x;
-				++y;
-			}
-
-			return true;
-		}
-
 		[[maybe_unused]]
 		static auto CreateDescriptor
 		(
 			FixedStack&                             stack,
-			ByteCode::Image&                        image,
-			ByteCode::JumpMap&                      jumpMap,
+			const ByteCode::Image&                  image,
 			ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
 			InterruptRoutineProxy&                  interruptHandler
 		) -> VerboseReactorDescriptor
 		{
-			const std::span instrMapTableView
-			{
-				reinterpret_cast<const bool*>(jumpMap.data()),
-				reinterpret_cast<const bool*>(jumpMap.data() + jumpMap.size())
-			};
 			const auto simpleDescriptor = BasicReactorDescriptor
 			{
 				.CodeChunk = image.GetReactorView(),
-				.CodeChunkInstructionMap = instrMapTableView,
 				.IntrinsicTable = intrinsicTable,
 				.Stack = stack,
 				.InterruptHandler = interruptHandler
@@ -1395,12 +893,12 @@ namespace Nominax
 
 		Reactor::Reactor
 		(
-			std::pmr::memory_resource&               allocator,
-			const ReactorSpawnDescriptor&            descriptor,
-			const std::optional<ReactorRoutineLink>& routineLink,
-			const std::size_t                        poolIdx
+			std::pmr::memory_resource&    allocator,
+			const ReactorSpawnDescriptor& descriptor,
+			const ReactorRoutineLink&     routineLink,
+			const U64                     poolIdx
 		) :
-			Id_ {Common::Xorshift128ThreadLocal()},
+			Id_ {Xorshift128ThreadLocal()},
 			PoolIndex_ {poolIdx},
 			SpawnStamp_ {std::chrono::high_resolution_clock::now()},
 			PowerPreference_ {descriptor.PowerPref},
@@ -1408,56 +906,43 @@ namespace Nominax
 			Output_ {&Input_},
 			Stack_ {allocator, descriptor.StackSize},
 			IntrinsicTable_ {descriptor.SharedIntrinsicTable},
-			InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : &DefaultInterruptRoutine},
-			RoutineLink_
-			{
-				[&routineLink]() -> ReactorRoutineLink
-				{
-					if (!routineLink)
-					{
-						[[unlikely]]
-							Print(Common::LogLevel::Warning,
-							      "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
-					}
-					return routineLink ? *routineLink : HyperVisor::GetOptimalReactorRoutine({ });
-				}()
-			}
+			InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : GetDefaultInterruptRoutine()},
+			RoutineLink_ {routineLink}
 		{
-			Common::Print
+			Print
 			(
-				"Reactor {:010X} "
+				"Reactor {:08X}: "
 				"Stack: {} MB, "
-				"{} Records, "
-				"Intrinsics: {}, "
-				"Interrupt Routine: {}, "
+				"{} KRec, "
+				"Intrin: {}, "
+				"Interrupt: {}, "
 				"Power: {}, "
 				"Pool: {:02}\n",
 				this->Id_,
-				Common::Bytes2Megabytes(this->Stack_.Size() * sizeof(Common::Record)),
-				this->Stack_.Size(),
-				this->IntrinsicTable_.size(),
-				this->InterruptHandler_ == &DefaultInterruptRoutine ? "Def" : "Usr",
-				this->PowerPreference_ == PowerPreference::HighPerformance ? "Perf" : "Safe",
+				Bytes2Megabytes(this->Stack_.Size() * sizeof(Record)),
+				this->Stack_.Size() / 1000,
+				std::size(this->IntrinsicTable_),
+				this->InterruptHandler_ == GetDefaultInterruptRoutine() ? "Default" : "Overridden",
+				this->PowerPreference_ == PowerPreference::HighPerformance ? "Performance" : "PowerSafe",
 				this->PoolIndex_
 			);
 		}
 
-		auto Reactor::Execute(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
+		auto Reactor::Execute(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 		{
-			this->AppCode_ = std::move(bundle);
-			this->Input_   = CreateDescriptor
+			this->Input_ = CreateDescriptor
 			(
 				this->Stack_,
-				std::get<0>(this->AppCode_),
-				std::get<1>(this->AppCode_),
+				bundle,
 				this->IntrinsicTable_,
 				*this->InterruptHandler_
 			);
-			if (const auto validationResult {this->Input_.Validate()}; validationResult != ReactorValidationResult::Ok)
+			const auto validationResult {this->Input_.Validate()};
+			if (validationResult != ReactorValidationResult::Ok)
 			{
+				const std::string_view message {REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]};
 				[[unlikely]]
-					Panic(NOX_PAINF, "Reactor {:#X} validation failed with the following reason: {}", this->Id_,
-					      validationResult);
+					Panic(NOX_PANIC_INFO(), "Reactor {:#X} validation failed with the following reason: {}", this->Id_, message);
 			}
 			ReactorCoreExecutionRoutine* const routine = this->RoutineLink_.ExecutionRoutine;
 			NOX_PAS_NOT_NULL(routine, "Reactor execution routine is nullptr!");
@@ -1467,7 +952,7 @@ namespace Nominax
 
 		auto SingletonExecutionProxy
 		(
-			const VerboseReactorDescriptor& input, const Common::CpuFeatureDetector& target,
+			const VerboseReactorDescriptor& input, const CpuFeatureDetector& target,
 			const void****                  outJumpTable
 		) -> std::pair<ReactorShutdownReason, ReactorState>
 		{
@@ -1489,34 +974,33 @@ namespace Nominax
 			NOX_PAS_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
 		}
 
-		static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(
-			                            ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
+		static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<U64>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
 		{
 			&ReactorCore_Fallback,
+			&ReactorCore_Debug,
+
 			#if NOX_ARCH_X86_64
 
-			&ReactorCore_AVX,
-			&ReactorCore_AVX512F,
+			&ReactorCore_Avx,
+			&ReactorCore_Avx512F,
 
-			#elif NOX_ARCH_ARM_64
-		#	error "ARM64 not yet supported!"
 			#endif
 		};
 
-		auto HyperVisor::SmartSelectReactor(const Common::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
+		auto HyperVisor::SmartSelectReactor(const CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
 		{
 			#if NOX_ARCH_X86_64
 
 			// if we have AVX 512, use AVX 512:
-			if (cpuFeatureDetector->Avx512F)
+			if (cpuFeatureDetector[CpuFeatureBits::Avx512F])
 			{
-				return ReactorCoreSpecialization::X86_64_AVX512F;
+				return ReactorCoreSpecialization::Amd64_Avx512F;
 			}
 
 			// if we have AVX, use AVX:
-			if (cpuFeatureDetector->Avx)
+			if (cpuFeatureDetector[CpuFeatureBits::Avx])
 			{
-				return ReactorCoreSpecialization::X86_64_AVX;
+				return ReactorCoreSpecialization::Amd64_Avx;
 			}
 
 			#elif NOX_ARCH_ARM_64
@@ -1548,22 +1032,40 @@ namespace Nominax
 			};
 		}
 
+		auto HyperVisor::GetDebugRoutineLink() -> ReactorRoutineLink
+		{
+			constexpr auto specialization {ReactorCoreSpecialization::Debug};
+
+			ReactorCoreExecutionRoutine* const routine
+			{
+				GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Debug)
+			};
+			const void** const jumpTable {QueryJumpTable(*routine)};
+			return
+			{
+				specialization,
+				routine,
+				jumpTable
+			};
+		}
+
 		auto HyperVisor::GetReactorRoutineFromRegistryByTarget(const ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*
 		{
-			ReactorCoreExecutionRoutine* routine {
-				REACTOR_REGISTRY[static_cast<std::underlying_type_t<decltype(target)>>(target)]
+			ReactorCoreExecutionRoutine* const routine
+			{
+				REACTOR_REGISTRY[static_cast<U64>(target)]
 			};
 			NOX_PAS_NOT_NULL(routine, "Reactor core execution routine is nullptr!");
 			return routine;
 		}
 
-		auto HyperVisor::GetOptimalReactorRoutine(const Common::CpuFeatureDetector& features) -> ReactorRoutineLink
+		auto HyperVisor::GetOptimalReactorRoutine(const CpuFeatureDetector& features) -> ReactorRoutineLink
 		{
 			static thread_local constinit U16 QueryCounter;
 			ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
 			ReactorCoreExecutionRoutine*      routine {GetReactorRoutineFromRegistryByTarget(specialization)};
 			const void**                      jumpTable {QueryJumpTable(*routine)};
-			Common::Print
+			Print
 			(
 				"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry Size: {}\n",
 				GetReactorCoreSpecializationName(specialization),
@@ -1574,7 +1076,7 @@ namespace Nominax
 			if (QueryCounter > 1)
 			{
 				[[unlikely]]
-					Print(Common::LogLevel::Warning,
+					Print(LogLevel::Warning,
 					      "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n",
 					      QueryCounter);
 			}
@@ -1588,9 +1090,9 @@ namespace Nominax
 
 		auto SingletonExecutionProxy
 		(
-			const VerboseReactorDescriptor&   input, ReactorState& output,
-			const Common::CpuFeatureDetector& target,
-			const void****                    outJumpTable
+			const VerboseReactorDescriptor& input, ReactorState& output,
+			const CpuFeatureDetector&       target,
+			const void****                  outJumpTable
 		) -> ReactorShutdownReason
 		{
 			return HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable);
@@ -1604,7 +1106,7 @@ namespace Nominax
 			return routine(nullptr, nullptr, writer) == ReactorShutdownReason::Success ? jumpTable : nullptr;
 		}
 
-		auto ReactorPool::SmartQueryReactorCount(const std::size_t desired) -> std::size_t
+		auto ReactorPool::SmartQueryReactorCount(const U64 desired) -> U64
 		{
 			return desired < MIN_REACTOR_COUNT ? std::thread::hardware_concurrency() : desired;
 		}
@@ -1612,44 +1114,44 @@ namespace Nominax
 		ReactorPool::ReactorPool
 		(
 			std::pmr::memory_resource&               allocator,
-			const std::size_t                        reactorCount,
+			const U64                                reactorCount,
 			const ReactorSpawnDescriptor&            config,
 			const std::optional<ReactorRoutineLink>& routineLink
 		) : Pool_ {&allocator}
 		{
 			NOX_PAS_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 
-			Common::Print("Initializing reactor pool...\n", reactorCount);
-			Common::Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT,
-			              FALLBACK_REACTOR_COUNT, reactorCount);
+			Print("Initializing reactor pool...\n", reactorCount);
+			Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT, FALLBACK_REACTOR_COUNT, reactorCount);
 
 			this->Pool_.reserve(reactorCount);
-			for (std::size_t i {0}; i < reactorCount; ++i)
+			for (U64 i {0}; i < reactorCount; ++i)
 			{
 				if (!routineLink)
 				{
-					Print(Common::LogLevel::Warning,
-					      "No reactor routine link specified. Querying CPU features and selecting accordingly...\n");
+					[[unlikely]]
+						Print(LogLevel::Warning, "No reactor routine link specified. Using fallback reactor!\n");
 				}
-				this->Pool_.emplace_back(Reactor
-					{
-						allocator, config, routineLink ? *routineLink : HyperVisor::GetOptimalReactorRoutine({ }), i
-					});
+				Reactor reactor
+				{
+					allocator, config, routineLink ? *routineLink : HyperVisor::GetFallbackRoutineLink(), i
+				};
+				this->Pool_.emplace_back(std::move(reactor));
 			}
 
-			Common::Print('\n');
+			Print('\n');
 		}
 
 		ReactorPool::~ReactorPool()
 		{
 			const auto size {this->Pool_.size()};
 			this->Pool_.clear();
-			Common::Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
+			Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
 		}
 
 		auto PrintShutdownReason(const ReactorShutdownReason reason, const InterruptAccumulator code) -> void
 		{
-			using namespace Common;
+			using namespace Foundation;
 
 			switch (reason)
 			{
@@ -1667,156 +1169,13 @@ namespace Nominax
 			}
 		}
 
-		#if NOX_ARCH_X86_32
-
-			auto RegisterDump_X86_32(std::ostream& out, const GprRegisterLane& gpr) -> void
-			{
-				out << "\n%eax = " << std::bitset<32>{gpr[0]};
-				out << "\n%ebx = " << std::bitset<32>{gpr[1]};
-				out << "\n%ecx = " << std::bitset<32>{gpr[2]};
-				out << "\n%edx = " << std::bitset<32>{gpr[3]};
-				out << "\n%esi = " << std::bitset<32>{gpr[4]};
-				out << "\n%edi = " << std::bitset<32>{gpr[5]};
-				out << "\n%ebp = " << std::bitset<32>{gpr[6]};
-				out << "\n%esp = " << std::bitset<32>{gpr[7]};
-			}
-
-		#elif NOX_ARCH_X86_64
-
-		/// <summary>
-		/// Read and dump all the register values into the stream.
-		/// </summary>
-		/// <param name="out"></param>
-		/// <param name="gpr"></param>
-		/// <param name="xmm"></param>
-		/// <param name="ymm"></param>
-		/// <param name="zmm"></param>
-		/// <returns></returns>
-		auto RegisterDump_X86_64
-		(
-			std::ostream&                out,
-			const GprRegisterLane&       gpr,
-			const VectorRegisterLane128& xmm,
-			const VectorRegisterLane256& ymm
-		) -> void
-		{
-			out << std::dec;
-			out << "\n%RAX   = " << std::bitset<64> {gpr[0]};
-			out << "\n%RBX   = " << std::bitset<64> {gpr[1]};
-			out << "\n%RCX   = " << std::bitset<64> {gpr[2]};
-			out << "\n%RDX   = " << std::bitset<64> {gpr[3]};
-			out << "\n%RSI   = " << std::bitset<64> {gpr[4]};
-			out << "\n%RDI   = " << std::bitset<64> {gpr[5]};
-			out << "\n%RBP   = " << std::bitset<64> {gpr[6]};
-			out << "\n%RSP   = " << std::bitset<64> {gpr[7]};
-			out << "\n%R8    = " << std::bitset<64> {gpr[8]};
-			out << "\n%R9    = " << std::bitset<64> {gpr[9]};
-			out << "\n%R10   = " << std::bitset<64> {gpr[10]};
-			out << "\n%R11   = " << std::bitset<64> {gpr[11]};
-			out << "\n%R12   = " << std::bitset<64> {gpr[12]};
-			out << "\n%R13   = " << std::bitset<64> {gpr[13]};
-			out << "\n%R14   = " << std::bitset<64> {gpr[14]};
-			out << "\n%R15   = " << std::bitset<64> {gpr[15]};
-
-			out << '\n';
-
-			out << "\n%XMM0  = " << std::bitset<64> {xmm[0][0]} << std::bitset<64> {xmm[0][1]};
-			out << "\n%XMM1  = " << std::bitset<64> {xmm[1][0]} << std::bitset<64> {xmm[1][1]};
-			out << "\n%XMM2  = " << std::bitset<64> {xmm[2][0]} << std::bitset<64> {xmm[2][1]};
-			out << "\n%XMM3  = " << std::bitset<64> {xmm[3][0]} << std::bitset<64> {xmm[3][1]};
-			out << "\n%XMM4  = " << std::bitset<64> {xmm[4][0]} << std::bitset<64> {xmm[4][1]};
-			out << "\n%XMM5  = " << std::bitset<64> {xmm[5][0]} << std::bitset<64> {xmm[5][1]};
-			out << "\n%XMM6  = " << std::bitset<64> {xmm[6][0]} << std::bitset<64> {xmm[6][1]};
-			out << "\n%XMM7  = " << std::bitset<64> {xmm[7][0]} << std::bitset<64> {xmm[7][1]};
-			out << "\n%XMM8  = " << std::bitset<64> {xmm[8][0]} << std::bitset<64> {xmm[8][1]};
-			out << "\n%XMM9  = " << std::bitset<64> {xmm[9][0]} << std::bitset<64> {xmm[9][1]};
-			out << "\n%XMM10 = " << std::bitset<64> {xmm[10][0]} << std::bitset<64> {xmm[10][1]};
-			out << "\n%XMM11 = " << std::bitset<64> {xmm[11][0]} << std::bitset<64> {xmm[11][1]};
-			out << "\n%XMM12 = " << std::bitset<64> {xmm[12][0]} << std::bitset<64> {xmm[12][1]};
-			out << "\n%XMM13 = " << std::bitset<64> {xmm[13][0]} << std::bitset<64> {xmm[13][1]};
-			out << "\n%XMM14 = " << std::bitset<64> {xmm[14][0]} << std::bitset<64> {xmm[14][1]};
-			out << "\n%XMM15 = " << std::bitset<64> {xmm[15][0]} << std::bitset<64> {xmm[15][1]};
-
-			out << '\n';
-
-			out << "\n%YMM0  = " << std::bitset<64> {ymm[0][0]} << std::bitset<64> {ymm[0][1]} << std::bitset<64> {
-				ymm[0][2]
-			} << std::bitset<64> {ymm[0][3]};
-			out << "\n%YMM1  = " << std::bitset<64> {ymm[1][0]} << std::bitset<64> {ymm[1][1]} << std::bitset<64> {
-				ymm[1][2]
-			} << std::bitset<64> {ymm[1][3]};
-			out << "\n%YMM2  = " << std::bitset<64> {ymm[2][0]} << std::bitset<64> {ymm[2][1]} << std::bitset<64> {
-				ymm[2][2]
-			} << std::bitset<64> {ymm[2][3]};
-			out << "\n%YMM3  = " << std::bitset<64> {ymm[3][0]} << std::bitset<64> {ymm[3][1]} << std::bitset<64> {
-				ymm[3][2]
-			} << std::bitset<64> {ymm[3][3]};
-			out << "\n%YMM4  = " << std::bitset<64> {ymm[4][0]} << std::bitset<64> {ymm[4][1]} << std::bitset<64> {
-				ymm[4][2]
-			} << std::bitset<64> {ymm[4][3]};
-			out << "\n%YMM5  = " << std::bitset<64> {ymm[5][0]} << std::bitset<64> {ymm[5][1]} << std::bitset<64> {
-				ymm[5][2]
-			} << std::bitset<64> {ymm[5][3]};
-			out << "\n%YMM6  = " << std::bitset<64> {ymm[6][0]} << std::bitset<64> {ymm[6][1]} << std::bitset<64> {
-				ymm[6][2]
-			} << std::bitset<64> {ymm[6][3]};
-			out << "\n%YMM7  = " << std::bitset<64> {ymm[7][0]} << std::bitset<64> {ymm[7][1]} << std::bitset<64> {
-				ymm[7][2]
-			} << std::bitset<64> {ymm[7][3]};
-			out << "\n%YMM8  = " << std::bitset<64> {ymm[8][0]} << std::bitset<64> {ymm[8][1]} << std::bitset<64> {
-				ymm[8][2]
-			} << std::bitset<64> {ymm[8][3]};
-			out << "\n%YMM9  = " << std::bitset<64> {ymm[9][0]} << std::bitset<64> {ymm[9][1]} << std::bitset<64> {
-				ymm[9][2]
-			} << std::bitset<64> {ymm[9][3]};
-			out << "\n%YMM10 = " << std::bitset<64> {ymm[10][0]} << std::bitset<64> {ymm[10][1]} << std::bitset<64> {
-				ymm[10][2]
-			} << std::bitset<64> {ymm[10][3]};
-			out << "\n%YMM11 = " << std::bitset<64> {ymm[11][0]} << std::bitset<64> {ymm[11][1]} << std::bitset<64> {
-				ymm[11][2]
-			} << std::bitset<64> {ymm[11][3]};
-			out << "\n%YMM12 = " << std::bitset<64> {ymm[12][0]} << std::bitset<64> {ymm[12][1]} << std::bitset<64> {
-				ymm[12][2]
-			} << std::bitset<64> {ymm[12][3]};
-			out << "\n%YMM13 = " << std::bitset<64> {ymm[13][0]} << std::bitset<64> {ymm[13][1]} << std::bitset<64> {
-				ymm[13][2]
-			} << std::bitset<64> {ymm[13][3]};
-			out << "\n%YMM14 = " << std::bitset<64> {ymm[14][0]} << std::bitset<64> {ymm[14][1]} << std::bitset<64> {
-				ymm[14][2]
-			} << std::bitset<64> {ymm[14][3]};
-			out << "\n%YMM15 = " << std::bitset<64> {ymm[15][0]} << std::bitset<64> {ymm[15][1]} << std::bitset<64> {
-				ymm[15][2]
-			} << std::bitset<64> {ymm[15][3]};
-
-			out << "\n\nUncaptured:\n\n";
-			out << "%RIP\n\n";
-			out << "%ZMM0,  %ZMM1,  %ZMM2,  %ZMM3\n";
-			out << "%ZMM4,  %ZMM5,  %ZMM6,  %ZMM7\n";
-			out << "%ZMM8,  %ZMM9,  %ZMM10, %ZMM11\n";
-			out << "%ZMM12, %ZMM13, %ZMM14, %ZMM15\n";
-			out << "%ZMM16, %ZMM17, %ZMM18, %ZMM19\n";
-			out << "%ZMM20, %ZMM21, %ZMM22, %ZMM23\n";
-			out << "%ZMM24, %ZMM25, %ZMM26, %ZMM27\n";
-			out << "%ZMM28, %ZMM29, %ZMM30, %ZMM31\n\n";
-
-			out << "%K0, %K1, %K2, %K3\n";
-			out << "%K4, %K5, %K6, %K7\n";
-			out << '\n';
-		}
-
-		#elif NOX_ARCH_ARM_64
-#	error "Not yet implemented!"
-		#else
-#	error "Unknown arch!"
-		#endif
-
 		auto TaskQueueThread::DispatchJobQueue() -> void
 		{
 			for (;;)
 			{
 				TaskRoutine routine;
 				{
-					std::unique_lock lock {this->QueueMutex_};
+					std::unique_lock<std::mutex> lock {this->QueueMutex_};
 					this->SharedCondition_.wait(lock, [this]
 					{
 						return
@@ -1831,7 +1190,7 @@ namespace Nominax
 				}
 				std::invoke(routine);
 				{
-					std::lock_guard lock {this->QueueMutex_};
+					std::lock_guard<std::mutex> lock {this->QueueMutex_};
 					this->TaskQueue_.pop();
 					this->SharedCondition_.notify_one();
 				}
@@ -1866,7 +1225,7 @@ namespace Nominax
 
 		auto TaskQueueThread::Join() -> void
 		{
-			std::unique_lock lock {this->QueueMutex_};
+			std::unique_lock<std::mutex> lock {this->QueueMutex_};
 			this->SharedCondition_.wait(lock, [this]
 			{
 				return this->TaskQueue_.empty();
@@ -1875,7 +1234,7 @@ namespace Nominax
 
 		auto TaskQueueThread::Enqueue(TaskRoutine&& target) -> void
 		{
-			std::lock_guard lock {this->QueueMutex_};
+			std::lock_guard<std::mutex> lock {this->QueueMutex_};
 			this->TaskQueue_.push(std::move(target));
 			this->SharedCondition_.notify_one();
 		}
@@ -1889,22 +1248,18 @@ namespace Nominax
 					return ReactorValidationResult::NullPtr;
 			}
 
-			#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-
-			if (!this->CodeChunkInstructionMap || !(this->CodeChunkInstructionMap + this->CodeChunkSize - 1))
-			{
-				[[unlikely]]
-					return ReactorValidationResult::NullPtr;
-			}
-
-			#endif
-
 			// validate the size for the corresponding pointers:
 			if (!this->CodeChunkSize || !this->StackSize)
 			{
 				[[unlikely]]
 					return ReactorValidationResult::ZeroSize;
 			}
+
+
+			// If we are using execution address mapping,
+			// all instructions are pointers so we cannot check the instruction type
+
+			#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
 			// first instruction will be skipped and must be NOP:
 			if (CodeChunk->Instr != ByteCode::Instruction::NOp)
@@ -1920,8 +1275,10 @@ namespace Nominax
 					return ReactorValidationResult::MissingCodeEpilogue;
 			}
 
+			#endif
+
 			// first stack entry is never used and must be nop-padding:
-			if (*Stack != Common::Record::Padding())
+			if (*Stack != Record::Padding())
 			{
 				[[unlikely]]
 					return ReactorValidationResult::MissingStackPrologue;
@@ -1931,8 +1288,8 @@ namespace Nominax
 			[[likely]]
 			{
 				// validate intrinsic routines:
-				auto* const*       begin = this->IntrinsicTable;
-				auto* const* const end   = this->IntrinsicTable + this->IntrinsicTableSize;
+				auto* const*       begin {this->IntrinsicTable};
+				auto* const* const end {this->IntrinsicTable + this->IntrinsicTableSize};
 				while (begin < end)
 				{
 					if (!*begin++)

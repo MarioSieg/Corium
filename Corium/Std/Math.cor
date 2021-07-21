@@ -1,0 +1,25 @@
+module std.math
+
+const E = 2.7182818284590452354
+const Pi = 3.14159265358979323846
+
+native fun sin(x float) float
+native fun con(x float) float
+native fun tan(x float) float
+native fun sinh(x float) float
+native fun conh(x float) float
+native fun tanh(x float) float
+native fun asin(x float) float
+native fun acon(x float) float
+native fun atan(x float) float
+native fun asinh(x float) float
+native fun aconh(x float) float
+native fun atanh(x float) float
+
+fun toRadians(degrees float) float {
+    return degrees / 180.0 * PI
+}
+
+fun toDegrees(radians float) float {
+    return radians * 180.0 / PI
+}

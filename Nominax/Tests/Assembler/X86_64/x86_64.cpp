@@ -1,6 +1,6 @@
-// File: RuntimeAssembler_x86_64.cpp
+// File: x86_64.cpp
 // Author: Mario
-// Created: 05.07.2021 4:43 PM
+// Created: 29.06.2021 8:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,201 +205,291 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/RuntimeAssembler_x86_64.hpp"
+#include "../../TestBase.hpp"
 
-namespace Nominax::Assembler::X86_64
+using namespace X86_64;
+
+TEST(Assembler_x86_64, PackRex_Empty)
 {
-	auto InjectNopChain(U8* n, const U8 size) -> void
+	const U8 rex {PackRex(false, false, false, false)};
+	ASSERT_EQ(rex, 0x40);
+}
+
+TEST(Assembler_x86_64, PackRex_W)
+{
+	const U8 rex {PackRex(true, false, false, false)};
+	ASSERT_EQ(rex, 0x40 | (1 << 3));
+}
+
+TEST(Assembler_x86_64, PackRex_R)
+{
+	const U8 rex {PackRex(false, true, false, false)};
+	ASSERT_EQ(rex, 0x40 | (1 << 2));
+}
+
+TEST(Assembler_x86_64, PackRex_X)
+{
+	const U8 rex {PackRex(false, false, true, false)};
+	ASSERT_EQ(rex, 0x40 | (1 << 1));
+}
+
+TEST(Assembler_x86_64, PackRex_B)
+{
+	const U8 rex {PackRex(false, false, false, true)};
+	ASSERT_EQ(rex, 0x40 | 1);
+}
+
+TEST(Assembler_x86_64, PackRex_WRXB)
+{
+	const U8 rex {PackRex(true, true, true, true)};
+	ASSERT_EQ(rex, 0x40 | 0b1111);
+}
+
+TEST(Assembler_x86_64, PackPackBits233)
+{
+	const U8 trio {PackModRm(0b11, 0b010, 0b101)};
+	ASSERT_EQ(trio, 0b11'010'101);
+}
+
+TEST(Assembler_x86_64, PackPackBits233_One)
+{
+	const U8 trio {PackModRm(0b11, 0b111, 0b111)};
+	ASSERT_EQ(trio, 0xFF);
+}
+
+TEST(Assembler_x86_64, PackPackBitsZero)
+{
+	const U8 trio {PackModRm(0, 0, 0)};
+	ASSERT_EQ(trio, 0);
+}
+
+TEST(Assembler_x86_64, InjectNopChain_1)
+{
+	constexpr auto          len {1};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x90};
+	for (U64 i {0}; const U8 x : refData)
 	{
-		NOX_PAS_NOT_NULL(n, "Null needle!");
-		NOX_PAS_LE(size, 15, "Invalid nop chain size!");
-		NOX_PAS_GE(size, 1, "Invalid nop chain size!");
-
-		static constexpr std::array<const void* NOX_RESTRICT const, 15> JUMP_TABLE
-		{
-			&&inject_1,
-			&&inject_2,
-			&&inject_3,
-			&&inject_4,
-			&&inject_5,
-			&&inject_6,
-			&&inject_7,
-			&&inject_8,
-			&&inject_9,
-			&&inject_10,
-			&&inject_11,
-			&&inject_12,
-			&&inject_13,
-			&&inject_14,
-			&&inject_15
-		};
-
-		goto
-		*JUMP_TABLE[size - 1];
-
-	inject_1:
-		*n = 0x90;
-		return;
-
-	inject_2:
-		*n = 0x40;
-		*++n = 0x90;
-		return;
-
-	inject_3:
-		*n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x00;
-		return;
-
-	inject_4:
-		*n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x40;
-		*++n = 0x00;
-		return;
-
-	inject_5:
-		*n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x44;
-		*++n = 0x00;
-		*++n = 0x00;
-		return;
-
-	inject_6:
-		*n = 0x66;
-		*++n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x44;
-		*++n = 0x00;
-		*++n = 0x00;
-		return;
-
-	inject_7:
-		*n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x80;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		return;
-
-	inject_8:
-		*n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x84;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		return;
-
-	inject_9:
-		*n = 0x66;
-		*++n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x84;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		return;
-
-	inject_10:
-		*n = 0x66;
-		*++n = 0x2E;
-		*++n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x84;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		return;
-
-	inject_11:
-		*n = 0x66;
-		*++n = 0x66;
-		*++n = 0x2E;
-		*++n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x84;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		return;
-
-	inject_12:
-		*n = 0x66;
-		*++n = 0x66;
-		*++n = 0x66;
-		*++n = 0x2E;
-		*++n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x84;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		return;
-
-	inject_13:
-		*n = 0x66;
-		*++n = 0x66;
-		*++n = 0x66;
-		*++n = 0x66;
-		*++n = 0x2E;
-		*++n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x84;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		return;
-
-	inject_14:
-		*n = 0x66;
-		*++n = 0x66;
-		*++n = 0x66;
-		*++n = 0x66;
-		*++n = 0x66;
-		*++n = 0x2E;
-		*++n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x84;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		return;
-
-	inject_15:
-		*n = 0x66;
-		*++n = 0x66;
-		*++n = 0x66;
-		*++n = 0x66;
-		*++n = 0x66;
-		*++n = 0x66;
-		*++n = 0x2E;
-		*++n = 0x0F;
-		*++n = 0x1F;
-		*++n = 0x84;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		*++n = 0x00;
-		return;
+		ASSERT_EQ(buffer[++i], x);
 	}
 }
+
+TEST(Assembler_x86_64, InjectNopChain_2)
+{
+	constexpr auto          len {2};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x40, 0x90};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_3)
+{
+	constexpr auto          len {3};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_4)
+{
+	constexpr auto          len {4};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x40, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_5)
+{
+	constexpr auto          len {5};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x44, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_6)
+{
+	constexpr auto          len {6};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_7)
+{
+	constexpr auto          len {7};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_8)
+{
+	constexpr auto          len {8};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_9)
+{
+	constexpr auto          len {9};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_10)
+{
+	constexpr auto          len {10};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_11)
+{
+	constexpr auto          len {11};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_12)
+{
+	constexpr auto          len {12};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_13)
+{
+	constexpr auto          len {13};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_14)
+{
+	constexpr auto          len {14};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+TEST(Assembler_x86_64, InjectNopChain_15)
+{
+	constexpr auto          len {15};
+	std::array<U8, len + 2> buffer { };
+	InjectNopChain(std::data(buffer) + 1, len);
+	ASSERT_EQ(buffer[0], 0);
+	ASSERT_EQ(buffer[len + 1], 0);
+	constexpr std::array<U8, len> refData {0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x2E, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00};
+	for (U64 i {0}; const U8 x : refData)
+	{
+		ASSERT_EQ(buffer[++i], x);
+	}
+}
+
+#ifdef NOX_DEATH_TESTS
+
+TEST(Assembler_x86_64, InjectNopChain_Null_Error)
+{
+	ASSERT_DEATH(InjectNopChain(nullptr, 0), "");
+}
+
+TEST(Assembler_x86_64, InjectNopChain_0_Error)
+{
+	U8 x{};
+	ASSERT_DEATH(InjectNopChain(&x, 0), "");
+}
+
+TEST(Assembler_x86_64, InjectNopChain_16_Error)
+{
+	U8 x{};
+	ASSERT_DEATH(InjectNopChain(&x, 16), "");
+}
+
+#endif

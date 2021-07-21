@@ -305,7 +305,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all instruction mnemonics.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_MNEMONICS
+	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::$Count)> INSTRUCTION_MNEMONICS
 	{
 		"int",
 		"intrin",
@@ -472,7 +472,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of stack pushes each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_PUSH_COUNTS
+	constexpr std::array<U8, static_cast<U64>(Instruction::$Count)> INSTRUCTION_PUSH_COUNTS
 	{
 		0,
 		0,
@@ -546,7 +546,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of stack pops each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_POP_COUNTS
+	constexpr std::array<U8, static_cast<U64>(Instruction::$Count)> INSTRUCTION_POP_COUNTS
 	{
 		0,
 		0,
@@ -620,7 +620,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains a short descriptions for all instructions.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_DESCRIPTIONS
+	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::$Count)> INSTRUCTION_DESCRIPTIONS
 	{
 		"interrupt reactor execution",
 		"call intrinsic system routine",
@@ -694,7 +694,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the count of required immediate arguments for each instruction.
 	/// </summary>
-	constexpr std::array<U8, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
+	constexpr std::array<U8, static_cast<U64>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
 	{
 		1, // int
 		1,
@@ -847,7 +847,7 @@ namespace Nominax::ByteCode
 	/// Custom intrinsic routine function prototype.
 	/// Contains the stack pointer as parameter.
 	/// </summary>
-	using IntrinsicRoutine = auto (Common::Record*) -> void;
+	using IntrinsicRoutine = auto (Foundation::Record*) -> void;
 	static_assert(std::is_function_v<IntrinsicRoutine>);
 
 	/// <summary>
@@ -884,10 +884,10 @@ namespace Nominax::ByteCode
 	/// <param name="data"></param>
 	/// <param name="count"></param>
 	/// <returns></returns>
-	constexpr auto operator "" _cluster(const char8_t* const data, const std::size_t count) -> CharClusterUtf8
+	constexpr auto operator "" _cluster(const char8_t* const data, const U64 count) -> CharClusterUtf8
 	{
 		CharClusterUtf8 result { };
-		for (std::size_t i {0}; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
+		for (U64 i {0}; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
 		{
 			result.Chars[i] = data[i];
 		}
@@ -999,7 +999,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Size of the extracted fault code section.
 	/// </summary>
-	constexpr std::size_t CROPPED_FAULT_CODE_DUMP_SIZE {8};
+	constexpr U64 CROPPED_FAULT_CODE_DUMP_SIZE {8};
 
 	/// <summary>
 	/// Contains all byte code validation error messages.
@@ -1112,7 +1112,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as Record64.
 		/// </summary>
-		Common::Record R64;
+		Foundation::Record R64;
 
 		/// <summary>
 		/// Reinterpret as instruction.
@@ -1140,8 +1140,8 @@ namespace Nominax::ByteCode
 		void* Ptr;
 
 		/// <summary>
-			/// Reinterpret as jump target.
-			/// </summary>
+		/// Reinterpret as jump target.
+		/// </summary>
 		JumpAddress JmpAddress;
 
 		/// <summary>
@@ -1155,7 +1155,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(Common::Record value);
+		explicit constexpr Signal(Foundation::Record value);
 
 		/// <summary>
 		/// Construct from instruction.
@@ -1242,7 +1242,7 @@ namespace Nominax::ByteCode
 		explicit constexpr Signal(JumpAddress value);
 	};
 
-	constexpr Signal::Signal(const Common::Record value) : R64 {value} {}
+	constexpr Signal::Signal(const Foundation::Record value) : R64 {value} {}
 	constexpr Signal::Signal(const Instruction value) : Instr {value} {}
 	constexpr Signal::Signal(const SystemIntrinsicCallID value) : SystemIntrinID {value} {}
 	constexpr Signal::Signal(const UserIntrinsicCallID value) : UserIntrinID {value} {}
@@ -1497,7 +1497,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all immediate argument types for each instruction.
 	/// </summary>
-	inline const std::array<PerInstructionArgTypes, static_cast<std::size_t>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
+	inline const std::array<PerInstructionArgTypes, static_cast<U64>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
 		PerInstructionArgTypes {{Signal::Discriminator::I64}},                      // int
 		{{Signal::Discriminator::SystemIntrinsicCallID}},                           // intrin
@@ -1606,7 +1606,7 @@ namespace Nominax::ByteCode
 	[[nodiscard]]
 	inline auto LookupInstructionArgumentTypes(const Instruction instruction) -> const PerInstructionArgTypes&
 	{
-		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<std::size_t>(instruction)];
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)];
 	}
 
 
@@ -1614,18 +1614,18 @@ namespace Nominax::ByteCode
 	/// 
 	/// </summary>
 	[[nodiscard]]
-	inline auto LookupInstructionArgumentCount(const Instruction instruction) -> std::size_t
+	inline auto LookupInstructionArgumentCount(const Instruction instruction) -> U64
 	{
-		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<std::size_t>(instruction)].size();
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)].size();
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[[nodiscard]]
-	inline auto LookupInstructionArgumentAllowedTypeCount(const Instruction instruction, const std::size_t argumentIndex) -> std::size_t
+	inline auto LookupInstructionArgumentAllowedTypeCount(const Instruction instruction, const U64 argumentIndex) -> U64
 	{
-		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<std::size_t>(instruction)][argumentIndex].size();
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)][argumentIndex].size();
 	}
 
 	/// <summary>
@@ -1633,23 +1633,83 @@ namespace Nominax::ByteCode
 	/// </summary>
 	class Image final
 	{
-		Signal*     Blob_ {nullptr};
-		std::size_t Size_ {0};
+		/// <summary>
+		/// Internal buffer.
+		/// </summary>
+		std::vector<Signal> Blob_;
 
 	public:
+		/// <summary>
+		/// Construct empty image.
+		/// </summary>
+		Image() = default;
+
+		/// <summary>
+		/// Construct with by copying blob.
+		/// Allocates an internal blob for the image
+		/// and copies the data into it.
+		/// </summary>
+		/// <param name="blob">The blob to copy the data from.</param>
+		explicit Image(std::span<const Signal> blob);
+
+		/// <summary>
+		/// Construct with owning blob.
+		/// </summary>
+		explicit Image(std::vector<Signal>&& buffer);
+
+		/// <summary>
+		/// Construct by coping blob.
+		/// Allocates an internal blob for the image
+		/// and copies the data into it.
+		/// </summary>
+		/// <param name="data">The blob to copy the data from.</param>
+		/// <param name="byteSize">The size of the data in bytes.</param>
+		Image(const void* data, U64 byteSize);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		Image(const Image& other) = delete;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		Image(Image&& other) = default;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const Image& other) -> Image& = delete;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(Image&& other) -> Image& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~Image() = default;
+
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the blob in bytes.</returns>
 		[[nodiscard]]
-		auto GetByteSize() const -> std::size_t;
+		auto GetByteSize() const -> U64;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the blob (amount of signals).</returns>
 		[[nodiscard]]
-		auto GetSize() const -> std::size_t;
+		auto GetSize() const -> U64;
 
 		/// <summary>
 		/// 
@@ -1677,163 +1737,94 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetReactorView() const -> std::span<Signal>;
-
-		/// <summary>
-		/// Construct empty image.
-		/// </summary>
-		Image() = default;
-
-		/// <summary>
-		/// Construct with by copying blob.
-		/// Allocates an internal blob for the image
-		/// and copies the data into it.
-		/// </summary>
-		/// <param name="blob">The blob to copy the data from.</param>
-		explicit Image(std::span<const Signal> blob);
-
-		/// <summary>
-		/// Construct by coping blob.
-		/// Allocates an internal blob for the image
-		/// and copies the data into it.
-		/// </summary>
-		/// <param name="data">The blob to copy the data from.</param>
-		/// <param name="byteSize">The size of the data in bytes.</param>
-		Image(const void* data, std::size_t byteSize);
-
-		/// <summary>
-		/// Construct with owning blob.
-		/// Assumes that the data is owned by this instance after construction.
-		/// </summary>
-		/// <param name="data">The data to be used as buffer.</param>
-		/// <param name="size">The size of the data in records.</param>
-		Image(Signal* data, std::size_t size);
-
-		/// <summary>
-		/// Construct with blob.
-		/// Assumes that the data is owned by this instance after construction.
-		/// </summary>
-		/// <param name="data">The data to be used as buffer.</param>
-		/// <param name="size">The size of the data in bytes.</param>
-		Image(U8* data, std::size_t size);
-
-		/// <summary>
-		/// No copying.
-		/// </summary>
-		/// <param name="other"></param>
-		Image(const Image& other) = delete;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name="other"></param>
-		Image(Image&& other);
-
-		/// <summary>
-		/// No copying.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(const Image& other) -> Image& = delete;
-
-		/// <summary>
-		/// Copy assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(Image&& other) -> Image&;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~Image();
+		auto GetReactorView() const -> std::span<const Signal>;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns>Iterator.</returns>
 		[[nodiscard]]
-		auto begin() const -> const Signal*;
+		auto begin() -> std::vector<Signal>::iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns>Iterator.</returns>
 		[[nodiscard]]
-		auto end() const -> const Signal*;
+		auto end() -> std::vector<Signal>::iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns>Iterator.</returns>
 		[[nodiscard]]
-		auto cbegin() const -> const Signal*;
+		auto cbegin() const -> std::vector<Signal>::const_iterator;
 
 		/// <summary>
 		/// STL iterator interface.
 		/// </summary>
 		/// <returns>Iterator.</returns>
 		[[nodiscard]]
-		auto cend() const -> const Signal*;
+		auto cend() const -> std::vector<Signal>::const_iterator;
 
 		/// <summary>
 		/// Subscript operator.
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) -> Signal&;
+		auto operator [](U64 idx) -> Signal&;
 
 		/// <summary>
 		/// Subscript operator.
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) const -> Signal;
+		auto operator [](U64 idx) const -> Signal;
 	};
 
-	inline auto Image::GetByteSize() const -> std::size_t
+	inline auto Image::GetByteSize() const -> U64
 	{
-		return this->Size_ * sizeof(Signal);
+		return std::size(this->Blob_) * sizeof(Signal);
 	}
 
-	inline auto Image::GetSize() const -> std::size_t
+	inline auto Image::GetSize() const -> U64
 	{
-		return this->Size_;
+		return std::size(this->Blob_);
 	}
 
 	inline auto Image::GetBlobData() const -> const Signal*
 	{
-		return this->Blob_;
+		return std::data(this->Blob_);
 	}
 
 	inline auto Image::GetByteData() const -> const U8*
 	{
-		return reinterpret_cast<const U8*>(this->Blob_);
+		return reinterpret_cast<const U8*>(std::data(this->Blob_));
 	}
 
 	inline auto Image::IsEmpty() const -> bool
 	{
-		return !this->Size_ || !this->Blob_;
+		return std::empty(this->Blob_);
 	}
 
-	inline auto Image::begin() const -> const Signal*
+	inline auto Image::begin() -> std::vector<Signal>::iterator
 	{
-		return this->Blob_;
+		return std::begin(this->Blob_);
 	}
 
-	inline auto Image::end() const -> const Signal*
+	inline auto Image::end() -> std::vector<Signal>::iterator
 	{
-		return this->Blob_ + this->Size_;
+		return std::end(this->Blob_);
 	}
 
-	inline auto Image::cbegin() const -> const Signal*
+	inline auto Image::cbegin() const -> std::vector<Signal>::const_iterator
 	{
-		return this->Blob_;
+		return std::cbegin(this->Blob_);
 	}
 
-	inline auto Image::cend() const -> const Signal*
+	inline auto Image::cend() const -> std::vector<Signal>::const_iterator
 	{
-		return this->Blob_ + this->Size_;
+		return std::cend(this->Blob_);
 	}
 
 	/// <summary>
@@ -1841,7 +1832,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	/// <returns>Iterator.</returns>
 	[[nodiscard]]
-	inline auto begin(const Image& image) -> const Signal*
+	inline auto begin(Image& image) -> std::vector<Signal>::iterator
 	{
 		return image.begin();
 	}
@@ -1851,7 +1842,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	/// <returns>Iterator.</returns>
 	[[nodiscard]]
-	inline auto end(const Image& image) -> const Signal*
+	inline auto end(Image& image) -> std::vector<Signal>::iterator
 	{
 		return image.end();
 	}
@@ -1861,7 +1852,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	/// <returns>Iterator.</returns>
 	[[nodiscard]]
-	inline auto cbegin(const Image& image) -> const Signal*
+	inline auto cbegin(const Image& image) -> std::vector<Signal>::const_iterator
 	{
 		return image.cbegin();
 	}
@@ -1871,25 +1862,25 @@ namespace Nominax::ByteCode
 	/// </summary>
 	/// <returns>Iterator.</returns>
 	[[nodiscard]]
-	inline auto cend(const Image& image) -> const Signal*
+	inline auto cend(const Image& image) -> std::vector<Signal>::const_iterator
 	{
 		return image.cend();
 	}
 
-	inline auto Image::operator[](const std::size_t idx) const -> Signal
+	inline auto Image::operator[](const U64 idx) const -> Signal
 	{
-		return *(this->Blob_ + idx);
+		return this->Blob_[idx];
 	}
 
-	inline auto Image::operator[](const std::size_t idx) -> Signal&
+	inline auto Image::operator[](const U64 idx) -> Signal&
 	{
-		return *(this->Blob_ + idx);
+		return this->Blob_[idx];
 	}
 
-	inline auto Image::GetReactorView() const -> std::span<Signal>
+	inline auto Image::GetReactorView() const -> std::span<const Signal>
 	{
-		auto* const begin {this->Blob_};
-		auto* const end {this->Blob_ + this->Size_};
+		const auto* const begin {&*std::cbegin(this->Blob_)};
+		const auto* const end {&*std::cend(this->Blob_)};
 		return {begin, end};
 	}
 
@@ -1950,23 +1941,104 @@ namespace Nominax::ByteCode
 	};
 
 	/// <summary>
-	/// Contains the boolean values for the jump map.
-	/// We cannot use vector<bool> because it's a specialization
-	/// and does not allow pointer to it's elements, because they are stored as bits.
+	/// Contains optimization data.
 	/// </summary>
-	using JumpMap = std::vector<U8>;
-
-	/// <summary>
-	/// Execution ready byte code and jump map.
-	/// </summary>
-	using AppCodeBundle = std::tuple<Image, JumpMap>;
+	struct OptimizationHints final
+	{
+		const void*& JumpTable;
+	};
 
 	/// <summary>
 	/// Dynamic byte code stream.
 	/// </summary>
-	class Stream final
+	class Stream final : public Foundation::ISerializable
 	{
+		/// <summary>
+		/// Code section marker.
+		/// </summary>
+		static constexpr U64 STREAM_IMAGE_CODE_SECTION_MARKER {0x9FCF'2A4B'F10F'BEBA};
+
+		/// <summary>
+		/// Discriminator section marker.
+		/// </summary>
+		static constexpr U64 STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER {0x922C'232B'D183'ADDE};
+
+		/// <summary>
+		/// Encryption for the sizes.
+		/// </summary>
+		static constexpr U64 ENCRYPTION_KEY_ALPHA {0x160B490091BE68};
+
+		/// <summary>
+		/// Encryption for the sizes.
+		/// </summary>
+		static constexpr U64 ENCRYPTION_KEY_BETA {0x54746EC3DF441};
+
+		/// <summary>
+		/// Encryption for the sizes.
+		/// </summary>
+		static constexpr U64 ENCRYPTION_KEY_GAMMA {0x1672E3969FF6FC8};
+
 	public:
+		/// <summary>
+		/// Contains the file header of a serialized stream image.
+		/// </summary>
+		struct SerializationImageHeader final
+		{
+			/// <summary>
+			/// Image identifier.
+			/// </summary>
+			static constexpr std::string_view MAGIC_ID {"&NOMINAX*IMAGE#"};
+
+			/// <summary>
+			/// Magic number string.
+			/// </summary>
+			std::array<char, std::size(MAGIC_ID)> Magic;
+
+			/// <summary>
+			/// The amount of code buffer entries.
+			/// </summary>
+			U64 CodeImageSize;
+
+			/// <summary>
+			/// The amount of discriminator buffer entries.
+			/// </summary>
+			U64 DiscriminatorImageSize;
+
+			/// <summary>
+			/// Encrypt descriptor values.
+			/// </summary>
+			/// <returns></returns>
+			constexpr auto EncryptDecrypt()
+			{
+				constexpr U64 alpha {ENCRYPTION_KEY_ALPHA}, beta {ENCRYPTION_KEY_BETA}, gamma {ENCRYPTION_KEY_GAMMA};
+				this->CodeImageSize ^= alpha ^ gamma ^ beta;
+				this->DiscriminatorImageSize ^= beta ^ alpha ^ gamma;
+			}
+		};
+
+		static_assert(std::is_standard_layout_v<SerializationImageHeader>);
+
+		/// <summary>
+		/// Serialize to file stream.
+		/// </summary>
+		/// <returns>True on success, else false.</returns>
+		[[nodiscard]]
+		virtual auto Serialize(std::ofstream& out) const -> bool override;
+
+		/// <summary>
+		/// Deserialize from file stream.
+		/// </summary>
+		/// <returns>True on success, else false.</returns>
+		[[nodiscard]]
+		virtual auto Deserialize(std::ifstream& in) -> bool override;
+
+		/// <summary>
+		/// Query image header from this stream.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <returns></returns>
+		auto GetSerializationImageHeader(SerializationImageHeader& out) const -> void;
+
 		/// <summary>
 		/// Data structure to store the whole byte code.
 		/// </summary>
@@ -1998,13 +2070,13 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Contains the whole byte code.
 		/// </summary>
-		CodeStorageType Code_ { };
+		CodeStorageType CodeBuffer_ { };
 
 		/// <summary>
 		/// Contains all discriminators for the byte code.
 		/// Must always be same size as the "Code_" above.
 		/// </summary>
-		DiscriminatorStorageType CodeDisc_ { };
+		DiscriminatorStorageType CodeDiscriminatorBuffer_ { };
 
 		/// <summary>
 		/// Optimization level used for stream.
@@ -2031,7 +2103,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		static constexpr auto MandatoryCodeSize() -> std::size_t;
+		static constexpr auto GuardCodeSize() -> U64;
 
 		/// <summary>
 		/// Construct empty stream.
@@ -2054,11 +2126,11 @@ namespace Nominax::ByteCode
 		Stream(Stream&& other) = default;
 
 		/// <summary>
-		/// No copy.
+		/// Copy constructor.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		Stream(const Stream& other) = delete;
+		Stream(const Stream& other) = default;
 
 		/// <summary>
 		/// Move assignment operator.
@@ -2068,30 +2140,72 @@ namespace Nominax::ByteCode
 		auto operator =(Stream&& other) -> Stream& = default;
 
 		/// <summary>
-		/// No copy.
+		/// Copy assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(const Stream& other) -> Stream& = delete;
+		auto operator =(const Stream& other) -> Stream& = default;
 
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~Stream() = default;
+		virtual ~Stream() override = default;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The underlying code buffer.</returns>
 		[[nodiscard]]
-		auto GetCodeBuffer() const -> const CodeStorageType&;
+		auto GetCodeBuffer() & -> CodeStorageType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying code buffer.</returns>
+		[[nodiscard]]
+		auto GetCodeBuffer() const & -> const CodeStorageType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying code buffer.</returns>
+		[[nodiscard]]
+		auto GetCodeBuffer() && -> CodeStorageType&&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying code buffer.</returns>
+		[[nodiscard]]
+		auto GetCodeBuffer() const && -> const CodeStorageType&&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The underlying discriminator buffer.</returns>
 		[[nodiscard]]
-		auto GetDiscriminatorBuffer() const -> const DiscriminatorStorageType&;
+		auto GetDiscriminatorBuffer() & -> DiscriminatorStorageType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying discriminator buffer.</returns>
+		[[nodiscard]]
+		auto GetDiscriminatorBuffer() const & -> const DiscriminatorStorageType&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying discriminator buffer.</returns>
+		[[nodiscard]]
+		auto GetDiscriminatorBuffer() && -> DiscriminatorStorageType&&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The underlying discriminator buffer.</returns>
+		[[nodiscard]]
+		auto GetDiscriminatorBuffer() const && -> const DiscriminatorStorageType&&;
 
 		/// <summary>
 		/// 
@@ -2118,21 +2232,21 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		auto Resize(std::size_t size) -> void;
+		auto Resize(U64 size) -> void;
 
 		/// <summary>
 		/// Reserve buffer size.
 		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		auto Reserve(std::size_t size) -> void;
+		auto Reserve(U64 size) -> void;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the stream.</returns>
 		[[nodiscard]]
-		auto Size() const -> std::size_t;
+		auto Size() const -> U64;
 
 		/// <summary>
 		/// Returns true if the stream contains
@@ -2147,7 +2261,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns>The size of the stream in bytes.</returns>
 		[[nodiscard]]
-		auto SizeInBytes() const -> std::size_t;
+		auto SizeInBytes() const -> U64;
 
 		/// <summary>
 		/// Push stream entry.
@@ -2230,7 +2344,7 @@ namespace Nominax::ByteCode
 		/// Print out immediate byte code.
 		/// </summary>
 		/// <returns></returns>
-		auto PrintByteCode() const -> void;
+		auto DumpByteCode() const -> void;
 
 		/// <summary>
 		/// Print the size of the stream with memory info.
@@ -2244,7 +2358,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](std::size_t idx) const -> DiscriminatedSignal;
+		auto operator [](U64 idx) const -> DiscriminatedSignal;
 
 		/// <summary>
 		/// Insert instruction manually with immediate arguments.
@@ -2303,19 +2417,22 @@ namespace Nominax::ByteCode
 		auto With(V value, F&& functor) -> Stream&;
 
 		/// <summary>
-		/// Validate and build code chunk plus jump map.
+		/// Validate and build code chunk plus jump map into app code bundle.
 		/// </summary>
+		/// <param name="optInfo"></param>
+		/// <param name="stream"></param>
 		/// <param name="out"></param>
-		/// <param name="outJumpMap"></param>
 		/// <returns></returns>
-		auto Build(Image& out, JumpMap& outJumpMap) const -> ValidationResultCode;
+		static auto Build(Stream&& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode;
 
 		/// <summary>
 		/// Validate and build code chunk plus jump map into app code bundle.
 		/// </summary>
+		/// <param name="optInfo"></param>
+		/// <param name="stream"></param>
 		/// <param name="out"></param>
 		/// <returns></returns>
-		auto Build(AppCodeBundle& out) const -> ValidationResultCode;
+		static auto Build(const Stream& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode;
 
 		/// <summary>
 		/// Get current optimization level.
@@ -2342,12 +2459,12 @@ namespace Nominax::ByteCode
 		return EPILOGUE_CODE;
 	}
 
-	constexpr auto Stream::MandatoryCodeSize() -> std::size_t
+	constexpr auto Stream::GuardCodeSize() -> U64
 	{
-		return PrologueCode().size() + EpilogueCode().size();
+		return std::size(PrologueCode()) + std::size(EpilogueCode());
 	}
 
-	static_assert(Stream::MandatoryCodeSize() == Stream::PrologueCode().size() + Stream::EpilogueCode().size());
+	static_assert(Stream::GuardCodeSize() == Stream::PrologueCode().size() + Stream::EpilogueCode().size());
 
 	inline Stream::Stream(const OptimizationLevel optimizationLevel) : OptimizationLevel_ {optimizationLevel} { }
 
@@ -2359,11 +2476,6 @@ namespace Nominax::ByteCode
 	inline auto Stream::SetOptimizationLevel(const OptimizationLevel optimizationLevel) -> void
 	{
 		this->OptimizationLevel_ = optimizationLevel;
-	}
-
-	inline auto Stream::Build(AppCodeBundle& out) const -> ValidationResultCode
-	{
-		return this->Build(std::get<0>(out), std::get<1>(out));
 	}
 
 	template <Instruction I, typename... Ts> requires ValidInstruction<I, Ts...> && ValidInstructionArgument<Ts...>
@@ -2382,7 +2494,7 @@ namespace Nominax::ByteCode
 	template <typename F, typename V> requires StreamWithExpressionType<F, V>
 	inline auto Stream::With(const V value, F&& functor) -> Stream&
 	{
-		if constexpr (std::is_same_v<signed, V>)
+		if constexpr (std::is_same_v<I32, V>)
 		{
 			functor(ScopedVariable<I64> {*this, static_cast<I64>(value)});
 		}
@@ -2395,123 +2507,153 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::Front() const -> DiscriminatedSignal
 	{
-		return {this->CodeDisc_.front(), this->Code_.front()};
+		return {this->CodeDiscriminatorBuffer_.front(), this->CodeBuffer_.front()};
 	}
 
 	inline auto Stream::Back() const -> DiscriminatedSignal
 	{
-		return {this->CodeDisc_.back(), this->Code_.back()};
+		return {this->CodeDiscriminatorBuffer_.back(), this->CodeBuffer_.back()};
 	}
 
-	inline auto Stream::operator[](const std::size_t idx) const -> DiscriminatedSignal
+	inline auto Stream::operator[](const U64 idx) const -> DiscriminatedSignal
 	{
-		return {this->CodeDisc_[idx], this->Code_[idx]};
+		return {this->CodeDiscriminatorBuffer_[idx], this->CodeBuffer_[idx]};
 	}
 
 	inline auto Stream::IsEmpty() const -> bool
 	{
-		return this->Code_.empty() && this->CodeDisc_.empty();
+		return std::empty(this->CodeBuffer_) && std::empty(this->CodeDiscriminatorBuffer_);
 	}
 
-	inline auto Stream::GetCodeBuffer() const -> const CodeStorageType&
+	inline auto Stream::GetCodeBuffer() & -> CodeStorageType&
 	{
-		return this->Code_;
+		return this->CodeBuffer_;
 	}
 
-	inline auto Stream::GetDiscriminatorBuffer() const -> const DiscriminatorStorageType&
+	inline auto Stream::GetCodeBuffer() const & -> const CodeStorageType&
 	{
-		return this->CodeDisc_;
+		return this->CodeBuffer_;
+	}
+
+	inline auto Stream::GetCodeBuffer() && -> CodeStorageType&&
+	{
+		return std::move(this->CodeBuffer_);
+	}
+
+	inline auto Stream::GetCodeBuffer() const && -> const CodeStorageType&&
+	{
+		return std::move(this->CodeBuffer_);
+	}
+
+	inline auto Stream::GetDiscriminatorBuffer() & -> DiscriminatorStorageType&
+	{
+		return this->CodeDiscriminatorBuffer_;
+	}
+
+	inline auto Stream::GetDiscriminatorBuffer() const & -> const DiscriminatorStorageType&
+	{
+		return this->CodeDiscriminatorBuffer_;
+	}
+
+	inline auto Stream::GetDiscriminatorBuffer() && -> DiscriminatorStorageType&&
+	{
+		return std::move(this->CodeDiscriminatorBuffer_);
+	}
+
+	inline auto Stream::GetDiscriminatorBuffer() const && -> const DiscriminatorStorageType&&
+	{
+		return std::move(this->CodeDiscriminatorBuffer_);
 	}
 
 	inline auto Stream::Clear() -> void
 	{
-		this->Code_.clear();
-		this->CodeDisc_.clear();
+		this->CodeBuffer_.clear();
+		this->CodeDiscriminatorBuffer_.clear();
 	}
 
-	inline auto Stream::Resize(const std::size_t size) -> void
+	inline auto Stream::Resize(const U64 size) -> void
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.resize(size);
-		this->CodeDisc_.resize(size);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.resize(size);
+		this->CodeDiscriminatorBuffer_.resize(size);
 	}
 
-	inline auto Stream::Reserve(const std::size_t size) -> void
+	inline auto Stream::Reserve(const U64 size) -> void
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.reserve(size);
-		this->CodeDisc_.reserve(size);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.reserve(size);
+		this->CodeDiscriminatorBuffer_.reserve(size);
 	}
 
-	inline auto Stream::Size() const -> std::size_t
+	inline auto Stream::Size() const -> U64
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		return this->Code_.size();
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		return std::size(this->CodeBuffer_);
 	}
 
-	inline auto Stream::SizeInBytes() const -> std::size_t
+	inline auto Stream::SizeInBytes() const -> U64
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		return
-			this->Code_.size()
+			std::size(this->CodeBuffer_)
 			* sizeof(Signal)
-			+ this->CodeDisc_.size()
+			+ std::size(this->CodeDiscriminatorBuffer_)
 			* sizeof(Signal::Discriminator);
 	}
 
 	inline auto Stream::operator <<(const Instruction instr) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal {instr});
-		this->CodeDisc_.emplace_back(Signal::Discriminator::Instruction);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.emplace_back(Signal {instr});
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Instruction);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const SystemIntrinsicCallID intrin) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal {intrin});
-		this->CodeDisc_.emplace_back(Signal::Discriminator::SystemIntrinsicCallID);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.emplace_back(Signal {intrin});
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::SystemIntrinsicCallID);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const UserIntrinsicCallID intrin) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal {intrin});
-		this->CodeDisc_.emplace_back(Signal::Discriminator::UserIntrinsicCallID);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.emplace_back(Signal {intrin});
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::UserIntrinsicCallID);
 		return *this;
 	}
 
 	inline auto Stream::operator<<(const JumpAddress address) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal {address});
-		this->CodeDisc_.emplace_back(Signal::Discriminator::JumpAddress);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.emplace_back(Signal {address});
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::JumpAddress);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const U64 value) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal {value});
-		this->CodeDisc_.emplace_back(Signal::Discriminator::U64);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.emplace_back(Signal {value});
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::U64);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const I64 value) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal {value});
-		this->CodeDisc_.emplace_back(Signal::Discriminator::I64);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.emplace_back(Signal {value});
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::I64);
 		return *this;
 	}
 
 	inline auto Stream::operator <<(const F64 value) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal {value});
-		this->CodeDisc_.emplace_back(Signal::Discriminator::F64);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.emplace_back(Signal {value});
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::F64);
 		return *this;
 	}
 
@@ -2522,113 +2664,97 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::operator <<(const CharClusterUtf8 value) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal {value});
-		this->CodeDisc_.emplace_back(Signal::Discriminator::CharClusterUtf8);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.emplace_back(Signal {value});
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf8);
 		return *this;
 	}
 
 	inline auto Stream::operator<<(const CharClusterUtf16 value) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal {value});
-		this->CodeDisc_.emplace_back(Signal::Discriminator::CharClusterUtf16);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.emplace_back(Signal {value});
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf16);
 		return *this;
 	}
 
 	inline auto Stream::operator<<(const CharClusterUtf32 value) -> Stream&
 	{
-		assert(this->Code_.size() == this->CodeDisc_.size());
-		this->Code_.emplace_back(Signal {value});
-		this->CodeDisc_.emplace_back(Signal::Discriminator::CharClusterUtf32);
+		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+		this->CodeBuffer_.emplace_back(Signal {value});
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf32);
 		return *this;
 	}
 
 	/// <summary>
-		/// Contains the boolean values for the jump map.
-		/// We cannot use vector<bool> because it's a specialization
-		/// and does not allow pointer to it's elements, because they are stored as bits.
-		/// </summary>
-	using JumpMap = std::vector<U8>;
+	/// Compute relative jump address.
+	/// </summary>
+	NOX_FORCE_INLINE inline auto ComputeRelativeJumpAddress(const Signal* const base, const JumpAddress address) -> const void*
+	{
+		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
+	}
 
-	static_assert(sizeof(U8) == sizeof(bool));
-	static_assert(alignof(U8) == alignof(bool));
+	/// <summary>
+	/// Replaces the op-codes in the bucket with the pointers to the labels.
+	/// This improves performance because no array lookup is needed.
+	/// The jump assembly generated on my machine (x86-64, clang):
+	/// With jump table mapping:
+	/// jmpq	*(%r14)
+	/// Without jump table mapping:
+	/// jmpq	*(%rcx,%rax,8)
+	/// This easily gives some 300-500 milliseconds performance improvement on my machine.
+	/// Important: The signal bucket is modified.
+	/// After mapping, each signal which was an instruction now contains a void* to the jump label.
+	/// That means, that the original instructions/opcodes are gone.
+	/// For example, let's say the first instruction was push 32, so the signal was:
+	/// [1] -> 7	[type: instruction]
+	/// [2] -> 32	[type: i64]
+	/// After mapping the content will be:
+	/// [1] -> 0x00D273F27A	[type: void*]
+	/// [2] -> 32			[type: i64]
+	/// Because all opcodes are gone, accessing the bucket and using the opcode values after mapping is not allowed!
+	/// Because the Signal type is not discriminated (like DynamicSignal), we do not know which signal contains an instruction.
+	/// For that we have the instruction map, which must have the same size as the bucket.
+	/// For each bucket entry there is a signal map entry, which is true if the bucket entry at the same index is an instruction else false.
+	/// Example:
+	/// bucket[1] = push	| instructionMap[1] = true
+	/// bucket[2] = 3		| instructionMap[2] = false
+	/// bucket[3] = pushz	| instructionMap[3] = true
+	/// bucket[4] = nop		| instructionMap[4] = true
+	///
+	/// ** Update 10.05.2021 **
+	/// For further optimization jump target addresses are not also converted to pointers.
+	/// When you specify a branch like
+	/// jz 3
+	/// the byte code position of 3 will be replaced by the real pointer value,
+	/// to avoid more calculation.
+	/// But this mapping is done in the byte code builder, not here because it does not require the jump table.
+	/// Builds a byte code image chunk and a jump map out of the stream.
+	/// The memory for the chunk image is newly allocated which might be slower.
+	/// If you execute a stream once, use TransformStreamToImageByMove.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="optHints"></param>
+	/// <param name="output"></param>
+	extern auto TransformStreamToImageByCopy
+	(
+		const Stream&            input,
+		const OptimizationHints& optHints,
+		Image&                   output
+	) -> void;
 
 	/// <summary>
 	/// Builds a byte code image chunk and a jump map out of the stream.
-	/// The memory for the chunk image is newly allocated which might be slower.
-	/// If you execute a stream once, use TransformStreamMove.
 	/// </summary>
 	/// <param name="input"></param>
+	/// <param name="optHints"></param>
 	/// <param name="output"></param>
-	/// <param name="jumpMap"></param>
-	extern auto TransformStreamToImageByCopy(const Stream& input, Image& output, JumpMap& jumpMap) -> void;
-
-	/*
-	 * Stop crying, we use macros instead of "constexpr char"
-	 * here to use compile time string concatenation!
-	 * It's not pretty and the best modern C++ way but simple and effective!
-	 */
-
-	/// <summary>
-	/// Specify immediate constant operand.
-	/// </summary>
-	#define NOX_LEX_IMM "%"
-
-	/// <summary>
-	/// Begin byte code comment.
-	/// </summary>
-	#define NOX_LEX_COMMENT "#"
-
-	/// <summary>
-	///
-	/// </summary>
-	#define NOX_LEX_TYPE "*"
-
-	/// <summary>
-	///
-	/// </summary>
-	#define NOX_LEX_TYPE_U64 NOX_LEX_TYPE "u64"
-
-	/// <summary>
-	///
-	/// </summary>
-	#define NOX_LEX_TYPE_I64 NOX_LEX_TYPE "i64"
-
-	/// <summary>
-	///
-	/// </summary>
-	#define NOX_LEX_TYPE_F64 NOX_LEX_TYPE "f64"
-
-	/// <summary>
-	/// CharClusterUtf8 (1 byte)
-	/// </summary>
-	#define NOX_LEX_TYPE_CC1 NOX_LEX_TYPE "cc1"
-
-	/// <summary>
-	/// CharClusterUtf16 (2 byte)
-	/// </summary>
-	#define NOX_LEX_TYPE_CC2 NOX_LEX_TYPE "cc2"
-
-	/// <summary>
-	///CharClusterUtf32 (4 byte)
-	/// </summary>
-	#define NOX_LEX_TYPE_CC4 NOX_LEX_TYPE "cc4"
-
-	/// <summary>
-	/// System intrinsic call id.
-	/// </summary>
-	#define NOX_LEX_TYPE_SIC NOX_LEX_TYPE "sys"
-
-	/// <summary>
-	/// User intrinsic call id.
-	/// </summary>
-	#define NOX_LEX_TYPE_UIC NOX_LEX_TYPE "usr"
-
-	/// <summary>
-	/// Jump address.
-	/// </summary>
-	#define NOX_LEX_TYPE_JMP NOX_LEX_TYPE "jma"
+	extern auto TransformStreamToImageByMove
+	(
+		Stream&&                 input,
+		const OptimizationHints& optHints,
+		Image&                   output
+	) -> void;
 
 	/// <summary>
 	/// Single stack-bounded variable.
@@ -3128,13 +3254,13 @@ namespace Nominax::ByteCode
 	using ScopedF32 = ScopedVariable<F64>;
 
 	/// <summary>
-/// Validates a jump address. To be valid the jump address must be:
-/// 1. Inside the range of the bucket addresses
-/// 2. The target must be a instruction
-/// </summary>
-/// <param name="bucket"></param>
-/// <param name="address"></param>
-/// <returns></returns>
+	/// Validates a jump address. To be valid the jump address must be:
+	/// 1. Inside the range of the bucket addresses
+	/// 2. The target must be a instruction
+	/// </summary>
+	/// <param name="bucket"></param>
+	/// <param name="address"></param>
+	/// <returns></returns>
 	[[nodiscard]]
 	extern auto ValidateJumpAddress(const Stream& bucket, JumpAddress address) -> bool;
 
@@ -3235,7 +3361,7 @@ namespace Nominax::ByteCode
 	/// <param name="offset"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const std::size_t offset) -> std::span<const Signal::Discriminator>
+	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const U64 offset) -> std::span<const Signal::Discriminator>
 	{
 		return {where + 1, where + 1 + offset};
 	}

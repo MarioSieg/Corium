@@ -205,10 +205,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl Asm_IsAvx512SupportedByOs
+.globl IsAvx512SupportedByOs
 
 # Header: Arch/X86_64/CpuId.hpp
-Asm_IsAvx512SupportedByOs:
+IsAvx512SupportedByOs:
     xorl    %ecx, %ecx          # clear ecx
     xgetbv                      # read value from extended control register into %edx:%eax
     andb    $0b11100000, %al    # mask out avx512 bit

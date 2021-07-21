@@ -215,8 +215,8 @@ static_assert(VariantIndexOf<Variant, float>() == 2);
 TEST(Algorithms, UniformChunkSplit)
 {
 	constexpr std::array                                                                       values {2, 5, 1, 4, 5, 9};
-	std::size_t                                                                                i {0};
-	UniformChunkSplit(2, std::begin(values), std::end(values), [&i](const std::span<const int> range, const std::size_t index)
+	U64                                                                                        i {0};
+	UniformChunkSplit(2, std::begin(values), std::end(values), [&i](const std::span<const int> range, const U64 index)
 	{
 		ASSERT_EQ(range.size(), 3);
 		ASSERT_EQ(index, 6 / 2 * i++);
@@ -226,8 +226,8 @@ TEST(Algorithms, UniformChunkSplit)
 TEST(Algorithms, UniformChunkSplit2)
 {
 	constexpr std::array                                                                       values {2, 5, 1, 4, 5, 9, 2, 5, 1, 4, 5, 9};
-	std::size_t                                                                                i {0};
-	UniformChunkSplit(1, std::begin(values), std::end(values), [&i](const std::span<const int> range, const std::size_t index)
+	U64                                                                                        i {0};
+	UniformChunkSplit(1, std::begin(values), std::end(values), [&i](const std::span<const int> range, const U64 index)
 	{
 		ASSERT_EQ(index, i++);
 		ASSERT_EQ(range.size(), 12);
@@ -237,8 +237,8 @@ TEST(Algorithms, UniformChunkSplit2)
 TEST(Algorithms, UniformChunkSplit3)
 {
 	constexpr std::array                                                                                             values {2, 5, 1, 4, 5, 9, 2, 5, 1, 4, 5, 9};
-	std::size_t                                                                                                      i {0};
-	UniformChunkSplit(4, std::begin(values), std::end(values), [&i, size = values.size()](const std::span<const int> range, const std::size_t index)
+	U64                                                                                                              i {0};
+	UniformChunkSplit(4, std::begin(values), std::end(values), [&i, size = values.size()](const std::span<const int> range, const U64 index)
 	{
 		ASSERT_EQ(range.size(), 3);
 		ASSERT_EQ(index, size / 4 * i++);
@@ -248,7 +248,7 @@ TEST(Algorithms, UniformChunkSplit3)
 TEST(Algorithms, UniformChunkSplitSingleZero)
 {
 	constexpr std::array                                                                            values {2, 5, 1, 4, 5, 9};
-	UniformChunkSplit(0, std::begin(values), std::end(values), [&values](const std::span<const int> range, const std::size_t index)
+	UniformChunkSplit(0, std::begin(values), std::end(values), [&values](const std::span<const int> range, const U64 index)
 	{
 		ASSERT_EQ(range.size(), values.size());
 		ASSERT_EQ(index, 0);
@@ -258,7 +258,7 @@ TEST(Algorithms, UniformChunkSplitSingleZero)
 TEST(Algorithms, UniformChunkSplitSingleOne)
 {
 	constexpr std::array                                                                            values {2, 5, 1, 4, 5, 9};
-	UniformChunkSplit(1, std::begin(values), std::end(values), [&values](const std::span<const int> range, const std::size_t index)
+	UniformChunkSplit(1, std::begin(values), std::end(values), [&values](const std::span<const int> range, const U64 index)
 	{
 		ASSERT_EQ(range.size(), values.size());
 		ASSERT_EQ(index, 0);
@@ -362,4 +362,28 @@ TEST(Algorithms, BitRotRight64)
 {
 	ASSERT_EQ(Ror64(2, 4), std::rotr<U64>(2, 4));
 	ASSERT_EQ(Ror64(1234567, 22), std::rotr<U64>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotLeft32Generic)
+{
+	ASSERT_EQ(Rol32(2, 4), RolGeneric<U32>(2, 4));
+	ASSERT_EQ(Rol32(1234567, 22), RolGeneric<U32>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotLeft64Generic)
+{
+	ASSERT_EQ(Rol64(2, 4), RolGeneric<U64>(2, 4));
+	ASSERT_EQ(Rol64(1234567, 22), RolGeneric<U64>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotRight32Generic)
+{
+	ASSERT_EQ(Ror32(2, 4), RorGeneric<U32>(2, 4));
+	ASSERT_EQ(Ror32(1234567, 22), RorGeneric<U32>(1234567, 22));
+}
+
+TEST(Algorithms, BitRotRight64Generic)
+{
+	ASSERT_EQ(Ror64(2, 4), RorGeneric<U64>(2, 4));
+	ASSERT_EQ(Ror64(1234567, 22), RorGeneric<U64>(1234567, 22));
 }

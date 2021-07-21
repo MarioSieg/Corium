@@ -209,9 +209,9 @@
 
 namespace Nominax::Core
 {
-	TaskQueueThreadPool::TaskQueueThreadPool(const std::size_t threadCount)
+	TaskQueueThreadPool::TaskQueueThreadPool(const U64 threadCount)
 	{
-		for (std::size_t i {0}; i < threadCount; ++i)
+		for (U64 i {0}; i < threadCount; ++i)
 		{
 			this->Threads.emplace_back(std::make_unique<TaskQueueThread>());
 		}
@@ -223,11 +223,11 @@ namespace Nominax::Core
 	TaskQueueThreadPool::TaskQueueThreadPool
 	(
 		std::pmr::monotonic_buffer_resource& allocator,
-		const std::size_t                    threadCount
+		const U64                            threadCount
 	) : Allocator_ {&allocator},
 	    Threads {Allocator_}
 	{
-		for (std::size_t i {0}; i < threadCount; ++i)
+		for (U64 i {0}; i < threadCount; ++i)
 		{
 			this->Threads.emplace_back(std::make_unique<TaskQueueThread>(allocator));
 		}

@@ -316,17 +316,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// Code chunk data pointer.
 		/// </summary>
-		ByteCode::Signal* CodeChunk {nullptr};
-
-		/// <summary>
-		/// Instruction map data pointer.
-		/// </summary>
-		const bool* CodeChunkInstructionMap {nullptr};
+		const ByteCode::Signal* CodeChunk {nullptr};
 
 		/// <summary>
 		/// Code chunk and instruction map length.
 		/// </summary>
-		std::size_t CodeChunkSize {0};
+		U64 CodeChunkSize {0};
 
 		/// <summary>
 		/// Intrinsic routine registry data pointer.
@@ -336,7 +331,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Intrinsic routine registry length.
 		/// </summary>
-		std::size_t IntrinsicTableSize {0};
+		U64 IntrinsicTableSize {0};
 
 		/// <summary>
 		/// Interrupt routine proxy.
@@ -346,12 +341,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// Stack data pointer.
 		/// </summary>
-		Common::Record* Stack {nullptr};
+		Foundation::Record* Stack {nullptr};
 
 		/// <summary>
 		/// Stack length.
 		/// </summary>
-		std::size_t StackSize {0};
+		U64 StackSize {0};
 
 		/// <summary>
 		/// Checks if the current descriptor is valid for
@@ -371,12 +366,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Code image view.
 		/// </summary>
-		std::span<ByteCode::Signal> CodeChunk;
-
-		/// <summary>
-		/// Instruction mapping view.
-		/// </summary>
-		std::span<const bool> CodeChunkInstructionMap;
+		std::span<const ByteCode::Signal> CodeChunk;
 
 		/// <summary>
 		/// Intrinsic routine view.
@@ -386,7 +376,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Stack view.
 		/// </summary>
-		std::span<Common::Record> Stack;
+		std::span<Foundation::Record> Stack;
 
 		/// <summary>
 		/// Interrupt routine proxy.
@@ -420,7 +410,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Storage type for the reactor stack.
 		/// </summary>
-		using StorageType = std::pmr::vector<Common::Record>;
+		using StorageType = std::pmr::vector<Foundation::Record>;
 
 	private:
 		/// <summary>
@@ -433,39 +423,39 @@ namespace Nominax::Core
 		/// Small 1 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_SMALL {1_mb / sizeof(Common::Record)};
+		static constexpr U64 SIZE_SMALL {1_mB / sizeof(Foundation::Record)};
 
 		/// <summary>
 		/// Medium sizes 4 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_MEDIUM {4_mb / sizeof(Common::Record)};
+		static constexpr U64 SIZE_MEDIUM {4_mB / sizeof(Foundation::Record)};
 
 		/// <summary>
 		/// Medium sizes 8 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::size_t SIZE_LARGE {8_mb / sizeof(Common::Record)};
+		static constexpr U64 SIZE_LARGE {8_mB / sizeof(Foundation::Record)};
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The memory buffer pointer.</returns>
 		[[nodiscard]]
-		auto Buffer() -> Common::Record*;
+		auto Buffer() -> Foundation::Record*;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The memory buffer pointer.</returns>
 		[[nodiscard]]
-		auto Buffer() const -> const Common::Record*;
+		auto Buffer() const -> const Foundation::Record*;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the memory buffer in records.</returns>
 		[[nodiscard]]
-		auto Size() const -> std::size_t;
+		auto Size() const -> U64;
 
 		/// <summary>
 		/// STL Compat
@@ -507,7 +497,7 @@ namespace Nominax::Core
 		/// <param name="allocator"></param>
 		/// <param name="sizeInRecords">Size in records. If the size is zero, fatal termination.</param>
 		/// <returns></returns>
-		explicit FixedStack(std::pmr::memory_resource& allocator, std::size_t sizeInRecords);
+		explicit FixedStack(std::pmr::memory_resource& allocator, U64 sizeInRecords);
 
 		/// <summary>
 		/// No copy.
@@ -538,17 +528,17 @@ namespace Nominax::Core
 		~FixedStack() = default;
 	};
 
-	inline auto FixedStack::Buffer() -> Common::Record*
+	inline auto FixedStack::Buffer() -> Foundation::Record*
 	{
 		return this->Buffer_.data();
 	}
 
-	inline auto FixedStack::Buffer() const -> const Common::Record*
+	inline auto FixedStack::Buffer() const -> const Foundation::Record*
 	{
 		return this->Buffer_.data();
 	}
 
-	inline auto FixedStack::Size() const -> std::size_t
+	inline auto FixedStack::Size() const -> U64
 	{
 		return this->Buffer_.size();
 	}
@@ -625,7 +615,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// The stack size in records.
 		/// </summary>
-		std::size_t StackSize {FixedStack::SIZE_LARGE};
+		U64 StackSize {FixedStack::SIZE_LARGE};
 
 		/// <summary>
 		/// The intrinsic routines.
@@ -646,7 +636,7 @@ namespace Nominax::Core
 		/// Get platform dependent default configuration.
 		/// </summary>
 		/// <returns></returns>
-		static constexpr auto Default(std::size_t stackSize = FixedStack::SIZE_LARGE) -> ReactorSpawnDescriptor;
+		static constexpr auto Default(U64 stackSize = FixedStack::SIZE_LARGE) -> ReactorSpawnDescriptor;
 	};
 
 	/// <summary>
@@ -669,7 +659,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="stackSize"></param>
 	/// <returns></returns>
-	constexpr auto ReactorSpawnDescriptor::Default(const std::size_t stackSize) -> ReactorSpawnDescriptor
+	constexpr auto ReactorSpawnDescriptor::Default(const U64 stackSize) -> ReactorSpawnDescriptor
 	{
 		return ReactorSpawnDescriptor
 		{
@@ -718,24 +708,24 @@ namespace Nominax::Core
 		/// <summary>
 		/// The size of the boot pool
 		/// </summary>
-		std::size_t BootPoolSize {128_kb};
+		U64 BootPoolSize {128_kB};
 
 		/// <summary>
 		/// The size of the system memory pool size.
 		/// </summary>
-		std::size_t SystemPoolSize {512_kb};
+		U64 SystemPoolSize {512_kB};
 
 		/// <summary>
 		/// The count of reactors.
 		/// If 0, the system will use the number of CPU threads.
 		/// </summary>
-		std::size_t ReactorCount {0};
+		U64 ReactorCount {0};
 
 		/// <summary>
 		/// The reactor stack size in bytes.
 		/// Must be divisible by 8!
 		/// </summary>
-		std::size_t StackSize {8_mb};
+		U64 StackSize {8_mB};
 
 		/// <summary>
 		/// Power preference of the system.
@@ -839,7 +829,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The result of the program evaluation (the first stack record, if any).</returns>
 		[[nodiscard]]
-		constexpr auto EvaluationResult() const -> Common::Record;
+		constexpr auto EvaluationResult() const -> Foundation::Record;
 	};
 
 	constexpr auto ReactorState::ReturnCode() const -> I32
@@ -847,14 +837,19 @@ namespace Nominax::Core
 		return this->InterruptCode;
 	}
 
-	constexpr auto ReactorState::EvaluationResult() const -> Common::Record
+	constexpr auto ReactorState::EvaluationResult() const -> Foundation::Record
 	{
 		return this->Input->Stack[1];
 	}
 
 	/// <summary>
-		/// Represents the whole runtime environment.
-		/// </summary>
+	/// Results from a VM execution.
+	/// </summary>
+	using ExecutionResult = std::pair<ReactorShutdownReason, const ReactorState&>;
+
+	/// <summary>
+	/// Represents the whole runtime environment.
+	/// </summary>
 	class [[nodiscard]] Environment
 	{
 		/// <summary>
@@ -895,7 +890,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>True on success, panic on false.</returns>
 		[[nodiscard]]
-		virtual auto OnPreExecutionHook(const ByteCode::AppCodeBundle& appCodeBundle) -> bool;
+		virtual auto OnPreExecutionHook(const ByteCode::Image& appCodeBundle) -> bool;
 
 		/// <summary>
 		/// This hook is executed after any code execution.
@@ -922,25 +917,25 @@ namespace Nominax::Core
 		/// <summary>
 		/// Size in bytes of the system pool, if the given count was invalid.
 		/// </summary>
-		static constexpr std::size_t FALLBACK_SYSTEM_POOL_SIZE {256_kb};
+		static constexpr U64 FALLBACK_SYSTEM_POOL_SIZE {256_kB};
 		static_assert(FALLBACK_SYSTEM_POOL_SIZE);
 
 		/// <summary>
 		/// The min size of the boot pool.
 		/// </summary>
-		static constexpr std::size_t BOOT_POOL_SIZE_MIN {32_kb};
+		static constexpr U64 BOOT_POOL_SIZE_MIN {32_kB};
 		static_assert(BOOT_POOL_SIZE_MIN);
 
 		/// <summary>
 		/// The max size of the boot pool.
 		/// </summary>
-		static constexpr std::size_t BOOT_POOL_SIZE_MAX {256_kb};
+		static constexpr U64 BOOT_POOL_SIZE_MAX {256_kB};
 		static_assert(BOOT_POOL_SIZE_MAX);
 
 		/// <summary>
 		/// Default constructor. Does not initialize the environment.
 		/// </summary>
-		explicit Environment(const Common::IAllocator* allocator = nullptr);
+		explicit Environment(const Foundation::IAllocator* allocator = nullptr);
 
 		/// <summary>
 		/// No copy.
@@ -985,16 +980,50 @@ namespace Nominax::Core
 		/// <summary>
 		/// Execute stream on alpha reactor.
 		/// </summary>
-		/// <param name="appCode"></param>
+		/// <param name="image"></param>
 		/// <returns></returns>
-		auto Execute(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		[[nodiscard]]
+		auto Execute(const ByteCode::Image& image) -> ExecutionResult;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
 		/// </summary>
-		/// <param name="appCode"></param>
+		/// <param name="stream"></param>
 		/// <returns></returns>
-		auto operator()(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		[[nodiscard]]
+		auto Execute(ByteCode::Stream&& stream) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Execute(const ByteCode::Stream& stream) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="image"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator()(ByteCode::Image& image) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator()(ByteCode::Stream&& stream) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator()(const ByteCode::Stream& stream) -> ExecutionResult;
 
 		/// <summary>
 		/// Shutdown runtime environment.
@@ -1036,14 +1065,14 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The system stat snapshot.</returns>
 		[[nodiscard]]
-		auto GetSystemSnapshot() const -> const Common::Snapshot&;
+		auto GetSystemSnapshot() const -> const Foundation::Snapshot&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The cpu feature detector.</returns>
 		[[nodiscard]]
-		auto GetProcessorFeatureSnapshot() const -> const Common::CpuFeatureDetector&;
+		auto GetProcessorFeatureSnapshot() const -> const Foundation::CpuFeatureDetector&;
 
 		/// <summary>
 		/// 
@@ -1057,14 +1086,14 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The size of the system pool in bytes.</returns>
 		[[nodiscard]]
-		auto GetMonotonicSystemPoolSize() const -> std::size_t;
+		auto GetMonotonicSystemPoolSize() const -> U64;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The count of reactor executions so far.</returns>
 		[[nodiscard]]
-		auto GetExecutionCount() const -> std::size_t;
+		auto GetExecutionCount() const -> U64;
 
 		/// <summary>
 		/// 
@@ -1072,71 +1101,29 @@ namespace Nominax::Core
 		/// <returns>The history of execution times.</returns>
 		[[nodiscard]]
 		auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The local optimization info for the current machine.</returns>
+		[[nodiscard]]
+		auto GetOptimizationHints() const -> ByteCode::OptimizationHints;
 	};
 
-	inline auto Environment::operator()(ByteCode::Stream&& appCode) -> std::pair<ReactorShutdownReason, const ReactorState&>
+	inline auto Environment::operator()(ByteCode::Image& image) -> ExecutionResult
 	{
-		return this->Execute(std::move(appCode));
+		return this->Execute(image);
 	}
 
-	/// <summary>
-	/// Compute relative jump address.
-	/// </summary>
-	NOX_FLATTEN inline auto ComputeRelativeJumpAddress(const ByteCode::Signal* const base, const ByteCode::JumpAddress address) -> const void*
+	inline auto Environment::operator()(ByteCode::Stream&& stream) -> ExecutionResult
 	{
-		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
+		return this->Execute(std::move(stream));
 	}
 
-	/// <summary>
-	/// Replaces the op-codes in the bucket with the pointers to the labels.
-	/// This improves performance because no array lookup is needed.
-	/// The jump assembly generated on my machine (x86-64, clang):
-	/// With jump table mapping:
-	/// jmpq	*(%r14)
-	/// Without jump table mapping:
-	/// jmpq	*(%rcx,%rax,8)
-	/// This easily gives some 300-500 milliseconds performance improvement on my machine.
-	/// Important: The signal bucket is modified.
-	/// After mapping, each signal which was an instruction now contains a void* to the jump label.
-	/// That means, that the original instructions/opcodes are gone.
-	/// For example, let's say the first instruction was push 32, so the signal was:
-	/// [1] -> 7	[type: instruction]
-	/// [2] -> 32	[type: i64]
-	/// After mapping the content will be:
-	/// [1] -> 0x00D273F27A	[type: void*]
-	/// [2] -> 32			[type: i64]
-	/// Because all opcodes are gone, accessing the bucket and using the opcode values after mapping is not allowed!
-	/// Because the Signal type is not discriminated (like DynamicSignal), we do not know which signal contains an instruction.
-	/// For that we have the instruction map, which must have the same size as the bucket.
-	/// For each bucket entry there is a signal map entry, which is true if the bucket entry at the same index is an instruction else false.
-	/// Example:
-	/// bucket[1] = push	| instructionMap[1] = true
-	/// bucket[2] = 3		| instructionMap[2] = false
-	/// bucket[3] = pushz	| instructionMap[3] = true
-	/// bucket[4] = nop		| instructionMap[4] = true
-	///
-	/// ** Update 10.05.2021 **
-	/// For further optimization jump target addresses are not also converted to pointers.
-	/// When you specify a branch like
-	/// jz 3
-	/// the byte code position of 3 will be replaced by the real pointer value,
-	/// to avoid more calculation.
-	/// But this mapping is done in the byte code builder, not here because it does not require the jump table.
-	/// </summary>
-	/// <param name="bucket">The byte code bucket to use as mapping target.</param>
-	/// <param name="bucketEnd">The incremented end pointer of the byte code bucket, calculated as: bucket + bucketLength</param>
-	/// <param name="jumpAddressMap">The instruction map. Must have the same size as the byte code bucket.</param>
-	/// <param name="jumpTable">The jump table. Must contain an address for each instruction.</param>
-	/// <returns>true on success, else false.</returns>
-	[[maybe_unused]]
-	[[nodiscard]]
-	extern auto PerformJumpTableMapping
-	(
-		ByteCode::Signal* NOX_RESTRICT                     bucket,
-		const ByteCode::Signal* NOX_RESTRICT               bucketEnd,
-		const bool*                                        jumpAddressMap,
-		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable
-	) -> bool;
+	inline auto Environment::operator()(const ByteCode::Stream& stream) -> ExecutionResult
+	{
+		return this->Execute(stream);
+	}
 
 	/// <summary>
 	/// Checks if all pointers inside the jump table are non null.
@@ -1148,7 +1135,7 @@ namespace Nominax::Core
 	consteval auto ValidateJumpTable
 	(
 		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable,
-		const std::size_t                                  jumpTableSize
+		const U64                                          jumpTableSize
 	) -> bool
 	{
 		if (!jumpTable || !jumpTableSize)
@@ -1168,1551 +1155,29 @@ namespace Nominax::Core
 	}
 
 	/// <summary>
-	/// Calculates an instruction mapping.
-	/// Input and output must have the same size.
-	/// </summary>
-	/// <param name="input"></param>
-	/// <param name="output"></param>
-	/// <returns></returns>
-	extern auto ComputeInstructionMapBinding(std::span<const ByteCode::Signal::Discriminator> input, std::span<bool>& output) -> bool;
-
-	/// <summary>
-	/// Contains all flags in the flag vector field in the object header.
-	/// </summary>
-	union ObjectFlagVector final
-	{
-		struct
-		{
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag0 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag1 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag2 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag3 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag4 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag5 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag6 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag7 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag8 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag9 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag10 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag11 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag12 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag13 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag14 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag15 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag16 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag17 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag18 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag19 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag20 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag21 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag22 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag23 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag24 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag25 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag26 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag27 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag28 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag29 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag30 : 1;
-
-			/// <summary>
-			/// 
-			/// </summary>
-			bool Flag31 : 1;
-		} Flags;
-
-		U32 Merged;
-	};
-
-	static_assert(sizeof(ObjectFlagVector) == sizeof(U32));
-
-	/// Every heap allocated object has an object header.
-	/// The object header contains various meta data about the object.
-	/// Each object header field is 32 - bits wide.
-	///
-	/// Offset	   Description	  Size
-	/// +-----------------------+
-	/// | 0 | Strong Ref Count  | 32 Bit
-	/// +-----------------------+
-	/// | 1 |  Size in Records	| 32 Bit
-	/// +-----------------------+
-	/// | 2 | Type ID			| 32 Bit
-	/// +-----------------------+
-	/// | 3 | Flag Vector		| 32 Bit
-	/// +-----------------------+
-	/// Total size : 128 Bit(16 Bytes)
-	struct ObjectHeader final
-	{
-		/// <summary>
-		/// Reference counter for strong references.
-		/// </summary>
-		U32 StrongRefCount {0};
-
-		/// <summary>
-		/// Object size in records.
-		/// </summary>
-		U32 Size {0};
-
-		/// <summary>
-		/// Type index for type DB.
-		/// </summary>
-		U32 TypeId {0};
-
-		/// <summary>
-		/// Flag vector for object states.
-		/// </summary>
-		ObjectFlagVector FlagVector { };
-
-		/// <summary>
-		/// Maps this record into the specified memory region.
-		/// ! The region must have at least 2 record entries to write to !
-		/// Safe alternative is the overload using std::span.
-		/// </summary>
-		/// <param name="region"></param>
-		/// <returns></returns>
-		auto MapToRegionUnchecked(Common::Record* region) const -> void;
-
-		/// <summary>
-		/// Maps this record into the specified memory region.
-		/// ! The region must have at least 2 record entries to write to !
-		/// </summary>
-		/// <param name="region"></param>
-		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
-		[[nodiscard]]
-		auto MapToRegionChecked(std::span<Common::Record> region) const -> bool;
-
-		/// <summary>
-		/// Maps this record from the specified memory region.
-		/// ! The region must have at least 2 record entries to read from!
-		/// Safe alternative is the overload using std::span.
-		/// </summary>
-		/// <param name="region"></param>
-		/// <returns></returns>
-		auto MapFromRegionUnchecked(const Common::Record* region) -> void;
-
-		/// <summary>
-		/// Maps this record from the specified memory region.
-		/// ! The region must have at least 2 record entries to read from!
-		/// </summary>
-		/// <param name="region"></param>
-		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
-		[[nodiscard]]
-		auto MapFromRegionChecked(std::span<const Common::Record> region) -> bool;
-
-		/// <summary>
-		/// Map an object header to the region and return the current value of the strong ref count.
-		/// </summary>
-		/// <param name="region"></param>
-		/// <returns>The current value of the strong ref count.</returns>
-		[[nodiscard]]
-		static constexpr auto ReadMapping_StrongRefCount(const Common::Record* region) -> U32;
-
-		/// <summary>
-		/// Map an object header to the region and return the current value of the size.
-		/// </summary>
-		/// <param name="region"></param>
-		/// <returns>The current value of the size field.</returns>
-		[[nodiscard]]
-		static constexpr auto ReadMapping_Size(const Common::Record* region) -> U32;
-
-		/// <summary>
-		/// Map an object header to the region and return the current value of the type id.
-		/// </summary>
-		/// <param name="region"></param>
-		/// <returns>The current value of the type id.</returns>
-		[[nodiscard]]
-		static constexpr auto ReadMapping_TypeId(const Common::Record* region) -> U32;
-
-		/// <summary>
-		/// Map an object header to the region and return the current value of the flag vector.
-		/// </summary>
-		/// <param name="region"></param>
-		/// <returns>The current value of the flag vector.</returns>
-		[[nodiscard ]]
-		static constexpr auto ReadMapping_FlagVector(const Common::Record* region) -> ObjectFlagVector;
-
-		/// <summary>
-		/// Map an object header to the region and writes the value into the strong ref count field.
-		/// </summary>
-		/// <param name="region"></param>
-		/// <param name="strongRefCount">The value to write.</param>
-		/// <returns></returns>
-		static constexpr auto WriteMapping_StrongRefCount(Common::Record* region, U32 strongRefCount) -> void;
-
-		/// <summary>
-		/// Implicit map the region to an object header and increment the strong reference counter by one.
-		/// The region must have at least 2 record entries to read from!
-		/// </summary>
-		/// <param name="region"></param>
-		/// <returns></returns>
-		static constexpr auto WriteMapping_IncrementStrongRefCount(Common::Record* region) -> void;
-
-		/// <summary>
-		/// Implicit map the region to an object header and decrement the strong reference counter by one.
-		/// The region must have at least 2 record entries to read from!
-		/// </summary>
-		/// <param name="region"></param>
-		/// <returns></returns>
-		static constexpr auto WriteMapping_DecrementStrongRefCount(Common::Record* region) -> void;
-
-		/// <summary>
-		/// Map an object header to the region and writes the value into the size field.
-		/// </summary>
-		/// <param name="region"></param>
-		/// <param name="size">The value to write.</param>
-		/// <returns></returns>
-		static constexpr auto WriteMapping_Size(Common::Record* region, U32 size) -> void;
-
-		/// <summary>
-		/// Map an object header to the region and writes the value into the type id field.
-		/// </summary>
-		/// <param name="region"></param>
-		/// <param name="typeId">The value to write.</param>
-		/// <returns></returns>
-		static constexpr auto WriteMapping_TypeId(Common::Record* region, U32 typeId) -> void;
-
-		/// <summary>
-		/// Map an object header to the region and writes the value into the flag vector field.
-		/// </summary>
-		/// <param name="region"></param>
-		/// <param name="flagVector">The value to write.</param>
-		/// <returns></returns>
-		static constexpr auto WriteMapping_FlagVector(Common::Record* region, ObjectFlagVector flagVector) -> void;
-
-		/// <summary>
-		/// Type-pun a region to an object header
-		/// using reinterpret_cast. This is bug prone and unsafe.
-		/// </summary>
-		/// <param name="region"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		[[deprecated("unsafe")]]
-		static auto RawQueryTypePun(Common::Record* region) -> ObjectHeader&;
-
-		/// <summary>
-		/// The size of each header block field.
-		/// </summary>
-		static constexpr auto STRIDE {sizeof(U32)};
-
-		/// <summary>
-		/// The count of header field blocks => 4 (StrongRefCount, Size, TypeId, FlagVector)
-		/// </summary>
-		static constexpr std::size_t BLOCKS {4};
-
-		/// <summary>
-		/// The offset in records from the blob base pointer.
-		/// </summary>
-		static constexpr std::uintptr_t RECORD_OFFSET {STRIDE * BLOCKS / sizeof(Common::Record)};
-
-		/// <summary>
-		/// The amount of records required to store the header.
-		/// </summary>
-		static constexpr U32 RECORD_CHUNKS {RECORD_OFFSET};
-
-		static_assert(STRIDE == 4);
-		static_assert(BLOCKS == 4);
-	};
-
-	static_assert(sizeof(ObjectHeader) == ObjectHeader::BLOCKS * ObjectHeader::STRIDE);
-	static_assert(sizeof(ObjectHeader) == 16);
-	static_assert(sizeof(ObjectHeader) % ObjectHeader::BLOCKS == 0); // Ok, ok we know the size must be 16 bytes!
-	static_assert(std::is_standard_layout_v<ObjectHeader>);
-	static_assert(std::is_trivially_copyable_v<ObjectHeader>);
-
-	NOX_FLATTEN inline auto ObjectHeader::MapToRegionUnchecked(Common::Record* const region) const -> void
-	{
-		std::memcpy(region, this, sizeof(ObjectHeader));
-	}
-
-	NOX_FLATTEN inline auto ObjectHeader::MapToRegionChecked(const std::span<Common::Record> region) const -> bool
-	{
-		if (region.size() < 2)
-		[[unlikely]]
-		{
-			return false;
-		}
-		return std::memcpy(region.data(), this, sizeof(ObjectHeader));
-	}
-
-	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionUnchecked(const Common::Record* const region) -> void
-	{
-		std::memcpy(this, region, sizeof(ObjectHeader));
-	}
-
-	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Common::Record> region) -> bool
-	{
-		if (region.size() < 2)
-		[[unlikely]]
-		{
-			return false;
-		}
-		return std::memcpy(this, region.data(), sizeof(ObjectHeader));
-	}
-
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_StrongRefCount(const Common::Record* const region) -> U32
-	{
-		return (*region).AsU32S[0];
-	}
-
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_Size(const Common::Record* const region) -> U32
-	{
-		return (*region).AsU32S[1];
-	}
-
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_TypeId(const Common::Record* const region) -> U32
-	{
-		return region[1].AsU32S[0];
-	}
-
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_FlagVector(const Common::Record* const region) -> ObjectFlagVector
-	{
-		const auto flags = ObjectFlagVector
-		{
-			.Merged = region[1].AsU32S[1]
-		};
-		return flags;
-	}
-
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_StrongRefCount(Common::Record* const region, const U32 strongRefCount) -> void
-	{
-		(*region).AsU32S[0] = strongRefCount;
-	}
-
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_IncrementStrongRefCount(Common::Record* const region) -> void
-	{
-		++(*region).AsU32S[0];
-	}
-
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_DecrementStrongRefCount(Common::Record* const region) -> void
-	{
-		--(*region).AsU32S[0];
-	}
-
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_Size(Common::Record* const region, const U32 size) -> void
-	{
-		(*region).AsU32S[1] = size;
-	}
-
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_TypeId(Common::Record* const region, const U32 typeId) -> void
-	{
-		region[1].AsU32S[0] = typeId;
-	}
-
-	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_FlagVector(Common::Record* const region, const ObjectFlagVector flagVector) -> void
-	{
-		region[1].AsU32S[1] = flagVector.Merged;
-	}
-
-	NOX_FLATTEN inline auto ObjectHeader::RawQueryTypePun(Common::Record* const region) -> ObjectHeader&
-	{
-		return *reinterpret_cast<ObjectHeader*>(region);
-	}
-
-	#define MUTATOR
-	#define IMMUTATOR
-
-	/// <summary>
-	/// Represents any heap allocated object.
-	/// </summary>
-	class Object final
-	{
-	public:
-		using BlobBlockType = Common::Record;
-
-	private:
-		friend class RuntimeObjectAllocator;
-
-		/// <summary>
-		/// Full data blob.
-		/// Array of records which contains the
-		/// object header and the object itself.
-		/// The first two records are always the header,
-		/// so the allocator must always allocate minimum 2 two records
-		/// for the header plus the size in records for the object.
-		/// So the blob length will be: ObjectHeader::RECORD_CHUNKS + sizeInRecords
-		/// This size must be written into the header field "Size"!
-		/// </summary>
-		BlobBlockType* Blob_ {nullptr};
-
-	public:
-		explicit Object(BlobBlockType* blob);
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The strong reference count field from the object header.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR HeaderRead_StrongReferenceCount() const -> U32;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The size of the object in records. The size field from the object header.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR HeaderRead_BlockSize() const -> U32;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The type id field from the object header.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR HeaderRead_TypeId() const -> U32;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The flag vector field from the object header.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR Header_ReadFlagVector() const -> ObjectFlagVector;
-
-		/// <summary>
-		/// Writes the value into the strong ref count header field.
-		/// </summary>
-		/// <param name="strongRefCount">The new value to write.</param>
-		/// <returns></returns>
-		auto MUTATOR HeaderWrite_StrongRefCount(U32 strongRefCount) const -> void;
-
-		/// <summary>
-		/// Increments the object header strong reference counter by one.
-		/// </summary>
-		/// <returns></returns>
-		auto MUTATOR HeaderWrite_IncrementStrongRefCount() const -> void;
-
-		/// <summary>
-		/// Decrements the object header strong reference counter by one.
-		/// </summary>
-		/// <returns></returns>
-		auto MUTATOR HeaderWrite_DecrementStrongRefCount() const -> void;
-
-		/// <summary>
-		/// Same as HeaderWrite_IncrementStrongRefCount()
-		/// </summary>
-		/// <returns></returns>
-		auto MUTATOR operator ++() const -> void;
-
-		/// <summary>
-		/// Same as HeaderWrite_DecrementStrongRefCount()
-		/// </summary>
-		/// <returns></returns>
-		auto MUTATOR operator --() const -> void;
-
-		/// <summary>
-		/// Same as HeaderWrite_IncrementStrongRefCount()
-		/// </summary>
-		/// <returns></returns>
-		auto MUTATOR operator ++(int) const -> void;
-
-		/// <summary>
-		/// Same as HeaderWrite_DecrementStrongRefCount()
-		/// </summary>
-		/// <returns></returns>
-		auto MUTATOR operator --(int) const -> void;
-
-		/// <summary>
-		/// Writes the value of size into the Size object header field.
-		/// </summary>
-		/// <param name="size">The new value to write.</param>
-		/// <returns></returns>
-		auto MUTATOR HeaderWrite_Size(U32 size) const -> void;
-
-		/// <summary>
-		/// Writes the value of typeId into the TypeId object header field.
-		/// </summary>
-		/// <param name="typeId">The new value to write.</param>
-		/// <returns></returns>
-		auto MUTATOR HeaderWrite_TypeId(U32 typeId) const -> void;
-
-		/// <summary>
-		/// Writes the value of flagVector into the ObjectFlags object header field.
-		/// </summary>
-		/// <param name="flagVector">The new value to write.</param>
-		/// <returns></returns>
-		auto MUTATOR HeaderWrite_FlagVector(ObjectFlagVector flagVector) const -> void;
-
-		/// <summary>
-		/// Get the raw object header pointer.
-		/// </summary>
-		/// <returns>The object header pointer.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR QueryRawHeader() const -> BlobBlockType*;
-
-		/// <summary>
-		/// Get the object header.
-		/// </summary>
-		/// <returns>The object header.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR QueryHeader() const -> ObjectHeader;
-
-		/// <summary>
-		/// Get underlying object block.
-		/// </summary>
-		/// <returns>The begin pointer of the underlying object block.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR LookupObjectBlock() const -> BlobBlockType*;
-
-		/// <summary>
-		/// Get underlying object block end iterator.
-		/// </summary>
-		/// <returns>The end pointer of the underlying object block.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR LookupObjectBlockEnd() const -> BlobBlockType*;
-
-		/// <summary>
-		/// Checks if the underlying object block is null, but the object header is null.
-		/// </summary>
-		/// <returns>True if the underlying object is null, else false.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR IsUnderlyingObjectBlockNull() const -> bool;
-
-		/// <summary>
-		/// Checks if the whole data blob (underlying object) and the object header is null.
-		/// </summary>
-		/// <returns>true if the whole data blob (underlying object) and the object header is null, else false.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR IsBlobNull() const -> bool;
-
-		/// <summary>
-		/// The size in records of the whole data blob:
-		/// header + object
-		/// </summary>
-		/// <returns>The size in records of the object header plus the size of object it self.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR BlobSize() const -> std::size_t;
-
-		/// <summary>
-		/// The size in bytes of the whole data blob:
-		/// header + object
-		/// </summary>
-		/// <returns>The size in bytes of the whole object header plus the whole size of object it self.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR BlobSizeInBytes() const -> std::size_t;
-
-		/// <summary>
-		/// Returns the size of the object block in bytes.
-		/// Same as HeaderRead_BlockSize() * sizeof(Common::Record) 
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto IMMUTATOR ObjectBlockSizeInBytes() const -> std::size_t;
-
-		/// <summary>
-		/// Tries to copy the object block into the buffer.
-		/// The buffer must have the same size or must be larger, if
-		/// not it will return false.
-		/// </summary>
-		/// <param name="buffer">The target buffer.</param>
-		/// <returns>True if the size was large enough, else false.</returns>
-		[[nodiscard]]
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::span<BlobBlockType> buffer) const -> bool;
-
-		/// <summary>
-		/// Resizes the buffer to the size of the object block and copies the whole
-		/// object block into the vector.
-		/// </summary>
-		/// <param name="buffer">The target buffer.</param>
-		/// <returns></returns>
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<BlobBlockType>& buffer) const -> void;
-
-		/// <summary>
-		/// SLT-Compat
-		/// Required for range loops, same as begin(object)
-		/// </summary>
-		/// <returns>Begin iterator.</returns>
-		[[nodiscard]]
-		// ReSharper disable once CppInconsistentNaming
-		auto IMMUTATOR begin() const -> BlobBlockType*;
-
-		/// <summary>
-		/// SLT-Compat
-		/// Required for range loops, same as end(object)
-		/// </summary>
-		/// <returns>End iterator.</returns>
-		[[nodiscard]]
-		// ReSharper disable once CppInconsistentNaming
-		auto IMMUTATOR end() const -> BlobBlockType*;
-
-		/// <summary>
-		/// Resizes the vector to the correct size
-		/// and copies the whole object (header + object block) into it.
-		/// </summary>
-		/// <param name="buffer"></param>
-		/// <returns></returns>
-		auto IMMUTATOR CopyBlob(std::vector<BlobBlockType>& buffer) const -> void;
-
-		/// <summary>
-		/// Lookup object block.
-		/// </summary>
-		/// <returns></returns>
-		auto IMMUTATOR operator *() const -> BlobBlockType*;
-
-		/// <summary>
-		/// Lookup object block.
-		/// </summary>
-		/// <returns></returns>
-		auto IMMUTATOR operator ->() const -> BlobBlockType*;
-
-		/// <summary>
-		/// Lookup object block end.
-		/// </summary>
-		/// <returns></returns>
-		auto IMMUTATOR operator ~() const -> BlobBlockType*;
-
-		/// <summary>
-		/// Unchecked subscript in object block.
-		/// </summary>
-		/// <param name="idx"></param>
-		/// <returns></returns>
-		auto IMMUTATOR operator [](std::size_t idx) -> BlobBlockType&;
-
-		/// <summary>
-		/// Unchecked subscript in object block.
-		/// </summary>
-		/// <param name="idx"></param>
-		/// <returns></returns>
-		auto IMMUTATOR operator [](std::size_t idx) const -> BlobBlockType;
-
-		/// <summary>
-		/// Sets the object block to zero - all object fields will be zero.
-		/// </summary>
-		/// <returns>std::memset return ptr (start of block)</returns>
-		auto MUTATOR ZeroObjectBlock() const -> void;
-
-		/// <summary>
-		/// Compares the pointer values of a and b.
-		/// This only compares pointers, not values.
-		/// For value compare, refer to DeepCompare.
-		/// </summary>
-		/// <param name="a">The first object.</param>
-		/// <param name="b">The second object to compare to first.</param>
-		/// <returns>True if the two objects point to the same object blob, else false.</returns>
-		[[nodiscard]]
-		static auto ShallowCmp(Object a, Object b) -> bool;
-
-		/// <summary>
-		/// Compares the values of the object block of the two objects.
-		/// This is overkill for most cases, pointer comparison can be enough.
-		/// </summary>
-		/// <param name="a">The first object.</param>
-		/// <param name="b">The second object to compare to first.</param>
-		/// <returns>True if the object block data is equal, else false.</returns>
-		[[nodiscard]]
-		static auto DeepCmp(Object a, Object b) -> bool;
-
-		/// <summary>
-		/// Compares the values of the object block of the two objects.
-		/// This is overkill for most cases, pointer comparison can be enough.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="a">The first object.</param>
-		/// <param name="b">The second object to compare to first.</param>
-		/// <returns>True if all values of a are equal than all values of b, else false.</returns>
-		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-		[[nodiscard]]
-		static auto DeepValueCmp_Equal(Object a, Object b) -> bool;
-
-
-		/// <summary>
-		/// Compares the values of the object block of the two objects.
-		/// This is overkill for most cases, pointer comparison can be enough.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="a">The first object.</param>
-		/// <param name="b">The second object to compare to first.</param>
-		/// <returns>True if all values of a are not equal than all values of b, else false.</returns>
-		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-		[[nodiscard]]
-		static auto DeepValueCmp_NotEqual(Object a, Object b) -> bool;
-
-		/// <summary>
-		/// Compares the values of the object block of the two objects.
-		/// This is overkill for most cases, pointer comparison can be enough.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="a">The first object.</param>
-		/// <param name="b">The second object to compare to first.</param>
-		/// <returns>True if all values of a are less than all values of b, else false.</returns>
-		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-		[[nodiscard]]
-		static auto DeepValueCmp_Less(Object a, Object b) -> bool;
-
-		/// <summary>
-		/// Compares the values of the object block of the two objects.
-		/// This is overkill for most cases, pointer comparison can be enough.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="a">The first object.</param>
-		/// <param name="b">The second object to compare to first.</param>
-		/// <returns>True if all values of a are less equal than all values of b, else false.</returns>
-		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-		[[nodiscard]]
-		static auto DeepValueCmp_LessEqual(Object a, Object b) -> bool;
-
-		/// <summary>
-		/// Compares the values of the object block of the two objects.
-		/// This is overkill for most cases, pointer comparison can be enough.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="a">The first object.</param>
-		/// <param name="b">The second object to compare to first.</param>
-		/// <returns>True if all values of a are greater than all values of b, else false.</returns>
-		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-		[[nodiscard]]
-		static auto DeepValueCmp_Greater(Object a, Object b) -> bool;
-
-		/// <summary>
-		/// Compares the values of the object block of the two objects.
-		/// This is overkill for most cases, pointer comparison can be enough.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="a">The first object.</param>
-		/// <param name="b">The second object to compare to first.</param>
-		/// <returns>True if all values of a are greater or equal than all values of b, else false.</returns>
-		template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-		[[nodiscard]]
-		static auto DeepValueCmp_GreaterEqual(Object a, Object b) -> bool;
-
-		/// <summary>
-		/// Deleter for unique objects allocated with std::unique_ptr.
-		/// </summary>
-		struct UniquePtrObjectDeleter final
-		{
-			inline auto operator()(Object* const target) const -> void
-			{
-				delete[] target->Blob_;
-				delete target;
-			}
-		};
-
-		/// <summary>
-		/// Allocates a mock object for use in tests or debug stuff.
-		/// Do not use for real allocation!
-		/// </summary>
-		/// <param name="sizeInRecords">The size of the object in RECORDS NOT in BYTES</param>
-		/// <returns>The mock object.</returns>
-		static auto AllocateUnique(U32 sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
-	};
-
-	static_assert(sizeof(Object) == sizeof(Object::BlobBlockType*));
-	static_assert(std::is_trivially_copyable_v<Object>);
-	static_assert(std::is_standard_layout_v<Object>);
-
-	inline Object::Object(BlobBlockType* const blob) : Blob_(blob) {}
-
-	/// <summary>
-	/// Prevent using with invalid type.
-	/// Allowed are the record types:
-	/// U64
-	/// I64
-	/// F64
-	/// char32_t
-	/// void*
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_Equal([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
-	{
-		return false;
-	}
-
-	/// <summary>
-	/// Specialization for bitwise compare of U64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are equal, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Equal<U64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of I64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are equal, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Equal<I64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of F64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are equal, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Equal<F64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of char32_t.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are equal, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Equal<char32_t>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of void*.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are equal, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Equal<void*>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of void*.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are equal, else false.</returns>
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_Equal<char32_t>(const Object a, const Object b) -> bool
-	{
-		return DeepValueCmp_Equal<U64>(a, b);
-	}
-
-	/// <summary>
-	/// Specialization for bitwise compare of void*.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are equal, else false.</returns>
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_Equal<void*>(const Object a, const Object b) -> bool
-	{
-		return DeepValueCmp_Equal<U64>(a, b);
-	}
-
-	/// <summary>
-	/// Prevent using with invalid type.
-	/// Allowed are the record types:
-	/// U64
-	/// I64
-	/// F64
-	/// char32_t
-	/// void*
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	inline auto Object::DeepValueCmp_NotEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
-	{
-		assert(false);
-		return false;
-	}
-
-	/// <summary>
-	/// Specialization for bitwise compare of U64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all not equal, else false.</returns>
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<U64>(const Object a, const Object b) -> bool
-	{
-		return !DeepValueCmp_Equal<U64>(a, b);
-	}
-
-	/// <summary>
-	/// Specialization for bitwise compare of I64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all not equal, else false.</returns>
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<I64>(const Object a, const Object b) -> bool
-	{
-		return !DeepValueCmp_Equal<I64>(a, b);
-	}
-
-	/// <summary>
-	/// Specialization for bitwise compare of F64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all not equal, else false.</returns>
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<F64>(const Object a, const Object b) -> bool
-	{
-		return !DeepValueCmp_Equal<F64>(a, b);
-	}
-
-	/// <summary>
-	/// Specialization for bitwise compare of char32_t.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all not equal, else false.</returns>
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<char32_t>(const Object a, const Object b) -> bool
-	{
-		return !DeepValueCmp_Equal<char32_t>(a, b);
-	}
-
-	/// <summary>
-	/// Specialization for bitwise compare of void*.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all not equal, else false.</returns>
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<void*>(const Object a, const Object b) -> bool
-	{
-		return !DeepValueCmp_Equal<void*>(a, b);
-	}
-
-	/// <summary>
-	/// Prevent using with invalid type.
-	/// Allowed are the record types:
-	/// U64
-	/// I64
-	/// F64
-	/// char32_t
-	/// void*
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	inline auto Object::DeepValueCmp_Less([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
-	{
-		assert(false);
-		return false;
-	}
-
-	/// <summary>
-	/// Specialization for bitwise compare of U64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Less<U64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of I64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Less<I64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of F64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Less<F64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of char32_t.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Less<char32_t>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of void*.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Less<void*>(Object a, Object b) -> bool;
-
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_Less<char32_t>(const Object a, const Object b) -> bool
-	{
-		return DeepValueCmp_Less<U64>(a, b);
-	}
-
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_Less<void*>(const Object a, const Object b) -> bool
-	{
-		return DeepValueCmp_Less<U64>(a, b);
-	}
-
-	/// <summary>
-	/// Prevent using with invalid type.
-	/// Allowed are the record types:
-	/// U64
-	/// I64
-	/// F64
-	/// char32_t
-	/// void*
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	inline auto Object::DeepValueCmp_LessEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
-	{
-		assert(false);
-		return false;
-	}
-
-	/// <summary>
-	/// Specialization for bitwise compare of U64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_LessEqual<U64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of I64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_LessEqual<I64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of F64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_LessEqual<F64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of char32_t.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_LessEqual<char32_t>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of void*.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_LessEqual<void*>(Object a, Object b) -> bool;
-
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_LessEqual<char32_t>(const Object a, const Object b) -> bool
-	{
-		return DeepValueCmp_Less<U64>(a, b);
-	}
-
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_LessEqual<void*>(const Object a, const Object b) -> bool
-	{
-		return DeepValueCmp_Less<U64>(a, b);
-	}
-
-	/// <summary>
-	/// Prevent using with invalid type.
-	/// Allowed are the record types:
-	/// U64
-	/// I64
-	/// F64
-	/// char32_t
-	/// void*
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	inline auto Object::DeepValueCmp_Greater([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
-	{
-		assert(false);
-		return false;
-	}
-
-	/// <summary>
-	/// Specialization for bitwise compare of U64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Greater<U64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of I64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Greater<I64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of F64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Greater<F64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of char32_t.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Greater<char32_t>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of void*.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_Greater<void*>(Object a, Object b) -> bool;
-
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_Greater<char32_t>(const Object a, const Object b) -> bool
-	{
-		return DeepValueCmp_Less<U64>(a, b);
-	}
-
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_Greater<void*>(const Object a, const Object b) -> bool
-	{
-		return DeepValueCmp_Less<U64>(a, b);
-	}
-
-	/// <summary>
-	/// Prevent using with invalid type.
-	/// Allowed are the record types:
-	/// U64
-	/// I64
-	/// F64
-	/// char32_t
-	/// void*
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
-	inline auto Object::DeepValueCmp_GreaterEqual([[maybe_unused]] const Object a, [[maybe_unused]] const Object b) -> bool
-	{
-		assert(false);
-		return false;
-	}
-
-	/// <summary>
-	/// Specialization for bitwise compare of U64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_GreaterEqual<U64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of I64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_GreaterEqual<I64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of F64.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_GreaterEqual<F64>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of char32_t.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_GreaterEqual<char32_t>(Object a, Object b) -> bool;
-
-	/// <summary>
-	/// Specialization for bitwise compare of void*.
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>True if the two object values are all less, else false.</returns>
-	template <>
-	auto Object::DeepValueCmp_GreaterEqual<void*>(Object a, Object b) -> bool;
-
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_GreaterEqual<char32_t>(const Object a, const Object b) -> bool
-	{
-		return DeepValueCmp_Less<U64>(a, b);
-	}
-
-	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_GreaterEqual<void*>(const Object a, const Object b) -> bool
-	{
-		return DeepValueCmp_Less<U64>(a, b);
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::QueryRawHeader() const -> BlobBlockType*
-	{
-		assert(this->Blob_ != nullptr);
-		return this->Blob_;
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::QueryHeader() const -> ObjectHeader
-	{
-		ObjectHeader header;
-		header.MapFromRegionUnchecked(this->QueryRawHeader());
-		return header;
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::LookupObjectBlock() const -> BlobBlockType*
-	{
-		assert(this->Blob_ != nullptr);
-		return this->Blob_ + ObjectHeader::RECORD_OFFSET;
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::LookupObjectBlockEnd() const -> BlobBlockType*
-	{
-		assert(this->HeaderRead_BlockSize() > 0);
-		return this->LookupObjectBlock() + this->HeaderRead_BlockSize();
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::IsUnderlyingObjectBlockNull() const -> bool
-	{
-		return this->LookupObjectBlock() == nullptr;
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::IsBlobNull() const -> bool
-	{
-		return this->Blob_ == nullptr;
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSize() const -> std::size_t
-	{
-		return ObjectHeader::RECORD_CHUNKS + ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSizeInBytes() const -> std::size_t
-	{
-		return BlobSize() * sizeof(Common::Record);
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const -> std::size_t
-	{
-		return this->HeaderRead_BlockSize() * sizeof(Common::Record);
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_StrongReferenceCount() const -> U32
-	{
-		return ObjectHeader::ReadMapping_StrongRefCount(this->QueryRawHeader());
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_BlockSize() const -> U32
-	{
-		return ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::HeaderRead_TypeId() const -> U32
-	{
-		return ObjectHeader::ReadMapping_TypeId(this->QueryRawHeader());
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::Header_ReadFlagVector() const -> ObjectFlagVector
-	{
-		return ObjectHeader::ReadMapping_FlagVector(this->QueryRawHeader());
-	}
-
-	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_IncrementStrongRefCount() const -> void
-	{
-		ObjectHeader::WriteMapping_IncrementStrongRefCount(this->QueryRawHeader());
-	}
-
-	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_DecrementStrongRefCount() const -> void
-	{
-		ObjectHeader::WriteMapping_DecrementStrongRefCount(this->QueryRawHeader());
-	}
-
-	NOX_FLATTEN inline auto MUTATOR Object::operator++() const -> void
-	{
-		this->HeaderWrite_IncrementStrongRefCount();
-	}
-
-	NOX_FLATTEN inline auto MUTATOR Object::operator--() const -> void
-	{
-		this->HeaderWrite_DecrementStrongRefCount();
-	}
-
-	NOX_FLATTEN inline auto MUTATOR Object::operator++(int) const -> void
-	{
-		this->HeaderWrite_IncrementStrongRefCount();
-	}
-
-	NOX_FLATTEN inline auto MUTATOR Object::operator--(int) const -> void
-	{
-		this->HeaderWrite_DecrementStrongRefCount();
-	}
-
-	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_StrongRefCount(const U32 strongRefCount) const -> void
-	{
-		ObjectHeader::WriteMapping_StrongRefCount(this->QueryRawHeader(), strongRefCount);
-	}
-
-	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_Size(const U32 size) const -> void
-	{
-		ObjectHeader::WriteMapping_Size(this->QueryRawHeader(), size);
-	}
-
-	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_TypeId(const U32 typeId) const -> void
-	{
-		ObjectHeader::WriteMapping_TypeId(this->QueryRawHeader(), typeId);
-	}
-
-	NOX_FLATTEN inline auto MUTATOR Object::HeaderWrite_FlagVector(const ObjectFlagVector flagVector) const -> void
-	{
-		ObjectHeader::WriteMapping_FlagVector(this->QueryRawHeader(), flagVector);
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::operator*() const -> BlobBlockType*
-	{
-		return this->LookupObjectBlock();
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::operator->() const -> BlobBlockType*
-	{
-		return this->LookupObjectBlock();
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::operator~() const -> BlobBlockType*
-	{
-		return this->LookupObjectBlockEnd();
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const std::size_t idx) -> BlobBlockType&
-	{
-		return *(this->LookupObjectBlock() + idx);
-	}
-
-	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const std::size_t idx) const -> BlobBlockType
-	{
-		return *(this->LookupObjectBlock() + idx);
-	}
-
-	// ReSharper disable once CppInconsistentNaming
-	NOX_FLATTEN inline auto IMMUTATOR Object::begin() const -> BlobBlockType*
-	{
-		return this->LookupObjectBlock();
-	}
-
-	// ReSharper disable once CppInconsistentNaming
-	NOX_FLATTEN inline auto IMMUTATOR Object::end() const -> BlobBlockType*
-	{
-		return this->LookupObjectBlockEnd();
-	}
-
-	NOX_FLATTEN inline auto MUTATOR Object::ZeroObjectBlock() const -> void
-	{
-		std::memset(this->LookupObjectBlock(), 0, this->ObjectBlockSizeInBytes());
-	}
-
-	NOX_FLATTEN inline auto Object::ShallowCmp(const Object a, const Object b) -> bool
-	{
-		return a.Blob_ == b.Blob_;
-	}
-
-	/// <summary>
-	/// STL Compat Overload
-	/// Iterate over object block fields without header.
-	/// Begin iterator.
-	/// </summary>
-	/// <param name="object"></param>
-	/// <returns></returns>
-	// ReSharper disable once CppInconsistentNaming
-	NOX_FLATTEN inline auto begin(const Object object) -> Object::BlobBlockType*
-	{
-		return object.LookupObjectBlock();
-	}
-
-	/// <summary>
-	/// STL Compat Overload
-	/// Iterate over object block fields without header.
-	/// End iterator (one element after the last one)
-	/// </summary>
-	/// <param name="object"></param>
-	/// <returns></returns>
-	// ReSharper disable once CppInconsistentNaming
-	NOX_FLATTEN inline auto end(const Object object) -> Object::BlobBlockType*
-	{
-		return object.LookupObjectBlockEnd();
-	}
-
-	#undef MUTATOR
-	#undef IMMUTATOR
-
-	/// <summary>
 	/// Contains all sub implementations for the reactor core.
 	/// </summary>
-	enum class ReactorCoreSpecialization : std::size_t
+	enum class ReactorCoreSpecialization : U64
 	{
+		/// <summary>
+		/// Fast fallback implementation - available on all platforms.
+		/// </summary>
 		Fallback,
 
-		#if NOX_ARCH_X86_64
+		/// <summary>
+		/// Slow debug implementation - available on all platforms.
+		/// </summary>
+		Debug,
 
 		/// <summary>
-		/// Advanced vector extensions -> 256-bit (YMM* registers) -> VEX
+		/// AMD 64 optimized implementation for advanced vector extensions -> 256-bit (YMM* registers) -> VEX
 		/// </summary>
-		X86_64_AVX,
+		Amd64_Avx,
 
 		/// <summary>
-		/// Advanced vector extensions 512 -> 512-bit (ZMM* registers, K* mask registers) -> EVEX
+		/// AMD 64 optimized implementation for advanced vector extensions 512 -> 512-bit (ZMM* registers, K* mask registers) -> EVEX
 		/// </summary>
-		X86_64_AVX512F,
-
-		#endif
+		Amd64_Avx512F,
 
 		Count
 	};
@@ -2726,17 +1191,21 @@ namespace Nominax::Core
 	{
 		switch (target)
 		{
-				#if NOX_ARCH_X86_64
+			case ReactorCoreSpecialization::Fallback:
+				return "Fallback";
 
-			case ReactorCoreSpecialization::X86_64_AVX:
+			case ReactorCoreSpecialization::Debug:
+				return "Debug";
+
+			case ReactorCoreSpecialization::Amd64_Avx:
 				return "X86-64 AVX";
 
-			case ReactorCoreSpecialization::X86_64_AVX512F:
+			case ReactorCoreSpecialization::Amd64_Avx512F:
 				return "X86-64 AVX512F";
-				#endif
 
+				[[unlikely]]
 			default:
-				return "Generic Fallback";
+				return { };
 		}
 	}
 
@@ -2783,7 +1252,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Contains all available reactor implementations for the current platform.
 	/// </summary>
-	using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<std::size_t>(ReactorCoreSpecialization::Count)>;
+	using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<U64>(ReactorCoreSpecialization::Count)>;
 
 	/// <summary>
 	/// The reactor hyper visor manages the correct selection
@@ -2829,12 +1298,20 @@ namespace Nominax::Core
 		~HyperVisor() = delete;
 
 		/// <summary>
-		/// Returns the fallback reactor routine with no platform specific optimizations,
-		/// available on all platforms and all CPUs.
+		/// Returns the fallback reactor routine with no platform specific optimizations.
+		/// This is always available, independent of any platform.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
 		static auto GetFallbackRoutineLink() -> ReactorRoutineLink;
+
+		/// <summary>
+		/// Returns the reactor used for debugging.
+		/// This is always available, independent of any platform.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto GetDebugRoutineLink() -> ReactorRoutineLink;
 
 		/// <summary>
 		/// Returns the reactor specialization based on the cpu features available.
@@ -2842,7 +1319,7 @@ namespace Nominax::Core
 		/// <param name="cpuFeatureDetector"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto SmartSelectReactor(const Common::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
+		static auto SmartSelectReactor(const Foundation::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
 
 		/// <summary>
 		/// 
@@ -2865,7 +1342,7 @@ namespace Nominax::Core
 		/// <param name="features"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto GetOptimalReactorRoutine(const Common::CpuFeatureDetector& features) -> ReactorRoutineLink;
+		static auto GetOptimalReactorRoutine(const Foundation::CpuFeatureDetector& features) -> ReactorRoutineLink;
 	};
 
 	/// <summary>
@@ -2880,10 +1357,10 @@ namespace Nominax::Core
 	[[nodiscard]]
 	extern auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor&   input,
-		ReactorState&                     output,
-		const Common::CpuFeatureDetector& target,
-		const void****                    outJumpTable = nullptr
+		const VerboseReactorDescriptor&       input,
+		ReactorState&                         output,
+		const Foundation::CpuFeatureDetector& target,
+		const void****                        outJumpTable = nullptr
 	) -> ReactorShutdownReason;
 
 	/// <summary>
@@ -2906,7 +1383,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// The reactor pool index of this reactor.
 		/// </summary>
-		std::size_t PoolIndex_;
+		U64 PoolIndex_;
 
 		/// <summary>
 		/// Time stamp when the reactor was spawned.
@@ -2935,11 +1412,6 @@ namespace Nominax::Core
 		FixedStack Stack_;
 
 		/// <summary>
-		/// Current app code bundle.
-		/// </summary>
-		ByteCode::AppCodeBundle AppCode_;
-
-		/// <summary>
 		/// The table of custom intrinsic routines.
 		/// </summary>
 		ByteCode::UserIntrinsicRoutineRegistry IntrinsicTable_;
@@ -2960,10 +1432,10 @@ namespace Nominax::Core
 		/// </summary>
 		explicit Reactor
 		(
-			std::pmr::memory_resource&               allocator,
-			const ReactorSpawnDescriptor&            descriptor,
-			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt,
-			std::size_t                              poolIdx     = 0
+			std::pmr::memory_resource&    allocator,
+			const ReactorSpawnDescriptor& descriptor,
+			const ReactorRoutineLink&     routineLink,
+			U64                           poolIdx = 0
 		);
 
 		/// <summary>
@@ -2997,7 +1469,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto Execute(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 		/// <summary>
 		/// Execute reactor with specified application code bundle.
@@ -3005,7 +1477,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator ()(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto operator ()(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
 
 		/// <summary>
 		/// 
@@ -3019,7 +1491,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The index of this rector in the hosting reactor pool</returns>
 		[[nodiscard]]
-		auto GetPoolIndex() const -> std::size_t;
+		auto GetPoolIndex() const -> U64;
 
 		/// <summary>
 		/// 
@@ -3060,13 +1532,6 @@ namespace Nominax::Core
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>The current app code bundle.</returns>
-		[[nodiscard]]
-		auto GetCodeBundle() const -> const ByteCode::AppCodeBundle&;
-
-		/// <summary>
-		/// 
-		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
 		auto GetIntrinsicTable() const -> const ByteCode::UserIntrinsicRoutineRegistry&;
@@ -3084,7 +1549,7 @@ namespace Nominax::Core
 		return this->Id_;
 	}
 
-	inline auto Reactor::GetPoolIndex() const -> std::size_t
+	inline auto Reactor::GetPoolIndex() const -> U64
 	{
 		return this->PoolIndex_;
 	}
@@ -3124,14 +1589,9 @@ namespace Nominax::Core
 		return this->Output_;
 	}
 
-	inline auto Reactor::GetCodeBundle() const -> const ByteCode::AppCodeBundle&
+	inline auto Reactor::operator()(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
 	{
-		return this->AppCode_;
-	}
-
-	inline auto Reactor::operator()(ByteCode::AppCodeBundle&& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
-	{
-		return this->Execute(std::move(bundle));
+		return this->Execute(bundle);
 	}
 
 	/// <summary>
@@ -3143,8 +1603,8 @@ namespace Nominax::Core
 	/// <returns></returns>
 	extern auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor& input, const Common::CpuFeatureDetector& target = { },
-		const void****                  outJumpTable                                    = nullptr
+		const VerboseReactorDescriptor& input, const Foundation::CpuFeatureDetector& target = { },
+		const void****                  outJumpTable                                        = nullptr
 	) -> std::pair<ReactorShutdownReason, ReactorState>;
 
 	/// <summary>
@@ -3161,17 +1621,17 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="desired">How many reactors the user requested. If zero, logical cpu count will be used.</param>
 		/// <returns>The best reactor count for the current system.</returns>
-		static auto SmartQueryReactorCount(std::size_t desired = 0) -> std::size_t;
+		static auto SmartQueryReactorCount(U64 desired = 0) -> U64;
 
 		/// <summary>
 		/// Minimal one reactor is required.
 		/// </summary>
-		static constexpr std::size_t MIN_REACTOR_COUNT {1};
+		static constexpr U64 MIN_REACTOR_COUNT {1};
 
 		/// <summary>
 		/// Fallback reactor count.
 		/// </summary>
-		static constexpr std::size_t FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
+		static constexpr U64 FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
 
 		/// <summary>
 		/// Construct and initialize all new reactors.
@@ -3179,8 +1639,8 @@ namespace Nominax::Core
 		/// </summary>
 		ReactorPool
 		(
-			std::pmr::memory_resource&               resource,
-			std::size_t                              reactorCount,
+			std::pmr::memory_resource&               allocator,
+			U64                                      reactorCount,
 			const ReactorSpawnDescriptor&            config,
 			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt
 		);
@@ -3222,7 +1682,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>Returns the size of the pool.</returns>
 		[[nodiscard]]
-		auto GetSize() const -> std::size_t;
+		auto GetSize() const -> U64;
 
 		/// <summary>
 		/// 
@@ -3237,7 +1697,7 @@ namespace Nominax::Core
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetReactor(std::size_t idx) const -> const Reactor&;
+		auto GetReactor(U64 idx) const -> const Reactor&;
 
 
 		/// <summary>
@@ -3246,7 +1706,7 @@ namespace Nominax::Core
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator [](std::size_t idx) const -> const Reactor&;
+		auto operator [](U64 idx) const -> const Reactor&;
 
 		/// <summary>
 		/// 
@@ -3282,7 +1742,7 @@ namespace Nominax::Core
 		return this->Pool_.data();
 	}
 
-	inline auto ReactorPool::GetSize() const -> std::size_t
+	inline auto ReactorPool::GetSize() const -> U64
 	{
 		return this->Pool_.size();
 	}
@@ -3292,12 +1752,12 @@ namespace Nominax::Core
 		return this->ReactorConfig_;
 	}
 
-	inline auto ReactorPool::GetReactor(const std::size_t idx) const -> const Reactor&
+	inline auto ReactorPool::GetReactor(const U64 idx) const -> const Reactor&
 	{
 		return this->Pool_[idx];
 	}
 
-	inline auto ReactorPool::operator[](const std::size_t idx) const -> const Reactor&
+	inline auto ReactorPool::operator[](const U64 idx) const -> const Reactor&
 	{
 		return this->GetReactor(idx);
 	}
@@ -3346,62 +1806,6 @@ namespace Nominax::Core
 	using Vector512 = std::array<U64, 8>;
 
 	static_assert(sizeof(Vector512) == 64);
-
-	#if NOX_ARCH_X86_64
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using GprRegisterLane = std::array<U64, 16>;
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using VectorRegisterLane128 = std::array<Vector128, 16>;
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using VectorRegisterLane256 = std::array<Vector256, 16>;
-
-	/// <summary>
-	/// Read and dump all the register values into the stream.
-	/// </summary>
-	/// <param name="out"></param>
-	/// <param name="gpr"></param>
-	/// <param name="xmm"></param>
-	/// <param name="ymm"></param>
-	/// <param name="zmm"></param>
-	/// <returns></returns>
-	extern auto RegisterDump_X86_64
-	(
-		std::ostream&                out,
-		const GprRegisterLane&       gpr,
-		const VectorRegisterLane128& xmm,
-		const VectorRegisterLane256& ymm
-	) -> void;
-
-	#elif NOX_ARCH_ARM_64
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using GprRegisterLane = std::array<U64, 16>;
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using VectorRegisterLane128 = std::array<Vector128, 16>;
-
-	/// <summary>
-	/// Hardware specific register lane.
-	/// </summary>
-	using VectorRegisterLane256 = std::array<Vector256, 1>;
-
-#	error "Not yet implemented!"
-	#else
-#	error "Unknown arch!"
-	#endif
 
 	/// <summary>
 	/// Task routine function.
@@ -3525,7 +1929,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The remaining amount of tasks in the queue.</returns>
 		[[nodiscard]]
-		auto GetRemainingTaskCount() const -> std::size_t;
+		auto GetRemainingTaskCount() const -> U64;
 
 		/// <summary>
 		/// 
@@ -3550,7 +1954,7 @@ namespace Nominax::Core
 		return this->Worker_;
 	}
 
-	inline auto TaskQueueThread::GetRemainingTaskCount() const -> std::size_t
+	inline auto TaskQueueThread::GetRemainingTaskCount() const -> U64
 	{
 		return this->TaskQueue_.size();
 	}
@@ -3589,7 +1993,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="threadCount"></param>
 		/// <returns></returns>
-		explicit TaskQueueThreadPool(std::size_t threadCount);
+		explicit TaskQueueThreadPool(U64 threadCount);
 
 		/// <summary>
 		/// Construct empty with allocator.
@@ -3604,7 +2008,7 @@ namespace Nominax::Core
 		/// <param name="allocator"></param>
 		/// <param name="threadCount"></param>
 		/// <returns></returns>
-		TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator, std::size_t threadCount);
+		TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator, U64 threadCount);
 
 		/// <summary>
 		/// No copying.
@@ -3655,7 +2059,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		auto Resize(std::size_t size) -> void;
+		auto Resize(U64 size) -> void;
 
 		/// <summary>
 		/// Pushes a new task queue thread into the queue.
@@ -3669,7 +2073,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The amount of threads.</returns>
 		[[nodiscard]]
-		auto GetSize() const -> std::size_t;
+		auto GetSize() const -> U64;
 
 		/// <summary>
 		/// STL iterator interface.
@@ -3734,12 +2138,12 @@ namespace Nominax::Core
 		this->Threads.clear();
 	}
 
-	inline auto TaskQueueThreadPool::Resize(const std::size_t size) -> void
+	inline auto TaskQueueThreadPool::Resize(const U64 size) -> void
 	{
 		this->Threads.resize(size);
 	}
 
-	inline auto TaskQueueThreadPool::GetSize() const -> std::size_t
+	inline auto TaskQueueThreadPool::GetSize() const -> U64
 	{
 		return this->Threads.size();
 	}

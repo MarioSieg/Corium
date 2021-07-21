@@ -1,0 +1,42 @@
+module std
+
+# This struct implements the primitive type 'int'
+struct int {
+
+    # The minimum value
+    const MinValue = 0x8000_0000_0000_0000
+
+    # The maximum value
+    const MaxValue = 0x7FFF_FFFF_FFFF_FFFF
+
+    # The size in bytes
+    const ByteSize = 8
+
+    # The size in bits
+    const BitCount = ByteSize * 8
+
+    # Get a hash code
+    fun hash(self) Self {
+        return self ^ self >>> 32
+    }
+
+    # Returns a value with at most a single one-bit, in the
+    # position of the highest-order "leftmost" one-bit in the specified value.
+    fun highestOneBit(self) Self {
+        let x = self
+        x |= x >> 1
+        x |= x >> 2
+        x |= x >> 3
+        x |= x >> 4
+        x |= x >> 8
+        x |= x >> 16
+        x |= x >> 32
+        return x - x >>> 1
+    }
+
+    # Returns a value with at most a single one-bit, in the
+    # position of the lowest-order "rightmost" one-bit in the specified value.
+    fun lowestOneBit(self) Self {
+        return self & -self
+    }
+}

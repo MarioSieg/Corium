@@ -1,7 +1,19 @@
-fun main () {
-	let x = 10
+module ParseTest
+
+const Year = 2021
+
+native fun exit(exitCode int)
+
+fun f(x float) float {
+    return x * x + 10 % x * f(10 + 3 + x)
 }
 
-fun test () {
-    let year = 2021
+fun add(x float, v float) float {
+    return x + v
+}
+
+# main function:
+fun Main () {
+    let years = add(2000, 21)
+    const name = "Mario"
 }
