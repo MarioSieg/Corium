@@ -482,14 +482,22 @@ TEST(Assembler_x86_64, InjectNopChain_Null_Error)
 
 TEST(Assembler_x86_64, InjectNopChain_0_Error)
 {
-	U8 x{};
+	U8 x { };
 	ASSERT_DEATH(InjectNopChain(&x, 0), "");
 }
 
 TEST(Assembler_x86_64, InjectNopChain_16_Error)
 {
-	U8 x{};
+	U8 x { };
 	ASSERT_DEATH(InjectNopChain(&x, 16), "");
 }
 
 #endif
+
+TEST(Assembler_x86_64, VirtualRegisterIds)
+{
+	for (U64 i {0}; i < std::size(ALL_GPR_REGISTERS); ++i)
+	{
+		ASSERT_EQ(ALL_GPR_REGISTERS[i].get().VirtualId, i);
+	}
+}
