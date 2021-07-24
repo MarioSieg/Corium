@@ -934,7 +934,7 @@ namespace Nominax::ByteCode
 
 	auto Stream::DumpByteCode() const -> void
 	{
-		Print("Len: {}, Size: {} B\n", this->Size(), this->SizeInBytes());
+		Print("Len: {}, WordSize: {} B\n", this->Size(), this->SizeInBytes());
 
 		for (U64 i {0}; i < this->Size(); ++i)
 		{

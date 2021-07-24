@@ -997,7 +997,7 @@ namespace Nominax::ByteCode
 	};
 
 	/// <summary>
-	/// Size of the extracted fault code section.
+	/// WordSize of the extracted fault code section.
 	/// </summary>
 	constexpr U64 CROPPED_FAULT_CODE_DUMP_SIZE {8};
 

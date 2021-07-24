@@ -359,7 +359,7 @@ namespace Nominax::Assembler::X86_64
 	/// <summary>
 	/// Represents a register or data size as 16-bit machine words in bytes.
 	/// </summary>
-	enum class Size : U8
+	enum class WordSize : U8
 	{
 		Byte = 1,
 		Word = 2,
@@ -399,7 +399,7 @@ namespace Nominax::Assembler::X86_64
 		/// <summary>
 		/// The size in bytes.
 		/// </summary>
-		const Size Size;
+		const WordSize Size;
 
 		/// <summary>
 		/// The type of the register.
@@ -435,7 +435,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x00,
 		.PhysicalId = 0x00,
 		.Name = "rax",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -447,7 +447,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x01,
 		.PhysicalId = 0x03,
 		.Name = "rbx",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -459,7 +459,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x02,
 		.PhysicalId = 0x01,
 		.Name = "rcx",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -471,7 +471,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x03,
 		.PhysicalId = 0x02,
 		.Name = "rdx",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -483,7 +483,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x04,
 		.PhysicalId = 0x06,
 		.Name = "rsi",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -495,7 +495,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x05,
 		.PhysicalId = 0x07,
 		.Name = "rdi",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -507,7 +507,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x06,
 		.PhysicalId = 0x05,
 		.Name = "rbp",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -519,7 +519,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x07,
 		.PhysicalId = 0x04,
 		.Name = "rsp",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -531,7 +531,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x08,
 		.PhysicalId = 0x00,
 		.Name = "r8",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -543,7 +543,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x09,
 		.PhysicalId = 0x01,
 		.Name = "r9",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -555,7 +555,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x0A,
 		.PhysicalId = 0x02,
 		.Name = "r10",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -567,7 +567,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x0B,
 		.PhysicalId = 0x03,
 		.Name = "r11",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -579,7 +579,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x0C,
 		.PhysicalId = 0x04,
 		.Name = "r12",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -591,7 +591,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x0D,
 		.PhysicalId = 0x05,
 		.Name = "r13",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -603,7 +603,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x0E,
 		.PhysicalId = 0x06,
 		.Name = "r14",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -615,7 +615,7 @@ namespace Nominax::Assembler::X86_64
 		.VirtualId = 0x0F,
 		.PhysicalId = 0x07,
 		.Name = "r15",
-		.Size = Size::QWord,
+		.Size = WordSize::QWord,
 		.Type = RegisterType::Gpr
 	};
 
@@ -2258,5 +2258,5 @@ namespace Nominax::Assembler::X86_64
 	extern auto GetInstructionNameTable() -> const std::array<const std::string_view, static_cast<U64>(Instruction::Count_)>&;
 	extern auto GetInstructionInfoTable() -> const std::array<const std::string_view, static_cast<U64>(Instruction::Count_)>&;
 	extern auto GetVariationSizeTable() -> const std::array<U8, static_cast<U64>(Instruction::Count_)>&;
-	extern auto GetVariationTable() -> const std::array<const std::initializer_list<const InstructionVariation>, static_cast<U64>(Instruction::Count_)>&;
+	extern auto GetVariationTable() -> const std::array<const std::vector<InstructionVariation>, static_cast<U64>(Instruction::Count_)>&;
 }

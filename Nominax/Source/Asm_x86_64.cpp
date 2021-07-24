@@ -420,7 +420,7 @@ namespace Nominax::Assembler::X86_64
 		return VARIATION_SIZE_TABLE;
 	}
 
-	auto GetVariationTable() -> const std::array<const std::initializer_list<const InstructionVariation>, static_cast<U64>(Instruction::Count_)>&
+	auto GetVariationTable() -> const std::array<const std::vector<InstructionVariation>, static_cast<U64>(Instruction::Count_)>&
 	{
 		return VARIATION_TABLE;
 	}
