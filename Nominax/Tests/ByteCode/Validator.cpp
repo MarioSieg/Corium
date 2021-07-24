@@ -281,7 +281,7 @@ TEST(ValidatorAlgorithms, ValidateSystemIntrinsicCall)
 {
 	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallID::ACos));
 	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallID::IoPortWriteCluster));
-	ASSERT_FALSE(ValidateSystemIntrinsicCall(SystemIntrinsicCallID::$Count));
+	ASSERT_FALSE(ValidateSystemIntrinsicCall(SystemIntrinsicCallID::Count_));
 	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<SystemIntrinsicCallID>(-1)));
 }
 

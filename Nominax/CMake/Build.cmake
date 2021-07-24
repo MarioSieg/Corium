@@ -1,5 +1,5 @@
 # runtime library:
-FILE(GLOB_RECURSE "NOMINAX_SOURCES" "Nominax/Source/*.cpp" "Nominax/Source/*.S" "Include/Nominax/*.hpp")
+FILE(GLOB_RECURSE "NOMINAX_SOURCES" "Nominax/Source/*.cpp" "Nominax/Source/*.S" "Include/Nominax/*.hpp" "Include/Nominax/*.inl")
 
 # Set more optimizations for special reactors:
 SET_SOURCE_FILES_PROPERTIES("Nominax/Source/VM_Impl_AVX.cpp" PROPERTIES COMPILE_FLAGS "-mavx")

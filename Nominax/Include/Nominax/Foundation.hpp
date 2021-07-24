@@ -7904,13 +7904,13 @@ namespace Nominax
 			/// <summary>
 			/// Amount of bits.
 			/// </summary>
-			$Count
+			Count_
 		};
 
 		/// <summary>
 		/// Contains all CPU feature names.
 		/// </summary>
-		constexpr std::array<std::string_view, static_cast<U64>(CpuFeatureBits::$Count)> CPU_FEATURE_BIT_NAMES
+		constexpr std::array<std::string_view, static_cast<U64>(CpuFeatureBits::Count_)> CPU_FEATURE_BIT_NAMES
 		{
 			#if NOX_ARCH_X86_64
 			"FPU",
@@ -8145,17 +8145,17 @@ namespace Nominax
 		/// <summary>
 		/// Feature mask.
 		/// </summary>
-		using CpuFeatureMask = std::array<bool, static_cast<U64>(CpuFeatureBits::$Count)>;
+		using CpuFeatureMask = std::array<bool, static_cast<U64>(CpuFeatureBits::Count_)>;
 
 		/// <summary>
 		/// Bitmask storage type.
 		/// </summary>
-		using CpuFeatureMaskBitStorage = std::bitset<static_cast<U64>(CpuFeatureBits::$Count)>;
+		using CpuFeatureMaskBitStorage = std::bitset<static_cast<U64>(CpuFeatureBits::Count_)>;
 
 		/// <summary>
 		/// Feature mask.
 		/// </summary>
-		using CpuFeatureMaskBuffer = std::array<U8, static_cast<U64>(CpuFeatureBits::$Count) / CHAR_BIT>;
+		using CpuFeatureMaskBuffer = std::array<U8, static_cast<U64>(CpuFeatureBits::Count_) / CHAR_BIT>;
 
 		/// <summary>
 		/// Detects architecture dependent cpu features.

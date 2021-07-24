@@ -473,6 +473,22 @@ TEST(Assembler_x86_64, InjectNopChain_15)
 	}
 }
 
+TEST(Assembler_x86_64, VariationTableEntries)
+{
+	U64 i {0};
+	for (const auto& variationPool : GetVariationTable())
+	{
+		++i;
+		for (const auto& variation : variationPool)
+		{
+			ASSERT_FALSE(std::empty(variation.Description));
+			ASSERT_FALSE(std::empty(variation.GasMnemonic));
+			ASSERT_FALSE(std::empty(variation.IntelMnemonic));
+		}
+	}
+	ASSERT_EQ(i, std::size(GetVariationTable()));
+}
+
 #ifdef NOX_DEATH_TESTS
 
 TEST(Assembler_x86_64, InjectNopChain_Null_Error)
