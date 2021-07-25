@@ -476,7 +476,12 @@ TEST(Assembler_x86_64, InjectNopChain_15)
 TEST(Assembler_x86_64, VariationTableEntries)
 {
 	U64 i {0};
-	for (const auto& variationPool : GetVariationTable())
+	std::vector<U8> buf{  };
+	buf.resize(1024 * 1024 * 32);
+	std::pmr::monotonic_buffer_resource alloc{ std::data(buf), std::size(buf) };
+	std::pmr::vector<InstructionVariationPool> pool{&alloc};
+	GetVariationTable(alloc, pool);
+	for (const auto& variationPool : pool)
 	{
 		++i;
 		for (const auto& variation : variationPool)
@@ -486,7 +491,7 @@ TEST(Assembler_x86_64, VariationTableEntries)
 			ASSERT_FALSE(std::empty(variation.IntelMnemonic));
 		}
 	}
-	ASSERT_EQ(i, std::size(GetVariationTable()));
+	ASSERT_EQ(i, std::size(pool));
 }
 
 #ifdef NOX_DEATH_TESTS

@@ -2053,10 +2053,10 @@ namespace Nominax::Assembler::X86_64
 
 	struct Operand final
 	{
-		const OperandType Type;
-		const bool        IsInput;
-		const bool        IsOutput;
-		const U8          ExtendedSize;
+		OperandType Type;
+		bool        IsInput;
+		bool        IsOutput;
+		U8          ExtendedSize;
 
 		constexpr auto IsVariable() const -> bool;
 		constexpr auto IsRegister() const -> bool;
@@ -2148,17 +2148,17 @@ namespace Nominax::Assembler::X86_64
 
 	struct Prefix final
 	{
-		const U8   Value;
-		const bool IsMandatory;
+		U8   Value;
+		bool IsMandatory;
 	};
 
 	struct Rex final
 	{
-		const bool W;
-		const Soo  R;
-		const Soo  X;
-		const Soo  B;
-		const bool IsMandatory;
+		bool W;
+		Soo  R;
+		Soo  X;
+		Soo  B;
+		bool IsMandatory;
 	};
 
 	enum class VexPrefixType : U8
@@ -2169,96 +2169,96 @@ namespace Nominax::Assembler::X86_64
 
 	struct Vex final
 	{
-		const VexPrefixType Type;
-		const U8            Mmmmm;
-		const U8            Pp;
-		const U8            W;
-		const U8            L;
-		const Soo           R;
-		const Soo           X;
-		const Soo           B;
-		const Soo           Vvvv;
+		VexPrefixType Type;
+		U8            Mmmmm;
+		U8            Pp;
+		U8            W;
+		U8            L;
+		Soo           R;
+		Soo           X;
+		Soo           B;
+		Soo           Vvvv;
 	};
 
 	struct Evex final
 	{
-		const U8  Mm;
-		const U8  Pp;
-		const U8  W;
-		const Soo Ll;
-		const Soo Rr;
-		const Soo Bb;
-		const Soo X;
-		const Soo Vvvv;
-		const Soo V;
-		const Soo B;
-		const Soo Aaa;
-		const Soo Z;
-		const U8  Disp8xN;
+		U8  Mm;
+		U8  Pp;
+		U8  W;
+		Soo Ll;
+		Soo Rr;
+		Soo Bb;
+		Soo X;
+		Soo Vvvv;
+		Soo V;
+		Soo B;
+		Soo Aaa;
+		Soo Z;
+		U8  Disp8xN;
 	};
 
 	struct OpCode final
 	{
-		const U8  Value;
-		const Soo Addend;
+		U8  Value;
+		Soo Addend;
 	};
 
 	struct ModRm final
 	{
-		const Soo Mode;
-		const Soo Rm;
-		const Soo Reg;
+		Soo Mode;
+		Soo Rm;
+		Soo Reg;
 	};
 
 	struct ImmediateScalar final
 	{
-		const U8  Size;
-		const Soo Value;
+		U8  Size;
+		Soo Value;
 	};
 
 	struct RegisterByte final
 	{
-		const OperandType Register;
-		const Soo         Payload;
+		OperandType Register;
+		Soo         Payload;
 	};
 
 	struct CodeOffset final
 	{
-		const U8  Size;
-		const Soo Value;
+		U8  Size;
+		Soo Value;
 	};
 
 	struct DataOffset final
 	{
-		const U8  Size;
-		const Soo Value;
+		U8  Size;
+		Soo Value;
 	};
 
-	using EncodingRecord = std::variant<const Prefix, const Rex, const Vex, const Evex, const OpCode, const ModRm, const ImmediateScalar, const RegisterByte, const CodeOffset, const DataOffset>;
-	using Encoding = std::initializer_list<const EncodingRecord>;
+	using EncodingRecord = std::variant<Prefix, Rex, Vex, Evex, OpCode, ModRm, ImmediateScalar, RegisterByte, CodeOffset, DataOffset>;
+	using Encoding = std::initializer_list<EncodingRecord>;
 
 	/// <summary>
 	/// Represents an instruction variation.
 	/// </summary>
 	struct InstructionVariation final
 	{
-		const std::string_view                                     IntelMnemonic;
-		const std::string_view                                     GasMnemonic;
-		const std::string_view                                     Description;
-		const MmxModeType                                          MmxMode;
-		const XmmModeType                                          XmmMode;
-		const bool                                                 IsCancellingInputs;
-		const std::initializer_list<const Operand>                 OperandList;
-		const std::initializer_list<const ImplicitRegisterOperand> ImplicitInputs;
-		const std::initializer_list<const ImplicitRegisterOperand> ImplicitOutputs;
-		const std::initializer_list<const IsaExtension>            IsaFeatureExtensions;
-		const std::initializer_list<const Encoding>                EncodingScheme;
+		std::string_view                               IntelMnemonic;
+		std::string_view                               GasMnemonic;
+		std::string_view                               Description;
+		MmxModeType                                    MmxMode;
+		XmmModeType                                    XmmMode;
+		bool                                           IsCancellingInputs;
+		std::initializer_list<Operand>                 OperandList;
+		std::initializer_list<ImplicitRegisterOperand> ImplicitInputs;
+		std::initializer_list<ImplicitRegisterOperand> ImplicitOutputs;
+		std::initializer_list<IsaExtension>            IsaFeatureExtensions;
+		std::initializer_list<Encoding>                EncodingScheme;
 	};
 
-	using InstructionVariationPool = std::initializer_list<const InstructionVariation>;
+	using InstructionVariationPool = std::pmr::vector<InstructionVariation>;
 
 	extern auto GetInstructionNameTable() -> const std::array<const std::string_view, static_cast<U64>(Instruction::Count_)>&;
 	extern auto GetInstructionInfoTable() -> const std::array<const std::string_view, static_cast<U64>(Instruction::Count_)>&;
 	extern auto GetVariationSizeTable() -> const std::array<U8, static_cast<U64>(Instruction::Count_)>&;
-	extern auto GetVariationTable() -> const std::array<const InstructionVariationPool, static_cast<U64>(Instruction::Count_)>&;
+	extern auto GetVariationTable(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
 }
