@@ -2255,8 +2255,10 @@ namespace Nominax::Assembler::X86_64
 		const std::initializer_list<const Encoding>                EncodingScheme;
 	};
 
+	using InstructionVariationPool = std::initializer_list<const InstructionVariation>;
+
 	extern auto GetInstructionNameTable() -> const std::array<const std::string_view, static_cast<U64>(Instruction::Count_)>&;
 	extern auto GetInstructionInfoTable() -> const std::array<const std::string_view, static_cast<U64>(Instruction::Count_)>&;
 	extern auto GetVariationSizeTable() -> const std::array<U8, static_cast<U64>(Instruction::Count_)>&;
-	extern auto GetVariationTable() -> const std::array<const std::vector<InstructionVariation>, static_cast<U64>(Instruction::Count_)>&;
+	extern auto GetVariationTable() -> const std::array<const InstructionVariationPool, static_cast<U64>(Instruction::Count_)>&;
 }

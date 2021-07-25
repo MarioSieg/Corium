@@ -209,8 +209,6 @@
 
 namespace Nominax::Assembler::X86_64
 {
-	#include "Asm_x86_64_DB.inl"
-
 	auto InjectNopChain(U8* n, const U8 size) -> void
 	{
 		NOX_PAS_NOT_NULL(n, "Null needle!");
@@ -405,6 +403,8 @@ namespace Nominax::Assembler::X86_64
 		return;
 	}
 
+	#include "Asm_x86_64_DB.inl"
+
 	auto GetInstructionNameTable() -> const std::array<const std::string_view, static_cast<U64>(Instruction::Count_)>&
 	{
 		return NAME_TABLE;
@@ -420,7 +420,7 @@ namespace Nominax::Assembler::X86_64
 		return VARIATION_SIZE_TABLE;
 	}
 
-	auto GetVariationTable() -> const std::array<const std::vector<InstructionVariation>, static_cast<U64>(Instruction::Count_)>&
+	auto GetVariationTable() -> const std::array<const InstructionVariationPool, static_cast<U64>(Instruction::Count_)>&
 	{
 		return VARIATION_TABLE;
 	}
