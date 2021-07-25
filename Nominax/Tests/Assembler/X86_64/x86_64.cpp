@@ -473,6 +473,27 @@ TEST(Assembler_x86_64, InjectNopChain_15)
 	}
 }
 
+TEST(Assembler_x86_64, VariationTableEntries)
+{
+	U64 i {0};
+	std::vector<U8> buf{  };
+	buf.resize(1024 * 1024 * 32);
+	std::pmr::monotonic_buffer_resource alloc{ std::data(buf), std::size(buf) };
+	std::pmr::vector<InstructionVariationPool> pool{&alloc};
+	GetVariationTable(alloc, pool);
+	for (const auto& variationPool : pool)
+	{
+		++i;
+		for (const auto& variation : variationPool)
+		{
+			ASSERT_FALSE(std::empty(variation.Description));
+			ASSERT_FALSE(std::empty(variation.GasMnemonic));
+			ASSERT_FALSE(std::empty(variation.IntelMnemonic));
+		}
+	}
+	ASSERT_EQ(i, std::size(pool));
+}
+
 #ifdef NOX_DEATH_TESTS
 
 TEST(Assembler_x86_64, InjectNopChain_Null_Error)
@@ -482,14 +503,22 @@ TEST(Assembler_x86_64, InjectNopChain_Null_Error)
 
 TEST(Assembler_x86_64, InjectNopChain_0_Error)
 {
-	U8 x{};
+	U8 x { };
 	ASSERT_DEATH(InjectNopChain(&x, 0), "");
 }
 
 TEST(Assembler_x86_64, InjectNopChain_16_Error)
 {
-	U8 x{};
+	U8 x { };
 	ASSERT_DEATH(InjectNopChain(&x, 16), "");
 }
 
 #endif
+
+TEST(Assembler_x86_64, VirtualRegisterIds)
+{
+	for (U64 i {0}; i < std::size(ALL_GPR_REGISTERS); ++i)
+	{
+		ASSERT_EQ(ALL_GPR_REGISTERS[i].get().VirtualId, i);
+	}
+}

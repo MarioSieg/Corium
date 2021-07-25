@@ -289,7 +289,7 @@ namespace Nominax::Core
 	NOX_HOT static auto SyscallIntrin(Record* NOX_RESTRICT const sp, const U64 id) -> void
 	{
 		static constexpr std::array<const void* NOX_RESTRICT const, static_cast<U64>(
-			                            SystemIntrinsicCallID::$Count)> JUMP_TABLE
+			                            SystemIntrinsicCallID::Count_)> JUMP_TABLE
 		{
 			&&__cos__,
 			&&__sin__,
@@ -610,7 +610,7 @@ namespace Nominax::Core
 		static constexpr std::array
 			<
 				const void*NOX_RESTRICT const,
-				static_cast<std::underlying_type_t<Instruction>>(Instruction::$Count)
+				static_cast<std::underlying_type_t<Instruction>>(Instruction::Count_)
 			>
 			JUMP_TABLE
 			{

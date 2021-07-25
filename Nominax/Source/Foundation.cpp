@@ -208,7 +208,7 @@
 #include "../../Nominax/Include/Nominax/Foundation.hpp"
 #include "../../Nominax/Include/Nominax/ByteCode.hpp"
 #include "../../Nominax/Include/Nominax/Core.hpp"
-#include "../../Nominax/Include/Nominax/x86_64.hpp"
+#include "../../Nominax/Include/Nominax/Asm_x86_64.hpp"
 
 namespace Nominax
 {
@@ -537,7 +537,7 @@ namespace Nominax
 				else if (isa)
 				{
 					Print("{: < 10} |  {: < 8}| {: < 3} | {: < 3} | {: < 3} |\n\n", "Mnemonic", "OpCode", "Imm", "Psh", "Pop");
-					for (U64 i {0}; i < static_cast<U64>(ByteCode::Instruction::$Count); ++i)
+					for (U64 i {0}; i < static_cast<U64>(ByteCode::Instruction::Count_); ++i)
 					{
 						const auto& mnemonic {ByteCode::INSTRUCTION_MNEMONICS[i]};
 						const auto  immCount {ByteCode::INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[i].size()};

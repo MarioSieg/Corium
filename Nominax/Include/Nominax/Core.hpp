@@ -495,7 +495,7 @@ namespace Nominax::Core
 		/// It will set the first element to padding, so it allocates one more than specified.
 		/// </summary>
 		/// <param name="allocator"></param>
-		/// <param name="sizeInRecords">Size in records. If the size is zero, fatal termination.</param>
+		/// <param name="sizeInRecords">WordSize in records. If the size is zero, fatal termination.</param>
 		/// <returns></returns>
 		explicit FixedStack(std::pmr::memory_resource& allocator, U64 sizeInRecords);
 
@@ -915,7 +915,7 @@ namespace Nominax::Core
 
 	public:
 		/// <summary>
-		/// Size in bytes of the system pool, if the given count was invalid.
+		/// WordSize in bytes of the system pool, if the given count was invalid.
 		/// </summary>
 		static constexpr U64 FALLBACK_SYSTEM_POOL_SIZE {256_kB};
 		static_assert(FALLBACK_SYSTEM_POOL_SIZE);

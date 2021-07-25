@@ -603,7 +603,7 @@ TEST(Environment, ExecutionHooksBad)
 
 	class MyEnvironment : public Environment
 	{
-		auto OnPreExecutionHook([[maybe_unused]] const AppCodeBundle& appCodeBundle) -> bool override
+		auto OnPreExecutionHook([[maybe_unused]] const Image& appCodeBundle) -> bool override
 		{
 			return false;
 		}

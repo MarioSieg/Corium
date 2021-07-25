@@ -299,13 +299,13 @@ namespace Nominax::ByteCode
 		MatDiv = 0x00'00'00'00'00'00'00'48,
 
 		/* count of total instructions */
-		$Count
+		Count_
 	};
 
 	/// <summary>
 	/// Contains all instruction mnemonics.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::$Count)> INSTRUCTION_MNEMONICS
+	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::Count_)> INSTRUCTION_MNEMONICS
 	{
 		"int",
 		"intrin",
@@ -472,7 +472,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of stack pushes each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, static_cast<U64>(Instruction::$Count)> INSTRUCTION_PUSH_COUNTS
+	constexpr std::array<U8, static_cast<U64>(Instruction::Count_)> INSTRUCTION_PUSH_COUNTS
 	{
 		0,
 		0,
@@ -546,7 +546,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of stack pops each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, static_cast<U64>(Instruction::$Count)> INSTRUCTION_POP_COUNTS
+	constexpr std::array<U8, static_cast<U64>(Instruction::Count_)> INSTRUCTION_POP_COUNTS
 	{
 		0,
 		0,
@@ -620,7 +620,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains a short descriptions for all instructions.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::$Count)> INSTRUCTION_DESCRIPTIONS
+	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::Count_)> INSTRUCTION_DESCRIPTIONS
 	{
 		"interrupt reactor execution",
 		"call intrinsic system routine",
@@ -694,7 +694,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the count of required immediate arguments for each instruction.
 	/// </summary>
-	constexpr std::array<U8, static_cast<U64>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
+	constexpr std::array<U8, static_cast<U64>(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
 	{
 		1, // int
 		1,
@@ -828,7 +828,7 @@ namespace Nominax::ByteCode
 		IoPortFlush = 0x00'00'00'00'00'00'00'24,
 
 		/* !no intrinsic routine - count of total intrinsic routines! */
-		$Count
+		Count_
 	};
 
 	/// <summary>
@@ -997,7 +997,7 @@ namespace Nominax::ByteCode
 	};
 
 	/// <summary>
-	/// Size of the extracted fault code section.
+	/// WordSize of the extracted fault code section.
 	/// </summary>
 	constexpr U64 CROPPED_FAULT_CODE_DUMP_SIZE {8};
 
@@ -1497,7 +1497,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all immediate argument types for each instruction.
 	/// </summary>
-	inline const std::array<PerInstructionArgTypes, static_cast<U64>(Instruction::$Count)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
+	inline const std::array<PerInstructionArgTypes, static_cast<U64>(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
 		PerInstructionArgTypes {{Signal::Discriminator::I64}},                      // int
 		{{Signal::Discriminator::SystemIntrinsicCallID}},                           // intrin

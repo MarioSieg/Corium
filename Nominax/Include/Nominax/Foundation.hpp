@@ -3421,7 +3421,7 @@ namespace Nominax
 
 		NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedAndZeroChecked(const U64 size, const U64 alignment) -> void*
 		{
-			void* const mem {AllocateAligned(size, alignment)};
+			void* const mem {AllocateAlignedAndZero(size, alignment)};
 			NOX_PAS_NOT_NULL(mem, "Allocation error!");
 			return mem;
 		}
@@ -7052,7 +7052,7 @@ namespace Nominax
 			De = 2,
 
 			/// <summary>
-			/// Page Size Extension
+			/// Page WordSize Extension
 			/// </summary>
 			Pse = 3,
 
@@ -7904,13 +7904,13 @@ namespace Nominax
 			/// <summary>
 			/// Amount of bits.
 			/// </summary>
-			$Count
+			Count_
 		};
 
 		/// <summary>
 		/// Contains all CPU feature names.
 		/// </summary>
-		constexpr std::array<std::string_view, static_cast<U64>(CpuFeatureBits::$Count)> CPU_FEATURE_BIT_NAMES
+		constexpr std::array<std::string_view, static_cast<U64>(CpuFeatureBits::Count_)> CPU_FEATURE_BIT_NAMES
 		{
 			#if NOX_ARCH_X86_64
 			"FPU",
@@ -8145,17 +8145,17 @@ namespace Nominax
 		/// <summary>
 		/// Feature mask.
 		/// </summary>
-		using CpuFeatureMask = std::array<bool, static_cast<U64>(CpuFeatureBits::$Count)>;
+		using CpuFeatureMask = std::array<bool, static_cast<U64>(CpuFeatureBits::Count_)>;
 
 		/// <summary>
 		/// Bitmask storage type.
 		/// </summary>
-		using CpuFeatureMaskBitStorage = std::bitset<static_cast<U64>(CpuFeatureBits::$Count)>;
+		using CpuFeatureMaskBitStorage = std::bitset<static_cast<U64>(CpuFeatureBits::Count_)>;
 
 		/// <summary>
 		/// Feature mask.
 		/// </summary>
-		using CpuFeatureMaskBuffer = std::array<U8, static_cast<U64>(CpuFeatureBits::$Count) / CHAR_BIT>;
+		using CpuFeatureMaskBuffer = std::array<U8, static_cast<U64>(CpuFeatureBits::Count_) / CHAR_BIT>;
 
 		/// <summary>
 		/// Detects architecture dependent cpu features.
@@ -9005,11 +9005,11 @@ namespace Nominax
 		/// The object header contains various meta data about the object.
 		/// Each object header field is 32 - bits wide.
 		///
-		/// Offset	   Description	  Size
+		/// Offset	   Description	  WordSize
 		/// +-----------------------+
 		/// | 0 | Strong Ref Count  | 64 Bit - sizeof(MetaHeaderScalar64)
 		/// +-----------------------+
-		/// | 1 | Size in Records	| 64 Bit - sizeof(MetaHeaderScalar64)
+		/// | 1 | WordSize in Records	| 64 Bit - sizeof(MetaHeaderScalar64)
 		/// +-----------------------+
 		/// | 2 | Type ID			| 64 Bit - sizeof(MetaHeaderScalar64)
 		/// +-----------------------+
@@ -9169,7 +9169,7 @@ namespace Nominax
 			static constexpr auto STRIDE {sizeof(MetaHeaderScalar)};
 
 			/// <summary>
-			/// The count of header field blocks => 4 (MetaField, Size, TypeId, FlagVector)
+			/// The count of header field blocks => 4 (MetaField, WordSize, TypeId, FlagVector)
 			/// </summary>
 			static constexpr U64 RECORD_BLOCKS {4};
 
@@ -9332,7 +9332,7 @@ namespace Nominax
 			/// so the allocator must always allocate minimum 2 two records
 			/// for the header plus the size in records for the object.
 			/// So the blob length will be: ObjectHeader::RECORD_CHUNKS + sizeInRecords
-			/// This size must be written into the header field "Size"!
+			/// This size must be written into the header field "WordSize"!
 			/// </summary>
 			BlobBlockType* Blob_ {nullptr};
 
@@ -9411,7 +9411,7 @@ namespace Nominax
 			auto MUTATOR operator --(int) const -> void;
 
 			/// <summary>
-			/// Writes the value of size into the Size object header field.
+			/// Writes the value of size into the WordSize object header field.
 			/// </summary>
 			/// <param name="size">The new value to write.</param>
 			/// <returns></returns>

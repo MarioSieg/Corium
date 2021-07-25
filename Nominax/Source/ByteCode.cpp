@@ -934,7 +934,7 @@ namespace Nominax::ByteCode
 
 	auto Stream::DumpByteCode() const -> void
 	{
-		Print("Len: {}, Size: {} B\n", this->Size(), this->SizeInBytes());
+		Print("Len: {}, WordSize: {} B\n", this->Size(), this->SizeInBytes());
 
 		for (U64 i {0}; i < this->Size(); ++i)
 		{
@@ -1205,7 +1205,7 @@ namespace Nominax::ByteCode
 
 	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallID id) -> bool
 	{
-		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallID::$Count) - 1};
+		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallID::Count_) - 1};
 		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
 		static_assert(std::is_unsigned_v<decltype(value)>);
 		return NOX_EXPECT_VALUE(value <= max, true);

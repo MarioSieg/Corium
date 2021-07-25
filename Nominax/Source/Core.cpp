@@ -287,7 +287,7 @@ namespace Nominax
 		/// <returns></returns>
 		static auto PrintTypeInfoTable() -> void
 		{
-			Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte Size", "Alignment");
+			Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte WordSize", "Alignment");
 			PrintTypeInfo<Record>("Record");
 			PrintTypeInfo<ByteCode::Signal>("Signal");
 			PrintTypeInfo<ByteCode::Signal::Discriminator>("SignalDisc");
@@ -1067,7 +1067,7 @@ namespace Nominax
 			const void**                      jumpTable {QueryJumpTable(*routine)};
 			Print
 			(
-				"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry Size: {}\n",
+				"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry WordSize: {}\n",
 				GetReactorCoreSpecializationName(specialization),
 				static_cast<std::uint64_t>(specialization),
 				++QueryCounter,
