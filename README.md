@@ -3,6 +3,7 @@
 ![](https://img.shields.io/tokei/lines/github/mariosieg/nominax?style=flat-square)
 ![](https://img.shields.io/github/license/mariosieg/nominax?style=flat-square)
 ![](https://img.shields.io/github/commit-activity/m/MarioSieg/NominaxRuntime)
+![](https://img.shields.io/discord/866345476186046494)
 
 # Corium Programming Language
 
@@ -72,11 +73,13 @@ Sponsors in chronological order:<br>
 
 * Jean Igrec https://github.com/Jigrec
 * Andreas Partsch https://github.com/4ndre4s
+* Kevin Sieg https://github.com/KevinSieg
 
 </h4>
 
 <h2> Roadmap </h2>
 
+[Discord Server](https://discord.gg/jcNaD9DcCr)<br>
 [Trello Board](https://trello.com/b/QiBdAQrb/nominax)
 
 # Corium To-Go :coffee:
