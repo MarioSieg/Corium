@@ -5,7 +5,7 @@ FILE(GLOB_RECURSE "NOMINAX_SOURCES" "Nominax/Source/*.cpp" "Nominax/Source/*.S" 
 SET_SOURCE_FILES_PROPERTIES("Nominax/Source/VM_Impl_AVX.cpp" PROPERTIES COMPILE_FLAGS "-mavx")
 SET_SOURCE_FILES_PROPERTIES("Nominax/Source/VM_Impl_AVX512F.cpp" PROPERTIES COMPILE_FLAGS "-mavx512f")
 
-ADD_LIBRARY("NominaxRuntime" STATIC "${NOMINAX_SOURCES}")
+ADD_LIBRARY("NominaxRuntime" SHARED "${NOMINAX_SOURCES}")
 
 # assembler code macros:
 INCLUDE("Nominax/CMake/Assembly.cmake")

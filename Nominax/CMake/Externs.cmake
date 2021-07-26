@@ -1,4 +1,5 @@
 ADD_SUBDIRECTORY("SharedTools/fmt/")
+TARGET_COMPILE_OPTIONS("fmt" PRIVATE "-fPIC")
 TARGET_LINK_LIBRARIES("NominaxRuntime" "fmt")
 TARGET_LINK_LIBRARIES("NominaxRuntimeTest" "fmt")
 
