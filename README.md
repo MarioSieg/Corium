@@ -3,6 +3,7 @@
 ![](https://img.shields.io/tokei/lines/github/mariosieg/nominax?style=flat-square)
 ![](https://img.shields.io/github/license/mariosieg/nominax?style=flat-square)
 ![](https://img.shields.io/github/commit-activity/m/MarioSieg/NominaxRuntime)
+![https://discord.gg/jcNaD9DcCr](https://img.shields.io/discord/866345476186046494)
 
 # Corium Programming Language
 
@@ -77,6 +78,7 @@ Sponsors in chronological order:<br>
 
 <h2> Roadmap </h2>
 
+[Discord Server](https://discord.gg/jcNaD9DcCr)
 [Trello Board](https://trello.com/b/QiBdAQrb/nominax)
 
 # Corium To-Go :coffee:
