@@ -4114,46 +4114,6 @@ namespace Nominax::Assembler::X86_64
 		return VARIATION_SIZE_TABLE;
 	}
 
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_0(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_1(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_2(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_3(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_4(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_5(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_6(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_7(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_8(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_9(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_10(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_11(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_12(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_13(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_14(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_15(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_16(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_17(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_18(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_19(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_20(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_21(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_22(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_23(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_24(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_25(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_26(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_27(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_28(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_29(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_30(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_31(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_32(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_33(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_34(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_35(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_36(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_37(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_38(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
-
 	auto GetVariationTable(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void
 	{
 		out.reserve(static_cast<U64>(Instruction::Count_));

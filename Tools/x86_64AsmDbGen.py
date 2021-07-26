@@ -1258,7 +1258,7 @@ fileObject.close()
 
 def generate_insertion_fun(range, idx):
     output = header
-    output += "\n// Auto generated, do not edit!\n\n"
+    output += "\n\n// Auto generated, do not edit!\n\n"
     output += "#include \"../Include/Nominax/Asm_x86_64.hpp\"\n\n"
     output += "namespace Nominax::Assembler::X86_64\n{\n"
     output += "NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_" + str(idx) + "(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void\n{\n"
@@ -1450,7 +1450,9 @@ def generate_insertion_fun(range, idx):
         output += "\t};\n"
         output += "\tout.emplace_back(std::move(instruction));\n\n"
     output += "};\n}\n"
-    with open(target + "Asm_x86_64_Jitdb" + str(idx) + ".cpp", "w") as f:
+    fn = target + "Asm_x86_64_Jitdb" + str(idx) + ".cpp"
+    print("Generating x86-64 Assembler JIT DB: " + fn)
+    with open(fn, "w") as f:
         f.write(output)
 
 def divide_chunks(l, n):

@@ -204,6 +204,7 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
+
 // Auto generated, do not edit!
 
 #include "../Include/Nominax/Asm_x86_64.hpp"
@@ -722,8 +723,8 @@ NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_9(std::pmr::monotonic_buffer_re
 			},
 			.ImplicitInputs =
 			{
-				ImplicitRegisterOperand::Ecx,
 				ImplicitRegisterOperand::Ebx,
+				ImplicitRegisterOperand::Ecx,
 				ImplicitRegisterOperand::Eax,
 			},
 			.ImplicitOutputs =
