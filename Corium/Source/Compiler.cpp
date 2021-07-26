@@ -17,7 +17,7 @@ namespace Corium
         std::ifstream stream{file};
         if (!stream)
         {
-            [[nodiscard]]
+            [[unlikely]]
             return false;
         }
         antlr4::ANTLRInputStream input{stream};
@@ -47,7 +47,7 @@ namespace Corium
         if (!std::filesystem::exists(dir))
         {
             Print(LogLevel::Error, "No Corium ({}) files found in dir: {}\n", FILE_EXTENSION, dir.string());
-            [[nodiscard]]
+            [[unlikely]]
             return false;
         }
         std::uint32_t compiledFiles {};
