@@ -1,6 +1,6 @@
 // File: Main.cpp
 // Author: Mario
-// Created: 09.04.2021 5:11 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -211,12 +211,13 @@
 
 auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* const argv) -> int
 {
-    Corium::Compiler compiler{};
-    const bool result{compiler.CompileAllInDir(std::filesystem::current_path())};
-    if (!result) [[unlikely]]
-    {
-        Nominax::Foundation::Print("Failed to compile Corium!\n");
-        return -1;
-    }
-    return 0;
+	Corium::Compiler compiler { };
+	
+	const bool result {compiler.CompileAllInDir("../../../Corium/Docs")};
+	if (!result)
+	{
+		Nominax::Foundation::Print("Failed to compile Corium!\n");
+		return -1;
+	}
+	return 0;
 }

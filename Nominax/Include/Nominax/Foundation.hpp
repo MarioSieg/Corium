@@ -406,7 +406,7 @@ namespace Nominax
 	/// <summary>
 	/// Dump allocations.
 	/// </summary>
-	#define NOX_VERBOSE_ALLOCATOR NOX_DEBUG
+	#define NOX_VERBOSE_ALLOCATOR false
 
 	/// <summary>
 	/// Use a slower but more correct floating point comparison algorithm.
