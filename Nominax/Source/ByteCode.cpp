@@ -934,7 +934,7 @@ namespace Nominax::ByteCode
 
 	auto Stream::DumpByteCode() const -> void
 	{
-		Print("Len: {}, WordSize: {} B\n", this->Size(), this->SizeInBytes());
+		Print("Len: {}, Size: {:.3} kB\n", this->Size(), Bytes2Kilobytes(static_cast<F32>(this->SizeInBytes())));
 
 		for (U64 i {0}; i < this->Size(); ++i)
 		{
@@ -1257,5 +1257,106 @@ namespace Nominax::ByteCode
 		}
 
 		return ValidationResultCode::Ok;
+	}
+
+	auto LocalCodeGenerationLayer::EmitPush(const I64 value) -> LocalCodeGenerationLayer&
+	{
+		if (this->EnableOptimizations && value == 0)
+		{
+			this->Emitter << Instruction::PushZ;
+		}
+		else if(this->EnableOptimizations && value == 1)
+		{
+			this->Emitter << Instruction::IPushO;
+		}
+		else
+		{
+			this->Emitter << Instruction::Push << value;
+		}
+		return *this;
+	}
+
+	auto LocalCodeGenerationLayer::EmitPush(const F64 value) -> LocalCodeGenerationLayer&
+	{
+		if (this->EnableOptimizations && value == 0.0)
+		{
+			this->Emitter << Instruction::PushZ;
+		}
+		else if (this->EnableOptimizations && value == 1.0)
+		{
+			this->Emitter << Instruction::FPushO;
+		}
+		else
+		{
+			this->Emitter << Instruction::Push << value;
+		}
+		return *this;
+	}
+
+	auto LocalCodeGenerationLayer::EmitPop(const U16 popCount) -> LocalCodeGenerationLayer&
+	{
+		if (this->EnableOptimizations)
+		{
+			switch (popCount)
+			{
+			case 0:
+				return *this;
+
+			case 1:
+				this->Emitter << Instruction::Pop;
+				return *this;
+
+			case 2:
+				this->Emitter << Instruction::Pop2;
+				return *this;
+
+			case 4:
+				this->Emitter << Instruction::VecPop;
+				return *this;
+
+			case 16:
+				this->Emitter << Instruction::MatPop;
+				return *this;
+
+			default:
+				if (popCount % 2 == 0)
+				{
+					for (U8 i{ 0 }; i < popCount / 2; ++i)
+					{
+						this->Emitter << Instruction::Pop2;
+					}
+				}
+				else if (popCount % 4 == 0)
+				{
+					for (U8 i{ 0 }; i < popCount / 4; ++i)
+					{
+						this->Emitter << Instruction::VecPop;
+					}
+				}
+				else if (popCount % 16 == 0)
+				{
+					for (U8 i{ 0 }; i < popCount / 16; ++i)
+					{
+						this->Emitter << Instruction::MatPop;
+					}
+				}
+				else
+				{
+					for (U8 i{ 0 }; i < popCount; ++i)
+					{
+						this->Emitter << Instruction::Pop;
+					}
+				}
+				return *this;
+			}
+		}
+		else
+		{
+			for (U8 i{ 0 }; i < popCount; ++i)
+			{
+				this->Emitter << Instruction::Pop;
+			}
+			return *this;
+		}
 	}
 }

@@ -1,6 +1,6 @@
-// File: Base.hpp
+// File: ParseTreeVisitor.cpp
 // Author: Mario
-// Created: 27.07.2021 9:53 AM
+// Created: 27.07.2021 5:39 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,19 +205,64 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include <Nominax/Nominax.hpp>
-
-using namespace Prelude;
-
-#include "../Parser/CoriumParser.h"
-#include "../Parser/CoriumLexer.h"
-#include "../Parser/CoriumVisitor.h"
-#include "../Parser/CoriumBaseVisitor.h"
-#include "antlr4-runtime.h"
+#include "ParseTreeVisitor.hpp"
+#include "Type.hpp"
 
 namespace Corium
 {
-	using LiteralParseException = std::runtime_error;
+	auto ParseTreeVisitor::visitCompilationUnit(CoriumParser::CompilationUnitContext* ctx) -> antlrcpp::Any
+	{
+		this->ModuleName = ctx->moduleDeclaration()->qualifiedName()->getText();
+		Print("Module: {}\n", this->ModuleName);
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitModuleDeclaration(CoriumParser::ModuleDeclarationContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitExpr(CoriumParser::ExprContext* ctx) -> antlrcpp::Any
+	{
+		if (ctx->value)
+		{
+			this->CodeGenerator.EmitPush(ParseInt(ctx->value->getText()));
+		}
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitTypeClassName(CoriumParser::TypeClassNameContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitBuiltinType(CoriumParser::BuiltinTypeContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitQualifiedName(CoriumParser::QualifiedNameContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitLiteral(CoriumParser::LiteralContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitIntLiteral(CoriumParser::IntLiteralContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitFloatLiteral(CoriumParser::FloatLiteralContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
 }

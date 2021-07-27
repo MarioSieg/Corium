@@ -3034,7 +3034,7 @@ namespace Nominax::ByteCode
 	inline auto ScopedVariable<T>::Unwrap() const -> T
 	{
 		#if NOX_DEBUG
-				return this->Attached_.Back().template Unwrap<T>().value();
+		return this->Attached_.Back().template Unwrap<T>().value();
 		#else
 		return *this->Attached_.Back().template Unwrap<T>();
 		#endif
@@ -3375,4 +3375,92 @@ namespace Nominax::ByteCode
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
 	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }, U32* outIndex = nullptr) -> ValidationResultCode;
+
+	enum class PrimitiveType : U8
+	{
+		Int,
+		Float
+	};
+
+	/// <summary>
+	/// Wrapper around a Stream which provides
+	/// simple byte code generation methods for function local execution code.
+	/// </summary>
+	class LocalCodeGenerationLayer final
+	{
+	public:
+		/// <summary>
+		/// Enable code generation optimizations.
+		/// </summary>
+		bool EnableOptimizations {NOX_RELEASE};
+
+		/// <summary>
+		/// The target output stream.
+		/// </summary>
+		Stream& Emitter;
+
+		/// <summary>
+		/// Construct with target stream.
+		/// </summary>
+		/// <param name="emitter">The target stream to emit byte code to.</param>
+		explicit LocalCodeGenerationLayer(Stream& emitter);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		LocalCodeGenerationLayer(const LocalCodeGenerationLayer& other) = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		LocalCodeGenerationLayer(LocalCodeGenerationLayer&& other) = delete;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		auto operator =(const LocalCodeGenerationLayer& other) -> LocalCodeGenerationLayer& = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		auto operator =(LocalCodeGenerationLayer&& other) -> LocalCodeGenerationLayer& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~LocalCodeGenerationLayer() = default;
+
+		auto Emit(Instruction instruction) -> LocalCodeGenerationLayer&;
+
+		/// <summary>
+		/// Emits and optimizes a push.
+		/// </summary>
+		/// <param name="value">The immediate value to push.</param>
+		auto EmitPush(I64 value) -> LocalCodeGenerationLayer&;
+
+		/// <summary>
+		/// Emits and optimizes a push.
+		/// </summary>
+		/// <param name="value">The immediate value to push.</param>
+		auto EmitPush(F64 value) -> LocalCodeGenerationLayer&;
+
+		/// <summary>
+		/// Emits and optimizes a certain amount of pops.
+		/// </summary>
+		/// <param name="popCount"></param>
+		/// <returns></returns>
+		auto EmitPop(U16 popCount = 1) -> LocalCodeGenerationLayer&;
+	};
+
+	inline LocalCodeGenerationLayer::LocalCodeGenerationLayer(Stream& emitter) : Emitter {emitter} { }
+
+	inline auto LocalCodeGenerationLayer::Emit(const Instruction instruction) -> LocalCodeGenerationLayer&
+	{
+		this->Emitter << instruction;
+		return *this;
+	}
 }

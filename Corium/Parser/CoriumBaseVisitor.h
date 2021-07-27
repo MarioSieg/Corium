@@ -23,59 +23,15 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitCompilationUnitStatement(CoriumParser::CompilationUnitStatementContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitClassDeclaration(CoriumParser::ClassDeclarationContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitClassBlockStatement(CoriumParser::ClassBlockStatementContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitNativeFunctionDeclaration(CoriumParser::NativeFunctionDeclarationContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitFunctionDeclaration(CoriumParser::FunctionDeclarationContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitFunctionCall(CoriumParser::FunctionCallContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitFunctionHeader(CoriumParser::FunctionHeaderContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitFunctionBlockStatement(CoriumParser::FunctionBlockStatementContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitReturnStatement(CoriumParser::ReturnStatementContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual antlrcpp::Any visitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitConstVariableDeclaration(CoriumParser::ConstVariableDeclarationContext *ctx) override {
+  virtual antlrcpp::Any visitExpr(CoriumParser::ExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitParameterList(CoriumParser::ParameterListContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitParameter(CoriumParser::ParameterContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitTypeName(CoriumParser::TypeNameContext *ctx) override {
+  virtual antlrcpp::Any visitTypeClassName(CoriumParser::TypeClassNameContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -84,14 +40,6 @@ public:
   }
 
   virtual antlrcpp::Any visitQualifiedName(CoriumParser::QualifiedNameContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitExpressionList(CoriumParser::ExpressionListContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitExpression(CoriumParser::ExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 

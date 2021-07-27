@@ -1,6 +1,6 @@
-// File: Base.hpp
+// File: ParseTreeVisitor.hpp
 // Author: Mario
-// Created: 27.07.2021 9:53 AM
+// Created: 27.07.2021 5:39 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,21 @@
 
 #pragma once
 
-#include <Nominax/Nominax.hpp>
-
-using namespace Prelude;
-
-#include "../Parser/CoriumParser.h"
-#include "../Parser/CoriumLexer.h"
-#include "../Parser/CoriumVisitor.h"
-#include "../Parser/CoriumBaseVisitor.h"
-#include "antlr4-runtime.h"
+#include "Base.hpp"
 
 namespace Corium
 {
-	using LiteralParseException = std::runtime_error;
+	struct ParseTreeVisitor final : CoriumBaseVisitor
+	{
+		virtual auto visitCompilationUnit(CoriumParser::CompilationUnitContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitModuleDeclaration(CoriumParser::ModuleDeclarationContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitExpr(CoriumParser::ExprContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitTypeClassName(CoriumParser::TypeClassNameContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitBuiltinType(CoriumParser::BuiltinTypeContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitQualifiedName(CoriumParser::QualifiedNameContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitLiteral(CoriumParser::LiteralContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitIntLiteral(CoriumParser::IntLiteralContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitFloatLiteral(CoriumParser::FloatLiteralContext* ctx) -> antlrcpp::Any override;
+	};
 }

@@ -1,6 +1,6 @@
-// File: Base.hpp
+// File: Type.hpp
 // Author: Mario
-// Created: 27.07.2021 9:53 AM
+// Created: 27.07.2021 7:23 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,36 @@
 
 #pragma once
 
-#include <Nominax/Nominax.hpp>
-
-using namespace Prelude;
-
-#include "../Parser/CoriumParser.h"
-#include "../Parser/CoriumLexer.h"
-#include "../Parser/CoriumVisitor.h"
-#include "../Parser/CoriumBaseVisitor.h"
-#include "antlr4-runtime.h"
+#include "Base.hpp"
 
 namespace Corium
 {
-	using LiteralParseException = std::runtime_error;
+	inline auto IsFloatLiteral(const std::string_view data) -> bool
+	{
+		return data.find('.') != std::string_view::npos;
+	}
+
+	inline auto ParseInt(const std::string_view data) -> I64
+	{
+		I64        integer;
+		const auto [_, ec] {std::from_chars(&*std::cbegin(data), &*std::cend(data), integer)};
+		if (ec != std::errc { })
+		{
+			[[unlikely]]
+				throw LiteralParseException {Format("Invalid integer literal: {}", data)};
+		}
+		return integer;
+	}
+
+	inline auto ParseFloat(const std::string_view data) -> F64
+	{
+		F64        integer;
+		const auto [_, ec] {std::from_chars(&*std::cbegin(data), &*std::cend(data), integer)};
+		if (ec != std::errc { })
+		{
+			[[unlikely]]
+				throw LiteralParseException {Format("Invalid integer literal: {}", data)};
+		}
+		return integer;
+	}
 }

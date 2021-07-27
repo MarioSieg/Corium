@@ -206,11 +206,11 @@
 //    limitations under the License.
 
 #include "Compiler.hpp"
+#include "ParseTreeVisitor.hpp"
 
 namespace Corium
 {
-	auto Compiler::CompileFile(const std::filesystem::path& file) const -> bool
-	try
+	auto Compiler::CompileFile(const std::filesystem::path& file) const -> bool try
 	{
 		std::ifstream stream {file};
 		if (!stream)
@@ -218,27 +218,30 @@ namespace Corium
 			[[unlikely]]
 				return false;
 		}
+
 		antlr4::ANTLRInputStream  input {stream};
 		CoriumLexer               lexer {&input};
 		antlr4::CommonTokenStream tokens {&lexer};
 		tokens.fill();
 		CoriumParser parser {&tokens};
 		parser.setBuildParseTree(true);
-		auto& compilationUnit {*parser.compilationUnit()};
-		if (const auto errors{ parser.getNumberOfSyntaxErrors() }; errors)
+		auto* compilationUnit {parser.compilationUnit()};
+
+		if (const auto errors {parser.getNumberOfSyntaxErrors()}; errors)
 		{
 			Print(LogLevel::Error, "{} syntax errors found!\n", errors);
+			return false;
 		}
-		Print("{}\n", compilationUnit.toStringTree());
-		if (!compilationUnit.isEmpty())
-		{
-			Print(LogLevel::Error, "{}\n", compilationUnit.toString());
-		}
+
+		ParseTreeVisitor visitor { };
+		visitor.visitCompilationUnit(compilationUnit);
+		visitor.Target.DumpByteCode();
+
 		return true;
 	}
 	catch (const std::exception& ex)
 	{
-		Print(LogLevel::Error, "Compiler error: {}\n", ex.what());
+		Print(LogLevel::Error, "{}\n", ex.what());
 		return false;
 	}
 
@@ -249,32 +252,34 @@ namespace Corium
 
 	auto Compiler::CompileAllInDir(const std::filesystem::path& dir) const -> bool
 	{
-		if (!exists(dir)) [[unlikely]]
+		if (!exists(dir))
+		[[unlikely]]
 		{
 			Print(LogLevel::Error, "No Corium ({}) files found in dir: {}\n", FILE_EXTENSION, dir.string());
 			return false;
 		}
-		
-		const Stopwatch clock{};
-		U32 compiledFiles { };
+
+		const Stopwatch clock { };
+		U32             compiledFiles { };
 		for (const auto& file : std::filesystem::recursive_directory_iterator {dir})
 		{
 			const auto& path {file.path()};
 			if (!path.has_filename() || !path.has_extension() || path.extension() != FILE_EXTENSION)
 			{
 				[[unlikely]]
-				continue;
+					continue;
 			}
 			Print(LogLevel::Success, "Compiling: {}\n", path.filename().string());
 			if (!this->CompileFile(path))
 			{
 				[[unlikely]]
-				return false;
+					return false;
 			}
 			++compiledFiles;
 		}
 
-		if (compiledFiles) [[likely]]
+		if (compiledFiles)
+		[[likely]]
 		{
 			Print(LogLevel::Success, "Compiled {} file{} in {:.03}\n", compiledFiles, compiledFiles > 1 ? "s" : "", clock.ElapsedSecsF64());
 		}

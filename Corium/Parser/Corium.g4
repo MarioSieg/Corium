@@ -4,24 +4,15 @@ grammar Corium;
 BOOL:           'bool';
 CHAR:           'char';
 FLOAT:          'float';
-FUN:            'fun';
 INT:            'int';
-STRING:         'string';
-LET:            'let';
-NATIVE:         'native';
-CONST:          'const';
+VAR:            'var';
 MODULE:         'module';
-CLASS:          'class';
-STRUCT:         'struct';
-RETURN:         'return';
-SELF:           'self';
-SELF_TYPE:      'Self';
 
 // int literals:
-INT_LITERAL_DEC: ('0' | [1-9] (Digits? | '_' + Digits));
-INT_LITERAL_HEX: '0' [xX] [0-9a-fA-F] ([0-9a-fA-F_]* [0-9a-fA-F])?;
-INT_LITERAL_OCT: '0' [cC] '_'* [0-7] ([0-7_]* [0-7])?;
-INT_LITERAL_BIN: '0' [bB] [01] ([01_]* [01])? [lL]?;
+INT_LITERAL_DEC: '-'? ('0' | [1-9] (Digits? | '_' + Digits));
+INT_LITERAL_HEX: '-'? '0' [xX] [0-9a-fA-F] ([0-9a-fA-F_]* [0-9a-fA-F])?;
+INT_LITERAL_OCT: '-'? '0' [cC] '_'* [0-7] ([0-7_]* [0-7])?;
+INT_LITERAL_BIN: '-'? '0' [bB] [01] ([01_]* [01])? [lL]?;
 
 // float literals:
 FLOAT_LITERAL_DEC: (Digits '.' Digits? | '.' Digits) ExponentPart? | Digits ExponentPart;
@@ -50,47 +41,11 @@ DOT:                '.';
 
 // operators:
 ASSIGN:             '=';
-PLUS:               '+';
-PLUS_ASSIGN:        PLUS ASSIGN;
-MINUS:              '-';
-MINUS_ASSIGN:       MINUS ASSIGN;
-MULTIPLY:           '*';
-MULTIPLY_ASSIGN:    MULTIPLY ASSIGN;
-DIVIDE:             '/';
-DIVIDE_ASSIGN:      DIVIDE ASSIGN;
-MODULO:             '%';
-MODULO_ASSIGN:      MODULO ASSIGN;
-BIT_AND:            '&';
-BIT_AND_ASSIGN:     BIT_AND ASSIGN;
-BIT_OR:             '|';
-BIT_OR_ASSIGN:      BIT_OR ASSIGN;
-BIT_XOR:            '^';
-BIT_XOR_ASSIGN:     BIT_XOR ASSIGN;
-BIT_NOT:            '~';
-BIT_SHL:            '<<';
-BIT_SHL_ASSIGN:     BIT_SHL ASSIGN;
-BIT_SHR:            '>>';
-BIT_SHR_ASSIGN:     BIT_SHL ASSIGN;
-BIT_USHL:            '<<<';
-BIT_USHL_ASSIGN:     BIT_SHL ASSIGN;
-BIT_USHR:            '>>>';
-BIT_USHR_ASSIGN:     BIT_SHL ASSIGN;
-BIT_ROL:            '<<*';
-BIT_ROL_ASSIGN:     BIT_ROL ASSIGN;
-BIT_ROR:            '>>*';
-BIT_ROR_ASSIGN:     BIT_ROR ASSIGN;
-INCREMENT:          '++';
-DECREMENT:          '--';
-LOGICAL_NOT:        '!';
-LOGICAL_AND:        '&&';
-LOGICAL_OR:         '||';
-LOGICAL_XOR:        '^^';
-EQUALS:             '==';
-NOT_EQUALS:         '!=';
-LESS:               '<';
-LESS_EQUALS:        '<=';
-GREATER:            '>';
-GREATER_EQUALS:     '>=';
+ADD:                '+';
+SUB:                '-';
+MUL:                '*';
+DIV:                '/';
+MOD:                '%';
 
 // identifier:
 IDENT: Letter LetterOrDigit*;
@@ -112,8 +67,7 @@ fragment Letter:            [a-zA-Z];
 compilationUnit
     :
     moduleDeclaration
-    compilationUnitStatement*
-    EOF
+    localVariableDeclaration*
     ;
 
 moduleDeclaration
@@ -122,102 +76,24 @@ moduleDeclaration
     qualifiedName
     ;
 
-compilationUnitStatement
-    : functionDeclaration
-    | classDeclaration
-    | nativeFunctionDeclaration
-    | constVariableDeclaration
-    | SPACE
-    ;
-
-classDeclaration
-    :
-    (CLASS | STRUCT)
-    (IDENT | builtinType)
-    LBRACE
-    classBlockStatement*
-    RBRACE
-    ;
-
-classBlockStatement
-    : constVariableDeclaration
-    | functionDeclaration
-    ;
-
-nativeFunctionDeclaration
-    :
-    NATIVE
-    functionHeader
-    ;
-
-functionDeclaration
-    :
-    functionHeader
-    LBRACE
-    functionBlockStatement*
-    RBRACE
-    ;
-
-functionCall
-    :
-    qualifiedName
-    LPAREN
-    expressionList?
-    RPAREN
-    ;
-
-functionHeader
-    :
-    FUN
-    IDENT
-    LPAREN
-    SELF?
-    parameterList?
-    RPAREN
-    typeName?
-    ;
-
-functionBlockStatement
-    : localVariableDeclaration
-    | constVariableDeclaration
-    | returnStatement
-    | expression
-    ;
-
-returnStatement
-    :
-    RETURN
-    expression
-    ;
-
 localVariableDeclaration
     :
-    LET
-    typeName
-    ASSIGN
-    expression
-    ;
-
-constVariableDeclaration
-    :
-    CONST
-    typeName
-    ASSIGN
-    expression
-    ;
-
-parameterList
-    :
-    parameter
-    (COMMA parameter)*
-    ;
-
-parameter
-    :
+    VAR
     IDENT
-    typeName;
+    ASSIGN
+    expr
+    ;
 
-typeName
+expr
+    : LPAREN expr RPAREN                                        // nested
+    | op=(ADD | SUB) expr                                       // unary
+    | expr op=(ADD | SUB | MUL | DIV | MOD) expr                // infix
+    | func=IDENT LPAREN expr RPAREN                             // function invocation
+    | value=literal                                             // immediate
+    | IDENT
+    ;
+
+typeClassName
     : builtinType
     | qualifiedName
     ;
@@ -227,53 +103,12 @@ builtinType
     | FLOAT
     | CHAR
     | BOOL
-    | STRING
-    | SELF_TYPE
     ;
 
 qualifiedName
     :
     IDENT
     (DOT IDENT)*
-    ;
-
-expressionList
-    :
-    expression
-    (COMMA expression)*
-    ;
-
-expression
-    : IDENT
-    | SELF
-    | literal
-    | functionCall
-    | expression postfix=(INCREMENT | DECREMENT)
-    | prefix=(PLUS | MINUS | INCREMENT | DECREMENT) expression
-    | prefix=(LOGICAL_NOT | BIT_NOT) expression
-    | expression bop=(PLUS | MINUS | MULTIPLY | DIVIDE | MODULO) expression
-    | expression bop=(LOGICAL_AND | LOGICAL_OR | LOGICAL_XOR) expression
-    | expression bop=(EQUALS | NOT_EQUALS | LESS | LESS_EQUALS | GREATER | GREATER_EQUALS) expression
-    | expression bop=(BIT_AND | BIT_OR | BIT_XOR | BIT_SHL | BIT_SHR | BIT_USHL | BIT_USHR | BIT_ROL | BIT_ROR) expression
-    | <assoc=right> expression
-        bop=
-        (
-            ASSIGN
-            | PLUS_ASSIGN
-            | MINUS_ASSIGN
-            | MULTIPLY_ASSIGN
-            | DIVIDE_ASSIGN
-            | MODULO_ASSIGN
-            | BIT_AND_ASSIGN
-            | BIT_OR_ASSIGN
-            | BIT_AND_ASSIGN
-            | BIT_SHL_ASSIGN
-            | BIT_SHR_ASSIGN
-            | BIT_USHL_ASSIGN
-            | BIT_USHR_ASSIGN
-            | BIT_ROL_ASSIGN
-            | BIT_ROR_ASSIGN
-        ) expression
     ;
 
 literal
