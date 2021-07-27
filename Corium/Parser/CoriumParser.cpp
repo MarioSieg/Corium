@@ -3,6 +3,7 @@
 
 
 #include "CoriumListener.h"
+#include "CoriumVisitor.h"
 
 #include "CoriumParser.h"
 
@@ -68,6 +69,14 @@ void CoriumParser::CompilationUnitContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<CoriumListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCompilationUnit(this);
+}
+
+
+antlrcpp::Any CoriumParser::CompilationUnitContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitCompilationUnit(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 CoriumParser::CompilationUnitContext* CoriumParser::compilationUnit() {
@@ -145,6 +154,14 @@ void CoriumParser::ModuleDeclarationContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitModuleDeclaration(this);
 }
 
+
+antlrcpp::Any CoriumParser::ModuleDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitModuleDeclaration(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::ModuleDeclarationContext* CoriumParser::moduleDeclaration() {
   ModuleDeclarationContext *_localctx = _tracker.createInstance<ModuleDeclarationContext>(_ctx, getState());
   enterRule(_localctx, 2, CoriumParser::RuleModuleDeclaration);
@@ -214,6 +231,14 @@ void CoriumParser::CompilationUnitStatementContext::exitRule(tree::ParseTreeList
   auto parserListener = dynamic_cast<CoriumListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCompilationUnitStatement(this);
+}
+
+
+antlrcpp::Any CoriumParser::CompilationUnitStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitCompilationUnitStatement(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 CoriumParser::CompilationUnitStatementContext* CoriumParser::compilationUnitStatement() {
@@ -336,6 +361,14 @@ void CoriumParser::ClassDeclarationContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitClassDeclaration(this);
 }
 
+
+antlrcpp::Any CoriumParser::ClassDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitClassDeclaration(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::ClassDeclarationContext* CoriumParser::classDeclaration() {
   ClassDeclarationContext *_localctx = _tracker.createInstance<ClassDeclarationContext>(_ctx, getState());
   enterRule(_localctx, 6, CoriumParser::RuleClassDeclaration);
@@ -442,6 +475,14 @@ void CoriumParser::ClassBlockStatementContext::exitRule(tree::ParseTreeListener 
     parserListener->exitClassBlockStatement(this);
 }
 
+
+antlrcpp::Any CoriumParser::ClassBlockStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitClassBlockStatement(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::ClassBlockStatementContext* CoriumParser::classBlockStatement() {
   ClassBlockStatementContext *_localctx = _tracker.createInstance<ClassBlockStatementContext>(_ctx, getState());
   enterRule(_localctx, 8, CoriumParser::RuleClassBlockStatement);
@@ -516,6 +557,14 @@ void CoriumParser::NativeFunctionDeclarationContext::exitRule(tree::ParseTreeLis
     parserListener->exitNativeFunctionDeclaration(this);
 }
 
+
+antlrcpp::Any CoriumParser::NativeFunctionDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitNativeFunctionDeclaration(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::NativeFunctionDeclarationContext* CoriumParser::nativeFunctionDeclaration() {
   NativeFunctionDeclarationContext *_localctx = _tracker.createInstance<NativeFunctionDeclarationContext>(_ctx, getState());
   enterRule(_localctx, 10, CoriumParser::RuleNativeFunctionDeclaration);
@@ -585,6 +634,14 @@ void CoriumParser::FunctionDeclarationContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<CoriumListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFunctionDeclaration(this);
+}
+
+
+antlrcpp::Any CoriumParser::FunctionDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitFunctionDeclaration(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 CoriumParser::FunctionDeclarationContext* CoriumParser::functionDeclaration() {
@@ -685,6 +742,14 @@ void CoriumParser::FunctionCallContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<CoriumListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFunctionCall(this);
+}
+
+
+antlrcpp::Any CoriumParser::FunctionCallContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitFunctionCall(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 CoriumParser::FunctionCallContext* CoriumParser::functionCall() {
@@ -794,6 +859,14 @@ void CoriumParser::FunctionHeaderContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitFunctionHeader(this);
 }
 
+
+antlrcpp::Any CoriumParser::FunctionHeaderContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitFunctionHeader(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::FunctionHeaderContext* CoriumParser::functionHeader() {
   FunctionHeaderContext *_localctx = _tracker.createInstance<FunctionHeaderContext>(_ctx, getState());
   enterRule(_localctx, 16, CoriumParser::RuleFunctionHeader);
@@ -894,6 +967,14 @@ void CoriumParser::FunctionBlockStatementContext::exitRule(tree::ParseTreeListen
   auto parserListener = dynamic_cast<CoriumListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFunctionBlockStatement(this);
+}
+
+
+antlrcpp::Any CoriumParser::FunctionBlockStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitFunctionBlockStatement(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 CoriumParser::FunctionBlockStatementContext* CoriumParser::functionBlockStatement() {
@@ -1000,6 +1081,14 @@ void CoriumParser::ReturnStatementContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitReturnStatement(this);
 }
 
+
+antlrcpp::Any CoriumParser::ReturnStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitReturnStatement(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::ReturnStatementContext* CoriumParser::returnStatement() {
   ReturnStatementContext *_localctx = _tracker.createInstance<ReturnStatementContext>(_ctx, getState());
   enterRule(_localctx, 20, CoriumParser::RuleReturnStatement);
@@ -1065,6 +1154,14 @@ void CoriumParser::LocalVariableDeclarationContext::exitRule(tree::ParseTreeList
   auto parserListener = dynamic_cast<CoriumListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitLocalVariableDeclaration(this);
+}
+
+
+antlrcpp::Any CoriumParser::LocalVariableDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitLocalVariableDeclaration(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 CoriumParser::LocalVariableDeclarationContext* CoriumParser::localVariableDeclaration() {
@@ -1138,6 +1235,14 @@ void CoriumParser::ConstVariableDeclarationContext::exitRule(tree::ParseTreeList
     parserListener->exitConstVariableDeclaration(this);
 }
 
+
+antlrcpp::Any CoriumParser::ConstVariableDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitConstVariableDeclaration(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::ConstVariableDeclarationContext* CoriumParser::constVariableDeclaration() {
   ConstVariableDeclarationContext *_localctx = _tracker.createInstance<ConstVariableDeclarationContext>(_ctx, getState());
   enterRule(_localctx, 24, CoriumParser::RuleConstVariableDeclaration);
@@ -1207,6 +1312,14 @@ void CoriumParser::ParameterListContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<CoriumListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitParameterList(this);
+}
+
+
+antlrcpp::Any CoriumParser::ParameterListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitParameterList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 CoriumParser::ParameterListContext* CoriumParser::parameterList() {
@@ -1279,6 +1392,14 @@ void CoriumParser::ParameterContext::exitRule(tree::ParseTreeListener *listener)
     parserListener->exitParameter(this);
 }
 
+
+antlrcpp::Any CoriumParser::ParameterContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitParameter(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::ParameterContext* CoriumParser::parameter() {
   ParameterContext *_localctx = _tracker.createInstance<ParameterContext>(_ctx, getState());
   enterRule(_localctx, 28, CoriumParser::RuleParameter);
@@ -1336,6 +1457,14 @@ void CoriumParser::TypeNameContext::exitRule(tree::ParseTreeListener *listener) 
   auto parserListener = dynamic_cast<CoriumListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitTypeName(this);
+}
+
+
+antlrcpp::Any CoriumParser::TypeNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitTypeName(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 CoriumParser::TypeNameContext* CoriumParser::typeName() {
@@ -1433,6 +1562,14 @@ void CoriumParser::BuiltinTypeContext::exitRule(tree::ParseTreeListener *listene
     parserListener->exitBuiltinType(this);
 }
 
+
+antlrcpp::Any CoriumParser::BuiltinTypeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitBuiltinType(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::BuiltinTypeContext* CoriumParser::builtinType() {
   BuiltinTypeContext *_localctx = _tracker.createInstance<BuiltinTypeContext>(_ctx, getState());
   enterRule(_localctx, 32, CoriumParser::RuleBuiltinType);
@@ -1512,6 +1649,14 @@ void CoriumParser::QualifiedNameContext::exitRule(tree::ParseTreeListener *liste
     parserListener->exitQualifiedName(this);
 }
 
+
+antlrcpp::Any CoriumParser::QualifiedNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitQualifiedName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::QualifiedNameContext* CoriumParser::qualifiedName() {
   QualifiedNameContext *_localctx = _tracker.createInstance<QualifiedNameContext>(_ctx, getState());
   enterRule(_localctx, 34, CoriumParser::RuleQualifiedName);
@@ -1588,6 +1733,14 @@ void CoriumParser::ExpressionListContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<CoriumListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitExpressionList(this);
+}
+
+
+antlrcpp::Any CoriumParser::ExpressionListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitExpressionList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 CoriumParser::ExpressionListContext* CoriumParser::expressionList() {
@@ -1838,6 +1991,14 @@ void CoriumParser::ExpressionContext::exitRule(tree::ParseTreeListener *listener
   auto parserListener = dynamic_cast<CoriumListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitExpression(this);
+}
+
+
+antlrcpp::Any CoriumParser::ExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitExpression(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -2169,6 +2330,14 @@ void CoriumParser::LiteralContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitLiteral(this);
 }
 
+
+antlrcpp::Any CoriumParser::LiteralContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitLiteral(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::LiteralContext* CoriumParser::literal() {
   LiteralContext *_localctx = _tracker.createInstance<LiteralContext>(_ctx, getState());
   enterRule(_localctx, 40, CoriumParser::RuleLiteral);
@@ -2276,6 +2445,14 @@ void CoriumParser::IntLiteralContext::exitRule(tree::ParseTreeListener *listener
     parserListener->exitIntLiteral(this);
 }
 
+
+antlrcpp::Any CoriumParser::IntLiteralContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitIntLiteral(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 CoriumParser::IntLiteralContext* CoriumParser::intLiteral() {
   IntLiteralContext *_localctx = _tracker.createInstance<IntLiteralContext>(_ctx, getState());
   enterRule(_localctx, 42, CoriumParser::RuleIntLiteral);
@@ -2343,6 +2520,14 @@ void CoriumParser::FloatLiteralContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<CoriumListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFloatLiteral(this);
+}
+
+
+antlrcpp::Any CoriumParser::FloatLiteralContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<CoriumVisitor*>(visitor))
+    return parserVisitor->visitFloatLiteral(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 CoriumParser::FloatLiteralContext* CoriumParser::floatLiteral() {
