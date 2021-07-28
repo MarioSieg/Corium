@@ -1,6 +1,6 @@
-// File: CompilationUnit.cpp
+// File: ShuntingYard.cpp
 // Author: Mario
-// Created: 27.07.2021 5:39 PM
+// Created: 28.07.2021 1:57 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,58 +205,66 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "ParseTreeVisitor.hpp"
-#include "Type.hpp"
+#include "../TestBase.hpp"
 
-namespace Corium
+enum Operator
 {
-	auto ParseTreeVisitor::visitCompilationUnit(CoriumParser::CompilationUnitContext* ctx) -> antlrcpp::Any
-	{
-		return visitChildren(ctx);
-	}
+	Add,
+	Sub,
+	Mul,
+	Div
+};
 
-	auto ParseTreeVisitor::visitModuleDeclaration(CoriumParser::ModuleDeclarationContext* ctx) -> antlrcpp::Any
-	{
-		return visitChildren(ctx);
-	}
+using Number = int;
 
-	auto ParseTreeVisitor::visitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext* ctx) -> antlrcpp::Any
-	{
-		return visitChildren(ctx);
-	}
+TEST(ShuntingYardEvaluator, SimpleInfix)
+{
+	ShuntingYardEvaluator<Number, Operator> evaluator { };
+	evaluator.Push(3);
+	evaluator.Push(Add);
+	evaluator.Push(10);
 
-	auto ParseTreeVisitor::visitExpr(CoriumParser::ExprContext* ctx) -> antlrcpp::Any
-	{
-		return visitChildren(ctx);
-	}
+	ASSERT_EQ(std::size(evaluator.OutputQueue), 2);
+	ASSERT_EQ(std::size(evaluator.OperatorStack), 1);
 
-	auto ParseTreeVisitor::visitTypeClassName(CoriumParser::TypeClassNameContext* ctx) -> antlrcpp::Any
-	{
-		return visitChildren(ctx);
-	}
+	evaluator.Complete();
 
-	auto ParseTreeVisitor::visitBuiltinType(CoriumParser::BuiltinTypeContext* ctx) -> antlrcpp::Any
-	{
-		return visitChildren(ctx);
-	}
+	ASSERT_TRUE(std::empty(evaluator.OperatorStack));
+	ASSERT_EQ(std::size(evaluator.OutputQueue), 3);
 
-	auto ParseTreeVisitor::visitQualifiedName(CoriumParser::QualifiedNameContext* ctx) -> antlrcpp::Any
-	{
-		return visitChildren(ctx);
-	}
+	ASSERT_TRUE(std::holds_alternative<Number>(evaluator[0]));
+	ASSERT_TRUE(std::holds_alternative<Number>(evaluator[1]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(evaluator[2]));
+	ASSERT_EQ(std::get<Number>(evaluator[0]), 3);
+	ASSERT_EQ(std::get<Number>(evaluator[1]), 10);
+	ASSERT_EQ(std::get<Operator>(evaluator[2]), Operator::Add);
+}
 
-	auto ParseTreeVisitor::visitLiteral(CoriumParser::LiteralContext* ctx) -> antlrcpp::Any
-	{
-		return visitChildren(ctx);
-	}
+TEST(ShuntingYardEvaluator, ComplexInfix)
+{
+	ShuntingYardEvaluator<Number, Operator> evaluator { };
+	evaluator.Push(3);
+	evaluator.Push(Add);
+	evaluator.Push(10);
+	evaluator.Push(Mul);
+	evaluator.Push(8);
 
-	auto ParseTreeVisitor::visitIntLiteral(CoriumParser::IntLiteralContext* ctx) -> antlrcpp::Any
-	{
-		return visitChildren(ctx);
-	}
+	ASSERT_EQ(std::size(evaluator.OutputQueue), 3);
+	ASSERT_EQ(std::size(evaluator.OperatorStack), 2);
 
-	auto ParseTreeVisitor::visitFloatLiteral(CoriumParser::FloatLiteralContext* ctx) -> antlrcpp::Any
-	{
-		return visitChildren(ctx);
-	}
+	evaluator.Complete();
+
+	ASSERT_TRUE(std::empty(evaluator.OperatorStack));
+	ASSERT_EQ(std::size(evaluator.OutputQueue), 5);
+
+	ASSERT_TRUE(std::holds_alternative<Number>(evaluator[0]));
+	ASSERT_TRUE(std::holds_alternative<Number>(evaluator[1]));
+	ASSERT_TRUE(std::holds_alternative<Number>(evaluator[2]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(evaluator[3]));
+	ASSERT_TRUE(std::holds_alternative<Operator>(evaluator[4]));
+	ASSERT_EQ(std::get<Number>(evaluator[0]), 3);
+	ASSERT_EQ(std::get<Number>(evaluator[1]), 10);
+	ASSERT_EQ(std::get<Number>(evaluator[2]), 8);
+	ASSERT_EQ(std::get<Operator>(evaluator[3]), Operator::Mul);
+	ASSERT_EQ(std::get<Operator>(evaluator[4]), Operator::Add);
 }

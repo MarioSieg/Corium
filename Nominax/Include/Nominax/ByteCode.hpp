@@ -3383,16 +3383,153 @@ namespace Nominax::ByteCode
 	};
 
 	/// <summary>
+	/// Implements the shunting yard algorithm which can be used to parse an infix expression
+	/// to RPN (Reverse Polish Notation) or an AST (Abstract Syntax Tree).
+	/// </summary>
+	template <typename Scalar, typename Operator>
+	struct ShuntingYardEvaluator final
+	{
+		/// <summary>
+		/// Generic gate.
+		/// </summary>
+		using InfixGate = std::variant<Scalar, Operator>;
+
+		/// <summary>
+		/// Expression output queue.
+		/// </summary>
+		std::vector<InfixGate> OutputQueue{};
+
+		/// <summary>
+		/// Operator stack.
+		/// </summary>
+		std::stack<InfixGate> OperatorStack{};
+
+		/// <summary>
+		/// Evaluates an infix expression.
+		/// </summary>
+		/// <param name="chain"></param>
+		/// <returns></returns>
+		auto EvaluateExpressionChain(std::span<InfixGate> chain) -> void;
+
+		/// <summary>
+		/// Pushes a new infix gate.
+		/// A scalar is pushed into the output queue,
+		/// and operator into the operator stack.
+		/// </summary>
+		/// <param name="infixGate"></param>
+		/// <returns></returns>
+		auto Push(const InfixGate& infixGate) -> void;
+
+		/// <summary>
+		/// Pushes a scalar into the output queue.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto DirectPush(Scalar&& value) -> void;
+
+		/// <summary>
+		/// Pushes an operator into the operator stack.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto DirectPush(Operator&& value) -> void;
+
+		/// <summary>
+		/// Pops off all operators from the operator stack
+		/// and pushes them into the output queue.
+		/// Inside the output queue a RPN is generated.
+		/// </summary>
+		/// <returns></returns>
+		auto Complete() -> std::vector<InfixGate>&;
+
+		/// <summary>
+		/// Clears the operand stack and the output queue.
+		/// </summary>
+		/// <returns></returns>
+		auto Reset() -> void;
+
+		/// <summary>
+		/// Subscript output queue.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		auto operator [](U64 idx) const -> const InfixGate&;
+	};
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::EvaluateExpressionChain(const std::span<InfixGate> chain) -> void
+	{
+		for(const auto& infixGate : chain)
+		{
+			this->Push(infixGate);
+		}
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::Push(const InfixGate& infixGate) -> void
+	{
+		if (std::holds_alternative<Scalar>(infixGate))
+		{
+			this->OutputQueue.emplace_back(infixGate);
+		}
+		else
+		{
+			this->OperatorStack.push(infixGate);
+		}
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::DirectPush(Scalar&& value) -> void
+	{
+		this->OutputQueue.push(InfixGate{ value });
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::DirectPush(Operator&& value) -> void
+	{
+		this->OperatorStack.push(InfixGate{value});
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::Complete() -> std::vector<InfixGate>&
+	{
+		while (!std::empty(OperatorStack))
+		{
+			this->OutputQueue.emplace_back(this->OperatorStack.top());
+			this->OperatorStack.pop();
+		}
+		return this->OutputQueue;
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::Reset() -> void
+	{
+		{
+			std::queue<InfixGate> empty{};
+			std::swap(this->OutputQueue, empty);
+		}
+		{
+			std::stack<InfixGate> empty{};
+			std::swap(this->OperatorStack, empty);
+		}
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::operator[](const U64 idx) const -> const InfixGate&
+	{
+		return this->OutputQueue[idx];
+	}
+
+	/// <summary>
 	/// Wrapper around a Stream which provides
 	/// simple byte code generation methods for function local execution code.
 	/// </summary>
-	class LocalCodeGenerationLayer final
+	struct LocalCodeGenerationLayer final
 	{
-	public:
 		/// <summary>
-		/// Enable code generation optimizations.
+		/// Enable peephole code generation optimizations.
 		/// </summary>
-		bool EnableOptimizations {NOX_RELEASE};
+		bool EnablePeepholeOptimizations {NOX_RELEASE};
 
 		/// <summary>
 		/// The target output stream.

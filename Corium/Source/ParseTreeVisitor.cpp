@@ -212,8 +212,6 @@ namespace Corium
 {
 	auto ParseTreeVisitor::visitCompilationUnit(CoriumParser::CompilationUnitContext* ctx) -> antlrcpp::Any
 	{
-		this->ModuleName = ctx->moduleDeclaration()->qualifiedName()->getText();
-		Print("Module: {}\n", this->ModuleName);
 		return visitChildren(ctx);
 	}
 
@@ -229,10 +227,6 @@ namespace Corium
 
 	auto ParseTreeVisitor::visitExpr(CoriumParser::ExprContext* ctx) -> antlrcpp::Any
 	{
-		if (ctx->value)
-		{
-			this->CodeGenerator.EmitPush(ParseInt(ctx->value->getText()));
-		}
 		return visitChildren(ctx);
 	}
 

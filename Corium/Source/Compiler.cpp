@@ -235,7 +235,6 @@ namespace Corium
 
 		ParseTreeVisitor visitor { };
 		visitor.visitCompilationUnit(compilationUnit);
-		visitor.Target.DumpByteCode();
 
 		return true;
 	}
@@ -278,8 +277,7 @@ namespace Corium
 			++compiledFiles;
 		}
 
-		if (compiledFiles)
-		[[likely]]
+		if (compiledFiles) [[likely]]
 		{
 			Print(LogLevel::Success, "Compiled {} file{} in {:.03}\n", compiledFiles, compiledFiles > 1 ? "s" : "", clock.ElapsedSecsF64());
 		}

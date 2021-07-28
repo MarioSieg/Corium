@@ -1261,11 +1261,11 @@ namespace Nominax::ByteCode
 
 	auto LocalCodeGenerationLayer::EmitPush(const I64 value) -> LocalCodeGenerationLayer&
 	{
-		if (this->EnableOptimizations && value == 0)
+		if (this->EnablePeepholeOptimizations && value == 0)
 		{
 			this->Emitter << Instruction::PushZ;
 		}
-		else if(this->EnableOptimizations && value == 1)
+		else if(this->EnablePeepholeOptimizations && value == 1)
 		{
 			this->Emitter << Instruction::IPushO;
 		}
@@ -1278,11 +1278,11 @@ namespace Nominax::ByteCode
 
 	auto LocalCodeGenerationLayer::EmitPush(const F64 value) -> LocalCodeGenerationLayer&
 	{
-		if (this->EnableOptimizations && value == 0.0)
+		if (this->EnablePeepholeOptimizations && value == 0.0)
 		{
 			this->Emitter << Instruction::PushZ;
 		}
-		else if (this->EnableOptimizations && value == 1.0)
+		else if (this->EnablePeepholeOptimizations && value == 1.0)
 		{
 			this->Emitter << Instruction::FPushO;
 		}
@@ -1295,7 +1295,7 @@ namespace Nominax::ByteCode
 
 	auto LocalCodeGenerationLayer::EmitPop(const U16 popCount) -> LocalCodeGenerationLayer&
 	{
-		if (this->EnableOptimizations)
+		if (this->EnablePeepholeOptimizations)
 		{
 			switch (popCount)
 			{
