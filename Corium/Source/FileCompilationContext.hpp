@@ -1,6 +1,6 @@
-// File: ParseTreeVisitor.hpp
+// File: FileCompilationContext.hpp
 // Author: Mario
-// Created: 27.07.2021 5:39 PM
+// Created: 28.07.2021 2:39 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -208,29 +208,75 @@
 #pragma once
 
 #include "Base.hpp"
+#include "ParseTreeVisitor.hpp"
+#include "Operator.hpp"
 
 namespace Corium
 {
-	class FileCompilationContext;
-
-	class ParseTreeVisitor : CoriumBaseVisitor
+	class FileCompilationContext final : ParseTreeVisitor
 	{
-		FileCompilationContext& Target_;
+		std::filesystem::path                 FilePath_;
+		std::ifstream                         FileStream_;
+		antlr4::ANTLRInputStream              InputStream_;
+		CoriumLexer                           Lexer_;
+		antlr4::CommonTokenStream             TokenStream_;
+		CoriumParser                          Parser_;
+		CoriumParser::CompilationUnitContext& CompilationUnit_;
 
-		virtual auto visitCompilationUnit(CoriumParser::CompilationUnitContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitModuleDeclaration(CoriumParser::ModuleDeclarationContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitExpr(CoriumParser::ExprContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitTypeClassName(CoriumParser::TypeClassNameContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitBuiltinType(CoriumParser::BuiltinTypeContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitQualifiedName(CoriumParser::QualifiedNameContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitLiteral(CoriumParser::LiteralContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitIntLiteral(CoriumParser::IntLiteralContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitFloatLiteral(CoriumParser::FloatLiteralContext* ctx) -> antlrcpp::Any override;
+	public:
+		explicit FileCompilationContext(std::filesystem::path&& file);
 
-	protected:
-		explicit ParseTreeVisitor(FileCompilationContext& target);
+		FileCompilationContext(const FileCompilationContext& other)                        = delete;
+		FileCompilationContext(FileCompilationContext&& other)                             = delete;
+		auto    operator =(const FileCompilationContext& other) -> FileCompilationContext& = delete;
+		auto    operator =(FileCompilationContext&& other) -> FileCompilationContext&      = delete;
+		virtual ~FileCompilationContext() override                                         = default;
 
-		auto BeginVisitation() -> void;
+		auto Compile() -> void;
+		auto GetFilePath() const -> const std::filesystem::path&;
+		auto GetFileStream() const -> const std::ifstream&;
+		auto GetInputStream() const -> const antlr4::ANTLRInputStream&;
+		auto GetLexerInstance() const -> const CoriumLexer&;
+		auto GetTokenStream() const -> const antlr4::CommonTokenStream&;
+		auto GetParserInstance() const -> const CoriumParser&;
+		auto GetCompilationUnitContext() const -> const CoriumParser::CompilationUnitContext&;
+
+		auto DispatchOperator(Operator op) const -> void;
+		auto DispatchImmediateValue(I64 value) const -> void;
 	};
+
+	inline auto FileCompilationContext::GetFilePath() const -> const std::filesystem::path&
+	{
+		return this->FilePath_;
+	}
+
+	inline auto FileCompilationContext::GetFileStream() const -> const std::ifstream&
+	{
+		return this->FileStream_;
+	}
+
+	inline auto FileCompilationContext::GetInputStream() const -> const antlr4::ANTLRInputStream&
+	{
+		return this->InputStream_;
+	}
+
+	inline auto FileCompilationContext::GetLexerInstance() const -> const CoriumLexer&
+	{
+		return this->Lexer_;
+	}
+
+	inline auto FileCompilationContext::GetTokenStream() const -> const antlr4::CommonTokenStream&
+	{
+		return this->TokenStream_;
+	}
+
+	inline auto FileCompilationContext::GetParserInstance() const -> const CoriumParser&
+	{
+		return this->Parser_;
+	}
+
+	inline auto FileCompilationContext::GetCompilationUnitContext() const -> const CoriumParser::CompilationUnitContext&
+	{
+		return this->CompilationUnit_;
+	}
 }

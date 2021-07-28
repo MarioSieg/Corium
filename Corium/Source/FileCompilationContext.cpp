@@ -1,6 +1,6 @@
-// File: ParseTreeVisitor.hpp
+// File: FileCompilationContext.cpp
 // Author: Mario
-// Created: 27.07.2021 5:39 PM
+// Created: 28.07.2021 2:39 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,32 +205,31 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include "Base.hpp"
+#include "FileCompilationContext.hpp"
 
 namespace Corium
 {
-	class FileCompilationContext;
+	FileCompilationContext::FileCompilationContext(std::filesystem::path&& file) : ParseTreeVisitor {*this},
+	                                                                               FilePath_ {std::move(file)},
+	                                                                               FileStream_ {this->FilePath_},
+	                                                                               InputStream_ {this->FileStream_},
+	                                                                               Lexer_ {&this->InputStream_},
+	                                                                               TokenStream_ {&this->Lexer_},
+	                                                                               Parser_ {&this->TokenStream_},
+	                                                                               CompilationUnit_ {*this->Parser_.compilationUnit()} { }
 
-	class ParseTreeVisitor : CoriumBaseVisitor
+	auto FileCompilationContext::Compile() -> void
 	{
-		FileCompilationContext& Target_;
+		BeginVisitation();
+	}
 
-		virtual auto visitCompilationUnit(CoriumParser::CompilationUnitContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitModuleDeclaration(CoriumParser::ModuleDeclarationContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitExpr(CoriumParser::ExprContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitTypeClassName(CoriumParser::TypeClassNameContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitBuiltinType(CoriumParser::BuiltinTypeContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitQualifiedName(CoriumParser::QualifiedNameContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitLiteral(CoriumParser::LiteralContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitIntLiteral(CoriumParser::IntLiteralContext* ctx) -> antlrcpp::Any override;
-		virtual auto visitFloatLiteral(CoriumParser::FloatLiteralContext* ctx) -> antlrcpp::Any override;
+	auto FileCompilationContext::DispatchOperator(const Operator op) const -> void
+	{
+		Print("OP: {}\n", static_cast<U64>(op));
+	}
 
-	protected:
-		explicit ParseTreeVisitor(FileCompilationContext& target);
-
-		auto BeginVisitation() -> void;
-	};
+	auto FileCompilationContext::DispatchImmediateValue(const I64 value) const -> void
+	{
+		Print("IMM: {}\n", value);
+	}
 }

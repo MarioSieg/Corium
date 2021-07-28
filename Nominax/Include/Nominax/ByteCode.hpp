@@ -3376,12 +3376,6 @@ namespace Nominax::ByteCode
 	[[nodiscard]]
 	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }, U32* outIndex = nullptr) -> ValidationResultCode;
 
-	enum class PrimitiveType : U8
-	{
-		Int,
-		Float
-	};
-
 	/// <summary>
 	/// Implements the shunting yard algorithm which can be used to parse an infix expression
 	/// to RPN (Reverse Polish Notation) or an AST (Abstract Syntax Tree).
@@ -3397,12 +3391,12 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Expression output queue.
 		/// </summary>
-		std::vector<InfixGate> OutputQueue{};
+		std::vector<InfixGate> OutputQueue { };
 
 		/// <summary>
 		/// Operator stack.
 		/// </summary>
-		std::stack<InfixGate> OperatorStack{};
+		std::stack<InfixGate> OperatorStack { };
 
 		/// <summary>
 		/// Evaluates an infix expression.
@@ -3459,7 +3453,7 @@ namespace Nominax::ByteCode
 	template <typename Scalar, typename Operator>
 	inline auto ShuntingYardEvaluator<Scalar, Operator>::EvaluateExpressionChain(const std::span<InfixGate> chain) -> void
 	{
-		for(const auto& infixGate : chain)
+		for (const auto& infixGate : chain)
 		{
 			this->Push(infixGate);
 		}
@@ -3481,13 +3475,13 @@ namespace Nominax::ByteCode
 	template <typename Scalar, typename Operator>
 	inline auto ShuntingYardEvaluator<Scalar, Operator>::DirectPush(Scalar&& value) -> void
 	{
-		this->OutputQueue.push(InfixGate{ value });
+		this->OutputQueue.push(InfixGate {value});
 	}
 
 	template <typename Scalar, typename Operator>
 	inline auto ShuntingYardEvaluator<Scalar, Operator>::DirectPush(Operator&& value) -> void
 	{
-		this->OperatorStack.push(InfixGate{value});
+		this->OperatorStack.push(InfixGate {value});
 	}
 
 	template <typename Scalar, typename Operator>
@@ -3505,11 +3499,11 @@ namespace Nominax::ByteCode
 	inline auto ShuntingYardEvaluator<Scalar, Operator>::Reset() -> void
 	{
 		{
-			std::queue<InfixGate> empty{};
+			std::queue<InfixGate> empty { };
 			std::swap(this->OutputQueue, empty);
 		}
 		{
-			std::stack<InfixGate> empty{};
+			std::stack<InfixGate> empty { };
 			std::swap(this->OperatorStack, empty);
 		}
 	}

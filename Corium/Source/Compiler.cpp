@@ -206,36 +206,14 @@
 //    limitations under the License.
 
 #include "Compiler.hpp"
-#include "ParseTreeVisitor.hpp"
+#include "FileCompilationContext.hpp"
 
 namespace Corium
 {
-	auto Compiler::CompileFile(const std::filesystem::path& file) const -> bool try
+	auto Compiler::CompileFile(std::filesystem::path&& file) const -> bool try
 	{
-		std::ifstream stream {file};
-		if (!stream)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		antlr4::ANTLRInputStream  input {stream};
-		CoriumLexer               lexer {&input};
-		antlr4::CommonTokenStream tokens {&lexer};
-		tokens.fill();
-		CoriumParser parser {&tokens};
-		parser.setBuildParseTree(true);
-		auto* compilationUnit {parser.compilationUnit()};
-
-		if (const auto errors {parser.getNumberOfSyntaxErrors()}; errors)
-		{
-			Print(LogLevel::Error, "{} syntax errors found!\n", errors);
-			return false;
-		}
-
-		ParseTreeVisitor visitor { };
-		visitor.visitCompilationUnit(compilationUnit);
-
+		FileCompilationContext context {std::move(file)};
+		context.Compile();
 		return true;
 	}
 	catch (const std::exception& ex)
@@ -262,14 +240,14 @@ namespace Corium
 		U32             compiledFiles { };
 		for (const auto& file : std::filesystem::recursive_directory_iterator {dir})
 		{
-			const auto& path {file.path()};
+			auto path {file.path()};
 			if (!path.has_filename() || !path.has_extension() || path.extension() != FILE_EXTENSION)
 			{
 				[[unlikely]]
 					continue;
 			}
 			Print(LogLevel::Success, "Compiling: {}\n", path.filename().string());
-			if (!this->CompileFile(path))
+			if (!this->CompileFile(std::move(path)))
 			{
 				[[unlikely]]
 					return false;
@@ -277,7 +255,8 @@ namespace Corium
 			++compiledFiles;
 		}
 
-		if (compiledFiles) [[likely]]
+		if (compiledFiles)
+		[[likely]]
 		{
 			Print(LogLevel::Success, "Compiled {} file{} in {:.03}\n", compiledFiles, compiledFiles > 1 ? "s" : "", clock.ElapsedSecsF64());
 		}

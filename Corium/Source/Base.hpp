@@ -209,7 +209,7 @@
 
 #include <Nominax/Nominax.hpp>
 
-using namespace Prelude;
+using namespace Nominax::Prelude;
 
 #include "../Parser/CoriumParser.h"
 #include "../Parser/CoriumLexer.h"

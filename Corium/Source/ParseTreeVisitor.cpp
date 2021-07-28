@@ -206,6 +206,8 @@
 //    limitations under the License.
 
 #include "ParseTreeVisitor.hpp"
+
+#include "FileCompilationContext.hpp"
 #include "Type.hpp"
 
 namespace Corium
@@ -227,6 +229,38 @@ namespace Corium
 
 	auto ParseTreeVisitor::visitExpr(CoriumParser::ExprContext* ctx) -> antlrcpp::Any
 	{
+		// parse operator:
+		if (ctx->op)
+		{
+			switch (const char op {ctx->op->getText()[0]}; op)
+			{
+				case '+':
+					this->Target_.DispatchOperator(Operator::Add);
+					break;
+
+				case '-':
+					this->Target_.DispatchOperator(Operator::Sub);
+					break;
+
+				case '*':
+					this->Target_.DispatchOperator(Operator::Mul);
+					break;
+
+				case '/':
+					this->Target_.DispatchOperator(Operator::Div);
+					break;
+
+				case '%':
+					this->Target_.DispatchOperator(Operator::Mod);
+					break;
+			}
+		}
+		else if (ctx->literal())
+		{
+			const std::string literal {ctx->literal()->getText()};
+			const I64         value {ParseInt(literal)};
+			this->Target_.DispatchImmediateValue(value);
+		}
 		return visitChildren(ctx);
 	}
 
@@ -258,5 +292,12 @@ namespace Corium
 	auto ParseTreeVisitor::visitFloatLiteral(CoriumParser::FloatLiteralContext* ctx) -> antlrcpp::Any
 	{
 		return visitChildren(ctx);
+	}
+
+	ParseTreeVisitor::ParseTreeVisitor(FileCompilationContext& target) : Target_ {target} { }
+
+	auto ParseTreeVisitor::BeginVisitation() -> void
+	{
+		this->visitCompilationUnit(&const_cast<CoriumParser::CompilationUnitContext&>(Target_.GetCompilationUnitContext()));
 	}
 }
