@@ -671,6 +671,11 @@ namespace Nominax::Core
 	}
 
 	/// <summary>
+	/// Single reactor mode.
+	/// </summary>
+	constexpr U64 MONO_REACTOR {1};
+
+	/// <summary>
 	/// Config descriptor for an environment.
 	/// </summary>
 	struct EnvironmentDescriptor final
@@ -845,7 +850,11 @@ namespace Nominax::Core
 	/// <summary>
 	/// Results from a VM execution.
 	/// </summary>
-	using ExecutionResult = std::pair<ReactorShutdownReason, const ReactorState&>;
+	struct ExecutionResult final
+	{
+		const ReactorShutdownReason ShutdownReason;
+		const ReactorState&         ReactorResultState;
+	};
 
 	/// <summary>
 	/// Represents the whole runtime environment.
@@ -1007,7 +1016,7 @@ namespace Nominax::Core
 		/// <param name="image"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator()(ByteCode::Image& image) -> ExecutionResult;
+		auto operator()(const ByteCode::Image& image) -> ExecutionResult;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -1015,7 +1024,7 @@ namespace Nominax::Core
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator()(ByteCode::Stream&& stream) -> ExecutionResult;
+		auto operator()(const ByteCode::Stream&& stream) -> ExecutionResult;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -1110,12 +1119,12 @@ namespace Nominax::Core
 		auto GetOptimizationHints() const -> ByteCode::OptimizationHints;
 	};
 
-	inline auto Environment::operator()(ByteCode::Image& image) -> ExecutionResult
+	inline auto Environment::operator()(const ByteCode::Image& image) -> ExecutionResult
 	{
 		return this->Execute(image);
 	}
 
-	inline auto Environment::operator()(ByteCode::Stream&& stream) -> ExecutionResult
+	inline auto Environment::operator()(const ByteCode::Stream&& stream) -> ExecutionResult
 	{
 		return this->Execute(std::move(stream));
 	}
@@ -1603,8 +1612,9 @@ namespace Nominax::Core
 	/// <returns></returns>
 	extern auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor& input, const Foundation::CpuFeatureDetector& target = { },
-		const void****                  outJumpTable                                        = nullptr
+		const VerboseReactorDescriptor&       input,
+		const Foundation::CpuFeatureDetector& target       = { },
+		const void****                        outJumpTable = nullptr
 	) -> std::pair<ReactorShutdownReason, ReactorState>;
 
 	/// <summary>

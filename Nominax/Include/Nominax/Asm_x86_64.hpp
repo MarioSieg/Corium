@@ -1,6 +1,6 @@
 // File: Asm_x86_64.hpp
 // Author: Mario
-// Created: 06.07.2021 2:12 PM
+// Created: 26.07.2021 6:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -2257,9 +2257,9 @@ namespace Nominax::Assembler::X86_64
 
 	using InstructionVariationPool = std::pmr::vector<InstructionVariation>;
 
-	extern auto GetInstructionNameTable() -> const std::array<const std::string_view, static_cast<U64>(Instruction::Count_)>&;
-	extern auto GetInstructionInfoTable() -> const std::array<const std::string_view, static_cast<U64>(Instruction::Count_)>&;
-	extern auto GetVariationSizeTable() -> const std::array<U8, static_cast<U64>(Instruction::Count_)>&;
+	extern auto GetInstructionNameTable() -> const std::array<const std::string_view, ToUnderlying(Instruction::Count_)>&;
+	extern auto GetInstructionInfoTable() -> const std::array<const std::string_view, ToUnderlying(Instruction::Count_)>&;
+	extern auto GetVariationSizeTable() -> const std::array<U8, ToUnderlying(Instruction::Count_)>&;
 	extern auto GetVariationTable(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
 
 	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_0(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;

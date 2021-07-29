@@ -210,30 +210,24 @@
 
 namespace Corium
 {
-	auto Compiler::CompileFile(std::filesystem::path&& file) const -> bool try
+	auto Compiler::CompileFile(std::filesystem::path&& file, Stream& output) const -> void
 	{
 		FileCompilationContext context {std::move(file)};
 		context.Compile();
-		return true;
-	}
-	catch (const std::exception& ex)
-	{
-		Print(LogLevel::Error, "{}\n", ex.what());
-		return false;
+		output = std::move(context.GetByteCodeOutputStream());
 	}
 
-	auto Compiler::CompileAllInCurrentDir() const -> bool
+	auto Compiler::CompileAllInCurrentDir() const -> void
 	{
-		return this->CompileAllInDir(std::filesystem::current_path());
+		this->CompileAllInDir(std::filesystem::current_path());
 	}
 
-	auto Compiler::CompileAllInDir(const std::filesystem::path& dir) const -> bool
+	auto Compiler::CompileAllInDir(const std::filesystem::path& dir) const -> void
 	{
 		if (!exists(dir))
-		[[unlikely]]
 		{
-			Print(LogLevel::Error, "No Corium ({}) files found in dir: {}\n", FILE_EXTENSION, dir.string());
-			return false;
+			[[unlikely]]
+				throw CompilationException(Format("No Corium ({}) files found in dir: {}\n", FILE_EXTENSION, dir.string()));
 		}
 
 		const Stopwatch clock { };
@@ -247,24 +241,19 @@ namespace Corium
 					continue;
 			}
 			Print(LogLevel::Success, "Compiling: {}\n", path.filename().string());
-			if (!this->CompileFile(std::move(path)))
-			{
-				[[unlikely]]
-					return false;
-			}
+			Stream output { };
+			this->CompileFile(std::move(path), output);
 			++compiledFiles;
 		}
 
 		if (compiledFiles)
-		[[likely]]
 		{
-			Print(LogLevel::Success, "Compiled {} file{} in {:.03}\n", compiledFiles, compiledFiles > 1 ? "s" : "", clock.ElapsedSecsF64());
+			[[likely]]
+				Print(LogLevel::Success, "Compiled {} file{} in {:.03}\n", compiledFiles, compiledFiles > 1 ? "s" : "", clock.ElapsedSecsF64());
 		}
 		else
 		{
 			Print(LogLevel::Error, "No Corium ({}) files found in dir: {}\n", FILE_EXTENSION, dir.string());
 		}
-
-		return true;
 	}
 }

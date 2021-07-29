@@ -607,13 +607,8 @@ namespace Nominax::Core
 		const void****                  outJumpTable
 	) -> ReactorShutdownReason
 	{
-		static constexpr std::array
-			<
-				const void*NOX_RESTRICT const,
-				static_cast<std::underlying_type_t<Instruction>>(Instruction::Count_)
-			>
-			JUMP_TABLE
-			{
+		static constexpr std::array<const void* NOX_RESTRICT const, ToUnderlying(Instruction::Count_)> JUMP_TABLE
+		{
 			&&__int__,
 			&&__intrin__,
 			&&__cintrin__,
@@ -687,7 +682,7 @@ namespace Nominax::Core
 			&&__matsub__,
 			&&__matmul__,
 			&&__matdiv__
-			};
+		};
 
 		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
 

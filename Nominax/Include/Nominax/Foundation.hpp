@@ -740,6 +740,18 @@ namespace Nominax
 		return Gigabytes2Bytes<decltype(value)>(value);
 	}
 
+	/// <summary>
+	/// Converts the enum into the underlying type.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_enum_v<T>
+	constexpr auto ToUnderlying(const T x) -> auto
+	{
+		return static_cast<std::underlying_type_t<std::decay_t<T>>>(x);
+	}
+
 	namespace Foundation
 	{
 		/// <summary>
@@ -2692,22 +2704,22 @@ namespace Nominax
 		/// </summary>
 		enum class TextColor : std::underlying_type_t<fmt::terminal_color>
 		{
-			Black = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::black),
-			Red = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::red),
-			Green = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::green),
-			Yellow = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::yellow),
-			Blue = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::blue),
-			Magenta = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::magenta),
-			Cyan = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::cyan),
-			White = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::white),
-			BrightBlack = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_black),
-			BrightRed = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_red),
-			BrightGreen = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_green),
-			BrightYellow = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_yellow),
-			BrightBlue = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_blue),
-			BrightMagenta = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_magenta),
-			BrightCyan = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_cyan),
-			BrightWhite = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_white)
+			Black = ToUnderlying(fmt::terminal_color::black),
+			Red = ToUnderlying(fmt::terminal_color::red),
+			Green = ToUnderlying(fmt::terminal_color::green),
+			Yellow = ToUnderlying(fmt::terminal_color::yellow),
+			Blue = ToUnderlying(fmt::terminal_color::blue),
+			Magenta = ToUnderlying(fmt::terminal_color::magenta),
+			Cyan = ToUnderlying(fmt::terminal_color::cyan),
+			White = ToUnderlying(fmt::terminal_color::white),
+			BrightBlack = ToUnderlying(fmt::terminal_color::bright_black),
+			BrightRed = ToUnderlying(fmt::terminal_color::bright_red),
+			BrightGreen = ToUnderlying(fmt::terminal_color::bright_green),
+			BrightYellow = ToUnderlying(fmt::terminal_color::bright_yellow),
+			BrightBlue = ToUnderlying(fmt::terminal_color::bright_blue),
+			BrightMagenta = ToUnderlying(fmt::terminal_color::bright_magenta),
+			BrightCyan = ToUnderlying(fmt::terminal_color::bright_cyan),
+			BrightWhite = ToUnderlying(fmt::terminal_color::bright_white)
 		};
 
 		/// <summary>
@@ -7911,7 +7923,7 @@ namespace Nominax
 		/// <summary>
 		/// Contains all CPU feature names.
 		/// </summary>
-		constexpr std::array<std::string_view, static_cast<U64>(CpuFeatureBits::Count_)> CPU_FEATURE_BIT_NAMES
+		constexpr std::array<std::string_view, ToUnderlying(CpuFeatureBits::Count_)> CPU_FEATURE_BIT_NAMES
 		{
 			#if NOX_ARCH_X86_64
 			"FPU",
@@ -8146,17 +8158,17 @@ namespace Nominax
 		/// <summary>
 		/// Feature mask.
 		/// </summary>
-		using CpuFeatureMask = std::array<bool, static_cast<U64>(CpuFeatureBits::Count_)>;
+		using CpuFeatureMask = std::array<bool, ToUnderlying(CpuFeatureBits::Count_)>;
 
 		/// <summary>
 		/// Bitmask storage type.
 		/// </summary>
-		using CpuFeatureMaskBitStorage = std::bitset<static_cast<U64>(CpuFeatureBits::Count_)>;
+		using CpuFeatureMaskBitStorage = std::bitset<ToUnderlying(CpuFeatureBits::Count_)>;
 
 		/// <summary>
 		/// Feature mask.
 		/// </summary>
-		using CpuFeatureMaskBuffer = std::array<U8, static_cast<U64>(CpuFeatureBits::Count_) / CHAR_BIT>;
+		using CpuFeatureMaskBuffer = std::array<U8, ToUnderlying(CpuFeatureBits::Count_) / CHAR_BIT>;
 
 		/// <summary>
 		/// Detects architecture dependent cpu features.

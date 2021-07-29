@@ -222,6 +222,9 @@ namespace Corium
 		antlr4::CommonTokenStream             TokenStream_;
 		CoriumParser                          Parser_;
 		CoriumParser::CompilationUnitContext& CompilationUnit_;
+		ShuntingYardEvaluator<I64, Operator>  InfixToRpnConverter_;
+		Stream                                Output_;
+		LocalCodeGenerationLayer              CodeGenerator_;
 
 	public:
 		explicit FileCompilationContext(std::filesystem::path&& file);
@@ -240,9 +243,12 @@ namespace Corium
 		auto GetTokenStream() const -> const antlr4::CommonTokenStream&;
 		auto GetParserInstance() const -> const CoriumParser&;
 		auto GetCompilationUnitContext() const -> const CoriumParser::CompilationUnitContext&;
+		auto GetInfixToRpnConverter() const -> const ShuntingYardEvaluator<I64, Operator>&;
+		auto GetByteCodeOutputStream() -> Stream&;
+		auto GetLocalCodeGenerationLayer() const -> const LocalCodeGenerationLayer&;
 
-		auto DispatchOperator(Operator op) const -> void;
-		auto DispatchImmediateValue(I64 value) const -> void;
+		auto DispatchOperator(Operator op) -> void;
+		auto DispatchImmediateValue(I64 value) -> void;
 	};
 
 	inline auto FileCompilationContext::GetFilePath() const -> const std::filesystem::path&
@@ -278,5 +284,20 @@ namespace Corium
 	inline auto FileCompilationContext::GetCompilationUnitContext() const -> const CoriumParser::CompilationUnitContext&
 	{
 		return this->CompilationUnit_;
+	}
+
+	inline auto FileCompilationContext::GetInfixToRpnConverter() const -> const ShuntingYardEvaluator<I64, Operator>&
+	{
+		return this->InfixToRpnConverter_;
+	}
+
+	inline auto FileCompilationContext::GetByteCodeOutputStream() -> Stream&
+	{
+		return this->Output_;
+	}
+
+	inline auto FileCompilationContext::GetLocalCodeGenerationLayer() const -> const LocalCodeGenerationLayer&
+	{
+		return this->CodeGenerator_;
 	}
 }

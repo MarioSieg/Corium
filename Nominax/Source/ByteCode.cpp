@@ -934,13 +934,13 @@ namespace Nominax::ByteCode
 
 	auto Stream::DumpByteCode() const -> void
 	{
-		Print("Len: {}, Size: {:.3} kB\n", this->Size(), Bytes2Kilobytes(static_cast<F32>(this->SizeInBytes())));
+		Print("Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<F32>(this->SizeInBytes())), sizeof(Signal));
 
 		for (U64 i {0}; i < this->Size(); ++i)
 		{
 			const auto bytes {std::bit_cast<std::array<U8, sizeof(Signal)>>(this->CodeBuffer_[i])};
 			const auto isInstr {this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction};
-			Print(TextColor::Green, "&{:#018X} ", reinterpret_cast<Uip64>(&this->CodeBuffer_[i]));
+			Print(TextColor::Green, "&{:016X} ", reinterpret_cast<Uip64>(&this->CodeBuffer_[i]));
 			Print
 			(
 				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
@@ -1205,8 +1205,8 @@ namespace Nominax::ByteCode
 
 	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallID id) -> bool
 	{
-		constexpr auto max {static_cast<std::underlying_type_t<decltype(id)>>(SystemIntrinsicCallID::Count_) - 1};
-		const auto     value {static_cast<std::underlying_type_t<decltype(id)>>(id)};
+		constexpr auto max {ToUnderlying(SystemIntrinsicCallID::Count_) - 1};
+		const auto     value {ToUnderlying(id)};
 		static_assert(std::is_unsigned_v<decltype(value)>);
 		return NOX_EXPECT_VALUE(value <= max, true);
 	}
@@ -1214,7 +1214,7 @@ namespace Nominax::ByteCode
 	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicCallID id) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
-		return NOX_EXPECT_VALUE(static_cast<std::underlying_type_t<decltype(id)>>(id) < routines.size(), true);
+		return NOX_EXPECT_VALUE(ToUnderlying(id) < routines.size(), true);
 	}
 
 	auto ValidateInstructionArguments
@@ -1265,7 +1265,7 @@ namespace Nominax::ByteCode
 		{
 			this->Emitter << Instruction::PushZ;
 		}
-		else if(this->EnablePeepholeOptimizations && value == 1)
+		else if (this->EnablePeepholeOptimizations && value == 1)
 		{
 			this->Emitter << Instruction::IPushO;
 		}
@@ -1299,64 +1299,61 @@ namespace Nominax::ByteCode
 		{
 			switch (popCount)
 			{
-			case 0:
-				return *this;
+				case 0:
+					return *this;
 
-			case 1:
-				this->Emitter << Instruction::Pop;
-				return *this;
+				case 1:
+					this->Emitter << Instruction::Pop;
+					return *this;
 
-			case 2:
-				this->Emitter << Instruction::Pop2;
-				return *this;
+				case 2:
+					this->Emitter << Instruction::Pop2;
+					return *this;
 
-			case 4:
-				this->Emitter << Instruction::VecPop;
-				return *this;
+				case 4:
+					this->Emitter << Instruction::VecPop;
+					return *this;
 
-			case 16:
-				this->Emitter << Instruction::MatPop;
-				return *this;
+				case 16:
+					this->Emitter << Instruction::MatPop;
+					return *this;
 
-			default:
-				if (popCount % 2 == 0)
-				{
-					for (U8 i{ 0 }; i < popCount / 2; ++i)
+				default:
+					if (popCount % 2 == 0)
 					{
-						this->Emitter << Instruction::Pop2;
+						for (U8 i {0}; i < popCount / 2; ++i)
+						{
+							this->Emitter << Instruction::Pop2;
+						}
 					}
-				}
-				else if (popCount % 4 == 0)
-				{
-					for (U8 i{ 0 }; i < popCount / 4; ++i)
+					else if (popCount % 4 == 0)
 					{
-						this->Emitter << Instruction::VecPop;
+						for (U8 i {0}; i < popCount / 4; ++i)
+						{
+							this->Emitter << Instruction::VecPop;
+						}
 					}
-				}
-				else if (popCount % 16 == 0)
-				{
-					for (U8 i{ 0 }; i < popCount / 16; ++i)
+					else if (popCount % 16 == 0)
 					{
-						this->Emitter << Instruction::MatPop;
+						for (U8 i {0}; i < popCount / 16; ++i)
+						{
+							this->Emitter << Instruction::MatPop;
+						}
 					}
-				}
-				else
-				{
-					for (U8 i{ 0 }; i < popCount; ++i)
+					else
 					{
-						this->Emitter << Instruction::Pop;
+						for (U8 i {0}; i < popCount; ++i)
+						{
+							this->Emitter << Instruction::Pop;
+						}
 					}
-				}
-				return *this;
+					return *this;
 			}
 		}
-		else
+		for (U8 i {0}; i < popCount; ++i)
 		{
-			for (U8 i{ 0 }; i < popCount; ++i)
-			{
-				this->Emitter << Instruction::Pop;
-			}
-			return *this;
+			this->Emitter << Instruction::Pop;
 		}
+		return *this;
 	}
 }

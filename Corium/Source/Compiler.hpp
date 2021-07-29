@@ -215,8 +215,8 @@ namespace Corium
 	{
 		static constexpr std::string_view FILE_EXTENSION {".cor"};
 
-		auto CompileFile(std::filesystem::path&& file) const -> bool;
-		auto CompileAllInDir(const std::filesystem::path& dir) const -> bool;
-		auto CompileAllInCurrentDir() const -> bool;
+		auto CompileFile(std::filesystem::path&& file, Stream& output) const -> void;
+		auto CompileAllInDir(const std::filesystem::path& dir) const -> void;
+		auto CompileAllInCurrentDir() const -> void;
 	};
 }

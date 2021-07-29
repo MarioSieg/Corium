@@ -305,7 +305,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all instruction mnemonics.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::Count_)> INSTRUCTION_MNEMONICS
+	constexpr std::array<const std::string_view, ToUnderlying(Instruction::Count_)> INSTRUCTION_MNEMONICS
 	{
 		"int",
 		"intrin",
@@ -472,7 +472,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of stack pushes each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, static_cast<U64>(Instruction::Count_)> INSTRUCTION_PUSH_COUNTS
+	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_PUSH_COUNTS
 	{
 		0,
 		0,
@@ -546,7 +546,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of stack pops each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, static_cast<U64>(Instruction::Count_)> INSTRUCTION_POP_COUNTS
+	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_POP_COUNTS
 	{
 		0,
 		0,
@@ -620,7 +620,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains a short descriptions for all instructions.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::Count_)> INSTRUCTION_DESCRIPTIONS
+	constexpr std::array<const std::string_view, ToUnderlying(Instruction::Count_)> INSTRUCTION_DESCRIPTIONS
 	{
 		"interrupt reactor execution",
 		"call intrinsic system routine",
@@ -694,7 +694,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the count of required immediate arguments for each instruction.
 	/// </summary>
-	constexpr std::array<U8, static_cast<U64>(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
+	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
 	{
 		1, // int
 		1,
@@ -1497,7 +1497,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all immediate argument types for each instruction.
 	/// </summary>
-	inline const std::array<PerInstructionArgTypes, static_cast<U64>(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
+	inline const std::array<PerInstructionArgTypes, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
 		PerInstructionArgTypes {{Signal::Discriminator::I64}},                      // int
 		{{Signal::Discriminator::SystemIntrinsicCallID}},                           // intrin
@@ -1923,7 +1923,7 @@ namespace Nominax::ByteCode
 	template <const Instruction I, typename... Ts>
 	concept ValidInstruction = requires
 	{
-		requires sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[static_cast<std::underlying_type_t<decltype(I)>>(I)];
+		requires sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[ToUnderlying(I)];
 	};
 
 	/// <summary>
@@ -2691,7 +2691,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	NOX_FORCE_INLINE inline auto ComputeRelativeJumpAddress(const Signal* const base, const JumpAddress address) -> const void*
 	{
-		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
+		return base + ToUnderlying(address) - 1;
 	}
 
 	/// <summary>
@@ -3447,7 +3447,65 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
+		[[nodiscard]]
 		auto operator [](U64 idx) const -> const InfixGate&;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto begin() -> typename std::vector<InfixGate>::iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		[[nodiscard]]
+		auto end() -> typename std::vector<InfixGate>::iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto cbegin() const -> typename std::vector<InfixGate>::const_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto cend() const -> typename std::vector<InfixGate>::const_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto rbegin() -> typename std::vector<InfixGate>::reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto rend() -> typename std::vector<InfixGate>::reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto crbegin() const -> typename std::vector<InfixGate>::const_reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto crend() const -> typename std::vector<InfixGate>::const_reverse_iterator;
 	};
 
 	template <typename Scalar, typename Operator>
@@ -3512,6 +3570,158 @@ namespace Nominax::ByteCode
 	inline auto ShuntingYardEvaluator<Scalar, Operator>::operator[](const U64 idx) const -> const InfixGate&
 	{
 		return this->OutputQueue[idx];
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::begin() -> typename std::vector<InfixGate>::iterator
+	{
+		return std::begin(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::end() -> typename std::vector<InfixGate>::iterator
+	{
+		return std::end(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::cbegin() const -> typename std::vector<InfixGate>::const_iterator
+	{
+		return std::cbegin(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::cend() const -> typename std::vector<InfixGate>::const_iterator
+	{
+		return std::cend(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::rbegin() -> typename std::vector<InfixGate>::reverse_iterator
+	{
+		return std::rbegin(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::rend() -> typename std::vector<InfixGate>::reverse_iterator
+	{
+		return std::rend(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::crbegin() const -> typename std::vector<InfixGate>::const_reverse_iterator
+	{
+		return std::crbegin(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::crend() const -> typename std::vector<InfixGate>::const_reverse_iterator
+	{
+		return std::crend(this->OutputQueue);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto begin(ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::iterator
+	{
+		return obj.begin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto end(ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::iterator
+	{
+		return obj.end();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto cbegin(const ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::const_iterator
+	{
+		return obj.cbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto cend(const ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::const_iterator
+	{
+		return obj.cend();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto rbegin(ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::reverse_iterator
+	{
+		return obj.rbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto rend(ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::reverse_iterator
+	{
+		return obj.rend();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto crbegin(const ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::const_reverse_iterator
+	{
+		return obj.crbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto crend(const ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::const_reverse_iterator
+	{
+		return obj.crend();
 	}
 
 	/// <summary>

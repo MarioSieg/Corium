@@ -209,15 +209,51 @@
 
 #include <Nominax/Nominax.hpp>
 
-auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* const argv) -> int
+extern auto CompileApp(Stream& appCode) -> void;
+extern auto ExecuteApp(Stream&& appCode) -> void;
+
+auto main([[maybe_unused]] const int argc, [[maybe_unused]] const char* const* const argv) -> int try
+{
+	Stream appCode { };
+	CompileApp(appCode);
+	ExecuteApp(std::move(appCode));
+}
+catch (const std::exception& ex)
+{
+	Print(LogLevel::Error, "{}\n", ex.what());
+}
+catch (...)
+{
+	Print(LogLevel::Error, "Unknown error!");
+}
+
+
+auto CompileApp(Stream& appCode) -> void
 {
 	const Corium::Compiler compiler { };
+	compiler.CompileFile("../../../Corium/Docs/ParseTest.cor", appCode);
+}
 
-	const bool result {compiler.CompileAllInDir("../../../Corium/Docs")};
-	if (!result)
+auto ExecuteApp(Stream&& appCode) -> void
+{
+	const EnvironmentDescriptor descriptor
 	{
-		Nominax::Foundation::Print("Failed to compile Corium!\n");
-		return -1;
-	}
-	return 0;
+		.ArgC = 0,
+		.ArgV = nullptr,
+		.AppName = "Corium",
+		.ForceFallback = false,
+		.FastHostIoSync = true,
+		.BootPoolSize = 128_kB,
+		.SystemPoolSize = 512_kB,
+		.ReactorCount = MONO_REACTOR,
+		.StackSize = 8_mB,
+		.PowerPref = PowerPreference::HighPerformance
+	};
+	IAllocator* allocator {nullptr};
+	Environment environment {allocator};
+	environment.Boot(descriptor);
+	appCode.DumpByteCode();
+	const auto result {environment.Execute(std::move(appCode))};
+	Print("R={}\n", result.ReactorResultState.EvaluationResult().AsI64);
+	environment.Shutdown();
 }

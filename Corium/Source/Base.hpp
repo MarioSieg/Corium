@@ -219,5 +219,6 @@ using namespace Nominax::Prelude;
 
 namespace Corium
 {
+	using CompilationException = std::runtime_error;
 	using LiteralParseException = std::runtime_error;
 }

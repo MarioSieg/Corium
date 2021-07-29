@@ -217,6 +217,17 @@ namespace Corium
 		Sub,
 		Mul,
 		Div,
-		Mod
+		Mod,
+
+		Count_
+	};
+
+	constexpr std::array<std::string_view, ToUnderlying(Operator::Count_)> OPERATOR_LEXEMES
+	{
+		"+",
+		"-",
+		"*",
+		"/",
+		"%"
 	};
 }

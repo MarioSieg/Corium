@@ -216,20 +216,56 @@ namespace Corium
 	                                                                               Lexer_ {&this->InputStream_},
 	                                                                               TokenStream_ {&this->Lexer_},
 	                                                                               Parser_ {&this->TokenStream_},
-	                                                                               CompilationUnit_ {*this->Parser_.compilationUnit()} { }
+	                                                                               CompilationUnit_ {*this->Parser_.compilationUnit()},
+	                                                                               InfixToRpnConverter_ { },
+	                                                                               Output_ { },
+	                                                                               CodeGenerator_ {Output_} { }
 
 	auto FileCompilationContext::Compile() -> void
 	{
+		this->Output_.Prologue();
 		BeginVisitation();
+		const auto& queue {this->InfixToRpnConverter_.Complete()};
+		for (const auto& gate : queue)
+		{
+			if (const I64* const imm = std::get_if<I64>(&gate))
+			{
+				this->CodeGenerator_.EmitPush(*imm);
+			}
+			else
+			{
+				switch (*std::get_if<Operator>(&gate))
+				{
+					case Operator::Add:
+						this->CodeGenerator_.Emit(Instruction::IAdd);
+						break;
+					case Operator::Sub:
+						this->CodeGenerator_.Emit(Instruction::ISub);
+						break;
+					case Operator::Mul:
+						this->CodeGenerator_.Emit(Instruction::IMul);
+						break;
+					case Operator::Div:
+						this->CodeGenerator_.Emit(Instruction::IDiv);
+						break;
+					case Operator::Mod:
+						this->CodeGenerator_.Emit(Instruction::IMod);
+						break;
+					default: ;
+				}
+			}
+		}
+		this->Output_ << Instruction::Pop;
+		this->Output_.Epilogue();
 	}
 
-	auto FileCompilationContext::DispatchOperator(const Operator op) const -> void
+	auto FileCompilationContext::DispatchOperator(const Operator op) -> void
 	{
-		Print("OP: {}\n", static_cast<U64>(op));
+		this->InfixToRpnConverter_.Push(op);
 	}
 
-	auto FileCompilationContext::DispatchImmediateValue(const I64 value) const -> void
+	auto FileCompilationContext::DispatchImmediateValue(const I64 value) -> void
 	{
-		Print("IMM: {}\n", value);
+		this->InfixToRpnConverter_.Push(value);
 	}
 }
