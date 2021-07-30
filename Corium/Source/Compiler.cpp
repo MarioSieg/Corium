@@ -206,10 +206,133 @@
 //    limitations under the License.
 
 #include "Compiler.hpp"
-#include "FileCompilationContext.hpp"
 
 namespace Corium
 {
+	auto ParseTreeVisitor::visitCompilationUnit(CoriumParser::CompilationUnitContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitModuleDeclaration(CoriumParser::ModuleDeclarationContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitExpr(CoriumParser::ExprContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitTypeClassName(CoriumParser::TypeClassNameContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitBuiltinType(CoriumParser::BuiltinTypeContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitQualifiedName(CoriumParser::QualifiedNameContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitLiteral(CoriumParser::LiteralContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitIntLiteral(CoriumParser::IntLiteralContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	auto ParseTreeVisitor::visitFloatLiteral(CoriumParser::FloatLiteralContext* ctx) -> antlrcpp::Any
+	{
+		return visitChildren(ctx);
+	}
+
+	ParseTreeVisitor::ParseTreeVisitor(FileCompilationContext& target) : Target_ {target} { }
+
+	auto ParseTreeVisitor::BeginVisitation() -> void
+	{
+		this->visitCompilationUnit(&const_cast<CoriumParser::CompilationUnitContext&>(Target_.GetCompilationUnitContext()));
+	}
+
+	FileCompilationContext::FileCompilationContext(std::filesystem::path&& file) : ParseTreeVisitor {*this},
+	                                                                               FilePath_ {std::move(file)},
+	                                                                               FileStream_ {this->FilePath_},
+	                                                                               InputStream_ {this->FileStream_},
+	                                                                               Lexer_ {&this->InputStream_},
+	                                                                               TokenStream_ {&this->Lexer_},
+	                                                                               Parser_ {&this->TokenStream_},
+	                                                                               CompilationUnit_ {*this->Parser_.compilationUnit()},
+	                                                                               InfixToRpnConverter_ { },
+	                                                                               Output_ { },
+	                                                                               CodeGenerator_ {Output_} { }
+
+	auto FileCompilationContext::Compile() -> void
+	{
+		this->Output_.Prologue();
+		BeginVisitation();
+		for (const auto& queue {this->InfixToRpnConverter_.Complete()}; const auto& gate : queue)
+		{
+			if (const auto* const imm = std::get_if<ImmediateValue>(&gate))
+			{
+				const F64* const flt {std::get_if<F64>(imm)};
+				if (flt)
+				{
+					this->CodeGenerator_.EmitPush(*flt);
+				}
+				else
+				{
+					this->CodeGenerator_.EmitPush(*std::get_if<I64>(imm));
+				}
+			}
+			else
+			{
+				switch (*std::get_if<Operator>(&gate))
+				{
+					case Operator::Add:
+						this->CodeGenerator_.Emit(Instruction::IAdd);
+						break;
+					case Operator::Sub:
+						this->CodeGenerator_.Emit(Instruction::ISub);
+						break;
+					case Operator::Mul:
+						this->CodeGenerator_.Emit(Instruction::IMul);
+						break;
+					case Operator::Div:
+						this->CodeGenerator_.Emit(Instruction::IDiv);
+						break;
+					case Operator::Mod:
+						this->CodeGenerator_.Emit(Instruction::IMod);
+						break;
+					case Operator::Count_:
+						throw CompilationException {"Invalid operator!"};
+				}
+			}
+		}
+		this->Output_.Epilogue();
+	}
+
+	auto FileCompilationContext::DispatchOperator(const Operator op) -> void
+	{
+		this->InfixToRpnConverter_.Push(op);
+	}
+
+	auto FileCompilationContext::DispatchImmediateValue(const ImmediateValue value) -> void
+	{
+		this->InfixToRpnConverter_.Push(value);
+	}
+
 	auto Compiler::CompileFile(std::filesystem::path&& file, Stream& output) const -> void
 	{
 		FileCompilationContext context {std::move(file)};

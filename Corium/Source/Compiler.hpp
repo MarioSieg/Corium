@@ -207,10 +207,178 @@
 
 #pragma once
 
-#include "Base.hpp"
+#include <Nominax/Nominax.hpp>
+
+using namespace Nominax::Prelude;
+
+#include "../Parser/CoriumParser.h"
+#include "../Parser/CoriumLexer.h"
+#include "../Parser/CoriumVisitor.h"
+#include "../Parser/CoriumBaseVisitor.h"
+#include "antlr4-runtime.h"
 
 namespace Corium
 {
+	using CompilationException = std::runtime_error;
+	using LiteralParseException = std::runtime_error;
+
+	class FileCompilationContext;
+
+	class ParseTreeVisitor : CoriumBaseVisitor
+	{
+		FileCompilationContext& Target_;
+
+		virtual auto visitCompilationUnit(CoriumParser::CompilationUnitContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitModuleDeclaration(CoriumParser::ModuleDeclarationContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitExpr(CoriumParser::ExprContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitTypeClassName(CoriumParser::TypeClassNameContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitBuiltinType(CoriumParser::BuiltinTypeContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitQualifiedName(CoriumParser::QualifiedNameContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitLiteral(CoriumParser::LiteralContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitIntLiteral(CoriumParser::IntLiteralContext* ctx) -> antlrcpp::Any override;
+		virtual auto visitFloatLiteral(CoriumParser::FloatLiteralContext* ctx) -> antlrcpp::Any override;
+
+	protected:
+		explicit ParseTreeVisitor(FileCompilationContext& target);
+
+		auto BeginVisitation() -> void;
+	};
+
+	enum class Operator : U8
+	{
+		Add,
+		Sub,
+		Mul,
+		Div,
+		Mod,
+
+		Count_
+	};
+
+	enum class OperatorAssociativity : U8
+	{
+		LeftToRight,
+		RightToLeft
+	};
+
+	constexpr std::array<const std::string_view, ToUnderlying(Operator::Count_)> OPERATOR_LEXEME_TABLE
+	{
+		"+",
+		"-",
+		"*",
+		"/",
+		"%"
+	};
+
+	constexpr std::array<const U8, ToUnderlying(Operator::Count_)> OPERATOR_PRECEDENCE_TABLE
+	{
+		4,
+		4,
+		3,
+		3,
+		3
+	};
+
+	constexpr std::array<const OperatorAssociativity, ToUnderlying(Operator::Count_)> OPERATOR_ASSOCIATIVITY_TABLE
+	{
+		OperatorAssociativity::LeftToRight,
+		OperatorAssociativity::LeftToRight,
+		OperatorAssociativity::LeftToRight,
+		OperatorAssociativity::LeftToRight,
+		OperatorAssociativity::LeftToRight,
+	};
+
+	using ImmediateValue = std::variant<I64, F64>;
+
+	class FileCompilationContext final : ParseTreeVisitor
+	{
+		std::filesystem::path                           FilePath_;
+		std::ifstream                                   FileStream_;
+		antlr4::ANTLRInputStream                        InputStream_;
+		CoriumLexer                                     Lexer_;
+		antlr4::CommonTokenStream                       TokenStream_;
+		CoriumParser                                    Parser_;
+		CoriumParser::CompilationUnitContext&           CompilationUnit_;
+		ShuntingYardEvaluator<ImmediateValue, Operator> InfixToRpnConverter_;
+		Stream                                          Output_;
+		LocalCodeGenerationLayer                        CodeGenerator_;
+
+	public:
+		explicit FileCompilationContext(std::filesystem::path&& file);
+
+		FileCompilationContext(const FileCompilationContext& other)                        = delete;
+		FileCompilationContext(FileCompilationContext&& other)                             = delete;
+		auto    operator =(const FileCompilationContext& other) -> FileCompilationContext& = delete;
+		auto    operator =(FileCompilationContext&& other) -> FileCompilationContext&      = delete;
+		virtual ~FileCompilationContext() override                                         = default;
+
+		auto Compile() -> void;
+		auto GetFilePath() const -> const std::filesystem::path&;
+		auto GetFileStream() const -> const std::ifstream&;
+		auto GetInputStream() const -> const antlr4::ANTLRInputStream&;
+		auto GetLexerInstance() const -> const CoriumLexer&;
+		auto GetTokenStream() const -> const antlr4::CommonTokenStream&;
+		auto GetParserInstance() const -> const CoriumParser&;
+		auto GetCompilationUnitContext() const -> const CoriumParser::CompilationUnitContext&;
+		auto GetInfixToRpnConverter() const -> const ShuntingYardEvaluator<ImmediateValue, Operator>&;
+		auto GetByteCodeOutputStream() -> Stream&;
+		auto GetLocalCodeGenerationLayer() const -> const LocalCodeGenerationLayer&;
+
+		auto DispatchOperator(Operator op) -> void;
+		auto DispatchImmediateValue(ImmediateValue value) -> void;
+	};
+
+	inline auto FileCompilationContext::GetFilePath() const -> const std::filesystem::path&
+	{
+		return this->FilePath_;
+	}
+
+	inline auto FileCompilationContext::GetFileStream() const -> const std::ifstream&
+	{
+		return this->FileStream_;
+	}
+
+	inline auto FileCompilationContext::GetInputStream() const -> const antlr4::ANTLRInputStream&
+	{
+		return this->InputStream_;
+	}
+
+	inline auto FileCompilationContext::GetLexerInstance() const -> const CoriumLexer&
+	{
+		return this->Lexer_;
+	}
+
+	inline auto FileCompilationContext::GetTokenStream() const -> const antlr4::CommonTokenStream&
+	{
+		return this->TokenStream_;
+	}
+
+	inline auto FileCompilationContext::GetParserInstance() const -> const CoriumParser&
+	{
+		return this->Parser_;
+	}
+
+	inline auto FileCompilationContext::GetCompilationUnitContext() const -> const CoriumParser::CompilationUnitContext&
+	{
+		return this->CompilationUnit_;
+	}
+
+	inline auto FileCompilationContext::GetInfixToRpnConverter() const -> const ShuntingYardEvaluator<ImmediateValue, Operator>&
+	{
+		return this->InfixToRpnConverter_;
+	}
+
+	inline auto FileCompilationContext::GetByteCodeOutputStream() -> Stream&
+	{
+		return this->Output_;
+	}
+
+	inline auto FileCompilationContext::GetLocalCodeGenerationLayer() const -> const LocalCodeGenerationLayer&
+	{
+		return this->CodeGenerator_;
+	}
+
 	struct Compiler final
 	{
 		static constexpr std::string_view FILE_EXTENSION {".cor"};
@@ -219,4 +387,33 @@ namespace Corium
 		auto CompileAllInDir(const std::filesystem::path& dir) const -> void;
 		auto CompileAllInCurrentDir() const -> void;
 	};
+
+	inline auto IsFloatLiteral(const std::string_view data) -> bool
+	{
+		return data.find('.') != std::string_view::npos;
+	}
+
+	inline auto ParseInt(const std::string_view data) -> I64
+	{
+		I64        integer;
+		const auto [_, ec] {std::from_chars(&*std::cbegin(data), &*std::cend(data), integer)};
+		if (ec != std::errc { })
+		{
+			[[unlikely]]
+				throw LiteralParseException {Format("Invalid integer literal: {}", data)};
+		}
+		return integer;
+	}
+
+	inline auto ParseFloat(const std::string_view data) -> F64
+	{
+		F64        integer;
+		const auto [_, ec] {std::from_chars(&*std::cbegin(data), &*std::cend(data), integer)};
+		if (ec != std::errc { })
+		{
+			[[unlikely]]
+				throw LiteralParseException {Format("Invalid integer literal: {}", data)};
+		}
+		return integer;
+	}
 }
