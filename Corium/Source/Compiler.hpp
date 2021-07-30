@@ -222,12 +222,8 @@ namespace Corium
 	using CompilationException = std::runtime_error;
 	using LiteralParseException = std::runtime_error;
 
-	class FileCompilationContext;
-
-	class ParseTreeVisitor : CoriumBaseVisitor
+	struct ParseTreeVisitor : CoriumBaseVisitor
 	{
-		FileCompilationContext& Target_;
-
 		virtual auto visitCompilationUnit(CoriumParser::CompilationUnitContext* ctx) -> antlrcpp::Any override;
 		virtual auto visitModuleDeclaration(CoriumParser::ModuleDeclarationContext* ctx) -> antlrcpp::Any override;
 		virtual auto visitLocalVariableDeclaration(CoriumParser::LocalVariableDeclarationContext* ctx) -> antlrcpp::Any override;
@@ -238,11 +234,6 @@ namespace Corium
 		virtual auto visitLiteral(CoriumParser::LiteralContext* ctx) -> antlrcpp::Any override;
 		virtual auto visitIntLiteral(CoriumParser::IntLiteralContext* ctx) -> antlrcpp::Any override;
 		virtual auto visitFloatLiteral(CoriumParser::FloatLiteralContext* ctx) -> antlrcpp::Any override;
-
-	protected:
-		explicit ParseTreeVisitor(FileCompilationContext& target);
-
-		auto BeginVisitation() -> void;
 	};
 
 	enum class Operator : U8
@@ -293,16 +284,13 @@ namespace Corium
 
 	class FileCompilationContext final : ParseTreeVisitor
 	{
-		std::filesystem::path                           FilePath_;
-		std::ifstream                                   FileStream_;
-		antlr4::ANTLRInputStream                        InputStream_;
-		CoriumLexer                                     Lexer_;
-		antlr4::CommonTokenStream                       TokenStream_;
-		CoriumParser                                    Parser_;
-		CoriumParser::CompilationUnitContext&           CompilationUnit_;
-		ShuntingYardEvaluator<ImmediateValue, Operator> InfixToRpnConverter_;
-		Stream                                          Output_;
-		LocalCodeGenerationLayer                        CodeGenerator_;
+		std::filesystem::path                 FilePath_;
+		std::ifstream                         FileStream_;
+		antlr4::ANTLRInputStream              InputStream_;
+		CoriumLexer                           Lexer_;
+		antlr4::CommonTokenStream             TokenStream_;
+		CoriumParser                          Parser_;
+		CoriumParser::CompilationUnitContext& CompilationUnit_;
 
 	public:
 		explicit FileCompilationContext(std::filesystem::path&& file);
@@ -321,12 +309,6 @@ namespace Corium
 		auto GetTokenStream() const -> const antlr4::CommonTokenStream&;
 		auto GetParserInstance() const -> const CoriumParser&;
 		auto GetCompilationUnitContext() const -> const CoriumParser::CompilationUnitContext&;
-		auto GetInfixToRpnConverter() const -> const ShuntingYardEvaluator<ImmediateValue, Operator>&;
-		auto GetByteCodeOutputStream() -> Stream&;
-		auto GetLocalCodeGenerationLayer() const -> const LocalCodeGenerationLayer&;
-
-		auto DispatchOperator(Operator op) -> void;
-		auto DispatchImmediateValue(ImmediateValue value) -> void;
 	};
 
 	inline auto FileCompilationContext::GetFilePath() const -> const std::filesystem::path&
@@ -362,21 +344,6 @@ namespace Corium
 	inline auto FileCompilationContext::GetCompilationUnitContext() const -> const CoriumParser::CompilationUnitContext&
 	{
 		return this->CompilationUnit_;
-	}
-
-	inline auto FileCompilationContext::GetInfixToRpnConverter() const -> const ShuntingYardEvaluator<ImmediateValue, Operator>&
-	{
-		return this->InfixToRpnConverter_;
-	}
-
-	inline auto FileCompilationContext::GetByteCodeOutputStream() -> Stream&
-	{
-		return this->Output_;
-	}
-
-	inline auto FileCompilationContext::GetLocalCodeGenerationLayer() const -> const LocalCodeGenerationLayer&
-	{
-		return this->CodeGenerator_;
 	}
 
 	struct Compiler final

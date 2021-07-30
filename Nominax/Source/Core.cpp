@@ -759,7 +759,8 @@ namespace Nominax
 		auto Environment::Execute(ByteCode::Stream&& stream) -> ExecutionResult
 		{
 			ByteCode::Image codeImage { };
-			NOX_PAS_EQ(ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
+			const auto      buildResult {ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage)};
+			NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
 			stream = { };
 			return (*this)(codeImage);
 		}
@@ -767,7 +768,8 @@ namespace Nominax
 		auto Environment::Execute(const ByteCode::Stream& stream) -> ExecutionResult
 		{
 			ByteCode::Image codeImage { };
-			NOX_PAS_EQ(ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
+			const auto      buildResult {ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage)};
+			NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
 			return (*this)(codeImage);
 		}
 

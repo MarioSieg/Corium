@@ -259,13 +259,6 @@ namespace Corium
 		return visitChildren(ctx);
 	}
 
-	ParseTreeVisitor::ParseTreeVisitor(FileCompilationContext& target) : Target_ {target} { }
-
-	auto ParseTreeVisitor::BeginVisitation() -> void
-	{
-		this->visitCompilationUnit(&const_cast<CoriumParser::CompilationUnitContext&>(Target_.GetCompilationUnitContext()));
-	}
-
 	FileCompilationContext::FileCompilationContext(std::filesystem::path&& file) : ParseTreeVisitor {*this},
 	                                                                               FilePath_ {std::move(file)},
 	                                                                               FileStream_ {this->FilePath_},
@@ -273,71 +266,19 @@ namespace Corium
 	                                                                               Lexer_ {&this->InputStream_},
 	                                                                               TokenStream_ {&this->Lexer_},
 	                                                                               Parser_ {&this->TokenStream_},
-	                                                                               CompilationUnit_ {*this->Parser_.compilationUnit()},
-	                                                                               InfixToRpnConverter_ { },
-	                                                                               Output_ { },
-	                                                                               CodeGenerator_ {Output_} { }
+	                                                                               CompilationUnit_ {*this->Parser_.compilationUnit()} { }
 
 	auto FileCompilationContext::Compile() -> void
 	{
-		this->Output_.Prologue();
-		BeginVisitation();
-		for (const auto& queue {this->InfixToRpnConverter_.Complete()}; const auto& gate : queue)
-		{
-			if (const auto* const imm = std::get_if<ImmediateValue>(&gate))
-			{
-				const F64* const flt {std::get_if<F64>(imm)};
-				if (flt)
-				{
-					this->CodeGenerator_.EmitPush(*flt);
-				}
-				else
-				{
-					this->CodeGenerator_.EmitPush(*std::get_if<I64>(imm));
-				}
-			}
-			else
-			{
-				switch (*std::get_if<Operator>(&gate))
-				{
-					case Operator::Add:
-						this->CodeGenerator_.Emit(Instruction::IAdd);
-						break;
-					case Operator::Sub:
-						this->CodeGenerator_.Emit(Instruction::ISub);
-						break;
-					case Operator::Mul:
-						this->CodeGenerator_.Emit(Instruction::IMul);
-						break;
-					case Operator::Div:
-						this->CodeGenerator_.Emit(Instruction::IDiv);
-						break;
-					case Operator::Mod:
-						this->CodeGenerator_.Emit(Instruction::IMod);
-						break;
-					case Operator::Count_:
-						throw CompilationException {"Invalid operator!"};
-				}
-			}
-		}
-		this->Output_.Epilogue();
-	}
-
-	auto FileCompilationContext::DispatchOperator(const Operator op) -> void
-	{
-		this->InfixToRpnConverter_.Push(op);
-	}
-
-	auto FileCompilationContext::DispatchImmediateValue(const ImmediateValue value) -> void
-	{
-		this->InfixToRpnConverter_.Push(value);
+		this->visitCompilationUnit(&this->CompilationUnit_);
 	}
 
 	auto Compiler::CompileFile(std::filesystem::path&& file, Stream& output) const -> void
 	{
 		FileCompilationContext context {std::move(file)};
 		context.Compile();
-		output = std::move(context.GetByteCodeOutputStream());
+		output.Prologue();
+		output.Epilogue();
 	}
 
 	auto Compiler::CompileAllInCurrentDir() const -> void

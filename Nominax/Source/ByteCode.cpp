@@ -1076,13 +1076,6 @@ namespace Nominax::ByteCode
 				return ValidationResultCode::Empty;
 		}
 
-		// Check if we've reached the pointer compression limit:
-		if (input.Size() >= std::numeric_limits<U32>::max())
-		{
-			[[unlikely]]
-				return ValidationResultCode::SignalLimitReached;
-		}
-
 		// Check if prologue code is contained:
 		if (!ContainsPrologue(input))
 		{
