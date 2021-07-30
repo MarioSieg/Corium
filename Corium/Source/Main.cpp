@@ -254,6 +254,6 @@ auto ExecuteApp(Stream&& appCode) -> void
 	environment.Boot(descriptor);
 	appCode.DumpByteCode();
 	const auto result {environment.Execute(std::move(appCode))};
-	Print("R={}\n", result.ReactorResultState.EvaluationResult().AsI64);
+	Print("Ans={}\n", result.ReactorResultState.EvaluationResult().AsI64);
 	environment.Shutdown();
 }

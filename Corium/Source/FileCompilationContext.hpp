@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "Base.hpp"
+#include "Ast.hpp"
 #include "ParseTreeVisitor.hpp"
 #include "Operator.hpp"
 
@@ -215,16 +215,16 @@ namespace Corium
 {
 	class FileCompilationContext final : ParseTreeVisitor
 	{
-		std::filesystem::path                 FilePath_;
-		std::ifstream                         FileStream_;
-		antlr4::ANTLRInputStream              InputStream_;
-		CoriumLexer                           Lexer_;
-		antlr4::CommonTokenStream             TokenStream_;
-		CoriumParser                          Parser_;
-		CoriumParser::CompilationUnitContext& CompilationUnit_;
-		ShuntingYardEvaluator<I64, Operator>  InfixToRpnConverter_;
-		Stream                                Output_;
-		LocalCodeGenerationLayer              CodeGenerator_;
+		std::filesystem::path                           FilePath_;
+		std::ifstream                                   FileStream_;
+		antlr4::ANTLRInputStream                        InputStream_;
+		CoriumLexer                                     Lexer_;
+		antlr4::CommonTokenStream                       TokenStream_;
+		CoriumParser                                    Parser_;
+		CoriumParser::CompilationUnitContext&           CompilationUnit_;
+		ShuntingYardEvaluator<ImmediateValue, Operator> InfixToRpnConverter_;
+		Stream                                          Output_;
+		LocalCodeGenerationLayer                        CodeGenerator_;
 
 	public:
 		explicit FileCompilationContext(std::filesystem::path&& file);
@@ -243,12 +243,12 @@ namespace Corium
 		auto GetTokenStream() const -> const antlr4::CommonTokenStream&;
 		auto GetParserInstance() const -> const CoriumParser&;
 		auto GetCompilationUnitContext() const -> const CoriumParser::CompilationUnitContext&;
-		auto GetInfixToRpnConverter() const -> const ShuntingYardEvaluator<I64, Operator>&;
+		auto GetInfixToRpnConverter() const -> const ShuntingYardEvaluator<ImmediateValue, Operator>&;
 		auto GetByteCodeOutputStream() -> Stream&;
 		auto GetLocalCodeGenerationLayer() const -> const LocalCodeGenerationLayer&;
 
 		auto DispatchOperator(Operator op) -> void;
-		auto DispatchImmediateValue(I64 value) -> void;
+		auto DispatchImmediateValue(ImmediateValue value) -> void;
 	};
 
 	inline auto FileCompilationContext::GetFilePath() const -> const std::filesystem::path&
@@ -286,7 +286,7 @@ namespace Corium
 		return this->CompilationUnit_;
 	}
 
-	inline auto FileCompilationContext::GetInfixToRpnConverter() const -> const ShuntingYardEvaluator<I64, Operator>&
+	inline auto FileCompilationContext::GetInfixToRpnConverter() const -> const ShuntingYardEvaluator<ImmediateValue, Operator>&
 	{
 		return this->InfixToRpnConverter_;
 	}

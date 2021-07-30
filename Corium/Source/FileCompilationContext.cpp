@@ -225,12 +225,19 @@ namespace Corium
 	{
 		this->Output_.Prologue();
 		BeginVisitation();
-		const auto& queue {this->InfixToRpnConverter_.Complete()};
-		for (const auto& gate : queue)
+		for (const auto& queue {this->InfixToRpnConverter_.Complete()}; const auto& gate : queue)
 		{
-			if (const I64* const imm = std::get_if<I64>(&gate))
+			if (const auto* const imm = std::get_if<ImmediateValue>(&gate))
 			{
-				this->CodeGenerator_.EmitPush(*imm);
+				const F64* const flt {std::get_if<F64>(imm)};
+				if (flt)
+				{
+					this->CodeGenerator_.EmitPush(*flt);
+				}
+				else
+				{
+					this->CodeGenerator_.EmitPush(*std::get_if<I64>(imm));
+				}
 			}
 			else
 			{
@@ -251,11 +258,11 @@ namespace Corium
 					case Operator::Mod:
 						this->CodeGenerator_.Emit(Instruction::IMod);
 						break;
-					default: ;
+					case Operator::Count_:
+						throw CompilationException {"Invalid operator!"};
 				}
 			}
 		}
-		this->Output_ << Instruction::Pop;
 		this->Output_.Epilogue();
 	}
 
@@ -264,7 +271,7 @@ namespace Corium
 		this->InfixToRpnConverter_.Push(op);
 	}
 
-	auto FileCompilationContext::DispatchImmediateValue(const I64 value) -> void
+	auto FileCompilationContext::DispatchImmediateValue(const ImmediateValue value) -> void
 	{
 		this->InfixToRpnConverter_.Push(value);
 	}

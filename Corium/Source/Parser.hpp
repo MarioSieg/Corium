@@ -1,6 +1,6 @@
-// File: Operator.hpp
+// File: Parser.hpp
 // Author: Mario
-// Created: 28.07.2021 12:30 PM
+// Created: 30.07.2021 2:10 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -211,47 +211,10 @@
 
 namespace Corium
 {
-	enum class Operator : U8
-	{
-		Add,
-		Sub,
-		Mul,
-		Div,
-		Mod,
+	class FileCompilationContext;
 
-		Count_
-	};
-
-	enum class OperatorAssociativity : U8
+	namespace Parser
 	{
-		LeftToRight,
-		RightToLeft
-	};
-
-	constexpr std::array<const std::string_view, ToUnderlying(Operator::Count_)> OPERATOR_LEXEME_TABLE
-	{
-		"+",
-		"-",
-		"*",
-		"/",
-		"%"
-	};
-
-	constexpr std::array<const U8, ToUnderlying(Operator::Count_)> OPERATOR_PRECEDENCE_TABLE
-	{
-		4,
-		4,
-		3,
-		3,
-		3
-	};
-
-	constexpr std::array<const OperatorAssociativity, ToUnderlying(Operator::Count_)> OPERATOR_ASSOCIATIVITY_TABLE
-	{
-		OperatorAssociativity::LeftToRight,
-		OperatorAssociativity::LeftToRight,
-		OperatorAssociativity::LeftToRight,
-		OperatorAssociativity::LeftToRight,
-		OperatorAssociativity::LeftToRight,
-	};
+		extern auto ParseExpression(CoriumParser::ExprContext& ctx, FileCompilationContext& target) -> void;
+	}
 }

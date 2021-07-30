@@ -1,6 +1,6 @@
-// File: Operator.hpp
+// File: Parser.cpp
 // Author: Mario
-// Created: 28.07.2021 12:30 PM
+// Created: 30.07.2021 2:11 AM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,53 +205,39 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include "Base.hpp"
+#include "Parser.hpp"
+#include "FileCompilationContext.hpp"
+#include "Type.hpp"
 
 namespace Corium
 {
-	enum class Operator : U8
+	auto Parser::ParseExpression(CoriumParser::ExprContext& ctx, FileCompilationContext& target) -> void
 	{
-		Add,
-		Sub,
-		Mul,
-		Div,
-		Mod,
-
-		Count_
-	};
-
-	enum class OperatorAssociativity : U8
-	{
-		LeftToRight,
-		RightToLeft
-	};
-
-	constexpr std::array<const std::string_view, ToUnderlying(Operator::Count_)> OPERATOR_LEXEME_TABLE
-	{
-		"+",
-		"-",
-		"*",
-		"/",
-		"%"
-	};
-
-	constexpr std::array<const U8, ToUnderlying(Operator::Count_)> OPERATOR_PRECEDENCE_TABLE
-	{
-		4,
-		4,
-		3,
-		3,
-		3
-	};
-
-	constexpr std::array<const OperatorAssociativity, ToUnderlying(Operator::Count_)> OPERATOR_ASSOCIATIVITY_TABLE
-	{
-		OperatorAssociativity::LeftToRight,
-		OperatorAssociativity::LeftToRight,
-		OperatorAssociativity::LeftToRight,
-		OperatorAssociativity::LeftToRight,
-		OperatorAssociativity::LeftToRight,
-	};
+		// parse operator:
+		if (ctx.op)
+		{
+			const auto txt {ctx.op->getText()};
+			for (std::underlying_type_t<Operator> i {0}; i < ToUnderlying(Operator::Count_); ++i)
+			{
+				if (txt == OPERATOR_LEXEME_TABLE[i])
+				{
+					target.DispatchOperator(static_cast<Operator>(i));
+					break;
+				}
+			}
+		}
+			// parse literal:
+		else if (ctx.literal())
+		{
+			const std::string literal {ctx.literal()->getText()};
+			if (IsFloatLiteral(literal))
+			{
+				target.DispatchImmediateValue(ParseFloat(literal));
+			}
+			else
+			{
+				target.DispatchImmediateValue(ParseInt(literal));
+			}
+		}
+	}
 }
