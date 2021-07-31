@@ -13,5 +13,3 @@ TARGET_LINK_LIBRARIES("CoriumC" "CoriumParser")
 SET_PROPERTY(TARGET "CoriumParser" PROPERTY CXX_STANDARD 17)
 TARGET_INCLUDE_DIRECTORIES("CoriumParser" PRIVATE "Corium/Extern/antlr4/")
 TARGET_INCLUDE_DIRECTORIES("CoriumC" PRIVATE "Corium/Extern/antlr4/")
-
-INCLUDE("Corium/CMake/UnitTests.cmake")
