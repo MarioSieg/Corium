@@ -222,23 +222,23 @@ auto formatter<Instruction, char, void>::format
 	(
 		ctx.out(),
 		"{}",
-		INSTRUCTION_MNEMONICS[ToUnderlying(value)]
+		INSTRUCTION_MNEMONIC_TABLE[ToUnderlying(value)]
 	);
 }
 
-auto formatter<SystemIntrinsicCallID, char, void>::format
+auto formatter<SystemIntrinsicInvocationID, char, void>::format
 (
-	const SystemIntrinsicCallID& value,
-	format_context&              ctx
+	const SystemIntrinsicInvocationID& value,
+	format_context&                    ctx
 ) const -> FormatOutput
 {
 	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
 }
 
-auto formatter<UserIntrinsicCallID, char, void>::format
+auto formatter<UserIntrinsicInvocationID, char, void>::format
 (
-	const UserIntrinsicCallID& value,
-	format_context&            ctx
+	const UserIntrinsicInvocationID& value,
+	format_context&                  ctx
 ) const -> FormatOutput
 {
 	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));

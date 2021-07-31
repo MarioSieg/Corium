@@ -9,3 +9,4 @@ CMakeLists.txt.user
 reactor.asm
 Nominax/ByteCodeInterface/noxbci/.idea/
 Nominax/ByteCodeInterface/noxbci/Cargo.lock
+Nominax/ByteCodeInterface/noxbci/target

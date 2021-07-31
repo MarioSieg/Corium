@@ -1196,15 +1196,15 @@ namespace Nominax::ByteCode
 		return NOX_EXPECT_VALUE(bucket[idx].Contains<Instruction>(), true);
 	}
 
-	auto ValidateSystemIntrinsicCall(const SystemIntrinsicCallID id) -> bool
+	auto ValidateSystemIntrinsicCall(const SystemIntrinsicInvocationID id) -> bool
 	{
-		constexpr auto max {ToUnderlying(SystemIntrinsicCallID::Count_) - 1};
+		constexpr auto max {ToUnderlying(SystemIntrinsicInvocationID::Count_) - 1};
 		const auto     value {ToUnderlying(id)};
 		static_assert(std::is_unsigned_v<decltype(value)>);
 		return NOX_EXPECT_VALUE(value <= max, true);
 	}
 
-	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicCallID id) -> bool
+	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicInvocationID id) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
 		return NOX_EXPECT_VALUE(ToUnderlying(id) < routines.size(), true);

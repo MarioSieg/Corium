@@ -539,10 +539,10 @@ namespace Nominax
 					Print("{: < 10} |  {: < 8}| {: < 3} | {: < 3} | {: < 3} |\n\n", "Mnemonic", "OpCode", "Imm", "Psh", "Pop");
 					for (U64 i {0}; i < static_cast<U64>(ByteCode::Instruction::Count_); ++i)
 					{
-						const auto& mnemonic {ByteCode::INSTRUCTION_MNEMONICS[i]};
+						const auto& mnemonic {ByteCode::INSTRUCTION_MNEMONIC_TABLE[i]};
 						const auto  immCount {ByteCode::INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[i].size()};
-						const auto  pushCount {ByteCode::INSTRUCTION_PUSH_COUNTS[i]};
-						const auto  popCount {ByteCode::INSTRUCTION_POP_COUNTS[i]};
+						const auto  pushCount {ByteCode::INSTRUCTION_PUSH_RECORD_TABLE[i]};
+						const auto  popCount {ByteCode::INSTRUCTION_POP_RECORD_TABLE[i]};
 						Print("{: < 10} |   {:#04x}   | {: < 3} | {: < 3} | {: < 3} |\n", mnemonic, i, immCount, pushCount,
 						      popCount);
 					}
