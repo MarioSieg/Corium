@@ -1109,12 +1109,12 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// System call id.
 			/// </summary>
-			SystemIntrinsicCallID,
+			SystemIntrinsicInvocationID,
 
 			/// <summary>
 			/// User call id.
 			/// </summary>
-			UserIntrinsicCallID,
+			UserIntrinsicInvocationID,
 
 			/// <summary>
 			/// Byte code instruction opcode.
@@ -1320,11 +1320,11 @@ namespace Nominax::ByteCode
 		}
 		else if constexpr (std::is_same_v<SystemIntrinsicInvocationID, T>)
 		{
-			return {Signal::Discriminator::SystemIntrinsicCallID};
+			return {Signal::Discriminator::SystemIntrinsicInvocationID};
 		}
 		else if constexpr (std::is_same_v<UserIntrinsicInvocationID, T>)
 		{
-			return {Signal::Discriminator::UserIntrinsicCallID};
+			return {Signal::Discriminator::UserIntrinsicInvocationID};
 		}
 		else if constexpr (std::is_same_v<JumpAddress, T>)
 		{
@@ -1523,8 +1523,8 @@ namespace Nominax::ByteCode
 	inline const std::array<PerInstructionArgTypes, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
 		PerInstructionArgTypes {{Signal::Discriminator::I64}},                      // int
-		{{Signal::Discriminator::SystemIntrinsicCallID}},                           // intrin
-		{{Signal::Discriminator::UserIntrinsicCallID}},                             // cintrin
+		{{Signal::Discriminator::SystemIntrinsicInvocationID}},                           // intrin
+		{{Signal::Discriminator::UserIntrinsicInvocationID}},                             // cintrin
 		{{Signal::Discriminator::U64}},                                             // call
 		{ },                                                                        // ret
 		{{Signal::Discriminator::U64}, {Signal::Discriminator::U64}},               // mov
@@ -2636,7 +2636,7 @@ namespace Nominax::ByteCode
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {intrin});
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::SystemIntrinsicCallID);
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::SystemIntrinsicInvocationID);
 		return *this;
 	}
 
@@ -2644,7 +2644,7 @@ namespace Nominax::ByteCode
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {intrin});
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::UserIntrinsicCallID);
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::UserIntrinsicInvocationID);
 		return *this;
 	}
 

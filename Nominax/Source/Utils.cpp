@@ -336,11 +336,11 @@ auto formatter<DiscriminatedSignal, char, void>::format
 		case Dis::Instruction:
 			return format_to(ctx.out(), "%{}", value.Value.Instr);
 
-		case Dis::SystemIntrinsicCallID:
+		case Dis::SystemIntrinsicInvocationID:
 			return format_to(ctx.out(), "*sys ${}",
 			                 ToUnderlying(value.Value.SystemIntrinID));
 
-		case Dis::UserIntrinsicCallID:
+		case Dis::UserIntrinsicInvocationID:
 			return format_to(ctx.out(), "*usr ${}",
 			                 ToUnderlying(value.Value.UserIntrinID));
 

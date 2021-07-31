@@ -1138,7 +1138,7 @@ namespace Nominax::ByteCode
 					}
 					break;
 
-					case Signal::Discriminator::UserIntrinsicCallID:
+					case Signal::Discriminator::UserIntrinsicInvocationID:
 					{
 						result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID)
 							         ? ValidationResultCode::Ok

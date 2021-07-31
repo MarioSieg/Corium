@@ -537,7 +537,7 @@ impl fmt::Debug for Instruction {
 
 /// Subroutine invocation id for system intrinsic routines.
 #[repr(u64)]
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum SystemIntrinsicInvocationID {
     Cos = 0x00,
     Sin = 0x01,
@@ -587,4 +587,58 @@ pub enum SystemIntrinsicInvocationID {
 pub type JumpAddress = u64;
 
 /// Subroutine invocation id for custom intrinsic routine.
-pub type UserIntrinsicCallID = u64;
+pub type UserIntrinsicInvocationID = u64;
+
+/// 64-bit byte code signal data contains either an instruction or an immediate value.
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum Signal {
+    U64(u64),
+    I64(i64),
+    F64(f64),
+    Instruction(Instruction),
+    SystemIntrinsicInvocationID(SystemIntrinsicInvocationID),
+    UserIntrinsicInvocationID(UserIntrinsicInvocationID),
+    JumpAddress(JumpAddress),
+}
+
+pub struct Stream {
+    pub peephole_opt: bool,
+    pub storage: Vec<Signal>,
+}
+
+impl Stream {
+    pub fn new() -> Self {
+        Self {
+            peephole_opt: true,
+            storage: Vec::new(),
+        }
+    }
+
+    pub fn with_capacity(cap: usize) -> Self {
+        Self {
+            peephole_opt: true,
+            storage: Vec::with_capacity(cap),
+        }
+    }
+
+    #[inline]
+    pub fn push(&mut self, signal: Signal) -> &mut Self {
+        self.storage.push(signal);
+        self
+    }
+}
+
+impl std::default::Default for Stream {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl fmt::Display for Stream {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for sig in &self.storage {
+            writeln!(f, "{:?}", *sig)?
+        }
+        fmt::Result::Ok(())
+    }
+}
