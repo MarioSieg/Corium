@@ -1523,8 +1523,8 @@ namespace Nominax::ByteCode
 	inline const std::array<PerInstructionArgTypes, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
 		PerInstructionArgTypes {{Signal::Discriminator::I64}},                      // int
-		{{Signal::Discriminator::SystemIntrinsicInvocationID}},                           // intrin
-		{{Signal::Discriminator::UserIntrinsicInvocationID}},                             // cintrin
+		{{Signal::Discriminator::SystemIntrinsicInvocationID}},                     // intrin
+		{{Signal::Discriminator::UserIntrinsicInvocationID}},                       // cintrin
 		{{Signal::Discriminator::U64}},                                             // call
 		{ },                                                                        // ret
 		{{Signal::Discriminator::U64}, {Signal::Discriminator::U64}},               // mov

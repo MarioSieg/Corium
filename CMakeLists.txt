@@ -20,4 +20,3 @@ INCLUDE("CMake/UnitTests.cmake")
 INCLUDE("CMake/Benchmarks.cmake")
 
 INCLUDE("Nominax/CMake/Build.cmake")
-INCLUDE("Corium/CMake/Build.cmake")
