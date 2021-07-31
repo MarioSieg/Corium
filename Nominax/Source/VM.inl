@@ -235,7 +235,7 @@ namespace Nominax::Core
 	using VectorLib::F64_X16_Mul_Unaligned;
 	using VectorLib::F64_X16_Div_Unaligned;
 
-	using ByteCode::SystemIntrinsicCallID;
+	using ByteCode::SystemIntrinsicInvocationID;
 	using ByteCode::Instruction;
 	using ByteCode::IntrinsicRoutine;
 	using ByteCode::Signal;
@@ -288,8 +288,7 @@ namespace Nominax::Core
 	/// </summary>
 	NOX_HOT static auto SyscallIntrin(Record* NOX_RESTRICT const sp, const U64 id) -> void
 	{
-		static constexpr std::array<const void* NOX_RESTRICT const, static_cast<U64>(
-			                            SystemIntrinsicCallID::Count_)> JUMP_TABLE
+		static constexpr std::array<const void* NOX_RESTRICT const, ToUnderlying(SystemIntrinsicInvocationID::Count_)> JUMP_TABLE
 		{
 			&&__cos__,
 			&&__sin__,
