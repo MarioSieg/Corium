@@ -212,7 +212,7 @@
 // Legacy compat:
 struct DynamicSignal final
 {
-	using DataVariant = std::variant<Instruction, SystemIntrinsicCallID, UserIntrinsicCallID, JumpAddress, U64, I64, F64, CharClusterUtf8, CharClusterUtf16, CharClusterUtf32>;
+	using DataVariant = std::variant<Instruction, SystemIntrinsicInvocationID, UserIntrinsicInvocationID, JumpAddress, U64, I64, F64, CharClusterUtf8, CharClusterUtf16, CharClusterUtf32>;
 
 	DataVariant Data {0_uint};
 
@@ -279,10 +279,10 @@ TEST(ValidatorAlgorithms, ValidateJumpAddressValid)
 
 TEST(ValidatorAlgorithms, ValidateSystemIntrinsicCall)
 {
-	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallID::ACos));
-	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicCallID::IoPortWriteCluster));
-	ASSERT_FALSE(ValidateSystemIntrinsicCall(SystemIntrinsicCallID::Count_));
-	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<SystemIntrinsicCallID>(-1)));
+	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicInvocationID::ACos));
+	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicInvocationID::IoPortWriteCluster));
+	ASSERT_FALSE(ValidateSystemIntrinsicCall(SystemIntrinsicInvocationID::Count_));
+	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<SystemIntrinsicInvocationID>(-1)));
 }
 
 TEST(ValidatorAlgorithms, ValidateCustomIntrinsicCall)
@@ -293,10 +293,10 @@ TEST(ValidatorAlgorithms, ValidateCustomIntrinsicCall)
 		nullptr
 	};
 
-	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, UserIntrinsicCallID{ 0 }));
-	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, UserIntrinsicCallID{ 1 }));
-	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, UserIntrinsicCallID{ 2 }));
-	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, UserIntrinsicCallID{ 3 }));
+	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, UserIntrinsicInvocationID{ 0 }));
+	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, UserIntrinsicInvocationID{ 1 }));
+	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, UserIntrinsicInvocationID{ 2 }));
+	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, UserIntrinsicInvocationID{ 3 }));
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Int)
@@ -325,9 +325,9 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Intrin)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3_int}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, std::vector<DynamicSignal>{ {} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicCallID::ASin}, DynamicSignal{SystemIntrinsicCallID::ASin} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicInvocationID::ASin}, DynamicSignal{SystemIntrinsicInvocationID::ASin} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicCallID::ASin} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::Ok);
 }
 
 
@@ -338,9 +338,9 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_CIntrin)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3_int}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, std::vector<DynamicSignal>{ {} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{UserIntrinsicCallID{3}}, DynamicSignal{UserIntrinsicCallID{3}} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{UserIntrinsicInvocationID{3}}, DynamicSignal{UserIntrinsicInvocationID{3}} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{UserIntrinsicCallID{3}} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_None)
@@ -360,8 +360,8 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3_int} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3_uint} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3.0_float} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{SystemIntrinsicCallID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{UserIntrinsicCallID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 
@@ -375,8 +375,8 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Sto_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_int}, DynamicSignal{3_int} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3.0_float},DynamicSignal{3_uint} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3.0_float},DynamicSignal{3.0_float} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{SystemIntrinsicCallID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{UserIntrinsicCallID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3_uint},DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 
@@ -840,9 +840,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicValid)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CIntrin << UserIntrinsicCallID {0};
-	code << Instruction::CIntrin << UserIntrinsicCallID {1};
-	code << Instruction::CIntrin << UserIntrinsicCallID {2};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {0};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {1};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {2};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::Ok);
@@ -859,9 +859,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidNull)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CIntrin << UserIntrinsicCallID {0};
-	code << Instruction::CIntrin << UserIntrinsicCallID {1};
-	code << Instruction::CIntrin << UserIntrinsicCallID {2};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {0};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {1};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {2};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -878,9 +878,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CIntrin << UserIntrinsicCallID {0};
-	code << Instruction::CIntrin << UserIntrinsicCallID {1};
-	code << Instruction::CIntrin << UserIntrinsicCallID {3};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {0};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {1};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {3};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -892,9 +892,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange2)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CIntrin << UserIntrinsicCallID {0};
-	code << Instruction::CIntrin << UserIntrinsicCallID {1};
-	code << Instruction::CIntrin << UserIntrinsicCallID {3};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {0};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {1};
+	code << Instruction::CIntrin << UserIntrinsicInvocationID {3};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);

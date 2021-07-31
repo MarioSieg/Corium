@@ -1,6 +1,6 @@
 // File: Foundation.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 26.07.2021 6:43 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -212,6 +212,7 @@
 #include <atomic>
 #include <bit>
 #include <bitset>
+#include <charconv>
 #include <condition_variable>
 #include <climits>
 #include <csignal>
@@ -235,6 +236,7 @@
 #include <string>
 #include <string_view>
 #include <span>
+#include <stack>
 #include <thread>
 #include <type_traits>
 #include <unordered_set>
@@ -406,7 +408,7 @@ namespace Nominax
 	/// <summary>
 	/// Dump allocations.
 	/// </summary>
-	#define NOX_VERBOSE_ALLOCATOR NOX_DEBUG
+	#define NOX_VERBOSE_ALLOCATOR false
 
 	/// <summary>
 	/// Use a slower but more correct floating point comparison algorithm.
@@ -737,6 +739,18 @@ namespace Nominax
 	constexpr auto operator ""_gB(const unsigned long long value) -> U64
 	{
 		return Gigabytes2Bytes<decltype(value)>(value);
+	}
+
+	/// <summary>
+	/// Converts the enum into the underlying type.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_enum_v<T>
+	constexpr auto ToUnderlying(const T x) -> auto
+	{
+		return static_cast<std::underlying_type_t<std::decay_t<T>>>(x);
 	}
 
 	namespace Foundation
@@ -2622,7 +2636,7 @@ namespace Nominax
 		NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsZero(const F64 x) -> bool
 		{
 			#if NOX_OPT_USE_ZERO_EPSILON
-		return F64IsZero(x);
+			return F64IsZero(x);
 			#else
 			return x == 0.0;
 			#endif
@@ -2636,7 +2650,7 @@ namespace Nominax
 		NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsOne(const F64 x) -> bool
 		{
 			#if NOX_OPT_USE_ZERO_EPSILON
-		return F64IsOne(x);
+			return F64IsOne(x);
 			#else
 			return x == 1.0;
 			#endif
@@ -2650,7 +2664,7 @@ namespace Nominax
 		NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64Equals(const F64 x, const F64 y) -> bool
 		{
 			#if NOX_OPT_USE_ZERO_EPSILON
-		return F64Equals(x, y);
+			return F64Equals(x, y);
 			#else
 			return x == y;
 			#endif
@@ -2691,22 +2705,22 @@ namespace Nominax
 		/// </summary>
 		enum class TextColor : std::underlying_type_t<fmt::terminal_color>
 		{
-			Black = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::black),
-			Red = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::red),
-			Green = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::green),
-			Yellow = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::yellow),
-			Blue = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::blue),
-			Magenta = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::magenta),
-			Cyan = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::cyan),
-			White = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::white),
-			BrightBlack = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_black),
-			BrightRed = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_red),
-			BrightGreen = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_green),
-			BrightYellow = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_yellow),
-			BrightBlue = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_blue),
-			BrightMagenta = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_magenta),
-			BrightCyan = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_cyan),
-			BrightWhite = static_cast<std::underlying_type_t<fmt::terminal_color>>(fmt::terminal_color::bright_white)
+			Black = ToUnderlying(fmt::terminal_color::black),
+			Red = ToUnderlying(fmt::terminal_color::red),
+			Green = ToUnderlying(fmt::terminal_color::green),
+			Yellow = ToUnderlying(fmt::terminal_color::yellow),
+			Blue = ToUnderlying(fmt::terminal_color::blue),
+			Magenta = ToUnderlying(fmt::terminal_color::magenta),
+			Cyan = ToUnderlying(fmt::terminal_color::cyan),
+			White = ToUnderlying(fmt::terminal_color::white),
+			BrightBlack = ToUnderlying(fmt::terminal_color::bright_black),
+			BrightRed = ToUnderlying(fmt::terminal_color::bright_red),
+			BrightGreen = ToUnderlying(fmt::terminal_color::bright_green),
+			BrightYellow = ToUnderlying(fmt::terminal_color::bright_yellow),
+			BrightBlue = ToUnderlying(fmt::terminal_color::bright_blue),
+			BrightMagenta = ToUnderlying(fmt::terminal_color::bright_magenta),
+			BrightCyan = ToUnderlying(fmt::terminal_color::bright_cyan),
+			BrightWhite = ToUnderlying(fmt::terminal_color::bright_white)
 		};
 
 		/// <summary>
@@ -3213,90 +3227,90 @@ namespace Nominax
 	while(false)
 
 	#if NOX_DEBUG
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_TRUE(x, msg)		NOX_PAS_TRUE(x, msg)
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_TRUE(x, msg)		NOX_PAS_TRUE(x, msg)
 
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_FALSE(x, msg)		NOX_PAS_FALSE(x, msg)
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_FALSE(x, msg)		NOX_PAS_FALSE(x, msg)
 
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_NULL(x, msg)		NOX_PAS_NULL(x, msg)
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_NULL(x, msg)		NOX_PAS_NULL(x, msg)
 
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_NOT_NULL(x, msg)	NOX_PAS_NOT_NULL(x, msg)
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_NOT_NULL(x, msg)	NOX_PAS_NOT_NULL(x, msg)
 
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_ZERO(x, msg)		NOX_PAS_ZERO(x, msg)
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_ZERO(x, msg)		NOX_PAS_ZERO(x, msg)
 
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_NOT_ZERO(x, msg)	NOX_PAS_NOT_ZERO(x, msg)
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_NOT_ZERO(x, msg)	NOX_PAS_NOT_ZERO(x, msg)
 
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_EQ(x, y, msg)		NOX_PAS_EQ(x, y, msg)
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_EQ(x, y, msg)		NOX_PAS_EQ(x, y, msg)
 
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_NE(x, y, msg)		NOX_PAS_NE(x, y, msg)
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_NE(x, y, msg)		NOX_PAS_NE(x, y, msg)
 
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_L(x, y, msg)		NOX_PAS_L(x, y, msg)
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_L(x, y, msg)		NOX_PAS_L(x, y, msg)
 
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_LE(x, y, msg)		NOX_PAS_LE(x, y, msg)
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_LE(x, y, msg)		NOX_PAS_LE(x, y, msg)
 
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_G(x, y, msg)		NOX_PAS_G(x, y, msg)
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_G(x, y, msg)		NOX_PAS_G(x, y, msg)
 
-		/// <summary>
-		/// Only active when building for DEBUG.
-		/// Checks the condition and panics with the specified message,
-		/// if the condition is not true.
-		/// </summary>
-		#define NOX_DBG_PAS_GE(x, y, msg)		NOX_PAS_GE(x, y, msg)
-		
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_GE(x, y, msg)		NOX_PAS_GE(x, y, msg)
+
 	#else
 	/// <summary>
 	/// Only active when building for DEBUG.
@@ -7910,7 +7924,7 @@ namespace Nominax
 		/// <summary>
 		/// Contains all CPU feature names.
 		/// </summary>
-		constexpr std::array<std::string_view, static_cast<U64>(CpuFeatureBits::Count_)> CPU_FEATURE_BIT_NAMES
+		constexpr std::array<std::string_view, ToUnderlying(CpuFeatureBits::Count_)> CPU_FEATURE_BIT_NAMES
 		{
 			#if NOX_ARCH_X86_64
 			"FPU",
@@ -8145,17 +8159,17 @@ namespace Nominax
 		/// <summary>
 		/// Feature mask.
 		/// </summary>
-		using CpuFeatureMask = std::array<bool, static_cast<U64>(CpuFeatureBits::Count_)>;
+		using CpuFeatureMask = std::array<bool, ToUnderlying(CpuFeatureBits::Count_)>;
 
 		/// <summary>
 		/// Bitmask storage type.
 		/// </summary>
-		using CpuFeatureMaskBitStorage = std::bitset<static_cast<U64>(CpuFeatureBits::Count_)>;
+		using CpuFeatureMaskBitStorage = std::bitset<ToUnderlying(CpuFeatureBits::Count_)>;
 
 		/// <summary>
 		/// Feature mask.
 		/// </summary>
-		using CpuFeatureMaskBuffer = std::array<U8, static_cast<U64>(CpuFeatureBits::Count_) / CHAR_BIT>;
+		using CpuFeatureMaskBuffer = std::array<U8, ToUnderlying(CpuFeatureBits::Count_) / CHAR_BIT>;
 
 		/// <summary>
 		/// Detects architecture dependent cpu features.

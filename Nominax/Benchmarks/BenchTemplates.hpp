@@ -210,7 +210,7 @@
 #include <functional>
 
 #include "../Include/Nominax/Nominax.hpp"
-#include "../../SharedTools/googlebench/include/benchmark/benchmark.h"
+#include <benchmark/benchmark.h>
 
 using namespace benchmark;
 

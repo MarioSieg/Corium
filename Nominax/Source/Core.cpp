@@ -717,6 +717,8 @@ namespace Nominax
 		auto Environment::Execute(const ByteCode::Image& image) -> ExecutionResult
 		{
 			using namespace Foundation;
+			using std::chrono::duration_cast;
+			using std::chrono::duration;
 
 			VALIDATE_ONLINE_BOOT_STATE();
 
@@ -728,32 +730,37 @@ namespace Nominax
 			std::cout.flush();
 
 			// Execute on alpha reactor:
-			const auto& result {(*this->Context_->CorePool)(image)};
+			const auto& [reason, state] {(*this->Context_->CorePool)(image)};
 
 			// Add execution time:
 			const auto micros
 			{
-				std::chrono::duration_cast<std::chrono::duration<F64, std::micro>>(result.second.Duration)
+				std::chrono::duration_cast<duration<F64, std::micro>>(state.Duration)
 			};
 			this->Context_->ExecutionTimeHistory.emplace_back(micros);
 
 			using Rsr = ReactorShutdownReason;
 
 			// Print exec info:
-			const auto level {result.first == Rsr::Success ? LogLevel::Success : LogLevel::Error};
-			const auto time {std::chrono::duration_cast<std::chrono::duration<F64, std::ratio<1>>>(micros)};
-			Print(level, "Execution #{} done! Runtime {:.04}\n", this->Context_->ExecutionTimeHistory.size(), time);
+			const auto level {reason == Rsr::Success ? LogLevel::Success : LogLevel::Error};
+			const auto time {duration_cast<duration<F64, std::ratio<1>>>(micros)};
+			Print(level, "Execution #{} done! Runtime {:.04}\n", std::size(this->Context_->ExecutionTimeHistory), time);
 			std::cout.flush();
 
 			// Invoke hook:
 			DISPATCH_HOOK(OnPostExecutionHook,);
-			return result;
+			return
+			{
+				.ShutdownReason = reason,
+				.ReactorResultState = state
+			};
 		}
 
 		auto Environment::Execute(ByteCode::Stream&& stream) -> ExecutionResult
 		{
 			ByteCode::Image codeImage { };
-			NOX_PAS_EQ(ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
+			const auto      buildResult {ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage)};
+			NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
 			stream = { };
 			return (*this)(codeImage);
 		}
@@ -761,7 +768,8 @@ namespace Nominax
 		auto Environment::Execute(const ByteCode::Stream& stream) -> ExecutionResult
 		{
 			ByteCode::Image codeImage { };
-			NOX_PAS_EQ(ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage), ByteCode::ValidationResultCode::Ok, "Byte code validation failed for stream!");
+			const auto      buildResult {ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage)};
+			NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
 			return (*this)(codeImage);
 		}
 
@@ -903,7 +911,7 @@ namespace Nominax
 			SpawnStamp_ {std::chrono::high_resolution_clock::now()},
 			PowerPreference_ {descriptor.PowerPref},
 			Input_ { },
-			Output_ {&Input_},
+			Output_ {.Input = &Input_},
 			Stack_ {allocator, descriptor.StackSize},
 			IntrinsicTable_ {descriptor.SharedIntrinsicTable},
 			InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : GetDefaultInterruptRoutine()},
@@ -939,13 +947,14 @@ namespace Nominax
 			);
 			const auto validationResult {this->Input_.Validate()};
 			if (validationResult != ReactorValidationResult::Ok)
+			[[unlikely]]
 			{
-				const std::string_view message {REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[static_cast<std::size_t>(validationResult)]};
-				[[unlikely]]
-					Panic(NOX_PANIC_INFO(), "Reactor {:#X} validation failed with the following reason: {}", this->Id_, message);
+				const std::string_view message {REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(validationResult)]};
+				Panic(NOX_PANIC_INFO(), "Reactor {:#X} validation failed with the following reason: {}", this->Id_, message);
 			}
-			ReactorCoreExecutionRoutine* const routine = this->RoutineLink_.ExecutionRoutine;
+			ReactorCoreExecutionRoutine* const routine {this->RoutineLink_.ExecutionRoutine};
 			NOX_PAS_NOT_NULL(routine, "Reactor execution routine is nullptr!");
+			this->Output_.Input = &this->Input_;
 			const ReactorShutdownReason result {(*routine)(&this->Input_, &this->Output_, nullptr)};
 			return {result, this->Output_};
 		}

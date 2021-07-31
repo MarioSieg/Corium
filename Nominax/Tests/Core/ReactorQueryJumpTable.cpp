@@ -218,7 +218,7 @@ TEST(Reactor, QueryJumpTable)
 	ASSERT_NO_FATAL_FAILURE(SingletonExecutionProxy(reactorDescriptor, {}, &proxy));
 	ASSERT_NE(jumpTable, nullptr);
 	ASSERT_EQ(std::memcmp(&reactorDescriptor, &backup, sizeof reactorDescriptor), 0);
-	for (U64 i {0}; i < static_cast<U64>(Instruction::Count_); ++i)
+	for (U64 i {0}; i < ToUnderlying(Instruction::Count_); ++i)
 	{
 		ASSERT_NE(jumpTable[i], nullptr);
 	}
@@ -228,7 +228,7 @@ TEST(Reactor, QueryJumpTableViaHypervisor)
 {
 	const void** jumpTable {QueryJumpTable(*HyperVisor::GetOptimalReactorRoutine({ }).ExecutionRoutine)};
 	ASSERT_NE(jumpTable, nullptr);
-	for (U64 i {0}; i < static_cast<U64>(Instruction::Count_); ++i)
+	for (U64 i {0}; i < ToUnderlying(Instruction::Count_); ++i)
 	{
 		ASSERT_NE(jumpTable[i], nullptr);
 	}

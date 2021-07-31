@@ -224,79 +224,79 @@ namespace Nominax::ByteCode
 	/// </summary>
 	enum class alignas(alignof(U64)) Instruction : U64
 	{
-		Int = 0x00'00'00'00'00'00'00'00,
-		Intrin = 0x00'00'00'00'00'00'00'01,
-		CIntrin = 0x00'00'00'00'00'00'00'02,
-		Call = 0x00'00'00'00'00'00'00'03,
-		Ret = 0x00'00'00'00'00'00'00'04,
-		Mov = 0x00'00'00'00'00'00'00'05,
-		Sto = 0x00'00'00'00'00'00'00'06,
-		Push = 0x00'00'00'00'00'00'00'07,
-		Pop = 0x00'00'00'00'00'00'00'08,
-		Pop2 = 0x00'00'00'00'00'00'00'09,
-		Dupl = 0x00'00'00'00'00'00'00'0A,
-		Dupl2 = 0x00'00'00'00'00'00'00'0B,
-		Swap = 0x00'00'00'00'00'00'00'0C,
-		NOp = 0x00'00'00'00'00'00'00'0D,
-		Jmp = 0x00'00'00'00'00'00'00'0E,
-		JmpRel = 0x00'00'00'00'00'00'00'0F,
-		Jz = 0x00'00'00'00'00'00'00'10,
-		Jnz = 0x00'00'00'00'00'00'00'11,
-		JoCmpi = 0x00'00'00'00'00'00'00'12,
-		JoCmpf = 0x00'00'00'00'00'00'00'13,
-		JnoCmpi = 0x00'00'00'00'00'00'00'14,
-		JnoCmpf = 0x00'00'00'00'00'00'00'15,
-		JeCmpi = 0x00'00'00'00'00'00'00'16,
-		JeCmpf = 0x00'00'00'00'00'00'00'17,
-		JneCmpi = 0x00'00'00'00'00'00'00'18,
-		JneCmpf = 0x00'00'00'00'00'00'00'19,
-		JaCmpi = 0x00'00'00'00'00'00'00'1A,
-		JaCmpf = 0x00'00'00'00'00'00'00'1B,
-		JlCmpi = 0x00'00'00'00'00'00'00'1C,
-		JlCmpf = 0x00'00'00'00'00'00'00'1D,
-		JaeCmpi = 0x00'00'00'00'00'00'00'1E,
-		JaeCmpf = 0x00'00'00'00'00'00'00'1F,
-		JleCmpi = 0x00'00'00'00'00'00'00'20,
-		JleCmpf = 0x00'00'00'00'00'00'00'21,
-		PushZ = 0x00'00'00'00'00'00'00'22,
-		IPushO = 0x00'00'00'00'00'00'00'23,
-		FPushO = 0x00'00'00'00'00'00'00'24,
-		IInc = 0x00'00'00'00'00'00'00'25,
-		IDec = 0x00'00'00'00'00'00'00'26,
-		IAdd = 0x00'00'00'00'00'00'00'27,
-		ISub = 0x00'00'00'00'00'00'00'28,
-		IMul = 0x00'00'00'00'00'00'00'29,
-		IDiv = 0x00'00'00'00'00'00'00'2A,
-		IMod = 0x00'00'00'00'00'00'00'2B,
-		IAnd = 0x00'00'00'00'00'00'00'2C,
-		IOr = 0x00'00'00'00'00'00'00'2D,
-		IXor = 0x00'00'00'00'00'00'00'2E,
-		ICom = 0x00'00'00'00'00'00'00'2F,
-		ISal = 0x00'00'00'00'00'00'00'30,
-		ISar = 0x00'00'00'00'00'00'00'31,
-		IRol = 0x00'00'00'00'00'00'00'32,
-		IRor = 0x00'00'00'00'00'00'00'33,
-		INeg = 0x00'00'00'00'00'00'00'34,
-		FAdd = 0x00'00'00'00'00'00'00'35,
-		FSub = 0x00'00'00'00'00'00'00'36,
-		FMul = 0x00'00'00'00'00'00'00'37,
-		FDiv = 0x00'00'00'00'00'00'00'38,
-		FMod = 0x00'00'00'00'00'00'00'39,
-		FNeg = 0x00'00'00'00'00'00'00'3A,
-		FInc = 0x00'00'00'00'00'00'00'3B,
-		FDec = 0x00'00'00'00'00'00'00'3C,
-		VecPush = 0x00'00'00'00'00'00'00'3D,
-		VecPop = 0x00'00'00'00'00'00'00'3E,
-		VecAdd = 0x00'00'00'00'00'00'00'3F,
-		VecSub = 0x00'00'00'00'00'00'00'40,
-		VecMul = 0x00'00'00'00'00'00'00'41,
-		VecDiv = 0x00'00'00'00'00'00'00'42,
-		MatPush = 0x00'00'00'00'00'00'00'43,
-		MatPop = 0x00'00'00'00'00'00'00'44,
-		MatAdd = 0x00'00'00'00'00'00'00'45,
-		MatSub = 0x00'00'00'00'00'00'00'46,
-		MatMul = 0x00'00'00'00'00'00'00'47,
-		MatDiv = 0x00'00'00'00'00'00'00'48,
+		Int = 0x00,
+		Intrin = 0x01,
+		CIntrin = 0x02,
+		Call = 0x03,
+		Ret = 0x04,
+		Mov = 0x05,
+		Sto = 0x06,
+		Push = 0x07,
+		Pop = 0x08,
+		Pop2 = 0x09,
+		Dupl = 0x0A,
+		Dupl2 = 0x0B,
+		Swap = 0x0C,
+		NOp = 0x0D,
+		Jmp = 0x0E,
+		JmpRel = 0x0F,
+		Jz = 0x10,
+		Jnz = 0x11,
+		JoCmpi = 0x12,
+		JoCmpf = 0x13,
+		JnoCmpi = 0x14,
+		JnoCmpf = 0x15,
+		JeCmpi = 0x16,
+		JeCmpf = 0x17,
+		JneCmpi = 0x18,
+		JneCmpf = 0x19,
+		JaCmpi = 0x1A,
+		JaCmpf = 0x1B,
+		JlCmpi = 0x1C,
+		JlCmpf = 0x1D,
+		JaeCmpi = 0x1E,
+		JaeCmpf = 0x1F,
+		JleCmpi = 0x20,
+		JleCmpf = 0x21,
+		PushZ = 0x22,
+		IPushO = 0x23,
+		FPushO = 0x24,
+		IInc = 0x25,
+		IDec = 0x26,
+		IAdd = 0x27,
+		ISub = 0x28,
+		IMul = 0x29,
+		IDiv = 0x2A,
+		IMod = 0x2B,
+		IAnd = 0x2C,
+		IOr = 0x2D,
+		IXor = 0x2E,
+		ICom = 0x2F,
+		ISal = 0x30,
+		ISar = 0x31,
+		IRol = 0x32,
+		IRor = 0x33,
+		INeg = 0x34,
+		FAdd = 0x35,
+		FSub = 0x36,
+		FMul = 0x37,
+		FDiv = 0x38,
+		FMod = 0x39,
+		FNeg = 0x3A,
+		FInc = 0x3B,
+		FDec = 0x3C,
+		VecPush = 0x3D,
+		VecPop = 0x3E,
+		VecAdd = 0x3F,
+		VecSub = 0x40,
+		VecMul = 0x41,
+		VecDiv = 0x42,
+		MatPush = 0x43,
+		MatPop = 0x44,
+		MatAdd = 0x45,
+		MatSub = 0x46,
+		MatMul = 0x47,
+		MatDiv = 0x48,
 
 		/* count of total instructions */
 		Count_
@@ -305,7 +305,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all instruction mnemonics.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::Count_)> INSTRUCTION_MNEMONICS
+	constexpr std::array<const std::string_view, ToUnderlying(Instruction::Count_)> INSTRUCTION_MNEMONIC_TABLE
 	{
 		"int",
 		"intrin",
@@ -387,18 +387,19 @@ namespace Nominax::ByteCode
 	/// </summary>
 	enum class InstructionCategory : U8
 	{
-		Control,
-		Memory,
-		Branching,
-		Arithmetic,
-		BitWise
+		Control = 0x00,
+		Memory = 0x01,
+		Branching = 0x02,
+		Arithmetic = 0x03,
+		BitWise = 0x04,
+		VectorSimd = 0x05
 	};
 
 	/// <summary>
 	/// Contains the categories of all instructions.
 	/// </summary>
 	[[maybe_unused]]
-	constexpr std::array INSTRUCTION_CATEGORIES
+	constexpr std::array<const InstructionCategory, ToUnderlying(Instruction::Count_)> INSTRUCTION_CATEGORY_TABLE
 	{
 		InstructionCategory::Control,
 		InstructionCategory::Control,
@@ -463,16 +464,22 @@ namespace Nominax::ByteCode
 		InstructionCategory::Arithmetic,
 		InstructionCategory::Memory,
 		InstructionCategory::Memory,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
-		InstructionCategory::Arithmetic,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd
 	};
 
 	/// <summary>
 	/// Contains the amount of stack pushes each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, static_cast<U64>(Instruction::Count_)> INSTRUCTION_PUSH_COUNTS
+	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_PUSH_RECORD_TABLE
 	{
 		0,
 		0,
@@ -540,13 +547,19 @@ namespace Nominax::ByteCode
 		4,
 		4,
 		4,
-		4
+		4,
+		16,
+		0,
+		16,
+		16,
+		16,
+		16
 	};
 
 	/// <summary>
 	/// Contains the amount of stack pops each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, static_cast<U64>(Instruction::Count_)> INSTRUCTION_POP_COUNTS
+	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_POP_RECORD_TABLE
 	{
 		0,
 		0,
@@ -614,13 +627,112 @@ namespace Nominax::ByteCode
 		8,
 		8,
 		8,
-		8
+		8,
+		0,
+		16,
+		32,
+		32,
+		32,
+		32
 	};
+
+	/// <summary>
+	/// Contains the amount of required immediate arguments for each instruction.
+	/// </summary>
+	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARG_TABLE
+	{
+		1,
+		1,
+		1,
+		1,
+		0,
+		2,
+		2,
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		4,
+		0,
+		0,
+		0,
+		0,
+		0,
+		16,
+		0,
+		0,
+		0,
+		0,
+		0
+	};
+
+	consteval auto FindMaxImmediateArgumentCount() -> U8
+	{
+		U8 max {0};
+		for (const U8 x : INSTRUCTION_IMMEDIATE_ARG_TABLE)
+		{
+			max = std::max(max, x);
+		}
+		return max;
+	}
+
+	constexpr U8 MAX_IMMEDIATE_ARGUMENTS {FindMaxImmediateArgumentCount()};
+	static_assert(MAX_IMMEDIATE_ARGUMENTS);
 
 	/// <summary>
 	/// Contains a short descriptions for all instructions.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::Count_)> INSTRUCTION_DESCRIPTIONS
+	constexpr std::array<const std::string_view, ToUnderlying(Instruction::Count_)> INSTRUCTION_DESCRIPTOR_TABLE
 	{
 		"interrupt reactor execution",
 		"call intrinsic system routine",
@@ -683,149 +795,62 @@ namespace Nominax::ByteCode
 		"floating point negation",
 		"floating point increment",
 		"floating point decrement",
-		"push quad vector",
-		"pop quad vector",
-		"floating point quad vector addition",
-		"floating point quad vector subtraction",
-		"floating point quad vector multiplication",
-		"floating point quad vector division",
+		"push vec4 quad vector",
+		"pop vec4 quad vector",
+		"simd floating point vec4 quad vector addition",
+		"simd floating point vec4 quad vector subtraction",
+		"simd floating point vec4 quad vector multiplication",
+		"simd floating point vec4 quad vector division",
+		"push mat4x4 matrix",
+		"pop mat4x4 matrix",
+		"simd floating point mat4x4 matrix addition",
+		"simd floating point mat4x4 matrix subtraction",
+		"simd floating point mat4x4 matrix multiplication",
+		"simd floating point mat4x4 matrix division"
 	};
 
 	/// <summary>
-	/// Contains the count of required immediate arguments for each instruction.
+	/// Subroutine invocation id for system intrinsic routines.
 	/// </summary>
-	constexpr std::array<U8, static_cast<U64>(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS
+	enum class alignas(alignof(U64)) SystemIntrinsicInvocationID : U64
 	{
-		1, // int
-		1,
-		1,
-		1,
-		0,
-		2, // mov
-		2, // sto
-		1, // push
-		0,
-		0,
-		0,
-		0,
-		0, // swap
-		0, // nop
-		1, // jmp
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		4,
-		0,
-		0,
-		0,
-		0,
-		0,
-		16,
-		0,
-		0,
-		0,
-		0,
-		0,
-	};
-
-	consteval auto FindMaxImmediateArgumentCount() -> U8
-	{
-		U8 max {0};
-		for (const U8 x : INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS)
-		{
-			max = std::max(max, x);
-		}
-		return max;
-	}
-
-	constexpr U8 MAX_IMMEDIATE_ARGUMENTS {FindMaxImmediateArgumentCount()};
-	static_assert(MAX_IMMEDIATE_ARGUMENTS);
-
-	/// <summary>
-	/// Call id for system intrinsic routine.
-	/// </summary>
-	enum class alignas(alignof(U64)) SystemIntrinsicCallID : U64
-	{
-		Cos = 0x00'00'00'00'00'00'00'00,
-		Sin = 0x00'00'00'00'00'00'00'01,
-		Tan = 0x00'00'00'00'00'00'00'02,
-		ACos = 0x00'00'00'00'00'00'00'03,
-		ASin = 0x00'00'00'00'00'00'00'04,
-		ATan = 0x00'00'00'00'00'00'00'05,
-		ATan2 = 0x00'00'00'00'00'00'00'06,
-		CosH = 0x00'00'00'00'00'00'00'07,
-		SinH = 0x00'00'00'00'00'00'00'08,
-		TanH = 0x00'00'00'00'00'00'00'09,
-		ACosH = 0x00'00'00'00'00'00'00'0A,
-		ASinH = 0x00'00'00'00'00'00'00'0B,
-		ATanH = 0x00'00'00'00'00'00'00'0C,
-		Exp = 0x00'00'00'00'00'00'00'0D,
-		Log = 0x00'00'00'00'00'00'00'0E,
-		Log10 = 0x00'00'00'00'00'00'00'0F,
-		Exp2 = 0x00'00'00'00'00'00'00'10,
-		ILogB = 0x00'00'00'00'00'00'00'11,
-		Log2 = 0x00'00'00'00'00'00'00'12,
-		Pow = 0x00'00'00'00'00'00'00'13,
-		Sqrt = 0x00'00'00'00'00'00'00'14,
-		Cbrt = 0x00'00'00'00'00'00'00'15,
-		Hypot = 0x00'00'00'00'00'00'00'16,
-		Ceil = 0x00'00'00'00'00'00'00'17,
-		Floor = 0x00'00'00'00'00'00'00'18,
-		Round = 0x00'00'00'00'00'00'00'19,
-		RInt = 0x00'00'00'00'00'00'00'1A,
-		IMax = 0x00'00'00'00'00'00'00'1B,
-		IMin = 0x00'00'00'00'00'00'00'1C,
-		FMax = 0x00'00'00'00'00'00'00'1D,
-		FMin = 0x00'00'00'00'00'00'00'1E,
-		Dim = 0x00'00'00'00'00'00'00'1F,
-		IAbs = 0x00'00'00'00'00'00'00'20,
-		FAbs = 0x00'00'00'00'00'00'00'21,
-		IoPortWriteCluster = 0x00'00'00'00'00'00'00'22,
-		IoPortReadCluster = 0x00'00'00'00'00'00'00'23,
-		IoPortFlush = 0x00'00'00'00'00'00'00'24,
+		Cos = 0x00,
+		Sin = 0x01,
+		Tan = 0x02,
+		ACos = 0x03,
+		ASin = 0x04,
+		ATan = 0x05,
+		ATan2 = 0x06,
+		CosH = 0x07,
+		SinH = 0x08,
+		TanH = 0x09,
+		ACosH = 0x0A,
+		ASinH = 0x0B,
+		ATanH = 0x0C,
+		Exp = 0x0D,
+		Log = 0x0E,
+		Log10 = 0x0F,
+		Exp2 = 0x10,
+		ILogB = 0x11,
+		Log2 = 0x12,
+		Pow = 0x13,
+		Sqrt = 0x14,
+		Cbrt = 0x15,
+		Hypot = 0x16,
+		Ceil = 0x17,
+		Floor = 0x18,
+		Round = 0x19,
+		RInt = 0x1A,
+		IMax = 0x1B,
+		IMin = 0x1C,
+		FMax = 0x1D,
+		FMin = 0x1E,
+		Dim = 0x1F,
+		IAbs = 0x20,
+		FAbs = 0x21,
+		IoPortWriteCluster = 0x22,
+		IoPortReadCluster = 0x23,
+		IoPortFlush = 0x24,
 
 		/* !no intrinsic routine - count of total intrinsic routines! */
 		Count_
@@ -839,9 +864,9 @@ namespace Nominax::ByteCode
 	enum class alignas(alignof(U64)) JumpAddress : U64;
 
 	/// <summary>
-	/// Call id for custom intrinsic routine.
+	/// Subroutine invocation id for custom intrinsic routine.
 	/// </summary>
-	enum class alignas(alignof(U64)) UserIntrinsicCallID : U64;
+	enum class alignas(alignof(U64)) UserIntrinsicInvocationID : U64;
 
 	/// <summary>
 	/// Custom intrinsic routine function prototype.
@@ -990,10 +1015,9 @@ namespace Nominax::ByteCode
 		InvalidUserIntrinsicCall,
 
 		/// <summary>
-		/// Maximum dynamic signals for validation: 0xFF'FF'FF'FF,
-		/// because pointers are compressed to 32-bit in the validator internally.
+		/// No error, just the amount of errors.
 		/// </summary>
-		SignalLimitReached
+		Count_
 	};
 
 	/// <summary>
@@ -1004,7 +1028,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all byte code validation error messages.
 	/// </summary>
-	constexpr std::array<std::string_view, 10> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
+	constexpr std::array<std::string_view, ToUnderlying(ValidationResultCode::Count_)> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
 	{
 		"Ok",
 		"Too many arguments provided!",
@@ -1015,7 +1039,6 @@ namespace Nominax::ByteCode
 		"Missing code epilogue!",
 		"Jump address is out of range or does not point to an instruction!",
 		"Unknown system intrinsic call!",
-		"Signal limit reached! Because of pointer compression no more than (2 ^ 32) - 1 signals are allowed!"
 	};
 
 	/// <summary>
@@ -1122,12 +1145,12 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as system intrinsic call id.
 		/// </summary>
-		SystemIntrinsicCallID SystemIntrinID;
+		SystemIntrinsicInvocationID SystemIntrinID;
 
 		/// <summary>
 		/// Reinterpret as custom intrinsic call id.
 		/// </summary>
-		UserIntrinsicCallID UserIntrinID;
+		UserIntrinsicInvocationID UserIntrinID;
 
 		/// <summary>
 		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
@@ -1169,14 +1192,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(SystemIntrinsicCallID value);
+		explicit constexpr Signal(SystemIntrinsicInvocationID value);
 
 		/// <summary>
 			/// Construct from custom intrinsic call id.
 			/// </summary>
 			/// <param name="value">The initial value.</param>
 			/// <returns></returns>
-		explicit constexpr Signal(UserIntrinsicCallID value);
+		explicit constexpr Signal(UserIntrinsicInvocationID value);
 
 		/// <summary>
 		/// Construct from void pointer.
@@ -1244,8 +1267,8 @@ namespace Nominax::ByteCode
 
 	constexpr Signal::Signal(const Foundation::Record value) : R64 {value} {}
 	constexpr Signal::Signal(const Instruction value) : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicCallID value) : SystemIntrinID {value} {}
-	constexpr Signal::Signal(const UserIntrinsicCallID value) : UserIntrinID {value} {}
+	constexpr Signal::Signal(const SystemIntrinsicInvocationID value) : SystemIntrinID {value} {}
+	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID {value} {}
 	constexpr Signal::Signal(void* const value) : Ptr {value} {}
 	constexpr Signal::Signal(const I64 value) : R64 {value} {}
 	constexpr Signal::Signal(const U64 value) : R64 {value} {}
@@ -1295,11 +1318,11 @@ namespace Nominax::ByteCode
 		{
 			return {Signal::Discriminator::Instruction};
 		}
-		else if constexpr (std::is_same_v<SystemIntrinsicCallID, T>)
+		else if constexpr (std::is_same_v<SystemIntrinsicInvocationID, T>)
 		{
 			return {Signal::Discriminator::SystemIntrinsicCallID};
 		}
-		else if constexpr (std::is_same_v<UserIntrinsicCallID, T>)
+		else if constexpr (std::is_same_v<UserIntrinsicInvocationID, T>)
 		{
 			return {Signal::Discriminator::UserIntrinsicCallID};
 		}
@@ -1497,7 +1520,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all immediate argument types for each instruction.
 	/// </summary>
-	inline const std::array<PerInstructionArgTypes, static_cast<U64>(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
+	inline const std::array<PerInstructionArgTypes, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
 		PerInstructionArgTypes {{Signal::Discriminator::I64}},                      // int
 		{{Signal::Discriminator::SystemIntrinsicCallID}},                           // intrin
@@ -1923,7 +1946,7 @@ namespace Nominax::ByteCode
 	template <const Instruction I, typename... Ts>
 	concept ValidInstruction = requires
 	{
-		requires sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARGUMENT_COUNTS[static_cast<std::underlying_type_t<decltype(I)>>(I)];
+		requires sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARG_TABLE[ToUnderlying(I)];
 	};
 
 	/// <summary>
@@ -2275,14 +2298,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
-		auto operator <<(SystemIntrinsicCallID intrin) -> Stream&;
+		auto operator <<(SystemIntrinsicInvocationID intrin) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
-		auto operator <<(UserIntrinsicCallID intrin) -> Stream&;
+		auto operator <<(UserIntrinsicInvocationID intrin) -> Stream&;
 
 		/// <summary>
 		/// Push stream entry.
@@ -2609,7 +2632,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const SystemIntrinsicCallID intrin) -> Stream&
+	inline auto Stream::operator <<(const SystemIntrinsicInvocationID intrin) -> Stream&
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {intrin});
@@ -2617,7 +2640,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const UserIntrinsicCallID intrin) -> Stream&
+	inline auto Stream::operator <<(const UserIntrinsicInvocationID intrin) -> Stream&
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {intrin});
@@ -2691,7 +2714,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	NOX_FORCE_INLINE inline auto ComputeRelativeJumpAddress(const Signal* const base, const JumpAddress address) -> const void*
 	{
-		return base + static_cast<std::underlying_type_t<decltype(address)>>(address) - 1;
+		return base + ToUnderlying(address) - 1;
 	}
 
 	/// <summary>
@@ -3034,7 +3057,7 @@ namespace Nominax::ByteCode
 	inline auto ScopedVariable<T>::Unwrap() const -> T
 	{
 		#if NOX_DEBUG
-				return this->Attached_.Back().template Unwrap<T>().value();
+		return this->Attached_.Back().template Unwrap<T>().value();
 		#else
 		return *this->Attached_.Back().template Unwrap<T>();
 		#endif
@@ -3271,7 +3294,7 @@ namespace Nominax::ByteCode
 	/// <param name="id"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateSystemIntrinsicCall(SystemIntrinsicCallID id) -> bool;
+	extern auto ValidateSystemIntrinsicCall(SystemIntrinsicInvocationID id) -> bool;
 
 	/// <summary>
 	/// Validates a user intrinsic call id. To be valid the call id must be:
@@ -3282,7 +3305,7 @@ namespace Nominax::ByteCode
 	/// <param name="id"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicCallID id) -> bool;
+	extern auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicInvocationID id) -> bool;
 
 	/// <summary>
 	/// 
@@ -3375,4 +3398,433 @@ namespace Nominax::ByteCode
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
 	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }, U32* outIndex = nullptr) -> ValidationResultCode;
+
+	/// <summary>
+	/// Implements the shunting yard algorithm which can be used to parse an infix expression
+	/// to RPN (Reverse Polish Notation) or an AST (Abstract Syntax Tree).
+	/// </summary>
+	template <typename Scalar, typename Operator>
+	struct ShuntingYardEvaluator final
+	{
+		/// <summary>
+		/// Generic gate.
+		/// </summary>
+		using InfixGate = std::variant<Scalar, Operator>;
+
+		/// <summary>
+		/// Expression output queue.
+		/// </summary>
+		std::vector<InfixGate> OutputQueue { };
+
+		/// <summary>
+		/// Operator stack.
+		/// </summary>
+		std::stack<InfixGate> OperatorStack { };
+
+		/// <summary>
+		/// Evaluates an infix expression.
+		/// </summary>
+		/// <param name="chain"></param>
+		/// <returns></returns>
+		auto EvaluateExpressionChain(std::span<InfixGate> chain) -> void;
+
+		/// <summary>
+		/// Pushes a new infix gate.
+		/// A scalar is pushed into the output queue,
+		/// and operator into the operator stack.
+		/// </summary>
+		/// <param name="infixGate"></param>
+		/// <returns></returns>
+		auto Push(const InfixGate& infixGate) -> void;
+
+		/// <summary>
+		/// Pushes a scalar into the output queue.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto DirectPush(Scalar&& value) -> void;
+
+		/// <summary>
+		/// Pushes an operator into the operator stack.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto DirectPush(Operator&& value) -> void;
+
+		/// <summary>
+		/// Pops off all operators from the operator stack
+		/// and pushes them into the output queue.
+		/// Inside the output queue a RPN is generated.
+		/// </summary>
+		/// <returns></returns>
+		auto Complete() -> std::vector<InfixGate>&;
+
+		/// <summary>
+		/// Clears the operand stack and the output queue.
+		/// </summary>
+		/// <returns></returns>
+		auto Reset() -> void;
+
+		/// <summary>
+		/// Subscript output queue.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator [](U64 idx) const -> const InfixGate&;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto begin() -> typename std::vector<InfixGate>::iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		[[nodiscard]]
+		auto end() -> typename std::vector<InfixGate>::iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto cbegin() const -> typename std::vector<InfixGate>::const_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto cend() const -> typename std::vector<InfixGate>::const_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto rbegin() -> typename std::vector<InfixGate>::reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto rend() -> typename std::vector<InfixGate>::reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto crbegin() const -> typename std::vector<InfixGate>::const_reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto crend() const -> typename std::vector<InfixGate>::const_reverse_iterator;
+	};
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::EvaluateExpressionChain(const std::span<InfixGate> chain) -> void
+	{
+		for (const auto& infixGate : chain)
+		{
+			this->Push(infixGate);
+		}
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::Push(const InfixGate& infixGate) -> void
+	{
+		if (std::holds_alternative<Scalar>(infixGate))
+		{
+			this->OutputQueue.emplace_back(infixGate);
+		}
+		else
+		{
+			this->OperatorStack.push(infixGate);
+		}
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::DirectPush(Scalar&& value) -> void
+	{
+		this->OutputQueue.push(InfixGate {value});
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::DirectPush(Operator&& value) -> void
+	{
+		this->OperatorStack.push(InfixGate {value});
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::Complete() -> std::vector<InfixGate>&
+	{
+		while (!std::empty(OperatorStack))
+		{
+			this->OutputQueue.emplace_back(this->OperatorStack.top());
+			this->OperatorStack.pop();
+		}
+		return this->OutputQueue;
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::Reset() -> void
+	{
+		{
+			std::queue<InfixGate> empty { };
+			std::swap(this->OutputQueue, empty);
+		}
+		{
+			std::stack<InfixGate> empty { };
+			std::swap(this->OperatorStack, empty);
+		}
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::operator[](const U64 idx) const -> const InfixGate&
+	{
+		return this->OutputQueue[idx];
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::begin() -> typename std::vector<InfixGate>::iterator
+	{
+		return std::begin(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::end() -> typename std::vector<InfixGate>::iterator
+	{
+		return std::end(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::cbegin() const -> typename std::vector<InfixGate>::const_iterator
+	{
+		return std::cbegin(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::cend() const -> typename std::vector<InfixGate>::const_iterator
+	{
+		return std::cend(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::rbegin() -> typename std::vector<InfixGate>::reverse_iterator
+	{
+		return std::rbegin(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::rend() -> typename std::vector<InfixGate>::reverse_iterator
+	{
+		return std::rend(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::crbegin() const -> typename std::vector<InfixGate>::const_reverse_iterator
+	{
+		return std::crbegin(this->OutputQueue);
+	}
+
+	template <typename Scalar, typename Operator>
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::crend() const -> typename std::vector<InfixGate>::const_reverse_iterator
+	{
+		return std::crend(this->OutputQueue);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto begin(ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::iterator
+	{
+		return obj.begin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto end(ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::iterator
+	{
+		return obj.end();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto cbegin(const ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::const_iterator
+	{
+		return obj.cbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto cend(const ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::const_iterator
+	{
+		return obj.cend();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto rbegin(ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::reverse_iterator
+	{
+		return obj.rbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto rend(ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::reverse_iterator
+	{
+		return obj.rend();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto crbegin(const ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::const_reverse_iterator
+	{
+		return obj.crbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <typeparam name="Scalar"></typeparam>
+	/// <typeparam name="Operator"></typeparam>
+	/// <param name="obj"></param>
+	/// <returns></returns>
+	template <typename Scalar, typename Operator>
+	inline auto crend(const ShuntingYardEvaluator<Scalar, Operator>& obj) -> typename std::vector<typename ShuntingYardEvaluator<Scalar, Operator>::InfixGate>::const_reverse_iterator
+	{
+		return obj.crend();
+	}
+
+	/// <summary>
+	/// Wrapper around a Stream which provides
+	/// simple byte code generation methods for function local execution code.
+	/// </summary>
+	struct LocalCodeGenerationLayer final
+	{
+		/// <summary>
+		/// Enable peephole code generation optimizations.
+		/// </summary>
+		bool EnablePeepholeOptimizations {NOX_RELEASE};
+
+		/// <summary>
+		/// The target output stream.
+		/// </summary>
+		Stream& Emitter;
+
+		/// <summary>
+		/// Construct with target stream.
+		/// </summary>
+		/// <param name="emitter">The target stream to emit byte code to.</param>
+		explicit LocalCodeGenerationLayer(Stream& emitter);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		LocalCodeGenerationLayer(const LocalCodeGenerationLayer& other) = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		LocalCodeGenerationLayer(LocalCodeGenerationLayer&& other) = delete;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		auto operator =(const LocalCodeGenerationLayer& other) -> LocalCodeGenerationLayer& = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		auto operator =(LocalCodeGenerationLayer&& other) -> LocalCodeGenerationLayer& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~LocalCodeGenerationLayer() = default;
+
+		auto Emit(Instruction instruction) -> LocalCodeGenerationLayer&;
+
+		/// <summary>
+		/// Emits and optimizes a push.
+		/// </summary>
+		/// <param name="value">The immediate value to push.</param>
+		auto EmitPush(I64 value) -> LocalCodeGenerationLayer&;
+
+		/// <summary>
+		/// Emits and optimizes a push.
+		/// </summary>
+		/// <param name="value">The immediate value to push.</param>
+		auto EmitPush(F64 value) -> LocalCodeGenerationLayer&;
+
+		/// <summary>
+		/// Emits and optimizes a certain amount of pops.
+		/// </summary>
+		/// <param name="popCount"></param>
+		/// <returns></returns>
+		auto EmitPop(U16 popCount = 1) -> LocalCodeGenerationLayer&;
+	};
+
+	inline LocalCodeGenerationLayer::LocalCodeGenerationLayer(Stream& emitter) : Emitter {emitter} { }
+
+	inline auto LocalCodeGenerationLayer::Emit(const Instruction instruction) -> LocalCodeGenerationLayer&
+	{
+		this->Emitter << instruction;
+		return *this;
+	}
 }

@@ -222,31 +222,31 @@ auto formatter<Instruction, char, void>::format
 	(
 		ctx.out(),
 		"{}",
-		INSTRUCTION_MNEMONICS[static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)]
+		INSTRUCTION_MNEMONIC_TABLE[ToUnderlying(value)]
 	);
 }
 
-auto formatter<SystemIntrinsicCallID, char, void>::format
+auto formatter<SystemIntrinsicInvocationID, char, void>::format
 (
-	const SystemIntrinsicCallID& value,
-	format_context&              ctx
+	const SystemIntrinsicInvocationID& value,
+	format_context&                    ctx
 ) const -> FormatOutput
 {
-	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value));
+	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
 }
 
-auto formatter<UserIntrinsicCallID, char, void>::format
+auto formatter<UserIntrinsicInvocationID, char, void>::format
 (
-	const UserIntrinsicCallID& value,
-	format_context&            ctx
+	const UserIntrinsicInvocationID& value,
+	format_context&                  ctx
 ) const -> FormatOutput
 {
-	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value));
+	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
 }
 
 auto formatter<JumpAddress, char, void>::format(const JumpAddress& value, format_context& ctx) const -> FormatOutput
 {
-	return format_to(ctx.out(), "{:#X}", static_cast<std::underlying_type_t<JumpAddress>>(value));
+	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
 }
 
 auto formatter<CharClusterUtf8, char, void>::format
@@ -294,7 +294,7 @@ auto formatter<ValidationResultCode, char, void>::format
 	format_context&             ctx
 ) const -> FormatOutput
 {
-	const auto idx {static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
+	const auto idx {ToUnderlying(value)};
 	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);
 }
 
@@ -304,7 +304,7 @@ auto formatter<ReactorValidationResult, char, void>::format
 	format_context&                ctx
 ) const -> FormatOutput
 {
-	const auto idx {static_cast<std::underlying_type_t<std::remove_reference_t<decltype(value)>>>(value)};
+	const auto idx {ToUnderlying(value)};
 	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
 }
 
@@ -319,36 +319,36 @@ auto formatter<DiscriminatedSignal, char, void>::format
 	switch (value.Discriminator)
 	{
 		case Dis::U64:
-			return format_to(ctx.out(), "%u64 ${}", value.Value.R64.AsU64);
+			return format_to(ctx.out(), "*u64 ${}", value.Value.R64.AsU64);
 
 		case Dis::I64:
-			return format_to(ctx.out(), "%i64 ${}", value.Value.R64.AsI64);
+			return format_to(ctx.out(), "*i64 ${}", value.Value.R64.AsI64);
 
 		case Dis::F64:
-			return format_to(ctx.out(), "%f64 ${}", value.Value.R64.AsF64);
+			return format_to(ctx.out(), "*f64 ${}", value.Value.R64.AsF64);
 
 		case Dis::CharClusterUtf8:
 		case Dis::CharClusterUtf16:
 		case Dis::CharClusterUtf32:
-			return format_to(ctx.out(), "{}", reinterpret_cast<const char*>(&value.Value.R64));
+			return format_to(ctx.out(), "*chc ${:X}", value.Value.R64.AsU64);
 
 		case Dis::OpCode:
 		case Dis::Instruction:
-			return format_to(ctx.out(), "*{}", value.Value.Instr);
+			return format_to(ctx.out(), "%{}", value.Value.Instr);
 
 		case Dis::SystemIntrinsicCallID:
-			return format_to(ctx.out(), "&{}",
-			                 static_cast<std::underlying_type_t<SystemIntrinsicCallID>>(value.Value.SystemIntrinID));
+			return format_to(ctx.out(), "*sys ${}",
+			                 ToUnderlying(value.Value.SystemIntrinID));
 
 		case Dis::UserIntrinsicCallID:
-			return format_to(ctx.out(), "&{}",
-			                 static_cast<std::underlying_type_t<UserIntrinsicCallID>>(value.Value.UserIntrinID));
+			return format_to(ctx.out(), "*usr ${}",
+			                 ToUnderlying(value.Value.UserIntrinID));
 
 		case Dis::JumpAddress:
-			return format_to(ctx.out(), "#{}",
-			                 static_cast<std::underlying_type_t<JumpAddress>>(value.Value.JmpAddress));
-	    default:
-        case Dis::Ptr:
-			return format_to(ctx.out(), "#{:X}", value.Value.R64.AsU64);
+			return format_to(ctx.out(), "*rel {}",
+			                 ToUnderlying(value.Value.JmpAddress));
+		default:
+		case Dis::Ptr:
+			return format_to(ctx.out(), "*ref {:X}", value.Value.R64.AsU64);
 	}
 }

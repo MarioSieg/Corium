@@ -403,7 +403,7 @@ namespace Nominax::Assembler::X86_64
 		return;
 	}
 
-	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::Count_)> NAME_TABLE
+	constexpr std::array<const std::string_view, ToUnderlying(Instruction::Count_)> NAME_TABLE
 	{
 		"ADC",
 		"ADCX",
@@ -1637,7 +1637,7 @@ namespace Nominax::Assembler::X86_64
 	/// <summary>
 	/// Contains all instruction descriptions.
 	/// </summary>
-	constexpr std::array<const std::string_view, static_cast<U64>(Instruction::Count_)> INFO_TABLE
+	constexpr std::array<const std::string_view, ToUnderlying(Instruction::Count_)> INFO_TABLE
 	{
 		"Add with Carry",
 		"Unsigned Integer Addition of Two Operands with Carry Flag",
@@ -2868,7 +2868,7 @@ namespace Nominax::Assembler::X86_64
 		"Bitwise Logical XOR for Single-Precision Floating-Point Values"
 	};
 
-	constexpr std::array<U8, static_cast<U64>(Instruction::Count_)> VARIATION_SIZE_TABLE
+	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> VARIATION_SIZE_TABLE
 	{
 		30,
 		4,
@@ -4099,24 +4099,24 @@ namespace Nominax::Assembler::X86_64
 		2
 	};
 
-	auto GetInstructionNameTable() -> const std::array<const std::string_view, static_cast<U64>(Instruction::Count_)>&
+	auto GetInstructionNameTable() -> const std::array<const std::string_view, ToUnderlying(Instruction::Count_)>&
 	{
 		return NAME_TABLE;
 	}
 
-	auto GetInstructionInfoTable() -> const std::array<const std::string_view, static_cast<U64>(Instruction::Count_)>&
+	auto GetInstructionInfoTable() -> const std::array<const std::string_view, ToUnderlying(Instruction::Count_)>&
 	{
 		return INFO_TABLE;
 	}
 
-	auto GetVariationSizeTable() -> const std::array<U8, static_cast<U64>(Instruction::Count_)>&
+	auto GetVariationSizeTable() -> const std::array<U8, ToUnderlying(Instruction::Count_)>&
 	{
 		return VARIATION_SIZE_TABLE;
 	}
 
 	auto GetVariationTable(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void
 	{
-		out.reserve(static_cast<U64>(Instruction::Count_));
+		out.reserve(ToUnderlying(Instruction::Count_));
 		GetVariationTable_0(allocator, out);
 		GetVariationTable_1(allocator, out);
 		GetVariationTable_2(allocator, out);

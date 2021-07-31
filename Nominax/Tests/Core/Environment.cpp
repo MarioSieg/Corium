@@ -492,7 +492,7 @@ TEST(Environment, Execution)
 	const auto executor {
 		[&]
 		{
-			ASSERT_EQ(env.Execute(std::move(stream)).first, ReactorShutdownReason::Success);
+			ASSERT_EQ(env.Execute(std::move(stream)).ShutdownReason, ReactorShutdownReason::Success);
 		}
 	};
 	ASSERT_NO_FATAL_FAILURE(executor());
