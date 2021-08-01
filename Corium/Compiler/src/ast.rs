@@ -1,13 +1,16 @@
+use std::fmt;
+
 #[derive(Debug)]
 pub enum Expr {
-    Immediate(i64),
-    Operation(Box<Expr>, Opcode, Box<Expr>),
+    Imm(i64),
+    Operation(Box<Expr>, Operator, Box<Expr>),
 }
 
 #[derive(Debug)]
-pub enum Opcode {
-    Mul,
-    Div,
+pub enum Operator {
     Add,
     Sub,
+    Mul,
+    Div,
+    Mod,
 }

@@ -1,31 +1,24 @@
 
-use crate::ast::{Expr, Opcode};
+use crate::ast::{Expr, Operator};
 use crate::literal::*;
 
 grammar;
 
 pub Expr: Box<Expr> = {
-    Expr ExprOp Factor => Box::new(Expr::Operation(<>)),
-    Factor,
+    Expr ExprOp Imm => Box::new(Expr::Operation(<>)),
+    Imm
 };
 
-pub ExprOp: Opcode = {
-    "+" => Opcode::Add,
-    "-" => Opcode::Sub,
+pub ExprOp: Operator = {
+    "+" => Operator::Add,
+    "-" => Operator::Sub,
+    "*" => Operator::Mul,
+    "/" => Operator::Div,
+    "%" => Operator::Mod
 };
 
-pub Factor: Box<Expr> = {
-    Factor FactorOp Term => Box::new(Expr::Operation(<>)),
-    Term,
-};
-
-pub FactorOp: Opcode = {
-    "*" => Opcode::Mul,
-    "/" => Opcode::Div,
-};
-
-pub Term: Box<Expr> = {
-    Int => Box::new(Expr::Immediate(<>)),
+pub Imm: Box<Expr> = {
+    Int => Box::new(Expr::Imm(<>)),
     "(" <Expr> ")"
 };
 
