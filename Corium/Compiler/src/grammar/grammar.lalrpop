@@ -1,5 +1,6 @@
-use std::str::FromStr;
+
 use crate::ast::{Expr, Opcode};
+use crate::literal::*;
 
 grammar;
 
@@ -29,5 +30,8 @@ pub Term: Box<Expr> = {
 };
 
 pub Int: i64 = {
-    r"-?[0-9]+" => i64::from_str(<>).unwrap()
+    r"-?[0-9_]+" => parse_int_literal_dec(<>),
+    r"-?0[x][0-9a-fA-F_]+" => parse_int_literal_hex(<>),
+    r"-?0[b][0-1_]+" => parse_int_literal_bin(<>),
+    r"-?0[o][0-7_]+" => parse_int_literal_oct(<>)
 };
