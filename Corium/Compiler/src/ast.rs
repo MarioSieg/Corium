@@ -1,3 +1,4 @@
+use smallvec::SmallVec;
 use std::fmt;
 
 pub trait TokenTable: fmt::Display {
@@ -27,7 +28,7 @@ macro_rules! impl_token_base {
 
 /// Represents an AST node.
 pub enum Node {
-    Module(Identifier),
+    Module(QualifiedName),
     Function(Function),
 }
 
@@ -172,6 +173,14 @@ pub enum UnaryOperator {
 
 impl_token_base!(UnaryOperator, ["+", "-", "not", "~"]);
 
+/// Represents a qualified name - such as a module name or a class type name.
+/// Qualified names can be seperated into sub paths by dots.
+/// E. g. TestClass
+/// E. g. Module.TestClass
+/// E. g. Module.TestClass.Function
+pub type QualifiedName = SmallVec<[Identifier; 16]>;
+
+/// Represents an identifier such as a class or variable name.
 pub type Identifier = String;
 
 /// Represents a Corium "int".

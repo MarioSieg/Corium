@@ -1,4 +1,5 @@
 use crate::error::*;
+use crate::parser::parse_source;
 use std::fs;
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -64,36 +65,14 @@ impl CompilationUnit {
     }
 
     /// Compiles this compilation unit.
-    pub fn compile(mut self) -> Result<(), Vec<Error>> {
-        use crate::parser::*;
-        use pest::Parser;
-
-        let file = CoriumParser::parse(Rule::file, &self.source_code);
-        if let Err(error) = &file {
-            let input_location = match error.location {
-                pest::error::InputLocation::Pos(x) => InputLocation::Position(x),
-                pest::error::InputLocation::Span(range) => InputLocation::Span(range.0, range.1),
-            };
-            let source_location = match error.line_col {
-                pest::error::LineColLocation::Pos(pos) => SourceLocation::Position {
-                    line: pos.0,
-                    column: pos.1,
-                },
-                pest::error::LineColLocation::Span(range1, range2) => SourceLocation::Span {
-                    from: range1,
-                    to: range2,
-                },
-            };
-            let parse_err = ParseError {
-                input_location,
-                source_location,
-            };
-            self.error_list.push(Error::ParseError(parse_err));
-            return Err(self.error_list);
+    pub fn compile(self) -> Result<(), Vec<Error>> {
+        let file = parse_source(&self.source_code);
+        if let Err(e) = file {
+            return Result::Err(vec![e]);
         }
-        let file = file.unwrap().next().unwrap();
-        for entry in file.into_inner() {
-            println!("{}", entry);
+        let inner = file.unwrap().into_inner();
+        for r in inner {
+            println!("{}", r);
         }
         Ok(())
     }
