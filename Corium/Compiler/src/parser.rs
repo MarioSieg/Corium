@@ -4,7 +4,6 @@ use pest::error as pe;
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
 use pest_derive::*;
-use smallvec::smallvec;
 
 #[derive(Parser)]
 #[grammar = "corium.pest"]
@@ -29,7 +28,7 @@ pub fn parse_source(src: &str) -> Result<Vec<Node>, Error> {
 fn parse_rule_tree(rule: Pair<Rule>) -> Option<Node> {
     match rule.as_rule() {
         Rule::module_def => Some(visitors::module_def(rule)),
-        Rule::function_def => Some(visitors::module_def(rule)),
+        Rule::function_def => Some(visitors::function_def(rule)),
         Rule::qualified_name => Some(visitors::qualified_name(rule)),
         Rule::ident => Some(visitors::ident(rule)),
         Rule::compilation_unit | Rule::sep | Rule::EOI => None,
@@ -40,7 +39,7 @@ mod visitors {
     use super::*;
 
     pub fn module_def(rule: Pair<Rule>) -> Node {
-        Node::Module(smallvec![get_rule_text(rule)])
+        Node::Module(get_qualified_name(rule))
     }
 
     pub fn function_def(rule: Pair<Rule>) -> Node {
@@ -52,12 +51,19 @@ mod visitors {
     }
 
     pub fn qualified_name(rule: Pair<Rule>) -> Node {
-        Node::QualifiedName(smallvec![get_rule_text(rule)])
+        Node::QualifiedName(get_qualified_name(rule))
     }
 
     pub fn ident(rule: Pair<Rule>) -> Node {
         Node::Identifier(get_rule_text(rule))
     }
+}
+
+#[inline]
+fn get_qualified_name(rule: Pair<Rule>) -> QualifiedName {
+    get_rule_text(rule)
+        .split(BinaryOperator::Dot.get_token())
+        .collect()
 }
 
 #[inline]

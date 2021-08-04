@@ -115,6 +115,9 @@ impl_token_base!(CommentType, ["#", "##"]);
 #[repr(usize)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum BinaryOperator {
+    /// .
+    Dot,
+
     ///+
     Add,
 
@@ -166,7 +169,10 @@ pub enum BinaryOperator {
 
 impl_token_base!(
     BinaryOperator,
-    ["+", "-", "*", "/", "%", "and", "or", "&", "|", "^", "<<", ">>", "<<+", ">>+", "<<<", ">>>"]
+    [
+        ".", "+", "-", "*", "/", "%", "and", "or", "&", "|", "^", "<<", ">>", "<<+", ">>+", "<<<",
+        ">>>"
+    ]
 );
 
 #[repr(usize)]

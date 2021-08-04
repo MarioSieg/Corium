@@ -15,7 +15,7 @@ sep = _{
 }
 
 qualified_name = {
-    ASCII_ALPHA+
+    ASCII_ALPHA+ ~ ("." ~ ASCII_ALPHA+)*
 }
 
 ident = {
