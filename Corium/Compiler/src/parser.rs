@@ -1,23 +1,71 @@
+use crate::ast::*;
 use crate::error::*;
 use pest::error as pe;
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
 use pest_derive::*;
+use smallvec::smallvec;
 
 #[derive(Parser)]
 #[grammar = "corium.pest"]
 pub struct CoriumParser;
 
-pub fn parse_source(src: &str) -> Result<Pair<'_, Rule>, Error> {
+pub fn parse_source(src: &str) -> Result<Vec<Node>, Error> {
     let content = CoriumParser::parse(Rule::compilation_unit, src);
-    if let Err(error) = handle_parser_error(&content) {
-        Err(error)
-    } else {
-        Ok(content.unwrap().next().unwrap())
+    match handle_parser_error(content) {
+        Ok(rules) => {
+            let mut result = Vec::new();
+            for rule in rules {
+                if let Some(node) = parse_rule_tree(rule) {
+                    result.push(node);
+                }
+            }
+            Ok(result)
+        }
+        Err(err) => Err(err),
     }
 }
 
-fn handle_parser_error(result: &Result<Pairs<'_, Rule>, pe::Error<Rule>>) -> Result<(), Error> {
+fn parse_rule_tree(rule: Pair<Rule>) -> Option<Node> {
+    match rule.as_rule() {
+        Rule::module_def => Some(visitors::module_def(rule)),
+        Rule::function_def => Some(visitors::module_def(rule)),
+        Rule::qualified_name => Some(visitors::qualified_name(rule)),
+        Rule::ident => Some(visitors::ident(rule)),
+        Rule::compilation_unit | Rule::sep | Rule::EOI => None,
+    }
+}
+
+mod visitors {
+    use super::*;
+
+    pub fn module_def(rule: Pair<Rule>) -> Node {
+        Node::Module(smallvec![get_rule_text(rule)])
+    }
+
+    pub fn function_def(rule: Pair<Rule>) -> Node {
+        Node::Function(Function {
+            name: rule.into_inner().next().unwrap().as_str(),
+            parameters: vec![],
+            return_type: None,
+        })
+    }
+
+    pub fn qualified_name(rule: Pair<Rule>) -> Node {
+        Node::QualifiedName(smallvec![get_rule_text(rule)])
+    }
+
+    pub fn ident(rule: Pair<Rule>) -> Node {
+        Node::Identifier(get_rule_text(rule))
+    }
+}
+
+#[inline]
+fn get_rule_text(rule: Pair<Rule>) -> &str {
+    rule.into_inner().next().unwrap().as_str()
+}
+
+fn handle_parser_error(result: Result<Pairs<Rule>, pe::Error<Rule>>) -> Result<Pairs<Rule>, Error> {
     if let Err(error) = result {
         let input_location = match error.location {
             pe::InputLocation::Pos(x) => InputLocation::Position(x),
@@ -44,6 +92,6 @@ fn handle_parser_error(result: &Result<Pairs<'_, Rule>, pe::Error<Rule>>) -> Res
             message,
         }))
     } else {
-        Ok(())
+        Ok(result.unwrap())
     }
 }

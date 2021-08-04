@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 #[derive(Debug)]
 pub enum InputLocation {
     Position(usize),
@@ -25,6 +27,6 @@ pub struct ParseError {
 
 #[derive(Debug)]
 pub enum Error {
-    IoError(String),
+    IoError(PathBuf),
     ParseError(ParseError),
 }

@@ -27,28 +27,34 @@ macro_rules! impl_token_base {
 }
 
 /// Represents an AST node.
-pub enum Node {
-    Module(QualifiedName),
-    Function(Function),
+#[derive(Clone, Debug)]
+pub enum Node<'s> {
+    Module(QualifiedName<'s>),
+    Function(Function<'s>),
+    QualifiedName(QualifiedName<'s>),
+    Identifier(Identifier<'s>),
 }
 
 /// Represents a function.
-pub struct Function {
-    pub name: Identifier,
-    pub parameters: Vec<Variable>,
-    pub return_type: Option<TypeName>,
+#[derive(Clone, Debug)]
+pub struct Function<'s> {
+    pub name: Identifier<'s>,
+    pub parameters: Vec<Variable<'s>>,
+    pub return_type: Option<TypeName<'s>>,
 }
 
 /// Represents a local variable
-pub struct Variable {
-    pub name: Identifier,
-    pub type_hint: Option<TypeName>,
-    pub value: Option<Box<Expression>>,
+#[derive(Clone, Debug)]
+pub struct Variable<'s> {
+    pub name: Identifier<'s>,
+    pub type_hint: Option<TypeName<'s>>,
+    pub value: Option<Box<Expression<'s>>>,
 }
 
 /// Represents an expression.
-pub enum Expression {
-    Literal(Literal),
+#[derive(Clone, Debug)]
+pub enum Expression<'s> {
+    Literal(Literal<'s>),
     Unary {
         op: UnaryOperator,
         val: Box<Self>,
@@ -60,18 +66,19 @@ pub enum Expression {
     },
 }
 
-pub enum TypeName {
+#[derive(Clone, Debug)]
+pub enum TypeName<'s> {
     Int,
     Float,
     Char,
     Bool,
     String,
-    Custom(Identifier),
+    Custom(Identifier<'s>),
 }
 
 /// Represents a literal.
 #[derive(Clone, PartialEq, Debug)]
-pub enum Literal {
+pub enum Literal<'s> {
     /// An integer literal. E.g. 5
     Int(Int),
 
@@ -85,7 +92,7 @@ pub enum Literal {
     Bool(Bool),
 
     /// A string literal. E.g. "Hello"
-    String(DynamicString),
+    String(&'s str),
 }
 
 /// Represents the type of a comment.
@@ -178,10 +185,10 @@ impl_token_base!(UnaryOperator, ["+", "-", "not", "~"]);
 /// E. g. TestClass
 /// E. g. Module.TestClass
 /// E. g. Module.TestClass.Function
-pub type QualifiedName = SmallVec<[Identifier; 16]>;
+pub type QualifiedName<'s> = SmallVec<[Identifier<'s>; 16]>;
 
 /// Represents an identifier such as a class or variable name.
-pub type Identifier = String;
+pub type Identifier<'s> = &'s str;
 
 /// Represents a Corium "int".
 pub type Int = i64;
@@ -194,6 +201,3 @@ pub type Bool = bool;
 
 /// Represents a Corium "char".
 pub type Char = u32;
-
-/// Represents a Corium "string".
-pub type DynamicString = Vec<u32>;

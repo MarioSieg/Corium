@@ -1,6 +1,23 @@
-compilation_unit = { SOI ~ module_def ~ (function_def | NEWLINE | SEPARATOR)* ~ EOI }
-module_def = { "module " ~ qualified_name ~ NEWLINE }
-function_def = { "fun " ~ ident ~ sep ~ "(" ~ sep ~ ")" ~ sep ~ "{" ~ sep ~ "}" }
-sep = _{ ((NEWLINE | SEPARATOR)+)? }
-qualified_name = { ASCII_ALPHA+ }
-ident = { ASCII_ALPHA+ }
+compilation_unit = _{
+    SOI ~ module_def ~ (function_def | NEWLINE | SEPARATOR)* ~ EOI
+}
+
+module_def = {
+    "module " ~ qualified_name ~ NEWLINE
+}
+
+function_def = {
+    "fun " ~ ident ~ sep ~ "(" ~ sep ~ ")" ~ sep ~ "{" ~ sep ~ "}"
+}
+
+sep = _{
+    ((NEWLINE | SEPARATOR)+)?
+}
+
+qualified_name = {
+    ASCII_ALPHA+
+}
+
+ident = {
+    ASCII_ALPHA+
+}

@@ -67,14 +67,14 @@ impl CompilationUnit {
 
     /// Compiles this compilation unit.
     pub fn compile(self) -> Result<(), Vec<Error>> {
-        let file = parse_source(&self.source_code);
-        if let Err(e) = file {
-            return Result::Err(vec![e]);
+        let root = parse_source(&self.source_code);
+        for k in &root {
+            println!("{:?}", k);
         }
-        let inner = file.unwrap().into_inner();
-        for r in inner {
-            println!("{}", r);
+        if let Err(e) = root {
+            Result::Err(vec![e])
+        } else {
+            Ok(())
         }
-        Ok(())
     }
 }
