@@ -20,6 +20,7 @@ pub enum SourceLocation {
 pub struct ParseError {
     pub input_location: InputLocation,
     pub source_location: SourceLocation,
+    pub message: Option<String>,
 }
 
 #[derive(Debug)]

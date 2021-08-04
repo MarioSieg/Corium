@@ -9,7 +9,7 @@ use pest_derive::*;
 pub struct CoriumParser;
 
 pub fn parse_source(src: &str) -> Result<Pair<'_, Rule>, Error> {
-    let content = CoriumParser::parse(Rule::file, src);
+    let content = CoriumParser::parse(Rule::compilation_unit, src);
     if let Err(error) = handle_parser_error(&content) {
         Err(error)
     } else {
@@ -33,9 +33,15 @@ fn handle_parser_error(result: &Result<Pairs<'_, Rule>, pe::Error<Rule>>) -> Res
                 to: range2,
             },
         };
+        let message = if let pe::ErrorVariant::CustomError { message } = &error.variant {
+            Some(message.clone())
+        } else {
+            None
+        };
         Err(Error::ParseError(ParseError {
             input_location,
             source_location,
+            message,
         }))
     } else {
         Ok(())

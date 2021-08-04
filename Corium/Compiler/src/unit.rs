@@ -38,6 +38,7 @@ impl CompilationUnit {
     pub fn load_from_file(path: PathBuf) -> Self {
         let source_code = fs::read_to_string(&path)
             .unwrap_or_else(|_| panic!("Failed to read source file: {:?}", path));
+        println!("{}", source_code);
         let file_name = path
             .file_name()
             .unwrap_or_else(|| panic!("Missing file name: {:?}", path))

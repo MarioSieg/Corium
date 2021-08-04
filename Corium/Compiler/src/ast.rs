@@ -43,7 +43,7 @@ pub struct Function {
 pub struct Variable {
     pub name: Identifier,
     pub type_hint: Option<TypeName>,
-    pub value: Box<Expression>,
+    pub value: Option<Box<Expression>>,
 }
 
 /// Represents an expression.
@@ -144,10 +144,10 @@ pub enum BinaryOperator {
     /// >>
     BitShiftRight,
 
-    /// <<!
+    /// <<+
     BitShiftLeftUnsigned,
 
-    /// >>!
+    /// >>+
     BitShiftRightUnsigned,
 
     /// <<<
@@ -159,7 +159,7 @@ pub enum BinaryOperator {
 
 impl_token_base!(
     BinaryOperator,
-    ["+", "-", "*", "/", "%", "and", "or", "&", "|", "^", "<<", ">>", "<<!", ">>!", "<<<", ">>>"]
+    ["+", "-", "*", "/", "%", "and", "or", "&", "|", "^", "<<", ">>", "<<+", ">>+", "<<<", ">>>"]
 );
 
 #[repr(usize)]
