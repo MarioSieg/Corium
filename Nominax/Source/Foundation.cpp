@@ -521,41 +521,6 @@ namespace Nominax
 			Print(TextColor::BrightYellow, "Warning! Some global shutdown deallocations might not be tracked!\n");
 		}
 
-		auto NominaxMain(const signed argc, const char* const* const argv) -> signed
-		{
-			{
-				CliArgParser argParser {argc, argv};
-				const auto   help {argParser.AddOption("-h", "print help") || argParser.IsEmpty()};
-				const auto   isa {argParser.AddOption("-i", "print virtual instruction set")};
-				const auto   ver {argParser.AddOption("-v", "print version")};
-
-				if (help)
-				{
-					Print("Usage: \n");
-					argParser.PrintAllOptions();
-				}
-				else if (isa)
-				{
-					Print("{: < 10} |  {: < 8}| {: < 3} | {: < 3} | {: < 3} |\n\n", "Mnemonic", "OpCode", "Imm", "Psh", "Pop");
-					for (U64 i {0}; i < static_cast<U64>(ByteCode::Instruction::Count_); ++i)
-					{
-						const auto& mnemonic {ByteCode::INSTRUCTION_MNEMONIC_TABLE[i]};
-						const auto  immCount {ByteCode::INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[i].size()};
-						const auto  pushCount {ByteCode::INSTRUCTION_PUSH_RECORD_TABLE[i]};
-						const auto  popCount {ByteCode::INSTRUCTION_POP_RECORD_TABLE[i]};
-						Print("{: < 10} |   {:#04x}   | {: < 3} | {: < 3} | {: < 3} |\n", mnemonic, i, immCount, pushCount,
-						      popCount);
-					}
-				}
-				else if (ver)
-				{
-					Core::PrintSystemInfo();
-				}
-			}
-
-			return 0;
-		}
-
 		auto SafeLocalTime(const std::time_t& time) -> std::tm
 		{
 			std::tm buffer { };
@@ -1376,14 +1341,23 @@ namespace Nominax::Foundation
 			}
 		}
 
+		// Check if CPU and OS supports XSave
+		const bool xSaveSupport {(*this)[Cfb::XSave] && (*this)[Cfb::OsXSave]};
+		if (!xSaveSupport)
+		{
+			// XSave is required for AVX and AVX 512
+			[[unlikely]]
+			return;
+		}
+
 		// Validate OS support and update flags for AVX:
-		const bool avxOsSupport {(*this)[Cfb::OsXSave] && IsAvxSupportedByOs()};
+		const bool avxOsSupport {IsAvxSupportedByOs()};
 		(*this)[Cfb::Avx] &= avxOsSupport;
 		(*this)[Cfb::Avx2] &= avxOsSupport;
 		(*this)[Cfb::F16C] &= avxOsSupport;
 
 		// Validate OS support and update flags for AVX-512 F:
-		const bool avx512OsSupport {avxOsSupport && (*this)[Cfb::OsXSave] && IsAvx512SupportedByOs()};
+		const bool avx512OsSupport {avxOsSupport && IsAvx512SupportedByOs()};
 		(*this)[Cfb::Avx512F] &= avx512OsSupport;
 		(*this)[Cfb::Avx512Dq] &= avx512OsSupport;
 		(*this)[Cfb::Avx512Ifma] &= avx512OsSupport;

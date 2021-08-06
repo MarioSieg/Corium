@@ -756,15 +756,6 @@ namespace Nominax
 	namespace Foundation
 	{
 		/// <summary>
-		/// Generic runtime entry point.
-		/// </summary>
-		/// <param name="argc"></param>
-		/// <param name="argv"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		extern auto NominaxMain(I32 argc, const char* const* argv) -> I32;
-
-		/// <summary>
 		/// Returns true if x is a power of two.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
