@@ -2989,6 +2989,110 @@ namespace Nominax
 			[[nodiscard]]
 			virtual auto Deserialize(std::ifstream& in) -> bool = 0;
 		};
+
+		/// <summary>
+		/// Represents an initialization (.ini) file.
+		/// </summary>
+		class IniFile final : public ISerializable
+		{
+		public:
+			/// <summary>
+			/// Represents a section or value key.
+			/// </summary>
+			using Key = std::string;
+
+			/// <summary>
+			/// Represents a section with it's entries.
+			/// </summary>
+			using Section = std::unordered_map<Key, std::string>;
+
+			/// <summary>
+			/// Contains all sections as a map.
+			/// </summary>
+			using SectionMap = std::unordered_map<Key, Section>;
+
+			/// <summary>
+			/// Token for section begin.
+			/// </summary>
+			static constexpr char SECTION_BEGIN {'['};
+
+			/// <summary>
+			/// Token for section end.
+			/// </summary>
+			static constexpr char SECTION_END {']'};
+
+			/// <summary>
+			/// Equ for K equ V
+			/// </summary>
+			static constexpr char EQU {'='};
+
+			/// <summary>
+			/// Token for comment.
+			/// </summary>
+			static constexpr char COMMENT {';'};
+
+		private:
+			SectionMap Sections_{};
+
+		public:
+			/// <summary>
+			/// Ctor.
+			/// </summary>
+			IniFile() = default;
+
+			/// <summary>
+			/// Construct with sections.
+			/// </summary>
+			/// <param name="map"></param>
+			explicit IniFile(SectionMap&& map);
+
+			/// <summary>
+			/// Copy constructor.
+			/// </summary>
+			/// <param name="other"></param>
+			IniFile(const IniFile& other) = default;
+
+			/// <summary>
+			/// Move constructor.
+			/// </summary>
+			/// <param name="other"></param>
+			IniFile(IniFile&& other) = default;
+
+			/// <summary>
+			/// Copy assignment operator.
+			/// </summary>
+			/// <param name="other"></param>
+			/// <returns></returns>
+			auto operator =(const IniFile& other) -> IniFile& = default;
+
+			/// <summary>
+			/// Move assignment operator.
+			/// </summary>
+			/// <param name="other"></param>
+			/// <returns></returns>
+			auto operator =(IniFile&& other) -> IniFile& = default;
+
+			/// <summary>
+			/// Destructor.
+			/// </summary>
+			~IniFile() override = default;
+
+			/// <summary>
+			/// Serialize to file stream.
+			/// </summary>
+			/// <returns>True on success, else false.</returns>
+			[[nodiscard]]
+			virtual auto Serialize(std::ofstream& out) const -> bool override;
+
+			/// <summary>
+			/// Deserialize from file stream.
+			/// </summary>
+			/// <returns>True on success, else false.</returns>
+			[[nodiscard]]
+			virtual auto Deserialize(std::ifstream& in) -> bool override;
+		};
+
+		inline IniFile::IniFile(SectionMap&& map) : Sections_ {std::move(map)} {}
 	}
 
 	/// <summary>
@@ -3555,6 +3659,13 @@ namespace Nominax
 			/// <returns>True on success, else false.</returns>
 			[[nodiscard]]
 			auto ReadFromFile(std::filesystem::path&& path) -> bool;
+
+			/// <summary>
+			/// Reads the content of the stream into this class instance.
+			/// </summary>
+			/// <param name="stream"></param>
+			/// <returns></returns>
+			auto ReadFromStream(std::ifstream& stream) -> void;
 
 			/// <summary>
 			/// Reads the content of the file into this class instance and panics on any fail.

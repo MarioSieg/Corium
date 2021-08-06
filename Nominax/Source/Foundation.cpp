@@ -525,13 +525,13 @@ namespace Nominax
 		{
 			std::tm buffer { };
 			#if NOX_COM_GCC
-			localtime_r(&time, &buffer);
+				localtime_r(&time, &buffer);
 			#elif NOX_OS_WINDOWS
-		localtime_s(&buffer, &time);
+				localtime_s(&buffer, &time);
 			#else
-		static std::mutex mtx;
-		std::lock_guard<std::mutex> lock(mtx);
-		buffer = *std::localtime(&_time);
+				static std::mutex mtx;
+				std::lock_guard<std::mutex> lock(mtx);
+				buffer = *std::localtime(&_time);
 			#endif
 			return buffer;
 		}
@@ -542,7 +542,7 @@ namespace Nominax
 			if (!stream)
 			{
 				[[unlikely]]
-					return false;
+				return false;
 			}
 			return this->Serialize(stream);
 		}
@@ -553,9 +553,27 @@ namespace Nominax
 			if (!stream)
 			{
 				[[unlikely]]
-					return false;
+				return false;
 			}
 			return this->Deserialize(stream);
+		}
+
+		auto IniFile::Serialize([[maybe_unused]] std::ofstream& out) const -> bool
+		{
+			for (const auto& [section, entries] : this->Sections_)
+			{
+				out << SECTION_BEGIN << section << SECTION_END << '\n';
+				for (const auto& [key, value] : entries)
+				{
+					out << '\t' << key << ' ' << EQU << ' ' << value << '\n';
+				}
+			}
+			return true;
+		}
+
+		auto IniFile::Deserialize([[maybe_unused]] std::ifstream& in) -> bool
+		{
+			return true;
 		}
 
 		/// <summary>
@@ -596,13 +614,12 @@ namespace Nominax
 			const TextFile::ViewType::size_type count  = std::numeric_limits<TextFile::ViewType::size_type>::max()
 		) -> TextFile::ViewType
 		{
-			if (offset < source.size())
-			[[likely]]
+			if (offset < source.size()) [[likely]]
 			{
 				return
 				{
-					source.data() + offset,
-					std::min(source.size() - offset, count)
+					std::data(source) + offset,
+					std::min(std::size(source) - offset, count)
 				};
 			}
 			return { };
@@ -635,13 +652,18 @@ namespace Nominax
 			if (!stream)
 			{
 				[[unlikely]]
-					return false;
+				return false;
 			}
+			this->ReadFromStream(stream);
+			return true;
+		}
+
+		auto TextFile::ReadFromStream(std::ifstream& stream) -> void
+		{
 			stream.seekg(0, std::ios::end);
 			this->Content_.resize(stream.tellg());
 			stream.seekg(0, std::ios::beg);
 			stream.read(std::data(this->Content_), std::size(this->Content_));
-			return true;
 		}
 
 		auto TextFile::ReadFromFileOrPanic(std::filesystem::path&& path) -> void
@@ -649,7 +671,7 @@ namespace Nominax
 			if (!this->ReadFromFile(std::move(path)))
 			{
 				[[unlikely]]
-					Panic(NOX_PANIC_INFO(), "Failed to read text file from path: {}", path.string());
+				Panic(NOX_PANIC_INFO(), "Failed to read text file from path: {}", path.string());
 			}
 		}
 
