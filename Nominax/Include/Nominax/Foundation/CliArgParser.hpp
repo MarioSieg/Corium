@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: CliArgParser.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:19 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,107 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include <string_view>
+#include <unordered_set>
+#include <vector>
 
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+		/// Helper to parse command line interface arguments.
+		/// </summary>
+	class CliArgParser final
 	{
-		return ctx.begin();
-	}
+		std::unordered_set<std::string_view>                       Args_ { };
+		std::vector<std::pair<std::string_view, std::string_view>> Options_ { };
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
+	public:
+		/// <summary>
+		/// Construct with argc and argv from
+		/// the entry point.
+		/// </summary>
+		/// <param name="argc"></param>
+		/// <param name="argv"></param>
+		/// <returns></returns>
+		CliArgParser(signed argc, const char* const* argv);
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		CliArgParser(const CliArgParser& other) = delete;
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		CliArgParser(CliArgParser&& other) = default;
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const CliArgParser& other) -> CliArgParser& = delete;
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(CliArgParser&& other) -> CliArgParser& = default;
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~CliArgParser() = default;
 
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Returns true if the command line flag is set,
+		/// else false.
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto HasFlag(std::string_view key) -> bool;
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// Adds a command line option with description and returns true
+		/// if the flag is set, else false.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="description"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto AddOption(std::string_view name, std::string_view description = "") -> bool;
 
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Prints all the added options with description.
+		/// </summary>
+		/// <returns></returns>
+		auto PrintAllOptions() -> void;
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// Returns true if the argument count is less or equal to one,
+		/// because one is the self path, else false.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto IsEmpty() const -> bool;
 
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Returns argument set.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetArgs() const -> const std::unordered_set<std::string_view>&;
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Returns all added options.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetOptions() const -> const std::vector<std::pair<std::string_view, std::string_view>>&;
+	};
+}

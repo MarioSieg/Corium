@@ -212,10 +212,11 @@
 #include <cassert>
 #include <string_view>
 #include <span>
+#include <stack>
 #include <optional>
 #include <vector>
 
-#include "Foundation.hpp"
+#include "Foundation/_Foundation.hpp"
 
 namespace Nominax::ByteCode
 {

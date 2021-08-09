@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: ProxyF64.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:22 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,49 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include "ComparatorF64.hpp"
 
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+		/// Proxy gate for correct float comparison based on macro config.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsZero(const F64 x) -> bool
 	{
-		return ctx.begin();
+		#if NOX_OPT_USE_ZERO_EPSILON
+		return F64IsZero(x);
+		#else
+		return x == 0.0;
+		#endif
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Proxy gate for correct float comparison based on macro config.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsOne(const F64 x) -> bool
 	{
-		return ctx.begin();
+		#if NOX_OPT_USE_ZERO_EPSILON
+		return F64IsOne(x);
+		#else
+		return x == 1.0;
+		#endif
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Proxy gate for correct float comparison based on macro config.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64Equals(const F64 x, const F64 y) -> bool
 	{
-		return ctx.begin();
+		#if NOX_OPT_USE_ZERO_EPSILON
+		return F64Equals(x, y);
+		#else
+		return x == y;
+		#endif
 	}
-
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+}

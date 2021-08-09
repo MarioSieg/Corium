@@ -205,8 +205,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <execution>
+
 #include "../../Nominax/Include/Nominax/ByteCode.hpp"
-#include "../../Nominax/Include/Nominax/Foundation.hpp"
+#include "../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 #include "../../Nominax/Include/Nominax/Utils.hpp"
 #include "../../Nominax/Include/Nominax/Core.hpp"
 

@@ -207,7 +207,9 @@
 
 #pragma once
 
-#include "Foundation.hpp"
+#include <memory_resource>
+
+#include "Foundation/_Foundation.hpp"
 
 namespace Nominax::Assembler::X86_64
 {

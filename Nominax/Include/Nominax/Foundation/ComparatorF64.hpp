@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: ComparatorF64.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:20 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,171 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include "Platform.hpp"
+#include "BaseTypes.hpp"
 
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+		/// Zero tolerance epsilon.
+		/// </summary>
+	constexpr auto F64_ZERO_TOLERANCE {1e-6}; // 8 * 1.19209290E-07F
+
+	/// <summary>
+	/// Returns true if x is zero, else false.
+	/// </summary>
+	/// <param name="x">The number to check for zero.</param>
+	/// <returns>True if x is zero, else false.</returns>
+	NOX_FLATTEN NOX_PURE inline auto F64IsZero(const F64 x) -> bool
 	{
-		return ctx.begin();
+		return std::abs(x) < F64_ZERO_TOLERANCE;
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Returns true if x is one, else false.
+	/// </summary>
+	/// <param name="x">The number to check for zero.</param>
+	/// <returns>True if x is zero, else false.</returns>
+	NOX_FLATTEN NOX_PURE inline auto F64IsOne(const F64 x) -> bool
 	{
-		return ctx.begin();
+		return F64IsZero(x - 1.0);
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
+	/// <summary>
+	/// How many ULP's (Units in the Last Place) we want to tolerate when comparing two numbers.
+	/// The large the value, the more error (mismatch) the comparison will allow.
+	/// If the ULP value is zero, the two numbers must be exactly the same.
+	/// See http://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/ by Bruce Dawson
+	/// </summary>
+	constexpr U32 F64_MAX_ULPS {4};
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Bit count inside F64.
+	/// </summary>
+	constexpr auto F64_BIT_COUNT {8 * sizeof(F64)};
+
+	/// <summary>
+	/// Fraction bit count.
+	/// </summary>
+	constexpr auto F64_FRACTION_BITS {std::numeric_limits<F64>::digits - 1};
+
+	/// <summary>
+	/// Exponent bit count.
+	/// </summary>
+	constexpr auto F64_EXPONENT_BITS {F64_BIT_COUNT - 1 - F64_FRACTION_BITS};
+
+	/// <summary>
+	/// Mask to extract sign bit.
+	/// </summary>
+	constexpr auto F64_SIGN_MASK {UINT64_C(1) << (F64_BIT_COUNT - 1)};
+
+	/// <summary>
+	/// Mask to extract fraction.
+	/// </summary>
+	constexpr auto F64_FRACTION_MASK {~UINT64_C(0) >> (F64_EXPONENT_BITS + 1)};
+
+	/// <summary>
+	/// Mask to extract exponent.
+	/// </summary>
+	constexpr auto F64_EXPONENT_MASK {~(F64_SIGN_MASK | F64_FRACTION_MASK)};
+
+	/// <summary>
+	/// Returns the bit representation of the F64.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	NOX_FLATTEN NOX_PURE constexpr auto BitsOf(const F64 x) -> U64
 	{
-		return ctx.begin();
+		static_assert(sizeof(U64) == sizeof(F64));
+		return std::bit_cast<U64>(x);
 	}
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Extract exponent bits.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	NOX_FLATTEN NOX_PURE constexpr auto ExponentBitsOf(const F64 x) -> U64
 	{
-		return ctx.begin();
+		return F64_EXPONENT_MASK & BitsOf(x);
 	}
 
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Extract fraction bits.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	NOX_FLATTEN NOX_PURE constexpr auto FractionBitsOf(const F64 x) -> U64
 	{
-		return ctx.begin();
+		return F64_FRACTION_MASK & BitsOf(x);
 	}
 
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Extract sign bit.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	NOX_FLATTEN NOX_PURE constexpr auto SignBitOf(const F64 x) -> U64
 	{
-		return ctx.begin();
+		return F64_SIGN_MASK & BitsOf(x);
 	}
 
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Returns true if x is NAN, else false.
+	/// NAN = Not A Number
+	/// </summary>
+	NOX_FLATTEN NOX_PURE constexpr auto IsNan(const F64 x) -> bool
 	{
-		return ctx.begin();
+		return ExponentBitsOf(x) == F64_EXPONENT_MASK && FractionBitsOf(x) != 0;
 	}
 
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Converts an integer from the "sign and magnitude" to the biased representation.
+	/// See https://en.wikipedia.org/wiki/Signed_number_representations for more info.
+	/// </summary>
+	NOX_FLATTEN NOX_PURE constexpr auto SignMagnitudeToBiasedRepresentation(const U64 bits) -> U64
 	{
-		return ctx.begin();
+		if (F64_SIGN_MASK & bits)
+		{
+			return ~bits + 1;
+		}
+		return F64_SIGN_MASK | bits;
 	}
 
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Returns the unsigned distance between bitsA and bitsB.
+	/// bitsA and bitsB must be converted into the biased representation first!
+	/// </summary>
+	/// <param name="bitsA">The first bits as biased representation.</param>
+	/// <param name="bitsB">The second bits as biased representation.</param>
+	/// <returns>The unsigned distance.</returns>
+	NOX_FLATTEN NOX_PURE constexpr auto ComputeDistanceBetweenSignAndMagnitude(const U64 bitsA, const U64 bitsB) -> U64
 	{
-		return ctx.begin();
+		const auto biasedA {SignMagnitudeToBiasedRepresentation(bitsA)};
+		const auto biasedB {SignMagnitudeToBiasedRepresentation(bitsB)};
+		return biasedA >= biasedB ? biasedA - biasedB : biasedB - biasedA;
 	}
 
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Returns true if x and y are near or equal.
+	/// Returns false if either x or y or both are NAN.
+	/// Huge numbers are treated almost as infinity.
+	/// Uses a ULP based approach.
+	/// See https://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/
+	/// </summary>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <returns></returns>
+	template <U32 Ulps = F64_MAX_ULPS>
+	NOX_FLATTEN NOX_PURE constexpr auto F64Equals(const F64 x, const F64 y) -> bool
 	{
-		return ctx.begin();
-	}
+		static_assert(Ulps > 0);
+		// IEEE 754 required that any NAN comparison should yield false.
+		if (IsNan(x) || IsNan(y))
+		{
+			return false;
+		}
 
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+		return ComputeDistanceBetweenSignAndMagnitude(BitsOf(x), BitsOf(y)) <= Ulps;
+	}
+}

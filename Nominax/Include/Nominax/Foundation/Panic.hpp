@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: Panic.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:27 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,93 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include <string_view>
 
-using FormatOutput = fmt::format_context::iterator;
+#include "Platform.hpp"
+#include "BaseTypes.hpp"
+#include "Print.hpp"
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Contains info for the panic handler.
+	/// </summary>
+	struct PanicDescriptor final
 	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// The source code line - if any.
+		/// </summary>
+		U32 Line { };
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// The source file name  - if any.
+		/// </summary>
+		std::string_view FileName { };
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+		/// <summary>
+		/// The name of the subroutine - if any.
+		/// </summary>
+		std::string_view RoutineName { };
+
+		/// <summary>
+		/// The callsite message - if any.
+		/// </summary>
+		std::string_view Message { };
+
+		/// <summary>
+		/// If true, the content of the registers is dumped, else false.
+		/// </summary>
+		bool DumpRegisters {true};
+	};
+
+	/// <summary>
+	/// Implementation of the panic routine.
+	/// </summary>
+	/// <param name="panicDescriptor"></param>
+	/// <returns></returns>
+	[[noreturn]]
+	NOX_COLD NOX_NEVER_INLINE
+	extern auto PanicTerminationImpl(const PanicDescriptor& panicDescriptor) -> void;
+
+	/// <summary>
+	/// Merges information about the current source file and the line.
+	/// This will be replaced by C++ 20 std::source_location,
+	/// but currently it's not yet implemented :(
+	/// </summary>
+	#define NOX_PANIC_INFO() __LINE__, __FILE__, __FUNCTION__
+
+	/// <summary>
+	/// Terminates the process with an error messages in the terminal.
+	/// </summary>
+	/// <typeparam name="Str"></typeparam>
+	/// <typeparam name="...Args"></typeparam>
+	/// <param name="line"></param>
+	/// <param name="file"></param>
+	/// <param name="routine"></param>
+	/// <param name="formatString"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
+	template <typename Str, typename... Args>
+	[[noreturn]]
+	NOX_COLD NOX_NEVER_INLINE
+	auto Panic
+	(
+		const U32              line,
+		const std::string_view file,
+		const std::string_view routine,
+		Str&&                  formatString,
+		Args&&...              args
+	) -> void
 	{
-		return ctx.begin();
+		const auto            message {Foundation::Format(formatString, std::forward<Args>(args)...)};
+		const PanicDescriptor desc
+		{
+			.Line = line,
+			.FileName = file,
+			.RoutineName = routine,
+			.Message = message,
+			.DumpRegisters = true
+		};
+		PanicTerminationImpl(desc);
 	}
-
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+}

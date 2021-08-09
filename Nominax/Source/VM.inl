@@ -212,7 +212,7 @@
 #include "ReactorCores.hpp"
 
 #include "../Include/Nominax/ByteCode.hpp"
-#include "../Include/Nominax/Foundation.hpp"
+#include "../Include/Nominax/Foundation/_Foundation.hpp"
 #include "../Include/Nominax/Core.hpp"
 
 namespace Nominax::Core
@@ -226,14 +226,14 @@ namespace Nominax::Core
 	using Foundation::Proxy_F64IsOne;
 	using Foundation::Proxy_F64IsZero;
 
-	using VectorLib::F64_X4_Add_Unaligned;
-	using VectorLib::F64_X4_Sub_Unaligned;
-	using VectorLib::F64_X4_Mul_Unaligned;
-	using VectorLib::F64_X4_Div_Unaligned;
-	using VectorLib::F64_X16_Add_Unaligned;
-	using VectorLib::F64_X16_Sub_Unaligned;
-	using VectorLib::F64_X16_Mul_Unaligned;
-	using VectorLib::F64_X16_Div_Unaligned;
+	using Foundation::VectorLib::F64_X4_Add_Unaligned;
+	using Foundation::VectorLib::F64_X4_Sub_Unaligned;
+	using Foundation::VectorLib::F64_X4_Mul_Unaligned;
+	using Foundation::VectorLib::F64_X4_Div_Unaligned;
+	using Foundation::VectorLib::F64_X16_Add_Unaligned;
+	using Foundation::VectorLib::F64_X16_Sub_Unaligned;
+	using Foundation::VectorLib::F64_X16_Mul_Unaligned;
+	using Foundation::VectorLib::F64_X16_Div_Unaligned;
 
 	using ByteCode::SystemIntrinsicInvocationID;
 	using ByteCode::Instruction;

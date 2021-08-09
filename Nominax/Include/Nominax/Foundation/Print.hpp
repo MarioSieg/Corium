@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: Print.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:24 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,152 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+// Will be replaced by std::format soon
+#include <fmt/format.h>
+#include <fmt/chrono.h>
+#include <fmt/color.h>
 
-using FormatOutput = fmt::format_context::iterator;
+#include "Algorithm.hpp"
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+/// Represents a printable text color (if the terminal supports it).
+/// </summary>
+	enum class TextColor : std::underlying_type_t<fmt::terminal_color>
 	{
-		return ctx.begin();
+		Black = ToUnderlying(fmt::terminal_color::black),
+		Red = ToUnderlying(fmt::terminal_color::red),
+		Green = ToUnderlying(fmt::terminal_color::green),
+		Yellow = ToUnderlying(fmt::terminal_color::yellow),
+		Blue = ToUnderlying(fmt::terminal_color::blue),
+		Magenta = ToUnderlying(fmt::terminal_color::magenta),
+		Cyan = ToUnderlying(fmt::terminal_color::cyan),
+		White = ToUnderlying(fmt::terminal_color::white),
+		BrightBlack = ToUnderlying(fmt::terminal_color::bright_black),
+		BrightRed = ToUnderlying(fmt::terminal_color::bright_red),
+		BrightGreen = ToUnderlying(fmt::terminal_color::bright_green),
+		BrightYellow = ToUnderlying(fmt::terminal_color::bright_yellow),
+		BrightBlue = ToUnderlying(fmt::terminal_color::bright_blue),
+		BrightMagenta = ToUnderlying(fmt::terminal_color::bright_magenta),
+		BrightCyan = ToUnderlying(fmt::terminal_color::bright_cyan),
+		BrightWhite = ToUnderlying(fmt::terminal_color::bright_white)
+	};
+
+	/// <summary>
+	/// Prints out the formatting string and
+	/// formats the arguments into the string if format
+	/// arguments are given.
+	/// The formatting rules follow the C++ 20 <format> convention.
+	/// All printing inside Nominax should be done via this functions
+	/// and friends because it also allows different configurations.
+	/// </summary>
+	/// <typeparam name="Str">The string type.</typeparam>
+	/// <typeparam name="...Args">The argument types.</typeparam>
+	/// <param name="formatString">The format string.</param>
+	/// <param name="args">The arguments to format.</param>
+	template <typename Str, typename... Args>
+	inline auto Print([[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
+	{
+		#ifndef NOX_TEST
+		fmt::print(formatString, std::forward<Args>(args)...);
+		#endif
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Print single char.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	inline auto Print(const char x) -> void
 	{
-		return ctx.begin();
+		Print("{}", x);
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Contains all log levels.
+	/// </summary>
+	enum class LogLevel
 	{
-		return ctx.begin();
+		Info,
+		Warning,
+		Error,
+		Success
+	};
+
+	/// <summary>
+	/// Prints out the formatting string and
+	/// formats the arguments into the string if format
+	/// arguments are given.
+	/// The formatting rules follow the C++ 20 <format> convention.
+	/// All printing inside Nominax should be done via this functions
+	/// and friends because it also allows different configurations.
+	/// The logging level can be specified, which prints in different colors.
+	/// </summary>
+	/// <typeparam name="Str">The string type.</typeparam>
+	/// <typeparam name="...Args">The argument types.</typeparam>
+	/// <param name="level"> The logging level can be specified, which prints in different colors.</param>
+	/// <param name="formatString">The format string.</param>
+	/// <param name="args">The arguments to format.</param>
+	template <typename Str, typename... Args>
+	auto Print([[maybe_unused]] const LogLevel level, [[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
+	{
+		#ifndef NOX_TEST
+		auto color = TextColor::White;
+		switch (level)
+		{
+			case LogLevel::Info:
+				color = TextColor::White;
+				break;
+			case LogLevel::Warning:
+				color = TextColor::Yellow;
+				break;
+			case LogLevel::Error:
+				color = TextColor::Red;
+				break;
+			case LogLevel::Success:
+				color = TextColor::Green;
+				break;
+		}
+		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
+		#endif
 	}
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Prints out the formatting string and
+	/// formats the arguments into the string if format
+	/// arguments are given.
+	/// The formatting rules follow the C++ 20 <format> convention.
+	/// All printing inside Nominax should be done via this functions
+	/// and friends because it also allows different configurations.
+	/// </summary>
+	/// <typeparam name="Str">The string type.</typeparam>
+	/// <typeparam name="...Args">The argument types.</typeparam>
+	/// <param name="color">The foreground color of the text.</param>
+	/// <param name="formatString">The format string.</param>
+	/// <param name="args">The arguments to format.</param>
+	template <typename Str, typename... Args>
+	inline auto Print([[maybe_unused]] const TextColor color, [[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
 	{
-		return ctx.begin();
+		#ifndef NOX_TEST
+		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
+		#endif
 	}
 
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Formats the arguments into the string if format
+	/// arguments are given.
+	/// The formatting rules follow the C++ 20 <format> convention.
+	/// All printing inside Nominax should be done via this functions
+	/// and friends because it also allows different configurations.
+	/// </summary>
+	/// <typeparam name="Str">The string type.</typeparam>
+	/// <typeparam name="...Args">The argument types.</typeparam>
+	/// <param name="formatString">The format string.</param>
+	/// <param name="args">The arguments to format.</param>
+	template <typename Str, typename... Args>
+	inline auto Format([[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> std::string
 	{
-		return ctx.begin();
+		return fmt::format(formatString, std::forward<Args>(args)...);
 	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+}

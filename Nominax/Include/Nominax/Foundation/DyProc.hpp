@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: DyProc.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:41 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,65 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include <type_traits>
 
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+		/// Represents a procedure address inside a dynamic library.
+		/// </summary>
+	struct DynamicProcedure final
 	{
-		return ctx.begin();
+		/// <summary>
+		/// Construct from pointer.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		constexpr explicit DynamicProcedure(void* value);
+
+		/// <summary>
+		/// Null pointers forbidden.
+		/// </summary>
+		explicit DynamicProcedure(std::nullptr_t) = delete;
+
+		/// <summary>
+		/// Cast to function reference.
+		/// </summary>
+		/// <typeparam name="F">The function signature to cast to. Must be the same as in the dynamic link library!</typeparam>
+		/// <returns>The function ref.</returns>
+		template <typename F> requires std::is_function_v<F>
+		auto operator*() const -> F&;
+
+
+		/// <summary>
+		/// Cast to function reference and call function.
+		/// </summary>
+		/// <typeparam name="F">The function signature to cast to. Must be the same as in the dynamic link library!</typeparam>
+		/// <typeparam name="...Ts">The arguments to call the function with.</typeparam>
+		/// <param name="args">The arguments to call the function with.</param>
+		/// <returns>The return value of the called function.</returns>
+		template <typename F, typename... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
+		auto operator()(Ts&&...args) const -> decltype(F(std::forward<Ts...>(args...)));
+
+		void* Ptr;
+	};
+
+	static_assert(std::is_copy_constructible_v<DynamicProcedure>);
+	static_assert(std::is_move_assignable_v<DynamicProcedure>);
+	static_assert(std::is_trivially_copy_assignable_v<DynamicProcedure>);
+	static_assert(std::is_trivially_move_assignable_v<DynamicProcedure>);
+
+	constexpr DynamicProcedure::DynamicProcedure(void* const value) : Ptr {value} { }
+
+	template <typename F> requires std::is_function_v<F>
+	inline auto DynamicProcedure::operator*() const -> F&
+	{
+		return *static_cast<F*>(this->Ptr);
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename F, typename ... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
+	inline auto DynamicProcedure::operator()(Ts&&...args) const -> decltype(F(std::forward<Ts...>(args...)))
 	{
-		return ctx.begin();
+		return (*static_cast<F*>(this->Ptr))(std::forward<Ts...>(args...));
 	}
-
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+}

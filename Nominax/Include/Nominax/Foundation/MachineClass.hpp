@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: MachineClass.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,75 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include <thread>
 
-using FormatOutput = fmt::format_context::iterator;
+#include "BaseTypes.hpp"
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+/// Represents a machine rating.
+/// </summary>
+	enum class MachineClass : char
 	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// Excellent
+		/// </summary>
+		A = 'A',
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Very Good
+		/// </summary>
+		B = 'B',
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+		/// <summary>
+		/// Good
+		/// </summary>
+		C = 'C',
+
+		/// <summary>
+		/// Okay
+		/// </summary>
+		D = 'D',
+
+		/// <summary>
+		/// Bad
+		/// </summary>
+		E = 'E',
+
+		/// <summary>
+		/// Potato
+		/// </summary>
+		F = 'F'
+	};
+
+	/// <summary>
+	/// Query machine class based on CPU threads.
+	/// </summary>
+	/// <param name="threads"></param>
+	/// <returns></returns>
+	constexpr auto MachineRating(const U64 threads = std::thread::hardware_concurrency()) -> MachineClass
 	{
-		return ctx.begin();
+		if (threads <= 2)
+		{
+			return MachineClass::F;
+		}
+		if (threads <= 4)
+		{
+			return MachineClass::E;
+		}
+		if (threads <= 8)
+		{
+			return MachineClass::D;
+		}
+		if (threads <= 16)
+		{
+			return MachineClass::C;
+		}
+		if (threads <= 32)
+		{
+			return MachineClass::B;
+		}
+		return MachineClass::A;
 	}
-
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+}

@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: Cpu.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:17 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,85 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include "Platform.hpp"
+#include "BaseTypes.hpp"
 
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Trigger a breakpoint, works in release mode too.
+	/// Good for debugging release code or looking at assembler.
+	/// </summary>
+	NOX_FORCE_INLINE NOX_COLD inline auto BreakpointInterrupt() -> void
 	{
-		return ctx.begin();
+		#if NOX_ARCH_X86_64
+		asm("int3");
+		#elif NOX_ARCH_ARM_64
+		#if NOX_OS_MAC || NOX_OS_IOS
+		asm("trap");
+		#else
+		asm("bkpt 0");
+		#endif
+		#else
+		* reinterpret_cast<volatile I32*>(3) = 3;
+		#endif
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Prevents the compiler from optimizing away the value.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T>
+	inline auto DisOpt(T& x) -> void
 	{
-		return ctx.begin();
+		#if NOX_COM_CLANG
+		asm volatile("" : "+r,m"(x) : : "memory");
+		#else
+		asm volatile("" : "+m,r"(x) :: "memory");
+		#endif
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
+	// @formatter:off
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Insert memory read fence barrier.
+	/// Force the compiler to flush queued writes to global memory.
+	/// </summary>
+	[[maybe_unused]]
+	NOX_FORCE_INLINE inline auto ReadFence()  -> void
 	{
-		return ctx.begin();
+		asm volatile("" : : : "memory");
 	}
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Insert memory write fence barrier.
+	/// Force the compiler to flush queued writes to global memory.
+	/// </summary>
+	[[maybe_unused]]
+	NOX_FORCE_INLINE inline auto WriteFence()  -> void
 	{
-		return ctx.begin();
+		asm volatile("" : : : "memory");
 	}
 
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Insert memory read-write fence barrier.
+	/// Force the compiler to flush queued writes to global memory.
+	/// </summary>
+	[[maybe_unused]]
+	NOX_FORCE_INLINE inline auto ReadWriteFence()  -> void
 	{
-		return ctx.begin();
+		asm volatile("" : : : "memory");
 	}
 
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
+	// @formatter:on
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// No operation LOL
+	/// </summary>
+	NOX_FORCE_INLINE inline auto NoOperation() -> void
 	{
-		return ctx.begin();
+		asm volatile("nop");
 	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+}

@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: StackAlloc.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,256 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include "Platform.hpp"
+#include "BaseTypes.hpp"
+#include "MemoryUnits.hpp"
 
-using FormatOutput = fmt::format_context::iterator;
+#if _WIN64
+#	include <malloc.h>
+#else
+#	include <alloca.h>
+#endif
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	#if NOX_OS_WINDOWS
+	#define NOX_ALLOCA_STUB(size) ::_alloca(size)
+	#else
+#define NOX_ALLOCA_STUB(size) ::alloca(size)
+	#endif
+
+	/// <summary>
+	/// Above this size memory will be allocated on the heap
+	/// instead of the stack.
+	/// </summary>
+	constexpr U64 STACK_ALLOC_HEAP_THRESHOLD {4_kB};
+
+	/// <summary>
+	/// Restrict fixed stack allocation type.
+	/// </summary>
+	template <typename T, const U64 C>
+	concept FixedStackAllocatable = requires
 	{
-		return ctx.begin();
+		std::is_trivial_v<T>;                       // trivial types only
+		C != 0;                                     // must at least be one
+		sizeof(T) != 0;                             // must at least be one
+		sizeof(T) * C < STACK_ALLOC_HEAP_THRESHOLD; // no more than 4 kB
+	};
+
+	template <typename T, const U64 C> requires FixedStackAllocatable<T, C>
+	struct FixedStackAllocationProxy final
+	{
+		static constexpr U64 BYTE_SIZE {C * sizeof(T)};
+	};
+
+	/// <summary>
+	/// Performs a parameter checked stack allocation with fixed size.
+	/// </summary>
+	/// <param name="type">The generic type to allocation. Must be a POD type.</param>
+	/// <param name="count">The amount of "type" to allocate. Here, the fixed version this is restricted and must be known at compile time..</param>
+	/// <returns>The pointer to the allocated object which stays as long as the function scope exists.</returns>
+	#define FixedStackAllocation(type, count)	\
+			static_cast< type *>(NOX_ALLOCA_STUB(( FixedStackAllocationProxy< type, ( count ) >::BYTE_SIZE )))
+
+	/// <summary>
+	/// Restrict dynamic stack allocation type.
+	/// </summary>
+	template <typename T>
+	concept DynamicStackAllocatable = requires
+	{
+		std::is_trivial_v<T>;
+	};
+
+	/// <summary>
+	/// RAII release guard for objects which were too large for stack allocations,
+	/// so they where allocated on the heap instead.
+	/// </summary>
+	template <typename T> requires DynamicStackAllocatable<T>
+	class HybridStackGuard final
+	{
+		T* const NOX_RESTRICT Blob_;
+		const bool            IsHeap_;
+
+	public:
+		/// <summary>
+		/// Construct with heap flag and memory.
+		/// </summary>
+		/// <returns></returns>
+		explicit constexpr HybridStackGuard(bool isOnHeap, T& memory);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		HybridStackGuard(const HybridStackGuard& other) = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		HybridStackGuard(HybridStackGuard&& other) = delete;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		auto operator =(const HybridStackGuard& other) -> HybridStackGuard& = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		auto operator =(HybridStackGuard&& other) -> HybridStackGuard& = delete;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns>True if the pointer is heap allocated, else false.</returns>
+		constexpr operator bool() const &;
+
+		/// <summary>
+		/// Direct access.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		constexpr auto operator ->() & -> T*;
+
+		/// <summary>
+		/// Direct access.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		constexpr auto operator ->() const & -> const T*;
+
+		/// <summary>
+		/// Direct access.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		constexpr auto operator *() & -> T&;
+
+		/// <summary>
+		/// Direct access.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		constexpr auto operator *() const & -> const T&;
+
+		/// <summary>
+		/// Unchecked subscript.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// /// <param name="idx"></param>
+		/// /// <returns></returns>
+		constexpr auto operator [](U64 idx) & -> T&;
+
+		/// <summary>
+		/// Unchecked subscript.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		constexpr auto operator [](U64 idx) const & -> const T&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns>True if the pointer is heap allocated, else false.</returns>
+		[[nodiscard]]
+		constexpr auto IsHeapAllocated() const & -> bool;
+
+		/// <summary>
+		/// Destruct which releases the heap memory,
+		/// if heap allocated.
+		/// </summary>
+		~HybridStackGuard();
+	};
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr HybridStackGuard<T>::HybridStackGuard(const bool isOnHeap, T& memory) : Blob_ {&memory},
+	                                                                                  IsHeap_ {isOnHeap} { }
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr HybridStackGuard<T>::operator bool() const &
+	{
+		return this->IsHeap_;
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator->() & -> T*
 	{
-		return ctx.begin();
+		return this->Blob_;
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator->() const & -> const T*
 	{
-		return ctx.begin();
+		return this->Blob_;
 	}
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator*() & -> T&
 	{
-		return ctx.begin();
+		return *this->Blob_;
 	}
 
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator*() const & -> const T&
 	{
-		return ctx.begin();
+		return *this->Blob_;
 	}
 
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator[](const U64 idx) & -> T&
 	{
-		return ctx.begin();
+		return *(this->Blob_ + idx);
 	}
 
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator[](const U64 idx) const & -> const T&
 	{
-		return ctx.begin();
+		return *(this->Blob_ + idx);
 	}
 
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::IsHeapAllocated() const & -> bool
 	{
-		return ctx.begin();
+		return this->IsHeap_;
 	}
 
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename T> requires DynamicStackAllocatable<T>
+	inline HybridStackGuard<T>::~HybridStackGuard()
 	{
-		return ctx.begin();
+		if (this->IsHeapAllocated() && this->Blob_)
+		{
+			delete[] this->Blob_;
+		}
 	}
 
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Helper routine to determine if the memory
+	/// for a dynamically stack allocation should be allocated
+	/// on the heap or not.
+	/// </summary>
+	template <typename T>
+	constexpr auto IsHybridHeap(const U64 count) -> bool
 	{
-		return ctx.begin();
+		return count * sizeof(T) > STACK_ALLOC_HEAP_THRESHOLD;
 	}
 
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+	/// <summary>
+	/// Performs a parameter checked stack allocation with dynamic size.
+	/// </summary>
+	/// <param name="type">The generic type to allocation. Must be a POD type.</param>
+	/// <param name="count">The amount of "type" to allocate. Here, the dynamic version allows dynamic values,
+	/// but if the byte size is above "STACK_ALLOC_HEAP_THRESHOLD", the memory is allocated on the heap instead.</param>
+	/// <returns>The stack guard which released the memory on exit.</returns>
+	#define DynamicStackAllocation(type, count)										\
+		{																				\
+			IsHybridHeap < type >( count ),												\
+			IsHybridHeap < type >( count )												\
+			? *static_cast< type *>(new type [ count ])									\
+			: *static_cast< type *>(NOX_ALLOCA_STUB( ( count ) * sizeof( type ) ))		\
+		}
+}

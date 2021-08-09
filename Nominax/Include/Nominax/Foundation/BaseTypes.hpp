@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: BaseTypes.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:04 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,137 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include <cstdint>
+#include <type_traits>
 
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// 8 bit unsigned integer.
+	/// </summary>
+	using U8 = std::uint8_t;
+
+	/// <summary>
+	/// 8 bit signed integer.
+	/// </summary>
+	using I8 = std::int8_t;
+
+	/// <summary>
+	/// 16 bit unsigned integer.
+	/// </summary>
+	using U16 = std::uint16_t;
+
+	/// <summary>
+	/// 16 bit signed integer.
+	/// </summary>
+	using I16 = std::int16_t;
+
+	/// <summary>
+	/// 32 bit unsigned integer.
+	/// </summary>
+	using U32 = std::uint32_t;
+
+	/// <summary>
+	/// 32 bit signed integer.
+	/// </summary>
+	using I32 = std::int32_t;
+
+	/// <summary>
+	/// 64 bit unsigned integer.
+	/// </summary>
+	using U64 = std::uint64_t;
+
+	/// <summary>
+	/// 64 bit signed integer.
+	/// </summary>
+	using I64 = std::int64_t;
+
+	/// <summary>
+	/// 64-bit unsigned pointer.
+	/// </summary>
+	using Uip64 = U64;
+
+	/// <summary>
+	/// 16 bit half precision float
+	/// </summary>
+	using F16 = U16;
+
+	/// <summary>
+	/// 32 bit single precision float
+	/// </summary>
+	using F32 = float;
+
+	/// <summary>
+	/// 64 bit double precision float
+	/// </summary>
+	using F64 = double;
+
+	static_assert(sizeof(U8) == 1);
+	static_assert(sizeof(I8) == 1);
+	static_assert(sizeof(U16) == 2);
+	static_assert(sizeof(I16) == 2);
+	static_assert(sizeof(U32) == 4);
+	static_assert(sizeof(I32) == 4);
+	static_assert(sizeof(U64) == 8);
+	static_assert(sizeof(I64) == 8);
+	static_assert(sizeof(Uip64) == 8);
+	static_assert(sizeof(std::uintptr_t) == 8);
+	static_assert(sizeof(F16) == 2);
+	static_assert(sizeof(F32) == 4);
+	static_assert(sizeof(F64) == 8);
+
+	/// <summary>
+	/// Kilobytes.
+	/// </summary>
+	constexpr U64 KB {1000};
+
+	/// <summary>
+	/// Megabytes.
+	/// </summary>
+	constexpr U64 MB {KB * KB};
+
+	/// <summary>
+	/// Gigabytes.
+	/// </summary>
+	constexpr U64 GB {KB * KB * KB};
+
+	/// <summary>
+	/// Terabytes.
+	/// </summary>
+	constexpr U64 TB {KB * KB * KB * KB};
+
+	/// <summary>
+	/// Petabytes.
+	/// </summary>
+	constexpr U64 PB {KB * KB * KB * KB * KB};
+
+	/// <summary>
+	/// Construct a runtime integer (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_int(const unsigned long long int value) -> I64
 	{
-		return ctx.begin();
+		return static_cast<I64>(value);
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Construct a runtime unsigned integer (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_uint(const unsigned long long int value) -> U64
 	{
-		return ctx.begin();
+		return value;
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Construct a runtime F32 (64-bit).
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator""_float(const long double value) -> F64
 	{
-		return ctx.begin();
+		return static_cast<F64>(value);
 	}
-
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+}

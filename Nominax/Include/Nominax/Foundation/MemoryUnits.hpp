@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: MemoryUnits.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:09 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,120 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include <algorithm>
 
-using FormatOutput = fmt::format_context::iterator;
+#include "BaseTypes.hpp"
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="bytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Bytes2Gigabytes(T bytes) -> T
 	{
-		return ctx.begin();
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+		return bytes / static_cast<T>(KB) / static_cast<T>(KB) / static_cast<T>(KB);
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="bytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Bytes2Megabytes(T bytes) -> T
 	{
-		return ctx.begin();
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+		return bytes / static_cast<T>(KB) / static_cast<T>(KB);
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="bytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Bytes2Kilobytes(T bytes) -> T
 	{
-		return ctx.begin();
+		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+		return bytes / static_cast<T>(KB);
 	}
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="gigabytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Gigabytes2Bytes(const T gigabytes) -> T
 	{
-		return ctx.begin();
+		return gigabytes * static_cast<T>(KB) * static_cast<T>(KB) * static_cast<T>(KB);
 	}
 
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="megabytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Megabytes2Bytes(const T megabytes) -> T
 	{
-		return ctx.begin();
+		return megabytes * static_cast<T>(KB) * static_cast<T>(KB);
 	}
 
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="kilobytes"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+	[[nodiscard]]
+	constexpr auto Kilobytes2Bytes(const T kilobytes) -> T
 	{
-		return ctx.begin();
+		return kilobytes * static_cast<T>(KB);
 	}
 
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator ""_kB(const unsigned long long value) -> U64
 	{
-		return ctx.begin();
+		return Kilobytes2Bytes<decltype(value)>(value);
 	}
 
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator ""_mB(const unsigned long long value) -> U64
 	{
-		return ctx.begin();
+		return Megabytes2Bytes<decltype(value)>(value);
 	}
 
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Convert between memory units.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	constexpr auto operator ""_gB(const unsigned long long value) -> U64
 	{
-		return ctx.begin();
+		return Gigabytes2Bytes<decltype(value)>(value);
 	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+}

@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: CpuFeatureDetector.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:37 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,101 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include "CpuFeatureBits.hpp"
 
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+		/// Detects architecture dependent cpu features.
+		/// </summary>
+	class CpuFeatureDetector final
 	{
-		return ctx.begin();
+		/// <summary>
+		/// Architecture dependent bits.
+		/// </summary>
+		CpuFeatureMask FeatureBits_;
+
+		/// <summary>
+		/// Get or set support for special feature.
+		/// </summary>
+		/// <param name="bit"></param>
+		/// <returns></returns>
+		auto operator [](CpuFeatureBits bit) -> bool&;
+
+	public:
+		/// <summary>
+		/// Construct new instance and query cpu feature
+		/// using architecture dependent routines.
+		/// </summary>
+		CpuFeatureDetector();
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		CpuFeatureDetector(const CpuFeatureDetector&) = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		CpuFeatureDetector(CpuFeatureDetector&&) = default;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		auto operator =(const CpuFeatureDetector&) -> CpuFeatureDetector& = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		auto operator =(CpuFeatureDetector&&) -> CpuFeatureDetector& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~CpuFeatureDetector() = default;
+
+		/// <summary>
+		/// Access the architecture dependent feature bits directly.
+		/// </summary>
+		[[nodiscard]]
+		auto operator ->() const -> const CpuFeatureMask*;
+
+		/// <summary>
+		/// Access the architecture dependent feature bits directly.
+		/// </summary>
+		[[nodiscard]]
+		auto operator *() const -> const CpuFeatureMask&;
+
+		/// <summary>
+		/// Check support for special feature.
+		/// </summary>
+		/// <param name="bit"></param>
+		/// <returns></returns>
+		auto operator [](CpuFeatureBits bit) const -> bool;
+
+		/// <summary>
+		/// Prints all the architecture dependent features as booleans with names.
+		/// </summary>
+		auto Dump() const -> void;
+	};
+
+	inline auto CpuFeatureDetector::operator[](const CpuFeatureBits bit) -> bool&
+	{
+		return this->FeatureBits_[static_cast<U64>(bit)];
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	inline auto CpuFeatureDetector::operator[](const CpuFeatureBits bit) const -> bool
 	{
-		return ctx.begin();
+		return this->FeatureBits_[static_cast<U64>(bit)];
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	inline auto CpuFeatureDetector::operator*() const -> const CpuFeatureMask&
 	{
-		return ctx.begin();
+		return this->FeatureBits_;
 	}
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	inline auto CpuFeatureDetector::operator->() const -> const CpuFeatureMask*
 	{
-		return ctx.begin();
+		return &this->FeatureBits_;
 	}
-
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+}

@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: PanicAssertions.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:29 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,323 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include "Panic.hpp"
+#include "Platform.hpp"
 
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundations
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_TRUE(x, msg)								\
+	do														\
+	{														\
+		if (!( x ))                 						\
+		{													\
+		    [[unlikely]]									\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+		}													\
+	}														\
+	while(false)
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_FALSE(x, msg)								\
+	do														\
+	{														\
+		if (( x ))											\
+		{													\
+		    [[unlikely]]									\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+		}													\
+	}														\
+	while(false)
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_NULL(x, msg) NOX_PAS_FALSE(x, msg)
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_NOT_NULL(x, msg) NOX_PAS_TRUE(x, msg)
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_ZERO(x, msg) NOX_PAS_FALSE(x, msg)
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_NOT_ZERO(x, msg) NOX_PAS_TRUE(x, msg)
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_EQ(x, y, msg)								\
+	do														\
+	{														\
+		if (( x ) != ( y ))									\
+		{													\
+            [[unlikely]]									\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+		}													\
+	}														\
+	while(false)
 
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_NE(x, y, msg)								\
+	do														\
+	{														\
+		if (( x ) == ( y ))									\
+		{													\
+            [[unlikely]]									\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+		}													\
+	}														\
+	while(false)
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_L(x, y, msg)								\
+	do														\
+	{														\
+		if (!(( x ) < ( y )))								\
+		{													\
+            [[unlikely]]									\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+		}													\
+	}														\
+	while(false)
 
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_LE(x, y, msg)								\
+	do														\
+	{														\
+		if (!(( x ) <= ( y )))								\
+		{													\
+            [[unlikely]]									\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+		}													\
+	}														\
+	while(false)
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_G(x, y, msg)								\
+	do														\
+	{														\
+		if (!(( x ) > ( y )))								\
+		{													\
+            [[unlikely]]									\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+		}													\
+	}														\
+	while(false)
 
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
+	/// <summary>
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_PAS_GE(x, y, msg)								\
+	do														\
+	{														\
+		if (!(( x ) >= ( y )))								\
+		{													\
+            [[unlikely]]									\
+            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+		}													\
+	}														\
+	while(false)
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+	#if NOX_DEBUG
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_TRUE(x, msg)		NOX_PAS_TRUE(x, msg)
 
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_FALSE(x, msg)		NOX_PAS_FALSE(x, msg)
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_NULL(x, msg)		NOX_PAS_NULL(x, msg)
 
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_NOT_NULL(x, msg)	NOX_PAS_NOT_NULL(x, msg)
 
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_ZERO(x, msg)		NOX_PAS_ZERO(x, msg)
 
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_NOT_ZERO(x, msg)	NOX_PAS_NOT_ZERO(x, msg)
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_EQ(x, y, msg)		NOX_PAS_EQ(x, y, msg)
 
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_NE(x, y, msg)		NOX_PAS_NE(x, y, msg)
+
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_L(x, y, msg)		NOX_PAS_L(x, y, msg)
+
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_LE(x, y, msg)		NOX_PAS_LE(x, y, msg)
+
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_G(x, y, msg)		NOX_PAS_G(x, y, msg)
+
+/// <summary>
+/// Only active when building for DEBUG.
+/// Checks the condition and panics with the specified message,
+/// if the condition is not true.
+/// </summary>
+#define NOX_DBG_PAS_GE(x, y, msg)		NOX_PAS_GE(x, y, msg)
+
+	#else
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_TRUE(x, msg)
+
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_FALSE(x, msg)
+
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_NULL(x, msg)
+
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_NOT_NULL(x, msg)
+
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_ZERO(x, msg)
+
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_NOT_ZERO(x, msg)
+
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_EQ(x, y, msg)
+
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_NE(x, y, msg)
+
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_L(x, y, msg)
+
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_LE(x, y, msg)
+
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_G(x, y, msg)
+
+	/// <summary>
+	/// Only active when building for DEBUG.
+	/// Checks the condition and panics with the specified message,
+	/// if the condition is not true.
+	/// </summary>
+	#define NOX_DBG_PAS_GE(x, y, msg)
+	#endif
+}

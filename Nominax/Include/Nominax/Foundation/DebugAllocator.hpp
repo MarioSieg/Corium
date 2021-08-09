@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: DebugAllocator.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:14 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,163 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include "IAllocator.hpp"
 
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+		/// Allocator for debugging based on the runtime allocator.
+		/// It prints the size and address of each allocation
+		/// and counts the bytes.
+		/// </summary>
+	class DebugAllocator final : public IAllocator
 	{
-		return ctx.begin();
+		mutable U64 Allocations_ {0};
+		mutable U64 Reallocations_ {0};
+		mutable U64 Deallocations_ {0};
+		mutable U64 BytesAllocated_ {0};
+
+	public:
+		/// <summary>
+		/// Default constructor.
+		/// </summary>
+		/// <returns></returns>
+		constexpr DebugAllocator() = default;
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr DebugAllocator(const DebugAllocator& other) = default;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr DebugAllocator(DebugAllocator&& other) = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(const DebugAllocator& other) -> DebugAllocator& = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(DebugAllocator&& other) -> DebugAllocator& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		virtual ~DebugAllocator() override = default;
+
+		/// <summary>
+		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		virtual auto Allocate(void*& out, U64 size) const -> void override;
+
+		/// <summary>
+		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		virtual auto Reallocate(void*& out, U64 size) const -> void override;
+
+		/// <summary>
+		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <returns></returns>
+		virtual auto Deallocate(void*& out) const -> void override;
+
+		/// <summary>
+		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <param name="alignment"></param>
+		/// <returns></returns>
+		virtual auto AllocateAligned(void*& out, U64 size, U64 alignment) const -> void override;
+
+		/// <summary>
+		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <param name="alignment"></param>
+		/// <returns></returns>
+		virtual auto ReallocateAligned(void*& out, U64 size, U64 alignment) const -> void override;
+
+		/// <summary>
+		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <returns></returns>
+		virtual auto DeallocateAligned(void*& out) const -> void override;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The amount of allocations so far.</returns>
+		constexpr auto GetAllocationCount() const -> U64;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The amount of reallocations so far.</returns>
+		constexpr auto GetReallocationCount() const -> U64;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The amount of deallocations so far.</returns>
+		constexpr auto GetDeallocationCount() const -> U64;
+
+		/// <summary>
+		/// The amount of allocated bytes so far.
+		/// </summary>
+		/// <returns></returns>
+		constexpr auto GetTotalBytesAllocated() const -> U64;
+
+		/// <summary>
+		/// Print the amount of allocations and bytes.
+		/// </summary>
+		/// <returns></returns>
+		auto DumpAllocationInfo() const -> void;
+	};
+
+	constexpr auto DebugAllocator::GetAllocationCount() const -> U64
+	{
+		return this->Allocations_;
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	constexpr auto DebugAllocator::GetReallocationCount() const -> U64
 	{
-		return ctx.begin();
+		return this->Reallocations_;
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	constexpr auto DebugAllocator::GetDeallocationCount() const -> U64
 	{
-		return ctx.begin();
+		return this->Deallocations_;
 	}
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	constexpr auto DebugAllocator::GetTotalBytesAllocated() const -> U64
 	{
-		return ctx.begin();
+		return this->BytesAllocated_;
 	}
 
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+	/// <summary>
+	/// Slow debug allocator.
+	/// </summary>
+	inline constinit DebugAllocator GlobalDebugAllocator { };
+}

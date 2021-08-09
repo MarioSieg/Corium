@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: DyLib.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:42 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,103 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include <string_view>
+#include <filesystem>
 
-using FormatOutput = fmt::format_context::iterator;
+#include "DyProc.hpp"
+#include "Os.hpp"
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+		/// Represents a dynamically linked library. (.dll, .so) 
+		/// </summary>
+	struct DynamicLibrary final
 	{
-		return ctx.begin();
+		/// <summary>
+		/// Load from file.
+		/// </summary>
+		/// <param name="filePath">The file path to load from.</param>
+		explicit DynamicLibrary(std::string_view filePath);
+
+		/// <summary>
+		/// Load from file.
+		/// </summary>
+		/// <param name="filePath">The file path to load from.</param>
+		explicit DynamicLibrary(const std::filesystem::path& filePath);
+
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name="other"></param>
+		DynamicLibrary(const DynamicLibrary& other) = delete;
+
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name="other"></param>
+		DynamicLibrary(DynamicLibrary&& other) = delete;
+
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const DynamicLibrary& other) -> DynamicLibrary& = delete;
+
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(DynamicLibrary&& other) -> DynamicLibrary& = delete;
+
+		/// <summary>
+		/// Destructor, release library handle.
+		/// </summary>
+		~DynamicLibrary();
+
+		/// <summary>
+		/// Check if pointer handle is valid.
+		/// </summary>
+		/// <returns>True if pointer handle is valid, else false.</returns>
+		[[nodiscard]] operator bool() const;
+
+		/// <summary>
+		/// Perform a symbol lookup.
+		/// </summary>
+		/// <param name="symbolName">The correct name of the dynamic symbol.</param>
+		/// <returns>The corresponding dynamic procedure on success, else std::nullopt.</returns>
+		[[nodiscard]] auto operator [](std::string_view symbolName) const -> std::optional<DynamicProcedure>;
+
+	private:
+		void* Handle_ {nullptr};
+	};
+
+	static_assert(!std::is_copy_constructible_v<DynamicLibrary>);
+	static_assert(!std::is_move_assignable_v<DynamicLibrary>);
+	static_assert(!std::is_trivially_copy_assignable_v<DynamicLibrary>);
+	static_assert(!std::is_trivially_move_assignable_v<DynamicLibrary>);
+
+	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ {Os::DylibOpen(filePath)} { }
+
+	inline DynamicLibrary::DynamicLibrary(const std::filesystem::path& filePath) : Handle_ {
+		Os::DylibOpen(filePath.string())
+	} { }
+
+	inline DynamicLibrary::~DynamicLibrary()
+	{
+		Os::DylibClose(this->Handle_);
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	inline DynamicLibrary::operator bool() const
 	{
-		return ctx.begin();
+		return this->Handle_ != nullptr;
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	inline auto DynamicLibrary::operator[](const std::string_view symbolName) const -> std::optional<DynamicProcedure>
 	{
-		return ctx.begin();
+		void* const symbolHandle = Os::DylibLookupSymbol(this->Handle_, symbolName);
+		return symbolHandle ? std::optional {DynamicProcedure {symbolHandle}} : std::nullopt;
 	}
-
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+}

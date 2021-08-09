@@ -205,6 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <iostream>
 #include <algorithm>
 #include <bitset>
 #include <fstream>
@@ -212,7 +213,7 @@
 #include <string_view>
 
 #include "../../Nominax/Include/Nominax/Core.hpp"
-#include "../../Nominax/Include/Nominax/Foundation.hpp"
+#include "../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 
 #include "ReactorCores.hpp"
 

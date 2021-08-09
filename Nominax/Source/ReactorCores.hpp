@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "../Include/Nominax/Foundation.hpp"
+#include "../Include/Nominax/Foundation/_Foundation.hpp"
 #include "../Include/Nominax/Core.hpp"
 
 namespace Nominax::Core

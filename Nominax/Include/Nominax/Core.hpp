@@ -207,8 +207,14 @@
 
 #pragma once
 
+#include <condition_variable>
+#include <functional>
+#include <memory_resource>
+#include <mutex>
+#include <queue>
+
 #include "ByteCode.hpp"
-#include "Foundation.hpp"
+#include "Foundation/_Foundation.hpp"
 
 namespace Nominax::Core
 {

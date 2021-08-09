@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: AtomicState.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:15 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,181 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include <atomic>
+#include <type_traits>
 
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+		/// Stores the underlying type of an enum atomically as error code.
+		/// </summary>
+		/// <typeparam name="T">The enumeration type.</typeparam>
+		/// <typeparam name="SuccessState">The enumeration type success code like Ok.</typeparam>
+		/// <typeparam name="SingletonLock">If true the state is only updated when it is untouched (first time).</typeparam>
+	template <typename T, const T SuccessState = T::Ok, const bool SingletonLock = true> requires std::is_enum_v<T>
+	class AtomicState final
 	{
-		return ctx.begin();
+		/// <summary>
+		/// Underlying value type of enum.
+		/// </summary>
+		using ValueType = std::underlying_type_t<std::decay_t<T>>;
+
+		static_assert(std::atomic<ValueType>::is_always_lock_free);
+
+		/// <summary>
+		/// Atomic storage.
+		/// </summary>
+		std::atomic<ValueType> Value_;
+
+	public:
+		/// <summary>
+		/// Update error state.
+		/// If "SingletonLock" is true,
+		/// the state is only updated on the first call of this operator.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		constexpr auto operator ()(T x) -> void;
+
+		/// <summary>
+		/// Return current error state.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		constexpr auto operator ()() const -> T;
+
+		/// <summary>
+		/// Get atomic value container.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		constexpr auto operator *() const -> const std::atomic<ValueType>&;
+
+		/// <summary>
+		/// Returns true if the current state is
+		/// equals to success state, else false.
+		/// </summary>
+		/// <returns></returns>
+		constexpr operator bool() const;
+
+		/// <summary>
+		/// Construct with success state as value.
+		/// </summary>
+		/// <returns></returns>
+		constexpr AtomicState();
+
+		/// <summary>
+		/// Construct with custom state.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		explicit constexpr AtomicState(T x);
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr AtomicState(AtomicState&& other) = default;
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr AtomicState(const AtomicState& other) = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(AtomicState&& other) -> AtomicState& = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(const AtomicState& other) -> AtomicState& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~AtomicState() = default;
+	};
+
+	/// <summary>
+	/// Update error state.
+	/// If "SingletonLock" is true,
+	/// the state is only updated on the first call of this operator.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator()(const T x) -> void
+	{
+		if constexpr (SingletonLock)
+		{
+			if (x != SuccessState)
+			[[unlikely]] // Only store if error state
+			{
+				if (this->Value_.load() == static_cast<ValueType>(SuccessState)) // Only store if untouched state
+				{
+					[[likely]]
+						this->Value_.store(static_cast<ValueType>(x));
+				}
+			}
+		}
+		else
+		{
+			this->Value_.store(static_cast<ValueType>(x));
+		}
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Return current error state.
+	/// </summary>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator()() const -> T
 	{
-		return ctx.begin();
+		return static_cast<T>(this->Value_.load());
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Get atomic value container.
+	/// </summary>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator*() const -> const std::atomic<ValueType>&
 	{
-		return ctx.begin();
+		return this->Value_;
 	}
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+	/// Returns true if the current state is
+	/// equals to success state, else false.
+	/// </summary>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr AtomicState<T, SuccessState, SingletonLock>::operator bool() const
 	{
-		return ctx.begin();
+		return (*this)() == SuccessState;
 	}
 
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
+	/// <summary>
+	/// Construct with success state as value.
+	/// </summary>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState() : Value_ {static_cast<ValueType>(SuccessState)} { }
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+	/// <summary>
+	/// Construct with custom state.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
+	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState(const T x) : Value_ {static_cast<ValueType>(x)} { }
+}

@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: IniFile.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:27 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,113 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include <unordered_map>
 
-using FormatOutput = fmt::format_context::iterator;
+#include "ISerializable.hpp"
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+		/// Represents an initialization (.ini) file.
+		/// </summary>
+	class IniFile final : public ISerializable
 	{
-		return ctx.begin();
-	}
+	public:
+		/// <summary>
+		/// Represents a section or value key.
+		/// </summary>
+		using Key = std::string;
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Represents a section with it's entries.
+		/// </summary>
+		using Section = std::unordered_map<Key, std::string>;
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// Contains all sections as a map.
+		/// </summary>
+		using SectionMap = std::unordered_map<Key, Section>;
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Token for section begin.
+		/// </summary>
+		static constexpr char SECTION_BEGIN {'['};
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// Token for section end.
+		/// </summary>
+		static constexpr char SECTION_END {']'};
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Equ for K equ V
+		/// </summary>
+		static constexpr char EQU {'='};
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// Token for comment.
+		/// </summary>
+		static constexpr char COMMENT {';'};
 
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
+	private:
+		SectionMap Sections_ { };
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+	public:
+		/// <summary>
+		/// Ctor.
+		/// </summary>
+		IniFile() = default;
 
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Construct with sections.
+		/// </summary>
+		/// <param name="map"></param>
+		explicit IniFile(SectionMap&& map);
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		IniFile(const IniFile& other) = default;
 
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		IniFile(IniFile&& other) = default;
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const IniFile& other) -> IniFile& = default;
 
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(IniFile&& other) -> IniFile& = default;
 
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		virtual ~IniFile() override = default;
 
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
+		/// <summary>
+		/// Serialize to file stream.
+		/// </summary>
+		/// <returns>True on success, else false.</returns>
+		[[nodiscard]]
+		virtual auto Serialize(std::ofstream& out) const -> bool override;
 
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
+		/// <summary>
+		/// Deserialize from file stream.
+		/// </summary>
+		/// <returns>True on success, else false.</returns>
+		[[nodiscard]]
+		virtual auto Deserialize(std::ifstream& in) -> bool override;
+	};
 
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+	inline IniFile::IniFile(SectionMap&& map) : Sections_ {std::move(map)} {}
+}

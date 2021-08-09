@@ -1,6 +1,6 @@
-// File: Utils.hpp
+// File: Stopwatch.hpp
 // Author: Mario
-// Created: 05.07.2021 6:28 PM
+// Created: 09.08.2021 4:25 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,128 +207,95 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
-#include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include <ctime>
+#include <chrono>
 
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
+namespace Nominax::Foundation
 {
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	/// <summary>
+		/// Thread safe local time.
+		/// </summary>
+		/// <param name="time"></param>
+		/// <returns></returns>
+	[[nodiscard]]
+	extern auto SafeLocalTime(const std::time_t& time) -> std::tm;
+
+	/// <summary>
+	/// Represents a monotonic stopwatch.
+	/// Used for profiling and time measurements.
+	/// </summary>
+	/// <typeparam name="Clock"></typeparam>
+	template <typename Clock = std::chrono::high_resolution_clock>
+	class Stopwatch final
 	{
-		return ctx.begin();
+		typename Clock::time_point Stamp_ {Clock::now()};
+
+	public:
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The timestamp set when created.</returns>
+		[[nodiscard]]
+		auto Stamp() const -> typename Clock::time_point;
+
+		/// <summary>
+		/// Query elapsed time.
+		/// </summary>
+		/// <typeparam name="Dur">The duration type to use.</typeparam>
+		/// <returns>The elapsed time.</returns>
+		template <typename Dur = typename Clock::duration>
+		[[nodiscard]]
+		auto Elapsed() const -> typename Clock::duration;
+
+		/// <summary>
+		/// Query elapsed time as seconds.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto ElapsedSecs() const -> std::chrono::seconds;
+
+		/// <summary>
+		/// Query elapsed time as floating point seconds.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto ElapsedSecsF64() const -> std::chrono::duration<F64>;
+
+		/// <summary>
+		/// Reset time stamp to now.
+		/// </summary>
+		/// <returns></returns>
+		auto Restart() -> void;
+	};
+
+	template <typename Clock>
+	inline auto Stopwatch<Clock>::Stamp() const -> typename Clock::time_point
+	{
+		return this->Stamp_;
 	}
 
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename Clock>
+	template <typename Dur>
+	inline auto Stopwatch<Clock>::Elapsed() const -> typename Clock::duration
 	{
-		return ctx.begin();
+		return std::chrono::duration_cast<Dur>(Clock::now() - this->Stamp_);
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename Clock>
+	inline auto Stopwatch<Clock>::ElapsedSecs() const -> std::chrono::seconds
 	{
-		return ctx.begin();
+		return std::chrono::duration_cast<std::chrono::seconds>(this->Elapsed<>());
 	}
 
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename Clock>
+	inline auto Stopwatch<Clock>::ElapsedSecsF64() const -> std::chrono::duration<F64>
 	{
-		return ctx.begin();
+		return std::chrono::duration_cast<std::chrono::duration<F64>>(this->Elapsed<>());
 	}
 
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
+	template <typename Clock>
+	inline auto Stopwatch<Clock>::Restart() -> void
 	{
-		return ctx.begin();
+		this->Stamp_ = Clock::now();
 	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+}
