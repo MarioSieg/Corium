@@ -215,6 +215,7 @@
 #include <stack>
 #include <optional>
 #include <vector>
+#include <queue>
 
 #include "Foundation/_Foundation.hpp"
 

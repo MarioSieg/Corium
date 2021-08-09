@@ -209,6 +209,7 @@
 
 #include <string_view>
 #include <filesystem>
+#include <optional>
 
 #include "DyProc.hpp"
 #include "Os.hpp"

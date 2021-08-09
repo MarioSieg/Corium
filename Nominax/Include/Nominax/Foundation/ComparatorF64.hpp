@@ -207,6 +207,8 @@
 
 #pragma once
 
+#include <limits>
+
 #include "Platform.hpp"
 #include "BaseTypes.hpp"
 

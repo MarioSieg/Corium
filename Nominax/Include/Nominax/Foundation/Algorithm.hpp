@@ -208,9 +208,11 @@
 #pragma once
 
 #include <bit>
+#include <functional>
 #include <iterator>
 #include <span>
 #include <variant>
+#include <climits>
 
 #include "Platform.hpp"
 #include "BaseTypes.hpp"

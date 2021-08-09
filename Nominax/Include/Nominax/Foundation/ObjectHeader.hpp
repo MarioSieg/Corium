@@ -207,6 +207,7 @@
 
 #pragma once
 
+#include <cstring>
 #include <span>
 
 #include "BaseTypes.hpp"
