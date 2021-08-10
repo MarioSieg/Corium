@@ -211,6 +211,7 @@
 #include <span>
 #include <vector>
 #include <variant>
+#include <queue>
 
 namespace Nominax::ByteCode
 {
