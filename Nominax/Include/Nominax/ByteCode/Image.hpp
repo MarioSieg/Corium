@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: Image.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.08.2021 12:55 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,266 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
-#include "ByteCode/_ByteCode.hpp"
-#include "Core.hpp"
-#include "Foundation/_Foundation.hpp"
+#include <span>
+#include <vector>
 
-namespace Nominax::Prelude
+#include "Signal.hpp"
+
+namespace Nominax::ByteCode
 {
-	using namespace Nominax;
-	using namespace Assembler;
-	using namespace ByteCode;
-	using namespace Core;
-	using namespace Foundation;
-	using namespace VectorLib;
+	/// <summary>
+	/// An optimized and ready to execute code chunk.
+	/// </summary>
+	class Image final
+	{
+		/// <summary>
+		/// Internal buffer.
+		/// </summary>
+		std::vector<Signal> Blob_;
+
+	public:
+		/// <summary>
+		/// Construct empty image.
+		/// </summary>
+		Image() = default;
+
+		/// <summary>
+		/// Construct with by copying blob.
+		/// Allocates an internal blob for the image
+		/// and copies the data into it.
+		/// </summary>
+		/// <param name="blob">The blob to copy the data from.</param>
+		explicit Image(std::span<const Signal> blob);
+
+		/// <summary>
+		/// Construct with owning blob.
+		/// </summary>
+		explicit Image(std::vector<Signal>&& buffer);
+
+		/// <summary>
+		/// Construct by coping blob.
+		/// Allocates an internal blob for the image
+		/// and copies the data into it.
+		/// </summary>
+		/// <param name="data">The blob to copy the data from.</param>
+		/// <param name="byteSize">The size of the data in bytes.</param>
+		Image(const void* data, U64 byteSize);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		Image(const Image& other) = delete;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		Image(Image&& other) = default;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const Image& other) -> Image& = delete;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(Image&& other) -> Image& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~Image() = default;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The size of the blob in bytes.</returns>
+		[[nodiscard]]
+		auto GetByteSize() const -> U64;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The size of the blob (amount of signals).</returns>
+		[[nodiscard]]
+		auto GetSize() const -> U64;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Data pointer of the blob.</returns>
+		[[nodiscard]]
+		auto GetBlobData() const -> const Signal*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Data pointer of the blob as byte ptr.</returns>
+		[[nodiscard]]
+		auto GetByteData() const -> const U8*;
+
+		/// <summary>
+		/// Check of null pointer or zero size.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto IsEmpty() const -> bool;
+
+		/// <summary>
+		/// Returns the data as modifiable reactor view.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetReactorView() const -> std::span<const Signal>;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns>Iterator.</returns>
+		[[nodiscard]]
+		auto begin() -> std::vector<Signal>::iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns>Iterator.</returns>
+		[[nodiscard]]
+		auto end() -> std::vector<Signal>::iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns>Iterator.</returns>
+		[[nodiscard]]
+		auto cbegin() const -> std::vector<Signal>::const_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns>Iterator.</returns>
+		[[nodiscard]]
+		auto cend() const -> std::vector<Signal>::const_iterator;
+
+		/// <summary>
+		/// Subscript operator.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		auto operator [](U64 idx) -> Signal&;
+
+		/// <summary>
+		/// Subscript operator.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		auto operator [](U64 idx) const -> Signal;
+	};
+
+	inline auto Image::GetByteSize() const -> U64
+	{
+		return std::size(this->Blob_) * sizeof(Signal);
+	}
+
+	inline auto Image::GetSize() const -> U64
+	{
+		return std::size(this->Blob_);
+	}
+
+	inline auto Image::GetBlobData() const -> const Signal*
+	{
+		return std::data(this->Blob_);
+	}
+
+	inline auto Image::GetByteData() const -> const U8*
+	{
+		return reinterpret_cast<const U8*>(std::data(this->Blob_));
+	}
+
+	inline auto Image::IsEmpty() const -> bool
+	{
+		return std::empty(this->Blob_);
+	}
+
+	inline auto Image::begin() -> std::vector<Signal>::iterator
+	{
+		return std::begin(this->Blob_);
+	}
+
+	inline auto Image::end() -> std::vector<Signal>::iterator
+	{
+		return std::end(this->Blob_);
+	}
+
+	inline auto Image::cbegin() const -> std::vector<Signal>::const_iterator
+	{
+		return std::cbegin(this->Blob_);
+	}
+
+	inline auto Image::cend() const -> std::vector<Signal>::const_iterator
+	{
+		return std::cend(this->Blob_);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns>Iterator.</returns>
+	[[nodiscard]]
+	inline auto begin(Image& image) -> std::vector<Signal>::iterator
+	{
+		return image.begin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns>Iterator.</returns>
+	[[nodiscard]]
+	inline auto end(Image& image) -> std::vector<Signal>::iterator
+	{
+		return image.end();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns>Iterator.</returns>
+	[[nodiscard]]
+	inline auto cbegin(const Image& image) -> std::vector<Signal>::const_iterator
+	{
+		return image.cbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns>Iterator.</returns>
+	[[nodiscard]]
+	inline auto cend(const Image& image) -> std::vector<Signal>::const_iterator
+	{
+		return image.cend();
+	}
+
+	inline auto Image::operator[](const U64 idx) const -> Signal
+	{
+		return this->Blob_[idx];
+	}
+
+	inline auto Image::operator[](const U64 idx) -> Signal&
+	{
+		return this->Blob_[idx];
+	}
+
+	inline auto Image::GetReactorView() const -> std::span<const Signal>
+	{
+		const auto* const begin {&*std::cbegin(this->Blob_)};
+		const auto* const end {&*std::cend(this->Blob_)};
+		return {begin, end};
+	}
 }

@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: TypeRegistry.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.08.2021 12:54 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,166 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
-#include "ByteCode/_ByteCode.hpp"
-#include "Core.hpp"
-#include "Foundation/_Foundation.hpp"
+#include <iterator>
+#include <vector>
 
-namespace Nominax::Prelude
+#include "Signal.hpp"
+
+namespace Nominax::ByteCode
 {
-	using namespace Nominax;
-	using namespace Assembler;
-	using namespace ByteCode;
-	using namespace Core;
-	using namespace Foundation;
-	using namespace VectorLib;
+	/// <summary>
+	/// Contains the variant type indices of the storage type of DynamicSignal.
+	/// </summary>
+	using TypeIndexTable = std::vector<Signal::Discriminator>;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	using PerInstructionArgTypes = std::vector<TypeIndexTable>;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	inline constexpr std::array ANY_TYPE
+	{
+		Signal::Discriminator::U64,
+		Signal::Discriminator::I64,
+		Signal::Discriminator::F64,
+		Signal::Discriminator::CharClusterUtf8,
+		Signal::Discriminator::CharClusterUtf16,
+		Signal::Discriminator::CharClusterUtf32
+	};
+
+	/// <summary>
+	/// Contains all immediate argument types for each instruction.
+	/// </summary>
+	inline const std::array<PerInstructionArgTypes, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
+	{
+		PerInstructionArgTypes {{Signal::Discriminator::I64}},                      // int
+		{{Signal::Discriminator::SystemIntrinsicInvocationID}},                     // intrin
+		{{Signal::Discriminator::UserIntrinsicInvocationID}},                       // cintrin
+		{{Signal::Discriminator::U64}},                                             // call
+		{ },                                                                        // ret
+		{{Signal::Discriminator::U64}, {Signal::Discriminator::U64}},               // mov
+		{{Signal::Discriminator::U64}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}}, // sto
+		{{std::begin(ANY_TYPE), std::end(ANY_TYPE)}},                               // push
+		{ },                                                                        // pop
+		{ },                                                                        // pop2
+		{ },                                                                        // dupl
+		{ },                                                                        // dupl2
+		{ },                                                                        // swap
+		{ },                                                                        // nop
+		{{Signal::Discriminator::JumpAddress}},                                     // jmp
+		{{Signal::Discriminator::JumpAddress}},                                     // jmprel
+		{{Signal::Discriminator::JumpAddress}},                                     // jz
+		{{Signal::Discriminator::JumpAddress}},                                     // jnz
+		{{Signal::Discriminator::JumpAddress}},                                     // jo_cmpi
+		{{Signal::Discriminator::JumpAddress}},                                     // jo_cmpf
+		{{Signal::Discriminator::JumpAddress}},                                     // jno_cmpi
+		{{Signal::Discriminator::JumpAddress}},                                     // jno_cmpf
+		{{Signal::Discriminator::JumpAddress}},                                     // je_cmpi
+		{{Signal::Discriminator::JumpAddress}},                                     // je_cmpf
+		{{Signal::Discriminator::JumpAddress}},                                     // jne_cmpi
+		{{Signal::Discriminator::JumpAddress}},                                     // jne_cmpf
+		{{Signal::Discriminator::JumpAddress}},                                     // ja_cmpi
+		{{Signal::Discriminator::JumpAddress}},                                     // ja_cmpf
+		{{Signal::Discriminator::JumpAddress}},                                     // jl_cmpi
+		{{Signal::Discriminator::JumpAddress}},                                     // jl_cmpf
+		{{Signal::Discriminator::JumpAddress}},                                     // jae_cmpi
+		{{Signal::Discriminator::JumpAddress}},                                     // jae_cmpf
+		{{Signal::Discriminator::JumpAddress}},                                     // jle_cmpi
+		{{Signal::Discriminator::JumpAddress}},                                     // jle_cmpf
+		{ },                                                                        // pushz
+		{ },                                                                        // ipusho
+		{ },                                                                        // fpusho
+		{ },                                                                        // iinc
+		{ },                                                                        // idec
+		{ },                                                                        // iadd
+		{ },                                                                        // isub
+		{ },                                                                        // imul
+		{ },                                                                        // idiv
+		{ },                                                                        // imod
+		{ },                                                                        // iand
+		{ },                                                                        // ior
+		{ },                                                                        // ixor
+		{ },                                                                        // icom
+		{ },                                                                        // isal
+		{ },                                                                        // isar
+		{ },                                                                        // irol
+		{ },                                                                        // iror
+		{ },                                                                        // ineg
+		{ },                                                                        // fadd
+		{ },                                                                        // fsub
+		{ },                                                                        // fmul
+		{ },                                                                        // fdiv
+		{ },                                                                        // fmod
+		{ },                                                                        // fneg
+		{ },                                                                        // finc
+		{ },                                                                        // fdec
+		{
+			// vpush
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)}
+		},
+		{ }, // vpop
+		{ }, // vadd
+		{ }, // vsub
+		{ }, // vmul
+		{ }, // vdiv
+		{
+			// matpush
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+		},
+		{ }, // matpop
+		{ }, // matadd
+		{ }, // matsub
+		{ }, // matmul
+		{ }  // matdiv
+	};
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="instruction"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto LookupInstructionArgumentTypes(const Instruction instruction) -> const PerInstructionArgTypes&
+	{
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)];
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	[[nodiscard]]
+	inline auto LookupInstructionArgumentCount(const Instruction instruction) -> U64
+	{
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)].size();
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	[[nodiscard]]
+	inline auto LookupInstructionArgumentAllowedTypeCount(const Instruction instruction, const U64 argumentIndex) -> U64
+	{
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)][argumentIndex].size();
+	}
 }

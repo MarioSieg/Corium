@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: CodeGenerator.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.08.2021 1:05 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,89 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
-#include "ByteCode/_ByteCode.hpp"
-#include "Core.hpp"
-#include "Foundation/_Foundation.hpp"
+#include "Instruction.hpp"
+#include "Stream.hpp"
 
-namespace Nominax::Prelude
+namespace Nominax::ByteCode
 {
-	using namespace Nominax;
-	using namespace Assembler;
-	using namespace ByteCode;
-	using namespace Core;
-	using namespace Foundation;
-	using namespace VectorLib;
+	/// <summary>
+	/// Wrapper around a Stream which provides
+	/// simple byte code generation methods for function local execution code.
+	/// </summary>
+	struct LocalCodeGenerationLayer final
+	{
+		/// <summary>
+		/// Enable peephole code generation optimizations.
+		/// </summary>
+		bool EnablePeepholeOptimizations {NOX_RELEASE};
+
+		/// <summary>
+		/// The target output stream.
+		/// </summary>
+		Stream& Emitter;
+
+		/// <summary>
+		/// Construct with target stream.
+		/// </summary>
+		/// <param name="emitter">The target stream to emit byte code to.</param>
+		explicit LocalCodeGenerationLayer(Stream& emitter);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		LocalCodeGenerationLayer(const LocalCodeGenerationLayer& other) = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		LocalCodeGenerationLayer(LocalCodeGenerationLayer&& other) = delete;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		auto operator =(const LocalCodeGenerationLayer& other) -> LocalCodeGenerationLayer& = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		auto operator =(LocalCodeGenerationLayer&& other) -> LocalCodeGenerationLayer& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~LocalCodeGenerationLayer() = default;
+
+		auto Emit(Instruction instruction) -> LocalCodeGenerationLayer&;
+
+		/// <summary>
+		/// Emits and optimizes a push.
+		/// </summary>
+		/// <param name="value">The immediate value to push.</param>
+		auto EmitPush(I64 value) -> LocalCodeGenerationLayer&;
+
+		/// <summary>
+		/// Emits and optimizes a push.
+		/// </summary>
+		/// <param name="value">The immediate value to push.</param>
+		auto EmitPush(F64 value) -> LocalCodeGenerationLayer&;
+
+		/// <summary>
+		/// Emits and optimizes a certain amount of pops.
+		/// </summary>
+		/// <param name="popCount"></param>
+		/// <returns></returns>
+		auto EmitPop(U16 popCount = 1) -> LocalCodeGenerationLayer&;
+	};
+
+	inline LocalCodeGenerationLayer::LocalCodeGenerationLayer(Stream& emitter) : Emitter {emitter} { }
+
+	inline auto LocalCodeGenerationLayer::Emit(const Instruction instruction) -> LocalCodeGenerationLayer&
+	{
+		this->Emitter << instruction;
+		return *this;
+	}
 }

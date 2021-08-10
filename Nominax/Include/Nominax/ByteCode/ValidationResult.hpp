@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: ValidationResult.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.08.2021 12:45 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,88 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
-#include "ByteCode/_ByteCode.hpp"
-#include "Core.hpp"
-#include "Foundation/_Foundation.hpp"
+#include <array>
+#include <string_view>
 
-namespace Nominax::Prelude
+#include "../Foundation/Algorithm.hpp"
+#include "../Foundation/BaseTypes.hpp"
+
+namespace Nominax::ByteCode
 {
-	using namespace Nominax;
-	using namespace Assembler;
-	using namespace ByteCode;
-	using namespace Core;
-	using namespace Foundation;
-	using namespace VectorLib;
+	/// <summary>
+	/// Contains all byte code validation results.
+	/// </summary>
+	enum class ValidationResultCode
+	{
+		/// <summary>
+		/// Validation did not found any problems.
+		/// </summary>
+		Ok = 0,
+
+		/// <summary>
+		/// More arguments specified than required.
+		/// </summary>
+		TooManyArgumentsForInstruction,
+
+		/// <summary>
+		/// Not enough arguments specified, more are required.
+		/// </summary>
+		NotEnoughArgumentsForInstruction,
+
+		/// <summary>
+		/// Expected argument of other type.
+		/// </summary>
+		ArgumentTypeMismatch,
+
+		/// <summary>
+		/// No entries.
+		/// </summary>
+		Empty,
+
+		/// <summary>
+		/// Code is missing prologue code.
+		/// </summary>
+		MissingPrologueCode,
+
+		/// <summary>
+		/// Code is missing epilogue code.
+		/// </summary>
+		MissingEpilogueCode,
+
+		/// <summary>
+		/// Jump address out of bounds.
+		/// </summary>
+		InvalidJumpAddress,
+
+		/// <summary>
+		/// The corresponding user intrinsic routine is invalid or the call id is too big.
+		/// </summary>
+		InvalidUserIntrinsicCall,
+
+		/// <summary>
+		/// No error, just the amount of errors.
+		/// </summary>
+		Count_
+	};
+
+	/// <summary>
+	/// WordSize of the extracted fault code section.
+	/// </summary>
+	constexpr U64 CROPPED_FAULT_CODE_DUMP_SIZE {8};
+
+	/// <summary>
+	/// Contains all byte code validation error messages.
+	/// </summary>
+	constexpr std::array<std::string_view, ToUnderlying(ValidationResultCode::Count_)> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
+	{
+		"Ok",
+		"Too many arguments provided!",
+		"Not enough arguments provided!",
+		"Argument data type mismatch!",
+		"Empty byte code submitted!",
+		"Missing code prologue!",
+		"Missing code epilogue!",
+		"Jump address is out of range or does not point to an instruction!",
+		"Unknown system intrinsic call!",
+	};
 }

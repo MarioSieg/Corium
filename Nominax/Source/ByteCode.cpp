@@ -207,7 +207,7 @@
 
 #include <execution>
 
-#include "../../Nominax/Include/Nominax/ByteCode.hpp"
+#include "../../Nominax/Include/Nominax/ByteCode/_ByteCode.hpp"
 #include "../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 #include "../../Nominax/Include/Nominax/Utils.hpp"
 #include "../../Nominax/Include/Nominax/Core.hpp"

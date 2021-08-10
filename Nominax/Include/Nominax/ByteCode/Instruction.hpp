@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: Instruction.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.08.2021 12:42 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,675 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
-#include "ByteCode/_ByteCode.hpp"
-#include "Core.hpp"
-#include "Foundation/_Foundation.hpp"
+#include <array>
+#include <string_view>
 
-namespace Nominax::Prelude
+#include "../Foundation/BaseTypes.hpp"
+#include "../Foundation/Algorithm.hpp"
+#include "../Foundation/Record.hpp"
+
+namespace Nominax::ByteCode
 {
-	using namespace Nominax;
-	using namespace Assembler;
-	using namespace ByteCode;
-	using namespace Core;
-	using namespace Foundation;
-	using namespace VectorLib;
+	/// <summary>
+	/// Contains all byte code instructions with opcodes.
+	/// </summary>
+	enum class alignas(alignof(U64)) Instruction : U64
+	{
+		Int = 0x00,
+		Intrin = 0x01,
+		CIntrin = 0x02,
+		Call = 0x03,
+		Ret = 0x04,
+		Mov = 0x05,
+		Sto = 0x06,
+		Push = 0x07,
+		Pop = 0x08,
+		Pop2 = 0x09,
+		Dupl = 0x0A,
+		Dupl2 = 0x0B,
+		Swap = 0x0C,
+		NOp = 0x0D,
+		Jmp = 0x0E,
+		JmpRel = 0x0F,
+		Jz = 0x10,
+		Jnz = 0x11,
+		JoCmpi = 0x12,
+		JoCmpf = 0x13,
+		JnoCmpi = 0x14,
+		JnoCmpf = 0x15,
+		JeCmpi = 0x16,
+		JeCmpf = 0x17,
+		JneCmpi = 0x18,
+		JneCmpf = 0x19,
+		JaCmpi = 0x1A,
+		JaCmpf = 0x1B,
+		JlCmpi = 0x1C,
+		JlCmpf = 0x1D,
+		JaeCmpi = 0x1E,
+		JaeCmpf = 0x1F,
+		JleCmpi = 0x20,
+		JleCmpf = 0x21,
+		PushZ = 0x22,
+		IPushO = 0x23,
+		FPushO = 0x24,
+		IInc = 0x25,
+		IDec = 0x26,
+		IAdd = 0x27,
+		ISub = 0x28,
+		IMul = 0x29,
+		IDiv = 0x2A,
+		IMod = 0x2B,
+		IAnd = 0x2C,
+		IOr = 0x2D,
+		IXor = 0x2E,
+		ICom = 0x2F,
+		ISal = 0x30,
+		ISar = 0x31,
+		IRol = 0x32,
+		IRor = 0x33,
+		INeg = 0x34,
+		FAdd = 0x35,
+		FSub = 0x36,
+		FMul = 0x37,
+		FDiv = 0x38,
+		FMod = 0x39,
+		FNeg = 0x3A,
+		FInc = 0x3B,
+		FDec = 0x3C,
+		VecPush = 0x3D,
+		VecPop = 0x3E,
+		VecAdd = 0x3F,
+		VecSub = 0x40,
+		VecMul = 0x41,
+		VecDiv = 0x42,
+		MatPush = 0x43,
+		MatPop = 0x44,
+		MatAdd = 0x45,
+		MatSub = 0x46,
+		MatMul = 0x47,
+		MatDiv = 0x48,
+
+		/* count of total instructions */
+		Count_
+	};
+
+	/// <summary>
+	/// Contains all instruction mnemonics.
+	/// </summary>
+	constexpr std::array<const std::string_view, ToUnderlying(Instruction::Count_)> INSTRUCTION_MNEMONIC_TABLE
+	{
+		"int",
+		"intrin",
+		"cintrin",
+		"call",
+		"ret",
+		"mov",
+		"sto",
+		"push",
+		"pop",
+		"pop2",
+		"dupl",
+		"dupl2",
+		"swap",
+		"nop",
+		"jmp",
+		"jmprel",
+		"jz",
+		"jnz",
+		"jo_cmpi",
+		"jo_cmpf",
+		"jno_cmpi",
+		"jno_cmpf",
+		"je_cmpi",
+		"je_cmpf",
+		"jne_cmpi",
+		"jne_cmpf",
+		"ja_cmpi",
+		"ja_cmpf",
+		"jl_cmpi",
+		"jl_cmpf",
+		"jae_cmpi",
+		"jae_cmpf",
+		"jle_cmpi",
+		"jle_cmpf",
+		"pushz",
+		"ipusho",
+		"fpusho",
+		"iinc",
+		"idec",
+		"iadd",
+		"isub",
+		"imul",
+		"idiv",
+		"imod",
+		"iand",
+		"ior",
+		"ixor",
+		"icom",
+		"isal",
+		"isar",
+		"irol",
+		"iror",
+		"ineg",
+		"fadd",
+		"fsub",
+		"fmul",
+		"fdiv",
+		"fmod",
+		"fneg",
+		"finc",
+		"fdec",
+		"vecpush",
+		"vecpop",
+		"vecadd",
+		"vecsub",
+		"vecmul",
+		"vecdiv",
+		"matpush",
+		"matpop",
+		"matadd",
+		"matsub",
+		"matmul",
+		"matdiv"
+	};
+
+	/// <summary>
+	/// Instruction category.
+	/// </summary>
+	enum class InstructionCategory : U8
+	{
+		Control = 0x00,
+		Memory = 0x01,
+		Branching = 0x02,
+		Arithmetic = 0x03,
+		BitWise = 0x04,
+		VectorSimd = 0x05
+	};
+
+	/// <summary>
+	/// Contains the categories of all instructions.
+	/// </summary>
+	[[maybe_unused]]
+	constexpr std::array<const InstructionCategory, ToUnderlying(Instruction::Count_)> INSTRUCTION_CATEGORY_TABLE
+	{
+		InstructionCategory::Control,
+		InstructionCategory::Control,
+		InstructionCategory::Control,
+		InstructionCategory::Control,
+		InstructionCategory::Control,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Branching,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::BitWise,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Arithmetic,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::Memory,
+		InstructionCategory::Memory,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd,
+		InstructionCategory::VectorSimd
+	};
+
+	/// <summary>
+	/// Contains the amount of stack pushes each instruction will perform.
+	/// </summary>
+	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_PUSH_RECORD_TABLE
+	{
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		1,
+		0,
+		0,
+		1,
+		2,
+		2,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		4,
+		0,
+		4,
+		4,
+		4,
+		4,
+		16,
+		0,
+		16,
+		16,
+		16,
+		16
+	};
+
+	/// <summary>
+	/// Contains the amount of stack pops each instruction will perform.
+	/// </summary>
+	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_POP_RECORD_TABLE
+	{
+		0,
+		0,
+		0,
+		0,
+		1,
+		0,
+		0,
+		0,
+		1,
+		2,
+		0,
+		0,
+		2,
+		0,
+		0,
+		0,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		2,
+		2,
+		2,
+		2,
+		2,
+		2,
+		2,
+		2,
+		2,
+		2,
+		2,
+		2,
+		0,
+		0,
+		1,
+		1,
+		1,
+		2,
+		2,
+		2,
+		2,
+		2,
+		2,
+		2,
+		2,
+		1,
+		2,
+		2,
+		2,
+		2,
+		1,
+		2,
+		2,
+		2,
+		2,
+		2,
+		1,
+		1,
+		1,
+		0,
+		4,
+		8,
+		8,
+		8,
+		8,
+		0,
+		16,
+		32,
+		32,
+		32,
+		32
+	};
+
+	/// <summary>
+	/// Contains the amount of required immediate arguments for each instruction.
+	/// </summary>
+	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARG_TABLE
+	{
+		1,
+		1,
+		1,
+		1,
+		0,
+		2,
+		2,
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		4,
+		0,
+		0,
+		0,
+		0,
+		0,
+		16,
+		0,
+		0,
+		0,
+		0,
+		0
+	};
+
+	consteval auto FindMaxImmediateArgumentCount() -> U8
+	{
+		U8 max {0};
+		for (const U8 x : INSTRUCTION_IMMEDIATE_ARG_TABLE)
+		{
+			max = std::max(max, x);
+		}
+		return max;
+	}
+
+	constexpr U8 MAX_IMMEDIATE_ARGUMENTS {FindMaxImmediateArgumentCount()};
+	static_assert(MAX_IMMEDIATE_ARGUMENTS);
+
+	/// <summary>
+	/// Contains a short descriptions for all instructions.
+	/// </summary>
+	constexpr std::array<const std::string_view, ToUnderlying(Instruction::Count_)> INSTRUCTION_DESCRIPTOR_TABLE
+	{
+		"interrupt reactor execution",
+		"call intrinsic system routine",
+		"call custom intrinsic routine",
+		"call procedure",
+		"return from procedure",
+		"copy stack slot to stack record",
+		"copy immediate to stack record",
+		"push one stack record onto stack",
+		"pop one stack record from stack",
+		"pop two records from stack",
+		"duplicate stack top",
+		"duplicate stack top two times",
+		"swap the stack top slot with the lower slot",
+		"no operation",
+		"absolute direct unconditional jump",
+		"relative indirect jump unconditional jump",
+		"jump if zero",
+		"jump if not zero",
+		"jump if one - compare as integer",
+		"jump if one - compare as F32",
+		"jump if not one - compare as integer",
+		"jump if not one - compare as  integer",
+		"jump if equal as integer",
+		"jump if equal - compare as F32ing point",
+		"jump if not equal - compare  as integer",
+		"jump if not equal - compare  as F32ing point",
+		"jump if above - compare  as integer",
+		"jump if above - compare  as F32ing point",
+		"jump if less - compare as F32ing point",
+		"jump if less - compare as F32ing point",
+		"jump if above or equal - compare as integer",
+		"jump if above or equal - compare as F32ing point",
+		"jump if less or equal - compare as integer",
+		"jump if less or equal - compare as F32ing point",
+		"push zero as integer",
+		"push one as  integer",
+		"push one as F32ing point",
+		"integer increment",
+		"integer decrement",
+		"integer addition",
+		"integer subtraction",
+		"integer multiplication",
+		"integer division",
+		"integer remainder",
+		"integer bitwise and",
+		"integer bitwise or",
+		"integer bitwise xor",
+		"integer bitwise complement",
+		"integer bitwise arithmetic left shift",
+		"integer bitwise arithmetic right shift",
+		"integer bitwise rotation left",
+		"integer bitwise right rotation",
+		"integer negation",
+		"floating point addition",
+		"floating point subtraction",
+		"floating point multiplication",
+		"floating point division",
+		"floating point remainder",
+		"floating point negation",
+		"floating point increment",
+		"floating point decrement",
+		"push vec4 quad vector",
+		"pop vec4 quad vector",
+		"simd floating point vec4 quad vector addition",
+		"simd floating point vec4 quad vector subtraction",
+		"simd floating point vec4 quad vector multiplication",
+		"simd floating point vec4 quad vector division",
+		"push mat4x4 matrix",
+		"pop mat4x4 matrix",
+		"simd floating point mat4x4 matrix addition",
+		"simd floating point mat4x4 matrix subtraction",
+		"simd floating point mat4x4 matrix multiplication",
+		"simd floating point mat4x4 matrix division"
+	};
+
+	/// <summary>
+	/// Subroutine invocation id for system intrinsic routines.
+	/// </summary>
+	enum class alignas(alignof(U64)) SystemIntrinsicInvocationID : U64
+	{
+		Cos = 0x00,
+		Sin = 0x01,
+		Tan = 0x02,
+		ACos = 0x03,
+		ASin = 0x04,
+		ATan = 0x05,
+		ATan2 = 0x06,
+		CosH = 0x07,
+		SinH = 0x08,
+		TanH = 0x09,
+		ACosH = 0x0A,
+		ASinH = 0x0B,
+		ATanH = 0x0C,
+		Exp = 0x0D,
+		Log = 0x0E,
+		Log10 = 0x0F,
+		Exp2 = 0x10,
+		ILogB = 0x11,
+		Log2 = 0x12,
+		Pow = 0x13,
+		Sqrt = 0x14,
+		Cbrt = 0x15,
+		Hypot = 0x16,
+		Ceil = 0x17,
+		Floor = 0x18,
+		Round = 0x19,
+		RInt = 0x1A,
+		IMax = 0x1B,
+		IMin = 0x1C,
+		FMax = 0x1D,
+		FMin = 0x1E,
+		Dim = 0x1F,
+		IAbs = 0x20,
+		FAbs = 0x21,
+		IoPortWriteCluster = 0x22,
+		IoPortReadCluster = 0x23,
+		IoPortFlush = 0x24,
+
+		/* !no intrinsic routine - count of total intrinsic routines! */
+		Count_
+	};
+
+	/// <summary>
+	/// Represents a jump address which
+	/// is essentially an index to a instruction.
+	/// For dynamic signals only.
+	/// </summary>
+	enum class alignas(alignof(U64)) JumpAddress : U64;
+
+	/// <summary>
+	/// Subroutine invocation id for custom intrinsic routine.
+	/// </summary>
+	enum class alignas(alignof(U64)) UserIntrinsicInvocationID : U64;
+
+	/// <summary>
+	/// Custom intrinsic routine function prototype.
+	/// Contains the stack pointer as parameter.
+	/// </summary>
+	using IntrinsicRoutine = auto (Foundation::Record*) -> void;
+	static_assert(std::is_function_v<IntrinsicRoutine>);
+
+	/// <summary>
+	/// Represents a function pointer registry which contains intrinsic
+	/// routines which are invoked using
+	/// user intrinsic virtual machine calls.
+	/// </summary>
+	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;
 }

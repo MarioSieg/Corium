@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: Generics.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.08.2021 12:51 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,144 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
-#include "ByteCode/_ByteCode.hpp"
-#include "Core.hpp"
-#include "Foundation/_Foundation.hpp"
+#include <type_traits>
+#include <optional>
 
-namespace Nominax::Prelude
+#include "Signal.hpp"
+
+namespace Nominax::ByteCode
 {
-	using namespace Nominax;
-	using namespace Assembler;
-	using namespace ByteCode;
-	using namespace Core;
-	using namespace Foundation;
-	using namespace VectorLib;
+	/// <summary>
+	/// Restricts to valid byte code elements.
+	/// </summary>
+	/// <typeparam name="...Ts">The generic types to perform restriction checks on.</typeparam>
+	template <typename T>
+	concept BytecodeElement = requires(T x)
+	{
+		// Type size must either be 32 or 64 bits
+		sizeof(T) == 4 || sizeof(T) == 8;
+		alignof(T) == 4 || alignof(T) == 8;
+		x == x;
+		x != x;
+		std::is_trivial_v<T>;
+	};
+
+	/// <summary>
+	/// Maps a generic type to a signal discriminator, if applicable.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto MapStreamType() -> std::optional<Signal::Discriminator>
+	{
+		if constexpr (std::is_same_v<Instruction, T>)
+		{
+			return {Signal::Discriminator::Instruction};
+		}
+		else if constexpr (std::is_same_v<SystemIntrinsicInvocationID, T>)
+		{
+			return {Signal::Discriminator::SystemIntrinsicInvocationID};
+		}
+		else if constexpr (std::is_same_v<UserIntrinsicInvocationID, T>)
+		{
+			return {Signal::Discriminator::UserIntrinsicInvocationID};
+		}
+		else if constexpr (std::is_same_v<JumpAddress, T>)
+		{
+			return {Signal::Discriminator::JumpAddress};
+		}
+		else if constexpr (std::is_same_v<U64, T>)
+		{
+			return {Signal::Discriminator::U64};
+		}
+		else if constexpr (std::is_same_v<I64, T>)
+		{
+			return {Signal::Discriminator::I64};
+		}
+		else if constexpr (std::is_same_v<F64, T>)
+		{
+			return {Signal::Discriminator::F64};
+		}
+		else if constexpr (std::is_same_v<CharClusterUtf8, T>)
+		{
+			return {Signal::Discriminator::CharClusterUtf8};
+		}
+		else if constexpr (std::is_same_v<CharClusterUtf16, T>)
+		{
+			return {Signal::Discriminator::CharClusterUtf16};
+		}
+		else if constexpr (std::is_same_v<CharClusterUtf32, T>)
+		{
+			return {Signal::Discriminator::CharClusterUtf32};
+		}
+		else
+		{
+			return std::nullopt;
+		}
+	}
+
+	template <typename T>
+	concept StreamScalar = requires
+	{
+		requires sizeof(T) == 4 || sizeof(T) == 8;
+		requires alignof(T) == 4 || alignof(T) == 8;
+		requires std::is_trivial_v<T>;
+		requires std::is_floating_point_v<T> || std::is_integral_v<T>;
+	};
+
+	template <typename T> requires StreamScalar<T>
+	class ScopedVariable;
+
+	/// <summary>
+	/// Proxy type for scoped variable value type.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	template <typename T>
+	class ScopedVariableProxyType final
+	{
+		using Type = std::decay_t<T>;
+	};
+
+	/// <summary>
+	/// Proxy type for scoped variable value type.
+	/// </summary>
+	template <>
+	class ScopedVariableProxyType<signed>
+	{
+		using Type = I64;
+	};
+
+	/// <summary>
+	/// Restrict stream expression type.
+	/// </summary>
+	template <typename F, typename V>
+	concept StreamWithExpressionType = requires
+	{
+		requires std::is_trivial_v<V>;
+		requires std::is_floating_point_v<V> || std::is_integral_v<V>;
+		// TODO: Validate that F() is callable with F(V, ScopedVariable<ScopedVariableProxyType<V>>)
+	};
+
+	/// <summary>
+	/// Validate template instruction.
+	/// </summary>
+	template <const Instruction I, typename... Ts>
+	concept ValidInstruction = requires
+	{
+		requires sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARG_TABLE[ToUnderlying(I)];
+	};
+
+	/// <summary>
+	/// Validate template instruction argument.
+	/// </summary>
+	template <typename... Ts>
+	concept ValidInstructionArgument = requires
+	{
+		requires std::is_trivial_v<std::decay_t<Ts>...>;
+		requires std::is_integral_v<std::decay_t<Ts>...>
+		|| std::is_floating_point_v<std::decay_t<Ts>...>
+		|| std::is_enum_v<std::decay_t<Ts>...>;
+		requires (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(I64) == 0
+		|| (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(I32) == 0;
+	};
 }

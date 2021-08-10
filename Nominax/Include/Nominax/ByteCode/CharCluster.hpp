@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: CharCluster.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.08.2021 12:44 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,92 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
-#include "ByteCode/_ByteCode.hpp"
-#include "Core.hpp"
-#include "Foundation/_Foundation.hpp"
+#include <algorithm>
+#include <array>
 
-namespace Nominax::Prelude
+#include "../Foundation/BaseTypes.hpp"
+
+namespace Nominax::ByteCode
 {
-	using namespace Nominax;
-	using namespace Assembler;
-	using namespace ByteCode;
-	using namespace Core;
-	using namespace Foundation;
-	using namespace VectorLib;
+	/// <summary>
+	/// Utf-8 character constant without null terminator.
+	/// </summary>
+	union CharClusterUtf8
+	{
+		std::array<char8_t, 8> Chars;
+		U64                    Merged;
+	};
+
+	inline auto operator ==(const CharClusterUtf8 left, const CharClusterUtf8 right) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
+
+	inline auto operator !=(const CharClusterUtf8 left, const CharClusterUtf8 right) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
+
+	/// <summary>
+	/// Writes the string literal into the char clusters.
+	/// If the string literal is longer than 8 chars, only the first 8 chars are written.
+	/// Null terminators are not written, so it's possible to use the full 8 chars, without using the 8th as null terminator.
+	/// </summary>
+	/// <param name="data"></param>
+	/// <param name="count"></param>
+	/// <returns></returns>
+	constexpr auto operator "" _cluster(const char8_t* const data, const U64 count) -> CharClusterUtf8
+	{
+		CharClusterUtf8 result { };
+		for (U64 i {0}; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
+		{
+			result.Chars[i] = data[i];
+		}
+		return result;
+	}
+
+	static_assert(sizeof(CharClusterUtf8) == sizeof(U64));
+	static_assert(sizeof(char) == sizeof(char8_t));
+
+	/// <summary>
+	/// Utf-16 character constant without null terminator.
+	/// </summary>
+	union CharClusterUtf16
+	{
+		std::array<char16_t, 4> Chars;
+		U64                     Merged;
+	};
+
+	inline auto operator ==(const CharClusterUtf16 left, const CharClusterUtf16 right) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
+
+	inline auto operator !=(const CharClusterUtf16 left, const CharClusterUtf16 right) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
+
+	static_assert(sizeof(CharClusterUtf16) == sizeof(U64));
+
+	/// <summary>
+	/// Utf-32 character constant without null terminator.
+	/// </summary>
+	union CharClusterUtf32
+	{
+		std::array<char32_t, 2> Chars;
+		U64                     Merged;
+	};
+
+	inline auto operator ==(const CharClusterUtf32 left, const CharClusterUtf32 right) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
+
+	inline auto operator !=(const CharClusterUtf32 left, const CharClusterUtf32 right) -> bool
+	{
+		return left.Merged == right.Merged;
+	}
+
+	static_assert(sizeof(CharClusterUtf32) == sizeof(U64));
 }

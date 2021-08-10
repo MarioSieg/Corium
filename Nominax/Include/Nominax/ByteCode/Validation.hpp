@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: Validation.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.08.2021 1:01 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,132 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
-#include "ByteCode/_ByteCode.hpp"
-#include "Core.hpp"
-#include "Foundation/_Foundation.hpp"
+#include "Signal.hpp"
+#include "Stream.hpp"
+#include "ValidationResult.hpp"
 
-namespace Nominax::Prelude
+namespace Nominax::ByteCode
 {
-	using namespace Nominax;
-	using namespace Assembler;
-	using namespace ByteCode;
-	using namespace Core;
-	using namespace Foundation;
-	using namespace VectorLib;
+	/// <summary>
+	/// Validates a jump address. To be valid the jump address must be:
+	/// 1. Inside the range of the bucket addresses
+	/// 2. The target must be a instruction
+	/// </summary>
+	/// <param name="bucket"></param>
+	/// <param name="address"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto ValidateJumpAddress(const Stream& bucket, JumpAddress address) -> bool;
+
+	/// <summary>
+	/// Validates a system intrinsic call id. To be valid the call id must be:
+	/// 1. Inside the range of the system intrinsic call ids
+	/// </summary>
+	/// <param name="id"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto ValidateSystemIntrinsicCall(SystemIntrinsicInvocationID id) -> bool;
+
+	/// <summary>
+	/// Validates a user intrinsic call id. To be valid the call id must be:
+	/// 1. Inside the range of the shared intrinsic table view.
+	/// 2. Non null, but this is not checked here, because it's overkill to check it in each occurrence.
+	/// </summary>
+	/// <param name="routines"></param>
+	/// <param name="id"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicInvocationID id) -> bool;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="instruction"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto ValidateInstructionArguments(Instruction instruction, const std::span<const Signal::Discriminator>& args) -> ValidationResultCode;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="instruction"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto ValidateInstructionArguments(const Instruction instruction, std::vector<Signal::Discriminator>&& args) -> ValidationResultCode
+	{
+		return ValidateInstructionArguments(instruction, args);
+	}
+
+	/// <summary>
+	/// Returns true if the iterator range begins with
+	/// prologue code, else false.
+	/// </summary>
+	/// <typeparam name="Iterator"></typeparam>
+	/// <param name="input"></param>
+	/// <returns></returns>
+	extern auto ContainsPrologue(const Stream& input) -> bool;
+
+	/// <summary>
+	/// Returns true if the iterator range end with
+	/// epilogue code, else false.
+	/// </summary>
+	/// <typeparam name="Iterator"></typeparam>
+	/// <param name="input"></param>
+	/// <returns></returns>
+	extern auto ContainsEpilogue(const Stream& input) -> bool;
+
+	/// <summary>
+	/// Compute offset of the instruction argument.
+	/// </summary>
+	/// <param name="where"></param>
+	/// <param name="next"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	constexpr auto ComputeInstructionArgumentOffset(const Signal::Discriminator* NOX_RESTRICT const where, const Signal::Discriminator* NOX_RESTRICT const next) -> std::ptrdiff_t
+	{
+		return next - where - 1;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="current"></param>
+	/// <param name="end"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	constexpr auto SearchForNextInstruction(const Signal::Discriminator* NOX_RESTRICT current, const Signal::Discriminator* NOX_RESTRICT const end) -> const Signal::Discriminator*
+	{
+		do
+		{
+			++current;
+		}
+		while (*current != Signal::Discriminator::Instruction && current < end);
+		return current;
+	}
+
+	/// <summary>
+	/// Extracts the arguments from an instruction into a span.
+	/// !! Warning this can not be used on the last instruction,
+	/// because it will determine the count by computing the pointer difference of two instructions.
+	/// </summary>
+	/// <param name="where">Pointer to instruction</param>
+	/// <param name="offset"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const U64 offset) -> std::span<const Signal::Discriminator>
+	{
+		return {where + 1, where + 1 + offset};
+	}
+
+	/// <summary>
+	/// Validates the whole code and returns the result.
+	/// </summary>
+	/// <param name="input">The stream to validate.</param>
+	/// <param name="intrinsicRegistry"></param>
+	/// <param name="outIndex"></param>
+	/// <returns>Returns the validation result.</returns>
+	[[nodiscard]]
+	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }, U32* outIndex = nullptr) -> ValidationResultCode;
 }

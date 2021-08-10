@@ -211,7 +211,7 @@
 
 #include "ReactorCores.hpp"
 
-#include "../Include/Nominax/ByteCode.hpp"
+#include "../Include/Nominax/ByteCode/_ByteCode.hpp"
 #include "../Include/Nominax/Foundation/_Foundation.hpp"
 #include "../Include/Nominax/Core.hpp"
 

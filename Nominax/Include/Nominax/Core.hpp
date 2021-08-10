@@ -213,7 +213,7 @@
 #include <mutex>
 #include <queue>
 
-#include "ByteCode.hpp"
+#include "ByteCode/_ByteCode.hpp"
 #include "Foundation/_Foundation.hpp"
 
 namespace Nominax::Core

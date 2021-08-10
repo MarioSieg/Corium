@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: DiscriminatedSignal.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.08.2021 12:52 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,133 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
-#include "ByteCode/_ByteCode.hpp"
-#include "Core.hpp"
-#include "Foundation/_Foundation.hpp"
+#include "Signal.hpp"
+#include "Generics.hpp"
 
-namespace Nominax::Prelude
+namespace Nominax::ByteCode
 {
-	using namespace Nominax;
-	using namespace Assembler;
-	using namespace ByteCode;
-	using namespace Core;
-	using namespace Foundation;
-	using namespace VectorLib;
+	/// <summary>
+	/// Represents an entry in the byte code stream.
+	/// Both values are just copied from the internal storage of the stream.
+	/// </summary>
+	/// <typeparam name="V"></typeparam>
+	/// <typeparam name="D"></typeparam>
+	struct DiscriminatedSignal
+	{
+		/// <summary>
+		/// Discriminator for the signal "Value".
+		/// </summary>
+		Signal::Discriminator Discriminator;
+
+		/// <summary>
+		/// The value itself.
+		/// </summary>
+		Signal Value;
+
+		/// <summary>
+		/// Construct.
+		/// </summary>
+		/// <param name="discriminator"></param>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		constexpr DiscriminatedSignal(Signal::Discriminator discriminator, Signal value);
+
+		/// <summary>
+		/// Check if discriminator matches generic type.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		template <typename T> requires BytecodeElement<T>
+		[[nodiscard]]
+		constexpr auto Contains() const -> bool;
+
+		/// <summary>
+		///  Check if discriminator matches generic type and value.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		template <typename T> requires BytecodeElement<T>
+		[[nodiscard]]
+		constexpr auto Contains(T value) const -> bool;
+
+		/// <summary>
+		///  Check if discriminator matches generic type,
+		///  and convert to T if possible.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		template <typename T> requires BytecodeElement<T>
+		[[nodiscard]]
+		constexpr auto Unwrap() const -> std::optional<std::remove_reference_t<T>>;
+
+		/// <summary>
+		/// Converted to T without discriminator checks.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		template <typename T> requires BytecodeElement<T>
+		[[nodiscard]]
+		constexpr auto UnwrapUnchecked() const -> std::remove_reference_t<T>;
+
+		/// <summary>
+		/// Equals.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator ==(const DiscriminatedSignal& other) const -> bool;
+
+		/// <summary>
+		/// Not equals.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator !=(const DiscriminatedSignal& other) const -> bool;
+	};
+
+	constexpr DiscriminatedSignal::DiscriminatedSignal(const Signal::Discriminator discriminator, const Signal value) : Discriminator {discriminator},
+	                                                                                                                    Value {value} { }
+
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto DiscriminatedSignal::Contains() const -> bool
+	{
+		static_assert(MapStreamType<T>());
+		return this->Discriminator == *MapStreamType<T>();
+	}
+
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto DiscriminatedSignal::Contains(T value) const -> bool
+	{
+		static_assert(MapStreamType<std::remove_reference_t<T>>());
+		const bool result
+		{
+			this->Discriminator == *MapStreamType<std::remove_reference_t<T>>()
+			&& this->Value.R64.AsU64 == std::bit_cast<decltype(this->Value.R64.AsU64)>(value)
+		};
+		return result;
+	}
+
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto DiscriminatedSignal::Unwrap() const -> std::optional<std::remove_reference_t<T>>
+	{
+		return this->Contains<T>()
+			       ? std::optional<std::remove_reference_t<T>> {std::bit_cast<T>(this->Value.R64.AsU64)}
+			       : std::optional<std::remove_reference_t<T>> {std::nullopt};
+	}
+
+	template <typename T> requires BytecodeElement<T>
+	constexpr auto DiscriminatedSignal::UnwrapUnchecked() const -> std::remove_reference_t<T>
+	{
+		return std::bit_cast<T>(this->Value.R64.AsU64);
+	}
+
+	constexpr auto DiscriminatedSignal::operator==(const DiscriminatedSignal& other) const -> bool
+	{
+		return this->Value.R64.AsU64 == other.Value.R64.AsU64;
+	}
+
+	constexpr auto DiscriminatedSignal::operator!=(const DiscriminatedSignal& other) const -> bool
+	{
+		return !(*this == other);
+	}
 }

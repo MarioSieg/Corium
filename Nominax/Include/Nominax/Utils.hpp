@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "ByteCode.hpp"
+#include "ByteCode/_ByteCode.hpp"
 #include "Foundation/_Foundation.hpp"
 #include "Core.hpp"
 

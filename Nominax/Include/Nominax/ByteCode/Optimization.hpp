@@ -1,6 +1,6 @@
-// File: Nominax.hpp
+// File: Optimization.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 10.08.2021 12:46 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,17 +207,36 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
-#include "ByteCode/_ByteCode.hpp"
-#include "Core.hpp"
-#include "Foundation/_Foundation.hpp"
+#include "../Foundation/BaseTypes.hpp"
+#include "../Foundation/Platform.hpp"
 
-namespace Nominax::Prelude
+namespace Nominax::ByteCode
 {
-	using namespace Nominax;
-	using namespace Assembler;
-	using namespace ByteCode;
-	using namespace Core;
-	using namespace Foundation;
-	using namespace VectorLib;
+	/// <summary>
+	/// Represents a stream optimization level.
+	/// </summary>
+	enum class OptimizationLevel : U8
+	{
+		Off = 0,
+		O1 = 1,
+		O2 = 2,
+		O3 = 3
+	};
+
+	consteval auto DefaultOptimizationLevel() -> OptimizationLevel
+	{
+		#if NOX_DEBUG
+		return OptimizationLevel::O2;
+		#else
+		return OptimizationLevel::O3;
+		#endif
+	}
+
+	/// <summary>
+	/// Contains optimization data.
+	/// </summary>
+	struct OptimizationHints final
+	{
+		const void*& JumpTable;
+	};
 }
