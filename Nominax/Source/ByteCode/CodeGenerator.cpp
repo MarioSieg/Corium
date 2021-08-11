@@ -1,6 +1,6 @@
-// File: _ByteCode.hpp
+// File: CodeGenerator.cpp
 // Author: Mario
-// Created: 10.08.2021 12:41 PM
+// Created: 11.08.2021 4:22 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,20 +205,105 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../../Nominax/Include/Nominax/ByteCode/_ByteCode.hpp"
 
-#include "CharCluster.hpp"
-#include "CodeGenerator.hpp"
-#include "DiscriminatedSignal.hpp"
-#include "Generics.hpp"
-#include "Image.hpp"
-#include "Instruction.hpp"
-#include "Optimization.hpp"
-#include "ScopedVariable.hpp"
-#include "ShuntingYard.hpp"
-#include "Signal.hpp"
-#include "Stream.hpp"
-#include "Transformator.hpp"
-#include "TypeRegistry.hpp"
-#include "Validator.hpp"
-#include "ValidationResult.hpp"
+namespace Nominax::ByteCode
+{
+	auto LocalCodeGenerationLayer::EmitPush(const I64 value) -> LocalCodeGenerationLayer&
+	{
+		if (this->EnablePeepholeOptimizations && value == 0)
+		{
+			this->Emitter << Instruction::PushZ;
+		}
+		else if (this->EnablePeepholeOptimizations && value == 1)
+		{
+			this->Emitter << Instruction::IPushO;
+		}
+		else
+		{
+			this->Emitter << Instruction::Push << value;
+		}
+		return *this;
+	}
+
+	auto LocalCodeGenerationLayer::EmitPush(const F64 value) -> LocalCodeGenerationLayer&
+	{
+		if (this->EnablePeepholeOptimizations && value == 0.0)
+		{
+			this->Emitter << Instruction::PushZ;
+		}
+		else if (this->EnablePeepholeOptimizations && value == 1.0)
+		{
+			this->Emitter << Instruction::FPushO;
+		}
+		else
+		{
+			this->Emitter << Instruction::Push << value;
+		}
+		return *this;
+	}
+
+	auto LocalCodeGenerationLayer::EmitPop(const U16 popCount) -> LocalCodeGenerationLayer&
+	{
+		if (this->EnablePeepholeOptimizations)
+		{
+			switch (popCount)
+			{
+				case 0:
+					return *this;
+
+				case 1:
+					this->Emitter << Instruction::Pop;
+					return *this;
+
+				case 2:
+					this->Emitter << Instruction::Pop2;
+					return *this;
+
+				case 4:
+					this->Emitter << Instruction::VecPop;
+					return *this;
+
+				case 16:
+					this->Emitter << Instruction::MatPop;
+					return *this;
+
+				default:
+					if (popCount % 2 == 0)
+					{
+						for (U8 i {0}; i < popCount / 2; ++i)
+						{
+							this->Emitter << Instruction::Pop2;
+						}
+					}
+					else if (popCount % 4 == 0)
+					{
+						for (U8 i {0}; i < popCount / 4; ++i)
+						{
+							this->Emitter << Instruction::VecPop;
+						}
+					}
+					else if (popCount % 16 == 0)
+					{
+						for (U8 i {0}; i < popCount / 16; ++i)
+						{
+							this->Emitter << Instruction::MatPop;
+						}
+					}
+					else
+					{
+						for (U8 i {0}; i < popCount; ++i)
+						{
+							this->Emitter << Instruction::Pop;
+						}
+					}
+					return *this;
+			}
+		}
+		for (U8 i {0}; i < popCount; ++i)
+		{
+			this->Emitter << Instruction::Pop;
+		}
+		return *this;
+	}
+}

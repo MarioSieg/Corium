@@ -1,6 +1,6 @@
-// File: _ByteCode.hpp
+// File: Transformator.cpp
 // Author: Mario
-// Created: 10.08.2021 12:41 PM
+// Created: 11.08.2021 4:16 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,20 +205,60 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include <execution>
 
-#include "CharCluster.hpp"
-#include "CodeGenerator.hpp"
-#include "DiscriminatedSignal.hpp"
-#include "Generics.hpp"
-#include "Image.hpp"
-#include "Instruction.hpp"
-#include "Optimization.hpp"
-#include "ScopedVariable.hpp"
-#include "ShuntingYard.hpp"
-#include "Signal.hpp"
-#include "Stream.hpp"
-#include "Transformator.hpp"
-#include "TypeRegistry.hpp"
-#include "Validator.hpp"
-#include "ValidationResult.hpp"
+#include "../../../Nominax/Include/Nominax/ByteCode/_ByteCode.hpp"
+
+namespace Nominax::ByteCode
+{
+	auto TransformStreamToImageByCopy
+	(
+		const Stream&            input,
+		const OptimizationHints& optHints,
+		Image&                   output
+	) -> void
+	{
+		Stream copy {input};
+		return TransformStreamToImageByMove(std::move(copy), optHints, output);
+	}
+
+	auto TransformStreamToImageByMove
+	(
+		Stream&&                                  input,
+		[[maybe_unused]] const OptimizationHints& optHints,
+		Image&                                    output
+	) -> void
+	{
+		if (input.IsEmpty())
+		{
+			[[unlikely]]
+				return;
+		}
+
+		output = Image {std::move(input.GetCodeBuffer())};
+
+		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
+		const auto* const NOX_RESTRICT                     discriminators {&*std::begin(input.GetDiscriminatorBuffer())};
+		const auto* const NOX_RESTRICT* const NOX_RESTRICT jumpTable {&optHints.JumpTable};
+		const auto* const NOX_RESTRICT                     base {output.GetBlobData()};
+		const auto* const NOX_RESTRICT                     begin {&*std::begin(output)};
+
+		const auto addressMapper
+		{
+			[=](Signal& x)
+			{
+				const Signal::Discriminator discriminator {discriminators[&x - begin]};
+				if (discriminator == Signal::Discriminator::Instruction)
+				{
+					x.Ptr = const_cast<void*>(*(jumpTable + x.OpCode));
+				}
+				else if (discriminator == Signal::Discriminator::JumpAddress)
+				{
+					x.Ptr = const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress));
+				}
+			}
+		};
+		std::for_each(std::execution::par_unseq, std::begin(output), std::end(output), addressMapper);
+		#endif
+	}
+}

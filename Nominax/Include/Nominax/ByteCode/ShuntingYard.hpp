@@ -301,7 +301,6 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		[[nodiscard]]
 		auto end() -> typename std::vector<InfixGate>::iterator;
 
 		/// <summary>

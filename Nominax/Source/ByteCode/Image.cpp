@@ -1,6 +1,6 @@
-// File: _ByteCode.hpp
+// File: Image.cpp
 // Author: Mario
-// Created: 10.08.2021 12:41 PM
+// Created: 11.08.2021 4:17 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,20 +205,27 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include <execution>
 
-#include "CharCluster.hpp"
-#include "CodeGenerator.hpp"
-#include "DiscriminatedSignal.hpp"
-#include "Generics.hpp"
-#include "Image.hpp"
-#include "Instruction.hpp"
-#include "Optimization.hpp"
-#include "ScopedVariable.hpp"
-#include "ShuntingYard.hpp"
-#include "Signal.hpp"
-#include "Stream.hpp"
-#include "Transformator.hpp"
-#include "TypeRegistry.hpp"
-#include "Validator.hpp"
-#include "ValidationResult.hpp"
+#include "../../../Nominax/Include/Nominax/ByteCode/_ByteCode.hpp"
+
+namespace Nominax::ByteCode
+{
+	Image::Image(std::vector<Signal>&& buffer) : Blob_ {std::move(buffer)} { }
+
+	Image::Image(const std::span<const Signal> blob)
+	{
+		NOX_PAS_FALSE(std::empty(blob), "Byte code image with zero size is invalid!");
+		this->Blob_.resize(std::size(blob));
+		std::copy(std::execution::par_unseq, std::cbegin(blob), std::cend(blob), std::begin(this->Blob_));
+	}
+
+	Image::Image(const void* const data, const U64 byteSize)
+	{
+		NOX_PAS_NOT_ZERO(byteSize, "Byte code image with zero size is invalid!");
+		NOX_PAS_NOT_NULL(data, "Byte code image with null data is invalid!");
+		NOX_PAS_TRUE(byteSize % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
+		this->Blob_.resize(byteSize / sizeof(Signal));
+		std::memcpy(std::data(this->Blob_), data, byteSize);
+	}
+}
