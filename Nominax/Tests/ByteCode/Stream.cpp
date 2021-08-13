@@ -290,7 +290,7 @@ TEST(BytecodeStream, CodeEpilogue)
 TEST(BytecodeStream, CodeGenerationNoOpt)
 {
 	Stream stream {OptimizationLevel::Off};
-	
+
 	stream.Prologue().With(2, [](ScopedInt&& var)
 	{
 		var *= 2;
@@ -318,7 +318,7 @@ TEST(BytecodeStream, CodeGenerationNoOpt)
 TEST(BytecodeStream, CodeGenerationOpt3)
 {
 	Stream stream {OptimizationLevel::O3};
-	
+
 	stream.Prologue().With(2, [](ScopedInt&& var)
 	{
 		var *= 2;
@@ -339,7 +339,7 @@ TEST(BytecodeStream, CodeGenerationOpt3)
 
 TEST(BytecodeStream, GetStreamHeader)
 {
-	Stream stream{ OptimizationLevel::O3 };
+	Stream stream {OptimizationLevel::O3};
 
 	stream.Prologue().With(2, [](ScopedInt&& var)
 	{
@@ -347,16 +347,16 @@ TEST(BytecodeStream, GetStreamHeader)
 		var += 1;
 		var /= 1;
 	}).Epilogue();
-	Stream::SerializationImageHeader header{};
-	
+	Stream::SerializationImageHeader header { };
+
 	stream.GetSerializationImageHeader(header);
-	for (U64 i{ 0 }; i < std::size(Stream::SerializationImageHeader::MAGIC_ID); ++i)
+	for (U64 i {0}; i < std::size(Stream::SerializationImageHeader::MAGIC_ID); ++i)
 	{
 		ASSERT_EQ(header.Magic[i], Stream::SerializationImageHeader::MAGIC_ID[i]);
 	}
 	ASSERT_NE(header.CodeImageSize, std::size(stream.GetCodeBuffer()));
 	ASSERT_NE(header.DiscriminatorImageSize, std::size(stream.GetDiscriminatorBuffer()));
-	
+
 	header.EncryptDecrypt();
 	ASSERT_EQ(header.CodeImageSize, std::size(stream.GetCodeBuffer()));
 	ASSERT_EQ(header.DiscriminatorImageSize, std::size(stream.GetDiscriminatorBuffer()));
@@ -364,7 +364,7 @@ TEST(BytecodeStream, GetStreamHeader)
 
 TEST(BytecodeStream, SerializeImage)
 {
-	Stream stream{ OptimizationLevel::O3 };
+	Stream stream {OptimizationLevel::O3};
 
 	stream.Prologue().With(2, [](ScopedInt&& var)
 	{
@@ -379,7 +379,7 @@ TEST(BytecodeStream, SerializeImage)
 
 TEST(BytecodeStream, DeserializeImage)
 {
-	Stream stream1{ OptimizationLevel::O3 };
+	Stream stream1 {OptimizationLevel::O3};
 
 	stream1.Prologue().With(2, [](ScopedInt&& var)
 	{
@@ -389,7 +389,7 @@ TEST(BytecodeStream, DeserializeImage)
 	}).Epilogue();
 
 	ASSERT_TRUE(stream1.SerializeToFile("TestStream.img"));
-	Stream stream2{};
+	Stream stream2 { };
 	ASSERT_TRUE(stream2.DeserializeFromFile("TestStream.img"));
 	ASSERT_EQ(std::size(stream1.GetCodeBuffer()), std::size(stream2.GetCodeBuffer()));
 	ASSERT_EQ(std::size(stream1.GetDiscriminatorBuffer()), std::size(stream2.GetDiscriminatorBuffer()));
@@ -400,4 +400,3 @@ TEST(BytecodeStream, DeserializeImage)
 	}
 	std::filesystem::remove("TestStream.img");
 }
-	

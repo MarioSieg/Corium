@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: ReactorCores.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,61 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include "../../Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../Include/Nominax/Core/_Core.hpp"
 
-#if NOX_ARCH_X86_64
-
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
-	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+	#define NOX_DECL_VM_CORE(name)				\
+	[[nodiscard]]								\
+	NOX_HOT extern auto ReactorCore_##name		\
+	(											\
+		const VerboseReactorDescriptor* input,	\
+		ReactorState* output,					\
+		const void**** outJumpTable = nullptr	\
+	) -> ReactorShutdownReason
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+	/// <summary>
+	/// Generic fallback implementation, for all architectures.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
+	/// <returns></returns>
+	NOX_DECL_VM_CORE(Fallback);
 
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+	/// <summary>
+	/// Generic debug implementation, for all architectures.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
+	/// <returns></returns>
+	NOX_DECL_VM_CORE(Debug);
 
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
-	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+	#if NOX_ARCH_X86_64
 
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
+	/// <summary>
+	/// Specialized implementation compiled with AVX, which uses 256-bit YMM registers.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
+	/// <returns></returns>
+	NOX_DECL_VM_CORE(Avx);
 
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
+	/// <summary>
+	/// Specialized implementation compiled with AVX, which uses 512-bit ZMM registers.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
+	/// <returns></returns>
+	NOX_DECL_VM_CORE(Avx512F);
 
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
+	#endif
 
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
+	#undef NOX_DECL_VM_CORE
 }
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

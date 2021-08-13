@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: ReactorCoreHypervisor.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:37 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,141 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include "../Foundation/CpuFeatureDetector.hpp"
 
-#if NOX_ARCH_X86_64
+#include "ReactorRoutineLink.hpp"
 
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// The reactor hyper visor manages the correct selection
+	/// of reactor execution routines for the current runtime.
+	/// </summary>
+	class HyperVisor final
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
+	public:
+		/// <summary>
+		/// static class
+		/// </summary>
+		HyperVisor() = delete;
+
+		/// <summary>
+		/// static class
+		/// </summary>
+		/// <param name="other"></param>
+		HyperVisor(const HyperVisor& other) = delete;
+
+		/// <summary>
+		/// static class
+		/// </summary>
+		/// <param name="other"></param>
+		HyperVisor(HyperVisor&& other) = delete;
+
+		/// <summary>
+		/// static class
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const HyperVisor& other) -> HyperVisor& = delete;
+
+		/// <summary>
+		/// static class
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(HyperVisor&& other) -> HyperVisor& = delete;
+
+		/// <summary>
+		/// static class
+		/// </summary>
+		~HyperVisor() = delete;
+
+		/// <summary>
+		/// Returns the fallback reactor routine with no platform specific optimizations.
+		/// This is always available, independent of any platform.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto GetFallbackRoutineLink() -> ReactorRoutineLink;
+
+		/// <summary>
+		/// Returns the reactor used for debugging.
+		/// This is always available, independent of any platform.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto GetDebugRoutineLink() -> ReactorRoutineLink;
+
+		/// <summary>
+		/// Returns the reactor specialization based on the cpu features available.
+		/// </summary>
+		/// <param name="cpuFeatureDetector"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto SmartSelectReactor(const Foundation::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current reactor registry.</returns>
+		[[nodiscard]]
+		static auto GetReactorRegistry() -> const ReactorRegistry&;
+
+		/// <summary>
+		/// Returns the reactor routine of the corresponding target.
+		/// </summary>
+		/// <param name="target"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*;
+
+		/// <summary>
+		/// Selects the best reactor routine matching the cpu features and saves it.
+		/// </summary>
+		/// <param name="features"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto GetOptimalReactorRoutine(const Foundation::CpuFeatureDetector& features) -> ReactorRoutineLink;
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+	/// <summary>
+	/// Helpers to quickly execute a reactor with specified cpu features.
+	/// Good for testing and debugging.
+	/// </summary>
+	/// <param name="target"></param>
+	/// <param name="input"></param>
+	/// <param name="output"></param>
+	/// <param name="outJumpTable"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	extern auto SingletonExecutionProxy
+	(
+		const VerboseReactorDescriptor&       input,
+		ReactorState&                         output,
+		const Foundation::CpuFeatureDetector& target,
+		const void****                        outJumpTable = nullptr
+	) -> ReactorShutdownReason;
 
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+	/// <summary>
+	/// Queries the jump table from the specified reactor routine.
+	/// </summary>
+	/// <param name="routine"></param>
+	/// <returns></returns>
+	extern auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**;
 
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
-	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
+	/// <summary>
+	/// Proxy function to perform a single reactor
+	/// execution with provided descriptors.
+	/// </summary>
+	/// <param name="input">The reactor input descriptor.</param>
+	/// <param name="target">The cpu target.</param>
+	/// <returns></returns>
+	extern auto SingletonExecutionProxy
+	(
+		const VerboseReactorDescriptor&       input,
+		const Foundation::CpuFeatureDetector& target       = { },
+		const void****                        outJumpTable = nullptr
+	) -> std::pair<ReactorShutdownReason, ReactorState>;
 }
-
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

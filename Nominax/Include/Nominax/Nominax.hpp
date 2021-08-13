@@ -209,7 +209,7 @@
 
 #include "Asm_x86_64.hpp"
 #include "ByteCode/_ByteCode.hpp"
-#include "Core.hpp"
+#include "Core/_Core.hpp"
 #include "Foundation/_Foundation.hpp"
 
 namespace Nominax::Prelude

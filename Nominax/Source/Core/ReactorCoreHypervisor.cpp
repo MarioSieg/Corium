@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: ReactorCoreHypervisor.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:55 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,153 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#include "../../../Nominax/Include/Nominax/Core/_Core.hpp"
+#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 
-#include "../../TestBase.hpp"
+#include "ReactorCores.hpp"
 
-#if NOX_ARCH_X86_64
-
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	auto SingletonExecutionProxy
+	(
+		const VerboseReactorDescriptor& input, const Foundation::CpuFeatureDetector& target,
+		const void****                  outJumpTable
+	) -> std::pair<ReactorShutdownReason, ReactorState>
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
+		ReactorState                output {.Input = &input};
+		const ReactorShutdownReason result {SingletonExecutionProxy(input, output, target, outJumpTable)};
+		return {result, output};
+	}
+
+	static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<U64>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
+	{
+		&ReactorCore_Fallback,
+		&ReactorCore_Debug,
+
+		#if NOX_ARCH_X86_64
+
+		&ReactorCore_Avx,
+		&ReactorCore_Avx512F,
+
+		#endif
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
+	auto HyperVisor::SmartSelectReactor(const Foundation::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
 	{
-		[&]
+		#if NOX_ARCH_X86_64
+
+		// if we have AVX 512, use AVX 512:
+		if (cpuFeatureDetector[Foundation::CpuFeatureBits::Avx512F])
 		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
+			return ReactorCoreSpecialization::Amd64_Avx512F;
 		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
-	{
-		[&]
+		// if we have AVX, use AVX:
+		if (cpuFeatureDetector[Foundation::CpuFeatureBits::Avx])
 		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
+			return ReactorCoreSpecialization::Amd64_Avx;
 		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
-	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		#elif NOX_ARCH_ARM_64
+#	error "ARM64 not yet supported!"
+		#endif
 
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
+		return ReactorCoreSpecialization::Fallback;
+	}
+
+	auto HyperVisor::GetReactorRegistry() -> const ReactorRegistry&
 	{
-		const auto exec
+		return REACTOR_REGISTRY;
+	}
+
+	auto HyperVisor::GetFallbackRoutineLink() -> ReactorRoutineLink
+	{
+		constexpr auto specialization {ReactorCoreSpecialization::Fallback};
+
+		ReactorCoreExecutionRoutine* const routine
 		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
+			GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)
 		};
-		ASSERT_NO_FATAL_FAILURE(exec());
+		const void** const jumpTable {QueryJumpTable(*routine)};
+		return
+		{
+			specialization,
+			routine,
+			jumpTable
+		};
+	}
+
+	auto HyperVisor::GetDebugRoutineLink() -> ReactorRoutineLink
+	{
+		constexpr auto specialization {ReactorCoreSpecialization::Debug};
+
+		ReactorCoreExecutionRoutine* const routine
+		{
+			GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Debug)
+		};
+		const void** const jumpTable {QueryJumpTable(*routine)};
+		return
+		{
+			specialization,
+			routine,
+			jumpTable
+		};
+	}
+
+	auto HyperVisor::GetReactorRoutineFromRegistryByTarget(const ReactorCoreSpecialization target) -> ReactorCoreExecutionRoutine*
+	{
+		ReactorCoreExecutionRoutine* const routine
+		{
+			REACTOR_REGISTRY[static_cast<U64>(target)]
+		};
+		NOX_PAS_NOT_NULL(routine, "Reactor core execution routine is nullptr!");
+		return routine;
+	}
+
+	auto HyperVisor::GetOptimalReactorRoutine(const Foundation::CpuFeatureDetector& features) -> ReactorRoutineLink
+	{
+		static thread_local constinit U16 QueryCounter;
+		ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
+		ReactorCoreExecutionRoutine*      routine {GetReactorRoutineFromRegistryByTarget(specialization)};
+		const void**                      jumpTable {QueryJumpTable(*routine)};
+		Foundation::Print
+		(
+			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry WordSize: {}\n",
+			GetReactorCoreSpecializationName(specialization),
+			static_cast<std::uint64_t>(specialization),
+			++QueryCounter,
+			std::size(REACTOR_REGISTRY)
+		);
+		if (QueryCounter > 1)
+		{
+			[[unlikely]]
+				Print(Foundation::LogLevel::Warning,
+				      "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n",
+				      QueryCounter);
+		}
+		return
+		{
+			specialization,
+			routine,
+			jumpTable
+		};
+	}
+
+	auto SingletonExecutionProxy
+	(
+		const VerboseReactorDescriptor&       input, ReactorState& output,
+		const Foundation::CpuFeatureDetector& target,
+		const void****                        outJumpTable
+	) -> ReactorShutdownReason
+	{
+		return HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable);
+	}
+
+	auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**
+	{
+		const void**   jumpTable { };
+		const void***  proxy {&jumpTable};
+		const void**** writer {&proxy};
+		return routine(nullptr, nullptr, writer) == ReactorShutdownReason::Success ? jumpTable : nullptr;
 	}
 }
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

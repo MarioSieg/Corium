@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: Environment.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:32 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,300 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include <chrono>
+#include <memory>
+#include <memory_resource>
 
-#if NOX_ARCH_X86_64
+#include "../Foundation/BaseTypes.hpp"
+#include "../Foundation/MemoryUnits.hpp"
+#include "../Foundation/CpuFeatureDetector.hpp"
+#include "../Foundation/Snapshot.hpp"
+#include "../Foundation/IAllocator.hpp"
+#include "../ByteCode/Stream.hpp"
+#include "../ByteCode/Image.hpp"
 
-using namespace X86_64::Routines;
+#include "EnvironmentDescriptor.hpp"
+#include "ReactorState.hpp"
 
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// Represents the whole runtime environment.
+	/// </summary>
+	class [[nodiscard]] Environment
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		/// <summary>
+		/// Pimpl.
+		/// </summary>
+		struct Context;
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
-	{
-		[&]
+		/// <summary>
+		/// Context deallocator.
+		/// </summary>
+		struct ContextDeleter final
 		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
-	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
+			auto operator()(Context* kernel) const -> void;
 		};
-		ASSERT_NO_FATAL_FAILURE(exec());
+
+		/// <summary>
+		/// Pimpl ptr.
+		/// </summary>
+		std::unique_ptr<Context, ContextDeleter> Context_ {nullptr};
+
+	protected:
+		/// <summary>
+		/// This hook is executed before the environment boots.
+		/// </summary>
+		/// <returns>True on success, panic on false.</returns>
+		[[nodiscard]]
+		virtual auto OnPreBootHook() -> bool;
+
+		/// <summary>
+		/// This hook is executed after the environment boots.
+		/// </summary>
+		/// <returns>True on success, panic on false.</returns>
+		[[nodiscard]]
+		virtual auto OnPostBootHook() -> bool;
+
+		/// <summary>
+		/// This hook is executed before any code execution.
+		/// </summary>
+		/// <returns>True on success, panic on false.</returns>
+		[[nodiscard]]
+		virtual auto OnPreExecutionHook(const ByteCode::Image& appCodeBundle) -> bool;
+
+		/// <summary>
+		/// This hook is executed after any code execution.
+		/// </summary>
+		/// <returns>True on success, panic on false.</returns>
+		[[nodiscard]]
+		virtual auto OnPostExecutionHook() -> bool;
+
+		/// <summary>
+		/// This hook is executed before the environment shuts down.
+		/// </summary>
+		/// <returns>True on success, panic on false.</returns>
+		[[nodiscard]]
+		virtual auto OnPreShutdownHook() -> bool;
+
+		/// <summary>
+		/// This hook is executed after the environment shuts down.
+		/// </summary>
+		/// <returns>True on success, panic on false.</returns>
+		[[nodiscard]]
+		virtual auto OnPostShutdownHook() -> bool;
+
+	public:
+		/// <summary>
+		/// WordSize in bytes of the system pool, if the given count was invalid.
+		/// </summary>
+		static constexpr U64 FALLBACK_SYSTEM_POOL_SIZE {256_kB};
+		static_assert(FALLBACK_SYSTEM_POOL_SIZE);
+
+		/// <summary>
+		/// The min size of the boot pool.
+		/// </summary>
+		static constexpr U64 BOOT_POOL_SIZE_MIN {32_kB};
+		static_assert(BOOT_POOL_SIZE_MIN);
+
+		/// <summary>
+		/// The max size of the boot pool.
+		/// </summary>
+		static constexpr U64 BOOT_POOL_SIZE_MAX {256_kB};
+		static_assert(BOOT_POOL_SIZE_MAX);
+
+		/// <summary>
+		/// Default constructor. Does not initialize the environment.
+		/// </summary>
+		explicit Environment(const Foundation::IAllocator* allocator = nullptr);
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		Environment(const Environment& other) = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		/// <param name="other"></param>
+		Environment(Environment&& other) = delete;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const Environment& other) -> Environment& = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(Environment&& other) -> Environment& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// If Shutdown() has not been called before
+		/// the destructor, the destructor will call it.
+		/// </summary>
+		virtual ~Environment();
+
+		/// <summary>
+		/// Boot up runtime environment.
+		/// Will panic if fatal errors are encountered.
+		/// </summary>
+		/// <returns></returns>
+		auto Boot(const EnvironmentDescriptor& descriptor) -> void;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="image"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Execute(const ByteCode::Image& image) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Execute(ByteCode::Stream&& stream) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Execute(const ByteCode::Stream& stream) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="image"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator()(const ByteCode::Image& image) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator()(const ByteCode::Stream&& stream) -> ExecutionResult;
+
+		/// <summary>
+		/// Execute stream on alpha reactor.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator()(const ByteCode::Stream& stream) -> ExecutionResult;
+
+		/// <summary>
+		/// Shutdown runtime environment.
+		/// Will panic if fatal errors are encountered.
+		/// </summary>
+		/// <returns></returns>
+		auto Shutdown() -> void;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if the system is booted and online!</returns>
+		[[nodiscard]]
+		auto IsOnline() const -> bool;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The raw kernel pointer. Only useful for internal interop.-</returns>
+		[[nodiscard]]
+		auto GetKernel() const -> const void*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The boot time stamp.</returns>
+		[[nodiscard]]
+		auto GetBootStamp() const -> std::chrono::high_resolution_clock::time_point;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The boot time in milliseconds.</returns>
+		[[nodiscard]]
+		auto GetBootTime() const -> std::chrono::milliseconds;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The system stat snapshot.</returns>
+		[[nodiscard]]
+		auto GetSystemSnapshot() const -> const Foundation::Snapshot&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The cpu feature detector.</returns>
+		[[nodiscard]]
+		auto GetProcessorFeatureSnapshot() const -> const Foundation::CpuFeatureDetector&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The app name for which the environment is hosted for.</returns>
+		[[nodiscard]]
+		auto GetAppName() const -> const std::pmr::string&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The size of the system pool in bytes.</returns>
+		[[nodiscard]]
+		auto GetMonotonicSystemPoolSize() const -> U64;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The count of reactor executions so far.</returns>
+		[[nodiscard]]
+		auto GetExecutionCount() const -> U64;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The history of execution times.</returns>
+		[[nodiscard]]
+		auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The local optimization info for the current machine.</returns>
+		[[nodiscard]]
+		auto GetOptimizationHints() const -> ByteCode::OptimizationHints;
+	};
+
+	inline auto Environment::operator()(const ByteCode::Image& image) -> ExecutionResult
+	{
+		return this->Execute(image);
+	}
+
+	inline auto Environment::operator()(const ByteCode::Stream&& stream) -> ExecutionResult
+	{
+		return this->Execute(std::move(stream));
+	}
+
+	inline auto Environment::operator()(const ByteCode::Stream& stream) -> ExecutionResult
+	{
+		return this->Execute(stream);
 	}
 }
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

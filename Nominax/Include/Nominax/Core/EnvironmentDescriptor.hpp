@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: EnvironmentDescriptor.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:29 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,82 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include <string_view>
 
-#if NOX_ARCH_X86_64
+#include "../Foundation/BaseTypes.hpp"
+#include "../Foundation/MemoryUnits.hpp"
 
-using namespace X86_64::Routines;
+#include "ReactorCreationDescriptor.hpp"
 
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// Single reactor mode.
+	/// </summary>
+	constexpr U64 MONO_REACTOR {1};
+
+	/// <summary>
+	/// Config descriptor for an environment.
+	/// </summary>
+	struct EnvironmentDescriptor final
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
+		/// <summary>
+		/// Argument count.
+		/// </summary>
+		I32 ArgC {0};
+
+		/// <summary>
+		/// Argument vector.
+		/// </summary>
+		const char* const* ArgV {nullptr};
+
+		/// <summary>
+		/// The name of the app.
+		/// </summary>
+		std::string_view AppName {"Untitled App"};
+
+		/// <summary>
+		/// If true, the fallback reactor implementation
+		/// will be used for all reactors, not the
+		/// runtime selected one (based on CPU features).
+		/// </summary>
+		bool ForceFallback {false};
+
+		/// <summary>
+		/// If true, synchronization between
+		/// C++ io-streams (cout, err, cin) and C io-streams (stdout, stdin)
+		/// is deactivated, which makes printing faster.
+		/// This should be activated in most cases when executing code.
+		/// </summary>
+		bool FastHostIoSync {true};
+
+		/// <summary>
+		/// The size of the boot pool
+		/// </summary>
+		U64 BootPoolSize {128_kB};
+
+		/// <summary>
+		/// The size of the system memory pool size.
+		/// </summary>
+		U64 SystemPoolSize {512_kB};
+
+		/// <summary>
+		/// The count of reactors.
+		/// If 0, the system will use the number of CPU threads.
+		/// </summary>
+		U64 ReactorCount {0};
+
+		/// <summary>
+		/// The reactor stack size in bytes.
+		/// Must be divisible by 8!
+		/// </summary>
+		U64 StackSize {8_mB};
+
+		/// <summary>
+		/// Power preference of the system.
+		/// </summary>
+		PowerPreference PowerPref {PowerPreference::HighPerformance};
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
 }
-
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
-	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

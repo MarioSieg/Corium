@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: TaskQueueThread.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:41 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,172 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include"../Foundation/BaseTypes.hpp"
 
-#if NOX_ARCH_X86_64
+#include <functional>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// Task routine function.
+	/// </summary>
+	using Job = std::function<auto() -> void>;
+
+	/// <summary>
+	/// Represents a queue of task which are executed on a worker threads.
+	/// </summary>
+	class [[nodiscard]] TaskQueueThread final
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
+		/// <summary>
+		/// Is the thread currently disposing?!
+		/// </summary>
+		bool Disposing_ {false};
+
+		/// <summary>
+		/// Job queue.
+		/// </summary>
+		std::queue<Job, std::pmr::deque<Job>> TaskQueue_ { };
+
+		/// <summary>
+		/// Mutex for the queue.
+		/// </summary>
+		std::mutex QueueMutex_ { };
+
+		/// <summary>
+		/// Condition notifier.
+		/// </summary>
+		std::condition_variable SharedCondition_ { };
+
+		/// <summary>
+		/// Worker thread.
+		/// </summary>
+		std::thread Worker_;
+
+		/// <summary>
+		/// Loop for the thread,
+		/// executes all jobs in the queue.
+		/// </summary>
+		/// <returns></returns>
+		auto DispatchJobQueue() -> void;
+
+	public:
+		/// <summary>
+		/// Construct and launch background thread on queue.
+		/// </summary>
+		/// <returns></returns>
+		TaskQueueThread();
+
+		/// <summary>
+		/// Construct and launch background thread on queue.
+		/// </summary>
+		/// <param name="allocator">The memory resource to use.</param>
+		/// <returns></returns>
+		explicit TaskQueueThread(std::pmr::memory_resource& allocator);
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		TaskQueueThread(const TaskQueueThread&) = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		TaskQueueThread(TaskQueueThread&&) = delete;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <returns></returns>
+		auto operator=(const TaskQueueThread&) -> TaskQueueThread& = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		/// <returns></returns>
+		auto operator=(TaskQueueThread&&) -> TaskQueueThread& = delete;
+
+		/// <summary>
+		/// Destroy and join thread.
+		/// </summary>
+		~TaskQueueThread();
+
+		/// <summary>
+		/// Wait until all tasks are done.
+		/// </summary>
+		/// <returns></returns>
+		auto Join() -> void;
+
+		/// <summary>
+		/// Enqueue a task into the queue.
+		/// </summary>
+		/// <param name="target">The task routine to execute.</param>
+		/// <returns></returns>
+		auto Enqueue(Job&& target) -> void;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if the task queue is disposing the resources and the thread.</returns>
+		[[nodiscard]]
+		auto IsDisposing() const -> bool;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The task queue.</returns>
+		[[nodiscard]]
+		auto GetTaskQueue() const -> const std::queue<Job, std::pmr::deque<Job>>&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The worker thread used to do all the work.</returns>
+		[[nodiscard]]
+		auto GetWorkerThread() const -> const std::thread&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The remaining amount of tasks in the queue.</returns>
+		[[nodiscard]]
+		auto GetRemainingTaskCount() const -> U64;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if task queue is currently empty, else false.</returns>
+		[[nodiscard]]
+		auto IsEmpty() const -> bool;
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
+	inline auto TaskQueueThread::IsDisposing() const -> bool
 	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->Disposing_;
+	}
 
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
+	inline auto TaskQueueThread::GetTaskQueue() const -> const std::queue<Job, std::pmr::deque<Job>>&
 	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->TaskQueue_;
+	}
 
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
+	inline auto TaskQueueThread::GetWorkerThread() const -> const std::thread&
 	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->Worker_;
+	}
 
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
+	inline auto TaskQueueThread::GetRemainingTaskCount() const -> U64
 	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
+		return this->TaskQueue_.size();
+	}
+
+	inline auto TaskQueueThread::IsEmpty() const -> bool
+	{
+		return this->TaskQueue_.empty();
 	}
 }
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

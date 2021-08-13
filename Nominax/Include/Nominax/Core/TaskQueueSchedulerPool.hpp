@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: TaskQueueSchedulerPool.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:42 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,347 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include <memory_resource>
 
-#if NOX_ARCH_X86_64
+#include "TaskQueueThread.hpp"
 
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// Contains a pool of scheduler queues.
+	/// </summary>
+	class TaskQueueThreadPool final
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
+		std::pmr::monotonic_buffer_resource* Allocator_ {nullptr};
+
+	public:
+		/// <summary>
+		/// Data types used to store.
+		/// </summary>
+		using StorageType = std::pmr::vector<std::unique_ptr<TaskQueueThread>>;
+
+		/// <summary>
+		/// The list of task queue threads.
+		/// </summary>
+		StorageType Threads { };
+
+		/// <summary>
+		/// Default constructor.
+		/// </summary>
+		/// <returns></returns>
+		TaskQueueThreadPool() = default;
+
+		/// <summary>
+		/// Construct and start n threads.
+		/// </summary>
+		/// <param name="threadCount"></param>
+		/// <returns></returns>
+		explicit TaskQueueThreadPool(U64 threadCount);
+
+		/// <summary>
+		/// Construct empty with allocator.
+		/// </summary>
+		/// <param name="allocator"></param>
+		/// <returns></returns>
+		explicit TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator);
+
+		/// <summary>
+		/// Construct with allocator and launch threads.
+		/// </summary>
+		/// <param name="allocator"></param>
+		/// <param name="threadCount"></param>
+		/// <returns></returns>
+		TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator, U64 threadCount);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		TaskQueueThreadPool(const TaskQueueThreadPool& other) = delete;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		TaskQueueThreadPool(TaskQueueThreadPool&& other) = default;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const TaskQueueThreadPool& other) -> TaskQueueThreadPool& = delete;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(TaskQueueThreadPool&& other) -> TaskQueueThreadPool& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~TaskQueueThreadPool() = default;
+
+		/// <summary>
+		/// Join all threads.
+		/// </summary>
+		/// <returns></returns>
+		auto JoinAll() -> void;
+
+		/// <summary>
+		/// Joins and removes all threads.
+		/// </summary>
+		/// <returns></returns>
+		auto Clear() -> void;
+
+		/// <summary>
+		/// Resizes the container size.
+		/// </summary>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		auto Resize(U64 size) -> void;
+
+		/// <summary>
+		/// Pushes a new task queue thread into the queue.
+		/// </summary>
+		/// <param name="elem"></param>
+		/// <returns></returns>
+		auto Push() -> void;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The amount of threads.</returns>
+		[[nodiscard]]
+		auto GetSize() const -> U64;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto begin() -> StorageType::iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto end() -> StorageType::iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto rbegin() -> StorageType::reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto rend() -> StorageType::reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto cbegin() const -> StorageType::const_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto cend() const -> StorageType::const_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto crbegin() const -> StorageType::const_reverse_iterator;
+
+		/// <summary>
+		/// STL iterator interface.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto crend() const -> StorageType::const_reverse_iterator;
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
+	inline auto TaskQueueThreadPool::Clear() -> void
 	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		this->JoinAll();
+		this->Threads.clear();
+	}
 
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
+	inline auto TaskQueueThreadPool::Resize(const U64 size) -> void
 	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		this->Threads.resize(size);
+	}
 
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
+	inline auto TaskQueueThreadPool::GetSize() const -> U64
 	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->Threads.size();
+	}
 
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::begin() -> StorageType::iterator
 	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
+		return std::begin(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::end() -> StorageType::iterator
+	{
+		return std::end(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::rbegin() -> StorageType::reverse_iterator
+	{
+		return std::rbegin(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::rend() -> StorageType::reverse_iterator
+	{
+		return std::rend(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::cbegin() const -> StorageType::const_iterator
+	{
+		return std::cbegin(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::cend() const -> StorageType::const_iterator
+	{
+		return std::cend(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::crbegin() const -> StorageType::const_reverse_iterator
+	{
+		return std::crbegin(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	inline auto TaskQueueThreadPool::crend() const -> StorageType::const_reverse_iterator
+	{
+		return std::crend(this->Threads);
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto begin(TaskQueueThreadPool& pool) -> auto
+	{
+		return pool.begin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto end(TaskQueueThreadPool& pool) -> auto
+	{
+		return pool.end();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto rbegin(TaskQueueThreadPool& pool) -> auto
+	{
+		return pool.rbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto rend(TaskQueueThreadPool& pool) -> auto
+	{
+		return pool.rend();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto cbegin(const TaskQueueThreadPool& pool) -> auto
+	{
+		return pool.cbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto cend(const TaskQueueThreadPool& pool) -> auto
+	{
+		return pool.cend();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto crbegin(const TaskQueueThreadPool& pool) -> auto
+	{
+		return pool.crbegin();
+	}
+
+	/// <summary>
+	/// STL iterator interface.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto crend(const TaskQueueThreadPool& pool) -> auto
+	{
+		return pool.crend();
 	}
 }
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

@@ -286,8 +286,8 @@ TEST(Image, DeathConstruct1)
 	{
 		[]
 		{
-			const std::array<const Signal, 0> values{ };
-			Image image{ values };
+			const std::array<const Signal, 0> values { };
+			Image                             image {values};
 		}
 	};
 
@@ -300,7 +300,7 @@ TEST(Image, DeathConstruct2_1)
 	{
 		[]
 		{
-			Image image{ reinterpret_cast<const void*>(0xFFAABBCC), 0 };
+			Image image {reinterpret_cast<const void*>(0xFFAABBCC), 0};
 		}
 	};
 
@@ -313,7 +313,7 @@ TEST(Image, DeathConstruct2_2)
 	{
 		[]
 		{
-			Image image{ static_cast<const void*>(nullptr), 0 };
+			Image image {static_cast<const void*>(nullptr), 0};
 		}
 	};
 
@@ -326,7 +326,7 @@ TEST(Image, DeathConstruct2_3)
 	{
 		[]
 		{
-			Image image{ reinterpret_cast<const void*>(0xFFAABBCC), 6 };
+			Image image {reinterpret_cast<const void*>(0xFFAABBCC), 6};
 		}
 	};
 
@@ -339,7 +339,7 @@ TEST(Image, DeathConstruct3_1)
 	{
 		[]
 		{
-			Image image{ reinterpret_cast<const Signal*>(0xFFAABBCC), 0 };
+			Image image {reinterpret_cast<const Signal*>(0xFFAABBCC), 0};
 		}
 	};
 
@@ -352,7 +352,7 @@ TEST(Image, DeathConstruct3_2)
 	{
 		[]
 		{
-			Image image{ static_cast<const Signal*>(nullptr), 0 };
+			Image image {static_cast<const Signal*>(nullptr), 0};
 		}
 	};
 
@@ -365,7 +365,7 @@ TEST(Image, DeathConstruct4_1)
 	{
 		[]
 		{
-			Image image{ reinterpret_cast<const U8*>(0xFFAABBCC), 0 };
+			Image image {reinterpret_cast<const U8*>(0xFFAABBCC), 0};
 		}
 	};
 
@@ -378,7 +378,7 @@ TEST(Image, DeathConstruct4_2)
 	{
 		[]
 		{
-			Image image{ reinterpret_cast<const U8*>(0xFFAABBCC), 6 };
+			Image image {reinterpret_cast<const U8*>(0xFFAABBCC), 6};
 		}
 	};
 
@@ -391,7 +391,7 @@ TEST(Image, DeathConstruct4_3)
 	{
 		[]
 		{
-			Image image{ static_cast<const U8*>(nullptr), 0 };
+			Image image {static_cast<const U8*>(nullptr), 0};
 		}
 	};
 

@@ -209,7 +209,7 @@
 
 #include "ByteCode/_ByteCode.hpp"
 #include "Foundation/_Foundation.hpp"
-#include "Core.hpp"
+#include "Core/_Core.hpp"
 
 using FormatOutput = fmt::format_context::iterator;
 

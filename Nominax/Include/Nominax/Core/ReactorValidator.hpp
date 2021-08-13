@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: ReactorValidator.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:24 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,68 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include <array>
+#include <string_view>
 
-#if NOX_ARCH_X86_64
+#include "../Foundation/BaseTypes.hpp"
 
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// Checks if all pointers inside the jump table are non null.
+	/// Use it with static_assert because it is consteval :)
+	/// </summary>
+	/// <param name="jumpTable">The jump table to check.</param>
+	/// <param name="jumpTableSize">The amount of jump table entries.</param>
+	/// <returns>true if all entries are valid, else false.</returns>
+	consteval auto ValidateJumpTable
+	(
+		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable,
+		const U64                                          jumpTableSize
+	) -> bool
 	{
-		[&]
+		if (!jumpTable || !jumpTableSize)
 		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
+			return false;
 		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
-	{
-		[&]
+		for (const auto *current {jumpTable}, *const end {jumpTable + jumpTableSize}; current < end; ++current)
 		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
-	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
+			if (!*current)
 			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
+				return false;
 			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
 		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
+		return true;
+	}
+
+	/// <summary>
+	/// Contains all results of a reactor validation.
+	/// </summary>
+	enum class ReactorValidationResult : U8
 	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
+		Ok = 0,
+		NullPtr,
+		ZeroSize,
+		MissingCodePrologue,
+		MissingCodeEpilogue,
+		MissingStackPrologue,
+		NullIntrinsicRoutine,
+		ExecutionAddressMappingError,
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-#endif
+	constexpr std::array<std::string_view, 8> REACTOR_VALIDATION_RESULT_ERROR_MESSAGES
+	{
+		"Ok",
+		"Required input parameter is null!",
+		"Required input parameter has zero size!",
+		"Missing code prologue!",
+		"Missing code epilogue!",
+		"Missing stack prologue padding!",
+		"User intrinsic routine table contains an entry which is null!",
+		"Execution address mapping error!"
+	};
+}

@@ -1,4 +1,4 @@
-// File: Validation.hpp
+// File: Validator.hpp
 // Author: Mario
 // Created: 10.08.2021 1:01 PM
 // Project: NominaxRuntime

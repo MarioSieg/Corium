@@ -475,11 +475,11 @@ TEST(Assembler_x86_64, InjectNopChain_15)
 
 TEST(Assembler_x86_64, VariationTableEntries)
 {
-	U64 i {0};
-	std::vector<U8> buf{  };
+	U64             i {0};
+	std::vector<U8> buf { };
 	buf.resize(1024 * 1024 * 32);
-	std::pmr::monotonic_buffer_resource alloc{ std::data(buf), std::size(buf) };
-	std::pmr::vector<InstructionVariationPool> pool{&alloc};
+	std::pmr::monotonic_buffer_resource        alloc {std::data(buf), std::size(buf)};
+	std::pmr::vector<InstructionVariationPool> pool {&alloc};
 	GetVariationTable(alloc, pool);
 	for (const auto& variationPool : pool)
 	{

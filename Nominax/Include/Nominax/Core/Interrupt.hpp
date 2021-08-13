@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: Interrupt.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:23 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,83 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include <limits>
 
-#if NOX_ARCH_X86_64
+#include "../Foundation/BaseTypes.hpp"
 
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// The type used to store interrupt codes.
+	/// </summary>
+	using InterruptAccumulator = I32;
+
+	/// <summary>
+	/// The function prototype for interrupt handlers.
+	/// </summary>
+	using InterruptRoutineProxy = auto(InterruptAccumulator) -> void;
+
+	/// <summary>
+	/// Interrupt code indicating a fatal reactor error.
+	/// </summary>
+	constexpr InterruptAccumulator INT_CODE_FATAL_ERROR {std::numeric_limits<InterruptAccumulator>::min()};
+
+	/// <summary>
+	/// Interrupt code indicating success.
+	/// </summary>
+	constexpr InterruptAccumulator INT_CODE_OK {0};
+
+	/// <summary>
+	/// Interrupt code indicating user space exception.
+	/// </summary>
+	constexpr InterruptAccumulator INT_CODE_EXCEPTIONS {std::numeric_limits<InterruptAccumulator>::max()};
+
+	/// <summary>
+	/// Default interrupt routine,
+	/// </summary>
+	/// <returns></returns>
+	extern auto DefaultInterruptRoutine(InterruptAccumulator) -> void;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns>A pointer to the default interrupt routine.</returns>
+	[[nodiscard]]
+	extern auto GetDefaultInterruptRoutine() -> InterruptRoutineProxy*;
+
+	/// <summary>
+	/// Result type from a reactor shutdown.
+	/// </summary>
+	enum class ReactorShutdownReason : U8
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
+		/// <summary>
+		/// Terminated normally.
+		/// </summary>
+		Success = 0,
+
+		/// <summary>
+		/// Internal reactor error.
+		/// </summary>
+		Error,
+
+		/// <summary>
+		/// User space exception.
+		/// </summary>
+		UserException
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
+	/// <summary>
+	/// Map interrupt accumulator to shutdown reason.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	constexpr auto MapIntAccum2ShutdownReason(const InterruptAccumulator x) -> ReactorShutdownReason
 	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
-	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
+		return x == INT_CODE_OK ? ReactorShutdownReason::Success : x < INT_CODE_OK ? ReactorShutdownReason::Error : ReactorShutdownReason::UserException;
 	}
-}
 
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
+	extern auto PrintShutdownReason(ReactorShutdownReason reason, InterruptAccumulator code = std::numeric_limits<InterruptAccumulator>::min()) -> void;
 }
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

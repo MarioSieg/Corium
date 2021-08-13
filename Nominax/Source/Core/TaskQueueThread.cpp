@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: TaskQueueThread.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:58 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,77 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#include "../../../Nominax/Include/Nominax/Core/_Core.hpp"
 
-#include "../../TestBase.hpp"
-
-#if NOX_ARCH_X86_64
-
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	auto TaskQueueThread::DispatchJobQueue() -> void
 	{
-		[&]
+		for (;;)
 		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
-	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
+			TaskRoutine routine;
 			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
+				std::unique_lock<std::mutex> lock {this->QueueMutex_};
+				this->SharedCondition_.wait(lock, [this]
+				{
+					return
+						!this->TaskQueue_.empty()
+						|| this->Disposing_;
+				});
+				if (this->Disposing_)
+				{
+					break;
+				}
+				routine = this->TaskQueue_.front();
 			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
+			std::invoke(routine);
+			{
+				std::lock_guard<std::mutex> lock {this->QueueMutex_};
+				this->TaskQueue_.pop();
+				this->SharedCondition_.notify_one();
+			}
+		}
+	}
+
+	TaskQueueThread::TaskQueueThread()
+	{
+		this->Worker_ = std::thread(&TaskQueueThread::DispatchJobQueue, this);
+	}
+
+	TaskQueueThread::TaskQueueThread(std::pmr::memory_resource& allocator) : TaskQueue_ {&allocator}
+	{
+		this->Worker_ = std::thread(&TaskQueueThread::DispatchJobQueue, this);
+	}
+
+	TaskQueueThread::~TaskQueueThread()
+	{
+		if (!this->Worker_.joinable())
+		{
+			[[unlikely]]
+				return;
+		}
+
+		this->Join();
+		this->QueueMutex_.lock();
+		this->Disposing_ = true;
+		this->SharedCondition_.notify_one();
+		this->QueueMutex_.unlock();
+		this->Worker_.join();
+	}
+
+	auto TaskQueueThread::Join() -> void
+	{
+		std::unique_lock<std::mutex> lock {this->QueueMutex_};
+		this->SharedCondition_.wait(lock, [this]
+		{
+			return this->TaskQueue_.empty();
+		});
+	}
+
+	auto TaskQueueThread::Enqueue(TaskRoutine&& target) -> void
+	{
+		std::lock_guard<std::mutex> lock {this->QueueMutex_};
+		this->TaskQueue_.push(std::move(target));
+		this->SharedCondition_.notify_one();
 	}
 }
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

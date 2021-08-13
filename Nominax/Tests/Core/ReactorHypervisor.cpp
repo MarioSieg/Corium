@@ -270,7 +270,7 @@ TEST(ReactorHypervisor, GetOptimalReactorRoutine)
 TEST(ReactorHypervisor, FeatureSelectAvx)
 {
 	CpuFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CpuFeatureBits::Avx)] = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CpuFeatureBits::Avx)]     = true;
 	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CpuFeatureBits::Avx512F)] = false;
 	ASSERT_EQ(HyperVisor::SmartSelectReactor(features), ReactorCoreSpecialization::Amd64_Avx);
 }
@@ -284,12 +284,12 @@ TEST(ReactorHypervisor, FeatureSelectAvx512F)
 
 TEST(ReactorHypervisor, FeatureSelectDynamic)
 {
-	const CpuFeatureDetector featuress{ };
+	const CpuFeatureDetector featuress { };
 	if (featuress[CpuFeatureBits::Avx512F])
 	{
 		ASSERT_EQ(HyperVisor::SmartSelectReactor(featuress), ReactorCoreSpecialization::Amd64_Avx512F);
 	}
-	else if(featuress[CpuFeatureBits::Avx])
+	else if (featuress[CpuFeatureBits::Avx])
 	{
 		ASSERT_EQ(HyperVisor::SmartSelectReactor(featuress), ReactorCoreSpecialization::Amd64_Avx);
 	}
@@ -302,7 +302,7 @@ TEST(ReactorHypervisor, FeatureSelectDynamic)
 TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx)
 {
 	CpuFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CpuFeatureBits::Avx)] = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CpuFeatureBits::Avx)]     = true;
 	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CpuFeatureBits::Avx512F)] = false;
 	ASSERT_EQ
 	(
@@ -329,7 +329,7 @@ TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx512F)
 TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx)
 {
 	CpuFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CpuFeatureBits::Avx)] = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CpuFeatureBits::Avx)]     = true;
 	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CpuFeatureBits::Avx512F)] = false;
 	const ReactorRoutineLink data {HyperVisor::GetOptimalReactorRoutine(features)};
 	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::Amd64_Avx);

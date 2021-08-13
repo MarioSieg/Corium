@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: ReactorCreationDescriptor.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:28 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,92 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include "../Foundation/BaseTypes.hpp"
+#include "../ByteCode/Instruction.hpp"
 
-#if NOX_ARCH_X86_64
+#include "FixedStack.hpp"
+#include "Interrupt.hpp"
 
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// Power preference for a VM reactor.
+	/// </summary>
+	enum class PowerPreference
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
+		/// <summary>
+		/// Prefer faster performance but more power usage (desktop, server)
+		/// </summary>
+		HighPerformance,
+
+		/// <summary>
+		/// Prefer low power usage but slower performance (mobile, tablet, laptop)
+		/// </summary>
+		LowPowerUsage
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
+	/// <summary>
+	/// Contains information to create a reactor.
+	/// </summary>
+	struct ReactorSpawnDescriptor final
 	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
+		/// <summary>
+		/// The stack size in records.
+		/// </summary>
+		U64 StackSize {FixedStack::SIZE_LARGE};
+
+		/// <summary>
+		/// The intrinsic routines.
+		/// </summary>
+		ByteCode::UserIntrinsicRoutineRegistry SharedIntrinsicTable { };
+
+		/// <summary>
+		/// Interrupt handler.
+		/// </summary>
+		InterruptRoutineProxy* InterruptHandler { };
+
+		/// <summary>
+		/// Reactor power preference.
+		/// </summary>
+		PowerPreference PowerPref {PowerPreference::HighPerformance};
+
+		/// <summary>
+		/// Get platform dependent default configuration.
+		/// </summary>
+		/// <returns></returns>
+		static constexpr auto Default(U64 stackSize = FixedStack::SIZE_LARGE) -> ReactorSpawnDescriptor;
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
+	/// <summary>
+	/// Get platform specific best fitting power preference.
+	/// </summary>
+	/// <returns>The power preference most matching the current platform.</returns>
+	constexpr auto GetPlatformPowerPreference() -> PowerPreference
 	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		// ARM-64 is a low power device (probably mobile) so we enable power
+		// safe mode by default:
+		#if NOX_ARCH_ARM_64
+		return PowerPreference::LowPowerUsage;
+		#else
+		return PowerPreference::HighPerformance;
+		#endif
+	}
 
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
+	/// <summary>
+	/// Construct default reactor spawn descriptor.
+	/// </summary>
+	/// <param name="stackSize"></param>
+	/// <returns></returns>
+	constexpr auto ReactorSpawnDescriptor::Default(const U64 stackSize) -> ReactorSpawnDescriptor
 	{
-		[&]
+		return ReactorSpawnDescriptor
 		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
+			.StackSize = stackSize,
+			.SharedIntrinsicTable = { },
+			.InterruptHandler = nullptr,
+			.PowerPref = GetPlatformPowerPreference()
 		};
-		ASSERT_NO_FATAL_FAILURE(exec());
 	}
 }
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

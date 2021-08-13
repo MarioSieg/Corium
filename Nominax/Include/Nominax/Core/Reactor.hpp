@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: Reactor.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:38 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,242 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include <chrono>
 
-#if NOX_ARCH_X86_64
+#include "../Foundation/BaseTypes.hpp"
+#include "../ByteCode/Image.hpp"
 
-using namespace X86_64::Routines;
+#include "FixedStack.hpp"
+#include "ReactorCreationDescriptor.hpp"
+#include "ReactorDescriptor.hpp"
+#include "ReactorState.hpp"
+#include "ReactorRoutineLink.hpp"
 
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// Represents a reactor.
+	/// </summary>
+	class [[nodiscard]] Reactor final
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
+		/// <summary>
+		/// Unique reactor id.
+		/// </summary>
+		U32 Id_;
+
+		/// <summary>
+		/// The reactor pool index of this reactor.
+		/// </summary>
+		U64 PoolIndex_;
+
+		/// <summary>
+		/// Time stamp when the reactor was spawned.
+		/// </summary>
+		std::chrono::high_resolution_clock::time_point SpawnStamp_;
+
+		/// <summary>
+		/// Reactor power preference.
+		/// </summary>
+		PowerPreference PowerPreference_;
+
+		/// <summary>
+		/// The reactor input descriptor build
+		/// when Execute() is called.
+		/// </summary>
+		VerboseReactorDescriptor Input_;
+
+		/// <summary>
+		/// The reactor output from previous executions.
+		/// </summary>
+		ReactorState Output_;
+
+		/// <summary>
+		/// The thread local fixed reactor stack (TLFRS)
+		/// </summary>
+		FixedStack Stack_;
+
+		/// <summary>
+		/// The table of custom intrinsic routines.
+		/// </summary>
+		ByteCode::UserIntrinsicRoutineRegistry IntrinsicTable_;
+
+		/// <summary>
+		/// The interrupt routine using for reactor interrupts.
+		/// </summary>
+		InterruptRoutineProxy* InterruptHandler_;
+
+		/// <summary>
+		/// Contains the reactor routine.
+		/// </summary>
+		ReactorRoutineLink RoutineLink_;
+
+	public:
+		/// <summary>
+		/// Create reactor with fixed stack size. If zero, panic!
+		/// </summary>
+		explicit Reactor
+		(
+			std::pmr::memory_resource&    allocator,
+			const ReactorSpawnDescriptor& descriptor,
+			const ReactorRoutineLink&     routineLink,
+			U64                           poolIdx = 0
+		);
+
+		/// <summary>
+		/// No copy!
+		/// </summary>
+		Reactor(const Reactor&) = delete;
+
+		/// <summary>
+		/// Move constructing okay.
+		/// </summary>
+		Reactor(Reactor&&) = default;
+
+		/// <summary>
+		/// No copy!
+		/// </summary>
+		auto operator =(const Reactor&) -> Reactor& = delete;
+
+		/// <summary>
+		/// no move!
+		/// </summary>
+		auto operator =(Reactor&&) -> Reactor& = delete;
+
+		/// <summary>
+		/// Destructs all reactor related resources, such as stack etc..
+		/// </summary>
+		~Reactor() = default;
+
+		/// <summary>
+		/// Execute reactor with specified application code bundle.
+		/// </summary>
+		/// <param name="bundle"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Execute(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+
+		/// <summary>
+		/// Execute reactor with specified application code bundle.
+		/// </summary>
+		/// <param name="bundle"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator ()(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The unique reactor id.</returns>
+		[[nodiscard]]
+		auto GetId() const -> std::uint32_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The index of this rector in the hosting reactor pool</returns>
+		[[nodiscard]]
+		auto GetPoolIndex() const -> U64;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The time stamp when the reactor was spawned.</returns>
+		[[nodiscard]]
+		auto GetSpawnStamp() const -> std::chrono::high_resolution_clock::time_point;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The power preference of this reactor.</returns>
+		[[nodiscard]]
+		auto GetPowerPreference() const -> PowerPreference;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current descriptor of the reactor.</returns>
+		[[nodiscard]]
+		auto GetInputDescriptor() const -> const VerboseReactorDescriptor&;
+
+		/// <summary>
+		/// Returns the reactor output of any previous
+		/// execution or the default value.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetOutput() const -> const ReactorState&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current stack.</returns>
+		[[nodiscard]]
+		auto GetStack() const -> const FixedStack&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetIntrinsicTable() const -> const ByteCode::UserIntrinsicRoutineRegistry&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetInterruptHandler() const -> InterruptRoutineProxy*;
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
+	inline auto Reactor::GetId() const -> std::uint32_t
 	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->Id_;
+	}
 
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
+	inline auto Reactor::GetPoolIndex() const -> U64
 	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->PoolIndex_;
+	}
 
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
+	inline auto Reactor::GetSpawnStamp() const -> std::chrono::high_resolution_clock::time_point
 	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->SpawnStamp_;
+	}
 
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
+	inline auto Reactor::GetPowerPreference() const -> PowerPreference
 	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
+		return this->PowerPreference_;
+	}
+
+	inline auto Reactor::GetStack() const -> const FixedStack&
+	{
+		return this->Stack_;
+	}
+
+	inline auto Reactor::GetIntrinsicTable() const -> const ByteCode::UserIntrinsicRoutineRegistry&
+	{
+		return this->IntrinsicTable_;
+	}
+
+	inline auto Reactor::GetInterruptHandler() const -> InterruptRoutineProxy*
+	{
+		return this->InterruptHandler_;
+	}
+
+	inline auto Reactor::GetInputDescriptor() const -> const VerboseReactorDescriptor&
+	{
+		return this->Input_;
+	}
+
+	inline auto Reactor::GetOutput() const -> const ReactorState&
+	{
+		return this->Output_;
+	}
+
+	inline auto Reactor::operator()(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
+	{
+		return this->Execute(bundle);
 	}
 }
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: ReactorPool.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:40 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,184 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include "Reactor.hpp"
 
-#if NOX_ARCH_X86_64
-
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// A pool holding all existing reactors.
+	/// </summary>
+	class [[nodiscard]] ReactorPool final
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
+		std::pmr::vector<Reactor> Pool_ { };
+		ReactorSpawnDescriptor    ReactorConfig_ { };
+
+	public:
+		/// <summary>
+		/// Calculates the best and correct reactor count.
+		/// </summary>
+		/// <param name="desired">How many reactors the user requested. If zero, logical cpu count will be used.</param>
+		/// <returns>The best reactor count for the current system.</returns>
+		static auto SmartQueryReactorCount(U64 desired = 0) -> U64;
+
+		/// <summary>
+		/// Minimal one reactor is required.
+		/// </summary>
+		static constexpr U64 MIN_REACTOR_COUNT {1};
+
+		/// <summary>
+		/// Fallback reactor count.
+		/// </summary>
+		static constexpr U64 FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
+
+		/// <summary>
+		/// Construct and initialize all new reactors.
+		/// If the reactor count is zero, panic!
+		/// </summary>
+		ReactorPool
+		(
+			std::pmr::memory_resource&               allocator,
+			U64                                      reactorCount,
+			const ReactorSpawnDescriptor&            config,
+			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt
+		);
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		ReactorPool(const ReactorPool&) = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		ReactorPool(ReactorPool&&) = delete;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		auto operator =(const ReactorPool&) -> ReactorPool& = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		auto operator =(ReactorPool&&) -> ReactorPool& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~ReactorPool();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Returns the pool pointer.</returns>
+		[[nodiscard]]
+		auto GetBuffer() const -> const Reactor*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Returns the size of the pool.</returns>
+		[[nodiscard]]
+		auto GetSize() const -> U64;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Returns the config used to create each reactor.</returns>
+		[[nodiscard]]
+		auto GetSpawnConfig() const -> const ReactorSpawnDescriptor&;
+
+		/// <summary>
+		/// Returns the reactor at index.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetReactor(U64 idx) const -> const Reactor&;
+
+
+		/// <summary>
+		/// Returns the reactor at index.
+		/// </summary>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator [](U64 idx) const -> const Reactor&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The first reactor in the pool running on the main thread.</returns>
+		[[nodiscard]]
+		auto GetAlphaReactor() -> Reactor&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The first reactor in the pool running on the main thread.</returns>
+		[[nodiscard]]
+		auto operator *() -> Reactor&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The first reactor in the pool running on the main thread.</returns>
+		[[nodiscard]]
+		auto GetAlphaReactor() const -> const Reactor&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The first reactor in the pool running on the main thread.</returns>
+		[[nodiscard]]
+		auto operator *() const -> const Reactor&;
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
+	inline auto ReactorPool::GetBuffer() const -> const Reactor*
 	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->Pool_.data();
+	}
 
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
+	inline auto ReactorPool::GetSize() const -> U64
 	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->Pool_.size();
+	}
 
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
+	inline auto ReactorPool::GetSpawnConfig() const -> const ReactorSpawnDescriptor&
 	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->ReactorConfig_;
+	}
 
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
+	inline auto ReactorPool::GetReactor(const U64 idx) const -> const Reactor&
 	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
+		return this->Pool_[idx];
+	}
+
+	inline auto ReactorPool::operator[](const U64 idx) const -> const Reactor&
+	{
+		return this->GetReactor(idx);
+	}
+
+	inline auto ReactorPool::GetAlphaReactor() -> Reactor&
+	{
+		return this->Pool_.front();
+	}
+
+	inline auto ReactorPool::operator*() -> Reactor&
+	{
+		return this->Pool_.front();
+	}
+
+	inline auto ReactorPool::GetAlphaReactor() const -> const Reactor&
+	{
+		return this->Pool_.front();
+	}
+
+	inline auto ReactorPool::operator*() const -> const Reactor&
+	{
+		return this->Pool_.front();
 	}
 }
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

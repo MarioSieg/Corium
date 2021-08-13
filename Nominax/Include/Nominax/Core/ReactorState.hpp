@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: ReactorState.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:31 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,95 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include <chrono>
 
-#if NOX_ARCH_X86_64
+#include "ReactorDescriptor.hpp"
 
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// Contains all the output data from the VM reactor.
+	/// </summary>
+	struct ReactorState final
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
+		/// <summary>
+		/// The input descriptor (if any).
+		/// </summary>
+		const VerboseReactorDescriptor* Input {nullptr};
+
+		/// <summary>
+		/// The shutdown reason.
+		/// </summary>
+		ReactorShutdownReason ShutdownReason {ReactorShutdownReason::Success};
+
+		/// <summary>
+		/// Pre execution time stamp.
+		/// </summary>
+		std::chrono::high_resolution_clock::time_point Pre { };
+
+		/// <summary>
+		/// Post execution time stamp.
+		/// </summary>
+		std::chrono::high_resolution_clock::time_point Post { };
+
+		/// <summary>
+		/// Duration diff between pre and post execution time stamp.
+		/// </summary>
+		std::chrono::high_resolution_clock::duration Duration { };
+
+		/// <summary>
+		/// Interrupt accumulator code.
+		/// </summary>
+		InterruptAccumulator InterruptCode { };
+
+		/// <summary>
+		/// Instruction pointer diff.
+		/// </summary>
+		std::ptrdiff_t IpDiff { };
+
+		/// <summary>
+		/// Stack pointer diff.
+		/// </summary>
+		std::ptrdiff_t SpDiff { };
+
+		/// <summary>
+		/// Base pointer diff.
+		/// </summary>
+		std::ptrdiff_t BpDiff { };
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The return code (interrupt code casted). Zero if success.</returns>
+		[[nodiscard]]
+		constexpr auto ReturnCode() const -> I32;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The result of the program evaluation (the first stack record, if any).</returns>
+		[[nodiscard]]
+		constexpr auto EvaluationResult() const -> Foundation::Record;
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
+	constexpr auto ReactorState::ReturnCode() const -> I32
 	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
-	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
-	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
+		return this->InterruptCode;
 	}
-}
 
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
+	constexpr auto ReactorState::EvaluationResult() const -> Foundation::Record
 	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
+		return this->Input->Stack[1];
 	}
-}
 
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
+	/// <summary>
+	/// Results from a VM execution.
+	/// </summary>
+	struct ExecutionResult final
 	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
+		const ReactorShutdownReason ShutdownReason;
+		const ReactorState&         ReactorResultState;
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
 }
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif

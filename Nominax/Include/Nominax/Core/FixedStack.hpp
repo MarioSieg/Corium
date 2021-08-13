@@ -1,6 +1,6 @@
-// File: AsmCalls.cpp
+// File: FixedStack.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
+// Created: 13.08.2021 7:26 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,149 +205,204 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <bitset>
-#include <iostream>
+#pragma once
 
-#include "../../TestBase.hpp"
+#include <memory_resource>
 
-#if NOX_ARCH_X86_64
+#include "../Foundation/BaseTypes.hpp"
+#include "../Foundation/Record.hpp"
+#include "../Foundation/MemoryUnits.hpp"
 
-using namespace X86_64::Routines;
-
-TEST(AssemblyCalls, IsCpudIdSupported)
+namespace Nominax::Core
 {
-	const auto exec
+	/// <summary>
+	/// Represents a stack buffer with fixed size.
+	/// Uses as a thread local reactor stack.
+	/// </summary>
+	class [[nodiscard]] FixedStack final
 	{
-		[&]
-		{
-			const auto supported {IsCpuIdSupported()};
-			ASSERT_TRUE(supported);
-		}
+	public:
+		/// <summary>
+		/// Storage type for the reactor stack.
+		/// </summary>
+		using StorageType = std::pmr::vector<Foundation::Record>;
+
+	private:
+		/// <summary>
+		/// Internal buffer.
+		/// </summary>
+		StorageType Buffer_;
+
+	public:
+		/// <summary>
+		/// Small 1 MB stack.
+		/// Contains the size in records, not bytes.
+		/// </summary>
+		static constexpr U64 SIZE_SMALL {1_mB / sizeof(Foundation::Record)};
+
+		/// <summary>
+		/// Medium sizes 4 MB stack.
+		/// Contains the size in records, not bytes.
+		/// </summary>
+		static constexpr U64 SIZE_MEDIUM {4_mB / sizeof(Foundation::Record)};
+
+		/// <summary>
+		/// Medium sizes 8 MB stack.
+		/// Contains the size in records, not bytes.
+		/// </summary>
+		static constexpr U64 SIZE_LARGE {8_mB / sizeof(Foundation::Record)};
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The memory buffer pointer.</returns>
+		[[nodiscard]]
+		auto Buffer() -> Foundation::Record*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The memory buffer pointer.</returns>
+		[[nodiscard]]
+		auto Buffer() const -> const Foundation::Record*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The size of the memory buffer in records.</returns>
+		[[nodiscard]]
+		auto Size() const -> U64;
+
+		/// <summary>
+		/// STL Compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto begin() -> StorageType::iterator;
+
+		/// <summary>
+		/// STL Compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto begin() const -> StorageType::const_iterator;
+
+		/// <summary>
+		/// STL Compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto end() -> StorageType::iterator;
+
+		/// <summary>
+		/// STL Compat
+		/// </summary>
+		/// <returns></returns>
+		// ReSharper disable once CppInconsistentNaming
+		[[nodiscard]]
+		auto end() const -> StorageType::const_iterator;
+
+		/// <summary>
+		/// Construct with size in records.
+		/// If the size is zero, fatal termination.
+		/// It will set the first element to padding, so it allocates one more than specified.
+		/// </summary>
+		/// <param name="allocator"></param>
+		/// <param name="sizeInRecords">WordSize in records. If the size is zero, fatal termination.</param>
+		/// <returns></returns>
+		explicit FixedStack(std::pmr::memory_resource& allocator, U64 sizeInRecords);
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		FixedStack(const FixedStack&) = delete;
+
+		/// <summary>
+		/// Move allowed.
+		/// </summary>
+		/// <returns></returns>
+		FixedStack(FixedStack&& value) = default;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <returns></returns>
+		auto operator =(const FixedStack&) -> FixedStack& = delete;
+
+		/// <summary>
+		/// Move allowed.
+		/// </summary>
+		/// <returns></returns>
+		auto operator =(FixedStack&& value) -> FixedStack& = default;
+
+		/// <summary>
+		/// Deallocate stack.
+		/// </summary>
+		~FixedStack() = default;
 	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
 
-TEST(AssemblyCalls, QueryRip)
-{
-	const auto exec
+	inline auto FixedStack::Buffer() -> Foundation::Record*
 	{
-		[&]
-		{
-			const void* const rip {QueryRip()};
-			ASSERT_NE(rip, nullptr);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->Buffer_.data();
+	}
 
-TEST(AssemblyCalls, CpuId)
-{
-	const auto exec
+	inline auto FixedStack::Buffer() const -> const Foundation::Record*
 	{
-		[&]
-		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->Buffer_.data();
+	}
 
-TEST(AssemblyCalls, CpudIdSupport)
-{
-	const auto exec
+	inline auto FixedStack::Size() const -> U64
 	{
-		[&]
-		{
-			ASSERT_TRUE(IsCpuIdSupported());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+		return this->Buffer_.size();
+	}
 
-TEST(AssemblyCalls, AvxOsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
+	// ReSharper disable once CppInconsistentNaming
+	inline auto FixedStack::begin() -> StorageType::iterator
 	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
+		return std::begin(this->Buffer_);
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto FixedStack::begin() const -> StorageType::const_iterator
+	{
+		return std::begin(this->Buffer_);
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto FixedStack::end() -> StorageType::iterator
+	{
+		return std::end(this->Buffer_);
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto FixedStack::end() const -> StorageType::const_iterator
+	{
+		return std::end(this->Buffer_);
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto begin(FixedStack& self) -> FixedStack::StorageType::iterator
+	{
+		return self.begin();
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto begin(const FixedStack& self) -> FixedStack::StorageType::const_iterator
+	{
+		return self.begin();
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto end(FixedStack& self) -> FixedStack::StorageType::iterator
+	{
+		return self.end();
+	}
+
+	// ReSharper disable once CppInconsistentNaming
+	inline auto end(const FixedStack& self) -> FixedStack::StorageType::const_iterator
+	{
+		return self.end();
 	}
 }
-
-TEST(AssemblyCalls, Avx512OsSupport)
-{
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
-	{
-		const auto exec
-		{
-			[&]
-			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, CpuIdInvocation)
-{
-	if (IsCpuIdSupported())
-	{
-		const auto exec
-		{
-			[&]
-			{
-				[[maybe_unused]]
-					U64 a, b, c;
-				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
-			}
-		};
-		ASSERT_NO_FATAL_FAILURE(exec());
-	}
-}
-
-TEST(AssemblyCalls, QueryReg)
-{
-	const auto exec
-	{
-		[&]
-		{
-			U64 gpr[16];
-			U64 sse[32];
-			QueryRegSet(gpr, sse);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(AssemblyCalls, MockCall)
-{
-	const auto exec
-	{
-		[&]
-		{
-			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
-			#else
-				ASSERT_EQ(MockCall(), 1234);
-			#endif
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-#endif
