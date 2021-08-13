@@ -213,7 +213,7 @@ namespace Nominax::Core
 	{
 		for (;;)
 		{
-			TaskRoutine routine;
+			Job routine;
 			{
 				std::unique_lock<std::mutex> lock {this->QueueMutex_};
 				this->SharedCondition_.wait(lock, [this]
@@ -272,7 +272,7 @@ namespace Nominax::Core
 		});
 	}
 
-	auto TaskQueueThread::Enqueue(TaskRoutine&& target) -> void
+	auto TaskQueueThread::Enqueue(Job&& target) -> void
 	{
 		std::lock_guard<std::mutex> lock {this->QueueMutex_};
 		this->TaskQueue_.push(std::move(target));
