@@ -208,7 +208,7 @@
 #include <iostream>
 
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
-#include "../../../Nominax/Include/Nominax/Asm_x86_64.hpp"
+#include "../../../Nominax/Include/Nominax/Assembler/_Assembler.hpp"
 
 namespace Nominax
 {

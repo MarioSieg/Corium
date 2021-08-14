@@ -1,6 +1,6 @@
-// File: Utils.cpp
+// File: Operand.hpp
 // Author: Mario
-// Created: 06.07.2021 4:08 PM
+// Created: 14.08.2021 1:52 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,150 +205,200 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../Include/Nominax/Utils.hpp"
+#pragma once
 
-using namespace Nominax;
-using namespace ByteCode;
-using namespace Core;
-using namespace fmt;
+#include "../../Foundation/_Foundation.hpp"
 
-auto formatter<Instruction, char, void>::format
-(
-	const Instruction& value,
-	format_context&    ctx
-) const -> FormatOutput
+namespace Nominax::Assembler::X86_64
 {
-	return format_to
-	(
-		ctx.out(),
-		"{}",
-		INSTRUCTION_MNEMONIC_TABLE[ToUnderlying(value)]
-	);
-}
-
-auto formatter<SystemIntrinsicInvocationID, char, void>::format
-(
-	const SystemIntrinsicInvocationID& value,
-	format_context&                    ctx
-) const -> FormatOutput
-{
-	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
-}
-
-auto formatter<UserIntrinsicInvocationID, char, void>::format
-(
-	const UserIntrinsicInvocationID& value,
-	format_context&                  ctx
-) const -> FormatOutput
-{
-	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
-}
-
-auto formatter<JumpAddress, char, void>::format(const JumpAddress& value, format_context& ctx) const -> FormatOutput
-{
-	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
-}
-
-auto formatter<CharClusterUtf8, char, void>::format
-(
-	const CharClusterUtf8& value,
-	format_context&        ctx
-) const -> FormatOutput
-{
-	static_assert(sizeof(char8_t) == sizeof(U8));
-	return format_to(ctx.out(),
-	                 R"(\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<U16>(value.Chars[0]),
-	                 static_cast<U16>(value.Chars[1]),
-	                 static_cast<U16>(value.Chars[2]),
-	                 static_cast<U16>(value.Chars[3]),
-	                 static_cast<U16>(value.Chars[4]),
-	                 static_cast<U16>(value.Chars[5]),
-	                 static_cast<U16>(value.Chars[6]),
-	                 static_cast<U16>(value.Chars[7])
-	);
-}
-
-auto formatter<CharClusterUtf16, char, void>::format(const CharClusterUtf16& value, format_context& ctx) const -> FormatOutput
-{
-	static_assert(sizeof(char16_t) == sizeof(U16));
-	return format_to(ctx.out(),
-	                 R"(\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<U16>(value.Chars[0]), static_cast<U16>(value.Chars[1]),
-	                 static_cast<U16>(value.Chars[2]), static_cast<U16>(value.Chars[3])
-	);
-}
-
-auto formatter<CharClusterUtf32, char, void>::format(const CharClusterUtf32& value, format_context& ctx) const -> FormatOutput
-{
-	static_assert(sizeof(char32_t) == sizeof(U32));
-	return format_to(ctx.out(),
-	                 "\\{:X}\\{:X}",
-	                 static_cast<U32>(value.Chars[0]), static_cast<U32>(value.Chars[1])
-	);
-}
-
-auto formatter<ValidationResultCode, char, void>::format
-(
-	const ValidationResultCode& value,
-	format_context&             ctx
-) const -> FormatOutput
-{
-	const auto idx {ToUnderlying(value)};
-	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);
-}
-
-auto formatter<ReactorValidationResult, char, void>::format
-(
-	const ReactorValidationResult& value,
-	format_context&                ctx
-) const -> FormatOutput
-{
-	const auto idx {ToUnderlying(value)};
-	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
-}
-
-auto formatter<DiscriminatedSignal, char, void>::format
-(
-	const DiscriminatedSignal& value,
-	format_context&            ctx
-) const -> FormatOutput
-{
-	using Dis = Signal::Discriminator;
-
-	switch (value.Discriminator)
+	/// <summary>
+/// Contains all implicit register operands.
+/// </summary>
+	enum class ImplicitRegisterOperand : U8
 	{
-		case Dis::U64:
-			return format_to(ctx.out(), "*u64 ${}", value.Value.R64.AsU64);
+		Al,
+		Ax,
+		Dx,
+		Eax,
+		Ebx,
+		Ecx,
+		Edx,
+		Rax,
+		Rbx,
+		Rcx,
+		Rdx,
+		Rdi,
+		R11,
+		Xmm0
+	};
 
-		case Dis::I64:
-			return format_to(ctx.out(), "*i64 ${}", value.Value.R64.AsI64);
+	enum class OperandType : U8
+	{
+		ScalarOne,
+		ScalarThree,
+		Al,
+		Ax,
+		Eax,
+		Rax,
+		Cl,
+		Xmm0,
+		Rel8,
+		Rel32,
+		Imm4,
+		Imm8,
+		Imm16,
+		Imm32,
+		Imm64,
+		R8,
+		R16,
+		R32,
+		R64,
+		Mm,
+		Xmm,
+		XmmK,
+		XmmKz,
+		Ymm,
+		YmmK,
+		YmmKz,
+		Zmm,
+		ZmmK,
+		ZmmKz,
+		K,
+		Kk,
+		M,
+		M8,
+		M16,
+		M16Kz,
+		M32,
+		M32k,
+		M32Kz,
+		M64,
+		M64k,
+		M64Kz,
+		M80,
+		M128,
+		M128Kz,
+		M256,
+		M256Kz,
+		M512,
+		M512Kz,
+		Moffs32,
+		Moffs64,
+		M64M32Bcst,
+		M128M32Bcst,
+		M256M32Bcst,
+		M512M32Bcst,
+		M128M64Bcst,
+		M256M64Bcst,
+		M512M64Bcst,
+		Vm32x,
+		Vm32xk,
+		Vm32y,
+		Vm32yk,
+		Vm32z,
+		Vm32zk,
+		Vm64x,
+		Vm64xk,
+		Vm64y,
+		Vm64yk,
+		Vm64z,
+		Vm64zk,
+		Sae,
+		Er
+	};
 
-		case Dis::F64:
-			return format_to(ctx.out(), "*f64 ${}", value.Value.R64.AsF64);
+	struct Operand final
+	{
+		OperandType Type;
+		bool        IsInput;
+		bool        IsOutput;
+		U8          ExtendedSize;
 
-		case Dis::CharClusterUtf8:
-		case Dis::CharClusterUtf16:
-		case Dis::CharClusterUtf32:
-			return format_to(ctx.out(), "*chc ${:X}", value.Value.R64.AsU64);
+		constexpr auto IsVariable() const -> bool;
+		constexpr auto IsRegister() const -> bool;
+		constexpr auto IsMemory() const -> bool;
+		constexpr auto IsImmediate() const -> bool;
+	};
 
-		case Dis::OpCode:
-		case Dis::Instruction:
-			return format_to(ctx.out(), "%{}", value.Value.Instr);
-
-		case Dis::SystemIntrinsicInvocationID:
-			return format_to(ctx.out(), "*sys ${}",
-			                 ToUnderlying(value.Value.SystemIntrinID));
-
-		case Dis::UserIntrinsicInvocationID:
-			return format_to(ctx.out(), "*usr ${}",
-			                 ToUnderlying(value.Value.UserIntrinID));
-
-		case Dis::JumpAddress:
-			return format_to(ctx.out(), "*rel {}",
-			                 ToUnderlying(value.Value.JmpAddress));
-		default:
-		case Dis::Ptr:
-			return format_to(ctx.out(), "*ref {:X}", value.Value.R64.AsU64);
+	constexpr auto Operand::IsVariable() const -> bool
+	{
+		return this->IsInput || this->IsOutput;
 	}
+
+	constexpr auto Operand::IsRegister() const -> bool
+	{
+		return
+			this->Type == OperandType::Al
+			|| this->Type == OperandType::Cl
+			|| this->Type == OperandType::Ax
+			|| this->Type == OperandType::Eax
+			|| this->Type == OperandType::Rax
+			|| this->Type == OperandType::Xmm0
+			|| this->Type == OperandType::R8
+			|| this->Type == OperandType::R16
+			|| this->Type == OperandType::R32
+			|| this->Type == OperandType::R64
+			|| this->Type == OperandType::R8
+			|| this->Type == OperandType::Mm
+			|| this->Type == OperandType::Xmm
+			|| this->Type == OperandType::XmmK
+			|| this->Type == OperandType::XmmKz
+			|| this->Type == OperandType::Ymm
+			|| this->Type == OperandType::YmmK
+			|| this->Type == OperandType::YmmKz
+			|| this->Type == OperandType::Zmm
+			|| this->Type == OperandType::ZmmK
+			|| this->Type == OperandType::ZmmKz
+			|| this->Type == OperandType::K
+			|| this->Type == OperandType::Kk;
+	}
+
+	constexpr auto Operand::IsMemory() const -> bool
+	{
+		return
+			this->Type == OperandType::M
+			|| this->Type == OperandType::M8
+			|| this->Type == OperandType::M16
+			|| this->Type == OperandType::M16Kz
+			|| this->Type == OperandType::M32
+			|| this->Type == OperandType::M32k
+			|| this->Type == OperandType::M32Kz
+			|| this->Type == OperandType::M64
+			|| this->Type == OperandType::M64k
+			|| this->Type == OperandType::M64Kz
+			|| this->Type == OperandType::M80
+			|| this->Type == OperandType::M128
+			|| this->Type == OperandType::M128Kz
+			|| this->Type == OperandType::M256
+			|| this->Type == OperandType::M256Kz
+			|| this->Type == OperandType::M512
+			|| this->Type == OperandType::M512Kz
+			|| this->Type == OperandType::Moffs32
+			|| this->Type == OperandType::Moffs64
+			|| this->Type == OperandType::M64M32Bcst
+			|| this->Type == OperandType::M128M32Bcst
+			|| this->Type == OperandType::M256M32Bcst
+			|| this->Type == OperandType::M512M32Bcst
+			|| this->Type == OperandType::M128M64Bcst
+			|| this->Type == OperandType::M256M64Bcst
+			|| this->Type == OperandType::M512M64Bcst
+			|| this->Type == OperandType::Vm32x
+			|| this->Type == OperandType::Vm32xk
+			|| this->Type == OperandType::Vm32y
+			|| this->Type == OperandType::Vm32yk
+			|| this->Type == OperandType::Vm32z
+			|| this->Type == OperandType::Vm32zk;
+	}
+
+	constexpr auto Operand::IsImmediate() const -> bool
+	{
+		return
+			this->Type == OperandType::Imm4
+			|| this->Type == OperandType::Imm8
+			|| this->Type == OperandType::Imm16
+			|| this->Type == OperandType::Imm32
+			|| this->Type == OperandType::Imm64;
+	}
+
+	using Soo = std::variant<U64, OperandType>;
 }

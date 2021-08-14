@@ -1,6 +1,6 @@
-// File: Stream.cpp
+// File: InstructionVariation.hpp
 // Author: Mario
-// Created: 11.08.2021 4:18 PM
+// Created: 14.08.2021 1:55 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,185 +205,78 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/ByteCode/_ByteCode.hpp"
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#pragma once
 
-namespace Nominax::ByteCode
+#include <memory_resource>
+
+#include "../../Foundation/_Foundation.hpp"
+
+#include "Instruction.hpp"
+#include "IsaExtension.hpp"
+#include "Operand.hpp"
+#include "Descriptors.hpp"
+
+namespace Nominax::Assembler::X86_64
 {
-	auto Stream::GetSerializationImageHeader(SerializationImageHeader& out) const -> void
+	/// <summary>
+	/// Represents an instruction variation.
+	/// </summary>
+	struct InstructionVariation final
 	{
-		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
-		std::memcpy(std::data(out.Magic), std::data(SerializationImageHeader::MAGIC_ID), sizeof out.Magic);
-		out.CodeImageSize          = std::size(this->CodeBuffer_);
-		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);
-		out.EncryptDecrypt();
-	}
+		std::string_view                               IntelMnemonic;
+		std::string_view                               GasMnemonic;
+		std::string_view                               Description;
+		MmxModeType                                    MmxMode;
+		XmmModeType                                    XmmMode;
+		bool                                           IsCancellingInputs;
+		std::initializer_list<Operand>                 OperandList;
+		std::initializer_list<ImplicitRegisterOperand> ImplicitInputs;
+		std::initializer_list<ImplicitRegisterOperand> ImplicitOutputs;
+		std::initializer_list<IsaExtension>            IsaFeatureExtensions;
+		std::initializer_list<Encoding>                EncodingScheme;
+	};
 
-	auto Stream::Serialize(std::ofstream& out) const -> bool
-	{
-		SerializationImageHeader header { };
-		constexpr U64            codeSectionMarker {STREAM_IMAGE_CODE_SECTION_MARKER};
-		constexpr U64            discriminatorSectionMarker {STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER};
+	using InstructionVariationPool = std::pmr::vector<InstructionVariation>;
 
-		// header
-		this->GetSerializationImageHeader(header);
-		out.write(reinterpret_cast<const char*>(&header), sizeof(SerializationImageHeader));
+	extern auto GetVariationTable(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
 
-		// code section
-		out.write(reinterpret_cast<const char*>(&codeSectionMarker), sizeof(U64));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeBuffer_)), std::size(this->CodeBuffer_) * sizeof(CodeStorageType::value_type));
-
-		// discriminator section
-		out.write(reinterpret_cast<const char*>(&discriminatorSectionMarker), sizeof(U64));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeDiscriminatorBuffer_)), std::size(this->CodeDiscriminatorBuffer_) * sizeof(DiscriminatorStorageType::value_type));
-		return true;
-	}
-
-	auto Stream::Deserialize(std::ifstream& in) -> bool
-	{
-		SerializationImageHeader header { };
-		in.read(reinterpret_cast<char*>(&header), sizeof(SerializationImageHeader));
-		for (U64 i {0}; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
-		{
-			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
-			{
-				[[unlikely]]
-					return false;
-			}
-		}
-
-		header.EncryptDecrypt();
-		if (!header.CodeImageSize || !header.DiscriminatorImageSize)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// validate code section marker
-		U64 codeSectionMarker { };
-		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof(U64));
-		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// load code section:
-		this->CodeBuffer_.clear();
-		this->CodeBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeBuffer_)), header.CodeImageSize * sizeof(CodeStorageType::value_type));
-
-		// validate discriminator section marker
-		U64 discriminatorSectionMarker { };
-		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof(U64));
-		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// load discriminator section:
-		this->CodeDiscriminatorBuffer_.clear();
-		this->CodeDiscriminatorBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeDiscriminatorBuffer_)), header.DiscriminatorImageSize * sizeof(CodeStorageType::value_type));
-
-		return true;
-	}
-
-	auto Stream::DumpByteCode() const -> void
-	{
-		using namespace Foundation;
-
-		Print("Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<F32>(this->SizeInBytes())), sizeof(Signal));
-
-		for (U64 i {0}; i < this->Size(); ++i)
-		{
-			const auto bytes {std::bit_cast<std::array<U8, sizeof(Signal)>>(this->CodeBuffer_[i])};
-			const auto isInstr {this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction};
-			Print(TextColor::Green, "&{:016X} ", reinterpret_cast<Uip64>(&this->CodeBuffer_[i]));
-			Print
-			(
-				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
-				bytes[0],
-				bytes[1],
-				bytes[2],
-				bytes[3],
-				bytes[4],
-				bytes[5],
-				bytes[6],
-				bytes[7]
-			);
-			Print(isInstr ? TextColor::Blue : TextColor::Magenta, "{}\n", (*this)[i]);
-		}
-
-		Print("\n\n");
-	}
-
-	auto Stream::PrintMemoryCompositionInfo() const -> void
-	{
-		using namespace Foundation;
-
-		Print("Stream size: {}\n", this->Size());
-		Print("Code buffer: {:.03F} MB\n",
-		      Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeBuffer_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
-		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeDiscriminatorBuffer_.size()) * static_cast<F32>(sizeof(
-				      DiscriminatorStorageType::value_type))));
-		Print("Total: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
-	}
-
-	auto Stream::Prologue() -> Stream&
-	{
-		for (const auto& [discriminator, signal] : PrologueCode())
-		{
-			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
-			this->CodeBuffer_.emplace_back(signal);
-		}
-		return *this;
-	}
-
-	auto Stream::Epilogue() -> Stream&
-	{
-		for (const auto& [discriminator, signal] : EpilogueCode())
-		{
-			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
-			this->CodeBuffer_.emplace_back(signal);
-		}
-		return *this;
-	}
-
-	auto Stream::Build(Stream&& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
-	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
-		if (validationResult != ValidationResultCode::Ok)
-		{
-			[[unlikely]]
-				return validationResult;
-		}
-		TransformStreamToImageByMove(std::move(stream), optInfo, out);
-		return ValidationResultCode::Ok;
-	}
-
-	auto Stream::Build(const Stream& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
-	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
-		if (validationResult != ValidationResultCode::Ok)
-		{
-			[[unlikely]]
-				return validationResult;
-		}
-		TransformStreamToImageByCopy(stream, optInfo, out);
-		return ValidationResultCode::Ok;
-	}
-
-	auto Stream::ContainsPrologue() const -> bool
-	{
-		return ByteCode::ContainsPrologue(*this);
-	}
-
-	auto Stream::ContainsEpilogue() const -> bool
-	{
-		return ByteCode::ContainsEpilogue(*this);
-	}
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_0(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_1(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_2(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_3(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_4(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_5(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_6(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_7(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_8(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_9(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_10(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_11(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_12(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_13(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_14(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_15(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_16(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_17(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_18(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_19(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_20(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_21(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_22(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_23(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_24(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_25(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_26(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_27(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_28(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_29(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_30(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_31(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_32(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_33(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_34(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_35(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_36(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_37(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
+	extern NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_38(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void;
 }

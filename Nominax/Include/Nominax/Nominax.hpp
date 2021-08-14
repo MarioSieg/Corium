@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
+#include "Assembler/_Assembler.hpp"
 #include "ByteCode/_ByteCode.hpp"
 #include "Core/_Core.hpp"
 #include "Foundation/_Foundation.hpp"

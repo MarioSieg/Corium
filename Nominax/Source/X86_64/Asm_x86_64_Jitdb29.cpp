@@ -205,7 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Asm_x86_64.hpp"
+#include "../../Include/Nominax/Assembler/_Assembler.hpp"
 
 namespace Nominax::Assembler::X86_64
 {

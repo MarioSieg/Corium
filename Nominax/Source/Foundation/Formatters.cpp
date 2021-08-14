@@ -1,6 +1,6 @@
-// File: Stream.cpp
+// File: Utils.cpp
 // Author: Mario
-// Created: 11.08.2021 4:18 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,185 +205,152 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/ByteCode/_ByteCode.hpp"
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../Include/Nominax/Foundation/Formatters.hpp"
+#include "../../Include/Nominax/ByteCode/_ByteCode.hpp"
+#include "../../Include/Nominax/Core/_Core.hpp"
 
-namespace Nominax::ByteCode
+using namespace Nominax;
+using namespace ByteCode;
+using namespace Core;
+using namespace fmt;
+
+auto formatter<Instruction, char, void>::format
+(
+	const Instruction& value,
+	format_context&    ctx
+) const -> FormatOutput
 {
-	auto Stream::GetSerializationImageHeader(SerializationImageHeader& out) const -> void
+	return format_to
+	(
+		ctx.out(),
+		"{}",
+		INSTRUCTION_MNEMONIC_TABLE[ToUnderlying(value)]
+	);
+}
+
+auto formatter<SystemIntrinsicInvocationID, char, void>::format
+(
+	const SystemIntrinsicInvocationID& value,
+	format_context&                    ctx
+) const -> FormatOutput
+{
+	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
+}
+
+auto formatter<UserIntrinsicInvocationID, char, void>::format
+(
+	const UserIntrinsicInvocationID& value,
+	format_context&                  ctx
+) const -> FormatOutput
+{
+	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
+}
+
+auto formatter<JumpAddress, char, void>::format(const JumpAddress& value, format_context& ctx) const -> FormatOutput
+{
+	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
+}
+
+auto formatter<CharClusterUtf8, char, void>::format
+(
+	const CharClusterUtf8& value,
+	format_context&        ctx
+) const -> FormatOutput
+{
+	static_assert(sizeof(char8_t) == sizeof(U8));
+	return format_to(ctx.out(),
+	                 R"(\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X})",
+	                 static_cast<U16>(value.Chars[0]),
+	                 static_cast<U16>(value.Chars[1]),
+	                 static_cast<U16>(value.Chars[2]),
+	                 static_cast<U16>(value.Chars[3]),
+	                 static_cast<U16>(value.Chars[4]),
+	                 static_cast<U16>(value.Chars[5]),
+	                 static_cast<U16>(value.Chars[6]),
+	                 static_cast<U16>(value.Chars[7])
+	);
+}
+
+auto formatter<CharClusterUtf16, char, void>::format(const CharClusterUtf16& value, format_context& ctx) const -> FormatOutput
+{
+	static_assert(sizeof(char16_t) == sizeof(U16));
+	return format_to(ctx.out(),
+	                 R"(\{:X}\{:X}\{:X}\{:X})",
+	                 static_cast<U16>(value.Chars[0]), static_cast<U16>(value.Chars[1]),
+	                 static_cast<U16>(value.Chars[2]), static_cast<U16>(value.Chars[3])
+	);
+}
+
+auto formatter<CharClusterUtf32, char, void>::format(const CharClusterUtf32& value, format_context& ctx) const -> FormatOutput
+{
+	static_assert(sizeof(char32_t) == sizeof(U32));
+	return format_to(ctx.out(),
+	                 "\\{:X}\\{:X}",
+	                 static_cast<U32>(value.Chars[0]), static_cast<U32>(value.Chars[1])
+	);
+}
+
+auto formatter<ValidationResultCode, char, void>::format
+(
+	const ValidationResultCode& value,
+	format_context&             ctx
+) const -> FormatOutput
+{
+	const auto idx {ToUnderlying(value)};
+	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);
+}
+
+auto formatter<ReactorValidationResult, char, void>::format
+(
+	const ReactorValidationResult& value,
+	format_context&                ctx
+) const -> FormatOutput
+{
+	const auto idx {ToUnderlying(value)};
+	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
+}
+
+auto formatter<DiscriminatedSignal, char, void>::format
+(
+	const DiscriminatedSignal& value,
+	format_context&            ctx
+) const -> FormatOutput
+{
+	using Dis = Signal::Discriminator;
+
+	switch (value.Discriminator)
 	{
-		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
-		std::memcpy(std::data(out.Magic), std::data(SerializationImageHeader::MAGIC_ID), sizeof out.Magic);
-		out.CodeImageSize          = std::size(this->CodeBuffer_);
-		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);
-		out.EncryptDecrypt();
-	}
+		case Dis::U64:
+			return format_to(ctx.out(), "*u64 ${}", value.Value.R64.AsU64);
 
-	auto Stream::Serialize(std::ofstream& out) const -> bool
-	{
-		SerializationImageHeader header { };
-		constexpr U64            codeSectionMarker {STREAM_IMAGE_CODE_SECTION_MARKER};
-		constexpr U64            discriminatorSectionMarker {STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER};
+		case Dis::I64:
+			return format_to(ctx.out(), "*i64 ${}", value.Value.R64.AsI64);
 
-		// header
-		this->GetSerializationImageHeader(header);
-		out.write(reinterpret_cast<const char*>(&header), sizeof(SerializationImageHeader));
+		case Dis::F64:
+			return format_to(ctx.out(), "*f64 ${}", value.Value.R64.AsF64);
 
-		// code section
-		out.write(reinterpret_cast<const char*>(&codeSectionMarker), sizeof(U64));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeBuffer_)), std::size(this->CodeBuffer_) * sizeof(CodeStorageType::value_type));
+		case Dis::CharClusterUtf8:
+		case Dis::CharClusterUtf16:
+		case Dis::CharClusterUtf32:
+			return format_to(ctx.out(), "*chc ${:X}", value.Value.R64.AsU64);
 
-		// discriminator section
-		out.write(reinterpret_cast<const char*>(&discriminatorSectionMarker), sizeof(U64));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeDiscriminatorBuffer_)), std::size(this->CodeDiscriminatorBuffer_) * sizeof(DiscriminatorStorageType::value_type));
-		return true;
-	}
+		case Dis::OpCode:
+		case Dis::Instruction:
+			return format_to(ctx.out(), "%{}", value.Value.Instr);
 
-	auto Stream::Deserialize(std::ifstream& in) -> bool
-	{
-		SerializationImageHeader header { };
-		in.read(reinterpret_cast<char*>(&header), sizeof(SerializationImageHeader));
-		for (U64 i {0}; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
-		{
-			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
-			{
-				[[unlikely]]
-					return false;
-			}
-		}
+		case Dis::SystemIntrinsicInvocationID:
+			return format_to(ctx.out(), "*sys ${}",
+			                 ToUnderlying(value.Value.SystemIntrinID));
 
-		header.EncryptDecrypt();
-		if (!header.CodeImageSize || !header.DiscriminatorImageSize)
-		{
-			[[unlikely]]
-				return false;
-		}
+		case Dis::UserIntrinsicInvocationID:
+			return format_to(ctx.out(), "*usr ${}",
+			                 ToUnderlying(value.Value.UserIntrinID));
 
-		// validate code section marker
-		U64 codeSectionMarker { };
-		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof(U64));
-		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// load code section:
-		this->CodeBuffer_.clear();
-		this->CodeBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeBuffer_)), header.CodeImageSize * sizeof(CodeStorageType::value_type));
-
-		// validate discriminator section marker
-		U64 discriminatorSectionMarker { };
-		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof(U64));
-		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// load discriminator section:
-		this->CodeDiscriminatorBuffer_.clear();
-		this->CodeDiscriminatorBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeDiscriminatorBuffer_)), header.DiscriminatorImageSize * sizeof(CodeStorageType::value_type));
-
-		return true;
-	}
-
-	auto Stream::DumpByteCode() const -> void
-	{
-		using namespace Foundation;
-
-		Print("Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<F32>(this->SizeInBytes())), sizeof(Signal));
-
-		for (U64 i {0}; i < this->Size(); ++i)
-		{
-			const auto bytes {std::bit_cast<std::array<U8, sizeof(Signal)>>(this->CodeBuffer_[i])};
-			const auto isInstr {this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction};
-			Print(TextColor::Green, "&{:016X} ", reinterpret_cast<Uip64>(&this->CodeBuffer_[i]));
-			Print
-			(
-				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
-				bytes[0],
-				bytes[1],
-				bytes[2],
-				bytes[3],
-				bytes[4],
-				bytes[5],
-				bytes[6],
-				bytes[7]
-			);
-			Print(isInstr ? TextColor::Blue : TextColor::Magenta, "{}\n", (*this)[i]);
-		}
-
-		Print("\n\n");
-	}
-
-	auto Stream::PrintMemoryCompositionInfo() const -> void
-	{
-		using namespace Foundation;
-
-		Print("Stream size: {}\n", this->Size());
-		Print("Code buffer: {:.03F} MB\n",
-		      Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeBuffer_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
-		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeDiscriminatorBuffer_.size()) * static_cast<F32>(sizeof(
-				      DiscriminatorStorageType::value_type))));
-		Print("Total: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
-	}
-
-	auto Stream::Prologue() -> Stream&
-	{
-		for (const auto& [discriminator, signal] : PrologueCode())
-		{
-			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
-			this->CodeBuffer_.emplace_back(signal);
-		}
-		return *this;
-	}
-
-	auto Stream::Epilogue() -> Stream&
-	{
-		for (const auto& [discriminator, signal] : EpilogueCode())
-		{
-			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
-			this->CodeBuffer_.emplace_back(signal);
-		}
-		return *this;
-	}
-
-	auto Stream::Build(Stream&& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
-	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
-		if (validationResult != ValidationResultCode::Ok)
-		{
-			[[unlikely]]
-				return validationResult;
-		}
-		TransformStreamToImageByMove(std::move(stream), optInfo, out);
-		return ValidationResultCode::Ok;
-	}
-
-	auto Stream::Build(const Stream& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
-	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
-		if (validationResult != ValidationResultCode::Ok)
-		{
-			[[unlikely]]
-				return validationResult;
-		}
-		TransformStreamToImageByCopy(stream, optInfo, out);
-		return ValidationResultCode::Ok;
-	}
-
-	auto Stream::ContainsPrologue() const -> bool
-	{
-		return ByteCode::ContainsPrologue(*this);
-	}
-
-	auto Stream::ContainsEpilogue() const -> bool
-	{
-		return ByteCode::ContainsEpilogue(*this);
+		case Dis::JumpAddress:
+			return format_to(ctx.out(), "*rel {}",
+			                 ToUnderlying(value.Value.JmpAddress));
+		default:
+		case Dis::Ptr:
+			return format_to(ctx.out(), "*ref {:X}", value.Value.R64.AsU64);
 	}
 }

@@ -1,6 +1,6 @@
-// File: Stream.cpp
+// File: Routines.hpp
 // Author: Mario
-// Created: 11.08.2021 4:18 PM
+// Created: 14.08.2021 1:47 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,185 +205,86 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/ByteCode/_ByteCode.hpp"
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#pragma once
 
-namespace Nominax::ByteCode
+#include "../../Foundation/_Foundation.hpp"
+
+namespace Nominax::Assembler::X86_64::Routines
 {
-	auto Stream::GetSerializationImageHeader(SerializationImageHeader& out) const -> void
+	/// <summary>
+		/// Returns a special constant value depending on the OS for testing.
+		/// </summary>
+	extern "C" NOX_ASM_ROUTINE auto MockCall() -> U64;
+
+	/// <summary>
+	/// Tries to detect a VM using time stamp counter.
+	/// Warning! Do not use this! On most systems it will crash
+	/// because the in instruction cannot get executed from user space.
+	/// </summary>
+	extern "C" NOX_ASM_ROUTINE auto VmDetector() -> bool;
+
+	/// <summary>
+	/// Detects vm ware using a port read action.
+	/// Warning! Do not use this! On most systems it will crash
+	/// because the in instruction cannot get executed from user space.
+	/// </summary>
+	extern "C" NOX_ASM_ROUTINE auto VmWareDetector() -> bool;
+
+	/// <summary>
+	/// Assembly routine which calls cpuid
+	/// multiple time to determine all cpu features.
+	/// The first 6 feature tables are returned via
+	/// out1, out2 and out3. Each contains two info tables.
+	/// (See MergedInfoTable). The last info table is returned
+	/// as return value. Do not use this function, better use
+	/// CpuFeatureBits instead, which calls this function in the
+	/// constructor.
+	/// Implementation: Source/Arch/X86_64.CpuId.S
+	/// </summary>
+	extern "C" NOX_ASM_ROUTINE auto CpuId
+	(
+		U64* out1,
+		U64* out2,
+		U64* out3
+	) -> U32;
+
+	/// <summary>
+	/// Queries the 16 GPR 64-bit registers and the 16 XMM 128-bit registers.
+	/// </summary>
+	extern "C" NOX_ASM_ROUTINE auto QueryRegSet(U64 gpr[16], U64 sse[32]) -> void;
+
+	/// <summary>
+	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
+	/// Implementation: Source/Arch/X86_64.CpuId.S
+	/// </summary>
+	extern "C" NOX_ASM_ROUTINE auto IsCpuIdSupported() -> bool;
+
+	/// <summary>
+	/// Returns true if the OS supports AVX YMM registers, else false.
+	/// Warning! Check if os supports OSXSAVE first!
+	/// </summary>
+	extern "C" NOX_ASM_ROUTINE auto IsAvxSupportedByOs() -> bool;
+
+	/// <summary>
+	/// Returns true if the OS supports AVX512 ZMM registers, else false.
+	/// Warning! Check if os supports OSXSAVE first!
+	/// </summary>
+	extern "C" NOX_ASM_ROUTINE auto IsAvx512SupportedByOs() -> bool;
+
+	/// <summary>
+	/// Queries the value of the %rip instruction pointer.
+	/// </summary>
+	/// <returns></returns>
+	[[nodiscard]]
+	inline auto QueryRip() -> const void*
 	{
-		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
-		std::memcpy(std::data(out.Magic), std::data(SerializationImageHeader::MAGIC_ID), sizeof out.Magic);
-		out.CodeImageSize          = std::size(this->CodeBuffer_);
-		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);
-		out.EncryptDecrypt();
-	}
-
-	auto Stream::Serialize(std::ofstream& out) const -> bool
-	{
-		SerializationImageHeader header { };
-		constexpr U64            codeSectionMarker {STREAM_IMAGE_CODE_SECTION_MARKER};
-		constexpr U64            discriminatorSectionMarker {STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER};
-
-		// header
-		this->GetSerializationImageHeader(header);
-		out.write(reinterpret_cast<const char*>(&header), sizeof(SerializationImageHeader));
-
-		// code section
-		out.write(reinterpret_cast<const char*>(&codeSectionMarker), sizeof(U64));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeBuffer_)), std::size(this->CodeBuffer_) * sizeof(CodeStorageType::value_type));
-
-		// discriminator section
-		out.write(reinterpret_cast<const char*>(&discriminatorSectionMarker), sizeof(U64));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeDiscriminatorBuffer_)), std::size(this->CodeDiscriminatorBuffer_) * sizeof(DiscriminatorStorageType::value_type));
-		return true;
-	}
-
-	auto Stream::Deserialize(std::ifstream& in) -> bool
-	{
-		SerializationImageHeader header { };
-		in.read(reinterpret_cast<char*>(&header), sizeof(SerializationImageHeader));
-		for (U64 i {0}; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
-		{
-			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
-			{
-				[[unlikely]]
-					return false;
-			}
-		}
-
-		header.EncryptDecrypt();
-		if (!header.CodeImageSize || !header.DiscriminatorImageSize)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// validate code section marker
-		U64 codeSectionMarker { };
-		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof(U64));
-		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// load code section:
-		this->CodeBuffer_.clear();
-		this->CodeBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeBuffer_)), header.CodeImageSize * sizeof(CodeStorageType::value_type));
-
-		// validate discriminator section marker
-		U64 discriminatorSectionMarker { };
-		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof(U64));
-		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// load discriminator section:
-		this->CodeDiscriminatorBuffer_.clear();
-		this->CodeDiscriminatorBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeDiscriminatorBuffer_)), header.DiscriminatorImageSize * sizeof(CodeStorageType::value_type));
-
-		return true;
-	}
-
-	auto Stream::DumpByteCode() const -> void
-	{
-		using namespace Foundation;
-
-		Print("Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<F32>(this->SizeInBytes())), sizeof(Signal));
-
-		for (U64 i {0}; i < this->Size(); ++i)
-		{
-			const auto bytes {std::bit_cast<std::array<U8, sizeof(Signal)>>(this->CodeBuffer_[i])};
-			const auto isInstr {this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction};
-			Print(TextColor::Green, "&{:016X} ", reinterpret_cast<Uip64>(&this->CodeBuffer_[i]));
-			Print
-			(
-				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
-				bytes[0],
-				bytes[1],
-				bytes[2],
-				bytes[3],
-				bytes[4],
-				bytes[5],
-				bytes[6],
-				bytes[7]
-			);
-			Print(isInstr ? TextColor::Blue : TextColor::Magenta, "{}\n", (*this)[i]);
-		}
-
-		Print("\n\n");
-	}
-
-	auto Stream::PrintMemoryCompositionInfo() const -> void
-	{
-		using namespace Foundation;
-
-		Print("Stream size: {}\n", this->Size());
-		Print("Code buffer: {:.03F} MB\n",
-		      Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeBuffer_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
-		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeDiscriminatorBuffer_.size()) * static_cast<F32>(sizeof(
-				      DiscriminatorStorageType::value_type))));
-		Print("Total: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
-	}
-
-	auto Stream::Prologue() -> Stream&
-	{
-		for (const auto& [discriminator, signal] : PrologueCode())
-		{
-			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
-			this->CodeBuffer_.emplace_back(signal);
-		}
-		return *this;
-	}
-
-	auto Stream::Epilogue() -> Stream&
-	{
-		for (const auto& [discriminator, signal] : EpilogueCode())
-		{
-			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
-			this->CodeBuffer_.emplace_back(signal);
-		}
-		return *this;
-	}
-
-	auto Stream::Build(Stream&& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
-	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
-		if (validationResult != ValidationResultCode::Ok)
-		{
-			[[unlikely]]
-				return validationResult;
-		}
-		TransformStreamToImageByMove(std::move(stream), optInfo, out);
-		return ValidationResultCode::Ok;
-	}
-
-	auto Stream::Build(const Stream& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
-	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
-		if (validationResult != ValidationResultCode::Ok)
-		{
-			[[unlikely]]
-				return validationResult;
-		}
-		TransformStreamToImageByCopy(stream, optInfo, out);
-		return ValidationResultCode::Ok;
-	}
-
-	auto Stream::ContainsPrologue() const -> bool
-	{
-		return ByteCode::ContainsPrologue(*this);
-	}
-
-	auto Stream::ContainsEpilogue() const -> bool
-	{
-		return ByteCode::ContainsEpilogue(*this);
+		Uip64 rip;
+		asm volatile
+		(
+			"call 1f \n\t"
+			"1: popq %0"
+			: "=r"(rip)
+		);
+		return reinterpret_cast<const void*>(rip);
 	}
 }

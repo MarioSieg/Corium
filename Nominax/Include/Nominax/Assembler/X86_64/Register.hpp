@@ -1,6 +1,6 @@
-// File: Stream.cpp
+// File: Register.hpp
 // Author: Mario
-// Created: 11.08.2021 4:18 PM
+// Created: 14.08.2021 1:49 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,185 +205,278 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/ByteCode/_ByteCode.hpp"
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#pragma once
 
-namespace Nominax::ByteCode
+#include "Encoding.hpp"
+
+namespace Nominax::Assembler::X86_64
 {
-	auto Stream::GetSerializationImageHeader(SerializationImageHeader& out) const -> void
+	enum class RegisterType : U8
 	{
-		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
-		std::memcpy(std::data(out.Magic), std::data(SerializationImageHeader::MAGIC_ID), sizeof out.Magic);
-		out.CodeImageSize          = std::size(this->CodeBuffer_);
-		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);
-		out.EncryptDecrypt();
+		Gpr,
+		Simd
+	};
+
+	/// <summary>
+	/// Represents an encodable CPU register.
+	/// </summary>
+	struct Register
+	{
+		/// <summary>
+		/// The virtual register id.
+		/// </summary>
+		const U8 VirtualId;
+
+		/// <summary>
+		/// The physical register id (in the CPU).
+		/// </summary>
+		const U8 PhysicalId;
+
+		/// <summary>
+		/// The name of the register.
+		/// </summary>
+		const std::string_view Name;
+
+		/// <summary>
+		/// The size in bytes.
+		/// </summary>
+		const WordSize Size;
+
+		/// <summary>
+		/// The type of the register.
+		/// </summary>
+		const RegisterType Type;
+
+		/// <summary>
+		/// Equals.
+		/// </summary>
+		constexpr auto operator ==(const Register& other) const -> bool;
+
+		/// <summary>
+		/// Not equals.
+		/// </summary>
+		constexpr auto operator !=(const Register& other) const -> bool;
+	};
+
+	constexpr auto Register::operator==(const Register& other) const -> bool
+	{
+		return this->VirtualId == other.VirtualId;
 	}
 
-	auto Stream::Serialize(std::ofstream& out) const -> bool
+	constexpr auto Register::operator!=(const Register& other) const -> bool
 	{
-		SerializationImageHeader header { };
-		constexpr U64            codeSectionMarker {STREAM_IMAGE_CODE_SECTION_MARKER};
-		constexpr U64            discriminatorSectionMarker {STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER};
-
-		// header
-		this->GetSerializationImageHeader(header);
-		out.write(reinterpret_cast<const char*>(&header), sizeof(SerializationImageHeader));
-
-		// code section
-		out.write(reinterpret_cast<const char*>(&codeSectionMarker), sizeof(U64));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeBuffer_)), std::size(this->CodeBuffer_) * sizeof(CodeStorageType::value_type));
-
-		// discriminator section
-		out.write(reinterpret_cast<const char*>(&discriminatorSectionMarker), sizeof(U64));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeDiscriminatorBuffer_)), std::size(this->CodeDiscriminatorBuffer_) * sizeof(DiscriminatorStorageType::value_type));
-		return true;
+		return !(*this == other);
 	}
 
-	auto Stream::Deserialize(std::ifstream& in) -> bool
+	/// <summary>
+	/// Represents the register: %rax
+	/// </summary>
+	constexpr Register RAX
 	{
-		SerializationImageHeader header { };
-		in.read(reinterpret_cast<char*>(&header), sizeof(SerializationImageHeader));
-		for (U64 i {0}; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
-		{
-			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
-			{
-				[[unlikely]]
-					return false;
-			}
-		}
+		.VirtualId = 0x00,
+		.PhysicalId = 0x00,
+		.Name = "rax",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
 
-		header.EncryptDecrypt();
-		if (!header.CodeImageSize || !header.DiscriminatorImageSize)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// validate code section marker
-		U64 codeSectionMarker { };
-		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof(U64));
-		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// load code section:
-		this->CodeBuffer_.clear();
-		this->CodeBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeBuffer_)), header.CodeImageSize * sizeof(CodeStorageType::value_type));
-
-		// validate discriminator section marker
-		U64 discriminatorSectionMarker { };
-		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof(U64));
-		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// load discriminator section:
-		this->CodeDiscriminatorBuffer_.clear();
-		this->CodeDiscriminatorBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeDiscriminatorBuffer_)), header.DiscriminatorImageSize * sizeof(CodeStorageType::value_type));
-
-		return true;
-	}
-
-	auto Stream::DumpByteCode() const -> void
+	/// <summary>
+	/// Represents the register: %rbx
+	/// </summary>
+	constexpr Register RBX
 	{
-		using namespace Foundation;
+		.VirtualId = 0x01,
+		.PhysicalId = 0x03,
+		.Name = "rbx",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
 
-		Print("Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<F32>(this->SizeInBytes())), sizeof(Signal));
-
-		for (U64 i {0}; i < this->Size(); ++i)
-		{
-			const auto bytes {std::bit_cast<std::array<U8, sizeof(Signal)>>(this->CodeBuffer_[i])};
-			const auto isInstr {this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction};
-			Print(TextColor::Green, "&{:016X} ", reinterpret_cast<Uip64>(&this->CodeBuffer_[i]));
-			Print
-			(
-				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
-				bytes[0],
-				bytes[1],
-				bytes[2],
-				bytes[3],
-				bytes[4],
-				bytes[5],
-				bytes[6],
-				bytes[7]
-			);
-			Print(isInstr ? TextColor::Blue : TextColor::Magenta, "{}\n", (*this)[i]);
-		}
-
-		Print("\n\n");
-	}
-
-	auto Stream::PrintMemoryCompositionInfo() const -> void
+	/// <summary>
+	/// Represents the register: %rcx
+	/// </summary>
+	constexpr Register RCX
 	{
-		using namespace Foundation;
+		.VirtualId = 0x02,
+		.PhysicalId = 0x01,
+		.Name = "rcx",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
 
-		Print("Stream size: {}\n", this->Size());
-		Print("Code buffer: {:.03F} MB\n",
-		      Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeBuffer_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
-		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeDiscriminatorBuffer_.size()) * static_cast<F32>(sizeof(
-				      DiscriminatorStorageType::value_type))));
-		Print("Total: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
-	}
-
-	auto Stream::Prologue() -> Stream&
+	/// <summary>
+	/// Represents the register: %rdx
+	/// </summary>
+	constexpr Register RDX
 	{
-		for (const auto& [discriminator, signal] : PrologueCode())
-		{
-			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
-			this->CodeBuffer_.emplace_back(signal);
-		}
-		return *this;
-	}
+		.VirtualId = 0x03,
+		.PhysicalId = 0x02,
+		.Name = "rdx",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
 
-	auto Stream::Epilogue() -> Stream&
+	/// <summary>
+	/// Represents the register: %rsi
+	/// </summary>
+	constexpr Register RSI
 	{
-		for (const auto& [discriminator, signal] : EpilogueCode())
-		{
-			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
-			this->CodeBuffer_.emplace_back(signal);
-		}
-		return *this;
-	}
+		.VirtualId = 0x04,
+		.PhysicalId = 0x06,
+		.Name = "rsi",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
 
-	auto Stream::Build(Stream&& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
+	/// <summary>
+	/// Represents the register: %rdi
+	/// </summary>
+	constexpr Register RDI
 	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
-		if (validationResult != ValidationResultCode::Ok)
-		{
-			[[unlikely]]
-				return validationResult;
-		}
-		TransformStreamToImageByMove(std::move(stream), optInfo, out);
-		return ValidationResultCode::Ok;
-	}
+		.VirtualId = 0x05,
+		.PhysicalId = 0x07,
+		.Name = "rdi",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
 
-	auto Stream::Build(const Stream& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
+	/// <summary>
+	/// Represents the register: %rbp
+	/// </summary>
+	constexpr Register RBP
 	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
-		if (validationResult != ValidationResultCode::Ok)
-		{
-			[[unlikely]]
-				return validationResult;
-		}
-		TransformStreamToImageByCopy(stream, optInfo, out);
-		return ValidationResultCode::Ok;
-	}
+		.VirtualId = 0x06,
+		.PhysicalId = 0x05,
+		.Name = "rbp",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
 
-	auto Stream::ContainsPrologue() const -> bool
+	/// <summary>
+	/// Represents the register: %rsp
+	/// </summary>
+	constexpr Register RSP
 	{
-		return ByteCode::ContainsPrologue(*this);
-	}
+		.VirtualId = 0x07,
+		.PhysicalId = 0x04,
+		.Name = "rsp",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
 
-	auto Stream::ContainsEpilogue() const -> bool
+	/// <summary>
+	/// Represents the register: %r8
+	/// </summary>
+	constexpr Register R8
 	{
-		return ByteCode::ContainsEpilogue(*this);
-	}
+		.VirtualId = 0x08,
+		.PhysicalId = 0x00,
+		.Name = "r8",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
+
+	/// <summary>
+	/// Represents the register: %r9
+	/// </summary>
+	constexpr Register R9
+	{
+		.VirtualId = 0x09,
+		.PhysicalId = 0x01,
+		.Name = "r9",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
+
+	/// <summary>
+	/// Represents the register: %r10
+	/// </summary>
+	constexpr Register R10
+	{
+		.VirtualId = 0x0A,
+		.PhysicalId = 0x02,
+		.Name = "r10",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
+
+	/// <summary>
+	/// Represents the register: %r11
+	/// </summary>
+	constexpr Register R11
+	{
+		.VirtualId = 0x0B,
+		.PhysicalId = 0x03,
+		.Name = "r11",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
+
+	/// <summary>
+	/// Represents the register: %r12
+	/// </summary>
+	constexpr Register R12
+	{
+		.VirtualId = 0x0C,
+		.PhysicalId = 0x04,
+		.Name = "r12",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
+
+	/// <summary>
+	/// Represents the register: %r13
+	/// </summary>
+	constexpr Register R13
+	{
+		.VirtualId = 0x0D,
+		.PhysicalId = 0x05,
+		.Name = "r13",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
+
+	/// <summary>
+	/// Represents the register: %r14
+	/// </summary>
+	constexpr Register R14
+	{
+		.VirtualId = 0x0E,
+		.PhysicalId = 0x06,
+		.Name = "r14",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
+
+	/// <summary>
+	/// Represents the register: %r15
+	/// </summary>
+	constexpr Register R15
+	{
+		.VirtualId = 0x0F,
+		.PhysicalId = 0x07,
+		.Name = "r15",
+		.Size = WordSize::QWord,
+		.Type = RegisterType::Gpr
+	};
+
+	constexpr std::array<std::reference_wrapper<const Register>, 16> ALL_GPR_REGISTERS
+	{
+		std::ref(RAX),
+		std::ref(RBX),
+		std::ref(RCX),
+		std::ref(RDX),
+		std::ref(RSI),
+		std::ref(RDI),
+		std::ref(RBP),
+		std::ref(RSP),
+		std::ref(R8),
+		std::ref(R9),
+		std::ref(R10),
+		std::ref(R11),
+		std::ref(R12),
+		std::ref(R13),
+		std::ref(R14),
+		std::ref(R15)
+	};
 }

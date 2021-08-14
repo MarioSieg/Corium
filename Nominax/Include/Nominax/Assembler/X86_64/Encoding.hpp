@@ -1,6 +1,6 @@
-// File: Stream.cpp
+// File: Encoding.hpp
 // Author: Mario
-// Created: 11.08.2021 4:18 PM
+// Created: 14.08.2021 1:47 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,185 +205,88 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/ByteCode/_ByteCode.hpp"
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#pragma once
 
-namespace Nominax::ByteCode
+#include "../../Foundation/_Foundation.hpp"
+
+namespace Nominax::Assembler::X86_64
 {
-	auto Stream::GetSerializationImageHeader(SerializationImageHeader& out) const -> void
+	/// <summary>
+	/// Pack a REX prefix:
+	/// +---+---+---+---+---+---+---+---+
+	/// | 0 | 1 | 0 | 0 | W | R | X | B |
+	/// +---+---+---+---+---+---+---+---+
+	/// </summary>
+	/// <param name="w"></param>
+	/// <param name="r"></param>
+	/// <param name="x"></param>
+	/// <param name="b"></param>
+	/// <returns>The composed rex prefix.</returns>
+	constexpr auto PackRex(const bool w, const bool r, const bool x, const bool b) -> U8
 	{
-		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
-		std::memcpy(std::data(out.Magic), std::data(SerializationImageHeader::MAGIC_ID), sizeof out.Magic);
-		out.CodeImageSize          = std::size(this->CodeBuffer_);
-		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);
-		out.EncryptDecrypt();
+		U8 rex {0x40};
+		rex |= b;
+		rex |= x << 1;
+		rex |= r << 2;
+		rex |= w << 3;
+		return rex;
 	}
 
-	auto Stream::Serialize(std::ofstream& out) const -> bool
+	/// <summary>
+	/// Pack a REX prefix if optional, else return zero.
+	/// </summary>
+	/// <param name="w"></param>
+	/// <param name="r"></param>
+	/// <param name="x"></param>
+	/// <param name="b"></param>
+	/// <returns>The composed rex prefix or zero.</returns>
+	constexpr auto PackRexOpt(const bool w, const bool r, const bool x, const bool b) -> U8
 	{
-		SerializationImageHeader header { };
-		constexpr U64            codeSectionMarker {STREAM_IMAGE_CODE_SECTION_MARKER};
-		constexpr U64            discriminatorSectionMarker {STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER};
-
-		// header
-		this->GetSerializationImageHeader(header);
-		out.write(reinterpret_cast<const char*>(&header), sizeof(SerializationImageHeader));
-
-		// code section
-		out.write(reinterpret_cast<const char*>(&codeSectionMarker), sizeof(U64));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeBuffer_)), std::size(this->CodeBuffer_) * sizeof(CodeStorageType::value_type));
-
-		// discriminator section
-		out.write(reinterpret_cast<const char*>(&discriminatorSectionMarker), sizeof(U64));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeDiscriminatorBuffer_)), std::size(this->CodeDiscriminatorBuffer_) * sizeof(DiscriminatorStorageType::value_type));
-		return true;
+		return w || r || x || b ? PackRex(w, r, x, b) : 0;
 	}
 
-	auto Stream::Deserialize(std::ifstream& in) -> bool
+	/// <summary>
+	/// Packs the bits into the specified order:
+	/// +-----------+-----------+-------+
+	/// | bits01 |  bits234 |  bits567  |
+	/// +---+---+---+---+---+---+---+---+
+	/// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+	/// +---+---+---+---+---+---+---+---+
+	/// </summary>
+	/// <param name="bits01"></param>
+	/// <param name="bits234"></param>
+	/// <param name="bits567"></param>
+	/// <returns>The composed mod rm sib byte.</returns>
+	constexpr auto PackModRm(const U8 bits01, const U8 bits234, const U8 bits567) -> U8
 	{
-		SerializationImageHeader header { };
-		in.read(reinterpret_cast<char*>(&header), sizeof(SerializationImageHeader));
-		for (U64 i {0}; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
-		{
-			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
-			{
-				[[unlikely]]
-					return false;
-			}
-		}
-
-		header.EncryptDecrypt();
-		if (!header.CodeImageSize || !header.DiscriminatorImageSize)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// validate code section marker
-		U64 codeSectionMarker { };
-		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof(U64));
-		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// load code section:
-		this->CodeBuffer_.clear();
-		this->CodeBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeBuffer_)), header.CodeImageSize * sizeof(CodeStorageType::value_type));
-
-		// validate discriminator section marker
-		U64 discriminatorSectionMarker { };
-		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof(U64));
-		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
-		{
-			[[unlikely]]
-				return false;
-		}
-
-		// load discriminator section:
-		this->CodeDiscriminatorBuffer_.clear();
-		this->CodeDiscriminatorBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeDiscriminatorBuffer_)), header.DiscriminatorImageSize * sizeof(CodeStorageType::value_type));
-
-		return true;
+		NOX_DBG_PAS_TRUE((bits01 & ~0b11) == 0, "Mask mismatch -> 2 bits requested");
+		NOX_DBG_PAS_TRUE((bits234 & ~0b111) == 0, "Mask mismatch -> 3 bits requested");
+		NOX_DBG_PAS_TRUE((bits567 & ~0b111) == 0, "Mask mismatch -> 3 bits requested");
+		U8 trio {bits567};
+		trio &= ~0xF8;
+		trio |= (bits234 & ~0xF8) << 3;
+		trio |= (bits01 & ~0xFC) << 6;
+		return trio;
 	}
 
-	auto Stream::DumpByteCode() const -> void
+	/// <summary>
+	/// Writes a NOP chain of the specified size into the needle.
+	/// </summary>
+	/// <param name="needle">The machine code needle. Must have at least size elements.</param>
+	/// <param name="size">The NOP chain size between 1 and 15 inclusive.</param>
+	extern auto InjectNopChain(U8* needle, U8 size) -> void;
+
+	/// <summary>
+	/// Represents a register or data size as 16-bit machine words in bytes.
+	/// </summary>
+	enum class WordSize : U8
 	{
-		using namespace Foundation;
-
-		Print("Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<F32>(this->SizeInBytes())), sizeof(Signal));
-
-		for (U64 i {0}; i < this->Size(); ++i)
-		{
-			const auto bytes {std::bit_cast<std::array<U8, sizeof(Signal)>>(this->CodeBuffer_[i])};
-			const auto isInstr {this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction};
-			Print(TextColor::Green, "&{:016X} ", reinterpret_cast<Uip64>(&this->CodeBuffer_[i]));
-			Print
-			(
-				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
-				bytes[0],
-				bytes[1],
-				bytes[2],
-				bytes[3],
-				bytes[4],
-				bytes[5],
-				bytes[6],
-				bytes[7]
-			);
-			Print(isInstr ? TextColor::Blue : TextColor::Magenta, "{}\n", (*this)[i]);
-		}
-
-		Print("\n\n");
-	}
-
-	auto Stream::PrintMemoryCompositionInfo() const -> void
-	{
-		using namespace Foundation;
-
-		Print("Stream size: {}\n", this->Size());
-		Print("Code buffer: {:.03F} MB\n",
-		      Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeBuffer_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
-		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeDiscriminatorBuffer_.size()) * static_cast<F32>(sizeof(
-				      DiscriminatorStorageType::value_type))));
-		Print("Total: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
-	}
-
-	auto Stream::Prologue() -> Stream&
-	{
-		for (const auto& [discriminator, signal] : PrologueCode())
-		{
-			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
-			this->CodeBuffer_.emplace_back(signal);
-		}
-		return *this;
-	}
-
-	auto Stream::Epilogue() -> Stream&
-	{
-		for (const auto& [discriminator, signal] : EpilogueCode())
-		{
-			this->CodeDiscriminatorBuffer_.emplace_back(discriminator);
-			this->CodeBuffer_.emplace_back(signal);
-		}
-		return *this;
-	}
-
-	auto Stream::Build(Stream&& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
-	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
-		if (validationResult != ValidationResultCode::Ok)
-		{
-			[[unlikely]]
-				return validationResult;
-		}
-		TransformStreamToImageByMove(std::move(stream), optInfo, out);
-		return ValidationResultCode::Ok;
-	}
-
-	auto Stream::Build(const Stream& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
-	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
-		if (validationResult != ValidationResultCode::Ok)
-		{
-			[[unlikely]]
-				return validationResult;
-		}
-		TransformStreamToImageByCopy(stream, optInfo, out);
-		return ValidationResultCode::Ok;
-	}
-
-	auto Stream::ContainsPrologue() const -> bool
-	{
-		return ByteCode::ContainsPrologue(*this);
-	}
-
-	auto Stream::ContainsEpilogue() const -> bool
-	{
-		return ByteCode::ContainsEpilogue(*this);
-	}
+		Byte = 1,
+		Word = 2,
+		DWord = 2 * Word,
+		QWord = 4 * Word,
+		XmmWord = 16,
+		YmmWord = 32,
+		ZmmWord = 64
+	};
 }
