@@ -1460,6 +1460,9 @@ def divide_chunks(l, n):
         yield l[i:i + n]
 
 instrset = read_instruction_set("x86_64.xml")
+for instr in instrset:
+    for form in instr.forms:
+        print(form.isa_extensions)
 chunk_size = 32
 i = 0
 for l in list(divide_chunks(instrset, chunk_size)):

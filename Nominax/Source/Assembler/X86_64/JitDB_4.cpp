@@ -1819,13 +1819,13 @@ NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_4(std::pmr::monotonic_buffer_re
 			},
 			.ImplicitInputs =
 			{
-				ImplicitRegisterOperand::Ax,
 				ImplicitRegisterOperand::Dx,
+				ImplicitRegisterOperand::Ax,
 			},
 			.ImplicitOutputs =
 			{
-				ImplicitRegisterOperand::Ax,
 				ImplicitRegisterOperand::Dx,
+				ImplicitRegisterOperand::Ax,
 			},
 			.IsaFeatureExtensions =
 			{
@@ -2050,13 +2050,13 @@ NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_4(std::pmr::monotonic_buffer_re
 			},
 			.ImplicitInputs =
 			{
-				ImplicitRegisterOperand::Ax,
 				ImplicitRegisterOperand::Dx,
+				ImplicitRegisterOperand::Ax,
 			},
 			.ImplicitOutputs =
 			{
-				ImplicitRegisterOperand::Ax,
 				ImplicitRegisterOperand::Dx,
+				ImplicitRegisterOperand::Ax,
 			},
 			.IsaFeatureExtensions =
 			{
@@ -2290,8 +2290,8 @@ NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_4(std::pmr::monotonic_buffer_re
 			},
 			.ImplicitOutputs =
 			{
-				ImplicitRegisterOperand::Ax,
 				ImplicitRegisterOperand::Dx,
+				ImplicitRegisterOperand::Ax,
 			},
 			.IsaFeatureExtensions =
 			{
@@ -2518,8 +2518,8 @@ NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_4(std::pmr::monotonic_buffer_re
 			},
 			.ImplicitOutputs =
 			{
-				ImplicitRegisterOperand::Ax,
 				ImplicitRegisterOperand::Dx,
+				ImplicitRegisterOperand::Ax,
 			},
 			.IsaFeatureExtensions =
 			{

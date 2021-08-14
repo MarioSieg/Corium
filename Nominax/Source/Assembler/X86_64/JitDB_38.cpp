@@ -3587,8 +3587,8 @@ NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_38(std::pmr::monotonic_buffer_r
 			},
 			.ImplicitInputs =
 			{
-				ImplicitRegisterOperand::Ebx,
 				ImplicitRegisterOperand::Al,
+				ImplicitRegisterOperand::Ebx,
 			},
 			.ImplicitOutputs =
 			{
@@ -3622,8 +3622,8 @@ NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_38(std::pmr::monotonic_buffer_r
 			},
 			.ImplicitInputs =
 			{
-				ImplicitRegisterOperand::Rbx,
 				ImplicitRegisterOperand::Al,
+				ImplicitRegisterOperand::Rbx,
 			},
 			.ImplicitOutputs =
 			{

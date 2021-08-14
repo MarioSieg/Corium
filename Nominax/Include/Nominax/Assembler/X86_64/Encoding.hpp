@@ -240,9 +240,9 @@ namespace Nominax::Assembler::X86_64
 	/// <param name="x"></param>
 	/// <param name="b"></param>
 	/// <returns>The composed rex prefix or zero.</returns>
-	constexpr auto PackRexOpt(const bool w, const bool r, const bool x, const bool b) -> U8
+	constexpr auto PackRexOpt(const bool w, const bool r, const bool x, const bool b) -> std::optional<U8>
 	{
-		return w || r || x || b ? PackRex(w, r, x, b) : 0;
+		return w || r || x || b ? std::optional{PackRex(w, r, x, b)} : std::nullopt;
 	}
 
 	/// <summary>

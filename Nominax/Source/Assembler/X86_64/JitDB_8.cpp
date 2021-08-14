@@ -5669,8 +5669,8 @@ NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_8(std::pmr::monotonic_buffer_re
 			},
 			.ImplicitOutputs =
 			{
-				ImplicitRegisterOperand::Ax,
 				ImplicitRegisterOperand::Dx,
+				ImplicitRegisterOperand::Ax,
 			},
 			.IsaFeatureExtensions =
 			{
@@ -5897,8 +5897,8 @@ NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_8(std::pmr::monotonic_buffer_re
 			},
 			.ImplicitOutputs =
 			{
-				ImplicitRegisterOperand::Ax,
 				ImplicitRegisterOperand::Dx,
+				ImplicitRegisterOperand::Ax,
 			},
 			.IsaFeatureExtensions =
 			{
