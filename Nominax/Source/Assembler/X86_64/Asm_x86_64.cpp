@@ -1,6 +1,6 @@
-// File: Encoding.hpp
+// File: Asm_x86_64.cpp
 // Author: Mario
-// Created: 14.08.2021 1:47 PM
+// Created: 06.07.2021 4:08 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -205,88 +205,245 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include "../../Foundation/_Foundation.hpp"
+#include "../../../Include/Nominax/Assembler/_Assembler.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
-	/// <summary>
-	/// Pack a REX prefix:
-	/// +---+---+---+---+---+---+---+---+
-	/// | 0 | 1 | 0 | 0 | W | R | X | B |
-	/// +---+---+---+---+---+---+---+---+
-	/// </summary>
-	/// <param name="w"></param>
-	/// <param name="r"></param>
-	/// <param name="x"></param>
-	/// <param name="b"></param>
-	/// <returns>The composed rex prefix.</returns>
-	constexpr auto PackRex(const bool w, const bool r, const bool x, const bool b) -> U8
+	auto InjectNopChain(U8* n, const U8 size) -> void
 	{
-		U8 rex {0x40};
-		rex |= b;
-		rex |= x << 1;
-		rex |= r << 2;
-		rex |= w << 3;
-		return rex;
+		NOX_DBG_PAS_NOT_NULL(n, "Null needle!");
+		NOX_DBG_PAS_LE(size, 15, "Invalid nop chain size!");
+		NOX_DBG_PAS_GE(size, 1, "Invalid nop chain size!");
+
+		static constexpr std::array<const void* NOX_RESTRICT const, 15> JUMP_TABLE
+		{
+			&&inject_1,
+			&&inject_2,
+			&&inject_3,
+			&&inject_4,
+			&&inject_5,
+			&&inject_6,
+			&&inject_7,
+			&&inject_8,
+			&&inject_9,
+			&&inject_10,
+			&&inject_11,
+			&&inject_12,
+			&&inject_13,
+			&&inject_14,
+			&&inject_15
+		};
+
+		goto
+		*JUMP_TABLE[size - 1];
+
+	inject_1:
+		*n = 0x90;
+		return;
+
+	inject_2:
+		*n = 0x40;
+		*++n = 0x90;
+		return;
+
+	inject_3:
+		*n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x00;
+		return;
+
+	inject_4:
+		*n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x40;
+		*++n = 0x00;
+		return;
+
+	inject_5:
+		*n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x44;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_6:
+		*n = 0x66;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x44;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_7:
+		*n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x80;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_8:
+		*n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_9:
+		*n = 0x66;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_10:
+		*n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_11:
+		*n = 0x66;
+		*++n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_12:
+		*n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_13:
+		*n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_14:
+		*n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
+
+	inject_15:
+		*n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x66;
+		*++n = 0x2E;
+		*++n = 0x0F;
+		*++n = 0x1F;
+		*++n = 0x84;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		*++n = 0x00;
+		return;
 	}
 
-	/// <summary>
-	/// Pack a REX prefix if optional, else return zero.
-	/// </summary>
-	/// <param name="w"></param>
-	/// <param name="r"></param>
-	/// <param name="x"></param>
-	/// <param name="b"></param>
-	/// <returns>The composed rex prefix or zero.</returns>
-	constexpr auto PackRexOpt(const bool w, const bool r, const bool x, const bool b) -> U8
+	auto GetVariationTable(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void
 	{
-		return w || r || x || b ? PackRex(w, r, x, b) : 0;
+		out.reserve(ToUnderlying(Instruction::Count_));
+		GetVariationTable_0(allocator, out);
+		GetVariationTable_1(allocator, out);
+		GetVariationTable_2(allocator, out);
+		GetVariationTable_3(allocator, out);
+		GetVariationTable_4(allocator, out);
+		GetVariationTable_5(allocator, out);
+		GetVariationTable_6(allocator, out);
+		GetVariationTable_7(allocator, out);
+		GetVariationTable_8(allocator, out);
+		GetVariationTable_9(allocator, out);
+		GetVariationTable_10(allocator, out);
+		GetVariationTable_11(allocator, out);
+		GetVariationTable_12(allocator, out);
+		GetVariationTable_13(allocator, out);
+		GetVariationTable_14(allocator, out);
+		GetVariationTable_15(allocator, out);
+		GetVariationTable_16(allocator, out);
+		GetVariationTable_17(allocator, out);
+		GetVariationTable_18(allocator, out);
+		GetVariationTable_19(allocator, out);
+		GetVariationTable_20(allocator, out);
+		GetVariationTable_21(allocator, out);
+		GetVariationTable_22(allocator, out);
+		GetVariationTable_23(allocator, out);
+		GetVariationTable_24(allocator, out);
+		GetVariationTable_25(allocator, out);
+		GetVariationTable_26(allocator, out);
+		GetVariationTable_27(allocator, out);
+		GetVariationTable_28(allocator, out);
+		GetVariationTable_29(allocator, out);
+		GetVariationTable_30(allocator, out);
+		GetVariationTable_31(allocator, out);
+		GetVariationTable_32(allocator, out);
+		GetVariationTable_33(allocator, out);
+		GetVariationTable_34(allocator, out);
+		GetVariationTable_35(allocator, out);
+		GetVariationTable_36(allocator, out);
+		GetVariationTable_37(allocator, out);
+		GetVariationTable_38(allocator, out);
 	}
-
-	/// <summary>
-	/// Packs the bits into the specified order:
-	/// +-----------+-----------+-------+
-	/// | bits01 |  bits234 |  bits567  |
-	/// +---+---+---+---+---+---+---+---+
-	/// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
-	/// +---+---+---+---+---+---+---+---+
-	/// </summary>
-	/// <param name="bits01"></param>
-	/// <param name="bits234"></param>
-	/// <param name="bits567"></param>
-	/// <returns>The composed mod rm sib byte.</returns>
-	constexpr auto PackModRm(const U8 bits01, const U8 bits234, const U8 bits567) -> U8
-	{
-		NOX_DBG_PAS_TRUE((bits01 & ~0b11) == 0, "Mask mismatch -> 2 bits requested");
-		NOX_DBG_PAS_TRUE((bits234 & ~0b111) == 0, "Mask mismatch -> 3 bits requested");
-		NOX_DBG_PAS_TRUE((bits567 & ~0b111) == 0, "Mask mismatch -> 3 bits requested");
-		U8 trio {bits567};
-		trio &= ~0xF8;
-		trio |= (bits234 & ~0xF8) << 3;
-		trio |= (bits01 & ~0xFC) << 6;
-		return trio;
-	}
-
-	/// <summary>
-	/// Writes a NOP chain of the specified size into the needle.
-	/// </summary>
-	/// <param name="n">The machine code needle. Must have at least size elements.</param>
-	/// <param name="size">The NOP chain size between 1 and 15 inclusive.</param>
-	extern auto InjectNopChain(U8* n, U8 size) -> void;
-
-	/// <summary>
-	/// Represents a register or data size as 16-bit machine words in bytes.
-	/// </summary>
-	enum class WordSize : U8
-	{
-		Byte = 1,
-		Word = 2,
-		DWord = 2 * Word,
-		QWord = 4 * Word,
-		XmmWord = 16,
-		YmmWord = 32,
-		ZmmWord = 64
-	};
 }
