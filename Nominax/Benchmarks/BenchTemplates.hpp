@@ -221,11 +221,11 @@ using namespace Core;
 
 inline std::unique_ptr Env
 {
-	[] () -> auto
+	[]() -> auto
 	{
 		auto                  env {std::make_unique<Environment>()};
 		EnvironmentDescriptor descriptor { };
-		descriptor.AppName = "NominaxBenchmark";
+		descriptor.AppName        = "NominaxBenchmark";
 		descriptor.FastHostIoSync = false;
 		env->Boot(descriptor);
 		return env;

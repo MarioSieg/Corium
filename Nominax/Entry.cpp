@@ -208,9 +208,8 @@
 #include "Include/Nominax/Nominax.hpp"
 
 using namespace Nominax::Prelude;
-using namespace Core;
 
-auto main(const int argc, const char* const* const argv) -> I32
+auto main(const I32 argc, const char* const* const argv) -> I32
 {
 	const EnvironmentDescriptor environmentDescriptor
 	{
@@ -220,23 +219,6 @@ auto main(const int argc, const char* const* const argv) -> I32
 
 	Environment environment { };
 	environment.Boot(environmentDescriptor);
-
-	Stream stream { };
-	stream.Prologue();
-	stream.With(3, [](ScopedInt x)
-	{
-		x *= 10;
-		x += 1;
-		x *= 10;
-		x &= -10;
-		x *= -5;
-		x -= 10;
-		x -= 1;
-		x -= 1;
-		x += 1;
-	});
-	stream.Epilogue();
-	stream.DumpByteCode();
 	environment.Shutdown();
 	return 0;
 }

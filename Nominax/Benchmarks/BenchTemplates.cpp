@@ -234,12 +234,12 @@ auto LoopBenchmark
 	stream << Instruction::Int;
 	stream << 0_int;
 
-	Image bundle {};
+	Image bundle { };
 	Stream::Build(std::move(stream), Env->GetOptimizationHints(), bundle);
 
 	for (auto& env {*Env}; auto _ : state)
 	{
-	    [[maybe_unused]]
-        const auto result {env.Execute(bundle)};
+		[[maybe_unused]]
+			const auto result {env.Execute(bundle)};
 	}
 }

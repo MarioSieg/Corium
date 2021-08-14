@@ -223,9 +223,9 @@ struct DynamicSignal final
 			case 0:
 				return Signal::Discriminator::Instruction;
 			case 1:
-				return Signal::Discriminator::SystemIntrinsicCallID;
+				return Signal::Discriminator::SystemIntrinsicInvocationID;
 			case 2:
-				return Signal::Discriminator::UserIntrinsicCallID;
+				return Signal::Discriminator::UserIntrinsicInvocationID;
 			case 3:
 				return Signal::Discriminator::JumpAddress;
 			case 4:

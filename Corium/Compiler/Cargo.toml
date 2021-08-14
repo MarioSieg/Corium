@@ -1,0 +1,13 @@
+[package]
+name = "corium_compiler"
+version = "0.1.0"
+edition = "2018"
+authors = ["Mario Sieg aka pinsrq <mt3000@gmx.de>"]
+
+[build-dependencies]
+
+[dependencies]
+pest = "2.1.3"
+pest_derive = "2.1.0"
+uuid = { version = "0.8.2", features = ["v4"] }
+smallvec = "1.6.1"

@@ -6,4 +6,9 @@ IF (${CORIUM_BUILD_BENCHMARKS})
 	TARGET_LINK_LIBRARIES("NominaxBenchmark" "benchmark::benchmark")
 	TARGET_LINK_LIBRARIES("NominaxBenchmark" "NominaxRuntime")
 	TARGET_COMPILE_OPTIONS("NominaxBenchmark" PRIVATE "-Ofast")
+
+	# with GCC we need to link posix threads
+	IF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        TARGET_LINK_LIBRARIES("NominaxBenchmark" "pthread")
+    ENDIF()
 ENDIF()

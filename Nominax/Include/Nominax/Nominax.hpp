@@ -207,10 +207,10 @@
 
 #pragma once
 
-#include "Asm_x86_64.hpp"
-#include "ByteCode.hpp"
-#include "Core.hpp"
-#include "Foundation.hpp"
+#include "Assembler/_Assembler.hpp"
+#include "ByteCode/_ByteCode.hpp"
+#include "Core/_Core.hpp"
+#include "Foundation/_Foundation.hpp"
 
 namespace Nominax::Prelude
 {

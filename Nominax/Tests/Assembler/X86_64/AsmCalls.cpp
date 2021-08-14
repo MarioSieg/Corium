@@ -272,43 +272,52 @@ TEST(AssemblyCalls, CpudIdSupport)
 
 TEST(AssemblyCalls, AvxOsSupport)
 {
-	const auto exec
+	const CpuFeatureDetector cfd { };
+	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
 	{
-		[&]
+		const auto exec
 		{
-			ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
+			[&]
+			{
+				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
+			}
+		};
+		ASSERT_NO_FATAL_FAILURE(exec());
+	}
 }
 
 TEST(AssemblyCalls, Avx512OsSupport)
 {
-	const auto exec
+	const CpuFeatureDetector cfd { };
+	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
 	{
-		[&]
+		const auto exec
 		{
-			ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
+			[&]
+			{
+				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
+			}
+		};
+		ASSERT_NO_FATAL_FAILURE(exec());
+	}
 }
 
 TEST(AssemblyCalls, CpuIdInvocation)
 {
-	const auto exec
+	if (IsCpuIdSupported())
 	{
-		[&]
+		const auto exec
 		{
-			U64       a, b, c;
-			const U32 d{ CpuId(&a, &b, &c) };
-			ASSERT_NE(a, 0);
-			ASSERT_NE(b, 0);
-			ASSERT_NE(c, 0);
-			ASSERT_NE(d, 0);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
+			[&]
+			{
+				[[maybe_unused]]
+					U64 a, b, c;
+				[[maybe_unused]]
+					const U32 d {CpuId(&a, &b, &c)};
+			}
+		};
+		ASSERT_NO_FATAL_FAILURE(exec());
+	}
 }
 
 TEST(AssemblyCalls, QueryReg)

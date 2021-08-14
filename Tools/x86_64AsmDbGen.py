@@ -1250,7 +1250,7 @@ operand_lookup = {
 def mko(x):
     return "UINT64_C(" + hex(x if x is not None else 0) + ")" if type(x) is int or x is None else "OperandType::" + operand_lookup[x.type]
 
-target = "../Nominax/Source/"
+target = "../Nominax/Source/Assembler/X86_64/"
 
 fileObject = open("NominaxLicenseHeader.txt", "r")
 header = fileObject.read()
@@ -1259,7 +1259,7 @@ fileObject.close()
 def generate_insertion_fun(range, idx):
     output = header
     output += "\n\n// Auto generated, do not edit!\n\n"
-    output += "#include \"../Include/Nominax/Asm_x86_64.hpp\"\n\n"
+    output += "#include \"../../../Include/Nominax/Assembler/_Assembler.hpp\"\n\n"
     output += "namespace Nominax::Assembler::X86_64\n{\n"
     output += "NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_" + str(idx) + "(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void\n{\n"
     output += "\tstd::pmr::vector<InstructionVariation> instruction{&allocator};\n"
@@ -1450,7 +1450,7 @@ def generate_insertion_fun(range, idx):
         output += "\t};\n"
         output += "\tout.emplace_back(std::move(instruction));\n\n"
     output += "};\n}\n"
-    fn = target + "Asm_x86_64_Jitdb" + str(idx) + ".cpp"
+    fn = target + "JitDB_" + str(idx) + ".cpp"
     print("Generating x86-64 Assembler JIT DB: " + fn)
     with open(fn, "w") as f:
         f.write(output)
@@ -1460,6 +1460,9 @@ def divide_chunks(l, n):
         yield l[i:i + n]
 
 instrset = read_instruction_set("x86_64.xml")
+for instr in instrset:
+    for form in instr.forms:
+        print(form.isa_extensions)
 chunk_size = 32
 i = 0
 for l in list(divide_chunks(instrset, chunk_size)):
