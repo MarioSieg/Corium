@@ -2,27 +2,13 @@
 
 #include <fmt/format.h>
 
+#include "../Core/ReactorValidator.hpp"
+#include "../ByteCode/Instruction.hpp"
+#include "../ByteCode/CharCluster.hpp"
+#include "../ByteCode/DiscriminatedSignal.hpp"
+#include "../ByteCode/ValidationResult.hpp"
+
 #include "BaseTypes.hpp"
-
-namespace Nominax {
-	namespace Core {
-		enum class ReactorValidationResult : std::uint8_t;
-	}
-}
-
-namespace Nominax {
-	namespace ByteCode {
-		struct DiscriminatedSignal;
-		enum class ValidationResultCode;
-		union CharClusterUtf32;
-		union CharClusterUtf16;
-		union CharClusterUtf8;
-		enum class JumpAddress : U64;
-		enum class UserIntrinsicInvocationID : U64;
-		enum class SystemIntrinsicInvocationID : U64;
-		enum class Instruction : U64;
-	}
-}
 
 using FormatOutput = fmt::format_context::iterator;
 

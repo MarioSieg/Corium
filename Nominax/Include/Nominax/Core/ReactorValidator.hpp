@@ -211,6 +211,7 @@
 #include <string_view>
 
 #include "../Foundation/BaseTypes.hpp"
+#include "../Foundation/Platform.hpp"
 
 namespace Nominax::Core
 {
