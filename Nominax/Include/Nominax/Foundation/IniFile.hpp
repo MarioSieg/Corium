@@ -207,15 +207,19 @@
 
 #pragma once
 
+#include <cstdint>
+#include <string>
 #include <unordered_map>
+#include <variant>
 
 #include "ISerializable.hpp"
+#include "PanicAssertions.hpp"
 
 namespace Nominax::Foundation
 {
 	/// <summary>
-		/// Represents an initialization (.ini) file.
-		/// </summary>
+	/// Represents an initialization (.ini) file.
+	/// </summary>
 	class IniFile final : public ISerializable
 	{
 	public:
@@ -225,14 +229,30 @@ namespace Nominax::Foundation
 		using Key = std::string;
 
 		/// <summary>
+		/// Represents a value.
+		/// </summary>
+		using Value = std::variant<std::string, std::int64_t, double>;
+
+		/// <summary>
 		/// Represents a section with it's entries.
 		/// </summary>
-		using Section = std::unordered_map<Key, std::string>;
+		using Section = std::unordered_map<Key, Value>;
 
 		/// <summary>
 		/// Contains all sections as a map.
 		/// </summary>
 		using SectionMap = std::unordered_map<Key, Section>;
+
+		/// <summary>
+		/// The name of the default section.
+		/// </summary>
+		static constexpr std::string_view DEFAULT_SECTION_NAME{ "Default" };
+
+		/// <summary>
+		/// We use spaces instead of tabs because
+		///	tabs are interpreted differently by different text editors.
+		/// </summary>
+		static constexpr std::string_view SECTION_CONTENT_INDENTATION{ "    " };
 
 		/// <summary>
 		/// Token for section begin.
@@ -313,7 +333,20 @@ namespace Nominax::Foundation
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
 		virtual auto Deserialize(std::ifstream& in) -> bool override;
-	};
 
-	inline IniFile::IniFile(SectionMap&& map) : Sections_ {std::move(map)} {}
+		/// <summary>
+		/// Begins a new section in the file and appends to it.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		auto PushSection(Key&& name) -> void;
+
+		/// <summary>
+		/// Pushes a new value into the current section.
+		/// </summary>
+		/// <param name="key"></param>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		auto PushValue(Key&& key, Value&& value) -> void;
+	};
 }

@@ -252,7 +252,7 @@ namespace Nominax::Foundation
 	}
 
 
-	auto ISerializable::SerializeToFile(const std::filesystem::path& file) const -> bool
+	auto ISerializable::SerializeToDisk(const std::filesystem::path& file) const -> bool
 	{
 		std::ofstream stream {file};
 		if (!stream)
@@ -263,7 +263,7 @@ namespace Nominax::Foundation
 		return this->Serialize(stream);
 	}
 
-	auto ISerializable::DeserializeFromFile(const std::filesystem::path& file) -> bool
+	auto ISerializable::DeserializeFromDisk(const std::filesystem::path& file) -> bool
 	{
 		std::ifstream stream {file};
 		if (!stream)

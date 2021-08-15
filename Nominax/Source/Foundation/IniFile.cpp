@@ -209,15 +209,51 @@
 
 namespace Nominax::Foundation
 {
+	IniFile::IniFile(SectionMap&& map) : Sections_{ std::move(map) } { }
+
+	auto IniFile::PushSection(Key&& name) -> void
+	{
+		this->Sections_.insert({ std::move(name), {} });
+	}
+
+	auto IniFile::PushValue(Key&& key, Value&& value) -> void
+	{
+		if (std::empty(this->Sections_))
+		{
+			[[unlikely]]
+			this->PushSection(Key{ DEFAULT_SECTION_NAME });
+		}
+		auto& [_, values] { *std::begin(this->Sections_) };
+		values.insert_or_assign(std::move(key), std::move(value));
+	}
+
 	auto IniFile::Serialize([[maybe_unused]] std::ofstream& out) const -> bool
 	{
 		for (const auto& [section, entries] : this->Sections_)
 		{
+			if (std::empty(entries))
+			{
+				continue;
+			}
 			out << SECTION_BEGIN << section << SECTION_END << '\n';
 			for (const auto& [key, value] : entries)
 			{
-				out << '\t' << key << ' ' << EQU << ' ' << value << '\n';
+				out << SECTION_CONTENT_INDENTATION << key << ' ' << EQU << ' ';
+				if (const std::string* const str = std::get_if<std::string>(&value))
+				{
+					out << *str;
+				}
+				else if (const std::int64_t* const integer = std::get_if<std::int64_t>(&value))
+				{
+					out << *integer;
+				}
+				else if (const double* const floating = std::get_if<double>(&value))
+				{
+					out << *floating;
+				}
+				out << '\n';
 			}
+			out << '\n';
 		}
 		return true;
 	}

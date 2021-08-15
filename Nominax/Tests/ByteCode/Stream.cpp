@@ -373,7 +373,7 @@ TEST(BytecodeStream, SerializeImage)
 		var /= 1;
 	}).Epilogue();
 
-	ASSERT_TRUE(stream.SerializeToFile("TestStream.img"));
+	ASSERT_TRUE(stream.SerializeToDisk("TestStream.img"));
 	std::filesystem::remove("TestStream.img");
 }
 
@@ -388,9 +388,9 @@ TEST(BytecodeStream, DeserializeImage)
 		var /= 1;
 	}).Epilogue();
 
-	ASSERT_TRUE(stream1.SerializeToFile("TestStream.img"));
+	ASSERT_TRUE(stream1.SerializeToDisk("TestStream.img"));
 	Stream stream2 { };
-	ASSERT_TRUE(stream2.DeserializeFromFile("TestStream.img"));
+	ASSERT_TRUE(stream2.DeserializeFromDisk("TestStream.img"));
 	ASSERT_EQ(std::size(stream1.GetCodeBuffer()), std::size(stream2.GetCodeBuffer()));
 	ASSERT_EQ(std::size(stream1.GetDiscriminatorBuffer()), std::size(stream2.GetDiscriminatorBuffer()));
 	ASSERT_EQ(stream1.Size(), stream2.Size());

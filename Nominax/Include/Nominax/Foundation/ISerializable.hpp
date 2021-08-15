@@ -260,14 +260,14 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto SerializeToFile(const std::filesystem::path& file) const -> bool;
+		virtual auto SerializeToDisk(const std::filesystem::path& file) const -> bool;
 
 		/// <summary>
 		/// Deserialize from file stream.
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto DeserializeFromFile(const std::filesystem::path& file) -> bool;
+		virtual auto DeserializeFromDisk(const std::filesystem::path& file) -> bool;
 
 		/// <summary>
 		/// Serialize to file stream.
