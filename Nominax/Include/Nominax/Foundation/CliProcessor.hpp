@@ -1,6 +1,6 @@
-// File: Snapshot.hpp
+// File: CliArgParser.hpp
 // Author: Mario
-// Created: 09.08.2021 4:40 PM
+// Created: 09.08.2021 4:19 PM
 // Project: NominaxRuntime
 // 
 //                                  Apache License
@@ -207,110 +207,107 @@
 
 #pragma once
 
-#include <thread>
-#include <string>
-
-#include "BaseTypes.hpp"
-#include "Platform.hpp"
+#include <string_view>
+#include <unordered_set>
+#include <vector>
 
 namespace Nominax::Foundation
 {
 	/// <summary>
-		/// Contains information about the current system and stats.
-		/// </summary>
-	struct Snapshot final
+	/// Helper to parse command line interface arguments.
+	/// </summary>
+	class CliProcessor final
 	{
+		std::unordered_set<std::string_view>                       Args_ { };
+		std::vector<std::pair<std::string_view, std::string_view>> Options_ { };
+
+	public:
 		/// <summary>
-		/// The current thread id.
+		/// Construct with argc and argv from
+		/// the entry point.
 		/// </summary>
-		std::thread::id ThreadId { };
+		/// <param name="argc"></param>
+		/// <param name="argv"></param>
+		/// <returns></returns>
+		CliProcessor(int argc, const char* const* argv);
 
 		/// <summary>
-		/// Name of the operating system.
-		/// </summary>
-		std::string_view OperatingSystemName {NOX_OS_NAME};
-
-		/// <summary>
-		/// Architecture name.
-		/// </summary>
-		std::string_view ArchitectureName {NOX_ARCH_NAME};
-
-		/// <summary>
-		/// Name of the compiler.
-		/// </summary>
-		std::string_view CompilerName {NOX_COM_NAME};
-
-		/// <summary>
-		/// Amount of CPU supported threads.
-		/// </summary>
-		U64 ThreadCount { };
-
-		/// <summary>
-		/// Name of the CPU.
-		/// </summary>
-		std::string CpuName { };
-
-		/// <summary>
-		/// The total amount of memory in bytes.
-		/// </summary>
-		U64 TotalSystemMemory { };
-
-		/// <summary>
-		/// The total amount of process memory in bytes.
-		/// </summary>
-		U64 ProcessMemory { };
-
-		/// <summary>
-		/// The size of a page in bytes.
-		/// </summary>
-		U64 PageSize { };
-
-		/// <summary>
-		/// Construct and query data.
-		/// </summary>
-		Snapshot();
-
-		/// <summary>
-		/// Copy constructor.
+		/// No copy.
 		/// </summary>
 		/// <param name="other"></param>
-		Snapshot(const Snapshot& other) = default;
+		CliProcessor(const CliProcessor& other) = delete;
 
 		/// <summary>
 		/// Move constructor.
 		/// </summary>
 		/// <param name="other"></param>
-		Snapshot(Snapshot&& other) = default;
+		/// <returns></returns>
+		CliProcessor(CliProcessor&& other) = default;
 
 		/// <summary>
-		/// Copy assignment operator.
+		/// No copy.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(const Snapshot& other) -> Snapshot& = default;
+		auto operator =(const CliProcessor& other) -> CliProcessor& = delete;
 
 		/// <summary>
 		/// Move assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(Snapshot&& other) -> Snapshot& = default;
+		auto operator =(CliProcessor&& other) -> CliProcessor& = default;
 
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~Snapshot() = default;
+		~CliProcessor() = default;
 
 		/// <summary>
-		/// Query and refresh data.
+		/// Returns true if the command line flag is set,
+		/// else false.
 		/// </summary>
+		/// <param name="key"></param>
 		/// <returns></returns>
-		auto QueryAll() -> void;
+		[[nodiscard]]
+		auto HasFlag(std::string_view key) -> bool;
 
 		/// <summary>
-		/// Print the data.
+		/// Adds a command line option with description and returns true
+		/// if the flag is set, else false.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="description"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto AddOption(std::string_view name, std::string_view description = "") -> bool;
+
+		/// <summary>
+		/// Prints all the added options with description.
 		/// </summary>
 		/// <returns></returns>
-		auto Print() const -> void;
+		auto PrintAllOptions() -> void;
+
+		/// <summary>
+		/// Returns true if the argument count is less or equal to one,
+		/// because one is the self path, else false.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto IsEmpty() const -> bool;
+
+		/// <summary>
+		/// Returns argument set.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetArgs() const -> const std::unordered_set<std::string_view>&;
+
+		/// <summary>
+		/// Returns all added options.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetOptions() const -> const std::vector<std::pair<std::string_view, std::string_view>>&;
 	};
 }

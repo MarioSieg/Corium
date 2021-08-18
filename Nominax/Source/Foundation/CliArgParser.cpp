@@ -209,19 +209,19 @@
 
 namespace Nominax::Foundation
 {
-	CliArgParser::CliArgParser(const signed argc, const char* const* const argv)
+	CliProcessor::CliProcessor(const int argc, const char* const* const argv)
 	{
 		Args_.reserve(argc);
 		Args_.insert(argv, argc + argv);
 	}
 
-	auto CliArgParser::AddOption(const std::string_view name, const std::string_view description) -> bool
+	auto CliProcessor::AddOption(const std::string_view name, const std::string_view description) -> bool
 	{
 		Options_.emplace_back(std::make_pair(name, description));
 		return this->HasFlag(name);
 	}
 
-	auto CliArgParser::PrintAllOptions() -> void
+	auto CliProcessor::PrintAllOptions() -> void
 	{
 		for (const auto& [k, v] : this->Options_)
 		{
@@ -229,22 +229,22 @@ namespace Nominax::Foundation
 		}
 	}
 
-	auto CliArgParser::IsEmpty() const -> bool
+	auto CliProcessor::IsEmpty() const -> bool
 	{
 		return this->Args_.size() <= 1;
 	}
 
-	auto CliArgParser::GetArgs() const -> const std::unordered_set<std::string_view>&
+	auto CliProcessor::GetArgs() const -> const std::unordered_set<std::string_view>&
 	{
 		return this->Args_;
 	}
 
-	auto CliArgParser::GetOptions() const -> const std::vector<std::pair<std::string_view, std::string_view>>&
+	auto CliProcessor::GetOptions() const -> const std::vector<std::pair<std::string_view, std::string_view>>&
 	{
 		return this->Options_;
 	}
 
-	auto CliArgParser::HasFlag(const std::string_view key) -> bool
+	auto CliProcessor::HasFlag(const std::string_view key) -> bool
 	{
 		return std::ranges::find(this->Args_, key) != this->Args_.end();
 	}

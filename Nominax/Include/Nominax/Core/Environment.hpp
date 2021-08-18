@@ -214,7 +214,7 @@
 #include "../Foundation/BaseTypes.hpp"
 #include "../Foundation/MemoryUnits.hpp"
 #include "../Foundation/CpuFeatureDetector.hpp"
-#include "../Foundation/Snapshot.hpp"
+#include "../Foundation/SystemInfoSnapshot.hpp"
 #include "../Foundation/IAllocator.hpp"
 #include "../ByteCode/Stream.hpp"
 #include "../ByteCode/Image.hpp"
@@ -442,14 +442,14 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The system stat snapshot.</returns>
 		[[nodiscard]]
-		auto GetSystemSnapshot() const -> const Foundation::Snapshot&;
+		auto GetSystemInfoSnapshot() const -> const Foundation::SystemInfoSnapshot&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The cpu feature detector.</returns>
 		[[nodiscard]]
-		auto GetProcessorFeatureSnapshot() const -> const Foundation::CpuFeatureDetector&;
+		auto GetCpuFeatureSnapshot() const -> const Foundation::CpuFeatureDetector&;
 
 		/// <summary>
 		/// 

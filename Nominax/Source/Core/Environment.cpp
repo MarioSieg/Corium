@@ -457,10 +457,10 @@ namespace Nominax::Core
 	/// Query and print machine info.
 	/// </summary>
 	/// <returns></returns>
-	static auto InitSysInfo() -> Snapshot
+	static auto InitSysInfo() -> SystemInfoSnapshot
 	{
 		Print('\n');
-		Snapshot snapshot { };
+		SystemInfoSnapshot snapshot { };
 		snapshot.Print();
 		return snapshot;
 	}
@@ -732,7 +732,7 @@ namespace Nominax::Core
 		std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
 		const std::chrono::high_resolution_clock::time_point     BootStamp;
 		std::chrono::milliseconds                                BootTime;
-		const Snapshot                                           SysInfoSnapshot;
+		const SystemInfoSnapshot                                           SysInfoSnapshot;
 		const CpuFeatureDetector                                 CpuFeatures;
 		const ReactorRoutineLink                                 OptimalReactorRoutine;
 		ReactorPool                                              CorePool;
@@ -1022,13 +1022,13 @@ namespace Nominax::Core
 		return this->Context_->BootTime;
 	}
 
-	auto Environment::GetSystemSnapshot() const -> const Snapshot&
+	auto Environment::GetSystemInfoSnapshot() const -> const SystemInfoSnapshot&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Context_->SysInfoSnapshot;
 	}
 
-	auto Environment::GetProcessorFeatureSnapshot() const -> const CpuFeatureDetector&
+	auto Environment::GetCpuFeatureSnapshot() const -> const CpuFeatureDetector&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Context_->CpuFeatures;

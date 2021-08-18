@@ -209,12 +209,12 @@
 
 namespace Nominax::Foundation
 {
-	Snapshot::Snapshot()
+	SystemInfoSnapshot::SystemInfoSnapshot()
 	{
 		this->QueryAll();
 	}
 
-	auto Snapshot::QueryAll() -> void
+	auto SystemInfoSnapshot::QueryAll() -> void
 	{
 		this->ThreadCount       = std::thread::hardware_concurrency();
 		this->ThreadId          = std::this_thread::get_id();
@@ -224,7 +224,7 @@ namespace Nominax::Foundation
 		this->PageSize          = OsInterface::QueryPageSize();
 	}
 
-	auto Snapshot::Print() const -> void
+	auto SystemInfoSnapshot::Print() const -> void
 	{
 		using namespace Foundation;
 
