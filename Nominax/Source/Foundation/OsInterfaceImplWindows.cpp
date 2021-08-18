@@ -216,58 +216,76 @@
 
 namespace Nominax::Foundation
 {
-	auto Os::QuerySystemMemoryTotal() -> U64
+	auto OsInterface::QuerySystemMemoryTotal() -> U64
 	{
 		MEMORYSTATUSEX status;
+		ZeroMemory(&status, sizeof(MEMORYSTATUSEX));
 		status.dwLength = sizeof(MEMORYSTATUSEX);
 		GlobalMemoryStatusEx(&status);
 		return status.ullTotalPhys;
 	}
 
-	auto Os::QueryProcessMemoryUsed() -> U64
+	auto OsInterface::QueryProcessMemoryUsed() -> U64
 	{
 		PROCESS_MEMORY_COUNTERS pmc;
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof pmc);
+		ZeroMemory(&pmc, sizeof(PROCESS_MEMORY_COUNTERS));
+		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(PROCESS_MEMORY_COUNTERS));
 		return pmc.WorkingSetSize;
 	}
 
-	auto Os::QueryCpuName() -> std::string
+	auto OsInterface::QueryCpuName() -> std::string
 	{
 		HKEY key;
-		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ,
-		                  &key))
+		LSTATUS status
 		{
+			RegOpenKeyExA
+			(
+				HKEY_LOCAL_MACHINE,
+				R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)",
+				0,
+				KEY_READ,
+				&key
+			)
+		};
+		if (status)
+		{
+			[[unlikely]]
 			return "Unknown";
 		}
-		TCHAR id[64 + 1];
-		DWORD idLen = sizeof id;
-		if (const auto data = static_cast<LPBYTE>(static_cast<void*>(id)); RegQueryValueExA(
-			key, "ProcessorNameString", nullptr, nullptr, data, &idLen))
-		{
-			return "Unknown";
-		}
-		return id;
+		std::array<TCHAR, 61 + 1> id {};
+		DWORD idLen{ sizeof id };
+		status = RegQueryValueExA
+		(
+			key,
+			"ProcessorNameString",
+			nullptr,
+			nullptr,
+			reinterpret_cast<LPBYTE>(std::data(id)),
+			&idLen
+		);
+		return status ? "Unknown" : std::data(id);
 	}
 
-	auto Os::QueryPageSize() -> U64
+	auto OsInterface::QueryPageSize() -> U64
 	{
 		SYSTEM_INFO sysInfo;
+		ZeroMemory(&sysInfo, sizeof(SYSTEM_INFO));
 		GetSystemInfo(&sysInfo);
 		return static_cast<U64>(sysInfo.dwPageSize);
 	}
 
-	auto Os::DylibOpen(const std::string_view filePath) -> void*
+	auto OsInterface::DylibOpen(const std::string_view filePath) -> void*
 	{
-		return LoadLibraryA(filePath.data());
+		return LoadLibraryA(std::data(filePath));
 	}
 
-	auto Os::DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
+	auto OsInterface::DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
 	{
-		// ReSharper disable once CppRedundantCastExpression
-		return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()));
+		const FARPROC symbol{ GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()) };
+		return reinterpret_cast<void*>(symbol);
 	}
 
-	auto Os::DylibClose(void*& handle) -> void
+	auto OsInterface::DylibClose(void*& handle) -> void
 	{
 		FreeLibrary(static_cast<HMODULE>(handle));
 		handle = nullptr;

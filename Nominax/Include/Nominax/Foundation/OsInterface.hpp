@@ -214,45 +214,45 @@
 namespace Nominax::Foundation
 {
 	/// <summary>
-		/// Contains operating specific routines.
-		/// </summary>
-	struct Os final
+	/// Cross platform interface for OS-specific routines.
+	/// </summary>
+	struct OsInterface final
 	{
 		/// <summary>
 		/// Static class!
 		/// </summary>
-		Os() = delete;
+		OsInterface() = delete;
 
 		/// <summary>
 		/// Static class!
 		/// </summary>
 		/// <param name="other"></param>
-		Os(const Os& other) = delete;
+		OsInterface(const OsInterface& other) = delete;
 
 		/// <summary>
 		/// Static class!
 		/// </summary>
 		/// <param name="other"></param>
-		Os(Os&& other) = delete;
-
-		/// <summary>
-		/// Static class!
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(const Os& other) -> Os& = delete;
+		OsInterface(OsInterface&& other) = delete;
 
 		/// <summary>
 		/// Static class!
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(Os&& other) -> Os& = delete;
+		auto operator =(const OsInterface& other) -> OsInterface& = delete;
 
 		/// <summary>
 		/// Static class!
 		/// </summary>
-		~Os() = delete;
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(OsInterface&& other) -> OsInterface& = delete;
+
+		/// <summary>
+		/// Static class!
+		/// </summary>
+		~OsInterface() = delete;
 
 		/// <summary>
 		/// Query system info.

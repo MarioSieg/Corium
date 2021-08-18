@@ -874,7 +874,7 @@ namespace Nominax::Core
 		const auto tok {std::chrono::high_resolution_clock::now()};
 
 		// Get memory snapshot:
-		const U64 memSnapshot {Os::QueryProcessMemoryUsed()};
+		const U64 memSnapshot {OsInterface::QueryProcessMemoryUsed()};
 		const F64 memUsagePercent {ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory)};
 
 		// Query pool info
