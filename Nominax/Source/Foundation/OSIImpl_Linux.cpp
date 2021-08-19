@@ -218,14 +218,14 @@
 
 namespace Nominax::Foundation
 {
-	auto OSI::QuerySystemMemoryTotal() -> U64
+	auto OSI::QuerySystemMemoryTotal() -> std::uint64_t
 	{
 		const long pages {sysconf(_SC_PHYS_PAGES)};
 		const long page_size {sysconf(_SC_PAGE_SIZE)};
-		return static_cast<U64>(pages * page_size);
+		return static_cast<std::uint64_t>(pages * page_size);
 	}
 
-	auto OSI::QueryProcessMemoryUsed() -> U64 {
+	auto OSI::QueryProcessMemoryUsed() -> std::uint64_t {
 		FILE* const file {fopen("/proc/self/statm", "r")};
 		if (!file)
 		{
@@ -235,7 +235,7 @@ namespace Nominax::Foundation
 		long pages = 0;
 		const auto items {fscanf(file, "%*s%ld", &pages)};
 		fclose(file);
-		return static_cast<U64>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
+		return static_cast<std::uint64_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
 	}
 
 	auto OSI::QueryCpuName() -> std::string
@@ -261,9 +261,9 @@ namespace Nominax::Foundation
 		return {};
 	}
 
-	auto OSI::QueryPageSize() -> U64
+	auto OSI::QueryPageSize() -> std::uint64_t
 	{
-		return static_cast<U64>(sysconf(_SC_PAGE_SIZE));
+		return static_cast<std::uint64_t>(sysconf(_SC_PAGE_SIZE));
 	}
 
 	auto OSI::DylibOpen(const std::string_view file_) -> void*

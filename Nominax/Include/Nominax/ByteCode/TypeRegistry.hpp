@@ -227,7 +227,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// 
 	/// </summary>
-	inline constexpr std::array ANY_TYPE
+	constexpr std::array ANY_TYPE
 	{
 		Signal::Discriminator::U64,
 		Signal::Discriminator::I64,
@@ -349,24 +349,24 @@ namespace Nominax::ByteCode
 	[[nodiscard]]
 	inline auto LookupInstructionArgumentTypes(const Instruction instruction) -> const PerInstructionArgTypes&
 	{
-		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)];
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<std::uint64_t>(instruction)];
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[[nodiscard]]
-	inline auto LookupInstructionArgumentCount(const Instruction instruction) -> U64
+	inline auto LookupInstructionArgumentCount(const Instruction instruction) -> std::uint64_t
 	{
-		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)].size();
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<std::uint64_t>(instruction)].size();
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[[nodiscard]]
-	inline auto LookupInstructionArgumentAllowedTypeCount(const Instruction instruction, const U64 argumentIndex) -> U64
+	inline auto LookupInstructionArgumentAllowedTypeCount(const Instruction instruction, const std::uint64_t argumentIndex) -> std::uint64_t
 	{
-		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<U64>(instruction)][argumentIndex].size();
+		return INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES[static_cast<std::uint64_t>(instruction)][argumentIndex].size();
 	}
 }

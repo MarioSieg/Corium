@@ -214,7 +214,7 @@ namespace Nominax::Assembler::X86_64
 	/// <summary>
 	/// Contains all instruction types.
 	/// </summary>
-	enum class Instruction : U16
+	enum class Instruction : std::uint16_t
 	{
 		Adc,
 		Adcx,

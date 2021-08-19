@@ -217,7 +217,7 @@ namespace Nominax::ByteCode
 
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst
-	auto ScopedVariable<F64>::Push(const F64 value) -> ScopedVariable<F64>&
+	auto ScopedVariable<double>::Push(const double value) -> ScopedVariable<double>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -250,7 +250,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::Push(const I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::Push(const std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -283,7 +283,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::Push(const U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::Push(const std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -315,7 +315,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<F64>::Add(const F64 value) -> ScopedVariable<F64>&
+	auto ScopedVariable<double>::Add(const double value) -> ScopedVariable<double>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -338,7 +338,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::Add(const I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::Add(const std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -361,7 +361,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::Add(const U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::Add(const std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -385,7 +385,7 @@ namespace Nominax::ByteCode
 
 
 	template <>
-	auto ScopedVariable<F64>::Sub(const F64 value) -> ScopedVariable<F64>&
+	auto ScopedVariable<double>::Sub(const double value) -> ScopedVariable<double>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -408,7 +408,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::Sub(const I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::Sub(const std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -431,7 +431,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::Sub(const U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::Sub(const std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -454,7 +454,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<F64>::Mul(const F64 value) -> ScopedVariable<F64>&
+	auto ScopedVariable<double>::Mul(const double value) -> ScopedVariable<double>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -470,7 +470,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::Mul(I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::Mul(std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -495,7 +495,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::Mul(U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::Mul(std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -520,7 +520,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<F64>::Div(const F64 value) -> ScopedVariable<F64>&
+	auto ScopedVariable<double>::Div(const double value) -> ScopedVariable<double>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -544,7 +544,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::Div(I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::Div(std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -578,7 +578,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::Div(U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::Div(std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
@@ -611,7 +611,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<F64>::Mod(const F64 value) -> ScopedVariable<F64>&
+	auto ScopedVariable<double>::Mod(const double value) -> ScopedVariable<double>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::FMod>();
@@ -619,7 +619,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::Mod(const I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::Mod(const std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IMod>();
@@ -627,7 +627,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::Mod(const U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::Mod(const std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IMod>();
@@ -635,7 +635,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::And(const I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::And(const std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IAnd>();
@@ -643,7 +643,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::And(const U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::And(const std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IAnd>();
@@ -651,7 +651,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::Or(const I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::Or(const std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IOr>();
@@ -660,7 +660,7 @@ namespace Nominax::ByteCode
 
 
 	template <>
-	auto ScopedVariable<U64>::Or(const U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::Or(const std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IOr>();
@@ -668,7 +668,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::Xor(const I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::Xor(const std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IXor>();
@@ -676,7 +676,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::Xor(const U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::Xor(const std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		this->Push(value);
 		this->Attached_.Do<Instruction::IXor>();
@@ -684,7 +684,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::ShiftLeft(const I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::ShiftLeft(const std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		if (value == 0)
 		{
@@ -696,7 +696,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::ShiftLeft(const U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::ShiftLeft(const std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		if (value == 0)
 		{
@@ -708,7 +708,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::ShiftRight(const I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::ShiftRight(const std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		if (value == 0)
 		{
@@ -720,7 +720,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::ShiftRight(const U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::ShiftRight(const std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		if (value == 0)
 		{
@@ -732,7 +732,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::RotateLeft(const I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::RotateLeft(const std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		if (value == 0)
 		{
@@ -744,7 +744,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::RotateLeft(const U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::RotateLeft(const std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		if (value == 0)
 		{
@@ -756,7 +756,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<I64>::RotateRight(const I64 value) -> ScopedVariable<I64>&
+	auto ScopedVariable<std::int64_t>::RotateRight(const std::int64_t value) -> ScopedVariable<std::int64_t>&
 	{
 		if (value == 0)
 		{
@@ -768,7 +768,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <>
-	auto ScopedVariable<U64>::RotateRight(const U64 value) -> ScopedVariable<U64>&
+	auto ScopedVariable<std::uint64_t>::RotateRight(const std::uint64_t value) -> ScopedVariable<std::uint64_t>&
 	{
 		if (value == 0)
 		{

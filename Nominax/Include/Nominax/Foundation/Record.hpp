@@ -210,45 +210,45 @@
 #include <array>
 #include <type_traits>
 
-#include "BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::Foundation
 {
 	/// <summary>
 		/// 64-bit memory record.
-		/// Contains either: Record32, void*, U64, I64, F64
+		/// Contains either: Record32, void*, std::uint64_t, std::int64_t, double
 		/// </summary>
-	union alignas(alignof(I64)) Record
+	union alignas(alignof(std::int64_t)) Record
 	{
 		/// <summary>
-		/// Use as U32.
+		/// Use as std::uint32_t.
 		/// </summary>
-		U32 AsU32;
+		std::uint32_t AsU32;
 
 		/// <summary>
-		/// Use as I32.
+		/// Use as std::int32_t.
 		/// </summary>
-		I32 AsI32;
+		std::int32_t AsI32;
 
 		/// <summary>
-		/// Use as F32.
+		/// Use as float.
 		/// </summary>
-		F32 AsF32;
+		float AsF32;
 
 		/// <summary>
-		/// Use as U64.
+		/// Use as std::uint64_t.
 		/// </summary>
-		U64 AsU64;
+		std::uint64_t AsU64;
 
 		/// <summary>
-		/// Use as I64.
+		/// Use as std::int64_t.
 		/// </summary>
-		I64 AsI64;
+		std::int64_t AsI64;
 
 		/// <summary>
-		/// Use as F64.
+		/// Use as double.
 		/// </summary>
-		F64 AsF64;
+		double AsF64;
 
 		/// <summary>
 		/// Use as PTR 64.
@@ -271,19 +271,19 @@ namespace Nominax::Foundation
 		char32_t AsChar32;
 
 		/// <summary>
-		/// Use as U32's array.
+		/// Use as std::uint32_t's array.
 		/// </summary>
-		std::array<U32, 2> AsU32S;
+		std::array<std::uint32_t, 2> AsU32S;
 
 		/// <summary>
-		/// Use as I32's array.
+		/// Use as std::int32_t's array.
 		/// </summary>
-		std::array<I32, 2> AsI32S;
+		std::array<std::int32_t, 2> AsI32S;
 
 		/// <summary>
-		/// Use as F32's array.
+		/// Use as float's array.
 		/// </summary>
-		std::array<F32, 2> AsF32S;
+		std::array<float, 2> AsF32S;
 
 		/// <summary>
 		/// Default construct.
@@ -292,46 +292,46 @@ namespace Nominax::Foundation
 		Record() = default;
 
 		/// <summary>
-		/// Construct from U32 and zero upper 32 bits.
+		/// Construct from std::uint32_t and zero upper 32 bits.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(U32 value);
+		explicit constexpr Record(std::uint32_t value);
 
 		/// <summary>
-		/// Construct from I32 and zero upper 32 bits.
+		/// Construct from std::int32_t and zero upper 32 bits.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(I32 value);
+		explicit constexpr Record(std::int32_t value);
 
 		/// <summary>
-		/// Construct from F32 and zero upper 32 bits.
+		/// Construct from float and zero upper 32 bits.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(F32 value);
+		explicit constexpr Record(float value);
 
 		/// <summary>
-		/// Construct from U64.
+		/// Construct from std::uint64_t.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(U64 value);
+		explicit constexpr Record(std::uint64_t value);
 
 		/// <summary>
-		/// Construct from I64.
+		/// Construct from std::int64_t.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(I64 value);
+		explicit constexpr Record(std::int64_t value);
 
 		/// <summary>
-		/// Construct from F64.
+		/// Construct from double.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(F64 value);
+		explicit constexpr Record(double value);
 
 		/// <summary>
 		/// Construct from PTR 64.
@@ -362,25 +362,25 @@ namespace Nominax::Foundation
 		explicit constexpr Record(char32_t value);
 
 		/// <summary>
-		/// Construct from U32 array.
+		/// Construct from std::uint32_t array.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(std::array<U32, 2> value);
+		explicit constexpr Record(std::array<std::uint32_t, 2> value);
 
 		/// <summary>
-		/// Construct from I32 array.
+		/// Construct from std::int32_t array.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(std::array<I32, 2> value);
+		explicit constexpr Record(std::array<std::int32_t, 2> value);
 
 		/// <summary>
-		/// Construct from F32 array.
+		/// Construct from float array.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(std::array<F32, 2> value);
+		explicit constexpr Record(std::array<float, 2> value);
 
 		/// <summary>
 		/// Returns true if value contains non zero, else false.
@@ -437,19 +437,19 @@ namespace Nominax::Foundation
 		static constexpr auto Padding() -> Record;
 	};
 
-	constexpr Record::Record(const U32 value) : AsU32 {value} {}
-	constexpr Record::Record(const I32 value) : AsI32 {value} {}
-	constexpr Record::Record(const F32 value) : AsF32 {value} {}
-	constexpr Record::Record(const U64 value) : AsU64 {value} {}
-	constexpr Record::Record(const I64 value) : AsI64 {value} {}
-	constexpr Record::Record(const F64 value) : AsF64 {value} {}
+	constexpr Record::Record(const std::uint32_t value) : AsU32 {value} {}
+	constexpr Record::Record(const std::int32_t value) : AsI32 {value} {}
+	constexpr Record::Record(const float value) : AsF32 {value} {}
+	constexpr Record::Record(const std::uint64_t value) : AsU64 {value} {}
+	constexpr Record::Record(const std::int64_t value) : AsI64 {value} {}
+	constexpr Record::Record(const double value) : AsF64 {value} {}
 	constexpr Record::Record(void* const value) : AsPtr {value} {}
 	constexpr Record::Record(const char8_t value) : AsChar8 {value} {}
 	constexpr Record::Record(const char16_t value) : AsChar16 {value} {}
 	constexpr Record::Record(const char32_t value) : AsChar32 {value} {}
-	constexpr Record::Record(const std::array<U32, 2> value) : AsU32S {value} {}
-	constexpr Record::Record(const std::array<I32, 2> value) : AsI32S {value} {}
-	constexpr Record::Record(const std::array<F32, 2> value) : AsF32S {value} {}
+	constexpr Record::Record(const std::array<std::uint32_t, 2> value) : AsU32S {value} {}
+	constexpr Record::Record(const std::array<std::int32_t, 2> value) : AsI32S {value} {}
+	constexpr Record::Record(const std::array<float, 2> value) : AsF32S {value} {}
 
 	constexpr Record::operator bool() const
 	{
@@ -491,10 +491,10 @@ namespace Nominax::Foundation
 		return Record {0xFF'FF'FF'FF'FF'FF'FF'FF};
 	}
 
-	static_assert(sizeof(F32) == sizeof(I32));
-	static_assert(sizeof(F64) == sizeof(I64));
-	static_assert(sizeof(Record) == sizeof(I64));
-	static_assert(alignof(Record) == alignof(I64));
+	static_assert(sizeof(float) == sizeof(std::int32_t));
+	static_assert(sizeof(double) == sizeof(std::int64_t));
+	static_assert(sizeof(Record) == sizeof(std::int64_t));
+	static_assert(alignof(Record) == alignof(std::int64_t));
 	static_assert(std::is_standard_layout_v<Record>);
 	static_assert(std::is_trivial_v<Record>);
 	static_assert(std::is_default_constructible_v<Record>);

@@ -209,7 +209,7 @@
 
 #include <string_view>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../Foundation/MemoryUnits.hpp"
 
 #include "ReactorCreationDescriptor.hpp"
@@ -219,7 +219,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Single reactor mode.
 	/// </summary>
-	constexpr U64 MONO_REACTOR {1};
+	constexpr std::uint64_t MONO_REACTOR {1};
 
 	/// <summary>
 	/// Config descriptor for an environment.
@@ -229,7 +229,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Argument count.
 		/// </summary>
-		I32 ArgC {0};
+		std::int32_t ArgC {0};
 
 		/// <summary>
 		/// Argument vector.
@@ -259,24 +259,24 @@ namespace Nominax::Core
 		/// <summary>
 		/// The size of the boot pool
 		/// </summary>
-		U64 BootPoolSize {128_kB};
+		std::uint64_t BootPoolSize {128_kB};
 
 		/// <summary>
 		/// The size of the system memory pool size.
 		/// </summary>
-		U64 SystemPoolSize {512_kB};
+		std::uint64_t SystemPoolSize {512_kB};
 
 		/// <summary>
 		/// The count of reactors.
 		/// If 0, the system will use the number of CPU threads.
 		/// </summary>
-		U64 ReactorCount {0};
+		std::uint64_t ReactorCount {0};
 
 		/// <summary>
 		/// The reactor stack size in bytes.
 		/// Must be divisible by 8!
 		/// </summary>
-		U64 StackSize {8_mB};
+		std::uint64_t StackSize {8_mB};
 
 		/// <summary>
 		/// Power preference of the system.

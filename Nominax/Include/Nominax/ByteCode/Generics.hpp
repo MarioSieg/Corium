@@ -253,15 +253,15 @@ namespace Nominax::ByteCode
 		{
 			return {Signal::Discriminator::JumpAddress};
 		}
-		else if constexpr (std::is_same_v<U64, T>)
+		else if constexpr (std::is_same_v<std::uint64_t, T>)
 		{
 			return {Signal::Discriminator::U64};
 		}
-		else if constexpr (std::is_same_v<I64, T>)
+		else if constexpr (std::is_same_v<std::int64_t, T>)
 		{
 			return {Signal::Discriminator::I64};
 		}
-		else if constexpr (std::is_same_v<F64, T>)
+		else if constexpr (std::is_same_v<double, T>)
 		{
 			return {Signal::Discriminator::F64};
 		}
@@ -311,7 +311,7 @@ namespace Nominax::ByteCode
 	template <>
 	class ScopedVariableProxyType<signed>
 	{
-		using Type = I64;
+		using Type = std::int64_t;
 	};
 
 	/// <summary>
@@ -344,7 +344,7 @@ namespace Nominax::ByteCode
 		requires std::is_integral_v<std::decay_t<Ts>...>
 		|| std::is_floating_point_v<std::decay_t<Ts>...>
 		|| std::is_enum_v<std::decay_t<Ts>...>;
-		requires (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(I64) == 0
-		|| (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(I32) == 0;
+		requires (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(std::int64_t) == 0
+		|| (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(std::int32_t) == 0;
 	};
 }

@@ -236,6 +236,6 @@ extern auto LoopBenchmark
 (
 	State&                                      state,
 	const std::function<auto(Stream&) -> void>& loopBody,
-	I64                                         count            = 1'000'000'000,
+	std::int64_t                                         count            = 1'000'000'000,
 	bool                                        enableAvxReactor = true
 ) -> void;

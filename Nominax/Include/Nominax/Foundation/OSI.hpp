@@ -209,7 +209,7 @@
 
 #include <string>
 
-#include "BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::Foundation
 {
@@ -260,14 +260,14 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>The total system memory in bytes.</returns>
 		[[nodiscard]]
-		static auto QuerySystemMemoryTotal() -> U64;
+		static auto QuerySystemMemoryTotal() -> std::uint64_t;
 
 		/// <summary>
 		/// Query system info.
 		/// </summary>
 		/// <returns>The amount of memory used by the current process in bytes.</returns>
 		[[nodiscard]]
-		static auto QueryProcessMemoryUsed() -> U64;
+		static auto QueryProcessMemoryUsed() -> std::uint64_t;
 
 		/// <summary>
 		/// Query system info.
@@ -281,7 +281,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>The size of a page in bytes.</returns>
 		[[nodiscard]]
-		static auto QueryPageSize() -> U64;
+		static auto QueryPageSize() -> std::uint64_t;
 
 		/// <summary>
 		/// Open dynamic library file.

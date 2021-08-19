@@ -208,7 +208,7 @@
 #pragma once
 
 #include "Platform.hpp"
-#include "BaseTypes.hpp"
+
 
 namespace Nominax::Foundation
 {
@@ -227,7 +227,7 @@ namespace Nominax::Foundation
 		asm("bkpt 0");
 		#endif
 		#else
-		* reinterpret_cast<volatile I32*>(3) = 3;
+		* reinterpret_cast<volatile std::int32_t*>(3) = 3;
 		#endif
 	}
 

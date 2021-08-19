@@ -249,5 +249,5 @@ namespace Nominax::Core
 	/// <summary>
 	/// Contains all available reactor implementations for the current platform.
 	/// </summary>
-	using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<U64>(ReactorCoreSpecialization::Count)>;
+	using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<std::uint64_t>(ReactorCoreSpecialization::Count)>;
 }

@@ -210,58 +210,58 @@
 TEST(SystemAllocatorProxy, Allocate)
 {
 	void* ptr;
-	GlobalRuntimeAllocator.Allocate(ptr, sizeof(I32));
+	GlobalRuntimeAllocator.Allocate(ptr, sizeof(std::int32_t));
 	ASSERT_NE(ptr, nullptr);
-	*static_cast<I32*>(ptr) = 10;
-	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
+	*static_cast<std::int32_t*>(ptr) = 10;
+	ASSERT_EQ(*static_cast<std::int32_t*>(ptr), 10);
 	GlobalRuntimeAllocator.Deallocate(ptr);
 }
 
 TEST(SystemAllocatorProxy, AllocateAligned)
 {
 	void* ptr;
-	GlobalRuntimeAllocator.AllocateAligned(ptr, sizeof(I32), alignof(I32));
+	GlobalRuntimeAllocator.AllocateAligned(ptr, sizeof(std::int32_t), alignof(std::int32_t));
 	ASSERT_NE(ptr, nullptr);
-	ASSERT_TRUE(IsAlignedTo(ptr, alignof(I32)));
-	*static_cast<I32*>(ptr) = 10;
-	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
+	ASSERT_TRUE(IsAlignedTo(ptr, alignof(std::int32_t)));
+	*static_cast<std::int32_t*>(ptr) = 10;
+	ASSERT_EQ(*static_cast<std::int32_t*>(ptr), 10);
 	GlobalRuntimeAllocator.DeallocateAligned(ptr);
 }
 
 TEST(SystemAllocatorProxy, Reallocate)
 {
 	void* ptr;
-	GlobalRuntimeAllocator.Allocate(ptr, sizeof(I32));
+	GlobalRuntimeAllocator.Allocate(ptr, sizeof(std::int32_t));
 	ASSERT_NE(ptr, nullptr);
-	*static_cast<I32*>(ptr) = 10;
-	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
-	GlobalRuntimeAllocator.Reallocate(ptr, 2 * sizeof(I32));
-	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
-	static_cast<I32*>(ptr)[1] = -4;
-	ASSERT_EQ(static_cast<I32*>(ptr)[1], -4);
+	*static_cast<std::int32_t*>(ptr) = 10;
+	ASSERT_EQ(*static_cast<std::int32_t*>(ptr), 10);
+	GlobalRuntimeAllocator.Reallocate(ptr, 2 * sizeof(std::int32_t));
+	ASSERT_EQ(*static_cast<std::int32_t*>(ptr), 10);
+	static_cast<std::int32_t*>(ptr)[1] = -4;
+	ASSERT_EQ(static_cast<std::int32_t*>(ptr)[1], -4);
 	GlobalRuntimeAllocator.Deallocate(ptr);
 }
 
 TEST(SystemAllocatorProxy, ReallocateAligned)
 {
 	void* ptr;
-	GlobalRuntimeAllocator.AllocateAligned(ptr, sizeof(I32), alignof(I32));
+	GlobalRuntimeAllocator.AllocateAligned(ptr, sizeof(std::int32_t), alignof(std::int32_t));
 	ASSERT_NE(ptr, nullptr);
-	ASSERT_TRUE(IsAlignedTo(ptr, alignof(I32)));
-	*static_cast<I32*>(ptr) = 10;
-	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
-	GlobalRuntimeAllocator.ReallocateAligned(ptr, 2 * sizeof(I32), alignof(I32));
-	ASSERT_TRUE(IsAlignedTo(ptr, alignof(I32)));
-	ASSERT_EQ(*static_cast<I32*>(ptr), 10);
-	static_cast<I32*>(ptr)[1] = -4;
-	ASSERT_EQ(static_cast<I32*>(ptr)[1], -4);
+	ASSERT_TRUE(IsAlignedTo(ptr, alignof(std::int32_t)));
+	*static_cast<std::int32_t*>(ptr) = 10;
+	ASSERT_EQ(*static_cast<std::int32_t*>(ptr), 10);
+	GlobalRuntimeAllocator.ReallocateAligned(ptr, 2 * sizeof(std::int32_t), alignof(std::int32_t));
+	ASSERT_TRUE(IsAlignedTo(ptr, alignof(std::int32_t)));
+	ASSERT_EQ(*static_cast<std::int32_t*>(ptr), 10);
+	static_cast<std::int32_t*>(ptr)[1] = -4;
+	ASSERT_EQ(static_cast<std::int32_t*>(ptr)[1], -4);
 	GlobalRuntimeAllocator.DeallocateAligned(ptr);
 }
 
 TEST(SystemAllocatorProxy, Deallocate)
 {
 	void* ptr;
-	GlobalRuntimeAllocator.Allocate(ptr, sizeof(I32));
+	GlobalRuntimeAllocator.Allocate(ptr, sizeof(std::int32_t));
 	ASSERT_NE(ptr, nullptr);
 	GlobalRuntimeAllocator.Deallocate(ptr);
 	ASSERT_EQ(ptr, nullptr);
@@ -270,7 +270,7 @@ TEST(SystemAllocatorProxy, Deallocate)
 TEST(SystemAllocatorProxy, DeallocateAligned)
 {
 	void* ptr;
-	GlobalRuntimeAllocator.AllocateAligned(ptr, sizeof(I32), alignof(I32));
+	GlobalRuntimeAllocator.AllocateAligned(ptr, sizeof(std::int32_t), alignof(std::int32_t));
 	ASSERT_NE(ptr, nullptr);
 	GlobalRuntimeAllocator.DeallocateAligned(ptr);
 	ASSERT_EQ(ptr, nullptr);
@@ -281,10 +281,10 @@ TEST(SystemAllocatorProxy, HugeAllocation_1GB_Unaligned)
 	void* ptr;
 	GlobalRuntimeAllocator.Allocate(ptr, 1024 * 1024 * 1024);
 	ASSERT_NE(ptr, nullptr);
-	static_cast<U8*>(ptr)[0]                      = static_cast<U8>(0xBABE);
-	static_cast<U8*>(ptr)[1024 * 1024 * 1024 - 1] = static_cast<U8>(0xBABE);
-	ASSERT_EQ(static_cast<U8*>(ptr)[0], static_cast<U8>(0xBABE));
-	ASSERT_EQ(static_cast<U8*>(ptr)[1024 * 1024 * 1024 - 1], static_cast<U8>(0xBABE));
+	static_cast<std::uint8_t*>(ptr)[0]                      = static_cast<std::uint8_t>(0xBABE);
+	static_cast<std::uint8_t*>(ptr)[1024 * 1024 * 1024 - 1] = static_cast<std::uint8_t>(0xBABE);
+	ASSERT_EQ(static_cast<std::uint8_t*>(ptr)[0], static_cast<std::uint8_t>(0xBABE));
+	ASSERT_EQ(static_cast<std::uint8_t*>(ptr)[1024 * 1024 * 1024 - 1], static_cast<std::uint8_t>(0xBABE));
 	GlobalRuntimeAllocator.Deallocate(ptr);
 	ASSERT_EQ(ptr, nullptr);
 }
@@ -292,13 +292,13 @@ TEST(SystemAllocatorProxy, HugeAllocation_1GB_Unaligned)
 TEST(SystemAllocatorProxy, HugeAllocation_1GB_Aligned)
 {
 	void* ptr;
-	GlobalRuntimeAllocator.AllocateAligned(ptr, 1024 * 1024 * 1024, alignof(U8));
+	GlobalRuntimeAllocator.AllocateAligned(ptr, 1024 * 1024 * 1024, alignof(std::uint8_t));
 	ASSERT_NE(ptr, nullptr);
-	ASSERT_TRUE(IsAlignedTo(ptr, alignof(U8)));
-	static_cast<U8*>(ptr)[0]                      = static_cast<U8>(0xBABE);
-	static_cast<U8*>(ptr)[1024 * 1024 * 1024 - 1] = static_cast<U8>(0xBABE);
-	ASSERT_EQ(static_cast<U8*>(ptr)[0], static_cast<U8>(0xBABE));
-	ASSERT_EQ(static_cast<U8*>(ptr)[1024 * 1024 * 1024 - 1], static_cast<U8>(0xBABE));
+	ASSERT_TRUE(IsAlignedTo(ptr, alignof(std::uint8_t)));
+	static_cast<std::uint8_t*>(ptr)[0]                      = static_cast<std::uint8_t>(0xBABE);
+	static_cast<std::uint8_t*>(ptr)[1024 * 1024 * 1024 - 1] = static_cast<std::uint8_t>(0xBABE);
+	ASSERT_EQ(static_cast<std::uint8_t*>(ptr)[0], static_cast<std::uint8_t>(0xBABE));
+	ASSERT_EQ(static_cast<std::uint8_t*>(ptr)[1024 * 1024 * 1024 - 1], static_cast<std::uint8_t>(0xBABE));
 	GlobalRuntimeAllocator.DeallocateAligned(ptr);
 	ASSERT_EQ(ptr, nullptr);
 }

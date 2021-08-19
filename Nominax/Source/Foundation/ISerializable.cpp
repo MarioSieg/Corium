@@ -209,12 +209,12 @@
 
 namespace Nominax::Foundation
 {
-	auto IAllocator::Allocate(void*& out, const U64 size) const -> void
+	auto IAllocator::Allocate(void*& out, const std::uint64_t size) const -> void
 	{
 		out = SystemAllocator::AllocateChecked(size);
 	}
 
-	auto IAllocator::Reallocate(void*& out, const U64 size) const -> void
+	auto IAllocator::Reallocate(void*& out, const std::uint64_t size) const -> void
 	{
 		out = SystemAllocator::ReallocateChecked(out, size);
 	}
@@ -225,12 +225,12 @@ namespace Nominax::Foundation
 		out = nullptr;
 	}
 
-	auto IAllocator::AllocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
+	auto IAllocator::AllocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
 	{
 		out = SystemAllocator::AllocateAlignedChecked(size, alignment);
 	}
 
-	auto IAllocator::ReallocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
+	auto IAllocator::ReallocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
 	{
 		out = SystemAllocator::ReallocateAlignedChecked(out, size, alignment);
 	}
@@ -241,7 +241,7 @@ namespace Nominax::Foundation
 		out = nullptr;
 	}
 
-	auto IAllocator::Valloc(void*& out, const U64 size) const -> void
+	auto IAllocator::Valloc(void*& out, const std::uint64_t size) const -> void
 	{
 		this->Allocate(out, size);
 	}

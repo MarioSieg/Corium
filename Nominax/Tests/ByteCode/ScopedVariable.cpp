@@ -288,7 +288,7 @@ TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
 	stream << INT64_C(3);
 	stream.With(3, []([[maybe_unused]] auto var) { });
 	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<I64>(3));
+	ASSERT_TRUE(stream[0].Contains<std::int64_t>(3));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
 	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
 }
@@ -299,7 +299,7 @@ TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
 	stream << UINT64_C(3);
 	stream.With(UINT64_C(3), []([[maybe_unused]] auto var) { });
 	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<U64>(3));
+	ASSERT_TRUE(stream[0].Contains<std::uint64_t>(3));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
 	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
 }

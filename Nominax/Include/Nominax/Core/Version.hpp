@@ -209,7 +209,7 @@
 
 #include <ostream>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::Core
 {
@@ -218,10 +218,10 @@ namespace Nominax::Core
 	/// </summary>
 	struct Version final
 	{
-		U8 Major { };
-		U8 Minor { };
-		U8 Build { };
-		U8 Revision { };
+		std::uint8_t Major { };
+		std::uint8_t Minor { };
+		std::uint8_t Build { };
+		std::uint8_t Revision { };
 	};
 
 	/// <summary>
@@ -237,8 +237,8 @@ namespace Nominax::Core
 
 	inline auto operator <<(std::ostream& out, const Version version) -> std::ostream&
 	{
-		return out << static_cast<U16>(version.Major) << '.' << static_cast<U16>(version.Minor) <<
-			'.' << static_cast<U16>(version.Build) << '.' << static_cast<U16>(version.Revision);
+		return out << static_cast<std::uint16_t>(version.Major) << '.' << static_cast<std::uint16_t>(version.Minor) <<
+			'.' << static_cast<std::uint16_t>(version.Build) << '.' << static_cast<std::uint16_t>(version.Revision);
 	}
 
 	extern auto PrintSystemInfo() -> void;

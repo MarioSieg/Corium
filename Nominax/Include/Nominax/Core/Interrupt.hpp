@@ -209,14 +209,14 @@
 
 #include <limits>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::Core
 {
 	/// <summary>
 	/// The type used to store interrupt codes.
 	/// </summary>
-	using InterruptAccumulator = I32;
+	using InterruptAccumulator = std::int32_t;
 
 	/// <summary>
 	/// The function prototype for interrupt handlers.
@@ -254,7 +254,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Result type from a reactor shutdown.
 	/// </summary>
-	enum class ReactorShutdownReason : U8
+	enum class ReactorShutdownReason : std::uint8_t
 	{
 		/// <summary>
 		/// Terminated normally.

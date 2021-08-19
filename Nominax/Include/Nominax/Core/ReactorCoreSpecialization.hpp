@@ -209,7 +209,7 @@
 
 #include <string_view>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 
 #include "ReactorDescriptor.hpp"
 #include "ReactorState.hpp"
@@ -219,7 +219,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Contains all sub implementations for the reactor core.
 	/// </summary>
-	enum class ReactorCoreSpecialization : U64
+	enum class ReactorCoreSpecialization : std::uint64_t
 	{
 		/// <summary>
 		/// Fast fallback implementation - available on all platforms.

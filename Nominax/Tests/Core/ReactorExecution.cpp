@@ -793,7 +793,7 @@ TEST(ReactorExecution, Instruction_IRol)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsU64, std::rotl<U64>(1, 2));
+	ASSERT_EQ(o.second.Input->Stack[1].AsU64, std::rotl<std::uint64_t>(1, 2));
 	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 2);
 	ASSERT_EQ(o.second.SpDiff, 1);
 }
@@ -816,7 +816,7 @@ TEST(ReactorExecution, Instruction_IRor)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsU64, std::rotr<U64>(1, 2));
+	ASSERT_EQ(o.second.Input->Stack[1].AsU64, std::rotr<std::uint64_t>(1, 2));
 	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 2);
 	ASSERT_EQ(o.second.SpDiff, 1);
 }

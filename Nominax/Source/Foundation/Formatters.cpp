@@ -257,36 +257,36 @@ auto formatter<CharClusterUtf8, char, void>::format
 	format_context&        ctx
 ) const -> FormatOutput
 {
-	static_assert(sizeof(char8_t) == sizeof(U8));
+	static_assert(sizeof(char8_t) == sizeof(std::uint8_t));
 	return format_to(ctx.out(),
 	                 R"(\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<U16>(value.Chars[0]),
-	                 static_cast<U16>(value.Chars[1]),
-	                 static_cast<U16>(value.Chars[2]),
-	                 static_cast<U16>(value.Chars[3]),
-	                 static_cast<U16>(value.Chars[4]),
-	                 static_cast<U16>(value.Chars[5]),
-	                 static_cast<U16>(value.Chars[6]),
-	                 static_cast<U16>(value.Chars[7])
+	                 static_cast<std::uint16_t>(value.Chars[0]),
+	                 static_cast<std::uint16_t>(value.Chars[1]),
+	                 static_cast<std::uint16_t>(value.Chars[2]),
+	                 static_cast<std::uint16_t>(value.Chars[3]),
+	                 static_cast<std::uint16_t>(value.Chars[4]),
+	                 static_cast<std::uint16_t>(value.Chars[5]),
+	                 static_cast<std::uint16_t>(value.Chars[6]),
+	                 static_cast<std::uint16_t>(value.Chars[7])
 	);
 }
 
 auto formatter<CharClusterUtf16, char, void>::format(const CharClusterUtf16& value, format_context& ctx) const -> FormatOutput
 {
-	static_assert(sizeof(char16_t) == sizeof(U16));
+	static_assert(sizeof(char16_t) == sizeof(std::uint16_t));
 	return format_to(ctx.out(),
 	                 R"(\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<U16>(value.Chars[0]), static_cast<U16>(value.Chars[1]),
-	                 static_cast<U16>(value.Chars[2]), static_cast<U16>(value.Chars[3])
+	                 static_cast<std::uint16_t>(value.Chars[0]), static_cast<std::uint16_t>(value.Chars[1]),
+	                 static_cast<std::uint16_t>(value.Chars[2]), static_cast<std::uint16_t>(value.Chars[3])
 	);
 }
 
 auto formatter<CharClusterUtf32, char, void>::format(const CharClusterUtf32& value, format_context& ctx) const -> FormatOutput
 {
-	static_assert(sizeof(char32_t) == sizeof(U32));
+	static_assert(sizeof(char32_t) == sizeof(std::uint32_t));
 	return format_to(ctx.out(),
 	                 "\\{:X}\\{:X}",
-	                 static_cast<U32>(value.Chars[0]), static_cast<U32>(value.Chars[1])
+	                 static_cast<std::uint32_t>(value.Chars[0]), static_cast<std::uint32_t>(value.Chars[1])
 	);
 }
 

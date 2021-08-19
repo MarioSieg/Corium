@@ -210,7 +210,7 @@
 #include <string_view>
 
 #include "Platform.hpp"
-#include "BaseTypes.hpp"
+#include <cstdint>
 #include "Print.hpp"
 
 namespace Nominax
@@ -223,7 +223,7 @@ namespace Nominax
 		/// <summary>
 		/// The source code line - if any.
 		/// </summary>
-		U32 Line { };
+		std::uint32_t Line { };
 
 		/// <summary>
 		/// The source file name  - if any.
@@ -278,7 +278,7 @@ namespace Nominax
 	NOX_COLD NOX_NEVER_INLINE
 	auto Panic
 	(
-		const U32              line,
+		const std::uint32_t              line,
 		const std::string_view file,
 		const std::string_view routine,
 		Str&&                  formatString,

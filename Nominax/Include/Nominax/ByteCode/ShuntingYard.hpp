@@ -287,7 +287,7 @@ namespace Nominax::ByteCode
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator [](U64 idx) const -> const InfixGate&;
+		auto operator [](std::uint64_t idx) const -> const InfixGate&;
 
 		/// <summary>
 		/// STL iterator interface.
@@ -405,7 +405,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <typename Scalar, typename Operator>
-	inline auto ShuntingYardEvaluator<Scalar, Operator>::operator[](const U64 idx) const -> const InfixGate&
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::operator[](const std::uint64_t idx) const -> const InfixGate&
 	{
 		return this->OutputQueue[idx];
 	}

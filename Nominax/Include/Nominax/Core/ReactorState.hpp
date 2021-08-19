@@ -268,7 +268,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The return code (interrupt code casted). Zero if success.</returns>
 		[[nodiscard]]
-		constexpr auto ReturnCode() const -> I32;
+		constexpr auto ReturnCode() const -> std::int32_t;
 
 		/// <summary>
 		/// 
@@ -278,7 +278,7 @@ namespace Nominax::Core
 		constexpr auto EvaluationResult() const -> Foundation::Record;
 	};
 
-	constexpr auto ReactorState::ReturnCode() const -> I32
+	constexpr auto ReactorState::ReturnCode() const -> std::int32_t
 	{
 		return this->InterruptCode;
 	}

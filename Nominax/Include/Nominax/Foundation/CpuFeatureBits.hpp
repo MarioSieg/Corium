@@ -212,12 +212,12 @@
 #include <string_view>
 
 #include "Algorithm.hpp"
-#include "BaseTypes.hpp"
+
 #include "Platform.hpp"
 
 namespace Nominax::Foundation
 {
-	enum class CPUFeatureBits : U8
+	enum class CPUFeatureBits : std::uint8_t
 	{
 		/// <summary>
 		/// Onboard x87 FPU
@@ -1338,5 +1338,5 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Feature mask.
 	/// </summary>
-	using CpuFeatureMaskBuffer = std::array<U8, ToUnderlying(CPUFeatureBits::Count_) / CHAR_BIT>;
+	using CpuFeatureMaskBuffer = std::array<std::uint8_t, ToUnderlying(CPUFeatureBits::Count_) / CHAR_BIT>;
 }

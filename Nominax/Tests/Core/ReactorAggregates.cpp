@@ -230,6 +230,6 @@ TEST(ReactorAggregates, UnionReinterpretation)
 		Instruction::Mov
 	};
 	ASSERT_EQ(sig.Instr, Instruction::Mov);
-	ASSERT_EQ(sig.OpCode, static_cast<U64>(Instruction::Mov));
-	ASSERT_EQ(sig.R64.AsU64, static_cast<U64>(Instruction::Mov));
+	ASSERT_EQ(sig.OpCode, static_cast<std::uint64_t>(Instruction::Mov));
+	ASSERT_EQ(sig.R64.AsU64, static_cast<std::uint64_t>(Instruction::Mov));
 }

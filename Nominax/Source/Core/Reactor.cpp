@@ -234,7 +234,7 @@ namespace Nominax::Core
 		std::pmr::memory_resource&    allocator,
 		const ReactorSpawnDescriptor& descriptor,
 		const ReactorRoutineLink&     routineLink,
-		const U64                     poolIdx
+		const std::uint64_t                     poolIdx
 	) :
 		Id_ {Foundation::Xorshift128ThreadLocal()},
 		PoolIndex_ {poolIdx},

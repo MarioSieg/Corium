@@ -211,7 +211,7 @@
 #include "Alignment.hpp"
 #include "AllocatorProxy.hpp"
 #include "AtomicState.hpp"
-#include "BaseTypes.hpp"
+#include <cstdint>
 #include "CLIProcessor.hpp"
 #include "ComparatorF64.hpp"
 #include "CPU.hpp"

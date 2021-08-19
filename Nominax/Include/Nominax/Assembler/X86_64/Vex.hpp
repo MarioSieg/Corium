@@ -213,7 +213,7 @@
 
 namespace Nominax::Assembler::X86_64
 {
-	enum class VexPrefixType : U8
+	enum class VexPrefixType : std::uint8_t
 	{
 		Xop,
 		Vex
@@ -222,10 +222,10 @@ namespace Nominax::Assembler::X86_64
 	struct Vex final
 	{
 		VexPrefixType Type;
-		U8            Mmmmm;
-		U8            Pp;
-		U8            W;
-		U8            L;
+		std::uint8_t            Mmmmm;
+		std::uint8_t            Pp;
+		std::uint8_t            W;
+		std::uint8_t            L;
 		Soo           R;
 		Soo           X;
 		Soo           B;

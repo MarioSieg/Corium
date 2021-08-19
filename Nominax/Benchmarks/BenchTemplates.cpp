@@ -211,7 +211,7 @@ auto LoopBenchmark
 (
 	State&                                      state,
 	const std::function<auto(Stream&) -> void>& loopBody,
-	const I64                                   count,
+	const std::int64_t							count,
 	[[maybe_unused]]
 	const bool enableAvxReactor
 ) -> void
@@ -232,7 +232,7 @@ auto LoopBenchmark
 	stream << JumpAddress {2};
 	stream << Instruction::Pop;
 	stream << Instruction::Int;
-	stream << 0_int;
+	stream << 0;
 
 	Image bundle { };
 	Stream::Build(std::move(stream), Env->GetOptimizationHints(), bundle);

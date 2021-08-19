@@ -216,7 +216,7 @@
 
 namespace Nominax::Foundation
 {
-	auto OSI::QuerySystemMemoryTotal() -> U64
+	auto OSI::QuerySystemMemoryTotal() -> std::uint64_t
 	{
 		MEMORYSTATUSEX status;
 		ZeroMemory(&status, sizeof(MEMORYSTATUSEX));
@@ -225,7 +225,7 @@ namespace Nominax::Foundation
 		return status.ullTotalPhys;
 	}
 
-	auto OSI::QueryProcessMemoryUsed() -> U64
+	auto OSI::QueryProcessMemoryUsed() -> std::uint64_t
 	{
 		PROCESS_MEMORY_COUNTERS pmc;
 		ZeroMemory(&pmc, sizeof(PROCESS_MEMORY_COUNTERS));
@@ -266,12 +266,12 @@ namespace Nominax::Foundation
 		return status ? "Unknown" : std::data(id);
 	}
 
-	auto OSI::QueryPageSize() -> U64
+	auto OSI::QueryPageSize() -> std::uint64_t
 	{
 		SYSTEM_INFO sysInfo;
 		ZeroMemory(&sysInfo, sizeof(SYSTEM_INFO));
 		GetSystemInfo(&sysInfo);
-		return static_cast<U64>(sysInfo.dwPageSize);
+		return static_cast<std::uint64_t>(sysInfo.dwPageSize);
 	}
 
 	auto OSI::DylibOpen(const std::string_view filePath) -> void*

@@ -207,14 +207,14 @@
 
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 
-auto operator new(const Nominax::U64 size) -> void*
+auto operator new(const std::size_t size) -> void*
 {
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
-auto operator new[](const Nominax::U64 size) -> void*
+auto operator new[](const std::size_t size) -> void*
 {
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
@@ -223,30 +223,30 @@ auto operator new[](const Nominax::U64 size) -> void*
 
 #if false
 
-auto operator new(const Nominax::U64 size, const std::align_val_t alignment)  -> void*
+auto operator new(const std::size_t size, const std::align_val_t alignment)  -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
+	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<std::uint64_t>(alignment));
 	return mem;
 }
 
-auto operator new[](const Nominax::U64 size, const std::align_val_t alignment)  -> void*
+auto operator new[](const std::size_t size, const std::align_val_t alignment)  -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
+	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<std::uint64_t>(alignment));
 	return mem;
 }
 
 #endif
 
-auto operator new(const Nominax::U64 size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
+auto operator new(const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
 }
 
-auto operator new[](const Nominax::U64 size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
+auto operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
@@ -255,17 +255,17 @@ auto operator new[](const Nominax::U64 size, [[maybe_unused]] const std::nothrow
 
 #if false
 
-auto operator new(const Nominax::U64 size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag)  -> void*
+auto operator new(const std::size_t size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag)  -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
+	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<std::uint64_t>(alignment));
 	return mem;
 }
 
-auto operator new[](const Nominax::U64 size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag)  -> void*
+auto operator new[](const std::size_t size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag)  -> void*
 {
 	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
+	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<std::uint64_t>(alignment));
 	return mem;
 }
 
@@ -276,7 +276,7 @@ auto operator delete(void* mem) noexcept(true) -> void
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }
 
-auto operator delete(void* mem, Nominax::U64) noexcept(true) -> void
+auto operator delete(void* mem, std::size_t) noexcept(true) -> void
 {
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }
@@ -286,7 +286,7 @@ auto operator delete[](void* mem) noexcept(true) -> void
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }
 
-auto operator delete[](void* mem, Nominax::U64) noexcept(true) -> void
+auto operator delete[](void* mem, std::size_t) noexcept(true) -> void
 {
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
 }

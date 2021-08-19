@@ -555,7 +555,7 @@ TEST(Environment, ExecutionHooks)
 
 	const auto ssize {stream.Size()};
 
-	static U64 streamSize;
+	static std::uint64_t streamSize;
 	static int counter;
 
 	const EnvironmentDescriptor descriptor { };

@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../ByteCode/Signal.hpp"
 
 #include "ReactorDescriptor.hpp"

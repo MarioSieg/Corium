@@ -8,7 +8,7 @@
 #include "../ByteCode/DiscriminatedSignal.hpp"
 #include "../ByteCode/ValidationResult.hpp"
 
-#include "BaseTypes.hpp"
+#include <cstdint>
 
 using FormatOutput = fmt::format_context::iterator;
 

@@ -214,7 +214,7 @@ namespace Nominax::Assembler::X86_64
 	/// <summary>
 /// Contains all implicit register operands.
 /// </summary>
-	enum class ImplicitRegisterOperand : U8
+	enum class ImplicitRegisterOperand : std::uint8_t
 	{
 		Al,
 		Ax,
@@ -232,7 +232,7 @@ namespace Nominax::Assembler::X86_64
 		Xmm0
 	};
 
-	enum class OperandType : U8
+	enum class OperandType : std::uint8_t
 	{
 		ScalarOne,
 		ScalarThree,
@@ -312,7 +312,7 @@ namespace Nominax::Assembler::X86_64
 		OperandType Type;
 		bool        IsInput;
 		bool        IsOutput;
-		U8          ExtendedSize;
+		std::uint8_t          ExtendedSize;
 
 		constexpr auto IsVariable() const -> bool;
 		constexpr auto IsRegister() const -> bool;
@@ -400,5 +400,5 @@ namespace Nominax::Assembler::X86_64
 			|| this->Type == OperandType::Imm64;
 	}
 
-	using Soo = std::variant<U64, OperandType>;
+	using Soo = std::variant<std::uint64_t, OperandType>;
 }

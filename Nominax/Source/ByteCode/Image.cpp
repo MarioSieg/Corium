@@ -220,7 +220,7 @@ namespace Nominax::ByteCode
 		std::copy(std::execution::par_unseq, std::cbegin(blob), std::cend(blob), std::begin(this->Blob_));
 	}
 
-	Image::Image(const void* const data, const U64 byteSize)
+	Image::Image(const void* const data, const std::uint64_t byteSize)
 	{
 		NOX_PAS_NOT_ZERO(byteSize, "Byte code image with zero size is invalid!");
 		NOX_PAS_NOT_NULL(data, "Byte code image with null data is invalid!");

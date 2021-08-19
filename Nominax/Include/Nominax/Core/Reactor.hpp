@@ -209,7 +209,7 @@
 
 #include <chrono>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../ByteCode/Image.hpp"
 
 #include "FixedStack.hpp"
@@ -228,12 +228,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// Unique reactor id.
 		/// </summary>
-		U32 Id_;
+		std::uint32_t Id_;
 
 		/// <summary>
 		/// The reactor pool index of this reactor.
 		/// </summary>
-		U64 PoolIndex_;
+		std::uint64_t PoolIndex_;
 
 		/// <summary>
 		/// Time stamp when the reactor was spawned.
@@ -285,7 +285,7 @@ namespace Nominax::Core
 			std::pmr::memory_resource&    allocator,
 			const ReactorSpawnDescriptor& descriptor,
 			const ReactorRoutineLink&     routineLink,
-			U64                           poolIdx = 0
+			std::uint64_t                           poolIdx = 0
 		);
 
 		/// <summary>
@@ -341,7 +341,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The index of this rector in the hosting reactor pool</returns>
 		[[nodiscard]]
-		auto GetPoolIndex() const -> U64;
+		auto GetPoolIndex() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
@@ -399,7 +399,7 @@ namespace Nominax::Core
 		return this->Id_;
 	}
 
-	inline auto Reactor::GetPoolIndex() const -> U64
+	inline auto Reactor::GetPoolIndex() const -> std::uint64_t
 	{
 		return this->PoolIndex_;
 	}

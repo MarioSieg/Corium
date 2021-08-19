@@ -209,7 +209,7 @@
 
 using namespace Nominax::Prelude;
 
-auto main(const I32 argc, const char* const* const argv) -> I32
+auto main(const int argc, const char* const* const argv) -> int
 {
 	const EnvironmentDescriptor environmentDescriptor
 	{

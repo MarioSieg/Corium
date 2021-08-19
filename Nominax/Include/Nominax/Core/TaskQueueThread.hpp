@@ -207,8 +207,6 @@
 
 #pragma once
 
-#include"../Foundation/BaseTypes.hpp"
-
 #include <functional>
 #include <queue>
 #include <mutex>
@@ -339,7 +337,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The remaining amount of tasks in the queue.</returns>
 		[[nodiscard]]
-		auto GetRemainingTaskCount() const -> U64;
+		auto GetRemainingTaskCount() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
@@ -364,7 +362,7 @@ namespace Nominax::Core
 		return this->Worker_;
 	}
 
-	inline auto TaskQueueThread::GetRemainingTaskCount() const -> U64
+	inline auto TaskQueueThread::GetRemainingTaskCount() const -> std::uint64_t
 	{
 		return this->TaskQueue_.size();
 	}

@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../ByteCode/Signal.hpp"
 
 #include "Interrupt.hpp"
@@ -228,7 +228,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Code chunk and instruction map length.
 		/// </summary>
-		U64 CodeChunkSize {0};
+		std::uint64_t CodeChunkSize {0};
 
 		/// <summary>
 		/// Intrinsic routine registry data pointer.
@@ -238,7 +238,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Intrinsic routine registry length.
 		/// </summary>
-		U64 IntrinsicTableSize {0};
+		std::uint64_t IntrinsicTableSize {0};
 
 		/// <summary>
 		/// Interrupt routine proxy.
@@ -253,7 +253,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Stack length.
 		/// </summary>
-		U64 StackSize {0};
+		std::uint64_t StackSize {0};
 
 		/// <summary>
 		/// Checks if the current descriptor is valid for

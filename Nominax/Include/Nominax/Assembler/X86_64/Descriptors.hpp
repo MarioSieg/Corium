@@ -219,7 +219,7 @@ namespace Nominax::Assembler::X86_64
 	/// <summary>
 	/// MMX register access mode.
 	/// </summary>
-	enum class MmxModeType : U8
+	enum class MmxModeType : std::uint8_t
 	{
 		Fpu,
 		Mmx,
@@ -229,7 +229,7 @@ namespace Nominax::Assembler::X86_64
 	/// <summary>
 	/// Sse XMM register access mode.
 	/// </summary>
-	enum class XmmModeType : U8
+	enum class XmmModeType : std::uint8_t
 	{
 		Sse,
 		Avx,
@@ -238,13 +238,13 @@ namespace Nominax::Assembler::X86_64
 
 	struct Prefix final
 	{
-		U8   Value;
+		std::uint8_t   Value;
 		bool IsMandatory;
 	};
 
 	struct OpCode final
 	{
-		U8  Value;
+		std::uint8_t  Value;
 		Soo Addend;
 	};
 
@@ -257,7 +257,7 @@ namespace Nominax::Assembler::X86_64
 
 	struct ImmediateScalar final
 	{
-		U8  Size;
+		std::uint8_t  Size;
 		Soo Value;
 	};
 
@@ -269,13 +269,13 @@ namespace Nominax::Assembler::X86_64
 
 	struct CodeOffset final
 	{
-		U8  Size;
+		std::uint8_t  Size;
 		Soo Value;
 	};
 
 	struct DataOffset final
 	{
-		U8  Size;
+		std::uint8_t  Size;
 		Soo Value;
 	};
 

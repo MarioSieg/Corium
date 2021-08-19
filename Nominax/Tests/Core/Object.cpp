@@ -375,9 +375,9 @@ TEST(Object, DeepValueCmp_Equal_U64)
 	a->operator[](1).AsU64 = 0xABCDEF;
 	b->operator[](0).AsU64 = 0x123456;
 	b->operator[](1).AsU64 = 0xABCDEF;
-	ASSERT_TRUE(Object::DeepValueCmp_Equal<U64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_Equal<std::uint64_t>(*a, *b));
 	a->operator[](0).AsU64 = 10;
-	ASSERT_FALSE(Object::DeepValueCmp_Equal<U64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_Equal<std::uint64_t>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_NotEqual_U64)
@@ -388,9 +388,9 @@ TEST(Object, DeepValueCmp_NotEqual_U64)
 	a->operator[](1).AsU64 = 0xABCDEF;
 	b->operator[](0).AsU64 = 0x123456;
 	b->operator[](1).AsU64 = 0xABCDEF;
-	ASSERT_FALSE(Object::DeepValueCmp_NotEqual<U64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_NotEqual<std::uint64_t>(*a, *b));
 	a->operator[](0).AsU64 = 10;
-	ASSERT_TRUE(Object::DeepValueCmp_NotEqual<U64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_NotEqual<std::uint64_t>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_Less_U64)
@@ -405,9 +405,9 @@ TEST(Object, DeepValueCmp_Less_U64)
 	b->operator[](1).AsU64 = 20;
 	b->operator[](2).AsU64 = 30;
 	b->operator[](3).AsU64 = 100;
-	ASSERT_TRUE(Object::DeepValueCmp_Less<U64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_Less<std::uint64_t>(*a, *b));
 	a->operator[](0).AsU64 = 30;
-	ASSERT_FALSE(Object::DeepValueCmp_Less<U64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_Less<std::uint64_t>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_Greater_U64)
@@ -422,9 +422,9 @@ TEST(Object, DeepValueCmp_Greater_U64)
 	a->operator[](1).AsU64 = 20;
 	a->operator[](2).AsU64 = 30;
 	a->operator[](3).AsU64 = 100;
-	ASSERT_TRUE(Object::DeepValueCmp_Greater<U64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_Greater<std::uint64_t>(*a, *b));
 	b->operator[](0).AsU64 = 30;
-	ASSERT_FALSE(Object::DeepValueCmp_Greater<U64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_Greater<std::uint64_t>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_LessEqual_U64)
@@ -439,9 +439,9 @@ TEST(Object, DeepValueCmp_LessEqual_U64)
 	b->operator[](1).AsU64 = 20;
 	b->operator[](2).AsU64 = 30;
 	b->operator[](3).AsU64 = 100;
-	ASSERT_TRUE(Object::DeepValueCmp_LessEqual<U64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_LessEqual<std::uint64_t>(*a, *b));
 	a->operator[](0).AsU64 = 30;
-	ASSERT_FALSE(Object::DeepValueCmp_LessEqual<U64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_LessEqual<std::uint64_t>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_GreaterEqual_U64)
@@ -456,9 +456,9 @@ TEST(Object, DeepValueCmp_GreaterEqual_U64)
 	a->operator[](1).AsU64 = 20;
 	a->operator[](2).AsU64 = 30;
 	a->operator[](3).AsU64 = 100;
-	ASSERT_TRUE(Object::DeepValueCmp_GreaterEqual<U64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_GreaterEqual<std::uint64_t>(*a, *b));
 	b->operator[](0).AsU64 = 30;
-	ASSERT_FALSE(Object::DeepValueCmp_GreaterEqual<U64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_GreaterEqual<std::uint64_t>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_Equal_F64)
@@ -469,9 +469,9 @@ TEST(Object, DeepValueCmp_Equal_F64)
 	a->operator[](1).AsF64 = 6.0;
 	b->operator[](0).AsF64 = 6.0;
 	b->operator[](1).AsF64 = 6.0;
-	ASSERT_TRUE(Object::DeepValueCmp_Equal<F64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_Equal<double>(*a, *b));
 	a->operator[](0).AsF64 = 10.0;
-	ASSERT_FALSE(Object::DeepValueCmp_Equal<F64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_Equal<double>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_NotEqual_F64)
@@ -482,9 +482,9 @@ TEST(Object, DeepValueCmp_NotEqual_F64)
 	a->operator[](1).AsF64 = 6.0;
 	b->operator[](0).AsF64 = 6.0;
 	b->operator[](1).AsF64 = 6.0;
-	ASSERT_FALSE(Object::DeepValueCmp_NotEqual<F64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_NotEqual<double>(*a, *b));
 	a->operator[](0).AsF64 = 10.0;
-	ASSERT_TRUE(Object::DeepValueCmp_NotEqual<F64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_NotEqual<double>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_Less_F64)
@@ -499,9 +499,9 @@ TEST(Object, DeepValueCmp_Less_F64)
 	b->operator[](1).AsF64 = 20.0;
 	b->operator[](2).AsF64 = 30.0;
 	b->operator[](3).AsF64 = 10.00;
-	ASSERT_TRUE(Object::DeepValueCmp_Less<F64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_Less<double>(*a, *b));
 	a->operator[](0).AsF64 = 30.0;
-	ASSERT_FALSE(Object::DeepValueCmp_Less<F64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_Less<double>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_Greater_F64)
@@ -516,9 +516,9 @@ TEST(Object, DeepValueCmp_Greater_F64)
 	a->operator[](1).AsF64 = 20.0;
 	a->operator[](2).AsF64 = 30.0;
 	a->operator[](3).AsF64 = 10.00;
-	ASSERT_TRUE(Object::DeepValueCmp_Greater<F64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_Greater<double>(*a, *b));
 	b->operator[](0).AsF64 = 30.0;
-	ASSERT_FALSE(Object::DeepValueCmp_Greater<F64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_Greater<double>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_LessEqual_F64)
@@ -533,9 +533,9 @@ TEST(Object, DeepValueCmp_LessEqual_F64)
 	b->operator[](1).AsF64 = 20.0;
 	b->operator[](2).AsF64 = 30.0;
 	b->operator[](3).AsF64 = 10.00;
-	ASSERT_TRUE(Object::DeepValueCmp_LessEqual<F64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_LessEqual<double>(*a, *b));
 	a->operator[](0).AsF64 = 30.0;
-	ASSERT_FALSE(Object::DeepValueCmp_LessEqual<F64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_LessEqual<double>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_GreaterEqual_F64)
@@ -550,9 +550,9 @@ TEST(Object, DeepValueCmp_GreaterEqual_F64)
 	a->operator[](1).AsF64 = 20.0;
 	a->operator[](2).AsF64 = 30.0;
 	a->operator[](3).AsF64 = 10.00;
-	ASSERT_TRUE(Object::DeepValueCmp_GreaterEqual<F64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_GreaterEqual<double>(*a, *b));
 	b->operator[](0).AsF64 = 30.0;
-	ASSERT_FALSE(Object::DeepValueCmp_GreaterEqual<F64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_GreaterEqual<double>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_Equal_I64)
@@ -563,9 +563,9 @@ TEST(Object, DeepValueCmp_Equal_I64)
 	a->operator[](1).AsI64 = 0xABCDEF;
 	b->operator[](0).AsI64 = 0x1234 - 56;
 	b->operator[](1).AsI64 = 0xABCDEF;
-	ASSERT_TRUE(Object::DeepValueCmp_Equal<I64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_Equal<std::int64_t>(*a, *b));
 	a->operator[](0).AsI64 = 10;
-	ASSERT_FALSE(Object::DeepValueCmp_Equal<I64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_Equal<std::int64_t>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_NotEqual_I64)
@@ -576,9 +576,9 @@ TEST(Object, DeepValueCmp_NotEqual_I64)
 	a->operator[](1).AsI64 = 0xABCDEF;
 	b->operator[](0).AsI64 = 0x1234 - 56;
 	b->operator[](1).AsI64 = 0xABCDEF;
-	ASSERT_FALSE(Object::DeepValueCmp_NotEqual<I64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_NotEqual<std::int64_t>(*a, *b));
 	a->operator[](0).AsI64 = 10;
-	ASSERT_TRUE(Object::DeepValueCmp_NotEqual<I64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_NotEqual<std::int64_t>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_Less_I64)
@@ -593,9 +593,9 @@ TEST(Object, DeepValueCmp_Less_I64)
 	b->operator[](1).AsI64 = 20;
 	b->operator[](2).AsI64 = 30;
 	b->operator[](3).AsI64 = 100;
-	ASSERT_TRUE(Object::DeepValueCmp_Less<I64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_Less<std::int64_t>(*a, *b));
 	a->operator[](0).AsI64 = 30;
-	ASSERT_FALSE(Object::DeepValueCmp_Less<I64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_Less<std::int64_t>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_Greater_I64)
@@ -610,9 +610,9 @@ TEST(Object, DeepValueCmp_Greater_I64)
 	b->operator[](1).AsI64 = -20;
 	b->operator[](2).AsI64 = -30;
 	b->operator[](3).AsI64 = -100;
-	ASSERT_TRUE(Object::DeepValueCmp_Greater<I64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_Greater<std::int64_t>(*a, *b));
 	b->operator[](0).AsI64 = 30;
-	ASSERT_FALSE(Object::DeepValueCmp_Greater<I64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_Greater<std::int64_t>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_LessEqual_I64)
@@ -627,9 +627,9 @@ TEST(Object, DeepValueCmp_LessEqual_I64)
 	b->operator[](1).AsI64 = 20;
 	b->operator[](2).AsI64 = 30;
 	b->operator[](3).AsI64 = 100;
-	ASSERT_TRUE(Object::DeepValueCmp_LessEqual<I64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_LessEqual<std::int64_t>(*a, *b));
 	a->operator[](0).AsI64 = 30;
-	ASSERT_FALSE(Object::DeepValueCmp_LessEqual<I64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_LessEqual<std::int64_t>(*a, *b));
 }
 
 TEST(Object, DeepValueCmp_GreaterEqual_I64)
@@ -644,7 +644,7 @@ TEST(Object, DeepValueCmp_GreaterEqual_I64)
 	a->operator[](1).AsI64 = -20;
 	a->operator[](2).AsI64 = 30;
 	a->operator[](3).AsI64 = 100;
-	ASSERT_TRUE(Object::DeepValueCmp_GreaterEqual<I64>(*a, *b));
+	ASSERT_TRUE(Object::DeepValueCmp_GreaterEqual<std::int64_t>(*a, *b));
 	b->operator[](0).AsI64 = 30;
-	ASSERT_FALSE(Object::DeepValueCmp_GreaterEqual<I64>(*a, *b));
+	ASSERT_FALSE(Object::DeepValueCmp_GreaterEqual<std::int64_t>(*a, *b));
 }

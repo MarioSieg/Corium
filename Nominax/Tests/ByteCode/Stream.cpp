@@ -219,7 +219,7 @@ TEST(BytecodeStream, Push)
 	Stream stream { };
 	ASSERT_EQ(stream.Size(), 0);
 
-	stream << 0_uint;
+	stream << 0ULL;
 	stream << Instruction::NOp;
 	stream << Instruction::Call;
 	stream << SystemIntrinsicInvocationID::ACos;
@@ -300,19 +300,19 @@ TEST(BytecodeStream, CodeGenerationNoOpt)
 	ASSERT_EQ(stream.Size(), 15);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
-	ASSERT_TRUE(stream[2].Contains<I64>(2));
+	ASSERT_TRUE(stream[2].Contains<std::int64_t>(2));
 	ASSERT_TRUE(stream[3].Contains(Instruction::Push));
-	ASSERT_TRUE(stream[4].Contains<I64>(2));
+	ASSERT_TRUE(stream[4].Contains<std::int64_t>(2));
 	ASSERT_TRUE(stream[5].Contains(Instruction::IMul));
 	ASSERT_TRUE(stream[6].Contains(Instruction::Push));
-	ASSERT_TRUE(stream[7].Contains<I64>(1));
+	ASSERT_TRUE(stream[7].Contains<std::int64_t>(1));
 	ASSERT_TRUE(stream[8].Contains(Instruction::IAdd));
 	ASSERT_TRUE(stream[9].Contains(Instruction::Push));
-	ASSERT_TRUE(stream[10].Contains<I64>(1));
+	ASSERT_TRUE(stream[10].Contains<std::int64_t>(1));
 	ASSERT_TRUE(stream[11].Contains(Instruction::IDiv));
 	ASSERT_TRUE(stream[12].Contains(Instruction::Pop));
 	ASSERT_TRUE(stream[13].Contains(Instruction::Int));
-	ASSERT_TRUE(stream[14].Contains<I64>(0));
+	ASSERT_TRUE(stream[14].Contains<std::int64_t>(0));
 }
 
 TEST(BytecodeStream, CodeGenerationOpt3)
@@ -328,13 +328,13 @@ TEST(BytecodeStream, CodeGenerationOpt3)
 	ASSERT_EQ(stream.Size(), 9);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
-	ASSERT_TRUE(stream[2].Contains<I64>(2));
+	ASSERT_TRUE(stream[2].Contains<std::int64_t>(2));
 	ASSERT_TRUE(stream[3].Contains(Instruction::IPushO));
 	ASSERT_TRUE(stream[4].Contains(Instruction::ISal));
 	ASSERT_TRUE(stream[5].Contains(Instruction::IInc));
 	ASSERT_TRUE(stream[6].Contains(Instruction::Pop));
 	ASSERT_TRUE(stream[7].Contains(Instruction::Int));
-	ASSERT_TRUE(stream[8].Contains<I64>(0));
+	ASSERT_TRUE(stream[8].Contains<std::int64_t>(0));
 }
 
 TEST(BytecodeStream, GetStreamHeader)
@@ -350,7 +350,7 @@ TEST(BytecodeStream, GetStreamHeader)
 	Stream::SerializationImageHeader header { };
 
 	stream.GetSerializationImageHeader(header);
-	for (U64 i {0}; i < std::size(Stream::SerializationImageHeader::MAGIC_ID); ++i)
+	for (std::uint64_t i {0}; i < std::size(Stream::SerializationImageHeader::MAGIC_ID); ++i)
 	{
 		ASSERT_EQ(header.Magic[i], Stream::SerializationImageHeader::MAGIC_ID[i]);
 	}
@@ -394,7 +394,7 @@ TEST(BytecodeStream, DeserializeImage)
 	ASSERT_EQ(std::size(stream1.GetCodeBuffer()), std::size(stream2.GetCodeBuffer()));
 	ASSERT_EQ(std::size(stream1.GetDiscriminatorBuffer()), std::size(stream2.GetDiscriminatorBuffer()));
 	ASSERT_EQ(stream1.Size(), stream2.Size());
-	for (U64 i {0}; i < stream1.Size(); ++i)
+	for (std::uint64_t i {0}; i < stream1.Size(); ++i)
 	{
 		ASSERT_EQ(stream1[i], stream2[i]);
 	}

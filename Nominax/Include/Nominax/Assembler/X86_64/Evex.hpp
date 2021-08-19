@@ -215,9 +215,9 @@ namespace Nominax::Assembler::X86_64
 {
 	struct Evex final
 	{
-		U8  Mm;
-		U8  Pp;
-		U8  W;
+		std::uint8_t  Mm;
+		std::uint8_t  Pp;
+		std::uint8_t  W;
 		Soo Ll;
 		Soo Rr;
 		Soo Bb;
@@ -227,6 +227,6 @@ namespace Nominax::Assembler::X86_64
 		Soo B;
 		Soo Aaa;
 		Soo Z;
-		U8  Disp8xN;
+		std::uint8_t  Disp8xN;
 	};
 }

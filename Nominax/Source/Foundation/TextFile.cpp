@@ -322,20 +322,20 @@ namespace Nominax::Foundation
 
 	auto TextFile::EraseRange(const CharType begin, const CharType end) -> void
 	{
-		const U64 beginIndex {this->Content_.find(begin)};
-		const U64 endIndex {this->Content_.find(end, beginIndex + 1)};
+		const std::uint64_t beginIndex {this->Content_.find(begin)};
+		const std::uint64_t endIndex {this->Content_.find(end, beginIndex + 1)};
 		this->Content_.erase(beginIndex, endIndex - beginIndex + 1);
 	}
 
-	auto TextFile::SubString(const U64 beginIdx, const U64 endIdx) const -> ViewType
+	auto TextFile::SubString(const std::uint64_t beginIdx, const std::uint64_t endIdx) const -> ViewType
 	{
 		return SubstringView(this->Content_, beginIdx, endIdx - beginIdx + 1);
 	}
 
 	auto TextFile::SubStringChar(const CharType beginChar, const CharType endChar) const -> ViewType
 	{
-		const U64 beginIndex {this->Content_.find_first_of(beginChar)};
-		const U64 endIndex {this->Content_.find_first_of(endChar, beginIndex + 1)};
+		const std::uint64_t beginIndex {this->Content_.find_first_of(beginChar)};
+		const std::uint64_t endIndex {this->Content_.find_first_of(endChar, beginIndex + 1)};
 		return SubstringView(this->Content_, beginIndex, endIndex - beginIndex + 1);
 	}
 }

@@ -209,13 +209,13 @@
 
 TEST(VectorLib, F64_X2_Add_Unaligned)
 {
-	F64 x[2]
+	double x[2]
 	{
 		2.5,
 		0.3,
 	};
 
-	const F64 y[2]
+	const double y[2]
 	{
 		0.5,
 		1.3,
@@ -228,13 +228,13 @@ TEST(VectorLib, F64_X2_Add_Unaligned)
 
 TEST(VectorLib, F64_X2_Add_Aligned)
 {
-	alignas(V128_ALIGN) F64 x[2]
+	alignas(V128_ALIGN) double x[2]
 	{
 		2.5,
 		0.3,
 	};
 
-	alignas(V128_ALIGN) const F64 y[2]
+	alignas(V128_ALIGN) const double y[2]
 	{
 		0.5,
 		1.3,
@@ -247,13 +247,13 @@ TEST(VectorLib, F64_X2_Add_Aligned)
 
 TEST(VectorLib, F64_X2_Sub_Unaligned)
 {
-	F64 x[2]
+	double x[2]
 	{
 		2.5,
 		0.3,
 	};
 
-	const F64 y[2]
+	const double y[2]
 	{
 		0.5,
 		1.3,
@@ -266,13 +266,13 @@ TEST(VectorLib, F64_X2_Sub_Unaligned)
 
 TEST(VectorLib, F64_X2_Sub_Aligned)
 {
-	alignas(V128_ALIGN) F64 x[2]
+	alignas(V128_ALIGN) double x[2]
 	{
 		2.5,
 		0.3,
 	};
 
-	alignas(V128_ALIGN) const F64 y[2]
+	alignas(V128_ALIGN) const double y[2]
 	{
 		0.5,
 		1.3,
@@ -285,13 +285,13 @@ TEST(VectorLib, F64_X2_Sub_Aligned)
 
 TEST(VectorLib, F64_X2_Mul_Unaligned)
 {
-	F64 x[2]
+	double x[2]
 	{
 		2.5,
 		0.3,
 	};
 
-	const F64 y[2]
+	const double y[2]
 	{
 		0.5,
 		1.3,
@@ -304,13 +304,13 @@ TEST(VectorLib, F64_X2_Mul_Unaligned)
 
 TEST(VectorLib, F64_X2_Mul_Aligned)
 {
-	alignas(V128_ALIGN) F64 x[2]
+	alignas(V128_ALIGN) double x[2]
 	{
 		2.5,
 		0.3,
 	};
 
-	alignas(V128_ALIGN) const F64 y[2]
+	alignas(V128_ALIGN) const double y[2]
 	{
 		0.5,
 		1.3,
@@ -323,13 +323,13 @@ TEST(VectorLib, F64_X2_Mul_Aligned)
 
 TEST(VectorLib, F64_X2_Div_Unaligned)
 {
-	F64 x[2]
+	double x[2]
 	{
 		2.5,
 		0.3,
 	};
 
-	const F64 y[2]
+	const double y[2]
 	{
 		0.5,
 		1.3,
@@ -342,13 +342,13 @@ TEST(VectorLib, F64_X2_Div_Unaligned)
 
 TEST(VectorLib, F64_X2_Div_Aligned)
 {
-	alignas(V128_ALIGN) F64 x[2]
+	alignas(V128_ALIGN) double x[2]
 	{
 		2.5,
 		0.3,
 	};
 
-	alignas(V128_ALIGN) const F64 y[2]
+	alignas(V128_ALIGN) const double y[2]
 	{
 		0.5,
 		1.3,

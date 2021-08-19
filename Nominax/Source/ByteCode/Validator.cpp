@@ -220,7 +220,7 @@ namespace Nominax::ByteCode
 			[[unlikely]]
 				return false;
 		}
-		for (U64 i {0}; i < code.size(); ++i)
+		for (std::uint64_t i {0}; i < code.size(); ++i)
 		{
 			if (code[i] != input[i])
 			{
@@ -234,17 +234,17 @@ namespace Nominax::ByteCode
 	auto ContainsEpilogue(const Stream& input) -> bool
 	{
 		constexpr const auto& code {Stream::EpilogueCode()};
-		if (input.Size() < code.size())
+		if (input.Size() < std::size(code))
 		{
 			[[unlikely]]
-				return false;
+			return false;
 		}
-		for (U64 i {0}, j {input.Size() - code.size()}; i < code.size(); ++i)
+		for (std::uint64_t i {0}, j {input.Size() - std::size(code) }; i < std::size(code); ++i)
 		{
 			if (code[i] != input[j + i])
 			{
 				[[unlikely]]
-					return false;
+				return false;
 			}
 		}
 		return true;
@@ -253,7 +253,7 @@ namespace Nominax::ByteCode
 	auto ValidateFullPass
 	(
 		const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry,
-		U32* const    outIndex
+		std::uint32_t* const    outIndex
 	) -> ValidationResultCode
 	{
 		// Check if empty:
@@ -289,7 +289,7 @@ namespace Nominax::ByteCode
 
 		// Error state:
 		Foundation::AtomicState<ValidationResultCode> error { };
-		std::atomic<U32>                              errorIndex {0};
+		std::atomic<std::uint32_t>                              errorIndex {0};
 
 		const auto& codeBuf {input.GetCodeBuffer()};
 		const auto& discBuf {input.GetDiscriminatorBuffer()};
@@ -339,7 +339,7 @@ namespace Nominax::ByteCode
 				if (result != ValidationResultCode::Ok)
 				[[unlikely]]
 				{
-					errorIndex.store(static_cast<U32>(index));
+					errorIndex.store(static_cast<std::uint32_t>(index));
 					error(result);
 				}
 			}
@@ -371,7 +371,7 @@ namespace Nominax::ByteCode
 
 	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) -> bool
 	{
-		const auto idx {static_cast<U64>(address)};
+		const auto idx {static_cast<std::uint64_t>(address)};
 
 		// validate that jump address is inside the range of the bucket:
 		if (bucket.Size() <= idx)
@@ -417,7 +417,7 @@ namespace Nominax::ByteCode
 				return ValidationResultCode::TooManyArgumentsForInstruction;
 		}
 
-		for (U64 i {0}; i < args.size(); ++i)
+		for (std::uint64_t i {0}; i < args.size(); ++i)
 		{
 			const Signal::Discriminator discriminator {args[i]};
 

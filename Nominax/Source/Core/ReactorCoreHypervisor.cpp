@@ -223,7 +223,7 @@ namespace Nominax::Core
 		return {result, output};
 	}
 
-	static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<U64>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
+	static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::uint64_t>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
 	{
 		&ReactorCore_Fallback,
 		&ReactorCore_Debug,
@@ -302,7 +302,7 @@ namespace Nominax::Core
 	{
 		ReactorCoreExecutionRoutine* const routine
 		{
-			REACTOR_REGISTRY[static_cast<U64>(target)]
+			REACTOR_REGISTRY[static_cast<std::uint64_t>(target)]
 		};
 		NOX_PAS_NOT_NULL(routine, "Reactor core execution routine is nullptr!");
 		return routine;
@@ -310,7 +310,7 @@ namespace Nominax::Core
 
 	auto HyperVisor::GetOptimalReactorRoutine(const Foundation::CPUFeatureDetector& features) -> ReactorRoutineLink
 	{
-		static thread_local constinit U16 QueryCounter;
+		static thread_local constinit std::uint16_t QueryCounter;
 		ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
 		ReactorCoreExecutionRoutine*      routine {GetReactorRoutineFromRegistryByTarget(specialization)};
 		const void**                      jumpTable {QueryJumpTable(*routine)};

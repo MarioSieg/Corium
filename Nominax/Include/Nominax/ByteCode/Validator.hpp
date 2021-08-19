@@ -321,7 +321,7 @@ namespace Nominax::ByteCode
 	/// <param name="offset"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const U64 offset) -> std::span<const Signal::Discriminator>
+	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const std::uint64_t offset) -> std::span<const Signal::Discriminator>
 	{
 		return {where + 1, where + 1 + offset};
 	}
@@ -334,5 +334,5 @@ namespace Nominax::ByteCode
 	/// <param name="outIndex"></param>
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
-	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }, U32* outIndex = nullptr) -> ValidationResultCode;
+	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }, std::uint32_t* outIndex = nullptr) -> ValidationResultCode;
 }

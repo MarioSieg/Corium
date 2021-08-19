@@ -210,7 +210,7 @@
 #include <array>
 #include <string_view>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../Foundation/Algorithm.hpp"
 #include "../Foundation/Record.hpp"
 
@@ -219,7 +219,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all byte code instructions with opcodes.
 	/// </summary>
-	enum class alignas(alignof(U64)) Instruction : U64
+	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
 	{
 		Int = 0x00,
 		Intrin = 0x01,
@@ -382,7 +382,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Instruction category.
 	/// </summary>
-	enum class InstructionCategory : U8
+	enum class InstructionCategory : std::uint8_t
 	{
 		Control = 0x00,
 		Memory = 0x01,
@@ -476,7 +476,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of stack pushes each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_PUSH_RECORD_TABLE
+	constexpr std::array<std::uint8_t, ToUnderlying(Instruction::Count_)> INSTRUCTION_PUSH_RECORD_TABLE
 	{
 		0,
 		0,
@@ -556,7 +556,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of stack pops each instruction will perform.
 	/// </summary>
-	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_POP_RECORD_TABLE
+	constexpr std::array<std::uint8_t, ToUnderlying(Instruction::Count_)> INSTRUCTION_POP_RECORD_TABLE
 	{
 		0,
 		0,
@@ -636,7 +636,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains the amount of required immediate arguments for each instruction.
 	/// </summary>
-	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARG_TABLE
+	constexpr std::array<std::uint8_t, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARG_TABLE
 	{
 		1,
 		1,
@@ -713,17 +713,17 @@ namespace Nominax::ByteCode
 		0
 	};
 
-	consteval auto FindMaxImmediateArgumentCount() -> U8
+	consteval auto FindMaxImmediateArgumentCount() -> std::uint8_t
 	{
-		U8 max {0};
-		for (const U8 x : INSTRUCTION_IMMEDIATE_ARG_TABLE)
+		std::uint8_t max {0};
+		for (const std::uint8_t x : INSTRUCTION_IMMEDIATE_ARG_TABLE)
 		{
 			max = std::max(max, x);
 		}
 		return max;
 	}
 
-	constexpr U8 MAX_IMMEDIATE_ARGUMENTS {FindMaxImmediateArgumentCount()};
+	constexpr std::uint8_t MAX_IMMEDIATE_ARGUMENTS {FindMaxImmediateArgumentCount()};
 	static_assert(MAX_IMMEDIATE_ARGUMENTS);
 
 	/// <summary>
@@ -750,7 +750,7 @@ namespace Nominax::ByteCode
 		"jump if zero",
 		"jump if not zero",
 		"jump if one - compare as integer",
-		"jump if one - compare as F32",
+		"jump if one - compare as float",
 		"jump if not one - compare as integer",
 		"jump if not one - compare as  integer",
 		"jump if equal as integer",
@@ -809,7 +809,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Subroutine invocation id for system intrinsic routines.
 	/// </summary>
-	enum class alignas(alignof(U64)) SystemIntrinsicInvocationID : U64
+	enum class alignas(alignof(std::uint64_t)) SystemIntrinsicInvocationID : std::uint64_t
 	{
 		Cos = 0x00,
 		Sin = 0x01,
@@ -858,12 +858,12 @@ namespace Nominax::ByteCode
 	/// is essentially an index to a instruction.
 	/// For dynamic signals only.
 	/// </summary>
-	enum class alignas(alignof(U64)) JumpAddress : U64;
+	enum class alignas(alignof(std::uint64_t)) JumpAddress : std::uint64_t;
 
 	/// <summary>
 	/// Subroutine invocation id for custom intrinsic routine.
 	/// </summary>
-	enum class alignas(alignof(U64)) UserIntrinsicInvocationID : U64;
+	enum class alignas(alignof(std::uint64_t)) UserIntrinsicInvocationID : std::uint64_t;
 
 	/// <summary>
 	/// Custom intrinsic routine function prototype.

@@ -210,7 +210,7 @@
 #include <array>
 #include <string_view>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../Foundation/Platform.hpp"
 
 namespace Nominax::Core
@@ -225,7 +225,7 @@ namespace Nominax::Core
 	consteval auto ValidateJumpTable
 	(
 		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable,
-		const U64                                          jumpTableSize
+		const std::uint64_t                                          jumpTableSize
 	) -> bool
 	{
 		if (!jumpTable || !jumpTableSize)
@@ -247,7 +247,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Contains all results of a reactor validation.
 	/// </summary>
-	enum class ReactorValidationResult : U8
+	enum class ReactorValidationResult : std::uint8_t
 	{
 		Ok = 0,
 		NullPtr,

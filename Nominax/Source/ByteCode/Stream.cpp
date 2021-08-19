@@ -222,19 +222,19 @@ namespace Nominax::ByteCode
 	auto Stream::Serialize(std::ofstream& out) const -> bool
 	{
 		SerializationImageHeader header { };
-		constexpr U64            codeSectionMarker {STREAM_IMAGE_CODE_SECTION_MARKER};
-		constexpr U64            discriminatorSectionMarker {STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER};
+		constexpr std::uint64_t            codeSectionMarker {STREAM_IMAGE_CODE_SECTION_MARKER};
+		constexpr std::uint64_t            discriminatorSectionMarker {STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER};
 
 		// header
 		this->GetSerializationImageHeader(header);
 		out.write(reinterpret_cast<const char*>(&header), sizeof(SerializationImageHeader));
 
 		// code section
-		out.write(reinterpret_cast<const char*>(&codeSectionMarker), sizeof(U64));
+		out.write(reinterpret_cast<const char*>(&codeSectionMarker), sizeof(std::uint64_t));
 		out.write(reinterpret_cast<const char*>(std::data(this->CodeBuffer_)), std::size(this->CodeBuffer_) * sizeof(CodeStorageType::value_type));
 
 		// discriminator section
-		out.write(reinterpret_cast<const char*>(&discriminatorSectionMarker), sizeof(U64));
+		out.write(reinterpret_cast<const char*>(&discriminatorSectionMarker), sizeof(std::uint64_t));
 		out.write(reinterpret_cast<const char*>(std::data(this->CodeDiscriminatorBuffer_)), std::size(this->CodeDiscriminatorBuffer_) * sizeof(DiscriminatorStorageType::value_type));
 		return true;
 	}
@@ -243,7 +243,7 @@ namespace Nominax::ByteCode
 	{
 		SerializationImageHeader header { };
 		in.read(reinterpret_cast<char*>(&header), sizeof(SerializationImageHeader));
-		for (U64 i {0}; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
+		for (std::uint64_t i {0}; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
 		{
 			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
 			{
@@ -260,8 +260,8 @@ namespace Nominax::ByteCode
 		}
 
 		// validate code section marker
-		U64 codeSectionMarker { };
-		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof(U64));
+		std::uint64_t codeSectionMarker { };
+		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof(std::uint64_t));
 		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
 		{
 			[[unlikely]]
@@ -274,8 +274,8 @@ namespace Nominax::ByteCode
 		in.read(reinterpret_cast<char*>(std::data(this->CodeBuffer_)), header.CodeImageSize * sizeof(CodeStorageType::value_type));
 
 		// validate discriminator section marker
-		U64 discriminatorSectionMarker { };
-		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof(U64));
+		std::uint64_t discriminatorSectionMarker { };
+		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof(std::uint64_t));
 		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
 		{
 			[[unlikely]]
@@ -294,13 +294,13 @@ namespace Nominax::ByteCode
 	{
 		using namespace Foundation;
 
-		Print("Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<F32>(this->SizeInBytes())), sizeof(Signal));
+		Print("Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<float>(this->SizeInBytes())), sizeof(Signal));
 
-		for (U64 i {0}; i < this->Size(); ++i)
+		for (std::uint64_t i {0}; i < this->Size(); ++i)
 		{
-			const auto bytes {std::bit_cast<std::array<U8, sizeof(Signal)>>(this->CodeBuffer_[i])};
+			const auto bytes {std::bit_cast<std::array<std::uint8_t, sizeof(Signal)>>(this->CodeBuffer_[i])};
 			const auto isInstr {this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction};
-			Print(TextColor::Green, "&{:016X} ", reinterpret_cast<Uip64>(&this->CodeBuffer_[i]));
+			Print(TextColor::Green, "&{:016X} ", reinterpret_cast<std::uintptr_t>(&this->CodeBuffer_[i]));
 			Print
 			(
 				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
@@ -325,12 +325,12 @@ namespace Nominax::ByteCode
 
 		Print("Stream size: {}\n", this->Size());
 		Print("Code buffer: {:.03F} MB\n",
-		      Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeBuffer_.size()) * static_cast<F32>(sizeof(CodeStorageType::value_type))));
-		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<F32>(
-			      static_cast<F32>(this->CodeDiscriminatorBuffer_.size()) * static_cast<F32>(sizeof(
+		      Bytes2Megabytes<float>(
+			      static_cast<float>(this->CodeBuffer_.size()) * static_cast<float>(sizeof(CodeStorageType::value_type))));
+		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<float>(
+			      static_cast<float>(this->CodeDiscriminatorBuffer_.size()) * static_cast<float>(sizeof(
 				      DiscriminatorStorageType::value_type))));
-		Print("Total: {:.03F} MB\n", Bytes2Megabytes<F32>(static_cast<F32>(this->SizeInBytes())));
+		Print("Total: {:.03F} MB\n", Bytes2Megabytes<float>(static_cast<float>(this->SizeInBytes())));
 	}
 
 	auto Stream::Prologue() -> Stream&

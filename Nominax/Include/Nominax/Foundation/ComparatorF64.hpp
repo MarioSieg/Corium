@@ -210,7 +210,7 @@
 #include <limits>
 
 #include "Platform.hpp"
-#include "BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::Foundation
 {
@@ -224,7 +224,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x">The number to check for zero.</param>
 	/// <returns>True if x is zero, else false.</returns>
-	NOX_FLATTEN NOX_PURE inline auto F64IsZero(const F64 x) -> bool
+	NOX_FLATTEN NOX_PURE inline auto F64IsZero(const double x) -> bool
 	{
 		return std::abs(x) < F64_ZERO_TOLERANCE;
 	}
@@ -234,7 +234,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x">The number to check for zero.</param>
 	/// <returns>True if x is zero, else false.</returns>
-	NOX_FLATTEN NOX_PURE inline auto F64IsOne(const F64 x) -> bool
+	NOX_FLATTEN NOX_PURE inline auto F64IsOne(const double x) -> bool
 	{
 		return F64IsZero(x - 1.0);
 	}
@@ -245,17 +245,17 @@ namespace Nominax::Foundation
 	/// If the ULP value is zero, the two numbers must be exactly the same.
 	/// See http://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/ by Bruce Dawson
 	/// </summary>
-	constexpr U32 F64_MAX_ULPS {4};
+	constexpr std::uint32_t F64_MAX_ULPS {4};
 
 	/// <summary>
-	/// Bit count inside F64.
+	/// Bit count inside double.
 	/// </summary>
-	constexpr auto F64_BIT_COUNT {8 * sizeof(F64)};
+	constexpr auto F64_BIT_COUNT {8 * sizeof(double)};
 
 	/// <summary>
 	/// Fraction bit count.
 	/// </summary>
-	constexpr auto F64_FRACTION_BITS {std::numeric_limits<F64>::digits - 1};
+	constexpr auto F64_FRACTION_BITS {std::numeric_limits<double>::digits - 1};
 
 	/// <summary>
 	/// Exponent bit count.
@@ -278,14 +278,14 @@ namespace Nominax::Foundation
 	constexpr auto F64_EXPONENT_MASK {~(F64_SIGN_MASK | F64_FRACTION_MASK)};
 
 	/// <summary>
-	/// Returns the bit representation of the F64.
+	/// Returns the bit representation of the double.
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	NOX_FLATTEN NOX_PURE constexpr auto BitsOf(const F64 x) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto BitsOf(const double x) -> std::uint64_t
 	{
-		static_assert(sizeof(U64) == sizeof(F64));
-		return std::bit_cast<U64>(x);
+		static_assert(sizeof(std::uint64_t) == sizeof(double));
+		return std::bit_cast<std::uint64_t>(x);
 	}
 
 	/// <summary>
@@ -293,7 +293,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	NOX_FLATTEN NOX_PURE constexpr auto ExponentBitsOf(const F64 x) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto ExponentBitsOf(const double x) -> std::uint64_t
 	{
 		return F64_EXPONENT_MASK & BitsOf(x);
 	}
@@ -303,7 +303,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	NOX_FLATTEN NOX_PURE constexpr auto FractionBitsOf(const F64 x) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto FractionBitsOf(const double x) -> std::uint64_t
 	{
 		return F64_FRACTION_MASK & BitsOf(x);
 	}
@@ -313,7 +313,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	NOX_FLATTEN NOX_PURE constexpr auto SignBitOf(const F64 x) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto SignBitOf(const double x) -> std::uint64_t
 	{
 		return F64_SIGN_MASK & BitsOf(x);
 	}
@@ -322,7 +322,7 @@ namespace Nominax::Foundation
 	/// Returns true if x is NAN, else false.
 	/// NAN = Not A Number
 	/// </summary>
-	NOX_FLATTEN NOX_PURE constexpr auto IsNan(const F64 x) -> bool
+	NOX_FLATTEN NOX_PURE constexpr auto IsNan(const double x) -> bool
 	{
 		return ExponentBitsOf(x) == F64_EXPONENT_MASK && FractionBitsOf(x) != 0;
 	}
@@ -331,7 +331,7 @@ namespace Nominax::Foundation
 	/// Converts an integer from the "sign and magnitude" to the biased representation.
 	/// See https://en.wikipedia.org/wiki/Signed_number_representations for more info.
 	/// </summary>
-	NOX_FLATTEN NOX_PURE constexpr auto SignMagnitudeToBiasedRepresentation(const U64 bits) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto SignMagnitudeToBiasedRepresentation(const std::uint64_t bits) -> std::uint64_t
 	{
 		if (F64_SIGN_MASK & bits)
 		{
@@ -347,7 +347,7 @@ namespace Nominax::Foundation
 	/// <param name="bitsA">The first bits as biased representation.</param>
 	/// <param name="bitsB">The second bits as biased representation.</param>
 	/// <returns>The unsigned distance.</returns>
-	NOX_FLATTEN NOX_PURE constexpr auto ComputeDistanceBetweenSignAndMagnitude(const U64 bitsA, const U64 bitsB) -> U64
+	NOX_FLATTEN NOX_PURE constexpr auto ComputeDistanceBetweenSignAndMagnitude(const std::uint64_t bitsA, const std::uint64_t bitsB) -> std::uint64_t
 	{
 		const auto biasedA {SignMagnitudeToBiasedRepresentation(bitsA)};
 		const auto biasedB {SignMagnitudeToBiasedRepresentation(bitsB)};
@@ -364,8 +364,8 @@ namespace Nominax::Foundation
 	/// <param name="x"></param>
 	/// <param name="y"></param>
 	/// <returns></returns>
-	template <U32 Ulps = F64_MAX_ULPS>
-	NOX_FLATTEN NOX_PURE constexpr auto F64Equals(const F64 x, const F64 y) -> bool
+	template <std::uint32_t Ulps = F64_MAX_ULPS>
+	NOX_FLATTEN NOX_PURE constexpr auto F64Equals(const double x, const double y) -> bool
 	{
 		static_assert(Ulps > 0);
 		// IEEE 754 required that any NAN comparison should yield false.

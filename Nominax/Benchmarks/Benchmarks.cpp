@@ -293,8 +293,8 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 		stream << Instruction::Jmp;
 		stream << JumpAddress {0};
 		stream << Instruction::Sto;
-		stream << 1_uint;
-		stream << -0.5_float;
+		stream << 1ULL;
+		stream << -0.5;
 	}
 
 	stream.Epilogue();
@@ -324,8 +324,8 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 		stream << Instruction::Jmp;
 		stream << JumpAddress {0};
 		stream << Instruction::Sto;
-		stream << 1_uint;
-		stream << -0.5_float;
+		stream << 1ULL;
+		stream << -0.5;
 	}
 
 	stream.Epilogue();

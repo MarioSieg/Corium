@@ -211,7 +211,7 @@
 #include <string_view>
 
 #include "../Foundation/Algorithm.hpp"
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::ByteCode
 {
@@ -274,7 +274,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// WordSize of the extracted fault code section.
 	/// </summary>
-	constexpr U64 CROPPED_FAULT_CODE_DUMP_SIZE {8};
+	constexpr std::uint64_t CROPPED_FAULT_CODE_DUMP_SIZE {8};
 
 	/// <summary>
 	/// Contains all byte code validation error messages.

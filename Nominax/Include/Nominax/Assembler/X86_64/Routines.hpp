@@ -214,7 +214,7 @@ namespace Nominax::Assembler::X86_64::Routines
 	/// <summary>
 		/// Returns a special constant value depending on the OS for testing.
 		/// </summary>
-	extern "C" NOX_ASM_ROUTINE auto MockCall() -> U64;
+	extern "C" NOX_ASM_ROUTINE auto MockCall() -> std::uint64_t;
 
 	/// <summary>
 	/// Tries to detect a VM using time stamp counter.
@@ -243,15 +243,15 @@ namespace Nominax::Assembler::X86_64::Routines
 	/// </summary>
 	extern "C" NOX_ASM_ROUTINE auto CpuId
 	(
-		U64* out1,
-		U64* out2,
-		U64* out3
-	) -> U32;
+		std::uint64_t* out1,
+		std::uint64_t* out2,
+		std::uint64_t* out3
+	) -> std::uint32_t;
 
 	/// <summary>
 	/// Queries the 16 GPR 64-bit registers and the 16 XMM 128-bit registers.
 	/// </summary>
-	extern "C" NOX_ASM_ROUTINE auto QueryRegSet(U64 gpr[16], U64 sse[32]) -> void;
+	extern "C" NOX_ASM_ROUTINE auto QueryRegSet(std::uint64_t gpr[16], std::uint64_t sse[32]) -> void;
 
 	/// <summary>
 	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
@@ -278,7 +278,7 @@ namespace Nominax::Assembler::X86_64::Routines
 	[[nodiscard]]
 	inline auto QueryRip() -> const void*
 	{
-		Uip64 rip;
+		std::uintptr_t rip;
 		asm volatile
 		(
 			"call 1f \n\t"

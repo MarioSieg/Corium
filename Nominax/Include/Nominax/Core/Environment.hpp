@@ -211,7 +211,7 @@
 #include <memory>
 #include <memory_resource>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../Foundation/MemoryUnits.hpp"
 #include "../Foundation/CPUFeatureDetector.hpp"
 #include "../Foundation/SystemInfoSnapshot.hpp"
@@ -294,19 +294,19 @@ namespace Nominax::Core
 		/// <summary>
 		/// WordSize in bytes of the system pool, if the given count was invalid.
 		/// </summary>
-		static constexpr U64 FALLBACK_SYSTEM_POOL_SIZE {256_kB};
+		static constexpr std::uint64_t FALLBACK_SYSTEM_POOL_SIZE {256_kB};
 		static_assert(FALLBACK_SYSTEM_POOL_SIZE);
 
 		/// <summary>
 		/// The min size of the boot pool.
 		/// </summary>
-		static constexpr U64 BOOT_POOL_SIZE_MIN {32_kB};
+		static constexpr std::uint64_t BOOT_POOL_SIZE_MIN {32_kB};
 		static_assert(BOOT_POOL_SIZE_MIN);
 
 		/// <summary>
 		/// The max size of the boot pool.
 		/// </summary>
-		static constexpr U64 BOOT_POOL_SIZE_MAX {256_kB};
+		static constexpr std::uint64_t BOOT_POOL_SIZE_MAX {256_kB};
 		static_assert(BOOT_POOL_SIZE_MAX);
 
 		/// <summary>
@@ -463,21 +463,21 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The size of the system pool in bytes.</returns>
 		[[nodiscard]]
-		auto GetMonotonicSystemPoolSize() const -> U64;
+		auto GetMonotonicSystemPoolSize() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The count of reactor executions so far.</returns>
 		[[nodiscard]]
-		auto GetExecutionCount() const -> U64;
+		auto GetExecutionCount() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The history of execution times.</returns>
 		[[nodiscard]]
-		auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
+		auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<double, std::micro>>&;
 
 		/// <summary>
 		/// 

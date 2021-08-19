@@ -209,7 +209,7 @@
 
 TEST(SystemAllocator, Allocate)
 {
-	auto* const x {static_cast<I32*>(SystemAllocator::Allocate(sizeof(I32)))};
+	auto* const x {static_cast<std::int32_t*>(SystemAllocator::Allocate(sizeof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
 	*x = 10;
 	ASSERT_EQ(*x, 10);
@@ -218,7 +218,7 @@ TEST(SystemAllocator, Allocate)
 
 TEST(SystemAllocator, AllocateAndZero)
 {
-	auto* const x {static_cast<I32*>(SystemAllocator::AllocateAndZero(sizeof(I32)))};
+	auto* const x {static_cast<std::int32_t*>(SystemAllocator::AllocateAndZero(sizeof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
 	ASSERT_EQ(*x, 0);
 	*x = 10;
@@ -228,9 +228,9 @@ TEST(SystemAllocator, AllocateAndZero)
 
 TEST(SystemAllocator, AllocateAligned)
 {
-	auto* const x {static_cast<I32*>(SystemAllocator::AllocateAligned(sizeof(I32), alignof(I32)))};
+	auto* const x {static_cast<std::int32_t*>(SystemAllocator::AllocateAligned(sizeof(std::int32_t), alignof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
-	ASSERT_TRUE(IsAlignedTo(x, alignof(I32)));
+	ASSERT_TRUE(IsAlignedTo(x, alignof(std::int32_t)));
 	*x = 10;
 	ASSERT_EQ(*x, 10);
 	SystemAllocator::DeallocateAligned(x);
@@ -238,9 +238,9 @@ TEST(SystemAllocator, AllocateAligned)
 
 TEST(SystemAllocator, AllocateAlignedAndZero)
 {
-	auto* const x {static_cast<I32*>(SystemAllocator::AllocateAlignedAndZero(sizeof(I32), alignof(I32)))};
+	auto* const x {static_cast<std::int32_t*>(SystemAllocator::AllocateAlignedAndZero(sizeof(std::int32_t), alignof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
-	ASSERT_TRUE(IsAlignedTo(x, alignof(I32)));
+	ASSERT_TRUE(IsAlignedTo(x, alignof(std::int32_t)));
 	ASSERT_EQ(*x, 0);
 	*x = 10;
 	ASSERT_EQ(*x, 10);
@@ -249,7 +249,7 @@ TEST(SystemAllocator, AllocateAlignedAndZero)
 
 TEST(SystemAllocator, AllocateChecked)
 {
-	auto* const x {static_cast<I32*>(SystemAllocator::AllocateChecked(sizeof(I32)))};
+	auto* const x {static_cast<std::int32_t*>(SystemAllocator::AllocateChecked(sizeof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
 	*x = 10;
 	ASSERT_EQ(*x, 10);
@@ -258,7 +258,7 @@ TEST(SystemAllocator, AllocateChecked)
 
 TEST(SystemAllocator, AllocateAndZeroChecked)
 {
-	auto* const x {static_cast<I32*>(SystemAllocator::AllocateAndZeroChecked(sizeof(I32)))};
+	auto* const x {static_cast<std::int32_t*>(SystemAllocator::AllocateAndZeroChecked(sizeof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
 	ASSERT_EQ(*x, 0);
 	*x = 10;
@@ -268,9 +268,9 @@ TEST(SystemAllocator, AllocateAndZeroChecked)
 
 TEST(SystemAllocator, AllocateAlignedChecked)
 {
-	auto* const x {static_cast<I32*>(SystemAllocator::AllocateAlignedChecked(sizeof(I32), alignof(I32)))};
+	auto* const x {static_cast<std::int32_t*>(SystemAllocator::AllocateAlignedChecked(sizeof(std::int32_t), alignof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
-	ASSERT_TRUE(IsAlignedTo(x, alignof(I32)));
+	ASSERT_TRUE(IsAlignedTo(x, alignof(std::int32_t)));
 	*x = 10;
 	ASSERT_EQ(*x, 10);
 	SystemAllocator::DeallocateAlignedChecked(x);
@@ -278,9 +278,9 @@ TEST(SystemAllocator, AllocateAlignedChecked)
 
 TEST(SystemAllocator, AllocateAlignedAndZeroChecked)
 {
-	auto* const x {static_cast<I32*>(SystemAllocator::AllocateAlignedAndZeroChecked(sizeof(I32), alignof(I32)))};
+	auto* const x {static_cast<std::int32_t*>(SystemAllocator::AllocateAlignedAndZeroChecked(sizeof(std::int32_t), alignof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
-	ASSERT_TRUE(IsAlignedTo(x, alignof(I32)));
+	ASSERT_TRUE(IsAlignedTo(x, alignof(std::int32_t)));
 	ASSERT_EQ(*x, 0);
 	*x = 10;
 	ASSERT_EQ(*x, 10);
@@ -289,11 +289,11 @@ TEST(SystemAllocator, AllocateAlignedAndZeroChecked)
 
 TEST(SystemAllocator, Reallocate)
 {
-	auto* x {static_cast<I32*>(SystemAllocator::Allocate(sizeof(I32)))};
+	auto* x {static_cast<std::int32_t*>(SystemAllocator::Allocate(sizeof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
 	*x = 10;
 	ASSERT_EQ(*x, 10);
-	x = static_cast<I32*>(SystemAllocator::Reallocate(x, 2 * sizeof(I32)));
+	x = static_cast<std::int32_t*>(SystemAllocator::Reallocate(x, 2 * sizeof(std::int32_t)));
 	ASSERT_NE(x, nullptr);
 	x[0] = -3;
 	x[1] = 0xFF;
@@ -304,14 +304,14 @@ TEST(SystemAllocator, Reallocate)
 
 TEST(SystemAllocator, ReallocateAligned)
 {
-	auto* x {static_cast<I32*>(SystemAllocator::AllocateAligned(sizeof(I32), alignof(I32)))};
+	auto* x {static_cast<std::int32_t*>(SystemAllocator::AllocateAligned(sizeof(std::int32_t), alignof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
-	ASSERT_TRUE(IsAlignedTo(x, alignof(I32)));
+	ASSERT_TRUE(IsAlignedTo(x, alignof(std::int32_t)));
 	*x = 10;
 	ASSERT_EQ(*x, 10);
-	x = static_cast<I32*>(SystemAllocator::ReallocateAligned(x, 2 * sizeof(I32), alignof(I32)));
+	x = static_cast<std::int32_t*>(SystemAllocator::ReallocateAligned(x, 2 * sizeof(std::int32_t), alignof(std::int32_t)));
 	ASSERT_NE(x, nullptr);
-	ASSERT_TRUE(IsAlignedTo(x, alignof(I32)));
+	ASSERT_TRUE(IsAlignedTo(x, alignof(std::int32_t)));
 	x[0] = -3;
 	x[1] = 0xFF;
 	ASSERT_EQ(x[0], -3);
@@ -321,14 +321,14 @@ TEST(SystemAllocator, ReallocateAligned)
 
 TEST(SystemAllocator, ReallocateAlignedChecked)
 {
-	auto* x {static_cast<I32*>(SystemAllocator::AllocateAlignedChecked(sizeof(I32), alignof(I32)))};
+	auto* x {static_cast<std::int32_t*>(SystemAllocator::AllocateAlignedChecked(sizeof(std::int32_t), alignof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
-	ASSERT_TRUE(IsAlignedTo(x, alignof(I32)));
+	ASSERT_TRUE(IsAlignedTo(x, alignof(std::int32_t)));
 	*x = 10;
 	ASSERT_EQ(*x, 10);
-	x = static_cast<I32*>(SystemAllocator::ReallocateAlignedChecked(x, 2 * sizeof(I32), alignof(I32)));
+	x = static_cast<std::int32_t*>(SystemAllocator::ReallocateAlignedChecked(x, 2 * sizeof(std::int32_t), alignof(std::int32_t)));
 	ASSERT_NE(x, nullptr);
-	ASSERT_TRUE(IsAlignedTo(x, alignof(I32)));
+	ASSERT_TRUE(IsAlignedTo(x, alignof(std::int32_t)));
 	x[0] = -3;
 	x[1] = 0xFF;
 	ASSERT_EQ(x[0], -3);
@@ -338,11 +338,11 @@ TEST(SystemAllocator, ReallocateAlignedChecked)
 
 TEST(SystemAllocator, ReallocateChecked)
 {
-	auto* x {static_cast<I32*>(SystemAllocator::Allocate(sizeof(I32)))};
+	auto* x {static_cast<std::int32_t*>(SystemAllocator::Allocate(sizeof(std::int32_t)))};
 	ASSERT_NE(x, nullptr);
 	*x = 10;
 	ASSERT_EQ(*x, 10);
-	x = static_cast<I32*>(SystemAllocator::ReallocateChecked(x, 2 * sizeof(I32)));
+	x = static_cast<std::int32_t*>(SystemAllocator::ReallocateChecked(x, 2 * sizeof(std::int32_t)));
 	ASSERT_NE(x, nullptr);
 	x[0] = -3;
 	x[1] = 0xFF;

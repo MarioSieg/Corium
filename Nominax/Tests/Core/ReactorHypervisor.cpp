@@ -224,9 +224,9 @@ TEST(ReactorHypervisor, GetDebugRoutine)
 TEST(ReactorHypervisor, ReactorRegistry)
 {
 	#if NOX_ARCH_X86_64
-	ASSERT_EQ(HyperVisor::GetReactorRegistry().size(), static_cast<U64>(ReactorCoreSpecialization::Count));
+	ASSERT_EQ(HyperVisor::GetReactorRegistry().size(), static_cast<std::uint64_t>(ReactorCoreSpecialization::Count));
 	#elif NOX_ARCH_ARM_64
-	ASSERT_EQ(HyperVisor::GetReactorRegistry().size(), static_cast<U64>(ReactorCoreSpecialization::Count));
+	ASSERT_EQ(HyperVisor::GetReactorRegistry().size(), static_cast<std::uint64_t>(ReactorCoreSpecialization::Count));
 	#endif
 }
 
@@ -270,15 +270,15 @@ TEST(ReactorHypervisor, GetOptimalReactorRoutine)
 TEST(ReactorHypervisor, FeatureSelectAvx)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx)]     = true;
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx512F)] = false;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx)]     = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = false;
 	ASSERT_EQ(HyperVisor::SmartSelectReactor(features), ReactorCoreSpecialization::X86_64_AVX);
 }
 
 TEST(ReactorHypervisor, FeatureSelectAvx512F)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx512F)] = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = true;
 	ASSERT_EQ(HyperVisor::SmartSelectReactor(features), ReactorCoreSpecialization::X86_64_AVX512F);
 }
 
@@ -302,8 +302,8 @@ TEST(ReactorHypervisor, FeatureSelectDynamic)
 TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx)]     = true;
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx512F)] = false;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx)]     = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = false;
 	ASSERT_EQ
 	(
 		HyperVisor::GetReactorRoutineFromRegistryByTarget
@@ -316,7 +316,7 @@ TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx)
 TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx512F)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx512F)] = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = true;
 	ASSERT_EQ
 	(
 		HyperVisor::GetReactorRoutineFromRegistryByTarget
@@ -329,8 +329,8 @@ TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx512F)
 TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx)]     = true;
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx512F)] = false;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx)]     = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = false;
 	const ReactorRoutineLink data {HyperVisor::GetOptimalReactorRoutine(features)};
 	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::X86_64_AVX);
 	ASSERT_EQ(data.ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX));
@@ -340,7 +340,7 @@ TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx)
 TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx512)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx512F)] = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = true;
 	const ReactorRoutineLink data {HyperVisor::GetOptimalReactorRoutine(features)};
 	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::X86_64_AVX512F);
 	ASSERT_EQ(data.ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX512F));

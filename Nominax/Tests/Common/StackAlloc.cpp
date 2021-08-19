@@ -209,7 +209,7 @@
 
 TEST(StackAlloc, FixedStackAlloc)
 {
-	auto ptr = FixedStackAllocation(I32, 2);
+	auto ptr = FixedStackAllocation(std::int32_t, 2);
 	ASSERT_NE(ptr, nullptr);
 	ptr[0] = 3;
 	ptr[1] = -2;
@@ -219,16 +219,16 @@ TEST(StackAlloc, FixedStackAlloc)
 
 TEST(StackAlloc, DynamicHybridStackAlloc)
 {
-	constexpr U64         count {10};
-	HybridStackGuard<I32> ptr DynamicStackAllocation(I32, count);
+	constexpr std::uint64_t         count {10};
+	HybridStackGuard<std::int32_t> ptr DynamicStackAllocation(std::int32_t, count);
 	ASSERT_FALSE(ptr.IsHeapAllocated());
 
-	for (U64 i {0}; i < count; ++i)
+	for (std::uint64_t i {0}; i < count; ++i)
 	{
-		ptr[i] = static_cast<I32>(i);
+		ptr[i] = static_cast<std::int32_t>(i);
 	}
 
-	for (U64 i {0}; i < count; ++i)
+	for (std::uint64_t i {0}; i < count; ++i)
 	{
 		ASSERT_EQ(ptr[i], i);
 	}
@@ -236,16 +236,16 @@ TEST(StackAlloc, DynamicHybridStackAlloc)
 
 TEST(StackAlloc, DynamicHybridStackAllocHeap)
 {
-	constexpr U64         count {STACK_ALLOC_HEAP_THRESHOLD};
-	HybridStackGuard<I32> ptr DynamicStackAllocation(I32, count);
+	constexpr std::uint64_t         count {STACK_ALLOC_HEAP_THRESHOLD};
+	HybridStackGuard<std::int32_t> ptr DynamicStackAllocation(std::int32_t, count);
 	ASSERT_TRUE(ptr.IsHeapAllocated());
 
-	for (U64 i {0}; i < count; ++i)
+	for (std::uint64_t i {0}; i < count; ++i)
 	{
-		ptr[i] = static_cast<I32>(i);
+		ptr[i] = static_cast<std::int32_t>(i);
 	}
 
-	for (U64 i {0}; i < count; ++i)
+	for (std::uint64_t i {0}; i < count; ++i)
 	{
 		ASSERT_EQ(ptr[i], i);
 	}

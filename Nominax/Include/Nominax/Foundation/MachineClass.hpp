@@ -209,7 +209,7 @@
 
 #include <thread>
 
-#include "BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::Foundation
 {
@@ -254,7 +254,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="threads"></param>
 	/// <returns></returns>
-	constexpr auto MachineRating(const U64 threads = std::thread::hardware_concurrency()) -> MachineClass
+	constexpr auto MachineRating(const std::uint64_t threads = std::thread::hardware_concurrency()) -> MachineClass
 	{
 		if (threads <= 2)
 		{

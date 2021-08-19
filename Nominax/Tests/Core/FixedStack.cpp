@@ -209,7 +209,7 @@
 
 namespace
 {
-	std::array<U8, 1024>                Buffer { };
+	std::array<std::uint8_t, 1024>                Buffer { };
 	std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
 }
 

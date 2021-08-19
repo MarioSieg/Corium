@@ -222,9 +222,9 @@ namespace Nominax::Assembler::X86_64
 	/// <param name="x"></param>
 	/// <param name="b"></param>
 	/// <returns>The composed rex prefix.</returns>
-	constexpr auto PackRex(const bool w, const bool r, const bool x, const bool b) -> U8
+	constexpr auto PackRex(const bool w, const bool r, const bool x, const bool b) -> std::uint8_t
 	{
-		U8 rex {0x40};
+		std::uint8_t rex {0x40};
 		rex |= b;
 		rex |= x << 1;
 		rex |= r << 2;
@@ -240,7 +240,7 @@ namespace Nominax::Assembler::X86_64
 	/// <param name="x"></param>
 	/// <param name="b"></param>
 	/// <returns>The composed rex prefix or zero.</returns>
-	constexpr auto PackRexOpt(const bool w, const bool r, const bool x, const bool b) -> std::optional<U8>
+	constexpr auto PackRexOpt(const bool w, const bool r, const bool x, const bool b) -> std::optional<std::uint8_t>
 	{
 		return w || r || x || b ? std::optional{PackRex(w, r, x, b)} : std::nullopt;
 	}
@@ -257,12 +257,12 @@ namespace Nominax::Assembler::X86_64
 	/// <param name="bits234"></param>
 	/// <param name="bits567"></param>
 	/// <returns>The composed mod rm sib byte.</returns>
-	constexpr auto PackModRm(const U8 bits01, const U8 bits234, const U8 bits567) -> U8
+	constexpr auto PackModRm(const std::uint8_t bits01, const std::uint8_t bits234, const std::uint8_t bits567) -> std::uint8_t
 	{
 		NOX_DBG_PAS_TRUE((bits01 & ~0b11) == 0, "Mask mismatch -> 2 bits requested");
 		NOX_DBG_PAS_TRUE((bits234 & ~0b111) == 0, "Mask mismatch -> 3 bits requested");
 		NOX_DBG_PAS_TRUE((bits567 & ~0b111) == 0, "Mask mismatch -> 3 bits requested");
-		U8 trio {bits567};
+		std::uint8_t trio {bits567};
 		trio &= ~0xF8;
 		trio |= (bits234 & ~0xF8) << 3;
 		trio |= (bits01 & ~0xFC) << 6;
@@ -274,12 +274,12 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	/// <param name="n">The machine code needle. Must have at least size elements.</param>
 	/// <param name="size">The NOP chain size between 1 and 15 inclusive.</param>
-	extern auto InjectNopChain(U8* n, U8 size) -> void;
+	extern auto InjectNopChain(std::uint8_t* n, std::uint8_t size) -> void;
 
 	/// <summary>
 	/// Represents a register or data size as 16-bit machine words in bytes.
 	/// </summary>
-	enum class WordSize : U8
+	enum class WordSize : std::uint8_t
 	{
 		Byte = 1,
 		Word = 2,

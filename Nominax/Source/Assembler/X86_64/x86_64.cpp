@@ -209,7 +209,7 @@
 
 namespace Nominax::Assembler::X86_64
 {
-	auto InjectNopChain(U8* n, const U8 size) -> void
+	auto InjectNopChain(std::uint8_t* n, const std::uint8_t size) -> void
 	{
 		NOX_DBG_PAS_NOT_NULL(n, "Null needle!");
 		NOX_DBG_PAS_LE(size, 15, "Invalid nop chain size!");

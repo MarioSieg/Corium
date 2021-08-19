@@ -213,7 +213,7 @@
 
 namespace Nominax::Assembler::X86_64
 {
-	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> VARIATION_SIZE_TABLE
+	constexpr std::array<std::uint8_t, ToUnderlying(Instruction::Count_)> VARIATION_SIZE_TABLE
 	{
 		30,
 		4,

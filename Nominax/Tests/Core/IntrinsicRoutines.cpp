@@ -858,7 +858,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IMax)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, std::max<I64>(4, 7));
+	ASSERT_EQ(o.second.Input->Stack[1].AsI64, std::max<std::int64_t>(4, 7));
 	ASSERT_EQ(o.second.Input->Stack[2].AsI64, 7);
 	ASSERT_EQ(o.second.InterruptCode, -12345);
 	ASSERT_EQ(o.second.SpDiff, 2);
@@ -884,7 +884,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IMin)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, std::min<I64>(4, 7));
+	ASSERT_EQ(o.second.Input->Stack[1].AsI64, std::min<std::int64_t>(4, 7));
 	ASSERT_EQ(o.second.Input->Stack[2].AsI64, 7);
 	ASSERT_EQ(o.second.InterruptCode, -12345);
 	ASSERT_EQ(o.second.SpDiff, 2);

@@ -287,12 +287,12 @@ namespace Nominax::Foundation
 
 	inline auto CPUFeatureDetector::operator[](const CPUFeatureBits bit) -> bool&
 	{
-		return this->FeatureBits_[static_cast<U64>(bit)];
+		return this->FeatureBits_[static_cast<std::uint64_t>(bit)];
 	}
 
 	inline auto CPUFeatureDetector::operator[](const CPUFeatureBits bit) const -> bool
 	{
-		return this->FeatureBits_[static_cast<U64>(bit)];
+		return this->FeatureBits_[static_cast<std::uint64_t>(bit)];
 	}
 
 	inline auto CPUFeatureDetector::operator*() const -> const CpuFeatureMask&

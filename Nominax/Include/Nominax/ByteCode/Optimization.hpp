@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../Foundation/Platform.hpp"
 
 namespace Nominax::ByteCode
@@ -215,7 +215,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Represents a stream optimization level.
 	/// </summary>
-	enum class OptimizationLevel : U8
+	enum class OptimizationLevel : std::uint8_t
 	{
 		Off = 0,
 		O1 = 1,

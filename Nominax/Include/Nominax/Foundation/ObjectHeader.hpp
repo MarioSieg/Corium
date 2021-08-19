@@ -210,7 +210,7 @@
 #include <cstring>
 #include <span>
 
-#include "BaseTypes.hpp"
+#include <cstdint>
 #include "Platform.hpp"
 #include "Record.hpp"
 
@@ -219,7 +219,7 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Type used for storing information in the meta header.
 	/// </summary>
-	using MetaHeaderScalar = U64;
+	using MetaHeaderScalar = std::uint64_t;
 
 	/// <summary>
 	/// Contains all flags in the flag vector field in the object header.
@@ -726,17 +726,17 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// The count of header field blocks => 4 (MetaField, WordSize, TypeId, FlagVector)
 		/// </summary>
-		static constexpr U64 RECORD_BLOCKS {4};
+		static constexpr std::uint64_t RECORD_BLOCKS {4};
 
 		/// <summary>
 		/// The offset in records from the blob base pointer.
 		/// </summary>
-		static constexpr Uip64 RECORD_OFFSET {STRIDE * RECORD_BLOCKS / sizeof(Record)};
+		static constexpr std::uintptr_t RECORD_OFFSET {STRIDE * RECORD_BLOCKS / sizeof(Record)};
 
 		/// <summary>
 		/// The amount of records required to store the header.
 		/// </summary>
-		static constexpr U32 RECORD_CHUNKS {RECORD_OFFSET};
+		static constexpr std::uint32_t RECORD_CHUNKS {RECORD_OFFSET};
 
 		static_assert(STRIDE == sizeof(MetaHeaderScalar));
 		static_assert(RECORD_BLOCKS == 4);

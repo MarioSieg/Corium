@@ -210,7 +210,7 @@
 #include <algorithm>
 #include <array>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::ByteCode
 {
@@ -220,7 +220,7 @@ namespace Nominax::ByteCode
 	union CharClusterUtf8
 	{
 		std::array<char8_t, 8> Chars;
-		U64                    Merged;
+		std::uint64_t                    Merged;
 	};
 
 	inline auto operator ==(const CharClusterUtf8 left, const CharClusterUtf8 right) -> bool
@@ -241,17 +241,17 @@ namespace Nominax::ByteCode
 	/// <param name="data"></param>
 	/// <param name="count"></param>
 	/// <returns></returns>
-	constexpr auto operator "" _cluster(const char8_t* const data, const U64 count) -> CharClusterUtf8
+	constexpr auto operator "" _cluster(const char8_t* const data, const std::uint64_t count) -> CharClusterUtf8
 	{
 		CharClusterUtf8 result { };
-		for (U64 i {0}; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
+		for (std::uint64_t i {0}; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
 		{
 			result.Chars[i] = data[i];
 		}
 		return result;
 	}
 
-	static_assert(sizeof(CharClusterUtf8) == sizeof(U64));
+	static_assert(sizeof(CharClusterUtf8) == sizeof(std::uint64_t));
 	static_assert(sizeof(char) == sizeof(char8_t));
 
 	/// <summary>
@@ -260,7 +260,7 @@ namespace Nominax::ByteCode
 	union CharClusterUtf16
 	{
 		std::array<char16_t, 4> Chars;
-		U64                     Merged;
+		std::uint64_t                     Merged;
 	};
 
 	inline auto operator ==(const CharClusterUtf16 left, const CharClusterUtf16 right) -> bool
@@ -273,7 +273,7 @@ namespace Nominax::ByteCode
 		return left.Merged == right.Merged;
 	}
 
-	static_assert(sizeof(CharClusterUtf16) == sizeof(U64));
+	static_assert(sizeof(CharClusterUtf16) == sizeof(std::uint64_t));
 
 	/// <summary>
 	/// Utf-32 character constant without null terminator.
@@ -281,7 +281,7 @@ namespace Nominax::ByteCode
 	union CharClusterUtf32
 	{
 		std::array<char32_t, 2> Chars;
-		U64                     Merged;
+		std::uint64_t                     Merged;
 	};
 
 	inline auto operator ==(const CharClusterUtf32 left, const CharClusterUtf32 right) -> bool
@@ -294,5 +294,5 @@ namespace Nominax::ByteCode
 		return left.Merged == right.Merged;
 	}
 
-	static_assert(sizeof(CharClusterUtf32) == sizeof(U64));
+	static_assert(sizeof(CharClusterUtf32) == sizeof(std::uint64_t));
 }

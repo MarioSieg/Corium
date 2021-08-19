@@ -222,15 +222,15 @@ namespace Nominax::Foundation
 
 		// extract gathered CPU feature bits:
 		CpuFeatureMaskBuffer buffer { };
-		std::array<U64, 3>   merged { };
-		U32                  result;
+		std::array<std::uint64_t, 3>   merged { };
+		std::uint32_t                  result;
 		result = CpuId(&merged[0], &merged[1], &merged[2]);
-		U8* const needle {std::data(buffer)};
+		std::uint8_t* const needle {std::data(buffer)};
 		std::memcpy(needle, std::data(merged), sizeof merged);
 		std::memcpy(needle + sizeof merged, &result, sizeof result);
-		for (U64 i {0}; i < sizeof buffer; ++i)
+		for (std::uint64_t i {0}; i < sizeof buffer; ++i)
 		{
-			for (U64 j {0}; j < CHAR_BIT; ++j)
+			for (std::uint64_t j {0}; j < CHAR_BIT; ++j)
 			{
 				this->FeatureBits_[i * CHAR_BIT + j] = buffer[i] & 1 << j;
 			}
@@ -279,7 +279,7 @@ namespace Nominax::Foundation
 	auto CPUFeatureDetector::Dump() const -> void
 	{
 		Print("CPU feature detection result:\n");
-		for (U64 i {0}; i < std::size(this->FeatureBits_); ++i)
+		for (std::uint64_t i {0}; i < std::size(this->FeatureBits_); ++i)
 		{
 			if (!std::empty(CPU_FEATURE_BIT_NAMES[i]))
 			{

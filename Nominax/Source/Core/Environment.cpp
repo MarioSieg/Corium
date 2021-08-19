@@ -502,9 +502,9 @@ namespace Nominax::Core
 		PrintTypeInfo<ByteCode::Signal::Discriminator>("SignalDisc");
 		PrintTypeInfo<Object>("Object");
 		PrintTypeInfo<ObjectHeader>("ObjectHeader");
-		PrintTypeInfo<I64>("int");
-		PrintTypeInfo<U64>("uint");
-		PrintTypeInfo<F64>("float");
+		PrintTypeInfo<std::int64_t>("int");
+		PrintTypeInfo<std::uint64_t>("uint");
+		PrintTypeInfo<double>("float");
 		PrintTypeInfo<char32_t>("char");
 		PrintTypeInfo<bool>("bool");
 		PrintTypeInfo<void*>("void*");
@@ -552,7 +552,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="sizeInBytes"></param>
 	/// <returns></returns>
-	static inline auto MapStackSize(const U64 sizeInBytes) -> U64
+	static inline auto MapStackSize(const std::uint64_t sizeInBytes) -> std::uint64_t
 	{
 		if (sizeInBytes % sizeof(Record) != 0)
 		{
@@ -579,10 +579,10 @@ namespace Nominax::Core
 	/// <returns></returns>
 	static inline auto ComputePoolSize
 	(
-		U64       desiredSize,
-		const U64 reactorCount,
-		U64       reactorStackSize
-	) -> U64
+		std::uint64_t       desiredSize,
+		const std::uint64_t reactorCount,
+		std::uint64_t       reactorStackSize
+	) -> std::uint64_t
 	{
 		reactorStackSize = MapStackSize(reactorStackSize);
 		desiredSize      = desiredSize ? desiredSize : Environment::FALLBACK_SYSTEM_POOL_SIZE;
@@ -595,7 +595,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="ptr"></param>
 	/// <returns></returns>
-	static inline auto operator*(const std::unique_ptr<U8[]>& ptr) -> U8*
+	static inline auto operator*(const std::unique_ptr<std::uint8_t[]>& ptr) -> std::uint8_t*
 	{
 		return ptr.get();
 	}
@@ -605,7 +605,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="desiredSize"></param>
 	/// <returns></returns>
-	static constexpr auto ClampBootPoolSize(const U64 desiredSize) -> U64
+	static constexpr auto ClampBootPoolSize(const std::uint64_t desiredSize) -> std::uint64_t
 	{
 		return std::clamp(desiredSize, Environment::BOOT_POOL_SIZE_MIN, Environment::BOOT_POOL_SIZE_MAX);
 	}
@@ -620,7 +620,7 @@ namespace Nominax::Core
 	[[maybe_unused]]
 	static auto PrintByteCodeErrorSector
 	(
-		const U64                            idx, const ByteCode::Stream& appCode,
+		const std::uint64_t                            idx, const ByteCode::Stream& appCode,
 		const ByteCode::ValidationResultCode code
 	)
 	{
@@ -631,7 +631,7 @@ namespace Nominax::Core
 			|| code == ByteCode::ValidationResultCode::ArgumentTypeMismatch
 		};
 
-		for (U64 i {idx}; i < idx + 8 && i < appCode.Size(); ++i)
+		for (std::uint64_t i {idx}; i < idx + 8 && i < appCode.Size(); ++i)
 		{
 			if (appCode[i].Contains<ByteCode::Instruction>())
 			{
@@ -656,15 +656,15 @@ namespace Nominax::Core
 	/// Helper to allocate a environment pool.
 	/// </summary>
 	[[nodiscard]]
-	NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const U64 size, const std::string_view poolId) -> U8*
+	NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const std::uint64_t size, const std::string_view poolId) -> std::uint8_t*
 	{
-		Print("Allocating {} pool with size: {} MB\n", poolId, Bytes2Megabytes(static_cast<F64>(size)));
-		auto* NOX_RESTRICT const mem {new(std::nothrow) U8[size]};
+		Print("Allocating {} pool with size: {} MB\n", poolId, Bytes2Megabytes(static_cast<double>(size)));
+		auto* NOX_RESTRICT const mem {new(std::nothrow) std::uint8_t[size]};
 		if (!mem)
 		{
 			[[unlikely]]
 				Panic(NOX_PANIC_INFO(), "Allocation of monotonic {} pool with size {} MB failed!", poolId,
-				      Bytes2Megabytes(static_cast<F64>(size)));
+				      Bytes2Megabytes(static_cast<double>(size)));
 		}
 		return mem;
 	}
@@ -676,9 +676,9 @@ namespace Nominax::Core
 	/// <param name="max"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	static constexpr auto ComputeMemoryPercent(const U64 used, const U64 max) -> F64
+	static constexpr auto ComputeMemoryPercent(const std::uint64_t used, const std::uint64_t max) -> double
 	{
-		return static_cast<F64>(used) * 100.0 / static_cast<F64>(max);
+		return static_cast<double>(used) * 100.0 / static_cast<double>(max);
 	}
 
 	/// <summary>
@@ -692,13 +692,13 @@ namespace Nominax::Core
 	static auto QueryMemoryResourceUsage
 	(
 		std::pmr::monotonic_buffer_resource& resource,
-		const std::unique_ptr<U8[]>&         buffer,
-		const U64                            size
-	) -> std::pair<std::ptrdiff_t, F64>
+		const std::unique_ptr<std::uint8_t[]>&         buffer,
+		const std::uint64_t                            size
+	) -> std::pair<std::ptrdiff_t, double>
 	{
-		const U8* const      needle {static_cast<U8*>(resource.allocate(sizeof(U8), alignof(U8)))};
+		const std::uint8_t* const      needle {static_cast<std::uint8_t*>(resource.allocate(sizeof(std::uint8_t), alignof(std::uint8_t)))};
 		const std::ptrdiff_t offset {needle - *buffer};                             // compute allocation offset
-		const F64            poolUsagePercent {ComputeMemoryPercent(offset, size)}; // compute percent usage
+		const double            poolUsagePercent {ComputeMemoryPercent(offset, size)}; // compute percent usage
 		return {offset, poolUsagePercent};
 	}
 
@@ -720,16 +720,16 @@ namespace Nominax::Core
 	/// <returns></returns>
 	struct Environment::Context final
 	{
-		const U64                                                ReactorCount;
-		const U64                                                BootPoolSize;
-		const std::unique_ptr<U8[]>                              BootPool;
+		const std::uint64_t                                                ReactorCount;
+		const std::uint64_t                                                BootPoolSize;
+		const std::unique_ptr<std::uint8_t[]>                              BootPool;
 		std::pmr::monotonic_buffer_resource                      BootPoolResource;
-		const U64                                                SystemPoolSize;
-		const std::unique_ptr<U8[]>                              SystemPool;
+		const std::uint64_t                                                SystemPoolSize;
+		const std::unique_ptr<std::uint8_t[]>                              SystemPool;
 		std::pmr::monotonic_buffer_resource                      SystemPoolResource;
 		std::pmr::unordered_set<std::pmr::string>                Arguments;
 		std::pmr::string                                         AppName;
-		std::pmr::vector<std::chrono::duration<F64, std::micro>> ExecutionTimeHistory;
+		std::pmr::vector<std::chrono::duration<double, std::micro>> ExecutionTimeHistory;
 		const std::chrono::high_resolution_clock::time_point     BootStamp;
 		std::chrono::milliseconds                                BootTime;
 		const SystemInfoSnapshot                                           SysInfoSnapshot;
@@ -851,9 +851,9 @@ namespace Nominax::Core
 		Print
 		(
 			"Monotonic boot pool fixed size: {} MB, Min: {} MB, Max: {} MB\n",
-			Bytes2Megabytes(static_cast<F64>(descriptor.BootPoolSize)),
-			Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MIN)),
-			Bytes2Megabytes(static_cast<F64>(BOOT_POOL_SIZE_MAX))
+			Bytes2Megabytes(static_cast<double>(descriptor.BootPoolSize)),
+			Bytes2Megabytes(static_cast<double>(BOOT_POOL_SIZE_MIN)),
+			Bytes2Megabytes(static_cast<double>(BOOT_POOL_SIZE_MAX))
 		);
 
 		Print
@@ -874,8 +874,8 @@ namespace Nominax::Core
 		const auto tok {std::chrono::high_resolution_clock::now()};
 
 		// Get memory snapshot:
-		const U64 memSnapshot {OSI::QueryProcessMemoryUsed()};
-		const F64 memUsagePercent {ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory)};
+		const std::uint64_t memSnapshot {OSI::QueryProcessMemoryUsed()};
+		const double memUsagePercent {ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory)};
 
 		// Query pool info
 		const auto [bootPoolSize, bootPoolPer]
@@ -911,14 +911,14 @@ namespace Nominax::Core
 			"Boot time: {}\n"
 			"\n",
 			memUsagePercent,
-			Bytes2Megabytes(static_cast<F64>(memSnapshot)),
-			Bytes2Megabytes(static_cast<F64>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
+			Bytes2Megabytes(static_cast<double>(memSnapshot)),
+			Bytes2Megabytes(static_cast<double>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
 			bootPoolPer,
-			Bytes2Kilobytes(static_cast<F64>(bootPoolSize)),
-			Bytes2Kilobytes(static_cast<F64>(this->Context_->BootPoolSize)),
+			Bytes2Kilobytes(static_cast<double>(bootPoolSize)),
+			Bytes2Kilobytes(static_cast<double>(this->Context_->BootPoolSize)),
 			sysPoolPer,
-			Bytes2Megabytes(static_cast<F64>(sysPoolSize)),
-			Bytes2Megabytes(static_cast<F64>(this->Context_->SystemPoolSize)),
+			Bytes2Megabytes(static_cast<double>(sysPoolSize)),
+			Bytes2Megabytes(static_cast<double>(this->Context_->SystemPoolSize)),
 			ms
 		);
 	}
@@ -944,7 +944,7 @@ namespace Nominax::Core
 		// Add execution time:
 		const auto micros
 		{
-			std::chrono::duration_cast<duration<F64, std::micro>>(state.Duration)
+			std::chrono::duration_cast<duration<double, std::micro>>(state.Duration)
 		};
 		this->Context_->ExecutionTimeHistory.emplace_back(micros);
 
@@ -952,7 +952,7 @@ namespace Nominax::Core
 
 		// Print exec info:
 		const auto level {reason == Rsr::Success ? LogLevel::Success : LogLevel::Error};
-		const auto time {duration_cast<duration<F64, std::ratio<1>>>(micros)};
+		const auto time {duration_cast<duration<double, std::ratio<1>>>(micros)};
 		Print(level, "Execution #{} done! Runtime {:.04}\n", std::size(this->Context_->ExecutionTimeHistory), time);
 		std::cout.flush();
 
@@ -1040,19 +1040,19 @@ namespace Nominax::Core
 		return this->Context_->AppName;
 	}
 
-	auto Environment::GetMonotonicSystemPoolSize() const -> U64
+	auto Environment::GetMonotonicSystemPoolSize() const -> std::uint64_t
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Context_->SystemPoolSize;
 	}
 
-	auto Environment::GetExecutionCount() const -> U64
+	auto Environment::GetExecutionCount() const -> std::uint64_t
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Context_->ExecutionTimeHistory.size();
 	}
 
-	auto Environment::GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&
+	auto Environment::GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<double, std::micro>>&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Context_->ExecutionTimeHistory;

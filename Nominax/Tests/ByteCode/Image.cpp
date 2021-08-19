@@ -365,7 +365,7 @@ TEST(Image, DeathConstruct4_1)
 	{
 		[]
 		{
-			Image image {reinterpret_cast<const U8*>(0xFFAABBCC), 0};
+			Image image {reinterpret_cast<const std::uint8_t*>(0xFFAABBCC), 0};
 		}
 	};
 
@@ -378,7 +378,7 @@ TEST(Image, DeathConstruct4_2)
 	{
 		[]
 		{
-			Image image {reinterpret_cast<const U8*>(0xFFAABBCC), 6};
+			Image image {reinterpret_cast<const std::uint8_t*>(0xFFAABBCC), 6};
 		}
 	};
 
@@ -391,7 +391,7 @@ TEST(Image, DeathConstruct4_3)
 	{
 		[]
 		{
-			Image image {static_cast<const U8*>(nullptr), 0};
+			Image image {static_cast<const std::uint8_t*>(nullptr), 0};
 		}
 	};
 

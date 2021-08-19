@@ -225,17 +225,17 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="desired">How many reactors the user requested. If zero, logical cpu count will be used.</param>
 		/// <returns>The best reactor count for the current system.</returns>
-		static auto SmartQueryReactorCount(U64 desired = 0) -> U64;
+		static auto SmartQueryReactorCount(std::uint64_t desired = 0) -> std::uint64_t;
 
 		/// <summary>
 		/// Minimal one reactor is required.
 		/// </summary>
-		static constexpr U64 MIN_REACTOR_COUNT {1};
+		static constexpr std::uint64_t MIN_REACTOR_COUNT {1};
 
 		/// <summary>
 		/// Fallback reactor count.
 		/// </summary>
-		static constexpr U64 FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
+		static constexpr std::uint64_t FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
 
 		/// <summary>
 		/// Construct and initialize all new reactors.
@@ -244,7 +244,7 @@ namespace Nominax::Core
 		ReactorPool
 		(
 			std::pmr::memory_resource&               allocator,
-			U64                                      reactorCount,
+			std::uint64_t                                      reactorCount,
 			const ReactorSpawnDescriptor&            config,
 			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt
 		);
@@ -286,7 +286,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>Returns the size of the pool.</returns>
 		[[nodiscard]]
-		auto GetSize() const -> U64;
+		auto GetSize() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
@@ -301,7 +301,7 @@ namespace Nominax::Core
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto GetReactor(U64 idx) const -> const Reactor&;
+		auto GetReactor(std::uint64_t idx) const -> const Reactor&;
 
 
 		/// <summary>
@@ -310,7 +310,7 @@ namespace Nominax::Core
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator [](U64 idx) const -> const Reactor&;
+		auto operator [](std::uint64_t idx) const -> const Reactor&;
 
 		/// <summary>
 		/// 
@@ -346,7 +346,7 @@ namespace Nominax::Core
 		return this->Pool_.data();
 	}
 
-	inline auto ReactorPool::GetSize() const -> U64
+	inline auto ReactorPool::GetSize() const -> std::uint64_t
 	{
 		return this->Pool_.size();
 	}
@@ -356,12 +356,12 @@ namespace Nominax::Core
 		return this->ReactorConfig_;
 	}
 
-	inline auto ReactorPool::GetReactor(const U64 idx) const -> const Reactor&
+	inline auto ReactorPool::GetReactor(const std::uint64_t idx) const -> const Reactor&
 	{
 		return this->Pool_[idx];
 	}
 
-	inline auto ReactorPool::operator[](const U64 idx) const -> const Reactor&
+	inline auto ReactorPool::operator[](const std::uint64_t idx) const -> const Reactor&
 	{
 		return this->GetReactor(idx);
 	}

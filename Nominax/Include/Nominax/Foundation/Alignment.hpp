@@ -210,7 +210,7 @@
 #include <bit>
 
 #include "Algorithm.hpp"
-#include "BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::Foundation
 {
@@ -221,7 +221,7 @@ namespace Nominax::Foundation
 		/// <param name="alignment"></param>
 		/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto IsAlignmentValid(const U64 alignment) -> bool
+	constexpr auto IsAlignmentValid(const std::uint64_t alignment) -> bool
 	{
 		return alignment && !(alignment & (alignment - 1));
 	}
@@ -235,9 +235,9 @@ namespace Nominax::Foundation
 	/// <param name="alignment">The alignment the address should have.</param>
 	/// <returns>True if valid and corresponding alignment, else false.</returns>
 	[[nodiscard]]
-	constexpr auto IsAlignedTo(void* const ptr, const U64 alignment) -> bool
+	constexpr auto IsAlignedTo(void* const ptr, const std::uint64_t alignment) -> bool
 	{
-		return std::bit_cast<Uip64>(ptr) % alignment == 0 && IsAlignmentValid(alignment);
+		return std::bit_cast<std::uintptr_t>(ptr) % alignment == 0 && IsAlignmentValid(alignment);
 	}
 
 	/// <summary>
@@ -247,7 +247,7 @@ namespace Nominax::Foundation
 	/// <param name="alignment">The alignment the address should have.</param>
 	/// <returns>True if valid and corresponding alignment, else false.</returns>
 	[[nodiscard]]
-	constexpr auto IsAlignedTo(const Uip64 ptr, const U64 alignment) -> bool
+	constexpr auto IsAlignedTo(const std::uintptr_t ptr, const std::uint64_t alignment) -> bool
 	{
 		return IsAlignedTo(std::bit_cast<void*>(ptr), alignment);
 	}
@@ -259,9 +259,9 @@ namespace Nominax::Foundation
 	/// <param name="ptr">The pointer address. Can be nullptr!</param>
 	/// <param name="alignment">The alignment, which must be valid.</param>
 	/// <returns>The required offset.</returns>
-	constexpr auto ComputeMissingAlignmentOffset(void* const ptr, const U64 alignment) -> U64
+	constexpr auto ComputeMissingAlignmentOffset(void* const ptr, const std::uint64_t alignment) -> std::uint64_t
 	{
-		const auto misalignment = std::bit_cast<Uip64>(ptr) & (alignment - 1);
+		const auto misalignment = std::bit_cast<std::uintptr_t>(ptr) & (alignment - 1);
 		return misalignment ? alignment - misalignment : 0;
 	}
 
@@ -272,7 +272,7 @@ namespace Nominax::Foundation
 	/// <param name="ptr">The pointer address. Can be nullptr!</param>
 	/// <param name="alignment">The alignment, which must be valid.</param>
 	/// <returns>The required offset.</returns>
-	constexpr auto ComputeMissingAlignmentOffset(const Uip64 ptr, const U64 alignment) -> U64
+	constexpr auto ComputeMissingAlignmentOffset(const std::uintptr_t ptr, const std::uint64_t alignment) -> std::uint64_t
 	{
 		return ComputeMissingAlignmentOffset(std::bit_cast<void*>(ptr), alignment);
 	}
@@ -283,8 +283,8 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="size"></param>
 	/// <returns></returns>
-	inline auto ComputeMinAlignmentRequiredForSize(const U64 size) -> U64
+	inline auto ComputeMinAlignmentRequiredForSize(const std::uint64_t size) -> std::uint64_t
 	{
-		return size >= alignof(std::max_align_t) ? alignof(std::max_align_t) : static_cast<U64>(1) << ILog2(size);
+		return size >= alignof(std::max_align_t) ? alignof(std::max_align_t) : static_cast<std::uint64_t>(1) << ILog2(size);
 	}
 }

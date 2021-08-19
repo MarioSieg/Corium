@@ -311,9 +311,9 @@ TEST(AssemblyCalls, CpuIdInvocation)
 			[&]
 			{
 				[[maybe_unused]]
-					U64 a, b, c;
+					std::uint64_t a, b, c;
 				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
+					const std::uint32_t d {CpuId(&a, &b, &c)};
 			}
 		};
 		ASSERT_NO_FATAL_FAILURE(exec());
@@ -326,8 +326,8 @@ TEST(AssemblyCalls, QueryReg)
 	{
 		[&]
 		{
-			U64 gpr[16];
-			U64 sse[32];
+			std::uint64_t gpr[16];
+			std::uint64_t sse[32];
 			QueryRegSet(gpr, sse);
 		}
 	};

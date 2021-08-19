@@ -269,20 +269,20 @@ namespace Nominax::ByteCode
 		/// Emits and optimizes a push.
 		/// </summary>
 		/// <param name="value">The immediate value to push.</param>
-		auto EmitPush(I64 value) -> LocalCodeGenerationLayer&;
+		auto EmitPush(std::int64_t value) -> LocalCodeGenerationLayer&;
 
 		/// <summary>
 		/// Emits and optimizes a push.
 		/// </summary>
 		/// <param name="value">The immediate value to push.</param>
-		auto EmitPush(F64 value) -> LocalCodeGenerationLayer&;
+		auto EmitPush(double value) -> LocalCodeGenerationLayer&;
 
 		/// <summary>
 		/// Emits and optimizes a certain amount of pops.
 		/// </summary>
 		/// <param name="popCount"></param>
 		/// <returns></returns>
-		auto EmitPop(U16 popCount = 1) -> LocalCodeGenerationLayer&;
+		auto EmitPop(std::uint16_t popCount = 1) -> LocalCodeGenerationLayer&;
 	};
 
 	inline LocalCodeGenerationLayer::LocalCodeGenerationLayer(Stream& emitter) : Emitter {emitter} { }

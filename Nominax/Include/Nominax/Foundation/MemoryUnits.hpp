@@ -208,11 +208,35 @@
 #pragma once
 
 #include <algorithm>
-
-#include "BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax
 {
+	/// <summary>
+	/// Kilobytes.
+	/// </summary>
+	constexpr std::uint64_t KB{ 1000 };
+
+	/// <summary>
+	/// Megabytes.
+	/// </summary>
+	constexpr std::uint64_t MB{ KB * KB };
+
+	/// <summary>
+	/// Gigabytes.
+	/// </summary>
+	constexpr std::uint64_t GB{ KB * KB * KB };
+
+	/// <summary>
+	/// Terabytes.
+	/// </summary>
+	constexpr std::uint64_t TB{ KB * KB * KB * KB };
+
+	/// <summary>
+	/// Petabytes.
+	/// </summary>
+	constexpr std::uint64_t PB{ KB * KB * KB * KB * KB };
+	
 	/// <summary>
 	/// Convert between memory units.
 	/// </summary>
@@ -299,7 +323,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator ""_kB(const unsigned long long value) -> U64
+	constexpr auto operator ""_kB(const unsigned long long value) -> std::uint64_t
 	{
 		return Kilobytes2Bytes<decltype(value)>(value);
 	}
@@ -309,7 +333,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator ""_mB(const unsigned long long value) -> U64
+	constexpr auto operator ""_mB(const unsigned long long value) -> std::uint64_t
 	{
 		return Megabytes2Bytes<decltype(value)>(value);
 	}
@@ -319,7 +343,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator ""_gB(const unsigned long long value) -> U64
+	constexpr auto operator ""_gB(const unsigned long long value) -> std::uint64_t
 	{
 		return Gigabytes2Bytes<decltype(value)>(value);
 	}

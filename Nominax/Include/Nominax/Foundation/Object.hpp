@@ -383,7 +383,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>The size in records of the object header plus the size of object it self.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR BlobSize() const -> U64;
+		auto IMMUTATOR BlobSize() const -> std::uint64_t;
 
 		/// <summary>
 		/// The size in bytes of the whole data blob:
@@ -391,7 +391,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>The size in bytes of the whole object header plus the whole size of object it self.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR BlobSizeInBytes() const -> U64;
+		auto IMMUTATOR BlobSizeInBytes() const -> std::uint64_t;
 
 		/// <summary>
 		/// Returns the size of the object block in bytes.
@@ -399,7 +399,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto IMMUTATOR ObjectBlockSizeInBytes() const -> U64;
+		auto IMMUTATOR ObjectBlockSizeInBytes() const -> std::uint64_t;
 
 		/// <summary>
 		/// Tries to copy the object block into the buffer.
@@ -468,14 +468,14 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto IMMUTATOR operator [](U64 idx) -> BlobBlockType&;
+		auto IMMUTATOR operator [](std::uint64_t idx) -> BlobBlockType&;
 
 		/// <summary>
 		/// Unchecked subscript in object block.
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto IMMUTATOR operator [](U64 idx) const -> BlobBlockType;
+		auto IMMUTATOR operator [](std::uint64_t idx) const -> BlobBlockType;
 
 		/// <summary>
 		/// Sets the object block to zero - all object fields will be zero.
@@ -595,7 +595,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <param name="sizeInRecords">The size of the object in RECORDS NOT in BYTES</param>
 		/// <returns>The mock object.</returns>
-		static auto AllocateUnique(U32 sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
+		static auto AllocateUnique(std::uint32_t sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>;
 	};
 
 	static_assert(sizeof(Object) == sizeof(Object::BlobBlockType*));
@@ -607,9 +607,9 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Prevent using with invalid type.
 	/// Allowed are the record types:
-	/// U64
-	/// I64
-	/// F64
+	/// std::uint64_t
+	/// std::int64_t
+	/// double
 	/// char32_t
 	/// void*
 	/// </summary>
@@ -624,31 +624,31 @@ namespace Nominax::Foundation
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of U64.
+	/// Specialization for bitwise compare of std::uint64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Equal<U64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_Equal<std::uint64_t>(Object a, Object b) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of I64.
+	/// Specialization for bitwise compare of std::int64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Equal<I64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_Equal<std::int64_t>(Object a, Object b) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of F64.
+	/// Specialization for bitwise compare of double.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are equal, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Equal<F64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_Equal<double>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -677,7 +677,7 @@ namespace Nominax::Foundation
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_Equal<char32_t>(const Object a, const Object b) -> bool
 	{
-		return DeepValueCmp_Equal<U64>(a, b);
+		return DeepValueCmp_Equal<std::uint64_t>(a, b);
 	}
 
 	/// <summary>
@@ -689,43 +689,43 @@ namespace Nominax::Foundation
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_Equal<void*>(const Object a, const Object b) -> bool
 	{
-		return DeepValueCmp_Equal<U64>(a, b);
+		return DeepValueCmp_Equal<std::uint64_t>(a, b);
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of U64.
+	/// Specialization for bitwise compare of std::uint64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<U64>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<std::uint64_t>(const Object a, const Object b) -> bool
 	{
-		return !DeepValueCmp_Equal<U64>(a, b);
+		return !DeepValueCmp_Equal<std::uint64_t>(a, b);
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of I64.
+	/// Specialization for bitwise compare of std::int64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<I64>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<std::int64_t>(const Object a, const Object b) -> bool
 	{
-		return !DeepValueCmp_Equal<I64>(a, b);
+		return !DeepValueCmp_Equal<std::int64_t>(a, b);
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of F64.
+	/// Specialization for bitwise compare of double.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<F64>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<double>(const Object a, const Object b) -> bool
 	{
-		return !DeepValueCmp_Equal<F64>(a, b);
+		return !DeepValueCmp_Equal<double>(a, b);
 	}
 
 	/// <summary>
@@ -753,31 +753,31 @@ namespace Nominax::Foundation
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of U64.
+	/// Specialization for bitwise compare of std::uint64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Less<U64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_Less<std::uint64_t>(Object a, Object b) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of I64.
+	/// Specialization for bitwise compare of std::int64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Less<I64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_Less<std::int64_t>(Object a, Object b) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of F64.
+	/// Specialization for bitwise compare of double.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Less<F64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_Less<double>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -800,41 +800,41 @@ namespace Nominax::Foundation
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_Less<char32_t>(const Object a, const Object b) -> bool
 	{
-		return DeepValueCmp_Less<U64>(a, b);
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
 	}
 
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_Less<void*>(const Object a, const Object b) -> bool
 	{
-		return DeepValueCmp_Less<U64>(a, b);
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of U64.
+	/// Specialization for bitwise compare of std::uint64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_LessEqual<U64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_LessEqual<std::uint64_t>(Object a, Object b) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of I64.
+	/// Specialization for bitwise compare of std::int64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_LessEqual<I64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_LessEqual<std::int64_t>(Object a, Object b) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of F64.
+	/// Specialization for bitwise compare of double.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_LessEqual<F64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_LessEqual<double>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -857,41 +857,41 @@ namespace Nominax::Foundation
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_LessEqual<char32_t>(const Object a, const Object b) -> bool
 	{
-		return DeepValueCmp_Less<U64>(a, b);
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
 	}
 
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_LessEqual<void*>(const Object a, const Object b) -> bool
 	{
-		return DeepValueCmp_Less<U64>(a, b);
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of U64.
+	/// Specialization for bitwise compare of std::uint64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Greater<U64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_Greater<std::uint64_t>(Object a, Object b) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of I64.
+	/// Specialization for bitwise compare of std::int64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Greater<I64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_Greater<std::int64_t>(Object a, Object b) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of F64.
+	/// Specialization for bitwise compare of double.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_Greater<F64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_Greater<double>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -914,41 +914,41 @@ namespace Nominax::Foundation
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_Greater<char32_t>(const Object a, const Object b) -> bool
 	{
-		return DeepValueCmp_Less<U64>(a, b);
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
 	}
 
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_Greater<void*>(const Object a, const Object b) -> bool
 	{
-		return DeepValueCmp_Less<U64>(a, b);
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
 	}
 
 	/// <summary>
-	/// Specialization for bitwise compare of U64.
+	/// Specialization for bitwise compare of std::uint64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<U64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_GreaterEqual<std::uint64_t>(Object a, Object b) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of I64.
+	/// Specialization for bitwise compare of std::int64_t.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<I64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_GreaterEqual<std::int64_t>(Object a, Object b) -> bool;
 
 	/// <summary>
-	/// Specialization for bitwise compare of F64.
+	/// Specialization for bitwise compare of double.
 	/// </summary>
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all less, else false.</returns>
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<F64>(Object a, Object b) -> bool;
+	auto Object::DeepValueCmp_GreaterEqual<double>(Object a, Object b) -> bool;
 
 	/// <summary>
 	/// Specialization for bitwise compare of char32_t.
@@ -971,13 +971,13 @@ namespace Nominax::Foundation
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_GreaterEqual<char32_t>(const Object a, const Object b) -> bool
 	{
-		return DeepValueCmp_Less<U64>(a, b);
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
 	}
 
 	template <>
 	NOX_FLATTEN inline auto Object::DeepValueCmp_GreaterEqual<void*>(const Object a, const Object b) -> bool
 	{
-		return DeepValueCmp_Less<U64>(a, b);
+		return DeepValueCmp_Less<std::uint64_t>(a, b);
 	}
 
 	NOX_FLATTEN inline auto IMMUTATOR Object::QueryRawHeader() const -> BlobBlockType*
@@ -1015,17 +1015,17 @@ namespace Nominax::Foundation
 		return this->Blob_ == nullptr;
 	}
 
-	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSize() const -> U64
+	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSize() const -> std::uint64_t
 	{
 		return ObjectHeader::RECORD_CHUNKS + ObjectHeader::ReadMapping_Size(this->QueryRawHeader());
 	}
 
-	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSizeInBytes() const -> U64
+	NOX_FLATTEN inline auto IMMUTATOR Object::BlobSizeInBytes() const -> std::uint64_t
 	{
 		return BlobSize() * sizeof(Record);
 	}
 
-	NOX_FLATTEN inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const -> U64
+	NOX_FLATTEN inline auto IMMUTATOR Object::ObjectBlockSizeInBytes() const -> std::uint64_t
 	{
 		return this->HeaderRead_BlockSize() * sizeof(Record);
 	}
@@ -1115,12 +1115,12 @@ namespace Nominax::Foundation
 		return this->LookupObjectBlockEnd();
 	}
 
-	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const U64 idx) -> BlobBlockType&
+	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const std::uint64_t idx) -> BlobBlockType&
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}
 
-	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const U64 idx) const -> BlobBlockType
+	NOX_FLATTEN inline auto IMMUTATOR Object::operator[](const std::uint64_t idx) const -> BlobBlockType
 	{
 		return *(this->LookupObjectBlock() + idx);
 	}

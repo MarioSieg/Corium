@@ -250,7 +250,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="data">The blob to copy the data from.</param>
 		/// <param name="byteSize">The size of the data in bytes.</param>
-		Image(const void* data, U64 byteSize);
+		Image(const void* data, std::uint64_t byteSize);
 
 		/// <summary>
 		/// No copying.
@@ -288,14 +288,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns>The size of the blob in bytes.</returns>
 		[[nodiscard]]
-		auto GetByteSize() const -> U64;
+		auto GetByteSize() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the blob (amount of signals).</returns>
 		[[nodiscard]]
-		auto GetSize() const -> U64;
+		auto GetSize() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
@@ -309,7 +309,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns>Data pointer of the blob as byte ptr.</returns>
 		[[nodiscard]]
-		auto GetByteData() const -> const U8*;
+		auto GetByteData() const -> const std::uint8_t*;
 
 		/// <summary>
 		/// Check of null pointer or zero size.
@@ -358,22 +358,22 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](U64 idx) -> Signal&;
+		auto operator [](std::uint64_t idx) -> Signal&;
 
 		/// <summary>
 		/// Subscript operator.
 		/// </summary>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		auto operator [](U64 idx) const -> Signal;
+		auto operator [](std::uint64_t idx) const -> Signal;
 	};
 
-	inline auto Image::GetByteSize() const -> U64
+	inline auto Image::GetByteSize() const -> std::uint64_t
 	{
 		return std::size(this->Blob_) * sizeof(Signal);
 	}
 
-	inline auto Image::GetSize() const -> U64
+	inline auto Image::GetSize() const -> std::uint64_t
 	{
 		return std::size(this->Blob_);
 	}
@@ -383,9 +383,9 @@ namespace Nominax::ByteCode
 		return std::data(this->Blob_);
 	}
 
-	inline auto Image::GetByteData() const -> const U8*
+	inline auto Image::GetByteData() const -> const std::uint8_t*
 	{
-		return reinterpret_cast<const U8*>(std::data(this->Blob_));
+		return reinterpret_cast<const std::uint8_t*>(std::data(this->Blob_));
 	}
 
 	inline auto Image::IsEmpty() const -> bool
@@ -453,12 +453,12 @@ namespace Nominax::ByteCode
 		return image.cend();
 	}
 
-	inline auto Image::operator[](const U64 idx) const -> Signal
+	inline auto Image::operator[](const std::uint64_t idx) const -> Signal
 	{
 		return this->Blob_[idx];
 	}
 
-	inline auto Image::operator[](const U64 idx) -> Signal&
+	inline auto Image::operator[](const std::uint64_t idx) -> Signal&
 	{
 		return this->Blob_[idx];
 	}

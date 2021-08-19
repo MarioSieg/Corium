@@ -209,7 +209,7 @@
 
 namespace Nominax::Core
 {
-	auto ReactorPool::SmartQueryReactorCount(const U64 desired) -> U64
+	auto ReactorPool::SmartQueryReactorCount(const std::uint64_t desired) -> std::uint64_t
 	{
 		return desired < MIN_REACTOR_COUNT ? std::thread::hardware_concurrency() : desired;
 	}
@@ -217,7 +217,7 @@ namespace Nominax::Core
 	ReactorPool::ReactorPool
 	(
 		std::pmr::memory_resource&               allocator,
-		const U64                                reactorCount,
+		const std::uint64_t                                reactorCount,
 		const ReactorSpawnDescriptor&            config,
 		const std::optional<ReactorRoutineLink>& routineLink
 	) : Pool_ {&allocator}
@@ -228,7 +228,7 @@ namespace Nominax::Core
 		Foundation::Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT, FALLBACK_REACTOR_COUNT, reactorCount);
 
 		this->Pool_.reserve(reactorCount);
-		for (U64 i {0}; i < reactorCount; ++i)
+		for (std::uint64_t i {0}; i < reactorCount; ++i)
 		{
 			if (!routineLink)
 			{
@@ -247,7 +247,7 @@ namespace Nominax::Core
 
 	ReactorPool::~ReactorPool()
 	{
-		const auto size {this->Pool_.size()};
+		const auto size {std::size(this->Pool_)};
 		this->Pool_.clear();
 		Foundation::Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
 	}

@@ -209,9 +209,9 @@
 
 namespace Nominax::Foundation
 {
-	auto ILog2DeBruijn(U64 x) -> U64
+	auto ILog2DeBruijn(std::uint64_t x) -> std::uint64_t
 	{
-		static constexpr std::array<U64, 64> DE_BRUIJN_TABLE
+		static constexpr std::array<std::uint64_t, 64> DE_BRUIJN_TABLE
 		{
 			0x00, 0x3A, 0x01, 0x3B,
 			0x2F, 0x35, 0x02, 0x3C,
@@ -241,9 +241,9 @@ namespace Nominax::Foundation
 		return DE_BRUIJN_TABLE[x * UINT64_C(0x03F6EAF2CD271461) >> UINT64_C(58)];
 	}
 
-	auto LinearizeCoords2D(const U16 x, const U16 y) -> U32
+	auto LinearizeCoords2D(const std::uint16_t x, const std::uint16_t y) -> std::uint32_t
 	{
-		static constexpr std::array<U16, 256> MORTON_TABLE
+		static constexpr std::array<std::uint16_t, 256> MORTON_TABLE
 		{
 			0x0000, 0x0001, 0x0004, 0x0005, 0x0010, 0x0011, 0x0014, 0x0015,
 			0x0040, 0x0041, 0x0044, 0x0045, 0x0050, 0x0051, 0x0054, 0x0055,

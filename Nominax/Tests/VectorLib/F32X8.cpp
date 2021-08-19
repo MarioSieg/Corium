@@ -209,7 +209,7 @@
 
 TEST(VectorLib, F32_X8_Add_Unaligned)
 {
-	F32 x[8]
+	float x[8]
 	{
 		2.5F,
 		0.3F,
@@ -221,7 +221,7 @@ TEST(VectorLib, F32_X8_Add_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[8]
+	const float y[8]
 	{
 		0.5F,
 		1.3F,
@@ -246,7 +246,7 @@ TEST(VectorLib, F32_X8_Add_Unaligned)
 
 TEST(VectorLib, F32_X8_Add_Aligned)
 {
-	alignas(V256_ALIGN) F32 x[8]
+	alignas(V256_ALIGN) float x[8]
 	{
 		2.5F,
 		0.3F,
@@ -258,7 +258,7 @@ TEST(VectorLib, F32_X8_Add_Aligned)
 		-0.5F
 	};
 
-	alignas(V256_ALIGN) const F32 y[8]
+	alignas(V256_ALIGN) const float y[8]
 	{
 		0.5F,
 		1.3F,
@@ -283,7 +283,7 @@ TEST(VectorLib, F32_X8_Add_Aligned)
 
 TEST(VectorLib, F32_X8_Sub_Unaligned)
 {
-	F32 x[8]
+	float x[8]
 	{
 		2.5F,
 		0.3F,
@@ -295,7 +295,7 @@ TEST(VectorLib, F32_X8_Sub_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[8]
+	const float y[8]
 	{
 		0.5F,
 		1.3F,
@@ -320,7 +320,7 @@ TEST(VectorLib, F32_X8_Sub_Unaligned)
 
 TEST(VectorLib, F32_X8_Sub_Aligned)
 {
-	alignas(V256_ALIGN) F32 x[8]
+	alignas(V256_ALIGN) float x[8]
 	{
 		2.5F,
 		0.3F,
@@ -332,7 +332,7 @@ TEST(VectorLib, F32_X8_Sub_Aligned)
 		-0.5F
 	};
 
-	alignas(V256_ALIGN) const F32 y[8]
+	alignas(V256_ALIGN) const float y[8]
 	{
 		0.5F,
 		1.3F,
@@ -357,7 +357,7 @@ TEST(VectorLib, F32_X8_Sub_Aligned)
 
 TEST(VectorLib, F32_X8_Mul_Unaligned)
 {
-	F32 x[8]
+	float x[8]
 	{
 		2.5F,
 		0.3F,
@@ -369,7 +369,7 @@ TEST(VectorLib, F32_X8_Mul_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[8]
+	const float y[8]
 	{
 		0.5F,
 		1.3F,
@@ -394,7 +394,7 @@ TEST(VectorLib, F32_X8_Mul_Unaligned)
 
 TEST(VectorLib, F32_X8_Mul_Aligned)
 {
-	alignas(V256_ALIGN) F32 x[8]
+	alignas(V256_ALIGN) float x[8]
 	{
 		2.5F,
 		0.3F,
@@ -406,7 +406,7 @@ TEST(VectorLib, F32_X8_Mul_Aligned)
 		-0.5F
 	};
 
-	alignas(V256_ALIGN) const F32 y[8]
+	alignas(V256_ALIGN) const float y[8]
 	{
 		0.5F,
 		1.3F,
@@ -431,7 +431,7 @@ TEST(VectorLib, F32_X8_Mul_Aligned)
 
 TEST(VectorLib, F32_X8_Div_Unaligned)
 {
-	F32 x[8]
+	float x[8]
 	{
 		2.5F,
 		0.3F,
@@ -443,7 +443,7 @@ TEST(VectorLib, F32_X8_Div_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[8]
+	const float y[8]
 	{
 		0.5F,
 		1.3F,
@@ -468,7 +468,7 @@ TEST(VectorLib, F32_X8_Div_Unaligned)
 
 TEST(VectorLib, F32_X8_Div_Aligned)
 {
-	alignas(V256_ALIGN) F32 x[8]
+	alignas(V256_ALIGN) float x[8]
 	{
 		2.5F,
 		0.3F,
@@ -480,7 +480,7 @@ TEST(VectorLib, F32_X8_Div_Aligned)
 		-0.5F
 	};
 
-	alignas(V256_ALIGN) const F32 y[8]
+	alignas(V256_ALIGN) const float y[8]
 	{
 		0.5F,
 		1.3F,

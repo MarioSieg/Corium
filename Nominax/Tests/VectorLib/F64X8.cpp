@@ -209,7 +209,7 @@
 
 TEST(VectorLib, F64_X8_Add_Unaligned)
 {
-	F64 x[8]
+	double x[8]
 	{
 		2.5,
 		0.3,
@@ -221,7 +221,7 @@ TEST(VectorLib, F64_X8_Add_Unaligned)
 		1.1
 	};
 
-	const F64 y[8]
+	const double y[8]
 	{
 		0.5,
 		1.3,
@@ -246,7 +246,7 @@ TEST(VectorLib, F64_X8_Add_Unaligned)
 
 TEST(VectorLib, F64_X8_Add_Aligned)
 {
-	alignas(V512_ALIGN) F64 x[8]
+	alignas(V512_ALIGN) double x[8]
 	{
 		2.5,
 		0.3,
@@ -258,7 +258,7 @@ TEST(VectorLib, F64_X8_Add_Aligned)
 		1.1
 	};
 
-	alignas(V512_ALIGN) const F64 y[8]
+	alignas(V512_ALIGN) const double y[8]
 	{
 		0.5,
 		1.3,
@@ -283,7 +283,7 @@ TEST(VectorLib, F64_X8_Add_Aligned)
 
 TEST(VectorLib, F64_X8_Sub_Unaligned)
 {
-	F64 x[8]
+	double x[8]
 	{
 		2.5,
 		0.3,
@@ -295,7 +295,7 @@ TEST(VectorLib, F64_X8_Sub_Unaligned)
 		1.1
 	};
 
-	const F64 y[8]
+	const double y[8]
 	{
 		0.5,
 		1.3,
@@ -320,7 +320,7 @@ TEST(VectorLib, F64_X8_Sub_Unaligned)
 
 TEST(VectorLib, F64_X8_Sub_Aligned)
 {
-	alignas(V512_ALIGN) F64 x[8]
+	alignas(V512_ALIGN) double x[8]
 	{
 		2.5,
 		0.3,
@@ -332,7 +332,7 @@ TEST(VectorLib, F64_X8_Sub_Aligned)
 		1.1
 	};
 
-	alignas(V512_ALIGN) const F64 y[8]
+	alignas(V512_ALIGN) const double y[8]
 	{
 		0.5,
 		1.3,
@@ -357,7 +357,7 @@ TEST(VectorLib, F64_X8_Sub_Aligned)
 
 TEST(VectorLib, F64_X8_Mul_Unaligned)
 {
-	F64 x[8]
+	double x[8]
 	{
 		2.5,
 		0.3,
@@ -369,7 +369,7 @@ TEST(VectorLib, F64_X8_Mul_Unaligned)
 		1.1
 	};
 
-	const F64 y[8]
+	const double y[8]
 	{
 		0.5,
 		1.3,
@@ -394,7 +394,7 @@ TEST(VectorLib, F64_X8_Mul_Unaligned)
 
 TEST(VectorLib, F64_X8_Mul_Aligned)
 {
-	alignas(V512_ALIGN) F64 x[8]
+	alignas(V512_ALIGN) double x[8]
 	{
 		2.5,
 		0.3,
@@ -406,7 +406,7 @@ TEST(VectorLib, F64_X8_Mul_Aligned)
 		1.1
 	};
 
-	alignas(V512_ALIGN) const F64 y[8]
+	alignas(V512_ALIGN) const double y[8]
 	{
 		0.5,
 		1.3,
@@ -431,7 +431,7 @@ TEST(VectorLib, F64_X8_Mul_Aligned)
 
 TEST(VectorLib, F64_X8_Div_Unaligned)
 {
-	F64 x[8]
+	double x[8]
 	{
 		2.5,
 		0.3,
@@ -443,7 +443,7 @@ TEST(VectorLib, F64_X8_Div_Unaligned)
 		1.1
 	};
 
-	const F64 y[8]
+	const double y[8]
 	{
 		0.5,
 		1.3,
@@ -468,7 +468,7 @@ TEST(VectorLib, F64_X8_Div_Unaligned)
 
 TEST(VectorLib, F64_X8_Div_Aligned)
 {
-	alignas(V512_ALIGN) F64 x[8]
+	alignas(V512_ALIGN) double x[8]
 	{
 		2.5,
 		0.3,
@@ -480,7 +480,7 @@ TEST(VectorLib, F64_X8_Div_Aligned)
 		1.1
 	};
 
-	alignas(V512_ALIGN) const F64 y[8]
+	alignas(V512_ALIGN) const double y[8]
 	{
 		0.5,
 		1.3,

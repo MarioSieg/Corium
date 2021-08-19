@@ -208,7 +208,7 @@
 #pragma once
 
 #include "Platform.hpp"
-#include "BaseTypes.hpp"
+#include <cstdint>
 #include "MemoryUnits.hpp"
 
 #if _WIN64
@@ -229,12 +229,12 @@ namespace Nominax::Foundation
 	/// Above this size memory will be allocated on the heap
 	/// instead of the stack.
 	/// </summary>
-	constexpr U64 STACK_ALLOC_HEAP_THRESHOLD {4_kB};
+	constexpr std::uint64_t STACK_ALLOC_HEAP_THRESHOLD {4_kB};
 
 	/// <summary>
 	/// Restrict fixed stack allocation type.
 	/// </summary>
-	template <typename T, const U64 C>
+	template <typename T, const std::uint64_t C>
 	concept FixedStackAllocatable = requires
 	{
 		std::is_trivial_v<T>;                       // trivial types only
@@ -243,10 +243,10 @@ namespace Nominax::Foundation
 		sizeof(T) * C < STACK_ALLOC_HEAP_THRESHOLD; // no more than 4 kB
 	};
 
-	template <typename T, const U64 C> requires FixedStackAllocatable<T, C>
+	template <typename T, const std::uint64_t C> requires FixedStackAllocatable<T, C>
 	struct FixedStackAllocationProxy final
 	{
-		static constexpr U64 BYTE_SIZE {C * sizeof(T)};
+		static constexpr std::uint64_t BYTE_SIZE {C * sizeof(T)};
 	};
 
 	/// <summary>
@@ -348,7 +348,7 @@ namespace Nominax::Foundation
 		/// <typeparam name="T"></typeparam>
 		/// /// <param name="idx"></param>
 		/// /// <returns></returns>
-		constexpr auto operator [](U64 idx) & -> T&;
+		constexpr auto operator [](std::uint64_t idx) & -> T&;
 
 		/// <summary>
 		/// Unchecked subscript.
@@ -356,7 +356,7 @@ namespace Nominax::Foundation
 		/// <typeparam name="T"></typeparam>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		constexpr auto operator [](U64 idx) const & -> const T&;
+		constexpr auto operator [](std::uint64_t idx) const & -> const T&;
 
 		/// <summary>
 		/// 
@@ -408,13 +408,13 @@ namespace Nominax::Foundation
 	}
 
 	template <typename T> requires DynamicStackAllocatable<T>
-	constexpr auto HybridStackGuard<T>::operator[](const U64 idx) & -> T&
+	constexpr auto HybridStackGuard<T>::operator[](const std::uint64_t idx) & -> T&
 	{
 		return *(this->Blob_ + idx);
 	}
 
 	template <typename T> requires DynamicStackAllocatable<T>
-	constexpr auto HybridStackGuard<T>::operator[](const U64 idx) const & -> const T&
+	constexpr auto HybridStackGuard<T>::operator[](const std::uint64_t idx) const & -> const T&
 	{
 		return *(this->Blob_ + idx);
 	}
@@ -440,7 +440,7 @@ namespace Nominax::Foundation
 	/// on the heap or not.
 	/// </summary>
 	template <typename T>
-	constexpr auto IsHybridHeap(const U64 count) -> bool
+	constexpr auto IsHybridHeap(const std::uint64_t count) -> bool
 	{
 		return count * sizeof(T) > STACK_ALLOC_HEAP_THRESHOLD;
 	}

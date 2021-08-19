@@ -210,7 +210,7 @@
 #include <thread>
 #include <string>
 
-#include "BaseTypes.hpp"
+#include <cstdint>
 #include "Platform.hpp"
 
 namespace Nominax::Foundation
@@ -243,7 +243,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Amount of CPU supported threads.
 		/// </summary>
-		U64 ThreadCount { };
+		std::uint64_t ThreadCount { };
 
 		/// <summary>
 		/// Name of the CPU.
@@ -253,17 +253,17 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// The total amount of memory in bytes.
 		/// </summary>
-		U64 TotalSystemMemory { };
+		std::uint64_t TotalSystemMemory { };
 
 		/// <summary>
 		/// The total amount of process memory in bytes.
 		/// </summary>
-		U64 ProcessMemory { };
+		std::uint64_t ProcessMemory { };
 
 		/// <summary>
 		/// The size of a page in bytes.
 		/// </summary>
-		U64 PageSize { };
+		std::uint64_t PageSize { };
 
 		/// <summary>
 		/// Construct and query data.
