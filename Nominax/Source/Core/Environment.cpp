@@ -469,10 +469,10 @@ namespace Nominax::Core
 	/// Query and print cpu features.
 	/// </summary>
 	/// <returns></returns>Common::
-	static auto InitCpuFeatures() -> CpuFeatureDetector
+	static auto InitCpuFeatures() -> CPUFeatureDetector
 	{
 		Print('\n');
-		CpuFeatureDetector cpuFeatureDetector { };
+		CPUFeatureDetector cpuFeatureDetector { };
 		cpuFeatureDetector.Dump();
 		Print('\n');
 		return cpuFeatureDetector;
@@ -708,7 +708,7 @@ namespace Nominax::Core
 	/// <param name="fallback"></param>
 	/// <param name="cpu"></param>
 	/// <returns></returns>
-	static inline auto QueryExecRoutine(const bool fallback, const CpuFeatureDetector& cpu)
+	static inline auto QueryExecRoutine(const bool fallback, const CPUFeatureDetector& cpu)
 	{
 		return fallback ? HyperVisor::GetFallbackRoutineLink() : HyperVisor::GetOptimalReactorRoutine(cpu);
 	}
@@ -733,7 +733,7 @@ namespace Nominax::Core
 		const std::chrono::high_resolution_clock::time_point     BootStamp;
 		std::chrono::milliseconds                                BootTime;
 		const SystemInfoSnapshot                                           SysInfoSnapshot;
-		const CpuFeatureDetector                                 CpuFeatures;
+		const CPUFeatureDetector                                 CpuFeatures;
 		const ReactorRoutineLink                                 OptimalReactorRoutine;
 		ReactorPool                                              CorePool;
 
@@ -874,7 +874,7 @@ namespace Nominax::Core
 		const auto tok {std::chrono::high_resolution_clock::now()};
 
 		// Get memory snapshot:
-		const U64 memSnapshot {OsInterface::QueryProcessMemoryUsed()};
+		const U64 memSnapshot {OSI::QueryProcessMemoryUsed()};
 		const F64 memUsagePercent {ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory)};
 
 		// Query pool info
@@ -1028,7 +1028,7 @@ namespace Nominax::Core
 		return this->Context_->SysInfoSnapshot;
 	}
 
-	auto Environment::GetCpuFeatureSnapshot() const -> const CpuFeatureDetector&
+	auto Environment::GetCpuFeatureSnapshot() const -> const CPUFeatureDetector&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Context_->CpuFeatures;

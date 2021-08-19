@@ -214,45 +214,46 @@
 namespace Nominax::Foundation
 {
 	/// <summary>
+	/// OSI - Operating System Interface
 	/// Cross platform interface for OS-specific routines.
 	/// </summary>
-	struct OsInterface final
+	struct OSI final
 	{
 		/// <summary>
 		/// Static class!
 		/// </summary>
-		OsInterface() = delete;
+		OSI() = delete;
 
 		/// <summary>
 		/// Static class!
 		/// </summary>
 		/// <param name="other"></param>
-		OsInterface(const OsInterface& other) = delete;
+		OSI(const OSI& other) = delete;
 
 		/// <summary>
 		/// Static class!
 		/// </summary>
 		/// <param name="other"></param>
-		OsInterface(OsInterface&& other) = delete;
-
-		/// <summary>
-		/// Static class!
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(const OsInterface& other) -> OsInterface& = delete;
+		OSI(OSI&& other) = delete;
 
 		/// <summary>
 		/// Static class!
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(OsInterface&& other) -> OsInterface& = delete;
+		auto operator =(const OSI& other) -> OSI& = delete;
 
 		/// <summary>
 		/// Static class!
 		/// </summary>
-		~OsInterface() = delete;
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(OSI&& other) -> OSI& = delete;
+
+		/// <summary>
+		/// Static class!
+		/// </summary>
+		~OSI() = delete;
 
 		/// <summary>
 		/// Query system info.

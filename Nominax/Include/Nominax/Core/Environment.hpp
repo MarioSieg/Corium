@@ -213,7 +213,7 @@
 
 #include "../Foundation/BaseTypes.hpp"
 #include "../Foundation/MemoryUnits.hpp"
-#include "../Foundation/CpuFeatureDetector.hpp"
+#include "../Foundation/CPUFeatureDetector.hpp"
 #include "../Foundation/SystemInfoSnapshot.hpp"
 #include "../Foundation/IAllocator.hpp"
 #include "../ByteCode/Stream.hpp"
@@ -449,7 +449,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The cpu feature detector.</returns>
 		[[nodiscard]]
-		auto GetCpuFeatureSnapshot() const -> const Foundation::CpuFeatureDetector&;
+		auto GetCpuFeatureSnapshot() const -> const Foundation::CPUFeatureDetector&;
 
 		/// <summary>
 		/// 

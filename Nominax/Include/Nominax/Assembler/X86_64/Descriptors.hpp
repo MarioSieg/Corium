@@ -210,9 +210,9 @@
 #include "../../Foundation/_Foundation.hpp"
 
 #include "Operand.hpp"
-#include "Rex.hpp"
-#include "Vex.hpp"
-#include "Evex.hpp"
+#include "REX.hpp"
+#include "VEX.hpp"
+#include "EVEX.hpp"
 
 namespace Nominax::Assembler::X86_64
 {

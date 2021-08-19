@@ -212,7 +212,7 @@
 #include <optional>
 
 #include "DyProc.hpp"
-#include "OsInterface.hpp"
+#include "OSI.hpp"
 
 namespace Nominax::Foundation
 {
@@ -286,15 +286,15 @@ namespace Nominax::Foundation
 	static_assert(!std::is_trivially_copy_assignable_v<DynamicLibrary>);
 	static_assert(!std::is_trivially_move_assignable_v<DynamicLibrary>);
 
-	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ {OsInterface::DylibOpen(filePath)} { }
+	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ {OSI::DylibOpen(filePath)} { }
 
 	inline DynamicLibrary::DynamicLibrary(const std::filesystem::path& filePath) : Handle_ {
-		OsInterface::DylibOpen(filePath.string())
+		OSI::DylibOpen(filePath.string())
 	} { }
 
 	inline DynamicLibrary::~DynamicLibrary()
 	{
-		OsInterface::DylibClose(this->Handle_);
+		OSI::DylibClose(this->Handle_);
 	}
 
 	inline DynamicLibrary::operator bool() const
@@ -304,7 +304,7 @@ namespace Nominax::Foundation
 
 	inline auto DynamicLibrary::operator[](const std::string_view symbolName) const -> std::optional<DynamicProcedure>
 	{
-		void* const symbolHandle = OsInterface::DylibLookupSymbol(this->Handle_, symbolName);
+		void* const symbolHandle = OSI::DylibLookupSymbol(this->Handle_, symbolName);
 		return symbolHandle ? std::optional {DynamicProcedure {symbolHandle}} : std::nullopt;
 	}
 }

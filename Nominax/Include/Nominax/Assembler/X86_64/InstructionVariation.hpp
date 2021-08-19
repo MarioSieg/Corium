@@ -212,7 +212,7 @@
 #include "../../Foundation/_Foundation.hpp"
 
 #include "Instruction.hpp"
-#include "IsaExtension.hpp"
+#include "ISAExtension.hpp"
 #include "Operand.hpp"
 #include "Descriptors.hpp"
 

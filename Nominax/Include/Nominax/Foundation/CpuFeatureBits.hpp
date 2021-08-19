@@ -217,7 +217,7 @@
 
 namespace Nominax::Foundation
 {
-	enum class CpuFeatureBits : U8
+	enum class CPUFeatureBits : U8
 	{
 		/// <summary>
 		/// Onboard x87 FPU
@@ -1093,7 +1093,7 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Contains all CPU feature names.
 	/// </summary>
-	constexpr std::array<std::string_view, ToUnderlying(CpuFeatureBits::Count_)> CPU_FEATURE_BIT_NAMES
+	constexpr std::array<std::string_view, ToUnderlying(CPUFeatureBits::Count_)> CPU_FEATURE_BIT_NAMES
 	{
 		#if NOX_ARCH_X86_64
 		"FPU",
@@ -1328,15 +1328,15 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Feature mask.
 	/// </summary>
-	using CpuFeatureMask = std::array<bool, ToUnderlying(CpuFeatureBits::Count_)>;
+	using CpuFeatureMask = std::array<bool, ToUnderlying(CPUFeatureBits::Count_)>;
 
 	/// <summary>
 	/// Bitmask storage type.
 	/// </summary>
-	using CpuFeatureMaskBitStorage = std::bitset<ToUnderlying(CpuFeatureBits::Count_)>;
+	using CpuFeatureMaskBitStorage = std::bitset<ToUnderlying(CPUFeatureBits::Count_)>;
 
 	/// <summary>
 	/// Feature mask.
 	/// </summary>
-	using CpuFeatureMaskBuffer = std::array<U8, ToUnderlying(CpuFeatureBits::Count_) / CHAR_BIT>;
+	using CpuFeatureMaskBuffer = std::array<U8, ToUnderlying(CPUFeatureBits::Count_) / CHAR_BIT>;
 }

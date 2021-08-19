@@ -216,7 +216,7 @@
 
 namespace Nominax::Foundation
 {
-	auto OsInterface::QuerySystemMemoryTotal() -> U64
+	auto OSI::QuerySystemMemoryTotal() -> U64
 	{
 		MEMORYSTATUSEX status;
 		ZeroMemory(&status, sizeof(MEMORYSTATUSEX));
@@ -225,7 +225,7 @@ namespace Nominax::Foundation
 		return status.ullTotalPhys;
 	}
 
-	auto OsInterface::QueryProcessMemoryUsed() -> U64
+	auto OSI::QueryProcessMemoryUsed() -> U64
 	{
 		PROCESS_MEMORY_COUNTERS pmc;
 		ZeroMemory(&pmc, sizeof(PROCESS_MEMORY_COUNTERS));
@@ -233,7 +233,7 @@ namespace Nominax::Foundation
 		return pmc.WorkingSetSize;
 	}
 
-	auto OsInterface::QueryCpuName() -> std::string
+	auto OSI::QueryCpuName() -> std::string
 	{
 		HKEY key;
 		LSTATUS status
@@ -266,7 +266,7 @@ namespace Nominax::Foundation
 		return status ? "Unknown" : std::data(id);
 	}
 
-	auto OsInterface::QueryPageSize() -> U64
+	auto OSI::QueryPageSize() -> U64
 	{
 		SYSTEM_INFO sysInfo;
 		ZeroMemory(&sysInfo, sizeof(SYSTEM_INFO));
@@ -274,18 +274,18 @@ namespace Nominax::Foundation
 		return static_cast<U64>(sysInfo.dwPageSize);
 	}
 
-	auto OsInterface::DylibOpen(const std::string_view filePath) -> void*
+	auto OSI::DylibOpen(const std::string_view filePath) -> void*
 	{
 		return LoadLibraryA(std::data(filePath));
 	}
 
-	auto OsInterface::DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
+	auto OSI::DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
 	{
 		const FARPROC symbol{ GetProcAddress(static_cast<HMODULE>(handle), symbolName.data()) };
 		return reinterpret_cast<void*>(symbol);
 	}
 
-	auto OsInterface::DylibClose(void*& handle) -> void
+	auto OSI::DylibClose(void*& handle) -> void
 	{
 		FreeLibrary(static_cast<HMODULE>(handle));
 		handle = nullptr;

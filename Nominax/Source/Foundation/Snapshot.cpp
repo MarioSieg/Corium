@@ -218,10 +218,10 @@ namespace Nominax::Foundation
 	{
 		this->ThreadCount       = std::thread::hardware_concurrency();
 		this->ThreadId          = std::this_thread::get_id();
-		this->CpuName           = OsInterface::QueryCpuName();
-		this->TotalSystemMemory = OsInterface::QuerySystemMemoryTotal();
-		this->ProcessMemory     = OsInterface::QueryProcessMemoryUsed();
-		this->PageSize          = OsInterface::QueryPageSize();
+		this->CpuName           = OSI::QueryCpuName();
+		this->TotalSystemMemory = OSI::QuerySystemMemoryTotal();
+		this->ProcessMemory     = OSI::QueryProcessMemoryUsed();
+		this->PageSize          = OSI::QueryPageSize();
 	}
 
 	auto SystemInfoSnapshot::Print() const -> void

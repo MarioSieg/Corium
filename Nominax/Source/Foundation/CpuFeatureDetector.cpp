@@ -210,12 +210,12 @@
 
 namespace Nominax::Foundation
 {
-	CpuFeatureDetector::CpuFeatureDetector() : FeatureBits_ { }
+	CPUFeatureDetector::CPUFeatureDetector() : FeatureBits_ { }
 	{
 		#if NOX_ARCH_X86_64
 
 		using namespace Assembler::X86_64::Routines;
-		using Cfb = CpuFeatureBits;
+		using Cfb = CPUFeatureBits;
 
 		// check if cpuid is supported on system
 		NOX_PAS_TRUE(IsCpuIdSupported(), "CPUID instruction is not supported on system!");
@@ -276,7 +276,7 @@ namespace Nominax::Foundation
 		#endif
 	}
 
-	auto CpuFeatureDetector::Dump() const -> void
+	auto CPUFeatureDetector::Dump() const -> void
 	{
 		Print("CPU feature detection result:\n");
 		for (U64 i {0}; i < std::size(this->FeatureBits_); ++i)

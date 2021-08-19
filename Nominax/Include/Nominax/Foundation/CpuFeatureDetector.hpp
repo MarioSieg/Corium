@@ -207,14 +207,14 @@
 
 #pragma once
 
-#include "CpuFeatureBits.hpp"
+#include "CPUFeatureBits.hpp"
 
 namespace Nominax::Foundation
 {
 	/// <summary>
 		/// Detects architecture dependent cpu features.
 		/// </summary>
-	class CpuFeatureDetector final
+	class CPUFeatureDetector final
 	{
 		/// <summary>
 		/// Architecture dependent bits.
@@ -226,39 +226,39 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <param name="bit"></param>
 		/// <returns></returns>
-		auto operator [](CpuFeatureBits bit) -> bool&;
+		auto operator [](CPUFeatureBits bit) -> bool&;
 
 	public:
 		/// <summary>
 		/// Construct new instance and query cpu feature
 		/// using architecture dependent routines.
 		/// </summary>
-		CpuFeatureDetector();
+		CPUFeatureDetector();
 
 		/// <summary>
 		/// No copy.
 		/// </summary>
-		CpuFeatureDetector(const CpuFeatureDetector&) = delete;
+		CPUFeatureDetector(const CPUFeatureDetector&) = delete;
 
 		/// <summary>
 		/// No move.
 		/// </summary>
-		CpuFeatureDetector(CpuFeatureDetector&&) = default;
+		CPUFeatureDetector(CPUFeatureDetector&&) = default;
 
 		/// <summary>
 		/// No copy.
 		/// </summary>
-		auto operator =(const CpuFeatureDetector&) -> CpuFeatureDetector& = delete;
+		auto operator =(const CPUFeatureDetector&) -> CPUFeatureDetector& = delete;
 
 		/// <summary>
 		/// No move.
 		/// </summary>
-		auto operator =(CpuFeatureDetector&&) -> CpuFeatureDetector& = delete;
+		auto operator =(CPUFeatureDetector&&) -> CPUFeatureDetector& = delete;
 
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~CpuFeatureDetector() = default;
+		~CPUFeatureDetector() = default;
 
 		/// <summary>
 		/// Access the architecture dependent feature bits directly.
@@ -277,7 +277,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <param name="bit"></param>
 		/// <returns></returns>
-		auto operator [](CpuFeatureBits bit) const -> bool;
+		auto operator [](CPUFeatureBits bit) const -> bool;
 
 		/// <summary>
 		/// Prints all the architecture dependent features as booleans with names.
@@ -285,22 +285,22 @@ namespace Nominax::Foundation
 		auto Dump() const -> void;
 	};
 
-	inline auto CpuFeatureDetector::operator[](const CpuFeatureBits bit) -> bool&
+	inline auto CPUFeatureDetector::operator[](const CPUFeatureBits bit) -> bool&
 	{
 		return this->FeatureBits_[static_cast<U64>(bit)];
 	}
 
-	inline auto CpuFeatureDetector::operator[](const CpuFeatureBits bit) const -> bool
+	inline auto CPUFeatureDetector::operator[](const CPUFeatureBits bit) const -> bool
 	{
 		return this->FeatureBits_[static_cast<U64>(bit)];
 	}
 
-	inline auto CpuFeatureDetector::operator*() const -> const CpuFeatureMask&
+	inline auto CPUFeatureDetector::operator*() const -> const CpuFeatureMask&
 	{
 		return this->FeatureBits_;
 	}
 
-	inline auto CpuFeatureDetector::operator->() const -> const CpuFeatureMask*
+	inline auto CPUFeatureDetector::operator->() const -> const CpuFeatureMask*
 	{
 		return &this->FeatureBits_;
 	}
