@@ -218,31 +218,33 @@
 
 namespace Nominax::Foundation
 {
-	auto Os::QuerySystemMemoryTotal()  -> U64
+	auto Os::QuerySystemMemoryTotal() -> U64
 	{
-		const long pages = sysconf(_SC_PHYS_PAGES);
-		const long page_size = sysconf(_SC_PAGE_SIZE);
+		const long pages {sysconf(_SC_PHYS_PAGES)};
+		const long page_size {sysconf(_SC_PAGE_SIZE)};
 		return static_cast<U64>(pages * page_size);
 	}
 
-	auto Os::QueryProcessMemoryUsed()  -> U64 {
-		auto* const file = fopen("/proc/self/statm", "r");
-		if (file == nullptr)
+	auto Os::QueryProcessMemoryUsed() -> U64 {
+		FILE* const file {fopen("/proc/self/statm", "r")};
+		if (!file)
 		{
+			[[unlikely]]
 			return 0;
 		}
 		long pages = 0;
-		const auto items = fscanf(file, "%*s%ld", &pages);
+		const auto items {fscanf(file, "%*s%ld", &pages)};
 		fclose(file);
 		return static_cast<U64>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
 	}
 
-	auto Os::QueryCpuName()  -> std::string
+	auto Os::QueryCpuName() -> std::string
 	{
-		std::ifstream cpuinfo("/proc/cpuinfo");
+		std::ifstream cpuinfo{ "/proc/cpuinfo" };
 
 		if (!cpuinfo.is_open() || !cpuinfo)
 		{
+			[[unlikely]]
 			return "Unknown";
 		}
 
@@ -250,31 +252,31 @@ namespace Nominax::Foundation
 		{
 			if (line.find("model name") == 0)
 			{
-				const auto colon_id = line.find_first_of(':');
-				const auto nonspace_id = line.find_first_not_of(" \t", colon_id + 1);
-				return line.c_str() + nonspace_id;
+				const auto colonId {line.find_first_of(':')};
+				const auto nonspaceId {line.find_first_not_of(" \t", colonId + 1)};
+				return line.c_str() + nonspaceId;
 			}
 		}
 
 		return {};
 	}
 
-	auto Os::QueryPageSize() ->U64
+	auto Os::QueryPageSize() -> U64
 	{
 		return static_cast<U64>(sysconf(_SC_PAGE_SIZE));
 	}
 
-	auto Os::DylibOpen(const std::string_view file_)  -> void*
+	auto Os::DylibOpen(const std::string_view file_) -> void*
 	{
-		return ::dlopen(file_.data(), RTLD_LOCAL | RTLD_LAZY);
+		return ::dlopen(std::data(file_), RTLD_LOCAL | RTLD_LAZY);
 	}
 
-	auto Os::DylibLookupSymbol(void* const handle_, const std::string_view symbol_)  -> void*
+	auto Os::DylibLookupSymbol(void* const handle_, const std::string_view symbol_) -> void*
 	{
-		return ::dlsym(handle_, symbol_.data());
+		return ::dlsym(handle_, std::data(symbol_));
 	}
 
-	auto Os::DylibClose(void*& handle_)  -> void
+	auto Os::DylibClose(void*& handle_) -> void
 	{
 		::dlclose(handle_);
 		handle_ = nullptr;
