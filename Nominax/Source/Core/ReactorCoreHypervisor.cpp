@@ -243,13 +243,13 @@ namespace Nominax::Core
 		// if we have AVX 512, use AVX 512:
 		if (cpuFeatureDetector[Foundation::CPUFeatureBits::Avx512F])
 		{
-			return ReactorCoreSpecialization::Amd64_Avx512F;
+			return ReactorCoreSpecialization::X86_64_AVX512F;
 		}
 
 		// if we have AVX, use AVX:
 		if (cpuFeatureDetector[Foundation::CPUFeatureBits::Avx])
 		{
-			return ReactorCoreSpecialization::Amd64_Avx;
+			return ReactorCoreSpecialization::X86_64_AVX;
 		}
 
 		#elif NOX_ARCH_ARM_64

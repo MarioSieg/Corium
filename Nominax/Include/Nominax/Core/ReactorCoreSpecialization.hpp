@@ -234,12 +234,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// AMD 64 optimized implementation for advanced vector extensions -> 256-bit (YMM* registers) -> VEX
 		/// </summary>
-		Amd64_Avx,
+		X86_64_AVX,
 
 		/// <summary>
 		/// AMD 64 optimized implementation for advanced vector extensions 512 -> 512-bit (ZMM* registers, K* mask registers) -> EVEX
 		/// </summary>
-		Amd64_Avx512F,
+		X86_64_AVX512F,
 
 		Count
 	};
@@ -259,10 +259,10 @@ namespace Nominax::Core
 			case ReactorCoreSpecialization::Debug:
 				return "Debug";
 
-			case ReactorCoreSpecialization::Amd64_Avx:
+			case ReactorCoreSpecialization::X86_64_AVX:
 				return "X86-64 AVX";
 
-			case ReactorCoreSpecialization::Amd64_Avx512F:
+			case ReactorCoreSpecialization::X86_64_AVX512F:
 				return "X86-64 AVX512F";
 
 				[[unlikely]]

@@ -272,14 +272,14 @@ TEST(ReactorHypervisor, FeatureSelectAvx)
 	CPUFeatureDetector features { };
 	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx)]     = true;
 	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx512F)] = false;
-	ASSERT_EQ(HyperVisor::SmartSelectReactor(features), ReactorCoreSpecialization::Amd64_Avx);
+	ASSERT_EQ(HyperVisor::SmartSelectReactor(features), ReactorCoreSpecialization::X86_64_AVX);
 }
 
 TEST(ReactorHypervisor, FeatureSelectAvx512F)
 {
 	CPUFeatureDetector features { };
 	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx512F)] = true;
-	ASSERT_EQ(HyperVisor::SmartSelectReactor(features), ReactorCoreSpecialization::Amd64_Avx512F);
+	ASSERT_EQ(HyperVisor::SmartSelectReactor(features), ReactorCoreSpecialization::X86_64_AVX512F);
 }
 
 TEST(ReactorHypervisor, FeatureSelectDynamic)
@@ -287,11 +287,11 @@ TEST(ReactorHypervisor, FeatureSelectDynamic)
 	const CPUFeatureDetector featuress { };
 	if (featuress[CPUFeatureBits::Avx512F])
 	{
-		ASSERT_EQ(HyperVisor::SmartSelectReactor(featuress), ReactorCoreSpecialization::Amd64_Avx512F);
+		ASSERT_EQ(HyperVisor::SmartSelectReactor(featuress), ReactorCoreSpecialization::X86_64_AVX512F);
 	}
 	else if (featuress[CPUFeatureBits::Avx])
 	{
-		ASSERT_EQ(HyperVisor::SmartSelectReactor(featuress), ReactorCoreSpecialization::Amd64_Avx);
+		ASSERT_EQ(HyperVisor::SmartSelectReactor(featuress), ReactorCoreSpecialization::X86_64_AVX);
 	}
 	else
 	{
@@ -309,7 +309,7 @@ TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx)
 		HyperVisor::GetReactorRoutineFromRegistryByTarget
 		(
 			HyperVisor::SmartSelectReactor(features)
-		), HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Amd64_Avx)
+		), HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX)
 	);
 }
 
@@ -322,7 +322,7 @@ TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx512F)
 		HyperVisor::GetReactorRoutineFromRegistryByTarget
 		(
 			HyperVisor::SmartSelectReactor(features)
-		), HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Amd64_Avx512F)
+		), HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX512F)
 	);
 }
 
@@ -332,8 +332,8 @@ TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx)
 	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx)]     = true;
 	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx512F)] = false;
 	const ReactorRoutineLink data {HyperVisor::GetOptimalReactorRoutine(features)};
-	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::Amd64_Avx);
-	ASSERT_EQ(data.ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Amd64_Avx));
+	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::X86_64_AVX);
+	ASSERT_EQ(data.ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX));
 	ASSERT_NE(data.JumpTable, nullptr);
 }
 
@@ -342,8 +342,8 @@ TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx512)
 	CPUFeatureDetector features { };
 	const_cast<CpuFeatureMask&>(*features)[static_cast<U64>(CPUFeatureBits::Avx512F)] = true;
 	const ReactorRoutineLink data {HyperVisor::GetOptimalReactorRoutine(features)};
-	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::Amd64_Avx512F);
-	ASSERT_EQ(data.ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Amd64_Avx512F));
+	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::X86_64_AVX512F);
+	ASSERT_EQ(data.ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX512F));
 	ASSERT_NE(data.JumpTable, nullptr);
 }
 
