@@ -229,9 +229,9 @@ namespace Nominax::ByteCode
 	/// </summary>
 	constexpr std::array ANY_TYPE
 	{
-		Signal::Discriminator::U64,
-		Signal::Discriminator::I64,
-		Signal::Discriminator::F64,
+		Signal::Discriminator::UnsignedScalar,
+		Signal::Discriminator::Int,
+		Signal::Discriminator::Float,
 		Signal::Discriminator::CharClusterUtf8,
 		Signal::Discriminator::CharClusterUtf16,
 		Signal::Discriminator::CharClusterUtf32
@@ -242,13 +242,13 @@ namespace Nominax::ByteCode
 	/// </summary>
 	inline const std::array<PerInstructionArgTypes, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
-		PerInstructionArgTypes {{Signal::Discriminator::I64}},                      // int
+		PerInstructionArgTypes {{Signal::Discriminator::Int}},                      // int
 		{{Signal::Discriminator::SystemIntrinsicInvocationID}},                     // intrin
 		{{Signal::Discriminator::UserIntrinsicInvocationID}},                       // cintrin
-		{{Signal::Discriminator::U64}},                                             // call
+		{{Signal::Discriminator::UnsignedScalar}},                                             // call
 		{ },                                                                        // ret
-		{{Signal::Discriminator::U64}, {Signal::Discriminator::U64}},               // mov
-		{{Signal::Discriminator::U64}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}}, // sto
+		{{Signal::Discriminator::UnsignedScalar}, {Signal::Discriminator::UnsignedScalar}},               // mov
+		{{Signal::Discriminator::UnsignedScalar}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}}, // sto
 		{{std::begin(ANY_TYPE), std::end(ANY_TYPE)}},                               // push
 		{ },                                                                        // pop
 		{ },                                                                        // pop2

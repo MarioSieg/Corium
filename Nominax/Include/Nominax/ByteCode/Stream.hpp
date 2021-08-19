@@ -335,7 +335,7 @@ namespace Nominax::ByteCode
 		static constexpr std::array EPILOGUE_CODE
 		{
 			DiscriminatedSignal {Signal::Discriminator::Instruction, Signal {Instruction::Int}},
-			DiscriminatedSignal {Signal::Discriminator::I64, Signal { }}
+			DiscriminatedSignal {Signal::Discriminator::Int, Signal { }}
 		};
 
 		/// <summary>
@@ -908,7 +908,7 @@ namespace Nominax::ByteCode
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::U64);
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::UnsignedScalar);
 		return *this;
 	}
 
@@ -916,7 +916,7 @@ namespace Nominax::ByteCode
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::I64);
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Int);
 		return *this;
 	}
 
@@ -924,7 +924,7 @@ namespace Nominax::ByteCode
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal {value});
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::F64);
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Float);
 		return *this;
 	}
 

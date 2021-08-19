@@ -255,15 +255,15 @@ namespace Nominax::ByteCode
 		}
 		else if constexpr (std::is_same_v<std::uint64_t, T>)
 		{
-			return {Signal::Discriminator::U64};
+			return {Signal::Discriminator::UnsignedScalar};
 		}
 		else if constexpr (std::is_same_v<std::int64_t, T>)
 		{
-			return {Signal::Discriminator::I64};
+			return {Signal::Discriminator::Int};
 		}
 		else if constexpr (std::is_same_v<double, T>)
 		{
-			return {Signal::Discriminator::F64};
+			return {Signal::Discriminator::Float};
 		}
 		else if constexpr (std::is_same_v<CharClusterUtf8, T>)
 		{

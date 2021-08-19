@@ -320,13 +320,13 @@ auto formatter<DiscriminatedSignal, char, void>::format
 
 	switch (value.Discriminator)
 	{
-		case Dis::U64:
+		case Dis::UnsignedScalar:
 			return format_to(ctx.out(), "*u64 ${}", value.Value.R64.AsU64);
 
-		case Dis::I64:
+		case Dis::Int:
 			return format_to(ctx.out(), "*i64 ${}", value.Value.R64.AsI64);
 
-		case Dis::F64:
+		case Dis::Float:
 			return format_to(ctx.out(), "*f64 ${}", value.Value.R64.AsF64);
 
 		case Dis::CharClusterUtf8:

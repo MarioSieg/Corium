@@ -213,9 +213,9 @@ TEST(DiscriminatedSignal, MapStreamType)
 	ASSERT_EQ(MapStreamType<SystemIntrinsicInvocationID>().value(), Signal::Discriminator::SystemIntrinsicInvocationID);
 	ASSERT_EQ(MapStreamType<UserIntrinsicInvocationID>().value(), Signal::Discriminator::UserIntrinsicInvocationID);
 	ASSERT_EQ(MapStreamType<JumpAddress>().value(), Signal::Discriminator::JumpAddress);
-	ASSERT_EQ(MapStreamType<std::uint64_t>().value(), Signal::Discriminator::U64);
-	ASSERT_EQ(MapStreamType<std::int64_t>().value(), Signal::Discriminator::I64);
-	ASSERT_EQ(MapStreamType<double>().value(), Signal::Discriminator::F64);
+	ASSERT_EQ(MapStreamType<std::uint64_t>().value(), Signal::Discriminator::UnsignedScalar);
+	ASSERT_EQ(MapStreamType<std::int64_t>().value(), Signal::Discriminator::Int);
+	ASSERT_EQ(MapStreamType<double>().value(), Signal::Discriminator::Float);
 	ASSERT_EQ(MapStreamType<CharClusterUtf8>().value(), Signal::Discriminator::CharClusterUtf8);
 	ASSERT_EQ(MapStreamType<CharClusterUtf16>().value(), Signal::Discriminator::CharClusterUtf16);
 	ASSERT_EQ(MapStreamType<CharClusterUtf32>().value(), Signal::Discriminator::CharClusterUtf32);
@@ -224,7 +224,7 @@ TEST(DiscriminatedSignal, MapStreamType)
 
 TEST(DiscriminatedSignal, Contains)
 {
-	const DiscriminatedSignal sig {Signal::Discriminator::F64, Signal {2.5}};
+	const DiscriminatedSignal sig {Signal::Discriminator::Float, Signal {2.5}};
 	ASSERT_TRUE(sig.Contains<double>());
 	ASSERT_TRUE(sig.Contains(2.5));
 	ASSERT_FALSE(sig.Contains<std::int64_t>());
@@ -233,7 +233,7 @@ TEST(DiscriminatedSignal, Contains)
 
 TEST(DiscriminatedSignal, Unwrap)
 {
-	const DiscriminatedSignal sig {Signal::Discriminator::F64, Signal {2.5}};
+	const DiscriminatedSignal sig {Signal::Discriminator::Float, Signal {2.5}};
 	ASSERT_TRUE(sig.Unwrap<double>().has_value());
 	ASSERT_FALSE(sig.Unwrap<std::uint64_t>().has_value());
 	ASSERT_DOUBLE_EQ(sig.Unwrap<double>().value(), 2.5);
@@ -243,9 +243,9 @@ TEST(DiscriminatedSignal, Unwrap)
 
 TEST(DiscriminatedSignal, Equality)
 {
-	const DiscriminatedSignal sig {Signal::Discriminator::F64, Signal {2.5}};
-	const DiscriminatedSignal sig2 {Signal::Discriminator::F64, Signal {2.0}};
-	const DiscriminatedSignal sig3 {Signal::Discriminator::I64, Signal {-2LL}};
+	const DiscriminatedSignal sig {Signal::Discriminator::Float, Signal {2.5}};
+	const DiscriminatedSignal sig2 {Signal::Discriminator::Float, Signal {2.0}};
+	const DiscriminatedSignal sig3 {Signal::Discriminator::Int, Signal {-2LL}};
 	ASSERT_EQ(sig, sig);
 	ASSERT_EQ(sig.Discriminator, sig2.Discriminator);
 	ASSERT_NE(sig, sig2);

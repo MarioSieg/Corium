@@ -227,17 +227,17 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// std::uint64_t in record.
 			/// </summary>
-			U64,
+			UnsignedScalar,
 
 			/// <summary>
 			/// std::int64_t in record.
 			/// </summary>
-			I64,
+			Int,
 
 			/// <summary>
 			/// double in record.
 			/// </summary>
-			F64,
+			Float,
 
 			/// <summary>
 			/// Char cluster UTF-8.

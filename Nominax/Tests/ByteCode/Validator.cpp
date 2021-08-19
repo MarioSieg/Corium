@@ -229,11 +229,11 @@ struct DynamicSignal final
 			case 3:
 				return Signal::Discriminator::JumpAddress;
 			case 4:
-				return Signal::Discriminator::U64;
+				return Signal::Discriminator::UnsignedScalar;
 			case 5:
-				return Signal::Discriminator::I64;
+				return Signal::Discriminator::Int;
 			case 6:
-				return Signal::Discriminator::F64;
+				return Signal::Discriminator::Float;
 			case 7:
 				return Signal::Discriminator::CharClusterUtf8;
 			case 8:
@@ -444,22 +444,22 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[0]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[0]], &code.GetDiscriminatorBuffer()[cache[1]]))
 	};
 	ASSERT_EQ(r1.size(), 1);
-	ASSERT_TRUE(r1[0] == Signal::Discriminator::I64);
+	ASSERT_TRUE(r1[0] == Signal::Discriminator::Int);
 
 	// push
 	const auto r2 {
 		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[1]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[1]], &code.GetDiscriminatorBuffer()[cache[2]]))
 	};
 	ASSERT_EQ(r2.size(), 1);
-	ASSERT_TRUE(r2[0] == Signal::Discriminator::I64);
+	ASSERT_TRUE(r2[0] == Signal::Discriminator::Int);
 
 	// sto
 	const auto r3 {
 		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[2]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[2]], &code.GetDiscriminatorBuffer()[cache[3]]))
 	};
 	ASSERT_EQ(r3.size(), 2);
-	ASSERT_TRUE(r3[0] == Signal::Discriminator::U64);
-	ASSERT_TRUE(r3[1] == Signal::Discriminator::F64);
+	ASSERT_TRUE(r3[0] == Signal::Discriminator::UnsignedScalar);
+	ASSERT_TRUE(r3[1] == Signal::Discriminator::Float);
 
 	// iadd
 	const auto r4 {
