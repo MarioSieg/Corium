@@ -252,7 +252,7 @@ namespace Nominax::Foundation
 			[[unlikely]]
 			return "Unknown";
 		}
-		std::array<TCHAR, 61 + 1> id {};
+		std::array<TCHAR, 64 + 1> id {};
 		DWORD idLen{ sizeof id };
 		status = RegQueryValueExA
 		(
