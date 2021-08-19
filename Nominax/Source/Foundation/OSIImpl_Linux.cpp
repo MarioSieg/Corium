@@ -1,4 +1,4 @@
-// File: OsImplLinux.cpp
+// File: OSIImplLinux.cpp
 // Author: Mario
 // Created: 10.08.2021 2:05 AM
 // Project: NominaxRuntime
@@ -218,14 +218,14 @@
 
 namespace Nominax::Foundation
 {
-	auto Os::QuerySystemMemoryTotal() -> U64
+	auto OSI::QuerySystemMemoryTotal() -> U64
 	{
 		const long pages {sysconf(_SC_PHYS_PAGES)};
 		const long page_size {sysconf(_SC_PAGE_SIZE)};
 		return static_cast<U64>(pages * page_size);
 	}
 
-	auto Os::QueryProcessMemoryUsed() -> U64 {
+	auto OSI::QueryProcessMemoryUsed() -> U64 {
 		FILE* const file {fopen("/proc/self/statm", "r")};
 		if (!file)
 		{
@@ -238,7 +238,7 @@ namespace Nominax::Foundation
 		return static_cast<U64>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
 	}
 
-	auto Os::QueryCpuName() -> std::string
+	auto OSI::QueryCpuName() -> std::string
 	{
 		std::ifstream cpuinfo{ "/proc/cpuinfo" };
 
@@ -261,22 +261,22 @@ namespace Nominax::Foundation
 		return {};
 	}
 
-	auto Os::QueryPageSize() -> U64
+	auto OSI::QueryPageSize() -> U64
 	{
 		return static_cast<U64>(sysconf(_SC_PAGE_SIZE));
 	}
 
-	auto Os::DylibOpen(const std::string_view file_) -> void*
+	auto OSI::DylibOpen(const std::string_view file_) -> void*
 	{
 		return ::dlopen(std::data(file_), RTLD_LOCAL | RTLD_LAZY);
 	}
 
-	auto Os::DylibLookupSymbol(void* const handle_, const std::string_view symbol_) -> void*
+	auto OSI::DylibLookupSymbol(void* const handle_, const std::string_view symbol_) -> void*
 	{
 		return ::dlsym(handle_, std::data(symbol_));
 	}
 
-	auto Os::DylibClose(void*& handle_) -> void
+	auto OSI::DylibClose(void*& handle_) -> void
 	{
 		::dlclose(handle_);
 		handle_ = nullptr;
