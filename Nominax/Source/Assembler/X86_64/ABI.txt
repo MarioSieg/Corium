@@ -1,0 +1,14 @@
+If we are on Windows (#ifdef __WIN__)
+the arguments are passed inside:
+
+Arg0 : %RCX
+Arg1 : %RDX
+Arg2 : %R8
+
+if we are on POSIX
+
+the arguments are passed inside:
+
+Arg0 : %RDI
+Arg1 : %RSI
+Arg2 : %RDX

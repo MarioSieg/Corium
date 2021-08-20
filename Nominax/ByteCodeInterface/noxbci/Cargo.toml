@@ -1,0 +1,8 @@
+[package]
+name = "noxbci"
+version = "0.1.0"
+authors = ["msi <support@kerbogames.com>"]
+edition = "2018"
+description = "The noxbci (Nominax Byte Code Interface) is a libary to build Nominax bytecode and serialize it so that the Nominax C++ runtime can read and execute it."
+
+[dependencies]
