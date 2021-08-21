@@ -302,7 +302,7 @@ namespace Nominax::Foundation
 
 	auto OSI::DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
 	{
-		const FARPROC symbol { ::GetProcAddress(static_cast<HMODULE>(handle), symbolName.data())};
+		const FARPROC symbol { ::GetProcAddress(static_cast<HMODULE>(handle), std::data(symbolName))};
 		return reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(symbol));
 	}
 
