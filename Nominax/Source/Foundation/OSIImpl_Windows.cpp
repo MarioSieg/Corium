@@ -351,7 +351,9 @@ namespace Nominax::Foundation
 	{
 		const LPVOID argAddress {region};
 		constexpr DWORD argFreeType {MEM_RELEASE};
+		const DWORD prevError {GetLastError()};
 		const BOOL result {VirtualFree(argAddress, 0, argFreeType)};
+		SetLastError(prevError);
 		return result;
 	}
 }
