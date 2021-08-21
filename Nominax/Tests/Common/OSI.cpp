@@ -30,5 +30,5 @@ TEST(OSI, MemoryMap)
 	ASSERT_EQ(*region, -2);
 	region[1] = 0xFF;
 	ASSERT_EQ(region[1], 0xFF);
-	ASSERT_TRUE(OSI::MemoryUnmap(region));
+	ASSERT_TRUE(OSI::MemoryUnmap(region, sizeof(int) * 2));
 }

@@ -344,6 +344,6 @@ namespace Nominax::Foundation
 		/// <param name="size"></param>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		static auto MemoryUnmap(void* region) -> bool;
+		static auto MemoryUnmap(void* region, std::size_t size) -> bool;
 	};
 }

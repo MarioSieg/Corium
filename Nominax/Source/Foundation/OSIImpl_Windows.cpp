@@ -347,7 +347,7 @@ namespace Nominax::Foundation
 		return result;
 	}
 
-	auto OSI::MemoryUnmap(void* const region) -> bool
+	auto OSI::MemoryUnmap(void* const region, [[maybe_unused]] const std::size_t size) -> bool
 	{
 		const LPVOID argAddress {region};
 		constexpr DWORD argFreeType {MEM_RELEASE};
