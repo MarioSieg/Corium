@@ -208,8 +208,9 @@
 #pragma once
 
 #include <string>
-
 #include <cstdint>
+
+#include "VirtualPageProtectionFlags.hpp"
 
 namespace Nominax::Foundation
 {
@@ -274,7 +275,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>The name of the CPU.</returns>
 		[[nodiscard]]
-		static auto QueryCpuName() -> std::string;
+		static auto QueryCpuName() -> const std::string&;
 
 		/// <summary>
 		/// Query system info.
@@ -306,5 +307,43 @@ namespace Nominax::Foundation
 		/// <param name="handle"></param>
 		/// <returns></returns>
 		static auto DylibClose(void*& handle) -> void;
+
+		/// <summary>
+		/// MemoryMap creates a new mapping in the virtual address space of the
+		/// calling process.The starting address for the new mapping is
+		/// specified in addr.The length argument specifies the length of
+		/// the mapping(which must be greater than 0).
+		/// If addr is NULL, then the kernel chooses the(page - aligned)
+		/// address at which to create the mapping; this is the most portable
+		/// method of creating a new mapping.If addr is not NULL, then the
+		/// kernel takes it as a hint about where to place the mapping; on
+		/// Linux, the kernel will pick a nearby page boundary(but always
+		/// above or equal to the value specified by /proc/sys/vm/mmap_min_addr)
+		/// and attempt to create the mapping
+		/// there.If another mapping already exists there, the kernel picks
+		/// a new address that may or may not depend on the hint.The
+		/// address of the new mapping is returned as the result of the call.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <param name="size"></param>
+		/// <param name="protectionFlags"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		static auto MemoryMap
+		(
+			void* region,
+			std::uint64_t size,
+			MemoryPageProtectionFlags protectionFlags
+		) -> void*;
+
+		/// <summary>
+		/// The MemoryUnmap system call deletes the mappings for the specified address range
+		/// and causes further references to addresses within the range to generate invalid memory references. 
+		/// </summary>
+		/// <param name="region"></param>
+		/// <param name="size"></param>
+		/// <returns>True on success, else false.</returns>
+		[[nodiscard]]
+		static auto MemoryUnmap(void* region) -> bool;
 	};
 }

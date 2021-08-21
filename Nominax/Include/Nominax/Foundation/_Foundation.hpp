@@ -211,7 +211,6 @@
 #include "Alignment.hpp"
 #include "AllocatorProxy.hpp"
 #include "AtomicState.hpp"
-#include <cstdint>
 #include "CLIProcessor.hpp"
 #include "ComparatorF64.hpp"
 #include "CPU.hpp"
@@ -242,4 +241,6 @@
 #include "SystemAllocator.hpp"
 #include "TextFile.hpp"
 #include "VectorLib.hpp"
+#include "VirtualPageAllocator.hpp"
+#include "VirtualPageProtectionFlags.hpp"
 #include "Xorshift.hpp"

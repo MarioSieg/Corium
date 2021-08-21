@@ -220,50 +220,73 @@ namespace Nominax::Foundation
 {
 	auto OSI::QuerySystemMemoryTotal() -> std::uint64_t
 	{
-		const long pages {sysconf(_SC_PHYS_PAGES)};
-		const long page_size {sysconf(_SC_PAGE_SIZE)};
-		return static_cast<std::uint64_t>(pages * page_size);
+		static const std::uint64_t SYS_MEM
+		{
+			[]
+			{
+				const long pages {::sysconf(_SC_PHYS_PAGES)};
+				const long page_size {::sysconf(_SC_PAGE_SIZE)};
+				return static_cast<std::uint64_t>(pages * page_size);
+			}()
+		};
+		return SYS_MEM;
 	}
 
 	auto OSI::QueryProcessMemoryUsed() -> std::uint64_t {
-		FILE* const file {fopen("/proc/self/statm", "r")};
+		FILE* const file {std::fopen("/proc/self/statm", "r")};
 		if (!file)
 		{
 			[[unlikely]]
 			return 0;
 		}
 		long pages = 0;
-		const auto items {fscanf(file, "%*s%ld", &pages)};
-		fclose(file);
+		const auto items {std::fscanf(file, "%*s%ld", &pages)};
+		std::fclose(file);
 		return static_cast<std::uint64_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
 	}
 
-	auto OSI::QueryCpuName() -> std::string
+	auto OSI::QueryCpuName() -> const std::string&
 	{
-		std::ifstream cpuinfo{ "/proc/cpuinfo" };
-
-		if (!cpuinfo.is_open() || !cpuinfo)
+		static const std::string CPU_NAME
 		{
-			[[unlikely]]
-			return "Unknown";
-		}
-
-		for (std::string line; std::getline(cpuinfo, line); )
-		{
-			if (line.find("model name") == 0)
+			[]
 			{
-				const auto colonId {line.find_first_of(':')};
-				const auto nonspaceId {line.find_first_not_of(" \t", colonId + 1)};
-				return line.c_str() + nonspaceId;
-			}
-		}
+				std::ifstream cpuinfo{ "/proc/cpuinfo" };
 
-		return {};
+				if (!cpuinfo)
+				{
+					[[unlikely]]
+					return "Unknown";
+				}
+
+				for (std::string line; std::getline(cpuinfo, line); )
+				{
+					if (line.find("model name") == 0)
+					{
+						const auto colonId {line.find_first_of(':')};
+						const auto nonspaceId {line.find_first_not_of(" \t", colonId + 1)};
+						return line.c_str() + nonspaceId;
+					}
+				}
+
+				return "Unknown";
+			}
+			()
+		};
+
+		return CPU_NAME;
 	}
 
 	auto OSI::QueryPageSize() -> std::uint64_t
 	{
-		return static_cast<std::uint64_t>(sysconf(_SC_PAGE_SIZE));
+		static const std::uint64_t PAGE_SIZE
+		{
+			[]
+			{
+				return static_cast<std::uint64_t>(::sysconf(_SC_PAGE_SIZE));
+			}()
+		};
+		return PAGE_SIZE;
 	}
 
 	auto OSI::DylibOpen(const std::string_view file_) -> void*

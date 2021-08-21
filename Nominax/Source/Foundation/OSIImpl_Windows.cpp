@@ -218,77 +218,141 @@ namespace Nominax::Foundation
 {
 	auto OSI::QuerySystemMemoryTotal() -> std::uint64_t
 	{
-		MEMORYSTATUSEX status;
-		ZeroMemory(&status, sizeof(MEMORYSTATUSEX));
-		status.dwLength = sizeof(MEMORYSTATUSEX);
-		GlobalMemoryStatusEx(&status);
-		return status.ullTotalPhys;
+		static const std::uint64_t SYS_MEM
+		{
+			[]
+			{
+				MEMORYSTATUSEX status;
+				ZeroMemory(&status, sizeof(MEMORYSTATUSEX));
+				status.dwLength = sizeof(MEMORYSTATUSEX);
+				::GlobalMemoryStatusEx(&status);
+				return status.ullTotalPhys;
+			}()
+		};
+		return SYS_MEM;
 	}
 
 	auto OSI::QueryProcessMemoryUsed() -> std::uint64_t
 	{
 		PROCESS_MEMORY_COUNTERS pmc;
 		ZeroMemory(&pmc, sizeof(PROCESS_MEMORY_COUNTERS));
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(PROCESS_MEMORY_COUNTERS));
+		GetProcessMemoryInfo(::GetCurrentProcess(), &pmc, sizeof(PROCESS_MEMORY_COUNTERS));
 		return pmc.WorkingSetSize;
 	}
 
-	auto OSI::QueryCpuName() -> std::string
+	auto OSI::QueryCpuName() -> const std::string&
 	{
-		HKEY    key;
-		LSTATUS status
+		static const std::string CPU_NAME
 		{
-			RegOpenKeyExA
-			(
-				HKEY_LOCAL_MACHINE,
-				R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)",
-				0,
-				KEY_READ,
-				&key
-			)
+			[]
+			{
+				HKEY    key;
+				LSTATUS status
+				{
+					::RegOpenKeyExA
+					(
+						HKEY_LOCAL_MACHINE,
+						R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)",
+						0,
+						KEY_READ,
+						&key
+					)
+				};
+				if (status)
+				{
+					[[unlikely]]
+					return "Unknown";
+				}
+				std::array<TCHAR, 64 + 1> id { };
+				DWORD                     idLen {sizeof id};
+				status = ::RegQueryValueExA
+				(
+					key,
+					"ProcessorNameString",
+					nullptr,
+					nullptr,
+					reinterpret_cast<LPBYTE>(std::data(id)),
+					&idLen
+				);
+				return status ? "Unknown" : std::data(id);
+			}()
 		};
-		if (status)
-		{
-			[[unlikely]]
-				return "Unknown";
-		}
-		std::array<TCHAR, 64 + 1> id { };
-		DWORD                     idLen {sizeof id};
-		status = RegQueryValueExA
-		(
-			key,
-			"ProcessorNameString",
-			nullptr,
-			nullptr,
-			reinterpret_cast<LPBYTE>(std::data(id)),
-			&idLen
-		);
-		return status ? "Unknown" : std::data(id);
+		return CPU_NAME;
 	}
 
 	auto OSI::QueryPageSize() -> std::uint64_t
 	{
-		SYSTEM_INFO sysInfo;
-		ZeroMemory(&sysInfo, sizeof(SYSTEM_INFO));
-		GetSystemInfo(&sysInfo);
-		return static_cast<std::uint64_t>(sysInfo.dwPageSize);
+		static const std::uint64_t PAGE_SIZE
+		{
+			[]
+			{
+				SYSTEM_INFO sysInfo;
+				ZeroMemory(&sysInfo, sizeof(::SYSTEM_INFO));
+				::GetSystemInfo(&sysInfo);
+				return static_cast<std::uint64_t>(sysInfo.dwPageSize);
+			}()
+		};
+		return PAGE_SIZE;
 	}
 
 	auto OSI::DylibOpen(const std::string_view filePath) -> void*
 	{
-		return LoadLibraryA(std::data(filePath));
+		return ::LoadLibraryA(std::data(filePath));
 	}
 
 	auto OSI::DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
 	{
-		const FARPROC symbol {GetProcAddress(static_cast<HMODULE>(handle), symbolName.data())};
+		const FARPROC symbol { ::GetProcAddress(static_cast<HMODULE>(handle), symbolName.data())};
 		return reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(symbol));
 	}
 
 	auto OSI::DylibClose(void*& handle) -> void
 	{
-		FreeLibrary(static_cast<HMODULE>(handle));
+		::FreeLibrary(static_cast<HMODULE>(handle));
 		handle = nullptr;
+	}
+
+	auto OSI::MemoryMap
+	(
+		void* const region,
+		const std::uint64_t size,
+		const MemoryPageProtectionFlags protectionFlags
+	) -> void*
+	{
+		const LPVOID argAddress {region};
+		const SIZE_T argSize {size};
+		constexpr DWORD argAllocType { MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN };
+		DWORD argProtection {};
+		switch (protectionFlags)
+		{
+			case MemoryPageProtectionFlags::NoAccess:
+				argProtection = PAGE_NOACCESS;
+			break;
+			case MemoryPageProtectionFlags::Read:
+				argProtection = PAGE_READONLY;
+			break;
+			case MemoryPageProtectionFlags::ReadWrite:
+				argProtection = PAGE_READWRITE;
+			break;
+			case MemoryPageProtectionFlags::ReadExecute:
+				argProtection = PAGE_EXECUTE_READ;
+			break;
+			case MemoryPageProtectionFlags::ReadWriteExecute:
+				argProtection = PAGE_EXECUTE_READWRITE;
+			break;
+		}
+		const DWORD prevError {GetLastError()};
+		const LPVOID result {VirtualAlloc(argAddress, argSize, argAllocType, argProtection)};
+		SetLastError(prevError);
+		return result;
+	}
+
+	auto OSI::MemoryUnmap(void* const region) -> bool
+	{
+		const LPVOID argAddress {region};
+		constexpr DWORD argFreeType {MEM_RELEASE};
+		const BOOL result {VirtualFree(argAddress, 0, argFreeType)};
+		return result;
 	}
 }
 
