@@ -244,7 +244,7 @@ namespace Nominax::Foundation
 	{
 		static const std::string CPU_NAME
 		{
-			[]
+			[]() -> std::string
 			{
 				HKEY    key;
 				LSTATUS status
