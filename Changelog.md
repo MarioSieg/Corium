@@ -1,0 +1,15 @@
+Changelog for the development of the Corium programming language
+and all sub-components:
+Corium Compiler, Nominax Runtime
+Developed by Mario Sieg "pinsrq" mt3000@gmx.de
+See LICENSE for licensing information!
+
+*8/23/2021*
+Created Changelog.md. The project is almost half a year old and
+now finally the changelog is here. Much has changed in this half year and it's very late
+for a changelog but better late than never.
+Implemented virtual memory allocation on Linux using mmap/munmap.
+Now we have the implementation read on Windows (with irtualAlloc) and Linux.
+Now I can write the virtual memory allocator and implement the executable
+machine code buffer for the JIT compiler.
+
