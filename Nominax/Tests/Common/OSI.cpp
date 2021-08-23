@@ -22,7 +22,7 @@ TEST(OSI, QueryPageSize)
 
 TEST(OSI, MemoryMap)
 {
-	auto* const region {static_cast<int*>(OSI::MemoryMap(nullptr, sizeof(int) * 2, MemoryPageProtectionFlags::ReadWrite))};
+	auto* const region {static_cast<int*>(OSI::MemoryMap(sizeof(int) * 2, MemoryPageProtectionFlags::ReadWrite))};
 	ASSERT_NE(region, nullptr);
 	*region = 10;
 	ASSERT_EQ(*region, 10);

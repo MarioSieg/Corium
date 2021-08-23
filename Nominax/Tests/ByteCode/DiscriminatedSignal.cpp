@@ -245,7 +245,7 @@ TEST(DiscriminatedSignal, Equality)
 {
 	const DiscriminatedSignal sig {Signal::Discriminator::Float, Signal {2.5}};
 	const DiscriminatedSignal sig2 {Signal::Discriminator::Float, Signal {2.0}};
-	const DiscriminatedSignal sig3 {Signal::Discriminator::Int, Signal {-2LL}};
+	const DiscriminatedSignal sig3 {Signal::Discriminator::Int, Signal {static_cast<std::int64_t>(-2)}};
 	ASSERT_EQ(sig, sig);
 	ASSERT_EQ(sig.Discriminator, sig2.Discriminator);
 	ASSERT_NE(sig, sig2);

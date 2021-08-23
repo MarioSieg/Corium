@@ -331,7 +331,6 @@ namespace Nominax::Foundation
 		[[nodiscard]]
 		static auto MemoryMap
 		(
-			void* region,
 			std::uint64_t size,
 			MemoryPageProtectionFlags protectionFlags
 		) -> void*;

@@ -209,7 +209,7 @@
 
 #include <cstdint>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <variant>
 
 #include "ISerializable.hpp"
@@ -236,12 +236,12 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Represents a section with it's entries.
 		/// </summary>
-		using Section = std::unordered_map<Key, Value>;
+		using Section = std::map<Key, Value>;
 
 		/// <summary>
 		/// Contains all sections as a map.
 		/// </summary>
-		using SectionMap = std::unordered_map<Key, Section>;
+		using SectionMap = std::map<Key, Section>;
 
 		/// <summary>
 		/// The name of the default section.

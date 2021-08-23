@@ -262,10 +262,10 @@ TEST(ValidatorAlgorithms, ValidateJumpAddressValid)
 	Stream bucket { };
 	bucket << Instruction::Dupl;
 	bucket << 2.2;
-	bucket << -2LL;
-	bucket << 0xFFULL;
+	bucket << static_cast<std::int64_t>(-2);
+	bucket << static_cast<std::uint64_t>(0xFF);
 	bucket << Instruction::FAdd;
-	bucket << 3LL;
+	bucket << static_cast<std::int64_t>(3);
 
 	ASSERT_TRUE(ValidateJumpAddress(bucket, JumpAddress{ 0 }));
 	ASSERT_FALSE(ValidateJumpAddress(bucket, JumpAddress{ 1 }));
@@ -405,15 +405,15 @@ TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 {
 	Stream code { };
 	code << Instruction::Push;
-	code << 4LL;
+	code << static_cast<std::int64_t>(4);
 	code << Instruction::Push;
-	code << 2LL;
+	code << static_cast<std::int64_t>(2);
 	code << Instruction::Sto;
-	code << 1ULL;
+	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
 	code << Instruction::IAdd;
 	code << Instruction::Int;
-	code << 0LL;
+	code << static_cast<std::int64_t>(0);
 
 	constexpr std::array cache {0, 2, 4, 7, 8};
 
@@ -428,15 +428,15 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 {
 	Stream code { };
 	code << Instruction::Push;
-	code << 4LL;
+	code << static_cast<std::int64_t>(4);
 	code << Instruction::Push;
-	code << 2LL;
+	code << static_cast<std::int64_t>(2);
 	code << Instruction::Sto;
-	code << 1ULL;
+	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
 	code << Instruction::IAdd;
 	code << Instruction::Int;
-	code << 0LL;
+	code << static_cast<std::int64_t>(0);
 
 	constexpr std::array cache {0, 2, 4, 7, 8};
 
@@ -483,17 +483,17 @@ TEST(ValidatorAlgorithms, ValidateValid)
 
 	code.Prologue();
 	code << Instruction::Push;
-	code << 4LL;
+	code << static_cast<std::int64_t>(4);
 	code << Instruction::Push;
-	code << 2LL;
+	code << static_cast<std::int64_t>(2);
 	code << Instruction::Sto;
-	code << 1ULL;
+	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
 	code << Instruction::Jmp;
 	code << JumpAddress {0};
 	code << Instruction::IAdd;
 	code << Instruction::Int;
-	code << 0LL;
+	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 	std::uint32_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::Ok);
@@ -505,18 +505,18 @@ TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 	Stream code { };
 	code.Prologue();
 	code << Instruction::Push;
-	code << 2LL;
+	code << static_cast<std::int64_t>(2);
 	code << Instruction::Push;
-	code << 4LL;
-	code << 4LL; // error
+	code << static_cast<std::int64_t>(4);
+	code << static_cast<std::int64_t>(4); // error
 	code << Instruction::Push;
-	code << 2LL;
+	code << static_cast<std::int64_t>(2);
 	code << Instruction::Sto;
-	code << 1ULL;
+	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
 	code << Instruction::IAdd;
 	code << Instruction::Int;
-	code << 0LL;
+	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 	std::uint32_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -528,14 +528,14 @@ TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
 	Stream code { };
 	code.Prologue();
 	code << Instruction::Push;
-	code << 2LL;
+	code << static_cast<std::int64_t>(2);
 	code << Instruction::Push;
 	code << Instruction::Sto;
-	code << 1ULL;
+	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
 	code << Instruction::IAdd;
 	code << Instruction::Int;
-	code << 0LL;
+	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
 }
@@ -551,7 +551,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
 	code << -0.5;
 	code << Instruction::IAdd;
 	code << Instruction::Int;
-	code << 0LL;
+	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 	std::uint32_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::ArgumentTypeMismatch);
@@ -642,7 +642,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushUInt)
 	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
-	code << Instruction::Push << 0ULL;
+	code << Instruction::Push << static_cast<std::uint64_t>(0);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -664,7 +664,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastSto)
 	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
-	code << Instruction::Sto << 0ULL << 2.5;
+	code << Instruction::Sto << static_cast<std::uint64_t>(0) << 2.5;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -675,7 +675,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoNotEnoughArgs)
 	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
-	code << Instruction::Sto << 0ULL;
+	code << Instruction::Sto << static_cast<std::uint64_t>(0);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -686,7 +686,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoTooManyArgs)
 	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
-	code << Instruction::Sto << 0ULL << 2.5 << 3;
+	code << Instruction::Sto << static_cast<std::uint64_t>(0) << 2.5 << 3;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -697,7 +697,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastMovTypeMismatch)
 	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
-	code << Instruction::Mov << 0ULL << 2.5;
+	code << Instruction::Mov << static_cast<std::uint64_t>(0) << 2.5;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
@@ -714,7 +714,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingPrologue)
 {
 	Stream code { };
 	code << Instruction::FAdd;
-	code << Instruction::Sto << 0ULL << 2.5;
+	code << Instruction::Sto << static_cast<std::uint64_t>(0) << 2.5;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingPrologueCode);
@@ -725,7 +725,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue)
 	Stream code { };
 	code.Prologue();
 	code << Instruction::NOp;
-	code << Instruction::Sto << 0ULL << 2.5;
+	code << Instruction::Sto << static_cast<std::uint64_t>(0) << 2.5;
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingEpilogueCode);
 }
@@ -746,7 +746,7 @@ TEST(ValidatorAlgorithms, ValidateValidPass0JumpAddress)
 	Stream code { };
 	code.Prologue();
 	code << Instruction::Push;
-	code << 4LL;
+	code << static_cast<std::int64_t>(4);
 	code << Instruction::Jmp;
 	code << JumpAddress {0};
 	code << Instruction::Jmp;
@@ -755,7 +755,7 @@ TEST(ValidatorAlgorithms, ValidateValidPass0JumpAddress)
 	code << JumpAddress {10};
 	code << Instruction::IAdd;
 	code << Instruction::Int;
-	code << 0LL;
+	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -766,7 +766,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressOutOfRange)
 	Stream code { };
 	code.Prologue();
 	code << Instruction::Push;
-	code << 4LL;
+	code << static_cast<std::int64_t>(4);
 	code << Instruction::Jmp;
 	code << JumpAddress {0};
 	code << Instruction::Jmp;
@@ -775,7 +775,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressOutOfRange)
 	code << JumpAddress {100};
 	code << Instruction::IAdd;
 	code << Instruction::Int;
-	code << 0LL;
+	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
@@ -786,15 +786,15 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressNoInstruction)
 	Stream code { };
 	code.Prologue();
 	code << Instruction::Push;
-	code << 4LL;
+	code << static_cast<std::int64_t>(4);
 	code << Instruction::Jmp;
 	code << JumpAddress {Stream::PrologueCode().size() + 1};
 	code << Instruction::Sto;
-	code << 1ULL;
+	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
 	code << Instruction::IAdd;
 	code << Instruction::Int;
-	code << 0LL;
+	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
@@ -814,7 +814,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressWrongType)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::Jmp << 2ULL;
+	code << Instruction::Jmp << static_cast<std::uint64_t>(2);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
@@ -914,7 +914,7 @@ TEST(ValidatorAlgorithms, FullValidation1Million)
 		stream << Instruction::Jmp;
 		stream << JumpAddress {0};
 		stream << Instruction::Sto;
-		stream << 1ULL;
+		stream << static_cast<std::uint64_t>(1);
 		stream << -0.5;
 	}
 

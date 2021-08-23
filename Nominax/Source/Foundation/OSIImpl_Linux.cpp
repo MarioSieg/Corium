@@ -213,6 +213,7 @@
 #include <fstream>
 #include <string>
 
+#include <sys/mman.h>
 #include <dlfcn.h>
 #include <unistd.h>
 
@@ -304,6 +305,50 @@ namespace Nominax::Foundation
 		::dlclose(handle_);
 		handle_ = nullptr;
 	}
+
+	auto OSI::MemoryMap
+	(
+        const std::uint64_t size,
+        const MemoryPageProtectionFlags protectionFlags
+    ) -> void*
+    {
+        int argPageProtections;
+        switch (protectionFlags)
+        {
+            case MemoryPageProtectionFlags::NoAccess:
+                argPageProtections = PROT_NONE;
+            break;
+
+            case MemoryPageProtectionFlags::Read:
+                argPageProtections = PROT_READ;
+            break;
+
+            case MemoryPageProtectionFlags::ReadWrite:
+                argPageProtections = PROT_READ | PROT_WRITE;
+            break;
+
+            case MemoryPageProtectionFlags::ReadExecute:
+                argPageProtections = PROT_READ | PROT_EXEC;
+            break;
+
+            case MemoryPageProtectionFlags::ReadWriteExecute:
+                argPageProtections = PROT_READ | PROT_WRITE | PROT_EXEC;
+            break;
+        }
+        constexpr int argMappingFlags {MAP_PRIVATE | MAP_ANONYMOUS};
+        const int prevError {errno};
+        void* const ptr  {mmap(nullptr, size, argPageProtections, argMappingFlags, -1, 0)};
+        errno = prevError;
+        return ptr;
+    }
+
+    auto OSI::MemoryUnmap(void* const region, const std::size_t size) -> bool
+    {
+	    const int prevError {errno};
+	    const bool result {munmap(region, size) == 0};
+	    errno = prevError;
+	    return result;
+    }
 }
 
 #endif

@@ -219,7 +219,7 @@ TEST(BytecodeStream, Push)
 	Stream stream { };
 	ASSERT_EQ(stream.Size(), 0);
 
-	stream << 0ULL;
+	stream << static_cast<std::uint64_t>(0);
 	stream << Instruction::NOp;
 	stream << Instruction::Call;
 	stream << SystemIntrinsicInvocationID::ACos;

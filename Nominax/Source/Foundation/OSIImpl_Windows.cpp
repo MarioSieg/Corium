@@ -314,12 +314,11 @@ namespace Nominax::Foundation
 
 	auto OSI::MemoryMap
 	(
-		void* const region,
 		const std::uint64_t size,
 		const MemoryPageProtectionFlags protectionFlags
 	) -> void*
 	{
-		const LPVOID argAddress {region};
+		const LPVOID argAddress {nullptr};
 		const SIZE_T argSize {size};
 		constexpr DWORD argAllocType { MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN };
 		DWORD argProtection {};
@@ -328,15 +327,19 @@ namespace Nominax::Foundation
 			case MemoryPageProtectionFlags::NoAccess:
 				argProtection = PAGE_NOACCESS;
 			break;
+
 			case MemoryPageProtectionFlags::Read:
 				argProtection = PAGE_READONLY;
 			break;
+
 			case MemoryPageProtectionFlags::ReadWrite:
 				argProtection = PAGE_READWRITE;
 			break;
+
 			case MemoryPageProtectionFlags::ReadExecute:
 				argProtection = PAGE_EXECUTE_READ;
 			break;
+
 			case MemoryPageProtectionFlags::ReadWriteExecute:
 				argProtection = PAGE_EXECUTE_READWRITE;
 			break;
