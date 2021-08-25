@@ -212,7 +212,7 @@
 #include <optional>
 
 #include "DyProc.hpp"
-#include "OSI.hpp"
+#include "OSInterface.hpp"
 
 namespace Nominax::Foundation
 {

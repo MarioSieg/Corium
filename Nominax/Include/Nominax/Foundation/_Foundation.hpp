@@ -227,7 +227,7 @@
 #include "MemoryUnits.hpp"
 #include "Object.hpp"
 #include "ObjectHeader.hpp"
-#include "OSI.hpp"
+#include "OSInterface.hpp"
 #include "SigBus.hpp"
 #include "Panic.hpp"
 #include "PanicAssertions.hpp"

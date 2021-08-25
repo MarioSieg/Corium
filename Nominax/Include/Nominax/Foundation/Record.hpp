@@ -215,9 +215,9 @@
 namespace Nominax::Foundation
 {
 	/// <summary>
-		/// 64-bit memory record.
-		/// Contains either: Record32, void*, std::uint64_t, std::int64_t, double
-		/// </summary>
+    /// 64-bit memory record.
+    /// Contains either: Record32, void*, std::uint64_t, std::int64_t, double
+    /// </summary>
 	union alignas(alignof(std::int64_t)) Record
 	{
 		/// <summary>

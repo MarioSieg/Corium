@@ -343,6 +343,8 @@ namespace Nominax::Foundation
 		/// <param name="size"></param>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		static auto MemoryUnmap(void* region, std::size_t size) -> bool;
+		static auto MemoryUnmap(void* region, std::uint64_t size) -> bool;
+
+        static auto MemoryProtect(void* region, std::uint64_t size, MemoryPageProtectionFlags protectionFlags) -> bool;
 	};
 }

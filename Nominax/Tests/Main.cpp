@@ -211,5 +211,6 @@ auto main(int argc, char** argv) -> int
 {
 	testing::InitGoogleTest(&argc, argv);
 	testing::GTEST_FLAG(filter) = "*";
+    GTEST_FLAG_SET(death_test_style, "threadsafe");
 	return RUN_ALL_TESTS();
 }

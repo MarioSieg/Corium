@@ -206,6 +206,8 @@
 //    limitations under the License.
 
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../Include/Nominax/Foundation/OSInterface.hpp"
+
 
 #if NOX_OS_LINUX
 
@@ -260,7 +262,7 @@ namespace Nominax::Foundation
 					return "Unknown";
 				}
 
-				for (std::string line; std::getline(cpuinfo, line); )
+				for (std::string line; std::getline(cpuinfo, line);)
 				{
 					if (line.find("model name") == 0)
 					{
@@ -306,48 +308,59 @@ namespace Nominax::Foundation
 		handle_ = nullptr;
 	}
 
+    static constexpr auto CreateOsPageProtectionFlags(const MemoryPageProtectionFlags protectionFlags) -> int
+    {
+        switch (protectionFlags)
+        {
+            case MemoryPageProtectionFlags::Read:
+                return PROT_READ;
+
+            case MemoryPageProtectionFlags::ReadWrite:
+                return PROT_READ | PROT_WRITE;
+
+            case MemoryPageProtectionFlags::ReadExecute:
+                return PROT_READ | PROT_EXEC;
+
+            case MemoryPageProtectionFlags::ReadWriteExecute:
+                return PROT_READ | PROT_WRITE | PROT_EXEC;
+
+            default:
+            case MemoryPageProtectionFlags::NoAccess:
+                return PROT_NONE;
+        }
+    }
+
+    static constexpr int MEMORY_MAPPING_FLAGS { MAP_PRIVATE | MAP_ANONYMOUS };
+
 	auto OSI::MemoryMap
 	(
         const std::uint64_t size,
         const MemoryPageProtectionFlags protectionFlags
     ) -> void*
     {
-        int argPageProtections;
-        switch (protectionFlags)
-        {
-            case MemoryPageProtectionFlags::NoAccess:
-                argPageProtections = PROT_NONE;
-            break;
-
-            case MemoryPageProtectionFlags::Read:
-                argPageProtections = PROT_READ;
-            break;
-
-            case MemoryPageProtectionFlags::ReadWrite:
-                argPageProtections = PROT_READ | PROT_WRITE;
-            break;
-
-            case MemoryPageProtectionFlags::ReadExecute:
-                argPageProtections = PROT_READ | PROT_EXEC;
-            break;
-
-            case MemoryPageProtectionFlags::ReadWriteExecute:
-                argPageProtections = PROT_READ | PROT_WRITE | PROT_EXEC;
-            break;
-        }
-        constexpr int argMappingFlags {MAP_PRIVATE | MAP_ANONYMOUS};
+        const int argPageProtections {CreateOsPageProtectionFlags(protectionFlags)};
+        constexpr int argMappingFlags {MEMORY_MAPPING_FLAGS};
         const int prevError {errno};
-        void* const ptr  {mmap(nullptr, size, argPageProtections, argMappingFlags, -1, 0)};
+        void* const ptr { mmap(nullptr, size, argPageProtections, argMappingFlags, -1, 0) };
         errno = prevError;
         return ptr;
     }
 
-    auto OSI::MemoryUnmap(void* const region, const std::size_t size) -> bool
+    auto OSI::MemoryUnmap(void* const region, const std::uint64_t size) -> bool
     {
 	    const int prevError {errno};
-	    const bool result {munmap(region, size) == 0};
+	    const bool result {munmap(region, static_cast<std::size_t>(size)) == 0};
 	    errno = prevError;
 	    return result;
+    }
+
+    auto OSI::MemoryProtect(void* const region, const std::uint64_t size, const MemoryPageProtectionFlags protectionFlags) -> bool
+    {
+        const int argPageProtections { CreateOsPageProtectionFlags(protectionFlags) };
+        const int prevError { errno };
+        const bool result { mprotect(region, static_cast<std::size_t>(size), argPageProtections) == 0 };
+        errno = prevError;
+        return result;
     }
 }
 
