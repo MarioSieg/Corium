@@ -578,7 +578,14 @@ TEST(Environment, ExecutionHooks)
 	MyEnvironment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 	ASSERT_EQ(env.GetExecutionCount(), 0);
-	ASSERT_NO_FATAL_FAILURE(env.Execute(std::move(stream)));
+	ASSERT_NO_FATAL_FAILURE
+    (
+        [&]
+        {
+            [[maybe_unused]]
+            const auto _ { env.Execute(std::move(stream)) };
+        }()
+    );
 	ASSERT_EQ(env.GetExecutionCount(), 1);
 	ASSERT_EQ(counter, 2);
 	ASSERT_EQ(streamSize, ssize);

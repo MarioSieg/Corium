@@ -4,43 +4,53 @@
 
 namespace Nominax::Foundation
 {
-    auto VMM::VirtualAlloc(const std::uint64_t size, const MemoryPageProtectionFlags flags) -> void*
+    using VAH = VirtualAllocationHeader;
+
+    auto VMM::VirtualAlloc(const std::uint64_t size, const MemoryPageProtectionFlags flags, const bool locked) -> void*
     {
         if (!size)
         {
             [[unlikely]]
             return nullptr;
         }
-        void* NOX_RESTRICT const block { OSI::MemoryMap(sizeof(VirtualAllocationHeader) + size, flags) };
+        void* const block { OSI::MemoryMap(sizeof(VAH) + size, flags) };
         NOX_DBG_PAS_NOT_NULL(block, "Memory mapping failed!");
-        auto& header { *static_cast<VirtualAllocationHeader*>(block) };
+        auto& header { *static_cast<VAH*>(block) };
         header.Size = size;
         header.ProtectionFlags = flags;
+        if (locked)
+        {
+            header.SetLock(); // The region is now locked, so no more protection flag changes in the future!
+        }
         header.UserData.Ptr = nullptr;
-        return static_cast<std::byte*>(block) + sizeof(VirtualAllocationHeader);
+        return static_cast<std::byte*>(block) + sizeof(VAH);
     }
 
-    auto VMM::VirtualDealloc(void* const allocation) -> bool
+    auto VMM::VirtualDealloc(void* const region) -> bool
     {
-        if (!allocation)
+        if (!region)
         {
             [[unlikely]]
             return false;
         }
-        auto* const blockOffset { static_cast<std::byte*>(allocation) - sizeof(VirtualAllocationHeader) };
-        auto& header { *reinterpret_cast<VirtualAllocationHeader*>(blockOffset) };
+        auto* const blockOffset { VAH::ComputeRegionStart(region) };
+        auto& header { VAH::MapHeader(blockOffset) };
         return OSI::MemoryUnmap(blockOffset, header.Size);
     }
 
-    auto VMM::VirtualProtectPages(void* const allocation, const MemoryPageProtectionFlags newFlags) -> bool
+    auto VMM::VirtualProtectPages(void* const region, const MemoryPageProtectionFlags newFlags, const bool locked) -> bool
     {
-        if (!allocation)
+        if (!region)
         {
             [[unlikely]]
             return false;
         }
-        auto* const blockOffset { static_cast<std::byte*>(allocation) - sizeof(VirtualAllocationHeader) };
-        auto& header { *reinterpret_cast<VirtualAllocationHeader*>(blockOffset) };
+        auto* const blockOffset { VAH::ComputeRegionStart(region) };
+        auto& header { VAH::MapHeader(blockOffset) };
+        if (header.IsLocked()) // Already locked, we can't change any protection flags...
+        {
+            return false;
+        }
         const bool result { OSI::MemoryProtect(blockOffset, header.Size, newFlags) };
         if (!result)
         {
@@ -48,6 +58,10 @@ namespace Nominax::Foundation
             return false;
         }
         header.ProtectionFlags = newFlags;
+        if (locked)
+        {
+            header.SetLock(); // The region is now locked, so no more protection flag changes in the future!
+        }
         return true;
     }
 }

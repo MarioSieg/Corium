@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bit>
+
 #include "VirtualPageProtectionFlags.hpp"
 
 namespace Nominax::Foundation
@@ -11,12 +13,51 @@ namespace Nominax::Foundation
     {
         std::uint64_t Size {};
         MemoryPageProtectionFlags ProtectionFlags {};
+        std::uintptr_t ProtectionLock {};
         union
         {
             void* Ptr;
             std::uintptr_t Int;
         } UserData {nullptr};
+
+        constexpr auto SetLock() -> void;
+        constexpr auto IsLocked() const -> bool;
+
+    private:
+        friend struct VMM;
+
+        constexpr auto ComputeLockHash(const void* hashPtr) const -> std::uintptr_t;
+        static constexpr auto ComputeRegionStart(void* usrRegion) -> void*;
+        static constexpr auto MapHeader(void* region) -> VirtualAllocationHeader&;
+        static constexpr std::uintptr_t LOCK_KEY { 0x0DE11EB268bED472 };
     };
+
+    static_assert(std::is_standard_layout_v<VirtualAllocationHeader>);
+
+    constexpr auto VirtualAllocationHeader::IsLocked() const -> bool
+    {
+        return this->ProtectionLock == this->ComputeLockHash(this);
+    }
+
+    constexpr auto VirtualAllocationHeader::SetLock() -> void
+    {
+        this->ProtectionLock = this->ComputeLockHash(this);
+    }
+
+    constexpr auto VirtualAllocationHeader::ComputeLockHash(const void* const hashPtr) const -> std::uintptr_t
+    {
+        return (std::bit_cast<std::uintptr_t>(hashPtr) << 2) ^ LOCK_KEY ^ this->Size;
+    }
+
+    constexpr auto VirtualAllocationHeader::ComputeRegionStart(void* const usrRegion) -> void*
+    {
+        return static_cast<std::byte*>(usrRegion) - sizeof(VirtualAllocationHeader);
+    }
+
+    constexpr auto VirtualAllocationHeader::MapHeader(void* const region) -> VirtualAllocationHeader&
+    {
+        return *static_cast<VirtualAllocationHeader*>(region);
+    }
 
     /// <summary>
     /// Virtual memory manager.
@@ -53,8 +94,8 @@ namespace Nominax::Foundation
         /// </summary>
         ~VMM() = delete;
 
-        static auto VirtualAlloc(std::uint64_t size, MemoryPageProtectionFlags flags) -> void*;
-        static auto VirtualDealloc(void* allocation) -> bool;
-        static auto VirtualProtectPages(void* allocation, MemoryPageProtectionFlags newFlags) -> bool;
+        static auto VirtualAlloc(std::uint64_t size, MemoryPageProtectionFlags flags, bool locked = false) -> void*;
+        static auto VirtualDealloc(void* region) -> bool;
+        static auto VirtualProtectPages(void* region, MemoryPageProtectionFlags newFlags, bool locked = false) -> bool;
     };
 }
