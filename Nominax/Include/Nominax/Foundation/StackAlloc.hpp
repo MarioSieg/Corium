@@ -229,7 +229,7 @@ namespace Nominax::Foundation
 	/// Above this size memory will be allocated on the heap
 	/// instead of the stack.
 	/// </summary>
-	constexpr std::uint64_t STACK_ALLOC_HEAP_THRESHOLD {4_kB};
+	constexpr std::uint64_t STACK_ALLOC_HEAP_THRESHOLD { 4_kB };
 
 	/// <summary>
 	/// Restrict fixed stack allocation type.
@@ -246,7 +246,7 @@ namespace Nominax::Foundation
 	template <typename T, const std::uint64_t C> requires FixedStackAllocatable<T, C>
 	struct FixedStackAllocationProxy final
 	{
-		static constexpr std::uint64_t BYTE_SIZE {C * sizeof(T)};
+		static constexpr std::uint64_t BYTE_SIZE { C * sizeof(T) };
 	};
 
 	/// <summary>
@@ -374,8 +374,8 @@ namespace Nominax::Foundation
 	};
 
 	template <typename T> requires DynamicStackAllocatable<T>
-	constexpr HybridStackGuard<T>::HybridStackGuard(const bool isOnHeap, T& memory) : Blob_ {&memory},
-	                                                                                  IsHeap_ {isOnHeap} { }
+	constexpr HybridStackGuard<T>::HybridStackGuard(const bool isOnHeap, T& memory) : Blob_ { &memory },
+	                                                                                  IsHeap_ { isOnHeap } { }
 
 	template <typename T> requires DynamicStackAllocatable<T>
 	constexpr HybridStackGuard<T>::operator bool() const &

@@ -215,7 +215,7 @@ namespace Nominax::Core
 		{
 			Job routine;
 			{
-				std::unique_lock<std::mutex> lock {this->QueueMutex_};
+				std::unique_lock<std::mutex> lock { this->QueueMutex_ };
 				this->SharedCondition_.wait(lock, [this]
 				{
 					return
@@ -230,7 +230,7 @@ namespace Nominax::Core
 			}
 			std::invoke(routine);
 			{
-				std::lock_guard<std::mutex> lock {this->QueueMutex_};
+				std::lock_guard<std::mutex> lock { this->QueueMutex_ };
 				this->TaskQueue_.pop();
 				this->SharedCondition_.notify_one();
 			}
@@ -242,7 +242,7 @@ namespace Nominax::Core
 		this->Worker_ = std::thread(&TaskQueueThread::DispatchJobQueue, this);
 	}
 
-	TaskQueueThread::TaskQueueThread(std::pmr::memory_resource& allocator) : TaskQueue_ {&allocator}
+	TaskQueueThread::TaskQueueThread(std::pmr::memory_resource& allocator) : TaskQueue_ { &allocator }
 	{
 		this->Worker_ = std::thread(&TaskQueueThread::DispatchJobQueue, this);
 	}
@@ -265,7 +265,7 @@ namespace Nominax::Core
 
 	auto TaskQueueThread::Join() -> void
 	{
-		std::unique_lock<std::mutex> lock {this->QueueMutex_};
+		std::unique_lock<std::mutex> lock { this->QueueMutex_ };
 		this->SharedCondition_.wait(lock, [this]
 		{
 			return this->TaskQueue_.empty();
@@ -274,7 +274,7 @@ namespace Nominax::Core
 
 	auto TaskQueueThread::Enqueue(Job&& target) -> void
 	{
-		std::lock_guard<std::mutex> lock {this->QueueMutex_};
+		std::lock_guard<std::mutex> lock { this->QueueMutex_ };
 		this->TaskQueue_.push(std::move(target));
 		this->SharedCondition_.notify_one();
 	}

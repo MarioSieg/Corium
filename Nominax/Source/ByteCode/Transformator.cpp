@@ -218,7 +218,7 @@ namespace Nominax::ByteCode
 		Image&                   output
 	) -> void
 	{
-		Stream copy {input};
+		Stream copy { input };
 		return TransformStreamToImageByMove(std::move(copy), optHints, output);
 	}
 
@@ -235,19 +235,19 @@ namespace Nominax::ByteCode
 				return;
 		}
 
-		output = Image {std::move(input.GetCodeBuffer())};
+		output = Image { std::move(input.GetCodeBuffer()) };
 
 		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-		const auto* const NOX_RESTRICT                     discriminators {&*std::begin(input.GetDiscriminatorBuffer())};
-		const auto* const NOX_RESTRICT* const NOX_RESTRICT jumpTable {&optHints.JumpTable};
-		const auto* const NOX_RESTRICT                     base {output.GetBlobData()};
-		const auto* const NOX_RESTRICT                     begin {&*std::begin(output)};
+		const auto* const NOX_RESTRICT                     discriminators { &*std::begin(input.GetDiscriminatorBuffer()) };
+		const auto* const NOX_RESTRICT* const NOX_RESTRICT jumpTable { &optHints.JumpTable };
+		const auto* const NOX_RESTRICT                     base { output.GetBlobData() };
+		const auto* const NOX_RESTRICT                     begin { &*std::begin(output) };
 
 		const auto addressMapper
 		{
 			[=](Signal& x)
 			{
-				const Signal::Discriminator discriminator {discriminators[&x - begin]};
+				const Signal::Discriminator discriminator { discriminators[&x - begin] };
 				if (discriminator == Signal::Discriminator::Instruction)
 				{
 					x.Ptr = const_cast<void*>(*(jumpTable + x.OpCode));

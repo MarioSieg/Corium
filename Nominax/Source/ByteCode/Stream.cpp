@@ -222,8 +222,8 @@ namespace Nominax::ByteCode
 	auto Stream::Serialize(std::ofstream& out) const -> bool
 	{
 		SerializationImageHeader header { };
-		constexpr std::uint64_t  codeSectionMarker {STREAM_IMAGE_CODE_SECTION_MARKER};
-		constexpr std::uint64_t  discriminatorSectionMarker {STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER};
+		constexpr std::uint64_t  codeSectionMarker { STREAM_IMAGE_CODE_SECTION_MARKER };
+		constexpr std::uint64_t  discriminatorSectionMarker { STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER };
 
 		// header
 		this->GetSerializationImageHeader(header);
@@ -243,7 +243,7 @@ namespace Nominax::ByteCode
 	{
 		SerializationImageHeader header { };
 		in.read(reinterpret_cast<char*>(&header), sizeof(SerializationImageHeader));
-		for (std::uint64_t i {0}; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
+		for (std::uint64_t i { 0 }; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
 		{
 			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
 			{
@@ -296,10 +296,10 @@ namespace Nominax::ByteCode
 
 		Print("Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<float>(this->SizeInBytes())), sizeof(Signal));
 
-		for (std::uint64_t i {0}; i < this->Size(); ++i)
+		for (std::uint64_t i { 0 }; i < this->Size(); ++i)
 		{
-			const auto bytes {std::bit_cast<std::array<std::uint8_t, sizeof(Signal)>>(this->CodeBuffer_[i])};
-			const auto isInstr {this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction};
+			const auto bytes { std::bit_cast<std::array<std::uint8_t, sizeof(Signal)>>(this->CodeBuffer_[i]) };
+			const auto isInstr { this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction };
 			Print(TextColor::Green, "&{:016X} ", reinterpret_cast<std::uintptr_t>(&this->CodeBuffer_[i]));
 			Print
 			(
@@ -355,7 +355,7 @@ namespace Nominax::ByteCode
 
 	auto Stream::Build(Stream&& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
 	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
+		const ValidationResultCode validationResult { ValidateFullPass(stream) };
 		if (validationResult != ValidationResultCode::Ok)
 		{
 			[[unlikely]]
@@ -367,7 +367,7 @@ namespace Nominax::ByteCode
 
 	auto Stream::Build(const Stream& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
 	{
-		const ValidationResultCode validationResult {ValidateFullPass(stream)};
+		const ValidationResultCode validationResult { ValidateFullPass(stream) };
 		if (validationResult != ValidationResultCode::Ok)
 		{
 			[[unlikely]]

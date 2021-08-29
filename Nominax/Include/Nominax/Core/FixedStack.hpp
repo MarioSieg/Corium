@@ -238,19 +238,19 @@ namespace Nominax::Core
 		/// Small 1 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::uint64_t SIZE_SMALL {1_mB / sizeof(Foundation::Record)};
+		static constexpr std::uint64_t SIZE_SMALL { 1_mB / sizeof(Foundation::Record) };
 
 		/// <summary>
 		/// Medium sizes 4 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::uint64_t SIZE_MEDIUM {4_mB / sizeof(Foundation::Record)};
+		static constexpr std::uint64_t SIZE_MEDIUM { 4_mB / sizeof(Foundation::Record) };
 
 		/// <summary>
 		/// Medium sizes 8 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr std::uint64_t SIZE_LARGE {8_mB / sizeof(Foundation::Record)};
+		static constexpr std::uint64_t SIZE_LARGE { 8_mB / sizeof(Foundation::Record) };
 		/// <summary>
 		/// 
 		/// </summary>

@@ -226,17 +226,17 @@ namespace Nominax::Core
 	/// <summary>
 	/// Interrupt code indicating a fatal reactor error.
 	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_FATAL_ERROR {std::numeric_limits<InterruptAccumulator>::min()};
+	constexpr InterruptAccumulator INT_CODE_FATAL_ERROR { std::numeric_limits<InterruptAccumulator>::min() };
 
 	/// <summary>
 	/// Interrupt code indicating success.
 	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_OK {0};
+	constexpr InterruptAccumulator INT_CODE_OK { 0 };
 
 	/// <summary>
 	/// Interrupt code indicating user space exception.
 	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_EXCEPTIONS {std::numeric_limits<InterruptAccumulator>::max()};
+	constexpr InterruptAccumulator INT_CODE_EXCEPTIONS { std::numeric_limits<InterruptAccumulator>::max() };
 
 	/// <summary>
 	/// Default interrupt routine,

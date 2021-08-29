@@ -212,7 +212,7 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Global per thread signal status.
 	/// </summary>
-	constinit volatile thread_local std::sig_atomic_t SignalStatus {0};
+	constinit volatile thread_local std::sig_atomic_t SignalStatus { 0 };
 
 	auto QuerySignalStatus() -> std::sig_atomic_t
 	{

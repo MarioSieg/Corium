@@ -437,19 +437,19 @@ namespace Nominax::Foundation
 		static constexpr auto Padding() -> Record;
 	};
 
-	constexpr Record::Record(const std::uint32_t value) : AsU32 {value} {}
-	constexpr Record::Record(const std::int32_t value) : AsI32 {value} {}
-	constexpr Record::Record(const float value) : AsF32 {value} {}
-	constexpr Record::Record(const std::uint64_t value) : AsU64 {value} {}
-	constexpr Record::Record(const std::int64_t value) : AsI64 {value} {}
-	constexpr Record::Record(const double value) : AsF64 {value} {}
-	constexpr Record::Record(void* const value) : AsPtr {value} {}
-	constexpr Record::Record(const char8_t value) : AsChar8 {value} {}
-	constexpr Record::Record(const char16_t value) : AsChar16 {value} {}
-	constexpr Record::Record(const char32_t value) : AsChar32 {value} {}
-	constexpr Record::Record(const std::array<std::uint32_t, 2> value) : AsU32S {value} {}
-	constexpr Record::Record(const std::array<std::int32_t, 2> value) : AsI32S {value} {}
-	constexpr Record::Record(const std::array<float, 2> value) : AsF32S {value} {}
+	constexpr Record::Record(const std::uint32_t value) : AsU32 { value } {}
+	constexpr Record::Record(const std::int32_t value) : AsI32 { value } {}
+	constexpr Record::Record(const float value) : AsF32 { value } {}
+	constexpr Record::Record(const std::uint64_t value) : AsU64 { value } {}
+	constexpr Record::Record(const std::int64_t value) : AsI64 { value } {}
+	constexpr Record::Record(const double value) : AsF64 { value } {}
+	constexpr Record::Record(void* const value) : AsPtr { value } {}
+	constexpr Record::Record(const char8_t value) : AsChar8 { value } {}
+	constexpr Record::Record(const char16_t value) : AsChar16 { value } {}
+	constexpr Record::Record(const char32_t value) : AsChar32 { value } {}
+	constexpr Record::Record(const std::array<std::uint32_t, 2> value) : AsU32S { value } {}
+	constexpr Record::Record(const std::array<std::int32_t, 2> value) : AsI32S { value } {}
+	constexpr Record::Record(const std::array<float, 2> value) : AsF32S { value } {}
 
 	constexpr Record::operator bool() const
 	{
@@ -488,7 +488,7 @@ namespace Nominax::Foundation
 
 	constexpr auto Record::Padding() -> Record
 	{
-		return Record {0xFF'FF'FF'FF'FF'FF'FF'FF};
+		return Record { 0xFF'FF'FF'FF'FF'FF'FF'FF };
 	}
 
 	static_assert(sizeof(float) == sizeof(std::int32_t));

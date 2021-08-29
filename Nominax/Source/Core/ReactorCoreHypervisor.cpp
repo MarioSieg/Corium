@@ -218,9 +218,9 @@ namespace Nominax::Core
 		const void****                  outJumpTable
 	) -> std::pair<ReactorShutdownReason, ReactorState>
 	{
-		ReactorState                output {.Input = &input};
-		const ReactorShutdownReason result {SingletonExecutionProxy(input, output, target, outJumpTable)};
-		return {result, output};
+		ReactorState                output { .Input = &input };
+		const ReactorShutdownReason result { SingletonExecutionProxy(input, output, target, outJumpTable) };
+		return { result, output };
 	}
 
 	static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::uint64_t>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
@@ -266,13 +266,13 @@ namespace Nominax::Core
 
 	auto HyperVisor::GetFallbackRoutineLink() -> ReactorRoutineLink
 	{
-		constexpr auto specialization {ReactorCoreSpecialization::Fallback};
+		constexpr auto specialization { ReactorCoreSpecialization::Fallback };
 
 		ReactorCoreExecutionRoutine* const routine
 		{
 			GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)
 		};
-		const void** const jumpTable {QueryJumpTable(*routine)};
+		const void** const jumpTable { QueryJumpTable(*routine) };
 		return
 		{
 			specialization,
@@ -283,13 +283,13 @@ namespace Nominax::Core
 
 	auto HyperVisor::GetDebugRoutineLink() -> ReactorRoutineLink
 	{
-		constexpr auto specialization {ReactorCoreSpecialization::Debug};
+		constexpr auto specialization { ReactorCoreSpecialization::Debug };
 
 		ReactorCoreExecutionRoutine* const routine
 		{
 			GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Debug)
 		};
-		const void** const jumpTable {QueryJumpTable(*routine)};
+		const void** const jumpTable { QueryJumpTable(*routine) };
 		return
 		{
 			specialization,
@@ -311,9 +311,9 @@ namespace Nominax::Core
 	auto HyperVisor::GetOptimalReactorRoutine(const Foundation::CPUFeatureDetector& features) -> ReactorRoutineLink
 	{
 		static thread_local constinit std::uint16_t QueryCounter;
-		ReactorCoreSpecialization                   specialization {SmartSelectReactor(features)};
-		ReactorCoreExecutionRoutine*                routine {GetReactorRoutineFromRegistryByTarget(specialization)};
-		const void**                                jumpTable {QueryJumpTable(*routine)};
+		ReactorCoreSpecialization                   specialization { SmartSelectReactor(features) };
+		ReactorCoreExecutionRoutine*                routine { GetReactorRoutineFromRegistryByTarget(specialization) };
+		const void**                                jumpTable { QueryJumpTable(*routine) };
 		Foundation::Print
 		(
 			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry WordSize: {}\n",
@@ -350,8 +350,8 @@ namespace Nominax::Core
 	auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**
 	{
 		const void**   jumpTable { };
-		const void***  proxy {&jumpTable};
-		const void**** writer {&proxy};
+		const void***  proxy { &jumpTable };
+		const void**** writer { &proxy };
 		return routine(nullptr, nullptr, writer) == ReactorShutdownReason::Success ? jumpTable : nullptr;
 	}
 }

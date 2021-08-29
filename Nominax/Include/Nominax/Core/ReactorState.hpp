@@ -221,12 +221,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// The input descriptor (if any).
 		/// </summary>
-		const VerboseReactorDescriptor* Input {nullptr};
+		const VerboseReactorDescriptor* Input { nullptr };
 
 		/// <summary>
 		/// The shutdown reason.
 		/// </summary>
-		ReactorShutdownReason ShutdownReason {ReactorShutdownReason::Success};
+		ReactorShutdownReason ShutdownReason { ReactorShutdownReason::Success };
 
 		/// <summary>
 		/// Pre execution time stamp.

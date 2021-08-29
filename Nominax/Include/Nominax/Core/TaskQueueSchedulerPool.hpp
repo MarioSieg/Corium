@@ -218,7 +218,7 @@ namespace Nominax::Core
 	/// </summary>
 	class TaskQueueThreadPool final
 	{
-		std::pmr::monotonic_buffer_resource* Allocator_ {nullptr};
+		std::pmr::monotonic_buffer_resource* Allocator_ { nullptr };
 
 	public:
 		/// <summary>

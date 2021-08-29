@@ -239,43 +239,43 @@ namespace Nominax::ByteCode
 	{
 		if constexpr (std::is_same_v<Instruction, T>)
 		{
-			return {Signal::Discriminator::Instruction};
+			return { Signal::Discriminator::Instruction };
 		}
 		else if constexpr (std::is_same_v<SystemIntrinsicInvocationID, T>)
 		{
-			return {Signal::Discriminator::SystemIntrinsicInvocationID};
+			return { Signal::Discriminator::SystemIntrinsicInvocationID };
 		}
 		else if constexpr (std::is_same_v<UserIntrinsicInvocationID, T>)
 		{
-			return {Signal::Discriminator::UserIntrinsicInvocationID};
+			return { Signal::Discriminator::UserIntrinsicInvocationID };
 		}
 		else if constexpr (std::is_same_v<JumpAddress, T>)
 		{
-			return {Signal::Discriminator::JumpAddress};
+			return { Signal::Discriminator::JumpAddress };
 		}
 		else if constexpr (std::is_same_v<std::uint64_t, T>)
 		{
-			return {Signal::Discriminator::UnsignedScalar};
+			return { Signal::Discriminator::UnsignedScalar };
 		}
 		else if constexpr (std::is_same_v<std::int64_t, T>)
 		{
-			return {Signal::Discriminator::Int};
+			return { Signal::Discriminator::Int };
 		}
 		else if constexpr (std::is_same_v<double, T>)
 		{
-			return {Signal::Discriminator::Float};
+			return { Signal::Discriminator::Float };
 		}
 		else if constexpr (std::is_same_v<CharClusterUtf8, T>)
 		{
-			return {Signal::Discriminator::CharClusterUtf8};
+			return { Signal::Discriminator::CharClusterUtf8 };
 		}
 		else if constexpr (std::is_same_v<CharClusterUtf16, T>)
 		{
-			return {Signal::Discriminator::CharClusterUtf16};
+			return { Signal::Discriminator::CharClusterUtf16 };
 		}
 		else if constexpr (std::is_same_v<CharClusterUtf32, T>)
 		{
-			return {Signal::Discriminator::CharClusterUtf32};
+			return { Signal::Discriminator::CharClusterUtf32 };
 		}
 		else
 		{

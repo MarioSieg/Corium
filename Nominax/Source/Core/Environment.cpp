@@ -631,7 +631,7 @@ namespace Nominax::Core
 			|| code == ByteCode::ValidationResultCode::ArgumentTypeMismatch
 		};
 
-		for (std::uint64_t i {idx}; i < idx + 8 && i < appCode.Size(); ++i)
+		for (std::uint64_t i { idx }; i < idx + 8 && i < appCode.Size(); ++i)
 		{
 			if (appCode[i].Contains<ByteCode::Instruction>())
 			{
@@ -659,7 +659,7 @@ namespace Nominax::Core
 	NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const std::uint64_t size, const std::string_view poolId) -> std::uint8_t*
 	{
 		Print("Allocating {} pool with size: {} MB\n", poolId, Bytes2Megabytes(static_cast<double>(size)));
-		auto* NOX_RESTRICT const mem {new(std::nothrow) std::uint8_t[size]};
+		auto* NOX_RESTRICT const mem { new(std::nothrow) std::uint8_t[size] };
 		if (!mem)
 		{
 			[[unlikely]]
@@ -696,10 +696,10 @@ namespace Nominax::Core
 		const std::uint64_t                    size
 	) -> std::pair<std::ptrdiff_t, double>
 	{
-		const std::uint8_t* const needle {static_cast<std::uint8_t*>(resource.allocate(sizeof(std::uint8_t), alignof(std::uint8_t)))};
-		const std::ptrdiff_t      offset {needle - *buffer};                             // compute allocation offset
-		const double              poolUsagePercent {ComputeMemoryPercent(offset, size)}; // compute percent usage
-		return {offset, poolUsagePercent};
+		const std::uint8_t* const needle { static_cast<std::uint8_t*>(resource.allocate(sizeof(std::uint8_t), alignof(std::uint8_t))) };
+		const std::ptrdiff_t      offset { needle - *buffer };                             // compute allocation offset
+		const double              poolUsagePercent { ComputeMemoryPercent(offset, size) }; // compute percent usage
+		return { offset, poolUsagePercent };
 	}
 
 	/// <summary>
@@ -746,21 +746,21 @@ namespace Nominax::Core
 	};
 
 	Environment::Context::Context(const EnvironmentDescriptor& descriptor) :
-		ReactorCount {ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount)},
-		BootPoolSize {ClampBootPoolSize(descriptor.BootPoolSize)},
-		BootPool {AllocatePool(BootPoolSize, "boot")},
-		BootPoolResource {*BootPool, BootPoolSize},
-		SystemPoolSize {ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.StackSize)},
-		SystemPool {AllocatePool(SystemPoolSize, "system")},
-		SystemPoolResource {*SystemPool, SystemPoolSize},
-		Arguments {&BootPoolResource},
-		AppName {&SystemPoolResource},
-		ExecutionTimeHistory {&SystemPoolResource},
-		BootStamp {std::chrono::high_resolution_clock::now()},
+		ReactorCount { ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount) },
+		BootPoolSize { ClampBootPoolSize(descriptor.BootPoolSize) },
+		BootPool { AllocatePool(BootPoolSize, "boot") },
+		BootPoolResource { *BootPool, BootPoolSize },
+		SystemPoolSize { ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.StackSize) },
+		SystemPool { AllocatePool(SystemPoolSize, "system") },
+		SystemPoolResource { *SystemPool, SystemPoolSize },
+		Arguments { &BootPoolResource },
+		AppName { &SystemPoolResource },
+		ExecutionTimeHistory { &SystemPoolResource },
+		BootStamp { std::chrono::high_resolution_clock::now() },
 		BootTime { },
-		SysInfoSnapshot {InitSysInfo()},
-		CpuFeatures {InitCpuFeatures()},
-		OptimalReactorRoutine {QueryExecRoutine(descriptor.ForceFallback, CpuFeatures)},
+		SysInfoSnapshot { InitSysInfo() },
+		CpuFeatures { InitCpuFeatures() },
+		OptimalReactorRoutine { QueryExecRoutine(descriptor.ForceFallback, CpuFeatures) },
 		CorePool
 		{
 			SystemPoolResource, ReactorCount, ReactorSpawnDescriptor
@@ -843,7 +843,7 @@ namespace Nominax::Core
 		std::ios_base::sync_with_stdio(!descriptor.FastHostIoSync);
 		PrintSystemInfo();
 		Print("Booting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
-		const auto tik {std::chrono::high_resolution_clock::now()};
+		const auto tik { std::chrono::high_resolution_clock::now() };
 
 		// Invoke hook:
 		DISPATCH_HOOK(OnPreBootHook,);
@@ -871,11 +871,11 @@ namespace Nominax::Core
 		// Invoke hook:
 		DISPATCH_HOOK(OnPostBootHook,);
 
-		const auto tok {std::chrono::high_resolution_clock::now()};
+		const auto tok { std::chrono::high_resolution_clock::now() };
 
 		// Get memory snapshot:
-		const std::uint64_t memSnapshot {OSI::QueryProcessMemoryUsed()};
-		const double        memUsagePercent {ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory)};
+		const std::uint64_t memSnapshot { OSI::QueryProcessMemoryUsed() };
+		const double        memUsagePercent { ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory) };
 
 		// Query pool info
 		const auto [bootPoolSize, bootPoolPer]
@@ -899,7 +899,7 @@ namespace Nominax::Core
 			)
 		};
 
-		const auto ms {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik)};
+		const auto ms { std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik) };
 		this->Context_->BootTime = ms;
 
 		Print
@@ -939,7 +939,7 @@ namespace Nominax::Core
 		std::cout.flush();
 
 		// Execute on alpha reactor:
-		const auto& [reason, state] {(*this->Context_->CorePool)(image)};
+		const auto& [reason, state] { (*this->Context_->CorePool)(image) };
 
 		// Add execution time:
 		const auto micros
@@ -951,8 +951,8 @@ namespace Nominax::Core
 		using Rsr = ReactorShutdownReason;
 
 		// Print exec info:
-		const auto level {reason == Rsr::Success ? LogLevel::Success : LogLevel::Error};
-		const auto time {duration_cast<duration<double, std::ratio<1>>>(micros)};
+		const auto level { reason == Rsr::Success ? LogLevel::Success : LogLevel::Error };
+		const auto time { duration_cast<duration<double, std::ratio<1>>>(micros) };
 		Print(level, "Execution #{} done! Runtime {:.04}\n", std::size(this->Context_->ExecutionTimeHistory), time);
 		std::cout.flush();
 
@@ -968,7 +968,7 @@ namespace Nominax::Core
 	auto Environment::Execute(ByteCode::Stream&& stream) -> ExecutionResult
 	{
 		ByteCode::Image codeImage { };
-		const auto      buildResult {ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage)};
+		const auto      buildResult { ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage) };
 		NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
 		stream = { };
 		return (*this)(codeImage);
@@ -977,7 +977,7 @@ namespace Nominax::Core
 	auto Environment::Execute(const ByteCode::Stream& stream) -> ExecutionResult
 	{
 		ByteCode::Image codeImage { };
-		const auto      buildResult {ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage)};
+		const auto      buildResult { ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage) };
 		NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
 		return (*this)(codeImage);
 	}
@@ -1061,7 +1061,7 @@ namespace Nominax::Core
 	auto Environment::GetOptimizationHints() const -> ByteCode::OptimizationHints
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		const void*& jumpTable {*this->Context_->OptimalReactorRoutine.JumpTable};
+		const void*& jumpTable { *this->Context_->OptimalReactorRoutine.JumpTable };
 		return
 		{
 			jumpTable

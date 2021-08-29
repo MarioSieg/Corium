@@ -230,12 +230,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// Minimal one reactor is required.
 		/// </summary>
-		static constexpr std::uint64_t MIN_REACTOR_COUNT {1};
+		static constexpr std::uint64_t MIN_REACTOR_COUNT { 1 };
 
 		/// <summary>
 		/// Fallback reactor count.
 		/// </summary>
-		static constexpr std::uint64_t FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
+		static constexpr std::uint64_t FALLBACK_REACTOR_COUNT { MIN_REACTOR_COUNT };
 
 		/// <summary>
 		/// Construct and initialize all new reactors.

@@ -371,13 +371,13 @@ namespace Nominax::ByteCode
 	template <typename Scalar, typename Operator>
 	inline auto ShuntingYardEvaluator<Scalar, Operator>::DirectPush(Scalar&& value) -> void
 	{
-		this->OutputQueue.push(InfixGate {value});
+		this->OutputQueue.push(InfixGate { value });
 	}
 
 	template <typename Scalar, typename Operator>
 	inline auto ShuntingYardEvaluator<Scalar, Operator>::DirectPush(Operator&& value) -> void
 	{
-		this->OperatorStack.push(InfixGate {value});
+		this->OperatorStack.push(InfixGate { value });
 	}
 
 	template <typename Scalar, typename Operator>

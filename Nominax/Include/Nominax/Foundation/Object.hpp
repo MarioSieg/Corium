@@ -238,7 +238,7 @@ namespace Nominax::Foundation
 		/// So the blob length will be: ObjectHeader::RECORD_CHUNKS + sizeInRecords
 		/// This size must be written into the header field "WordSize"!
 		/// </summary>
-		BlobBlockType* Blob_ {nullptr};
+		BlobBlockType* Blob_ { nullptr };
 
 	public:
 		explicit Object(BlobBlockType* blob);

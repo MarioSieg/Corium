@@ -211,7 +211,7 @@
 
 namespace Nominax::ByteCode
 {
-	Image::Image(std::vector<Signal>&& buffer) : Blob_ {std::move(buffer)} { }
+	Image::Image(std::vector<Signal>&& buffer) : Blob_ { std::move(buffer) } { }
 
 	Image::Image(const std::span<const Signal> blob)
 	{

@@ -224,7 +224,7 @@ namespace Nominax::Assembler::X86_64
 	/// <returns>The composed rex prefix.</returns>
 	constexpr auto PackRex(const bool w, const bool r, const bool x, const bool b) -> std::uint8_t
 	{
-		std::uint8_t rex {0x40};
+		std::uint8_t rex { 0x40 };
 		rex |= b;
 		rex |= x << 1;
 		rex |= r << 2;
@@ -242,7 +242,7 @@ namespace Nominax::Assembler::X86_64
 	/// <returns>The composed rex prefix or zero.</returns>
 	constexpr auto PackRexOpt(const bool w, const bool r, const bool x, const bool b) -> std::optional<std::uint8_t>
 	{
-		return w || r || x || b ? std::optional {PackRex(w, r, x, b)} : std::nullopt;
+		return w || r || x || b ? std::optional { PackRex(w, r, x, b) } : std::nullopt;
 	}
 
 	/// <summary>
@@ -262,7 +262,7 @@ namespace Nominax::Assembler::X86_64
 		NOX_DBG_PAS_TRUE((bits01 & ~0b11) == 0, "Mask mismatch -> 2 bits requested");
 		NOX_DBG_PAS_TRUE((bits234 & ~0b111) == 0, "Mask mismatch -> 3 bits requested");
 		NOX_DBG_PAS_TRUE((bits567 & ~0b111) == 0, "Mask mismatch -> 3 bits requested");
-		std::uint8_t trio {bits567};
+		std::uint8_t trio { bits567 };
 		trio &= ~0xF8;
 		trio |= (bits234 & ~0xF8) << 3;
 		trio |= (bits01 & ~0xFC) << 6;

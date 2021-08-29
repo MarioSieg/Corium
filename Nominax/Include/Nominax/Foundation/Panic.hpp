@@ -243,7 +243,7 @@ namespace Nominax
 		/// <summary>
 		/// If true, the content of the registers is dumped, else false.
 		/// </summary>
-		bool DumpRegisters {true};
+		bool DumpRegisters { true };
 	};
 
 	/// <summary>
@@ -285,7 +285,7 @@ namespace Nominax
 		Args&&...              args
 	) -> void
 	{
-		const auto            message {Foundation::Format(formatString, std::forward<Args>(args)...)};
+		const auto            message { Foundation::Format(formatString, std::forward<Args>(args)...) };
 		const PanicDescriptor desc
 		{
 			.Line = line,

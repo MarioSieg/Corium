@@ -217,7 +217,7 @@ namespace Nominax::Foundation
 	/// <summary>
 		/// Zero tolerance epsilon.
 		/// </summary>
-	constexpr auto F64_ZERO_TOLERANCE {1e-6}; // 8 * 1.19209290E-07F
+	constexpr auto F64_ZERO_TOLERANCE { 1e-6 }; // 8 * 1.19209290E-07F
 
 	/// <summary>
 	/// Returns true if x is zero, else false.
@@ -245,37 +245,37 @@ namespace Nominax::Foundation
 	/// If the ULP value is zero, the two numbers must be exactly the same.
 	/// See http://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/ by Bruce Dawson
 	/// </summary>
-	constexpr std::uint32_t F64_MAX_ULPS {4};
+	constexpr std::uint32_t F64_MAX_ULPS { 4 };
 
 	/// <summary>
 	/// Bit count inside double.
 	/// </summary>
-	constexpr auto F64_BIT_COUNT {8 * sizeof(double)};
+	constexpr auto F64_BIT_COUNT { 8 * sizeof(double) };
 
 	/// <summary>
 	/// Fraction bit count.
 	/// </summary>
-	constexpr auto F64_FRACTION_BITS {std::numeric_limits<double>::digits - 1};
+	constexpr auto F64_FRACTION_BITS { std::numeric_limits<double>::digits - 1 };
 
 	/// <summary>
 	/// Exponent bit count.
 	/// </summary>
-	constexpr auto F64_EXPONENT_BITS {F64_BIT_COUNT - 1 - F64_FRACTION_BITS};
+	constexpr auto F64_EXPONENT_BITS { F64_BIT_COUNT - 1 - F64_FRACTION_BITS };
 
 	/// <summary>
 	/// Mask to extract sign bit.
 	/// </summary>
-	constexpr auto F64_SIGN_MASK {UINT64_C(1) << (F64_BIT_COUNT - 1)};
+	constexpr auto F64_SIGN_MASK { UINT64_C(1) << (F64_BIT_COUNT - 1) };
 
 	/// <summary>
 	/// Mask to extract fraction.
 	/// </summary>
-	constexpr auto F64_FRACTION_MASK {~UINT64_C(0) >> (F64_EXPONENT_BITS + 1)};
+	constexpr auto F64_FRACTION_MASK { ~UINT64_C(0) >> (F64_EXPONENT_BITS + 1) };
 
 	/// <summary>
 	/// Mask to extract exponent.
 	/// </summary>
-	constexpr auto F64_EXPONENT_MASK {~(F64_SIGN_MASK | F64_FRACTION_MASK)};
+	constexpr auto F64_EXPONENT_MASK { ~(F64_SIGN_MASK | F64_FRACTION_MASK) };
 
 	/// <summary>
 	/// Returns the bit representation of the double.
@@ -349,8 +349,8 @@ namespace Nominax::Foundation
 	/// <returns>The unsigned distance.</returns>
 	NOX_FLATTEN NOX_PURE constexpr auto ComputeDistanceBetweenSignAndMagnitude(const std::uint64_t bitsA, const std::uint64_t bitsB) -> std::uint64_t
 	{
-		const auto biasedA {SignMagnitudeToBiasedRepresentation(bitsA)};
-		const auto biasedB {SignMagnitudeToBiasedRepresentation(bitsB)};
+		const auto biasedA { SignMagnitudeToBiasedRepresentation(bitsA) };
+		const auto biasedB { SignMagnitudeToBiasedRepresentation(bitsB) };
 		return biasedA >= biasedB ? biasedA - biasedB : biasedB - biasedA;
 	}
 

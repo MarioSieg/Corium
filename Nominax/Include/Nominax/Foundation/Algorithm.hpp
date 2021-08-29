@@ -399,10 +399,10 @@ namespace Nominax::Foundation
 	/// <returns></returns>
 	constexpr auto FP16ToFP32(const std::uint16_t src) -> float
 	{
-		const std::uint32_t h {src};
-		std::uint32_t       sign {(h >> 15) & 1};
-		std::uint32_t       exp {(h >> 10) & 0x1F};
-		std::uint32_t       man {(h & 0x3FF) << 13};
+		const std::uint32_t h { src };
+		std::uint32_t       sign { (h >> 15) & 1 };
+		std::uint32_t       exp { (h >> 10) & 0x1F };
+		std::uint32_t       man { (h & 0x3FF) << 13 };
 
 		if (exp == 0x1F)
 		{
@@ -441,8 +441,8 @@ namespace Nominax::Foundation
 	/// <returns></returns>
 	constexpr auto FP32ToFP16(const float src) -> std::uint16_t
 	{
-		const std::uint32_t x {std::bit_cast<std::uint32_t>(src)};
-		const std::uint32_t u {x & 0x7FFFFFFF};
+		const std::uint32_t x { std::bit_cast<std::uint32_t>(src) };
+		const std::uint32_t u { x & 0x7FFFFFFF };
 
 		if (u > 0x7F800000)
 		{
@@ -450,7 +450,7 @@ namespace Nominax::Foundation
 			return 0x7FFF;
 		}
 
-		const std::uint32_t sign {(x >> 16) & 0x8000};
+		const std::uint32_t sign { (x >> 16) & 0x8000 };
 		if (u > 0x477FEFFF)
 		{
 			return sign | 0x7C00U;
@@ -460,8 +460,8 @@ namespace Nominax::Foundation
 			return sign | 0x0000;
 		}
 
-		std::uint32_t exp {(u >> 23) & 0xFF};
-		std::uint32_t man {u & 0x7FFFFF};
+		std::uint32_t exp { (u >> 23) & 0xFF };
+		std::uint32_t man { u & 0x7FFFFF };
 		std::uint32_t shi;
 
 		if (exp > 0x70)
@@ -476,10 +476,10 @@ namespace Nominax::Foundation
 			man |= 0x800000;
 		}
 
-		const std::uint32_t lsb {static_cast<std::uint32_t>(1) << shi};
-		const std::uint32_t lsbS1 {lsb >> 1};
-		const std::uint32_t lsbM1 {lsb - 1};
-		const std::uint32_t rem {man & lsbM1};
+		const std::uint32_t lsb { static_cast<std::uint32_t>(1) << shi };
+		const std::uint32_t lsbS1 { lsb >> 1 };
+		const std::uint32_t lsbM1 { lsb - 1 };
+		const std::uint32_t rem { man & lsbM1 };
 		man >>= shi;
 		if (rem > lsbM1 || (rem == lsbS1 && man & 1))
 		{
@@ -502,7 +502,7 @@ namespace Nominax::Foundation
 	/// <returns>The amount of bytes -> min: 1, max: 8</returns>
 	constexpr auto ComputeRequiredBytes(std::uint64_t x) -> std::uint8_t
 	{
-		std::uint8_t bytes {0};
+		std::uint8_t bytes { 0 };
 		do
 		{
 			x >>= 8;
@@ -600,22 +600,22 @@ namespace Nominax::Foundation
 		using ValueType = const typename std::iterator_traits<Iter>::value_type;
 		using Span = std::span<ValueType>;
 
-		const auto length {std::distance(begin, end)};
-		const bool mismatch {chunkCount <= 1 || static_cast<std::uint64_t>(length) % chunkCount};
+		const auto length { std::distance(begin, end) };
+		const bool mismatch { chunkCount <= 1 || static_cast<std::uint64_t>(length) % chunkCount };
 
 		if (mismatch)
 		{
-			const Span range {begin, end};
+			const Span range { begin, end };
 			std::invoke(std::forward<Func>(func), range, static_cast<std::uint64_t>(0), std::forward<Args>(args)...);
 		}
 		else
 		{
-			const auto chunkSize {static_cast<std::uint64_t>(length) / chunkCount};
-			for (std::uint64_t i {0}; i < chunkCount; ++i)
+			const auto chunkSize { static_cast<std::uint64_t>(length) / chunkCount };
+			for (std::uint64_t i { 0 }; i < chunkCount; ++i)
 			{
-				const Iter beginChunk {begin + chunkSize * i};
-				const Iter endChunk {i == chunkCount - 1 ? end : beginChunk + chunkSize};
-				const Span range {beginChunk, endChunk};
+				const Iter beginChunk { begin + chunkSize * i };
+				const Iter endChunk { i == chunkCount - 1 ? end : beginChunk + chunkSize };
+				const Span range { beginChunk, endChunk };
 				std::invoke(std::forward<Func>(func), range, chunkSize * i, std::forward<Args>(args)...);
 			}
 		}

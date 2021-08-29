@@ -242,73 +242,73 @@ namespace Nominax::ByteCode
 	/// </summary>
 	inline const std::array<PerInstructionArgTypes, ToUnderlying(Instruction::Count_)> INSTRUCTION_IMMEDIATE_ARGUMENT_TYPES
 	{
-		PerInstructionArgTypes {{Signal::Discriminator::Int}},                                 // int
-		{{Signal::Discriminator::SystemIntrinsicInvocationID}},                                // intrin
-		{{Signal::Discriminator::UserIntrinsicInvocationID}},                                  // cintrin
-		{{Signal::Discriminator::UnsignedScalar}},                                             // call
-		{ },                                                                                   // ret
-		{{Signal::Discriminator::UnsignedScalar}, {Signal::Discriminator::UnsignedScalar}},    // mov
-		{{Signal::Discriminator::UnsignedScalar}, {std::begin(ANY_TYPE), std::end(ANY_TYPE)}}, // sto
-		{{std::begin(ANY_TYPE), std::end(ANY_TYPE)}},                                          // push
-		{ },                                                                                   // pop
-		{ },                                                                                   // pop2
-		{ },                                                                                   // dupl
-		{ },                                                                                   // dupl2
-		{ },                                                                                   // swap
-		{ },                                                                                   // nop
-		{{Signal::Discriminator::JumpAddress}},                                                // jmp
-		{{Signal::Discriminator::JumpAddress}},                                                // jmprel
-		{{Signal::Discriminator::JumpAddress}},                                                // jz
-		{{Signal::Discriminator::JumpAddress}},                                                // jnz
-		{{Signal::Discriminator::JumpAddress}},                                                // jo_cmpi
-		{{Signal::Discriminator::JumpAddress}},                                                // jo_cmpf
-		{{Signal::Discriminator::JumpAddress}},                                                // jno_cmpi
-		{{Signal::Discriminator::JumpAddress}},                                                // jno_cmpf
-		{{Signal::Discriminator::JumpAddress}},                                                // je_cmpi
-		{{Signal::Discriminator::JumpAddress}},                                                // je_cmpf
-		{{Signal::Discriminator::JumpAddress}},                                                // jne_cmpi
-		{{Signal::Discriminator::JumpAddress}},                                                // jne_cmpf
-		{{Signal::Discriminator::JumpAddress}},                                                // ja_cmpi
-		{{Signal::Discriminator::JumpAddress}},                                                // ja_cmpf
-		{{Signal::Discriminator::JumpAddress}},                                                // jl_cmpi
-		{{Signal::Discriminator::JumpAddress}},                                                // jl_cmpf
-		{{Signal::Discriminator::JumpAddress}},                                                // jae_cmpi
-		{{Signal::Discriminator::JumpAddress}},                                                // jae_cmpf
-		{{Signal::Discriminator::JumpAddress}},                                                // jle_cmpi
-		{{Signal::Discriminator::JumpAddress}},                                                // jle_cmpf
-		{ },                                                                                   // pushz
-		{ },                                                                                   // ipusho
-		{ },                                                                                   // fpusho
-		{ },                                                                                   // iinc
-		{ },                                                                                   // idec
-		{ },                                                                                   // iadd
-		{ },                                                                                   // isub
-		{ },                                                                                   // imul
-		{ },                                                                                   // idiv
-		{ },                                                                                   // imod
-		{ },                                                                                   // iand
-		{ },                                                                                   // ior
-		{ },                                                                                   // ixor
-		{ },                                                                                   // icom
-		{ },                                                                                   // isal
-		{ },                                                                                   // isar
-		{ },                                                                                   // irol
-		{ },                                                                                   // iror
-		{ },                                                                                   // ineg
-		{ },                                                                                   // fadd
-		{ },                                                                                   // fsub
-		{ },                                                                                   // fmul
-		{ },                                                                                   // fdiv
-		{ },                                                                                   // fmod
-		{ },                                                                                   // fneg
-		{ },                                                                                   // finc
-		{ },                                                                                   // fdec
+		PerInstructionArgTypes { { Signal::Discriminator::Int } },                                   // int
+		{ { Signal::Discriminator::SystemIntrinsicInvocationID } },                                  // intrin
+		{ { Signal::Discriminator::UserIntrinsicInvocationID } },                                    // cintrin
+		{ { Signal::Discriminator::UnsignedScalar } },                                               // call
+		{ },                                                                                         // ret
+		{ { Signal::Discriminator::UnsignedScalar }, { Signal::Discriminator::UnsignedScalar } },    // mov
+		{ { Signal::Discriminator::UnsignedScalar }, { std::begin(ANY_TYPE), std::end(ANY_TYPE) } }, // sto
+		{ { std::begin(ANY_TYPE), std::end(ANY_TYPE) } },                                            // push
+		{ },                                                                                         // pop
+		{ },                                                                                         // pop2
+		{ },                                                                                         // dupl
+		{ },                                                                                         // dupl2
+		{ },                                                                                         // swap
+		{ },                                                                                         // nop
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jmp
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jmprel
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jz
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jnz
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jo_cmpi
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jo_cmpf
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jno_cmpi
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jno_cmpf
+		{ { Signal::Discriminator::JumpAddress } },                                                  // je_cmpi
+		{ { Signal::Discriminator::JumpAddress } },                                                  // je_cmpf
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jne_cmpi
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jne_cmpf
+		{ { Signal::Discriminator::JumpAddress } },                                                  // ja_cmpi
+		{ { Signal::Discriminator::JumpAddress } },                                                  // ja_cmpf
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jl_cmpi
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jl_cmpf
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jae_cmpi
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jae_cmpf
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jle_cmpi
+		{ { Signal::Discriminator::JumpAddress } },                                                  // jle_cmpf
+		{ },                                                                                         // pushz
+		{ },                                                                                         // ipusho
+		{ },                                                                                         // fpusho
+		{ },                                                                                         // iinc
+		{ },                                                                                         // idec
+		{ },                                                                                         // iadd
+		{ },                                                                                         // isub
+		{ },                                                                                         // imul
+		{ },                                                                                         // idiv
+		{ },                                                                                         // imod
+		{ },                                                                                         // iand
+		{ },                                                                                         // ior
+		{ },                                                                                         // ixor
+		{ },                                                                                         // icom
+		{ },                                                                                         // isal
+		{ },                                                                                         // isar
+		{ },                                                                                         // irol
+		{ },                                                                                         // iror
+		{ },                                                                                         // ineg
+		{ },                                                                                         // fadd
+		{ },                                                                                         // fsub
+		{ },                                                                                         // fmul
+		{ },                                                                                         // fdiv
+		{ },                                                                                         // fmod
+		{ },                                                                                         // fneg
+		{ },                                                                                         // finc
+		{ },                                                                                         // fdec
 		{
 			// vpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)}
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) }
 		},
 		{ }, // vpop
 		{ }, // vadd
@@ -317,22 +317,22 @@ namespace Nominax::ByteCode
 		{ }, // vdiv
 		{
 			// matpush
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
-			{std::begin(ANY_TYPE), std::end(ANY_TYPE)},
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
+			{ std::begin(ANY_TYPE), std::end(ANY_TYPE) },
 		},
 		{ }, // matpop
 		{ }, // matadd

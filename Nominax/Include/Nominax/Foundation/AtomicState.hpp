@@ -375,7 +375,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <returns></returns>
 	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
-	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState() : Value_ {static_cast<ValueType>(SuccessState)} { }
+	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState() : Value_ { static_cast<ValueType>(SuccessState) } { }
 
 	/// <summary>
 	/// Construct with custom state.
@@ -383,5 +383,5 @@ namespace Nominax::Foundation
 	/// <param name="x"></param>
 	/// <returns></returns>
 	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
-	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState(const T x) : Value_ {static_cast<ValueType>(x)} { }
+	constexpr AtomicState<T, SuccessState, SingletonLock>::AtomicState(const T x) : Value_ { static_cast<ValueType>(x) } { }
 }

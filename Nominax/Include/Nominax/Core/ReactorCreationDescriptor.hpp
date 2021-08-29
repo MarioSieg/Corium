@@ -239,7 +239,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// The stack size in records.
 		/// </summary>
-		std::uint64_t StackSize {FixedStack::SIZE_LARGE};
+		std::uint64_t StackSize { FixedStack::SIZE_LARGE };
 
 		/// <summary>
 		/// The intrinsic routines.
@@ -254,7 +254,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Reactor power preference.
 		/// </summary>
-		PowerPreference PowerPref {PowerPreference::HighPerformance};
+		PowerPreference PowerPref { PowerPreference::HighPerformance };
 
 		/// <summary>
 		/// Get platform dependent default configuration.

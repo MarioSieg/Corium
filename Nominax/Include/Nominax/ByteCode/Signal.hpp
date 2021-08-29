@@ -418,19 +418,19 @@ namespace Nominax::ByteCode
 		explicit constexpr Signal(JumpAddress value);
 	};
 
-	constexpr Signal::Signal(const Foundation::Record value) : R64 {value} {}
-	constexpr Signal::Signal(const Instruction value) : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicInvocationID value) : SystemIntrinID {value} {}
-	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID {value} {}
-	constexpr Signal::Signal(void* const value) : Ptr {value} {}
-	constexpr Signal::Signal(const std::int64_t value) : R64 {value} {}
-	constexpr Signal::Signal(const std::uint64_t value) : R64 {value} {}
-	constexpr Signal::Signal(const double value) : R64 {value} {}
-	constexpr Signal::Signal(const CharClusterUtf8 cluster) : R64 {cluster.Merged} {}
-	constexpr Signal::Signal(const CharClusterUtf16 cluster) : R64 {cluster.Merged} {}
-	constexpr Signal::Signal(const CharClusterUtf32 cluster) : R64 {cluster.Merged} {}
-	constexpr Signal::Signal(const char32_t value) : R64 {value} {}
-	constexpr Signal::Signal(const JumpAddress value) : JmpAddress {value} {}
+	constexpr Signal::Signal(const Foundation::Record value) : R64 { value } {}
+	constexpr Signal::Signal(const Instruction value) : Instr { value } {}
+	constexpr Signal::Signal(const SystemIntrinsicInvocationID value) : SystemIntrinID { value } {}
+	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID { value } {}
+	constexpr Signal::Signal(void* const value) : Ptr { value } {}
+	constexpr Signal::Signal(const std::int64_t value) : R64 { value } {}
+	constexpr Signal::Signal(const std::uint64_t value) : R64 { value } {}
+	constexpr Signal::Signal(const double value) : R64 { value } {}
+	constexpr Signal::Signal(const CharClusterUtf8 cluster) : R64 { cluster.Merged } {}
+	constexpr Signal::Signal(const CharClusterUtf16 cluster) : R64 { cluster.Merged } {}
+	constexpr Signal::Signal(const CharClusterUtf32 cluster) : R64 { cluster.Merged } {}
+	constexpr Signal::Signal(const char32_t value) : R64 { value } {}
+	constexpr Signal::Signal(const JumpAddress value) : JmpAddress { value } {}
 
 	/// <summary>
 	/// Raw representation of a signal as bytes.

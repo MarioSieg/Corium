@@ -218,10 +218,10 @@ namespace Nominax::Foundation
 		/// </summary>
 	class DebugAllocator final : public IAllocator
 	{
-		mutable std::uint64_t Allocations_ {0};
-		mutable std::uint64_t Reallocations_ {0};
-		mutable std::uint64_t Deallocations_ {0};
-		mutable std::uint64_t BytesAllocated_ {0};
+		mutable std::uint64_t Allocations_ { 0 };
+		mutable std::uint64_t Reallocations_ { 0 };
+		mutable std::uint64_t Deallocations_ { 0 };
+		mutable std::uint64_t BytesAllocated_ { 0 };
 
 	public:
 		/// <summary>

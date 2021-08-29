@@ -323,7 +323,7 @@ namespace Nominax::ByteCode
 	[[nodiscard]]
 	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const std::uint64_t offset) -> std::span<const Signal::Discriminator>
 	{
-		return {where + 1, where + 1 + offset};
+		return { where + 1, where + 1 + offset };
 	}
 
 	/// <summary>

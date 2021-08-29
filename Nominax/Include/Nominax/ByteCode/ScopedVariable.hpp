@@ -211,7 +211,7 @@
 
 namespace Nominax::ByteCode
 {
-    class Stream;
+	class Stream;
 
 	/// <summary>
 	/// Single stack-bounded variable.
@@ -230,7 +230,7 @@ namespace Nominax::ByteCode
 		/// <param name="value"></param>
 		ScopedVariable(Stream& attached, T value);
 
-        static auto EmitPop() -> void;
+		static auto EmitPop() -> void;
 
 		/// <summary>
 		/// 
@@ -526,19 +526,19 @@ namespace Nominax::ByteCode
 	auto ScopedVariable<std::uint64_t>::Push(std::uint64_t value) -> ScopedVariable&;
 
 	template <>
-	inline ScopedVariable<double>::ScopedVariable(Stream& attached, const double value) : Attached_ {attached}
+	inline ScopedVariable<double>::ScopedVariable(Stream& attached, const double value) : Attached_ { attached }
 	{
 		this->Push(value);
 	}
 
 	template <>
-	inline ScopedVariable<std::int64_t>::ScopedVariable(Stream& attached, const std::int64_t value) : Attached_ {attached}
+	inline ScopedVariable<std::int64_t>::ScopedVariable(Stream& attached, const std::int64_t value) : Attached_ { attached }
 	{
 		this->Push(value);
 	}
 
 	template <>
-	inline ScopedVariable<std::uint64_t>::ScopedVariable(Stream& attached, const std::uint64_t value) : Attached_ {attached}
+	inline ScopedVariable<std::uint64_t>::ScopedVariable(Stream& attached, const std::uint64_t value) : Attached_ { attached }
 	{
 		this->Push(value);
 	}
@@ -691,15 +691,15 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<std::uint64_t>::RotateRight(std::uint64_t value) -> ScopedVariable&;
 
-    extern auto EmitPopForScopedVariable(Stream& attached) -> void;
+	extern auto EmitPopForScopedVariable(Stream& attached) -> void;
 
 	template <typename T> requires StreamScalar<T>
 	inline ScopedVariable<T>::~ScopedVariable()
 	{
-        EmitPopForScopedVariable(this->Attached_);
+		EmitPopForScopedVariable(this->Attached_);
 	}
 
-    /// <summary>
+	/// <summary>
 	/// Stream variable with runtime type: int
 	/// </summary>
 	using ScopedInt = ScopedVariable<std::int64_t>;

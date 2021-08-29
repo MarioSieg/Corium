@@ -223,37 +223,37 @@ namespace Nominax::Core
 		/// <summary>
 		/// Code chunk data pointer.
 		/// </summary>
-		const ByteCode::Signal* CodeChunk {nullptr};
+		const ByteCode::Signal* CodeChunk { nullptr };
 
 		/// <summary>
 		/// Code chunk and instruction map length.
 		/// </summary>
-		std::uint64_t CodeChunkSize {0};
+		std::uint64_t CodeChunkSize { 0 };
 
 		/// <summary>
 		/// Intrinsic routine registry data pointer.
 		/// </summary>
-		ByteCode::IntrinsicRoutine* const* IntrinsicTable {nullptr};
+		ByteCode::IntrinsicRoutine* const* IntrinsicTable { nullptr };
 
 		/// <summary>
 		/// Intrinsic routine registry length.
 		/// </summary>
-		std::uint64_t IntrinsicTableSize {0};
+		std::uint64_t IntrinsicTableSize { 0 };
 
 		/// <summary>
 		/// Interrupt routine proxy.
 		/// </summary>
-		InterruptRoutineProxy* InterruptHandler {nullptr};
+		InterruptRoutineProxy* InterruptHandler { nullptr };
 
 		/// <summary>
 		/// Stack data pointer.
 		/// </summary>
-		Foundation::Record* Stack {nullptr};
+		Foundation::Record* Stack { nullptr };
 
 		/// <summary>
 		/// Stack length.
 		/// </summary>
-		std::uint64_t StackSize {0};
+		std::uint64_t StackSize { 0 };
 
 		/// <summary>
 		/// Checks if the current descriptor is valid for

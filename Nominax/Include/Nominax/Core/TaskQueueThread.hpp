@@ -228,7 +228,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Is the thread currently disposing?!
 		/// </summary>
-		bool Disposing_ {false};
+		bool Disposing_ { false };
 
 		/// <summary>
 		/// Job queue.

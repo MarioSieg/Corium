@@ -220,7 +220,7 @@ namespace Nominax::Core
 		const std::uint64_t                      reactorCount,
 		const ReactorSpawnDescriptor&            config,
 		const std::optional<ReactorRoutineLink>& routineLink
-	) : Pool_ {&allocator}
+	) : Pool_ { &allocator }
 	{
 		NOX_PAS_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 
@@ -228,7 +228,7 @@ namespace Nominax::Core
 		Foundation::Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT, FALLBACK_REACTOR_COUNT, reactorCount);
 
 		this->Pool_.reserve(reactorCount);
-		for (std::uint64_t i {0}; i < reactorCount; ++i)
+		for (std::uint64_t i { 0 }; i < reactorCount; ++i)
 		{
 			if (!routineLink)
 			{
@@ -247,7 +247,7 @@ namespace Nominax::Core
 
 	ReactorPool::~ReactorPool()
 	{
-		const auto size {std::size(this->Pool_)};
+		const auto size { std::size(this->Pool_) };
 		this->Pool_.clear();
 		Foundation::Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
 	}

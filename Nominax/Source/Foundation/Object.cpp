@@ -247,8 +247,8 @@ namespace Nominax::Foundation
 			[[unlikely]]
 				return nullptr;
 		}
-		const std::uint32_t      finalObjectSize {ObjectHeader::RECORD_CHUNKS + sizeInRecords};
-		auto* NOX_RESTRICT const object {new Record[finalObjectSize]()};
+		const std::uint32_t      finalObjectSize { ObjectHeader::RECORD_CHUNKS + sizeInRecords };
+		auto* NOX_RESTRICT const object { new Record[finalObjectSize]() };
 
 		// Write object header:
 		ObjectHeader::WriteMapping_MetaField(object, 0);
@@ -264,7 +264,7 @@ namespace Nominax::Foundation
 
 		return std::unique_ptr<Object, UniquePtrObjectDeleter>
 		{
-			new Object {object},
+			new Object { object },
 			UniquePtrObjectDeleter()
 		};
 	}
@@ -278,9 +278,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -304,9 +304,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -330,9 +330,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -356,9 +356,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -382,9 +382,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -408,9 +408,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -434,9 +434,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -460,9 +460,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -486,9 +486,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -512,9 +512,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -538,9 +538,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -564,9 +564,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -590,9 +590,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -616,9 +616,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -642,9 +642,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{

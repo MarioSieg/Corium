@@ -228,7 +228,7 @@ namespace Nominax::Foundation
 	template <typename Clock = std::chrono::high_resolution_clock>
 	class Stopwatch final
 	{
-		typename Clock::time_point Stamp_ {Clock::now()};
+		typename Clock::time_point Stamp_ { Clock::now() };
 
 	public:
 		/// <summary>

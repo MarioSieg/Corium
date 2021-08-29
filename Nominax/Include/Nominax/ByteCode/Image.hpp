@@ -465,8 +465,8 @@ namespace Nominax::ByteCode
 
 	inline auto Image::GetReactorView() const -> std::span<const Signal>
 	{
-		const auto* const begin {&*std::cbegin(this->Blob_)};
-		const auto* const end {&*std::cend(this->Blob_)};
-		return {begin, end};
+		const auto* const begin { &*std::cbegin(this->Blob_) };
+		const auto* const end { &*std::cend(this->Blob_) };
+		return { begin, end };
 	}
 }

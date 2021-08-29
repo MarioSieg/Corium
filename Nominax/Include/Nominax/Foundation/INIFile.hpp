@@ -246,33 +246,33 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// The name of the default section.
 		/// </summary>
-		static constexpr std::string_view DEFAULT_SECTION_NAME {"Default"};
+		static constexpr std::string_view DEFAULT_SECTION_NAME { "Default" };
 
 		/// <summary>
 		/// We use spaces instead of tabs because
 		///	tabs are interpreted differently by different text editors.
 		/// </summary>
-		static constexpr std::string_view SECTION_CONTENT_INDENTATION {"    "};
+		static constexpr std::string_view SECTION_CONTENT_INDENTATION { "    " };
 
 		/// <summary>
 		/// Token for section begin.
 		/// </summary>
-		static constexpr char SECTION_BEGIN {'['};
+		static constexpr char SECTION_BEGIN { '[' };
 
 		/// <summary>
 		/// Token for section end.
 		/// </summary>
-		static constexpr char SECTION_END {']'};
+		static constexpr char SECTION_END { ']' };
 
 		/// <summary>
 		/// Equ for K equ V
 		/// </summary>
-		static constexpr char EQU {'='};
+		static constexpr char EQU { '=' };
 
 		/// <summary>
 		/// Token for comment.
 		/// </summary>
-		static constexpr char COMMENT {';'};
+		static constexpr char COMMENT { ';' };
 
 	private:
 		SectionMap Sections_ { };

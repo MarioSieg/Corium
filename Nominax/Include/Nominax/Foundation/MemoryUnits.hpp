@@ -215,27 +215,27 @@ namespace Nominax
 	/// <summary>
 	/// Kilobytes.
 	/// </summary>
-	constexpr std::uint64_t KB {1000};
+	constexpr std::uint64_t KB { 1000 };
 
 	/// <summary>
 	/// Megabytes.
 	/// </summary>
-	constexpr std::uint64_t MB {KB * KB};
+	constexpr std::uint64_t MB { KB * KB };
 
 	/// <summary>
 	/// Gigabytes.
 	/// </summary>
-	constexpr std::uint64_t GB {KB * KB * KB};
+	constexpr std::uint64_t GB { KB * KB * KB };
 
 	/// <summary>
 	/// Terabytes.
 	/// </summary>
-	constexpr std::uint64_t TB {KB * KB * KB * KB};
+	constexpr std::uint64_t TB { KB * KB * KB * KB };
 
 	/// <summary>
 	/// Petabytes.
 	/// </summary>
-	constexpr std::uint64_t PB {KB * KB * KB * KB * KB};
+	constexpr std::uint64_t PB { KB * KB * KB * KB * KB };
 
 	/// <summary>
 	/// Convert between memory units.

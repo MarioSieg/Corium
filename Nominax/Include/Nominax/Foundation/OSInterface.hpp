@@ -1,6 +1,6 @@
-// File: OSI.hpp
+// File: OSInterface.hpp
 // Author: Mario
-// Created: 20.08.2021 2:41 PM
+// Created: 25.08.2021 6:00 PM
 // Project: Corium
 // 
 //                                  Apache License
@@ -331,7 +331,7 @@ namespace Nominax::Foundation
 		[[nodiscard]]
 		static auto MemoryMap
 		(
-			std::uint64_t size,
+			std::uint64_t             size,
 			MemoryPageProtectionFlags protectionFlags
 		) -> void*;
 
@@ -345,6 +345,6 @@ namespace Nominax::Foundation
 		[[nodiscard]]
 		static auto MemoryUnmap(void* region, std::uint64_t size) -> bool;
 
-        static auto MemoryProtect(void* region, std::uint64_t size, MemoryPageProtectionFlags protectionFlags) -> bool;
+		static auto MemoryProtect(void* region, std::uint64_t size, MemoryPageProtectionFlags protectionFlags) -> bool;
 	};
 }

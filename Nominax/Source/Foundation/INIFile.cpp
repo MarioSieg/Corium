@@ -209,11 +209,11 @@
 
 namespace Nominax::Foundation
 {
-	IniFile::IniFile(SectionMap&& map) : Sections_ {std::move(map)} { }
+	IniFile::IniFile(SectionMap&& map) : Sections_ { std::move(map) } { }
 
 	auto IniFile::PushSection(Key&& name) -> void
 	{
-		this->Sections_.insert({std::move(name), { }});
+		this->Sections_.insert({ std::move(name), { } });
 	}
 
 	auto IniFile::PushValue(Key&& key, Value&& value) -> void
@@ -221,9 +221,9 @@ namespace Nominax::Foundation
 		if (std::empty(this->Sections_))
 		{
 			[[unlikely]]
-				this->PushSection(Key {DEFAULT_SECTION_NAME});
+				this->PushSection(Key { DEFAULT_SECTION_NAME });
 		}
-		auto& [_, values] {*std::begin(this->Sections_)};
+		auto& [_, values] { *std::begin(this->Sections_) };
 		values.insert_or_assign(std::move(key), std::move(value));
 	}
 

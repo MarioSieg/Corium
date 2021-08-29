@@ -244,7 +244,7 @@ namespace Nominax::ByteCode
 	constexpr auto operator "" _cluster(const char8_t* const data, const std::uint64_t count) -> CharClusterUtf8
 	{
 		CharClusterUtf8 result { };
-		for (std::uint64_t i {0}; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
+		for (std::uint64_t i { 0 }; i < std::clamp(count, count, sizeof(CharClusterUtf8)); ++i)
 		{
 			result.Chars[i] = data[i];
 		}

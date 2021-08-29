@@ -444,7 +444,7 @@ namespace Nominax::Foundation
 		#if NOX_OS_WINDOWS && NOX_COM_CLANG
 		return _aligned_realloc(where, size, alignment);
 		#else
-		auto* const mem {AllocateAligned(size, alignment)};
+		auto* const mem { AllocateAligned(size, alignment) };
 		std::memcpy(mem, where, size);
 		DeallocateAligned(where);
 		return mem;
@@ -462,21 +462,21 @@ namespace Nominax::Foundation
 
 	NOX_FLATTEN inline auto SystemAllocator::AllocateChecked(const std::uint64_t size) -> void*
 	{
-		void* mem {Allocate(size)};
+		void* mem { Allocate(size) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::AllocateAndZeroChecked(const std::uint64_t size) -> void*
 	{
-		void* mem {AllocateAndZero(size)};
+		void* mem { AllocateAndZero(size) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::ReallocateChecked(void* const where, const std::uint64_t size) -> void*
 	{
-		void* mem {Reallocate(where, size)};
+		void* mem { Reallocate(where, size) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}
@@ -489,21 +489,21 @@ namespace Nominax::Foundation
 
 	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedChecked(const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
-		void* const mem {AllocateAligned(size, alignment)};
+		void* const mem { AllocateAligned(size, alignment) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedAndZeroChecked(const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
-		void* const mem {AllocateAlignedAndZero(size, alignment)};
+		void* const mem { AllocateAlignedAndZero(size, alignment) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::ReallocateAlignedChecked(void* const where, const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
-		void* const mem {ReallocateAligned(where, size, alignment)};
+		void* const mem { ReallocateAligned(where, size, alignment) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}

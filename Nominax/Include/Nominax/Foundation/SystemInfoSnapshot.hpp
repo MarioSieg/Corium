@@ -228,17 +228,17 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Name of the operating system.
 		/// </summary>
-		std::string_view OperatingSystemName {NOX_OS_NAME};
+		std::string_view OperatingSystemName { NOX_OS_NAME };
 
 		/// <summary>
 		/// Architecture name.
 		/// </summary>
-		std::string_view ArchitectureName {NOX_ARCH_NAME};
+		std::string_view ArchitectureName { NOX_ARCH_NAME };
 
 		/// <summary>
 		/// Name of the compiler.
 		/// </summary>
-		std::string_view CompilerName {NOX_COM_NAME};
+		std::string_view CompilerName { NOX_COM_NAME };
 
 		/// <summary>
 		/// Amount of CPU supported threads.

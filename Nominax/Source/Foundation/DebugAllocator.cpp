@@ -213,27 +213,27 @@ namespace Nominax::Foundation
 	{
 		if (bytes == 0 || bytes < KB)
 		{
-			return {bytes, "B"};
+			return { bytes, "B" };
 		}
 		if (bytes < MB)
 		{
-			return {bytes / KB, "KB"};
+			return { bytes / KB, "KB" };
 		}
 		if (bytes < GB)
 		{
-			return {bytes / MB, "MB"};
+			return { bytes / MB, "MB" };
 		}
 		if (bytes < TB)
 		{
-			return {bytes / GB, "GB"};
+			return { bytes / GB, "GB" };
 		}
-		return {bytes, "B"};
+		return { bytes, "B" };
 	}
 
 	auto DebugAllocator::Allocate(void*& out, const std::uint64_t size) const -> void
 	{
 		IAllocator::Allocate(out, size);
-		const auto [count, suffix] {GetMemoryUnitInfo(size)};
+		const auto [count, suffix] { GetMemoryUnitInfo(size) };
 		Print(TextColor::BrightGreen, "Allocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count, suffix);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
@@ -242,7 +242,7 @@ namespace Nominax::Foundation
 	auto DebugAllocator::Reallocate(void*& out, const std::uint64_t size) const -> void
 	{
 		IAllocator::Reallocate(out, size);
-		const auto [count, suffix] {GetMemoryUnitInfo(size)};
+		const auto [count, suffix] { GetMemoryUnitInfo(size) };
 		Print(TextColor::BrightYellow, "Reallocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count,
 		      suffix);
 		++this->Reallocations_;
@@ -258,7 +258,7 @@ namespace Nominax::Foundation
 	auto DebugAllocator::AllocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
 	{
 		IAllocator::AllocateAligned(out, size, alignment);
-		const auto [count, suffix] {GetMemoryUnitInfo(size)};
+		const auto [count, suffix] { GetMemoryUnitInfo(size) };
 		Print(TextColor::BrightGreen, "AllocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out),
 		      count, suffix, alignment);
 		++this->Allocations_;
@@ -268,7 +268,7 @@ namespace Nominax::Foundation
 	auto DebugAllocator::ReallocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
 	{
 		IAllocator::ReallocateAligned(out, size, alignment);
-		const auto [count, suffix] {GetMemoryUnitInfo(size)};
+		const auto [count, suffix] { GetMemoryUnitInfo(size) };
 		Print(TextColor::BrightGreen, "ReallocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out),
 		      count, suffix, alignment);
 		++this->Reallocations_;
@@ -283,7 +283,7 @@ namespace Nominax::Foundation
 
 	auto DebugAllocator::DumpAllocationInfo() const -> void
 	{
-		const auto [count, suffix] {GetMemoryUnitInfo(this->BytesAllocated_)};
+		const auto [count, suffix] { GetMemoryUnitInfo(this->BytesAllocated_) };
 		Print(TextColor::BrightGreen, "Allocations: {}\n", this->Allocations_);
 		Print(TextColor::BrightGreen, "Reallocations: {}\n", this->Reallocations_);
 		Print(TextColor::BrightGreen, "Deallocations: {}\n", this->Deallocations_);

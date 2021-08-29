@@ -221,7 +221,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Enable peephole code generation optimizations.
 		/// </summary>
-		bool EnablePeepholeOptimizations {NOX_RELEASE};
+		bool EnablePeepholeOptimizations { NOX_RELEASE };
 
 		/// <summary>
 		/// The target output stream.
@@ -285,7 +285,7 @@ namespace Nominax::ByteCode
 		auto EmitPop(std::uint16_t popCount = 1) -> LocalCodeGenerationLayer&;
 	};
 
-	inline LocalCodeGenerationLayer::LocalCodeGenerationLayer(Stream& emitter) : Emitter {emitter} { }
+	inline LocalCodeGenerationLayer::LocalCodeGenerationLayer(Stream& emitter) : Emitter { emitter } { }
 
 	inline auto LocalCodeGenerationLayer::Emit(const Instruction instruction) -> LocalCodeGenerationLayer&
 	{

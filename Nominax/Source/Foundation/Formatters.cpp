@@ -296,7 +296,7 @@ auto formatter<ValidationResultCode, char, void>::format
 	format_context&             ctx
 ) const -> FormatOutput
 {
-	const auto idx {ToUnderlying(value)};
+	const auto idx { ToUnderlying(value) };
 	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);
 }
 
@@ -306,7 +306,7 @@ auto formatter<ReactorValidationResult, char, void>::format
 	format_context&                ctx
 ) const -> FormatOutput
 {
-	const auto idx {ToUnderlying(value)};
+	const auto idx { ToUnderlying(value) };
 	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
 }
 

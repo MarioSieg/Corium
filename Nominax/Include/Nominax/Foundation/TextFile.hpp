@@ -508,10 +508,10 @@ namespace Nominax::Foundation
 		auto crend() const -> StringType::const_reverse_iterator;
 	};
 
-	inline TextFile::TextFile(StringType&& content) : Content_ {std::move(content)} { }
+	inline TextFile::TextFile(StringType&& content) : Content_ { std::move(content) } { }
 
-	inline TextFile::TextFile(std::filesystem::path&& path, StringType&& content) : Content_ {std::move(content)},
-	                                                                                FilePath_ {std::move(path)} { }
+	inline TextFile::TextFile(std::filesystem::path&& path, StringType&& content) : Content_ { std::move(content) },
+	                                                                                FilePath_ { std::move(path) } { }
 
 	inline auto TextFile::GetContentText() const & -> const StringType&
 	{

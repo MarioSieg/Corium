@@ -261,11 +261,11 @@ namespace Nominax
 				"%r14",
 				"%r15"
 			};
-			for (std::uint64_t i {0}; i < sizeof gpr / sizeof *gpr; ++i)
+			for (std::uint64_t i { 0 }; i < sizeof gpr / sizeof *gpr; ++i)
 			{
 				Print("{} = {:016X}\n", GPR_LUT[i], gpr[i]);
 			}
-			for (std::uint64_t i {0}; i < sizeof sse / sizeof *sse >> 1; ++i)
+			for (std::uint64_t i { 0 }; i < sizeof sse / sizeof *sse >> 1; ++i)
 			{
 				Print("%xmm{}{} = ", i, i < 10 ? " " : "");
 				Print("{:016X}", sse[i]);

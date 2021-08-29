@@ -225,7 +225,7 @@ namespace Nominax::Foundation
 				MEMORYSTATUSEX status;
 				ZeroMemory(&status, sizeof(MEMORYSTATUSEX));
 				status.dwLength = sizeof(MEMORYSTATUSEX);
-				::GlobalMemoryStatusEx(&status);
+				GlobalMemoryStatusEx(&status);
 				return status.ullTotalPhys;
 			}()
 		};
@@ -236,7 +236,7 @@ namespace Nominax::Foundation
 	{
 		PROCESS_MEMORY_COUNTERS pmc;
 		ZeroMemory(&pmc, sizeof(PROCESS_MEMORY_COUNTERS));
-		GetProcessMemoryInfo(::GetCurrentProcess(), &pmc, sizeof(PROCESS_MEMORY_COUNTERS));
+		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(PROCESS_MEMORY_COUNTERS));
 		return pmc.WorkingSetSize;
 	}
 
@@ -249,7 +249,7 @@ namespace Nominax::Foundation
 				HKEY    key;
 				LSTATUS status
 				{
-					::RegOpenKeyExA
+					RegOpenKeyExA
 					(
 						HKEY_LOCAL_MACHINE,
 						R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)",
@@ -261,11 +261,11 @@ namespace Nominax::Foundation
 				if (status)
 				{
 					[[unlikely]]
-					return "Unknown";
+						return "Unknown";
 				}
 				std::array<TCHAR, 64 + 1> id { };
-				DWORD                     idLen {sizeof id};
-				status = ::RegQueryValueExA
+				DWORD                     idLen { sizeof id };
+				status = RegQueryValueExA
 				(
 					key,
 					"ProcessorNameString",
@@ -288,7 +288,7 @@ namespace Nominax::Foundation
 			{
 				SYSTEM_INFO sysInfo;
 				ZeroMemory(&sysInfo, sizeof(::SYSTEM_INFO));
-				::GetSystemInfo(&sysInfo);
+				GetSystemInfo(&sysInfo);
 				return static_cast<std::uint64_t>(sysInfo.dwPageSize);
 			}()
 		};
@@ -297,67 +297,72 @@ namespace Nominax::Foundation
 
 	auto OSI::DylibOpen(const std::string_view filePath) -> void*
 	{
-		return ::LoadLibraryA(std::data(filePath));
+		return LoadLibraryA(std::data(filePath));
 	}
 
 	auto OSI::DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
 	{
-		const FARPROC symbol { ::GetProcAddress(static_cast<HMODULE>(handle), std::data(symbolName))};
+		const FARPROC symbol { GetProcAddress(static_cast<HMODULE>(handle), std::data(symbolName)) };
 		return reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(symbol));
 	}
 
 	auto OSI::DylibClose(void*& handle) -> void
 	{
-		::FreeLibrary(static_cast<HMODULE>(handle));
+		FreeLibrary(static_cast<HMODULE>(handle));
 		handle = nullptr;
 	}
 
 	auto OSI::MemoryMap
 	(
-		const std::uint64_t size,
+		const std::uint64_t             size,
 		const MemoryPageProtectionFlags protectionFlags
 	) -> void*
 	{
-		const LPVOID argAddress {nullptr};
-		const SIZE_T argSize {size};
+		const LPVOID    argAddress { nullptr };
+		const SIZE_T    argSize { size };
 		constexpr DWORD argAllocType { MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN };
-		DWORD argProtection {};
+		DWORD           argProtection { };
 		switch (protectionFlags)
 		{
 			case MemoryPageProtectionFlags::NoAccess:
 				argProtection = PAGE_NOACCESS;
-			break;
+				break;
 
 			case MemoryPageProtectionFlags::Read:
 				argProtection = PAGE_READONLY;
-			break;
+				break;
 
 			case MemoryPageProtectionFlags::ReadWrite:
 				argProtection = PAGE_READWRITE;
-			break;
+				break;
 
 			case MemoryPageProtectionFlags::ReadExecute:
 				argProtection = PAGE_EXECUTE_READ;
-			break;
+				break;
 
 			case MemoryPageProtectionFlags::ReadWriteExecute:
 				argProtection = PAGE_EXECUTE_READWRITE;
-			break;
+				break;
 		}
-		const DWORD prevError {GetLastError()};
-		const LPVOID result {VirtualAlloc(argAddress, argSize, argAllocType, argProtection)};
+		const DWORD  prevError { GetLastError() };
+		const LPVOID result { VirtualAlloc(argAddress, argSize, argAllocType, argProtection) };
 		SetLastError(prevError);
 		return result;
 	}
 
 	auto OSI::MemoryUnmap(void* const region, [[maybe_unused]] const std::uint64_t size) -> bool
 	{
-		const LPVOID argAddress {region};
-		constexpr DWORD argFreeType {MEM_RELEASE};
-		const DWORD prevError {GetLastError()};
-		const BOOL result {VirtualFree(argAddress, 0, argFreeType)};
+		const LPVOID    argAddress { region };
+		constexpr DWORD argFreeType { MEM_RELEASE };
+		const DWORD     prevError { GetLastError() };
+		const BOOL      result { VirtualFree(argAddress, 0, argFreeType) };
 		SetLastError(prevError);
 		return result;
+	}
+
+	auto OSI::MemoryProtect([[maybe_unused]] void* const region, [[maybe_unused]] const std::uint64_t size, [[maybe_unused]] const MemoryPageProtectionFlags protectionFlags) -> bool
+	{
+		return true;
 	}
 }
 

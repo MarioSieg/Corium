@@ -781,8 +781,8 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-    auto EmitPopForScopedVariable(Stream& attached) -> void
-    {
-        attached.Do<Instruction::Pop>();
-    }
+	auto EmitPopForScopedVariable(Stream& attached) -> void
+	{
+		attached.Do<Instruction::Pop>();
+	}
 }

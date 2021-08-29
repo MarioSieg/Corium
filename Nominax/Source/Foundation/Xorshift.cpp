@@ -211,7 +211,7 @@ namespace Nominax::Foundation
 {
 	auto Xorshift32Atomic() -> std::uint32_t
 	{
-		static constinit std::atomic_uint32_t seed32 {0x12B9B0A1};
+		static constinit std::atomic_uint32_t seed32 { 0x12B9B0A1 };
 		seed32 ^= seed32 << 0xD;
 		seed32 ^= seed32 >> 0x11;
 		seed32 ^= seed32 << 0x5;
@@ -220,7 +220,7 @@ namespace Nominax::Foundation
 
 	auto Xorshift64Atomic() -> std::uint64_t
 	{
-		static constinit std::atomic_uint64_t seed64 {0x139408DCBBF7A44};
+		static constinit std::atomic_uint64_t seed64 { 0x139408DCBBF7A44 };
 		seed64 ^= seed64 << 0xD;
 		seed64 ^= seed64 >> 0x7;
 		seed64 ^= seed64 << 0x11;
@@ -229,10 +229,10 @@ namespace Nominax::Foundation
 
 	auto Xorshift128Atomic() -> std::uint32_t
 	{
-		static constinit std::atomic_uint32_t x {0x75BCD15};
-		static constinit std::atomic_uint32_t y {0x159A55E5};
-		static constinit std::atomic_uint32_t z {0x1F123BB5};
-		static constinit std::atomic_uint32_t w {0x5491333};
+		static constinit std::atomic_uint32_t x { 0x75BCD15 };
+		static constinit std::atomic_uint32_t y { 0x159A55E5 };
+		static constinit std::atomic_uint32_t z { 0x1F123BB5 };
+		static constinit std::atomic_uint32_t w { 0x5491333 };
 
 		const uint32_t t = x ^ x << 0xB;
 		x.exchange(y);
@@ -244,7 +244,7 @@ namespace Nominax::Foundation
 
 	auto Xorshift32ThreadLocal() -> std::uint32_t
 	{
-		static constinit thread_local std::uint32_t seed32 {0x12B9B0A1};
+		static constinit thread_local std::uint32_t seed32 { 0x12B9B0A1 };
 		seed32 ^= seed32 << 0xD;
 		seed32 ^= seed32 >> 0x11;
 		seed32 ^= seed32 << 0x5;
@@ -253,7 +253,7 @@ namespace Nominax::Foundation
 
 	auto Xorshift64ThreadLocal() -> std::uint64_t
 	{
-		static constinit thread_local std::uint64_t seed64 {0x139408DCBBF7A44};
+		static constinit thread_local std::uint64_t seed64 { 0x139408DCBBF7A44 };
 		seed64 ^= seed64 << 0xD;
 		seed64 ^= seed64 >> 0x7;
 		seed64 ^= seed64 << 0x11;
@@ -262,10 +262,10 @@ namespace Nominax::Foundation
 
 	auto Xorshift128ThreadLocal() -> std::uint32_t
 	{
-		static constinit thread_local std::uint32_t x {0x75BCD15};
-		static constinit thread_local std::uint32_t y {0x159A55E5};
-		static constinit thread_local std::uint32_t z {0x1F123BB5};
-		static constinit thread_local std::uint32_t w {0x5491333};
+		static constinit thread_local std::uint32_t x { 0x75BCD15 };
+		static constinit thread_local std::uint32_t y { 0x159A55E5 };
+		static constinit thread_local std::uint32_t z { 0x1F123BB5 };
+		static constinit thread_local std::uint32_t w { 0x5491333 };
 
 		const uint32_t t = x ^ x << 0xB;
 		x                = y;

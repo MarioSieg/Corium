@@ -258,8 +258,8 @@ namespace Nominax::Core
 		[[likely]]
 		{
 			// validate intrinsic routines:
-			auto* const*       begin {this->IntrinsicTable};
-			auto* const* const end {this->IntrinsicTable + this->IntrinsicTableSize};
+			auto* const*       begin { this->IntrinsicTable };
+			auto* const* const end { this->IntrinsicTable + this->IntrinsicTableSize };
 			while (begin < end)
 			{
 				if (!*begin++)

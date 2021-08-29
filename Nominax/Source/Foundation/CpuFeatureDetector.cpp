@@ -225,19 +225,19 @@ namespace Nominax::Foundation
 		std::array<std::uint64_t, 3> merged { };
 		std::uint32_t                result;
 		result = CpuId(&merged[0], &merged[1], &merged[2]);
-		std::uint8_t* const needle {std::data(buffer)};
+		std::uint8_t* const needle { std::data(buffer) };
 		std::memcpy(needle, std::data(merged), sizeof merged);
 		std::memcpy(needle + sizeof merged, &result, sizeof result);
-		for (std::uint64_t i {0}; i < sizeof buffer; ++i)
+		for (std::uint64_t i { 0 }; i < sizeof buffer; ++i)
 		{
-			for (std::uint64_t j {0}; j < CHAR_BIT; ++j)
+			for (std::uint64_t j { 0 }; j < CHAR_BIT; ++j)
 			{
 				this->FeatureBits_[i * CHAR_BIT + j] = buffer[i] & 1 << j;
 			}
 		}
 
 		// Check if CPU and OS supports XSave
-		const bool xSaveSupport {(*this)[Cfb::XSave] && (*this)[Cfb::OsXSave]};
+		const bool xSaveSupport { (*this)[Cfb::XSave] && (*this)[Cfb::OsXSave] };
 		if (!xSaveSupport)
 		{
 			// XSave is required for AVX and AVX 512
@@ -246,13 +246,13 @@ namespace Nominax::Foundation
 		}
 
 		// Validate OS support and update flags for AVX:
-		const bool avxOsSupport {IsAvxSupportedByOs()};
+		const bool avxOsSupport { IsAvxSupportedByOs() };
 		(*this)[Cfb::Avx] &= avxOsSupport;
 		(*this)[Cfb::Avx2] &= avxOsSupport;
 		(*this)[Cfb::F16C] &= avxOsSupport;
 
 		// Validate OS support and update flags for AVX-512 F:
-		const bool avx512OsSupport {avxOsSupport && IsAvx512SupportedByOs()};
+		const bool avx512OsSupport { avxOsSupport && IsAvx512SupportedByOs() };
 		(*this)[Cfb::Avx512F] &= avx512OsSupport;
 		(*this)[Cfb::Avx512Dq] &= avx512OsSupport;
 		(*this)[Cfb::Avx512Ifma] &= avx512OsSupport;
@@ -279,7 +279,7 @@ namespace Nominax::Foundation
 	auto CPUFeatureDetector::Dump() const -> void
 	{
 		Print("CPU feature detection result:\n");
-		for (std::uint64_t i {0}; i < std::size(this->FeatureBits_); ++i)
+		for (std::uint64_t i { 0 }; i < std::size(this->FeatureBits_); ++i)
 		{
 			if (!std::empty(CPU_FEATURE_BIT_NAMES[i]))
 			{

@@ -236,16 +236,16 @@ namespace Nominax::Core
 		const ReactorRoutineLink&     routineLink,
 		const std::uint64_t           poolIdx
 	) :
-		Id_ {Foundation::Xorshift128ThreadLocal()},
-		PoolIndex_ {poolIdx},
-		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
-		PowerPreference_ {descriptor.PowerPref},
+		Id_ { Foundation::Xorshift128ThreadLocal() },
+		PoolIndex_ { poolIdx },
+		SpawnStamp_ { std::chrono::high_resolution_clock::now() },
+		PowerPreference_ { descriptor.PowerPref },
 		Input_ { },
-		Output_ {.Input = &Input_},
-		Stack_ {allocator, descriptor.StackSize},
-		IntrinsicTable_ {descriptor.SharedIntrinsicTable},
-		InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : GetDefaultInterruptRoutine()},
-		RoutineLink_ {routineLink}
+		Output_ { .Input = &Input_ },
+		Stack_ { allocator, descriptor.StackSize },
+		IntrinsicTable_ { descriptor.SharedIntrinsicTable },
+		InterruptHandler_ { descriptor.InterruptHandler ? descriptor.InterruptHandler : GetDefaultInterruptRoutine() },
+		RoutineLink_ { routineLink }
 	{
 		Foundation::Print
 		(
@@ -275,17 +275,17 @@ namespace Nominax::Core
 			this->IntrinsicTable_,
 			*this->InterruptHandler_
 		);
-		const auto validationResult {this->Input_.Validate()};
+		const auto validationResult { this->Input_.Validate() };
 		if (validationResult != ReactorValidationResult::Ok)
 		[[unlikely]]
 		{
-			const std::string_view message {REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(validationResult)]};
+			const std::string_view message { REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(validationResult)] };
 			Panic(NOX_PANIC_INFO(), "Reactor {:#X} validation failed with the following reason: {}", this->Id_, message);
 		}
-		ReactorCoreExecutionRoutine* const routine {this->RoutineLink_.ExecutionRoutine};
+		ReactorCoreExecutionRoutine* const routine { this->RoutineLink_.ExecutionRoutine };
 		NOX_PAS_NOT_NULL(routine, "Reactor execution routine is nullptr!");
 		this->Output_.Input = &this->Input_;
-		const ReactorShutdownReason result {(*routine)(&this->Input_, &this->Output_, nullptr)};
-		return {result, this->Output_};
+		const ReactorShutdownReason result { (*routine)(&this->Input_, &this->Output_, nullptr) };
+		return { result, this->Output_ };
 	}
 }

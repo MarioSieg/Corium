@@ -271,28 +271,28 @@ namespace Nominax::ByteCode
 				default:
 					if (popCount % 2 == 0)
 					{
-						for (std::uint8_t i {0}; i < popCount / 2; ++i)
+						for (std::uint8_t i { 0 }; i < popCount / 2; ++i)
 						{
 							this->Emitter << Instruction::Pop2;
 						}
 					}
 					else if (popCount % 4 == 0)
 					{
-						for (std::uint8_t i {0}; i < popCount / 4; ++i)
+						for (std::uint8_t i { 0 }; i < popCount / 4; ++i)
 						{
 							this->Emitter << Instruction::VecPop;
 						}
 					}
 					else if (popCount % 16 == 0)
 					{
-						for (std::uint8_t i {0}; i < popCount / 16; ++i)
+						for (std::uint8_t i { 0 }; i < popCount / 16; ++i)
 						{
 							this->Emitter << Instruction::MatPop;
 						}
 					}
 					else
 					{
-						for (std::uint8_t i {0}; i < popCount; ++i)
+						for (std::uint8_t i { 0 }; i < popCount; ++i)
 						{
 							this->Emitter << Instruction::Pop;
 						}
@@ -300,7 +300,7 @@ namespace Nominax::ByteCode
 					return *this;
 			}
 		}
-		for (std::uint8_t i {0}; i < popCount; ++i)
+		for (std::uint8_t i { 0 }; i < popCount; ++i)
 		{
 			this->Emitter << Instruction::Pop;
 		}

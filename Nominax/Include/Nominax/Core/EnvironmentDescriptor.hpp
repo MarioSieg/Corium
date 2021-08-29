@@ -219,7 +219,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Single reactor mode.
 	/// </summary>
-	constexpr std::uint64_t MONO_REACTOR {1};
+	constexpr std::uint64_t MONO_REACTOR { 1 };
 
 	/// <summary>
 	/// Config descriptor for an environment.
@@ -229,24 +229,24 @@ namespace Nominax::Core
 		/// <summary>
 		/// Argument count.
 		/// </summary>
-		std::int32_t ArgC {0};
+		std::int32_t ArgC { 0 };
 
 		/// <summary>
 		/// Argument vector.
 		/// </summary>
-		const char* const* ArgV {nullptr};
+		const char* const* ArgV { nullptr };
 
 		/// <summary>
 		/// The name of the app.
 		/// </summary>
-		std::string_view AppName {"Untitled App"};
+		std::string_view AppName { "Untitled App" };
 
 		/// <summary>
 		/// If true, the fallback reactor implementation
 		/// will be used for all reactors, not the
 		/// runtime selected one (based on CPU features).
 		/// </summary>
-		bool ForceFallback {false};
+		bool ForceFallback { false };
 
 		/// <summary>
 		/// If true, synchronization between
@@ -254,33 +254,33 @@ namespace Nominax::Core
 		/// is deactivated, which makes printing faster.
 		/// This should be activated in most cases when executing code.
 		/// </summary>
-		bool FastHostIoSync {true};
+		bool FastHostIoSync { true };
 
 		/// <summary>
 		/// The size of the boot pool
 		/// </summary>
-		std::uint64_t BootPoolSize {128_kB};
+		std::uint64_t BootPoolSize { 128_kB };
 
 		/// <summary>
 		/// The size of the system memory pool size.
 		/// </summary>
-		std::uint64_t SystemPoolSize {512_kB};
+		std::uint64_t SystemPoolSize { 512_kB };
 
 		/// <summary>
 		/// The count of reactors.
 		/// If 0, the system will use the number of CPU threads.
 		/// </summary>
-		std::uint64_t ReactorCount {0};
+		std::uint64_t ReactorCount { 0 };
 
 		/// <summary>
 		/// The reactor stack size in bytes.
 		/// Must be divisible by 8!
 		/// </summary>
-		std::uint64_t StackSize {8_mB};
+		std::uint64_t StackSize { 8_mB };
 
 		/// <summary>
 		/// Power preference of the system.
 		/// </summary>
-		PowerPreference PowerPref {PowerPreference::HighPerformance};
+		PowerPreference PowerPref { PowerPreference::HighPerformance };
 	};
 }

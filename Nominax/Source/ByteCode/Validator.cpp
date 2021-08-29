@@ -214,13 +214,13 @@ namespace Nominax::ByteCode
 {
 	auto ContainsPrologue(const Stream& input) -> bool
 	{
-		constexpr const auto& code {Stream::PrologueCode()};
+		constexpr const auto& code { Stream::PrologueCode() };
 		if (input.Size() < code.size())
 		{
 			[[unlikely]]
 				return false;
 		}
-		for (std::uint64_t i {0}; i < code.size(); ++i)
+		for (std::uint64_t i { 0 }; i < code.size(); ++i)
 		{
 			if (code[i] != input[i])
 			{
@@ -233,13 +233,13 @@ namespace Nominax::ByteCode
 
 	auto ContainsEpilogue(const Stream& input) -> bool
 	{
-		constexpr const auto& code {Stream::EpilogueCode()};
+		constexpr const auto& code { Stream::EpilogueCode() };
 		if (input.Size() < std::size(code))
 		{
 			[[unlikely]]
 				return false;
 		}
-		for (std::uint64_t i {0}, j {input.Size() - std::size(code)}; i < std::size(code); ++i)
+		for (std::uint64_t i { 0 }, j { input.Size() - std::size(code) }; i < std::size(code); ++i)
 		{
 			if (code[i] != input[j + i])
 			{
@@ -289,27 +289,27 @@ namespace Nominax::ByteCode
 
 		// Error state:
 		Foundation::AtomicState<ValidationResultCode> error { };
-		std::atomic<std::uint32_t>                    errorIndex {0};
+		std::atomic<std::uint32_t>                    errorIndex { 0 };
 
-		const auto& codeBuf {input.GetCodeBuffer()};
-		const auto& discBuf {input.GetDiscriminatorBuffer()};
-		const auto  bufBegin {&*std::begin(discBuf)};
-		const auto  bufEnd {&*std::end(discBuf)};
+		const auto& codeBuf { input.GetCodeBuffer() };
+		const auto& discBuf { input.GetDiscriminatorBuffer() };
+		const auto  bufBegin { &*std::begin(discBuf) };
+		const auto  bufEnd { &*std::end(discBuf) };
 
 		auto validationRoutine
 		{
 			[&](const Signal::Discriminator& iterator)
 			{
-				const std::ptrdiff_t index {Foundation::DistanceRef(iterator, bufBegin)};
-				const Signal         signal {codeBuf[index]};
-				auto                 result {ValidationResultCode::Ok};
+				const std::ptrdiff_t index { Foundation::DistanceRef(iterator, bufBegin) };
+				const Signal         signal { codeBuf[index] };
+				auto                 result { ValidationResultCode::Ok };
 
 				switch (iterator)
 				{
 						// validate instruction:
 					case Signal::Discriminator::Instruction:
 					{
-						const auto* const next {SearchForNextInstruction(&iterator, bufEnd)};
+						const auto* const next { SearchForNextInstruction(&iterator, bufEnd) };
 						const auto        args {
 							ExtractInstructionArguments(&iterator, ComputeInstructionArgumentOffset(&iterator, next))
 						};
@@ -371,7 +371,7 @@ namespace Nominax::ByteCode
 
 	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) -> bool
 	{
-		const auto idx {static_cast<std::uint64_t>(address)};
+		const auto idx { static_cast<std::uint64_t>(address) };
 
 		// validate that jump address is inside the range of the bucket:
 		if (bucket.Size() <= idx)
@@ -385,8 +385,8 @@ namespace Nominax::ByteCode
 
 	auto ValidateSystemIntrinsicCall(const SystemIntrinsicInvocationID id) -> bool
 	{
-		constexpr auto max {ToUnderlying(SystemIntrinsicInvocationID::Count_) - 1};
-		const auto     value {ToUnderlying(id)};
+		constexpr auto max { ToUnderlying(SystemIntrinsicInvocationID::Count_) - 1 };
+		const auto     value { ToUnderlying(id) };
 		static_assert(std::is_unsigned_v<decltype(value)>);
 		return NOX_EXPECT_VALUE(value <= max, true);
 	}
@@ -417,13 +417,13 @@ namespace Nominax::ByteCode
 				return ValidationResultCode::TooManyArgumentsForInstruction;
 		}
 
-		for (std::uint64_t i {0}; i < args.size(); ++i)
+		for (std::uint64_t i { 0 }; i < args.size(); ++i)
 		{
-			const Signal::Discriminator discriminator {args[i]};
+			const Signal::Discriminator discriminator { args[i] };
 
 			// Check if our given type index is within the required indices:
 
-			const TypeIndexTable& required {LookupInstructionArgumentTypes(instruction)[i]};
+			const TypeIndexTable& required { LookupInstructionArgumentTypes(instruction)[i] };
 			const bool            isWithinAllowedIndices {
 				std::find(std::begin(required), std::end(required), discriminator) != std::end(required)
 			};

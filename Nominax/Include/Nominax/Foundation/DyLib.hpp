@@ -278,7 +278,7 @@ namespace Nominax::Foundation
 		[[nodiscard]] auto operator [](std::string_view symbolName) const -> std::optional<DynamicProcedure>;
 
 	private:
-		void* Handle_ {nullptr};
+		void* Handle_ { nullptr };
 	};
 
 	static_assert(!std::is_copy_constructible_v<DynamicLibrary>);
@@ -286,7 +286,7 @@ namespace Nominax::Foundation
 	static_assert(!std::is_trivially_copy_assignable_v<DynamicLibrary>);
 	static_assert(!std::is_trivially_move_assignable_v<DynamicLibrary>);
 
-	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ {OSI::DylibOpen(filePath)} { }
+	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ { OSI::DylibOpen(filePath) } { }
 
 	inline DynamicLibrary::DynamicLibrary(const std::filesystem::path& filePath) : Handle_ {
 		OSI::DylibOpen(filePath.string())
@@ -305,6 +305,6 @@ namespace Nominax::Foundation
 	inline auto DynamicLibrary::operator[](const std::string_view symbolName) const -> std::optional<DynamicProcedure>
 	{
 		void* const symbolHandle = OSI::DylibLookupSymbol(this->Handle_, symbolName);
-		return symbolHandle ? std::optional {DynamicProcedure {symbolHandle}} : std::nullopt;
+		return symbolHandle ? std::optional { DynamicProcedure { symbolHandle } } : std::nullopt;
 	}
 }

@@ -576,17 +576,17 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Reference counter for strong references.
 		/// </summary>
-		MetaHeaderScalar MetaField {0};
+		MetaHeaderScalar MetaField { 0 };
 
 		/// <summary>
 		/// Object size in records.
 		/// </summary>
-		MetaHeaderScalar Size {0};
+		MetaHeaderScalar Size { 0 };
 
 		/// <summary>
 		/// Type index for type DB.
 		/// </summary>
-		MetaHeaderScalar TypeId {0};
+		MetaHeaderScalar TypeId { 0 };
 
 		/// <summary>
 		/// Flag vector for object states.
@@ -721,22 +721,22 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// The size of each header block field.
 		/// </summary>
-		static constexpr auto STRIDE {sizeof(MetaHeaderScalar)};
+		static constexpr auto STRIDE { sizeof(MetaHeaderScalar) };
 
 		/// <summary>
 		/// The count of header field blocks => 4 (MetaField, WordSize, TypeId, FlagVector)
 		/// </summary>
-		static constexpr std::uint64_t RECORD_BLOCKS {4};
+		static constexpr std::uint64_t RECORD_BLOCKS { 4 };
 
 		/// <summary>
 		/// The offset in records from the blob base pointer.
 		/// </summary>
-		static constexpr std::uintptr_t RECORD_OFFSET {STRIDE * RECORD_BLOCKS / sizeof(Record)};
+		static constexpr std::uintptr_t RECORD_OFFSET { STRIDE * RECORD_BLOCKS / sizeof(Record) };
 
 		/// <summary>
 		/// The amount of records required to store the header.
 		/// </summary>
-		static constexpr std::uint32_t RECORD_CHUNKS {RECORD_OFFSET};
+		static constexpr std::uint32_t RECORD_CHUNKS { RECORD_OFFSET };
 
 		static_assert(STRIDE == sizeof(MetaHeaderScalar));
 		static_assert(RECORD_BLOCKS == 4);

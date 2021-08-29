@@ -241,7 +241,7 @@ namespace Nominax::Foundation
 	auto TextFile::WriteToFile(std::filesystem::path&& path) -> bool
 	{
 		this->FilePath_ = std::move(path);
-		std::ofstream stream {this->FilePath_};
+		std::ofstream stream { this->FilePath_ };
 		if (!stream)
 		{
 			[[likely]]
@@ -254,7 +254,7 @@ namespace Nominax::Foundation
 	auto TextFile::ReadFromFile(std::filesystem::path&& path) -> bool
 	{
 		this->FilePath_ = std::move(path);
-		std::ifstream stream {this->FilePath_};
+		std::ifstream stream { this->FilePath_ };
 		if (!stream)
 		{
 			[[unlikely]]
@@ -322,8 +322,8 @@ namespace Nominax::Foundation
 
 	auto TextFile::EraseRange(const CharType begin, const CharType end) -> void
 	{
-		const std::uint64_t beginIndex {this->Content_.find(begin)};
-		const std::uint64_t endIndex {this->Content_.find(end, beginIndex + 1)};
+		const std::uint64_t beginIndex { this->Content_.find(begin) };
+		const std::uint64_t endIndex { this->Content_.find(end, beginIndex + 1) };
 		this->Content_.erase(beginIndex, endIndex - beginIndex + 1);
 	}
 
@@ -334,8 +334,8 @@ namespace Nominax::Foundation
 
 	auto TextFile::SubStringChar(const CharType beginChar, const CharType endChar) const -> ViewType
 	{
-		const std::uint64_t beginIndex {this->Content_.find_first_of(beginChar)};
-		const std::uint64_t endIndex {this->Content_.find_first_of(endChar, beginIndex + 1)};
+		const std::uint64_t beginIndex { this->Content_.find_first_of(beginChar) };
+		const std::uint64_t endIndex { this->Content_.find_first_of(endChar, beginIndex + 1) };
 		return SubstringView(this->Content_, beginIndex, endIndex - beginIndex + 1);
 	}
 }

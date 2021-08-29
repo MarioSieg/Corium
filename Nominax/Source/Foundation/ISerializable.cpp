@@ -254,7 +254,7 @@ namespace Nominax::Foundation
 
 	auto ISerializable::SerializeToDisk(const std::filesystem::path& file) const -> bool
 	{
-		std::ofstream stream {file};
+		std::ofstream stream { file };
 		if (!stream)
 		{
 			[[unlikely]]
@@ -265,7 +265,7 @@ namespace Nominax::Foundation
 
 	auto ISerializable::DeserializeFromDisk(const std::filesystem::path& file) -> bool
 	{
-		std::ifstream stream {file};
+		std::ifstream stream { file };
 		if (!stream)
 		{
 			[[unlikely]]
