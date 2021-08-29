@@ -207,6 +207,8 @@
 
 #include "../../../Nominax/Include/Nominax/ByteCode/_ByteCode.hpp"
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../Include/Nominax/ByteCode/ScopedVariable.hpp"
+
 
 namespace Nominax::ByteCode
 {
@@ -778,4 +780,9 @@ namespace Nominax::ByteCode
 		this->Attached_.Do<Instruction::IRor>();
 		return *this;
 	}
+
+    auto EmitPopForScopedVariable(Stream& attached) -> void
+    {
+        attached.Do<Instruction::Pop>();
+    }
 }

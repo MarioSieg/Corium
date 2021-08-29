@@ -216,6 +216,7 @@
 #include "DiscriminatedSignal.hpp"
 #include "Optimization.hpp"
 #include "ValidationResult.hpp"
+#include "ScopedVariable.hpp"
 
 namespace Nominax::ByteCode
 {

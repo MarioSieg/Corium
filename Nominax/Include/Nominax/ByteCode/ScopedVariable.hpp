@@ -208,10 +208,11 @@
 #pragma once
 
 #include "Generics.hpp"
-#include "Stream.hpp"
 
 namespace Nominax::ByteCode
 {
+    class Stream;
+
 	/// <summary>
 	/// Single stack-bounded variable.
 	/// When created it created a push instruction in the stream,
@@ -228,6 +229,8 @@ namespace Nominax::ByteCode
 		/// <param name="attached"></param>
 		/// <param name="value"></param>
 		ScopedVariable(Stream& attached, T value);
+
+        static auto EmitPop() -> void;
 
 		/// <summary>
 		/// 
@@ -688,13 +691,15 @@ namespace Nominax::ByteCode
 	template <>
 	auto ScopedVariable<std::uint64_t>::RotateRight(std::uint64_t value) -> ScopedVariable&;
 
+    extern auto EmitPopForScopedVariable(Stream& attached) -> void;
+
 	template <typename T> requires StreamScalar<T>
 	inline ScopedVariable<T>::~ScopedVariable()
 	{
-		Attached_.Do<Instruction::Pop>();
+        EmitPopForScopedVariable(this->Attached_);
 	}
 
-	/// <summary>
+    /// <summary>
 	/// Stream variable with runtime type: int
 	/// </summary>
 	using ScopedInt = ScopedVariable<std::int64_t>;
