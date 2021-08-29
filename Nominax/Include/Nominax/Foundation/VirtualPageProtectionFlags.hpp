@@ -211,12 +211,34 @@
 
 namespace Nominax::Foundation
 {
+	/// <summary>
+	/// Contains all possible values for page protection flags.
+	/// </summary>
 	enum class MemoryPageProtectionFlags : std::uint8_t
 	{
+		/// <summary>
+		/// Not allowed to read, write or execute.
+		/// </summary>
 		NoAccess,
+
+		/// <summary>
+		/// Read only.
+		/// </summary>
 		Read,
+
+		/// <summary>
+		/// Read and write.
+		/// </summary>
 		ReadWrite,
+
+		/// <summary>
+		/// Read and execute.
+		/// </summary>
 		ReadExecute,
+
+		/// <summary>
+		/// Read, write and execute (very unsafe).
+		/// </summary>
 		ReadWriteExecute
 	};
 }

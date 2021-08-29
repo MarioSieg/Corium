@@ -218,43 +218,88 @@ namespace Nominax::Foundation
 	/// </summary>
 	struct VirtualAllocationHeader final
 	{
-		std::uint64_t             Size { };
-		MemoryPageProtectionFlags ProtectionFlags { };
-		std::uintptr_t            ProtectionLock { };
+		/// <summary>
+		/// The size of the region in bytes.
+		/// </summary>
+		std::uint64_t Size { };
 
+		/// <summary>
+		/// The current protection flags of the region.
+		/// </summary>
+		MemoryPageProtectionFlags ProtectionFlags { };
+
+		/// <summary>
+		/// The current protection lock hash.
+		/// </summary>
+		std::uintptr_t ProtectionLockHash { };
+
+		/// <summary>
+		/// User data.
+		/// </summary>
 		union
 		{
 			void*          Ptr;
 			std::uintptr_t Int;
 		}                  UserData { nullptr };
 
+		/// <summary>
+		/// Marks the region as locked.
+		/// </summary>
+		/// <returns></returns>
 		constexpr auto SetLock() -> void;
+
+		/// <summary>
+		/// Checks if the region is locked.
+		/// </summary>
+		/// <returns>true if the region is locked, else false.</returns>
+		[[nodiscard]]
 		constexpr auto IsLocked() const -> bool;
 
 	private:
 		friend struct VMM;
 
-		constexpr auto                  ComputeLockHash(const void* hashPtr) const -> std::uintptr_t;
-		static constexpr auto           ComputeRegionStart(void* usrRegion) -> void*;
-		static constexpr auto           MapHeader(void* region) -> VirtualAllocationHeader&;
-		static constexpr std::uintptr_t LOCK_KEY { 0x0DE11EB268bED472 };
+		/// <summary>
+		/// Computes a lock hash for the protection lock.
+		/// </summary>
+		/// <param name="hashPtr"></param>
+		/// <returns></returns>
+		constexpr auto ComputeLockHash(const void* hashPtr) const -> std::uintptr_t;
+
+		/// <summary>
+		/// Computes the region start pointer.
+		/// </summary>
+		/// <param name="usrRegion">Must be a pointer returned by VirtualAlloc.</param>
+		/// <returns></returns>
+		static constexpr auto ComputeRegionStart(void* usrRegion) -> void*;
+
+		/// <summary>
+		/// Maps the allocation header to the beginning of a region.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns></returns>
+		static constexpr auto MapHeader(void* region) -> VirtualAllocationHeader&;
+
+		/// <summary>
+		/// Lock hash key.
+		/// </summary>
+		static constexpr std::uintptr_t LOCK_HASH_KEY { 0x0DE11EB268bED472 };
 	};
 
 	static_assert(std::is_standard_layout_v<VirtualAllocationHeader>);
 
 	constexpr auto VirtualAllocationHeader::IsLocked() const -> bool
 	{
-		return this->ProtectionLock == this->ComputeLockHash(this);
+		return this->ProtectionLockHash == this->ComputeLockHash(this);
 	}
 
 	constexpr auto VirtualAllocationHeader::SetLock() -> void
 	{
-		this->ProtectionLock = this->ComputeLockHash(this);
+		this->ProtectionLockHash = this->ComputeLockHash(this);
 	}
 
 	constexpr auto VirtualAllocationHeader::ComputeLockHash(const void* const hashPtr) const -> std::uintptr_t
 	{
-		return (std::bit_cast<std::uintptr_t>(hashPtr) << 2) ^ LOCK_KEY ^ this->Size;
+		return (std::bit_cast<std::uintptr_t>(hashPtr) << 2) ^ LOCK_HASH_KEY ^ this->Size;
 	}
 
 	constexpr auto VirtualAllocationHeader::ComputeRegionStart(void* const usrRegion) -> void*
@@ -302,8 +347,29 @@ namespace Nominax::Foundation
 		/// </summary>
 		~VMM() = delete;
 
+		/// <summary>
+		/// Allocates virtual memory in the process.
+		/// </summary>
+		/// <param name="size">The size in bytes to allocate.</param>
+		/// <param name="flags">The page protection flags.</param>
+		/// <param name="locked">If true enable page protection lock - page protection flags cannot be changed afterwards.</param>
+		/// <returns>The pointer to the allocated memory on success, nullptr on error!</returns>
 		static auto VirtualAlloc(std::uint64_t size, MemoryPageProtectionFlags flags, bool locked = false) -> void*;
+
+		/// <summary>
+		/// Deallocates virtual memory in the process.
+		/// </summary>
+		/// <param name="region">Must be a pointer returned by VirtualAlloc().</param>
+		/// <returns>true on success, else false.</returns>
 		static auto VirtualDealloc(void* region) -> bool;
+
+		/// <summary>
+		/// Updates the page protection flags of the specified region, if possible.
+		/// </summary>
+		/// <param name="region">Must be a pointer returned by VirtualAlloc().</param>
+		/// <param name="newFlags">The new flags to set.</param>
+		/// <param name="locked">If true enable page protection lock - page protection flags cannot be changed afterwards.</param>
+		/// <returns>true on success, else false.</returns>
 		static auto VirtualProtectPages(void* region, MemoryPageProtectionFlags newFlags, bool locked = false) -> bool;
 	};
 }

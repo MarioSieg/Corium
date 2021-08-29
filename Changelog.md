@@ -13,8 +13,12 @@ Now we have the implementation read on Windows (with irtualAlloc) and Linux.
 Now I can write the virtual memory allocator and implement the executable
 machine code buffer for the JIT compiler.
 
-*8/29/2021*<br>
+*8/28/2021*<br>
 Added a lock to the virtual allocation header,
 which allows the locking of the protection flags. 
 Once locked, you can no longer change the protection of the memory pages
 via the VMM.
+
+*8/29/2021*<br>
+Added documentation for the VMM.
+Also refractored the code.

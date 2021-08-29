@@ -312,6 +312,39 @@ namespace Nominax::Foundation
 		handle = nullptr;
 	}
 
+	/// <summary>
+	/// Helper to map the Nominax page protection flags to OS specific ones.
+	/// </summary>
+	/// <param name="protectionFlags">The Nominax protection flags.</param>
+	/// <returns>The OS specific flags.</returns>
+	[[nodiscard]]
+	static constexpr auto MapOsPageProtectionFlags(const MemoryPageProtectionFlags protectionFlags) -> DWORD
+	{
+		switch (protectionFlags)
+		{
+			case MemoryPageProtectionFlags::Read:
+				return PAGE_READONLY;
+
+			case MemoryPageProtectionFlags::ReadWrite:
+				return PAGE_READWRITE;
+
+			case MemoryPageProtectionFlags::ReadExecute:
+				return PAGE_EXECUTE_READ;
+
+			case MemoryPageProtectionFlags::ReadWriteExecute:
+				return PAGE_EXECUTE_READWRITE;
+
+			default:
+			case MemoryPageProtectionFlags::NoAccess:
+				return PAGE_NOACCESS;
+		}
+	}
+
+	/// <summary>
+	/// Allocation flags for VirtualAlloc.
+	/// </summary>
+	static constexpr DWORD MEMORY_MAPPING_FLAGS { MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN };
+
 	auto OSI::MemoryMap
 	(
 		const std::uint64_t             size,
@@ -320,32 +353,10 @@ namespace Nominax::Foundation
 	{
 		const LPVOID    argAddress { nullptr };
 		const SIZE_T    argSize { size };
-		constexpr DWORD argAllocType { MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN };
-		DWORD           argProtection { };
-		switch (protectionFlags)
-		{
-			case MemoryPageProtectionFlags::NoAccess:
-				argProtection = PAGE_NOACCESS;
-				break;
-
-			case MemoryPageProtectionFlags::Read:
-				argProtection = PAGE_READONLY;
-				break;
-
-			case MemoryPageProtectionFlags::ReadWrite:
-				argProtection = PAGE_READWRITE;
-				break;
-
-			case MemoryPageProtectionFlags::ReadExecute:
-				argProtection = PAGE_EXECUTE_READ;
-				break;
-
-			case MemoryPageProtectionFlags::ReadWriteExecute:
-				argProtection = PAGE_EXECUTE_READWRITE;
-				break;
-		}
-		const DWORD  prevError { GetLastError() };
-		const LPVOID result { VirtualAlloc(argAddress, argSize, argAllocType, argProtection) };
+		constexpr DWORD argAllocType { MEMORY_MAPPING_FLAGS };
+		const DWORD     argProtection { MapOsPageProtectionFlags(protectionFlags) };
+		const DWORD     prevError { GetLastError() };
+		const LPVOID    result { VirtualAlloc(argAddress, argSize, argAllocType, argProtection) };
 		SetLastError(prevError);
 		return result;
 	}
@@ -362,7 +373,14 @@ namespace Nominax::Foundation
 
 	auto OSI::MemoryProtect([[maybe_unused]] void* const region, [[maybe_unused]] const std::uint64_t size, [[maybe_unused]] const MemoryPageProtectionFlags protectionFlags) -> bool
 	{
-		return true;
+		const LPVOID argAddress { region };
+		const SIZE_T argSize { size };
+		const DWORD  argProtection { MapOsPageProtectionFlags(protectionFlags) };
+		DWORD        argDummy;
+		const DWORD  prevError { GetLastError() };
+		const BOOL   result { VirtualProtect(argAddress, argSize, argProtection, &argDummy) };
+		SetLastError(prevError);
+		return result;
 	}
 }
 
