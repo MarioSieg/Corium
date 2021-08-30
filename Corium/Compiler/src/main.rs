@@ -1,12 +1,14 @@
 #![allow(dead_code)]
 
 mod ast;
-mod cli;
 mod error;
 mod literal;
 mod parser;
 mod unit;
+mod context;
 
 fn main() {
-    cli::process_args();
+    let mut context = context::CompilerContext::new();
+    context.enqueue_file("../Docs/ParseTest.cor");
+    context.compile();
 }

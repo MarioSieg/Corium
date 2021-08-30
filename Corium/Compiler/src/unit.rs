@@ -66,7 +66,7 @@ impl CompilationUnit {
     }
 
     /// Compiles this compilation unit.
-    pub fn compile(self) -> Result<(), Vec<Error>> {
+    pub fn compile(&self) -> Result<(), Vec<Error>> {
         let root = parse_source(&self.source_code);
         for k in &root {
             println!("{:?}", k);
