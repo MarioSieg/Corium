@@ -1,5 +1,7 @@
-use smallvec::SmallVec;
+use smallvec::{smallvec, SmallVec};
+use std::convert;
 use std::fmt;
+use std::iter;
 
 pub trait TokenTable: fmt::Display {
     const TOKEN_TABLE: &'static [&'static str];
@@ -43,12 +45,47 @@ pub struct Function<'s> {
     pub return_type: Option<TypeName<'s>>,
 }
 
+impl<'s> fmt::Display for Function<'s> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} (", self.name)?;
+        for param in &self.parameters {
+            write!(f, "{}", param)?;
+        }
+        write!(f, ")")?;
+        if let Some(ret) = &self.return_type {
+            write!(f, " {}", ret)
+        } else {
+            Ok(())
+        }
+    }
+}
+
 /// Represents a local variable
 #[derive(Clone, Debug)]
 pub struct Variable<'s> {
     pub name: Identifier<'s>,
     pub type_hint: Option<TypeName<'s>>,
     pub value: Option<Box<Expression<'s>>>,
+    pub is_parameter: bool,
+}
+
+impl<'s> fmt::Display for Variable<'s> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.is_parameter {
+            write!(f, "let ")?;
+        }
+        write!(f, "{}", self.name)?;
+        if let Some(typename) = &self.type_hint {
+            write!(f, " {}", typename)?;
+        } else {
+            write!(f, " ")?;
+        }
+        if let Some(_value) = &self.value {
+            write!(f, "= !")
+        } else {
+            write!(f, "= ?")
+        }
+    }
 }
 
 /// Represents an expression.
@@ -74,6 +111,32 @@ pub enum TypeName<'s> {
     Bool,
     String,
     Custom(Identifier<'s>),
+}
+
+impl<'s> convert::From<&'s str> for TypeName<'s> {
+    fn from(st: &'s str) -> Self {
+        match st {
+            "int" => TypeName::Int,
+            "float" => TypeName::Float,
+            "char" => TypeName::Char,
+            "bool" => TypeName::Bool,
+            "string" => TypeName::String,
+            _ => TypeName::Custom(st),
+        }
+    }
+}
+
+impl<'s> fmt::Display for TypeName<'s> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Int => write!(f, "int"),
+            Self::Float => write!(f, "float"),
+            Self::Char => write!(f, "char"),
+            Self::Bool => write!(f, "bool"),
+            Self::String => write!(f, "string"),
+            Self::Custom(name) => write!(f, "{}", name),
+        }
+    }
 }
 
 /// Represents a literal.
@@ -191,7 +254,41 @@ impl_token_base!(UnaryOperator, ["+", "-", "not", "~"]);
 /// E. g. TestClass
 /// E. g. Module.TestClass
 /// E. g. Module.TestClass.Function
-pub type QualifiedName<'s> = SmallVec<[Identifier<'s>; 16]>;
+#[derive(Debug, Clone)]
+pub struct QualifiedName<'s>(pub SmallVec<[Identifier<'s>; 16]>);
+
+impl<'s> QualifiedName<'s> {
+    pub fn flat(ident: Identifier<'s>) -> Self {
+        Self(smallvec![ident])
+    }
+
+    pub fn nested(idents: &[Identifier<'s>]) -> Self {
+        Self(idents.into())
+    }
+}
+
+impl<'s> fmt::Display for QualifiedName<'s> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.0.len() > 1 {
+            write!(f, "{}", self.0[0])
+        } else {
+            let last = self.0.len() - 1;
+            for (i, submod) in self.0.iter().enumerate() {
+                write!(f, "{}", submod)?;
+                if i != last {
+                    write!(f, "{}", BinaryOperator::Dot.get_token())?;
+                }
+            }
+            Ok(())
+        }
+    }
+}
+
+impl<'s> iter::FromIterator<Identifier<'s>> for QualifiedName<'s> {
+    fn from_iter<T: IntoIterator<Item = Identifier<'s>>>(iter: T) -> Self {
+        Self(SmallVec::from_iter::<T>(iter))
+    }
+}
 
 /// Represents an identifier such as a class or variable name.
 pub type Identifier<'s> = &'s str;
@@ -207,3 +304,6 @@ pub type Bool = bool;
 
 /// Represents a Corium "char".
 pub type Char = u32;
+
+/// Represents the root nodes for a compilation unit.
+pub type RootList<'s> = Vec<Node<'s>>;

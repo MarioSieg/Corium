@@ -1,11 +1,13 @@
 #![allow(dead_code)]
 
 mod ast;
+mod ast_processor;
+mod context;
 mod error;
+mod error_list;
 mod literal;
 mod parser;
 mod unit;
-mod context;
 
 fn main() {
     let mut context = context::CompilerContext::new();

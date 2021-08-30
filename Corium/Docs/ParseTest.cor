@@ -3,3 +3,7 @@ module test
 fun x() {
 
 }
+
+fun f() int {
+
+}

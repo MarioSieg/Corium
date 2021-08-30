@@ -1,5 +1,6 @@
-use crate::error::*;
-use crate::parser::parse_source;
+use super::ast_processor::AstProcessorContext;
+use super::error_list::ErrorList;
+use super::parser::parse_source;
 use std::fs;
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -10,35 +11,27 @@ pub struct CompilationUnit {
     source_code: String,
     file_name: PathBuf,
     id: Uuid,
-    error_list: Vec<Error>,
+    error_list: ErrorList,
+    ast_processor: AstProcessorContext,
 }
 
 impl CompilationUnit {
-    /// By default, all Corium source files are compiled in parallel but really huge files
-    /// are split into chunks and these chunks are then also compiled in parallel.
-    /// If the length of the source code string is above this value,
-    /// the source code will be broken down into chunks and compiled in parallel.
-    pub const PARALLEL_CHUNK_THRESHOLD: usize = 25000;
-
-    /// The size of each chunk if a huge file is broken down into chunks
-    /// to get compiled in parallel.
-    pub const PARALLEL_CHUNK_SIZE: usize = 2048;
-
     pub fn new(source_code: String, file_name: PathBuf) -> Self {
         let id = Uuid::new_v4();
-        let error_list = Vec::new();
+        let error_list = ErrorList::new();
+        let ast_processor = AstProcessorContext::new();
         Self {
             source_code,
             file_name,
             id,
             error_list,
+            ast_processor,
         }
     }
 
     pub fn load_from_file(path: PathBuf) -> Self {
         let source_code = fs::read_to_string(&path)
             .unwrap_or_else(|_| panic!("Failed to read source file: {:?}", path));
-        println!("{}", source_code);
         let file_name = path
             .file_name()
             .unwrap_or_else(|| panic!("Missing file name: {:?}", path))
@@ -46,12 +39,26 @@ impl CompilationUnit {
             .unwrap_or_else(|| panic!("Failed to convert path: {:?}", path))
             .into();
         let id = Uuid::new_v4();
-        let error_list = Vec::new();
+        let error_list = ErrorList::new();
+        let ast_processor = AstProcessorContext::new();
         Self {
             source_code,
             file_name,
             id,
             error_list,
+            ast_processor,
+        }
+    }
+
+    /// Compiles this compilation unit.
+    pub fn compile(&mut self) -> Result<(), ErrorList> {
+        let root: Result<_, _> = parse_source(&self.source_code);
+        match root {
+            Ok(root) => {
+                self.ast_processor.process_ast(root);
+                Ok(())
+            }
+            Err(e) => Err(e.into()),
         }
     }
 
@@ -65,16 +72,18 @@ impl CompilationUnit {
         &self.file_name
     }
 
-    /// Compiles this compilation unit.
-    pub fn compile(&self) -> Result<(), Vec<Error>> {
-        let root = parse_source(&self.source_code);
-        for k in &root {
-            println!("{:?}", k);
-        }
-        if let Err(e) = root {
-            Result::Err(vec![e])
-        } else {
-            Ok(())
-        }
+    #[inline]
+    pub fn get_id(&self) -> &Uuid {
+        &self.id
+    }
+
+    #[inline]
+    pub fn get_error_list(&self) -> &ErrorList {
+        &self.error_list
+    }
+
+    #[inline]
+    pub fn get_ast_processor_context(&self) -> &AstProcessorContext {
+        &self.ast_processor
     }
 }

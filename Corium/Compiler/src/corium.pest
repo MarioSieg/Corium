@@ -7,7 +7,7 @@ module_def = {
 }
 
 function_def = {
-    "fun " ~ ident ~ sep ~ "(" ~ sep ~ ")" ~ sep ~ "{" ~ sep ~ "}"
+    "fun " ~ ident ~ sep ~ "(" ~ sep ~ ")" ~ (" " ~ qualified_name)? ~ sep ~ "{" ~ sep ~ "}"
 }
 
 sep = _{
