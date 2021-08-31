@@ -351,12 +351,12 @@ namespace Nominax::Foundation
 		const MemoryPageProtectionFlags protectionFlags
 	) -> void*
 	{
-		const LPVOID    argAddress { nullptr };
-		const SIZE_T    argSize { size };
-		constexpr DWORD argAllocType { MEMORY_MAPPING_FLAGS };
-		const DWORD     argProtection { MapOsPageProtectionFlags(protectionFlags) };
-		const DWORD     prevError { GetLastError() };
-		const LPVOID    result { VirtualAlloc(argAddress, argSize, argAllocType, argProtection) };
+		constexpr LPVOID argAddress { nullptr };
+		const SIZE_T     argSize { size };
+		constexpr DWORD  argAllocType { MEMORY_MAPPING_FLAGS };
+		const DWORD      argProtection { MapOsPageProtectionFlags(protectionFlags) };
+		const DWORD      prevError { GetLastError() };
+		const LPVOID     result { VirtualAlloc(argAddress, argSize, argAllocType, argProtection) };
 		SetLastError(prevError);
 		return result;
 	}
