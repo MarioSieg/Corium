@@ -1,6 +1,6 @@
-use super::ast_processor::AstProcessorContext;
-use super::error_list::ErrorList;
-use super::parser::parse_source;
+use crate::ast::processor::AstProcessorContext;
+use crate::error::list::ErrorList;
+use crate::parser::parse_source;
 use std::fs;
 use std::path::PathBuf;
 use uuid::Uuid;

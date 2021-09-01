@@ -1,5 +1,5 @@
-use super::ast::*;
-use super::error_list::ErrorList;
+use crate::ast::*;
+use crate::error::list::ErrorList;
 
 pub struct AstProcessorContext {
     pub error_list: ErrorList,

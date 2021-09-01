@@ -3,6 +3,8 @@ use std::convert;
 use std::fmt;
 use std::iter;
 
+pub mod processor;
+
 pub trait TokenTable: fmt::Display {
     const TOKEN_TABLE: &'static [&'static str];
 
