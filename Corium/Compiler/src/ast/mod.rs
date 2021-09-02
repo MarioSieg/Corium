@@ -1,7 +1,5 @@
-use smallvec::{smallvec, SmallVec};
 use std::convert;
 use std::fmt;
-use std::iter;
 
 pub mod processor;
 pub mod table;
@@ -283,48 +281,10 @@ impl fmt::Display for UnaryOperator {
 /// E. g. TestClass
 /// E. g. Module.TestClass
 /// E. g. Module.TestClass.Function
-#[derive(Debug, Clone)]
-pub struct QualifiedName<'s>(pub SmallVec<[Identifier<'s>; 16]>);
-
-impl<'s> QualifiedName<'s> {
-    pub fn flat(ident: Identifier<'s>) -> Self {
-        Self(smallvec![ident])
-    }
-
-    pub fn nested(idents: &[Identifier<'s>]) -> Self {
-        Self(idents.into())
-    }
-}
-
-impl<'s> AstComponent for QualifiedName<'s> {}
-
-impl<'s> fmt::Display for QualifiedName<'s> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if self.0.len() > 1 {
-            write!(f, "{}", self.0[0])
-        } else {
-            let last = self.0.len() - 1;
-            for (i, submod) in self.0.iter().enumerate() {
-                write!(f, "{}", submod)?;
-                if i != last {
-                    write!(f, "{}", BinaryOperator::Dot)?;
-                }
-            }
-            Ok(())
-        }
-    }
-}
-
-impl<'s> iter::FromIterator<Identifier<'s>> for QualifiedName<'s> {
-    fn from_iter<T: IntoIterator<Item = Identifier<'s>>>(iter: T) -> Self {
-        Self(SmallVec::from_iter::<T>(iter))
-    }
-}
+pub type QualifiedName<'s> = &'s str;
 
 /// Represents an identifier such as a class or variable name.
 pub type Identifier<'s> = &'s str;
-
-impl<'s> AstComponent for Identifier<'s> {}
 
 /// Represents a Corium "int".
 pub type Int = i64;
@@ -340,3 +300,5 @@ pub type Char = u32;
 
 /// Represents the root nodes for a compilation unit.
 pub type RootList<'s> = Vec<Node<'s>>;
+
+impl<'s> AstComponent for &'s str {}

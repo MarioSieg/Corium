@@ -39,7 +39,7 @@ mod visitors {
     use super::*;
 
     pub fn module_def(rule: Pair<Rule>) -> Node {
-        Node::Module(get_qualified_name(rule))
+        Node::Module(get_rule_text(rule))
     }
 
     pub fn function_def(rule: Pair<Rule>) -> Node {
@@ -54,19 +54,12 @@ mod visitors {
     }
 
     pub fn qualified_name(rule: Pair<Rule>) -> Node {
-        Node::QualifiedName(get_qualified_name(rule))
+        Node::QualifiedName(get_rule_text(rule))
     }
 
     pub fn ident(rule: Pair<Rule>) -> Node {
         Node::Identifier(get_rule_text(rule))
     }
-}
-
-#[inline]
-fn get_qualified_name(rule: Pair<Rule>) -> QualifiedName {
-    get_rule_text(rule)
-        .split(&format!("{}", BinaryOperator::Dot))
-        .collect()
 }
 
 #[inline]
