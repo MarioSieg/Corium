@@ -1,14 +1,17 @@
+use crate::ast::table::FunctionTable;
 use crate::ast::*;
 use crate::error::list::ErrorList;
 
-pub struct AstProcessorContext {
+pub struct AstProcessorContext<'a> {
     pub error_list: ErrorList,
+    pub function_table: FunctionTable<'a>,
 }
 
-impl AstProcessorContext {
+impl<'a> AstProcessorContext<'a> {
     pub fn new() -> Self {
         Self {
             error_list: ErrorList::new(),
+            function_table: FunctionTable::new(),
         }
     }
 

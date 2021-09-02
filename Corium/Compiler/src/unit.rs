@@ -7,15 +7,15 @@ use uuid::Uuid;
 
 /// Represents a compilation unit.
 /// Each file contains a single compilation unit.
-pub struct CompilationUnit {
+pub struct CompilationUnit<'a> {
     source_code: String,
     file_name: PathBuf,
     id: Uuid,
     error_list: ErrorList,
-    ast_processor: AstProcessorContext,
+    ast_processor: AstProcessorContext<'a>,
 }
 
-impl CompilationUnit {
+impl<'a> CompilationUnit<'a> {
     pub fn new(source_code: String, file_name: PathBuf) -> Self {
         let id = Uuid::new_v4();
         let error_list = ErrorList::new();

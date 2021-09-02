@@ -27,7 +27,7 @@ impl<'s> AstComponent for Function<'s> {}
 
 impl<'s> fmt::Display for Function<'s> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} (", self.name)?;
+        write!(f, "{}(", self.name)?;
         for param in &self.parameters {
             write!(f, "{}", param)?;
         }

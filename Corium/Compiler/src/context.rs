@@ -1,11 +1,11 @@
 use super::unit::CompilationUnit;
 use std::path::{Path, PathBuf};
 
-pub struct CompilerContext {
-    queue: Vec<CompilationUnit>,
+pub struct CompilerContext<'a> {
+    queue: Vec<CompilationUnit<'a>>,
 }
 
-impl CompilerContext {
+impl<'a> CompilerContext<'a> {
     pub fn new() -> Self {
         Self { queue: Vec::new() }
     }
