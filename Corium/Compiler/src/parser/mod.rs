@@ -65,7 +65,7 @@ mod visitors {
 #[inline]
 fn get_qualified_name(rule: Pair<Rule>) -> QualifiedName {
     get_rule_text(rule)
-        .split(BinaryOperator::Dot.get_token())
+        .split(&format!("{}", BinaryOperator::Dot))
         .collect()
 }
 

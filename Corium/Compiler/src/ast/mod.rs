@@ -4,31 +4,9 @@ use std::fmt;
 use std::iter;
 
 pub mod processor;
+pub mod table;
 
-pub trait TokenTable: fmt::Display {
-    const TOKEN_TABLE: &'static [&'static str];
-
-    fn get_token(&self) -> &'static str;
-}
-
-macro_rules! impl_token_base {
-    ($name:ident, $tokens:expr) => {
-        impl TokenTable for $name {
-            const TOKEN_TABLE: &'static [&'static str] = &$tokens;
-
-            #[inline]
-            fn get_token(&self) -> &'static str {
-                Self::TOKEN_TABLE[*self as usize]
-            }
-        }
-
-        impl fmt::Display for $name {
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                write!(f, "{}", self.get_token())
-            }
-        }
-    };
-}
+pub trait AstComponent: Clone + fmt::Display + fmt::Debug {}
 
 /// Represents an AST node.
 #[derive(Clone, Debug)]
@@ -46,6 +24,8 @@ pub struct Function<'s> {
     pub parameters: Vec<Variable<'s>>,
     pub return_type: Option<TypeName<'s>>,
 }
+
+impl<'s> AstComponent for Function<'s> {}
 
 impl<'s> fmt::Display for Function<'s> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -70,6 +50,8 @@ pub struct Variable<'s> {
     pub value: Option<Box<Expression<'s>>>,
     pub is_parameter: bool,
 }
+
+impl<'s> AstComponent for Variable<'s> {}
 
 impl<'s> fmt::Display for Variable<'s> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -105,6 +87,22 @@ pub enum Expression<'s> {
     },
 }
 
+impl<'s> AstComponent for Expression<'s> {}
+
+impl<'s> fmt::Display for Expression<'s> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Literal(lit) => write!(f, "{}", lit),
+            Self::Unary { op, val } => {
+                write!(f, "{} {}", op, val)
+            }
+            Self::Binary { lhs, op, rhs } => {
+                write!(f, "{} {} {}", lhs, op, rhs)
+            }
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum TypeName<'s> {
     Int,
@@ -114,6 +112,8 @@ pub enum TypeName<'s> {
     String,
     Custom(Identifier<'s>),
 }
+
+impl<'s> AstComponent for TypeName<'s> {}
 
 impl<'s> convert::From<&'s str> for TypeName<'s> {
     fn from(st: &'s str) -> Self {
@@ -160,21 +160,19 @@ pub enum Literal<'s> {
     String(&'s str),
 }
 
-/// Represents the type of a comment.
-#[repr(usize)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum CommentType {
-    /// # comment
-    Line,
+impl<'s> AstComponent for Literal<'s> {}
 
-    /// ##
-    /// bla bla bla
-    /// bla bla
-    /// ##
-    Block,
+impl<'s> fmt::Display for Literal<'s> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Int(x) => write!(f, "{}", x),
+            Self::Float(x) => write!(f, "{}", x),
+            Self::Char(x) => write!(f, "'{}'", x),
+            Self::Bool(x) => write!(f, "{}", x),
+            Self::String(x) => write!(f, "\"{}\"", x),
+        }
+    }
 }
-
-impl_token_base!(CommentType, ["#", "##"]);
 
 /// Represents a binary operator.
 #[repr(usize)]
@@ -232,13 +230,31 @@ pub enum BinaryOperator {
     BitRotationRight,
 }
 
-impl_token_base!(
-    BinaryOperator,
-    [
-        ".", "+", "-", "*", "/", "%", "and", "or", "&", "|", "^", "<<", ">>", "<<+", ">>+", "<<<",
-        ">>>"
-    ]
-);
+impl AstComponent for BinaryOperator {}
+
+impl fmt::Display for BinaryOperator {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Dot => write!(f, "."),
+            Self::Add => write!(f, "+"),
+            Self::Sub => write!(f, "-"),
+            Self::Mul => write!(f, "*"),
+            Self::Div => write!(f, "/"),
+            Self::Mod => write!(f, "%"),
+            Self::And => write!(f, "and"),
+            Self::Or => write!(f, "or"),
+            Self::BitAnd => write!(f, "&"),
+            Self::BitOr => write!(f, "|"),
+            Self::BitXor => write!(f, "^"),
+            Self::BitShiftLeft => write!(f, "<<"),
+            Self::BitShiftRight => write!(f, ">>"),
+            Self::BitShiftLeftUnsigned => write!(f, "<<<"),
+            Self::BitShiftRightUnsigned => write!(f, ">>>"),
+            Self::BitRotationLeft => write!(f, "<<<<"),
+            Self::BitRotationRight => write!(f, ">>>>"),
+        }
+    }
+}
 
 #[repr(usize)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -249,7 +265,18 @@ pub enum UnaryOperator {
     BitNot,
 }
 
-impl_token_base!(UnaryOperator, ["+", "-", "not", "~"]);
+impl AstComponent for UnaryOperator {}
+
+impl fmt::Display for UnaryOperator {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Plus => write!(f, "+"),
+            Self::Minus => write!(f, "-"),
+            Self::Not => write!(f, "not"),
+            Self::BitNot => write!(f, "~"),
+        }
+    }
+}
 
 /// Represents a qualified name - such as a module name or a class type name.
 /// Qualified names can be seperated into sub paths by dots.
@@ -269,6 +296,8 @@ impl<'s> QualifiedName<'s> {
     }
 }
 
+impl<'s> AstComponent for QualifiedName<'s> {}
+
 impl<'s> fmt::Display for QualifiedName<'s> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.0.len() > 1 {
@@ -278,7 +307,7 @@ impl<'s> fmt::Display for QualifiedName<'s> {
             for (i, submod) in self.0.iter().enumerate() {
                 write!(f, "{}", submod)?;
                 if i != last {
-                    write!(f, "{}", BinaryOperator::Dot.get_token())?;
+                    write!(f, "{}", BinaryOperator::Dot)?;
                 }
             }
             Ok(())
@@ -294,6 +323,8 @@ impl<'s> iter::FromIterator<Identifier<'s>> for QualifiedName<'s> {
 
 /// Represents an identifier such as a class or variable name.
 pub type Identifier<'s> = &'s str;
+
+impl<'s> AstComponent for Identifier<'s> {}
 
 /// Represents a Corium "int".
 pub type Int = i64;
