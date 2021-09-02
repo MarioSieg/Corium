@@ -9,6 +9,7 @@ pub mod rule;
 use error::handle_parser_error;
 use rule::RuleStrider;
 
+// Will be replaced by own parser implementation
 #[derive(Parser)]
 #[grammar = "parser/corium.pest"]
 pub struct CoriumParser;
@@ -33,9 +34,12 @@ fn parse_rule_tree(rule: RuleStrider) -> Option<Node> {
     match rule.get_rule() {
         Rule::module_def => Some(visitors::module_def(rule)),
         Rule::function_def => Some(visitors::function_def(rule)),
-        Rule::qualified_name => Some(visitors::qualified_name(rule)),
-        Rule::ident => Some(visitors::ident(rule)),
-        Rule::compilation_unit | Rule::sep | Rule::EOI => None,
+        Rule::qualified_name
+        | Rule::ident
+        | Rule::parameter
+        | Rule::compilation_unit
+        | Rule::sep
+        | Rule::EOI => None,
     }
 }
 
@@ -48,19 +52,29 @@ mod visitors {
 
     pub fn function_def(mut rule: RuleStrider) -> Node {
         let name = rule.next().unwrap().as_str();
-        let return_type = rule.next().map(|name| name.as_str().into());
+        let mut parameters = Vec::new();
+        let mut return_type = None;
+        while let Some(param) = rule.next() {
+            match param.as_rule() {
+                Rule::parameter => {
+                    let var = Variable {
+                        name: param.as_str(),
+                        type_hint: None,
+                        value: None,
+                        is_parameter: true,
+                    };
+                    parameters.push(var);
+                }
+                Rule::qualified_name => {
+                    return_type = Some(param.as_str().into());
+                }
+                _ => (),
+            }
+        }
         Node::Function(Function {
             name,
-            parameters: vec![],
+            parameters,
             return_type,
         })
-    }
-
-    pub fn qualified_name(rule: RuleStrider) -> Node {
-        Node::QualifiedName(rule.decay_str())
-    }
-
-    pub fn ident(rule: RuleStrider) -> Node {
-        Node::Identifier(rule.decay_str())
     }
 }

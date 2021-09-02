@@ -1,6 +1,7 @@
 use crate::ast::table::FunctionTable;
 use crate::ast::*;
 use crate::error::list::ErrorList;
+use std::fmt;
 
 pub struct AstProcessorContext<'a> {
     pub error_list: ErrorList,
@@ -37,8 +38,8 @@ impl<'a> AstProcessorContext<'a> {
         self.current_module = name;
     }
 
-    pub fn process_function(&mut self, func: Function) {
-        println!("FUN: {}", func);
+    pub fn process_function(&mut self, func: Function<'a>) {
+        self.function_table.insert(func.name, func);
     }
 
     pub fn process_qualified_name(&mut self, name: QualifiedName) {
@@ -47,5 +48,15 @@ impl<'a> AstProcessorContext<'a> {
 
     pub fn process_identifier(&mut self, ident: Identifier) {
         println!("IDENT: {}", ident);
+    }
+}
+
+impl<'a> fmt::Display for AstProcessorContext<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "Current module: {:?}", self.current_module)?;
+        for fun in self.function_table.values() {
+            writeln!(f, "{}", fun)?;
+        }
+        Ok(())
     }
 }

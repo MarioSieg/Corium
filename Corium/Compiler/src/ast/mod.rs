@@ -28,8 +28,10 @@ impl<'s> AstComponent for Function<'s> {}
 impl<'s> fmt::Display for Function<'s> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}(", self.name)?;
-        for param in &self.parameters {
-            write!(f, "{}", param)?;
+        let last = self.parameters.len().saturating_sub(1);
+        for (i, param) in self.parameters.iter().enumerate() {
+            let suffix = if i == last { "" } else { ", " };
+            write!(f, "{}{}", param, suffix)?;
         }
         write!(f, ")")?;
         if let Some(ret) = &self.return_type {
@@ -53,19 +55,17 @@ impl<'s> AstComponent for Variable<'s> {}
 
 impl<'s> fmt::Display for Variable<'s> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if self.is_parameter {
+        if !self.is_parameter {
             write!(f, "let ")?;
         }
         write!(f, "{}", self.name)?;
         if let Some(typename) = &self.type_hint {
             write!(f, " {}", typename)?;
-        } else {
-            write!(f, " ")?;
         }
-        if let Some(_value) = &self.value {
-            write!(f, "= !")
+        if let Some(val) = &self.value {
+            write!(f, "{}", val)
         } else {
-            write!(f, "= ?")
+            Ok(())
         }
     }
 }

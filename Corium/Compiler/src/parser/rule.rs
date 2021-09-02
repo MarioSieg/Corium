@@ -30,6 +30,11 @@ impl<'a> RuleStrider<'a> {
     }
 
     #[inline]
+    pub fn peek(&self) -> Option<Pair<'a, Rule>> {
+        self.iter.peek()
+    }
+
+    #[inline]
     pub fn decay_str(mut self) -> &'a str {
         self.next().unwrap().as_str()
     }

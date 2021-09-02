@@ -66,6 +66,7 @@ impl<'a> CompilationUnit<'a> {
             Some(root) => match root {
                 Ok(root) => {
                     self.ast_processor.process_ast(root);
+                    print!("{}", self.ast_processor);
                     Ok(())
                 }
                 Err(e) => Err(e.into()),
