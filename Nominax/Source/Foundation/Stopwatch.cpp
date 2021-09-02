@@ -219,7 +219,7 @@ namespace Nominax::Foundation
 		#else
 		static std::mutex mtx;
 		std::lock_guard<std::mutex> lock(mtx);
-		buffer = *std::localtime(&_time);
+		buffer = *std::localtime(&time);
 		#endif
 		return buffer;
 	}

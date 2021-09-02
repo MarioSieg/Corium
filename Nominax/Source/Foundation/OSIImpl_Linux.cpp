@@ -253,7 +253,7 @@ namespace Nominax::Foundation
 	{
 		static const std::string CPU_NAME
 		{
-			[]
+			[]() -> std::string
 			{
 				std::ifstream cpuinfo { "/proc/cpuinfo" };
 

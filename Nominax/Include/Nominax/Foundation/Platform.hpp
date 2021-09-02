@@ -332,7 +332,7 @@
 
 #define NOX_IS_POSIX (NOX_OS_LINUX || NOX_OS_ANDROID || NOX_OS_MAC || NOX_OS_IOS)
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 #	undef NOX_COM_GCC
 #	define NOX_COM_GCC true
 #	define NOX_COM_NAME "GCC"

@@ -293,7 +293,7 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 		stream << Instruction::Jmp;
 		stream << JumpAddress {0};
 		stream << Instruction::Sto;
-		stream << 1ULL;
+		stream << static_cast<std::uint64_t>(1);
 		stream << -0.5;
 	}
 
@@ -324,7 +324,7 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 		stream << Instruction::Jmp;
 		stream << JumpAddress {0};
 		stream << Instruction::Sto;
-		stream << 1ULL;
+		stream << static_cast<std::uint64_t>(1);
 		stream << -0.5;
 	}
 
