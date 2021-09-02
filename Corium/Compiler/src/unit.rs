@@ -1,7 +1,10 @@
 use crate::ast::processor::AstProcessorContext;
+use crate::ast::RootList;
 use crate::error::list::ErrorList;
+use crate::error::Error;
 use crate::parser::parse_source;
 use std::fs;
+use std::mem::replace;
 use std::path::PathBuf;
 use uuid::Uuid;
 
@@ -12,6 +15,7 @@ pub struct CompilationUnit<'a> {
     file_name: PathBuf,
     id: Uuid,
     error_list: ErrorList,
+    root: Option<Result<RootList<'a>, Error>>,
     ast_processor: AstProcessorContext<'a>,
 }
 
@@ -19,12 +23,14 @@ impl<'a> CompilationUnit<'a> {
     pub fn new(source_code: String, file_name: PathBuf) -> Self {
         let id = Uuid::new_v4();
         let error_list = ErrorList::new();
+        let root = None;
         let ast_processor = AstProcessorContext::new();
         Self {
             source_code,
             file_name,
             id,
             error_list,
+            root,
             ast_processor,
         }
     }
@@ -40,25 +46,31 @@ impl<'a> CompilationUnit<'a> {
             .into();
         let id = Uuid::new_v4();
         let error_list = ErrorList::new();
+        let root = None;
         let ast_processor = AstProcessorContext::new();
         Self {
             source_code,
             file_name,
             id,
             error_list,
+            root,
             ast_processor,
         }
     }
 
     /// Compiles this compilation unit.
-    pub fn compile(&mut self) -> Result<(), ErrorList> {
-        let root: Result<_, _> = parse_source(&self.source_code);
-        match root {
-            Ok(root) => {
-                self.ast_processor.process_ast(root);
-                Ok(())
-            }
-            Err(e) => Err(e.into()),
+    pub fn compile(&'a mut self) -> Result<(), ErrorList> {
+        let src: &'a str = &self.source_code;
+        self.root = Some(parse_source(src));
+        match replace(&mut self.root, None) {
+            Some(root) => match root {
+                Ok(root) => {
+                    self.ast_processor.process_ast(root);
+                    Ok(())
+                }
+                Err(e) => Err(e.into()),
+            },
+            None => panic!("Missing AST root!"),
         }
     }
 

@@ -19,7 +19,7 @@ impl<'a> CompilerContext<'a> {
         &self.queue
     }
 
-    pub fn compile(&mut self) {
+    pub fn compile(&'a mut self) {
         for compilation_unit in &mut self.queue {
             match compilation_unit.compile() {
                 Ok(()) => (),
