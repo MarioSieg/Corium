@@ -288,15 +288,17 @@ TEST(ReactorClass, InterruptHandler)
 TEST(ReactorClass, TryExecuteValid)
 {
 	const EnvironmentDescriptor desc { };
-	Environment                 env { };
+	Environment env { };
 	env.Boot(desc);
-	Stream                                   stream {OptimizationLevel::Off};
-	stream.Prologue().With(2, [](ScopedInt&& var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	}).Epilogue();
+	Stream stream {OptimizationLevel::Off};
+	stream.Prologue();
+    {
+        ScopedInt var { stream, 3 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
+    stream.Epilogue();
 	Image out { };
 	ASSERT_EQ(Stream::Build(stream, env.GetOptimizationHints(), out), ValidationResultCode::Ok);
 	Reactor reactor

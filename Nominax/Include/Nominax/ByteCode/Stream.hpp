@@ -216,7 +216,6 @@
 #include "DiscriminatedSignal.hpp"
 #include "Optimization.hpp"
 #include "ValidationResult.hpp"
-#include "ScopedVariable.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -676,19 +675,6 @@ namespace Nominax::ByteCode
 		auto Epilogue() -> Stream&;
 
 		/// <summary>
-		/// Map new local variable into the stream.
-		/// It is a scoped variable, which means it is automatically popped,
-		/// when it goes out of the lambda scope.
-		/// </summary>
-		/// <typeparam name="F"></typeparam>
-		/// <typeparam name="V"></typeparam>
-		/// <param name="value"></param>
-		/// <param name="functor"></param>
-		/// <returns>self</returns>
-		template <typename F, typename V> requires StreamWithExpressionType<F, V>
-		auto With(V value, F&& functor) -> Stream&;
-
-		/// <summary>
 		/// Validate and build code chunk plus jump map into app code bundle.
 		/// </summary>
 		/// <param name="optInfo"></param>
@@ -761,20 +747,6 @@ namespace Nominax::ByteCode
 	inline auto Stream::Do() -> Stream&
 	{
 		return *this << I;
-	}
-
-	template <typename F, typename V> requires StreamWithExpressionType<F, V>
-	inline auto Stream::With(const V value, F&& functor) -> Stream&
-	{
-		if constexpr (std::is_same_v<std::int32_t, V>)
-		{
-			functor(ScopedVariable<std::int64_t> { *this, static_cast<std::int64_t>(value) });
-		}
-		else
-		{
-			functor(ScopedVariable<V> { *this, value });
-		}
-		return *this;
 	}
 
 	inline auto Stream::Front() const -> DiscriminatedSignal

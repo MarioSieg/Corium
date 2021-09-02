@@ -475,14 +475,15 @@ TEST(Environment, PoolSizeZero)
 
 TEST(Environment, Execution)
 {
-	Stream                                 stream { };
-	stream.Prologue().With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	});
-	stream.Epilogue();
+    Stream stream { };
+	stream.Prologue();
+    {
+        ScopedInt var { stream, 2 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
+    stream.Epilogue();
 
 	const EnvironmentDescriptor descriptor { };
 
@@ -544,14 +545,15 @@ TEST(Environment, ExecutionMissingEpilogue)
 
 TEST(Environment, ExecutionHooks)
 {
-	Stream                                 stream { };
-	stream.Prologue().With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	});
-	stream.Epilogue();
+    Stream stream { };
+    stream.Prologue();
+    {
+        ScopedInt var { stream, 2 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
+    stream.Epilogue();
 
 	const auto ssize {stream.Size()};
 

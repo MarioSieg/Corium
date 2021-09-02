@@ -208,6 +208,7 @@
 #pragma once
 
 #include "Generics.hpp"
+#include "Stream.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -223,24 +224,21 @@ namespace Nominax::ByteCode
 	{
 		friend class Stream;
 
-		/// <summary>
-		/// Create a variable with specified value.
-		/// </summary>
-		/// <param name="attached"></param>
-		/// <param name="value"></param>
-		ScopedVariable(Stream& attached, T value);
-
+        /// <summary>
+        /// Emit pop instruction.
+        /// </summary>
+        /// <returns></returns>
 		static auto EmitPop() -> void;
 
 		/// <summary>
-		/// 
+		/// Emit push instruction.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
 		auto Push(T value) -> ScopedVariable&;
 
 		/// <summary>
-		/// 
+		/// Emit No-Op.
 		/// </summary>
 		/// <returns></returns>
 		auto DoNothing() -> ScopedVariable&;
@@ -251,6 +249,13 @@ namespace Nominax::ByteCode
 		Stream& Attached_;
 
 	public:
+        /// <summary>
+        /// Create a variable with specified value.
+        /// </summary>
+        /// <param name="attached"></param>
+        /// <param name="value"></param>
+        ScopedVariable(Stream& attached, T value);
+
 		/// <summary>
 		/// No copy.
 		/// </summary>
@@ -495,7 +500,7 @@ namespace Nominax::ByteCode
 		#if NOX_DEBUG
 				return this->Attached_.Back().template Unwrap<T>().value();
 		#else
-		return *this->Attached_.Back().template Unwrap<T>();
+		        return *this->Attached_.Back().template Unwrap<T>();
 		#endif
 	}
 
@@ -705,12 +710,7 @@ namespace Nominax::ByteCode
 	using ScopedInt = ScopedVariable<std::int64_t>;
 
 	/// <summary>
-	/// Stream variable with runtime type: uint
-	/// </summary>
-	using ScopedUInt = ScopedVariable<std::uint64_t>;
-
-	/// <summary>
 	/// Stream variable with runtime type: float
 	/// </summary>
-	using ScopedF32 = ScopedVariable<double>;
+	using ScopedFloat = ScopedVariable<double>;
 }

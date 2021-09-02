@@ -291,12 +291,14 @@ TEST(BytecodeStream, CodeGenerationNoOpt)
 {
 	Stream stream {OptimizationLevel::Off};
 
-	stream.Prologue().With(2, [](ScopedInt&& var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	}).Epilogue();
+	stream.Prologue();
+    {
+        ScopedInt var { stream, 2 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
+    stream.Epilogue();
 	ASSERT_EQ(stream.Size(), 15);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
@@ -319,12 +321,14 @@ TEST(BytecodeStream, CodeGenerationOpt3)
 {
 	Stream stream {OptimizationLevel::O3};
 
-	stream.Prologue().With(2, [](ScopedInt&& var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	}).Epilogue();
+    stream.Prologue();
+    {
+        ScopedInt var { stream, 2 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
+    stream.Epilogue();
 	ASSERT_EQ(stream.Size(), 9);
 	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
@@ -341,12 +345,14 @@ TEST(BytecodeStream, GetStreamHeader)
 {
 	Stream stream {OptimizationLevel::O3};
 
-	stream.Prologue().With(2, [](ScopedInt&& var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	}).Epilogue();
+    stream.Prologue();
+    {
+        ScopedInt var { stream, 2 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
+    stream.Epilogue();
 	Stream::SerializationImageHeader header { };
 
 	stream.GetSerializationImageHeader(header);
@@ -366,12 +372,14 @@ TEST(BytecodeStream, SerializeImage)
 {
 	Stream stream {OptimizationLevel::O3};
 
-	stream.Prologue().With(2, [](ScopedInt&& var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	}).Epilogue();
+    stream.Prologue();
+    {
+        ScopedInt var { stream, 2 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
+    stream.Epilogue();
 
 	ASSERT_TRUE(stream.SerializeToDisk("TestStream.img"));
 	std::filesystem::remove("TestStream.img");
@@ -381,12 +389,14 @@ TEST(BytecodeStream, DeserializeImage)
 {
 	Stream stream1 {OptimizationLevel::O3};
 
-	stream1.Prologue().With(2, [](ScopedInt&& var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	}).Epilogue();
+    stream1.Prologue();
+    {
+        ScopedInt var { stream1, 2 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
+    stream1.Epilogue();
 
 	ASSERT_TRUE(stream1.SerializeToDisk("TestStream.img"));
 	Stream stream2 { };
