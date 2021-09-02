@@ -238,11 +238,11 @@ namespace Nominax::Foundation
 		if (!region)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 		auto* const blockOffset { VAH::ComputeRegionStart(region) };
 		auto&       header { VAH::MapHeader(blockOffset) };
-		return OSI::MemoryUnmap(blockOffset, header.Size);
+		return OSI::MemoryUnmap(blockOffset, sizeof(VAH) + header.Size);
 	}
 
 	auto VMM::VirtualProtectPages(void* const region, const MemoryPageProtectionFlags newFlags, const bool locked) -> bool

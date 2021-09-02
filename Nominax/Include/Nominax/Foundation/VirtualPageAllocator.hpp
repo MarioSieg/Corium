@@ -371,5 +371,21 @@ namespace Nominax::Foundation
 		/// <param name="locked">If true enable page protection lock - page protection flags cannot be changed afterwards.</param>
 		/// <returns>true on success, else false.</returns>
 		static auto VirtualProtectPages(void* region, MemoryPageProtectionFlags newFlags, bool locked = false) -> bool;
+
+
+        static auto MapHeaderFromRegion(void* region, VirtualAllocationHeader*& out) -> bool;
 	};
+
+    inline auto VMM::MapHeaderFromRegion(void* const region, VirtualAllocationHeader*& out) -> bool
+    {
+        if (!region)
+        {
+            [[unlikely]]
+            return false;
+        }
+
+        out = &VirtualAllocationHeader::MapHeader(region);
+
+        return true;
+    }
 }
