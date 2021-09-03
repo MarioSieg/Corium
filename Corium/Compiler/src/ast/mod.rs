@@ -1,5 +1,6 @@
 use std::convert;
 use std::fmt;
+use std::fmt::Formatter;
 
 pub mod parse;
 pub mod processor;
@@ -24,6 +25,7 @@ pub struct Function<'s> {
     pub name: Identifier<'s>,
     pub parameters: Vec<Variable<'s>>,
     pub return_type: Option<TypeName<'s>>,
+    pub block: Block<'s>,
 }
 
 impl<'s> AstComponent for Function<'s> {
@@ -40,9 +42,47 @@ impl<'s> fmt::Display for Function<'s> {
         }
         write!(f, ")")?;
         if let Some(ret) = &self.return_type {
-            write!(f, " {}", ret)
-        } else {
-            Ok(())
+            write!(f, " {}", ret)?;
+        }
+        if !self.block.0.is_empty() {
+            writeln!(f)?;
+            for smt in &self.block.0 {
+                writeln!(f, "\t{}", smt)?;
+            }
+        }
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Block<'s>(pub Vec<Statement<'s>>);
+
+impl<'s> AstComponent for Block<'s> {
+    const IS_ATOMIC: bool = false;
+}
+
+impl<'s> fmt::Display for Block<'s> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        for smt in &self.0 {
+            writeln!(f, "{}", smt)?;
+        }
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum Statement<'s> {
+    LocalVariable(Variable<'s>),
+}
+
+impl<'s> AstComponent for Statement<'s> {
+    const IS_ATOMIC: bool = false;
+}
+
+impl<'s> fmt::Display for Statement<'s> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::LocalVariable(var) => write!(f, "{}", var),
         }
     }
 }

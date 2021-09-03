@@ -1,3 +1,4 @@
+use colored::Colorize;
 use std::fmt;
 use std::path::PathBuf;
 
@@ -57,9 +58,19 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Io(path) => write!(f, "Failed to access path: \"{:?}\"", path),
-            Self::Parse(error) => write!(f, "Syntax error: \"{}\"", error),
-            Self::Definition(name) => write!(f, "Symbol already defined: \"{}\"", name),
+            Self::Io(path) => {
+                write!(
+                    f,
+                    "Failed to access path: {}",
+                    format!("\"{:?}\"", path).red()
+                )
+            }
+            Self::Parse(error) => {
+                write!(f, "Syntax error: {}", format!("\"{}\"", error).red())
+            }
+            Self::Definition(name) => {
+                write!(f, "Symbol error: {}", format!("\"{}\"", name).red())
+            }
         }
     }
 }

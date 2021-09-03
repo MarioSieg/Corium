@@ -12,6 +12,10 @@ impl ErrorList {
     pub fn with_capacity(cap: usize) -> Self {
         Self(Vec::with_capacity(cap))
     }
+
+    pub fn push(&mut self, item: Error) {
+        self.0.push(item)
+    }
 }
 
 impl From<Vec<Error>> for ErrorList {

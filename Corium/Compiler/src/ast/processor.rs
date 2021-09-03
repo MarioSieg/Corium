@@ -6,7 +6,7 @@ use std::fmt;
 pub struct AstProcessorContext<'a> {
     pub error_list: ErrorList,
     pub function_table: FunctionTable<'a>,
-    pub current_module: Option<ModuleName<'a>>,
+    pub module: ModuleName<'a>,
 }
 
 impl<'a> AstProcessorContext<'a> {
@@ -14,7 +14,7 @@ impl<'a> AstProcessorContext<'a> {
         Self {
             error_list: ErrorList::new(),
             function_table: FunctionTable::new(),
-            current_module: None,
+            module: ModuleName("default"),
         }
     }
 
@@ -35,7 +35,7 @@ impl<'a> AstProcessorContext<'a> {
     }
 
     pub fn process_module(&mut self, name: ModuleName<'a>) {
-        self.current_module = Some(name);
+        self.module = name;
     }
 
     pub fn process_function(&mut self, func: Function<'a>) {
@@ -53,7 +53,7 @@ impl<'a> AstProcessorContext<'a> {
 
 impl<'a> fmt::Display for AstProcessorContext<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "Current module: {:?}", self.current_module)?;
+        writeln!(f, "Current module: {}", self.module)?;
         for fun in self.function_table.values() {
             writeln!(f, "{}", fun)?;
         }

@@ -1,7 +1,17 @@
 module test
 
 fun test() {
-    noel schwarz
+    let a = 10
+    let b = 2.5
+    let c = true
+    let d = 'x'
+    let e = "Hey"
+
+    let a2 int = 10
+    let b2 float = 2.5
+    let c2 bool = true
+    let d2 char = 'x'
+    let e2 string = "Hey"
 }
 
 fun compute(x int, y int, normalize bool) int {

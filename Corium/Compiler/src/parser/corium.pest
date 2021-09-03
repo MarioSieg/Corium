@@ -7,11 +7,55 @@ module_def = {
 }
 
 function_def = {
-    "fun " ~ ident ~ sep ~ "(" ~ (parameter ~ ("," ~ sep ~ parameter)*)? ~ ")" ~ (" " ~ qualified_name)? ~ sep ~ "{" ~ sep ~ "}"
+    "fun " ~ ident ~ sep ~ "(" ~ parameter_list? ~ ")" ~ (" " ~ qualified_name)? ~ sep ~ "{" ~ block ~ "}"
+}
+
+block = {
+     statement*
+}
+
+statement = {
+    local_variable | NEWLINE | SEPARATOR
+}
+
+local_variable = {
+    "let " ~ ident ~ (" " ~ qualified_name)? ~ sep ~ "=" ~ sep ~ literal ~ NEWLINE
+}
+
+parameter_list = {
+    (parameter ~ ("," ~ sep ~ parameter)*)
 }
 
 parameter = {
     ident ~ " " ~ qualified_name
+}
+
+literal = {
+    float_literal |
+    int_literal |
+    bool_literal |
+    char_literal |
+    string_literal
+}
+
+float_literal = @{
+    ("+" | "-")? ~ (("_"? ~ ASCII_DIGIT)+ ~ "." ~ ("_"? ~ ASCII_DIGIT)+)
+}
+
+int_literal = @{
+    ("+" | "-")? ~ ("_"? ~ ASCII_DIGIT+)
+}
+
+bool_literal = @{
+    "true" | "false"
+}
+
+char_literal = @{
+    "'" ~ char ~ "'"
+}
+
+string_literal = @{
+    "\"" ~ string_inner ~ "\""
 }
 
 sep = _{
@@ -19,9 +63,17 @@ sep = _{
 }
 
 qualified_name = {
-    ASCII_ALPHA+ ~ ("." ~ ASCII_ALPHA+)*
+    ident  ~ ("." ~ ident)*
 }
 
 ident = {
-    ASCII_ALPHA+
+    ASCII_ALPHA ~ ASCII_ALPHANUMERIC*
+}
+
+string_inner = @{ char* }
+
+char = {
+    !("\"" | "\\") ~ ANY
+    | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
+    | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
 }

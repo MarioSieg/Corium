@@ -4,10 +4,11 @@ use pest::Parser;
 use pest_derive::*;
 
 pub mod error;
-pub mod rule;
 
 use error::handle_parser_error;
-use rule::RuleStrider;
+use pest::iterators::{Pair, Pairs};
+
+pub type RuleIterator<'a> = Pairs<'a, Rule>;
 
 // Will be replaced by own parser implementation
 #[derive(Parser)]
@@ -20,7 +21,7 @@ pub fn parse_source(src: &str) -> Result<RootList, Error> {
         Ok(rules) => {
             let mut result = RootList::new();
             for rule in rules {
-                if let Some(node) = parse_rule_tree(RuleStrider::new(rule)) {
+                if let Some(node) = parse_rule_tree(rule) {
                     result.push(node);
                 }
             }
@@ -30,10 +31,12 @@ pub fn parse_source(src: &str) -> Result<RootList, Error> {
     }
 }
 
-fn parse_rule_tree(rule: RuleStrider) -> Option<Node> {
-    match rule.get_rule() {
-        Rule::module_def => Some(ModuleName::parse(rule)),
-        Rule::function_def => Some(Function::parse(rule)),
+fn parse_rule_tree(rule: Pair<Rule>) -> Option<Node> {
+    let ty = rule.as_rule();
+    let rule = rule.into_inner();
+    match ty {
+        Rule::module_def => Some(Node::Module(ModuleName::parse(rule))),
+        Rule::function_def => Some(Node::Function(Function::parse(rule))),
         _ => None,
     }
 }
