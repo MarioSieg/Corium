@@ -17,17 +17,27 @@ machine code buffer for the JIT compiler.
 
 *8/28/2021*<br>
 **Nominax**<br>
-Added a lock to the virtual allocation header,
+A lock to the virtual allocation header,
 which allows the locking of the protection flags. 
 Once locked, you can no longer change the protection of the memory pages
 via the VMM.
 
 *8/29/2021*<br>
 **Nominax**<br>
-Added documentation for the VMM.
-Also refractored the code.
+Ddocumentation for the VMM.
+Refractored the code.
 
 *8/30/2021*<br>
 **Compiler**<br>
-Added support for compilation units, improved the parser.
-Added supports for return types and printing of AST structures.
+Support for compilation units, improved the parser.
+Ssupports for return types and printing of AST structures.
+
+*9/2/2021*<br>
+**Compiler**<br>
+Support for function parameters.
+**Nominax**<br>
+A RAII wrapper for virtual allocated memory: "MappedMemory".
+
+*9/3/2021*<br>
+**Nominax**<br>
+Unit tests for MappedMemory class.
