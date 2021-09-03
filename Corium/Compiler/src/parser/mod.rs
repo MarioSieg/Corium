@@ -16,7 +16,7 @@ pub struct CoriumParser;
 
 pub fn parse_source(src: &str) -> Result<RootList, Error> {
     let content = CoriumParser::parse(Rule::compilation_unit, src);
-    match handle_parser_error(content) {
+    match handle_parser_error(src, content) {
         Ok(rules) => {
             let mut result = RootList::new();
             for rule in rules {

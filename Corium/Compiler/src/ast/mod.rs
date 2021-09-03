@@ -5,7 +5,9 @@ pub mod parse;
 pub mod processor;
 pub mod table;
 
-pub trait AstComponent: Clone + fmt::Display + fmt::Debug {}
+pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
+    const IS_ATOMIC: bool;
+}
 
 /// Represents an AST node.
 #[derive(Clone, Debug)]
@@ -24,7 +26,9 @@ pub struct Function<'s> {
     pub return_type: Option<TypeName<'s>>,
 }
 
-impl<'s> AstComponent for Function<'s> {}
+impl<'s> AstComponent for Function<'s> {
+    const IS_ATOMIC: bool = false;
+}
 
 impl<'s> fmt::Display for Function<'s> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -52,7 +56,9 @@ pub struct Variable<'s> {
     pub is_parameter: bool,
 }
 
-impl<'s> AstComponent for Variable<'s> {}
+impl<'s> AstComponent for Variable<'s> {
+    const IS_ATOMIC: bool = false;
+}
 
 impl<'s> fmt::Display for Variable<'s> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -86,7 +92,9 @@ pub enum Expression<'s> {
     },
 }
 
-impl<'s> AstComponent for Expression<'s> {}
+impl<'s> AstComponent for Expression<'s> {
+    const IS_ATOMIC: bool = false;
+}
 
 impl<'s> fmt::Display for Expression<'s> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -112,7 +120,9 @@ pub enum TypeName<'s> {
     Custom(Identifier<'s>),
 }
 
-impl<'s> AstComponent for TypeName<'s> {}
+impl<'s> AstComponent for TypeName<'s> {
+    const IS_ATOMIC: bool = false;
+}
 
 impl<'s> convert::From<&'s str> for TypeName<'s> {
     fn from(st: &'s str) -> Self {
@@ -159,7 +169,9 @@ pub enum Literal<'s> {
     String(&'s str),
 }
 
-impl<'s> AstComponent for Literal<'s> {}
+impl<'s> AstComponent for Literal<'s> {
+    const IS_ATOMIC: bool = true;
+}
 
 impl<'s> fmt::Display for Literal<'s> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -229,7 +241,9 @@ pub enum BinaryOperator {
     BitRotationRight,
 }
 
-impl AstComponent for BinaryOperator {}
+impl AstComponent for BinaryOperator {
+    const IS_ATOMIC: bool = true;
+}
 
 impl fmt::Display for BinaryOperator {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -264,7 +278,9 @@ pub enum UnaryOperator {
     BitNot,
 }
 
-impl AstComponent for UnaryOperator {}
+impl AstComponent for UnaryOperator {
+    const IS_ATOMIC: bool = true;
+}
 
 impl fmt::Display for UnaryOperator {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -281,7 +297,9 @@ impl fmt::Display for UnaryOperator {
 #[derive(Clone, Debug)]
 pub struct ModuleName<'a>(pub QualifiedName<'a>);
 
-impl<'a> AstComponent for ModuleName<'a> {}
+impl<'a> AstComponent for ModuleName<'a> {
+    const IS_ATOMIC: bool = false;
+}
 
 impl<'a> fmt::Display for ModuleName<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -314,4 +332,6 @@ pub type Char = u32;
 /// Represents the root nodes for a compilation unit.
 pub type RootList<'s> = Vec<Node<'s>>;
 
-impl<'s> AstComponent for &'s str {}
+impl<'s> AstComponent for &'s str {
+    const IS_ATOMIC: bool = true;
+}

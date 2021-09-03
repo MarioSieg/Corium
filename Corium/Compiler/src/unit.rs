@@ -96,7 +96,7 @@ impl<'a> CompilationUnit<'a> {
     }
 
     #[inline]
-    pub fn get_ast_processor_context(&self) -> &AstProcessorContext {
+    pub fn get_ast_processor_context(&'a self) -> &'a AstProcessorContext {
         &self.ast_processor
     }
 }

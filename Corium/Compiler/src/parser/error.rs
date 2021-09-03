@@ -3,9 +3,10 @@ use crate::parser::Rule;
 use pest::error as pe;
 use pest::iterators::Pairs;
 
-pub(super) fn handle_parser_error(
-    result: Result<Pairs<Rule>, pe::Error<Rule>>,
-) -> Result<Pairs<Rule>, Error> {
+pub(super) fn handle_parser_error<'a>(
+    source: &str,
+    result: Result<Pairs<'a, Rule>, pe::Error<Rule>>,
+) -> Result<Pairs<'a, Rule>, Error> {
     if let Err(error) = result {
         let input_location = match error.location {
             pe::InputLocation::Pos(x) => InputLocation::Position(x),
@@ -27,6 +28,7 @@ pub(super) fn handle_parser_error(
             None
         };
         Err(Error::ParseError(ParseError {
+            source: source.to_string(),
             input_location,
             source_location,
             message,
