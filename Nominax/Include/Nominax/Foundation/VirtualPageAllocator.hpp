@@ -373,19 +373,19 @@ namespace Nominax::Foundation
 		static auto VirtualProtectPages(void* region, MemoryPageProtectionFlags newFlags, bool locked = false) -> bool;
 
 
-        static auto MapHeaderFromRegion(void* region, VirtualAllocationHeader*& out) -> bool;
+		static auto MapHeaderFromRegion(void* region, VirtualAllocationHeader*& out) -> bool;
 	};
 
-    inline auto VMM::MapHeaderFromRegion(void* const region, VirtualAllocationHeader*& out) -> bool
-    {
-        if (!region)
-        {
-            [[unlikely]]
-            return false;
-        }
+	inline auto VMM::MapHeaderFromRegion(void* const region, VirtualAllocationHeader*& out) -> bool
+	{
+		if (!region)
+		{
+			[[unlikely]]
+				return false;
+		}
 
-        out = &VirtualAllocationHeader::MapHeader(region);
+		out = &VirtualAllocationHeader::MapHeader(VirtualAllocationHeader::ComputeRegionStart(region));
 
-        return true;
-    }
+		return true;
+	}
 }

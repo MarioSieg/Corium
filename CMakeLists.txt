@@ -12,7 +12,7 @@ ENABLE_TESTING()
 # Set project name:
 PROJECT("Nominax" CXX ASM)
 
-IF (MSVC)
+IF (MSVC AND NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     MESSAGE(FATAL_ERROR, "MSVC is not supported! Please use Clang, GCC, MINGW or any other POSIX like compiler!")
 ENDIF()
 

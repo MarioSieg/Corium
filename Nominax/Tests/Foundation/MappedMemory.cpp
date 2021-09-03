@@ -1,6 +1,6 @@
-// File: AllocatorOverride.cpp
+// File: MappedMemory.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
+// Created: 03.09.2021 11:54 AM
 // Project: Corium
 // 
 //                                  Apache License
@@ -205,84 +205,69 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../TestBase.hpp"
 
-auto operator new(const std::size_t size) -> void*
+TEST(MappedMemory, Allocate)
 {
-	#if NOX_DEBUG
-	void* mem;
-	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-	return mem;
-	#else
-	return std::malloc(size);
-	#endif
+	const auto exec
+	{
+		[]
+		{
+			const MappedMemory mem { sizeof(int) * 2 };
+			ASSERT_NE(mem.GetRegion(), nullptr);
+			ASSERT_EQ(mem.GetSize(), sizeof(int) * 2);
+			ASSERT_FALSE(mem.IsLocked());
+			ASSERT_EQ(mem.GetProtectionFlags(), MemoryPageProtectionFlags::ReadWrite);
+		}
+	};
+	ASSERT_NO_FATAL_FAILURE(exec());
 }
 
-auto operator new[](const std::size_t size) -> void*
+TEST(MappedMemory, Access)
 {
-	#if NOX_DEBUG
-	void* mem;
-	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-	return mem;
-	#else
-	return std::malloc(size);
-	#endif
+	const auto exec
+	{
+		[]
+		{
+			const MappedMemory mem { sizeof(int) * 2 };
+			const auto         a { static_cast<int*>(mem.GetRegion()) };
+			a[0] = 22;
+			a[1] = -10;
+			ASSERT_EQ(a[0], 22);
+			ASSERT_EQ(a[1], -10);
+			ASSERT_EQ(mem.QueryRegion<int>(), 22);
+		}
+	};
+	ASSERT_NO_FATAL_FAILURE(exec());
 }
 
-auto operator new(const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
+TEST(MappedMemory, Lock)
 {
-	#if NOX_DEBUG
-	void* mem;
-	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-	return mem;
-	#else
-	return std::malloc(size);
-	#endif
+	const auto exec
+	{
+		[]
+		{
+			const MappedMemory mem { sizeof(int) * 2 };
+			ASSERT_FALSE(mem.IsLocked());
+			mem.SetLock();
+			ASSERT_TRUE(mem.IsLocked());
+		}
+	};
+	ASSERT_NO_FATAL_FAILURE(exec());
 }
 
-auto operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
+TEST(MappedMemory, MemSet)
 {
-	#if NOX_DEBUG
-	void* mem;
-	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-	return mem;
-	#else
-	return std::malloc(size);
-	#endif
-}
-
-auto operator delete(void* mem) noexcept(true) -> void
-{
-	#if NOX_DEBUG
-	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	#else
-	std::free(mem);
-	#endif
-}
-
-auto operator delete(void* mem, std::size_t) noexcept(true) -> void
-{
-	#if NOX_DEBUG
-	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	#else
-	std::free(mem);
-	#endif
-}
-
-auto operator delete[](void* mem) noexcept(true) -> void
-{
-	#if NOX_DEBUG
-	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	#else
-	std::free(mem);
-	#endif
-}
-
-auto operator delete[](void* mem, std::size_t) noexcept(true) -> void
-{
-	#if NOX_DEBUG
-	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	#else
-	std::free(mem);
-	#endif
+	const auto exec
+	{
+		[]
+		{
+			const MappedMemory mem { sizeof(std::uint8_t) * 2 };
+			mem.MemSet(10);
+			const auto a { static_cast<std::uint8_t*>(mem.GetRegion()) };
+			ASSERT_EQ(a[0], 10);
+			ASSERT_EQ(a[1], 10);
+		}
+	};
+	ASSERT_NO_FATAL_FAILURE(exec());
 }
