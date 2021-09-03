@@ -1,6 +1,7 @@
 use std::convert;
 use std::fmt;
 
+pub mod parse;
 pub mod processor;
 pub mod table;
 
@@ -9,7 +10,7 @@ pub trait AstComponent: Clone + fmt::Display + fmt::Debug {}
 /// Represents an AST node.
 #[derive(Clone, Debug)]
 pub enum Node<'s> {
-    Module(QualifiedName<'s>),
+    Module(ModuleName<'s>),
     Function(Function<'s>),
     QualifiedName(QualifiedName<'s>),
     Identifier(Identifier<'s>),
@@ -273,6 +274,18 @@ impl fmt::Display for UnaryOperator {
             Self::Not => write!(f, "not"),
             Self::BitNot => write!(f, "~"),
         }
+    }
+}
+
+/// Represents a module definition.
+#[derive(Clone, Debug)]
+pub struct ModuleName<'a>(pub QualifiedName<'a>);
+
+impl<'a> AstComponent for ModuleName<'a> {}
+
+impl<'a> fmt::Display for ModuleName<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
