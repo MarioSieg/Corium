@@ -49,17 +49,17 @@ impl fmt::Display for ParseError {
 
 #[derive(Clone, Debug)]
 pub enum Error {
-    IoError(PathBuf),
-    ParseError(ParseError),
-    DefinitionError(String),
+    Io(PathBuf),
+    Parse(ParseError),
+    Definition(String),
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::IoError(path) => write!(f, "Failed to access path: \"{:?}\"", path),
-            Self::ParseError(error) => write!(f, "Syntax error: \"{}\"", error),
-            Self::DefinitionError(name) => write!(f, "Symbol already defined: \"{}\"", name),
+            Self::Io(path) => write!(f, "Failed to access path: \"{:?}\"", path),
+            Self::Parse(error) => write!(f, "Syntax error: \"{}\"", error),
+            Self::Definition(name) => write!(f, "Symbol already defined: \"{}\"", name),
         }
     }
 }

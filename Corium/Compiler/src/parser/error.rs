@@ -27,7 +27,7 @@ pub(super) fn handle_parser_error<'a>(
         } else {
             None
         };
-        Err(Error::ParseError(ParseError {
+        Err(Error::Parse(ParseError {
             source: source.to_string(),
             input_location,
             source_location,
