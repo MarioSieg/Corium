@@ -205,6 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include "../../../Nominax/Include/Nominax/Foundation/Platform.hpp"
 #include "../../../Nominax/Include/Nominax/Core/_Core.hpp"
 
 namespace Nominax::Core
@@ -231,7 +232,7 @@ namespace Nominax::Core
 
 		#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
-// first instruction will be skipped and must be NOP:
+        // first instruction will be skipped and must be NOP:
 		if (CodeChunk->Instr != ByteCode::Instruction::NOp)
 		{
 			[[unlikely]]
