@@ -224,6 +224,7 @@ namespace Nominax::ByteCode
     /// </summary>
     using InstructionOperandTable = std::initializer_list<const TypeIndexBitFlagVector>;
 
+    [[nodiscard]]
     constexpr auto ComputeDiscriminatorBit(const Signal::Discriminator discriminator) -> TypeIndexBitFlagVector
     {
         return static_cast<TypeIndexBitFlagVector>(1) << static_cast<TypeIndexBitFlagVector>(ToUnderlying(discriminator));
@@ -269,8 +270,8 @@ namespace Nominax::ByteCode
         /// </summary>
         static constexpr TypeIndexBitFlagVector ANY_SCALAR_VALUE_TYPE
         {
-                ComputeDiscriminatorBit(Signal::Discriminator::UOffset) |
-                ComputeDiscriminatorBit(Signal::Discriminator::Int) |
+            ComputeDiscriminatorBit(Signal::Discriminator::UOffset)             |
+            ComputeDiscriminatorBit(Signal::Discriminator::Int)                 |
             ComputeDiscriminatorBit(Signal::Discriminator::Float)               |
             ComputeDiscriminatorBit(Signal::Discriminator::CharClusterUtf8)     |
             ComputeDiscriminatorBit(Signal::Discriminator::CharClusterUtf16)    |
@@ -287,8 +288,8 @@ namespace Nominax::ByteCode
             /* cintrin  */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UserIntrinsicInvocationID) },
             /* call     */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UOffset) },
             /* ret      */  InstructionOperandTable { },
-            /* mov      */  InstructionOperandTable {ComputeDiscriminatorBit(Signal::Discriminator::UOffset), ComputeDiscriminatorBit(Signal::Discriminator::UOffset) },
-            /* sto      */  InstructionOperandTable {ComputeDiscriminatorBit(Signal::Discriminator::UOffset), ANY_SCALAR_VALUE_TYPE },
+            /* mov      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UOffset), ComputeDiscriminatorBit(Signal::Discriminator::UOffset) },
+            /* sto      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UOffset), ANY_SCALAR_VALUE_TYPE },
             /* push     */  InstructionOperandTable { ANY_SCALAR_VALUE_TYPE },
             /* pop      */  InstructionOperandTable { },
             /* pop2     */  InstructionOperandTable { },
@@ -346,10 +347,10 @@ namespace Nominax::ByteCode
             /* vpush    */
                             InstructionOperandTable
                             {
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE
                             },
             /* vpop     */  InstructionOperandTable { },
             /* vadd     */  InstructionOperandTable { },
@@ -359,22 +360,22 @@ namespace Nominax::ByteCode
             /* mpush    */
                             InstructionOperandTable
                             {
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
-                                    ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE,
                             },
             /* mpop     */  InstructionOperandTable { },
             /* madd     */  InstructionOperandTable { },
