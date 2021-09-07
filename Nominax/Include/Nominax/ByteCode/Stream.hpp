@@ -881,7 +881,7 @@ namespace Nominax::ByteCode
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { value });
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::UnsignedScalar);
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::UOffset);
 		return *this;
 	}
 

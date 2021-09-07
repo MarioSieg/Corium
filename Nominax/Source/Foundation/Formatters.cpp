@@ -224,7 +224,7 @@ auto formatter<Instruction, char, void>::format
 	(
 		ctx.out(),
 		"{}",
-		INSTRUCTION_MNEMONIC_TABLE[ToUnderlying(value)]
+		InstructionMetaDataRegistry::MNEMONIC_TABLE[ToUnderlying(value)]
 	);
 }
 
@@ -320,7 +320,7 @@ auto formatter<DiscriminatedSignal, char, void>::format
 
 	switch (value.Discriminator)
 	{
-		case Dis::UnsignedScalar:
+		case Dis::UOffset:
 			return format_to(ctx.out(), "*u64 ${}", value.Value.R64.AsU64);
 
 		case Dis::Int:

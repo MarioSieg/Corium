@@ -225,9 +225,9 @@ namespace Nominax::ByteCode
 		enum class Discriminator : std::uint8_t
 		{
 			/// <summary>
-			/// std::uint64_t in record.
+			/// Unsigned 64-bit offset.
 			/// </summary>
-			UnsignedScalar,
+			UOffset = 1,
 
 			/// <summary>
 			/// std::int64_t in record.

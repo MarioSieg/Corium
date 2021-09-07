@@ -296,7 +296,7 @@ namespace Nominax::ByteCode
 	}
 
 	/// <summary>
-	/// 
+	/// Searches for the next discriminator which contains an instruction.
 	/// </summary>
 	/// <param name="current"></param>
 	/// <param name="end"></param>
@@ -321,9 +321,10 @@ namespace Nominax::ByteCode
 	/// <param name="offset"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const std::uint64_t offset) -> std::span<const Signal::Discriminator>
+	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* where, const std::uint64_t offset) -> std::span<const Signal::Discriminator>
 	{
-		return { where + 1, where + 1 + offset };
+        ++where;
+		return { where, where + offset };
 	}
 
 	/// <summary>

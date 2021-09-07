@@ -219,6 +219,6 @@
 #include "Signal.hpp"
 #include "Stream.hpp"
 #include "Transformator.hpp"
-#include "TypeRegistry.hpp"
+#include "InstructionMetaDataRegistry.hpp"
 #include "Validator.hpp"
 #include "ValidationResult.hpp"

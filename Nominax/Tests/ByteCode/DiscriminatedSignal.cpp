@@ -213,7 +213,7 @@ TEST(DiscriminatedSignal, MapStreamType)
 	ASSERT_EQ(MapStreamType<SystemIntrinsicInvocationID>().value(), Signal::Discriminator::SystemIntrinsicInvocationID);
 	ASSERT_EQ(MapStreamType<UserIntrinsicInvocationID>().value(), Signal::Discriminator::UserIntrinsicInvocationID);
 	ASSERT_EQ(MapStreamType<JumpAddress>().value(), Signal::Discriminator::JumpAddress);
-	ASSERT_EQ(MapStreamType<std::uint64_t>().value(), Signal::Discriminator::UnsignedScalar);
+	ASSERT_EQ(MapStreamType<std::uint64_t>().value(), Signal::Discriminator::UOffset);
 	ASSERT_EQ(MapStreamType<std::int64_t>().value(), Signal::Discriminator::Int);
 	ASSERT_EQ(MapStreamType<double>().value(), Signal::Discriminator::Float);
 	ASSERT_EQ(MapStreamType<CharClusterUtf8>().value(), Signal::Discriminator::CharClusterUtf8);

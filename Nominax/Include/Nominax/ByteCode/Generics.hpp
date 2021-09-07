@@ -211,6 +211,7 @@
 #include <optional>
 
 #include "Signal.hpp"
+#include "InstructionMetaDataRegistry.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -255,7 +256,7 @@ namespace Nominax::ByteCode
 		}
 		else if constexpr (std::is_same_v<std::uint64_t, T>)
 		{
-			return { Signal::Discriminator::UnsignedScalar };
+			return { Signal::Discriminator::UOffset };
 		}
 		else if constexpr (std::is_same_v<std::int64_t, T>)
 		{
@@ -331,7 +332,7 @@ namespace Nominax::ByteCode
 	template <const Instruction I, typename... Ts>
 	concept ValidInstruction = requires
 	{
-		requires sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARG_TABLE[ToUnderlying(I)];
+		requires sizeof...(Ts) == InstructionMetaDataRegistry::LookupInstructArgumentCount(I);
 	};
 
 	/// <summary>

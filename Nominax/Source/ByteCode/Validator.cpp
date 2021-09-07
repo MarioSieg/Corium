@@ -215,12 +215,12 @@ namespace Nominax::ByteCode
 	auto ContainsPrologue(const Stream& input) -> bool
 	{
 		constexpr const auto& code { Stream::PrologueCode() };
-		if (input.Size() < code.size())
+		if (input.Size() < std::size(code))
 		{
 			[[unlikely]]
 				return false;
 		}
-		for (std::uint64_t i { 0 }; i < code.size(); ++i)
+		for (std::uint64_t i { 0 }; i < std::size(code); ++i)
 		{
 			if (code[i] != input[i])
 			{
@@ -252,7 +252,8 @@ namespace Nominax::ByteCode
 
 	auto ValidateFullPass
 	(
-		const Stream&        input, UserIntrinsicRoutineRegistry intrinsicRegistry,
+		const Stream& input,
+        UserIntrinsicRoutineRegistry intrinsicRegistry,
 		std::uint32_t* const outIndex
 	) -> ValidationResultCode
 	{
@@ -349,13 +350,12 @@ namespace Nominax::ByteCode
 		std::for_each(std::execution::par_unseq, std::begin(discBuf), std::end(discBuf), validationRoutine);
 
 		// Return error if the error value is not okay
-		if (!error)
-		[[unlikely]]
+		if (!error) [[unlikely]]
 		{
 			if (outIndex)
 			{
 				[[unlikely]]
-					*outIndex = errorIndex.load();
+                *outIndex = errorIndex.load();
 			}
 			return error();
 		}
@@ -363,7 +363,7 @@ namespace Nominax::ByteCode
 		if (outIndex)
 		{
 			[[unlikely]]
-				*outIndex = 0;
+            *outIndex = 0;
 		}
 
 		return ValidationResultCode::Ok;
@@ -394,7 +394,7 @@ namespace Nominax::ByteCode
 	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicInvocationID id) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
-		return NOX_EXPECT_VALUE(ToUnderlying(id) < routines.size(), true);
+		return NOX_EXPECT_VALUE(ToUnderlying(id) < std::size(routines), true);
 	}
 
 	auto ValidateInstructionArguments
@@ -403,36 +403,33 @@ namespace Nominax::ByteCode
 		const std::span<const Signal::Discriminator>& args
 	) -> ValidationResultCode
 	{
+        const std::uint64_t requiredArgSize {InstructionMetaDataRegistry::LookupInstructArgumentCount(instruction) };
+        const std::uint64_t givenArgSize { std::size(args) };
+
 		// First check if the argument count is incorrect:
-		if (LookupInstructionArgumentCount(instruction) > args.size())
+		if (requiredArgSize > givenArgSize)
 		{
 			[[unlikely]]
-				return ValidationResultCode::NotEnoughArgumentsForInstruction;
+            return ValidationResultCode::NotEnoughArgumentsForInstruction;
 		}
 
 		// First check if the argument count is incorrect:
-		if (LookupInstructionArgumentCount(instruction) < args.size())
+		if (requiredArgSize < givenArgSize)
 		{
 			[[unlikely]]
-				return ValidationResultCode::TooManyArgumentsForInstruction;
+            return ValidationResultCode::TooManyArgumentsForInstruction;
 		}
 
-		for (std::uint64_t i { 0 }; i < args.size(); ++i)
+		for (std::uint64_t i { 0 }; i < givenArgSize; ++i)
 		{
 			const Signal::Discriminator discriminator { args[i] };
 
 			// Check if our given type index is within the required indices:
-
-			const TypeIndexTable& required { LookupInstructionArgumentTypes(instruction)[i] };
-			const bool            isWithinAllowedIndices {
-				std::find(std::begin(required), std::end(required), discriminator) != std::end(required)
-			};
-
-			if (!isWithinAllowedIndices)
+			if (!InstructionMetaDataRegistry::IsValidArgumentType(instruction, i, discriminator))
 			{
 				// if not, validation failed:
 				[[unlikely]]
-					return ValidationResultCode::ArgumentTypeMismatch;
+                return ValidationResultCode::ArgumentTypeMismatch;
 			}
 		}
 
