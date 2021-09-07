@@ -482,3 +482,8 @@
 /// Marks that a routine is implemented in assembler code.
 /// </summary>
 #define NOX_ASM_ROUTINE
+
+/// <summary>
+/// Marks a reactor routine.
+/// </summary>
+#define NOX_REACTOR_ROUTINE                 NOX_FORCE_INLINE NOX_HOT

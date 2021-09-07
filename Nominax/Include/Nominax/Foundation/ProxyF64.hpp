@@ -212,11 +212,11 @@
 namespace Nominax::Foundation
 {
 	/// <summary>
-		/// Proxy gate for correct float comparison based on macro config.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <returns></returns>
-	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsZero(const double x) -> bool
+    /// Proxy gate for correct float comparison based on macro config.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    NOX_REACTOR_ROUTINE NOX_PURE inline auto Proxy_F64IsZero(const double x) -> bool
 	{
 		#if NOX_OPT_USE_ZERO_EPSILON
 		return F64IsZero(x);
@@ -230,7 +230,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsOne(const double x) -> bool
+    NOX_REACTOR_ROUTINE NOX_PURE inline auto Proxy_F64IsOne(const double x) -> bool
 	{
 		#if NOX_OPT_USE_ZERO_EPSILON
 		return F64IsOne(x);
@@ -244,7 +244,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64Equals(const double x, const double y) -> bool
+    NOX_REACTOR_ROUTINE NOX_PURE inline auto Proxy_F64Equals(const double x, const double y) -> bool
 	{
 		#if NOX_OPT_USE_ZERO_EPSILON
 		return F64Equals(x, y);

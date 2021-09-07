@@ -271,17 +271,17 @@ namespace Nominax::Foundation
 	) -> std::uint32_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
-				return _rotl(value, shift);
+			return _rotl(value, shift);
 		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-				asm volatile
-					(
-						"roll %%cl, %0"
-						: "=r"(value)
-						: "0" (value), "c"(shift)
-						);
-				return value;
+			asm volatile
+			(
+				"roll %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
 		#else
-		return RolGeneric<decltype(value)>(value, shift);
+			return RolGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
@@ -289,24 +289,24 @@ namespace Nominax::Foundation
 	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE inline auto Ror32
+	NOX_REACTOR_ROUTINE NOX_PURE inline auto Ror32
 	(
 		std::uint32_t      value,
 		const std::uint8_t shift
 	) -> std::uint32_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
-				return _rotr(value, shift);
+			return _rotr(value, shift);
 		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-				asm volatile
-					(
-						"rorl %%cl, %0"
-						: "=r"(value)
-						: "0" (value), "c"(shift)
-						);
-				return value;
+			asm volatile
+			(
+				"rorl %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
 		#else
-		return RorGeneric<decltype(value)>(value, shift);
+			return RorGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
@@ -314,24 +314,24 @@ namespace Nominax::Foundation
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE inline auto Rol64
+	NOX_REACTOR_ROUTINE NOX_PURE inline auto Rol64
 	(
 		std::uint64_t      value,
 		const std::uint8_t shift
 	) -> std::uint64_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
-				return _rotl64(value, shift);
+			return _rotl64(value, shift);
 		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-				asm volatile
-					(
-						"rolq %%cl, %0"
-						: "=r"(value)
-						: "0" (value), "c"(shift)
-						);
-				return value;
+			asm volatile
+			(
+				"rolq %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
 		#else
-		return RolGeneric<decltype(value)>(value, shift);
+			return RolGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
@@ -339,33 +339,33 @@ namespace Nominax::Foundation
 	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE inline auto Ror64
+	NOX_REACTOR_ROUTINE NOX_PURE inline auto Ror64
 	(
 		std::uint64_t      value,
 		const std::uint8_t shift
 	) -> std::uint64_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
-				return _rotr64(value, shift);
+			return _rotr64(value, shift);
 		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-				asm volatile
-					(
-						"rorq %%cl, %0"
-						: "=r"(value)
-						: "0" (value), "c"(shift)
-						);
-				return value;
+			asm volatile
+			(
+				"rorq %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
 		#else
-		return RorGeneric<decltype(value)>(value, shift);
+			return RorGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
 	/// <summary>
-		/// Returns true if x is a power of two.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="x"></param>
-		/// <returns></returns>
+	/// Returns true if x is a power of two.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T>
 	constexpr auto IsPowerOfTwo(const T x) -> bool
 	{
