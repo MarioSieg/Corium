@@ -296,7 +296,7 @@ pub enum InstructionCategory {
     Branching = 0x02,
     Arithmetic = 0x03,
     BitWise = 0x04,
-    VectorSimd = 0x05,
+    VectorArithmetic = 0x05,
 }
 
 impl Instruction {
@@ -375,16 +375,16 @@ impl Instruction {
         InstructionCategory::Arithmetic,
         InstructionCategory::Memory,
         InstructionCategory::Memory,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
         InstructionCategory::Memory,
         InstructionCategory::Memory,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
     ];
 
     pub const PUSH_RECORD_TABLE: [u8; Instruction::Count_ as usize] = [

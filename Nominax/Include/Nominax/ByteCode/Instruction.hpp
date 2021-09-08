@@ -309,7 +309,7 @@ namespace Nominax::ByteCode
 		Branching = 0x02,
 		Arithmetic = 0x03,
 		BitWise = 0x04,
-		VectorSimd = 0x05
+		VectorArithmetic = 0x05
 	};
 
 	/// <summary>
