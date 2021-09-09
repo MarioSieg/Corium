@@ -783,9 +783,9 @@ namespace Nominax::Core
 		this->AppName = descriptor.AppName;
 	}
 
-	auto Environment::ContextDeleter::operator()(Context* const kernel) const -> void
+	auto Environment::ContextDeleter::operator()(Context* const context) const -> void
 	{
-		delete kernel;
+		delete context;
 	}
 
 	auto Environment::OnPreBootHook() -> bool
@@ -836,7 +836,7 @@ namespace Nominax::Core
 		if (this->Context_)
 		{
 			[[unlikely]]
-				return;
+            return;
 		}
 
 		// Basic setup:
@@ -905,9 +905,9 @@ namespace Nominax::Core
 		Print
 		(
 			"Runtime environment online!\n"
-			"Process memory snapshot: {:.02f} % [{} MB / {} MB]\n"
-			"Monotonic boot pool snapshot:	 {:.02f} % [{} KB / {} KB]\n"
-			"Monotonic system pool snapshot: {:.02f} % [{} MB / {} MB]\n"
+			"Process memory snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
+			"Monotonic boot pool snapshot:	 {:.1f} % [{:.1f} KB / {:.1f} KB]\n"
+			"Monotonic system pool snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
 			"Boot time: {}\n"
 			"\n",
 			memUsagePercent,

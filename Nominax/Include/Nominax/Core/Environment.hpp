@@ -239,7 +239,7 @@ namespace Nominax::Core
 		/// </summary>
 		struct ContextDeleter final
 		{
-			auto operator()(Context* kernel) const -> void;
+			auto operator()(Context* context) const -> void;
 		};
 
 		/// <summary>
