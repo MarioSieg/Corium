@@ -305,29 +305,29 @@ namespace Nominax::Core
 	};
 
 	/// <summary>
-	/// Helpers to quickly execute a reactor with specified cpu features.
-	/// Good for testing and debugging.
-	/// </summary>
-	/// <param name="target"></param>
-	/// <param name="input"></param>
-	/// <param name="output"></param>
-	/// <param name="outJumpTable"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	extern auto SingletonExecutionProxy
-	(
-		const VerboseReactorDescriptor&       input,
-		ReactorState&                         output,
-		const Foundation::CPUFeatureDetector& target,
-		const void****                        outJumpTable = nullptr
-	) -> const ReactorState&;
-
-	/// <summary>
 	/// Queries the jump table from the specified reactor routine.
 	/// </summary>
 	/// <param name="routine"></param>
 	/// <returns></returns>
-	extern auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**;
+	extern auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> JumpTable;
+
+    /// <summary>
+    /// Helpers to quickly execute a reactor with specified cpu features.
+    /// Good for testing and debugging.
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="input"></param>
+    /// <param name="output"></param>
+    /// <param name="outJumpTable"></param>
+    /// <returns></returns>
+    [[nodiscard]]
+    extern auto SingletonExecutionProxy
+    (
+        const VerboseReactorDescriptor& input,
+        ReactorState& output,
+        const Foundation::CPUFeatureDetector& target,
+        JumpTable* outJumpTable = nullptr
+    ) -> const ReactorState&;
 
 	/// <summary>
 	/// Proxy function to perform a single reactor
@@ -338,8 +338,8 @@ namespace Nominax::Core
 	/// <returns></returns>
 	extern auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor&       input,
-		const Foundation::CPUFeatureDetector& target       = { },
-		const void****                        outJumpTable = nullptr
+		const VerboseReactorDescriptor& input,
+		const Foundation::CPUFeatureDetector& target = { },
+        JumpTable* outJumpTable = nullptr
 	) -> ReactorState;
 }

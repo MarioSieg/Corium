@@ -237,28 +237,37 @@ namespace Nominax::ByteCode
 
 		output = Image { std::move(input.GetCodeBuffer()) };
 
-		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-		const auto* const NOX_RESTRICT                     discriminators { &*std::begin(input.GetDiscriminatorBuffer()) };
-		const auto* const NOX_RESTRICT* const NOX_RESTRICT jumpTable { &optHints.JumpTable };
-		const auto* const NOX_RESTRICT                     base { output.GetBlobData() };
-		const auto* const NOX_RESTRICT                     begin { &*std::begin(output) };
+        [[maybe_unused]]
+        const auto mapAddressRanges
+        {
+            [&]
+            {
+                const Signal::Discriminator* const NOX_RESTRICT discriminators { &*std::begin(input.GetDiscriminatorBuffer()) };
+                const Signal* const NOX_RESTRICT base { output.GetBlobData() };
+                const Signal* const NOX_RESTRICT begin { &*std::begin(output) };
+                Core::JumpTable const NOX_RESTRICT jumpTable { optHints.JTable };
 
-		const auto addressMapper
-		{
-			[=](Signal& x)
-			{
-				const Signal::Discriminator discriminator { discriminators[&x - begin] };
-				if (discriminator == Signal::Discriminator::Instruction)
-				{
-					x.Ptr = const_cast<void*>(*(jumpTable + x.OpCode));
-				}
-				else if (discriminator == Signal::Discriminator::JumpAddress)
-				{
-					x.Ptr = const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress));
-				}
-			}
-		};
-		std::for_each(std::execution::par_unseq, std::begin(output), std::end(output), addressMapper);
+                const auto addressMapper
+                {
+                    [=](Signal& x)
+                    {
+                        const Signal::Discriminator discriminator { discriminators[&x - begin] };
+                        if (discriminator == Signal::Discriminator::Instruction)
+                        {
+                            x.Ptr = const_cast<void*>(*(jumpTable + x.OpCode));
+                        }
+                        else if (discriminator == Signal::Discriminator::JumpAddress)
+                        {
+                            x.Ptr = const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress));
+                        }
+                    }
+                };
+                std::for_each(std::execution::par_unseq, std::begin(output), std::end(output), addressMapper);
+            }
+        };
+
+		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
+            mapAddressRanges();
 		#endif
 	}
 }

@@ -224,20 +224,23 @@ namespace Nominax::Core
 	{
 		NOX_PAS_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
 
-		Foundation::Print("Initializing reactor pool...\n", reactorCount);
+		Foundation::Print("Initializing Reactor Pool...\n", reactorCount);
 		Foundation::Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT, FALLBACK_REACTOR_COUNT, reactorCount);
 
 		this->Pool_.reserve(reactorCount);
-		for (std::uint64_t i { 0 }; i < reactorCount; ++i)
+		for (std::uint64_t poolIdx { 0 }; poolIdx < reactorCount; ++poolIdx)
 		{
 			if (!routineLink)
 			{
 				[[unlikely]]
-					Print(Foundation::LogLevel::Warning, "No reactor routine link specified. Using fallback reactor!\n");
+                Print(Foundation::LogLevel::Warning, "No reactor routine link specified. Using fallback reactor!\n");
 			}
 			Reactor reactor
 			{
-				allocator, config, routineLink ? *routineLink : HyperVisor::GetFallbackRoutineLink(), i
+                allocator,
+                config,
+                routineLink ? *routineLink : HyperVisor::GetFallbackRoutineLink(),
+                poolIdx
 			};
 			this->Pool_.emplace_back(std::move(reactor));
 		}
@@ -249,6 +252,6 @@ namespace Nominax::Core
 	{
 		const auto size { std::size(this->Pool_) };
 		this->Pool_.clear();
-		Foundation::Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
+		Foundation::Print("Reactor Pool Destroyed! -> {} Reactors Offline\n", size);
 	}
 }

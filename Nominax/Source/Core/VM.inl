@@ -620,8 +620,8 @@ namespace Nominax::Core
 	NOX_HOT auto NOX_REACTOR_IMPL_NAME
 	(
 		const VerboseReactorDescriptor* input,
-		ReactorState*                   output,
-		const void****                  outJumpTable
+		ReactorState* const output,
+		JumpTable* const outJumpTable
 	) -> bool
 	{
 		static constexpr std::array<const void* NOX_RESTRICT const, ToUnderlying(Instruction::Count_)> JUMP_TABLE
@@ -703,15 +703,15 @@ namespace Nominax::Core
 
 		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
 
-		if (outJumpTable)
-		{
-			**outJumpTable = const_cast<const void**>(std::data(JUMP_TABLE));
-			return true;
-		}
+        if (outJumpTable)
+        {
+            *outJumpTable = std::data(JUMP_TABLE);
+            return true;
+        }
 
 		if (!input || !output)
 		{
-			[[unlikely]]
+            [[unlikely]]
             return false;
 		}
 

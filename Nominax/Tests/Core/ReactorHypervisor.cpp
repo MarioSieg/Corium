@@ -210,23 +210,21 @@
 TEST(ReactorHypervisor, GetFallbackRoutine)
 {
 	ASSERT_EQ(HyperVisor::GetFallbackRoutineLink().Specialization, ReactorCoreSpecialization::Fallback);
-	ASSERT_NE(HyperVisor::GetFallbackRoutineLink().JumpTable, nullptr);
 	ASSERT_EQ(HyperVisor::GetFallbackRoutineLink().ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback));
 }
 
 TEST(ReactorHypervisor, GetDebugRoutine)
 {
 	ASSERT_EQ(HyperVisor::GetDebugRoutineLink().Specialization, ReactorCoreSpecialization::Debug);
-	ASSERT_NE(HyperVisor::GetDebugRoutineLink().JumpTable, nullptr);
 	ASSERT_EQ(HyperVisor::GetDebugRoutineLink().ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Debug));
 }
 
 TEST(ReactorHypervisor, ReactorRegistry)
 {
 	#if NOX_ARCH_X86_64
-	ASSERT_EQ(HyperVisor::GetReactorRegistry().size(), static_cast<std::uint64_t>(ReactorCoreSpecialization::Count));
+	    ASSERT_EQ(HyperVisor::GetReactorRegistry().size(), static_cast<std::uint64_t>(ReactorCoreSpecialization::Count));
 	#elif NOX_ARCH_ARM_64
-	ASSERT_EQ(HyperVisor::GetReactorRegistry().size(), static_cast<std::uint64_t>(ReactorCoreSpecialization::Count));
+	    ASSERT_EQ(HyperVisor::GetReactorRegistry().size(), static_cast<std::uint64_t>(ReactorCoreSpecialization::Count));
 	#endif
 }
 
@@ -262,7 +260,6 @@ TEST(ReactorHypervisor, GetOptimalReactorRoutine)
 	const ReactorRoutineLink                          data {HyperVisor::GetOptimalReactorRoutine(*reinterpret_cast<CPUFeatureDetector*>(featuress.data()))};
 	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::Fallback);
 	ASSERT_EQ(data.ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback));
-	ASSERT_NE(data.JumpTable, nullptr);
 }
 
 #if NOX_ARCH_X86_64
@@ -334,7 +331,6 @@ TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx)
 	const ReactorRoutineLink data {HyperVisor::GetOptimalReactorRoutine(features)};
 	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::X86_64_AVX);
 	ASSERT_EQ(data.ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX));
-	ASSERT_NE(data.JumpTable, nullptr);
 }
 
 TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx512)
@@ -344,7 +340,6 @@ TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx512)
 	const ReactorRoutineLink data {HyperVisor::GetOptimalReactorRoutine(features)};
 	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::X86_64_AVX512F);
 	ASSERT_EQ(data.ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX512F));
-	ASSERT_NE(data.JumpTable, nullptr);
 }
 
 #endif

@@ -1052,7 +1052,7 @@ namespace Nominax::Core
 	auto Environment::GetOptimizationHints() const -> ByteCode::OptimizationHints
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		const void*& jumpTable { *this->Context_->OptimalReactorRoutine.JumpTable };
+        JumpTable jumpTable { this->Context_->OptimalReactorRoutine.JTable };
 		return
 		{
 			jumpTable

@@ -208,7 +208,9 @@
 #pragma once
 
 #include <cstdint>
+
 #include "../Foundation/Platform.hpp"
+#include "../Core/ReactorCoreHypervisor.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -237,6 +239,6 @@ namespace Nominax::ByteCode
 	/// </summary>
 	struct OptimizationHints final
 	{
-		const void*& JumpTable;
+        Core::JumpTable const JTable;
 	};
 }

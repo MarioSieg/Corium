@@ -212,10 +212,8 @@ TEST(Reactor, QueryJumpTable)
 	const VerboseReactorDescriptor reactorDescriptor { };
 	auto                           backup {reactorDescriptor};
 
-	const void**  jumpTable { };
-	const void*** proxy {&jumpTable};
-	ASSERT_NE(proxy, nullptr);
-	ASSERT_NO_FATAL_FAILURE(SingletonExecutionProxy(reactorDescriptor, {}, &proxy));
+	JumpTable jumpTable { };
+	ASSERT_NO_FATAL_FAILURE(SingletonExecutionProxy(reactorDescriptor, {}, &jumpTable));
 	ASSERT_NE(jumpTable, nullptr);
 	ASSERT_EQ(std::memcmp(&reactorDescriptor, &backup, sizeof reactorDescriptor), 0);
 	for (std::uint64_t i {0}; i < ToUnderlying(Instruction::Count_); ++i)
@@ -226,7 +224,7 @@ TEST(Reactor, QueryJumpTable)
 
 TEST(Reactor, QueryJumpTableViaHypervisor)
 {
-	const void** jumpTable {QueryJumpTable(*HyperVisor::GetOptimalReactorRoutine({ }).ExecutionRoutine)};
+	JumpTable jumpTable {QueryJumpTable(HyperVisor::GetOptimalReactorRoutine({ }).ExecutionRoutine)};
 	ASSERT_NE(jumpTable, nullptr);
 	for (std::uint64_t i {0}; i < ToUnderlying(Instruction::Count_); ++i)
 	{

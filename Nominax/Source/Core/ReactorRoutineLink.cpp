@@ -212,13 +212,13 @@ namespace Nominax::Core
 	ReactorRoutineLink::ReactorRoutineLink
 	(
 		const ReactorCoreSpecialization    specialization,
-		ReactorCoreExecutionRoutine* const executionRoutine,
-		const void** const                 jumpTable
+		ReactorCoreExecutionRoutine& executionRoutine,
+		JumpTable jumpTable
 	) : Specialization { specialization },
 	    ExecutionRoutine { executionRoutine },
-	    JumpTable { jumpTable }
+	    JTable { jumpTable }
 	{
 		NOX_PAS_NOT_NULL(this->ExecutionRoutine, "Routine for reactor routine link is null!");
-		NOX_PAS_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
+		NOX_PAS_NOT_NULL(this->JTable, "Jump table for reactor routine link is null!");
 	}
 }

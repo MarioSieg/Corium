@@ -271,8 +271,10 @@ namespace Nominax::Core
 		}
 	}
 
+    using JumpTable = const void* const NOX_RESTRICT*;
+
 	/// <summary>
 	/// Signature of the reactor core execution routine.
 	/// </summary>
-	using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor* descriptor, ReactorState* outputState, const void**** jumpTableQuery) -> bool;
+	using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor* descriptor, ReactorState* outputState, JumpTable* jumpTableQuery) -> bool;
 }

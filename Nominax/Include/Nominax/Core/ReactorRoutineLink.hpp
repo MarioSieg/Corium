@@ -224,12 +224,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// Execution routine link.
 		/// </summary>
-		ReactorCoreExecutionRoutine* const ExecutionRoutine;
+		ReactorCoreExecutionRoutine& ExecutionRoutine;
 
 		/// <summary>
 		/// Jump table link.
 		/// </summary>
-		const void** const JumpTable;
+		JumpTable JTable;
 
 		/// <summary>
 		/// Construct and validate parameters.
@@ -240,9 +240,9 @@ namespace Nominax::Core
 		/// <param name="jumpTable"></param>
 		ReactorRoutineLink
 		(
-			ReactorCoreSpecialization    specialization,
-			ReactorCoreExecutionRoutine* executionRoutine,
-			const void**                 jumpTable
+			ReactorCoreSpecialization specialization,
+			ReactorCoreExecutionRoutine& executionRoutine,
+			JumpTable jumpTable
 		);
 	};
 

@@ -218,7 +218,7 @@ namespace Nominax::Core
 	(											\
 		const VerboseReactorDescriptor* input,	\
 		ReactorState* output,					\
-		const void**** outJumpTable = nullptr	\
+		JumpTable* outJumpTable = nullptr	    \
 	) -> bool;
 
 	/// <summary>

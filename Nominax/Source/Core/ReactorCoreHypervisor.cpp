@@ -216,11 +216,12 @@ namespace Nominax::Core
 	(
 		const VerboseReactorDescriptor& input,
         const Foundation::CPUFeatureDetector& target,
-		const void****                  outJumpTable
+        JumpTable* const outJumpTable
 	) ->  ReactorState
 	{
 		ReactorState output { .Input = &input };
-		const ReactorState& result { SingletonExecutionProxy(input, output, target, outJumpTable) };
+        [[maybe_unused]]
+		const auto& _ { SingletonExecutionProxy(input, output, target, outJumpTable) };
 		return output;
 	}
 
@@ -269,11 +270,11 @@ namespace Nominax::Core
 	{
 		constexpr auto specialization { ReactorCoreSpecialization::Fallback };
 
-		ReactorCoreExecutionRoutine* const routine
+		ReactorCoreExecutionRoutine& routine
 		{
-			GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)
+			*GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)
 		};
-		const void** const jumpTable { QueryJumpTable(*routine) };
+		JumpTable const jumpTable { QueryJumpTable(routine) };
 		return
 		{
 			specialization,
@@ -286,11 +287,11 @@ namespace Nominax::Core
 	{
 		constexpr auto specialization { ReactorCoreSpecialization::Debug };
 
-		ReactorCoreExecutionRoutine* const routine
+		ReactorCoreExecutionRoutine& routine
 		{
-			GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Debug)
+			*GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Debug)
 		};
-		const void** const jumpTable { QueryJumpTable(*routine) };
+		JumpTable const jumpTable { QueryJumpTable(routine) };
 		return
 		{
 			specialization,
@@ -312,12 +313,12 @@ namespace Nominax::Core
 	auto HyperVisor::GetOptimalReactorRoutine(const Foundation::CPUFeatureDetector& features) -> ReactorRoutineLink
 	{
 		static thread_local constinit std::uint16_t QueryCounter;
-		ReactorCoreSpecialization                   specialization { SmartSelectReactor(features) };
-		ReactorCoreExecutionRoutine*                routine { GetReactorRoutineFromRegistryByTarget(specialization) };
-		const void**                                jumpTable { QueryJumpTable(*routine) };
+		ReactorCoreSpecialization specialization { SmartSelectReactor(features) };
+		ReactorCoreExecutionRoutine& routine { *GetReactorRoutineFromRegistryByTarget(specialization) };
+		JumpTable jumpTable { QueryJumpTable(routine) };
 		Foundation::Print
 		(
-			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry WordSize: {}\n",
+			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Hypervisor Registry Size: {}\n",
 			GetReactorCoreSpecializationName(specialization),
 			static_cast<std::uint64_t>(specialization),
 			++QueryCounter,
@@ -326,9 +327,12 @@ namespace Nominax::Core
 		if (QueryCounter > 1)
 		{
 			[[unlikely]]
-				Print(Foundation::LogLevel::Warning,
-				      "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n",
-				      QueryCounter);
+            Print
+            (
+                Foundation::LogLevel::Warning,
+                "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n",
+                QueryCounter
+            );
 		}
 		return
 		{
@@ -343,19 +347,17 @@ namespace Nominax::Core
 		const VerboseReactorDescriptor& input,
 		ReactorState& output,
 		const Foundation::CPUFeatureDetector& target,
-		const void**** outJumpTable
+		JumpTable* outJumpTable
 	) -> const ReactorState&
 	{
 		const bool result { HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable) };
-		NOX_DBG_PAS_TRUE(result, "Singleton execution proxy execution routine returned false!");
+		NOX_PAS_TRUE(result, "Singleton execution proxy execution routine returned false!");
 		return output;
 	}
 
-	auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**
+	auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> JumpTable
 	{
-		const void**   jumpTable { };
-		const void***  proxy { &jumpTable };
-		const void**** writer { &proxy };
-		return routine(nullptr, nullptr, writer) ? jumpTable : nullptr;
+        JumpTable output { nullptr };
+		return routine(nullptr, nullptr, &output) ? output : nullptr;
 	}
 }
