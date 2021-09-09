@@ -223,11 +223,11 @@ constexpr std::array MOCK_INTRINSIC_ROUTINE_TABLE
 
 constexpr auto MOCK_STACK_SIZE = 32; // 32 records
 
-inline constinit std::array<Record, MOCK_STACK_SIZE> MockStack {Record::Padding()};
+inline constinit std::array<Record, MOCK_STACK_SIZE> MockStack { Record::Padding() };
 
 constexpr InterruptRoutineProxy* MOCK_INTERRUPT_HANDLER
 {
-	+[](InterruptAccumulator) -> void { }
+	+[](InterruptStatus) { }
 };
 
 constexpr VerboseReactorDescriptor MOCK_REACTOR_INPUT

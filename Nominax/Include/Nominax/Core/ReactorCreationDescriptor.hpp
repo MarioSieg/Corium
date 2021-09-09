@@ -211,7 +211,7 @@
 #include "../ByteCode/Instruction.hpp"
 
 #include "FixedStack.hpp"
-#include "Interrupt.hpp"
+#include "InterruptStatus.hpp"
 
 namespace Nominax::Core
 {
@@ -247,7 +247,7 @@ namespace Nominax::Core
 		ByteCode::UserIntrinsicRoutineRegistry SharedIntrinsicTable { };
 
 		/// <summary>
-		/// Interrupt handler.
+		/// InterruptStatus handler.
 		/// </summary>
 		InterruptRoutineProxy* InterruptHandler { };
 

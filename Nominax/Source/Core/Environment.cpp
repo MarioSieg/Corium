@@ -923,58 +923,49 @@ namespace Nominax::Core
 		);
 	}
 
-	auto Environment::Execute(const ByteCode::Image& image) -> ExecutionResult
-	{
-		using namespace Foundation;
-		using std::chrono::duration_cast;
-		using std::chrono::duration;
+	auto Environment::Execute(const ByteCode::Image& image) -> const ReactorState&
+    {
+        using namespace Foundation;
+        using std::chrono::duration_cast;
+        using std::chrono::duration;
 
-		VALIDATE_ONLINE_BOOT_STATE();
+        VALIDATE_ONLINE_BOOT_STATE();
 
-		// Invoke hook:
-		DISPATCH_HOOK(OnPreExecutionHook, image);
+        // Invoke hook:
+        DISPATCH_HOOK(OnPreExecutionHook, image);
 
-		// Info
-		Print(LogLevel::Warning, "Executing...\n");
-		std::cout.flush();
+        // Info
+        Print(LogLevel::Warning, "Executing...\n");
+        std::cout.flush();
 
-		// Execute on alpha reactor:
-		const auto& [reason, state] { (*this->Context_->CorePool)(image) };
+        // Execute on alpha reactor:
+        const ReactorState& state { (*this->Context_->CorePool)(image) };
+        const InterruptStatus status { state.Status };
 
-		// Add execution time:
-		const auto micros
-		{
-			std::chrono::duration_cast<duration<double, std::micro>>(state.Duration)
-		};
-		this->Context_->ExecutionTimeHistory.emplace_back(micros);
+        // Add execution time:
+        const auto micros { std::chrono::duration_cast<duration<double, std::micro>>(state.Duration) };
+        this->Context_->ExecutionTimeHistory.emplace_back(micros);
 
-		using Rsr = ReactorShutdownReason;
+        // Print exec info:
+        const auto level { status == InterruptStatus::InterruptStatus_OK ? LogLevel::Success : LogLevel::Error };
+        const auto time { duration_cast<duration<double, std::ratio<1>>>(micros) };
+        Print(level, "Execution #{} done! Runtime {:.04}\n", std::size(this->Context_->ExecutionTimeHistory), time);
+        std::cout.flush();
 
-		// Print exec info:
-		const auto level { reason == Rsr::Success ? LogLevel::Success : LogLevel::Error };
-		const auto time { duration_cast<duration<double, std::ratio<1>>>(micros) };
-		Print(level, "Execution #{} done! Runtime {:.04}\n", std::size(this->Context_->ExecutionTimeHistory), time);
-		std::cout.flush();
+        // Invoke hook:
+        DISPATCH_HOOK(OnPostExecutionHook,);
+        return state;
+    }
 
-		// Invoke hook:
-		DISPATCH_HOOK(OnPostExecutionHook,);
-		return
-		{
-			.ShutdownReason = reason,
-			.ReactorResultState = state
-		};
-	}
-
-	auto Environment::Execute(ByteCode::Stream&& stream) -> ExecutionResult
+	auto Environment::Execute(ByteCode::Stream&& stream) -> const ReactorState&
 	{
 		ByteCode::Image codeImage { };
-		const auto      buildResult { ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage) };
+		const ByteCode::ValidationResultCode buildResult { ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage) };
 		NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
-		stream = { };
 		return (*this)(codeImage);
 	}
 
-	auto Environment::Execute(const ByteCode::Stream& stream) -> ExecutionResult
+	auto Environment::Execute(const ByteCode::Stream& stream) -> const ReactorState&
 	{
 		ByteCode::Image codeImage { };
 		const auto      buildResult { ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage) };
@@ -987,7 +978,7 @@ namespace Nominax::Core
 		if (!this->Context_)
 		{
 			[[unlikely]]
-				return;
+            return;
 		}
 
 		// Invoke hook:

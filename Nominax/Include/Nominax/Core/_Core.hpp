@@ -211,7 +211,7 @@
 #include "Environment.hpp"
 #include "EnvironmentDescriptor.hpp"
 #include "FixedStack.hpp"
-#include "Interrupt.hpp"
+#include "InterruptStatus.hpp"
 #include "Reactor.hpp"
 #include "ReactorCoreHypervisor.hpp"
 #include "ReactorCoreSpecialization.hpp"

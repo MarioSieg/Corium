@@ -385,16 +385,16 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue3)
 
 TEST(ReactorInputValidation, MissingStackPrologue)
 {
-    std::fill(std::begin(MockStack), std::end(MockStack), Record::Padding());
-	const auto input = VerboseReactorDescriptor {
-
+    std::fill(std::begin(MockStack), std::end(MockStack), Record { });
+	const auto input = VerboseReactorDescriptor
+    {
 		.CodeChunk = MockCode.data(),
 		.CodeChunkSize = MockCode.size(),
 		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data() + 1,
-		.StackSize = MockStack.size() - 1,
+		.Stack = MockStack.data(),
+		.StackSize = MockStack.size(),
 
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingStackPrologue);

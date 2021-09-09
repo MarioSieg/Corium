@@ -214,13 +214,14 @@ namespace Nominax::Core
 {
 	auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor& input, const Foundation::CPUFeatureDetector& target,
+		const VerboseReactorDescriptor& input,
+        const Foundation::CPUFeatureDetector& target,
 		const void****                  outJumpTable
-	) -> std::pair<ReactorShutdownReason, ReactorState>
+	) ->  ReactorState
 	{
-		ReactorState                output { .Input = &input };
-		const ReactorShutdownReason result { SingletonExecutionProxy(input, output, target, outJumpTable) };
-		return { result, output };
+		ReactorState output { .Input = &input };
+		const ReactorState& result { SingletonExecutionProxy(input, output, target, outJumpTable) };
+		return output;
 	}
 
 	static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::uint64_t>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
@@ -339,12 +340,15 @@ namespace Nominax::Core
 
 	auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor&       input, ReactorState& output,
+		const VerboseReactorDescriptor& input,
+		ReactorState& output,
 		const Foundation::CPUFeatureDetector& target,
-		const void****                        outJumpTable
-	) -> ReactorShutdownReason
+		const void**** outJumpTable
+	) -> const ReactorState&
 	{
-		return HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable);
+		const bool result { HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable) };
+		NOX_DBG_PAS_TRUE(result, "Singleton execution proxy execution routine returned false!");
+		return output;
 	}
 
 	auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**
@@ -352,6 +356,6 @@ namespace Nominax::Core
 		const void**   jumpTable { };
 		const void***  proxy { &jumpTable };
 		const void**** writer { &proxy };
-		return routine(nullptr, nullptr, writer) == ReactorShutdownReason::Success ? jumpTable : nullptr;
+		return routine(nullptr, nullptr, writer) ? jumpTable : nullptr;
 	}
 }

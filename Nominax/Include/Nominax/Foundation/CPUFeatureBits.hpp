@@ -265,7 +265,7 @@ namespace Nominax::Foundation
 		Cx8 = 8,
 
 		/// <summary>
-		/// On-board Advanced Programmable Interrupt Controller
+		/// On-board Advanced Programmable InterruptStatus Controller
 		/// </summary>
 		Apic = 9,
 

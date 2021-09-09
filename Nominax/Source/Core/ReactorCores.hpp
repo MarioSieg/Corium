@@ -219,7 +219,7 @@ namespace Nominax::Core
 		const VerboseReactorDescriptor* input,	\
 		ReactorState* output,					\
 		const void**** outJumpTable = nullptr	\
-	) -> ReactorShutdownReason
+	) -> bool;
 
 	/// <summary>
 	/// Generic fallback implementation, for all architectures.

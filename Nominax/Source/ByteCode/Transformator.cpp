@@ -232,7 +232,7 @@ namespace Nominax::ByteCode
 		if (input.IsEmpty())
 		{
 			[[unlikely]]
-				return;
+            return;
 		}
 
 		output = Image { std::move(input.GetCodeBuffer()) };

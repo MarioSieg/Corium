@@ -274,5 +274,5 @@ namespace Nominax::Core
 	/// <summary>
 	/// Signature of the reactor core execution routine.
 	/// </summary>
-	using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor* descriptor, ReactorState* outputState, const void**** jumpTableQuery) -> ReactorShutdownReason;
+	using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor* descriptor, ReactorState* outputState, const void**** jumpTableQuery) -> bool;
 }

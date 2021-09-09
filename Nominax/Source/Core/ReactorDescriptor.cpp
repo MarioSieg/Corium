@@ -216,16 +216,15 @@ namespace Nominax::Core
 		if (!this->CodeChunk || !this->InterruptHandler || !this->Stack)
 		{
 			[[unlikely]]
-				return ReactorValidationResult::NullPtr;
+            return ReactorValidationResult::NullPtr;
 		}
 
 		// validate the size for the corresponding pointers:
 		if (!this->CodeChunkSize || !this->StackSize)
 		{
 			[[unlikely]]
-				return ReactorValidationResult::ZeroSize;
+            return ReactorValidationResult::ZeroSize;
 		}
-
 
 		// If we are using execution address mapping,
 		// all instructions are pointers so we cannot check the instruction type
@@ -252,11 +251,10 @@ namespace Nominax::Core
 		if (*Stack != Foundation::Record::Padding())
 		{
 			[[unlikely]]
-				return ReactorValidationResult::MissingStackPrologue;
+            return ReactorValidationResult::MissingStackPrologue;
 		}
 
-		if (this->IntrinsicTable)
-		[[likely]]
+		if (this->IntrinsicTable) [[likely]]
 		{
 			// validate intrinsic routines:
 			auto* const*       begin { this->IntrinsicTable };
@@ -266,7 +264,7 @@ namespace Nominax::Core
 				if (!*begin++)
 				{
 					[[unlikely]]
-						return ReactorValidationResult::NullIntrinsicRoutine;
+                    return ReactorValidationResult::NullIntrinsicRoutine;
 				}
 			}
 		}

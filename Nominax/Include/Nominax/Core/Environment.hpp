@@ -360,7 +360,7 @@ namespace Nominax::Core
 		/// <param name="image"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(const ByteCode::Image& image) -> ExecutionResult;
+		auto Execute(const ByteCode::Image& image) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -368,7 +368,7 @@ namespace Nominax::Core
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(ByteCode::Stream&& stream) -> ExecutionResult;
+		auto Execute(ByteCode::Stream&& stream) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -376,7 +376,7 @@ namespace Nominax::Core
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(const ByteCode::Stream& stream) -> ExecutionResult;
+		auto Execute(const ByteCode::Stream& stream) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -384,7 +384,7 @@ namespace Nominax::Core
 		/// <param name="image"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator()(const ByteCode::Image& image) -> ExecutionResult;
+		auto operator()(const ByteCode::Image& image) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -392,7 +392,7 @@ namespace Nominax::Core
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator()(const ByteCode::Stream&& stream) -> ExecutionResult;
+		auto operator()(ByteCode::Stream&& stream) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -400,7 +400,7 @@ namespace Nominax::Core
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator()(const ByteCode::Stream& stream) -> ExecutionResult;
+		auto operator()(const ByteCode::Stream& stream) -> const ReactorState&;
 
 		/// <summary>
 		/// Shutdown runtime environment.
@@ -487,17 +487,17 @@ namespace Nominax::Core
 		auto GetOptimizationHints() const -> ByteCode::OptimizationHints;
 	};
 
-	inline auto Environment::operator()(const ByteCode::Image& image) -> ExecutionResult
+	inline auto Environment::operator()(const ByteCode::Image& image) -> const ReactorState&
 	{
 		return this->Execute(image);
 	}
 
-	inline auto Environment::operator()(const ByteCode::Stream&& stream) -> ExecutionResult
+	inline auto Environment::operator()(ByteCode::Stream&& stream) -> const ReactorState&
 	{
 		return this->Execute(std::move(stream));
 	}
 
-	inline auto Environment::operator()(const ByteCode::Stream& stream) -> ExecutionResult
+	inline auto Environment::operator()(const ByteCode::Stream& stream) -> const ReactorState&
 	{
 		return this->Execute(stream);
 	}

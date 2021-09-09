@@ -490,10 +490,11 @@ TEST(Environment, Execution)
 	Environment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 	ASSERT_EQ(env.GetExecutionCount(), 0);
-	const auto executor {
+	const auto executor
+    {
 		[&]
 		{
-			ASSERT_EQ(env.Execute(std::move(stream)).ShutdownReason, ReactorShutdownReason::Success);
+            ASSERT_EQ(env.Execute(std::move(stream)).Status, InterruptStatus::InterruptStatus_OK);
 		}
 	};
 	ASSERT_NO_FATAL_FAILURE(executor());

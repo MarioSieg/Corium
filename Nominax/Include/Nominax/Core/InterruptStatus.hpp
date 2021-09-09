@@ -1,4 +1,4 @@
-// File: Interrupt.hpp
+// File: InterruptStatus.hpp
 // Author: Mario
 // Created: 20.08.2021 2:40 PM
 // Project: Corium
@@ -207,81 +207,59 @@
 
 #pragma once
 
+#include <array>
 #include <limits>
-
 #include <cstdint>
+#include <string_view>
 
 namespace Nominax::Core
 {
-	/// <summary>
-	/// The type used to store interrupt codes.
-	/// </summary>
-	using InterruptAccumulator = std::int32_t;
+    /// <summary>
+    /// Contains all predefined interrupt codes.
+    /// </summary>
+    enum InterruptStatus : std::int64_t
+    {
+        /// <summary>
+        /// Ok, exit was requested.
+        /// </summary>
+        InterruptStatus_OK = 0,
+
+        /// <summary>
+        /// Stack overflow of VM thread stack.
+        /// </summary>
+        InterruptStatus_StackOverflow = 1,
+
+        /// <summary>
+        /// Attempt to dereference a nullptr.
+        /// </summary>
+        InterruptStatus_NullPointerDereference = 2,
+
+        /// <summary>
+        /// Other fatal internal error.
+        /// </summary>
+        InterruptStatus_FatalInternalError = 3,
+
+        /// <summary>
+        /// The count of interrupts.
+        /// </summary>
+        InterruptStatus_Count_
+    };
+
+    constexpr std::array<const std::string_view, ToUnderlying(InterruptStatus::InterruptStatus_Count_)> INTERRUPT_STATUS_NAMES
+    {
+        "OK",
+        "StackOverflow",
+        "InterruptStatus_NullPointerDereference",
+        "InterruptStatus_FatalInternalError"
+    };
 
 	/// <summary>
 	/// The function prototype for interrupt handlers.
 	/// </summary>
-	using InterruptRoutineProxy = auto(InterruptAccumulator) -> void;
+	using InterruptRoutineProxy = auto(InterruptStatus) -> void;
 
-	/// <summary>
-	/// Interrupt code indicating a fatal reactor error.
-	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_FATAL_ERROR { std::numeric_limits<InterruptAccumulator>::min() };
-
-	/// <summary>
-	/// Interrupt code indicating success.
-	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_OK { 0 };
-
-	/// <summary>
-	/// Interrupt code indicating user space exception.
-	/// </summary>
-	constexpr InterruptAccumulator INT_CODE_EXCEPTIONS { std::numeric_limits<InterruptAccumulator>::max() };
-
-	/// <summary>
-	/// Default interrupt routine,
-	/// </summary>
-	/// <returns></returns>
-	extern auto DefaultInterruptRoutine(InterruptAccumulator) -> void;
-
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <returns>A pointer to the default interrupt routine.</returns>
-	[[nodiscard]]
-	extern auto GetDefaultInterruptRoutine() -> InterruptRoutineProxy*;
-
-	/// <summary>
-	/// Result type from a reactor shutdown.
-	/// </summary>
-	enum class ReactorShutdownReason : std::uint8_t
-	{
-		/// <summary>
-		/// Terminated normally.
-		/// </summary>
-		Success = 0,
-
-		/// <summary>
-		/// Internal reactor error.
-		/// </summary>
-		Error,
-
-		/// <summary>
-		/// User space exception.
-		/// </summary>
-		UserException
-	};
-
-	/// <summary>
-	/// Map interrupt accumulator to shutdown reason.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	constexpr auto MapIntAccum2ShutdownReason(const InterruptAccumulator x) -> ReactorShutdownReason
-	{
-		return x == INT_CODE_OK ? ReactorShutdownReason::Success : x < INT_CODE_OK ? ReactorShutdownReason::Error : ReactorShutdownReason::UserException;
-	}
-
-	extern auto PrintShutdownReason(ReactorShutdownReason reason, InterruptAccumulator code = std::numeric_limits<InterruptAccumulator>::min()) -> void;
+    inline constexpr InterruptRoutineProxy& DEFAULT_INTERRUPT_ROUTINE
+    {
+        *+[](InterruptStatus) -> void { }
+    };
 }

@@ -320,7 +320,7 @@ namespace Nominax::Core
 		ReactorState&                         output,
 		const Foundation::CPUFeatureDetector& target,
 		const void****                        outJumpTable = nullptr
-	) -> ReactorShutdownReason;
+	) -> const ReactorState&;
 
 	/// <summary>
 	/// Queries the jump table from the specified reactor routine.
@@ -341,5 +341,5 @@ namespace Nominax::Core
 		const VerboseReactorDescriptor&       input,
 		const Foundation::CPUFeatureDetector& target       = { },
 		const void****                        outJumpTable = nullptr
-	) -> std::pair<ReactorShutdownReason, ReactorState>;
+	) -> ReactorState;
 }

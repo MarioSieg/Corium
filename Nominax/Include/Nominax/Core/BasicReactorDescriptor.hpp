@@ -236,7 +236,7 @@ namespace Nominax::Core
 		std::span<Foundation::Record> Stack;
 
 		/// <summary>
-		/// Interrupt routine proxy.
+		/// InterruptStatus routine proxy.
 		/// </summary>
 		InterruptRoutineProxy& InterruptHandler;
 

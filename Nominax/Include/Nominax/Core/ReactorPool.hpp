@@ -343,12 +343,12 @@ namespace Nominax::Core
 
 	inline auto ReactorPool::GetBuffer() const -> const Reactor*
 	{
-		return this->Pool_.data();
+		return std::data(this->Pool_);
 	}
 
 	inline auto ReactorPool::GetSize() const -> std::uint64_t
 	{
-		return this->Pool_.size();
+		return std::size(this->Pool_);
 	}
 
 	inline auto ReactorPool::GetSpawnConfig() const -> const ReactorSpawnDescriptor&

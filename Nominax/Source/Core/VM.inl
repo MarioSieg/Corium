@@ -240,14 +240,6 @@ namespace Nominax::Core
 	using ByteCode::Signal;
 	using ByteCode::CharClusterUtf8;
 
-	/// <summary>
-	/// Operator for double precision F32ing point modulo.
-	/// </summary>
-    NOX_REACTOR_ROUTINE static inline auto operator %=(Record& self, const double value) -> void
-	{
-		self.AsF64 = std::fmod(self.AsF64, value);
-	}
-
 	/*
 	 * This inserts a comment with the msg into the assembler code.
 	 * Useful for finding the asm code of the instructions.
@@ -258,7 +250,33 @@ namespace Nominax::Core
 	#	define ASM_MARKER(msg) asm volatile("#" msg)
 	#else
 	#	define ASM_MARKER(msg)
-	#endif
+    #endif
+
+    #if NOX_OPT_EXECUTION_ADDRESS_MAPPING
+    #   define JMP_PTR()		*((*++ip).Ptr)
+    #   define JMP_PTR_REL()	*((*ip).Ptr)
+    #   define UPDATE_IP()		ip = reinterpret_cast<const Signal*>(abs)
+    #else
+    #   define JMP_PTR()		**(jumpTable + (*++ip).OpCode)
+    #   define JMP_PTR_REL()	**(jumpTable + (*ip).OpCode)
+    #   define UPDATE_IP()		ip = ipLo + abs - 1
+    #endif
+
+    #define LIKELY(expr)    __builtin_expect(expr, true)
+    #define UNLIKELY(expr)  __builtin_expect(expr, false)
+
+    /*
+     * Compute vtor memory offset relative to %sp
+     */
+    #define VEC_MOFFS(x) (sp - (( x ) + 1))
+
+    /// <summary>
+    /// Operator for double precision floating point modulo.
+    /// </summary>
+    NOX_REACTOR_ROUTINE static inline auto operator %=(Record& self, const double value) -> void
+    {
+        self.AsF64 = std::fmod(self.AsF64, value);
+    }
 
 	/// <summary>
 	/// Implementation for the "intrin" instruction.
@@ -604,7 +622,7 @@ namespace Nominax::Core
 		const VerboseReactorDescriptor* input,
 		ReactorState*                   output,
 		const void****                  outJumpTable
-	) -> ReactorShutdownReason
+	) -> bool
 	{
 		static constexpr std::array<const void* NOX_RESTRICT const, ToUnderlying(Instruction::Count_)> JUMP_TABLE
 		{
@@ -688,13 +706,13 @@ namespace Nominax::Core
 		if (outJumpTable)
 		{
 			**outJumpTable = const_cast<const void**>(std::data(JUMP_TABLE));
-			return ReactorShutdownReason::Success;
+			return true;
 		}
 
 		if (!input || !output)
 		{
 			[[unlikely]]
-            return ReactorShutdownReason::Error;
+            return false;
 		}
 
 		ASM_MARKER("reactor begin");
@@ -702,35 +720,16 @@ namespace Nominax::Core
 		const auto pre { std::chrono::high_resolution_clock::now() };
 
 		[[maybe_unused]]
-        const void* NOX_RESTRICT const* const     jumpTable { std::data(JUMP_TABLE) };          /* jump table						*/
-		InterruptAccumulator                      interruptCode { };                            /* interrupt id flag				*/
-		IntrinsicRoutine* const* const            intrinsicTable { input->IntrinsicTable };     /* intrinsic table hi				*/
-		InterruptRoutineProxy* const              interruptHandler { input->InterruptHandler }; /* global interrupt routine			*/
-		const Signal* const NOX_RESTRICT          ipLo { input->CodeChunk };                    /* instruction low ptr				*/
-		const Signal*                             ip { ipLo };                                  /* instruction ptr					*/
-		const Signal*                             bp { ipLo };                                  /* base pointer						*/
-		Record* NOX_RESTRICT                      sp { input->Stack };                          /* stack pointer lo					*/
+        const void* NOX_RESTRICT const* const   jumpTable { std::data(JUMP_TABLE) };                /* jump table						*/
+		InterruptStatus                         interruptCode { InterruptStatus::InterruptStatus_OK };              /* interrupt id flag				*/
+		IntrinsicRoutine* const* const          intrinsicTable { input->IntrinsicTable };           /* intrinsic table hi				*/
+		InterruptRoutineProxy* const            interruptHandlerHook {input->InterruptHandler };    /* global interrupt routine			*/
+		const Signal* const NOX_RESTRICT        ipLo { input->CodeChunk };                          /* instruction low ptr				*/
+		const Signal*                           ip { ipLo };                                        /* instruction ptr					*/
+		const Signal*                           bp { ipLo };                                        /* base pointer						*/
+		Record* NOX_RESTRICT                    sp { input->Stack };                                /* stack pointer lo					*/
 
 		ASM_MARKER("reactor exec");
-
-		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-
-		#define JMP_PTR()		*((*++ip).Ptr)
-		#define JMP_PTR_REL()	*((*ip).Ptr)
-		#define UPDATE_IP()		ip = reinterpret_cast<const Signal*>(abs)
-
-		#else
-
-		#define JMP_PTR()		**(jumpTable + (*++ip).OpCode)
-		#define JMP_PTR_REL()	**(jumpTable + (*ip).OpCode)
-		#define UPDATE_IP()		ip = ipLo + abs - 1
-		
-		#endif
-
-		/*
-		 * Compute vtor memory offset relative to %sp
-		 */
-		#define VEC_MOFFS(x) (sp - (( x ) + 1))
 
 		// exec first:
 		goto
@@ -741,12 +740,9 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("__int__");
 
-			interruptCode = (*++ip).R64.AsI32;
-			(*interruptHandler)(interruptCode);
-			if (__builtin_expect(interruptCode <= 0, false))
-			{
-                goto _terminate_;
-			}
+			interruptCode = static_cast<InterruptStatus>((*++ip).R64.AsI64);
+            (*interruptHandlerHook)(interruptCode);
+            goto _terminate_;
 		}
 		goto
 		JMP_PTR();
@@ -1984,24 +1980,18 @@ namespace Nominax::Core
 		goto
 		JMP_PTR();
 
-		[[maybe_unused]]
-	_hard_fault_err_:
-		NOX_COLD_LABEL;
-		interruptCode = INT_CODE_FATAL_ERROR;
-
 	_terminate_:
 		NOX_COLD_LABEL;
 
 		ASM_MARKER("_terminate_");
 
-		output->ShutdownReason = MapIntAccum2ShutdownReason(interruptCode);
-		output->Pre            = pre;
-		output->Post           = std::chrono::high_resolution_clock::now();
-		output->Duration       = std::chrono::high_resolution_clock::now() - pre;
-		output->InterruptCode  = interruptCode;
-		output->IpDiff         = ip - input->CodeChunk;
-		output->SpDiff         = sp - input->Stack;
-		output->BpDiff         = ip - bp;
-		return output->ShutdownReason;
+        output->Pre         = pre;
+        output->Post        = std::chrono::high_resolution_clock::now();
+        output->Duration    = std::chrono::high_resolution_clock::now() - pre;
+        output->Status      = interruptCode;
+        output->IpDiff      = ip - input->CodeChunk;
+        output->SpDiff      = sp - input->Stack;
+        output->BpDiff      = ip - bp;
+        return true;
 	}
 }

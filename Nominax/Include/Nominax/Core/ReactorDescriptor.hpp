@@ -210,7 +210,7 @@
 #include <cstdint>
 #include "../ByteCode/Signal.hpp"
 
-#include "Interrupt.hpp"
+#include "InterruptStatus.hpp"
 #include "ReactorValidator.hpp"
 
 namespace Nominax::Core
@@ -241,7 +241,7 @@ namespace Nominax::Core
 		std::uint64_t IntrinsicTableSize { 0 };
 
 		/// <summary>
-		/// Interrupt routine proxy.
+		/// InterruptStatus routine proxy.
 		/// </summary>
 		InterruptRoutineProxy* InterruptHandler { nullptr };
 

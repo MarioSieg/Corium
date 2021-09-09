@@ -384,7 +384,7 @@
 /// <summary>
 /// Optimize the branches for the condition that 'x' is equal to 'expect'.
 /// </summary>
-#define NOX_EXPECT_VALUE(x, expect)         __builtin_expect(( x ), ( expect ))
+#define NOX_EXPECT_VALUE(expr, expect)         __builtin_expect(( expr ), ( expect ))
 
 /// <summary>
 /// Generates a cache prefetch instruction if the target supports it.

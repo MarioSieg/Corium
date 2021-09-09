@@ -314,12 +314,12 @@ namespace Nominax::Core
 		~Reactor() = default;
 
 		/// <summary>
-		/// Execute reactor with specified application code bundle.
+		/// Execute reactor with specified application code image.
 		/// </summary>
-		/// <param name="bundle"></param>
+		/// <param name="image"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto Execute(const ByteCode::Image& image) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute reactor with specified application code bundle.
@@ -327,7 +327,7 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator ()(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto operator ()(const ByteCode::Image& bundle) -> const ReactorState&;
 
 		/// <summary>
 		/// 
@@ -439,7 +439,7 @@ namespace Nominax::Core
 		return this->Output_;
 	}
 
-	inline auto Reactor::operator()(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
+	inline auto Reactor::operator()(const ByteCode::Image& bundle) -> const ReactorState&
 	{
 		return this->Execute(bundle);
 	}
