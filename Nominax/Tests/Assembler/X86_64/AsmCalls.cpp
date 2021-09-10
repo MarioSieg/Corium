@@ -247,12 +247,12 @@ TEST(AssemblyCalls, CpuId)
 		[&]
 		{
 			const CPUFeatureDetector features { };
-			ASSERT_TRUE(features[CPUFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CPUFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CPUFeatureBits::Sse]);
-			ASSERT_TRUE(features[CPUFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CPUFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CPUFeatureBits::Ssse3]);
+			ASSERT_TRUE(features[CPUFeatureBits::FPU]);
+			ASSERT_TRUE(features[CPUFeatureBits::MMX]);
+			ASSERT_TRUE(features[CPUFeatureBits::SSE]);
+			ASSERT_TRUE(features[CPUFeatureBits::SSE2]);
+			ASSERT_TRUE(features[CPUFeatureBits::SSE3]);
+			ASSERT_TRUE(features[CPUFeatureBits::SSSE3]);
 		}
 	};
 	ASSERT_NO_FATAL_FAILURE(exec());
@@ -273,7 +273,7 @@ TEST(AssemblyCalls, CpudIdSupport)
 TEST(AssemblyCalls, AvxOsSupport)
 {
 	const CPUFeatureDetector cfd { };
-	if (cfd[CPUFeatureBits::XSave] && cfd[CPUFeatureBits::OsXSave])
+	if (cfd[CPUFeatureBits::XSave] && cfd[CPUFeatureBits::OSXSave])
 	{
 		const auto exec
 		{
@@ -289,7 +289,7 @@ TEST(AssemblyCalls, AvxOsSupport)
 TEST(AssemblyCalls, Avx512OsSupport)
 {
 	const CPUFeatureDetector cfd { };
-	if (cfd[CPUFeatureBits::XSave] && cfd[CPUFeatureBits::OsXSave])
+	if (cfd[CPUFeatureBits::XSave] && cfd[CPUFeatureBits::OSXSave])
 	{
 		const auto exec
 		{

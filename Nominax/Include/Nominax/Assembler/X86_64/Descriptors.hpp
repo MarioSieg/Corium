@@ -227,7 +227,7 @@ namespace Nominax::Assembler::X86_64
 	};
 
 	/// <summary>
-	/// Sse XMM register access mode.
+	/// SSE XMM register access mode.
 	/// </summary>
 	enum class XmmModeType : std::uint8_t
 	{

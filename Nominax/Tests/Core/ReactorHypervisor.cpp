@@ -267,26 +267,26 @@ TEST(ReactorHypervisor, GetOptimalReactorRoutine)
 TEST(ReactorHypervisor, FeatureSelectAvx)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx)]     = true;
-	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = false;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::AVX)]     = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::AVX512F)] = false;
 	ASSERT_EQ(HyperVisor::SmartSelectReactor(features), ReactorCoreSpecialization::X86_64_AVX);
 }
 
 TEST(ReactorHypervisor, FeatureSelectAvx512F)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::AVX512F)] = true;
 	ASSERT_EQ(HyperVisor::SmartSelectReactor(features), ReactorCoreSpecialization::X86_64_AVX512F);
 }
 
 TEST(ReactorHypervisor, FeatureSelectDynamic)
 {
 	const CPUFeatureDetector featuress { };
-	if (featuress[CPUFeatureBits::Avx512F])
+	if (featuress[CPUFeatureBits::AVX512F])
 	{
 		ASSERT_EQ(HyperVisor::SmartSelectReactor(featuress), ReactorCoreSpecialization::X86_64_AVX512F);
 	}
-	else if (featuress[CPUFeatureBits::Avx])
+	else if (featuress[CPUFeatureBits::AVX])
 	{
 		ASSERT_EQ(HyperVisor::SmartSelectReactor(featuress), ReactorCoreSpecialization::X86_64_AVX);
 	}
@@ -299,8 +299,8 @@ TEST(ReactorHypervisor, FeatureSelectDynamic)
 TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx)]     = true;
-	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = false;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::AVX)]     = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::AVX512F)] = false;
 	ASSERT_EQ
 	(
 		HyperVisor::GetReactorRoutineFromRegistryByTarget
@@ -313,7 +313,7 @@ TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx)
 TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx512F)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::AVX512F)] = true;
 	ASSERT_EQ
 	(
 		HyperVisor::GetReactorRoutineFromRegistryByTarget
@@ -326,8 +326,8 @@ TEST(ReactorHypervisor, GetReactorRoutineFromRegistryByTargetAvx512F)
 TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx)]     = true;
-	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = false;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::AVX)]     = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::AVX512F)] = false;
 	const ReactorRoutineLink data {HyperVisor::GetOptimalReactorRoutine(features)};
 	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::X86_64_AVX);
 	ASSERT_EQ(data.ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX));
@@ -336,7 +336,7 @@ TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx)
 TEST(ReactorHypervisor, GetOptimalReactorRoutineAvx512)
 {
 	CPUFeatureDetector features { };
-	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::Avx512F)] = true;
+	const_cast<CpuFeatureMask&>(*features)[static_cast<std::uint64_t>(CPUFeatureBits::AVX512F)] = true;
 	const ReactorRoutineLink data {HyperVisor::GetOptimalReactorRoutine(features)};
 	ASSERT_EQ(data.Specialization, ReactorCoreSpecialization::X86_64_AVX512F);
 	ASSERT_EQ(data.ExecutionRoutine, HyperVisor::GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::X86_64_AVX512F));

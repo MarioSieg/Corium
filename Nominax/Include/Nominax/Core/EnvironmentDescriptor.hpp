@@ -249,14 +249,6 @@ namespace Nominax::Core
 		bool ForceFallback { false };
 
 		/// <summary>
-		/// If true, synchronization between
-		/// C++ io-streams (cout, err, cin) and C io-streams (stdout, stdin)
-		/// is deactivated, which makes printing faster.
-		/// This should be activated in most cases when executing code.
-		/// </summary>
-		bool FastHostIoSync { true };
-
-		/// <summary>
 		/// The size of the boot pool
 		/// </summary>
 		std::uint64_t BootPoolSize { 128_kB };

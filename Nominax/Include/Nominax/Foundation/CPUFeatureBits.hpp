@@ -222,168 +222,168 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Onboard x87 FPU
 		/// </summary>
-		Fpu = 0,
+		FPU = 0,
 
 		/// <summary>
 		/// Virtual 8086 mode extensions (such as VIF, VIP, PIV)
 		/// </summary>
-		Vme = 1,
+		VME = 1,
 
 		/// <summary>
 		/// Debugging extensions (CR4 bit 3)
 		/// </summary>
-		De = 2,
+		DE = 2,
 
 		/// <summary>
 		/// Page WordSize Extension
 		/// </summary>
-		Pse = 3,
+		PSE = 3,
 
 		/// <summary>
 		/// Time Stamp Counter
 		/// </summary>
-		Tsc = 4,
+		TSC = 4,
 
 		/// <summary>
 		/// Model-specific registers
 		/// </summary>
-		Msr = 5,
+		MSR = 5,
 
 		/// <summary>
 		/// Physical Address Extension
 		/// </summary>
-		Pae = 6,
+		PAE = 6,
 
 		/// <summary>
 		/// Machine Check Exception
 		/// </summary>
-		Mce = 7,
+		MCE = 7,
 
 		/// <summary>
 		/// CMPXCHG8 (compare-and-swap) instruction
 		/// </summary>
-		Cx8 = 8,
+		CX8 = 8,
 
 		/// <summary>
 		/// On-board Advanced Programmable InterruptStatus Controller
 		/// </summary>
-		Apic = 9,
+		APIC = 9,
 
 		/// <summary>
 		/// SYSENTER and SYSEXIT instructions
 		/// </summary>
-		Sep = 11,
+		SEP = 11,
 
 		/// <summary>
 		/// Memory Type Range Registers
 		/// </summary>
-		Mtrr = 12,
+		MTRR = 12,
 
 		/// <summary>
 		/// Page Global Enable bit in CR4
 		/// </summary>
-		Pge = 13,
+		PGE = 13,
 
 		/// <summary>
 		/// Machine check architecture
 		/// </summary>
-		Mca = 14,
+		MCA = 14,
 
 		/// <summary>
 		///	Conditional move and FCMOV instructions
 		/// </summary>
-		CMov = 15,
+		CMOV = 15,
 
 		/// <summary>
 		/// Page Attribute Table
 		/// </summary>
-		Pat = 16,
+		PAT = 16,
 
 		/// <summary>
 		/// 36-bit page size extension
 		/// </summary>
-		Pse36 = 17,
+		PSE36 = 17,
 
 		/// <summary>
 		/// Processor Serial Number
 		/// </summary>
-		Psn = 18,
+		PSN = 18,
 
 		/// <summary>
 		/// CLFLUSH instruction (SSE2)
 		/// </summary>
-		Clfsh = 19,
+		CLFLUSH = 19,
 
 		/// <summary>
 		/// Debug store: save trace of executed jumps
 		/// </summary>
-		Ds = 21,
+		DS = 21,
 
 		/// <summary>
 		/// Onboard thermal control MSRs for ACPI
 		/// </summary>
-		Acpi = 22,
+		ACPI = 22,
 
 
 		/// <summary>
 		/// MMX instructions
 		/// </summary>
-		Mmx = 23,
+		MMX = 23,
 
 		/// <summary>
 		/// FXSAVE, FXRESTOR instructions, CR4 bit 9
 		/// </summary>
-		Fxsr = 24,
+		FXSR = 24,
 
 		/// <summary>
 		/// SSE instructions (a.k.a. Katmai New Instructions)
 		/// </summary>
-		Sse = 25,
+		SSE = 25,
 
 		/// <summary>
 		/// SSE2 instructions
 		/// </summary>
-		Sse2 = 26,
+		SSE2 = 26,
 
 		/// <summary>
 		/// CPU cache implements self-snoop
 		/// </summary>
-		Ss = 27,
+		SS = 27,
 
 		/// <summary>
 		/// Hyper-threading
 		/// </summary>
-		Htt = 28,
+		HTT = 28,
 
 		/// <summary>
 		/// Thermal monitor automatically limits temperature
 		/// </summary>
-		Tm = 29,
+		TM = 29,
 
 		/// <summary>
 		/// IA64 processor emulating x86
 		/// </summary>
-		Ia64 = 30,
+		IA64 = 30,
 
 		/// <summary>
 		/// Pending Break Enable (PBE# pin) wakeup capability
 		/// </summary>
-		Pbe = 31,
+		PBE = 31,
 
 		/// <summary>
 		/// Prescott New Instructions-SSE3 (PNI)
 		/// </summary>		
-		Sse3 = 32,
+		SSE3 = 32,
 
 		/// <summary>
 		/// Carry-less Multiplication (CLMUL)
 		/// </summary>
-		PclMulDqd = 33,
+		PCLMULDQD = 33,
 
 		/// <summary>
 		/// 64-bit debug store (edx bit 21)
 		/// </summary>
-		DTes64 = 34,
+		DTES64 = 34,
 
 		/// <summary>
 		/// MONITOR and MWAIT instructions (SSE3)
@@ -393,107 +393,107 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// CPL qualified debug store
 		/// </summary>
-		DsCpl = 36,
+		DDCPL = 36,
 
 		/// <summary>
 		/// Virtual Machine eXtensions
 		/// </summary>
-		Vmx = 37,
+		VMX = 37,
 
 		/// <summary>
 		/// Safer Mode Extensions (LaGrande)
 		/// </summary>
-		Smx = 38,
+		SMX = 38,
 
 		/// <summary>
 		/// Enhanced SpeedStep
 		/// </summary>
-		Est = 39,
+		EST = 39,
 
 		/// <summary>
 		/// Thermal Monitor 2
 		/// </summary>
-		Tm2 = 40,
+		TM2 = 40,
 
 		/// <summary>
 		/// Supplemental SSE3 instructions
 		/// </summary>
-		Ssse3 = 41,
+		SSSE3 = 41,
 
 		/// <summary>
 		/// L1 Context ID
 		/// </summary>
-		CnxtId = 42,
+		CNXTID = 42,
 
 		/// <summary>
 		/// Silicon Debug interface
 		/// </summary>
-		Sdbg = 43,
+		SDBG = 43,
 
 		/// <summary>
 		/// Fused multiply-add (FMA3)
 		/// </summary>
-		Fma3 = 44,
+		FMA3 = 44,
 
 		/// <summary>
 		/// CMPXCHG16B instruction
 		/// </summary>
-		Cx16 = 45,
+		CX16 = 45,
 
 		/// <summary>
 		/// Can disable sending task priority messages
 		/// </summary>
-		Xtpr = 46,
+		XTPR = 46,
 
 		/// <summary>
 		/// Perfmon & debug capability
 		/// </summary>
-		Pdcm = 47,
+		PDCM = 47,
 
 		/// <summary>
 		/// Process context identifiers (CR4 bit 17)
 		/// </summary>
-		Pcid = 49,
+		PCID = 49,
 
 		/// <summary>
 		/// Direct cache access for DMA writes
 		/// </summary>
-		Dca = 50,
+		DCA = 50,
 
 		/// <summary>
 		/// SSE4.1 instructions
 		/// </summary>
-		Sse41 = 51,
+		SSE4_1 = 51,
 
 		/// <summary>
 		/// SSE4.2 instructions
 		/// </summary>
-		Sse42 = 52,
+		SSE4_2 = 52,
 
 		/// <summary>
 		/// x2APIC
 		/// </summary>
-		X2Apic = 53,
+		X2APIC = 53,
 
 		/// <summary>
 		/// MOVBE instruction (big-endian)
 		/// </summary>
-		MovBe = 54,
+		MOVBE = 54,
 
 		/// <summary>
 		/// POPCNT instruction
 		/// </summary>
-		PopCnt = 55,
+		POPCNT = 55,
 
 		/// <summary>
 		/// APIC implements one-shot operation using a TSC deadline value
 		/// </summary>
-		TscDeadLine = 56,
+		TSCDeadLine = 56,
 
 		/// <summary>
 		/// AES instruction set
 		/// </summary>
-		Aes = 57,
+		AES = 57,
 
 		/// <summary>
 		/// XSAVE, XRESTOR, XSETBV, XGETBV
@@ -503,12 +503,12 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// XSAVE enabled by OS
 		/// </summary>
-		OsXSave = 59,
+		OSXSave = 59,
 
 		/// <summary>
 		/// Advanced Vector Extensions
 		/// </summary>
-		Avx = 60,
+		AVX = 60,
 
 		/// <summary>
 		/// F16C (half-precision) FP feature
@@ -518,7 +518,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// RDRAND (on-chip random number generator) feature
 		/// </summary>
-		RdRand = 62,
+		RDRand = 62,
 
 		/// <summary>
 		/// HyperVisor present (always zero on physical CPUs)
@@ -528,102 +528,102 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Access to base of %fs and %gs
 		/// </summary>
-		FsGsBase = 64,
+		FSGSBase = 64,
 
 		/// <summary>
 		/// IA32_TSC_ADJUST
 		/// </summary>
-		TscAdjust = 65,
+		TSCAdjust = 65,
 
 		/// <summary>
 		/// Software Guard Extensions
 		/// </summary>
-		Sgx = 66,
+		SGX = 66,
 
 		/// <summary>
 		/// Bit Manipulation Instruction Set 1
 		/// </summary>
-		Bmi1 = 67,
+		BMI1 = 67,
 
 		/// <summary>
 		/// TSX Hardware Lock Elision
 		/// </summary>
-		Hle = 68,
+		HLEN = 68,
 
 		/// <summary>
 		/// Advanced Vector Extensions 2
 		/// </summary>
-		Avx2 = 69,
+		AVX2 = 69,
 
 		/// <summary>
 		/// FDP_EXCPTN_ONLY
 		/// </summary>
-		FdpExcept = 70,
+		FDPExcept = 70,
 
 		/// <summary>
 		/// Supervisor Mode Execution Prevention
 		/// </summary>
-		Smep = 71,
+		SMEP = 71,
 
 		/// <summary>
 		/// Bit Manipulation Instruction Set 2
 		/// </summary>
-		Bmi2 = 72,
+		BMI2 = 72,
 
 		/// <summary>
 		/// Enhanced REP MOVSB/STOSB
 		/// </summary>
-		Erms = 73,
+		ERMS = 73,
 
 		/// <summary>
 		/// INVPCID instruction
 		/// </summary>
-		InvPcid = 74,
+		INVPCID = 74,
 
 		/// <summary>
 		/// TSX Restricted Transactional Memory
 		/// </summary>
-		Rtm = 75,
+		RTM = 75,
 
 		/// <summary>
 		/// Platform Quality of Service Monitoring
 		/// </summary>
-		Pqm = 76,
+		PQM = 76,
 
 		/// <summary>
 		/// FPU CS and FPU DS deprecated
 		/// </summary>
-		FpuCsDsDepr = 77,
+		FPUCSDSDepr = 77,
 
 		/// <summary>
 		/// Intel MPX (Memory Protection Extensions)
 		/// </summary>
-		Mpx = 78,
+		MPX = 78,
 
 		/// <summary>
 		/// Platform Quality of Service Enforcement
 		/// </summary>
-		Pwe = 79,
+		PWE = 79,
 
 		/// <summary>
 		/// AVX-512 Foundation
 		/// </summary>
-		Avx512F = 80,
+		AVX512F = 80,
 
 		/// <summary>
 		/// AVX-512 Doubleword and Quadword Instructions
 		/// </summary>
-		Avx512Dq = 81,
+		AVX512DQ = 81,
 
 		/// <summary>
 		/// RDSEED instruction
 		/// </summary>
-		RdSeed = 82,
+		RDSEED = 82,
 
 		/// <summary>
 		/// Intel ADX (Multi-Precision Add-Carry Instruction Extensions)
 		/// </summary>
-		Adx = 83,
+		ADX = 83,
 
 		/// <summary>
 		/// Supervisor Mode Access Prevention
@@ -633,7 +633,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Integer Fused Multiply-Add Instructions
 		/// </summary>
-		Avx512Ifma = 85,
+		AVX512IFMA = 85,
 
 		/// <summary>
 		/// PCOMMIT instruction
@@ -643,117 +643,117 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// CLFLUSHOPT instruction
 		/// </summary>
-		ClFlushOpt = 87,
+		CLFlushOpt = 87,
 
 		/// <summary>
 		/// CLWB instruction
 		/// </summary>
-		Clwb = 88,
+		CLWB = 88,
 
 		/// <summary>
 		/// Intel Processor Trace
 		/// </summary>
-		IntelPt = 89,
+		IntelPT = 89,
 
 		/// <summary>
 		/// AVX 512 Prefetch Instructions
 		/// </summary>
-		Avx512Pf = 90,
+		AVX512PF = 90,
 
 		/// <summary>
 		///  Exponential and Reciprocal Instructions
 		/// </summary>
-		Avx512Er = 91,
+		AVX512ER = 91,
 
 		/// <summary>
 		/// Conflict Detection Instructions
 		/// </summary>
-		Avx512Cd = 92,
+		AVX512CD = 92,
 
 		/// <summary>
 		/// Intel secure hashing algorithm extensions
 		/// </summary>
-		Sha = 93,
+		SHA = 93,
 
 		/// <summary>
 		/// Byte and word Instructions
 		/// </summary>
-		Avx512Bw = 94,
+		AVX512BW = 94,
 
 		/// <summary>
 		/// Vector Length Extensions
 		/// </summary>
-		Avx512Vl = 95,
+		AVX512VL = 95,
 
 		/// <summary>
 		/// PREFETCHWT1 instruction
 		/// </summary>
-		PreFetchWt1 = 96,
+		PreFetchWT1 = 96,
 
 		/// <summary>
 		/// Vector Bit Manipulation Instructions
 		/// </summary>
-		Avx512Vbmi = 97,
+		AVX512VBMI = 97,
 
 		/// <summary>
 		/// User-mode Instruction Prevention
 		/// </summary>
-		Umip = 98,
+		UMIP = 98,
 
 		/// <summary>
 		/// Memory Protection Keys for User-mode pages
 		/// </summary>
-		Pku = 99,
+		PKU = 99,
 
 		/// <summary>
 		/// PKU enabled by OS
 		/// </summary>
-		OsPku = 100,
+		OSPKU = 100,
 
 		/// <summary>
 		/// Timed pause and user-level monitor/wait
 		/// </summary>
-		WaitPkg = 101,
+		WaitPKG = 101,
 
 		/// <summary>
 		/// AVX-512 Vector Bit Manipulation Instructions 2
 		/// </summary>
-		Avx512Vmbi2 = 102,
+		AVX512VBMI2 = 102,
 
 		/// <summary>
 		/// Control flow enforcement (CET) shadow stack
 		/// </summary>
-		CetSs = 103,
+		CETSS = 103,
 
 		/// <summary>
 		/// AVX-512	galois field instructions
 		/// </summary>
-		Avx512Gfni = 104,
+		AVX512GFNI = 104,
 
 		/// <summary>
 		/// Vector AES instruction set (VEX-256/EVEX)
 		/// </summary>
-		VAes = 105,
+		VAES = 105,
 
 		/// <summary>
 		/// Vector CLMUL instruction set (VEX-256/EVEX)
 		/// </summary>
-		VPclMulDqd = 106,
+		VPCLMULDQD = 106,
 
 		/// <summary>
 		/// AVX-512 vector neural network instructions
 		/// </summary>
-		Avx512Vnni = 107,
+		AVX512VNNI = 107,
 
 		/// <summary>
 		/// AVX-512 bit algorithm instructions
 		/// </summary>
-		Avx512Bitalg = 108,
+		AVX512Bitalg = 108,
 
 		/// <summary>
 		/// AVX-512 vector population count double and qword
 		/// </summary>
-		Avx512PopCntdq = 110,
+		AVX512PopCNTDQ = 110,
 
 		/// <summary>
 		/// 5-level paging
@@ -763,72 +763,72 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Read Processor ID and IA32_TSC_AUX
 		/// </summary>
-		RdPid = 118,
+		RDPID = 118,
 
 		/// <summary>
 		/// Cache line demote
 		/// </summary>
-		ClDemote = 121,
+		CLDemote = 121,
 
 		/// <summary>
 		/// 
 		/// </summary>
-		MovDiri = 123,
+		MOVDIRI = 123,
 
 		/// <summary>
 		/// 
 		/// </summary>
-		MovDir64B = 124,
+		MOVDIR64B = 124,
 
 		/// <summary>
 		/// Enqueue Stores
 		/// </summary>
-		EnqCmd = 125,
+		ENQCMD = 125,
 
 		/// <summary>
 		/// SGX Launch Configuration
 		/// </summary>
-		SgxLc = 126,
+		SGXLC = 126,
 
 		/// <summary>
 		/// Protection keys for supervisor-mode pages
 		/// </summary>
-		Pks = 127,
+		PKS = 127,
 
 		/// <summary>
 		/// AVX-512 4 register neural network instructions
 		/// </summary>
-		Avx512Vnniw4 = 130,
+		AVX512VNNIW4 = 130,
 
 		/// <summary>
 		/// AVX-512 4 register multiply accumulation single precision
 		/// </summary>
-		Avx512FMaps4 = 131,
+		AVX512FMAPS4 = 131,
 
 		/// <summary>
 		/// Fast Short REP MOVSB
 		/// </summary>
-		Fsrm = 132,
+		FSRM = 132,
 
 		/// <summary>
 		/// AVX-512 intersection
 		/// </summary>
-		Avx512Vp2Intersect = 136,
+		AVX512VP2Intersect = 136,
 
 		/// <summary>
 		/// Special register system bump pool data sampling mitigations
 		/// </summary>
-		SrbdsCtrl = 137,
+		SRBDSCTRL = 137,
 
 		/// <summary>
 		/// Clears CPU buffers
 		/// </summary>
-		MdClear = 138,
+		MDClear = 138,
 
 		/// <summary>
 		/// 
 		/// </summary>
-		TsxForceAbort = 141,
+		TSXForceAbort = 141,
 
 		/// <summary>
 		/// Serialize instruction execution
@@ -843,7 +843,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// TSX suspend load address tracking
 		/// </summary>
-		TsxLdTrk = 144,
+		TSXLDTRK = 144,
 
 		/// <summary>
 		/// Platform configuration (Memory Encryption Technologies Instructions)
@@ -853,39 +853,39 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Architectural Last Branch Records
 		/// </summary>
-		Pbr = 147,
+		PBR = 147,
 
 		/// <summary>
 		/// Control flow enforcement (CET) indirect branch tracking
 		/// </summary>
-		CetIbt = 148,
+		CETIBT = 148,
 
 		/// <summary>
 		/// Tile computation on bfloat16 numbers
 		/// </summary>
-		AmxBf16 = 150,
+		ABXBF16 = 150,
 
 		/// <summary>
 		/// Tile architecture
 		/// </summary>
-		AmxTile = 152,
+		AMXTile = 152,
 
 		/// <summary>
 		///  Tile computation on 8-bit integers
 		/// </summary>
-		AmxInt8 = 153,
+		AMXInt8 = 153,
 
 		/// <summary>
 		/// Speculation Control, part of Indirect Branch 
 		/// Indirect Branch Restricted Speculation(IBRS)
 		///	SpecIndirect Branch Prediction Barrier(IBPB)
 		///	</summary>
-		Ctrl = 154,
+		CTLR = 154,
 
 		/// <summary>
 		/// Single thread indirect branch predictor, part of IBC
 		/// </summary>
-		Stibp = 155,
+		STIBP = 155,
 
 		/// <summary>
 		/// IA32_FLUSH_CMD MSR
@@ -895,58 +895,58 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Speculative side channel mitigations
 		/// </summary>
-		Ia32ArchCompat = 157,
+		IA32ArchCompat = 157,
 
 		/// <summary>
 		/// Support for a MSR listing model-specific core capabilities
 		/// </summary>
-		Ia32CoreCompat = 158,
+		IA32CoreCompat = 158,
 
 		/// <summary>
 		/// Speculative Store Bypass Disable,
 		/// as mitigation for Speculative Store Bypass (IA32_SPEC_CTRL)
 		/// </summary>
-		Ssbd = 159,
+		SSBD = 159,
 
 		/// <summary>
 		/// LAHF/SAHF in long mode
 		/// </summary>
-		LahfLm = 160,
+		LAHFLM = 160,
 
 		/// <summary>
 		/// Hyperthreading not valid
 		/// </summary>
-		CmpLegacy = 161,
+		CMPLegacy = 161,
 
 		/// <summary>
 		/// Secure Virtual Machine
 		/// </summary>
-		Svm = 162,
+		SVM = 162,
 
 		/// <summary>
 		/// Extended APIC space
 		/// </summary>
-		ExtApic = 163,
+		EXTAPIC = 163,
 
 		/// <summary>
 		/// CR8 in 32-bit mode
 		/// </summary>
-		Cr8Legacy = 164,
+		CR8Legacy = 164,
 
 		/// <summary>
 		/// Advanced bit manipulation (lzcnt and popcnt)
 		/// </summary>
-		Avm = 165,
+		AVM = 165,
 
 		/// <summary>
 		/// SSE4a
 		/// </summary>
-		Sse4A = 166,
+		SSE4_A = 166,
 
 		/// <summary>
 		/// Misaligned SSE mode
 		/// </summary>
-		MisAlignedSse = 167,
+		MisAlignedSSE = 167,
 
 		/// <summary>
 		/// PREFETCH and PREFETCHW instructions
@@ -956,82 +956,82 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// OS Visible Workaround
 		/// </summary>
-		OsVw = 169,
+		OSVW = 169,
 
 		/// <summary>
 		/// Instruction based sampling
 		/// </summary>
-		Ibs = 170,
+		IBS = 170,
 
 		/// <summary>
 		/// XOP instruction set
 		/// </summary>
-		Xop = 171,
+		XOP = 171,
 
 		/// <summary>
 		/// SKINIT/STGI instructions
 		/// </summary>
-		SkInit = 172,
+		SKInit = 172,
 
 		/// <summary>
 		/// Watchdog timer
 		/// </summary>
-		Dgt = 173,
+		DGT = 173,
 
 		/// <summary>
 		/// Light Weight Profiling[25]
 		/// </summary>
-		Lwp = 175,
+		LWP = 175,
 
 		/// <summary>
 		/// 4 operands fused multiply-add
 		/// </summary>
-		Fma4 = 176,
+		FMA4 = 176,
 
 		/// <summary>
 		/// Translation cache extension
 		/// </summary>
-		Tce = 177,
+		TCE = 177,
 
 		/// <summary>
 		/// NodeID MSR
 		/// </summary>
-		NodeIdMdr = 179,
+		NodeIDMDR = 179,
 
 		/// <summary>
 		/// Trailing bit manipulation
 		/// </summary>
-		Tbm = 181,
+		TBM = 181,
 
 		/// <summary>
 		/// Topology extensions
 		/// </summary>
-		TopoExt = 182,
+		TopoEXT = 182,
 
 		/// <summary>
 		///  Core performance counter extensions
 		/// </summary>
-		PerfCtrCore = 183,
+		PerfCTRCore = 183,
 
 		/// <summary>
 		/// NB performance counter extensions
 		/// </summary>
-		PerCtrNb = 184,
+		PERCTRNB = 184,
 
 		/// <summary>
 		/// Data breakpoint extensions
 		/// </summary>
-		Dbx = 186,
+		DBX = 186,
 
 		/// <summary>
 		/// Performance TSC
 		/// </summary>
-		PerfTsc = 187,
+		PerfTSC = 187,
 
 		/// <summary>
 		/// L2I perf counter extensions
 		/// </summary>
-		PcxL2i = 188,
+		PCXL2I = 188,
 
 		/// <summary>
 		///  SYSCALL and SYSRET instructions
@@ -1041,32 +1041,32 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Multiprocessor capable
 		/// </summary>
-		MpCap = 211,
+		MPCap = 211,
 
 		/// <summary>
 		/// NX bit
 		/// </summary>
-		Nx = 212,
+		NX = 212,
 
 		/// <summary>
 		/// Extended MMX
 		/// </summary>
-		MmxEx = 214,
+		MMXEX = 214,
 
 		/// <summary>
 		/// FXSAVE/FXRSTOR optimizations
 		/// </summary>
-		FxsrOpt = 217,
+		FXSROpt = 217,
 
 		/// <summary>
 		/// Gigabyte pages
 		/// </summary>
-		Pdpe1Gb = 218,
+		PDPE1GB = 218,
 
 		/// <summary>
 		/// RDTSCP instruction
 		/// </summary>
-		RdTscP = 219,
+		RDTSCP = 219,
 
 		/// <summary>
 		/// Long mode
@@ -1076,13 +1076,12 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Extended 3DNow
 		/// </summary>
-		D3NowExt = 222,
+		D3NowEXT = 222,
 
 		/// <summary>
 		/// 3DNow!
 		/// </summary>
 		D3Now = 223,
-
 
 		/// <summary>
 		/// Amount of bits.
@@ -1096,232 +1095,232 @@ namespace Nominax::Foundation
 	constexpr std::array<std::string_view, ToUnderlying(CPUFeatureBits::Count_)> CPU_FEATURE_BIT_NAMES
 	{
 		#if NOX_ARCH_X86_64
-		"FPU",
-		"VME",
-		"DE",
-		"PSE",
-		"TSC",
-		"MSR",
-		"PAE",
-		"MCE",
-		"CX8",
-		"APIC",
-		{ },
-		"SEP",
-		"MTRR",
-		"PGE",
-		"MCA",
-		"CMOV",
-		"PAT",
-		"PSE36",
-		"PSN",
-		"CLFSH",
-		{ },
-		"DS",
-		"ACPI",
-		"MMX",
-		"FXSR",
-		"SSE",
-		"SSE2",
-		"SS",
-		"HTT",
-		"TM",
-		"IA64",
-		"PBE",
-		"SSE3",
-		"PCLMULDQD",
-		"DTES64",
-		"MONITOR",
-		"DSCPL",
-		"VMX",
-		"SMX",
-		"EST",
-		"TM2",
-		"SSSE3",
-		"CNXTID",
-		"SDBG",
-		"FMA3",
-		"CX16",
-		"XTPR",
-		"PDCM",
-		{ },
-		"PCID",
-		"DCA",
-		"SSE41",
-		"SSE42",
-		"X2APIC",
-		"MOVBE",
-		"POPCNT",
-		"TSCDEADLINE",
-		"AES",
-		"XSAVE",
-		"OSXSAVE",
-		"AVX",
-		"F16C",
-		"RDRAND",
-		"HYPERVISOR",
-		"FSGSBASE",
-		"TSCADJUST",
-		"SGX",
-		"BMI1",
-		"HLE",
-		"AVX2",
-		"FDPEXCEPT",
-		"SMEP",
-		"BMI2",
-		"ERMS",
-		"INVPCID",
-		"RTM",
-		"PQM",
-		"FPUCSDSDEPR",
-		"MPX",
-		"PWE",
-		"AVX512F",
-		"AVX512DQ",
-		"RDSEED",
-		"ADX",
-		"SMAP",
-		"AVX512IFMA",
-		"PCOMMIT",
-		"CLFLUSHOPT",
-		"CLWB",
-		"INTELPT",
-		"AVX512PF",
-		"AVX512ER",
-		"AVX512CD",
-		"SHA",
-		"AVX512BW",
-		"AVX512VL",
-		"PREFETCHWT1",
-		"AVX512VBMI",
-		"UMIP",
-		"PKU",
-		"OSPKU",
-		"WAITPKG",
-		"AVX512VMBI2",
-		"CETSS",
-		"AVX512GFNI",
-		"VAES",
-		"VPCLMULDQD",
-		"AVX512VNNI",
-		"AVX512BITALG",
-		{ },
-		"AVX512POPCNTDQ",
-		{ },
-		"LEVEL5PAGING",
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		"RDPID",
-		{ },
-		{ },
-		"CLDEMOTE",
-		{ },
-		"MOVDIRI",
-		"MOVDIR64B",
-		"ENQCMD",
-		"SGXLC",
-		"PKS",
-		{ },
-		{ },
-		"AVX512VNNIW4",
-		"AVX512FMAPS4",
-		"FSRM",
-		{ },
-		{ },
-		{ },
-		"AVX512VP2INTERSECT",
-		"SRBDSCTRL",
-		"MDCLEAR",
-		{ },
-		{ },
-		"TSXFORCEABORT",
-		"SERIALIZE",
-		"HYBRID",
-		"TSXLDTRK",
-		{ },
-		"PCONFIG",
-		"PBR",
-		"CETIBT",
-		{ },
-		"AMXBF16",
-		{ },
-		"AMXTILE",
-		"AMXINT8",
-		"CTRL",
-		"STIBP",
-		"L1DFLUSH",
-		"IA32ARCHCOMPAT",
-		"IA32CORECOMPAT",
-		"SSBD",
-		"LAHFLM",
-		"CMPLEGACY",
-		"SVM",
-		"EXTAPIC",
-		"CR8LEGACY",
-		"AVM",
-		"SSE4A",
-		"MISALIGNEDSSE",
-		"D3NOWPREFETCH",
-		"OSVW",
-		"IBS",
-		"XOP",
-		"SKINIT",
-		"DGT",
-		{ },
-		"LWP",
-		"FMA4",
-		"TCE",
-		{ },
-		"NODEIDMDR",
-		{ },
-		"TBM",
-		"TOPOEXT",
-		"PERFCTRCORE",
-		"PERCTRNB",
-		{ },
-		"DBX",
-		"PERFTSC",
-		"PCXL2I",
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		"SYSCALL",
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		{ },
-		"MPCAP",
-		"NX",
-		{ },
-		"MMXEX",
-		{ },
-		{ },
-		"FXSROPT",
-		"PDPE1GB",
-		"RDTSCP",
-		{ },
-		"LONGMODE",
-		"D3NOWEXT",
-		"D3NOW"
+            "FPU",
+            "VME",
+            "DE",
+            "PSE",
+            "TSC",
+            "MSR",
+            "PAE",
+            "MCE",
+            "CX8",
+            "APIC",
+            { },
+            "SEP",
+            "MTRR",
+            "PGE",
+            "MCA",
+            "CMOV",
+            "PAT",
+            "PSE36",
+            "PSN",
+            "CLFSH",
+            { },
+            "DS",
+            "ACPI",
+            "MMX",
+            "FXSR",
+            "SSE",
+            "SSE2",
+            "SS",
+            "HTT",
+            "TM",
+            "IA64",
+            "PBE",
+            "SSE3",
+            "PCLMULDQD",
+            "DTES64",
+            "MONITOR",
+            "DSCPL",
+            "VMX",
+            "SMX",
+            "EST",
+            "TM2",
+            "SSSE3",
+            "CNXTID",
+            "SDBG",
+            "FMA3",
+            "CX16",
+            "XTPR",
+            "PDCM",
+            { },
+            "PCID",
+            "DCA",
+            "SSE4_1",
+            "SSE4_2",
+            "X2APIC",
+            "MOVBE",
+            "POPCNT",
+            "TSCDEADLINE",
+            "AES",
+            "XSAVE",
+            "OSXSAVE",
+            "AVX",
+            "F16C",
+            "RDRAND",
+            "HYPERVISOR",
+            "FSGSBASE",
+            "TSCADJUST",
+            "SGX",
+            "BMI1",
+            "HLE",
+            "AVX2",
+            "FDPEXCEPT",
+            "SMEP",
+            "BMI2",
+            "ERMS",
+            "INVPCID",
+            "RTM",
+            "PQM",
+            "FPUCSDSDEPR",
+            "MPX",
+            "PWE",
+            "AVX512F",
+            "AVX512DQ",
+            "RDSEED",
+            "ADX",
+            "SMAP",
+            "AVX512IFMA",
+            "PCOMMIT",
+            "CLFLUSHOPT",
+            "CLWB",
+            "INTELPT",
+            "AVX512PF",
+            "AVX512ER",
+            "AVX512CD",
+            "SHA",
+            "AVX512BW",
+            "AVX512VL",
+            "PREFETCHWT1",
+            "AVX512VBMI",
+            "UMIP",
+            "PKU",
+            "OSPKU",
+            "WAITPKG",
+            "AVX512VBmI2",
+            "CETSS",
+            "AVX512GFNI",
+            "VAES",
+            "VPCLMULDQD",
+            "AVX512VNNI",
+            "AVX512BITALG",
+            { },
+            "AVX512POPCNTDQ",
+            { },
+            "LEVEL5PAGING",
+            { },
+            { },
+            { },
+            { },
+            { },
+            "RDPID",
+            { },
+            { },
+            "CLDEMOTE",
+            { },
+            "MOVDIRI",
+            "MOVDIR64B",
+            "ENQCMD",
+            "SGXLC",
+            "PKS",
+            { },
+            { },
+            "AVX512VNNIW4",
+            "AVX512FMAPS4",
+            "FSRM",
+            { },
+            { },
+            { },
+            "AVX512VP2INTERSECT",
+            "SRBDSCTRL",
+            "MDCLEAR",
+            { },
+            { },
+            "TSXFORCEABORT",
+            "SERIALIZE",
+            "HYBRID",
+            "TSXLDTRK",
+            { },
+            "PCONFIG",
+            "PBR",
+            "CETIBT",
+            { },
+            "AMXBF16",
+            { },
+            "AMXTILE",
+            "AMXINT8",
+            "CTRL",
+            "STIBP",
+            "L1DFLUSH",
+            "IA32ARCHCOMPAT",
+            "IA32CORECOMPAT",
+            "SSBD",
+            "LAHFLM",
+            "CMPLEGACY",
+            "SVM",
+            "EXTAPIC",
+            "CR8LEGACY",
+            "AVM",
+            "SSE4A",
+            "MISALIGNEDSSE",
+            "D3NOWPREFETCH",
+            "OSVW",
+            "IBS",
+            "XOP",
+            "SKINIT",
+            "DGT",
+            { },
+            "LWP",
+            "FMA4",
+            "TCE",
+            { },
+            "NODEIDMDR",
+            { },
+            "TBM",
+            "TOPOEXT",
+            "PERFCTRCORE",
+            "PERCTRNB",
+            { },
+            "DBX",
+            "PERFTSC",
+            "PCXL2I",
+            { },
+            { },
+            { },
+            { },
+            { },
+            { },
+            { },
+            { },
+            { },
+            { },
+            { },
+            { },
+            { },
+            { },
+            "SYSCALL",
+            { },
+            { },
+            { },
+            { },
+            { },
+            { },
+            { },
+            "MPCAP",
+            "NX",
+            { },
+            "MMXEX",
+            { },
+            { },
+            "FXSROPT",
+            "PDPE1GB",
+            "RDTSCP",
+            { },
+            "LONGMODE",
+            "D3NOWEXT",
+            "D3NOW"
 		#else
-#error "Unimplemented architecture!"
+            #error "Unimplemented architecture!"
 		#endif
 	};
 

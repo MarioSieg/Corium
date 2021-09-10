@@ -213,78 +213,82 @@ namespace Nominax::Foundation
 	CPUFeatureDetector::CPUFeatureDetector() : FeatureBits_ { }
 	{
 		#if NOX_ARCH_X86_64
+            using namespace Assembler::X86_64::Routines;
+            using Cfb = CPUFeatureBits;
 
-		using namespace Assembler::X86_64::Routines;
-		using Cfb = CPUFeatureBits;
+            // check if cpuid is supported on system
+            NOX_PAS_TRUE(IsCpuIdSupported(), "CPUID instruction is not supported on system!");
 
-		// check if cpuid is supported on system
-		NOX_PAS_TRUE(IsCpuIdSupported(), "CPUID instruction is not supported on system!");
+            // extract gathered CPU feature bits:
+            CpuFeatureMaskBuffer buffer { };
+            std::array<std::uint64_t, 3> merged { };
+            const std::uint32_t result { CpuId(&merged[0], &merged[1], &merged[2]) };
+            std::uint8_t* const needle { std::data(buffer) };
+            std::memcpy(needle, std::data(merged), sizeof merged);
+            std::memcpy(needle + sizeof merged, &result, sizeof result);
 
-		// extract gathered CPU feature bits:
-		CpuFeatureMaskBuffer         buffer { };
-		std::array<std::uint64_t, 3> merged { };
-		std::uint32_t                result;
-		result = CpuId(&merged[0], &merged[1], &merged[2]);
-		std::uint8_t* const needle { std::data(buffer) };
-		std::memcpy(needle, std::data(merged), sizeof merged);
-		std::memcpy(needle + sizeof merged, &result, sizeof result);
-		for (std::uint64_t i { 0 }; i < sizeof buffer; ++i)
-		{
-			for (std::uint64_t j { 0 }; j < CHAR_BIT; ++j)
-			{
-				this->FeatureBits_[i * CHAR_BIT + j] = buffer[i] & 1 << j;
-			}
-		}
+            // convert bit to byte vector:
+            for (std::uint64_t i { 0 }; i < sizeof buffer; ++i)
+            {
+                for (std::uint64_t j { 0 }; j < CHAR_BIT; ++j)
+                {
+                    this->FeatureBits_[i * CHAR_BIT + j] = buffer[i] & true << j;
+                }
+            }
 
-		// Check if CPU and OS supports XSave
-		const bool xSaveSupport { (*this)[Cfb::XSave] && (*this)[Cfb::OsXSave] };
-		if (!xSaveSupport)
-		{
-			// XSave is required for AVX and AVX 512
-			[[unlikely]]
-				return;
-		}
+            // Check if CPU and OS supports XSave
+            const bool xSaveSupport { (*this)[Cfb::XSave] && (*this)[Cfb::OSXSave] };
+            if (!xSaveSupport)
+            {
+                // XSave is required for AVX and AVX 512
+                [[unlikely]]
+                return;
+            }
 
-		// Validate OS support and update flags for AVX:
-		const bool avxOsSupport { IsAvxSupportedByOs() };
-		(*this)[Cfb::Avx] &= avxOsSupport;
-		(*this)[Cfb::Avx2] &= avxOsSupport;
-		(*this)[Cfb::F16C] &= avxOsSupport;
+            // Validate OS support and update flags for AVX:
+            const bool avxOsSupport { IsAvxSupportedByOs() };
+            (*this)[Cfb::AVX]   &= avxOsSupport;
+            (*this)[Cfb::AVX2]  &= avxOsSupport;
+            (*this)[Cfb::F16C]  &= avxOsSupport;
 
-		// Validate OS support and update flags for AVX-512 F:
-		const bool avx512OsSupport { avxOsSupport && IsAvx512SupportedByOs() };
-		(*this)[Cfb::Avx512F] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Dq] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Ifma] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Pf] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Er] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Cd] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Bw] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Vl] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Vbmi] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Vmbi2] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Gfni] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Vnni] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Bitalg] &= avx512OsSupport;
-		(*this)[Cfb::Avx512PopCntdq] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Vnniw4] &= avx512OsSupport;
-		(*this)[Cfb::Avx512FMaps4] &= avx512OsSupport;
-		(*this)[Cfb::Avx512Vp2Intersect] &= avx512OsSupport;
-
+            // Validate OS support and update flags for AVX-512 F:
+            const bool avx512OsSupport { avxOsSupport && IsAvx512SupportedByOs() };
+            (*this)[Cfb::AVX512F]               &= avx512OsSupport;
+            (*this)[Cfb::AVX512DQ]              &= avx512OsSupport;
+            (*this)[Cfb::AVX512IFMA]            &= avx512OsSupport;
+            (*this)[Cfb::AVX512PF]              &= avx512OsSupport;
+            (*this)[Cfb::AVX512ER]              &= avx512OsSupport;
+            (*this)[Cfb::AVX512CD]              &= avx512OsSupport;
+            (*this)[Cfb::AVX512BW]              &= avx512OsSupport;
+            (*this)[Cfb::AVX512VL]              &= avx512OsSupport;
+            (*this)[Cfb::AVX512VBMI]            &= avx512OsSupport;
+            (*this)[Cfb::AVX512VBMI2]           &= avx512OsSupport;
+            (*this)[Cfb::AVX512GFNI]            &= avx512OsSupport;
+            (*this)[Cfb::AVX512VNNI]            &= avx512OsSupport;
+            (*this)[Cfb::AVX512Bitalg]          &= avx512OsSupport;
+            (*this)[Cfb::AVX512PopCNTDQ]        &= avx512OsSupport;
+            (*this)[Cfb::AVX512VNNIW4]          &= avx512OsSupport;
+            (*this)[Cfb::AVX512FMAPS4]          &= avx512OsSupport;
+            (*this)[Cfb::AVX512VP2Intersect]    &= avx512OsSupport;
 		#else
-#error "Unimplemented architecture!"
+            #error "Unimplemented architecture!"
 		#endif
 	}
 
 	auto CPUFeatureDetector::Dump() const -> void
 	{
-		Print("CPU feature detection result:\n");
-		for (std::uint64_t i { 0 }; i < std::size(this->FeatureBits_); ++i)
+		Print("CPU feature detection results\n");
+		for (std::uint64_t i { 0 }, j { 0 }; i < std::size(this->FeatureBits_); ++i)
 		{
-			if (!std::empty(CPU_FEATURE_BIT_NAMES[i]))
+			if (!std::empty(CPU_FEATURE_BIT_NAMES[i]) && this->FeatureBits_[i])
 			{
-				Print("{}: {}\n", CPU_FEATURE_BIT_NAMES[i], this->FeatureBits_[i]);
+                if (j++ % 8 == 0)
+                {
+                    Print('\n');
+                }
+				Print("{} ", CPU_FEATURE_BIT_NAMES[i]);
 			}
 		}
+        Print('\n');
 	}
 }

@@ -255,7 +255,7 @@ namespace Nominax::Foundation
 	inline auto Print([[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
 	{
 		#ifndef NOX_TEST
-		fmt::print(formatString, std::forward<Args>(args)...);
+		fmt::print(stdout, formatString, std::forward<Args>(args)...);
 		#endif
 	}
 

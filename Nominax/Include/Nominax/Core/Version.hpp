@@ -230,9 +230,9 @@ namespace Nominax::Core
 	constexpr Version SYSTEM_VERSION
 	{
 		.Major = 0,
-		.Minor = 8,
+		.Minor = 9,
 		.Build = 0,
-		.Revision = 0,
+		.Revision = 1,
 	};
 
 	inline auto operator <<(std::ostream& out, const Version version) -> std::ostream&

@@ -217,8 +217,8 @@
 namespace Nominax::Foundation
 {
 	/// <summary>
-		/// Represents a dynamically linked library. (.dll, .so) 
-		/// </summary>
+    /// Represents a dynamically linked library. (.dll, .so)
+    /// </summary>
 	struct DynamicLibrary final
 	{
 		/// <summary>
@@ -304,7 +304,7 @@ namespace Nominax::Foundation
 
 	inline auto DynamicLibrary::operator[](const std::string_view symbolName) const -> std::optional<DynamicProcedure>
 	{
-		void* const symbolHandle = OSI::DylibLookupSymbol(this->Handle_, symbolName);
+		void* const symbolHandle { OSI::DylibLookupSymbol(this->Handle_, symbolName) };
 		return symbolHandle ? std::optional { DynamicProcedure { symbolHandle } } : std::nullopt;
 	}
 }
