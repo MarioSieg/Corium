@@ -222,7 +222,7 @@ namespace Nominax::Foundations
 		if (!( x ))                 						\
 		{													\
 		    [[unlikely]]									\
-            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+            PANIC( msg );	                                \
 		}													\
 	}														\
 	while(false)
@@ -237,7 +237,7 @@ namespace Nominax::Foundations
 		if (( x ))											\
 		{													\
 		    [[unlikely]]									\
-            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+            PANIC( msg );	                                \
 		}													\
 	}														\
 	while(false)
@@ -276,7 +276,7 @@ namespace Nominax::Foundations
 		if (( x ) != ( y ))									\
 		{													\
             [[unlikely]]									\
-            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+            PANIC( msg );	                                \
 		}													\
 	}														\
 	while(false)
@@ -291,7 +291,7 @@ namespace Nominax::Foundations
 		if (( x ) == ( y ))									\
 		{													\
             [[unlikely]]									\
-            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+            PANIC( msg );	                                \
 		}													\
 	}														\
 	while(false)
@@ -306,7 +306,7 @@ namespace Nominax::Foundations
 		if (!(( x ) < ( y )))								\
 		{													\
             [[unlikely]]									\
-            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+            PANIC( msg );	                                \
 		}													\
 	}														\
 	while(false)
@@ -321,7 +321,7 @@ namespace Nominax::Foundations
 		if (!(( x ) <= ( y )))								\
 		{													\
             [[unlikely]]									\
-            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+            PANIC( msg );	                                \
 		}													\
 	}														\
 	while(false)
@@ -336,7 +336,7 @@ namespace Nominax::Foundations
 		if (!(( x ) > ( y )))								\
 		{													\
             [[unlikely]]									\
-            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+            PANIC( msg );	                                \
 		}													\
 	}														\
 	while(false)
@@ -351,179 +351,180 @@ namespace Nominax::Foundations
 		if (!(( x ) >= ( y )))								\
 		{													\
             [[unlikely]]									\
-            ::Nominax::Panic( NOX_PANIC_INFO(), ( msg ));	\
+            PANIC( msg );	                                \
 		}													\
 	}														\
 	while(false)
 
 	#if NOX_DEBUG
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_TRUE(x, msg)		NOX_PAS_TRUE(x, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_TRUE(x, msg)		NOX_PAS_TRUE(x, msg)
 
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_FALSE(x, msg)		NOX_PAS_FALSE(x, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_FALSE(x, msg)		NOX_PAS_FALSE(x, msg)
 
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_NULL(x, msg)		NOX_PAS_NULL(x, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_NULL(x, msg)		NOX_PAS_NULL(x, msg)
 
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_NOT_NULL(x, msg)	NOX_PAS_NOT_NULL(x, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_NOT_NULL(x, msg)	NOX_PAS_NOT_NULL(x, msg)
 
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_ZERO(x, msg)		NOX_PAS_ZERO(x, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_ZERO(x, msg)		NOX_PAS_ZERO(x, msg)
 
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_NOT_ZERO(x, msg)	NOX_PAS_NOT_ZERO(x, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_NOT_ZERO(x, msg)	NOX_PAS_NOT_ZERO(x, msg)
 
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_EQ(x, y, msg)		NOX_PAS_EQ(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_EQ(x, y, msg)		NOX_PAS_EQ(x, y, msg)
 
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_NE(x, y, msg)		NOX_PAS_NE(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_NE(x, y, msg)		NOX_PAS_NE(x, y, msg)
 
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_L(x, y, msg)		NOX_PAS_L(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_L(x, y, msg)		NOX_PAS_L(x, y, msg)
 
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_LE(x, y, msg)		NOX_PAS_LE(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_LE(x, y, msg)		NOX_PAS_LE(x, y, msg)
 
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_G(x, y, msg)		NOX_PAS_G(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_G(x, y, msg)		NOX_PAS_G(x, y, msg)
 
-/// <summary>
-/// Only active when building for DEBUG.
-/// Checks the condition and panics with the specified message,
-/// if the condition is not true.
-/// </summary>
-#define NOX_DBG_PAS_GE(x, y, msg)		NOX_PAS_GE(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_GE(x, y, msg)		NOX_PAS_GE(x, y, msg)
 
-	#else
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_TRUE(x, msg)
+    #else
 
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_FALSE(x, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_TRUE(x, msg)
 
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_NULL(x, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_FALSE(x, msg)
 
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_NOT_NULL(x, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_NULL(x, msg)
 
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_ZERO(x, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_NOT_NULL(x, msg)
 
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_NOT_ZERO(x, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_ZERO(x, msg)
 
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_EQ(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_NOT_ZERO(x, msg)
 
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_NE(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_EQ(x, y, msg)
 
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_L(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_NE(x, y, msg)
 
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_LE(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_L(x, y, msg)
 
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_G(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_LE(x, y, msg)
 
-	/// <summary>
-	/// Only active when building for DEBUG.
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_DBG_PAS_GE(x, y, msg)
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_G(x, y, msg)
+
+        /// <summary>
+        /// Only active when building for DEBUG.
+        /// Checks the condition and panics with the specified message,
+        /// if the condition is not true.
+        /// </summary>
+        #define NOX_DBG_PAS_GE(x, y, msg)
 	#endif
 }

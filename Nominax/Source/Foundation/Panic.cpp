@@ -209,6 +209,8 @@
 
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 #include "../../../Nominax/Include/Nominax/Assembler/_Assembler.hpp"
+#include "../../Include/Nominax/Foundation/Panic.hpp"
+
 
 namespace Nominax
 {
@@ -277,4 +279,23 @@ namespace Nominax
 		std::cout.flush();
 		std::abort();
 	}
+
+    auto Panic
+    (
+            const std::uint32_t line,
+            const std::string_view file,
+            const std::string_view function,
+            const std::string_view message
+    ) -> void
+    {
+        const PanicDescriptor desc
+        {
+                .Line = line,
+                .FileName = file,
+                .RoutineName = function,
+                .Message = message,
+                .DumpRegisters = true
+        };
+        PanicTerminationImpl(desc);
+    }
 }

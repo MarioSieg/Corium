@@ -277,7 +277,7 @@ namespace Nominax::Foundation
 		if (!this->ReadFromFile(std::move(path)))
 		{
 			[[unlikely]]
-				Panic(NOX_PANIC_INFO(), "Failed to read text file from path: {}", path.string());
+            PANIC("Failed to read text file from path: {}", path.string());
 		}
 	}
 
@@ -285,11 +285,16 @@ namespace Nominax::Foundation
 	{
 		this->Content_.erase
 		(
-			std::remove_if(std::execution::par_unseq, std::begin(this->Content_), std::end(this->Content_),
-			               [](const char c) -> bool
-			               {
-				               return c == ' ';
-			               }),
+			std::remove_if
+            (
+                std::execution::par_unseq,
+                std::begin(this->Content_),
+                std::end(this->Content_),
+                [](const char c) -> bool
+                {
+                    return c == ' ';
+                }
+           ),
 			std::end(this->Content_)
 		);
 	}

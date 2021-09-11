@@ -555,7 +555,7 @@ namespace Nominax::Core
 		if (sizeInBytes % sizeof(Record) != 0)
 		{
 			[[unlikely]]
-            Panic(NOX_PANIC_INFO(), "Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
+            PANIC("Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
 		}
 		return sizeInBytes / sizeof(Record);
 	}
@@ -618,9 +618,8 @@ namespace Nominax::Core
 		auto* NOX_RESTRICT const mem { new(std::nothrow) std::uint8_t[size] };
 		if (!mem) [[unlikely]]
 		{
-            Panic
+            PANIC
             (
-                NOX_PANIC_INFO(),
                 "Allocation of monotonic {} pool with size {} MB failed!",
                 poolId,
                 Bytes2Megabytes(static_cast<double>(size))
