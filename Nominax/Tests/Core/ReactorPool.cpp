@@ -215,12 +215,12 @@ TEST(ReactorPool, ConstructAndValidateCachedReactors)
         {
             std::vector<std::byte> Buffer {(1024 * 1024) * 64};
             std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
-            ReactorPool pool {Resource, ReactorPoolBootMode::Cached, 4, ReactorSpawnDescriptor::Default(), HyperVisor::GetFallbackRoutineLink() };
+            const auto defaultRoutineLink{ HyperVisor::GetFallbackRoutineLink() };
+            constexpr auto defaultSpawnConfig{ ReactorSpawnDescriptor::Default() };
+            ReactorPool pool {Resource, ReactorPoolBootMode::Cached, 4, defaultSpawnConfig, defaultRoutineLink };
             ASSERT_EQ(std::size(pool.GetPool()), 4);
             ASSERT_EQ(pool.GetBootMode(), ReactorPoolBootMode::Cached);
-            constexpr auto defaultSpawnConfig { ReactorSpawnDescriptor::Default() };
             ASSERT_EQ(std::memcmp(&pool.GetReactorSpawnConfig(), &defaultSpawnConfig, sizeof(ReactorSpawnDescriptor)), 0);
-            const auto defaultRoutineLink { HyperVisor::GetFallbackRoutineLink() };
             const auto& currentRoutineLink { pool.GetReactorRoutineLink() };
             ASSERT_EQ(std::memcmp(&currentRoutineLink, &defaultRoutineLink, sizeof(ReactorRoutineLink)), 0);
             for (const auto& opt : pool.GetPool())
@@ -240,11 +240,11 @@ TEST(ReactorPool, ConstructAndValidateDeferredReactors)
         {
             std::vector<std::byte> Buffer {(1024 * 1024) * 64};
             std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
-            ReactorPool pool {Resource, ReactorPoolBootMode::Deferred, 4, ReactorSpawnDescriptor::Default(), HyperVisor::GetFallbackRoutineLink() };
+            const auto defaultSpawnConfig{ ReactorSpawnDescriptor::Default() };
+            ReactorPool pool {Resource, ReactorPoolBootMode::Deferred, 4, defaultSpawnConfig, HyperVisor::GetFallbackRoutineLink() };
             ASSERT_EQ(std::size(pool.GetPool()), 1);
             ASSERT_EQ(pool.GetPool().capacity(), 4);
             ASSERT_EQ(pool.GetBootMode(), ReactorPoolBootMode::Deferred);
-            constexpr auto defaultSpawnConfig { ReactorSpawnDescriptor::Default() };
             ASSERT_EQ(std::memcmp(&pool.GetReactorSpawnConfig(), &defaultSpawnConfig, sizeof(ReactorSpawnDescriptor)), 0);
             const auto defaultRoutineLink { HyperVisor::GetFallbackRoutineLink() };
             const auto& currentRoutineLink { pool.GetReactorRoutineLink() };
