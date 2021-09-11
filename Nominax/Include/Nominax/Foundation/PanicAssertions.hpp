@@ -216,7 +216,7 @@ namespace Nominax::Foundations
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_TRUE(x, msg)								\
+	#define NOX_PAS_TRUE(x, msg)							\
 	do														\
 	{														\
 		if (!( x ))                 						\
@@ -231,7 +231,7 @@ namespace Nominax::Foundations
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_FALSE(x, msg)								\
+	#define NOX_PAS_FALSE(x, msg)							\
 	do														\
 	{														\
 		if (( x ))											\
@@ -270,7 +270,7 @@ namespace Nominax::Foundations
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_EQ(x, y, msg)								\
+	#define NOX_PAS_EQ(x, y, msg)							\
 	do														\
 	{														\
 		if (( x ) != ( y ))									\
@@ -285,7 +285,7 @@ namespace Nominax::Foundations
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_NE(x, y, msg)								\
+	#define NOX_PAS_NE(x, y, msg)							\
 	do														\
 	{														\
 		if (( x ) == ( y ))									\
@@ -300,7 +300,7 @@ namespace Nominax::Foundations
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_L(x, y, msg)								\
+	#define NOX_PAS_L(x, y, msg)							\
 	do														\
 	{														\
 		if (!(( x ) < ( y )))								\
@@ -315,7 +315,7 @@ namespace Nominax::Foundations
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_LE(x, y, msg)								\
+	#define NOX_PAS_LE(x, y, msg)							\
 	do														\
 	{														\
 		if (!(( x ) <= ( y )))								\
@@ -330,7 +330,7 @@ namespace Nominax::Foundations
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_G(x, y, msg)								\
+	#define NOX_PAS_G(x, y, msg)							\
 	do														\
 	{														\
 		if (!(( x ) > ( y )))								\
@@ -345,7 +345,7 @@ namespace Nominax::Foundations
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_GE(x, y, msg)								\
+	#define NOX_PAS_GE(x, y, msg)							\
 	do														\
 	{														\
 		if (!(( x ) >= ( y )))								\

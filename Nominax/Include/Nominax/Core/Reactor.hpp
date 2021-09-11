@@ -334,7 +334,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The unique reactor id.</returns>
 		[[nodiscard]]
-		auto GetId() const -> std::uint32_t;
+		auto GetID() const -> std::uint32_t;
 
 		/// <summary>
 		/// 
@@ -394,7 +394,7 @@ namespace Nominax::Core
 		auto GetInterruptHandler() const -> InterruptRoutineProxy*;
 	};
 
-	inline auto Reactor::GetId() const -> std::uint32_t
+	inline auto Reactor::GetID() const -> std::uint32_t
 	{
 		return this->Id_;
 	}

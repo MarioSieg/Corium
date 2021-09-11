@@ -494,8 +494,6 @@ TEST(Assembler_x86_64, VariationTableEntries)
 	ASSERT_EQ(i, std::size(pool));
 }
 
-#ifdef NOX_DEATH_TESTS
-
 TEST(Assembler_x86_64, InjectNopChain_Null_Error)
 {
 	ASSERT_DEATH(InjectNopChain(nullptr, 0), "");
@@ -512,8 +510,6 @@ TEST(Assembler_x86_64, InjectNopChain_16_Error)
 	std::uint8_t x { };
 	ASSERT_DEATH(InjectNopChain(&x, 16), "");
 }
-
-#endif
 
 TEST(Assembler_x86_64, VirtualRegisterIds)
 {

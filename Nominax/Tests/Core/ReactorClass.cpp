@@ -250,8 +250,6 @@ TEST(ReactorClass, MoveConstruct)
 	ASSERT_EQ(reactor2.GetInterruptHandler(), &DEFAULT_INTERRUPT_ROUTINE);
 }
 
-#ifdef NOX_DEATH_TESTS
-
 TEST(ReactorClass, ZeroStackSizeFault)
 {
 	auto exec
@@ -262,10 +260,9 @@ TEST(ReactorClass, ZeroStackSizeFault)
 				Reactor bad {Resource, ReactorSpawnDescriptor {.StackSize = 0}, HyperVisor::GetFallbackRoutineLink()};
 		}
 	};
-	ASSERT_DEATH_IF_SUPPORTED(exec(), "");
+	ASSERT_DEATH(exec(), "");
 }
 
-#endif
 
 TEST(ReactorClass, InterruptHandler)
 {

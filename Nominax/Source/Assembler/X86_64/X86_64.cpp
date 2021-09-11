@@ -211,9 +211,9 @@ namespace Nominax::Assembler::X86_64
 {
 	auto InjectNopChain(std::uint8_t* n, const std::uint8_t size) -> void
 	{
-		NOX_DBG_PAS_NOT_NULL(n, "Null needle!");
-		NOX_DBG_PAS_LE(size, 15, "Invalid nop chain size!");
-		NOX_DBG_PAS_GE(size, 1, "Invalid nop chain size!");
+		NOX_PAS_NOT_NULL(n, "Null needle!");
+		NOX_PAS_LE(size, 15, "Invalid nop chain size!");
+		NOX_PAS_GE(size, 1, "Invalid nop chain size!");
 
 		static constexpr std::array<const void* NOX_RESTRICT const, 15> JUMP_TABLE
 		{

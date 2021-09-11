@@ -540,7 +540,7 @@ namespace Nominax::Core
         }															\
         while(false)
 
-    #define VALIDATE_ONLINE_BOOT_STATE() NOX_DBG_PAS_TRUE(this->IsOnline(), "Environment is offline!")
+    #define VALIDATE_ONLINE_BOOT_STATE() NOX_PAS_TRUE(this->IsOnline(), "Environment is offline!")
 
 	/// <summary>
 	/// Checks if the byte stack size is divisible by sizeof(Common::Record) and panics if not.
@@ -757,7 +757,10 @@ namespace Nominax::Core
 		OptimalReactorRoutine { QueryExecRoutine(descriptor.ForceFallback, CpuFeatures) },
 		CorePool
 		{
-			SystemPoolResource, ReactorCount, ReactorSpawnDescriptor
+			SystemPoolResource,
+            ReactorPoolBootMode::Cached,
+            ReactorCount,
+            ReactorSpawnDescriptor
 			{
 				.StackSize = MapStackSize(descriptor.StackSize),
 				.SharedIntrinsicTable = { },

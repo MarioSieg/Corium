@@ -277,9 +277,6 @@ TEST(Image, MoveAssign)
 	ASSERT_DOUBLE_EQ(image2[2].R64.AsF64, -3.0);
 }
 
-
-#ifdef NOX_DEATH_TESTS
-
 TEST(Image, DeathConstruct1)
 {
 	const auto routine
@@ -291,7 +288,7 @@ TEST(Image, DeathConstruct1)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct2_1)
@@ -304,7 +301,7 @@ TEST(Image, DeathConstruct2_1)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct2_2)
@@ -317,7 +314,7 @@ TEST(Image, DeathConstruct2_2)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct2_3)
@@ -330,7 +327,7 @@ TEST(Image, DeathConstruct2_3)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct3_1)
@@ -343,7 +340,7 @@ TEST(Image, DeathConstruct3_1)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct3_2)
@@ -356,7 +353,7 @@ TEST(Image, DeathConstruct3_2)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct4_1)
@@ -369,7 +366,7 @@ TEST(Image, DeathConstruct4_1)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct4_2)
@@ -382,7 +379,7 @@ TEST(Image, DeathConstruct4_2)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct4_3)
@@ -395,7 +392,5 @@ TEST(Image, DeathConstruct4_3)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
-
-#endif

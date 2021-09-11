@@ -214,13 +214,12 @@ TEST(Environent, Construct)
 	ASSERT_EQ(env.GetKernel(), nullptr);
 }
 
-#ifdef NOX_DEATH_TESTS
 TEST(Environent, ConstructOfflineAccessDeath_GetBootStamp)
 {
 	const Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	ASSERT_DEATH([&env]()
 	                          {
 	                          [[maybe_unused]]
 	                          auto x{ env.GetBootStamp() };
@@ -233,7 +232,7 @@ TEST(Environent, ConstructOfflineAccessDeath_GetBootTime)
 	const Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
+	ASSERT_DEATH([&env]()
 	                          {
 	                          [[maybe_unused]]
 	                          auto x{ env.GetBootTime() };
@@ -245,11 +244,15 @@ TEST(Environent, ConstructOfflineAccessDeath_GetSystemSnapshot)
 	const Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetSystemSnapshot() };
-	                          }(), "");
+    const auto executor
+    {
+        [&]
+        {
+            [[maybe_unused]]
+            const auto& x { env.GetSystemInfoSnapshot() };
+        }
+    };
+	ASSERT_DEATH(executor(), "");
 }
 
 TEST(Environent, ConstructOfflineAccessDeath_GetProcessorFeatureSnapshot)
@@ -257,11 +260,15 @@ TEST(Environent, ConstructOfflineAccessDeath_GetProcessorFeatureSnapshot)
 	const Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetProcessorFeatureSnapshot() };
-	                          }(), "");
+    const auto executor
+    {
+        [&]
+        {
+            [[maybe_unused]]
+            const auto& x { env.GetCpuFeatureSnapshot() };
+        }
+    };
+    ASSERT_DEATH(executor(), "");
 }
 
 TEST(Environent, ConstructOfflineAccessDeath_GetAppName)
@@ -269,11 +276,15 @@ TEST(Environent, ConstructOfflineAccessDeath_GetAppName)
 	const Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetAppName() };
-	                          }(), "");
+    const auto executor
+    {
+        [&]
+        {
+            [[maybe_unused]]
+            const auto& x { env.GetAppName() };
+        }
+    };
+    ASSERT_DEATH(executor(), "");
 }
 
 TEST(Environent, ConstructOfflineAccessDeath_GetMonotonicSystemPoolSize)
@@ -281,11 +292,15 @@ TEST(Environent, ConstructOfflineAccessDeath_GetMonotonicSystemPoolSize)
 	const Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetMonotonicSystemPoolSize() };
-	                          }(), "");
+    const auto executor
+    {
+        [&]
+        {
+            [[maybe_unused]]
+            const auto& x { env.GetMonotonicSystemPoolSize() };
+        }
+    };
+    ASSERT_DEATH(executor(), "");
 }
 
 TEST(Environent, ConstructOfflineAccessDeath_GetExecutionCount)
@@ -293,11 +308,15 @@ TEST(Environent, ConstructOfflineAccessDeath_GetExecutionCount)
 	const Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetExecutionCount() };
-	                          }(), "");
+    const auto executor
+    {
+        [&]
+        {
+            [[maybe_unused]]
+            const auto& x{ env.GetExecutionCount() };
+        }
+    };
+    ASSERT_DEATH(executor(), "");
 }
 
 TEST(Environent, ConstructOfflineAccessDeath_GetExecutionTimeHistory)
@@ -305,14 +324,16 @@ TEST(Environent, ConstructOfflineAccessDeath_GetExecutionTimeHistory)
 	const Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH_IF_SUPPORTED([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          const auto& x{ env.GetExecutionTimeHistory() };
-	                          }(), "");
+    const auto executor
+    {
+        [&]
+        {
+            [[maybe_unused]]
+            const auto& x{ env.GetExecutionTimeHistory() };
+        }
+    };
+    ASSERT_DEATH(executor(), "");
 }
-
-#endif
 
 TEST(Environment, Boot)
 {
@@ -399,8 +420,6 @@ TEST(Environment, BootShutdownHooks)
 	ASSERT_EQ(env.GetKernel(), nullptr);
 }
 
-#if NOX_DEATH_TESTS
-
 TEST(Environment, BootShutdownHooksBad)
 {
 	class MyEnvironment : public Environment
@@ -434,10 +453,8 @@ TEST(Environment, BootShutdownHooksBad)
 	{
 
 	};
-	ASSERT_DEATH_IF_SUPPORTED(env.Boot(descriptor), "");
+	ASSERT_DEATH(env.Boot(descriptor), "");
 }
-
-#endif
 
 TEST(Environment, SystemConfig)
 {
@@ -503,46 +520,42 @@ TEST(Environment, Execution)
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 
-#if NOX_DEATH_TESTS
-
 TEST(Environment, ExecutionMissingPrologue)
 {
-	Stream                      stream { };
-	stream.With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	});
+	Stream stream { };
+    {
+        ScopedInt var { stream, 2 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
 	stream.Epilogue();
 
 	const EnvironmentDescriptor descriptor { };
 
 	Environment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
+	ASSERT_DEATH(env.Execute(std::move(stream)), "");
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 
 TEST(Environment, ExecutionMissingEpilogue)
 {
-	Stream                                 stream { };
-	stream.Prologue().With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	});
+	Stream stream { };
+    {
+        ScopedInt var { stream, 2 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
 
 	const EnvironmentDescriptor descriptor { };
 
 	Environment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
+	ASSERT_DEATH(env.Execute(std::move(stream)), "");
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
-
-#endif
 
 TEST(Environment, ExecutionHooks)
 {
@@ -596,17 +609,15 @@ TEST(Environment, ExecutionHooks)
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 
-#ifdef NOX_DEATH_TESTS
-
 TEST(Environment, ExecutionHooksBad)
 {
-	Stream                                 stream { };
-	stream.Prologue().With(2, [](ScopedInt var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	});
+	Stream stream { };
+    {
+        ScopedInt var { stream, 2 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
 	stream.Epilogue();
 
 	const EnvironmentDescriptor descriptor { };
@@ -626,7 +637,5 @@ TEST(Environment, ExecutionHooksBad)
 	MyEnvironment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 	ASSERT_EQ(env.GetExecutionCount(), 0);
-	ASSERT_DEATH_IF_SUPPORTED(env.Execute(std::move(stream)), "");
+	ASSERT_DEATH(env.Execute(std::move(stream)), "");
 }
-
-#endif
