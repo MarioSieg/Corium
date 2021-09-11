@@ -216,30 +216,30 @@ namespace Nominax::Foundations
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_TRUE(x, msg)							                  \
-	do														\
-	{														\
-		if (!( x ))                 						                  \
-		{													\
-		    [[unlikely]]									            \
-            PANIC( msg );	                                                            \
-		}													\
-	}														\
+	#define NOX_PAS_TRUE(x, msg)							                    \
+	do														                    \
+	{														                    \
+		if (!( x ))                 						                    \
+		{													                    \
+		      [[unlikely]]									                    \
+              Panic( NOX_PANIC_INFO(), msg );	                                \
+		}													                    \
+	}														                    \
 	while(false)
 
 	/// <summary>
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_FALSE(x, msg)							                  \
-	do														\
-	{														\
-		if (( x ))											      \
-		{													\
-		    [[unlikely]]									            \
-            PANIC( msg );	                                                            \
-		}													\
-	}														\
+	#define NOX_PAS_FALSE(x, msg)							                    \
+	do														                    \
+	{														                    \
+		if (( x ))											                    \
+		{													                    \
+		      [[unlikely]]									                    \
+              Panic( NOX_PANIC_INFO(), msg );	                                \
+		}													                    \
+	}														                    \
 	while(false)
 
 	/// <summary>
@@ -270,93 +270,94 @@ namespace Nominax::Foundations
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_EQ(x, y, msg)							                  \
-	do														\
-	{														\
-		if (( x ) != ( y ))									      \
-		{													\
-            [[unlikely]]									            \
-            PANIC( msg );	                                                            \
-		}													\
-	}														\
+	#define NOX_PAS_EQ(x, y, msg)							                    \
+	do														                    \
+	{														                    \
+		if (( x ) != ( y ))									                    \
+		{													                    \
+            [[unlikely]]									                    \
+            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+		}													                    \
+	}														                    \
 	while(false)
 
 	/// <summary>
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_NE(x, y, msg)							                  \
-	do														\
-	{														\
-		if (( x ) == ( y ))									      \
-		{													\
-            [[unlikely]]									            \
-            PANIC( msg );	                                                            \
-		}													\
-	}														\
+	#define NOX_PAS_NE(x, y, msg)							                    \
+	do														                    \
+	{														                    \
+		if (( x ) == ( y ))									                    \
+		{													                    \
+            [[unlikely]]									                    \
+            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+		}													                    \
+	}														                    \
 	while(false)
 
 	/// <summary>
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_L(x, y, msg)							                  \
-	do														\
-	{														\
-		if (!(( x ) < ( y )))								            \
-		{													\
-            [[unlikely]]									            \
-            PANIC( msg );	                                                            \
-		}													\
-	}														\
+	#define NOX_PAS_L(x, y, msg)							                    \
+	do														                    \
+	{														                    \
+		if (!(( x ) < ( y )))								                    \
+		{													                    \
+            [[unlikely]]									                    \
+            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+		}													                    \
+	}														                    \
 	while(false)
 
 	/// <summary>
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_LE(x, y, msg)							                  \
-	do														\
-	{														\
-		if (!(( x ) <= ( y )))								            \
-		{													\
-            [[unlikely]]									            \
-            PANIC( msg );	                                                            \
-		}													\
-	}														\
+	#define NOX_PAS_LE(x, y, msg)							                    \
+	do														                    \
+	{														                    \
+		if (!(( x ) <= ( y )))								                    \
+		{													                    \
+            [[unlikely]]									                    \
+            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+		}													                    \
+	}														                    \
 	while(false)
 
 	/// <summary>
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_G(x, y, msg)							                  \
-	do														\
-	{														\
-		if (!(( x ) > ( y )))								            \
-		{													\
-            [[unlikely]]									            \
-            PANIC( msg );	                                                            \
-		}													\
-	}														\
+	#define NOX_PAS_G(x, y, msg)							                    \
+	do														                    \
+	{														                    \
+		if (!(( x ) > ( y )))								                    \
+		{													                    \
+            [[unlikely]]									                    \
+            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+		}													                    \
+	}														                    \
 	while(false)
 
 	/// <summary>
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_GE(x, y, msg)							                  \
-	do														\
-	{														\
-		if (!(( x ) >= ( y )))								            \
-		{													\
-            [[unlikely]]									            \
-            PANIC( msg );	                                                            \
-		}													\
-	}														\
+	#define NOX_PAS_GE(x, y, msg)							                    \
+	do														                    \
+	{														                    \
+		if (!(( x ) >= ( y )))								                    \
+		{													                    \
+            [[unlikely]]									                    \
+            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+		}													                    \
+	}														                    \
 	while(false)
 
 	#if NOX_DEBUG
+      
         /// <summary>
         /// Only active when building for DEBUG.
         /// Checks the condition and panics with the specified message,
@@ -526,5 +527,6 @@ namespace Nominax::Foundations
         /// if the condition is not true.
         /// </summary>
         #define NOX_DBG_PAS_GE(x, y, msg)
+
 	#endif
 }

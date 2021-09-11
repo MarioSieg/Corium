@@ -271,19 +271,27 @@ namespace Nominax
 	/// <param name="function"></param>
 	/// <param name="message"></param>
 	/// <returns></returns>
-	[[noreturn]]
+    template <typename Str, typename... Args>
+    [[noreturn]]
 	NOX_COLD NOX_NEVER_INLINE
 	auto Panic
 	(
 		std::uint32_t line,
 		std::string_view file,
 		std::string_view function,
-		std::string_view message
-	) -> void;
-
-    /// <summary>
-    /// Terminates the process with an error messages in the terminal.
-    /// </summary>
-    /// <param name="message"></param>
-    #define PANIC(...) ::Nominax::Panic(NOX_PANIC_INFO(), ARG_TUPLE_1(__VA_ARGS__))
+		Str&& message,
+        Args&&... args
+	) -> void
+    {
+        const auto formatted { Foundation::Format(message, std::forward<Args>(args)...) };
+        const PanicDescriptor desc
+        {
+            .Line = line,
+            .FileName = file,
+            .RoutineName = function,
+            .Message = formatted,
+            .DumpRegisters = true
+        };
+        PanicTerminationImpl(desc);
+    }
 }

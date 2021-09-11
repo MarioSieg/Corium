@@ -555,7 +555,7 @@ namespace Nominax::Core
 		if (sizeInBytes % sizeof(Record) != 0)
 		{
 			[[unlikely]]
-            PANIC("Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
+            Panic(NOX_PANIC_INFO(), "Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
 		}
 		return sizeInBytes / sizeof(Record);
 	}
@@ -618,8 +618,9 @@ namespace Nominax::Core
 		auto* NOX_RESTRICT const mem { new(std::nothrow) std::uint8_t[size] };
 		if (!mem) [[unlikely]]
 		{
-            PANIC
+            Panic
             (
+                NOX_PANIC_INFO(),
                 "Allocation of monotonic {} pool with size {} MB failed!",
                 poolId,
                 Bytes2Megabytes(static_cast<double>(size))
@@ -915,7 +916,9 @@ namespace Nominax::Core
 	{
 		ByteCode::Image codeImage { };
 		const ByteCode::ValidationResultCode buildResult { ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage) };
-		NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
+        NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}",
+                                                                           REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(
+                                                                                   buildResult)]));
 		return (*this)(codeImage);
 	}
 
