@@ -226,7 +226,7 @@ namespace Nominax::Foundation
 
 	auto SystemInfoSnapshot::Print() const -> void
 	{
-		using namespace Foundation;
+		using Foundation::Print;
 
 		const auto&
 		[
@@ -239,15 +239,15 @@ namespace Nominax::Foundation
 			TotalSystemMemory,
 			UsedSystemMemory,
 			PageSize
-		] = *this;
+		] { *this };
 
-		Foundation::Print("Boot date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
-		Foundation::Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
-		Foundation::Print("CPU: {}\n", CpuName);
-		Foundation::Print("CPU Hardware threads: {}\n", ThreadCount);
-		Foundation::Print("CPU Machine class: {}\n", static_cast<char>(MachineRating(ThreadCount)));
-		Foundation::Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
-		Foundation::Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
-		Foundation::Print("Page size: {}B\n", PageSize);
+		Print("Date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
+		Print("TID: {:#X}\n", std::hash<std::thread::id>()(ThreadId));
+		Print("CPU: {}\n", CpuName);
+		Print("CPU Hardware threads: {}\n", ThreadCount);
+		Print("CPU Machine class: {}\n", static_cast<char>(MachineRating(ThreadCount)));
+		Print("System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
+		Print("Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
+		Print("Page size: {}B\n", PageSize);
 	}
 }

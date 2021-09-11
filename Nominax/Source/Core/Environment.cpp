@@ -1001,31 +1001,37 @@ namespace Nominax::Core
 
     auto Environment::GetOutputStream() const -> FILE*
     {
+        VALIDATE_ONLINE_BOOT_STATE();
         return this->Context_->OutputStream;
     }
 
     auto Environment::GetErrorStream() const -> FILE*
     {
+        VALIDATE_ONLINE_BOOT_STATE();
         return this->Context_->ErrorStream;
     }
 
     auto Environment::GetInputStream() const -> FILE*
     {
+        VALIDATE_ONLINE_BOOT_STATE();
         return this->Context_->InputStream;
     }
 
     auto Environment::SetOutputStream(FILE* const stream) -> void
     {
+        VALIDATE_ONLINE_BOOT_STATE();
         this->Context_->OutputStream = stream;
     }
 
     auto Environment::SetErrorStream(FILE* const stream) -> void
     {
+        VALIDATE_ONLINE_BOOT_STATE();
         this->Context_->ErrorStream = stream;
     }
 
     auto Environment::SetInputStream(FILE* const stream) -> void
     {
+        VALIDATE_ONLINE_BOOT_STATE();
         this->Context_->InputStream = stream;
     }
 
