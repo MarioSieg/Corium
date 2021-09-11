@@ -223,10 +223,9 @@ inline std::unique_ptr Env
 {
 	[]() -> auto
 	{
-		auto                  env {std::make_unique<Environment>()};
+		auto env {std::make_unique<Environment>()};
 		EnvironmentDescriptor descriptor { };
-		descriptor.AppName        = "NominaxBenchmark";
-		descriptor.FastHostIoSync = false;
+		descriptor.AppName = "NominaxBenchmark";
 		env->Boot(descriptor);
 		return env;
 	}()

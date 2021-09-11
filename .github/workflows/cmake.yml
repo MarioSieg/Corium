@@ -30,16 +30,14 @@ jobs:
       run: sudo cp $GITHUB_WORKSPACE/Tools/utils.h /usr/include/c++/11/pstl/utils.h && cmake -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11 -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target Nominax NominaxBenchmark NominaxUnitTest
       
     - name: Boot
       run: ${{github.workspace}}/build/Nominax
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.  
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}} --rerun-failed --output-on-failure
+      run: ./NominaxUnitTest
 
     - name: Benchmark
       run: ${{github.workspace}}/build/NominaxBenchmark
