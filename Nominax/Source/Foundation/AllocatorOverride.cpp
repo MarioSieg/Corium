@@ -209,80 +209,104 @@
 
 auto operator new(const std::size_t size) -> void*
 {
-	#if NOX_DEBUG
-	void* mem;
-	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-	return mem;
-	#else
-	return std::malloc(size);
-	#endif
+	if constexpr (NOX_DEBUG)
+	{
+		void* mem;
+		Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
+		return mem;
+	}
+	else
+	{
+		return std::malloc(size);
+	}
 }
 
 auto operator new[](const std::size_t size) -> void*
 {
-	#if NOX_DEBUG
-	void* mem;
-	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-	return mem;
-	#else
-	return std::malloc(size);
-	#endif
+	if constexpr (NOX_DEBUG)
+	{
+		void* mem;
+		Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
+		return mem;
+	}
+	else
+	{
+		return std::malloc(size);
+	}
 }
 
 auto operator new(const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
-	#if NOX_DEBUG
-	void* mem;
-	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-	return mem;
-	#else
-	return std::malloc(size);
-	#endif
+	if constexpr (NOX_DEBUG)
+	{
+		void* mem;
+		Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
+		return mem;
+	}
+	else
+	{
+		return std::malloc(size);
+	}
 }
 
 auto operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
-	#if NOX_DEBUG
-	void* mem;
-	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-	return mem;
-	#else
-	return std::malloc(size);
-	#endif
+	if constexpr (NOX_DEBUG)
+	{
+		void* mem;
+		Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
+		return mem;
+	}
+	else
+	{
+		return std::malloc(size);
+	}
 }
 
 auto operator delete(void* mem) noexcept(true) -> void
 {
-	#if NOX_DEBUG
-	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	#else
-	std::free(mem);
-	#endif
+	if constexpr (NOX_DEBUG)
+	{
+		Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
+	}
+	else
+	{
+		std::free(mem);
+	}
 }
 
 auto operator delete(void* mem, std::size_t) noexcept(true) -> void
 {
-	#if NOX_DEBUG
-	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	#else
-	std::free(mem);
-	#endif
+	if constexpr (NOX_DEBUG)
+	{
+		Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
+	}
+	else
+	{
+		std::free(mem);
+	}
 }
 
 auto operator delete[](void* mem) noexcept(true) -> void
 {
-	#if NOX_DEBUG
-	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	#else
-	std::free(mem);
-	#endif
+	if constexpr (NOX_DEBUG)
+	{
+		Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
+	}
+	else
+	{
+		std::free(mem);
+	}
 }
 
 auto operator delete[](void* mem, std::size_t) noexcept(true) -> void
 {
-	#if NOX_DEBUG
-	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	#else
-	std::free(mem);
-	#endif
+	if constexpr (NOX_DEBUG)
+	{
+		Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
+	}
+	else
+	{
+		std::free(mem);
+	}
 }

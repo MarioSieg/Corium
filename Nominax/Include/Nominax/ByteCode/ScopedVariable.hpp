@@ -481,7 +481,7 @@ namespace Nominax::ByteCode
 		auto RotateRight(T value) -> ScopedVariable&;
 
 		/// <summary>
-		/// Pop variable from stack.
+		/// POP variable from stack.
 		/// </summary>
 		~ScopedVariable();
 
@@ -516,7 +516,7 @@ namespace Nominax::ByteCode
 		if (this->Attached_.GetOptimizationLevel() == OptimizationLevel::Off)
 		{
 			// ReSharper disable once CppRedundantTemplateKeyword
-			this->Attached_.template Do<Instruction::NOp>();
+			this->Attached_.template Do<Instruction::NOP>();
 		}
 		return *this;
 	}

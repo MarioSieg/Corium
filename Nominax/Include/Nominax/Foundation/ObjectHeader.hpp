@@ -227,330 +227,332 @@ namespace Nominax::Foundation
 	union alignas(alignof(MetaHeaderScalar)) ObjectFlagVector final
 	{
 		#if NOX_DEBUG
-		struct
-		{
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag0 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag1 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag2 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag3 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag4 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag5 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag6 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag7 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag8 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag9 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag10 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag11 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag12 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag13 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag14 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag15 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag16 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag17 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag18 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag19 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag20 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag21 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag22 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag23 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag24 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag25 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag26 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag27 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag28 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag29 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag30 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag31 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag32 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag33 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag34 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag35 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag36 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag37 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag38 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag39 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag40 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag41 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag42 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag43 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag44 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag45 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag46 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag47 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag48 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag49 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag50 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag51 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag52 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag53 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag54 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag55 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag56 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag57 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag58 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag59 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag60 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag61 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag62 : 1;
-
-			/// <summary>
-			///
-			/// </summary>
-			bool Flag63 : 1;
-		} Flags;
-
+			struct
+			{
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag0 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag1 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag2 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag3 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag4 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag5 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag6 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag7 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag8 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag9 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag10 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag11 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag12 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag13 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag14 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag15 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag16 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag17 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag18 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag19 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag20 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag21 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag22 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag23 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag24 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag25 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag26 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag27 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag28 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag29 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag30 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag31 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag32 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag33 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag34 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag35 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag36 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag37 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag38 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag39 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag40 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag41 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag42 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag43 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag44 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag45 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag46 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag47 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag48 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag49 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag50 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag51 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag52 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag53 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag54 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag55 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag56 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag57 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag58 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag59 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag60 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag61 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag62 : 1;
+
+				/// <summary>
+				///
+				/// </summary>
+				bool Flag63 : 1;
+			} Flags;
 		#endif
+
+		static_assert(sizeof(MetaHeaderScalar) == 8);
+
 		MetaHeaderScalar Merged;
 	};
 

@@ -227,11 +227,14 @@ namespace Nominax::ByteCode
 
 	consteval auto DefaultOptimizationLevel() -> OptimizationLevel
 	{
-		#if NOX_DEBUG
-		return OptimizationLevel::O2;
-		#else
-		return OptimizationLevel::O3;
-		#endif
+		if constexpr (NOX_DEBUG)
+		{
+			return OptimizationLevel::Off;
+		}
+		else
+		{
+			return OptimizationLevel::O3;
+		}
 	}
 
 	/// <summary>

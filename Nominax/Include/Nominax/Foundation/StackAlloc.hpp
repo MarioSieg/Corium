@@ -207,11 +207,12 @@
 
 #pragma once
 
-#include "Platform.hpp"
 #include <cstdint>
+
+#include "Platform.hpp"
 #include "MemoryUnits.hpp"
 
-#if _WIN64
+#if NOX_OS_WINDOWS
 #	include <malloc.h>
 #else
 #	include <alloca.h>
@@ -220,9 +221,9 @@
 namespace Nominax::Foundation
 {
 	#if NOX_OS_WINDOWS
-	#define NOX_ALLOCA_STUB(size) ::_alloca(size)
+		#define NOX_ALLOCA_STUB(size) ::_alloca(size)
 	#else
-#define NOX_ALLOCA_STUB(size) ::alloca(size)
+		#define NOX_ALLOCA_STUB(size) ::alloca(size)
 	#endif
 
 	/// <summary>
@@ -452,7 +453,7 @@ namespace Nominax::Foundation
 	/// <param name="count">The amount of "type" to allocate. Here, the dynamic version allows dynamic values,
 	/// but if the byte size is above "STACK_ALLOC_HEAP_THRESHOLD", the memory is allocated on the heap instead.</param>
 	/// <returns>The stack guard which released the memory on exit.</returns>
-	#define DynamicStackAllocation(type, count)										\
+	#define DynamicStackAllocation(type, count)											\
 		{																				\
 			IsHybridHeap < type >( count ),												\
 			IsHybridHeap < type >( count )												\

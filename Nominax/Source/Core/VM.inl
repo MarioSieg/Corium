@@ -641,25 +641,25 @@ namespace Nominax::Core
 			&&__swap__,
 			&&__nop__,
 			&&__jmp__,
-			&&__jmprel__,
+			&&__jmpr__,
 			&&__jz__,
 			&&__jnz__,
-			&&__jo_cmpi__,
-			&&__jo_cmpf__,
-			&&__jno_cmpi__,
-			&&__jno_cmpf__,
-			&&__je_cmpi__,
-			&&__je_cmpf__,
-			&&__jne_cmpi__,
-			&&__jne_cmpf__,
-			&&__ja_cmpi__,
-			&&__ja_cmpf__,
-			&&__jl_cmpi__,
-			&&__jl_cmpf__,
-			&&__jae_cmpi__,
-			&&__jae_cmpf__,
-			&&__jle_cmpi__,
-			&&__jle_cmpf__,
+			&&__jocmpi__,
+			&&__jocmpf__,
+			&&__jnocmpi__,
+			&&__jnocmpf__,
+			&&__jecmpi__,
+			&&__jecmpf__,
+			&&__jnecmpi__,
+			&&__jnecmpf__,
+			&&__jacmpi__,
+			&&__jacmpf__,
+			&&__jlcmpi__,
+			&&__jlcmpf__,
+			&&__jaecmpi__,
+			&&__jaecmpf__,
+			&&__jlecmpi__,
+			&&__jlecmpf__,
 			&&__ipushz__,
 			&&__ipusho__,
 			&&__fpusho__,
@@ -698,7 +698,11 @@ namespace Nominax::Core
 			&&__madd__,
 			&&__msub__,
 			&&__mmul__,
-			&&__mdiv__
+			&&__mdiv__,
+            &&__cvti2f__,
+            &&__cvtf2i__,
+            &&__cvti2c__,
+            &&__cvti2b__
 		};
 
 		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
@@ -912,7 +916,7 @@ namespace Nominax::Core
 		JMP_PTR_REL();
 
 
-	__jmprel__:
+	__jmpr__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jmprel__");
@@ -958,7 +962,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jo_cmpi__:
+	__jocmpi__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jo_cmpi__");
@@ -974,7 +978,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jo_cmpf__:
+	__jocmpf__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jo_cmpf__");
@@ -990,7 +994,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jno_cmpi__:
+	__jnocmpi__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jno_cmpi__");
@@ -1006,7 +1010,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jno_cmpf__:
+	__jnocmpf__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jno_cmpf__");
@@ -1022,7 +1026,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__je_cmpi__:
+	__jecmpi__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__je_cmpi__");
@@ -1039,7 +1043,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__je_cmpf__:
+	__jecmpf__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__je_cmpf__");
@@ -1056,7 +1060,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jne_cmpi__:
+	__jnecmpi__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jne_cmpi__");
@@ -1073,7 +1077,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jne_cmpf__:
+	__jnecmpf__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jne_cmpf__");
@@ -1090,7 +1094,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__ja_cmpi__:
+	__jacmpi__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__ja_cmpi__");
@@ -1107,7 +1111,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__ja_cmpf__:
+	__jacmpf__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__ja_cmpf__");
@@ -1124,7 +1128,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jl_cmpi__:
+	__jlcmpi__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jl_cmpi__");
@@ -1141,7 +1145,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jl_cmpf__:
+	__jlcmpf__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jl_cmpf__");
@@ -1158,7 +1162,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jae_cmpi__:
+	__jaecmpi__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jae_cmpi__");
@@ -1175,7 +1179,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jae_cmpf__:
+	__jaecmpf__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jae_cmpf__");
@@ -1192,7 +1196,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jle_cmpi__:
+	__jlecmpi__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jle_cmpi__");
@@ -1209,7 +1213,7 @@ namespace Nominax::Core
 		JMP_PTR();
 
 
-	__jle_cmpf__:
+	__jlecmpf__:
 		NOX_HOT_LABEL;
 		{
 			ASM_MARKER("__jle_cmpf__");
@@ -1979,6 +1983,42 @@ namespace Nominax::Core
 
 		goto
 		JMP_PTR();
+
+    __cvti2f__:
+        NOX_HOT_LABEL;
+        ASM_MARKER("__cvti2f__");
+
+        (*sp).AsF64 = static_cast<double>((*sp).AsI64);
+
+        goto
+        JMP_PTR();
+
+    __cvtf2i__:
+        NOX_HOT_LABEL;
+        ASM_MARKER("__cvtf2i__");
+
+        (*sp).AsI64 = static_cast<std::int64_t>((*sp).AsF64);
+
+        goto
+        JMP_PTR();
+
+    __cvti2c__:
+        NOX_HOT_LABEL;
+        ASM_MARKER("__cvti2c__");
+
+        (*sp).AsChar32 = static_cast<char32_t>((*sp).AsI64);
+
+        goto
+        JMP_PTR();
+
+    __cvti2b__:
+        NOX_HOT_LABEL;
+        ASM_MARKER("__cvti2b__");
+
+        (*sp).AsU64 &= true;
+
+        goto
+        JMP_PTR();
 
 	_terminate_:
 		NOX_COLD_LABEL;

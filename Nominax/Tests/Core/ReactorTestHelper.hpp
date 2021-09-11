@@ -244,7 +244,7 @@ constexpr VerboseReactorDescriptor MOCK_REACTOR_INPUT
 
 inline std::array MockCode
 {
-	Signal { Instruction::NOp }, // first padding
-	Signal { Instruction::Int },
+	Signal { Instruction::NOP }, // first padding
+	Signal { Instruction::INT },
 	Signal { INT64_C(5) },
 };

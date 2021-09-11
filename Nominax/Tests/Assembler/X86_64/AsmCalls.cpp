@@ -341,7 +341,7 @@ TEST(AssemblyCalls, MockCall)
 		[&]
 		{
 			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
+				ASSERT_EQ(MockCall(), 0xFF);
 			#else
 				ASSERT_EQ(MockCall(), 1234);
 			#endif

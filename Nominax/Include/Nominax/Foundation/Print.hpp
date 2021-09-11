@@ -212,6 +212,7 @@
 #include <fmt/chrono.h>
 #include <fmt/color.h>
 
+#include "Platform.hpp"
 #include "Algorithm.hpp"
 
 namespace Nominax::Foundation
@@ -228,12 +229,13 @@ namespace Nominax::Foundation
 	/// <typeparam name="...Args">The argument types.</typeparam>
 	/// <param name="formatString">The format string.</param>
 	/// <param name="args">The arguments to format.</param>
-	template <typename Str, typename... Args>
-	inline auto Print([[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
+	template <typename... Args>
+	inline auto Print([[maybe_unused]] const std::string_view formatString, [[maybe_unused]] Args&&...args) -> void
 	{
-		#ifndef NOX_TEST
+		if constexpr (!NOX_TEST)
+        {
 		    fmt::print(stdout, formatString, std::forward<Args>(args)...);
-		#endif
+        }
 	}
 
 	/// <summary>
@@ -243,7 +245,10 @@ namespace Nominax::Foundation
 	/// <returns></returns>
 	inline auto Print(const char x) -> void
 	{
-        fputc(x, stdout);
+        if constexpr (!NOX_TEST)
+        {
+            fputc(x, stdout);
+        }
 	}
 
 	/// <summary>
@@ -257,8 +262,8 @@ namespace Nominax::Foundation
 	/// <typeparam name="...Args">The argument types.</typeparam>
 	/// <param name="formatString">The format string.</param>
 	/// <param name="args">The arguments to format.</param>
-	template <typename Str, typename... Args>
-	inline auto Format([[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> std::string
+	template <typename... Args>
+	inline auto Format([[maybe_unused]] const std::string_view formatString, [[maybe_unused]] Args&&...args) -> std::string
 	{
 		return fmt::format(formatString, std::forward<Args>(args)...);
 	}

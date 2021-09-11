@@ -214,9 +214,9 @@ TEST(ScopedVariable, StackPushPop)
         ScopedFloat x { stream, 4.5 };
     }
 	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[0].Contains(Instruction::PUSH));
 	ASSERT_TRUE(stream[1].Contains(4.5));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[2].Contains(Instruction::POP));
 }
 
 TEST(ScopedVariable, F64StackPushPopOptScalarZero)
@@ -226,8 +226,8 @@ TEST(ScopedVariable, F64StackPushPopOptScalarZero)
         ScopedFloat x { stream, 0.0 };
     }
 	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[0].Contains(Instruction::PUSHZ));
+	ASSERT_TRUE(stream[1].Contains(Instruction::POP));
 }
 
 TEST(ScopedVariable, I64StackPushPopOptScalarZero)
@@ -237,8 +237,8 @@ TEST(ScopedVariable, I64StackPushPopOptScalarZero)
         ScopedInt x { stream, 0 };
     }
 	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[0].Contains(Instruction::PUSHZ));
+	ASSERT_TRUE(stream[1].Contains(Instruction::POP));
 }
 
 TEST(ScopedVariable, F64StackPushPopOptScalarOne)
@@ -248,8 +248,8 @@ TEST(ScopedVariable, F64StackPushPopOptScalarOne)
         const ScopedFloat x { stream, 1.0 };
     }
 	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::FPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[0].Contains(Instruction::FPUSHO));
+	ASSERT_TRUE(stream[1].Contains(Instruction::POP));
 }
 
 TEST(ScopedVariable, I64StackPushPopOptScalarOne)
@@ -259,8 +259,8 @@ TEST(ScopedVariable, I64StackPushPopOptScalarOne)
         const ScopedInt x { stream, 1 };
     }
 	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[0].Contains(Instruction::IPUSHO));
+	ASSERT_TRUE(stream[1].Contains(Instruction::POP));
 }
 
 TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
@@ -272,8 +272,8 @@ TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
     }
 	ASSERT_EQ(stream.Size(), 3);
 	ASSERT_TRUE(stream[0].Contains(3.5));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[1].Contains(Instruction::DUPL));
+	ASSERT_TRUE(stream[2].Contains(Instruction::POP));
 }
 
 TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
@@ -285,6 +285,6 @@ TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
     }
 	ASSERT_EQ(stream.Size(), 3);
 	ASSERT_TRUE(stream[0].Contains<std::int64_t>(3));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
+	ASSERT_TRUE(stream[1].Contains(Instruction::DUPL));
+	ASSERT_TRUE(stream[2].Contains(Instruction::POP));
 }

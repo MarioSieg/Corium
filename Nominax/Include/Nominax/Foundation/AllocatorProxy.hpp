@@ -209,6 +209,7 @@
 
 #include "Platform.hpp"
 #include "IAllocator.hpp"
+#include "DebugAllocator.hpp"
 
 namespace Nominax::Foundation
 {
@@ -217,10 +218,16 @@ namespace Nominax::Foundation
 	/// </summary>
 	inline constinit const IAllocator* GlobalAllocatorProxy
 	{
-		#if NOX_DEBUG && NOX_VERBOSE_ALLOCATOR
-			&GlobalDebugAllocator
-		#else
-		&GlobalRuntimeAllocator
-		#endif
+		[]
+		{
+			if constexpr (NOX_DEBUG || NOX_VERBOSE_ALLOCATOR)
+			{
+				return &GlobalDebugAllocator;
+			}
+			else
+			{
+				return &GlobalRuntimeAllocator;
+			}
+		}()
 	};
 }

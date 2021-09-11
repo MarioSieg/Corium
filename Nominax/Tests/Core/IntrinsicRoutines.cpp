@@ -211,12 +211,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Cos)
 {
 	std::array code =
     {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Cos},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -234,12 +234,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Cos)
 TEST(ReactorExecution, IntrinsicRoutine_Sin)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Sin},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -257,12 +257,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Sin)
 TEST(ReactorExecution, IntrinsicRoutine_Tan)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Tan},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -280,12 +280,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Tan)
 TEST(ReactorExecution, IntrinsicRoutine_ACos)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::ACos},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -303,12 +303,12 @@ TEST(ReactorExecution, IntrinsicRoutine_ACos)
 TEST(ReactorExecution, IntrinsicRoutine_ASin)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::ASin},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -326,12 +326,12 @@ TEST(ReactorExecution, IntrinsicRoutine_ASin)
 TEST(ReactorExecution, IntrinsicRoutine_ATan)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::ATan},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -349,14 +349,14 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan)
 TEST(ReactorExecution, IntrinsicRoutine_ATan2)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Push},
+		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::ATan2},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -375,12 +375,12 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan2)
 TEST(ReactorExecution, IntrinsicRoutine_CosH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::CosH},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -398,12 +398,12 @@ TEST(ReactorExecution, IntrinsicRoutine_CosH)
 TEST(ReactorExecution, IntrinsicRoutine_SinH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::SinH},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -421,12 +421,12 @@ TEST(ReactorExecution, IntrinsicRoutine_SinH)
 TEST(ReactorExecution, IntrinsicRoutine_TanH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::TanH},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -444,12 +444,12 @@ TEST(ReactorExecution, IntrinsicRoutine_TanH)
 TEST(ReactorExecution, IntrinsicRoutine_ACosH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {1.6},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::ACosH},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -467,12 +467,12 @@ TEST(ReactorExecution, IntrinsicRoutine_ACosH)
 TEST(ReactorExecution, IntrinsicRoutine_ASinH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::ASinH},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -490,12 +490,12 @@ TEST(ReactorExecution, IntrinsicRoutine_ASinH)
 TEST(ReactorExecution, IntrinsicRoutine_ATanH)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::ATanH},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -513,12 +513,12 @@ TEST(ReactorExecution, IntrinsicRoutine_ATanH)
 TEST(ReactorExecution, IntrinsicRoutine_Exp)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Exp},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -536,12 +536,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp)
 TEST(ReactorExecution, IntrinsicRoutine_Log)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Log},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -559,12 +559,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Log)
 TEST(ReactorExecution, IntrinsicRoutine_Log10)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Log10},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -582,12 +582,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Log10)
 TEST(ReactorExecution, IntrinsicRoutine_Exp2)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Exp2},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -605,12 +605,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp2)
 TEST(ReactorExecution, IntrinsicRoutine_ILogB)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {1.332},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::ILogB},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -628,12 +628,12 @@ TEST(ReactorExecution, IntrinsicRoutine_ILogB)
 TEST(ReactorExecution, IntrinsicRoutine_Log2)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Log2},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -651,14 +651,14 @@ TEST(ReactorExecution, IntrinsicRoutine_Log2)
 TEST(ReactorExecution, IntrinsicRoutine_Pow)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Push},
+		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Pow},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -678,12 +678,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Pow)
 TEST(ReactorExecution, IntrinsicRoutine_Sqrt)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Sqrt},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -701,12 +701,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Sqrt)
 TEST(ReactorExecution, IntrinsicRoutine_Cbrt)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Cbrt},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -724,14 +724,14 @@ TEST(ReactorExecution, IntrinsicRoutine_Cbrt)
 TEST(ReactorExecution, IntrinsicRoutine_Hypot)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Push},
+		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Hypot},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -750,12 +750,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Hypot)
 TEST(ReactorExecution, IntrinsicRoutine_Ceil)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Ceil},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -773,12 +773,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Ceil)
 TEST(ReactorExecution, IntrinsicRoutine_Floor)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Floor},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -796,12 +796,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Floor)
 TEST(ReactorExecution, IntrinsicRoutine_Round)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Round},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -819,12 +819,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Round)
 TEST(ReactorExecution, IntrinsicRoutine_RInt)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::RInt},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -842,14 +842,14 @@ TEST(ReactorExecution, IntrinsicRoutine_RInt)
 TEST(ReactorExecution, IntrinsicRoutine_IMax)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {INT64_C(4)},
-		Signal {Instruction::Push},
+		Signal {Instruction::PUSH},
 		Signal {INT64_C(7)},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::IMax},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -868,14 +868,14 @@ TEST(ReactorExecution, IntrinsicRoutine_IMax)
 TEST(ReactorExecution, IntrinsicRoutine_IMin)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {INT64_C(4)},
-		Signal {Instruction::Push},
+		Signal {Instruction::PUSH},
 		Signal {INT64_C(7)},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::IMin},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -894,14 +894,14 @@ TEST(ReactorExecution, IntrinsicRoutine_IMin)
 TEST(ReactorExecution, IntrinsicRoutine_FMax)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Push},
+		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::FMax},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -920,14 +920,14 @@ TEST(ReactorExecution, IntrinsicRoutine_FMax)
 TEST(ReactorExecution, IntrinsicRoutine_FMin)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Push},
+		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::FMin},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -946,14 +946,14 @@ TEST(ReactorExecution, IntrinsicRoutine_FMin)
 TEST(ReactorExecution, IntrinsicRoutine_Dim)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Push},
+		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::Dim},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -973,12 +973,12 @@ TEST(ReactorExecution, IntrinsicRoutine_Dim)
 TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {INT64_C(223233)},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::IAbs},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -996,12 +996,12 @@ TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 TEST(ReactorExecution, IntrinsicRoutine_FAbs)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::FAbs},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -1019,12 +1019,12 @@ TEST(ReactorExecution, IntrinsicRoutine_FAbs)
 TEST(ReactorExecution, IntrinsicRoutine_IOPortWrite)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {u8"Hey =)\n"_cluster},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::IoPortWriteCluster},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -1044,11 +1044,11 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortRead)
 	[[maybe_unused]]
 		auto   _ {freopen("MockInput.txt", "r", stdin)};
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSHZ},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::IoPortReadCluster},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 
@@ -1067,14 +1067,14 @@ TEST(ReactorExecution, IntrinsicRoutine_IOPortRead)
 TEST(ReactorExecution, IntrinsicRoutine_IOPortFlush)
 {
 	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
+		Signal {Instruction::NOP}, // first padding
+		Signal {Instruction::PUSH},
 		Signal {u8"Hey =)\n"_cluster},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::IoPortWriteCluster},
-		Signal {Instruction::Intrin},
+		Signal {Instruction::INTRIN},
 		Signal {SystemIntrinsicInvocationID::IoPortFlush},
-		Signal {Instruction::Int},
+		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
 

@@ -278,6 +278,14 @@
 #	define NOX_DEBUG_ONLY(expr) expr
 #endif
 
+#ifdef __NOX_TEST__
+#   undef NOX_TEST
+#   define NOX_TEST true
+#else
+#   undef NOX_TEST
+#   define NOX_TEST false
+#endif
+
 #if defined(_WIN64) || defined(__CYGWIN__)
 #	undef NOX_OS_WINDOWS
 #	define NOX_OS_WINDOWS true

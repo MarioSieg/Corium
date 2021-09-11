@@ -326,7 +326,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		static constexpr std::array PROLOGUE_CODE
 		{
-			DiscriminatedSignal { Signal::Discriminator::Instruction, Signal { Instruction::NOp } }
+			DiscriminatedSignal { Signal::Discriminator::Instruction, Signal { Instruction::NOP } }
 		};
 
 		/// <summary>
@@ -334,7 +334,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		static constexpr std::array EPILOGUE_CODE
 		{
-			DiscriminatedSignal { Signal::Discriminator::Instruction, Signal { Instruction::Int } },
+			DiscriminatedSignal { Signal::Discriminator::Instruction, Signal { Instruction::INT } },
 			DiscriminatedSignal { Signal::Discriminator::Int, Signal { } }
 		};
 
@@ -535,42 +535,42 @@ namespace Nominax::ByteCode
 		auto SizeInBytes() const -> std::uint64_t;
 
 		/// <summary>
-		/// Push stream entry.
+		/// PUSH stream entry.
 		/// </summary>
 		/// <param name="instr"></param>
 		/// <returns></returns>
 		auto operator <<(Instruction instr) -> Stream&;
 
 		/// <summary>
-		/// Push stream entry.
+		/// PUSH stream entry.
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
 		auto operator <<(SystemIntrinsicInvocationID intrin) -> Stream&;
 
 		/// <summary>
-		/// Push stream entry.
+		/// PUSH stream entry.
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
 		auto operator <<(UserIntrinsicInvocationID intrin) -> Stream&;
 
 		/// <summary>
-		/// Push stream entry.
+		/// PUSH stream entry.
 		/// </summary>
 		/// <param name="address"></param>
 		/// <returns></returns>
 		auto operator <<(JumpAddress address) -> Stream&;
 
 		/// <summary>
-		/// Push stream entry.
+		/// PUSH stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
 		auto operator <<(std::uint64_t value) -> Stream&;
 
 		/// <summary>
-		/// Push stream entry.
+		/// PUSH stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
@@ -584,28 +584,28 @@ namespace Nominax::ByteCode
 		auto operator <<(signed value) -> Stream&;
 
 		/// <summary>
-		/// Push stream entry.
+		/// PUSH stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
 		auto operator <<(double value) -> Stream&;
 
 		/// <summary>
-		/// Push stream entry.
+		/// PUSH stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
 		auto operator <<(CharClusterUtf8 value) -> Stream&;
 
 		/// <summary>
-		/// Push stream entry.
+		/// PUSH stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
 		auto operator <<(CharClusterUtf16 value) -> Stream&;
 
 		/// <summary>
-		/// Push stream entry.
+		/// PUSH stream entry.
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>

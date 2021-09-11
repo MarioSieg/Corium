@@ -230,9 +230,9 @@ TEST(Common, IsAlignedTo)
 {
 	void* ptr {nullptr};
 	#if NOX_32_BIT
-	ASSERT_TRUE(IsAlignedTo(ptr, 4));
+		ASSERT_TRUE(IsAlignedTo(ptr, 4));
 	#else
-	ASSERT_TRUE(IsAlignedTo(ptr, 8));
+		ASSERT_TRUE(IsAlignedTo(ptr, 8));
 	#endif
 
 	alignas(16) void* a {nullptr};

@@ -252,7 +252,7 @@ namespace Nominax::Core
 			"Reactor {:08X}: "
 			"Stack: {} MB, "
 			"{} KRec, "
-			"Intrin: {}, "
+			"INTRIN: {}, "
 			"InterruptStatus: {}, "
 			"Power: {}, "
 			"Pool: {:02}\n",

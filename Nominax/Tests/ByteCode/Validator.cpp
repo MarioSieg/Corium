@@ -260,11 +260,11 @@ inline auto ValidateInstructionArguments(const Instruction instr, std::vector<Dy
 TEST(ValidatorAlgorithms, ValidateJumpAddressValid)
 {
 	Stream bucket { };
-	bucket << Instruction::Dupl;
+	bucket << Instruction::DUPL;
 	bucket << 2.2;
 	bucket << static_cast<std::int64_t>(-2);
 	bucket << static_cast<std::uint64_t>(0xFF);
-	bucket << Instruction::FAdd;
+	bucket << Instruction::FADD;
 	bucket << static_cast<std::int64_t>(3);
 
 	ASSERT_TRUE(ValidateJumpAddress(bucket, JumpAddress{ 0 }));
@@ -302,101 +302,101 @@ TEST(ValidatorAlgorithms, ValidateCustomIntrinsicCall)
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Int)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3LL} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, { DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Int, std::vector<DynamicSignal>{ {} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INT, {DynamicSignal{3LL} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INT, {DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INT, {DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INT, {DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INT, std::vector<DynamicSignal>{{} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Jmp)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, { DynamicSignal{JumpAddress{0}} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, { DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, { DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, { DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, std::vector<DynamicSignal>{ {} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Jmp, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::JMP, {DynamicSignal{JumpAddress{0}} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::JMP, {DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::JMP, {DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::JMP, {DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::JMP, std::vector<DynamicSignal>{{} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::JMP, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Intrin)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, std::vector<DynamicSignal>{ {} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicInvocationID::ASin}, DynamicSignal{SystemIntrinsicInvocationID::ASin} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, std::vector<DynamicSignal>{{} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{SystemIntrinsicInvocationID::ASin}, DynamicSignal{SystemIntrinsicInvocationID::ASin} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Intrin, { DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::Ok);
 }
 
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_CIntrin)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, std::vector<DynamicSignal>{ {} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{UserIntrinsicInvocationID{3}}, DynamicSignal{UserIntrinsicInvocationID{3}} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, std::vector<DynamicSignal>{{} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{UserIntrinsicInvocationID{3}}, DynamicSignal{UserIntrinsicInvocationID{3}} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CIntrin, { DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_None)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, std::vector<DynamicSignal>{ {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, std::vector<DynamicSignal>{ {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, { DynamicSignal{3LL} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, { DynamicSignal{3ULL} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, { DynamicSignal{ 3.0 } }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOp, std::vector<DynamicSignal>{}), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOP, std::vector<DynamicSignal>{{} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOP, std::vector<DynamicSignal>{{}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOP, {DynamicSignal{3LL} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOP, {DynamicSignal{3ULL} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOP, {DynamicSignal{3.0 } }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::NOP, std::vector<DynamicSignal>{}), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push_Combined)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, std::vector<DynamicSignal>{ {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3LL} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3ULL} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{3.0} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Push, { DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, std::vector<DynamicSignal>{{}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{3LL} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{3ULL} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{3.0} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Sto_Combined)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, std::vector<DynamicSignal>{ {}, {} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3ULL}, DynamicSignal{3LL} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3ULL},DynamicSignal{3ULL} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3ULL},DynamicSignal{3.0} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3LL}, DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3.0},DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3.0},DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3ULL},DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3ULL},DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::Sto, { DynamicSignal{3ULL},DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, std::vector<DynamicSignal>{{}, {} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{3LL} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{3ULL} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{3.0} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3LL}, DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3.0}, DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3.0}, DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{ {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{ {}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{ {}, {}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{ {}, {}, {}, {} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, std::vector<DynamicSignal>{ {}, {}, {}, {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0LL}, DynamicSignal{1LL}, DynamicSignal{2LL}, DynamicSignal{3LL} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0ULL}, DynamicSignal{1ULL}, DynamicSignal{2ULL}, DynamicSignal{3ULL} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0.0}, DynamicSignal{1.0}, DynamicSignal{2.0}, DynamicSignal{3.0} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, std::vector<DynamicSignal>{}), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, std::vector<DynamicSignal>{{} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, std::vector<DynamicSignal>{{}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, std::vector<DynamicSignal>{{}, {}, {} }), ValidationResultCode::NotEnoughArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, std::vector<DynamicSignal>{{}, {}, {}, {} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, std::vector<DynamicSignal>{{}, {}, {}, {}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, {DynamicSignal{0LL}, DynamicSignal{1LL}, DynamicSignal{2LL}, DynamicSignal{3LL} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, {DynamicSignal{0ULL}, DynamicSignal{1ULL}, DynamicSignal{2ULL}, DynamicSignal{3ULL} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, {DynamicSignal{0.0}, DynamicSignal{1.0}, DynamicSignal{2.0}, DynamicSignal{3.0} }),
 	          ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0.0}, DynamicSignal{1ULL}, DynamicSignal{2LL}, DynamicSignal{3.0} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0.0}, DynamicSignal{1ULL}, DynamicSignal{2LL}, DynamicSignal{3.0}, DynamicSignal{1ULL} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, {DynamicSignal{0.0}, DynamicSignal{1ULL}, DynamicSignal{2LL}, DynamicSignal{3.0} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, {DynamicSignal{0.0}, DynamicSignal{1ULL}, DynamicSignal{2LL}, DynamicSignal{3.0}, DynamicSignal{1ULL} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::VecPush, { DynamicSignal{0.0}, DynamicSignal{1ULL}, DynamicSignal{2LL}, DynamicSignal{3.0}, DynamicSignal{3.0} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::VPUSH, {DynamicSignal{0.0}, DynamicSignal{1ULL}, DynamicSignal{2LL}, DynamicSignal{3.0}, DynamicSignal{3.0} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
 }
 
@@ -404,15 +404,15 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push)
 TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 {
 	Stream code { };
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(4);
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(2);
-	code << Instruction::Sto;
+	code << Instruction::STO;
 	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
-	code << Instruction::IAdd;
-	code << Instruction::Int;
+	code << Instruction::IADD;
+	code << Instruction::INT;
 	code << static_cast<std::int64_t>(0);
 
 	constexpr std::array cache {0, 2, 4, 7, 8};
@@ -427,15 +427,15 @@ TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 {
 	Stream code { };
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(4);
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(2);
-	code << Instruction::Sto;
+	code << Instruction::STO;
 	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
-	code << Instruction::IAdd;
-	code << Instruction::Int;
+	code << Instruction::IADD;
+	code << Instruction::INT;
 	code << static_cast<std::int64_t>(0);
 
 	constexpr std::array cache {0, 2, 4, 7, 8};
@@ -482,17 +482,17 @@ TEST(ValidatorAlgorithms, ValidateValid)
 	Stream code { };
 
 	code.Prologue();
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(4);
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(2);
-	code << Instruction::Sto;
+	code << Instruction::STO;
 	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
-	code << Instruction::Jmp;
+	code << Instruction::JMP;
 	code << JumpAddress {0};
-	code << Instruction::IAdd;
-	code << Instruction::Int;
+	code << Instruction::IADD;
+	code << Instruction::INT;
 	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 	std::uint32_t error;
@@ -504,18 +504,18 @@ TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(2);
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(4);
 	code << static_cast<std::int64_t>(4); // error
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(2);
-	code << Instruction::Sto;
+	code << Instruction::STO;
 	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
-	code << Instruction::IAdd;
-	code << Instruction::Int;
+	code << Instruction::IADD;
+	code << Instruction::INT;
 	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 	std::uint32_t error;
@@ -527,14 +527,14 @@ TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(2);
-	code << Instruction::Push;
-	code << Instruction::Sto;
+	code << Instruction::PUSH;
+	code << Instruction::STO;
 	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
-	code << Instruction::IAdd;
-	code << Instruction::Int;
+	code << Instruction::IADD;
+	code << Instruction::INT;
 	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -544,13 +544,13 @@ TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << 2.0;
-	code << Instruction::Sto;
+	code << Instruction::STO;
 	code << 2.0;
 	code << -0.5;
-	code << Instruction::IAdd;
-	code << Instruction::Int;
+	code << Instruction::IADD;
+	code << Instruction::INT;
 	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 	std::uint32_t error;
@@ -562,8 +562,8 @@ TEST(ValidatorAlgorithms, ValidateLastValid)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Jmp;
+	code << Instruction::NOP;
+	code << Instruction::JMP;
 	code << JumpAddress {0};
 	code.Epilogue();
 
@@ -574,8 +574,8 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidMissingArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Int;
+	code << Instruction::NOP;
+	code << Instruction::INT;
 	code.Epilogue();
 	std::uint32_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -586,8 +586,8 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidTooManyArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Int << 0 << 0;
+	code << Instruction::NOP;
+	code << Instruction::INT << 0 << 0;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -597,8 +597,8 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidTypeMismatch)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Int << 0.2;
+	code << Instruction::NOP;
+	code << Instruction::INT << 0.2;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
@@ -608,8 +608,8 @@ TEST(ValidatorAlgorithms, ValidateLastPushInvalidMissingArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Push;
+	code << Instruction::NOP;
+	code << Instruction::PUSH;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -619,8 +619,8 @@ TEST(ValidatorAlgorithms, ValidateLastPushInvalidTooManyArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Push << 0 << 0;
+	code << Instruction::NOP;
+	code << Instruction::PUSH << 0 << 0;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -630,8 +630,8 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushInt)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Push << 0;
+	code << Instruction::NOP;
+	code << Instruction::PUSH << 0;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -641,8 +641,8 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushUInt)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Push << static_cast<std::uint64_t>(0);
+	code << Instruction::NOP;
+	code << Instruction::PUSH << static_cast<std::uint64_t>(0);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -652,8 +652,8 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushFloat)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Push << 0.0;
+	code << Instruction::NOP;
+	code << Instruction::PUSH << 0.0;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -663,8 +663,8 @@ TEST(ValidatorAlgorithms, ValidateValidLastSto)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Sto << static_cast<std::uint64_t>(0) << 2.5;
+	code << Instruction::NOP;
+	code << Instruction::STO << static_cast<std::uint64_t>(0) << 2.5;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -674,8 +674,8 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoNotEnoughArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Sto << static_cast<std::uint64_t>(0);
+	code << Instruction::NOP;
+	code << Instruction::STO << static_cast<std::uint64_t>(0);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -685,8 +685,8 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoTooManyArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Sto << static_cast<std::uint64_t>(0) << 2.5 << 3;
+	code << Instruction::NOP;
+	code << Instruction::STO << static_cast<std::uint64_t>(0) << 2.5 << 3;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -696,8 +696,8 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastMovTypeMismatch)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Mov << static_cast<std::uint64_t>(0) << 2.5;
+	code << Instruction::NOP;
+	code << Instruction::MOV << static_cast<std::uint64_t>(0) << 2.5;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
@@ -713,8 +713,8 @@ TEST(ValidatorAlgorithms, ValidateInvalidEmpty)
 TEST(ValidatorAlgorithms, ValidateInvalidMissingPrologue)
 {
 	Stream code { };
-	code << Instruction::FAdd;
-	code << Instruction::Sto << static_cast<std::uint64_t>(0) << 2.5;
+	code << Instruction::FADD;
+	code << Instruction::STO << static_cast<std::uint64_t>(0) << 2.5;
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingPrologueCode);
@@ -724,8 +724,8 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Sto << static_cast<std::uint64_t>(0) << 2.5;
+	code << Instruction::NOP;
+	code << Instruction::STO << static_cast<std::uint64_t>(0) << 2.5;
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingEpilogueCode);
 }
@@ -734,8 +734,8 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue2)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOp;
-	code << Instruction::Int;
+	code << Instruction::NOP;
+	code << Instruction::INT;
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingEpilogueCode);
 }
@@ -745,16 +745,16 @@ TEST(ValidatorAlgorithms, ValidateValidPass0JumpAddress)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(4);
-	code << Instruction::Jmp;
+	code << Instruction::JMP;
 	code << JumpAddress {0};
-	code << Instruction::Jmp;
+	code << Instruction::JMP;
 	code << JumpAddress {7};
-	code << Instruction::Jmp;
+	code << Instruction::JMP;
 	code << JumpAddress {10};
-	code << Instruction::IAdd;
-	code << Instruction::Int;
+	code << Instruction::IADD;
+	code << Instruction::INT;
 	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 
@@ -765,16 +765,16 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressOutOfRange)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(4);
-	code << Instruction::Jmp;
+	code << Instruction::JMP;
 	code << JumpAddress {0};
-	code << Instruction::Jmp;
+	code << Instruction::JMP;
 	code << JumpAddress {7};
-	code << Instruction::Jmp;
+	code << Instruction::JMP;
 	code << JumpAddress {100};
-	code << Instruction::IAdd;
-	code << Instruction::Int;
+	code << Instruction::IADD;
+	code << Instruction::INT;
 	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 
@@ -785,15 +785,15 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressNoInstruction)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::Push;
+	code << Instruction::PUSH;
 	code << static_cast<std::int64_t>(4);
-	code << Instruction::Jmp;
+	code << Instruction::JMP;
 	code << JumpAddress {Stream::PrologueCode().size() + 1};
-	code << Instruction::Sto;
+	code << Instruction::STO;
 	code << static_cast<std::uint64_t>(1);
 	code << -0.5;
-	code << Instruction::IAdd;
-	code << Instruction::Int;
+	code << Instruction::IADD;
+	code << Instruction::INT;
 	code << static_cast<std::int64_t>(0);
 	code.Epilogue();
 
@@ -804,7 +804,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressOutOfRange)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::Jmp << JumpAddress {100};
+	code << Instruction::JMP << JumpAddress {100};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
@@ -814,7 +814,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressWrongType)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::Jmp << static_cast<std::uint64_t>(2);
+	code << Instruction::JMP << static_cast<std::uint64_t>(2);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
@@ -824,7 +824,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressNoInstruction)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::Jmp << JumpAddress {Stream::PrologueCode().size() + 1};
+	code << Instruction::JMP << JumpAddress {Stream::PrologueCode().size() + 1};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
@@ -841,9 +841,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicValid)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {0};
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {1};
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {2};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {0};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {1};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {2};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::Ok);
@@ -860,9 +860,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidNull)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {0};
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {1};
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {2};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {0};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {1};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {2};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -879,9 +879,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {0};
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {1};
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {3};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {0};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {1};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {3};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -893,9 +893,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange2)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {0};
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {1};
-	code << Instruction::CIntrin << UserIntrinsicInvocationID {3};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {0};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {1};
+	code << Instruction::CINTRIN << UserIntrinsicInvocationID {3};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -911,9 +911,9 @@ TEST(ValidatorAlgorithms, FullValidation1Million)
 
 	for (std::uint64_t i {0}; i < count; ++i)
 	{
-		stream << Instruction::Jmp;
+		stream << Instruction::JMP;
 		stream << JumpAddress {0};
-		stream << Instruction::Sto;
+		stream << Instruction::STO;
 		stream << static_cast<std::uint64_t>(1);
 		stream << -0.5;
 	}

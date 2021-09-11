@@ -251,7 +251,9 @@ namespace Nominax::Assembler::X86_64::Routines
 	/// <summary>
 	/// Queries the 16 GPR 64-bit registers and the 16 XMM 128-bit registers.
 	/// </summary>
-	extern "C" NOX_ASM_ROUTINE auto QueryRegSet(std::uint64_t gpr[16], std::uint64_t sse[32]) -> void;
+	/// <param name="gpr">A pointer to 16 std::uint64_t where the GPR register values will be stored. Use std::array<std::uint64_t, 16>!</param>
+	/// <param name="gpr">A pointer to 32 std::uint64_t where the GPR register values will be stored. Use std::array<std::uint64_t, 32>! arr[0] are the lower 64 bits of %xmm0, arr[1] the higher 64 bits.</param>
+	extern "C" NOX_ASM_ROUTINE auto QueryRegSet(std::uint64_t* gpr, std::uint64_t* sse) -> void;
 
 	/// <summary>
 	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
