@@ -51,3 +51,7 @@ Instruction operand types are now stored inside a constexpr std::initializer lis
 Access and validation functions for the operand types are now all constexpr.<br>
 All instruction metadata and the operand types now reside in a static class inside "InstructionMetaDataRegistry.hpp"<br>
 
+*9/11/2021*<br>
+**Nominax**<br>
+Implemented deferred reactor booting into the reactor pool.<br>
+Unlocked death tests for all configs and fixed some.<br>

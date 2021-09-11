@@ -233,7 +233,7 @@ namespace Nominax::Core
     };
 
 	/// <summary>
-	/// A pool holding all existing reactors.
+	/// Manages all concurrent existing reactors and their dynamic creation and caching.
 	/// </summary>
 	class [[nodiscard]] ReactorPool final
 	{
