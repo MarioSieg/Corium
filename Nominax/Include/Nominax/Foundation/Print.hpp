@@ -217,29 +217,6 @@
 namespace Nominax::Foundation
 {
 	/// <summary>
-/// Represents a printable text color (if the terminal supports it).
-/// </summary>
-	enum class TextColor : std::underlying_type_t<fmt::terminal_color>
-	{
-		Black = ToUnderlying(fmt::terminal_color::black),
-		Red = ToUnderlying(fmt::terminal_color::red),
-		Green = ToUnderlying(fmt::terminal_color::green),
-		Yellow = ToUnderlying(fmt::terminal_color::yellow),
-		Blue = ToUnderlying(fmt::terminal_color::blue),
-		Magenta = ToUnderlying(fmt::terminal_color::magenta),
-		Cyan = ToUnderlying(fmt::terminal_color::cyan),
-		White = ToUnderlying(fmt::terminal_color::white),
-		BrightBlack = ToUnderlying(fmt::terminal_color::bright_black),
-		BrightRed = ToUnderlying(fmt::terminal_color::bright_red),
-		BrightGreen = ToUnderlying(fmt::terminal_color::bright_green),
-		BrightYellow = ToUnderlying(fmt::terminal_color::bright_yellow),
-		BrightBlue = ToUnderlying(fmt::terminal_color::bright_blue),
-		BrightMagenta = ToUnderlying(fmt::terminal_color::bright_magenta),
-		BrightCyan = ToUnderlying(fmt::terminal_color::bright_cyan),
-		BrightWhite = ToUnderlying(fmt::terminal_color::bright_white)
-	};
-
-	/// <summary>
 	/// Prints out the formatting string and
 	/// formats the arguments into the string if format
 	/// arguments are given.
@@ -255,7 +232,7 @@ namespace Nominax::Foundation
 	inline auto Print([[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
 	{
 		#ifndef NOX_TEST
-		fmt::print(stdout, formatString, std::forward<Args>(args)...);
+		    fmt::print(stdout, formatString, std::forward<Args>(args)...);
 		#endif
 	}
 
@@ -266,77 +243,7 @@ namespace Nominax::Foundation
 	/// <returns></returns>
 	inline auto Print(const char x) -> void
 	{
-		Print("{}", x);
-	}
-
-	/// <summary>
-	/// Contains all log levels.
-	/// </summary>
-	enum class LogLevel
-	{
-		Info,
-		Warning,
-		Error,
-		Success
-	};
-
-	/// <summary>
-	/// Prints out the formatting string and
-	/// formats the arguments into the string if format
-	/// arguments are given.
-	/// The formatting rules follow the C++ 20 <format> convention.
-	/// All printing inside Nominax should be done via this functions
-	/// and friends because it also allows different configurations.
-	/// The logging level can be specified, which prints in different colors.
-	/// </summary>
-	/// <typeparam name="Str">The string type.</typeparam>
-	/// <typeparam name="...Args">The argument types.</typeparam>
-	/// <param name="level"> The logging level can be specified, which prints in different colors.</param>
-	/// <param name="formatString">The format string.</param>
-	/// <param name="args">The arguments to format.</param>
-	template <typename Str, typename... Args>
-	auto Print([[maybe_unused]] const LogLevel level, [[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
-	{
-		#ifndef NOX_TEST
-		auto color = TextColor::White;
-		switch (level)
-		{
-			case LogLevel::Info:
-				color = TextColor::White;
-				break;
-			case LogLevel::Warning:
-				color = TextColor::Yellow;
-				break;
-			case LogLevel::Error:
-				color = TextColor::Red;
-				break;
-			case LogLevel::Success:
-				color = TextColor::Green;
-				break;
-		}
-		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
-		#endif
-	}
-
-	/// <summary>
-	/// Prints out the formatting string and
-	/// formats the arguments into the string if format
-	/// arguments are given.
-	/// The formatting rules follow the C++ 20 <format> convention.
-	/// All printing inside Nominax should be done via this functions
-	/// and friends because it also allows different configurations.
-	/// </summary>
-	/// <typeparam name="Str">The string type.</typeparam>
-	/// <typeparam name="...Args">The argument types.</typeparam>
-	/// <param name="color">The foreground color of the text.</param>
-	/// <param name="formatString">The format string.</param>
-	/// <param name="args">The arguments to format.</param>
-	template <typename Str, typename... Args>
-	inline auto Print([[maybe_unused]] const TextColor color, [[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
-	{
-		#ifndef NOX_TEST
-		fmt::print(fg(static_cast<fmt::terminal_color>(color)), formatString, std::forward<Args>(args)...);
-		#endif
+        fputc(x, stdout);
 	}
 
 	/// <summary>

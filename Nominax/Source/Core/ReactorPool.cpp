@@ -211,7 +211,6 @@
 namespace Nominax::Core
 {
     using Foundation::Print;
-    using Foundation::LogLevel;
 
 	ReactorPool::ReactorPool
 	(

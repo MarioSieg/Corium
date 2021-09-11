@@ -299,8 +299,7 @@ namespace Nominax::ByteCode
 		for (std::uint64_t i { 0 }; i < this->Size(); ++i)
 		{
 			const auto bytes { std::bit_cast<std::array<std::uint8_t, sizeof(Signal)>>(this->CodeBuffer_[i]) };
-			const auto isInstr { this->CodeDiscriminatorBuffer_[i] == Signal::Discriminator::Instruction };
-			Print(TextColor::Green, "&{:016X} ", reinterpret_cast<std::uintptr_t>(&this->CodeBuffer_[i]));
+			Print("&{:016X} ", std::bit_cast<std::uintptr_t>(&this->CodeBuffer_[i]));
 			Print
 			(
 				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
@@ -313,7 +312,7 @@ namespace Nominax::ByteCode
 				bytes[6],
 				bytes[7]
 			);
-			Print(isInstr ? TextColor::Blue : TextColor::Magenta, "{}\n", (*this)[i]);
+			Print("{}\n", (*this)[i]);
 		}
 
 		Print("\n\n");
@@ -324,12 +323,18 @@ namespace Nominax::ByteCode
 		using namespace Foundation;
 
 		Print("Stream size: {}\n", this->Size());
-		Print("Code buffer: {:.03F} MB\n",
-		      Bytes2Megabytes<float>(
-			      static_cast<float>(this->CodeBuffer_.size()) * static_cast<float>(sizeof(CodeStorageType::value_type))));
-		Print("Discriminator buffer: {:.03F} MB\n", Bytes2Megabytes<float>(
-			      static_cast<float>(this->CodeDiscriminatorBuffer_.size()) * static_cast<float>(sizeof(
-				      DiscriminatorStorageType::value_type))));
+		Print
+        (
+            "Code buffer: {:.03F} MB\n",
+            Bytes2Megabytes<float>(static_cast<float>(this->CodeBuffer_.size())
+            * static_cast<float>(sizeof(CodeStorageType::value_type)))
+        );
+		Print
+        (
+            "Discriminator buffer: {:.03F} MB\n",
+            Bytes2Megabytes<float>(static_cast<float>(this->CodeDiscriminatorBuffer_.size())
+            * static_cast<float>(sizeof(DiscriminatorStorageType::value_type)))
+        );
 		Print("Total: {:.03F} MB\n", Bytes2Megabytes<float>(static_cast<float>(this->SizeInBytes())));
 	}
 

@@ -883,22 +883,20 @@ namespace Nominax::Core
         DISPATCH_HOOK(OnPreExecutionHook, image);
 
         // Info
-        Print(LogLevel::Warning, "Executing...\n");
+        Print("Executing...\n");
         FILE* const outStream  { stdout };
         std::fflush(outStream);
 
         // Execute on alpha reactor:
         const ReactorState& state { (*this->Context_->CorePool)(image) };
-        const InterruptStatus status { state.Status };
 
         // Add execution time:
         const auto micros { std::chrono::duration_cast<duration<double, std::micro>>(state.Duration) };
         ++this->Context_->ExecutionCount;
 
         // Print exec info:
-        const LogLevel level { status == InterruptStatus::InterruptStatus_OK ? LogLevel::Success : LogLevel::Error };
         const auto time { duration_cast<duration<double, std::ratio<1>>>(micros) };
-        Print(level, "Execution #{} done! Runtime {:.4}\n", this->Context_->ExecutionCount, time);
+        Print("Execution #{} done! Runtime {:.4}\n", this->Context_->ExecutionCount, time);
         std::fflush(outStream);
 
         // Invoke hook:

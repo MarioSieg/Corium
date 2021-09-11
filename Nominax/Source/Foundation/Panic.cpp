@@ -228,7 +228,7 @@ namespace Nominax
 		}
 		#endif
 
-		Print(TextColor::Red, "\n! NOMINAX RUNTIME PANIC !\n");
+		Print("\n! NOMINAX RUNTIME PANIC !\n");
 		Print
 		(
 			"File: {}\nLine: {}\nSubroutine: {}\n",
@@ -239,39 +239,39 @@ namespace Nominax
 		Print("{}\n", panicDescriptor.Message);
 
 		#if NOX_ARCH_X86_64
-		if (panicDescriptor.DumpRegisters)
-		{
-			Print("%rip = {:016X}\n", rip);
-			static constexpr std::array<std::string_view, 16> GPR_LUT
-			{
-				"%rax",
-				"%rbx",
-				"%rcx",
-				"%rdx",
-				"%rsi",
-				"%rdi",
-				"%rsp",
-				"%rbp",
-				"%r8 ",
-				"%r9 ",
-				"%r10",
-				"%r11",
-				"%r12",
-				"%r13",
-				"%r14",
-				"%r15"
-			};
-			for (std::uint64_t i { 0 }; i < sizeof gpr / sizeof *gpr; ++i)
-			{
-				Print("{} = {:016X}\n", GPR_LUT[i], gpr[i]);
-			}
-			for (std::uint64_t i { 0 }; i < sizeof sse / sizeof *sse >> 1; ++i)
-			{
-				Print("%xmm{}{} = ", i, i < 10 ? " " : "");
-				Print("{:016X}", sse[i]);
-				Print("{:016X}\n", sse[i + 1]);
-			}
-		}
+            if (panicDescriptor.DumpRegisters)
+            {
+                Print("%rip = {:016X}\n", rip);
+                static constexpr std::array<std::string_view, 16> GPR_LUT
+                {
+                    "%rax",
+                    "%rbx",
+                    "%rcx",
+                    "%rdx",
+                    "%rsi",
+                    "%rdi",
+                    "%rsp",
+                    "%rbp",
+                    "%r8 ",
+                    "%r9 ",
+                    "%r10",
+                    "%r11",
+                    "%r12",
+                    "%r13",
+                    "%r14",
+                    "%r15"
+                };
+                for (std::uint64_t i { 0 }; i < sizeof gpr / sizeof *gpr; ++i)
+                {
+                    Print("{} = {:016X}\n", GPR_LUT[i], gpr[i]);
+                }
+                for (std::uint64_t i { 0 }; i < sizeof sse / sizeof *sse >> 1; ++i)
+                {
+                    Print("%xmm{}{} = ", i, i < 10 ? " " : "");
+                    Print("{:016X}", sse[i]);
+                    Print("{:016X}\n", sse[i + 1]);
+                }
+            }
 		#endif
 
 		std::cout.flush();
