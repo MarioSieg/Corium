@@ -1,7 +1,7 @@
 // File: Signal.hpp
 // Author: Mario
-// Created: 10.08.2021 12:49 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 
 #include "Instruction.hpp"
 #include "CharCluster.hpp"
@@ -217,27 +217,27 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// 64-bit byte code signal data contains either an instruction or an immediate value.
 	/// </summary>
-	union alignas(alignof(U64)) Signal
+	union alignas(alignof(std::uint64_t)) Signal
 	{
 		/// <summary>
 		/// Discriminator for discriminated signals.
 		/// </summary>
-		enum class Discriminator : U8
+		enum class Discriminator : std::uint8_t
 		{
 			/// <summary>
-			/// U64 in record.
+			/// Unsigned 64-bit offset.
 			/// </summary>
-			U64,
+			UOffset = 1,
 
 			/// <summary>
-			/// I64 in record.
+			/// std::int64_t in record.
 			/// </summary>
-			I64,
+			Int,
 
 			/// <summary>
-			/// F64 in record.
+			/// double in record.
 			/// </summary>
-			F64,
+			Float,
 
 			/// <summary>
 			/// Char cluster UTF-8.
@@ -308,7 +308,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
 		/// </summary>
-		U64 OpCode;
+		std::uint64_t OpCode;
 
 		/// <summary>
 		/// Reinterpret as void pointer.
@@ -366,21 +366,21 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(I64 value);
+		explicit constexpr Signal(std::int64_t value);
 
 		/// <summary>
 		/// Construct from 64-bit unsigned quadword integer.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(U64 value);
+		explicit constexpr Signal(std::uint64_t value);
 
 		/// <summary>
-		/// Construct from 64-bit F64 precision F32.
+		/// Construct from 64-bit double precision float.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(F64 value);
+		explicit constexpr Signal(double value);
 
 		/// <summary>
 		/// Construct from UTF-8 char cluster.
@@ -418,29 +418,29 @@ namespace Nominax::ByteCode
 		explicit constexpr Signal(JumpAddress value);
 	};
 
-	constexpr Signal::Signal(const Foundation::Record value) : R64 {value} {}
-	constexpr Signal::Signal(const Instruction value) : Instr {value} {}
-	constexpr Signal::Signal(const SystemIntrinsicInvocationID value) : SystemIntrinID {value} {}
-	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID {value} {}
-	constexpr Signal::Signal(void* const value) : Ptr {value} {}
-	constexpr Signal::Signal(const I64 value) : R64 {value} {}
-	constexpr Signal::Signal(const U64 value) : R64 {value} {}
-	constexpr Signal::Signal(const F64 value) : R64 {value} {}
-	constexpr Signal::Signal(const CharClusterUtf8 cluster) : R64 {cluster.Merged} {}
-	constexpr Signal::Signal(const CharClusterUtf16 cluster) : R64 {cluster.Merged} {}
-	constexpr Signal::Signal(const CharClusterUtf32 cluster) : R64 {cluster.Merged} {}
-	constexpr Signal::Signal(const char32_t value) : R64 {value} {}
-	constexpr Signal::Signal(const JumpAddress value) : JmpAddress {value} {}
+	constexpr Signal::Signal(const Foundation::Record value) : R64 { value } {}
+	constexpr Signal::Signal(const Instruction value) : Instr { value } {}
+	constexpr Signal::Signal(const SystemIntrinsicInvocationID value) : SystemIntrinID { value } {}
+	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID { value } {}
+	constexpr Signal::Signal(void* const value) : Ptr { value } {}
+	constexpr Signal::Signal(const std::int64_t value) : R64 { value } {}
+	constexpr Signal::Signal(const std::uint64_t value) : R64 { value } {}
+	constexpr Signal::Signal(const double value) : R64 { value } {}
+	constexpr Signal::Signal(const CharClusterUtf8 cluster) : R64 { cluster.Merged } {}
+	constexpr Signal::Signal(const CharClusterUtf16 cluster) : R64 { cluster.Merged } {}
+	constexpr Signal::Signal(const CharClusterUtf32 cluster) : R64 { cluster.Merged } {}
+	constexpr Signal::Signal(const char32_t value) : R64 { value } {}
+	constexpr Signal::Signal(const JumpAddress value) : JmpAddress { value } {}
 
 	/// <summary>
 	/// Raw representation of a signal as bytes.
 	/// </summary>
-	using SignalByteBuffer = std::array<U8, sizeof(Signal)>;
+	using SignalByteBuffer = std::array<std::uint8_t, sizeof(Signal)>;
 
 	static_assert(std::is_trivial_v<Signal>);
 	static_assert(std::is_default_constructible_v<Signal>);
-	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, U64>);
-	static_assert(sizeof(Instruction) == sizeof(U64));
-	static_assert(sizeof(Signal) == sizeof(U64));
+	static_assert(std::is_same_v<std::underlying_type_t<Instruction>, std::uint64_t>);
+	static_assert(sizeof(Instruction) == sizeof(std::uint64_t));
+	static_assert(sizeof(Signal) == sizeof(std::uint64_t));
 	static_assert(std::is_standard_layout_v<Signal>);
 }

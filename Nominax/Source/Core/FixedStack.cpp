@@ -1,7 +1,7 @@
 // File: FixedStack.cpp
 // Author: Mario
-// Created: 13.08.2021 7:52 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,7 +209,7 @@
 
 namespace Nominax::Core
 {
-	FixedStack::FixedStack(std::pmr::memory_resource& allocator, const U64 sizeInRecords) : Buffer_ {&allocator}
+	FixedStack::FixedStack(std::pmr::memory_resource& allocator, const std::uint64_t sizeInRecords) : Buffer_ { &allocator }
 	{
 		NOX_PAS_NOT_ZERO(sizeInRecords, "Fixed stack with zero size was requested!");
 

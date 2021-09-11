@@ -1,7 +1,7 @@
-// File: Asm_x86_64_Jitdb.cpp
+// File: JitDB_37.cpp
 // Author: Mario
-// Created: 07.27.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -205,12390 +205,12387 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-// Auto generated, do not edit!
-
 #include "../../../Include/Nominax/Assembler/_Assembler.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
-NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_37(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void
-{
-	std::pmr::vector<InstructionVariation> instruction{&allocator};
-	instruction = 
+	NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_37(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void
 	{
-		InstructionVariation
+		std::pmr::vector<InstructionVariation> instruction {&allocator};
+		instruction =
 		{
-			.IntelMnemonic = "vscatterpf0dps",
-			.GasMnemonic = "vscatterpf0dps",
-			.Description = "vscatterpf0dps vm32z{k}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vscatterpf0dps",
+				.GasMnemonic = "vscatterpf0dps",
+				.Description = "vscatterpf0dps vm32z{k}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Vm32zk,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Pf,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {UINT64_C(0x0)},
-						.Bb = {OperandType::Vm32zk},
-						.X = {OperandType::Vm32zk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm32zk},
-						.B = {OperandType::Vm32zk},
-						.Aaa = {OperandType::Vm32zk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 4,
-					},
-					OpCode
-					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::Vm32zk},
-						.Rm = {OperandType::Vm32zk},
-						.Reg = {UINT64_C(0x5)},
+						.Type = OperandType::Vm32zk,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512Pf,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {UINT64_C(0x0)},
+							.Bb = {OperandType::Vm32zk},
+							.X = {OperandType::Vm32zk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm32zk},
+							.B = {OperandType::Vm32zk},
+							.Aaa = {OperandType::Vm32zk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 4,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm32zk},
+							.Rm = {OperandType::Vm32zk},
+							.Reg = {UINT64_C(0x5)},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vscatterpf0qpd",
-			.GasMnemonic = "vscatterpf0qpd",
-			.Description = "vscatterpf0qpd vm64z{k}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vscatterpf0qpd",
+				.GasMnemonic = "vscatterpf0qpd",
+				.Description = "vscatterpf0qpd vm64z{k}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Vm64zk,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Pf,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {UINT64_C(0x0)},
-						.Bb = {OperandType::Vm64zk},
-						.X = {OperandType::Vm64zk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm64zk},
-						.B = {OperandType::Vm64zk},
-						.Aaa = {OperandType::Vm64zk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 8,
-					},
-					OpCode
-					{
-						.Value = 0xc7,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::Vm64zk},
-						.Rm = {OperandType::Vm64zk},
-						.Reg = {UINT64_C(0x5)},
+						.Type = OperandType::Vm64zk,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512Pf,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {UINT64_C(0x0)},
+							.Bb = {OperandType::Vm64zk},
+							.X = {OperandType::Vm64zk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm64zk},
+							.B = {OperandType::Vm64zk},
+							.Aaa = {OperandType::Vm64zk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 8,
+						},
+						OpCode
+						{
+							.Value = 0xc7,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm64zk},
+							.Rm = {OperandType::Vm64zk},
+							.Reg = {UINT64_C(0x5)},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vscatterpf0qps",
-			.GasMnemonic = "vscatterpf0qps",
-			.Description = "vscatterpf0qps vm64z{k}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vscatterpf0qps",
+				.GasMnemonic = "vscatterpf0qps",
+				.Description = "vscatterpf0qps vm64z{k}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Vm64zk,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Pf,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {UINT64_C(0x0)},
-						.Bb = {OperandType::Vm64zk},
-						.X = {OperandType::Vm64zk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm64zk},
-						.B = {OperandType::Vm64zk},
-						.Aaa = {OperandType::Vm64zk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 4,
-					},
-					OpCode
-					{
-						.Value = 0xc7,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::Vm64zk},
-						.Rm = {OperandType::Vm64zk},
-						.Reg = {UINT64_C(0x5)},
+						.Type = OperandType::Vm64zk,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512Pf,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {UINT64_C(0x0)},
+							.Bb = {OperandType::Vm64zk},
+							.X = {OperandType::Vm64zk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm64zk},
+							.B = {OperandType::Vm64zk},
+							.Aaa = {OperandType::Vm64zk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 4,
+						},
+						OpCode
+						{
+							.Value = 0xc7,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm64zk},
+							.Rm = {OperandType::Vm64zk},
+							.Reg = {UINT64_C(0x5)},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vscatterpf1dpd",
-			.GasMnemonic = "vscatterpf1dpd",
-			.Description = "vscatterpf1dpd vm32y{k}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vscatterpf1dpd",
+				.GasMnemonic = "vscatterpf1dpd",
+				.Description = "vscatterpf1dpd vm32y{k}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Vm32yk,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Pf,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {UINT64_C(0x0)},
-						.Bb = {OperandType::Vm32yk},
-						.X = {OperandType::Vm32yk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm32yk},
-						.B = {OperandType::Vm32yk},
-						.Aaa = {OperandType::Vm32yk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 8,
-					},
-					OpCode
-					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::Vm32yk},
-						.Rm = {OperandType::Vm32yk},
-						.Reg = {UINT64_C(0x6)},
+						.Type = OperandType::Vm32yk,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512Pf,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {UINT64_C(0x0)},
+							.Bb = {OperandType::Vm32yk},
+							.X = {OperandType::Vm32yk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm32yk},
+							.B = {OperandType::Vm32yk},
+							.Aaa = {OperandType::Vm32yk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 8,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm32yk},
+							.Rm = {OperandType::Vm32yk},
+							.Reg = {UINT64_C(0x6)},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vscatterpf1dps",
-			.GasMnemonic = "vscatterpf1dps",
-			.Description = "vscatterpf1dps vm32z{k}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vscatterpf1dps",
+				.GasMnemonic = "vscatterpf1dps",
+				.Description = "vscatterpf1dps vm32z{k}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Vm32zk,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Pf,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {UINT64_C(0x0)},
-						.Bb = {OperandType::Vm32zk},
-						.X = {OperandType::Vm32zk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm32zk},
-						.B = {OperandType::Vm32zk},
-						.Aaa = {OperandType::Vm32zk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 4,
-					},
-					OpCode
-					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::Vm32zk},
-						.Rm = {OperandType::Vm32zk},
-						.Reg = {UINT64_C(0x6)},
+						.Type = OperandType::Vm32zk,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512Pf,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {UINT64_C(0x0)},
+							.Bb = {OperandType::Vm32zk},
+							.X = {OperandType::Vm32zk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm32zk},
+							.B = {OperandType::Vm32zk},
+							.Aaa = {OperandType::Vm32zk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 4,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm32zk},
+							.Rm = {OperandType::Vm32zk},
+							.Reg = {UINT64_C(0x6)},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vscatterpf1qpd",
-			.GasMnemonic = "vscatterpf1qpd",
-			.Description = "vscatterpf1qpd vm64z{k}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vscatterpf1qpd",
+				.GasMnemonic = "vscatterpf1qpd",
+				.Description = "vscatterpf1qpd vm64z{k}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Vm64zk,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Pf,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {UINT64_C(0x0)},
-						.Bb = {OperandType::Vm64zk},
-						.X = {OperandType::Vm64zk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm64zk},
-						.B = {OperandType::Vm64zk},
-						.Aaa = {OperandType::Vm64zk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 8,
-					},
-					OpCode
-					{
-						.Value = 0xc7,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::Vm64zk},
-						.Rm = {OperandType::Vm64zk},
-						.Reg = {UINT64_C(0x6)},
+						.Type = OperandType::Vm64zk,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512Pf,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {UINT64_C(0x0)},
+							.Bb = {OperandType::Vm64zk},
+							.X = {OperandType::Vm64zk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm64zk},
+							.B = {OperandType::Vm64zk},
+							.Aaa = {OperandType::Vm64zk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 8,
+						},
+						OpCode
+						{
+							.Value = 0xc7,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm64zk},
+							.Rm = {OperandType::Vm64zk},
+							.Reg = {UINT64_C(0x6)},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vscatterpf1qps",
-			.GasMnemonic = "vscatterpf1qps",
-			.Description = "vscatterpf1qps vm64z{k}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vscatterpf1qps",
+				.GasMnemonic = "vscatterpf1qps",
+				.Description = "vscatterpf1qps vm64z{k}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Vm64zk,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Pf,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {UINT64_C(0x0)},
-						.Bb = {OperandType::Vm64zk},
-						.X = {OperandType::Vm64zk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm64zk},
-						.B = {OperandType::Vm64zk},
-						.Aaa = {OperandType::Vm64zk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 4,
-					},
-					OpCode
-					{
-						.Value = 0xc7,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::Vm64zk},
-						.Rm = {OperandType::Vm64zk},
-						.Reg = {UINT64_C(0x6)},
+						.Type = OperandType::Vm64zk,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512Pf,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {UINT64_C(0x0)},
+							.Bb = {OperandType::Vm64zk},
+							.X = {OperandType::Vm64zk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm64zk},
+							.B = {OperandType::Vm64zk},
+							.Aaa = {OperandType::Vm64zk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 4,
+						},
+						OpCode
+						{
+							.Value = 0xc7,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm64zk},
+							.Rm = {OperandType::Vm64zk},
+							.Reg = {UINT64_C(0x6)},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vscatterqpd",
-			.GasMnemonic = "vscatterqpd",
-			.Description = "vscatterqpd vm64x{k}, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vscatterqpd",
+				.GasMnemonic = "vscatterqpd",
+				.Description = "vscatterqpd vm64x{k}, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Vm64xk,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::Xmm},
-						.Bb = {OperandType::Vm64xk},
-						.X = {OperandType::Vm64xk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm64xk},
-						.B = {OperandType::Vm64xk},
-						.Aaa = {OperandType::Vm64xk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 8,
+						.Type = OperandType::Vm64xk,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xa3,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::Vm64xk},
-						.Rm = {OperandType::Vm64xk},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vscatterqpd",
-			.GasMnemonic = "vscatterqpd",
-			.Description = "vscatterqpd vm64y{k}, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Vm64yk,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Evex
-					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::Ymm},
-						.Bb = {OperandType::Vm64yk},
-						.X = {OperandType::Vm64yk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm64yk},
-						.B = {OperandType::Vm64yk},
-						.Aaa = {OperandType::Vm64yk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 8,
-					},
-					OpCode
-					{
-						.Value = 0xa3,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::Vm64yk},
-						.Rm = {OperandType::Vm64yk},
-						.Reg = {OperandType::Ymm},
-					},
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vscatterqpd",
-			.GasMnemonic = "vscatterqpd",
-			.Description = "vscatterqpd vm64z{k}, zmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Vm64zk,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::Zmm},
-						.Bb = {OperandType::Vm64zk},
-						.X = {OperandType::Vm64zk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm64zk},
-						.B = {OperandType::Vm64zk},
-						.Aaa = {OperandType::Vm64zk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 8,
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::Xmm},
+							.Bb = {OperandType::Vm64xk},
+							.X = {OperandType::Vm64xk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm64xk},
+							.B = {OperandType::Vm64xk},
+							.Aaa = {OperandType::Vm64xk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 8,
+						},
+						OpCode
+						{
+							.Value = 0xa3,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm64xk},
+							.Rm = {OperandType::Vm64xk},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vscatterqpd",
+				.GasMnemonic = "vscatterqpd",
+				.Description = "vscatterqpd vm64y{k}, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0xa3,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Vm64yk,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::Vm64zk},
-						.Rm = {OperandType::Vm64zk},
-						.Reg = {OperandType::Zmm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::Ymm},
+							.Bb = {OperandType::Vm64yk},
+							.X = {OperandType::Vm64yk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm64yk},
+							.B = {OperandType::Vm64yk},
+							.Aaa = {OperandType::Vm64yk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 8,
+						},
+						OpCode
+						{
+							.Value = 0xa3,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm64yk},
+							.Rm = {OperandType::Vm64yk},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vscatterqpd",
+				.GasMnemonic = "vscatterqpd",
+				.Description = "vscatterqpd vm64z{k}, zmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Vm64zk,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::Zmm},
+							.Bb = {OperandType::Vm64zk},
+							.X = {OperandType::Vm64zk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm64zk},
+							.B = {OperandType::Vm64zk},
+							.Aaa = {OperandType::Vm64zk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 8,
+						},
+						OpCode
+						{
+							.Value = 0xa3,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm64zk},
+							.Rm = {OperandType::Vm64zk},
+							.Reg = {OperandType::Zmm},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vscatterqps",
-			.GasMnemonic = "vscatterqps",
-			.Description = "vscatterqps vm64x{k}, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vscatterqps",
+				.GasMnemonic = "vscatterqps",
+				.Description = "vscatterqps vm64x{k}, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Vm64xk,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::Xmm},
-						.Bb = {OperandType::Vm64xk},
-						.X = {OperandType::Vm64xk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm64xk},
-						.B = {OperandType::Vm64xk},
-						.Aaa = {OperandType::Vm64xk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 4,
+						.Type = OperandType::Vm64xk,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xa3,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::Vm64xk},
-						.Rm = {OperandType::Vm64xk},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vscatterqps",
-			.GasMnemonic = "vscatterqps",
-			.Description = "vscatterqps vm64y{k}, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Vm64yk,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Evex
-					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::Xmm},
-						.Bb = {OperandType::Vm64yk},
-						.X = {OperandType::Vm64yk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm64yk},
-						.B = {OperandType::Vm64yk},
-						.Aaa = {OperandType::Vm64yk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 4,
-					},
-					OpCode
-					{
-						.Value = 0xa3,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::Vm64yk},
-						.Rm = {OperandType::Vm64yk},
-						.Reg = {OperandType::Xmm},
-					},
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vscatterqps",
-			.GasMnemonic = "vscatterqps",
-			.Description = "vscatterqps vm64z{k}, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Vm64zk,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::Ymm},
-						.Bb = {OperandType::Vm64zk},
-						.X = {OperandType::Vm64zk},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {OperandType::Vm64zk},
-						.B = {OperandType::Vm64zk},
-						.Aaa = {OperandType::Vm64zk},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 4,
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::Xmm},
+							.Bb = {OperandType::Vm64xk},
+							.X = {OperandType::Vm64xk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm64xk},
+							.B = {OperandType::Vm64xk},
+							.Aaa = {OperandType::Vm64xk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 4,
+						},
+						OpCode
+						{
+							.Value = 0xa3,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm64xk},
+							.Rm = {OperandType::Vm64xk},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vscatterqps",
+				.GasMnemonic = "vscatterqps",
+				.Description = "vscatterqps vm64y{k}, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0xa3,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Vm64yk,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::Vm64zk},
-						.Rm = {OperandType::Vm64zk},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::Xmm},
+							.Bb = {OperandType::Vm64yk},
+							.X = {OperandType::Vm64yk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm64yk},
+							.B = {OperandType::Vm64yk},
+							.Aaa = {OperandType::Vm64yk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 4,
+						},
+						OpCode
+						{
+							.Value = 0xa3,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm64yk},
+							.Rm = {OperandType::Vm64yk},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vscatterqps",
+				.GasMnemonic = "vscatterqps",
+				.Description = "vscatterqps vm64z{k}, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Vm64zk,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::Ymm},
+							.Bb = {OperandType::Vm64zk},
+							.X = {OperandType::Vm64zk},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {OperandType::Vm64zk},
+							.B = {OperandType::Vm64zk},
+							.Aaa = {OperandType::Vm64zk},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 4,
+						},
+						OpCode
+						{
+							.Value = 0xa3,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::Vm64zk},
+							.Rm = {OperandType::Vm64zk},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vshuff32x4",
-			.GasMnemonic = "vshuff32x4",
-			.Description = "vshuff32x4 ymm{k}{z}, ymm, m256/m32bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vshuff32x4",
+				.GasMnemonic = "vshuff32x4",
+				.Description = "vshuff32x4 ymm{k}{z}, ymm, m256/m32bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M32Bcst},
-						.X = {OperandType::M256M32Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M32Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x23,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M32Bcst},
-						.Rm = {OperandType::M256M32Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::M256M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshuff32x4",
-			.GasMnemonic = "vshuff32x4",
-			.Description = "vshuff32x4 ymm{k}{z}, ymm, ymm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M32Bcst},
+							.X = {OperandType::M256M32Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M32Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x23,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M32Bcst},
+							.Rm = {OperandType::M256M32Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x23,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshuff32x4",
-			.GasMnemonic = "vshuff32x4",
-			.Description = "vshuff32x4 zmm{k}{z}, zmm, m512/m32bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshuff32x4",
+				.GasMnemonic = "vshuff32x4",
+				.Description = "vshuff32x4 ymm{k}{z}, ymm, ymm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M32Bcst},
-						.X = {OperandType::M512M32Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M32Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x23,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M32Bcst},
-						.Rm = {OperandType::M512M32Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshuff32x4",
-			.GasMnemonic = "vshuff32x4",
-			.Description = "vshuff32x4 zmm{k}{z}, zmm, zmm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x23,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshuff32x4",
+				.GasMnemonic = "vshuff32x4",
+				.Description = "vshuff32x4 zmm{k}{z}, zmm, m512/m32bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x23,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::M512M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M32Bcst},
+							.X = {OperandType::M512M32Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M32Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x23,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M32Bcst},
+							.Rm = {OperandType::M512M32Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshuff32x4",
+				.GasMnemonic = "vshuff32x4",
+				.Description = "vshuff32x4 zmm{k}{z}, zmm, zmm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x23,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vshuff64x2",
-			.GasMnemonic = "vshuff64x2",
-			.Description = "vshuff64x2 ymm{k}{z}, ymm, m256/m64bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vshuff64x2",
+				.GasMnemonic = "vshuff64x2",
+				.Description = "vshuff64x2 ymm{k}{z}, ymm, m256/m64bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M64Bcst},
-						.X = {OperandType::M256M64Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M64Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x23,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M64Bcst},
-						.Rm = {OperandType::M256M64Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::M256M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshuff64x2",
-			.GasMnemonic = "vshuff64x2",
-			.Description = "vshuff64x2 ymm{k}{z}, ymm, ymm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M64Bcst},
+							.X = {OperandType::M256M64Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M64Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x23,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M64Bcst},
+							.Rm = {OperandType::M256M64Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x23,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshuff64x2",
-			.GasMnemonic = "vshuff64x2",
-			.Description = "vshuff64x2 zmm{k}{z}, zmm, m512/m64bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshuff64x2",
+				.GasMnemonic = "vshuff64x2",
+				.Description = "vshuff64x2 ymm{k}{z}, ymm, ymm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M64Bcst},
-						.X = {OperandType::M512M64Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M64Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x23,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M64Bcst},
-						.Rm = {OperandType::M512M64Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshuff64x2",
-			.GasMnemonic = "vshuff64x2",
-			.Description = "vshuff64x2 zmm{k}{z}, zmm, zmm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x23,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshuff64x2",
+				.GasMnemonic = "vshuff64x2",
+				.Description = "vshuff64x2 zmm{k}{z}, zmm, m512/m64bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x23,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::M512M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M64Bcst},
+							.X = {OperandType::M512M64Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M64Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x23,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M64Bcst},
+							.Rm = {OperandType::M512M64Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshuff64x2",
+				.GasMnemonic = "vshuff64x2",
+				.Description = "vshuff64x2 zmm{k}{z}, zmm, zmm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x23,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vshufi32x4",
-			.GasMnemonic = "vshufi32x4",
-			.Description = "vshufi32x4 ymm{k}{z}, ymm, m256/m32bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vshufi32x4",
+				.GasMnemonic = "vshufi32x4",
+				.Description = "vshufi32x4 ymm{k}{z}, ymm, m256/m32bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M32Bcst},
-						.X = {OperandType::M256M32Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M32Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x43,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M32Bcst},
-						.Rm = {OperandType::M256M32Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::M256M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufi32x4",
-			.GasMnemonic = "vshufi32x4",
-			.Description = "vshufi32x4 ymm{k}{z}, ymm, ymm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M32Bcst},
+							.X = {OperandType::M256M32Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M32Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x43,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M32Bcst},
+							.Rm = {OperandType::M256M32Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x43,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufi32x4",
-			.GasMnemonic = "vshufi32x4",
-			.Description = "vshufi32x4 zmm{k}{z}, zmm, m512/m32bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshufi32x4",
+				.GasMnemonic = "vshufi32x4",
+				.Description = "vshufi32x4 ymm{k}{z}, ymm, ymm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M32Bcst},
-						.X = {OperandType::M512M32Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M32Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x43,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M32Bcst},
-						.Rm = {OperandType::M512M32Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufi32x4",
-			.GasMnemonic = "vshufi32x4",
-			.Description = "vshufi32x4 zmm{k}{z}, zmm, zmm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x43,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufi32x4",
+				.GasMnemonic = "vshufi32x4",
+				.Description = "vshufi32x4 zmm{k}{z}, zmm, m512/m32bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x43,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::M512M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M32Bcst},
+							.X = {OperandType::M512M32Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M32Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x43,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M32Bcst},
+							.Rm = {OperandType::M512M32Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufi32x4",
+				.GasMnemonic = "vshufi32x4",
+				.Description = "vshufi32x4 zmm{k}{z}, zmm, zmm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x43,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vshufi64x2",
-			.GasMnemonic = "vshufi64x2",
-			.Description = "vshufi64x2 ymm{k}{z}, ymm, m256/m64bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vshufi64x2",
+				.GasMnemonic = "vshufi64x2",
+				.Description = "vshufi64x2 ymm{k}{z}, ymm, m256/m64bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M64Bcst},
-						.X = {OperandType::M256M64Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M64Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x43,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M64Bcst},
-						.Rm = {OperandType::M256M64Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::M256M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufi64x2",
-			.GasMnemonic = "vshufi64x2",
-			.Description = "vshufi64x2 ymm{k}{z}, ymm, ymm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M64Bcst},
+							.X = {OperandType::M256M64Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M64Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x43,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M64Bcst},
+							.Rm = {OperandType::M256M64Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x43,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufi64x2",
-			.GasMnemonic = "vshufi64x2",
-			.Description = "vshufi64x2 zmm{k}{z}, zmm, m512/m64bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshufi64x2",
+				.GasMnemonic = "vshufi64x2",
+				.Description = "vshufi64x2 ymm{k}{z}, ymm, ymm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M64Bcst},
-						.X = {OperandType::M512M64Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M64Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x43,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M64Bcst},
-						.Rm = {OperandType::M512M64Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufi64x2",
-			.GasMnemonic = "vshufi64x2",
-			.Description = "vshufi64x2 zmm{k}{z}, zmm, zmm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b11,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x43,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufi64x2",
+				.GasMnemonic = "vshufi64x2",
+				.Description = "vshufi64x2 zmm{k}{z}, zmm, m512/m64bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x43,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::M512M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M64Bcst},
+							.X = {OperandType::M512M64Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M64Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x43,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M64Bcst},
+							.Rm = {OperandType::M512M64Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufi64x2",
+				.GasMnemonic = "vshufi64x2",
+				.Description = "vshufi64x2 zmm{k}{z}, zmm, zmm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b11,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x43,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vshufpd",
-			.GasMnemonic = "vshufpd",
-			.Description = "vshufpd xmm{k}{z}, xmm, m128/m64bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vshufpd",
+				.GasMnemonic = "vshufpd",
+				.Description = "vshufpd xmm{k}{z}, xmm, m128/m64bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M128M64Bcst},
-						.X = {OperandType::M128M64Bcst},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M128M64Bcst},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 16,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128M64Bcst},
-						.Rm = {OperandType::M128M64Bcst},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M128M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufpd",
-			.GasMnemonic = "vshufpd",
-			.Description = "vshufpd xmm{k}{z}, xmm, xmm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M128M64Bcst},
+							.X = {OperandType::M128M64Bcst},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M128M64Bcst},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 16,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128M64Bcst},
+							.Rm = {OperandType::M128M64Bcst},
+							.Reg = {OperandType::XmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufpd",
-			.GasMnemonic = "vshufpd",
-			.Description = "vshufpd ymm{k}{z}, ymm, m256/m64bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshufpd",
+				.GasMnemonic = "vshufpd",
+				.Description = "vshufpd xmm{k}{z}, xmm, xmm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M64Bcst},
-						.X = {OperandType::M256M64Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M64Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M64Bcst},
-						.Rm = {OperandType::M256M64Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufpd",
-			.GasMnemonic = "vshufpd",
-			.Description = "vshufpd ymm{k}{z}, ymm, ymm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufpd",
-			.GasMnemonic = "vshufpd",
-			.Description = "vshufpd zmm{k}{z}, zmm, m512/m64bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshufpd",
+				.GasMnemonic = "vshufpd",
+				.Description = "vshufpd ymm{k}{z}, ymm, m256/m64bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M64Bcst},
-						.X = {OperandType::M512M64Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M64Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M64Bcst},
-						.Rm = {OperandType::M512M64Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::M256M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufpd",
-			.GasMnemonic = "vshufpd",
-			.Description = "vshufpd zmm{k}{z}, zmm, zmm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M64Bcst},
+							.X = {OperandType::M256M64Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M64Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M64Bcst},
+							.Rm = {OperandType::M256M64Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufpd",
-			.GasMnemonic = "vshufpd",
-			.Description = "vshufpd xmm, xmm, xmm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshufpd",
+				.GasMnemonic = "vshufpd",
+				.Description = "vshufpd ymm{k}{z}, ymm, ymm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufpd",
-			.GasMnemonic = "vshufpd",
-			.Description = "vshufpd xmm, xmm, m128, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufpd",
-			.GasMnemonic = "vshufpd",
-			.Description = "vshufpd ymm, ymm, ymm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshufpd",
+				.GasMnemonic = "vshufpd",
+				.Description = "vshufpd zmm{k}{z}, zmm, m512/m64bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::M512M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufpd",
-			.GasMnemonic = "vshufpd",
-			.Description = "vshufpd ymm, ymm, m256, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {OperandType::Ymm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M64Bcst},
+							.X = {OperandType::M512M64Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M64Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M64Bcst},
+							.Rm = {OperandType::M512M64Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufpd",
+				.GasMnemonic = "vshufpd",
+				.Description = "vshufpd zmm{k}{z}, zmm, zmm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufpd",
+				.GasMnemonic = "vshufpd",
+				.Description = "vshufpd xmm, xmm, xmm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufpd",
+				.GasMnemonic = "vshufpd",
+				.Description = "vshufpd xmm, xmm, m128, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufpd",
+				.GasMnemonic = "vshufpd",
+				.Description = "vshufpd ymm, ymm, ymm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufpd",
+				.GasMnemonic = "vshufpd",
+				.Description = "vshufpd ymm, ymm, m256, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vshufps",
-			.GasMnemonic = "vshufps",
-			.Description = "vshufps xmm{k}{z}, xmm, m128/m32bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vshufps",
+				.GasMnemonic = "vshufps",
+				.Description = "vshufps xmm{k}{z}, xmm, m128/m32bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M128M32Bcst},
-						.X = {OperandType::M128M32Bcst},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M128M32Bcst},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 16,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128M32Bcst},
-						.Rm = {OperandType::M128M32Bcst},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M128M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufps",
-			.GasMnemonic = "vshufps",
-			.Description = "vshufps xmm{k}{z}, xmm, xmm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M128M32Bcst},
+							.X = {OperandType::M128M32Bcst},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M128M32Bcst},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 16,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128M32Bcst},
+							.Rm = {OperandType::M128M32Bcst},
+							.Reg = {OperandType::XmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufps",
-			.GasMnemonic = "vshufps",
-			.Description = "vshufps ymm{k}{z}, ymm, m256/m32bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshufps",
+				.GasMnemonic = "vshufps",
+				.Description = "vshufps xmm{k}{z}, xmm, xmm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M32Bcst},
-						.X = {OperandType::M256M32Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M32Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M32Bcst},
-						.Rm = {OperandType::M256M32Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufps",
-			.GasMnemonic = "vshufps",
-			.Description = "vshufps ymm{k}{z}, ymm, ymm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufps",
-			.GasMnemonic = "vshufps",
-			.Description = "vshufps zmm{k}{z}, zmm, m512/m32bcst, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshufps",
+				.GasMnemonic = "vshufps",
+				.Description = "vshufps ymm{k}{z}, ymm, m256/m32bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M32Bcst},
-						.X = {OperandType::M512M32Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M32Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M32Bcst},
-						.Rm = {OperandType::M512M32Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::M256M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufps",
-			.GasMnemonic = "vshufps",
-			.Description = "vshufps zmm{k}{z}, zmm, zmm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M32Bcst},
+							.X = {OperandType::M256M32Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M32Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M32Bcst},
+							.Rm = {OperandType::M256M32Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufps",
-			.GasMnemonic = "vshufps",
-			.Description = "vshufps xmm, xmm, xmm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshufps",
+				.GasMnemonic = "vshufps",
+				.Description = "vshufps ymm{k}{z}, ymm, ymm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufps",
-			.GasMnemonic = "vshufps",
-			.Description = "vshufps xmm, xmm, m128, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
-					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
-					},
-					ImmediateScalar
-					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufps",
-			.GasMnemonic = "vshufps",
-			.Description = "vshufps ymm, ymm, ymm, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vshufps",
+				.GasMnemonic = "vshufps",
+				.Description = "vshufps zmm{k}{z}, zmm, m512/m32bcst, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::M512M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vshufps",
-			.GasMnemonic = "vshufps",
-			.Description = "vshufps ymm, ymm, m256, imm8",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Imm8,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {OperandType::Ymm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M32Bcst},
+							.X = {OperandType::M512M32Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M32Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M32Bcst},
+							.Rm = {OperandType::M512M32Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufps",
+				.GasMnemonic = "vshufps",
+				.Description = "vshufps zmm{k}{z}, zmm, zmm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0xc6,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ImmediateScalar
+					Operand
 					{
-						.Size = 1,
-						.Value = {OperandType::Imm8},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufps",
+				.GasMnemonic = "vshufps",
+				.Description = "vshufps xmm, xmm, xmm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufps",
+				.GasMnemonic = "vshufps",
+				.Description = "vshufps xmm, xmm, m128, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufps",
+				.GasMnemonic = "vshufps",
+				.Description = "vshufps ymm, ymm, ymm, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vshufps",
+				.GasMnemonic = "vshufps",
+				.Description = "vshufps ymm, ymm, m256, imm8",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Imm8,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0xc6,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+						ImmediateScalar
+						{
+							.Size = 1,
+							.Value = {OperandType::Imm8},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vsqrtpd",
-			.GasMnemonic = "vsqrtpd",
-			.Description = "vsqrtpd xmm{k}{z}, m128/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vsqrtpd",
+				.GasMnemonic = "vsqrtpd",
+				.Description = "vsqrtpd xmm{k}{z}, m128/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M128M32Bcst},
-						.X = {OperandType::M128M32Bcst},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::M128M32Bcst},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 16,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M128M32Bcst},
-						.Rm = {OperandType::M128M32Bcst},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M128M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtpd",
-			.GasMnemonic = "vsqrtpd",
-			.Description = "vsqrtpd ymm{k}{z}, m256/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::M256M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Evex
-					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M32Bcst},
-						.X = {OperandType::M256M32Bcst},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::M256M32Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
-					},
-					OpCode
-					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M256M32Bcst},
-						.Rm = {OperandType::M256M32Bcst},
-						.Reg = {OperandType::YmmKz},
-					},
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtpd",
-			.GasMnemonic = "vsqrtpd",
-			.Description = "vsqrtpd zmm{k}{z}, m512/m64bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M64Bcst},
-						.X = {OperandType::M512M64Bcst},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::M512M64Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M128M32Bcst},
+							.X = {OperandType::M128M32Bcst},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::M128M32Bcst},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 16,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128M32Bcst},
+							.Rm = {OperandType::M128M32Bcst},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtpd",
+				.GasMnemonic = "vsqrtpd",
+				.Description = "vsqrtpd ymm{k}{z}, m256/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M64Bcst},
-						.Rm = {OperandType::M512M64Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::M256M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtpd",
-			.GasMnemonic = "vsqrtpd",
-			.Description = "vsqrtpd xmm{k}{z}, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Evex
-					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
-					},
-					OpCode
-					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
-					},
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtpd",
-			.GasMnemonic = "vsqrtpd",
-			.Description = "vsqrtpd ymm{k}{z}, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M32Bcst},
+							.X = {OperandType::M256M32Bcst},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::M256M32Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M32Bcst},
+							.Rm = {OperandType::M256M32Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtpd",
+				.GasMnemonic = "vsqrtpd",
+				.Description = "vsqrtpd zmm{k}{z}, m512/m64bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::M512M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtpd",
-			.GasMnemonic = "vsqrtpd",
-			.Description = "vsqrtpd xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Vex
-					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {UINT64_C(0x0)},
-					},
-					OpCode
-					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
-					},
+					IsaExtension::Avx512F,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtpd",
-			.GasMnemonic = "vsqrtpd",
-			.Description = "vsqrtpd xmm, m128",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {UINT64_C(0x0)},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M64Bcst},
+							.X = {OperandType::M512M64Bcst},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::M512M64Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M64Bcst},
+							.Rm = {OperandType::M512M64Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtpd",
+				.GasMnemonic = "vsqrtpd",
+				.Description = "vsqrtpd xmm{k}{z}, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtpd",
-			.GasMnemonic = "vsqrtpd",
-			.Description = "vsqrtpd ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Vex
-					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {UINT64_C(0x0)},
-					},
-					OpCode
-					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
-					},
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtpd",
-			.GasMnemonic = "vsqrtpd",
-			.Description = "vsqrtpd ymm, m256",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {UINT64_C(0x0)},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtpd",
+				.GasMnemonic = "vsqrtpd",
+				.Description = "vsqrtpd ymm{k}{z}, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtpd",
-			.GasMnemonic = "vsqrtpd",
-			.Description = "vsqrtpd zmm{k}{z}, zmm, {er}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Er,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = OperandType::Er,
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtpd",
+				.GasMnemonic = "vsqrtpd",
+				.Description = "vsqrtpd xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtpd",
+				.GasMnemonic = "vsqrtpd",
+				.Description = "vsqrtpd xmm, m128",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtpd",
+				.GasMnemonic = "vsqrtpd",
+				.Description = "vsqrtpd ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtpd",
+				.GasMnemonic = "vsqrtpd",
+				.Description = "vsqrtpd ymm, m256",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtpd",
+				.GasMnemonic = "vsqrtpd",
+				.Description = "vsqrtpd zmm{k}{z}, zmm, {er}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Er,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = OperandType::Er,
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vsqrtps",
-			.GasMnemonic = "vsqrtps",
-			.Description = "vsqrtps xmm{k}{z}, m128/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vsqrtps",
+				.GasMnemonic = "vsqrtps",
+				.Description = "vsqrtps xmm{k}{z}, m128/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M128M32Bcst},
-						.X = {OperandType::M128M32Bcst},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::M128M32Bcst},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 16,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M128M32Bcst},
-						.Rm = {OperandType::M128M32Bcst},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M128M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtps",
-			.GasMnemonic = "vsqrtps",
-			.Description = "vsqrtps ymm{k}{z}, m256/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::M256M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Evex
-					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M32Bcst},
-						.X = {OperandType::M256M32Bcst},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::M256M32Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
-					},
-					OpCode
-					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M256M32Bcst},
-						.Rm = {OperandType::M256M32Bcst},
-						.Reg = {OperandType::YmmKz},
-					},
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtps",
-			.GasMnemonic = "vsqrtps",
-			.Description = "vsqrtps zmm{k}{z}, m512/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M32Bcst},
-						.X = {OperandType::M512M32Bcst},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::M512M32Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M128M32Bcst},
+							.X = {OperandType::M128M32Bcst},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::M128M32Bcst},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 16,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128M32Bcst},
+							.Rm = {OperandType::M128M32Bcst},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtps",
+				.GasMnemonic = "vsqrtps",
+				.Description = "vsqrtps ymm{k}{z}, m256/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M32Bcst},
-						.Rm = {OperandType::M512M32Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::M256M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtps",
-			.GasMnemonic = "vsqrtps",
-			.Description = "vsqrtps xmm{k}{z}, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Evex
-					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
-					},
-					OpCode
-					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
-					},
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtps",
-			.GasMnemonic = "vsqrtps",
-			.Description = "vsqrtps ymm{k}{z}, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M32Bcst},
+							.X = {OperandType::M256M32Bcst},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::M256M32Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M32Bcst},
+							.Rm = {OperandType::M256M32Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtps",
+				.GasMnemonic = "vsqrtps",
+				.Description = "vsqrtps zmm{k}{z}, m512/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::M512M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtps",
-			.GasMnemonic = "vsqrtps",
-			.Description = "vsqrtps xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Vex
-					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {UINT64_C(0x0)},
-					},
-					OpCode
-					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
-					},
+					IsaExtension::Avx512F,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtps",
-			.GasMnemonic = "vsqrtps",
-			.Description = "vsqrtps xmm, m128",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {UINT64_C(0x0)},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M32Bcst},
+							.X = {OperandType::M512M32Bcst},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::M512M32Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M32Bcst},
+							.Rm = {OperandType::M512M32Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtps",
+				.GasMnemonic = "vsqrtps",
+				.Description = "vsqrtps xmm{k}{z}, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtps",
-			.GasMnemonic = "vsqrtps",
-			.Description = "vsqrtps ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Vex
-					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {UINT64_C(0x0)},
-					},
-					OpCode
-					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
-					},
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtps",
-			.GasMnemonic = "vsqrtps",
-			.Description = "vsqrtps ymm, m256",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {UINT64_C(0x0)},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtps",
+				.GasMnemonic = "vsqrtps",
+				.Description = "vsqrtps ymm{k}{z}, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtps",
-			.GasMnemonic = "vsqrtps",
-			.Description = "vsqrtps zmm{k}{z}, zmm, {er}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Er,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = OperandType::Er,
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtps",
+				.GasMnemonic = "vsqrtps",
+				.Description = "vsqrtps xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtps",
+				.GasMnemonic = "vsqrtps",
+				.Description = "vsqrtps xmm, m128",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtps",
+				.GasMnemonic = "vsqrtps",
+				.Description = "vsqrtps ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtps",
+				.GasMnemonic = "vsqrtps",
+				.Description = "vsqrtps ymm, m256",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtps",
+				.GasMnemonic = "vsqrtps",
+				.Description = "vsqrtps zmm{k}{z}, zmm, {er}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Er,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = OperandType::Er,
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vsqrtsd",
-			.GasMnemonic = "vsqrtsd",
-			.Description = "vsqrtsd xmm{k}{z}, xmm, m64",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vsqrtsd",
+				.GasMnemonic = "vsqrtsd",
+				.Description = "vsqrtsd xmm{k}{z}, xmm, m64",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M64,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b11,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M64},
-						.X = {OperandType::M64},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M64},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 8,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M64},
-						.Rm = {OperandType::M64},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M64,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtsd",
-			.GasMnemonic = "vsqrtsd",
-			.Description = "vsqrtsd xmm, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b11,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b11,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M64},
+							.X = {OperandType::M64},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M64},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 8,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M64},
+							.Rm = {OperandType::M64},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtsd",
-			.GasMnemonic = "vsqrtsd",
-			.Description = "vsqrtsd xmm, xmm, m64",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M64,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsqrtsd",
+				.GasMnemonic = "vsqrtsd",
+				.Description = "vsqrtsd xmm, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b11,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M64},
-						.B = {OperandType::M64},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M64},
-						.Rm = {OperandType::M64},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtsd",
-			.GasMnemonic = "vsqrtsd",
-			.Description = "vsqrtsd xmm{k}{z}, xmm, xmm, {er}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Er,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b11,
-						.W = true,
-						.Ll = OperandType::Er,
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b11,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtsd",
+				.GasMnemonic = "vsqrtsd",
+				.Description = "vsqrtsd xmm, xmm, m64",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M64,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b11,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M64},
+							.B = {OperandType::M64},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M64},
+							.Rm = {OperandType::M64},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtsd",
+				.GasMnemonic = "vsqrtsd",
+				.Description = "vsqrtsd xmm{k}{z}, xmm, xmm, {er}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Er,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b11,
+							.W = true,
+							.Ll = OperandType::Er,
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vsqrtss",
-			.GasMnemonic = "vsqrtss",
-			.Description = "vsqrtss xmm{k}{z}, xmm, m32",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vsqrtss",
+				.GasMnemonic = "vsqrtss",
+				.Description = "vsqrtss xmm{k}{z}, xmm, m32",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M32,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b10,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M32},
-						.X = {OperandType::M32},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M32},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 4,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M32},
-						.Rm = {OperandType::M32},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M32,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtss",
-			.GasMnemonic = "vsqrtss",
-			.Description = "vsqrtss xmm, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b10,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b10,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M32},
+							.X = {OperandType::M32},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M32},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 4,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M32},
+							.Rm = {OperandType::M32},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtss",
-			.GasMnemonic = "vsqrtss",
-			.Description = "vsqrtss xmm, xmm, m32",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M32,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsqrtss",
+				.GasMnemonic = "vsqrtss",
+				.Description = "vsqrtss xmm, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b10,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M32},
-						.B = {OperandType::M32},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M32},
-						.Rm = {OperandType::M32},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsqrtss",
-			.GasMnemonic = "vsqrtss",
-			.Description = "vsqrtss xmm{k}{z}, xmm, xmm, {er}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Er,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b10,
-						.W = false,
-						.Ll = OperandType::Er,
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b10,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtss",
+				.GasMnemonic = "vsqrtss",
+				.Description = "vsqrtss xmm, xmm, m32",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x51,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M32,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b10,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M32},
+							.B = {OperandType::M32},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M32},
+							.Rm = {OperandType::M32},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsqrtss",
+				.GasMnemonic = "vsqrtss",
+				.Description = "vsqrtss xmm{k}{z}, xmm, xmm, {er}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Er,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b10,
+							.W = false,
+							.Ll = OperandType::Er,
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x51,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vstmxcsr",
-			.GasMnemonic = "vstmxcsr",
-			.Description = "vstmxcsr m32",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vstmxcsr",
+				.GasMnemonic = "vstmxcsr",
+				.Description = "vstmxcsr m32",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::M32,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {UINT64_C(0x0)},
-						.X = {OperandType::M32},
-						.B = {OperandType::M32},
-						.Vvvv = {UINT64_C(0x0)},
-					},
-					OpCode
-					{
-						.Value = 0xae,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M32},
-						.Rm = {OperandType::M32},
-						.Reg = {UINT64_C(0x3)},
+						.Type = OperandType::M32,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {UINT64_C(0x0)},
+							.X = {OperandType::M32},
+							.B = {OperandType::M32},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0xae,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M32},
+							.Rm = {OperandType::M32},
+							.Reg = {UINT64_C(0x3)},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vsubpd",
-			.GasMnemonic = "vsubpd",
-			.Description = "vsubpd xmm{k}{z}, xmm, m128/m64bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vsubpd",
+				.GasMnemonic = "vsubpd",
+				.Description = "vsubpd xmm{k}{z}, xmm, m128/m64bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M128M64Bcst},
-						.X = {OperandType::M128M64Bcst},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M128M64Bcst},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 16,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128M64Bcst},
-						.Rm = {OperandType::M128M64Bcst},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M128M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubpd",
-			.GasMnemonic = "vsubpd",
-			.Description = "vsubpd xmm{k}{z}, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M128M64Bcst},
+							.X = {OperandType::M128M64Bcst},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M128M64Bcst},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 16,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128M64Bcst},
+							.Rm = {OperandType::M128M64Bcst},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubpd",
-			.GasMnemonic = "vsubpd",
-			.Description = "vsubpd ymm{k}{z}, ymm, m256/m64bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsubpd",
+				.GasMnemonic = "vsubpd",
+				.Description = "vsubpd xmm{k}{z}, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M64Bcst},
-						.X = {OperandType::M256M64Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M64Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M64Bcst},
-						.Rm = {OperandType::M256M64Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubpd",
-			.GasMnemonic = "vsubpd",
-			.Description = "vsubpd ymm{k}{z}, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubpd",
-			.GasMnemonic = "vsubpd",
-			.Description = "vsubpd zmm{k}{z}, zmm, m512/m64bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsubpd",
+				.GasMnemonic = "vsubpd",
+				.Description = "vsubpd ymm{k}{z}, ymm, m256/m64bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M64Bcst},
-						.X = {OperandType::M512M64Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M64Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M64Bcst},
-						.Rm = {OperandType::M512M64Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::M256M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubpd",
-			.GasMnemonic = "vsubpd",
-			.Description = "vsubpd xmm, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M64Bcst},
+							.X = {OperandType::M256M64Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M64Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M64Bcst},
+							.Rm = {OperandType::M256M64Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubpd",
-			.GasMnemonic = "vsubpd",
-			.Description = "vsubpd xmm, xmm, m128",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsubpd",
+				.GasMnemonic = "vsubpd",
+				.Description = "vsubpd ymm{k}{z}, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubpd",
-			.GasMnemonic = "vsubpd",
-			.Description = "vsubpd ymm, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubpd",
-			.GasMnemonic = "vsubpd",
-			.Description = "vsubpd ymm, ymm, m256",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsubpd",
+				.GasMnemonic = "vsubpd",
+				.Description = "vsubpd zmm{k}{z}, zmm, m512/m64bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {OperandType::Ymm},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::M512M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubpd",
-			.GasMnemonic = "vsubpd",
-			.Description = "vsubpd zmm{k}{z}, zmm, zmm, {er}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Er,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = OperandType::Er,
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M64Bcst},
+							.X = {OperandType::M512M64Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M64Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M64Bcst},
+							.Rm = {OperandType::M512M64Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubpd",
+				.GasMnemonic = "vsubpd",
+				.Description = "vsubpd xmm, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubpd",
+				.GasMnemonic = "vsubpd",
+				.Description = "vsubpd xmm, xmm, m128",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubpd",
+				.GasMnemonic = "vsubpd",
+				.Description = "vsubpd ymm, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubpd",
+				.GasMnemonic = "vsubpd",
+				.Description = "vsubpd ymm, ymm, m256",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubpd",
+				.GasMnemonic = "vsubpd",
+				.Description = "vsubpd zmm{k}{z}, zmm, zmm, {er}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Er,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = OperandType::Er,
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vsubps",
-			.GasMnemonic = "vsubps",
-			.Description = "vsubps xmm{k}{z}, xmm, m128/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vsubps",
+				.GasMnemonic = "vsubps",
+				.Description = "vsubps xmm{k}{z}, xmm, m128/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M128M32Bcst},
-						.X = {OperandType::M128M32Bcst},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M128M32Bcst},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 16,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128M32Bcst},
-						.Rm = {OperandType::M128M32Bcst},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M128M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubps",
-			.GasMnemonic = "vsubps",
-			.Description = "vsubps xmm{k}{z}, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M128M32Bcst},
+							.X = {OperandType::M128M32Bcst},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M128M32Bcst},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 16,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128M32Bcst},
+							.Rm = {OperandType::M128M32Bcst},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubps",
-			.GasMnemonic = "vsubps",
-			.Description = "vsubps ymm{k}{z}, ymm, m256/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsubps",
+				.GasMnemonic = "vsubps",
+				.Description = "vsubps xmm{k}{z}, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M32Bcst},
-						.X = {OperandType::M256M32Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M32Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M32Bcst},
-						.Rm = {OperandType::M256M32Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubps",
-			.GasMnemonic = "vsubps",
-			.Description = "vsubps ymm{k}{z}, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubps",
-			.GasMnemonic = "vsubps",
-			.Description = "vsubps zmm{k}{z}, zmm, m512/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsubps",
+				.GasMnemonic = "vsubps",
+				.Description = "vsubps ymm{k}{z}, ymm, m256/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M32Bcst},
-						.X = {OperandType::M512M32Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M32Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M32Bcst},
-						.Rm = {OperandType::M512M32Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::M256M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubps",
-			.GasMnemonic = "vsubps",
-			.Description = "vsubps xmm, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M32Bcst},
+							.X = {OperandType::M256M32Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M32Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M32Bcst},
+							.Rm = {OperandType::M256M32Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubps",
-			.GasMnemonic = "vsubps",
-			.Description = "vsubps xmm, xmm, m128",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsubps",
+				.GasMnemonic = "vsubps",
+				.Description = "vsubps ymm{k}{z}, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubps",
-			.GasMnemonic = "vsubps",
-			.Description = "vsubps ymm, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubps",
-			.GasMnemonic = "vsubps",
-			.Description = "vsubps ymm, ymm, m256",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsubps",
+				.GasMnemonic = "vsubps",
+				.Description = "vsubps zmm{k}{z}, zmm, m512/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {OperandType::Ymm},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::M512M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubps",
-			.GasMnemonic = "vsubps",
-			.Description = "vsubps zmm{k}{z}, zmm, zmm, {er}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Er,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = OperandType::Er,
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M32Bcst},
+							.X = {OperandType::M512M32Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M32Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M32Bcst},
+							.Rm = {OperandType::M512M32Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubps",
+				.GasMnemonic = "vsubps",
+				.Description = "vsubps xmm, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubps",
+				.GasMnemonic = "vsubps",
+				.Description = "vsubps xmm, xmm, m128",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubps",
+				.GasMnemonic = "vsubps",
+				.Description = "vsubps ymm, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubps",
+				.GasMnemonic = "vsubps",
+				.Description = "vsubps ymm, ymm, m256",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubps",
+				.GasMnemonic = "vsubps",
+				.Description = "vsubps zmm{k}{z}, zmm, zmm, {er}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Er,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = OperandType::Er,
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vsubsd",
-			.GasMnemonic = "vsubsd",
-			.Description = "vsubsd xmm{k}{z}, xmm, m64",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vsubsd",
+				.GasMnemonic = "vsubsd",
+				.Description = "vsubsd xmm{k}{z}, xmm, m64",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M64,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b11,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M64},
-						.X = {OperandType::M64},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M64},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 8,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M64},
-						.Rm = {OperandType::M64},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M64,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubsd",
-			.GasMnemonic = "vsubsd",
-			.Description = "vsubsd xmm, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b11,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b11,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M64},
+							.X = {OperandType::M64},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M64},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 8,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M64},
+							.Rm = {OperandType::M64},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubsd",
-			.GasMnemonic = "vsubsd",
-			.Description = "vsubsd xmm, xmm, m64",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M64,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsubsd",
+				.GasMnemonic = "vsubsd",
+				.Description = "vsubsd xmm, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b11,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M64},
-						.B = {OperandType::M64},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M64},
-						.Rm = {OperandType::M64},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubsd",
-			.GasMnemonic = "vsubsd",
-			.Description = "vsubsd xmm{k}{z}, xmm, xmm, {er}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Er,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b11,
-						.W = true,
-						.Ll = OperandType::Er,
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b11,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubsd",
+				.GasMnemonic = "vsubsd",
+				.Description = "vsubsd xmm, xmm, m64",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M64,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b11,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M64},
+							.B = {OperandType::M64},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M64},
+							.Rm = {OperandType::M64},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubsd",
+				.GasMnemonic = "vsubsd",
+				.Description = "vsubsd xmm{k}{z}, xmm, xmm, {er}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Er,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b11,
+							.W = true,
+							.Ll = OperandType::Er,
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vsubss",
-			.GasMnemonic = "vsubss",
-			.Description = "vsubss xmm{k}{z}, xmm, m32",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vsubss",
+				.GasMnemonic = "vsubss",
+				.Description = "vsubss xmm{k}{z}, xmm, m32",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M32,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b10,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M32},
-						.X = {OperandType::M32},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M32},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 4,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M32},
-						.Rm = {OperandType::M32},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M32,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubss",
-			.GasMnemonic = "vsubss",
-			.Description = "vsubss xmm, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b10,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b10,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M32},
+							.X = {OperandType::M32},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M32},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 4,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M32},
+							.Rm = {OperandType::M32},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubss",
-			.GasMnemonic = "vsubss",
-			.Description = "vsubss xmm, xmm, m32",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M32,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vsubss",
+				.GasMnemonic = "vsubss",
+				.Description = "vsubss xmm, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b10,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M32},
-						.B = {OperandType::M32},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M32},
-						.Rm = {OperandType::M32},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vsubss",
-			.GasMnemonic = "vsubss",
-			.Description = "vsubss xmm{k}{z}, xmm, xmm, {er}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx,
 				},
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Er,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b10,
-						.W = false,
-						.Ll = OperandType::Er,
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b10,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubss",
+				.GasMnemonic = "vsubss",
+				.Description = "vsubss xmm, xmm, m32",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x5c,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M32,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b10,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M32},
+							.B = {OperandType::M32},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M32},
+							.Rm = {OperandType::M32},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vsubss",
+				.GasMnemonic = "vsubss",
+				.Description = "vsubss xmm{k}{z}, xmm, xmm, {er}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Er,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b10,
+							.W = false,
+							.Ll = OperandType::Er,
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x5c,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vtestpd",
-			.GasMnemonic = "vtestpd",
-			.Description = "vtestpd xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vtestpd",
+				.GasMnemonic = "vtestpd",
+				.Description = "vtestpd xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xf,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vtestpd",
-			.GasMnemonic = "vtestpd",
-			.Description = "vtestpd xmm, m128",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Vex
-					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {UINT64_C(0x0)},
-					},
-					OpCode
-					{
-						.Value = 0xf,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
-					},
+					IsaExtension::Avx,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vtestpd",
-			.GasMnemonic = "vtestpd",
-			.Description = "vtestpd ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {UINT64_C(0x0)},
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0xf,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vtestpd",
+				.GasMnemonic = "vtestpd",
+				.Description = "vtestpd xmm, m128",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0xf,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vtestpd",
-			.GasMnemonic = "vtestpd",
-			.Description = "vtestpd ymm, m256",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Vex
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {UINT64_C(0x0)},
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0xf,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vtestpd",
+				.GasMnemonic = "vtestpd",
+				.Description = "vtestpd ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0xf,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0xf,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vtestpd",
+				.GasMnemonic = "vtestpd",
+				.Description = "vtestpd ymm, m256",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0xf,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vtestps",
-			.GasMnemonic = "vtestps",
-			.Description = "vtestps xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vtestps",
+				.GasMnemonic = "vtestps",
+				.Description = "vtestps xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0xe,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vtestps",
-			.GasMnemonic = "vtestps",
-			.Description = "vtestps xmm, m128",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Vex
-					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {UINT64_C(0x0)},
-					},
-					OpCode
-					{
-						.Value = 0xe,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
-					},
+					IsaExtension::Avx,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vtestps",
-			.GasMnemonic = "vtestps",
-			.Description = "vtestps ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {UINT64_C(0x0)},
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0xe,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vtestps",
+				.GasMnemonic = "vtestps",
+				.Description = "vtestps xmm, m128",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0xe,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vtestps",
-			.GasMnemonic = "vtestps",
-			.Description = "vtestps ymm, m256",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Vex
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b10,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {UINT64_C(0x0)},
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0xe,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vtestps",
+				.GasMnemonic = "vtestps",
+				.Description = "vtestps ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0xe,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0xe,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vtestps",
+				.GasMnemonic = "vtestps",
+				.Description = "vtestps ymm, m256",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b10,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0xe,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vucomisd",
-			.GasMnemonic = "vucomisd",
-			.Description = "vucomisd xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vucomisd",
+				.GasMnemonic = "vucomisd",
+				.Description = "vucomisd xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x2e,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vucomisd",
-			.GasMnemonic = "vucomisd",
-			.Description = "vucomisd xmm, m64",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::M64,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Vex
-					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M64},
-						.B = {OperandType::M64},
-						.Vvvv = {UINT64_C(0x0)},
-					},
-					OpCode
-					{
-						.Value = 0x2e,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M64},
-						.Rm = {OperandType::M64},
-						.Reg = {OperandType::Xmm},
-					},
+					IsaExtension::Avx,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vucomisd",
-			.GasMnemonic = "vucomisd",
-			.Description = "vucomisd xmm, m64",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M64,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::Xmm},
-						.Bb = {OperandType::M64},
-						.X = {OperandType::M64},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::M64},
-						.Aaa = {UINT64_C(0x0)},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 8,
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x2e,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vucomisd",
+				.GasMnemonic = "vucomisd",
+				.Description = "vucomisd xmm, m64",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x2e,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M64},
-						.Rm = {OperandType::M64},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::M64,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vucomisd",
-			.GasMnemonic = "vucomisd",
-			.Description = "vucomisd xmm, xmm, {sae}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Sae,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::Xmm},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Aaa = {UINT64_C(0x0)},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 0,
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M64},
+							.B = {OperandType::M64},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x2e,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M64},
+							.Rm = {OperandType::M64},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vucomisd",
+				.GasMnemonic = "vucomisd",
+				.Description = "vucomisd xmm, m64",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x2e,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::M64,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::Xmm},
+							.Bb = {OperandType::M64},
+							.X = {OperandType::M64},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::M64},
+							.Aaa = {UINT64_C(0x0)},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 8,
+						},
+						OpCode
+						{
+							.Value = 0x2e,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M64},
+							.Rm = {OperandType::M64},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vucomisd",
+				.GasMnemonic = "vucomisd",
+				.Description = "vucomisd xmm, xmm, {sae}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Sae,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::Xmm},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Aaa = {UINT64_C(0x0)},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x2e,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vucomiss",
-			.GasMnemonic = "vucomiss",
-			.Description = "vucomiss xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vucomiss",
+				.GasMnemonic = "vucomiss",
+				.Description = "vucomiss xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x2e,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vucomiss",
-			.GasMnemonic = "vucomiss",
-			.Description = "vucomiss xmm, m32",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::M32,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IsaFeatureExtensions =
 				{
-					Vex
-					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M32},
-						.B = {OperandType::M32},
-						.Vvvv = {UINT64_C(0x0)},
-					},
-					OpCode
-					{
-						.Value = 0x2e,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M32},
-						.Rm = {OperandType::M32},
-						.Reg = {OperandType::Xmm},
-					},
+					IsaExtension::Avx,
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vucomiss",
-			.GasMnemonic = "vucomiss",
-			.Description = "vucomiss xmm, m32",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.EncodingScheme =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M32,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::Xmm},
-						.Bb = {OperandType::M32},
-						.X = {OperandType::M32},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::M32},
-						.Aaa = {UINT64_C(0x0)},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 4,
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x2e,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vucomiss",
+				.GasMnemonic = "vucomiss",
+				.Description = "vucomiss xmm, m32",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x2e,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M32},
-						.Rm = {OperandType::M32},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::M32,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vucomiss",
-			.GasMnemonic = "vucomiss",
-			.Description = "vucomiss xmm, xmm, {sae}",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Sae,
-					.IsInput = false,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::Xmm},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {UINT64_C(0x0)},
-						.V = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Aaa = {UINT64_C(0x0)},
-						.Z = {UINT64_C(0x0)},
-						.Disp8xN = 0,
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M32},
+							.B = {OperandType::M32},
+							.Vvvv = {UINT64_C(0x0)},
+						},
+						OpCode
+						{
+							.Value = 0x2e,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M32},
+							.Rm = {OperandType::M32},
+							.Reg = {OperandType::Xmm},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vucomiss",
+				.GasMnemonic = "vucomiss",
+				.Description = "vucomiss xmm, m32",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x2e,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::M32,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::Xmm},
+							.Bb = {OperandType::M32},
+							.X = {OperandType::M32},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::M32},
+							.Aaa = {UINT64_C(0x0)},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 4,
+						},
+						OpCode
+						{
+							.Value = 0x2e,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M32},
+							.Rm = {OperandType::M32},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vucomiss",
+				.GasMnemonic = "vucomiss",
+				.Description = "vucomiss xmm, xmm, {sae}",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Sae,
+						.IsInput = false,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::Xmm},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {UINT64_C(0x0)},
+							.V = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Aaa = {UINT64_C(0x0)},
+							.Z = {UINT64_C(0x0)},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x2e,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vunpckhpd",
-			.GasMnemonic = "vunpckhpd",
-			.Description = "vunpckhpd xmm{k}{z}, xmm, m128/m64bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vunpckhpd",
+				.GasMnemonic = "vunpckhpd",
+				.Description = "vunpckhpd xmm{k}{z}, xmm, m128/m64bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M128M64Bcst},
-						.X = {OperandType::M128M64Bcst},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M128M64Bcst},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 16,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128M64Bcst},
-						.Rm = {OperandType::M128M64Bcst},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M128M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhpd",
-			.GasMnemonic = "vunpckhpd",
-			.Description = "vunpckhpd xmm{k}{z}, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M128M64Bcst},
+							.X = {OperandType::M128M64Bcst},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M128M64Bcst},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 16,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128M64Bcst},
+							.Rm = {OperandType::M128M64Bcst},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhpd",
-			.GasMnemonic = "vunpckhpd",
-			.Description = "vunpckhpd ymm{k}{z}, ymm, m256/m64bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpckhpd",
+				.GasMnemonic = "vunpckhpd",
+				.Description = "vunpckhpd xmm{k}{z}, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M64Bcst},
-						.X = {OperandType::M256M64Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M64Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M64Bcst},
-						.Rm = {OperandType::M256M64Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhpd",
-			.GasMnemonic = "vunpckhpd",
-			.Description = "vunpckhpd ymm{k}{z}, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhpd",
-			.GasMnemonic = "vunpckhpd",
-			.Description = "vunpckhpd zmm{k}{z}, zmm, m512/m64bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpckhpd",
+				.GasMnemonic = "vunpckhpd",
+				.Description = "vunpckhpd ymm{k}{z}, ymm, m256/m64bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M64Bcst},
-						.X = {OperandType::M512M64Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M64Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M64Bcst},
-						.Rm = {OperandType::M512M64Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::M256M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhpd",
-			.GasMnemonic = "vunpckhpd",
-			.Description = "vunpckhpd zmm{k}{z}, zmm, zmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M64Bcst},
+							.X = {OperandType::M256M64Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M64Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M64Bcst},
+							.Rm = {OperandType::M256M64Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhpd",
-			.GasMnemonic = "vunpckhpd",
-			.Description = "vunpckhpd xmm, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpckhpd",
+				.GasMnemonic = "vunpckhpd",
+				.Description = "vunpckhpd ymm{k}{z}, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhpd",
-			.GasMnemonic = "vunpckhpd",
-			.Description = "vunpckhpd xmm, xmm, m128",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhpd",
-			.GasMnemonic = "vunpckhpd",
-			.Description = "vunpckhpd ymm, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpckhpd",
+				.GasMnemonic = "vunpckhpd",
+				.Description = "vunpckhpd zmm{k}{z}, zmm, m512/m64bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::M512M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhpd",
-			.GasMnemonic = "vunpckhpd",
-			.Description = "vunpckhpd ymm, ymm, m256",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {OperandType::Ymm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M64Bcst},
+							.X = {OperandType::M512M64Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M64Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M64Bcst},
+							.Rm = {OperandType::M512M64Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpckhpd",
+				.GasMnemonic = "vunpckhpd",
+				.Description = "vunpckhpd zmm{k}{z}, zmm, zmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpckhpd",
+				.GasMnemonic = "vunpckhpd",
+				.Description = "vunpckhpd xmm, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpckhpd",
+				.GasMnemonic = "vunpckhpd",
+				.Description = "vunpckhpd xmm, xmm, m128",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpckhpd",
+				.GasMnemonic = "vunpckhpd",
+				.Description = "vunpckhpd ymm, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpckhpd",
+				.GasMnemonic = "vunpckhpd",
+				.Description = "vunpckhpd ymm, ymm, m256",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vunpckhps",
-			.GasMnemonic = "vunpckhps",
-			.Description = "vunpckhps xmm{k}{z}, xmm, m128/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vunpckhps",
+				.GasMnemonic = "vunpckhps",
+				.Description = "vunpckhps xmm{k}{z}, xmm, m128/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M128M32Bcst},
-						.X = {OperandType::M128M32Bcst},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M128M32Bcst},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 16,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128M32Bcst},
-						.Rm = {OperandType::M128M32Bcst},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M128M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhps",
-			.GasMnemonic = "vunpckhps",
-			.Description = "vunpckhps xmm{k}{z}, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M128M32Bcst},
+							.X = {OperandType::M128M32Bcst},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M128M32Bcst},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 16,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128M32Bcst},
+							.Rm = {OperandType::M128M32Bcst},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhps",
-			.GasMnemonic = "vunpckhps",
-			.Description = "vunpckhps ymm{k}{z}, ymm, m256/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpckhps",
+				.GasMnemonic = "vunpckhps",
+				.Description = "vunpckhps xmm{k}{z}, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M32Bcst},
-						.X = {OperandType::M256M32Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M32Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M32Bcst},
-						.Rm = {OperandType::M256M32Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhps",
-			.GasMnemonic = "vunpckhps",
-			.Description = "vunpckhps ymm{k}{z}, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhps",
-			.GasMnemonic = "vunpckhps",
-			.Description = "vunpckhps zmm{k}{z}, zmm, m512/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpckhps",
+				.GasMnemonic = "vunpckhps",
+				.Description = "vunpckhps ymm{k}{z}, ymm, m256/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M32Bcst},
-						.X = {OperandType::M512M32Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M32Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M32Bcst},
-						.Rm = {OperandType::M512M32Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::M256M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhps",
-			.GasMnemonic = "vunpckhps",
-			.Description = "vunpckhps zmm{k}{z}, zmm, zmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M32Bcst},
+							.X = {OperandType::M256M32Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M32Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M32Bcst},
+							.Rm = {OperandType::M256M32Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhps",
-			.GasMnemonic = "vunpckhps",
-			.Description = "vunpckhps xmm, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpckhps",
+				.GasMnemonic = "vunpckhps",
+				.Description = "vunpckhps ymm{k}{z}, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhps",
-			.GasMnemonic = "vunpckhps",
-			.Description = "vunpckhps xmm, xmm, m128",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhps",
-			.GasMnemonic = "vunpckhps",
-			.Description = "vunpckhps ymm, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpckhps",
+				.GasMnemonic = "vunpckhps",
+				.Description = "vunpckhps zmm{k}{z}, zmm, m512/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::M512M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpckhps",
-			.GasMnemonic = "vunpckhps",
-			.Description = "vunpckhps ymm, ymm, m256",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {OperandType::Ymm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M32Bcst},
+							.X = {OperandType::M512M32Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M32Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M32Bcst},
+							.Rm = {OperandType::M512M32Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpckhps",
+				.GasMnemonic = "vunpckhps",
+				.Description = "vunpckhps zmm{k}{z}, zmm, zmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x15,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpckhps",
+				.GasMnemonic = "vunpckhps",
+				.Description = "vunpckhps xmm, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpckhps",
+				.GasMnemonic = "vunpckhps",
+				.Description = "vunpckhps xmm, xmm, m128",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpckhps",
+				.GasMnemonic = "vunpckhps",
+				.Description = "vunpckhps ymm, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpckhps",
+				.GasMnemonic = "vunpckhps",
+				.Description = "vunpckhps ymm, ymm, m256",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x15,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vunpcklpd",
-			.GasMnemonic = "vunpcklpd",
-			.Description = "vunpcklpd xmm{k}{z}, xmm, m128/m64bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vunpcklpd",
+				.GasMnemonic = "vunpcklpd",
+				.Description = "vunpcklpd xmm{k}{z}, xmm, m128/m64bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M128M64Bcst},
-						.X = {OperandType::M128M64Bcst},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M128M64Bcst},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 16,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128M64Bcst},
-						.Rm = {OperandType::M128M64Bcst},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M128M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklpd",
-			.GasMnemonic = "vunpcklpd",
-			.Description = "vunpcklpd xmm{k}{z}, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M128M64Bcst},
+							.X = {OperandType::M128M64Bcst},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M128M64Bcst},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 16,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128M64Bcst},
+							.Rm = {OperandType::M128M64Bcst},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklpd",
-			.GasMnemonic = "vunpcklpd",
-			.Description = "vunpcklpd ymm{k}{z}, ymm, m256/m64bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpcklpd",
+				.GasMnemonic = "vunpcklpd",
+				.Description = "vunpcklpd xmm{k}{z}, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M64Bcst},
-						.X = {OperandType::M256M64Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M64Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M64Bcst},
-						.Rm = {OperandType::M256M64Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklpd",
-			.GasMnemonic = "vunpcklpd",
-			.Description = "vunpcklpd ymm{k}{z}, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklpd",
-			.GasMnemonic = "vunpcklpd",
-			.Description = "vunpcklpd zmm{k}{z}, zmm, m512/m64bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M64Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpcklpd",
+				.GasMnemonic = "vunpcklpd",
+				.Description = "vunpcklpd ymm{k}{z}, ymm, m256/m64bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M64Bcst},
-						.X = {OperandType::M512M64Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M64Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M64Bcst},
-						.Rm = {OperandType::M512M64Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::M256M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklpd",
-			.GasMnemonic = "vunpcklpd",
-			.Description = "vunpcklpd zmm{k}{z}, zmm, zmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b1,
-						.W = true,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M64Bcst},
+							.X = {OperandType::M256M64Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M64Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M64Bcst},
+							.Rm = {OperandType::M256M64Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklpd",
-			.GasMnemonic = "vunpcklpd",
-			.Description = "vunpcklpd xmm, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpcklpd",
+				.GasMnemonic = "vunpcklpd",
+				.Description = "vunpcklpd ymm{k}{z}, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklpd",
-			.GasMnemonic = "vunpcklpd",
-			.Description = "vunpcklpd xmm, xmm, m128",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklpd",
-			.GasMnemonic = "vunpcklpd",
-			.Description = "vunpcklpd ymm, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpcklpd",
+				.GasMnemonic = "vunpcklpd",
+				.Description = "vunpcklpd zmm{k}{z}, zmm, m512/m64bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::M512M64Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklpd",
-			.GasMnemonic = "vunpcklpd",
-			.Description = "vunpcklpd ymm, ymm, m256",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b1,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {OperandType::Ymm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M64Bcst},
+							.X = {OperandType::M512M64Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M64Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M64Bcst},
+							.Rm = {OperandType::M512M64Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpcklpd",
+				.GasMnemonic = "vunpcklpd",
+				.Description = "vunpcklpd zmm{k}{z}, zmm, zmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-	};
-	out.emplace_back(std::move(instruction));
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b1,
+							.W = true,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpcklpd",
+				.GasMnemonic = "vunpcklpd",
+				.Description = "vunpcklpd xmm, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpcklpd",
+				.GasMnemonic = "vunpcklpd",
+				.Description = "vunpcklpd xmm, xmm, m128",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpcklpd",
+				.GasMnemonic = "vunpcklpd",
+				.Description = "vunpcklpd ymm, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpcklpd",
+				.GasMnemonic = "vunpcklpd",
+				.Description = "vunpcklpd ymm, ymm, m256",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b1,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 
-	instruction = 
-	{
-		InstructionVariation
+		instruction =
 		{
-			.IntelMnemonic = "vunpcklps",
-			.GasMnemonic = "vunpcklps",
-			.Description = "vunpcklps xmm{k}{z}, xmm, m128/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
+			InstructionVariation
 			{
-				Operand
+				.IntelMnemonic = "vunpcklps",
+				.GasMnemonic = "vunpcklps",
+				.Description = "vunpcklps xmm{k}{z}, xmm, m128/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M128M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
-				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::M128M32Bcst},
-						.X = {OperandType::M128M32Bcst},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::M128M32Bcst},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 16,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M128M32Bcst},
-						.Rm = {OperandType::M128M32Bcst},
-						.Reg = {OperandType::XmmKz},
+						.Type = OperandType::M128M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklps",
-			.GasMnemonic = "vunpcklps",
-			.Description = "vunpcklps xmm{k}{z}, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::XmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x0),
-						.Rr = {OperandType::XmmKz},
-						.Bb = {OperandType::Xmm},
-						.X = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
-						.V = {OperandType::Xmm},
-						.B = {OperandType::Xmm},
-						.Aaa = {OperandType::XmmKz},
-						.Z = {OperandType::XmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::M128M32Bcst},
+							.X = {OperandType::M128M32Bcst},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::M128M32Bcst},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 16,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128M32Bcst},
+							.Rm = {OperandType::M128M32Bcst},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::XmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklps",
-			.GasMnemonic = "vunpcklps",
-			.Description = "vunpcklps ymm{k}{z}, ymm, m256/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M256M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpcklps",
+				.GasMnemonic = "vunpcklps",
+				.Description = "vunpcklps xmm{k}{z}, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::M256M32Bcst},
-						.X = {OperandType::M256M32Bcst},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::M256M32Bcst},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 32,
+						.Type = OperandType::XmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256M32Bcst},
-						.Rm = {OperandType::M256M32Bcst},
-						.Reg = {OperandType::YmmKz},
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklps",
-			.GasMnemonic = "vunpcklps",
-			.Description = "vunpcklps ymm{k}{z}, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::YmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512Vl,
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x1),
-						.Rr = {OperandType::YmmKz},
-						.Bb = {OperandType::Ymm},
-						.X = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
-						.V = {OperandType::Ymm},
-						.B = {OperandType::Ymm},
-						.Aaa = {OperandType::YmmKz},
-						.Z = {OperandType::YmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x0),
+							.Rr = {OperandType::XmmKz},
+							.Bb = {OperandType::Xmm},
+							.X = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+							.V = {OperandType::Xmm},
+							.B = {OperandType::Xmm},
+							.Aaa = {OperandType::XmmKz},
+							.Z = {OperandType::XmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::XmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::YmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklps",
-			.GasMnemonic = "vunpcklps",
-			.Description = "vunpcklps zmm{k}{z}, zmm, m512/m32bcst",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::M512M32Bcst,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpcklps",
+				.GasMnemonic = "vunpcklps",
+				.Description = "vunpcklps ymm{k}{z}, ymm, m256/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Evex
+					Operand
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::M512M32Bcst},
-						.X = {OperandType::M512M32Bcst},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::M512M32Bcst},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 64,
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M512M32Bcst},
-						.Rm = {OperandType::M512M32Bcst},
-						.Reg = {OperandType::ZmmKz},
+						.Type = OperandType::M256M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklps",
-			.GasMnemonic = "vunpcklps",
-			.Description = "vunpcklps zmm{k}{z}, zmm, zmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::ZmmKz,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::Zmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx512F,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Evex
+					Encoding
 					{
-						.Mm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.Ll = UINT64_C(0x2),
-						.Rr = {OperandType::ZmmKz},
-						.Bb = {OperandType::Zmm},
-						.X = {OperandType::Zmm},
-						.Vvvv = {OperandType::Zmm},
-						.V = {OperandType::Zmm},
-						.B = {OperandType::Zmm},
-						.Aaa = {OperandType::ZmmKz},
-						.Z = {OperandType::ZmmKz},
-						.Disp8xN = 0,
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::M256M32Bcst},
+							.X = {OperandType::M256M32Bcst},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::M256M32Bcst},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 32,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256M32Bcst},
+							.Rm = {OperandType::M256M32Bcst},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Zmm},
-						.Reg = {OperandType::ZmmKz},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklps",
-			.GasMnemonic = "vunpcklps",
-			.Description = "vunpcklps xmm, xmm, xmm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpcklps",
+				.GasMnemonic = "vunpcklps",
+				.Description = "vunpcklps ymm{k}{z}, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Xmm},
-						.Vvvv = {OperandType::Xmm},
+						.Type = OperandType::YmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Xmm},
-						.Reg = {OperandType::Xmm},
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklps",
-			.GasMnemonic = "vunpcklps",
-			.Description = "vunpcklps xmm, xmm, m128",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Xmm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M128,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512Vl,
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = false,
-						.R = {OperandType::Xmm},
-						.X = {OperandType::M128},
-						.B = {OperandType::M128},
-						.Vvvv = {OperandType::Xmm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x1),
+							.Rr = {OperandType::YmmKz},
+							.Bb = {OperandType::Ymm},
+							.X = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+							.V = {OperandType::Ymm},
+							.B = {OperandType::Ymm},
+							.Aaa = {OperandType::YmmKz},
+							.Z = {OperandType::YmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::YmmKz},
+						},
 					},
-					OpCode
-					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
-					},
-					ModRm
-					{
-						.Mode = {OperandType::M128},
-						.Rm = {OperandType::M128},
-						.Reg = {OperandType::Xmm},
-					},
-				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklps",
-			.GasMnemonic = "vunpcklps",
-			.Description = "vunpcklps ymm, ymm, ymm",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
-				Operand
-				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
-				},
+				}
 			},
-			.ImplicitInputs =
+			InstructionVariation
 			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.IntelMnemonic = "vunpcklps",
+				.GasMnemonic = "vunpcklps",
+				.Description = "vunpcklps zmm{k}{z}, zmm, m512/m32bcst",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
 				{
-					Vex
+					Operand
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {UINT64_C(0x0)},
-						.B = {OperandType::Ymm},
-						.Vvvv = {OperandType::Ymm},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					OpCode
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {UINT64_C(0x3)},
-						.Rm = {OperandType::Ymm},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::M512M32Bcst,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
-		InstructionVariation
-		{
-			.IntelMnemonic = "vunpcklps",
-			.GasMnemonic = "vunpcklps",
-			.Description = "vunpcklps ymm, ymm, m256",
-			.MmxMode = MmxModeType::None,
-			.XmmMode = XmmModeType::Avx,
-			.IsCancellingInputs = false,
-			.OperandList =
-			{
-				Operand
+				.ImplicitInputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = false,
-					.IsOutput = true,
-					.ExtendedSize = 0
 				},
-				Operand
+				.ImplicitOutputs =
 				{
-					.Type = OperandType::Ymm,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
 				},
-				Operand
+				.IsaFeatureExtensions =
 				{
-					.Type = OperandType::M256,
-					.IsInput = true,
-					.IsOutput = false,
-					.ExtendedSize = 0
+					IsaExtension::Avx512F,
 				},
-			},
-			.ImplicitInputs =
-			{
-			},
-			.ImplicitOutputs =
-			{
-			},
-			.IsaFeatureExtensions =
-			{
-				IsaExtension::Avx,
-			},
-			.EncodingScheme =
-			{
-				Encoding
+				.EncodingScheme =
 				{
-					Vex
+					Encoding
 					{
-						.Type = VexPrefixType::Vex,
-						.Mmmmm = 0b1,
-						.Pp = 0b0,
-						.W = false,
-						.L = true,
-						.R = {OperandType::Ymm},
-						.X = {OperandType::M256},
-						.B = {OperandType::M256},
-						.Vvvv = {OperandType::Ymm},
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::M512M32Bcst},
+							.X = {OperandType::M512M32Bcst},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::M512M32Bcst},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 64,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M512M32Bcst},
+							.Rm = {OperandType::M512M32Bcst},
+							.Reg = {OperandType::ZmmKz},
+						},
 					},
-					OpCode
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpcklps",
+				.GasMnemonic = "vunpcklps",
+				.Description = "vunpcklps zmm{k}{z}, zmm, zmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
 					{
-						.Value = 0x14,
-						.Addend = {UINT64_C(0x0)},
+						.Type = OperandType::ZmmKz,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
 					},
-					ModRm
+					Operand
 					{
-						.Mode = {OperandType::M256},
-						.Rm = {OperandType::M256},
-						.Reg = {OperandType::Ymm},
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Zmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
 					},
 				},
-			}
-		},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx512F,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Evex
+						{
+							.Mm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.Ll = UINT64_C(0x2),
+							.Rr = {OperandType::ZmmKz},
+							.Bb = {OperandType::Zmm},
+							.X = {OperandType::Zmm},
+							.Vvvv = {OperandType::Zmm},
+							.V = {OperandType::Zmm},
+							.B = {OperandType::Zmm},
+							.Aaa = {OperandType::ZmmKz},
+							.Z = {OperandType::ZmmKz},
+							.Disp8xN = 0,
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Zmm},
+							.Reg = {OperandType::ZmmKz},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpcklps",
+				.GasMnemonic = "vunpcklps",
+				.Description = "vunpcklps xmm, xmm, xmm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Xmm},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Xmm},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpcklps",
+				.GasMnemonic = "vunpcklps",
+				.Description = "vunpcklps xmm, xmm, m128",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Xmm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M128,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = false,
+							.R = {OperandType::Xmm},
+							.X = {OperandType::M128},
+							.B = {OperandType::M128},
+							.Vvvv = {OperandType::Xmm},
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M128},
+							.Rm = {OperandType::M128},
+							.Reg = {OperandType::Xmm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpcklps",
+				.GasMnemonic = "vunpcklps",
+				.Description = "vunpcklps ymm, ymm, ymm",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {UINT64_C(0x0)},
+							.B = {OperandType::Ymm},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {UINT64_C(0x3)},
+							.Rm = {OperandType::Ymm},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+			InstructionVariation
+			{
+				.IntelMnemonic = "vunpcklps",
+				.GasMnemonic = "vunpcklps",
+				.Description = "vunpcklps ymm, ymm, m256",
+				.MmxMode = MmxModeType::None,
+				.XmmMode = XmmModeType::Avx,
+				.IsCancellingInputs = false,
+				.OperandList =
+				{
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = false,
+						.IsOutput = true,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::Ymm,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+					Operand
+					{
+						.Type = OperandType::M256,
+						.IsInput = true,
+						.IsOutput = false,
+						.ExtendedSize = 0
+					},
+				},
+				.ImplicitInputs =
+				{
+				},
+				.ImplicitOutputs =
+				{
+				},
+				.IsaFeatureExtensions =
+				{
+					IsaExtension::Avx,
+				},
+				.EncodingScheme =
+				{
+					Encoding
+					{
+						Vex
+						{
+							.Type = VexPrefixType::Vex,
+							.Mmmmm = 0b1,
+							.Pp = 0b0,
+							.W = false,
+							.L = true,
+							.R = {OperandType::Ymm},
+							.X = {OperandType::M256},
+							.B = {OperandType::M256},
+							.Vvvv = {OperandType::Ymm},
+						},
+						OpCode
+						{
+							.Value = 0x14,
+							.Addend = {UINT64_C(0x0)},
+						},
+						ModRm
+						{
+							.Mode = {OperandType::M256},
+							.Rm = {OperandType::M256},
+							.Reg = {OperandType::Ymm},
+						},
+					},
+				}
+			},
+		};
+		out.emplace_back(std::move(instruction));
 	};
-	out.emplace_back(std::move(instruction));
-
-};
 }

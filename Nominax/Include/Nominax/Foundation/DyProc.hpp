@@ -1,7 +1,7 @@
 // File: DyProc.hpp
 // Author: Mario
-// Created: 09.08.2021 4:41 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -255,7 +255,7 @@ namespace Nominax::Foundation
 	static_assert(std::is_trivially_copy_assignable_v<DynamicProcedure>);
 	static_assert(std::is_trivially_move_assignable_v<DynamicProcedure>);
 
-	constexpr DynamicProcedure::DynamicProcedure(void* const value) : Ptr {value} { }
+	constexpr DynamicProcedure::DynamicProcedure(void* const value) : Ptr { value } { }
 
 	template <typename F> requires std::is_function_v<F>
 	inline auto DynamicProcedure::operator*() const -> F&

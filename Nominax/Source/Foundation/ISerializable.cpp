@@ -1,7 +1,7 @@
 // File: ISerializable.cpp
 // Author: Mario
-// Created: 10.08.2021 1:57 AM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,12 +209,12 @@
 
 namespace Nominax::Foundation
 {
-	auto IAllocator::Allocate(void*& out, const U64 size) const -> void
+	auto IAllocator::Allocate(void*& out, const std::uint64_t size) const -> void
 	{
 		out = SystemAllocator::AllocateChecked(size);
 	}
 
-	auto IAllocator::Reallocate(void*& out, const U64 size) const -> void
+	auto IAllocator::Reallocate(void*& out, const std::uint64_t size) const -> void
 	{
 		out = SystemAllocator::ReallocateChecked(out, size);
 	}
@@ -225,12 +225,12 @@ namespace Nominax::Foundation
 		out = nullptr;
 	}
 
-	auto IAllocator::AllocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
+	auto IAllocator::AllocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
 	{
 		out = SystemAllocator::AllocateAlignedChecked(size, alignment);
 	}
 
-	auto IAllocator::ReallocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
+	auto IAllocator::ReallocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
 	{
 		out = SystemAllocator::ReallocateAlignedChecked(out, size, alignment);
 	}
@@ -241,7 +241,7 @@ namespace Nominax::Foundation
 		out = nullptr;
 	}
 
-	auto IAllocator::Valloc(void*& out, const U64 size) const -> void
+	auto IAllocator::Valloc(void*& out, const std::uint64_t size) const -> void
 	{
 		this->Allocate(out, size);
 	}
@@ -252,9 +252,9 @@ namespace Nominax::Foundation
 	}
 
 
-	auto ISerializable::SerializeToFile(const std::filesystem::path& file) const -> bool
+	auto ISerializable::SerializeToDisk(const std::filesystem::path& file) const -> bool
 	{
-		std::ofstream stream {file};
+		std::ofstream stream { file };
 		if (!stream)
 		{
 			[[unlikely]]
@@ -263,9 +263,9 @@ namespace Nominax::Foundation
 		return this->Serialize(stream);
 	}
 
-	auto ISerializable::DeserializeFromFile(const std::filesystem::path& file) -> bool
+	auto ISerializable::DeserializeFromDisk(const std::filesystem::path& file) -> bool
 	{
-		std::ifstream stream {file};
+		std::ifstream stream { file };
 		if (!stream)
 		{
 			[[unlikely]]

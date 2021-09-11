@@ -1,7 +1,7 @@
 // File: ProxyF64.hpp
 // Author: Mario
-// Created: 09.08.2021 4:22 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -212,11 +212,11 @@
 namespace Nominax::Foundation
 {
 	/// <summary>
-		/// Proxy gate for correct float comparison based on macro config.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <returns></returns>
-	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsZero(const F64 x) -> bool
+    /// Proxy gate for correct float comparison based on macro config.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    NOX_REACTOR_ROUTINE NOX_PURE inline auto Proxy_F64IsZero(const double x) -> bool
 	{
 		#if NOX_OPT_USE_ZERO_EPSILON
 		return F64IsZero(x);
@@ -230,7 +230,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64IsOne(const F64 x) -> bool
+    NOX_REACTOR_ROUTINE NOX_PURE inline auto Proxy_F64IsOne(const double x) -> bool
 	{
 		#if NOX_OPT_USE_ZERO_EPSILON
 		return F64IsOne(x);
@@ -244,7 +244,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE NOX_PURE inline auto Proxy_F64Equals(const F64 x, const F64 y) -> bool
+    NOX_REACTOR_ROUTINE NOX_PURE inline auto Proxy_F64Equals(const double x, const double y) -> bool
 	{
 		#if NOX_OPT_USE_ZERO_EPSILON
 		return F64Equals(x, y);

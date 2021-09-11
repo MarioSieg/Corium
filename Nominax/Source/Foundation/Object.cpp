@@ -1,7 +1,7 @@
 // File: Object.cpp
 // Author: Mario
-// Created: 10.08.2021 2:01 AM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -240,15 +240,15 @@ namespace Nominax::Foundation
 			&& std::memcmp(a.LookupObjectBlock(), b.LookupObjectBlock(), a.ObjectBlockSizeInBytes()) == 0;
 	}
 
-	auto Object::AllocateUnique(const U32 sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
+	auto Object::AllocateUnique(const std::uint32_t sizeInRecords) -> std::unique_ptr<Object, UniquePtrObjectDeleter>
 	{
 		if (sizeInRecords == 0)
 		{
 			[[unlikely]]
 				return nullptr;
 		}
-		const U32                finalObjectSize {ObjectHeader::RECORD_CHUNKS + sizeInRecords};
-		auto* NOX_RESTRICT const object {new Record[finalObjectSize]()};
+		const std::uint32_t      finalObjectSize { ObjectHeader::RECORD_CHUNKS + sizeInRecords };
+		auto* NOX_RESTRICT const object { new Record[finalObjectSize]() };
 
 		// Write object header:
 		ObjectHeader::WriteMapping_MetaField(object, 0);
@@ -264,13 +264,13 @@ namespace Nominax::Foundation
 
 		return std::unique_ptr<Object, UniquePtrObjectDeleter>
 		{
-			new Object {object},
+			new Object { object },
 			UniquePtrObjectDeleter()
 		};
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Equal<U64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_Equal<std::uint64_t>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -278,9 +278,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -296,7 +296,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Equal<I64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_Equal<std::int64_t>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -304,9 +304,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -322,7 +322,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Equal<F64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_Equal<double>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -330,9 +330,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -348,7 +348,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Less<U64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_Less<std::uint64_t>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -356,9 +356,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -374,7 +374,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Less<I64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_Less<std::int64_t>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -382,9 +382,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -400,7 +400,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Less<F64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_Less<double>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -408,9 +408,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -426,7 +426,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_LessEqual<U64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_LessEqual<std::uint64_t>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -434,9 +434,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -452,7 +452,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_LessEqual<I64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_LessEqual<std::int64_t>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -460,9 +460,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -478,7 +478,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_LessEqual<F64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_LessEqual<double>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -486,9 +486,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -504,7 +504,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Greater<U64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_Greater<std::uint64_t>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -512,9 +512,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -530,7 +530,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Greater<I64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_Greater<std::int64_t>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -538,9 +538,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -556,7 +556,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_Greater<F64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_Greater<double>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -564,9 +564,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -582,7 +582,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<U64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_GreaterEqual<std::uint64_t>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -590,9 +590,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -608,7 +608,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<I64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_GreaterEqual<std::int64_t>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -616,9 +616,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{
@@ -634,7 +634,7 @@ namespace Nominax::Foundation
 	}
 
 	template <>
-	auto Object::DeepValueCmp_GreaterEqual<F64>(const Object a, const Object b) -> bool
+	auto Object::DeepValueCmp_GreaterEqual<double>(const Object a, const Object b) -> bool
 	{
 		// If their size is not equal, their values cannot be equal too.
 		if (a.HeaderRead_BlockSize() != b.HeaderRead_BlockSize())
@@ -642,9 +642,9 @@ namespace Nominax::Foundation
 			return false;
 		}
 
-		const auto* x {*a};
-		const auto* w {~a};
-		const auto* y {*b};
+		const auto* x { *a };
+		const auto* w { ~a };
+		const auto* y { *b };
 
 		while (x < w)
 		{

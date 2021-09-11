@@ -1,7 +1,7 @@
 // File: TaskQueueSchedulerPool.hpp
 // Author: Mario
-// Created: 13.08.2021 7:42 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -218,7 +218,7 @@ namespace Nominax::Core
 	/// </summary>
 	class TaskQueueThreadPool final
 	{
-		std::pmr::monotonic_buffer_resource* Allocator_ {nullptr};
+		std::pmr::monotonic_buffer_resource* Allocator_ { nullptr };
 
 	public:
 		/// <summary>
@@ -242,7 +242,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="threadCount"></param>
 		/// <returns></returns>
-		explicit TaskQueueThreadPool(U64 threadCount);
+		explicit TaskQueueThreadPool(std::uint64_t threadCount);
 
 		/// <summary>
 		/// Construct empty with allocator.
@@ -257,7 +257,7 @@ namespace Nominax::Core
 		/// <param name="allocator"></param>
 		/// <param name="threadCount"></param>
 		/// <returns></returns>
-		TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator, U64 threadCount);
+		TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator, std::uint64_t threadCount);
 
 		/// <summary>
 		/// No copying.
@@ -308,7 +308,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		auto Resize(U64 size) -> void;
+		auto Resize(std::uint64_t size) -> void;
 
 		/// <summary>
 		/// Pushes a new task queue thread into the queue.
@@ -322,7 +322,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The amount of threads.</returns>
 		[[nodiscard]]
-		auto GetSize() const -> U64;
+		auto GetSize() const -> std::uint64_t;
 
 		/// <summary>
 		/// STL iterator interface.
@@ -387,12 +387,12 @@ namespace Nominax::Core
 		this->Threads.clear();
 	}
 
-	inline auto TaskQueueThreadPool::Resize(const U64 size) -> void
+	inline auto TaskQueueThreadPool::Resize(const std::uint64_t size) -> void
 	{
 		this->Threads.resize(size);
 	}
 
-	inline auto TaskQueueThreadPool::GetSize() const -> U64
+	inline auto TaskQueueThreadPool::GetSize() const -> std::uint64_t
 	{
 		return this->Threads.size();
 	}

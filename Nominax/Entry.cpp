@@ -1,7 +1,7 @@
 // File: Entry.cpp
 // Author: Mario
-// Created: 10.07.2021 9:20 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,7 +209,7 @@
 
 using namespace Nominax::Prelude;
 
-auto main(const I32 argc, const char* const* const argv) -> I32
+auto main(const int argc, const char* const* const argv) -> int
 {
 	const EnvironmentDescriptor environmentDescriptor
 	{

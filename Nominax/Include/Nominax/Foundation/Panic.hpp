@@ -1,7 +1,7 @@
 // File: Panic.hpp
 // Author: Mario
-// Created: 09.08.2021 4:27 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -210,7 +210,7 @@
 #include <string_view>
 
 #include "Platform.hpp"
-#include "BaseTypes.hpp"
+#include <cstdint>
 #include "Print.hpp"
 
 namespace Nominax
@@ -223,7 +223,7 @@ namespace Nominax
 		/// <summary>
 		/// The source code line - if any.
 		/// </summary>
-		U32 Line { };
+		std::uint32_t Line { };
 
 		/// <summary>
 		/// The source file name  - if any.
@@ -243,7 +243,7 @@ namespace Nominax
 		/// <summary>
 		/// If true, the content of the registers is dumped, else false.
 		/// </summary>
-		bool DumpRegisters {true};
+		bool DumpRegisters { true };
 	};
 
 	/// <summary>
@@ -278,14 +278,14 @@ namespace Nominax
 	NOX_COLD NOX_NEVER_INLINE
 	auto Panic
 	(
-		const U32              line,
+		const std::uint32_t    line,
 		const std::string_view file,
 		const std::string_view routine,
 		Str&&                  formatString,
 		Args&&...              args
 	) -> void
 	{
-		const auto            message {Foundation::Format(formatString, std::forward<Args>(args)...)};
+		const auto            message { Foundation::Format(formatString, std::forward<Args>(args)...) };
 		const PanicDescriptor desc
 		{
 			.Line = line,

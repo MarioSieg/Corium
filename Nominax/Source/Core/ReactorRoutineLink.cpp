@@ -1,7 +1,7 @@
 // File: ReactorRoutineLink.cpp
 // Author: Mario
-// Created: 13.08.2021 7:54 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -212,13 +212,13 @@ namespace Nominax::Core
 	ReactorRoutineLink::ReactorRoutineLink
 	(
 		const ReactorCoreSpecialization    specialization,
-		ReactorCoreExecutionRoutine* const executionRoutine,
-		const void** const                 jumpTable
-	) : Specialization {specialization},
-	    ExecutionRoutine {executionRoutine},
-	    JumpTable {jumpTable}
+		ReactorCoreExecutionRoutine& executionRoutine,
+		JumpTable jumpTable
+	) : Specialization { specialization },
+	    ExecutionRoutine { executionRoutine },
+	    JTable { jumpTable }
 	{
 		NOX_PAS_NOT_NULL(this->ExecutionRoutine, "Routine for reactor routine link is null!");
-		NOX_PAS_NOT_NULL(this->JumpTable, "Jump table for reactor routine link is null!");
+		NOX_PAS_NOT_NULL(this->JTable, "Jump table for reactor routine link is null!");
 	}
 }

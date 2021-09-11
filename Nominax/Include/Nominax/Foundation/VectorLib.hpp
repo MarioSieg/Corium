@@ -1,7 +1,7 @@
 // File: VectorLib.hpp
 // Author: Mario
-// Created: 09.08.2021 4:33 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "BaseTypes.hpp"
+#include <cstdint>
 #include "Platform.hpp"
 
 #if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT
@@ -218,27 +218,27 @@
 
 namespace Nominax::Foundation::VectorLib
 {
-	constexpr U64 V128_ALIGN
+	constexpr std::uint64_t V128_ALIGN
 	{
 		#ifdef __SSE__
 	16
 		#else
-		alignof(F32)
+		alignof(float)
 		#endif
 	};
 
-	constexpr U64 V256_ALIGN
+	constexpr std::uint64_t V256_ALIGN
 	{
 		#if defined(__AVX__)
 	32
 		#elif defined(__SSE__)
 	16
 		#else
-		alignof(F32)
+		alignof(float)
 		#endif
 	};
 
-	constexpr U64 V512_ALIGN
+	constexpr std::uint64_t V512_ALIGN
 	{
 		#if defined(__AVX512F__)
 	64
@@ -247,45 +247,45 @@ namespace Nominax::Foundation::VectorLib
 		#elif defined(__SSE__)
 	16
 		#else
-		alignof(F32)
+		alignof(float)
 		#endif
 	};
 
-	NOX_FORCE_INLINE inline auto F64_X2_To_F32_X2(F32* const NOX_RESTRICT out, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X2_To_F32_X2(float* const NOX_RESTRICT out, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 		const __m128d x = _mm_loadu_pd(in);
 		const __m128 y = _mm_cvtpd_ps(x);
 		_mm_storel_pi(reinterpret_cast<__m64*>(out), y);
 		#else
-		out[0] = static_cast<F32>(in[0]);
-		out[1] = static_cast<F32>(in[1]);
+		out[0] = static_cast<float>(in[0]);
+		out[1] = static_cast<float>(in[1]);
 		#endif
 	}
 
-	NOX_FORCE_INLINE inline auto F64_X4_To_F32_X4(F32* const NOX_RESTRICT out, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X4_To_F32_X4(float* const NOX_RESTRICT out, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		const __m256d x = _mm256_loadu_pd(in);		// 32 B - 4 * F64
-		const __m128 y = _mm256_cvtpd_ps(x);		// 16 B - 4 * F32
+		const __m256d x = _mm256_loadu_pd(in);		// 32 B - 4 * double
+		const __m128 y = _mm256_cvtpd_ps(x);		// 16 B - 4 * float
 		_mm_storeu_ps(out, y);
 
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		const __m128d x1 = _mm_loadu_pd(in);		// 16 B - 2 * F64
-		const __m128d x2 = _mm_loadu_pd(in + 2);	// 16 B - 2 * F64
-		const __m128 y1 = _mm_cvtpd_ps(x1);			// 8 B - 2 * F32
-		__m128 y2 = _mm_cvtpd_ps(x2);				// 8 B - 2 * F32
+		const __m128d x1 = _mm_loadu_pd(in);		// 16 B - 2 * double
+		const __m128d x2 = _mm_loadu_pd(in + 2);	// 16 B - 2 * double
+		const __m128 y1 = _mm_cvtpd_ps(x1);			// 8 B - 2 * float
+		__m128 y2 = _mm_cvtpd_ps(x2);				// 8 B - 2 * float
 		y2 = _mm_movelh_ps(y2, y1);					// y1_lo -> y2_hi
 		_mm_storeu_ps(out, y2);
 
 		#else
-		out[0] = static_cast<F32>(in[0]);
-		out[1] = static_cast<F32>(in[1]);
-		out[2] = static_cast<F32>(in[2]);
-		out[3] = static_cast<F32>(in[3]);
+		out[0] = static_cast<float>(in[0]);
+		out[1] = static_cast<float>(in[1]);
+		out[2] = static_cast<float>(in[2]);
+		out[3] = static_cast<float>(in[3]);
 		#endif
 	}
 
@@ -295,7 +295,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X16_Add_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X16_Add_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -361,7 +361,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X16_Sub_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X16_Sub_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -427,7 +427,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X16_Mul_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X16_Mul_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -493,7 +493,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X16_Div_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X16_Div_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -559,7 +559,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X16_Add_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X16_Add_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -625,7 +625,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X16_Sub_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X16_Sub_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -691,7 +691,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X16_Mul_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X16_Mul_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -757,7 +757,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X16_Div_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X16_Div_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -823,7 +823,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X4_Add_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X4_Add_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
@@ -848,7 +848,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X4_Sub_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X4_Sub_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
@@ -873,7 +873,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X4_Mul_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X4_Mul_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
@@ -898,7 +898,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X4_Div_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X4_Div_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
@@ -923,7 +923,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X4_Add_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X4_Add_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
@@ -948,7 +948,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X4_Sub_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X4_Sub_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
@@ -973,7 +973,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X4_Mul_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X4_Mul_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
@@ -998,7 +998,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X4_Div_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X4_Div_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
@@ -1023,7 +1023,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X8_Add_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X8_Add_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -1063,7 +1063,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X8_Sub_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X8_Sub_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -1103,7 +1103,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X8_Mul_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X8_Mul_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -1143,7 +1143,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X8_Div_Aligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X8_Div_Aligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -1183,7 +1183,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X8_Add_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X8_Add_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -1223,7 +1223,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X8_Sub_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X8_Sub_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -1263,7 +1263,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X8_Mul_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X8_Mul_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -1303,7 +1303,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F32_X8_Div_Unaligned(F32* const NOX_RESTRICT inout, const F32* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F32_X8_Div_Unaligned(float* const NOX_RESTRICT inout, const float* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -1343,7 +1343,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X16_Add_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X16_Add_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -1437,7 +1437,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X16_Sub_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X16_Sub_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -1531,7 +1531,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X16_Mul_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X16_Mul_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -1625,7 +1625,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X16_Div_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X16_Div_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -1719,7 +1719,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X16_Add_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X16_Add_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -1813,7 +1813,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X16_Sub_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X16_Sub_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -1907,7 +1907,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X16_Mul_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X16_Mul_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -2001,7 +2001,7 @@ namespace Nominax::Foundation::VectorLib
 /// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 /// <param name="in">The second input parameter.</param>
 /// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X16_Div_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X16_Div_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -2095,7 +2095,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X2_Add_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X2_Add_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
@@ -2118,7 +2118,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X2_Sub_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X2_Sub_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
@@ -2141,7 +2141,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X2_Mul_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X2_Mul_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
@@ -2164,7 +2164,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X2_Div_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X2_Div_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
@@ -2187,7 +2187,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X2_Add_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X2_Add_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
@@ -2210,7 +2210,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X2_Sub_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X2_Sub_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
@@ -2232,7 +2232,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X2_Mul_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X2_Mul_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
@@ -2255,7 +2255,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X2_Div_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X2_Div_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
@@ -2278,7 +2278,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X4_Add_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X4_Add_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -2314,7 +2314,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X4_Sub_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X4_Sub_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -2350,7 +2350,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X4_Mul_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X4_Mul_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -2386,7 +2386,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X4_Div_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X4_Div_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -2422,7 +2422,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X4_Add_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X4_Add_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -2458,7 +2458,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X4_Sub_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X4_Sub_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -2494,7 +2494,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X4_Mul_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X4_Mul_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -2530,7 +2530,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X4_Div_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X4_Div_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
@@ -2566,7 +2566,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X8_Add_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X8_Add_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -2624,7 +2624,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X8_Sub_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X8_Sub_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -2682,7 +2682,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X8_Mul_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X8_Mul_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -2740,7 +2740,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X8_Div_Aligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X8_Div_Aligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -2798,7 +2798,7 @@ namespace Nominax::Foundation::VectorLib
 /// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 /// <param name="in">The second input parameter.</param>
 /// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X8_Add_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X8_Add_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -2856,7 +2856,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X8_Sub_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X8_Sub_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -2914,7 +2914,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X8_Mul_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X8_Mul_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
@@ -2972,7 +2972,7 @@ namespace Nominax::Foundation::VectorLib
 	/// <param name="inout">The first input parameter which also contains the result after calculation.</param>
 	/// <param name="in">The second input parameter.</param>
 	/// <returns></returns>
-	NOX_FORCE_INLINE inline auto F64_X8_Div_Unaligned(F64* const NOX_RESTRICT inout, const F64* const NOX_RESTRICT in) -> void
+	NOX_FORCE_INLINE inline auto F64_X8_Div_Unaligned(double* const NOX_RESTRICT inout, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 

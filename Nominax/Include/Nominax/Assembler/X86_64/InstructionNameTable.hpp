@@ -1,7 +1,7 @@
 // File: InstructionNameTable.hpp
 // Author: Mario
-// Created: 14.08.2021 2:02 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004

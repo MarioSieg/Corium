@@ -1,7 +1,7 @@
 // File: Xorshift.hpp
 // Author: Mario
-// Created: 09.08.2021 4:31 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::Foundation
 {
@@ -215,35 +215,35 @@ namespace Nominax::Foundation
 		/// Generate 32-bit xorshift atomically.
 		/// </summary>
 		/// <returns>A random generated number.</returns>
-	extern auto Xorshift32Atomic() -> U32;
+	extern auto Xorshift32Atomic() -> std::uint32_t;
 
 	/// <summary>
 	/// Generate 64-bit xorshift atomically.
 	/// </summary>
 	/// <returns>A random generated number.</returns>
-	extern auto Xorshift64Atomic() -> U64;
+	extern auto Xorshift64Atomic() -> std::uint64_t;
 
 	/// <summary>
 	/// Generate 128-bit xorshift atomically.
 	/// </summary>
 	/// <returns>A random generated number.</returns>
-	extern auto Xorshift128Atomic() -> U32;
+	extern auto Xorshift128Atomic() -> std::uint32_t;
 
 	/// <summary>
 	/// Generate 32-bit xorshift atomically.
 	/// </summary>
 	/// <returns>A random generated number.</returns>
-	extern auto Xorshift32ThreadLocal() -> U32;
+	extern auto Xorshift32ThreadLocal() -> std::uint32_t;
 
 	/// <summary>
 	/// Generate 64-bit xorshift atomically.
 	/// </summary>
 	/// <returns>A random generated number.</returns>
-	extern auto Xorshift64ThreadLocal() -> U64;
+	extern auto Xorshift64ThreadLocal() -> std::uint64_t;
 
 	/// <summary>
 	/// Generate 128-bit xorshift atomically.
 	/// </summary>
 	/// <returns>A random generated number.</returns>
-	extern auto Xorshift128ThreadLocal() -> U32;
+	extern auto Xorshift128ThreadLocal() -> std::uint32_t;
 }

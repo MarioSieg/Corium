@@ -1,7 +1,7 @@
 // File: BasicReactorDescriptor.cpp
 // Author: Mario
-// Created: 13.08.2021 7:49 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004

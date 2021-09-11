@@ -1,7 +1,7 @@
 // File: IAllocator.hpp
 // Author: Mario
-// Created: 09.08.2021 4:13 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::Foundation
 {
@@ -259,7 +259,7 @@ namespace Nominax::Foundation
 		/// <param name="out">Output pointer.</param>
 		/// <param name="size">The size of the block in bytes.</param>
 		/// <returns></returns>
-		virtual auto Allocate(void*& out, U64 size) const -> void;
+		virtual auto Allocate(void*& out, std::uint64_t size) const -> void;
 
 		/// <summary>
 		/// Raw reallocate like realloc().
@@ -267,7 +267,7 @@ namespace Nominax::Foundation
 		/// <param name="out">Output pointer.</param>
 		/// <param name="size">The size of the block in bytes.</param>
 		/// <returns></returns>
-		virtual auto Reallocate(void*& out, U64 size) const -> void;
+		virtual auto Reallocate(void*& out, std::uint64_t size) const -> void;
 
 		/// <summary>
 		/// Raw deallocate like free().
@@ -284,7 +284,7 @@ namespace Nominax::Foundation
 		/// <param name="alignment"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto AllocateAligned(void*& out, U64 size, U64 alignment) const -> void;
+		virtual auto AllocateAligned(void*& out, std::uint64_t size, std::uint64_t alignment) const -> void;
 
 		/// <summary>
 		/// 
@@ -293,7 +293,7 @@ namespace Nominax::Foundation
 		/// <param name="alignment"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto ReallocateAligned(void*& out, U64 size, U64 alignment) const -> void;
+		virtual auto ReallocateAligned(void*& out, std::uint64_t size, std::uint64_t alignment) const -> void;
 
 		/// <summary>
 		/// Raw deallocate aligned like free().
@@ -308,7 +308,7 @@ namespace Nominax::Foundation
 		/// <param name="out"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto Valloc(void*& out, U64 size) const -> void;
+		virtual auto Valloc(void*& out, std::uint64_t size) const -> void;
 
 		/// <summary>
 		/// Virtual free.

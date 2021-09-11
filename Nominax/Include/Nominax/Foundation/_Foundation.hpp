@@ -1,7 +1,7 @@
 // File: _Foundation.hpp
 // Author: Mario
-// Created: 09.08.2021 4:02 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -211,35 +211,37 @@
 #include "Alignment.hpp"
 #include "AllocatorProxy.hpp"
 #include "AtomicState.hpp"
-#include "BaseTypes.hpp"
-#include "CliArgParser.hpp"
+#include "CLIProcessor.hpp"
 #include "ComparatorF64.hpp"
-#include "Cpu.hpp"
-#include "CpuFeatureBits.hpp"
-#include "CpuFeatureDetector.hpp"
+#include "CPU.hpp"
+#include "CPUFeatureBits.hpp"
+#include "CPUFeatureDetector.hpp"
 #include "DebugAllocator.hpp"
 #include "DyLib.hpp"
 #include "DyProc.hpp"
 #include "Formatters.hpp"
 #include "IAllocator.hpp"
-#include "IniFile.hpp"
+#include "INIFile.hpp"
 #include "ISerializable.hpp"
 #include "MachineClass.hpp"
+#include "MappedMemory.hpp"
 #include "MemoryUnits.hpp"
 #include "Object.hpp"
 #include "ObjectHeader.hpp"
-#include "Os.hpp"
-#include "OsSignal.hpp"
+#include "OSInterface.hpp"
+#include "SigBus.hpp"
 #include "Panic.hpp"
 #include "PanicAssertions.hpp"
 #include "Platform.hpp"
 #include "Print.hpp"
 #include "ProxyF64.hpp"
 #include "Record.hpp"
-#include "Snapshot.hpp"
+#include "SystemInfoSnapshot.hpp"
 #include "StackAlloc.hpp"
 #include "Stopwatch.hpp"
 #include "SystemAllocator.hpp"
 #include "TextFile.hpp"
 #include "VectorLib.hpp"
+#include "VirtualPageAllocator.hpp"
+#include "VirtualPageProtectionFlags.hpp"
 #include "Xorshift.hpp"

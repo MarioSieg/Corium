@@ -1,7 +1,7 @@
 // File: ReactorCreationDescriptor.hpp
 // Author: Mario
-// Created: 13.08.2021 7:28 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,11 +207,11 @@
 
 #pragma once
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../ByteCode/Instruction.hpp"
 
 #include "FixedStack.hpp"
-#include "Interrupt.hpp"
+#include "InterruptStatus.hpp"
 
 namespace Nominax::Core
 {
@@ -239,7 +239,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// The stack size in records.
 		/// </summary>
-		U64 StackSize {FixedStack::SIZE_LARGE};
+		std::uint64_t StackSize { FixedStack::SIZE_LARGE };
 
 		/// <summary>
 		/// The intrinsic routines.
@@ -247,20 +247,20 @@ namespace Nominax::Core
 		ByteCode::UserIntrinsicRoutineRegistry SharedIntrinsicTable { };
 
 		/// <summary>
-		/// Interrupt handler.
+		/// InterruptStatus handler.
 		/// </summary>
 		InterruptRoutineProxy* InterruptHandler { };
 
 		/// <summary>
 		/// Reactor power preference.
 		/// </summary>
-		PowerPreference PowerPref {PowerPreference::HighPerformance};
+		PowerPreference PowerPref { PowerPreference::HighPerformance };
 
 		/// <summary>
 		/// Get platform dependent default configuration.
 		/// </summary>
 		/// <returns></returns>
-		static constexpr auto Default(U64 stackSize = FixedStack::SIZE_LARGE) -> ReactorSpawnDescriptor;
+		static constexpr auto Default(std::uint64_t stackSize = FixedStack::SIZE_LARGE) -> ReactorSpawnDescriptor;
 	};
 
 	/// <summary>
@@ -283,7 +283,7 @@ namespace Nominax::Core
 	/// </summary>
 	/// <param name="stackSize"></param>
 	/// <returns></returns>
-	constexpr auto ReactorSpawnDescriptor::Default(const U64 stackSize) -> ReactorSpawnDescriptor
+	constexpr auto ReactorSpawnDescriptor::Default(const std::uint64_t stackSize) -> ReactorSpawnDescriptor
 	{
 		return ReactorSpawnDescriptor
 		{

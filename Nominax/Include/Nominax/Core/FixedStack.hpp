@@ -1,7 +1,7 @@
 // File: FixedStack.hpp
 // Author: Mario
-// Created: 13.08.2021 7:26 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,7 +209,7 @@
 
 #include <memory_resource>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../Foundation/Record.hpp"
 #include "../Foundation/MemoryUnits.hpp"
 
@@ -238,19 +238,19 @@ namespace Nominax::Core
 		/// Small 1 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr U64 SIZE_SMALL {1_mB / sizeof(Foundation::Record)};
+		static constexpr std::uint64_t SIZE_SMALL { 1_mB / sizeof(Foundation::Record) };
 
 		/// <summary>
 		/// Medium sizes 4 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr U64 SIZE_MEDIUM {4_mB / sizeof(Foundation::Record)};
+		static constexpr std::uint64_t SIZE_MEDIUM { 4_mB / sizeof(Foundation::Record) };
 
 		/// <summary>
 		/// Medium sizes 8 MB stack.
 		/// Contains the size in records, not bytes.
 		/// </summary>
-		static constexpr U64 SIZE_LARGE {8_mB / sizeof(Foundation::Record)};
+		static constexpr std::uint64_t SIZE_LARGE { 8_mB / sizeof(Foundation::Record) };
 		/// <summary>
 		/// 
 		/// </summary>
@@ -270,7 +270,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The size of the memory buffer in records.</returns>
 		[[nodiscard]]
-		auto Size() const -> U64;
+		auto Size() const -> std::uint64_t;
 
 		/// <summary>
 		/// STL Compat
@@ -312,7 +312,7 @@ namespace Nominax::Core
 		/// <param name="allocator"></param>
 		/// <param name="sizeInRecords">WordSize in records. If the size is zero, fatal termination.</param>
 		/// <returns></returns>
-		explicit FixedStack(std::pmr::memory_resource& allocator, U64 sizeInRecords);
+		explicit FixedStack(std::pmr::memory_resource& allocator, std::uint64_t sizeInRecords);
 
 		/// <summary>
 		/// No copy.
@@ -353,7 +353,7 @@ namespace Nominax::Core
 		return this->Buffer_.data();
 	}
 
-	inline auto FixedStack::Size() const -> U64
+	inline auto FixedStack::Size() const -> std::uint64_t
 	{
 		return this->Buffer_.size();
 	}

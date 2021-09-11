@@ -1,7 +1,7 @@
 // File: SystemAllocator.hpp
 // Author: Mario
-// Created: 09.08.2021 4:12 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,7 +209,7 @@
 
 #include <memory>
 
-#include "BaseTypes.hpp"
+#include <cstdint>
 #include "Platform.hpp"
 #include "PanicAssertions.hpp"
 
@@ -263,7 +263,7 @@ namespace Nominax::Foundation
 		/// <param name="size">The size in bytes.</param>
 		/// <returns>The pointer or nullptr on fail.</returns>
 		[[nodiscard]]
-		NOX_HOT NOX_ALLOC_SIZE(1) NOX_MALLOC static auto Allocate(U64 size) -> void*;
+		NOX_HOT NOX_ALLOC_SIZE(1) NOX_MALLOC static auto Allocate(std::uint64_t size) -> void*;
 
 		/// <summary>
 		/// Allocates an zero initialized block of memory.
@@ -272,7 +272,7 @@ namespace Nominax::Foundation
 		/// <param name="size">The size in bytes.</param>
 		/// <returns>The pointer or nullptr on fail.</returns>
 		[[nodiscard]]
-		NOX_HOT NOX_ALLOC_SIZE(1) static auto AllocateAndZero(U64 size) -> void*;
+		NOX_HOT NOX_ALLOC_SIZE(1) static auto AllocateAndZero(std::uint64_t size) -> void*;
 
 		/// <summary>
 		/// Reallocates a block of memory.
@@ -282,7 +282,7 @@ namespace Nominax::Foundation
 		/// <param name="size">The new size of the blob.</param>
 		/// <returns>The pointer or nullptr on fail.</returns>
 		[[nodiscard]]
-		NOX_HOT NOX_ALLOC_SIZE(2) static auto Reallocate(void* where, U64 size) -> void*;
+		NOX_HOT NOX_ALLOC_SIZE(2) static auto Reallocate(void* where, std::uint64_t size) -> void*;
 
 		/// <summary>
 		/// Deallocates a block of memory.
@@ -300,7 +300,7 @@ namespace Nominax::Foundation
 		/// <param name="alignment">The alignment the new address should have.</param>
 		/// <returns>The pointer or nullptr on fail.</returns>
 		[[nodiscard]]
-		NOX_HOT NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAligned(U64 size, U64 alignment) -> void*;
+		NOX_HOT NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAligned(std::uint64_t size, std::uint64_t alignment) -> void*;
 
 		/// <summary>
 		/// Allocates an zero initialized block of memory with special alignment.
@@ -310,7 +310,7 @@ namespace Nominax::Foundation
 		/// <param name="alignment">The alignment the new address should have.</param>
 		/// <returns>The pointer or nullptr on fail.</returns>
 		[[nodiscard]]
-		NOX_HOT NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAlignedAndZero(U64 size, U64 alignment) -> void*;
+		NOX_HOT NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAlignedAndZero(std::uint64_t size, std::uint64_t alignment) -> void*;
 
 		/// <summary>
 		/// Reallocates a block of memory with special alignment.
@@ -320,7 +320,7 @@ namespace Nominax::Foundation
 		/// <param name="size">The new size of the blob.</param>
 		/// <param name="alignment">The alignment the new address should have.</param>
 		/// <returns>The pointer or nullptr on fail.</returns>
-		NOX_HOT NOX_ALLOC_SIZE(2) static auto ReallocateAligned(void* where, U64 size, U64 alignment) -> void*;
+		NOX_HOT NOX_ALLOC_SIZE(2) static auto ReallocateAligned(void* where, std::uint64_t size, std::uint64_t alignment) -> void*;
 
 		/// <summary>
 		/// Deallocates a block of memory with special alignment.
@@ -337,7 +337,7 @@ namespace Nominax::Foundation
 		/// <param name="size">The size in bytes.</param>
 		/// <returns>The pointer.</returns>
 		[[nodiscard]]
-		NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateChecked(U64 size) -> void*;
+		NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateChecked(std::uint64_t size) -> void*;
 
 		/// <summary>
 		/// Allocates an zero initialized block of memory.
@@ -346,7 +346,7 @@ namespace Nominax::Foundation
 		/// <param name="size">The size in bytes.</param>
 		/// <returns>The pointer.</returns>
 		[[nodiscard]]
-		NOX_ALLOC_SIZE(1) static auto AllocateAndZeroChecked(U64 size) -> void*;
+		NOX_ALLOC_SIZE(1) static auto AllocateAndZeroChecked(std::uint64_t size) -> void*;
 
 		/// <summary>
 		/// Reallocates a block of memory.
@@ -356,7 +356,7 @@ namespace Nominax::Foundation
 		/// <param name="size">The new size of the blob.</param>
 		/// <returns>The pointer.</returns>
 		[[nodiscard]]
-		NOX_ALLOC_SIZE(2) static auto ReallocateChecked(void* where, U64 size) -> void*;
+		NOX_ALLOC_SIZE(2) static auto ReallocateChecked(void* where, std::uint64_t size) -> void*;
 
 		/// <summary>
 		/// Deallocates a block of memory.
@@ -374,7 +374,7 @@ namespace Nominax::Foundation
 		/// <param name="alignment">The alignment the new address should have.</param>
 		/// <returns>The pointer.</returns>
 		[[nodiscard]]
-		NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAlignedChecked(U64 size, U64 alignment) -> void*;
+		NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAlignedChecked(std::uint64_t size, std::uint64_t alignment) -> void*;
 
 		/// <summary>
 		/// Allocates an zero initialized block of memory with special alignment.
@@ -384,7 +384,7 @@ namespace Nominax::Foundation
 		/// <param name="alignment">The alignment the new address should have.</param>
 		/// <returns>The pointer.</returns>
 		[[nodiscard]]
-		NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAlignedAndZeroChecked(U64 size, U64 alignment) -> void*;
+		NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAlignedAndZeroChecked(std::uint64_t size, std::uint64_t alignment) -> void*;
 
 		/// <summary>
 		/// Reallocates a block of memory with special alignment.
@@ -394,7 +394,7 @@ namespace Nominax::Foundation
 		/// <param name="size">The new size of the blob.</param>
 		/// <param name="alignment">The alignment the new address should have.</param>
 		/// <returns>The pointer.</returns>
-		NOX_ALLOC_SIZE(2) static auto ReallocateAlignedChecked(void* where, U64 size, U64 alignment) -> void*;
+		NOX_ALLOC_SIZE(2) static auto ReallocateAlignedChecked(void* where, std::uint64_t size, std::uint64_t alignment) -> void*;
 
 		/// <summary>
 		/// Deallocates a block of memory with special alignment.
@@ -405,17 +405,17 @@ namespace Nominax::Foundation
 		static auto DeallocateAlignedChecked(void* ptr) -> void;
 	};
 
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::Allocate(const U64 size) -> void*
+	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::Allocate(const std::uint64_t size) -> void*
 	{
 		return std::malloc(size);
 	}
 
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::AllocateAndZero(const U64 size) -> void*
+	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::AllocateAndZero(const std::uint64_t size) -> void*
 	{
 		return std::calloc(1, size);
 	}
 
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::Reallocate(void* const where, const U64 size) -> void*
+	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::Reallocate(void* const where, const std::uint64_t size) -> void*
 	{
 		return std::realloc(where, size);
 	}
@@ -425,7 +425,7 @@ namespace Nominax::Foundation
 		std::free(ptr);
 	}
 
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::AllocateAligned(const U64 size, const U64 alignment) -> void*
+	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::AllocateAligned(const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
 		#if NOX_OS_WINDOWS && NOX_COM_CLANG
 		return _aligned_malloc(size, alignment);
@@ -434,17 +434,17 @@ namespace Nominax::Foundation
 		#endif
 	}
 
-	NOX_HOT NOX_FLATTEN NOX_MALLOC inline auto SystemAllocator::AllocateAlignedAndZero(const U64 size, const U64 alignment) -> void*
+	NOX_HOT NOX_FLATTEN NOX_MALLOC inline auto SystemAllocator::AllocateAlignedAndZero(const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
 		return std::memset(AllocateAligned(size, alignment), 0, size);
 	}
 
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::ReallocateAligned(void* const where, const U64 size, const U64 alignment) -> void*
+	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::ReallocateAligned(void* const where, const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
 		#if NOX_OS_WINDOWS && NOX_COM_CLANG
 		return _aligned_realloc(where, size, alignment);
 		#else
-		auto* const mem {AllocateAligned(size, alignment)};
+		auto* const mem { AllocateAligned(size, alignment) };
 		std::memcpy(mem, where, size);
 		DeallocateAligned(where);
 		return mem;
@@ -460,23 +460,23 @@ namespace Nominax::Foundation
 		#endif
 	}
 
-	NOX_FLATTEN inline auto SystemAllocator::AllocateChecked(const U64 size) -> void*
+	NOX_FLATTEN inline auto SystemAllocator::AllocateChecked(const std::uint64_t size) -> void*
 	{
-		void* mem {Allocate(size)};
+		void* mem { Allocate(size) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}
 
-	NOX_FLATTEN inline auto SystemAllocator::AllocateAndZeroChecked(const U64 size) -> void*
+	NOX_FLATTEN inline auto SystemAllocator::AllocateAndZeroChecked(const std::uint64_t size) -> void*
 	{
-		void* mem {AllocateAndZero(size)};
+		void* mem { AllocateAndZero(size) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}
 
-	NOX_FLATTEN inline auto SystemAllocator::ReallocateChecked(void* const where, const U64 size) -> void*
+	NOX_FLATTEN inline auto SystemAllocator::ReallocateChecked(void* const where, const std::uint64_t size) -> void*
 	{
-		void* mem {Reallocate(where, size)};
+		void* mem { Reallocate(where, size) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}
@@ -487,23 +487,23 @@ namespace Nominax::Foundation
 		Deallocate(ptr);
 	}
 
-	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedChecked(const U64 size, const U64 alignment) -> void*
+	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedChecked(const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
-		void* const mem {AllocateAligned(size, alignment)};
+		void* const mem { AllocateAligned(size, alignment) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}
 
-	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedAndZeroChecked(const U64 size, const U64 alignment) -> void*
+	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedAndZeroChecked(const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
-		void* const mem {AllocateAlignedAndZero(size, alignment)};
+		void* const mem { AllocateAlignedAndZero(size, alignment) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}
 
-	NOX_FLATTEN inline auto SystemAllocator::ReallocateAlignedChecked(void* const where, const U64 size, const U64 alignment) -> void*
+	NOX_FLATTEN inline auto SystemAllocator::ReallocateAlignedChecked(void* const where, const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
-		void* const mem {ReallocateAligned(where, size, alignment)};
+		void* const mem { ReallocateAligned(where, size, alignment) };
 		NOX_PAS_NOT_NULL(mem, "Allocation error!");
 		return mem;
 	}

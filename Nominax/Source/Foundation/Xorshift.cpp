@@ -1,7 +1,7 @@
 // File: Xorshift.cpp
 // Author: Mario
-// Created: 10.08.2021 1:56 AM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,30 +209,30 @@
 
 namespace Nominax::Foundation
 {
-	auto Xorshift32Atomic() -> U32
+	auto Xorshift32Atomic() -> std::uint32_t
 	{
-		static constinit std::atomic_uint32_t seed32 {0x12B9B0A1};
+		static constinit std::atomic_uint32_t seed32 { 0x12B9B0A1 };
 		seed32 ^= seed32 << 0xD;
 		seed32 ^= seed32 >> 0x11;
 		seed32 ^= seed32 << 0x5;
 		return seed32;
 	}
 
-	auto Xorshift64Atomic() -> U64
+	auto Xorshift64Atomic() -> std::uint64_t
 	{
-		static constinit std::atomic_uint64_t seed64 {0x139408DCBBF7A44};
+		static constinit std::atomic_uint64_t seed64 { 0x139408DCBBF7A44 };
 		seed64 ^= seed64 << 0xD;
 		seed64 ^= seed64 >> 0x7;
 		seed64 ^= seed64 << 0x11;
 		return seed64;
 	}
 
-	auto Xorshift128Atomic() -> U32
+	auto Xorshift128Atomic() -> std::uint32_t
 	{
-		static constinit std::atomic_uint32_t x {0x75BCD15};
-		static constinit std::atomic_uint32_t y {0x159A55E5};
-		static constinit std::atomic_uint32_t z {0x1F123BB5};
-		static constinit std::atomic_uint32_t w {0x5491333};
+		static constinit std::atomic_uint32_t x { 0x75BCD15 };
+		static constinit std::atomic_uint32_t y { 0x159A55E5 };
+		static constinit std::atomic_uint32_t z { 0x1F123BB5 };
+		static constinit std::atomic_uint32_t w { 0x5491333 };
 
 		const uint32_t t = x ^ x << 0xB;
 		x.exchange(y);
@@ -242,30 +242,30 @@ namespace Nominax::Foundation
 		return w;
 	}
 
-	auto Xorshift32ThreadLocal() -> U32
+	auto Xorshift32ThreadLocal() -> std::uint32_t
 	{
-		static constinit thread_local U32 seed32 {0x12B9B0A1};
+		static constinit thread_local std::uint32_t seed32 { 0x12B9B0A1 };
 		seed32 ^= seed32 << 0xD;
 		seed32 ^= seed32 >> 0x11;
 		seed32 ^= seed32 << 0x5;
 		return seed32;
 	}
 
-	auto Xorshift64ThreadLocal() -> U64
+	auto Xorshift64ThreadLocal() -> std::uint64_t
 	{
-		static constinit thread_local U64 seed64 {0x139408DCBBF7A44};
+		static constinit thread_local std::uint64_t seed64 { 0x139408DCBBF7A44 };
 		seed64 ^= seed64 << 0xD;
 		seed64 ^= seed64 >> 0x7;
 		seed64 ^= seed64 << 0x11;
 		return seed64;
 	}
 
-	auto Xorshift128ThreadLocal() -> U32
+	auto Xorshift128ThreadLocal() -> std::uint32_t
 	{
-		static constinit thread_local U32 x {0x75BCD15};
-		static constinit thread_local U32 y {0x159A55E5};
-		static constinit thread_local U32 z {0x1F123BB5};
-		static constinit thread_local U32 w {0x5491333};
+		static constinit thread_local std::uint32_t x { 0x75BCD15 };
+		static constinit thread_local std::uint32_t y { 0x159A55E5 };
+		static constinit thread_local std::uint32_t z { 0x1F123BB5 };
+		static constinit thread_local std::uint32_t w { 0x5491333 };
 
 		const uint32_t t = x ^ x << 0xB;
 		x                = y;

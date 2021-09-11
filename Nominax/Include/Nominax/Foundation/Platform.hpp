@@ -1,7 +1,7 @@
 // File: Platform.hpp
 // Author: Mario
-// Created: 09.08.2021 4:03 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -332,7 +332,7 @@
 
 #define NOX_IS_POSIX (NOX_OS_LINUX || NOX_OS_ANDROID || NOX_OS_MAC || NOX_OS_IOS)
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 #	undef NOX_COM_GCC
 #	define NOX_COM_GCC true
 #	define NOX_COM_NAME "GCC"
@@ -384,7 +384,7 @@
 /// <summary>
 /// Optimize the branches for the condition that 'x' is equal to 'expect'.
 /// </summary>
-#define NOX_EXPECT_VALUE(x, expect)         __builtin_expect(( x ), ( expect ))
+#define NOX_EXPECT_VALUE(expr, expect)         __builtin_expect(( expr ), ( expect ))
 
 /// <summary>
 /// Generates a cache prefetch instruction if the target supports it.
@@ -482,3 +482,8 @@
 /// Marks that a routine is implemented in assembler code.
 /// </summary>
 #define NOX_ASM_ROUTINE
+
+/// <summary>
+/// Marks a reactor routine.
+/// </summary>
+#define NOX_REACTOR_ROUTINE                 NOX_FORCE_INLINE NOX_HOT

@@ -1,7 +1,7 @@
 // File: ShuntingYard.hpp
 // Author: Mario
-// Created: 10.08.2021 1:03 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -287,7 +287,7 @@ namespace Nominax::ByteCode
 		/// <param name="idx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator [](U64 idx) const -> const InfixGate&;
+		auto operator [](std::uint64_t idx) const -> const InfixGate&;
 
 		/// <summary>
 		/// STL iterator interface.
@@ -371,13 +371,13 @@ namespace Nominax::ByteCode
 	template <typename Scalar, typename Operator>
 	inline auto ShuntingYardEvaluator<Scalar, Operator>::DirectPush(Scalar&& value) -> void
 	{
-		this->OutputQueue.push(InfixGate {value});
+		this->OutputQueue.push(InfixGate { value });
 	}
 
 	template <typename Scalar, typename Operator>
 	inline auto ShuntingYardEvaluator<Scalar, Operator>::DirectPush(Operator&& value) -> void
 	{
-		this->OperatorStack.push(InfixGate {value});
+		this->OperatorStack.push(InfixGate { value });
 	}
 
 	template <typename Scalar, typename Operator>
@@ -405,7 +405,7 @@ namespace Nominax::ByteCode
 	}
 
 	template <typename Scalar, typename Operator>
-	inline auto ShuntingYardEvaluator<Scalar, Operator>::operator[](const U64 idx) const -> const InfixGate&
+	inline auto ShuntingYardEvaluator<Scalar, Operator>::operator[](const std::uint64_t idx) const -> const InfixGate&
 	{
 		return this->OutputQueue[idx];
 	}

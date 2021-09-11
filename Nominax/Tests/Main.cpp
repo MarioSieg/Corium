@@ -1,7 +1,7 @@
 // File: Main.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -211,5 +211,6 @@ auto main(int argc, char** argv) -> int
 {
 	testing::InitGoogleTest(&argc, argv);
 	testing::GTEST_FLAG(filter) = "*";
+    GTEST_FLAG_SET(death_test_style, "threadsafe");
 	return RUN_ALL_TESTS();
 }

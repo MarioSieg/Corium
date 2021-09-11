@@ -1,7 +1,7 @@
 // File: DiscriminatedSignal.hpp
 // Author: Mario
-// Created: 10.08.2021 12:52 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -291,8 +291,8 @@ namespace Nominax::ByteCode
 		constexpr auto operator !=(const DiscriminatedSignal& other) const -> bool;
 	};
 
-	constexpr DiscriminatedSignal::DiscriminatedSignal(const Signal::Discriminator discriminator, const Signal value) : Discriminator {discriminator},
-	                                                                                                                    Value {value} { }
+	constexpr DiscriminatedSignal::DiscriminatedSignal(const Signal::Discriminator discriminator, const Signal value) : Discriminator { discriminator },
+	                                                                                                                    Value { value } { }
 
 	template <typename T> requires BytecodeElement<T>
 	constexpr auto DiscriminatedSignal::Contains() const -> bool
@@ -317,8 +317,8 @@ namespace Nominax::ByteCode
 	constexpr auto DiscriminatedSignal::Unwrap() const -> std::optional<std::remove_reference_t<T>>
 	{
 		return this->Contains<T>()
-			       ? std::optional<std::remove_reference_t<T>> {std::bit_cast<T>(this->Value.R64.AsU64)}
-			       : std::optional<std::remove_reference_t<T>> {std::nullopt};
+			       ? std::optional<std::remove_reference_t<T>> { std::bit_cast<T>(this->Value.R64.AsU64) }
+			       : std::optional<std::remove_reference_t<T>> { std::nullopt };
 	}
 
 	template <typename T> requires BytecodeElement<T>

@@ -1,7 +1,7 @@
 // File: ReactorRoutineLink.hpp
 // Author: Mario
-// Created: 13.08.2021 7:36 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -224,12 +224,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// Execution routine link.
 		/// </summary>
-		ReactorCoreExecutionRoutine* const ExecutionRoutine;
+		ReactorCoreExecutionRoutine& ExecutionRoutine;
 
 		/// <summary>
 		/// Jump table link.
 		/// </summary>
-		const void** const JumpTable;
+		JumpTable JTable;
 
 		/// <summary>
 		/// Construct and validate parameters.
@@ -240,14 +240,14 @@ namespace Nominax::Core
 		/// <param name="jumpTable"></param>
 		ReactorRoutineLink
 		(
-			ReactorCoreSpecialization    specialization,
-			ReactorCoreExecutionRoutine* executionRoutine,
-			const void**                 jumpTable
+			ReactorCoreSpecialization specialization,
+			ReactorCoreExecutionRoutine& executionRoutine,
+			JumpTable jumpTable
 		);
 	};
 
 	/// <summary>
 	/// Contains all available reactor implementations for the current platform.
 	/// </summary>
-	using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<U64>(ReactorCoreSpecialization::Count)>;
+	using ReactorRegistry = std::array<ReactorCoreExecutionRoutine*, static_cast<std::uint64_t>(ReactorCoreSpecialization::Count)>;
 }

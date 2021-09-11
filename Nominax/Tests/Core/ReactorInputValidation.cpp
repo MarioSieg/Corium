@@ -1,7 +1,7 @@
 // File: ReactorInputValidation.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,8 +207,11 @@
 
 #include "ReactorTestHelper.hpp"
 
+#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
+
 TEST(ReactorInputValidation, ValidInput)
 {
+    std::fill(std::begin(MockStack), std::end(MockStack), Record::Padding());
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
@@ -223,8 +226,11 @@ TEST(ReactorInputValidation, ValidInput)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 }
 
+#endif
+
 TEST(ReactorInputValidation, NullPointers)
 {
+    std::fill(std::begin(MockStack), std::end(MockStack), Record::Padding());
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = nullptr,
@@ -241,6 +247,7 @@ TEST(ReactorInputValidation, NullPointers)
 
 TEST(ReactorInputValidation, ZeroMemorySizes)
 {
+    std::fill(std::begin(MockStack), std::end(MockStack), Record::Padding());
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
@@ -257,6 +264,7 @@ TEST(ReactorInputValidation, ZeroMemorySizes)
 
 TEST(ReactorInputValidation, NullPointerIntrinsicRoutines)
 {
+    std::fill(std::begin(MockStack), std::end(MockStack), Record::Padding());
 	std::array<IntrinsicRoutine*, 1> intrinsicRoutines {
 		nullptr
 	};
@@ -274,8 +282,11 @@ TEST(ReactorInputValidation, NullPointerIntrinsicRoutines)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullIntrinsicRoutine);
 }
 
+#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
+
 TEST(ReactorInputValidation, ValidIntrinsicRoutines)
 {
+    std::fill(std::begin(MockStack), std::end(MockStack), Record::Padding());
 	const auto input = VerboseReactorDescriptor {
 
 		.CodeChunk = MockCode.data(),
@@ -289,6 +300,8 @@ TEST(ReactorInputValidation, ValidIntrinsicRoutines)
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 }
+
+#endif
 
 TEST(ReactorInputValidation, MissingCodePrologue)
 {
@@ -372,15 +385,16 @@ TEST(ReactorInputValidation, InvalidMissingCodePrologue3)
 
 TEST(ReactorInputValidation, MissingStackPrologue)
 {
-	const auto input = VerboseReactorDescriptor {
-
+    std::fill(std::begin(MockStack), std::end(MockStack), Record { });
+	const auto input = VerboseReactorDescriptor
+    {
 		.CodeChunk = MockCode.data(),
 		.CodeChunkSize = MockCode.size(),
 		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
 		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
 		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data() + 1,
-		.StackSize = MockStack.size() - 1,
+		.Stack = MockStack.data(),
+		.StackSize = MockStack.size(),
 
 	};
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingStackPrologue);

@@ -1,7 +1,7 @@
 // File: Panic.cpp
 // Author: Mario
-// Created: 10.08.2021 2:02 AM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -217,14 +217,14 @@ namespace Nominax
 		using namespace Foundation;
 
 		#if NOX_ARCH_X86_64
-		U64   gpr[16] { };
-		U64   sse[32] { };
-		Uip64 rip { };
+		std::uint64_t  gpr[16] { };
+		std::uint64_t  sse[32] { };
+		std::uintptr_t rip { };
 		if (panicDescriptor.DumpRegisters)
 		{
 			using namespace Assembler::X86_64::Routines;
 			QueryRegSet(gpr, sse);
-			rip = reinterpret_cast<U64>(QueryRip());
+			rip = reinterpret_cast<std::uint64_t>(QueryRip());
 		}
 		#endif
 
@@ -261,11 +261,11 @@ namespace Nominax
 				"%r14",
 				"%r15"
 			};
-			for (U64 i {0}; i < sizeof gpr / sizeof *gpr; ++i)
+			for (std::uint64_t i { 0 }; i < sizeof gpr / sizeof *gpr; ++i)
 			{
 				Print("{} = {:016X}\n", GPR_LUT[i], gpr[i]);
 			}
-			for (U64 i {0}; i < sizeof sse / sizeof *sse >> 1; ++i)
+			for (std::uint64_t i { 0 }; i < sizeof sse / sizeof *sse >> 1; ++i)
 			{
 				Print("%xmm{}{} = ", i, i < 10 ? " " : "");
 				Print("{:016X}", sse[i]);

@@ -1,7 +1,7 @@
 // File: InstructionVariationSizeTable.hpp
 // Author: Mario
-// Created: 14.08.2021 2:04 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -213,7 +213,7 @@
 
 namespace Nominax::Assembler::X86_64
 {
-	constexpr std::array<U8, ToUnderlying(Instruction::Count_)> VARIATION_SIZE_TABLE
+	constexpr std::array<std::uint8_t, ToUnderlying(Instruction::Count_)> VARIATION_SIZE_TABLE
 	{
 		30,
 		4,

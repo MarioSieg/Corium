@@ -1,7 +1,7 @@
 // File: Snapshot.cpp
 // Author: Mario
-// Created: 10.08.2021 2:05 AM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,22 +209,22 @@
 
 namespace Nominax::Foundation
 {
-	Snapshot::Snapshot()
+	SystemInfoSnapshot::SystemInfoSnapshot()
 	{
 		this->QueryAll();
 	}
 
-	auto Snapshot::QueryAll() -> void
+	auto SystemInfoSnapshot::QueryAll() -> void
 	{
 		this->ThreadCount       = std::thread::hardware_concurrency();
 		this->ThreadId          = std::this_thread::get_id();
-		this->CpuName           = Os::QueryCpuName();
-		this->TotalSystemMemory = Os::QuerySystemMemoryTotal();
-		this->ProcessMemory     = Os::QueryProcessMemoryUsed();
-		this->PageSize          = Os::QueryPageSize();
+		this->CpuName           = OSI::QueryCpuName();
+		this->TotalSystemMemory = OSI::QuerySystemMemoryTotal();
+		this->ProcessMemory     = OSI::QueryProcessMemoryUsed();
+		this->PageSize          = OSI::QueryPageSize();
 	}
 
-	auto Snapshot::Print() const -> void
+	auto SystemInfoSnapshot::Print() const -> void
 	{
 		using namespace Foundation;
 

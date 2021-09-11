@@ -1,7 +1,7 @@
 // File: ReactorClass.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -226,7 +226,7 @@ TEST(ReactorClass, Valid)
 	};
 	ASSERT_EQ(reactor.GetStack().Size(), 4);
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(reactor.GetInterruptHandler(), GetDefaultInterruptRoutine());
+	ASSERT_EQ(reactor.GetInterruptHandler(), &DEFAULT_INTERRUPT_ROUTINE);
 }
 
 TEST(ReactorClass, MoveConstruct)
@@ -242,15 +242,13 @@ TEST(ReactorClass, MoveConstruct)
 	};
 	ASSERT_EQ(reactor.GetStack().Size(), 4);
 	ASSERT_EQ(reactor.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(reactor.GetInterruptHandler(), GetDefaultInterruptRoutine());
+	ASSERT_EQ(reactor.GetInterruptHandler(), &DEFAULT_INTERRUPT_ROUTINE);
 
 	const Reactor reactor2 {std::move(reactor)};
 	ASSERT_EQ(reactor2.GetStack().Size(), 4);
 	ASSERT_EQ(reactor2.GetIntrinsicTable().size(), 0);
-	ASSERT_EQ(reactor2.GetInterruptHandler(), GetDefaultInterruptRoutine());
+	ASSERT_EQ(reactor2.GetInterruptHandler(), &DEFAULT_INTERRUPT_ROUTINE);
 }
-
-#ifdef NOX_DEATH_TESTS
 
 TEST(ReactorClass, ZeroStackSizeFault)
 {
@@ -262,14 +260,13 @@ TEST(ReactorClass, ZeroStackSizeFault)
 				Reactor bad {Resource, ReactorSpawnDescriptor {.StackSize = 0}, HyperVisor::GetFallbackRoutineLink()};
 		}
 	};
-	ASSERT_DEATH_IF_SUPPORTED(exec(), "");
+	ASSERT_DEATH(exec(), "");
 }
 
-#endif
 
 TEST(ReactorClass, InterruptHandler)
 {
-	auto* const   interrupt = +[](InterruptAccumulator) { };
+	auto* const interrupt = +[](InterruptStatus) { };
 	const Reactor reactor
 	{
 		Resource,
@@ -288,15 +285,17 @@ TEST(ReactorClass, InterruptHandler)
 TEST(ReactorClass, TryExecuteValid)
 {
 	const EnvironmentDescriptor desc { };
-	Environment                 env { };
+	Environment env { };
 	env.Boot(desc);
-	Stream                                   stream {OptimizationLevel::Off};
-	stream.Prologue().With(2, [](ScopedInt&& var)
-	{
-		var *= 2;
-		var += 1;
-		var /= 1;
-	}).Epilogue();
+	Stream stream {OptimizationLevel::Off};
+	stream.Prologue();
+    {
+        ScopedInt var { stream, 3 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
+    stream.Epilogue();
 	Image out { };
 	ASSERT_EQ(Stream::Build(stream, env.GetOptimizationHints(), out), ValidationResultCode::Ok);
 	Reactor reactor
@@ -309,9 +308,8 @@ TEST(ReactorClass, TryExecuteValid)
 		HyperVisor::GetFallbackRoutineLink()
 	};
 	const auto& output {reactor.Execute(out)};
-	ASSERT_EQ(output.first, ReactorShutdownReason::Success);
-	ASSERT_EQ(output.second.InterruptCode, 0);
-	ASSERT_EQ(std::memcmp(output.second.Input, &reactor.GetInputDescriptor(), sizeof(decltype(*output.second.Input))), 0);
+	ASSERT_EQ(output.Status, InterruptStatus::InterruptStatus_OK);
+	ASSERT_EQ(std::memcmp(output.Input, &reactor.GetInputDescriptor(), sizeof(*output.Input)), 0);
 }
 
 TEST(ReactorClass, TryExecuteInvalidZeroCode)

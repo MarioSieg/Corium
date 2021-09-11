@@ -1,7 +1,7 @@
 // File: AllocatorOverride.cpp
 // Author: Mario
-// Created: 10.08.2021 2:03 AM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,86 +207,82 @@
 
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 
-auto operator new(const Nominax::U64 size) -> void*
+auto operator new(const std::size_t size) -> void*
 {
+	#if NOX_DEBUG
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
+	#else
+	return std::malloc(size);
+	#endif
 }
 
-auto operator new[](const Nominax::U64 size) -> void*
+auto operator new[](const std::size_t size) -> void*
 {
+	#if NOX_DEBUG
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
+	#else
+	return std::malloc(size);
+	#endif
 }
 
-#if false
-
-auto operator new(const Nominax::U64 size, const std::align_val_t alignment)  -> void*
+auto operator new(const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
-	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
-	return mem;
-}
-
-auto operator new[](const Nominax::U64 size, const std::align_val_t alignment)  -> void*
-{
-	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
-	return mem;
-}
-
-#endif
-
-auto operator new(const Nominax::U64 size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
-{
+	#if NOX_DEBUG
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
+	#else
+	return std::malloc(size);
+	#endif
 }
 
-auto operator new[](const Nominax::U64 size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
+auto operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
 {
+	#if NOX_DEBUG
 	void* mem;
 	Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
 	return mem;
+	#else
+	return std::malloc(size);
+	#endif
 }
-
-#if false
-
-auto operator new(const Nominax::U64 size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag)  -> void*
-{
-	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
-	return mem;
-}
-
-auto operator new[](const Nominax::U64 size, const std::align_val_t alignment, [[maybe_unused]] const std::nothrow_t& tag)  -> void*
-{
-	void* mem;
-	Nominax::Common::GlobalAllocatorProxy->AllocateAligned(mem, size, static_cast<U64>(alignment));
-	return mem;
-}
-
-#endif
 
 auto operator delete(void* mem) noexcept(true) -> void
 {
+	#if NOX_DEBUG
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
+	#else
+	std::free(mem);
+	#endif
 }
 
-auto operator delete(void* mem, Nominax::U64) noexcept(true) -> void
+auto operator delete(void* mem, std::size_t) noexcept(true) -> void
 {
+	#if NOX_DEBUG
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
+	#else
+	std::free(mem);
+	#endif
 }
 
 auto operator delete[](void* mem) noexcept(true) -> void
 {
+	#if NOX_DEBUG
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
+	#else
+	std::free(mem);
+	#endif
 }
 
-auto operator delete[](void* mem, Nominax::U64) noexcept(true) -> void
+auto operator delete[](void* mem, std::size_t) noexcept(true) -> void
 {
+	#if NOX_DEBUG
 	Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
+	#else
+	std::free(mem);
+	#endif
 }

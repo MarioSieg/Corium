@@ -1,7 +1,7 @@
 // File: Image.cpp
 // Author: Mario
-// Created: 11.08.2021 4:17 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -211,7 +211,7 @@
 
 namespace Nominax::ByteCode
 {
-	Image::Image(std::vector<Signal>&& buffer) : Blob_ {std::move(buffer)} { }
+	Image::Image(std::vector<Signal>&& buffer) : Blob_ { std::move(buffer) } { }
 
 	Image::Image(const std::span<const Signal> blob)
 	{
@@ -220,7 +220,7 @@ namespace Nominax::ByteCode
 		std::copy(std::execution::par_unseq, std::cbegin(blob), std::cend(blob), std::begin(this->Blob_));
 	}
 
-	Image::Image(const void* const data, const U64 byteSize)
+	Image::Image(const void* const data, const std::uint64_t byteSize)
 	{
 		NOX_PAS_NOT_ZERO(byteSize, "Byte code image with zero size is invalid!");
 		NOX_PAS_NOT_NULL(data, "Byte code image with null data is invalid!");

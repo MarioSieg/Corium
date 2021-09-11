@@ -1,7 +1,7 @@
 // File: _X86_64.hpp
 // Author: Mario
-// Created: 14.08.2021 1:56 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,15 +209,15 @@
 
 #include "Descriptors.hpp"
 #include "Encoding.hpp"
-#include "Evex.hpp"
+#include "EVEX.hpp"
 #include "Instruction.hpp"
 #include "InstructionInfoTable.hpp"
 #include "InstructionNameTable.hpp"
 #include "InstructionVariation.hpp"
 #include "InstructionVariationSizeTable.hpp"
-#include "IsaExtension.hpp"
+#include "ISAExtension.hpp"
 #include "Operand.hpp"
 #include "Register.hpp"
-#include "Rex.hpp"
+#include "REX.hpp"
 #include "Routines.hpp"
-#include "Vex.hpp"
+#include "VEX.hpp"

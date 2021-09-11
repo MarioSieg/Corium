@@ -1,7 +1,7 @@
 // File: Generics.hpp
 // Author: Mario
-// Created: 10.08.2021 12:51 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -211,6 +211,7 @@
 #include <optional>
 
 #include "Signal.hpp"
+#include "InstructionMetaDataRegistry.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -239,43 +240,43 @@ namespace Nominax::ByteCode
 	{
 		if constexpr (std::is_same_v<Instruction, T>)
 		{
-			return {Signal::Discriminator::Instruction};
+			return { Signal::Discriminator::Instruction };
 		}
 		else if constexpr (std::is_same_v<SystemIntrinsicInvocationID, T>)
 		{
-			return {Signal::Discriminator::SystemIntrinsicInvocationID};
+			return { Signal::Discriminator::SystemIntrinsicInvocationID };
 		}
 		else if constexpr (std::is_same_v<UserIntrinsicInvocationID, T>)
 		{
-			return {Signal::Discriminator::UserIntrinsicInvocationID};
+			return { Signal::Discriminator::UserIntrinsicInvocationID };
 		}
 		else if constexpr (std::is_same_v<JumpAddress, T>)
 		{
-			return {Signal::Discriminator::JumpAddress};
+			return { Signal::Discriminator::JumpAddress };
 		}
-		else if constexpr (std::is_same_v<U64, T>)
+		else if constexpr (std::is_same_v<std::uint64_t, T>)
 		{
-			return {Signal::Discriminator::U64};
+			return { Signal::Discriminator::UOffset };
 		}
-		else if constexpr (std::is_same_v<I64, T>)
+		else if constexpr (std::is_same_v<std::int64_t, T>)
 		{
-			return {Signal::Discriminator::I64};
+			return { Signal::Discriminator::Int };
 		}
-		else if constexpr (std::is_same_v<F64, T>)
+		else if constexpr (std::is_same_v<double, T>)
 		{
-			return {Signal::Discriminator::F64};
+			return { Signal::Discriminator::Float };
 		}
 		else if constexpr (std::is_same_v<CharClusterUtf8, T>)
 		{
-			return {Signal::Discriminator::CharClusterUtf8};
+			return { Signal::Discriminator::CharClusterUtf8 };
 		}
 		else if constexpr (std::is_same_v<CharClusterUtf16, T>)
 		{
-			return {Signal::Discriminator::CharClusterUtf16};
+			return { Signal::Discriminator::CharClusterUtf16 };
 		}
 		else if constexpr (std::is_same_v<CharClusterUtf32, T>)
 		{
-			return {Signal::Discriminator::CharClusterUtf32};
+			return { Signal::Discriminator::CharClusterUtf32 };
 		}
 		else
 		{
@@ -311,7 +312,7 @@ namespace Nominax::ByteCode
 	template <>
 	class ScopedVariableProxyType<signed>
 	{
-		using Type = I64;
+		using Type = std::int64_t;
 	};
 
 	/// <summary>
@@ -331,7 +332,7 @@ namespace Nominax::ByteCode
 	template <const Instruction I, typename... Ts>
 	concept ValidInstruction = requires
 	{
-		requires sizeof...(Ts) == INSTRUCTION_IMMEDIATE_ARG_TABLE[ToUnderlying(I)];
+		requires sizeof...(Ts) == InstructionMetaDataRegistry::LookupInstructArgumentCount(I);
 	};
 
 	/// <summary>
@@ -344,7 +345,7 @@ namespace Nominax::ByteCode
 		requires std::is_integral_v<std::decay_t<Ts>...>
 		|| std::is_floating_point_v<std::decay_t<Ts>...>
 		|| std::is_enum_v<std::decay_t<Ts>...>;
-		requires (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(I64) == 0
-		|| (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(I32) == 0;
+		requires (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(std::int64_t) == 0
+		|| (sizeof(std::decay_t<Ts>) + ... + 0) % sizeof(std::int32_t) == 0;
 	};
 }

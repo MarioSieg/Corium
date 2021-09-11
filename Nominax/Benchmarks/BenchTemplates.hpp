@@ -1,7 +1,7 @@
 // File: BenchTemplates.hpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -236,6 +236,6 @@ extern auto LoopBenchmark
 (
 	State&                                      state,
 	const std::function<auto(Stream&) -> void>& loopBody,
-	I64                                         count            = 1'000'000'000,
+	std::int64_t                                count            = 1'000'000'000,
 	bool                                        enableAvxReactor = true
 ) -> void;

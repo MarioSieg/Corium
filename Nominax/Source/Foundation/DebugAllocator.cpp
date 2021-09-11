@@ -1,7 +1,7 @@
 // File: DebugAllocator.cpp
 // Author: Mario
-// Created: 10.08.2021 1:59 AM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,81 +209,81 @@
 
 namespace Nominax::Foundation
 {
-	static constexpr auto GetMemoryUnitInfo(const U64 bytes) -> std::pair<U64, std::string_view>
+	static constexpr auto GetMemoryUnitInfo(const std::uint64_t bytes) -> std::pair<std::uint64_t, std::string_view>
 	{
 		if (bytes == 0 || bytes < KB)
 		{
-			return {bytes, "B"};
+			return { bytes, "B" };
 		}
 		if (bytes < MB)
 		{
-			return {bytes / KB, "KB"};
+			return { bytes / KB, "KB" };
 		}
 		if (bytes < GB)
 		{
-			return {bytes / MB, "MB"};
+			return { bytes / MB, "MB" };
 		}
 		if (bytes < TB)
 		{
-			return {bytes / GB, "GB"};
+			return { bytes / GB, "GB" };
 		}
-		return {bytes, "B"};
+		return { bytes, "B" };
 	}
 
-	auto DebugAllocator::Allocate(void*& out, const U64 size) const -> void
+	auto DebugAllocator::Allocate(void*& out, const std::uint64_t size) const -> void
 	{
 		IAllocator::Allocate(out, size);
-		const auto [count, suffix] {GetMemoryUnitInfo(size)};
-		Print(TextColor::BrightGreen, "Allocate({:#X}, {} {})\n", reinterpret_cast<Uip64>(out), count, suffix);
+		const auto [count, suffix] { GetMemoryUnitInfo(size) };
+		Print(TextColor::BrightGreen, "Allocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count, suffix);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
 	}
 
-	auto DebugAllocator::Reallocate(void*& out, const U64 size) const -> void
+	auto DebugAllocator::Reallocate(void*& out, const std::uint64_t size) const -> void
 	{
 		IAllocator::Reallocate(out, size);
-		const auto [count, suffix] {GetMemoryUnitInfo(size)};
-		Print(TextColor::BrightYellow, "Reallocate({:#X}, {} {})\n", reinterpret_cast<Uip64>(out), count,
+		const auto [count, suffix] { GetMemoryUnitInfo(size) };
+		Print(TextColor::BrightYellow, "Reallocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count,
 		      suffix);
 		++this->Reallocations_;
 	}
 
 	auto DebugAllocator::Deallocate(void*& out) const -> void
 	{
-		Print(TextColor::BrightRed, "Deallocate({:#X})\n", reinterpret_cast<Uip64>(out));
+		Print(TextColor::BrightRed, "Deallocate({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
 		IAllocator::Deallocate(out);
 		++this->Deallocations_;
 	}
 
-	auto DebugAllocator::AllocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
+	auto DebugAllocator::AllocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
 	{
 		IAllocator::AllocateAligned(out, size, alignment);
-		const auto [count, suffix] {GetMemoryUnitInfo(size)};
-		Print(TextColor::BrightGreen, "AllocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<Uip64>(out),
+		const auto [count, suffix] { GetMemoryUnitInfo(size) };
+		Print(TextColor::BrightGreen, "AllocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out),
 		      count, suffix, alignment);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
 	}
 
-	auto DebugAllocator::ReallocateAligned(void*& out, const U64 size, const U64 alignment) const -> void
+	auto DebugAllocator::ReallocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
 	{
 		IAllocator::ReallocateAligned(out, size, alignment);
-		const auto [count, suffix] {GetMemoryUnitInfo(size)};
-		Print(TextColor::BrightGreen, "ReallocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<Uip64>(out),
+		const auto [count, suffix] { GetMemoryUnitInfo(size) };
+		Print(TextColor::BrightGreen, "ReallocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out),
 		      count, suffix, alignment);
 		++this->Reallocations_;
 	}
 
 	auto DebugAllocator::DeallocateAligned(void*& out) const -> void
 	{
-		Print(TextColor::BrightRed, "DeallocateAligned({:#X})\n", reinterpret_cast<Uip64>(out));
+		Print(TextColor::BrightRed, "DeallocateAligned({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
 		IAllocator::DeallocateAligned(out);
 		++this->Deallocations_;
 	}
 
 	auto DebugAllocator::DumpAllocationInfo() const -> void
 	{
-		const auto [count, suffix] {GetMemoryUnitInfo(this->BytesAllocated_)};
+		const auto [count, suffix] { GetMemoryUnitInfo(this->BytesAllocated_) };
 		Print(TextColor::BrightGreen, "Allocations: {}\n", this->Allocations_);
 		Print(TextColor::BrightGreen, "Reallocations: {}\n", this->Reallocations_);
 		Print(TextColor::BrightGreen, "Deallocations: {}\n", this->Deallocations_);

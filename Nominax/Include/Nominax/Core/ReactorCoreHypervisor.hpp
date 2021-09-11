@@ -1,7 +1,7 @@
 // File: ReactorCoreHypervisor.hpp
 // Author: Mario
-// Created: 13.08.2021 7:37 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,7 +207,7 @@
 
 #pragma once
 
-#include "../Foundation/CpuFeatureDetector.hpp"
+#include "../Foundation/CPUFeatureDetector.hpp"
 
 #include "ReactorRoutineLink.hpp"
 
@@ -278,7 +278,7 @@ namespace Nominax::Core
 		/// <param name="cpuFeatureDetector"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto SmartSelectReactor(const Foundation::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
+		static auto SmartSelectReactor(const Foundation::CPUFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
 
 		/// <summary>
 		/// 
@@ -301,33 +301,33 @@ namespace Nominax::Core
 		/// <param name="features"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto GetOptimalReactorRoutine(const Foundation::CpuFeatureDetector& features) -> ReactorRoutineLink;
+		static auto GetOptimalReactorRoutine(const Foundation::CPUFeatureDetector& features) -> ReactorRoutineLink;
 	};
-
-	/// <summary>
-	/// Helpers to quickly execute a reactor with specified cpu features.
-	/// Good for testing and debugging.
-	/// </summary>
-	/// <param name="target"></param>
-	/// <param name="input"></param>
-	/// <param name="output"></param>
-	/// <param name="outJumpTable"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	extern auto SingletonExecutionProxy
-	(
-		const VerboseReactorDescriptor&       input,
-		ReactorState&                         output,
-		const Foundation::CpuFeatureDetector& target,
-		const void****                        outJumpTable = nullptr
-	) -> ReactorShutdownReason;
 
 	/// <summary>
 	/// Queries the jump table from the specified reactor routine.
 	/// </summary>
 	/// <param name="routine"></param>
 	/// <returns></returns>
-	extern auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**;
+	extern auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> JumpTable;
+
+    /// <summary>
+    /// Helpers to quickly execute a reactor with specified cpu features.
+    /// Good for testing and debugging.
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="input"></param>
+    /// <param name="output"></param>
+    /// <param name="outJumpTable"></param>
+    /// <returns></returns>
+    [[nodiscard]]
+    extern auto SingletonExecutionProxy
+    (
+        const VerboseReactorDescriptor& input,
+        ReactorState& output,
+        const Foundation::CPUFeatureDetector& target,
+        JumpTable* outJumpTable = nullptr
+    ) -> const ReactorState&;
 
 	/// <summary>
 	/// Proxy function to perform a single reactor
@@ -338,8 +338,8 @@ namespace Nominax::Core
 	/// <returns></returns>
 	extern auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor&       input,
-		const Foundation::CpuFeatureDetector& target       = { },
-		const void****                        outJumpTable = nullptr
-	) -> std::pair<ReactorShutdownReason, ReactorState>;
+		const VerboseReactorDescriptor& input,
+		const Foundation::CPUFeatureDetector& target = { },
+        JumpTable* outJumpTable = nullptr
+	) -> ReactorState;
 }

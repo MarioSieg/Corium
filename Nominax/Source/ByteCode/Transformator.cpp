@@ -1,7 +1,7 @@
 // File: Transformator.cpp
 // Author: Mario
-// Created: 11.08.2021 4:16 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -218,7 +218,7 @@ namespace Nominax::ByteCode
 		Image&                   output
 	) -> void
 	{
-		Stream copy {input};
+		Stream copy { input };
 		return TransformStreamToImageByMove(std::move(copy), optHints, output);
 	}
 
@@ -232,33 +232,42 @@ namespace Nominax::ByteCode
 		if (input.IsEmpty())
 		{
 			[[unlikely]]
-				return;
+            return;
 		}
 
-		output = Image {std::move(input.GetCodeBuffer())};
+		output = Image { std::move(input.GetCodeBuffer()) };
+
+        [[maybe_unused]]
+        const auto mapAddressRanges
+        {
+            [&]
+            {
+                const Signal::Discriminator* const NOX_RESTRICT discriminators { &*std::begin(input.GetDiscriminatorBuffer()) };
+                const Signal* const NOX_RESTRICT base { output.GetBlobData() };
+                const Signal* const NOX_RESTRICT begin { &*std::begin(output) };
+                Core::JumpTable const NOX_RESTRICT jumpTable { optHints.JTable };
+
+                const auto addressMapper
+                {
+                    [=](Signal& x)
+                    {
+                        const Signal::Discriminator discriminator { discriminators[&x - begin] };
+                        if (discriminator == Signal::Discriminator::Instruction)
+                        {
+                            x.Ptr = const_cast<void*>(*(jumpTable + x.OpCode));
+                        }
+                        else if (discriminator == Signal::Discriminator::JumpAddress)
+                        {
+                            x.Ptr = const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress));
+                        }
+                    }
+                };
+                std::for_each(std::execution::par_unseq, std::begin(output), std::end(output), addressMapper);
+            }
+        };
 
 		#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-		const auto* const NOX_RESTRICT                     discriminators {&*std::begin(input.GetDiscriminatorBuffer())};
-		const auto* const NOX_RESTRICT* const NOX_RESTRICT jumpTable {&optHints.JumpTable};
-		const auto* const NOX_RESTRICT                     base {output.GetBlobData()};
-		const auto* const NOX_RESTRICT                     begin {&*std::begin(output)};
-
-		const auto addressMapper
-		{
-			[=](Signal& x)
-			{
-				const Signal::Discriminator discriminator {discriminators[&x - begin]};
-				if (discriminator == Signal::Discriminator::Instruction)
-				{
-					x.Ptr = const_cast<void*>(*(jumpTable + x.OpCode));
-				}
-				else if (discriminator == Signal::Discriminator::JumpAddress)
-				{
-					x.Ptr = const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress));
-				}
-			}
-		};
-		std::for_each(std::execution::par_unseq, std::begin(output), std::end(output), addressMapper);
+            mapAddressRanges();
 		#endif
 	}
 }

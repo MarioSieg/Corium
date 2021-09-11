@@ -1,7 +1,7 @@
 // File: DyLib.hpp
 // Author: Mario
-// Created: 09.08.2021 4:42 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -212,13 +212,13 @@
 #include <optional>
 
 #include "DyProc.hpp"
-#include "Os.hpp"
+#include "OSInterface.hpp"
 
 namespace Nominax::Foundation
 {
 	/// <summary>
-		/// Represents a dynamically linked library. (.dll, .so) 
-		/// </summary>
+    /// Represents a dynamically linked library. (.dll, .so)
+    /// </summary>
 	struct DynamicLibrary final
 	{
 		/// <summary>
@@ -278,7 +278,7 @@ namespace Nominax::Foundation
 		[[nodiscard]] auto operator [](std::string_view symbolName) const -> std::optional<DynamicProcedure>;
 
 	private:
-		void* Handle_ {nullptr};
+		void* Handle_ { nullptr };
 	};
 
 	static_assert(!std::is_copy_constructible_v<DynamicLibrary>);
@@ -286,15 +286,15 @@ namespace Nominax::Foundation
 	static_assert(!std::is_trivially_copy_assignable_v<DynamicLibrary>);
 	static_assert(!std::is_trivially_move_assignable_v<DynamicLibrary>);
 
-	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ {Os::DylibOpen(filePath)} { }
+	inline DynamicLibrary::DynamicLibrary(const std::string_view filePath) : Handle_ { OSI::DylibOpen(filePath) } { }
 
 	inline DynamicLibrary::DynamicLibrary(const std::filesystem::path& filePath) : Handle_ {
-		Os::DylibOpen(filePath.string())
+		OSI::DylibOpen(filePath.string())
 	} { }
 
 	inline DynamicLibrary::~DynamicLibrary()
 	{
-		Os::DylibClose(this->Handle_);
+		OSI::DylibClose(this->Handle_);
 	}
 
 	inline DynamicLibrary::operator bool() const
@@ -304,7 +304,7 @@ namespace Nominax::Foundation
 
 	inline auto DynamicLibrary::operator[](const std::string_view symbolName) const -> std::optional<DynamicProcedure>
 	{
-		void* const symbolHandle = Os::DylibLookupSymbol(this->Handle_, symbolName);
-		return symbolHandle ? std::optional {DynamicProcedure {symbolHandle}} : std::nullopt;
+		void* const symbolHandle { OSI::DylibLookupSymbol(this->Handle_, symbolName) };
+		return symbolHandle ? std::optional { DynamicProcedure { symbolHandle } } : std::nullopt;
 	}
 }

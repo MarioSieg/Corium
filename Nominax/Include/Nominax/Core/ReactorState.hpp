@@ -1,7 +1,7 @@
 // File: ReactorState.hpp
 // Author: Mario
-// Created: 13.08.2021 7:31 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -221,12 +221,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// The input descriptor (if any).
 		/// </summary>
-		const VerboseReactorDescriptor* Input {nullptr};
-
-		/// <summary>
-		/// The shutdown reason.
-		/// </summary>
-		ReactorShutdownReason ShutdownReason {ReactorShutdownReason::Success};
+		const VerboseReactorDescriptor* Input { nullptr };
 
 		/// <summary>
 		/// Pre execution time stamp.
@@ -244,9 +239,9 @@ namespace Nominax::Core
 		std::chrono::high_resolution_clock::duration Duration { };
 
 		/// <summary>
-		/// Interrupt accumulator code.
+		/// InterruptStatus accumulator code.
 		/// </summary>
-		InterruptAccumulator InterruptCode { };
+		InterruptStatus Status { };
 
 		/// <summary>
 		/// Instruction pointer diff.
@@ -268,32 +263,23 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The return code (interrupt code casted). Zero if success.</returns>
 		[[nodiscard]]
-		constexpr auto ReturnCode() const -> I32;
+		constexpr auto GetReturnCode() const -> std::int32_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The result of the program evaluation (the first stack record, if any).</returns>
 		[[nodiscard]]
-		constexpr auto EvaluationResult() const -> Foundation::Record;
+		constexpr auto GetEvaluationResult() const -> Foundation::Record;
 	};
 
-	constexpr auto ReactorState::ReturnCode() const -> I32
+	constexpr auto ReactorState::GetReturnCode() const -> std::int32_t
 	{
-		return this->InterruptCode;
+		return this->Status == InterruptStatus::InterruptStatus_OK ? 0 : -static_cast<std::int32_t>(ToUnderlying(this->Status));
 	}
 
-	constexpr auto ReactorState::EvaluationResult() const -> Foundation::Record
+	constexpr auto ReactorState::GetEvaluationResult() const -> Foundation::Record
 	{
 		return this->Input->Stack[1];
 	}
-
-	/// <summary>
-	/// Results from a VM execution.
-	/// </summary>
-	struct ExecutionResult final
-	{
-		const ReactorShutdownReason ShutdownReason;
-		const ReactorState&         ReactorResultState;
-	};
 }

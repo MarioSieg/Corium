@@ -1,7 +1,7 @@
 // File: DebugAllocator.hpp
 // Author: Mario
-// Created: 09.08.2021 4:14 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -218,10 +218,10 @@ namespace Nominax::Foundation
 		/// </summary>
 	class DebugAllocator final : public IAllocator
 	{
-		mutable U64 Allocations_ {0};
-		mutable U64 Reallocations_ {0};
-		mutable U64 Deallocations_ {0};
-		mutable U64 BytesAllocated_ {0};
+		mutable std::uint64_t Allocations_ { 0 };
+		mutable std::uint64_t Reallocations_ { 0 };
+		mutable std::uint64_t Deallocations_ { 0 };
+		mutable std::uint64_t BytesAllocated_ { 0 };
 
 	public:
 		/// <summary>
@@ -269,7 +269,7 @@ namespace Nominax::Foundation
 		/// <param name="out"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto Allocate(void*& out, U64 size) const -> void override;
+		virtual auto Allocate(void*& out, std::uint64_t size) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
@@ -277,7 +277,7 @@ namespace Nominax::Foundation
 		/// <param name="out"></param>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		virtual auto Reallocate(void*& out, U64 size) const -> void override;
+		virtual auto Reallocate(void*& out, std::uint64_t size) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
@@ -293,7 +293,7 @@ namespace Nominax::Foundation
 		/// <param name="size"></param>
 		/// <param name="alignment"></param>
 		/// <returns></returns>
-		virtual auto AllocateAligned(void*& out, U64 size, U64 alignment) const -> void override;
+		virtual auto AllocateAligned(void*& out, std::uint64_t size, std::uint64_t alignment) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
@@ -302,7 +302,7 @@ namespace Nominax::Foundation
 		/// <param name="size"></param>
 		/// <param name="alignment"></param>
 		/// <returns></returns>
-		virtual auto ReallocateAligned(void*& out, U64 size, U64 alignment) const -> void override;
+		virtual auto ReallocateAligned(void*& out, std::uint64_t size, std::uint64_t alignment) const -> void override;
 
 		/// <summary>
 		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
@@ -315,25 +315,25 @@ namespace Nominax::Foundation
 		/// 
 		/// </summary>
 		/// <returns>The amount of allocations so far.</returns>
-		constexpr auto GetAllocationCount() const -> U64;
+		constexpr auto GetAllocationCount() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The amount of reallocations so far.</returns>
-		constexpr auto GetReallocationCount() const -> U64;
+		constexpr auto GetReallocationCount() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The amount of deallocations so far.</returns>
-		constexpr auto GetDeallocationCount() const -> U64;
+		constexpr auto GetDeallocationCount() const -> std::uint64_t;
 
 		/// <summary>
 		/// The amount of allocated bytes so far.
 		/// </summary>
 		/// <returns></returns>
-		constexpr auto GetTotalBytesAllocated() const -> U64;
+		constexpr auto GetTotalBytesAllocated() const -> std::uint64_t;
 
 		/// <summary>
 		/// Print the amount of allocations and bytes.
@@ -342,22 +342,22 @@ namespace Nominax::Foundation
 		auto DumpAllocationInfo() const -> void;
 	};
 
-	constexpr auto DebugAllocator::GetAllocationCount() const -> U64
+	constexpr auto DebugAllocator::GetAllocationCount() const -> std::uint64_t
 	{
 		return this->Allocations_;
 	}
 
-	constexpr auto DebugAllocator::GetReallocationCount() const -> U64
+	constexpr auto DebugAllocator::GetReallocationCount() const -> std::uint64_t
 	{
 		return this->Reallocations_;
 	}
 
-	constexpr auto DebugAllocator::GetDeallocationCount() const -> U64
+	constexpr auto DebugAllocator::GetDeallocationCount() const -> std::uint64_t
 	{
 		return this->Deallocations_;
 	}
 
-	constexpr auto DebugAllocator::GetTotalBytesAllocated() const -> U64
+	constexpr auto DebugAllocator::GetTotalBytesAllocated() const -> std::uint64_t
 	{
 		return this->BytesAllocated_;
 	}

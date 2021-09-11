@@ -1,7 +1,7 @@
 // File: TextFile.hpp
 // Author: Mario
-// Created: 09.08.2021 4:30 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -211,7 +211,7 @@
 #include <string>
 #include <string_view>
 
-#include "BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax::Foundation
 {
@@ -388,21 +388,21 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>The capacity of the content.</returns>
 		[[nodiscard]]
-		auto GetCapacity() const -> U64;
+		auto GetCapacity() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the content - the number of characters.</returns>
 		[[nodiscard]]
-		auto GetSize() const -> U64;
+		auto GetSize() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The size of the content in bytes (capacity * charSize)</returns>
 		[[nodiscard]]
-		auto GetSizeInBytes() const -> U64;
+		auto GetSizeInBytes() const -> std::uint64_t;
 
 		/// <summary>
 		/// Removes all the spaces (' ') from the content in parallel.
@@ -439,7 +439,7 @@ namespace Nominax::Foundation
 		/// <param name="endIdx"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto SubString(U64 beginIdx, U64 endIdx) const -> ViewType;
+		auto SubString(std::uint64_t beginIdx, std::uint64_t endIdx) const -> ViewType;
 
 		/// <summary>
 		/// Get a substring string view to the
@@ -508,10 +508,10 @@ namespace Nominax::Foundation
 		auto crend() const -> StringType::const_reverse_iterator;
 	};
 
-	inline TextFile::TextFile(StringType&& content) : Content_ {std::move(content)} { }
+	inline TextFile::TextFile(StringType&& content) : Content_ { std::move(content) } { }
 
-	inline TextFile::TextFile(std::filesystem::path&& path, StringType&& content) : Content_ {std::move(content)},
-	                                                                                FilePath_ {std::move(path)} { }
+	inline TextFile::TextFile(std::filesystem::path&& path, StringType&& content) : Content_ { std::move(content) },
+	                                                                                FilePath_ { std::move(path) } { }
 
 	inline auto TextFile::GetContentText() const & -> const StringType&
 	{
@@ -543,17 +543,17 @@ namespace Nominax::Foundation
 		return this->Content_.empty();
 	}
 
-	inline auto TextFile::GetCapacity() const -> U64
+	inline auto TextFile::GetCapacity() const -> std::uint64_t
 	{
 		return this->Content_.capacity();
 	}
 
-	inline auto TextFile::GetSize() const -> U64
+	inline auto TextFile::GetSize() const -> std::uint64_t
 	{
 		return this->Content_.size();
 	}
 
-	inline auto TextFile::GetSizeInBytes() const -> U64
+	inline auto TextFile::GetSizeInBytes() const -> std::uint64_t
 	{
 		return this->Content_.capacity() * sizeof(CharType);
 	}

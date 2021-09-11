@@ -1,7 +1,7 @@
 // File: ReactorPool.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,38 +207,198 @@
 
 #include "ReactorTestHelper.hpp"
 
-std::vector<std::byte>              Buffer {1024 * 4};
-std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
-
-TEST(ReactorPool, Construct)
+TEST(ReactorPool, ConstructAndValidateCachedReactors)
 {
-	const ReactorPool pool {Resource, 4, ReactorSpawnDescriptor::Default()};
-	ASSERT_EQ((*pool).GetId(), pool[0].GetId());
-	ASSERT_EQ((*pool).GetSpawnStamp(), pool[0].GetSpawnStamp());
-	ASSERT_EQ(pool.GetSize(), 4);
-	ASSERT_EQ(pool.GetReactor(0).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize);
-	ASSERT_EQ(pool.GetReactor(0).GetInterruptHandler(), GetDefaultInterruptRoutine());
-	ASSERT_EQ(pool.GetReactor(0).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
-	ASSERT_EQ(pool.GetReactor(1).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize);
-	ASSERT_EQ(pool.GetReactor(1).GetInterruptHandler(), GetDefaultInterruptRoutine());
-	ASSERT_EQ(pool.GetReactor(1).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
-	ASSERT_EQ(pool.GetReactor(2).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize);
-	ASSERT_EQ(pool.GetReactor(2).GetInterruptHandler(), GetDefaultInterruptRoutine());
-	ASSERT_EQ(pool.GetReactor(2).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
-	ASSERT_EQ(pool.GetReactor(3).GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize);
-	ASSERT_EQ(pool.GetReactor(3).GetInterruptHandler(), GetDefaultInterruptRoutine());
-	ASSERT_EQ(pool.GetReactor(3).GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
+    const auto executor
+    {
+        []
+        {
+            std::vector<std::byte> Buffer {(1024 * 1024) * 64};
+            std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
+            ReactorPool pool {Resource, ReactorPoolBootMode::Cached, 4, ReactorSpawnDescriptor::Default(), HyperVisor::GetFallbackRoutineLink() };
+            ASSERT_EQ(std::size(pool.GetPool()), 4);
+            ASSERT_EQ(pool.GetBootMode(), ReactorPoolBootMode::Cached);
+            constexpr auto defaultSpawnConfig { ReactorSpawnDescriptor::Default() };
+            ASSERT_EQ(std::memcmp(&pool.GetReactorSpawnConfig(), &defaultSpawnConfig, sizeof(ReactorSpawnDescriptor)), 0);
+            const auto defaultRoutineLink { HyperVisor::GetFallbackRoutineLink() };
+            const auto& currentRoutineLink { pool.GetReactorRoutineLink() };
+            ASSERT_EQ(std::memcmp(&currentRoutineLink, &defaultRoutineLink, sizeof(ReactorRoutineLink)), 0);
+            for (const auto& opt : pool.GetPool())
+            {
+                ASSERT_TRUE(opt.has_value());
+            }
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
 }
 
-#ifdef NOX_DEATH_TESTS
+TEST(ReactorPool, ConstructAndValidateDeferredReactors)
+{
+    const auto executor
+    {
+        []
+        {
+            std::vector<std::byte> Buffer {(1024 * 1024) * 64};
+            std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
+            ReactorPool pool {Resource, ReactorPoolBootMode::Deferred, 4, ReactorSpawnDescriptor::Default(), HyperVisor::GetFallbackRoutineLink() };
+            ASSERT_EQ(std::size(pool.GetPool()), 1);
+            ASSERT_EQ(pool.GetPool().capacity(), 4);
+            ASSERT_EQ(pool.GetBootMode(), ReactorPoolBootMode::Deferred);
+            constexpr auto defaultSpawnConfig { ReactorSpawnDescriptor::Default() };
+            ASSERT_EQ(std::memcmp(&pool.GetReactorSpawnConfig(), &defaultSpawnConfig, sizeof(ReactorSpawnDescriptor)), 0);
+            const auto defaultRoutineLink { HyperVisor::GetFallbackRoutineLink() };
+            const auto& currentRoutineLink { pool.GetReactorRoutineLink() };
+            ASSERT_EQ(std::memcmp(&currentRoutineLink, &defaultRoutineLink, sizeof(ReactorRoutineLink)), 0);
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(ReactorPool, ConstructAndValidateReactorConfig)
+{
+    const auto executor
+    {
+        []
+        {
+            std::vector<std::byte> Buffer {(1024 * 1024) * 64};
+            std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
+            ReactorPool pool {Resource, ReactorPoolBootMode::Cached, 4, ReactorSpawnDescriptor::Default(), HyperVisor::GetFallbackRoutineLink() };
+            ASSERT_EQ(pool.QueryReactorFromCache(0)->GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize);
+            ASSERT_EQ(pool.QueryReactorFromCache(0)->GetInterruptHandler(), &DEFAULT_INTERRUPT_ROUTINE);
+            ASSERT_EQ(pool.QueryReactorFromCache(0)->GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
+            ASSERT_EQ(pool.QueryReactorFromCache(1)->GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize);
+            ASSERT_EQ(pool.QueryReactorFromCache(1)->GetInterruptHandler(), &DEFAULT_INTERRUPT_ROUTINE);
+            ASSERT_EQ(pool.QueryReactorFromCache(1)->GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
+            ASSERT_EQ(pool.QueryReactorFromCache(2)->GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize);
+            ASSERT_EQ(pool.QueryReactorFromCache(2)->GetInterruptHandler(), &DEFAULT_INTERRUPT_ROUTINE);
+            ASSERT_EQ(pool.QueryReactorFromCache(2)->GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
+            ASSERT_EQ(pool.QueryReactorFromCache(3)->GetStack().Size(), ReactorSpawnDescriptor::Default().StackSize);
+            ASSERT_EQ(pool.QueryReactorFromCache(3)->GetInterruptHandler(), &DEFAULT_INTERRUPT_ROUTINE);
+            ASSERT_EQ(pool.QueryReactorFromCache(3)->GetIntrinsicTable().size(), ReactorSpawnDescriptor::Default().SharedIntrinsicTable.size());
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(ReactorPool, ConstructAndValidateAlphaReactor)
+{
+    const auto executor
+    {
+        []
+        {
+            std::vector<std::byte> Buffer {(1024 * 1024) * 64};
+            std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
+            ReactorPool pool {Resource, ReactorPoolBootMode::Cached, 4, ReactorSpawnDescriptor::Default(), HyperVisor::GetFallbackRoutineLink() };
+            ASSERT_EQ(std::memcmp(&*pool, &pool[0], sizeof(Reactor)), 0);
+            ASSERT_EQ(std::memcmp(&*pool, &pool.QueryAlphaReactor(), sizeof(Reactor)), 0);
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(ReactorPool, BootReactor)
+{
+    const auto executor
+    {
+       []
+       {
+           std::vector<std::byte> Buffer {(1024 * 1024) * 64};
+           std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
+           ReactorPool pool {Resource, ReactorPoolBootMode::Deferred, 1, ReactorSpawnDescriptor::Default(), HyperVisor::GetFallbackRoutineLink() };
+           ASSERT_EQ(std::size(pool.GetPool()), 1);
+
+           const Reactor& reactor { pool.BootReactor() };
+           ASSERT_EQ(std::size(pool.GetPool()), 2);
+           ASSERT_EQ(reactor.GetPoolIndex(), 1);
+       }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(ReactorPool, SmartQueryReactorCount)
+{
+    const auto executor
+    {
+        []
+        {
+            ASSERT_EQ(ReactorPool::SmartQueryReactorCount(0), std::thread::hardware_concurrency());
+            ASSERT_EQ(ReactorPool::SmartQueryReactorCount(1), 1);
+            ASSERT_EQ(ReactorPool::SmartQueryReactorCount(5), 5);
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(ReactorPool, QueryReactorFromCache)
+{
+    const auto executor
+    {
+        []
+        {
+            std::vector<std::byte> Buffer {(1024 * 1024) * 64};
+            std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
+            ReactorPool pool {Resource, ReactorPoolBootMode::Cached, 2, ReactorSpawnDescriptor::Default(), HyperVisor::GetFallbackRoutineLink() };
+            ASSERT_NE(pool.QueryReactorFromCache(0), nullptr);
+            ASSERT_EQ(pool.QueryReactorFromCache(0), &pool[0]);
+            ASSERT_NE(pool.QueryReactorFromCache(1), nullptr);
+            ASSERT_EQ(pool.QueryReactorFromCache(1), &pool[1]);
+            ASSERT_EQ(pool.QueryReactorFromCache(2), nullptr);
+            ASSERT_EQ(pool.QueryReactorFromCache(3), nullptr);
+            const_cast<std::pmr::vector<std::optional<std::unique_ptr<Reactor>>>&>(pool.GetPool()).emplace_back(std::nullopt);
+            ASSERT_EQ(pool.QueryReactorFromCache(2), nullptr);
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(ReactorPool, QueryAutoCacheReactor)
+{
+    const auto executor
+    {
+        []
+        {
+            std::vector<std::byte> Buffer {(1024 * 1024) * 64};
+            std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
+            ReactorPool pool {Resource, ReactorPoolBootMode::Deferred, 1, ReactorSpawnDescriptor::Default(), HyperVisor::GetFallbackRoutineLink() };
+            ASSERT_EQ(std::size(pool.GetPool()), 1);
+            ASSERT_EQ(pool[0].GetPoolIndex(), 0);
+            ASSERT_EQ(&pool.QueryAutoCacheReactor(0), &pool[0]);
+            const Reactor& newR { pool.QueryAutoCacheReactor(1) };
+            ASSERT_EQ(&newR, &pool[1]);
+            ASSERT_EQ(pool[1].GetPoolIndex(), 1);
+            ASSERT_EQ(std::size(pool.GetPool()), 2);
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
 
 TEST(ReactorPool, ZeroSizeFault)
 {
-	ASSERT_DEATH_IF_SUPPORTED([]()
-	                          {
-	                          [[maybe_unused]]
-	                          ReactorPool x(Resource, 0, ReactorSpawnDescriptor::Default());
-	                          }(), "");
+    const auto executor
+    {
+        []
+        {
+            std::vector<std::byte> Buffer {(1024 * 1024) * 64};
+            std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
+            ReactorPool pool {Resource, ReactorPoolBootMode::Deferred, 0, ReactorSpawnDescriptor::Default(), HyperVisor::GetFallbackRoutineLink() };
+        }
+    };
+	ASSERT_DEATH(executor(), "");
 }
 
-#endif
+TEST(ReactorPool, AlphaReactorFault)
+{
+    const auto executor
+    {
+        []
+        {
+            std::vector<std::byte> Buffer {(1024 * 1024) * 64};
+            std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
+            ReactorPool pool {Resource, ReactorPoolBootMode::Cached, 1, ReactorSpawnDescriptor::Default(), HyperVisor::GetFallbackRoutineLink() };
+            const_cast<std::pmr::vector<std::optional<std::unique_ptr<Reactor>>>&>(pool.GetPool()).clear();
+            [[maybe_unused]]
+            const auto& _ { pool.QueryAlphaReactor() };
+        }
+    };
+    ASSERT_DEATH(executor(), "");
+}

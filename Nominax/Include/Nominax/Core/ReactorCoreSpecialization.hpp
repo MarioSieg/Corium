@@ -1,7 +1,7 @@
 // File: ReactorCoreSpecialization.hpp
 // Author: Mario
-// Created: 13.08.2021 7:35 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,7 +209,7 @@
 
 #include <string_view>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 
 #include "ReactorDescriptor.hpp"
 #include "ReactorState.hpp"
@@ -219,7 +219,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Contains all sub implementations for the reactor core.
 	/// </summary>
-	enum class ReactorCoreSpecialization : U64
+	enum class ReactorCoreSpecialization : std::uint64_t
 	{
 		/// <summary>
 		/// Fast fallback implementation - available on all platforms.
@@ -234,12 +234,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// AMD 64 optimized implementation for advanced vector extensions -> 256-bit (YMM* registers) -> VEX
 		/// </summary>
-		Amd64_Avx,
+		X86_64_AVX,
 
 		/// <summary>
 		/// AMD 64 optimized implementation for advanced vector extensions 512 -> 512-bit (ZMM* registers, K* mask registers) -> EVEX
 		/// </summary>
-		Amd64_Avx512F,
+		X86_64_AVX512F,
 
 		Count
 	};
@@ -259,10 +259,10 @@ namespace Nominax::Core
 			case ReactorCoreSpecialization::Debug:
 				return "Debug";
 
-			case ReactorCoreSpecialization::Amd64_Avx:
+			case ReactorCoreSpecialization::X86_64_AVX:
 				return "X86-64 AVX";
 
-			case ReactorCoreSpecialization::Amd64_Avx512F:
+			case ReactorCoreSpecialization::X86_64_AVX512F:
 				return "X86-64 AVX512F";
 
 				[[unlikely]]
@@ -271,8 +271,10 @@ namespace Nominax::Core
 		}
 	}
 
+    using JumpTable = const void* const NOX_RESTRICT*;
+
 	/// <summary>
 	/// Signature of the reactor core execution routine.
 	/// </summary>
-	using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor* descriptor, ReactorState* outputState, const void**** jumpTableQuery) -> ReactorShutdownReason;
+	using ReactorCoreExecutionRoutine = auto(const VerboseReactorDescriptor* descriptor, ReactorState* outputState, JumpTable* jumpTableQuery) -> bool;
 }

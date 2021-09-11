@@ -1,7 +1,7 @@
 // File: BenchTemplates.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -211,7 +211,7 @@ auto LoopBenchmark
 (
 	State&                                      state,
 	const std::function<auto(Stream&) -> void>& loopBody,
-	const I64                                   count,
+	const std::int64_t                          count,
 	[[maybe_unused]]
 	const bool enableAvxReactor
 ) -> void
@@ -232,7 +232,7 @@ auto LoopBenchmark
 	stream << JumpAddress {2};
 	stream << Instruction::Pop;
 	stream << Instruction::Int;
-	stream << 0_int;
+	stream << 0;
 
 	Image bundle { };
 	Stream::Build(std::move(stream), Env->GetOptimizationHints(), bundle);

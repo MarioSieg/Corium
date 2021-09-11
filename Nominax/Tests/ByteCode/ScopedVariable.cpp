@@ -1,7 +1,7 @@
 // File: ScopedVariable.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,8 +209,10 @@
 
 TEST(ScopedVariable, StackPushPop)
 {
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(4.5, []([[maybe_unused]] auto var) { });
+	Stream stream {OptimizationLevel::O3};
+    {
+        ScopedFloat x { stream, 4.5 };
+    }
 	ASSERT_EQ(stream.Size(), 3);
 	ASSERT_TRUE(stream[0].Contains(Instruction::Push));
 	ASSERT_TRUE(stream[1].Contains(4.5));
@@ -219,8 +221,10 @@ TEST(ScopedVariable, StackPushPop)
 
 TEST(ScopedVariable, F64StackPushPopOptScalarZero)
 {
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(0.0, []([[maybe_unused]] auto var) { });
+	Stream stream {OptimizationLevel::O3};
+    {
+        ScopedFloat x { stream, 0.0 };
+    }
 	ASSERT_EQ(stream.Size(), 2);
 	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
@@ -229,16 +233,9 @@ TEST(ScopedVariable, F64StackPushPopOptScalarZero)
 TEST(ScopedVariable, I64StackPushPopOptScalarZero)
 {
 	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(0, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarZero)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(0, []([[maybe_unused]] auto var) { });
+    {
+        ScopedInt x { stream, 0 };
+    }
 	ASSERT_EQ(stream.Size(), 2);
 	ASSERT_TRUE(stream[0].Contains(Instruction::PushZ));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
@@ -246,8 +243,10 @@ TEST(ScopedVariable, U64StackPushPopOptScalarZero)
 
 TEST(ScopedVariable, F64StackPushPopOptScalarOne)
 {
-	Stream                                    stream {OptimizationLevel::O3};
-	stream.With(1.0, []([[maybe_unused]] auto var) { });
+	Stream stream {OptimizationLevel::O3};
+    {
+        const ScopedFloat x { stream, 1.0 };
+    }
 	ASSERT_EQ(stream.Size(), 2);
 	ASSERT_TRUE(stream[0].Contains(Instruction::FPushO));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
@@ -255,17 +254,10 @@ TEST(ScopedVariable, F64StackPushPopOptScalarOne)
 
 TEST(ScopedVariable, I64StackPushPopOptScalarOne)
 {
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(1, []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 2);
-	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarOne)
-{
-	Stream                                  stream {OptimizationLevel::O3};
-	stream.With(1, []([[maybe_unused]] auto var) { });
+	Stream stream {OptimizationLevel::O3};
+    {
+        const ScopedInt x { stream, 1 };
+    }
 	ASSERT_EQ(stream.Size(), 2);
 	ASSERT_TRUE(stream[0].Contains(Instruction::IPushO));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Pop));
@@ -275,7 +267,9 @@ TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
 {
 	Stream stream {OptimizationLevel::O3};
 	stream << 3.5;
-	stream.With(3.5, []([[maybe_unused]] auto var) { });
+    {
+        const ScopedFloat x { stream, 3.5 };
+    }
 	ASSERT_EQ(stream.Size(), 3);
 	ASSERT_TRUE(stream[0].Contains(3.5));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
@@ -286,20 +280,11 @@ TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
 {
 	Stream stream {OptimizationLevel::O3};
 	stream << INT64_C(3);
-	stream.With(3, []([[maybe_unused]] auto var) { });
+    {
+        const ScopedInt x { stream, 3 };
+    }
 	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<I64>(3));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
-}
-
-TEST(ScopedVariable, U64StackPushPopOptScalarDupl)
-{
-	Stream stream {OptimizationLevel::O3};
-	stream << UINT64_C(3);
-	stream.With(UINT64_C(3), []([[maybe_unused]] auto var) { });
-	ASSERT_EQ(stream.Size(), 3);
-	ASSERT_TRUE(stream[0].Contains<U64>(3));
+	ASSERT_TRUE(stream[0].Contains<std::int64_t>(3));
 	ASSERT_TRUE(stream[1].Contains(Instruction::Dupl));
 	ASSERT_TRUE(stream[2].Contains(Instruction::Pop));
 }

@@ -1,7 +1,7 @@
 // File: AsmCalls.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -246,13 +246,13 @@ TEST(AssemblyCalls, CpuId)
 	{
 		[&]
 		{
-			const CpuFeatureDetector features { };
-			ASSERT_TRUE(features[CpuFeatureBits::Fpu]);
-			ASSERT_TRUE(features[CpuFeatureBits::Mmx]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse2]);
-			ASSERT_TRUE(features[CpuFeatureBits::Sse3]);
-			ASSERT_TRUE(features[CpuFeatureBits::Ssse3]);
+			const CPUFeatureDetector features { };
+			ASSERT_TRUE(features[CPUFeatureBits::FPU]);
+			ASSERT_TRUE(features[CPUFeatureBits::MMX]);
+			ASSERT_TRUE(features[CPUFeatureBits::SSE]);
+			ASSERT_TRUE(features[CPUFeatureBits::SSE2]);
+			ASSERT_TRUE(features[CPUFeatureBits::SSE3]);
+			ASSERT_TRUE(features[CPUFeatureBits::SSSE3]);
 		}
 	};
 	ASSERT_NO_FATAL_FAILURE(exec());
@@ -272,8 +272,8 @@ TEST(AssemblyCalls, CpudIdSupport)
 
 TEST(AssemblyCalls, AvxOsSupport)
 {
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
+	const CPUFeatureDetector cfd { };
+	if (cfd[CPUFeatureBits::XSave] && cfd[CPUFeatureBits::OSXSave])
 	{
 		const auto exec
 		{
@@ -288,8 +288,8 @@ TEST(AssemblyCalls, AvxOsSupport)
 
 TEST(AssemblyCalls, Avx512OsSupport)
 {
-	const CpuFeatureDetector cfd { };
-	if (cfd[CpuFeatureBits::XSave] && cfd[CpuFeatureBits::OsXSave])
+	const CPUFeatureDetector cfd { };
+	if (cfd[CPUFeatureBits::XSave] && cfd[CPUFeatureBits::OSXSave])
 	{
 		const auto exec
 		{
@@ -311,9 +311,9 @@ TEST(AssemblyCalls, CpuIdInvocation)
 			[&]
 			{
 				[[maybe_unused]]
-					U64 a, b, c;
+					std::uint64_t a, b, c;
 				[[maybe_unused]]
-					const U32 d {CpuId(&a, &b, &c)};
+					const std::uint32_t d {CpuId(&a, &b, &c)};
 			}
 		};
 		ASSERT_NO_FATAL_FAILURE(exec());
@@ -326,8 +326,8 @@ TEST(AssemblyCalls, QueryReg)
 	{
 		[&]
 		{
-			U64 gpr[16];
-			U64 sse[32];
+			std::uint64_t gpr[16];
+			std::uint64_t sse[32];
 			QueryRegSet(gpr, sse);
 		}
 	};

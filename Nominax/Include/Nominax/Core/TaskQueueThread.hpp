@@ -1,7 +1,7 @@
 // File: TaskQueueThread.hpp
 // Author: Mario
-// Created: 13.08.2021 7:41 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,8 +207,6 @@
 
 #pragma once
 
-#include"../Foundation/BaseTypes.hpp"
-
 #include <functional>
 #include <queue>
 #include <mutex>
@@ -230,7 +228,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Is the thread currently disposing?!
 		/// </summary>
-		bool Disposing_ {false};
+		bool Disposing_ { false };
 
 		/// <summary>
 		/// Job queue.
@@ -339,7 +337,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The remaining amount of tasks in the queue.</returns>
 		[[nodiscard]]
-		auto GetRemainingTaskCount() const -> U64;
+		auto GetRemainingTaskCount() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
@@ -364,7 +362,7 @@ namespace Nominax::Core
 		return this->Worker_;
 	}
 
-	inline auto TaskQueueThread::GetRemainingTaskCount() const -> U64
+	inline auto TaskQueueThread::GetRemainingTaskCount() const -> std::uint64_t
 	{
 		return this->TaskQueue_.size();
 	}

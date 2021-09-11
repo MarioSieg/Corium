@@ -1,7 +1,7 @@
 // File: Register.hpp
 // Author: Mario
-// Created: 14.08.2021 1:49 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -211,7 +211,7 @@
 
 namespace Nominax::Assembler::X86_64
 {
-	enum class RegisterType : U8
+	enum class RegisterType : std::uint8_t
 	{
 		Gpr,
 		Simd
@@ -225,12 +225,12 @@ namespace Nominax::Assembler::X86_64
 		/// <summary>
 		/// The virtual register id.
 		/// </summary>
-		const U8 VirtualId;
+		const std::uint8_t VirtualId;
 
 		/// <summary>
 		/// The physical register id (in the CPU).
 		/// </summary>
-		const U8 PhysicalId;
+		const std::uint8_t PhysicalId;
 
 		/// <summary>
 		/// The name of the register.

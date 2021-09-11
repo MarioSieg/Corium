@@ -1,7 +1,7 @@
 // File: F32X16.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,7 +209,7 @@
 
 TEST(VectorLib, F32_X16_Add_Unaligned)
 {
-	F32 x[16]
+	float x[16]
 	{
 		2.5F,
 		0.3F,
@@ -229,7 +229,7 @@ TEST(VectorLib, F32_X16_Add_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[16]
+	const float y[16]
 	{
 		0.5F,
 		1.3F,
@@ -270,7 +270,7 @@ TEST(VectorLib, F32_X16_Add_Unaligned)
 
 TEST(VectorLib, F32_X16_Add_Aligned)
 {
-	alignas(V512_ALIGN) F32 x[16]
+	alignas(V512_ALIGN) float x[16]
 	{
 		2.5F,
 		0.3F,
@@ -290,7 +290,7 @@ TEST(VectorLib, F32_X16_Add_Aligned)
 		-0.5F
 	};
 
-	alignas(V512_ALIGN) const F32 y[16]
+	alignas(V512_ALIGN) const float y[16]
 	{
 		0.5F,
 		1.3F,
@@ -331,7 +331,7 @@ TEST(VectorLib, F32_X16_Add_Aligned)
 
 TEST(VectorLib, F32_X16_Sub_Unaligned)
 {
-	F32 x[16]
+	float x[16]
 	{
 		2.5F,
 		0.3F,
@@ -351,7 +351,7 @@ TEST(VectorLib, F32_X16_Sub_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[16]
+	const float y[16]
 	{
 		0.5F,
 		1.3F,
@@ -392,7 +392,7 @@ TEST(VectorLib, F32_X16_Sub_Unaligned)
 
 TEST(VectorLib, F32_X16_Sub_Aligned)
 {
-	alignas(V512_ALIGN) F32 x[16]
+	alignas(V512_ALIGN) float x[16]
 	{
 		2.5F,
 		0.3F,
@@ -412,7 +412,7 @@ TEST(VectorLib, F32_X16_Sub_Aligned)
 		-0.5F
 	};
 
-	alignas(V512_ALIGN) const F32 y[16]
+	alignas(V512_ALIGN) const float y[16]
 	{
 		0.5F,
 		1.3F,
@@ -453,7 +453,7 @@ TEST(VectorLib, F32_X16_Sub_Aligned)
 
 TEST(VectorLib, F32_X16_Mul_Unaligned)
 {
-	F32 x[16]
+	float x[16]
 	{
 		2.5F,
 		0.3F,
@@ -473,7 +473,7 @@ TEST(VectorLib, F32_X16_Mul_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[16]
+	const float y[16]
 	{
 		0.5F,
 		1.3F,
@@ -514,7 +514,7 @@ TEST(VectorLib, F32_X16_Mul_Unaligned)
 
 TEST(VectorLib, F32_X16_Mul_Aligned)
 {
-	alignas(V512_ALIGN) F32 x[16]
+	alignas(V512_ALIGN) float x[16]
 	{
 		2.5F,
 		0.3F,
@@ -534,7 +534,7 @@ TEST(VectorLib, F32_X16_Mul_Aligned)
 		-0.5F
 	};
 
-	alignas(V512_ALIGN) const F32 y[16]
+	alignas(V512_ALIGN) const float y[16]
 	{
 		0.5F,
 		1.3F,
@@ -575,7 +575,7 @@ TEST(VectorLib, F32_X16_Mul_Aligned)
 
 TEST(VectorLib, F32_X16_Div_Unaligned)
 {
-	F32 x[16]
+	float x[16]
 	{
 		2.5F,
 		0.3F,
@@ -595,7 +595,7 @@ TEST(VectorLib, F32_X16_Div_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[16]
+	const float y[16]
 	{
 		0.5F,
 		1.3F,
@@ -636,7 +636,7 @@ TEST(VectorLib, F32_X16_Div_Unaligned)
 
 TEST(VectorLib, F32_X16_Div_Aligned)
 {
-	alignas(V512_ALIGN) F32 x[16]
+	alignas(V512_ALIGN) float x[16]
 	{
 		2.5F,
 		0.3F,
@@ -656,7 +656,7 @@ TEST(VectorLib, F32_X16_Div_Aligned)
 		-0.5F
 	};
 
-	alignas(V512_ALIGN) const F32 y[16]
+	alignas(V512_ALIGN) const float y[16]
 	{
 		0.5F,
 		1.3F,

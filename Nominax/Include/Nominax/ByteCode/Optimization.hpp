@@ -1,7 +1,7 @@
 // File: Optimization.hpp
 // Author: Mario
-// Created: 10.08.2021 12:46 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,15 +207,17 @@
 
 #pragma once
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
+
 #include "../Foundation/Platform.hpp"
+#include "../Core/ReactorCoreHypervisor.hpp"
 
 namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Represents a stream optimization level.
 	/// </summary>
-	enum class OptimizationLevel : U8
+	enum class OptimizationLevel : std::uint8_t
 	{
 		Off = 0,
 		O1 = 1,
@@ -237,6 +239,6 @@ namespace Nominax::ByteCode
 	/// </summary>
 	struct OptimizationHints final
 	{
-		const void*& JumpTable;
+        Core::JumpTable const JTable;
 	};
 }

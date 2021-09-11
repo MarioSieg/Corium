@@ -1,7 +1,7 @@
 // File: ReactorExecution.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -219,12 +219,12 @@ TEST(ReactorExecution, Instruction_Int)
 
 	auto input {MOCK_REACTOR_INPUT};
 
-	static constinit InterruptAccumulator accumulator;
-	static constinit int                  calls;
+	static constinit InterruptStatus status;
+	static constinit int calls;
 
-	input.InterruptHandler = +[](const InterruptAccumulator x) -> void
+	input.InterruptHandler = +[](const InterruptStatus x)
 	{
-		accumulator = x;
+        status = x;
 		++calls;
 	};
 
@@ -233,10 +233,10 @@ TEST(ReactorExecution, Instruction_Int)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(calls, 2);
-	ASSERT_EQ(accumulator, -12345);
-	ASSERT_EQ(o.second.InterruptCode, -12345);
-	ASSERT_EQ(o.second.IpDiff, code.size() - 1);
+	ASSERT_EQ(calls, 1);
+	ASSERT_EQ(status, 5);
+	ASSERT_EQ(o.Status, 5);
+	ASSERT_EQ(o.IpDiff, 2);
 }
 
 TEST(ReactorExecution, Instruction_Mov)
@@ -258,8 +258,8 @@ TEST(ReactorExecution, Instruction_Mov)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[3].AsF64, 3.1415);
-	ASSERT_EQ(o.second.Input->Stack[8].AsF64, 3.1415);
+	ASSERT_EQ(o.Input->Stack[3].AsF64, 3.1415);
+	ASSERT_EQ(o.Input->Stack[8].AsF64, 3.1415);
 }
 
 TEST(ReactorExecution, Instruction_Sto)
@@ -281,8 +281,8 @@ TEST(ReactorExecution, Instruction_Sto)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 5657334);
-	ASSERT_EQ(o.second.Input->Stack[31].AsF64, 3.1415);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 5657334);
+	ASSERT_EQ(o.Input->Stack[31].AsF64, 3.1415);
 }
 
 TEST(ReactorExecution, Instruction_Push)
@@ -302,8 +302,8 @@ TEST(ReactorExecution, Instruction_Push)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 1224);
-	ASSERT_EQ(o.second.Input->Stack[2].AsF64, -0.6666);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 1224);
+	ASSERT_EQ(o.Input->Stack[2].AsF64, -0.6666);
 }
 
 TEST(ReactorExecution, Instruction_Pop)
@@ -325,15 +325,15 @@ TEST(ReactorExecution, Instruction_Pop)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 1224);
-	ASSERT_EQ(o.second.Input->Stack[2].AsF64, -0.6666);
-	ASSERT_EQ(o.second.SpDiff, 0);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 1224);
+	ASSERT_EQ(o.Input->Stack[2].AsF64, -0.6666);
+	ASSERT_EQ(o.SpDiff, 0);
 
 	code[6].Instr = Instruction::NOp;
 	o             = SingletonExecutionProxy(input);
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 1224);
-	ASSERT_EQ(o.second.Input->Stack[2].AsF64, -0.6666);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 1224);
+	ASSERT_EQ(o.Input->Stack[2].AsF64, -0.6666);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_Pop2)
@@ -354,9 +354,9 @@ TEST(ReactorExecution, Instruction_Pop2)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 1224);
-	ASSERT_EQ(o.second.Input->Stack[2].AsF64, -0.6666);
-	ASSERT_EQ(o.second.SpDiff, 0);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 1224);
+	ASSERT_EQ(o.Input->Stack[2].AsF64, -0.6666);
+	ASSERT_EQ(o.SpDiff, 0);
 }
 
 TEST(ReactorExecution, Instruction_Dupl)
@@ -378,10 +378,10 @@ TEST(ReactorExecution, Instruction_Dupl)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 5);
-	ASSERT_EQ(o.second.Input->Stack[2].AsI64, 5);
-	ASSERT_EQ(o.second.Input->Stack[3].AsI64, -2);
-	ASSERT_EQ(o.second.Input->Stack[4].AsI64, -2);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 5);
+	ASSERT_EQ(o.Input->Stack[2].AsI64, 5);
+	ASSERT_EQ(o.Input->Stack[3].AsI64, -2);
+	ASSERT_EQ(o.Input->Stack[4].AsI64, -2);
 }
 
 TEST(ReactorExecution, Instruction_Swap)
@@ -402,9 +402,9 @@ TEST(ReactorExecution, Instruction_Swap)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, -666);
-	ASSERT_EQ(o.second.Input->Stack[2].AsI64, 3);
-	ASSERT_EQ(o.second.SpDiff, 2);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, -666);
+	ASSERT_EQ(o.Input->Stack[2].AsI64, 3);
+	ASSERT_EQ(o.SpDiff, 2);
 }
 
 TEST(ReactorExecution, Instruction_Dupl2)
@@ -426,12 +426,12 @@ TEST(ReactorExecution, Instruction_Dupl2)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 5);
-	ASSERT_EQ(o.second.Input->Stack[2].AsI64, 5);
-	ASSERT_EQ(o.second.Input->Stack[3].AsI64, 5);
-	ASSERT_EQ(o.second.Input->Stack[4].AsI64, 0xFF);
-	ASSERT_EQ(o.second.Input->Stack[5].AsI64, 0xFF);
-	ASSERT_EQ(o.second.Input->Stack[6].AsI64, 0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 5);
+	ASSERT_EQ(o.Input->Stack[2].AsI64, 5);
+	ASSERT_EQ(o.Input->Stack[3].AsI64, 5);
+	ASSERT_EQ(o.Input->Stack[4].AsI64, 0xFF);
+	ASSERT_EQ(o.Input->Stack[5].AsI64, 0xFF);
+	ASSERT_EQ(o.Input->Stack[6].AsI64, 0xFF);
 }
 
 TEST(ReactorExecution, Instruction_IInc)
@@ -454,9 +454,9 @@ TEST(ReactorExecution, Instruction_IInc)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[0], Record::Padding());
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 5);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IDec)
@@ -478,9 +478,9 @@ TEST(ReactorExecution, Instruction_IDec)
 	input.CodeChunkSize = code.size();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[0], Record::Padding());
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, -3);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
+	ASSERT_EQ(o.Input->Stack[1].AsI64, -3);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_PushZ)
@@ -499,9 +499,9 @@ TEST(ReactorExecution, Instruction_PushZ)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 0);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 0);
-	ASSERT_EQ(o.second.Input->Stack[3].AsF64, 0.0F);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 0);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 0);
+	ASSERT_EQ(o.Input->Stack[3].AsF64, 0.0F);
 }
 
 TEST(ReactorExecution, Instruction_IPushO)
@@ -520,9 +520,9 @@ TEST(ReactorExecution, Instruction_IPushO)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 1);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 0);
-	ASSERT_EQ(o.second.Input->Stack[3].AsU64, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 1);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 0);
+	ASSERT_EQ(o.Input->Stack[3].AsU64, 1);
 }
 
 TEST(ReactorExecution, Instruction_IAdd)
@@ -543,9 +543,9 @@ TEST(ReactorExecution, Instruction_IAdd)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 2 + 5);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 5);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 2 + 5);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_ISub)
@@ -566,9 +566,9 @@ TEST(ReactorExecution, Instruction_ISub)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 2 - 5);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 5);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 2 - 5);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IMul)
@@ -589,9 +589,9 @@ TEST(ReactorExecution, Instruction_IMul)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 2 * 5);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 5);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 2 * 5);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IDiv)
@@ -612,9 +612,9 @@ TEST(ReactorExecution, Instruction_IDiv)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 10 / 5);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 5);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 10 / 5);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IMod)
@@ -635,9 +635,9 @@ TEST(ReactorExecution, Instruction_IMod)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 10 % 5);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 5);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 10 % 5);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 5);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IAnd)
@@ -658,9 +658,9 @@ TEST(ReactorExecution, Instruction_IAnd)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 0b1101'1101 & 0b0111'0111);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 0b0111'0111);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 0b1101'1101 & 0b0111'0111);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 0b0111'0111);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IOr)
@@ -681,9 +681,9 @@ TEST(ReactorExecution, Instruction_IOr)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 0b1101'1101 | 0b0111'0111);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 0b0111'0111);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 0b1101'1101 | 0b0111'0111);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 0b0111'0111);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IXor)
@@ -704,9 +704,9 @@ TEST(ReactorExecution, Instruction_IXor)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 0b1101'1101 ^ 0b0111'0111);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 0b0111'0111);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 0b1101'1101 ^ 0b0111'0111);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 0b0111'0111);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_ICom)
@@ -725,8 +725,8 @@ TEST(ReactorExecution, Instruction_ICom)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, ~0b1101'1101);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, ~0b1101'1101);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_ISal)
@@ -747,9 +747,9 @@ TEST(ReactorExecution, Instruction_ISal)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 1 << 2);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 2);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 1 << 2);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 2);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_ISar)
@@ -770,9 +770,9 @@ TEST(ReactorExecution, Instruction_ISar)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 1 >> 2);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 2);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 1 >> 2);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 2);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IRol)
@@ -793,9 +793,9 @@ TEST(ReactorExecution, Instruction_IRol)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsU64, std::rotl<U64>(1, 2));
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 2);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsU64, std::rotl<std::uint64_t>(1, 2));
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 2);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IRor)
@@ -816,9 +816,9 @@ TEST(ReactorExecution, Instruction_IRor)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsU64, std::rotr<U64>(1, 2));
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 2);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsU64, std::rotr<std::uint64_t>(1, 2));
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 2);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_INeg)
@@ -837,8 +837,8 @@ TEST(ReactorExecution, Instruction_INeg)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, -10);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, -10);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FAdd)
@@ -859,9 +859,9 @@ TEST(ReactorExecution, Instruction_FAdd)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 6.75);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 2.50);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 6.75);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.50);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FMod)
@@ -882,9 +882,9 @@ TEST(ReactorExecution, Instruction_FMod)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, std::fmod(4.25, 2.50));
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 2.50);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::fmod(4.25, 2.50));
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.50);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FSub)
@@ -905,9 +905,9 @@ TEST(ReactorExecution, Instruction_FSub)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 1.75);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 2.50);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.75);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.50);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FMul)
@@ -928,9 +928,9 @@ TEST(ReactorExecution, Instruction_FMul)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 10.625);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 2.50);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 10.625);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.50);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FDiv)
@@ -951,9 +951,9 @@ TEST(ReactorExecution, Instruction_FDiv)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 1.7);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 2.50);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.7);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.50);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FNeg)
@@ -972,8 +972,8 @@ TEST(ReactorExecution, Instruction_FNeg)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, -2.25);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, -2.25);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FInc)
@@ -996,9 +996,9 @@ TEST(ReactorExecution, Instruction_FInc)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[0], Record::Padding());
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 5.);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 5.);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FDec)
@@ -1021,9 +1021,9 @@ TEST(ReactorExecution, Instruction_FDec)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[0], Record::Padding());
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, -3.);
-	ASSERT_EQ(o.second.SpDiff, 1);
+	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, -3.);
+	ASSERT_EQ(o.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FPushO)
@@ -1042,9 +1042,9 @@ TEST(ReactorExecution, Instruction_FPushO)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsF64, 1.);
-	ASSERT_EQ(o.second.Input->Stack[2].AsU64, 0);
-	ASSERT_EQ(o.second.Input->Stack[3].AsF64, 1.);
+	ASSERT_EQ(o.Input->Stack[1].AsF64, 1.);
+	ASSERT_EQ(o.Input->Stack[2].AsU64, 0);
+	ASSERT_EQ(o.Input->Stack[3].AsF64, 1.);
 }
 
 TEST(ReactorExecution, Instruction_Call)
@@ -1066,9 +1066,9 @@ TEST(ReactorExecution, Instruction_Call)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 10);
-	ASSERT_EQ(o.second.IpDiff, 8);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 10);
+	ASSERT_EQ(o.IpDiff, 8);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_Ret)
@@ -1093,11 +1093,11 @@ TEST(ReactorExecution, Instruction_Ret)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 10);
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 10);
-	ASSERT_EQ(o.second.IpDiff, 6);
-	ASSERT_EQ(o.second.BpDiff, 3);
-	ASSERT_EQ(o.second.InterruptCode, -0xABCDEF);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 10);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 10);
+	ASSERT_EQ(o.IpDiff, 6);
+	ASSERT_EQ(o.BpDiff, 3);
+	ASSERT_EQ(o.Status, -0xABCDEF);
 }
 
 TEST(ReactorExecution, Instruction_Jmp)
@@ -1119,9 +1119,9 @@ TEST(ReactorExecution, Instruction_Jmp)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 10);
-	ASSERT_EQ(o.second.IpDiff, 8);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 10);
+	ASSERT_EQ(o.IpDiff, 8);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JmpRel)
@@ -1143,9 +1143,9 @@ TEST(ReactorExecution, Instruction_JmpRel)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 10);
-	ASSERT_EQ(o.second.IpDiff, 8);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 10);
+	ASSERT_EQ(o.IpDiff, 8);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JZ)
@@ -1169,10 +1169,10 @@ TEST(ReactorExecution, Instruction_JZ)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsU64, 1);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 10);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsU64, 1);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JnZ)
@@ -1196,10 +1196,10 @@ TEST(ReactorExecution, Instruction_JnZ)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsU64, 0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 10);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsU64, 0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JoCmpI)
@@ -1223,10 +1223,10 @@ TEST(ReactorExecution, Instruction_JoCmpI)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsU64, 0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 10);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsU64, 0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JnoCmpI)
@@ -1250,10 +1250,10 @@ TEST(ReactorExecution, Instruction_JnoCmpI)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsU64, 1);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 10);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsU64, 1);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JoCmpF)
@@ -1277,10 +1277,10 @@ TEST(ReactorExecution, Instruction_JoCmpF)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsF64, 0.F);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 10);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsF64, 0.F);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JnoCmpF)
@@ -1304,10 +1304,10 @@ TEST(ReactorExecution, Instruction_JnoCmpF)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsF64, 1.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 10);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsF64, 1.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 10);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JeCmpI)
@@ -1336,11 +1336,11 @@ TEST(ReactorExecution, Instruction_JeCmpI)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 123424224);
-	ASSERT_EQ(o.second.Input->Stack[2].AsI64, 0xFF'FF);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 15);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 123424224);
+	ASSERT_EQ(o.Input->Stack[2].AsI64, 0xFF'FF);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 15);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JeCmpF)
@@ -1369,11 +1369,11 @@ TEST(ReactorExecution, Instruction_JeCmpF)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsF64, 123424224.0);
-	ASSERT_EQ(o.second.Input->Stack[2].AsF64, 0.22233);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 15);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsF64, 123424224.0);
+	ASSERT_EQ(o.Input->Stack[2].AsF64, 0.22233);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 15);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JneCmpI)
@@ -1403,11 +1403,11 @@ TEST(ReactorExecution, Instruction_JneCmpI)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 0xFF'FF);
-	ASSERT_EQ(o.second.Input->Stack[2].AsI64, 0xFF'FF);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 16);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 0xFF'FF);
+	ASSERT_EQ(o.Input->Stack[2].AsI64, 0xFF'FF);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JneCmpF)
@@ -1437,11 +1437,11 @@ TEST(ReactorExecution, Instruction_JneCmpF)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsF64, 3.1415);
-	ASSERT_EQ(o.second.Input->Stack[2].AsF64, 3.1415);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 16);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsF64, 3.1415);
+	ASSERT_EQ(o.Input->Stack[2].AsF64, 3.1415);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JaCmpI)
@@ -1471,11 +1471,11 @@ TEST(ReactorExecution, Instruction_JaCmpI)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 3);
-	ASSERT_EQ(o.second.Input->Stack[2].AsI64, 53);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 16);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 3);
+	ASSERT_EQ(o.Input->Stack[2].AsI64, 53);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JaCmpF)
@@ -1505,11 +1505,11 @@ TEST(ReactorExecution, Instruction_JaCmpF)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsF64, 3.0);
-	ASSERT_EQ(o.second.Input->Stack[2].AsF64, 53.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 16);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsF64, 3.0);
+	ASSERT_EQ(o.Input->Stack[2].AsF64, 53.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JlCmpI)
@@ -1539,11 +1539,11 @@ TEST(ReactorExecution, Instruction_JlCmpI)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 53);
-	ASSERT_EQ(o.second.Input->Stack[2].AsI64, 3);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 16);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 53);
+	ASSERT_EQ(o.Input->Stack[2].AsI64, 3);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JlCmpF)
@@ -1573,11 +1573,11 @@ TEST(ReactorExecution, Instruction_JlCmpF)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsF64, 53.0);
-	ASSERT_EQ(o.second.Input->Stack[2].AsF64, 3.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 16);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsF64, 53.0);
+	ASSERT_EQ(o.Input->Stack[2].AsF64, 3.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 16);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JaeCmpI)
@@ -1613,11 +1613,11 @@ TEST(ReactorExecution, Instruction_JaeCmpI)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 3);
-	ASSERT_EQ(o.second.Input->Stack[2].AsI64, 53);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 22);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 3);
+	ASSERT_EQ(o.Input->Stack[2].AsI64, 53);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 22);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JaeCmpF)
@@ -1653,11 +1653,11 @@ TEST(ReactorExecution, Instruction_JaeCmpF)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsF64, 3.0);
-	ASSERT_EQ(o.second.Input->Stack[2].AsF64, 53.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 22);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsF64, 3.0);
+	ASSERT_EQ(o.Input->Stack[2].AsF64, 53.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 22);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JleCmpI)
@@ -1693,11 +1693,11 @@ TEST(ReactorExecution, Instruction_JleCmpI)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsI64, 53);
-	ASSERT_EQ(o.second.Input->Stack[2].AsI64, 3);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 22);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsI64, 53);
+	ASSERT_EQ(o.Input->Stack[2].AsI64, 3);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 22);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JleCmpF)
@@ -1733,11 +1733,11 @@ TEST(ReactorExecution, Instruction_JleCmpF)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.second.Input->Stack[1].AsF64, 53.0);
-	ASSERT_EQ(o.second.Input->Stack[2].AsF64, 3.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 22);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_EQ(o.Input->Stack[1].AsF64, 53.0);
+	ASSERT_EQ(o.Input->Stack[2].AsF64, 3.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 22);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecPush)
@@ -1759,13 +1759,13 @@ TEST(ReactorExecution, Instruction_VecPush)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 4.0);
-	ASSERT_EQ(o.second.SpDiff, 4);
-	ASSERT_EQ(o.second.IpDiff, 7);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0);
+	ASSERT_EQ(o.SpDiff, 4);
+	ASSERT_EQ(o.IpDiff, 7);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecPop)
@@ -1788,13 +1788,13 @@ TEST(ReactorExecution, Instruction_VecPop)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 4.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 8);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 8);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecAdd)
@@ -1823,13 +1823,13 @@ TEST(ReactorExecution, Instruction_VecAdd)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 7.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 10.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 13.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 16.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 14);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 7.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 10.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 13.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 16.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 14);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecSub)
@@ -1858,13 +1858,13 @@ TEST(ReactorExecution, Instruction_VecSub)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, -1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, -1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 0.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 14);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, -1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, -1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 0.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 14);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecMul)
@@ -1893,13 +1893,13 @@ TEST(ReactorExecution, Instruction_VecMul)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 9.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 16.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 14);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 9.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 16.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 14);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecDiv)
@@ -1928,13 +1928,13 @@ TEST(ReactorExecution, Instruction_VecDiv)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 0.25);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 6.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 2.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.IpDiff, 14);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 0.25);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 6.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 2.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.IpDiff, 14);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatPush)
@@ -1969,24 +1969,24 @@ TEST(ReactorExecution, Instruction_MatPush)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[5].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[6].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[7].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[8].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[9].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[10].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[11].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[12].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[13].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[14].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[15].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[16].AsF64, 4.0);
-	ASSERT_EQ(o.second.SpDiff, 16);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 4.0);
+	ASSERT_EQ(o.SpDiff, 16);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatPop)
@@ -2022,24 +2022,24 @@ TEST(ReactorExecution, Instruction_MatPop)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[5].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[6].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[7].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[8].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[9].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[10].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[11].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[12].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[13].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[14].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[15].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[16].AsF64, 4.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 4.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatAdd)
@@ -2093,24 +2093,24 @@ TEST(ReactorExecution, Instruction_MatAdd)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 1.0 + 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 4.0 + 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 3.0 + 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 4.0 + 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[5].AsF64, 1.0 + 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[6].AsF64, 2.0 + 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[7].AsF64, 3.0 + 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[8].AsF64, 2.0 + 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[9].AsF64, 1.0 + 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[10].AsF64, 2.0 + 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[11].AsF64, 3.0 + 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[12].AsF64, 4.0 + 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[13].AsF64, 1.0 + 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[14].AsF64, 2.0 + 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[15].AsF64, 3.0 + 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[16].AsF64, 6.0 + 6.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 + 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 + 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 + 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 6.0 + 6.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatSub)
@@ -2164,24 +2164,24 @@ TEST(ReactorExecution, Instruction_MatSub)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 4.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 4.0 - 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[5].AsF64, 1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[6].AsF64, 2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[7].AsF64, 3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[8].AsF64, 2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[9].AsF64, 1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[10].AsF64, 2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[11].AsF64, 3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[12].AsF64, 4.0 - 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[13].AsF64, 1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[14].AsF64, 2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[15].AsF64, 3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[16].AsF64, 6.0 - 6.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 - 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 - 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 - 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 6.0 - 6.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatMul)
@@ -2235,24 +2235,24 @@ TEST(ReactorExecution, Instruction_MatMul)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 1.0 * 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 4.0 * 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 3.0 * 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 4.0 * 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[5].AsF64, 1.0 * 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[6].AsF64, 2.0 * 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[7].AsF64, 3.0 * 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[8].AsF64, 2.0 * 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[9].AsF64, 1.0 * 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[10].AsF64, 2.0 * 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[11].AsF64, 3.0 * 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[12].AsF64, 4.0 * 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[13].AsF64, 1.0 * 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[14].AsF64, 2.0 * 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[15].AsF64, 3.0 * 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[16].AsF64, 6.0 * 6.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 * 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 * 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 * 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 * 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 * 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 * 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 * 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 * 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 * 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 * 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 * 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 * 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0 * 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0 * 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0 * 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 6.0 * 6.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatDiv)
@@ -2306,22 +2306,22 @@ TEST(ReactorExecution, Instruction_MatDiv)
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[1].AsF64, 1.0 / 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[2].AsF64, 4.0 / 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[3].AsF64, 3.0 / 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[4].AsF64, 4.0 / 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[5].AsF64, 1.0 / 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[6].AsF64, 2.0 / 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[7].AsF64, 3.0 / 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[8].AsF64, 2.0 / 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[9].AsF64, 1.0 / 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[10].AsF64, 2.0 / 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[11].AsF64, 3.0 / 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[12].AsF64, 4.0 / 4.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[13].AsF64, 1.0 / 1.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[14].AsF64, 2.0 / 2.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[15].AsF64, 3.0 / 3.0);
-	ASSERT_DOUBLE_EQ(o.second.Input->Stack[16].AsF64, 6.0 / 6.0);
-	ASSERT_EQ(o.second.SpDiff, 0);
-	ASSERT_EQ(o.second.InterruptCode, -0xFF);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 / 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 / 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 / 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 / 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 / 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 / 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 / 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 / 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 / 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 / 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 / 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 / 4.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0 / 1.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0 / 2.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0 / 3.0);
+	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 6.0 / 6.0);
+	ASSERT_EQ(o.SpDiff, 0);
+	ASSERT_EQ(o.Status, -0xFF);
 }

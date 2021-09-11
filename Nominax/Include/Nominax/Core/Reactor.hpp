@@ -1,7 +1,7 @@
 // File: Reactor.hpp
 // Author: Mario
-// Created: 13.08.2021 7:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,7 +209,7 @@
 
 #include <chrono>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../ByteCode/Image.hpp"
 
 #include "FixedStack.hpp"
@@ -228,12 +228,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// Unique reactor id.
 		/// </summary>
-		U32 Id_;
+		std::uint32_t Id_;
 
 		/// <summary>
 		/// The reactor pool index of this reactor.
 		/// </summary>
-		U64 PoolIndex_;
+		std::uint64_t PoolIndex_;
 
 		/// <summary>
 		/// Time stamp when the reactor was spawned.
@@ -285,7 +285,7 @@ namespace Nominax::Core
 			std::pmr::memory_resource&    allocator,
 			const ReactorSpawnDescriptor& descriptor,
 			const ReactorRoutineLink&     routineLink,
-			U64                           poolIdx = 0
+			std::uint64_t                 poolIdx = 0
 		);
 
 		/// <summary>
@@ -314,12 +314,12 @@ namespace Nominax::Core
 		~Reactor() = default;
 
 		/// <summary>
-		/// Execute reactor with specified application code bundle.
+		/// Execute reactor with specified application code image.
 		/// </summary>
-		/// <param name="bundle"></param>
+		/// <param name="image"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto Execute(const ByteCode::Image& image) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute reactor with specified application code bundle.
@@ -327,21 +327,21 @@ namespace Nominax::Core
 		/// <param name="bundle"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator ()(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>;
+		auto operator ()(const ByteCode::Image& bundle) -> const ReactorState&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The unique reactor id.</returns>
 		[[nodiscard]]
-		auto GetId() const -> std::uint32_t;
+		auto GetID() const -> std::uint32_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The index of this rector in the hosting reactor pool</returns>
 		[[nodiscard]]
-		auto GetPoolIndex() const -> U64;
+		auto GetPoolIndex() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
@@ -394,12 +394,12 @@ namespace Nominax::Core
 		auto GetInterruptHandler() const -> InterruptRoutineProxy*;
 	};
 
-	inline auto Reactor::GetId() const -> std::uint32_t
+	inline auto Reactor::GetID() const -> std::uint32_t
 	{
 		return this->Id_;
 	}
 
-	inline auto Reactor::GetPoolIndex() const -> U64
+	inline auto Reactor::GetPoolIndex() const -> std::uint64_t
 	{
 		return this->PoolIndex_;
 	}
@@ -439,7 +439,7 @@ namespace Nominax::Core
 		return this->Output_;
 	}
 
-	inline auto Reactor::operator()(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
+	inline auto Reactor::operator()(const ByteCode::Image& bundle) -> const ReactorState&
 	{
 		return this->Execute(bundle);
 	}

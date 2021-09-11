@@ -1,7 +1,7 @@
 // File: ReactorDescriptor.hpp
 // Author: Mario
-// Created: 13.08.2021 7:25 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,10 +207,10 @@
 
 #pragma once
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../ByteCode/Signal.hpp"
 
-#include "Interrupt.hpp"
+#include "InterruptStatus.hpp"
 #include "ReactorValidator.hpp"
 
 namespace Nominax::Core
@@ -223,37 +223,37 @@ namespace Nominax::Core
 		/// <summary>
 		/// Code chunk data pointer.
 		/// </summary>
-		const ByteCode::Signal* CodeChunk {nullptr};
+		const ByteCode::Signal* CodeChunk { nullptr };
 
 		/// <summary>
 		/// Code chunk and instruction map length.
 		/// </summary>
-		U64 CodeChunkSize {0};
+		std::uint64_t CodeChunkSize { 0 };
 
 		/// <summary>
 		/// Intrinsic routine registry data pointer.
 		/// </summary>
-		ByteCode::IntrinsicRoutine* const* IntrinsicTable {nullptr};
+		ByteCode::IntrinsicRoutine* const* IntrinsicTable { nullptr };
 
 		/// <summary>
 		/// Intrinsic routine registry length.
 		/// </summary>
-		U64 IntrinsicTableSize {0};
+		std::uint64_t IntrinsicTableSize { 0 };
 
 		/// <summary>
-		/// Interrupt routine proxy.
+		/// InterruptStatus routine proxy.
 		/// </summary>
-		InterruptRoutineProxy* InterruptHandler {nullptr};
+		InterruptRoutineProxy* InterruptHandler { nullptr };
 
 		/// <summary>
 		/// Stack data pointer.
 		/// </summary>
-		Foundation::Record* Stack {nullptr};
+		Foundation::Record* Stack { nullptr };
 
 		/// <summary>
 		/// Stack length.
 		/// </summary>
-		U64 StackSize {0};
+		std::uint64_t StackSize { 0 };
 
 		/// <summary>
 		/// Checks if the current descriptor is valid for

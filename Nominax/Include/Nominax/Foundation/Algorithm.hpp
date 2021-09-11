@@ -1,7 +1,7 @@
 // File: Algorithm.hpp
 // Author: Mario
-// Created: 09.08.2021 4:06 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -215,7 +215,7 @@
 #include <climits>
 
 #include "Platform.hpp"
-#include "BaseTypes.hpp"
+#include <cstdint>
 
 namespace Nominax
 {
@@ -242,9 +242,9 @@ namespace Nominax::Foundation
 		/// <returns>The bit shifted value.</returns>
 	template <typename T> requires std::is_unsigned_v<T>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE constexpr auto RolGeneric(const T value, const U8 shift) -> T
+	NOX_FORCE_INLINE NOX_PURE constexpr auto RolGeneric(const T value, const std::uint8_t shift) -> T
 	{
-		return ((value) << (shift)) | ((value) >> (-static_cast<I32>(shift) & (CHAR_BIT * sizeof(value) - 1)));
+		return ((value) << (shift)) | ((value) >> (-static_cast<std::int32_t>(shift) & (CHAR_BIT * sizeof(value) - 1)));
 	}
 
 	/// <summary>
@@ -255,9 +255,9 @@ namespace Nominax::Foundation
 	/// <returns>The bit shifted value.</returns>
 	template <typename T> requires std::is_unsigned_v<T>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE constexpr auto RorGeneric(const T value, const U8 shift) -> T
+	NOX_FORCE_INLINE NOX_PURE constexpr auto RorGeneric(const T value, const std::uint8_t shift) -> T
 	{
-		return (((value) << (-static_cast<I32>(shift) & (CHAR_BIT * sizeof(value) - 1))) | ((value) >> (shift)));
+		return (((value) << (-static_cast<std::int32_t>(shift) & (CHAR_BIT * sizeof(value) - 1))) | ((value) >> (shift)));
 	}
 
 	/// <summary>
@@ -266,22 +266,22 @@ namespace Nominax::Foundation
 	[[nodiscard]]
 	NOX_FORCE_INLINE NOX_PURE inline auto Rol32
 	(
-		U32      value,
-		const U8 shift
-	) -> U32
+		std::uint32_t      value,
+		const std::uint8_t shift
+	) -> std::uint32_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
-				return _rotl(value, shift);
+			return _rotl(value, shift);
 		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-				asm volatile
-					(
-						"roll %%cl, %0"
-						: "=r"(value)
-						: "0" (value), "c"(shift)
-						);
-				return value;
+			asm volatile
+			(
+				"roll %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
 		#else
-		return RolGeneric<decltype(value)>(value, shift);
+			return RolGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
@@ -289,24 +289,24 @@ namespace Nominax::Foundation
 	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE inline auto Ror32
+	NOX_REACTOR_ROUTINE NOX_PURE inline auto Ror32
 	(
-		U32      value,
-		const U8 shift
-	) -> U32
+		std::uint32_t      value,
+		const std::uint8_t shift
+	) -> std::uint32_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
-				return _rotr(value, shift);
+			return _rotr(value, shift);
 		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-				asm volatile
-					(
-						"rorl %%cl, %0"
-						: "=r"(value)
-						: "0" (value), "c"(shift)
-						);
-				return value;
+			asm volatile
+			(
+				"rorl %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
 		#else
-		return RorGeneric<decltype(value)>(value, shift);
+			return RorGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
@@ -314,24 +314,24 @@ namespace Nominax::Foundation
 	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE inline auto Rol64
+	NOX_REACTOR_ROUTINE NOX_PURE inline auto Rol64
 	(
-		U64      value,
-		const U8 shift
-	) -> U64
+		std::uint64_t      value,
+		const std::uint8_t shift
+	) -> std::uint64_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
-				return _rotl64(value, shift);
+			return _rotl64(value, shift);
 		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-				asm volatile
-					(
-						"rolq %%cl, %0"
-						: "=r"(value)
-						: "0" (value), "c"(shift)
-						);
-				return value;
+			asm volatile
+			(
+				"rolq %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
 		#else
-		return RolGeneric<decltype(value)>(value, shift);
+			return RolGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
@@ -339,33 +339,33 @@ namespace Nominax::Foundation
 	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE inline auto Ror64
+	NOX_REACTOR_ROUTINE NOX_PURE inline auto Ror64
 	(
-		U64      value,
-		const U8 shift
-	) -> U64
+		std::uint64_t      value,
+		const std::uint8_t shift
+	) -> std::uint64_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
-				return _rotr64(value, shift);
+			return _rotr64(value, shift);
 		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
-				asm volatile
-					(
-						"rorq %%cl, %0"
-						: "=r"(value)
-						: "0" (value), "c"(shift)
-						);
-				return value;
+			asm volatile
+			(
+				"rorq %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
 		#else
-		return RorGeneric<decltype(value)>(value, shift);
+			return RorGeneric<decltype(value)>(value, shift);
 		#endif
 	}
 
 	/// <summary>
-		/// Returns true if x is a power of two.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="x"></param>
-		/// <returns></returns>
+	/// Returns true if x is a power of two.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
 	template <typename T> requires std::is_integral_v<T>
 	constexpr auto IsPowerOfTwo(const T x) -> bool
 	{
@@ -379,7 +379,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	constexpr auto RoundUpPow2(U64 x) -> U64
+	constexpr auto RoundUpPow2(std::uint64_t x) -> std::uint64_t
 	{
 		// See https://github.com/MarioSieg/Bit-Twiddling-Hacks-Collection/blob/master/bithax.h
 		--x;
@@ -397,12 +397,12 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="src"></param>
 	/// <returns></returns>
-	constexpr auto FP16ToFP32(const F16 src) -> F32
+	constexpr auto FP16ToFP32(const std::uint16_t src) -> float
 	{
-		const U32 h {src};
-		U32       sign {(h >> 15) & 1};
-		U32       exp {(h >> 10) & 0x1F};
-		U32       man {(h & 0x3FF) << 13};
+		const std::uint32_t h { src };
+		std::uint32_t       sign { (h >> 15) & 1 };
+		std::uint32_t       exp { (h >> 10) & 0x1F };
+		std::uint32_t       man { (h & 0x3FF) << 13 };
 
 		if (exp == 0x1F)
 		{
@@ -414,7 +414,7 @@ namespace Nominax::Foundation
 			if (man)
 			{
 				exp = 0x71;
-				U32 msb;
+				std::uint32_t msb;
 				do
 				{
 					msb = man & 0x400000;
@@ -431,7 +431,7 @@ namespace Nominax::Foundation
 		}
 		sign <<= 31;
 		exp <<= 23;
-		return static_cast<F32>(sign | exp | man);
+		return static_cast<float>(sign | exp | man);
 	}
 
 	/// <summary>
@@ -439,10 +439,10 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="src"></param>
 	/// <returns></returns>
-	constexpr auto FP32ToFP16(const F32 src) -> F16
+	constexpr auto FP32ToFP16(const float src) -> std::uint16_t
 	{
-		const U32 x {std::bit_cast<U32>(src)};
-		const U32 u {x & 0x7FFFFFFF};
+		const std::uint32_t x { std::bit_cast<std::uint32_t>(src) };
+		const std::uint32_t u { x & 0x7FFFFFFF };
 
 		if (u > 0x7F800000)
 		{
@@ -450,7 +450,7 @@ namespace Nominax::Foundation
 			return 0x7FFF;
 		}
 
-		const U32 sign {(x >> 16) & 0x8000};
+		const std::uint32_t sign { (x >> 16) & 0x8000 };
 		if (u > 0x477FEFFF)
 		{
 			return sign | 0x7C00U;
@@ -460,9 +460,9 @@ namespace Nominax::Foundation
 			return sign | 0x0000;
 		}
 
-		U32 exp {(u >> 23) & 0xFF};
-		U32 man {u & 0x7FFFFF};
-		U32 shi;
+		std::uint32_t exp { (u >> 23) & 0xFF };
+		std::uint32_t man { u & 0x7FFFFF };
+		std::uint32_t shi;
 
 		if (exp > 0x70)
 		{
@@ -476,10 +476,10 @@ namespace Nominax::Foundation
 			man |= 0x800000;
 		}
 
-		const U32 lsb {static_cast<U32>(1) << shi};
-		const U32 lsbS1 {lsb >> 1};
-		const U32 lsbM1 {lsb - 1};
-		const U32 rem {man & lsbM1};
+		const std::uint32_t lsb { static_cast<std::uint32_t>(1) << shi };
+		const std::uint32_t lsbS1 { lsb >> 1 };
+		const std::uint32_t lsbM1 { lsb - 1 };
+		const std::uint32_t rem { man & lsbM1 };
 		man >>= shi;
 		if (rem > lsbM1 || (rem == lsbS1 && man & 1))
 		{
@@ -492,7 +492,7 @@ namespace Nominax::Foundation
 		}
 
 		exp <<= 10;
-		return static_cast<U16>(sign | exp | man);
+		return static_cast<std::uint16_t>(sign | exp | man);
 	}
 
 	/// <summary>
@@ -500,16 +500,16 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns>The amount of bytes -> min: 1, max: 8</returns>
-	constexpr auto ComputeRequiredBytes(U64 x) -> U8
+	constexpr auto ComputeRequiredBytes(std::uint64_t x) -> std::uint8_t
 	{
-		U8 bytes {0};
+		std::uint8_t bytes { 0 };
 		do
 		{
 			x >>= 8;
 			++bytes;
 		}
 		while (x);
-		return static_cast<U8>(RoundUpPow2(static_cast<U64>(bytes)));
+		return static_cast<std::uint8_t>(RoundUpPow2(static_cast<std::uint64_t>(bytes)));
 	}
 
 	/// <summary>
@@ -518,7 +518,7 @@ namespace Nominax::Foundation
 	/// <param name="x"></param>
 	/// <param name="y"></param>
 	/// <returns></returns>
-	extern auto LinearizeCoords2D(U16 x, U16 y) -> U32;
+	extern auto LinearizeCoords2D(std::uint16_t x, std::uint16_t y) -> std::uint32_t;
 
 	/// <summary>
 	/// Fallback implementation for "ILog"
@@ -526,14 +526,14 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	extern auto ILog2DeBruijn(U64 x) -> U64;
+	extern auto ILog2DeBruijn(std::uint64_t x) -> std::uint64_t;
 
 	/// <summary>
 	/// Computes the binary logarithm of log2(2)
 	/// </summary>
 	/// <param name="x">Should not be 0!</param>
 	/// <returns></returns>
-	inline auto ILog2(U64 x) -> U64
+	inline auto ILog2(std::uint64_t x) -> std::uint64_t
 	{
 		#if NOX_USE_ARCH_OPT
 		--x;
@@ -595,27 +595,27 @@ namespace Nominax::Foundation
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename Iter, typename Func, typename... Args> requires RandomAccessIterator<Iter>
-	constexpr auto UniformChunkSplit(const U64 chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) -> void
+	constexpr auto UniformChunkSplit(const std::uint64_t chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) -> void
 	{
 		using ValueType = const typename std::iterator_traits<Iter>::value_type;
 		using Span = std::span<ValueType>;
 
-		const auto length {std::distance(begin, end)};
-		const bool mismatch {chunkCount <= 1 || static_cast<U64>(length) % chunkCount};
+		const auto length { std::distance(begin, end) };
+		const bool mismatch { chunkCount <= 1 || static_cast<std::uint64_t>(length) % chunkCount };
 
 		if (mismatch)
 		{
-			const Span range {begin, end};
-			std::invoke(std::forward<Func>(func), range, static_cast<U64>(0), std::forward<Args>(args)...);
+			const Span range { begin, end };
+			std::invoke(std::forward<Func>(func), range, static_cast<std::uint64_t>(0), std::forward<Args>(args)...);
 		}
 		else
 		{
-			const auto chunkSize {static_cast<U64>(length) / chunkCount};
-			for (U64 i {0}; i < chunkCount; ++i)
+			const auto chunkSize { static_cast<std::uint64_t>(length) / chunkCount };
+			for (std::uint64_t i { 0 }; i < chunkCount; ++i)
 			{
-				const Iter beginChunk {begin + chunkSize * i};
-				const Iter endChunk {i == chunkCount - 1 ? end : beginChunk + chunkSize};
-				const Span range {beginChunk, endChunk};
+				const Iter beginChunk { begin + chunkSize * i };
+				const Iter endChunk { i == chunkCount - 1 ? end : beginChunk + chunkSize };
+				const Span range { beginChunk, endChunk };
 				std::invoke(std::forward<Func>(func), range, chunkSize * i, std::forward<Args>(args)...);
 			}
 		}
@@ -635,7 +635,7 @@ namespace Nominax::Foundation
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename T, typename Func, typename... Args>
-	constexpr auto UniformChunkSplit(const U64 chunkCount, const std::span<const T> range, Func&& func, Args&&...args) -> void
+	constexpr auto UniformChunkSplit(const std::uint64_t chunkCount, const std::span<const T> range, Func&& func, Args&&...args) -> void
 	{
 		UniformChunkSplit<decltype(std::begin(range)), Func, Args...>(chunkCount, std::begin(range), std::end(range), std::forward<Func>(func), std::forward(args)...);
 	}
@@ -646,9 +646,9 @@ namespace Nominax::Foundation
 	/// <typeparam name="VariantType"></typeparam>
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
-	template <typename VariantType, typename T, U64 Index = 0>
+	template <typename VariantType, typename T, std::uint64_t Index = 0>
 	[[nodiscard]]
-	constexpr auto VariantIndexOf() -> U64
+	constexpr auto VariantIndexOf() -> std::uint64_t
 	{
 		if constexpr (Index == std::variant_size_v<VariantType> || std::is_same_v<std::variant_alternative_t<Index, VariantType>, T>)
 		{
@@ -667,7 +667,7 @@ namespace Nominax::Foundation
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto Sex(const I8 x) -> U8
+	constexpr auto Sex(const std::int8_t x) -> std::uint8_t
 	{
 		return x >> (CHAR_BIT * sizeof(x) - 1);
 	}
@@ -679,7 +679,7 @@ namespace Nominax::Foundation
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto Sex(const I16 x) -> U16
+	constexpr auto Sex(const std::int16_t x) -> std::uint16_t
 	{
 		return x >> (CHAR_BIT * sizeof(x) - 1);
 	}
@@ -691,7 +691,7 @@ namespace Nominax::Foundation
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto Sex(const I32 x) -> U32
+	constexpr auto Sex(const std::int32_t x) -> std::uint32_t
 	{
 		return x >> (CHAR_BIT * sizeof(x) - 1);
 	}
@@ -703,7 +703,7 @@ namespace Nominax::Foundation
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto Sex(const I64 x) -> U64
+	constexpr auto Sex(const std::int64_t x) -> std::uint64_t
 	{
 		return x >> (CHAR_BIT * sizeof(x) - 1);
 	}

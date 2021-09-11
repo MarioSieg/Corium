@@ -1,7 +1,7 @@
 // File: _Core.hpp
 // Author: Mario
-// Created: 13.08.2021 7:20 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -211,7 +211,7 @@
 #include "Environment.hpp"
 #include "EnvironmentDescriptor.hpp"
 #include "FixedStack.hpp"
-#include "Interrupt.hpp"
+#include "InterruptStatus.hpp"
 #include "Reactor.hpp"
 #include "ReactorCoreHypervisor.hpp"
 #include "ReactorCoreSpecialization.hpp"

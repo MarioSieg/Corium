@@ -1,7 +1,7 @@
 // File: ReactorDescriptor.cpp
 // Author: Mario
-// Created: 13.08.2021 7:59 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -205,6 +205,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include "../../../Nominax/Include/Nominax/Foundation/Platform.hpp"
 #include "../../../Nominax/Include/Nominax/Core/_Core.hpp"
 
 namespace Nominax::Core
@@ -215,23 +216,22 @@ namespace Nominax::Core
 		if (!this->CodeChunk || !this->InterruptHandler || !this->Stack)
 		{
 			[[unlikely]]
-				return ReactorValidationResult::NullPtr;
+            return ReactorValidationResult::NullPtr;
 		}
 
 		// validate the size for the corresponding pointers:
 		if (!this->CodeChunkSize || !this->StackSize)
 		{
 			[[unlikely]]
-				return ReactorValidationResult::ZeroSize;
+            return ReactorValidationResult::ZeroSize;
 		}
-
 
 		// If we are using execution address mapping,
 		// all instructions are pointers so we cannot check the instruction type
 
 		#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
-// first instruction will be skipped and must be NOP:
+        // first instruction will be skipped and must be NOP:
 		if (CodeChunk->Instr != ByteCode::Instruction::NOp)
 		{
 			[[unlikely]]
@@ -251,21 +251,20 @@ namespace Nominax::Core
 		if (*Stack != Foundation::Record::Padding())
 		{
 			[[unlikely]]
-				return ReactorValidationResult::MissingStackPrologue;
+            return ReactorValidationResult::MissingStackPrologue;
 		}
 
-		if (this->IntrinsicTable)
-		[[likely]]
+		if (this->IntrinsicTable) [[likely]]
 		{
 			// validate intrinsic routines:
-			auto* const*       begin {this->IntrinsicTable};
-			auto* const* const end {this->IntrinsicTable + this->IntrinsicTableSize};
+			auto* const*       begin { this->IntrinsicTable };
+			auto* const* const end { this->IntrinsicTable + this->IntrinsicTableSize };
 			while (begin < end)
 			{
 				if (!*begin++)
 				{
 					[[unlikely]]
-						return ReactorValidationResult::NullIntrinsicRoutine;
+                    return ReactorValidationResult::NullIntrinsicRoutine;
 				}
 			}
 		}

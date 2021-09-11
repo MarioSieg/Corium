@@ -1,7 +1,7 @@
 // File: CodeGenerator.hpp
 // Author: Mario
-// Created: 10.08.2021 1:05 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -221,7 +221,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Enable peephole code generation optimizations.
 		/// </summary>
-		bool EnablePeepholeOptimizations {NOX_RELEASE};
+		bool EnablePeepholeOptimizations { NOX_RELEASE };
 
 		/// <summary>
 		/// The target output stream.
@@ -269,23 +269,23 @@ namespace Nominax::ByteCode
 		/// Emits and optimizes a push.
 		/// </summary>
 		/// <param name="value">The immediate value to push.</param>
-		auto EmitPush(I64 value) -> LocalCodeGenerationLayer&;
+		auto EmitPush(std::int64_t value) -> LocalCodeGenerationLayer&;
 
 		/// <summary>
 		/// Emits and optimizes a push.
 		/// </summary>
 		/// <param name="value">The immediate value to push.</param>
-		auto EmitPush(F64 value) -> LocalCodeGenerationLayer&;
+		auto EmitPush(double value) -> LocalCodeGenerationLayer&;
 
 		/// <summary>
 		/// Emits and optimizes a certain amount of pops.
 		/// </summary>
 		/// <param name="popCount"></param>
 		/// <returns></returns>
-		auto EmitPop(U16 popCount = 1) -> LocalCodeGenerationLayer&;
+		auto EmitPop(std::uint16_t popCount = 1) -> LocalCodeGenerationLayer&;
 	};
 
-	inline LocalCodeGenerationLayer::LocalCodeGenerationLayer(Stream& emitter) : Emitter {emitter} { }
+	inline LocalCodeGenerationLayer::LocalCodeGenerationLayer(Stream& emitter) : Emitter { emitter } { }
 
 	inline auto LocalCodeGenerationLayer::Emit(const Instruction instruction) -> LocalCodeGenerationLayer&
 	{

@@ -1,7 +1,7 @@
 // File: Validator.hpp
 // Author: Mario
-// Created: 10.08.2021 1:01 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -296,7 +296,7 @@ namespace Nominax::ByteCode
 	}
 
 	/// <summary>
-	/// 
+	/// Searches for the next discriminator which contains an instruction.
 	/// </summary>
 	/// <param name="current"></param>
 	/// <param name="end"></param>
@@ -321,9 +321,10 @@ namespace Nominax::ByteCode
 	/// <param name="offset"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const U64 offset) -> std::span<const Signal::Discriminator>
+	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* where, const std::uint64_t offset) -> std::span<const Signal::Discriminator>
 	{
-		return {where + 1, where + 1 + offset};
+        ++where;
+		return { where, where + offset };
 	}
 
 	/// <summary>
@@ -334,5 +335,5 @@ namespace Nominax::ByteCode
 	/// <param name="outIndex"></param>
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
-	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }, U32* outIndex = nullptr) -> ValidationResultCode;
+	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }, std::uint32_t* outIndex = nullptr) -> ValidationResultCode;
 }

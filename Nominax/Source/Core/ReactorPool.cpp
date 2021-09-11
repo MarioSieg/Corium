@@ -1,7 +1,7 @@
 // File: ReactorPool.cpp
 // Author: Mario
-// Created: 13.08.2021 7:56 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -206,49 +206,88 @@
 //    limitations under the License.
 
 #include "../../../Nominax/Include/Nominax/Core/_Core.hpp"
+#include "../../Include/Nominax/Core/ReactorPool.hpp"
 
 namespace Nominax::Core
 {
-	auto ReactorPool::SmartQueryReactorCount(const U64 desired) -> U64
-	{
-		return desired < MIN_REACTOR_COUNT ? std::thread::hardware_concurrency() : desired;
-	}
+    using Foundation::Print;
+    using Foundation::LogLevel;
 
 	ReactorPool::ReactorPool
 	(
-		std::pmr::memory_resource&               allocator,
-		const U64                                reactorCount,
-		const ReactorSpawnDescriptor&            config,
-		const std::optional<ReactorRoutineLink>& routineLink
-	) : Pool_ {&allocator}
+		std::pmr::memory_resource& allocator,
+        const ReactorPoolBootMode bootMode,
+		std::uint64_t reactorCount,
+		const ReactorSpawnDescriptor& config,
+		const ReactorRoutineLink& routineLink
+	) :
+        Allocator_ { allocator },
+        Pool_ { &allocator },
+        BootMode_ { bootMode },
+        ReactorConfig_ { config },
+        ReactorRoutineLink_ { routineLink }
 	{
-		NOX_PAS_NOT_ZERO(reactorCount, "Reactor pool with zero size was requested!");
+        NOX_PAS_NOT_ZERO(reactorCount, "Reactor pool with zero reactors is not allowed!");
 
-		Foundation::Print("Initializing reactor pool...\n", reactorCount);
-		Foundation::Print("Reactors Min: {}, Fallback: {}, Preferred: {}\n\n", MIN_REACTOR_COUNT, FALLBACK_REACTOR_COUNT, reactorCount);
+		Print("Initializing reactor pool with {} reactors...\n", reactorCount);
+        Print("Pool boot mode: {}\n", bootMode == ReactorPoolBootMode::Cached ? "Cached" : "Deferred");
 
 		this->Pool_.reserve(reactorCount);
-		for (U64 i {0}; i < reactorCount; ++i)
+		for (std::uint64_t poolIdx { 0 }; poolIdx < (bootMode == ReactorPoolBootMode::Deferred ? 1 : reactorCount); ++poolIdx)
 		{
-			if (!routineLink)
-			{
-				[[unlikely]]
-					Print(Foundation::LogLevel::Warning, "No reactor routine link specified. Using fallback reactor!\n");
-			}
-			Reactor reactor
-			{
-				allocator, config, routineLink ? *routineLink : HyperVisor::GetFallbackRoutineLink(), i
-			};
-			this->Pool_.emplace_back(std::move(reactor));
+            this->BootReactor();
 		}
 
-		Foundation::Print('\n');
+		Print('\n');
 	}
 
 	ReactorPool::~ReactorPool()
 	{
-		const auto size {this->Pool_.size()};
+		const auto size { std::size(this->Pool_) };
 		this->Pool_.clear();
-		Foundation::Print("Reactor pool destroyed! {} reactors destroyed!\n", size);
+		Print("Reactor pool destroyed! -> {} reactors offline\n", size);
 	}
+
+    auto ReactorPool::QueryReactorFromCache(const uint64_t poolIndex) -> Reactor*
+    {
+        if (poolIndex >= std::size(this->Pool_))
+        {
+            [[unlikely]]
+            return nullptr;
+        }
+        const std::optional<std::unique_ptr<Reactor>>& entry { this->Pool_[poolIndex] };
+        return entry ? &**entry : nullptr;
+    }
+
+    auto ReactorPool::BootReactor() -> Reactor&
+    {
+        Reactor reactor
+        {
+            this->Allocator_,
+            this->ReactorConfig_,
+            this->ReactorRoutineLink_,
+            std::size(this->Pool_)
+        };
+        this->Pool_.emplace_back(std::make_unique<Reactor>(std::move(reactor)));
+        return **this->Pool_.back();
+    }
+
+    auto ReactorPool::QueryAutoCacheReactor(const std::uint64_t poolIndex) -> Reactor&
+    {
+        Reactor* const cached { this->QueryReactorFromCache(poolIndex) };
+        return cached ? *cached : this->BootReactor();
+    }
+
+    auto ReactorPool::QueryAlphaReactor() -> Reactor&
+    {
+        NOX_PAS_FALSE(std::empty(this->Pool_), "Reactor pool must at least contain one reactor! (Alpha reactor)");
+        std::optional<std::unique_ptr<Reactor>>& alpha { this->Pool_.front() };
+        NOX_PAS_TRUE(alpha.has_value(), "Alpha reactor must be initialized!");
+        return **alpha;
+    }
+
+    auto ReactorPool::SmartQueryReactorCount(const std::uint64_t desired) -> std::uint64_t
+    {
+        return desired == 0 ? std::thread::hardware_concurrency() : desired;
+    }
 }

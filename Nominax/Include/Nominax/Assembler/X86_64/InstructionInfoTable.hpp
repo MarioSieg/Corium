@@ -1,7 +1,7 @@
 // File: InstructionInfoTable.hpp
 // Author: Mario
-// Created: 14.08.2021 2:04 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -363,7 +363,7 @@ namespace Nominax::Assembler::X86_64
 		"Increment by 1",
 		"Insert Packed Single Precision Floating-Point Value",
 		"Insert Field",
-		"Call to Interrupt Procedure",
+		"Call to InterruptStatus Procedure",
 		"Jump if above (CF == 0 and ZF == 0)",
 		"Jump if above or equal (CF == 0)",
 		"Jump if below (CF == 1)",

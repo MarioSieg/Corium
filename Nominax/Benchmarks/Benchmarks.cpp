@@ -1,7 +1,7 @@
 // File: Benchmarks.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -293,8 +293,8 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 		stream << Instruction::Jmp;
 		stream << JumpAddress {0};
 		stream << Instruction::Sto;
-		stream << 1_uint;
-		stream << -0.5_float;
+		stream << static_cast<std::uint64_t>(1);
+		stream << -0.5;
 	}
 
 	stream.Epilogue();
@@ -324,8 +324,8 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 		stream << Instruction::Jmp;
 		stream << JumpAddress {0};
 		stream << Instruction::Sto;
-		stream << 1_uint;
-		stream << -0.5_float;
+		stream << static_cast<std::uint64_t>(1);
+		stream << -0.5;
 	}
 
 	stream.Epilogue();

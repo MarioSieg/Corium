@@ -1,7 +1,7 @@
 // File: Print.hpp
 // Author: Mario
-// Created: 09.08.2021 4:24 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -255,7 +255,7 @@ namespace Nominax::Foundation
 	inline auto Print([[maybe_unused]] const Str& formatString, [[maybe_unused]] Args&&...args) -> void
 	{
 		#ifndef NOX_TEST
-		fmt::print(formatString, std::forward<Args>(args)...);
+		fmt::print(stdout, formatString, std::forward<Args>(args)...);
 		#endif
 	}
 

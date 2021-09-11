@@ -1,7 +1,7 @@
-// File: Utils.cpp
+// File: Formatters.cpp
 // Author: Mario
-// Created: 06.07.2021 4:08 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -224,7 +224,7 @@ auto formatter<Instruction, char, void>::format
 	(
 		ctx.out(),
 		"{}",
-		INSTRUCTION_MNEMONIC_TABLE[ToUnderlying(value)]
+		InstructionMetaDataRegistry::MNEMONIC_TABLE[ToUnderlying(value)]
 	);
 }
 
@@ -257,36 +257,36 @@ auto formatter<CharClusterUtf8, char, void>::format
 	format_context&        ctx
 ) const -> FormatOutput
 {
-	static_assert(sizeof(char8_t) == sizeof(U8));
+	static_assert(sizeof(char8_t) == sizeof(std::uint8_t));
 	return format_to(ctx.out(),
 	                 R"(\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<U16>(value.Chars[0]),
-	                 static_cast<U16>(value.Chars[1]),
-	                 static_cast<U16>(value.Chars[2]),
-	                 static_cast<U16>(value.Chars[3]),
-	                 static_cast<U16>(value.Chars[4]),
-	                 static_cast<U16>(value.Chars[5]),
-	                 static_cast<U16>(value.Chars[6]),
-	                 static_cast<U16>(value.Chars[7])
+	                 static_cast<std::uint16_t>(value.Chars[0]),
+	                 static_cast<std::uint16_t>(value.Chars[1]),
+	                 static_cast<std::uint16_t>(value.Chars[2]),
+	                 static_cast<std::uint16_t>(value.Chars[3]),
+	                 static_cast<std::uint16_t>(value.Chars[4]),
+	                 static_cast<std::uint16_t>(value.Chars[5]),
+	                 static_cast<std::uint16_t>(value.Chars[6]),
+	                 static_cast<std::uint16_t>(value.Chars[7])
 	);
 }
 
 auto formatter<CharClusterUtf16, char, void>::format(const CharClusterUtf16& value, format_context& ctx) const -> FormatOutput
 {
-	static_assert(sizeof(char16_t) == sizeof(U16));
+	static_assert(sizeof(char16_t) == sizeof(std::uint16_t));
 	return format_to(ctx.out(),
 	                 R"(\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<U16>(value.Chars[0]), static_cast<U16>(value.Chars[1]),
-	                 static_cast<U16>(value.Chars[2]), static_cast<U16>(value.Chars[3])
+	                 static_cast<std::uint16_t>(value.Chars[0]), static_cast<std::uint16_t>(value.Chars[1]),
+	                 static_cast<std::uint16_t>(value.Chars[2]), static_cast<std::uint16_t>(value.Chars[3])
 	);
 }
 
 auto formatter<CharClusterUtf32, char, void>::format(const CharClusterUtf32& value, format_context& ctx) const -> FormatOutput
 {
-	static_assert(sizeof(char32_t) == sizeof(U32));
+	static_assert(sizeof(char32_t) == sizeof(std::uint32_t));
 	return format_to(ctx.out(),
 	                 "\\{:X}\\{:X}",
-	                 static_cast<U32>(value.Chars[0]), static_cast<U32>(value.Chars[1])
+	                 static_cast<std::uint32_t>(value.Chars[0]), static_cast<std::uint32_t>(value.Chars[1])
 	);
 }
 
@@ -296,7 +296,7 @@ auto formatter<ValidationResultCode, char, void>::format
 	format_context&             ctx
 ) const -> FormatOutput
 {
-	const auto idx {ToUnderlying(value)};
+	const auto idx { ToUnderlying(value) };
 	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);
 }
 
@@ -306,7 +306,7 @@ auto formatter<ReactorValidationResult, char, void>::format
 	format_context&                ctx
 ) const -> FormatOutput
 {
-	const auto idx {ToUnderlying(value)};
+	const auto idx { ToUnderlying(value) };
 	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
 }
 
@@ -320,13 +320,13 @@ auto formatter<DiscriminatedSignal, char, void>::format
 
 	switch (value.Discriminator)
 	{
-		case Dis::U64:
+		case Dis::UOffset:
 			return format_to(ctx.out(), "*u64 ${}", value.Value.R64.AsU64);
 
-		case Dis::I64:
+		case Dis::Int:
 			return format_to(ctx.out(), "*i64 ${}", value.Value.R64.AsI64);
 
-		case Dis::F64:
+		case Dis::Float:
 			return format_to(ctx.out(), "*f64 ${}", value.Value.R64.AsF64);
 
 		case Dis::CharClusterUtf8:

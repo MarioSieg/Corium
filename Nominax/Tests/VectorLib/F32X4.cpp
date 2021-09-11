@@ -1,7 +1,7 @@
 // File: F32X4.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,7 +209,7 @@
 
 TEST(VectorLib, F32_X4_Add_Unaligned)
 {
-	F32 x[4]
+	float x[4]
 	{
 		2.5F,
 		0.3F,
@@ -217,7 +217,7 @@ TEST(VectorLib, F32_X4_Add_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[4]
+	const float y[4]
 	{
 		0.5F,
 		1.3F,
@@ -234,7 +234,7 @@ TEST(VectorLib, F32_X4_Add_Unaligned)
 
 TEST(VectorLib, F32_X4_Add_Aligned)
 {
-	alignas(V128_ALIGN) F32 x[4]
+	alignas(V128_ALIGN) float x[4]
 	{
 		2.5F,
 		0.3F,
@@ -242,7 +242,7 @@ TEST(VectorLib, F32_X4_Add_Aligned)
 		-0.5F
 	};
 
-	alignas(V128_ALIGN) const F32 y[4]
+	alignas(V128_ALIGN) const float y[4]
 	{
 		0.5F,
 		1.3F,
@@ -259,7 +259,7 @@ TEST(VectorLib, F32_X4_Add_Aligned)
 
 TEST(VectorLib, F32_X4_Sub_Unaligned)
 {
-	F32 x[4]
+	float x[4]
 	{
 		2.5F,
 		0.3F,
@@ -267,7 +267,7 @@ TEST(VectorLib, F32_X4_Sub_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[4]
+	const float y[4]
 	{
 		0.5F,
 		1.3F,
@@ -284,7 +284,7 @@ TEST(VectorLib, F32_X4_Sub_Unaligned)
 
 TEST(VectorLib, F32_X4_Sub_Aligned)
 {
-	alignas(V128_ALIGN) F32 x[4]
+	alignas(V128_ALIGN) float x[4]
 	{
 		2.5F,
 		0.3F,
@@ -292,7 +292,7 @@ TEST(VectorLib, F32_X4_Sub_Aligned)
 		-0.5F
 	};
 
-	alignas(V128_ALIGN) const F32 y[4]
+	alignas(V128_ALIGN) const float y[4]
 	{
 		0.5F,
 		1.3F,
@@ -309,7 +309,7 @@ TEST(VectorLib, F32_X4_Sub_Aligned)
 
 TEST(VectorLib, F32_X4_Mul_Unaligned)
 {
-	F32 x[4]
+	float x[4]
 	{
 		2.5F,
 		0.3F,
@@ -317,7 +317,7 @@ TEST(VectorLib, F32_X4_Mul_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[4]
+	const float y[4]
 	{
 		0.5F,
 		1.3F,
@@ -334,7 +334,7 @@ TEST(VectorLib, F32_X4_Mul_Unaligned)
 
 TEST(VectorLib, F32_X4_Mul_Aligned)
 {
-	alignas(V128_ALIGN) F32 x[4]
+	alignas(V128_ALIGN) float x[4]
 	{
 		2.5F,
 		0.3F,
@@ -342,7 +342,7 @@ TEST(VectorLib, F32_X4_Mul_Aligned)
 		-0.5F
 	};
 
-	alignas(V128_ALIGN) const F32 y[4]
+	alignas(V128_ALIGN) const float y[4]
 	{
 		0.5F,
 		1.3F,
@@ -359,7 +359,7 @@ TEST(VectorLib, F32_X4_Mul_Aligned)
 
 TEST(VectorLib, F32_X4_Div_Unaligned)
 {
-	F32 x[4]
+	float x[4]
 	{
 		2.5F,
 		0.3F,
@@ -367,7 +367,7 @@ TEST(VectorLib, F32_X4_Div_Unaligned)
 		-0.5F
 	};
 
-	const F32 y[4]
+	const float y[4]
 	{
 		0.5F,
 		1.3F,
@@ -384,7 +384,7 @@ TEST(VectorLib, F32_X4_Div_Unaligned)
 
 TEST(VectorLib, F32_X4_Div_Aligned)
 {
-	alignas(V128_ALIGN) F32 x[4]
+	alignas(V128_ALIGN) float x[4]
 	{
 		2.5F,
 		0.3F,
@@ -392,7 +392,7 @@ TEST(VectorLib, F32_X4_Div_Aligned)
 		-0.5F
 	};
 
-	alignas(V128_ALIGN) const F32 y[4]
+	alignas(V128_ALIGN) const float y[4]
 	{
 		0.5F,
 		1.3F,

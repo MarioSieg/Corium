@@ -1,7 +1,7 @@
 // File: FixedStack.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,7 +209,7 @@
 
 namespace
 {
-	std::array<U8, 1024>                Buffer { };
+	std::array<std::uint8_t, 1024>      Buffer { };
 	std::pmr::monotonic_buffer_resource Resource {std::data(Buffer), std::size(Buffer)};
 }
 

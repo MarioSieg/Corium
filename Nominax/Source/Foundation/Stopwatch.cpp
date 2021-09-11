@@ -1,7 +1,7 @@
 // File: Stopwatch.cpp
 // Author: Mario
-// Created: 10.08.2021 1:59 AM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -219,7 +219,7 @@ namespace Nominax::Foundation
 		#else
 		static std::mutex mtx;
 		std::lock_guard<std::mutex> lock(mtx);
-		buffer = *std::localtime(&_time);
+		buffer = *std::localtime(&time);
 		#endif
 		return buffer;
 	}

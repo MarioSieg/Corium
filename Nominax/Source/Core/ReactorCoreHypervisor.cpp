@@ -1,7 +1,7 @@
 // File: ReactorCoreHypervisor.cpp
 // Author: Mario
-// Created: 13.08.2021 7:55 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -214,16 +214,18 @@ namespace Nominax::Core
 {
 	auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor& input, const Foundation::CpuFeatureDetector& target,
-		const void****                  outJumpTable
-	) -> std::pair<ReactorShutdownReason, ReactorState>
+		const VerboseReactorDescriptor& input,
+        const Foundation::CPUFeatureDetector& target,
+        JumpTable* const outJumpTable
+	) ->  ReactorState
 	{
-		ReactorState                output {.Input = &input};
-		const ReactorShutdownReason result {SingletonExecutionProxy(input, output, target, outJumpTable)};
-		return {result, output};
+		ReactorState output { .Input = &input };
+        [[maybe_unused]]
+		const auto& _ { SingletonExecutionProxy(input, output, target, outJumpTable) };
+		return output;
 	}
 
-	static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<U64>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
+	static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::uint64_t>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
 	{
 		&ReactorCore_Fallback,
 		&ReactorCore_Debug,
@@ -236,20 +238,20 @@ namespace Nominax::Core
 		#endif
 	};
 
-	auto HyperVisor::SmartSelectReactor(const Foundation::CpuFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
+	auto HyperVisor::SmartSelectReactor(const Foundation::CPUFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
 	{
 		#if NOX_ARCH_X86_64
 
 		// if we have AVX 512, use AVX 512:
-		if (cpuFeatureDetector[Foundation::CpuFeatureBits::Avx512F])
+		if (cpuFeatureDetector[Foundation::CPUFeatureBits::AVX512F])
 		{
-			return ReactorCoreSpecialization::Amd64_Avx512F;
+			return ReactorCoreSpecialization::X86_64_AVX512F;
 		}
 
 		// if we have AVX, use AVX:
-		if (cpuFeatureDetector[Foundation::CpuFeatureBits::Avx])
+		if (cpuFeatureDetector[Foundation::CPUFeatureBits::AVX])
 		{
-			return ReactorCoreSpecialization::Amd64_Avx;
+			return ReactorCoreSpecialization::X86_64_AVX;
 		}
 
 		#elif NOX_ARCH_ARM_64
@@ -266,13 +268,13 @@ namespace Nominax::Core
 
 	auto HyperVisor::GetFallbackRoutineLink() -> ReactorRoutineLink
 	{
-		constexpr auto specialization {ReactorCoreSpecialization::Fallback};
+		constexpr auto specialization { ReactorCoreSpecialization::Fallback };
 
-		ReactorCoreExecutionRoutine* const routine
+		ReactorCoreExecutionRoutine& routine
 		{
-			GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)
+			*GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Fallback)
 		};
-		const void** const jumpTable {QueryJumpTable(*routine)};
+		JumpTable const jumpTable { QueryJumpTable(routine) };
 		return
 		{
 			specialization,
@@ -283,13 +285,13 @@ namespace Nominax::Core
 
 	auto HyperVisor::GetDebugRoutineLink() -> ReactorRoutineLink
 	{
-		constexpr auto specialization {ReactorCoreSpecialization::Debug};
+		constexpr auto specialization { ReactorCoreSpecialization::Debug };
 
-		ReactorCoreExecutionRoutine* const routine
+		ReactorCoreExecutionRoutine& routine
 		{
-			GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Debug)
+			*GetReactorRoutineFromRegistryByTarget(ReactorCoreSpecialization::Debug)
 		};
-		const void** const jumpTable {QueryJumpTable(*routine)};
+		JumpTable const jumpTable { QueryJumpTable(routine) };
 		return
 		{
 			specialization,
@@ -302,21 +304,21 @@ namespace Nominax::Core
 	{
 		ReactorCoreExecutionRoutine* const routine
 		{
-			REACTOR_REGISTRY[static_cast<U64>(target)]
+			REACTOR_REGISTRY[static_cast<std::uint64_t>(target)]
 		};
 		NOX_PAS_NOT_NULL(routine, "Reactor core execution routine is nullptr!");
 		return routine;
 	}
 
-	auto HyperVisor::GetOptimalReactorRoutine(const Foundation::CpuFeatureDetector& features) -> ReactorRoutineLink
+	auto HyperVisor::GetOptimalReactorRoutine(const Foundation::CPUFeatureDetector& features) -> ReactorRoutineLink
 	{
-		static thread_local constinit U16 QueryCounter;
-		ReactorCoreSpecialization         specialization {SmartSelectReactor(features)};
-		ReactorCoreExecutionRoutine*      routine {GetReactorRoutineFromRegistryByTarget(specialization)};
-		const void**                      jumpTable {QueryJumpTable(*routine)};
+		static thread_local constinit std::uint16_t QueryCounter;
+		ReactorCoreSpecialization specialization { SmartSelectReactor(features) };
+		ReactorCoreExecutionRoutine& routine { *GetReactorRoutineFromRegistryByTarget(specialization) };
+		JumpTable jumpTable { QueryJumpTable(routine) };
 		Foundation::Print
 		(
-			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Reactor Registry WordSize: {}\n",
+			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Hypervisor Registry Size: {}\n",
 			GetReactorCoreSpecializationName(specialization),
 			static_cast<std::uint64_t>(specialization),
 			++QueryCounter,
@@ -325,9 +327,12 @@ namespace Nominax::Core
 		if (QueryCounter > 1)
 		{
 			[[unlikely]]
-				Print(Foundation::LogLevel::Warning,
-				      "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n",
-				      QueryCounter);
+            Print
+            (
+                Foundation::LogLevel::Warning,
+                "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n",
+                QueryCounter
+            );
 		}
 		return
 		{
@@ -339,19 +344,20 @@ namespace Nominax::Core
 
 	auto SingletonExecutionProxy
 	(
-		const VerboseReactorDescriptor&       input, ReactorState& output,
-		const Foundation::CpuFeatureDetector& target,
-		const void****                        outJumpTable
-	) -> ReactorShutdownReason
+		const VerboseReactorDescriptor& input,
+		ReactorState& output,
+		const Foundation::CPUFeatureDetector& target,
+		JumpTable* outJumpTable
+	) -> const ReactorState&
 	{
-		return HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable);
+		const bool result { HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable) };
+		NOX_PAS_TRUE(result, "Singleton execution proxy execution routine returned false!");
+		return output;
 	}
 
-	auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> const void**
+	auto QueryJumpTable(ReactorCoreExecutionRoutine& routine) -> JumpTable
 	{
-		const void**   jumpTable { };
-		const void***  proxy {&jumpTable};
-		const void**** writer {&proxy};
-		return routine(nullptr, nullptr, writer) == ReactorShutdownReason::Success ? jumpTable : nullptr;
+        JumpTable output { nullptr };
+		return routine(nullptr, nullptr, &output) ? output : nullptr;
 	}
 }

@@ -1,7 +1,7 @@
 // File: Descriptors.hpp
 // Author: Mario
-// Created: 14.08.2021 1:54 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -210,16 +210,16 @@
 #include "../../Foundation/_Foundation.hpp"
 
 #include "Operand.hpp"
-#include "Rex.hpp"
-#include "Vex.hpp"
-#include "Evex.hpp"
+#include "REX.hpp"
+#include "VEX.hpp"
+#include "EVEX.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
 	/// <summary>
 	/// MMX register access mode.
 	/// </summary>
-	enum class MmxModeType : U8
+	enum class MmxModeType : std::uint8_t
 	{
 		Fpu,
 		Mmx,
@@ -227,9 +227,9 @@ namespace Nominax::Assembler::X86_64
 	};
 
 	/// <summary>
-	/// Sse XMM register access mode.
+	/// SSE XMM register access mode.
 	/// </summary>
-	enum class XmmModeType : U8
+	enum class XmmModeType : std::uint8_t
 	{
 		Sse,
 		Avx,
@@ -238,14 +238,14 @@ namespace Nominax::Assembler::X86_64
 
 	struct Prefix final
 	{
-		U8   Value;
-		bool IsMandatory;
+		std::uint8_t Value;
+		bool         IsMandatory;
 	};
 
 	struct OpCode final
 	{
-		U8  Value;
-		Soo Addend;
+		std::uint8_t Value;
+		Soo          Addend;
 	};
 
 	struct ModRm final
@@ -257,8 +257,8 @@ namespace Nominax::Assembler::X86_64
 
 	struct ImmediateScalar final
 	{
-		U8  Size;
-		Soo Value;
+		std::uint8_t Size;
+		Soo          Value;
 	};
 
 	struct RegisterByte final
@@ -269,14 +269,14 @@ namespace Nominax::Assembler::X86_64
 
 	struct CodeOffset final
 	{
-		U8  Size;
-		Soo Value;
+		std::uint8_t Size;
+		Soo          Value;
 	};
 
 	struct DataOffset final
 	{
-		U8  Size;
-		Soo Value;
+		std::uint8_t Size;
+		Soo          Value;
 	};
 
 	using EncodingRecord = std::variant<Prefix, Rex, Vex, Evex, OpCode, ModRm, ImmediateScalar, RegisterByte, CodeOffset, DataOffset>;

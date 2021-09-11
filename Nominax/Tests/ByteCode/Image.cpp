@@ -1,7 +1,7 @@
 // File: Image.cpp
 // Author: Mario
-// Created: 24.06.2021 7:14 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -277,9 +277,6 @@ TEST(Image, MoveAssign)
 	ASSERT_DOUBLE_EQ(image2[2].R64.AsF64, -3.0);
 }
 
-
-#ifdef NOX_DEATH_TESTS
-
 TEST(Image, DeathConstruct1)
 {
 	const auto routine
@@ -291,7 +288,7 @@ TEST(Image, DeathConstruct1)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct2_1)
@@ -304,7 +301,7 @@ TEST(Image, DeathConstruct2_1)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct2_2)
@@ -317,7 +314,7 @@ TEST(Image, DeathConstruct2_2)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct2_3)
@@ -330,7 +327,7 @@ TEST(Image, DeathConstruct2_3)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct3_1)
@@ -343,7 +340,7 @@ TEST(Image, DeathConstruct3_1)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct3_2)
@@ -356,7 +353,7 @@ TEST(Image, DeathConstruct3_2)
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct4_1)
@@ -365,11 +362,11 @@ TEST(Image, DeathConstruct4_1)
 	{
 		[]
 		{
-			Image image {reinterpret_cast<const U8*>(0xFFAABBCC), 0};
+			Image image {reinterpret_cast<const std::uint8_t*>(0xFFAABBCC), 0};
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct4_2)
@@ -378,11 +375,11 @@ TEST(Image, DeathConstruct4_2)
 	{
 		[]
 		{
-			Image image {reinterpret_cast<const U8*>(0xFFAABBCC), 6};
+			Image image {reinterpret_cast<const std::uint8_t*>(0xFFAABBCC), 6};
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
 
 TEST(Image, DeathConstruct4_3)
@@ -391,11 +388,9 @@ TEST(Image, DeathConstruct4_3)
 	{
 		[]
 		{
-			Image image {static_cast<const U8*>(nullptr), 0};
+			Image image {static_cast<const std::uint8_t*>(nullptr), 0};
 		}
 	};
 
-	ASSERT_DEATH_IF_SUPPORTED(routine(), "");
+	ASSERT_DEATH(routine(), "");
 }
-
-#endif

@@ -1,7 +1,7 @@
 // File: ReactorPool.hpp
 // Author: Mario
-// Created: 13.08.2021 7:40 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -211,13 +211,37 @@
 
 namespace Nominax::Core
 {
+    /// <summary>
+    /// Represents the type on how the reactor pool will create reactors.
+    /// </summary>
+    enum class ReactorPoolBootMode
+    {
+        /// <summary>
+        /// All reactors are booted at the beginning.
+        /// Best for servers or very parallel apps.
+        /// Slower startup time but faster runtime when creating threads/doing parallel work.
+        /// </summary>
+        Cached,
+
+        /// <summary>
+        /// Only the alpha reactor is created.
+        /// The rest is initialized when requested.
+        /// Faster startup time but creating reactors is slow at runtime,
+        /// leading to a slower creation of a thread on first use.
+        /// </summary>
+        Deferred
+    };
+
 	/// <summary>
-	/// A pool holding all existing reactors.
+	/// Manages all concurrent existing reactors and their dynamic creation and caching.
 	/// </summary>
 	class [[nodiscard]] ReactorPool final
 	{
-		std::pmr::vector<Reactor> Pool_ { };
-		ReactorSpawnDescriptor    ReactorConfig_ { };
+        std::pmr::memory_resource& Allocator_;
+		std::pmr::vector<std::optional<std::unique_ptr<Reactor>>> Pool_;
+        const ReactorPoolBootMode BootMode_;
+		const ReactorSpawnDescriptor& ReactorConfig_;
+        const ReactorRoutineLink& ReactorRoutineLink_;
 
 	public:
 		/// <summary>
@@ -225,28 +249,26 @@ namespace Nominax::Core
 		/// </summary>
 		/// <param name="desired">How many reactors the user requested. If zero, logical cpu count will be used.</param>
 		/// <returns>The best reactor count for the current system.</returns>
-		static auto SmartQueryReactorCount(U64 desired = 0) -> U64;
-
-		/// <summary>
-		/// Minimal one reactor is required.
-		/// </summary>
-		static constexpr U64 MIN_REACTOR_COUNT {1};
-
-		/// <summary>
-		/// Fallback reactor count.
-		/// </summary>
-		static constexpr U64 FALLBACK_REACTOR_COUNT {MIN_REACTOR_COUNT};
+		static auto SmartQueryReactorCount(std::uint64_t desired = 0) -> std::uint64_t;
 
 		/// <summary>
 		/// Construct and initialize all new reactors.
 		/// If the reactor count is zero, panic!
 		/// </summary>
+        /// <param name="allocator">The PMR allocator resource.</param>
+        /// <param name="bootMode">The boot mode.</param>
+        /// <param name="reactorCount">The count of reactors. Panics if 0! If the boot mode is deferred,
+        /// this is the capacity of the pool,
+        /// but only the alpha reactor is booted.</param>
+        /// <param name="config">The span config for all reactors.</param>
+        /// <param name="routineLink">The routine link for all reactors.</param>
 		ReactorPool
 		(
-			std::pmr::memory_resource&               allocator,
-			U64                                      reactorCount,
-			const ReactorSpawnDescriptor&            config,
-			const std::optional<ReactorRoutineLink>& routineLink = std::nullopt
+			std::pmr::memory_resource& allocator,
+            ReactorPoolBootMode bootMode,
+			std::uint64_t reactorCount,
+			const ReactorSpawnDescriptor& config,
+			const ReactorRoutineLink& routineLink
 		);
 
 		/// <summary>
@@ -275,114 +297,106 @@ namespace Nominax::Core
 		~ReactorPool();
 
 		/// <summary>
-		/// 
+		/// Query the pool vector.
 		/// </summary>
 		/// <returns>Returns the pool pointer.</returns>
 		[[nodiscard]]
-		auto GetBuffer() const -> const Reactor*;
+		auto GetPool() const -> const std::pmr::vector<std::optional<std::unique_ptr<Reactor>>>&;
+
+        /// <summary>
+        /// Query the pool boot mode.
+        /// </summary>
+        /// <returns>The boot mode.</returns>
+        [[nodiscard]]
+        auto GetBootMode() const -> ReactorPoolBootMode;
 
 		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>Returns the size of the pool.</returns>
-		[[nodiscard]]
-		auto GetSize() const -> U64;
-
-		/// <summary>
-		/// 
+		/// Query the span config.
 		/// </summary>
 		/// <returns>Returns the config used to create each reactor.</returns>
 		[[nodiscard]]
-		auto GetSpawnConfig() const -> const ReactorSpawnDescriptor&;
+		auto GetReactorSpawnConfig() const -> const ReactorSpawnDescriptor&;
+
+        /// <summary>
+        /// Query the routine link.
+        /// </summary>
+        /// <returns>Returns the reactor routine link used to create each reactor.</returns>
+        [[nodiscard]]
+        auto GetReactorRoutineLink() const -> const ReactorRoutineLink&;
+
+        /// <summary>
+        /// Bootes a new reactor and pushes it into the pool.
+        /// </summary>
+        /// <returns>A reference to the new booted reactor.</returns>
+        auto BootReactor() -> Reactor&;
+
+        /// <summary>
+        /// Returns a pointer to the reactor in the pool index,
+        /// if the reactor is online and the pool index exists, else nullptr!
+        /// </summary>
+        /// <param name="poolIndex">The pool index of the reactor.</param>
+        /// <returns>A pointer to the reactor or nullptr!</returns>
+        [[nodiscard]]
+        auto QueryReactorFromCache(std::uint64_t poolIndex) -> Reactor*;
+
+        /// <summary>
+        /// If the reactor with the pool index exists,
+        /// the existing reactor is returned.
+        /// If not, a new reactor is booted and pushed into the pool.
+        /// And the new reactor is returned.
+        /// </summary>
+        /// <param name="poolIndex">The pool index of the reactor to query from.</param>
+        /// <returns>A reference to the already existing or the new reactor.</returns>
+        auto QueryAutoCacheReactor(uint64_t poolIndex) -> Reactor&;
+
+        /// <summary>
+        /// Returns a reference to the primary alpha reactor (pool index 0).
+        /// Panics if the alpha reactor does not exist.
+        /// </summary>
+        /// <returns>A reference to the alpha reactor.</returns>
+        [[nodiscard]]
+        auto QueryAlphaReactor() -> Reactor&;
+
+        /// <summary>
+        /// Same as QueryAutoCacheReactor().
+        /// </summary>
+		[[nodiscard]]
+		auto operator [] (std::uint64_t poolIndex) -> Reactor&;
 
 		/// <summary>
-		/// Returns the reactor at index.
+		/// Same as QueryAlphaReactor().
 		/// </summary>
-		/// <param name="idx"></param>
-		/// <returns></returns>
 		[[nodiscard]]
-		auto GetReactor(U64 idx) const -> const Reactor&;
-
-
-		/// <summary>
-		/// Returns the reactor at index.
-		/// </summary>
-		/// <param name="idx"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto operator [](U64 idx) const -> const Reactor&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The first reactor in the pool running on the main thread.</returns>
-		[[nodiscard]]
-		auto GetAlphaReactor() -> Reactor&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The first reactor in the pool running on the main thread.</returns>
-		[[nodiscard]]
-		auto operator *() -> Reactor&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The first reactor in the pool running on the main thread.</returns>
-		[[nodiscard]]
-		auto GetAlphaReactor() const -> const Reactor&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The first reactor in the pool running on the main thread.</returns>
-		[[nodiscard]]
-		auto operator *() const -> const Reactor&;
+		auto operator * () -> Reactor&;
 	};
 
-	inline auto ReactorPool::GetBuffer() const -> const Reactor*
-	{
-		return this->Pool_.data();
-	}
+    inline auto ReactorPool::GetPool() const -> const std::pmr::vector<std::optional<std::unique_ptr<Reactor>>>&
+    {
+        return this->Pool_;
+    }
 
-	inline auto ReactorPool::GetSize() const -> U64
-	{
-		return this->Pool_.size();
-	}
+    inline auto ReactorPool::GetBootMode() const -> ReactorPoolBootMode
+    {
+        return this->BootMode_;
+    }
 
-	inline auto ReactorPool::GetSpawnConfig() const -> const ReactorSpawnDescriptor&
+	inline auto ReactorPool::GetReactorSpawnConfig() const -> const ReactorSpawnDescriptor&
 	{
 		return this->ReactorConfig_;
 	}
 
-	inline auto ReactorPool::GetReactor(const U64 idx) const -> const Reactor&
-	{
-		return this->Pool_[idx];
-	}
+    inline auto ReactorPool::GetReactorRoutineLink() const -> const ReactorRoutineLink&
+    {
+        return this->ReactorRoutineLink_;
+    }
 
-	inline auto ReactorPool::operator[](const U64 idx) const -> const Reactor&
-	{
-		return this->GetReactor(idx);
-	}
+    inline auto ReactorPool::operator [] (const std::uint64_t poolIndex) -> Reactor&
+    {
+        return this->QueryAutoCacheReactor(poolIndex);
+    }
 
-	inline auto ReactorPool::GetAlphaReactor() -> Reactor&
-	{
-		return this->Pool_.front();
-	}
-
-	inline auto ReactorPool::operator*() -> Reactor&
-	{
-		return this->Pool_.front();
-	}
-
-	inline auto ReactorPool::GetAlphaReactor() const -> const Reactor&
-	{
-		return this->Pool_.front();
-	}
-
-	inline auto ReactorPool::operator*() const -> const Reactor&
-	{
-		return this->Pool_.front();
-	}
+    inline auto ReactorPool::operator * () -> Reactor&
+    {
+        return this->QueryAlphaReactor();
+    }
 }

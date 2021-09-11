@@ -285,7 +285,7 @@ pub enum Instruction {
     MatDiv = 0x48,
 
     /* count of total instructions */
-    Count_,
+    InterruptStatus_Count_,
 }
 
 #[repr(u8)]
@@ -296,11 +296,11 @@ pub enum InstructionCategory {
     Branching = 0x02,
     Arithmetic = 0x03,
     BitWise = 0x04,
-    VectorSimd = 0x05,
+    VectorArithmetic = 0x05,
 }
 
 impl Instruction {
-    pub const MNEMONIC_TABLE: [&'static str; Instruction::Count_ as usize] = [
+    pub const MNEMONIC_TABLE: [&'static str; Instruction::InterruptStatus_Count_ as usize] = [
         "int", "intrin", "cintrin", "call", "ret", "mov", "sto", "push", "pop", "pop2", "dupl",
         "dupl2", "swap", "nop", "jmp", "jmprel", "jz", "jnz", "jo_cmpi", "jo_cmpf", "jno_cmpi",
         "jno_cmpf", "je_cmpi", "je_cmpf", "jne_cmpi", "jne_cmpf", "ja_cmpi", "ja_cmpf", "jl_cmpi",
@@ -311,7 +311,7 @@ impl Instruction {
         "matpop", "matadd", "matsub", "matmul", "matdiv",
     ];
 
-    pub const CATEGORY_TABLE: [InstructionCategory; Instruction::Count_ as usize] = [
+    pub const CATEGORY_TABLE: [InstructionCategory; Instruction::InterruptStatus_Count_ as usize] = [
         InstructionCategory::Control,
         InstructionCategory::Control,
         InstructionCategory::Control,
@@ -375,37 +375,37 @@ impl Instruction {
         InstructionCategory::Arithmetic,
         InstructionCategory::Memory,
         InstructionCategory::Memory,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
         InstructionCategory::Memory,
         InstructionCategory::Memory,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
-        InstructionCategory::VectorSimd,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
+        InstructionCategory::VectorArithmetic,
     ];
 
-    pub const PUSH_RECORD_TABLE: [u8; Instruction::Count_ as usize] = [
+    pub const PUSH_RECORD_TABLE: [u8; Instruction::InterruptStatus_Count_ as usize] = [
         0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 4, 0, 4, 4, 4, 4, 16, 0, 16, 16, 16, 16,
     ];
 
-    pub const POP_RECORD_TABLE: [u8; Instruction::Count_ as usize] = [
+    pub const POP_RECORD_TABLE: [u8; Instruction::InterruptStatus_Count_ as usize] = [
         0, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0, 2, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2,
         2, 2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1,
         1, 0, 4, 8, 8, 8, 8, 0, 16, 32, 32, 32, 32,
     ];
 
-    pub const IMMEDIATE_ARG_TABLE: [u8; Instruction::Count_ as usize] = [
+    pub const IMMEDIATE_ARG_TABLE: [u8; Instruction::InterruptStatus_Count_ as usize] = [
         1, 1, 1, 1, 0, 2, 2, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 4, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0,
     ];
 
-    pub const DESCRIPTOR_TABLE: [&'static str; Instruction::Count_ as usize] = [
+    pub const DESCRIPTOR_TABLE: [&'static str; Instruction::InterruptStatus_Count_ as usize] = [
         "interrupt reactor execution",
         "call intrinsic system routine",
         "call custom intrinsic routine",
@@ -578,7 +578,7 @@ pub enum SystemIntrinsicInvocationID {
     IoPortFlush = 0x24,
 
     /* !no intrinsic routine - count of total intrinsic routines! */
-    Count_,
+    InterruptStatus_Count_,
 }
 
 /// Represents a jump address which

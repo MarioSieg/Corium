@@ -1,7 +1,7 @@
 // File: Instruction.hpp
 // Author: Mario
-// Created: 14.08.2021 1:50 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -214,7 +214,7 @@ namespace Nominax::Assembler::X86_64
 	/// <summary>
 	/// Contains all instruction types.
 	/// </summary>
-	enum class Instruction : U16
+	enum class Instruction : std::uint16_t
 	{
 		Adc,
 		Adcx,

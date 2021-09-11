@@ -1,7 +1,7 @@
 // File: TaskQueueThreadPool.cpp
 // Author: Mario
-// Created: 06.06.2021 5:38 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,9 +209,9 @@
 
 namespace Nominax::Core
 {
-	TaskQueueThreadPool::TaskQueueThreadPool(const U64 threadCount)
+	TaskQueueThreadPool::TaskQueueThreadPool(const std::uint64_t threadCount)
 	{
-		for (U64 i {0}; i < threadCount; ++i)
+		for (std::uint64_t i {0}; i < threadCount; ++i)
 		{
 			this->Threads.emplace_back(std::make_unique<TaskQueueThread>());
 		}
@@ -223,11 +223,11 @@ namespace Nominax::Core
 	TaskQueueThreadPool::TaskQueueThreadPool
 	(
 		std::pmr::monotonic_buffer_resource& allocator,
-		const U64                            threadCount
+		const std::uint64_t                  threadCount
 	) : Allocator_ {&allocator},
 	    Threads {Allocator_}
 	{
-		for (U64 i {0}; i < threadCount; ++i)
+		for (std::uint64_t i {0}; i < threadCount; ++i)
 		{
 			this->Threads.emplace_back(std::make_unique<TaskQueueThread>(allocator));
 		}

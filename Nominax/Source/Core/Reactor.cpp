@@ -1,7 +1,7 @@
 // File: Reactor.cpp
 // Author: Mario
-// Created: 13.08.2021 7:53 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -234,18 +234,18 @@ namespace Nominax::Core
 		std::pmr::memory_resource&    allocator,
 		const ReactorSpawnDescriptor& descriptor,
 		const ReactorRoutineLink&     routineLink,
-		const U64                     poolIdx
+		const std::uint64_t           poolIdx
 	) :
-		Id_ {Foundation::Xorshift128ThreadLocal()},
-		PoolIndex_ {poolIdx},
-		SpawnStamp_ {std::chrono::high_resolution_clock::now()},
-		PowerPreference_ {descriptor.PowerPref},
+		Id_ { Foundation::Xorshift128ThreadLocal() },
+		PoolIndex_ { poolIdx },
+		SpawnStamp_ { std::chrono::high_resolution_clock::now() },
+		PowerPreference_ { descriptor.PowerPref },
 		Input_ { },
-		Output_ {.Input = &Input_},
-		Stack_ {allocator, descriptor.StackSize},
-		IntrinsicTable_ {descriptor.SharedIntrinsicTable},
-		InterruptHandler_ {descriptor.InterruptHandler ? descriptor.InterruptHandler : GetDefaultInterruptRoutine()},
-		RoutineLink_ {routineLink}
+		Output_ { .Input = &Input_ },
+		Stack_ { allocator, descriptor.StackSize },
+		IntrinsicTable_ { descriptor.SharedIntrinsicTable },
+		InterruptHandler_ { descriptor.InterruptHandler ? descriptor.InterruptHandler : &DEFAULT_INTERRUPT_ROUTINE },
+		RoutineLink_ { routineLink }
 	{
 		Foundation::Print
 		(
@@ -253,39 +253,39 @@ namespace Nominax::Core
 			"Stack: {} MB, "
 			"{} KRec, "
 			"Intrin: {}, "
-			"Interrupt: {}, "
+			"InterruptStatus: {}, "
 			"Power: {}, "
 			"Pool: {:02}\n",
 			this->Id_,
 			Bytes2Megabytes(this->Stack_.Size() * sizeof(Foundation::Record)),
 			this->Stack_.Size() / 1000,
 			std::size(this->IntrinsicTable_),
-			this->InterruptHandler_ == GetDefaultInterruptRoutine() ? "Default" : "Overridden",
+			this->InterruptHandler_ == &DEFAULT_INTERRUPT_ROUTINE ? "Default" : "Overridden",
 			this->PowerPreference_ == PowerPreference::HighPerformance ? "Performance" : "PowerSafe",
 			this->PoolIndex_
 		);
 	}
 
-	auto Reactor::Execute(const ByteCode::Image& bundle) -> std::pair<ReactorShutdownReason, const ReactorState&>
+	auto Reactor::Execute(const ByteCode::Image& image) -> const ReactorState&
 	{
 		this->Input_ = CreateDescriptor
 		(
-			this->Stack_,
-			bundle,
-			this->IntrinsicTable_,
-			*this->InterruptHandler_
+            this->Stack_,
+            image,
+            this->IntrinsicTable_,
+            *this->InterruptHandler_
 		);
-		const auto validationResult {this->Input_.Validate()};
-		if (validationResult != ReactorValidationResult::Ok)
-		[[unlikely]]
+		const ReactorValidationResult validationResult { this->Input_.Validate() };
+		if (validationResult != ReactorValidationResult::Ok) [[unlikely]]
 		{
-			const std::string_view message {REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(validationResult)]};
+			const std::string_view message { REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(validationResult)] };
 			Panic(NOX_PANIC_INFO(), "Reactor {:#X} validation failed with the following reason: {}", this->Id_, message);
 		}
-		ReactorCoreExecutionRoutine* const routine {this->RoutineLink_.ExecutionRoutine};
-		NOX_PAS_NOT_NULL(routine, "Reactor execution routine is nullptr!");
+		ReactorCoreExecutionRoutine* const routine { this->RoutineLink_.ExecutionRoutine };
+		NOX_PAS_NOT_NULL(routine, "Reactor execution routine is null!");
 		this->Output_.Input = &this->Input_;
-		const ReactorShutdownReason result {(*routine)(&this->Input_, &this->Output_, nullptr)};
-		return {result, this->Output_};
+		const bool result { (*routine)(&this->Input_, &this->Output_, nullptr) };
+		NOX_PAS_TRUE(result, "Reactor routine execution return false!");
+        return this->Output_;
 	}
 }

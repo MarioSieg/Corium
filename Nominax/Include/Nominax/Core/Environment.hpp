@@ -1,7 +1,7 @@
 // File: Environment.hpp
 // Author: Mario
-// Created: 13.08.2021 7:32 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -211,10 +211,10 @@
 #include <memory>
 #include <memory_resource>
 
-#include "../Foundation/BaseTypes.hpp"
+#include <cstdint>
 #include "../Foundation/MemoryUnits.hpp"
-#include "../Foundation/CpuFeatureDetector.hpp"
-#include "../Foundation/Snapshot.hpp"
+#include "../Foundation/CPUFeatureDetector.hpp"
+#include "../Foundation/SystemInfoSnapshot.hpp"
 #include "../Foundation/IAllocator.hpp"
 #include "../ByteCode/Stream.hpp"
 #include "../ByteCode/Image.hpp"
@@ -239,13 +239,13 @@ namespace Nominax::Core
 		/// </summary>
 		struct ContextDeleter final
 		{
-			auto operator()(Context* kernel) const -> void;
+			auto operator()(Context* context) const -> void;
 		};
 
 		/// <summary>
 		/// Pimpl ptr.
 		/// </summary>
-		std::unique_ptr<Context, ContextDeleter> Context_ {nullptr};
+		std::unique_ptr<Context, ContextDeleter> Context_ { nullptr };
 
 	protected:
 		/// <summary>
@@ -294,19 +294,19 @@ namespace Nominax::Core
 		/// <summary>
 		/// WordSize in bytes of the system pool, if the given count was invalid.
 		/// </summary>
-		static constexpr U64 FALLBACK_SYSTEM_POOL_SIZE {256_kB};
+		static constexpr std::uint64_t FALLBACK_SYSTEM_POOL_SIZE { 256_kB };
 		static_assert(FALLBACK_SYSTEM_POOL_SIZE);
 
 		/// <summary>
 		/// The min size of the boot pool.
 		/// </summary>
-		static constexpr U64 BOOT_POOL_SIZE_MIN {32_kB};
+		static constexpr std::uint64_t BOOT_POOL_SIZE_MIN { 32_kB };
 		static_assert(BOOT_POOL_SIZE_MIN);
 
 		/// <summary>
 		/// The max size of the boot pool.
 		/// </summary>
-		static constexpr U64 BOOT_POOL_SIZE_MAX {256_kB};
+		static constexpr std::uint64_t BOOT_POOL_SIZE_MAX { 256_kB };
 		static_assert(BOOT_POOL_SIZE_MAX);
 
 		/// <summary>
@@ -360,7 +360,7 @@ namespace Nominax::Core
 		/// <param name="image"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(const ByteCode::Image& image) -> ExecutionResult;
+		auto Execute(const ByteCode::Image& image) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -368,7 +368,7 @@ namespace Nominax::Core
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(ByteCode::Stream&& stream) -> ExecutionResult;
+		auto Execute(ByteCode::Stream&& stream) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -376,7 +376,7 @@ namespace Nominax::Core
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(const ByteCode::Stream& stream) -> ExecutionResult;
+		auto Execute(const ByteCode::Stream& stream) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -384,7 +384,7 @@ namespace Nominax::Core
 		/// <param name="image"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator()(const ByteCode::Image& image) -> ExecutionResult;
+		auto operator()(const ByteCode::Image& image) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -392,7 +392,7 @@ namespace Nominax::Core
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator()(const ByteCode::Stream&& stream) -> ExecutionResult;
+		auto operator()(ByteCode::Stream&& stream) -> const ReactorState&;
 
 		/// <summary>
 		/// Execute stream on alpha reactor.
@@ -400,7 +400,7 @@ namespace Nominax::Core
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto operator()(const ByteCode::Stream& stream) -> ExecutionResult;
+		auto operator()(const ByteCode::Stream& stream) -> const ReactorState&;
 
 		/// <summary>
 		/// Shutdown runtime environment.
@@ -442,14 +442,14 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The system stat snapshot.</returns>
 		[[nodiscard]]
-		auto GetSystemSnapshot() const -> const Foundation::Snapshot&;
+		auto GetSystemInfoSnapshot() const -> const Foundation::SystemInfoSnapshot&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The cpu feature detector.</returns>
 		[[nodiscard]]
-		auto GetProcessorFeatureSnapshot() const -> const Foundation::CpuFeatureDetector&;
+		auto GetCpuFeatureSnapshot() const -> const Foundation::CPUFeatureDetector&;
 
 		/// <summary>
 		/// 
@@ -463,21 +463,21 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The size of the system pool in bytes.</returns>
 		[[nodiscard]]
-		auto GetMonotonicSystemPoolSize() const -> U64;
+		auto GetMonotonicSystemPoolSize() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The count of reactor executions so far.</returns>
 		[[nodiscard]]
-		auto GetExecutionCount() const -> U64;
+		auto GetExecutionCount() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The history of execution times.</returns>
 		[[nodiscard]]
-		auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<F64, std::micro>>&;
+		auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<double, std::micro>>&;
 
 		/// <summary>
 		/// 
@@ -487,17 +487,17 @@ namespace Nominax::Core
 		auto GetOptimizationHints() const -> ByteCode::OptimizationHints;
 	};
 
-	inline auto Environment::operator()(const ByteCode::Image& image) -> ExecutionResult
+	inline auto Environment::operator()(const ByteCode::Image& image) -> const ReactorState&
 	{
 		return this->Execute(image);
 	}
 
-	inline auto Environment::operator()(const ByteCode::Stream&& stream) -> ExecutionResult
+	inline auto Environment::operator()(ByteCode::Stream&& stream) -> const ReactorState&
 	{
 		return this->Execute(std::move(stream));
 	}
 
-	inline auto Environment::operator()(const ByteCode::Stream& stream) -> ExecutionResult
+	inline auto Environment::operator()(const ByteCode::Stream& stream) -> const ReactorState&
 	{
 		return this->Execute(stream);
 	}

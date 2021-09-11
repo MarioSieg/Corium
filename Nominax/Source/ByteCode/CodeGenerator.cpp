@@ -1,7 +1,7 @@
 // File: CodeGenerator.cpp
 // Author: Mario
-// Created: 11.08.2021 4:22 PM
-// Project: NominaxRuntime
+// Created: 20.08.2021 2:40 PM
+// Project: Corium
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,7 +209,7 @@
 
 namespace Nominax::ByteCode
 {
-	auto LocalCodeGenerationLayer::EmitPush(const I64 value) -> LocalCodeGenerationLayer&
+	auto LocalCodeGenerationLayer::EmitPush(const std::int64_t value) -> LocalCodeGenerationLayer&
 	{
 		if (this->EnablePeepholeOptimizations && value == 0)
 		{
@@ -226,7 +226,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	auto LocalCodeGenerationLayer::EmitPush(const F64 value) -> LocalCodeGenerationLayer&
+	auto LocalCodeGenerationLayer::EmitPush(const double value) -> LocalCodeGenerationLayer&
 	{
 		if (this->EnablePeepholeOptimizations && value == 0.0)
 		{
@@ -243,7 +243,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	auto LocalCodeGenerationLayer::EmitPop(const U16 popCount) -> LocalCodeGenerationLayer&
+	auto LocalCodeGenerationLayer::EmitPop(const std::uint16_t popCount) -> LocalCodeGenerationLayer&
 	{
 		if (this->EnablePeepholeOptimizations)
 		{
@@ -271,28 +271,28 @@ namespace Nominax::ByteCode
 				default:
 					if (popCount % 2 == 0)
 					{
-						for (U8 i {0}; i < popCount / 2; ++i)
+						for (std::uint8_t i { 0 }; i < popCount / 2; ++i)
 						{
 							this->Emitter << Instruction::Pop2;
 						}
 					}
 					else if (popCount % 4 == 0)
 					{
-						for (U8 i {0}; i < popCount / 4; ++i)
+						for (std::uint8_t i { 0 }; i < popCount / 4; ++i)
 						{
 							this->Emitter << Instruction::VecPop;
 						}
 					}
 					else if (popCount % 16 == 0)
 					{
-						for (U8 i {0}; i < popCount / 16; ++i)
+						for (std::uint8_t i { 0 }; i < popCount / 16; ++i)
 						{
 							this->Emitter << Instruction::MatPop;
 						}
 					}
 					else
 					{
-						for (U8 i {0}; i < popCount; ++i)
+						for (std::uint8_t i { 0 }; i < popCount; ++i)
 						{
 							this->Emitter << Instruction::Pop;
 						}
@@ -300,7 +300,7 @@ namespace Nominax::ByteCode
 					return *this;
 			}
 		}
-		for (U8 i {0}; i < popCount; ++i)
+		for (std::uint8_t i { 0 }; i < popCount; ++i)
 		{
 			this->Emitter << Instruction::Pop;
 		}
