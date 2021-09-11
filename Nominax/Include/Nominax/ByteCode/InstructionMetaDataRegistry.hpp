@@ -375,7 +375,7 @@ namespace Nominax::ByteCode
                                 ANY_SCALAR_VALUE_TYPE,
                                 ANY_SCALAR_VALUE_TYPE,
                                 ANY_SCALAR_VALUE_TYPE,
-                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE
                             },
             /* mpop     */  InstructionOperandTable { },
             /* madd     */  InstructionOperandTable { },
@@ -385,7 +385,7 @@ namespace Nominax::ByteCode
             /* cvti2f   */  InstructionOperandTable { },
             /* cvtf2i   */  InstructionOperandTable { },
             /* cvti2c   */  InstructionOperandTable { },
-            /* cvti2b   */  InstructionOperandTable { },
+            /* cvti2b   */  InstructionOperandTable { }
         };
 
         /// <summary>
@@ -729,88 +729,21 @@ namespace Nominax::ByteCode
         };
 
         /// <summary>
-        /// Contains the amount of stack pops each instruction will perform.
+        /// Contains the stack difference after the instruction was executed.
+        /// Automatically computed from the push and pop table.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<std::uint8_t, ToUnderlying(Instruction::Count_)> IMMEDIATE_ARGUMENT_COUNT_TABLE
+        static constexpr std::array<std::int16_t, ToUnderlying(Instruction::Count_)> STACK_DIFF_TABLE
         {
-                1,
-                1,
-                1,
-                1,
-                0,
-                2,
-                2,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                4,
-                0,
-                0,
-                0,
-                0,
-                0,
-                16,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
+            []
+            {
+                std::array<std::int16_t, ToUnderlying(Instruction::Count_)> result { };
+                for (std::uint64_t i { 0 }; i < ToUnderlying(Instruction::Count_); ++i)
+                {
+                    result[i] = static_cast<std::int16_t>(PUSH_RECORD_TABLE[i] - POP_RECORD_TABLE[i]);
+                }
+                return result;
+            }()
         };
 
         /// <summary>
@@ -932,5 +865,104 @@ namespace Nominax::ByteCode
         {
             return std::size(OPERAND_TYPE_TABLE[ToUnderlying(instruction)]);
         }
+
+        /// <summary>
+        /// Contains the amount of stack pops each instruction will perform.
+        /// </summary>
+        [[maybe_unused]]
+        static constexpr std::array<std::uint8_t, ToUnderlying(Instruction::Count_)> IMMEDIATE_ARGUMENT_COUNT_TABLE
+        {
+            /* int      */  1,
+            /* intrin   */  1,
+            /* cintrin  */  1,
+            /* call     */  1,
+            /* ret      */  0,
+            /* mov      */  2,
+            /* sto      */  2,
+            /* push     */  1,
+            /* pop      */  0,
+            /* pop2     */  0,
+            /* dupl     */  0,
+            /* dupl2    */  0,
+            /* swap     */  0,
+            /* nop      */  0,
+            /* jmp      */  1,
+            /* jmprel   */  1,
+            /* jz       */  1,
+            /* jnz      */  1,
+            /* jocmpi  */   1,
+            /* jocmpf  */   1,
+            /* jnocmpi */   1,
+            /* jnocmpf */   1,
+            /* jecmpi  */   1,
+            /* jecmpf  */   1,
+            /* jnecmpi */   1,
+            /* jnecmpf */   1,
+            /* jacmpi  */   1,
+            /* jacmpf  */   1,
+            /* jlcmpi  */   1,
+            /* jlcmpf  */   1,
+            /* jaecmpi */   1,
+            /* jaecmpf */   1,
+            /* jlecmpi */   1,
+            /* jlecmpf */   1,
+            /* pushz    */  0,
+            /* ipusho   */  0,
+            /* fpusho   */  0,
+            /* iinc     */  0,
+            /* idec     */  0,
+            /* iadd     */  0,
+            /* isub     */  0,
+            /* imul     */  0,
+            /* idiv     */  0,
+            /* imod     */  0,
+            /* iand     */  0,
+            /* ior      */  0,
+            /* ixor     */  0,
+            /* icom     */  0,
+            /* isal     */  0,
+            /* isar     */  0,
+            /* irol     */  0,
+            /* iror     */  0,
+            /* ineg     */  0,
+            /* fadd     */  0,
+            /* fsub     */  0,
+            /* fmul     */  0,
+            /* fdiv     */  0,
+            /* fmod     */  0,
+            /* fneg     */  0,
+            /* finc     */  0,
+            /* fdec     */  0,
+            /* vpush    */  4,
+            /* vpop     */  0,
+            /* vadd     */  0,
+            /* vsub     */  0,
+            /* vmul     */  0,
+            /* vdiv     */  0,
+            /* mpush    */  16,
+            /* mpop     */  0,
+            /* madd     */  0,
+            /* msub     */  0,
+            /* mmul     */  0,
+            /* mdiv     */  0,
+            /* cvti2f   */  0,
+            /* cvtf2i   */  0,
+            /* cvti2c   */  0,
+            /* cvti2b   */  0
+        };
     };
+
+    static consteval auto ValidateImmediateArgumentCounts() -> bool
+    {
+        for (std::uint64_t i { 0 }; i < ToUnderlying(Instruction::Count_); ++i)
+        {
+            if (InstructionMetaDataRegistry::IMMEDIATE_ARGUMENT_COUNT_TABLE[i] != std::size(InstructionMetaDataRegistry::OPERAND_TYPE_TABLE[i]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static_assert(ValidateImmediateArgumentCounts(), "Mismatch in operand type table and immediate argument count table!");
 }

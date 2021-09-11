@@ -220,5 +220,6 @@ auto main(const int argc, const char* const* const argv) -> int
 	Environment environment { };
 	environment.Boot(environmentDescriptor);
 	environment.Shutdown();
+
 	return 0;
 }
