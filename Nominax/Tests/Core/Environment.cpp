@@ -319,22 +319,6 @@ TEST(Environent, ConstructOfflineAccessDeath_GetExecutionCount)
     ASSERT_DEATH(executor(), "");
 }
 
-TEST(Environent, ConstructOfflineAccessDeath_GetExecutionTimeHistory)
-{
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
-    const auto executor
-    {
-        [&]
-        {
-            [[maybe_unused]]
-            const auto& x{ env.GetExecutionTimeHistory() };
-        }
-    };
-    ASSERT_DEATH(executor(), "");
-}
-
 TEST(Environment, Boot)
 {
 	Environment env { };
@@ -516,7 +500,6 @@ TEST(Environment, Execution)
 	};
 	ASSERT_NO_FATAL_FAILURE(executor());
 	ASSERT_EQ(env.GetExecutionCount(), 1);
-	ASSERT_EQ(env.GetExecutionTimeHistory().size(), 1);
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 
@@ -605,7 +588,6 @@ TEST(Environment, ExecutionHooks)
 	ASSERT_EQ(env.GetExecutionCount(), 1);
 	ASSERT_EQ(counter, 2);
 	ASSERT_EQ(streamSize, ssize);
-	ASSERT_EQ(env.GetExecutionTimeHistory().size(), 1);
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 

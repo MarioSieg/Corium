@@ -475,16 +475,48 @@ namespace Nominax::Core
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>The history of execution times.</returns>
-		[[nodiscard]]
-		auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<double, std::micro>>&;
-
-		/// <summary>
-		/// 
-		/// </summary>
 		/// <returns>The local optimization info for the current machine.</returns>
 		[[nodiscard]]
 		auto GetOptimizationHints() const -> ByteCode::OptimizationHints;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The output stream of the context.</returns>
+        [[nodiscard]]
+        auto GetOutputStream() const -> FILE*;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The output stream of the context.</returns>
+        [[nodiscard]]
+        auto GetErrorStream() const -> FILE*;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The output stream of the context.</returns>
+        [[nodiscard]]
+        auto GetInputStream() const -> FILE*;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="stream">The new stream.</param>
+        auto SetOutputStream(FILE* stream) -> void;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="stream">The new stream.</param>
+        auto SetErrorStream(FILE* stream) -> void;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="stream">The new stream.</param>
+        auto SetInputStream(FILE* stream) -> void;
 	};
 
 	inline auto Environment::operator()(const ByteCode::Image& image) -> const ReactorState&

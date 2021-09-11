@@ -213,6 +213,7 @@
 #include "../Foundation/MemoryUnits.hpp"
 
 #include "ReactorCreationDescriptor.hpp"
+#include "ReactorPool.hpp"
 
 namespace Nominax::Core
 {
@@ -258,11 +259,16 @@ namespace Nominax::Core
 		/// </summary>
 		std::uint64_t SystemPoolSize { 512_kB };
 
+        /// <summary>
+        /// The boot mode of the reactor pool
+        /// </summary>
+        ReactorPoolBootMode ReactorPoolMode { ReactorPoolBootMode::Deferred };
+
 		/// <summary>
 		/// The count of reactors.
 		/// If 0, the system will use the number of CPU threads.
 		/// </summary>
-		std::uint64_t ReactorCount { 0 };
+		std::uint64_t ReactorCount { 1 };
 
 		/// <summary>
 		/// The reactor stack size in bytes.

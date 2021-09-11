@@ -209,6 +209,8 @@
 
 #include "../../../Nominax/Include/Nominax/Core/_Core.hpp"
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../Include/Nominax/Core/Environment.hpp"
+
 
 namespace Nominax::Core
 {
@@ -607,48 +609,6 @@ namespace Nominax::Core
 	}
 
 	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="idx"></param>
-	/// <param name="appCode"></param>
-	/// <param name="code"></param>
-	/// <returns></returns>
-	[[maybe_unused]]
-	static auto PrintByteCodeErrorSector
-	(
-		const std::uint64_t                  idx, const ByteCode::Stream& appCode,
-		const ByteCode::ValidationResultCode code
-	)
-	{
-		const bool isInstructionFault
-		{
-			code == ByteCode::ValidationResultCode::NotEnoughArgumentsForInstruction
-			|| code == ByteCode::ValidationResultCode::TooManyArgumentsForInstruction
-			|| code == ByteCode::ValidationResultCode::ArgumentTypeMismatch
-		};
-
-		for (std::uint64_t i { idx }; i < idx + 8 && i < appCode.Size(); ++i)
-		{
-			if (appCode[i].Contains<ByteCode::Instruction>())
-			{
-				Print(TextColor::Green, "\n{:#018X}: ", i);
-				Print(TextColor::BrightBlue, "{}", appCode[i].Value.R64.AsU64);
-			}
-			else
-			{
-				Print(TextColor::Magenta, " {}", appCode[i].Value.R64.AsU64);
-			}
-
-			if (isInstructionFault && i == idx)
-			{
-				Print(LogLevel::Error, " {} ->", code);
-			}
-		}
-
-		Print('\n');
-	}
-
-	/// <summary>
 	/// Helper to allocate a environment pool.
 	/// </summary>
 	[[nodiscard]]
@@ -726,20 +686,23 @@ namespace Nominax::Core
 		std::pmr::monotonic_buffer_resource                         SystemPoolResource;
 		std::pmr::unordered_set<std::pmr::string>                   Arguments;
 		std::pmr::string                                            AppName;
-		std::pmr::vector<std::chrono::duration<double, std::micro>> ExecutionTimeHistory;
 		const std::chrono::high_resolution_clock::time_point        BootStamp;
 		std::chrono::milliseconds                                   BootTime;
 		const SystemInfoSnapshot                                    SysInfoSnapshot;
 		const CPUFeatureDetector                                    CpuFeatures;
 		const ReactorRoutineLink                                    OptimalReactorRoutine;
 		ReactorPool                                                 CorePool;
+        std::uint64_t                                               ExecutionCount;
+        FILE*                                                       OutputStream;
+        FILE*                                                       ErrorStream;
+        FILE*                                                       InputStream;
 
 		explicit Context(const EnvironmentDescriptor& descriptor);
-		Context(const Context&)                     = delete;
-		Context(Context&&)                          = delete;
-		auto operator =(const Context&) -> Context& = delete;
-		auto operator =(Context&&) -> Context&      = delete;
-		~Context()                                  = default;
+		Context(const Context& other)                       = delete;
+		Context(Context&& other)                            = delete;
+		auto operator =(const Context& other) -> Context&   = delete;
+		auto operator =(Context&& other) -> Context&        = delete;
+		~Context()                                          = default;
 	};
 
 	Environment::Context::Context(const EnvironmentDescriptor& descriptor) :
@@ -749,7 +712,6 @@ namespace Nominax::Core
 		SystemPoolResource { *SystemPool, SystemPoolSize },
 		Arguments { },
 		AppName { &SystemPoolResource },
-		ExecutionTimeHistory { &SystemPoolResource },
 		BootStamp { std::chrono::high_resolution_clock::now() },
 		BootTime { },
 		SysInfoSnapshot { InitSysInfo() },
@@ -758,7 +720,7 @@ namespace Nominax::Core
 		CorePool
 		{
 			SystemPoolResource,
-            ReactorPoolBootMode::Cached,
+            descriptor.ReactorPoolMode,
             ReactorCount,
             ReactorSpawnDescriptor
 			{
@@ -768,7 +730,11 @@ namespace Nominax::Core
 				.PowerPref = descriptor.PowerPref
 			},
 			OptimalReactorRoutine
-		}
+		},
+        ExecutionCount { },
+        OutputStream { stdout },
+        ErrorStream { stderr },
+        InputStream { stdin }
 	{
 		if (descriptor.ArgC && descriptor.ArgV)
 		{
@@ -927,12 +893,12 @@ namespace Nominax::Core
 
         // Add execution time:
         const auto micros { std::chrono::duration_cast<duration<double, std::micro>>(state.Duration) };
-        this->Context_->ExecutionTimeHistory.emplace_back(micros);
+        ++this->Context_->ExecutionCount;
 
         // Print exec info:
         const LogLevel level { status == InterruptStatus::InterruptStatus_OK ? LogLevel::Success : LogLevel::Error };
         const auto time { duration_cast<duration<double, std::ratio<1>>>(micros) };
-        Print(level, "Execution #{} done! Runtime {:.4}\n", std::size(this->Context_->ExecutionTimeHistory), time);
+        Print(level, "Execution #{} done! Runtime {:.4}\n", this->Context_->ExecutionCount, time);
         std::fflush(outStream);
 
         // Invoke hook:
@@ -1023,13 +989,7 @@ namespace Nominax::Core
 	auto Environment::GetExecutionCount() const -> std::uint64_t
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Context_->ExecutionTimeHistory.size();
-	}
-
-	auto Environment::GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<double, std::micro>>&
-	{
-		VALIDATE_ONLINE_BOOT_STATE();
-		return this->Context_->ExecutionTimeHistory;
+        return this->Context_->ExecutionCount;
 	}
 
 	auto Environment::GetOptimizationHints() const -> ByteCode::OptimizationHints
@@ -1042,6 +1002,36 @@ namespace Nominax::Core
 		};
 	}
 
-	#undef VALIDATE_ONLINE_BOOT_STATE
+    auto Environment::GetOutputStream() const -> FILE*
+    {
+        return this->Context_->OutputStream;
+    }
+
+    auto Environment::GetErrorStream() const -> FILE*
+    {
+        return this->Context_->ErrorStream;
+    }
+
+    auto Environment::GetInputStream() const -> FILE*
+    {
+        return this->Context_->InputStream;
+    }
+
+    auto Environment::SetOutputStream(FILE* const stream) -> void
+    {
+        this->Context_->OutputStream = stream;
+    }
+
+    auto Environment::SetErrorStream(FILE* const stream) -> void
+    {
+        this->Context_->ErrorStream = stream;
+    }
+
+    auto Environment::SetInputStream(FILE* const stream) -> void
+    {
+        this->Context_->InputStream = stream;
+    }
+
+    #undef VALIDATE_ONLINE_BOOT_STATE
 	#undef DISPATCH_HOOK
 }
