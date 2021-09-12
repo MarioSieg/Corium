@@ -209,6 +209,7 @@
 
 #include <cstdint>
 #include <string_view>
+#include <experimental/source_location>
 
 #include "Platform.hpp"
 #include "Print.hpp"
@@ -217,81 +218,11 @@
 namespace Nominax
 {
 	/// <summary>
-	/// Contains info for the panic handler.
-	/// </summary>
-	struct PanicDescriptor final
-	{
-		/// <summary>
-		/// The source code line - if any.
-		/// </summary>
-		std::uint32_t Line { };
-
-		/// <summary>
-		/// The source file name  - if any.
-		/// </summary>
-		std::string_view FileName { };
-
-		/// <summary>
-		/// The name of the subroutine - if any.
-		/// </summary>
-		std::string_view RoutineName { };
-
-		/// <summary>
-		/// The callsite message - if any.
-		/// </summary>
-		std::string_view Message { };
-
-		/// <summary>
-		/// If true, the content of the registers is dumped, else false.
-		/// </summary>
-		bool DumpRegisters { true };
-	};
-
-	/// <summary>
 	/// Implementation of the panic routine.
 	/// </summary>
 	/// <param name="panicDescriptor"></param>
 	/// <returns></returns>
 	[[noreturn]]
 	NOX_COLD NOX_NEVER_INLINE
-	extern auto PanicTerminationImpl(const PanicDescriptor& panicDescriptor) -> void;
-
-	/// <summary>
-	/// Merges information about the current source file and the line.
-	/// This will be replaced by C++ 20 std::source_location,
-	/// but currently it's not yet implemented :(
-	/// </summary>
-	#define NOX_PANIC_INFO() __LINE__, __FILE__, __FUNCTION__
-
-	/// <summary>
-	/// Terminates the process with an error messages in the terminal.
-	/// </summary>
-	/// <param name="line"></param>
-	/// <param name="file"></param>
-	/// <param name="function"></param>
-	/// <param name="message"></param>
-	/// <returns></returns>
-    template <typename Str, typename... Args>
-    [[noreturn]]
-	NOX_COLD NOX_NEVER_INLINE
-	auto Panic
-	(
-		std::uint32_t line,
-		std::string_view file,
-		std::string_view function,
-		Str&& message,
-        Args&&... args
-	) -> void
-    {
-        const auto formatted { Foundation::Format(message, std::forward<Args>(args)...) };
-        const PanicDescriptor desc
-        {
-            .Line = line,
-            .FileName = file,
-            .RoutineName = function,
-            .Message = formatted,
-            .DumpRegisters = true
-        };
-        PanicTerminationImpl(desc);
-    }
+	extern auto Panic(std::string_view message, const std::experimental::source_location& srcLoc = std::experimental::source_location::current()) -> void;
 }

@@ -212,8 +212,8 @@
 namespace Nominax::Assembler::X86_64::Routines
 {
 	/// <summary>
-		/// Returns a special constant value depending on the OS for testing.
-		/// </summary>
+    /// Returns a special constant value depending on the OS for testing.
+    /// </summary>
 	extern "C" NOX_ASM_ROUTINE auto MockCall() -> std::uint64_t;
 
 	/// <summary>
@@ -249,11 +249,28 @@ namespace Nominax::Assembler::X86_64::Routines
 	) -> std::uint32_t;
 
 	/// <summary>
-	/// Queries the 16 GPR 64-bit registers and the 16 XMM 128-bit registers.
+	/// Queries the 16 64-bit GPR registers (%rax - %r15).
 	/// </summary>
-	/// <param name="gpr">A pointer to 16 std::uint64_t where the GPR register values will be stored. Use std::array<std::uint64_t, 16>!</param>
-	/// <param name="gpr">A pointer to 32 std::uint64_t where the GPR register values will be stored. Use std::array<std::uint64_t, 32>! arr[0] are the lower 64 bits of %xmm0, arr[1] the higher 64 bits.</param>
-	extern "C" NOX_ASM_ROUTINE auto QueryRegSet(std::uint64_t* gpr, std::uint64_t* sse) -> void;
+	/// <param name="REG_STORAGE_GPR">A pointer to the data of GPRRegisterSet.</param>
+	extern "C" NOX_ASM_ROUTINE auto QueryRegSet_GPR(GPRRegister64Layout* out) -> void;
+
+    /// <summary>
+    /// Queries the 16 128-bit SSE registers (%xmm0 - %xmm15).
+    /// </summary>
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of SSERegisterSet.</param>
+	extern "C" NOX_ASM_ROUTINE auto QueryRegSet_SSE(SSERegister128Layout* out) -> void;
+
+    /// <summary>
+    /// Queries the 16 256-bit AVX registers (%ymm0 - %ymm15).
+    /// </summary>
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of AVXRegisterSet.</param>
+    extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX(AVXRegister256Layout* out) -> void;
+
+    /// <summary>
+    /// Queries the 32 512-bit AVX-512 registers (%zmm0 - %zmm31).
+    /// </summary>
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of AVX512RegisterSet.</param>
+    extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512(AVX512Register512Layout* out) -> void;
 
 	/// <summary>
 	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
@@ -289,4 +306,6 @@ namespace Nominax::Assembler::X86_64::Routines
 		);
 		return reinterpret_cast<const void*>(rip);
 	}
+
+	extern auto DumpRegisters(const std::array<std::uint64_t, 16>& gpr, const std::array<std::uint64_t, 32>& sse) -> void;
 }

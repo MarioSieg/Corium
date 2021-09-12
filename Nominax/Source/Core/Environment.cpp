@@ -555,7 +555,7 @@ namespace Nominax::Core
 		if (sizeInBytes % sizeof(Record) != 0)
 		{
 			[[unlikely]]
-            Panic(NOX_PANIC_INFO(), "Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
+            Panic(Format("Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes));
 		}
 		return sizeInBytes / sizeof(Record);
 	}
@@ -620,10 +620,12 @@ namespace Nominax::Core
 		{
             Panic
             (
-                NOX_PANIC_INFO(),
-                "Allocation of monotonic {} pool with size {} MB failed!",
-                poolId,
-                Bytes2Megabytes(static_cast<double>(size))
+                Format
+                (
+                    "Allocation of monotonic {} pool with size {} MB failed!",
+                    poolId,
+                    Bytes2Megabytes(static_cast<double>(size))
+                )
             );
 		}
 		return mem;

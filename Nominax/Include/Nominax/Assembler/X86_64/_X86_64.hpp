@@ -218,6 +218,8 @@
 #include "ISAExtension.hpp"
 #include "Operand.hpp"
 #include "Register.hpp"
+#include "RegisterLayout.hpp"
+#include "RegisterSet.hpp"
 #include "REX.hpp"
 #include "Routines.hpp"
 #include "VEX.hpp"

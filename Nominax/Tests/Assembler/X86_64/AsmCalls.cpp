@@ -209,10 +209,13 @@
 #include <iostream>
 
 #include "../../TestBase.hpp"
+#include "../../../Include/Nominax/Assembler/X86_64/RegisterSet.hpp"
+#include "../../../Include/Nominax/Assembler/X86_64/_X86_64.hpp"
 
 #if NOX_ARCH_X86_64
 
-using namespace X86_64::Routines;
+using namespace X86_64;
+using namespace Routines;
 
 TEST(AssemblyCalls, IsCpudIdSupported)
 {
@@ -320,18 +323,30 @@ TEST(AssemblyCalls, CpuIdInvocation)
 	}
 }
 
-TEST(AssemblyCalls, QueryReg)
+TEST(AssemblyCalls, QueryRegGPR)
 {
 	const auto exec
 	{
 		[&]
 		{
-			std::uint64_t gpr[16];
-			std::uint64_t sse[32];
-			QueryRegSet(gpr, sse);
+			GPRRegisterSet set { };
+			QueryRegSet_GPR(std::data(set));
 		}
 	};
 	ASSERT_NO_FATAL_FAILURE(exec());
+}
+
+TEST(AssemblyCalls, QueryRegSSE)
+{
+    const auto exec
+    {
+        [&]
+        {
+            SSERegisterSet set { };
+            QueryRegSet_SSE(std::data(set));
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(exec());
 }
 
 TEST(AssemblyCalls, MockCall)

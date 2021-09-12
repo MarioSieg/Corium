@@ -733,14 +733,14 @@ namespace Nominax::ByteCode
         /// Automatically computed from the push and pop table.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<std::int16_t, ToUnderlying(Instruction::Count_)> STACK_DIFF_TABLE
+        static constexpr std::array<std::int8_t, ToUnderlying(Instruction::Count_)> STACK_DIFF_TABLE
         {
             []
             {
-                std::array<std::int16_t, ToUnderlying(Instruction::Count_)> result { };
+                std::array<std::int8_t, ToUnderlying(Instruction::Count_)> result { };
                 for (std::uint64_t i { 0 }; i < ToUnderlying(Instruction::Count_); ++i)
                 {
-                    result[i] = static_cast<std::int16_t>(PUSH_RECORD_TABLE[i] - POP_RECORD_TABLE[i]);
+                    result[i] = static_cast<std::int8_t>(PUSH_RECORD_TABLE[i] - POP_RECORD_TABLE[i]);
                 }
                 return result;
             }()

@@ -209,74 +209,73 @@
 
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 #include "../../../Nominax/Include/Nominax/Assembler/_Assembler.hpp"
-#include "../../Include/Nominax/Foundation/Panic.hpp"
-
 
 namespace Nominax
 {
-	auto PanicTerminationImpl(const PanicDescriptor& panicDescriptor) -> void
+    static auto PrintPanicMessage(std::string_view message, const std::experimental::source_location& srcLoc) -> void;
+    static auto QueryRegisters() -> void;
+    static auto DumpRegisters() -> void;
+
+    NOX_COLD
+	auto Panic(const std::string_view message, const std::experimental::source_location& srcLoc) -> void
 	{
-		using namespace Foundation;
+        QueryRegisters();
+        PrintPanicMessage(message, srcLoc);
+        DumpRegisters();
 
-		#if NOX_ARCH_X86_64
-            std::array<std::uint64_t, 16>  gpr { };
-            std::array<std::uint64_t, 16>  sse { };
-            std::uintptr_t rip { };
-            if (panicDescriptor.DumpRegisters)
-            {
-                using namespace Assembler::X86_64::Routines;
-                QueryRegSet(std::data(gpr), std::data(sse));
-                rip = reinterpret_cast<std::uint64_t>(QueryRip());
-            }
-		#endif
-
-		Print("\n! NOMINAX RUNTIME Panic !\n");
-		Print
-		(
-			"File: {}\nLine: {}\nSubroutine: {}\n",
-			panicDescriptor.FileName,
-			panicDescriptor.Line,
-			panicDescriptor.RoutineName
-		);
-		Print("{}\n", panicDescriptor.Message);
-
-		#if NOX_ARCH_X86_64
-            if (panicDescriptor.DumpRegisters)
-            {
-                Print("%rip = {:016X}\n", rip);
-                static constexpr std::array<std::string_view, 16> GPR_LUT
-                {
-                    "%rax",
-                    "%rbx",
-                    "%rcx",
-                    "%rdx",
-                    "%rsi",
-                    "%rdi",
-                    "%rsp",
-                    "%rbp",
-                    "%r8 ",
-                    "%r9 ",
-                    "%r10",
-                    "%r11",
-                    "%r12",
-                    "%r13",
-                    "%r14",
-                    "%r15"
-                };
-                for (std::uint64_t i { 0 }; i < std::size(gpr); ++i)
-                {
-                    Print("{} = {:016X}\n", GPR_LUT[i], gpr[i]);
-                }
-                for (std::uint64_t i { 0 }; i < std::size(sse) >> 1; ++i)
-                {
-                    Print("%xmm{}{} = ", i, i < 10 ? " " : "");
-                    Print("{:016X}", sse[i]);
-                    Print("{:016X}\n", sse[i + 1]);
-                }
-            }
-		#endif
-
-		std::cout.flush();
+        std::fflush(stdout);
+        std::fflush(stderr);
+		std::flush(std::cout);
+        std::flush(std::cerr);
 		std::abort();
 	}
+
+    using Foundation::Print;
+
+    NOX_COLD static auto PrintPanicMessage(const std::string_view message, const std::experimental::source_location& srcLoc) -> void
+    {
+
+        Print("\n! NOMINAX RUNTIME Panic !\n");
+        Print
+        (
+            "\"{}\"\n{}:{} in \"{}\"\n",
+            srcLoc.file_name(),
+            srcLoc.line(),
+            srcLoc.column(),
+            srcLoc.function_name()
+        );
+        Print("{}\n", message);
+    }
+
+    #if NOX_ARCH_X86_64
+
+        using Assembler::X86_64::GPRRegisterSet;
+        using Assembler::X86_64::SSERegisterSet;
+        using Assembler::X86_64::GPRRegister64Layout;
+        using Assembler::X86_64::DumpRegisters;
+        using Assembler::X86_64::Routines::QueryRegSet_GPR;
+        using Assembler::X86_64::Routines::QueryRegSet_SSE;
+        using Assembler::X86_64::Routines::QueryRip;
+
+        static constinit GPRRegisterSet REG_STORAGE_GPR { };
+        static constinit SSERegisterSet REG_STORAGE_SSE { };
+        static constinit GPRRegister64Layout REG_STORAGE_RIP { };
+        static std::mutex REG_STORAGE_LOCK { };
+
+        NOX_COLD static auto QueryRegisters() -> void
+        {
+            std::lock_guard<std::mutex> guard { REG_STORAGE_LOCK };
+            QueryRegSet_GPR(std::data(REG_STORAGE_GPR));
+            QueryRegSet_SSE(std::data(REG_STORAGE_SSE));
+            REG_STORAGE_RIP = std::bit_cast<GPRRegister64Layout>(QueryRip());
+        }
+
+        NOX_COLD static auto DumpRegisters() -> void
+        {
+            Print("%rip = {:016X}", REG_STORAGE_RIP.AsU64);
+            DumpRegisters(REG_STORAGE_GPR);
+            DumpRegisters(REG_STORAGE_SSE);
+        }
+
+    #endif
 }

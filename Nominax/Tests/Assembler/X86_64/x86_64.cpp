@@ -515,6 +515,6 @@ TEST(Assembler_x86_64, VirtualRegisterIds)
 {
 	for (std::uint64_t i {0}; i < std::size(ALL_GPR_REGISTERS); ++i)
 	{
-		ASSERT_EQ(ALL_GPR_REGISTERS[i].get().VirtualId, i);
+		ASSERT_EQ(ALL_GPR_REGISTERS[i].get().VirtualID, i);
 	}
 }

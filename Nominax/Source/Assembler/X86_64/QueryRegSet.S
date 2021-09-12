@@ -205,19 +205,21 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl QueryRegSet
-
-QueryRegSet:
+.globl QueryRegSet_GPR
+.globl QueryRegSet_SSE
+.globl QueryRegSet_AVX
+.globl QueryRegSet_AVX512
 
 #ifdef __WIN__
-    movq    %rcx, %r10  # use %r10 as proxy for arg1
-    movq    %rdx, %r11  # use %r11 as proxy for arg2
+#define ARG1 rcx
 #else
-    movq    %rdi, %r10  # use %r10 as proxy for arg1
-    movq    %rsi, %r11  # use %r11 as proxy for arg2
+#define ARG1 rdi
 #endif
 
-    movq    %rax,       (%r10)
+QueryRegSet_GPR:
+    movq    %ARG1, %r10  # use %r10 as proxy for arg1
+
+    movq    %rax,   0x00(%r10)
     movq    %rbx,   0x08(%r10)
     movq    %rcx,   0x10(%r10)
     movq    %rdx,   0x18(%r10)
@@ -233,22 +235,87 @@ QueryRegSet:
     movq    %r13,   0x68(%r10)
     movq    %r14,   0x70(%r10)
     movq    %r15,   0x78(%r10)
-
-    movdqu  %xmm0,      (%r11)
-    movdqu  %xmm1,  0x10(%r11)
-    movdqu  %xmm2,  0x20(%r11)
-    movdqu  %xmm3,  0x30(%r11)
-    movdqu  %xmm4,  0x40(%r11)
-    movdqu  %xmm5,  0x50(%r11)
-    movdqu  %xmm6,  0x60(%r11)
-    movdqu  %xmm7,  0x70(%r11)
-    movdqu  %xmm8,  0x80(%r11)
-    movdqu  %xmm9,  0x90(%r11)
-    movdqu  %xmm10, 0xA0(%r11)
-    movdqu  %xmm11, 0xB0(%r11)
-    movdqu  %xmm12, 0xC0(%r11)
-    movdqu  %xmm13, 0xD0(%r11)
-    movdqu  %xmm14, 0xE0(%r11)
-    movdqu  %xmm15, 0xF0(%r11)
     
+    retq
+
+QueryRegSet_SSE:
+    movq    %ARG1, %r10  # use %r10 as proxy for arg1
+
+    movdqu  %xmm0,  0x00(%r10)
+    movdqu  %xmm1,  0x10(%r10)
+    movdqu  %xmm2,  0x20(%r10)
+    movdqu  %xmm3,  0x30(%r10)
+    movdqu  %xmm4,  0x40(%r10)
+    movdqu  %xmm5,  0x50(%r10)
+    movdqu  %xmm6,  0x60(%r10)
+    movdqu  %xmm7,  0x70(%r10)
+    movdqu  %xmm8,  0x80(%r10)
+    movdqu  %xmm9,  0x90(%r10)
+    movdqu  %xmm10, 0xA0(%r10)
+    movdqu  %xmm11, 0xB0(%r10)
+    movdqu  %xmm12, 0xC0(%r10)
+    movdqu  %xmm13, 0xD0(%r10)
+    movdqu  %xmm14, 0xE0(%r10)
+    movdqu  %xmm15, 0xF0(%r10)
+
+    retq
+
+QueryRegSet_AVX:
+    movq    %ARG1, %r10  # use %r10 as proxy for arg1
+
+    vmovdqu  %ymm0,  0x0000(%r10)
+    vmovdqu  %ymm1,  0x0020(%r10)
+    vmovdqu  %ymm2,  0x0040(%r10)
+    vmovdqu  %ymm3,  0x0060(%r10)
+    vmovdqu  %ymm4,  0x0080(%r10)
+    vmovdqu  %ymm5,  0x00A0(%r10)
+    vmovdqu  %ymm6,  0x00C0(%r10)
+    vmovdqu  %ymm7,  0x00E0(%r10)
+    vmovdqu  %ymm8,  0x0100(%r10)
+    vmovdqu  %ymm9,  0x0120(%r10)
+    vmovdqu  %ymm10, 0x0140(%r10)
+    vmovdqu  %ymm11, 0x0160(%r10)
+    vmovdqu  %ymm12, 0x0180(%r10)
+    vmovdqu  %ymm13, 0x01A0(%r10)
+    vmovdqu  %ymm14, 0x01C0(%r10)
+    vmovdqu  %ymm15, 0x01E0(%r10)
+
+    retq
+
+QueryRegSet_AVX512:
+    movq    %ARG1, %r10  # use %r10 as proxy for arg1
+
+    vmovdqu64  %zmm0,  0x0000(%r10)
+    vmovdqu64  %zmm1,  0x0040(%r10)
+    vmovdqu64  %zmm2,  0x0080(%r10)
+    vmovdqu64  %zmm3,  0x00C0(%r10)
+    vmovdqu64  %zmm4,  0x0100(%r10)
+    vmovdqu64  %zmm5,  0x0140(%r10)
+    vmovdqu64  %zmm6,  0x0180(%r10)
+    vmovdqu64  %zmm7,  0x01C0(%r10)
+    vmovdqu64  %zmm8,  0x0200(%r10)
+    vmovdqu64  %zmm9,  0x0240(%r10)
+    vmovdqu64  %zmm10, 0x0280(%r10)
+    vmovdqu64  %zmm11, 0x02C0(%r10)
+    vmovdqu64  %zmm12, 0x0300(%r10)
+    vmovdqu64  %zmm13, 0x0340(%r10)
+    vmovdqu64  %zmm14, 0x0380(%r10)
+    vmovdqu64  %zmm15, 0x03C0(%r10)
+    vmovdqu64  %zmm16, 0x0400(%r10)
+    vmovdqu64  %zmm17, 0x0440(%r10)
+    vmovdqu64  %zmm18, 0x0480(%r10)
+    vmovdqu64  %zmm19, 0x04C0(%r10)
+    vmovdqu64  %zmm20, 0x0500(%r10)
+    vmovdqu64  %zmm21, 0x0540(%r10)
+    vmovdqu64  %zmm22, 0x0580(%r10)
+    vmovdqu64  %zmm23, 0x05C0(%r10)
+    vmovdqu64  %zmm24, 0x0600(%r10)
+    vmovdqu64  %zmm25, 0x0640(%r10)
+    vmovdqu64  %zmm26, 0x0680(%r10)
+    vmovdqu64  %zmm27, 0x06C0(%r10)
+    vmovdqu64  %zmm28, 0x0700(%r10)
+    vmovdqu64  %zmm29, 0x0740(%r10)
+    vmovdqu64  %zmm30, 0x0780(%r10)
+    vmovdqu64  %zmm31, 0x07C0(%r10)
+
     retq

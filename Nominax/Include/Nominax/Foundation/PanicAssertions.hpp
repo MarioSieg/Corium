@@ -222,7 +222,7 @@ namespace Nominax::Foundations
 		if (!( x ))                 						                    \
 		{													                    \
 		      [[unlikely]]									                    \
-              Panic( NOX_PANIC_INFO(), msg );	                                \
+              Panic(msg);	                                                    \
 		}													                    \
 	}														                    \
 	while(false)
@@ -237,7 +237,7 @@ namespace Nominax::Foundations
 		if (( x ))											                    \
 		{													                    \
 		      [[unlikely]]									                    \
-              Panic( NOX_PANIC_INFO(), msg );	                                \
+              Panic(msg);	                                                    \
 		}													                    \
 	}														                    \
 	while(false)
@@ -276,7 +276,7 @@ namespace Nominax::Foundations
 		if (( x ) != ( y ))									                    \
 		{													                    \
             [[unlikely]]									                    \
-            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+            Panic(msg);	                                                        \
 		}													                    \
 	}														                    \
 	while(false)
@@ -291,7 +291,7 @@ namespace Nominax::Foundations
 		if (( x ) == ( y ))									                    \
 		{													                    \
             [[unlikely]]									                    \
-            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+            Panic(msg);	                                                        \
 		}													                    \
 	}														                    \
 	while(false)
@@ -306,7 +306,7 @@ namespace Nominax::Foundations
 		if (!(( x ) < ( y )))								                    \
 		{													                    \
             [[unlikely]]									                    \
-            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+            Panic(msg);	                                                        \
 		}													                    \
 	}														                    \
 	while(false)
@@ -321,7 +321,7 @@ namespace Nominax::Foundations
 		if (!(( x ) <= ( y )))								                    \
 		{													                    \
             [[unlikely]]									                    \
-            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+            Panic(msg);	                                                        \
 		}													                    \
 	}														                    \
 	while(false)
@@ -336,7 +336,7 @@ namespace Nominax::Foundations
 		if (!(( x ) > ( y )))								                    \
 		{													                    \
             [[unlikely]]									                    \
-            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+            Panic(msg);	                                                        \
 		}													                    \
 	}														                    \
 	while(false)
@@ -351,7 +351,7 @@ namespace Nominax::Foundations
 		if (!(( x ) >= ( y )))								                    \
 		{													                    \
             [[unlikely]]									                    \
-            Panic(NOX_PANIC_INFO(), ( msg ));	                                \
+            Panic(msg);	                                                        \
 		}													                    \
 	}														                    \
 	while(false)
