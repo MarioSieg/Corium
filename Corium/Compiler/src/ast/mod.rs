@@ -217,27 +217,27 @@ pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
 
 /// Represents an AST node.
 #[derive(Clone, Debug)]
-pub enum Node<'s> {
-    Module(ModuleName<'s>),
-    Function(Function<'s>),
-    QualifiedName(QualifiedName<'s>),
-    Identifier(Identifier<'s>),
+pub enum Node<'a> {
+    Module(ModuleName<'a>),
+    Function(Function<'a>),
+    QualifiedName(QualifiedName<'a>),
+    Identifier(Identifier<'a>),
 }
 
 /// Represents a function.
 #[derive(Clone, Debug)]
-pub struct Function<'s> {
-    pub name: Identifier<'s>,
-    pub parameters: Vec<Variable<'s>>,
-    pub return_type: Option<TypeName<'s>>,
-    pub block: Block<'s>,
+pub struct Function<'a> {
+    pub name: Identifier<'a>,
+    pub parameters: Vec<Variable<'a>>,
+    pub return_type: Option<TypeName<'a>>,
+    pub block: Block<'a>,
 }
 
-impl<'s> AstComponent for Function<'s> {
+impl<'a> AstComponent for Function<'a> {
     const IS_ATOMIC: bool = false;
 }
 
-impl<'s> fmt::Display for Function<'s> {
+impl<'a> fmt::Display for Function<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}(", self.name)?;
         let last = self.parameters.len().saturating_sub(1);
@@ -260,31 +260,31 @@ impl<'s> fmt::Display for Function<'s> {
 }
 
 #[derive(Clone, Debug)]
-pub struct Block<'s>(pub Vec<Statement<'s>>);
+pub struct Block<'a>(pub Vec<Statement<'a>>);
 
-impl<'s> AstComponent for Block<'s> {
+impl<'a> AstComponent for Block<'a> {
     const IS_ATOMIC: bool = false;
 }
 
-impl<'s> fmt::Display for Block<'s> {
+impl<'a> fmt::Display for Block<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         for smt in &self.0 {
-            writeln!(f, "{}", smt)?;
+            write!(f, "{}", smt)?;
         }
         Ok(())
     }
 }
 
 #[derive(Clone, Debug)]
-pub enum Statement<'s> {
-    LocalVariable(Variable<'s>),
+pub enum Statement<'a> {
+    LocalVariable(Variable<'a>),
 }
 
-impl<'s> AstComponent for Statement<'s> {
+impl<'a> AstComponent for Statement<'a> {
     const IS_ATOMIC: bool = false;
 }
 
-impl<'s> fmt::Display for Statement<'s> {
+impl<'a> fmt::Display for Statement<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Self::LocalVariable(var) => write!(f, "{}", var),
@@ -294,18 +294,18 @@ impl<'s> fmt::Display for Statement<'s> {
 
 /// Represents a local variable
 #[derive(Clone, Debug)]
-pub struct Variable<'s> {
-    pub name: Identifier<'s>,
-    pub type_hint: Option<TypeName<'s>>,
-    pub value: Option<Box<Expression<'s>>>,
+pub struct Variable<'a> {
+    pub name: Identifier<'a>,
+    pub type_hint: Option<TypeName<'a>>,
+    pub value: Option<Literal<'a>>,
     pub is_parameter: bool,
 }
 
-impl<'s> AstComponent for Variable<'s> {
+impl<'a> AstComponent for Variable<'a> {
     const IS_ATOMIC: bool = false;
 }
 
-impl<'s> fmt::Display for Variable<'s> {
+impl<'a> fmt::Display for Variable<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if !self.is_parameter {
             write!(f, "let ")?;
@@ -315,7 +315,7 @@ impl<'s> fmt::Display for Variable<'s> {
             write!(f, " {}", typename)?;
         }
         if let Some(val) = &self.value {
-            write!(f, "{}", val)
+            write!(f, " = {}", val)
         } else {
             Ok(())
         }
@@ -324,8 +324,8 @@ impl<'s> fmt::Display for Variable<'s> {
 
 /// Represents an expression.
 #[derive(Clone, Debug)]
-pub enum Expression<'s> {
-    Literal(Literal<'s>),
+pub enum Expression<'a> {
+    Literal(Literal<'a>),
     Unary {
         op: UnaryOperator,
         val: Box<Self>,
@@ -337,11 +337,11 @@ pub enum Expression<'s> {
     },
 }
 
-impl<'s> AstComponent for Expression<'s> {
+impl<'a> AstComponent for Expression<'a> {
     const IS_ATOMIC: bool = false;
 }
 
-impl<'s> fmt::Display for Expression<'s> {
+impl<'a> fmt::Display for Expression<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Literal(lit) => write!(f, "{}", lit),
@@ -356,21 +356,21 @@ impl<'s> fmt::Display for Expression<'s> {
 }
 
 #[derive(Clone, Debug)]
-pub enum TypeName<'s> {
+pub enum TypeName<'a> {
     Int,
     Float,
     Char,
     Bool,
     String,
-    Custom(Identifier<'s>),
+    Custom(Identifier<'a>),
 }
 
-impl<'s> AstComponent for TypeName<'s> {
+impl<'a> AstComponent for TypeName<'a> {
     const IS_ATOMIC: bool = false;
 }
 
-impl<'s> convert::From<&'s str> for TypeName<'s> {
-    fn from(st: &'s str) -> Self {
+impl<'a> convert::From<&'a str> for TypeName<'a> {
+    fn from(st: &'a str) -> Self {
         match st {
             "int" => TypeName::Int,
             "float" => TypeName::Float,
@@ -382,7 +382,7 @@ impl<'s> convert::From<&'s str> for TypeName<'s> {
     }
 }
 
-impl<'s> fmt::Display for TypeName<'s> {
+impl<'a> fmt::Display for TypeName<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Int => write!(f, "int"),
@@ -397,7 +397,7 @@ impl<'s> fmt::Display for TypeName<'s> {
 
 /// Represents a literal.
 #[derive(Clone, PartialEq, Debug)]
-pub enum Literal<'s> {
+pub enum Literal<'a> {
     /// An integer literal. E.g. 5
     Int(Int),
 
@@ -411,14 +411,14 @@ pub enum Literal<'s> {
     Bool(Bool),
 
     /// A string literal. E.g. "Hello"
-    String(&'s str),
+    String(&'a str),
 }
 
-impl<'s> AstComponent for Literal<'s> {
+impl<'a> AstComponent for Literal<'a> {
     const IS_ATOMIC: bool = true;
 }
 
-impl<'s> fmt::Display for Literal<'s> {
+impl<'a> fmt::Display for Literal<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Int(x) => write!(f, "{}", x),
@@ -557,10 +557,10 @@ impl<'a> fmt::Display for ModuleName<'a> {
 /// E. g. TestClass
 /// E. g. Module.TestClass
 /// E. g. Module.TestClass.Function
-pub type QualifiedName<'s> = &'s str;
+pub type QualifiedName<'a> = &'a str;
 
 /// Represents an identifier such as a class or variable name.
-pub type Identifier<'s> = &'s str;
+pub type Identifier<'a> = &'a str;
 
 /// Represents a Corium "int".
 pub type Int = i64;
@@ -572,11 +572,11 @@ pub type Float = f64;
 pub type Bool = bool;
 
 /// Represents a Corium "char".
-pub type Char = u32;
+pub type Char = char;
 
 /// Represents the root nodes for a compilation unit.
-pub type RootList<'s> = Vec<Node<'s>>;
+pub type RootList<'a> = Vec<Node<'a>>;
 
-impl<'s> AstComponent for &'s str {
+impl<'a> AstComponent for &'a str {
     const IS_ATOMIC: bool = true;
 }

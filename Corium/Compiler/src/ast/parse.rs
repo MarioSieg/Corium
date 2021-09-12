@@ -205,6 +205,7 @@
 
 use crate::ast::*;
 use crate::parser::{Rule, RuleIterator};
+use std::str::FromStr;
 
 // Base trait for parseable ast items.
 pub trait AstParseable<'a>: AstComponent {
@@ -212,7 +213,8 @@ pub trait AstParseable<'a>: AstComponent {
 }
 
 impl<'a> AstParseable<'a> for Function<'a> {
-    fn parse(mut rule: RuleIterator<'a>) -> Self {
+    fn parse(rule: RuleIterator<'a>) -> Self {
+        let mut rule = rule.into_inner();
         let ident = rule.next().expect("expected identifier!").as_str();
         let mut parameters = Vec::new();
         let mut return_type = None;
@@ -223,7 +225,7 @@ impl<'a> AstParseable<'a> for Function<'a> {
                 Rule::parameter_list => {
                     let inner = nested.into_inner();
                     for param in inner {
-                        parameters.push(Variable::parse(param.into_inner()));
+                        parameters.push(Variable::parse(param));
                     }
 
                     if let Some(ret_ty) = rule.next() {
@@ -236,7 +238,7 @@ impl<'a> AstParseable<'a> for Function<'a> {
                     return_type = Some(TypeName::from(nested.as_str()));
                 }
                 Rule::block => {
-                    block = Block::parse(nested.into_inner());
+                    block = Block::parse(nested);
                 }
                 _ => unreachable!(),
             }
@@ -253,23 +255,89 @@ impl<'a> AstParseable<'a> for Function<'a> {
 
 impl<'a> AstParseable<'a> for Variable<'a> {
     fn parse(rule: RuleIterator<'a>) -> Self {
+        let is_parameter = !rule.as_str().starts_with("let ");
+        let mut rule = rule.into_inner();
+        let name = rule.next().unwrap().as_str();
+        let mut type_hint = None;
+        let mut value = None;
+        let inner = rule.next().unwrap();
+        match inner.as_rule() {
+            Rule::qualified_name => {
+                type_hint = Some(TypeName::parse(inner));
+            }
+            Rule::literal => value = Some(Literal::parse(inner)),
+            _ => unreachable!(),
+        }
+        if let Some(val) = rule.next() {
+            value = Some(Literal::parse(val))
+        }
+
         Self {
-            name: rule.as_str(),
-            type_hint: None,
-            value: None,
-            is_parameter: true,
+            name,
+            type_hint,
+            value,
+            is_parameter,
         }
     }
 }
 
 impl<'a> AstParseable<'a> for Block<'a> {
-    fn parse(_rule: RuleIterator<'a>) -> Self {
-        Self(Vec::new())
+    fn parse(rule: RuleIterator<'a>) -> Self {
+        let mut result = Vec::new();
+        let rules = rule.into_inner();
+        for rule in rules {
+            match rule.as_rule() {
+                Rule::statement => {
+                    if let Some(nxt) = rule.into_inner().next() {
+                        result.push(Statement::parse(nxt));
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }
+        Self(result)
     }
 }
 
 impl<'a> AstParseable<'a> for ModuleName<'a> {
     fn parse(rule: RuleIterator<'a>) -> Self {
         Self(rule.as_str())
+    }
+}
+
+impl<'a> AstParseable<'a> for Statement<'a> {
+    fn parse(rule: RuleIterator<'a>) -> Self {
+        match rule.as_rule() {
+            Rule::local_variable => Self::LocalVariable(Variable::parse(rule)),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl<'a> AstParseable<'a> for TypeName<'a> {
+    fn parse(rule: RuleIterator<'a>) -> Self {
+        Self::from(rule.as_str())
+    }
+}
+
+impl<'a> AstParseable<'a> for Literal<'a> {
+    fn parse(rule: RuleIterator<'a>) -> Self {
+        let rule = rule.into_inner().next().unwrap();
+        let str = rule.as_str();
+        let len = str.len();
+        match rule.as_rule() {
+            Rule::float_literal => Self::Float(Float::from_str(str).unwrap()),
+            Rule::int_literal => Self::Int(Int::from_str(str).unwrap()),
+            Rule::bool_literal => Self::Bool(Bool::from_str(str).unwrap()),
+            Rule::char_literal => {
+                let str = &str[1..len - 1]; // skip ''
+                Self::Char(char::from_str(str).unwrap() as Char)
+            }
+            Rule::string_literal => {
+                let str = &str[1..len - 1]; // skip ""
+                Self::String(str)
+            }
+            _ => unreachable!(),
+        }
     }
 }
