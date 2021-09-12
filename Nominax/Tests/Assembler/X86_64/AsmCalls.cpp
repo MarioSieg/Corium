@@ -223,7 +223,7 @@ TEST(AssemblyCalls, IsCpudIdSupported)
 	{
 		[&]
 		{
-			const auto supported {IsCpuIdSupported()};
+			const auto supported {IsCPUIDSupported()};
 			ASSERT_TRUE(supported);
 		}
 	};
@@ -236,7 +236,7 @@ TEST(AssemblyCalls, QueryRip)
 	{
 		[&]
 		{
-			const void* const rip {QueryRip()};
+			const void* const rip {QueryRIP()};
 			ASSERT_NE(rip, nullptr);
 		}
 	};
@@ -267,7 +267,7 @@ TEST(AssemblyCalls, CpudIdSupport)
 	{
 		[&]
 		{
-			ASSERT_TRUE(IsCpuIdSupported());
+			ASSERT_TRUE(IsCPUIDSupported());
 		}
 	};
 	ASSERT_NO_FATAL_FAILURE(exec());
@@ -282,7 +282,7 @@ TEST(AssemblyCalls, AvxOsSupport)
 		{
 			[&]
 			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
+				ASSERT_TRUE(IsAVXSupportedByOS() == false || IsAVXSupportedByOS() == true);
 			}
 		};
 		ASSERT_NO_FATAL_FAILURE(exec());
@@ -298,7 +298,7 @@ TEST(AssemblyCalls, Avx512OsSupport)
 		{
 			[&]
 			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
+				ASSERT_TRUE(IsAVX512SupportedByOS() == false || IsAVX512SupportedByOS() == true);
 			}
 		};
 		ASSERT_NO_FATAL_FAILURE(exec());
@@ -307,7 +307,7 @@ TEST(AssemblyCalls, Avx512OsSupport)
 
 TEST(AssemblyCalls, CpuIdInvocation)
 {
-	if (IsCpuIdSupported())
+	if (IsCPUIDSupported())
 	{
 		const auto exec
 		{
@@ -316,7 +316,7 @@ TEST(AssemblyCalls, CpuIdInvocation)
 				[[maybe_unused]]
 					std::uint64_t a, b, c;
 				[[maybe_unused]]
-					const std::uint32_t d {CpuId(&a, &b, &c)};
+					const std::uint32_t d {CPUID(&a, &b, &c)};
 			}
 		};
 		ASSERT_NO_FATAL_FAILURE(exec());

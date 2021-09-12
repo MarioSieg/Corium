@@ -205,10 +205,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl IsAvxSupportedByOs
+.globl IsAVXSupportedByOS
 
 # Header: Arch/X86_64/CpuId.hpp
-IsAvxSupportedByOs:
+IsAVXSupportedByOS:
     xorl    %ecx, %ecx              # clear ecx
     xgetbv                          # read value from extended control register into %edx:%eax
     andb    $0b00000110, %al        # mask out avx bits

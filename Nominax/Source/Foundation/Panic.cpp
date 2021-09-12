@@ -255,7 +255,7 @@ namespace Nominax
         using Assembler::X86_64::DumpRegisters;
         using Assembler::X86_64::Routines::QueryRegSet_GPR;
         using Assembler::X86_64::Routines::QueryRegSet_SSE;
-        using Assembler::X86_64::Routines::QueryRip;
+        using Assembler::X86_64::Routines::QueryRIP;
 
         static constinit GPRRegisterSet REG_STORAGE_GPR { };
         static constinit SSERegisterSet REG_STORAGE_SSE { };
@@ -267,7 +267,7 @@ namespace Nominax
             std::lock_guard<std::mutex> guard { REG_STORAGE_LOCK };
             QueryRegSet_GPR(std::data(REG_STORAGE_GPR));
             QueryRegSet_SSE(std::data(REG_STORAGE_SSE));
-            REG_STORAGE_RIP = std::bit_cast<GPRRegister64Layout>(QueryRip());
+            REG_STORAGE_RIP = std::bit_cast<GPRRegister64Layout>(QueryRIP());
         }
 
         NOX_COLD static auto DumpRegisters() -> void

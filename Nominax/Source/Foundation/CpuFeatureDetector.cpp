@@ -217,12 +217,12 @@ namespace Nominax::Foundation
             using Cfb = CPUFeatureBits;
 
             // check if cpuid is supported on system
-            NOX_PAS_TRUE(IsCpuIdSupported(), "CPUID instruction is not supported on system!");
+            NOX_PAS_TRUE(IsCPUIDSupported(), "CPUID instruction is not supported on system!");
 
             // extract gathered CPU feature bits:
             CpuFeatureMaskBuffer buffer { };
             std::array<std::uint64_t, 3> merged { };
-            const std::uint32_t result { CpuId(&merged[0], &merged[1], &merged[2]) };
+            const std::uint32_t result {CPUID(&merged[0], &merged[1], &merged[2]) };
             std::uint8_t* const needle { std::data(buffer) };
             std::memcpy(needle, std::data(merged), sizeof merged);
             std::memcpy(needle + sizeof merged, &result, sizeof result);
@@ -246,13 +246,13 @@ namespace Nominax::Foundation
             }
 
             // Validate OS support and update flags for AVX:
-            const bool avxOsSupport { IsAvxSupportedByOs() };
+            const bool avxOsSupport {IsAVXSupportedByOS() };
             (*this)[Cfb::AVX]   &= avxOsSupport;
             (*this)[Cfb::AVX2]  &= avxOsSupport;
             (*this)[Cfb::F16C]  &= avxOsSupport;
 
             // Validate OS support and update flags for AVX-512 F:
-            const bool avx512OsSupport { avxOsSupport && IsAvx512SupportedByOs() };
+            const bool avx512OsSupport {avxOsSupport && IsAVX512SupportedByOS() };
             (*this)[Cfb::AVX512F]               &= avx512OsSupport;
             (*this)[Cfb::AVX512DQ]              &= avx512OsSupport;
             (*this)[Cfb::AVX512IFMA]            &= avx512OsSupport;

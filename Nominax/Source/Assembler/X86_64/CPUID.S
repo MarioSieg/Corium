@@ -205,10 +205,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl CpuId
+.globl CPUID
 
 # Header: Arch/X86_64/CpuId.hpp
-CpuId:
+CPUID:
     pushq   %rbp                # stack frame prologue
     movq    %rsp, %rbp          # stack frame prologue
     pushq   %rbx

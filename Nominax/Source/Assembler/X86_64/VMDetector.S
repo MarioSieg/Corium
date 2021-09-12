@@ -205,9 +205,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl VmDetector
+.globl VMDetector
 
-VmDetector:
+VMDetector:
     rdtsc                   # read time stamp counter into %edx:%eax
     salq    $32, %rdx       # shift into hiword
     orq     %rdx, %rax      # merge
