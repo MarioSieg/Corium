@@ -333,7 +333,7 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 	for (auto _ : state)
 	{
 		Image chunk { };
-		TransformStreamToImageByMove(std::move(stream), Env->GetOptimizationHints(), chunk);
+        LinkStreamToImageByMove(std::move(stream), Env->GetOptimizationHints(), chunk);
 		NOX_PAS_EQ(chunk.GetSize(), size, "Invalid chunk!");
 	}
 }

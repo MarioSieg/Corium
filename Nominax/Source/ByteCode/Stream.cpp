@@ -364,7 +364,7 @@ namespace Nominax::ByteCode
 			[[unlikely]]
 				return validationResult;
 		}
-		TransformStreamToImageByMove(std::move(stream), optInfo, out);
+        LinkStreamToImageByMove(std::move(stream), optInfo, out);
 		return ValidationResultCode::Ok;
 	}
 
@@ -376,7 +376,7 @@ namespace Nominax::ByteCode
 			[[unlikely]]
 				return validationResult;
 		}
-		TransformStreamToImageByCopy(stream, optInfo, out);
+        LinkStreamToImageByCopy(stream, optInfo, out);
 		return ValidationResultCode::Ok;
 	}
 
