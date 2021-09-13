@@ -265,11 +265,11 @@ impl<'a> AstParseable<'a> for Variable<'a> {
             Rule::qualified_name => {
                 type_hint = Some(TypeName::parse(inner));
             }
-            Rule::literal => value = Some(Literal::parse(inner)),
+            Rule::expression => value = Some(Expression::parse(inner.into_inner().next().unwrap())),
             _ => unreachable!(),
         }
         if let Some(val) = rule.next() {
-            value = Some(Literal::parse(val))
+            value = Some(Expression::parse(val.into_inner().next().unwrap()))
         }
 
         Self {
@@ -339,6 +339,15 @@ impl<'a> AstParseable<'a> for Literal<'a> {
                 let str = &str[1..len - 1]; // skip ""
                 Self::String(str)
             }
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl<'a> AstParseable<'a> for Expression<'a> {
+    fn parse(rule: RuleIterator<'a>) -> Self {
+        match rule.as_rule() {
+            Rule::literal => Self::Literal(Literal::parse(rule)),
             _ => unreachable!(),
         }
     }

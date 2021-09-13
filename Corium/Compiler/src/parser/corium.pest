@@ -15,11 +15,13 @@ block = {
 }
 
 statement = {
-    local_variable | NEWLINE | SEPARATOR
+    local_variable |
+    NEWLINE |
+    SEPARATOR
 }
 
 local_variable = {
-    "let " ~ ident ~ (" " ~ qualified_name)? ~ sep ~ "=" ~ sep ~ literal ~ NEWLINE
+    "let " ~ ident ~ (" " ~ qualified_name)? ~ sep ~ "=" ~ sep ~ expression ~ NEWLINE
 }
 
 parameter_list = {
@@ -28,6 +30,10 @@ parameter_list = {
 
 parameter = {
     ident ~ " " ~ qualified_name
+}
+
+expression = {
+    literal
 }
 
 literal = {

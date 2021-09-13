@@ -249,12 +249,15 @@ impl<'a> fmt::Display for Function<'a> {
         if let Some(ret) = &self.return_type {
             write!(f, " {}", ret)?;
         }
+        writeln!(f, " {{")?;
         if !self.block.0.is_empty() {
-            writeln!(f)?;
             for smt in &self.block.0 {
                 writeln!(f, "\t{}", smt)?;
             }
+        } else {
+            writeln!(f, "\t# NOP")?;
         }
+        write!(f, "}}")?;
         Ok(())
     }
 }
@@ -297,7 +300,7 @@ impl<'a> fmt::Display for Statement<'a> {
 pub struct Variable<'a> {
     pub name: Identifier<'a>,
     pub type_hint: Option<TypeName<'a>>,
-    pub value: Option<Literal<'a>>,
+    pub value: Option<Expression<'a>>,
     pub is_parameter: bool,
 }
 
