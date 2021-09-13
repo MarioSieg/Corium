@@ -250,12 +250,12 @@ impl<'a> fmt::Display for Function<'a> {
             write!(f, " {}", ret)?;
         }
         writeln!(f, " {{")?;
-        if !self.block.0.is_empty() {
+        if self.block.0.is_empty() {
+            writeln!(f, "\t# NOP")?;
+        } else {
             for smt in &self.block.0 {
                 writeln!(f, "\t{}", smt)?;
             }
-        } else {
-            writeln!(f, "\t# NOP")?;
         }
         write!(f, "}}")?;
         Ok(())
@@ -281,6 +281,7 @@ impl<'a> fmt::Display for Block<'a> {
 #[derive(Clone, Debug)]
 pub enum Statement<'a> {
     LocalVariable(Variable<'a>),
+    Return(Option<Expression<'a>>),
 }
 
 impl<'a> AstComponent for Statement<'a> {
@@ -291,6 +292,13 @@ impl<'a> fmt::Display for Statement<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Self::LocalVariable(var) => write!(f, "{}", var),
+            Self::Return(expr) => {
+                if let Some(expr) = expr {
+                    write!(f, "return {}", expr)
+                } else {
+                    write!(f, "return")
+                }
+            }
         }
     }
 }

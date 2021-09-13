@@ -227,7 +227,6 @@ impl<'a> AstParseable<'a> for Function<'a> {
                     for param in inner {
                         parameters.push(Variable::parse(param));
                     }
-
                     if let Some(ret_ty) = rule.next() {
                         if ret_ty.as_rule() == Rule::qualified_name {
                             return_type = Some(TypeName::from(ret_ty.as_str()));
@@ -289,6 +288,7 @@ impl<'a> AstParseable<'a> for Block<'a> {
             match rule.as_rule() {
                 Rule::statement => {
                     if let Some(nxt) = rule.into_inner().next() {
+                        dbg!(nxt.as_str());
                         result.push(Statement::parse(nxt));
                     }
                 }
@@ -309,6 +309,13 @@ impl<'a> AstParseable<'a> for Statement<'a> {
     fn parse(rule: RuleIterator<'a>) -> Self {
         match rule.as_rule() {
             Rule::local_variable => Self::LocalVariable(Variable::parse(rule)),
+            Rule::return_statement => {
+                let mut expr = None;
+                if let Some(rule) = rule.into_inner().next() {
+                    expr = Some(Expression::parse(rule));
+                }
+                Self::Return(expr)
+            }
             _ => unreachable!(),
         }
     }
@@ -333,7 +340,7 @@ impl<'a> AstParseable<'a> for Literal<'a> {
             Rule::bool_literal => Self::Bool(Bool::from_str(str).expect("Invalid bool literal")),
             Rule::char_literal => {
                 let str = &str[1..len - 1]; // skip ''
-                Self::Char(char::from_str(str).expect("Invalid char literal") as Char)
+                Self::Char(Char::from_str(str).expect("Invalid char literal"))
             }
             Rule::string_literal => {
                 let str = &str[1..len - 1]; // skip ""

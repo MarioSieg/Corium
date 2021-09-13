@@ -16,12 +16,21 @@ block = {
 
 statement = {
     local_variable |
+    return_statement |
+    statement_separator
+}
+
+statement_separator = _{
     NEWLINE |
     SEPARATOR
 }
 
 local_variable = {
     "let " ~ ident ~ (" " ~ qualified_name)? ~ sep ~ "=" ~ sep ~ expression ~ NEWLINE
+}
+
+return_statement = {
+    "return" ~ (" " ~ expression)? ~ NEWLINE
 }
 
 parameter_list = {

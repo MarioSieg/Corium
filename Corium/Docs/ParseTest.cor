@@ -12,17 +12,19 @@ fun test() {
     let c2 bool = true
     let d2 char = 'x'
     let e2 string = "Hey"
+    return
 }
 
 fun compute(x int, y int, normalize bool) int {
-
+    let result = 10
+    return 10
 }
 
 fun setValue(name string) {
-
+    let result = 5
 }
 
 fun getPi() float {
-
+    return 4.5
 }
 
