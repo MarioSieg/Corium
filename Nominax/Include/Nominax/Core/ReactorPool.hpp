@@ -1,7 +1,5 @@
-// File: ReactorPool.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -297,28 +295,28 @@ namespace Nominax::Core
 		~ReactorPool();
 
 		/// <summary>
-		/// Query the pool vector.
+		/// Fetch the pool vector.
 		/// </summary>
 		/// <returns>Returns the pool pointer.</returns>
 		[[nodiscard]]
 		auto GetPool() const -> const std::pmr::vector<std::optional<std::unique_ptr<Reactor>>>&;
 
         /// <summary>
-        /// Query the pool boot mode.
+        /// Fetch the pool boot mode.
         /// </summary>
         /// <returns>The boot mode.</returns>
         [[nodiscard]]
         auto GetBootMode() const -> ReactorPoolBootMode;
 
 		/// <summary>
-		/// Query the span config.
+		/// Fetch the span config.
 		/// </summary>
 		/// <returns>Returns the config used to create each reactor.</returns>
 		[[nodiscard]]
 		auto GetReactorSpawnConfig() const -> const ReactorSpawnDescriptor&;
 
         /// <summary>
-        /// Query the routine link.
+        /// Fetch the routine link.
         /// </summary>
         /// <returns>Returns the reactor routine link used to create each reactor.</returns>
         [[nodiscard]]

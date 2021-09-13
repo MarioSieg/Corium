@@ -1,7 +1,5 @@
-// File: RegisterSet.cpp
 // Author: Mario
-// Created: 12.09.2021 03:11 PM
-// Project: Corium
+// Project: Nominax
 //
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -206,13 +204,13 @@
 //    limitations under the License.
 
 #include "../../../Include/Nominax/Assembler/X86_64/RegisterSet.hpp"
-#include "../../../Include/Nominax/Foundation/Print.hpp"
+#include "../../../Include/Nominax/Assembler/X86_64/Routines.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
     using Foundation::Print;
 
-    auto DumpRegisters(const GPRRegisterSet& regset) -> void
+    auto DumpRegisterSet(const GPRRegisterSet& regset) -> void
     {
         static constexpr std::array<std::string_view, 16> GPR_LUT
         {
@@ -244,22 +242,66 @@ namespace Nominax::Assembler::X86_64
         Print('\n');
     }
 
-    auto DumpRegisters(const SSERegisterSet& regset) -> void
+    auto DumpRegisterSet(const SSERegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
             Print("%xmm{}{} = ", i, i < 10 ? " " : "");
-            Print("{:016X}{:016X}\n", regset[i].Inner.Lo.AsU64, regset[i].Inner.Hi.AsU64);
+            Print("{:016X}{:016X}\n", regset[i].AsU64S[0], regset[i].AsU64S[1]);
         }
     }
 
-    auto DumpRegisters([[maybe_unused]] const AVXRegisterSet& regset) -> void
+    auto DumpRegisterSet(const AVXRegisterSet& regset) -> void
     {
-        // TODO
+        for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
+        {
+            Print("%ymm{}{} = ", i, i < 10 ? " " : "");
+            Print
+            (
+                "{:016X}{:016X}{:016X}{:016X}\n",
+                regset[i].AsU64S[0],
+                regset[i].AsU64S[1],
+                regset[i].AsU64S[2],
+                regset[i].AsU64S[3]
+            );
+        }
     }
 
-    auto DumpRegisters([[maybe_unused]] const AVX512RegisterSet& regset) -> void
+    auto DumpRegisterSet(const AVX512RegisterSet& regset) -> void
     {
-        // TODO
+        for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
+        {
+            Print("%zmm{}{} = ", i, i < 10 ? " " : "");
+            Print
+            (
+                "{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}\n",
+                regset[i].AsU64S[0],
+                regset[i].AsU64S[1],
+                regset[i].AsU64S[2],
+                regset[i].AsU64S[3],
+                regset[i].AsU64S[4],
+                regset[i].AsU64S[5],
+                regset[i].AsU64S[6],
+                regset[i].AsU64S[7]
+            );
+        }
+    }
+
+    auto DumpRegisterSet(const AVX512MaskRegisterSet& regset) -> void
+    {
+        for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
+        {
+            Print("%k{} = ", i);
+            Print("{:04X}\n", regset[i]);
+        }
+    }
+
+    auto DumpRegisterSet(const AVX512BWMaskRegisterSet& regset) -> void
+    {
+        for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
+        {
+            Print("%k{} = ", i);
+            Print("{:016X}\n", regset[i]);
+        }
     }
 }

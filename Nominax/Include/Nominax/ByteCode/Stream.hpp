@@ -1,7 +1,5 @@
-// File: Stream.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -304,7 +302,7 @@ namespace Nominax::ByteCode
 		virtual auto Deserialize(std::ifstream& in) -> bool override;
 
 		/// <summary>
-		/// Query image header from this stream.
+		/// Fetch image header from this stream.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <returns></returns>
@@ -356,14 +354,14 @@ namespace Nominax::ByteCode
 
 	public:
 		/// <summary>
-		/// Query prologue code.
+		/// Fetch prologue code.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
 		static constexpr auto PrologueCode() -> const auto&;
 
 		/// <summary>
-		/// Query epilogue code.
+		/// Fetch epilogue code.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]

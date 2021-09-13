@@ -1,7 +1,5 @@
-// File: Routines.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -272,6 +270,18 @@ namespace Nominax::Assembler::X86_64::Routines
     /// <param name="REG_STORAGE_GPR">A pointer to the data of AVX512RegisterSet.</param>
     extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512(AVX512Register512Layout* out) -> void;
 
+    /// <summary>
+    /// Queries the 16 16-bit mask registers (%k0 - %k7).
+    /// </summary>
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of AVX512MaskRegisterSet.</param>
+    extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512Masks(AVX512MaskRegister16Layout* out) -> void;
+
+    /// <summary>
+    /// Queries the 16 64-bit mask registers (AVX 512 BW) (%k0 - %k7).
+    /// </summary>
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of AVX512BWMaskRegisterSet.</param>
+    extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512BWMasks(AVX512BWMaskRegister64Layout* out) -> void;
+
 	/// <summary>
 	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
 	/// Implementation: Source/Arch/X86_64.CpuId.S
@@ -293,7 +303,7 @@ namespace Nominax::Assembler::X86_64::Routines
 	/// <summary>
 	/// Queries the value of the %rip instruction pointer.
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>The %rip instruction pointer.</returns>
 	[[nodiscard]]
 	inline auto QueryRIP() -> const void*
 	{

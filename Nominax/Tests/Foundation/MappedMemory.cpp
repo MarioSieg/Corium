@@ -1,7 +1,5 @@
-// File: MappedMemory.cpp
 // Author: Mario
-// Created: 03.09.2021 11:54 AM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004

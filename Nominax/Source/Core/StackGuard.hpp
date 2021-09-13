@@ -1,7 +1,5 @@
-// File: StackGuard.hpp
 // Author: Mario
-// Created: 07.09.2021 20:00 PM
-// Project: Corium
+// Project: Nominax
 //
 //                                  Apache License
 //                            Version 2.0, January 2004

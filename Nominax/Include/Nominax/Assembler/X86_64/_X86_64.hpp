@@ -1,7 +1,5 @@
-// File: _X86_64.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -218,6 +216,7 @@
 #include "ISAExtension.hpp"
 #include "Operand.hpp"
 #include "Register.hpp"
+#include "RegisterCache.hpp"
 #include "RegisterLayout.hpp"
 #include "RegisterSet.hpp"
 #include "REX.hpp"

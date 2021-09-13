@@ -1,7 +1,5 @@
-// File: RegisterLayout.hpp
 // Author: Mario
-// Created: 12.09.2021 03:18 PM
-// Project: Corium
+// Project: Nominax
 //
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -296,6 +294,7 @@ namespace Nominax::Assembler::X86_64
         std::array<std::uint32_t, (sizeof(std::uint64_t) << 1) / sizeof(std::uint32_t)> AsEPU32;
         std::array<float, (sizeof(std::uint64_t) << 1) / sizeof(float)> AsPS;
         std::array<double, (sizeof(std::uint64_t) << 1) / sizeof(double)> AsPD;
+        std::array<std::uint64_t, (sizeof(std::uint64_t) << 1) / sizeof(std::uint64_t)> AsU64S;
     };
 
     static_assert(sizeof(SSERegister128Layout) == sizeof(std::uint64_t) << 1);
@@ -317,6 +316,7 @@ namespace Nominax::Assembler::X86_64
         std::array<std::uint32_t, (sizeof(std::uint64_t) << 2) / sizeof(std::uint32_t)> AsEPU32;
         std::array<float, (sizeof(std::uint64_t) << 2) / sizeof(float)> AsPS;
         std::array<double, (sizeof(std::uint64_t) << 2) / sizeof(double)> AsPD;
+        std::array<std::uint64_t, (sizeof(std::uint64_t) << 2) / sizeof(std::uint64_t)> AsU64S;
     };
 
     static_assert(sizeof(AVXRegister256Layout) == sizeof(std::uint64_t) << 2);
@@ -338,8 +338,19 @@ namespace Nominax::Assembler::X86_64
         std::array<std::uint32_t, (sizeof(std::uint64_t) << 3) / sizeof(std::uint32_t)> AsEPU32;
         std::array<float, (sizeof(std::uint64_t) << 3) / sizeof(float)> AsPS;
         std::array<double, (sizeof(std::uint64_t) << 3) / sizeof(double)> AsPD;
+        std::array<std::uint64_t, (sizeof(std::uint64_t) << 3) / sizeof(std::uint64_t)> AsU64S;
     };
 
     static_assert(sizeof(AVX512Register512Layout) == sizeof(std::uint64_t) << 3);
     static_assert(std::is_trivial_v<AVX512Register512Layout>);
+
+    /// <summary>
+    /// Represents the inner layout of a 16-bit AVX-512-F mask register such as %k0 oder %k7.
+    /// </summary>
+    using AVX512MaskRegister16Layout = std::uint16_t;
+
+    /// <summary>
+    /// Represents the inner layout of a 64-bit AVX-512-BW mask register such as %k0 oder %k7.
+    /// </summary>
+    using AVX512BWMaskRegister64Layout = std::uint64_t;
 }

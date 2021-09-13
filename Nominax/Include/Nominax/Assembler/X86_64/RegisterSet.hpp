@@ -1,7 +1,5 @@
-// File: RegisterSet.hpp
 // Author: Mario
-// Created: 12.09.2021 03:08 PM
-// Project: Corium
+// Project: Nominax
 //
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,17 +205,76 @@
 
 #pragma once
 
+#include <optional>
+#include <variant>
+
 #include "RegisterLayout.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
+    /// <summary>
+    /// Register set for all 64-bit GPRs (%rax - %r15).
+    /// </summary>
     using GPRRegisterSet = std::array<GPRRegister64Layout, 16>;
+
+    /// <summary>
+    /// Register set for all 128-bit SSE SIMD registers (%xmm0 - %xmm15).
+    /// </summary>
     using SSERegisterSet = std::array<SSERegister128Layout, 16>;
+
+    /// <summary>
+    /// Register set for all 256-bit AVX SIMD registers (%ymm0 - %ymm15).
+    /// </summary>
     using AVXRegisterSet = std::array<AVXRegister256Layout, 16>;
+
+    /// <summary>
+    /// Register set for all 512-bit AVX-512 SIMD registers (%zmm0 - %zmm15).
+    /// </summary>
     using AVX512RegisterSet = std::array<AVX512Register512Layout, 32>;
 
-    extern auto DumpRegisters(const GPRRegisterSet& regset) -> void;
-    extern auto DumpRegisters(const SSERegisterSet& regset) -> void;
-    extern auto DumpRegisters(const AVXRegisterSet& regset) -> void;
-    extern auto DumpRegisters(const AVX512RegisterSet& regset) -> void;
+    /// <summary>
+    /// Register set for all 16-bit AVX-512 mask registers (%k0 - %k7).
+    /// </summary>
+    using AVX512MaskRegisterSet = std::array<AVX512MaskRegister16Layout, 8>;
+
+    /// <summary>
+    /// Register set for all 64-bit AVX-512 BW mask registers (%k0 - %k7).
+    /// </summary>
+    using AVX512BWMaskRegisterSet = std::array<AVX512BWMaskRegister64Layout , 8>;
+
+    /// <summary>
+    /// Prints the contents of the register set with register names.
+    /// <param name="regset">The register set to print.</param>
+    /// </summary>
+    extern auto DumpRegisterSet(const GPRRegisterSet& regset) -> void;
+
+    /// <summary>
+    /// Prints the contents of the register set with register names.
+    /// <param name="regset">The register set to print.</param>
+    /// </summary>
+    extern auto DumpRegisterSet(const SSERegisterSet& regset) -> void;
+
+    /// <summary>
+    /// Prints the contents of the register set with register names.
+    /// <param name="regset">The register set to print.</param>
+    /// </summary>
+    extern auto DumpRegisterSet(const AVXRegisterSet& regset) -> void;
+
+    /// <summary>
+    /// Prints the contents of the register set with register names.
+    /// <param name="regset">The register set to print.</param>
+    /// </summary>
+    extern auto DumpRegisterSet(const AVX512RegisterSet& regset) -> void;
+
+    /// <summary>
+    /// Prints the contents of the register set with register names.
+    /// <param name="regset">The register set to print.</param>
+    /// </summary>
+    extern auto DumpRegisterSet(const AVX512MaskRegisterSet& regset) -> void;
+
+    /// <summary>
+    /// Prints the contents of the register set with register names.
+    /// <param name="regset">The register set to print.</param>
+    /// </summary>
+    extern auto DumpRegisterSet(const AVX512BWMaskRegisterSet& regset) -> void;
 }

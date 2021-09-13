@@ -1,6 +1,4 @@
-// File: lib.rs
 // Author: Mario
-// Created: 07.31.2021 2:17 PM
 // Project: NominaxRuntime (noxbci - Nominax Byte Code Interface)
 //
 //                                  Apache License

@@ -1,7 +1,5 @@
-// File: Environment.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -456,7 +454,7 @@ namespace Nominax::Core
 	)";
 
 	/// <summary>
-	/// Query and print machine info.
+	/// Fetch and print machine info.
 	/// </summary>
 	/// <returns></returns>
 	static auto InitSysInfo() -> SystemInfoSnapshot
@@ -468,7 +466,7 @@ namespace Nominax::Core
 	}
 
 	/// <summary>
-	/// Query and print cpu features.
+	/// Fetch and print cpu features.
 	/// </summary>
 	/// <returns></returns>Common::
 	static auto InitCpuFeatures() -> CPUFeatureDetector
@@ -665,7 +663,7 @@ namespace Nominax::Core
 	}
 
 	/// <summary>
-	/// Query execution routine for environment.
+	/// Fetch execution routine for environment.
 	/// </summary>
 	/// <param name="fallback"></param>
 	/// <param name="cpu"></param>
@@ -842,7 +840,7 @@ namespace Nominax::Core
 		const std::uint64_t memSnapshot { OSI::QueryProcessMemoryUsed() };
 		const double memUsagePercent { ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory) };
 
-		// Query sys pool info
+		// Fetch sys pool info
 		const auto [sysPoolSize, sysPoolPer]
 		{
 			QueryMemoryResourceUsage

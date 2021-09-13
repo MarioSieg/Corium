@@ -1,7 +1,5 @@
-// File: Panic.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -213,15 +211,13 @@
 namespace Nominax
 {
     static auto PrintPanicMessage(std::string_view message, const std::experimental::source_location& srcLoc) -> void;
-    static auto QueryRegisters() -> void;
-    static auto DumpRegisters() -> void;
 
     NOX_COLD
 	auto Panic(const std::string_view message, const std::experimental::source_location& srcLoc) -> void
 	{
-        QueryRegisters();
+        Assembler::X86_64::RegisterCache regCache { };
         PrintPanicMessage(message, srcLoc);
-        DumpRegisters();
+        regCache.DumpSmart();
 
         std::fflush(stdout);
         std::fflush(stderr);
@@ -246,36 +242,4 @@ namespace Nominax
         );
         Print("{}\n", message);
     }
-
-    #if NOX_ARCH_X86_64
-
-        using Assembler::X86_64::GPRRegisterSet;
-        using Assembler::X86_64::SSERegisterSet;
-        using Assembler::X86_64::GPRRegister64Layout;
-        using Assembler::X86_64::DumpRegisters;
-        using Assembler::X86_64::Routines::QueryRegSet_GPR;
-        using Assembler::X86_64::Routines::QueryRegSet_SSE;
-        using Assembler::X86_64::Routines::QueryRIP;
-
-        static constinit GPRRegisterSet REG_STORAGE_GPR { };
-        static constinit SSERegisterSet REG_STORAGE_SSE { };
-        static constinit GPRRegister64Layout REG_STORAGE_RIP { };
-        static std::mutex REG_STORAGE_LOCK { };
-
-        NOX_COLD static auto QueryRegisters() -> void
-        {
-            std::lock_guard<std::mutex> guard { REG_STORAGE_LOCK };
-            QueryRegSet_GPR(std::data(REG_STORAGE_GPR));
-            QueryRegSet_SSE(std::data(REG_STORAGE_SSE));
-            REG_STORAGE_RIP = std::bit_cast<GPRRegister64Layout>(QueryRIP());
-        }
-
-        NOX_COLD static auto DumpRegisters() -> void
-        {
-            Print("%rip = {:016X}", REG_STORAGE_RIP.AsU64);
-            DumpRegisters(REG_STORAGE_GPR);
-            DumpRegisters(REG_STORAGE_SSE);
-        }
-
-    #endif
 }

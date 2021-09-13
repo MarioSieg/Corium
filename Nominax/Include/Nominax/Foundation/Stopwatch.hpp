@@ -1,7 +1,5 @@
-// File: Stopwatch.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -239,7 +237,7 @@ namespace Nominax::Foundation
 		auto Stamp() const -> typename Clock::time_point;
 
 		/// <summary>
-		/// Query elapsed time.
+		/// Fetch elapsed time.
 		/// </summary>
 		/// <typeparam name="Dur">The duration type to use.</typeparam>
 		/// <returns>The elapsed time.</returns>
@@ -248,14 +246,14 @@ namespace Nominax::Foundation
 		auto Elapsed() const -> typename Clock::duration;
 
 		/// <summary>
-		/// Query elapsed time as seconds.
+		/// Fetch elapsed time as seconds.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]
 		auto ElapsedSecs() const -> std::chrono::seconds;
 
 		/// <summary>
-		/// Query elapsed time as floating point seconds.
+		/// Fetch elapsed time as floating point seconds.
 		/// </summary>
 		/// <returns></returns>
 		[[nodiscard]]

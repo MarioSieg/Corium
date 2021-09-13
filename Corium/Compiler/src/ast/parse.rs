@@ -326,12 +326,14 @@ impl<'a> AstParseable<'a> for Literal<'a> {
         let str = rule.as_str();
         let len = str.len();
         match rule.as_rule() {
-            Rule::float_literal => Self::Float(Float::from_str(str).unwrap()),
-            Rule::int_literal => Self::Int(Int::from_str(str).unwrap()),
-            Rule::bool_literal => Self::Bool(Bool::from_str(str).unwrap()),
+            Rule::float_literal => {
+                Self::Float(Float::from_str(str).expect("Invalid float literal"))
+            }
+            Rule::int_literal => Self::Int(Int::from_str(str).expect("Invalid int literal")),
+            Rule::bool_literal => Self::Bool(Bool::from_str(str).expect("Invalid bool literal")),
             Rule::char_literal => {
                 let str = &str[1..len - 1]; // skip ''
-                Self::Char(char::from_str(str).unwrap() as Char)
+                Self::Char(char::from_str(str).expect("Invalid char literal") as Char)
             }
             Rule::string_literal => {
                 let str = &str[1..len - 1]; // skip ""

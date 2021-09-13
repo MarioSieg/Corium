@@ -1,7 +1,5 @@
-// File: MachineClass.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -250,7 +248,7 @@ namespace Nominax::Foundation
 	};
 
 	/// <summary>
-	/// Query machine class based on CPU threads.
+	/// Fetch machine class based on CPU threads.
 	/// </summary>
 	/// <param name="threads"></param>
 	/// <returns></returns>

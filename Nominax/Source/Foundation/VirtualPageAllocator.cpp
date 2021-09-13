@@ -1,7 +1,5 @@
-// File: VirtualPageAllocator.cpp
 // Author: Mario
-// Created: 25.08.2021 6:00 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004

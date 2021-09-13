@@ -1,7 +1,5 @@
-// File: VariadicMacroHelper.hpp
 // Author: Mario
-// Created: 11.09.2021 23:31 PM
-// Project: Corium
+// Project: Nominax
 //
 //                                  Apache License
 //                            Version 2.0, January 2004

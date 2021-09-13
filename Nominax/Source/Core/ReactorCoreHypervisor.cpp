@@ -1,7 +1,5 @@
-// File: ReactorCoreHypervisor.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -320,7 +318,7 @@ namespace Nominax::Core
 		JumpTable jumpTable { QueryJumpTable(routine) };
 		Print
 		(
-			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Hypervisor Registry Size: {}\n",
+			"Execution Routine: {}, Registry ID: {:X}, Fetch: {}, Hypervisor Registry Size: {}\n",
 			GetReactorCoreSpecializationName(specialization),
 			static_cast<std::uint64_t>(specialization),
 			++QueryCounter,
