@@ -360,6 +360,8 @@ print("Preparing toolchains for build...")
 threads = multiprocessing.cpu_count()
 
 def build_corium_compiler():
+    if osname == "Linux":
+        os.system("source $HOME/.cargo/env")
     target_working_dir = toolchains["Rust"].working_dir
     print(f"Switching working directory from {os.getcwd()} to {os.getcwd()}/{target_working_dir}")
     os.chdir(target_working_dir)
