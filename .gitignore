@@ -13,3 +13,4 @@ Nominax/ByteCodeInterface/noxbci/target
 Corium/Compiler/target/
 Corium/Compiler/.idea/
 Corium/Compiler/Cargo.lock
+_Build_/
