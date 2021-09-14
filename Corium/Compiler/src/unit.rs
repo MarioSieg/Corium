@@ -208,9 +208,12 @@ use crate::ast::RootList;
 use crate::error::list::ErrorList;
 use crate::error::Error;
 use crate::parser::parse_source;
+use colored::Colorize;
+use humantime::Duration;
 use std::fs;
 use std::mem::replace;
 use std::path::PathBuf;
+use std::time::Instant;
 use uuid::Uuid;
 
 /// Represents a compilation unit.
@@ -270,9 +273,21 @@ impl<'a> CompilationUnit<'a> {
         match replace(&mut self.root, None) {
             Some(root) => match root {
                 Ok(root) => {
+                    let clock = Instant::now();
                     self.ast_processor.process_ast(root);
                     print!("{}", self.ast_processor);
-                    print!("{}", self.error_list);
+                    if !self.error_list.0.is_empty() {
+                        print!("{}", self.error_list);
+                    }
+                    println!(
+                        "{}",
+                        format!(
+                            "Compiled \"{}\" in {}",
+                            self.ast_processor.module,
+                            Duration::from(clock.elapsed())
+                        )
+                        .green()
+                    );
                     Ok(())
                 }
                 Err(e) => Err(e.into()),

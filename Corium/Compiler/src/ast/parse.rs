@@ -315,7 +315,10 @@ impl<'a> AstParseable<'a> for Block<'a> {
 
 impl<'a> AstParseable<'a> for ModuleName<'a> {
     fn parse(rule: RuleIterator<'a>) -> Self {
-        Self(rule.as_str())
+        let str = rule.as_str();
+        let len = str.len() - 1;
+        let skip_len = "module ".len();
+        Self(&str[skip_len..len])
     }
 }
 

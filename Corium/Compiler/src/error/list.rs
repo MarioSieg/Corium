@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 use crate::error::Error;
+use colored::Colorize;
 use std::default;
 use std::fmt;
 
@@ -238,7 +239,7 @@ impl From<Error> for ErrorList {
 impl fmt::Display for ErrorList {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for error in &self.0 {
-            writeln!(f, "{}", error)?
+            writeln!(f, "{}", format!("{}", error).red())?
         }
         Ok(())
     }
