@@ -3,9 +3,10 @@
 # Install C++ tools
 sudo apt update
 sudo apt install cmake
-sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 sudo apt install gcc-11 -y
 sudo apt install g++-11 -y
+sudo apt install libtbb-dev
 sh LinuxSetupPstlNoexcept.sh
 
 # Install Rust:
