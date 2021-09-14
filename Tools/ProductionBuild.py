@@ -207,15 +207,27 @@ import os
 import os.path
 import platform
 import shutil
+import shlex
+import subprocess
+import multiprocessing
 
 os.chdir("../")
 
 def is_shell_tool_installed(cmd: str) -> bool:
     return shutil.which(cmd) is not None
 
-def exec(cmd: str) -> str:
-    pipe = os.popen(cmd)
-    return pipe.read()
+def exec(cmd: str, use_pipe = False):
+    if use_pipe:
+        pipe = os.popen(cmd)
+        print(pipe.read())
+    else:
+        splitted: list[str] = shlex.split(cmd)
+        print("Executing command: " + str(splitted))
+        p = subprocess.Popen(splitted, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=2)
+        for line in iter(p.stdout.readline, b''):
+            print(str(line).replace("\n\'", "").replace("b'", ""))
+        p.stdout.close()
+        p.wait()
 
 def mkdir(path: str):
     if os.path.isdir(path):
@@ -268,7 +280,7 @@ print("Info path: " + info_path)
 if not os.path.isfile(info_path):
     print(f"Could not find info file: {info_path}! Maybe running in wrong path? Should be at the root of the Corium dir!")
 
-with open (info_path, "r") as infofile:
+with open(info_path, "r") as infofile:
     description = infofile.read()
     print(description)
 
@@ -325,28 +337,37 @@ if is_missing_toolchain:
 
 print("Great, required toolchains and prerequisites are installed!")
 
-# print("Cleaning build artifactor dir...")
-# shutil.rmtree(build_dir)
+print("Cleaning build artifactor dir...")
+shutil.rmtree(build_dir)
 
 print("Creating build directories...")
+
+compiler_build_dir = f"{build_dir}/CoriumC/"
+nominax_build_dir = f"{build_dir}/Nominax/"
+
 mkdir(build_dir)
 mkdir(out_dir_base)
 mkdir(out_dir)
+mkdir(compiler_build_dir)
+mkdir(nominax_build_dir)
+
+print("Compiler build dir: " + compiler_build_dir)
+print("Nominax build dir: " + nominax_build_dir)
 
 print("Preparing toolchains for build...")
+
+threads = multiprocessing.cpu_count()
 
 def build_corium_compiler():
     target_working_dir = toolchains["Rust"].working_dir
     print(f"Switching working directory from {os.getcwd()} to {os.getcwd()}/{target_working_dir}")
     os.chdir(target_working_dir)
     print(f"OK! New working directory is: {os.getcwd()}")
-    rust_build_dir = f"../../{build_dir}/Cargo/"
-    cmd = f"CARGO_TARGET_DIR={rust_build_dir} cargo build --release"
-    print(f"Executing command: {cmd}")
-    exec(cmd)
+    cmd = f"cargo build --target-dir ../../{compiler_build_dir} --release"
+    exec(cmd, use_pipe=True)
     target_file = mk_exe_name("corium_compiler")
     print("Target file: " + target_file)
-    target_file_path = f"{rust_build_dir}/release/{target_file}"
+    target_file_path = f"../../{compiler_build_dir}/release/{target_file}"
     print("Target file path: " + target_file_path)
     output_file = mk_exe_name(f"../../{out_dir}/corium")
     if os.path.isfile(output_file):
@@ -356,9 +377,50 @@ def build_corium_compiler():
     if not os.path.isfile(output_file):
         print("Failed to create output file: "+ output_file)
         exit(-1)
-    print("OK! Corium compiler: " + output_file)
+    print("OK! Corium compiler binary: " + output_file)
+    print("Booting Corium compiler...")
+    exec(output_file)
+    os.chdir("../../")
+    print(f"Switching working directory from {os.getcwd()} to {os.getcwd()}/../../") 
+    print(f"OK! New working directory is: {os.getcwd()}")
+
+def build_nominax_runtime():
+    if not os.path.isfile("CMakeLists.txt"):
+        print("Missing CMakeLists.txt in directory!")
+        exit(-1)
+    print("Configuring CMake...")
+    cmd = f"cmake -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11 -B {nominax_build_dir} -DCMAKE_BUILD_TYPE=Release"
+    exec(cmd)
+    print("Invoking compiler services...")
+    print("Comiling Nominax... This might take a long time depending on your hardware")
+    print(f"Using {threads} threads for C++ compilation")
+    cmd = f"cmake --build {nominax_build_dir} --config Release --target Nominax -j{threads}"
+    exec(cmd)
+    target_file = mk_exe_name("Nominax")
+    print("Target file: " + target_file)
+    target_file_path = f"{nominax_build_dir}{target_file}"
+    print("Target file path: " + target_file_path)
+    output_file = mk_exe_name(f"{out_dir}/nominax")
+    if os.path.isfile(output_file):
+        os.remove(output_file)
+    print("Output file: " + output_file)
+    shutil.copy2(target_file_path, output_file)
+    if not os.path.isfile(output_file):
+        print("Failed to create output file: "+ output_file)
+        exit(-1)
+    print("OK! Nominax runtime binary: " + output_file)
+    print("Booting Nominax...")
+    exec(output_file)
+
+print("Compiling might take a long time depending on your hardware")
+print(f"Compiling with {threads} threads...")
 
 # Build all:
-
 print("Building Corium compiler...")
 build_corium_compiler()
+
+print("Building Nominax runtime...")
+build_nominax_runtime()
+
+print("All work done, no errors :)")
+print(f"The binaries are here: {os.getcwd()}/{out_dir}")
