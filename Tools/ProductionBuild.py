@@ -338,7 +338,8 @@ if is_missing_toolchain:
 print("Great, required toolchains and prerequisites are installed!")
 
 print("Cleaning build artifactor dir...")
-shutil.rmtree(build_dir)
+if os.path.isdir(build_dir):
+    shutil.rmtree(build_dir)
 
 print("Creating build directories...")
 

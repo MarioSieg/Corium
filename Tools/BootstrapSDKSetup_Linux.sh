@@ -3,6 +3,7 @@
 # Install C++ tools
 sudo apt update
 sudo apt install cmake
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
 sudo apt install gcc-11 -y
 sudo apt install g++-11 -y
 sh LinuxSetupPstlNoexcept.sh
@@ -10,6 +11,7 @@ sh LinuxSetupPstlNoexcept.sh
 # Install Rust:
 sudo apt install curl
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+source $HOME/.cargo/env
 
 # Install Python:
 sudo apt install python3
