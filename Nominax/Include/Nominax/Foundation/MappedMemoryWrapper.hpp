@@ -244,12 +244,12 @@ namespace Nominax::Foundation
         /// <summary>
         /// No copying.
         /// </summary>
-        auto operator=(const MappedMemory& other) -> MappedMemory& = delete;
+        auto operator=(const MappedMemoryWrapper& other) -> MappedMemoryWrapper& = delete;
 
         /// <summary>
         /// No moving.
         /// </summary>
-        auto operator=(MappedMemory&& other) -> MappedMemory& = delete;
+        auto operator=(MappedMemoryWrapper&& other) -> MappedMemoryWrapper& = delete;
 
         /// <summary>
         /// Destructor.
