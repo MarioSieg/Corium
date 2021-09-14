@@ -422,5 +422,5 @@ build_corium_compiler()
 print("Building Nominax runtime...")
 build_nominax_runtime()
 
-print("All work done, no errors :)")
+print("\nAll work done, no errors :)")
 print(f"The binaries are here: {os.getcwd()}/{out_dir}")
