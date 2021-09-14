@@ -1,20 +1,20 @@
 // Author: Mario
 // Project: Nominax
-// 
+//
 //                                  Apache License
 //                            Version 2.0, January 2004
 //                         http://www.apache.org/licenses/
-// 
+//
 //    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-// 
+//
 //    1. Definitions.
-// 
+//
 //       "License" shall mean the terms and conditions for use, reproduction,
 //       and distribution as defined by Sections 1 through 9 of this document.
-// 
+//
 //       "Licensor" shall mean the copyright owner or entity authorized by
 //       the copyright owner that is granting the License.
-// 
+//
 //       "Legal Entity" shall mean the union of the acting entity and all
 //       other entities that control, are controlled by, or are under common
 //       control with that entity. For the purposes of this definition,
@@ -22,24 +22,24 @@
 //       direction or management of such entity, whether by contract or
 //       otherwise, or (ii) ownership of fifty percent (50%) or more of the
 //       outstanding shares, or (iii) beneficial ownership of such entity.
-// 
+//
 //       "You" (or "Your") shall mean an individual or Legal Entity
 //       exercising permissions granted by this License.
-// 
+//
 //       "Source" form shall mean the preferred form for making modifications,
 //       including but not limited to software source code, documentation
 //       source, and configuration files.
-// 
+//
 //       "Object" form shall mean any form resulting from mechanical
 //       transformation or translation of a Source form, including but
 //       not limited to compiled object code, generated documentation,
 //       and conversions to other media types.
-// 
+//
 //       "Work" shall mean the work of authorship, whether in Source or
 //       Object form, made available under the License, as indicated by a
 //       copyright notice that is included in or attached to the work
 //       (an example is provided in the Appendix below).
-// 
+//
 //       "Derivative Works" shall mean any work, whether in Source or Object
 //       form, that is based on (or derived from) the Work and for which the
 //       editorial revisions, annotations, elaborations, or other modifications
@@ -47,7 +47,7 @@
 //       of this License, Derivative Works shall not include works that remain
 //       separable from, or merely link (or bind by name) to the interfaces of,
 //       the Work and Derivative Works thereof.
-// 
+//
 //       "Contribution" shall mean any work of authorship, including
 //       the original version of the Work and any modifications or additions
 //       to that Work or Derivative Works thereof, that is intentionally
@@ -61,18 +61,18 @@
 //       Licensor for the purpose of discussing and improving the Work, but
 //       excluding communication that is conspicuously marked or otherwise
 //       designated in writing by the copyright owner as "Not a Contribution."
-// 
+//
 //       "Contributor" shall mean Licensor and any individual or Legal Entity
 //       on behalf of whom a Contribution has been received by Licensor and
 //       subsequently incorporated within the Work.
-// 
+//
 //    2. Grant of Copyright License. Subject to the terms and conditions of
 //       this License, each Contributor hereby grants to You a perpetual,
 //       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
 //       copyright license to reproduce, prepare Derivative Works of,
 //       publicly display, publicly perform, sublicense, and distribute the
 //       Work and such Derivative Works in Source or Object form.
-// 
+//
 //    3. Grant of Patent License. Subject to the terms and conditions of
 //       this License, each Contributor hereby grants to You a perpetual,
 //       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
@@ -88,24 +88,24 @@
 //       or contributory patent infringement, then any patent licenses
 //       granted to You under this License for that Work shall terminate
 //       as of the date such litigation is filed.
-// 
+//
 //    4. Redistribution. You may reproduce and distribute copies of the
 //       Work or Derivative Works thereof in any medium, with or without
 //       modifications, and in Source or Object form, provided that You
 //       meet the following conditions:
-// 
+//
 //       (a) You must give any other recipients of the Work or
 //           Derivative Works a copy of this License; and
-// 
+//
 //       (b) You must cause any modified files to carry prominent notices
 //           stating that You changed the files; and
-// 
+//
 //       (c) You must retain, in the Source form of any Derivative Works
 //           that You distribute, all copyright, patent, trademark, and
 //           attribution notices from the Source form of the Work,
 //           excluding those notices that do not pertain to any part of
 //           the Derivative Works; and
-// 
+//
 //       (d) If the Work includes a "NOTICE" text file as part of its
 //           distribution, then any Derivative Works that You distribute must
 //           include a readable copy of the attribution notices contained
@@ -122,14 +122,14 @@
 //           or as an addendum to the NOTICE text from the Work, provided
 //           that such additional attribution notices cannot be construed
 //           as modifying the License.
-// 
+//
 //       You may add Your own copyright statement to Your modifications and
 //       may provide additional or different license terms and conditions
 //       for use, reproduction, or distribution of Your modifications, or
 //       for any such Derivative Works as a whole, provided Your use,
 //       reproduction, and distribution of the Work otherwise complies with
 //       the conditions stated in this License.
-// 
+//
 //    5. Submission of Contributions. Unless You explicitly state otherwise,
 //       any Contribution intentionally submitted for inclusion in the Work
 //       by You to the Licensor shall be under the terms and conditions of
@@ -137,12 +137,12 @@
 //       Notwithstanding the above, nothing herein shall supersede or modify
 //       the terms of any separate license agreement you may have executed
 //       with Licensor regarding such Contributions.
-// 
+//
 //    6. Trademarks. This License does not grant permission to use the trade
 //       names, trademarks, service marks, or product names of the Licensor,
 //       except as required for reasonable and customary use in describing the
 //       origin of the Work and reproducing the content of the NOTICE file.
-// 
+//
 //    7. Disclaimer of Warranty. Unless required by applicable law or
 //       agreed to in writing, Licensor provides the Work (and each
 //       Contributor provides its Contributions) on an "AS IS" BASIS,
@@ -152,7 +152,7 @@
 //       PARTICULAR PURPOSE. You are solely responsible for determining the
 //       appropriateness of using or redistributing the Work and assume any
 //       risks associated with Your exercise of permissions under this License.
-// 
+//
 //    8. Limitation of Liability. In no event and under no legal theory,
 //       whether in tort (including negligence), contract, or otherwise,
 //       unless required by applicable law (such as deliberate and grossly
@@ -164,7 +164,7 @@
 //       work stoppage, computer failure or malfunction, or any and all
 //       other commercial damages or losses), even if such Contributor
 //       has been advised of the possibility of such damages.
-// 
+//
 //    9. Accepting Warranty or Additional Liability. While redistributing
 //       the Work or Derivative Works thereof, You may choose to offer,
 //       and charge a fee for, acceptance of support, warranty, indemnity,
@@ -175,11 +175,11 @@
 //       defend, and hold each Contributor harmless for any liability
 //       incurred by, or claims asserted against, such Contributor by reason
 //       of your accepting any such warranty or additional liability.
-// 
+//
 //    END OF TERMS AND CONDITIONS
-// 
+//
 //    APPENDIX: How to apply the Apache License to your work.
-// 
+//
 //       To apply the Apache License to your work, attach the following
 //       boilerplate notice, with the fields enclosed by brackets "[]"
 //       replaced with your own identifying information. (Don't include
@@ -188,154 +188,189 @@
 //       file or class name and description of purpose be included on the
 //       same "printed page" as the copyright notice for easier
 //       identification within third-party archives.
-// 
+//
 //    Copyright 2021 Mario Sieg "pinsrq" <mt3000@gmx.de>
-// 
+//
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
 //    You may obtain a copy of the License at
-// 
+//
 //        http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //    Unless required by applicable law or agreed to in writing, software
 //    distributed under the License is distributed on an "AS IS" BASIS,
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../TestBase.hpp"
+#include "MappedMemory.hpp"
+#include "PanicAssertions.hpp"
 
-TEST(MappedMemory, Allocate)
-{
-	const auto exec
-	{
-		[]
-		{
-			const MappedMemory mem { sizeof(int) * 2 };
-			ASSERT_NE(mem.GetRawRegion(), nullptr);
-			ASSERT_EQ(mem.GetByteSize(), sizeof(int) * 2);
-			ASSERT_FALSE(mem.IsLocked());
-			ASSERT_EQ(mem.GetProtectionFlags(), MemoryPageProtectionFlags::ReadWrite);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
+#pragma once
 
-TEST(MappedMemory, Access)
+namespace Nominax::Foundation
 {
-	const auto exec
-	{
-		[]
-		{
-			MappedMemory mem { sizeof(int) * 2 };
-			const auto         a { static_cast<int*>(mem.GetRawRegion()) };
-			a[0] = 22;
-			a[1] = -10;
-			ASSERT_EQ(a[0], 22);
-			ASSERT_EQ(a[1], -10);
-			ASSERT_EQ(mem.QueryRegion<int>(), 22);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(MappedMemory, Lock)
-{
-	const auto exec
-	{
-		[]
-		{
-			MappedMemory mem { sizeof(int) * 2 };
-			ASSERT_FALSE(mem.IsLocked());
-			mem.SetLock();
-			ASSERT_TRUE(mem.IsLocked());
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(MappedMemory, MemSet)
-{
-	const auto exec
-	{
-		[]
-		{
-			MappedMemory mem { sizeof(std::uint8_t) * 2 };
-			mem.MemSet(10);
-			const auto a { static_cast<std::uint8_t*>(mem.GetRawRegion()) };
-			ASSERT_EQ(a[0], 10);
-			ASSERT_EQ(a[1], 10);
-		}
-	};
-	ASSERT_NO_FATAL_FAILURE(exec());
-}
-
-TEST(MappedMemoryWrapper, Allocate)
-{
-   const auto executor
-   {
-        []
-        {
-            constexpr auto size { 32 };
-            MappedMemoryWrapper<int> mem { size };
-            ASSERT_EQ(mem.GetSize(), size);
-            ASSERT_EQ(mem.GetByteSize(), size * sizeof(int));
-        }
-   };
-   ASSERT_NO_FATAL_FAILURE(executor());
-}
-
-TEST(MappedMemoryWrapper, DataAccess)
-{
-    const auto executor
+    /// <summary>
+    /// Thin wrapper around virtual mapped memory which allows
+    /// to use the raw byte array with types.
+    /// </summary>
+    template <typename T> requires std::is_trivial_v<T>
+    class MappedMemoryWrapper : public MappedMemory
     {
-        []
-        {
-            constexpr auto size { 32 };
-            MappedMemoryWrapper<int> mem { size };
-            mem[0] = -10;
-            ASSERT_EQ(mem[0], -10);
-            ASSERT_EQ(*mem, -10);
-        }
-    };
-    ASSERT_NO_FATAL_FAILURE(executor());
-}
+    public:
+        /// <summary>
+        /// Construct and allocate new virtual memory mapping.
+        /// <param name="size">The amount of T to allocate.</param>
+        /// <param name="flags">Page protection flags.</param>
+        /// <param name="lockedProtection">If true the protection is locked, else false.</param>
+        /// </summary>
+        explicit MappedMemoryWrapper
+        (
+            std::uint64_t size,
+            MemoryPageProtectionFlags flags = MemoryPageProtectionFlags::ReadWrite,
+            bool lockedProtection = false
+        );
 
-TEST(MappedMemoryWrapper, DataAccessFull)
-{
-    const auto executor
-    {
-        []
-        {
-            constexpr auto size { 32 };
-            MappedMemoryWrapper<int> mem { size };
-            for (auto i  { 0 }; i < size; ++i)
-            {
-                mem[i] = i;
-            }
-            for (auto i { 0 }; i < size; ++i)
-            {
-                ASSERT_EQ(mem[i], i);
-            }
-        }
-    };
-    ASSERT_NO_FATAL_FAILURE(executor());
-}
+        /// <summary>
+        /// No copying.
+        /// </summary>
+        MappedMemoryWrapper(const MappedMemoryWrapper& other) = delete;
 
-TEST(MappedMemoryWrapper, DataAccessFill)
-{
-    const auto executor
-    {
-        []
-        {
-            constexpr auto size { 32 };
-            MappedMemoryWrapper<int> mem { size };
-            mem.Fill(0xFF);
-            for (auto i { 0 }; i < size; ++i)
-            {
-                ASSERT_EQ(mem[i], 0xFF);
-            }
-        }
+        /// <summary>
+        /// No moving.
+        /// </summary>
+        MappedMemoryWrapper(MappedMemoryWrapper&& other) = delete;
+
+        /// <summary>
+        /// No copying.
+        /// </summary>
+        auto operator=(const MappedMemory& other) -> MappedMemory& = delete;
+
+        /// <summary>
+        /// No moving.
+        /// </summary>
+        auto operator=(MappedMemory&& other) -> MappedMemory& = delete;
+
+        /// <summary>
+        /// Destructor.
+        /// </summary>
+        virtual ~MappedMemoryWrapper() override = default;
+
+        /// <summary>
+        /// Query buffer.
+        /// </summary>
+        /// <returns>The pointer to the buffer.</returns>
+        [[nodiscard]]
+        auto GetBuffer() -> T*;
+
+        /// <summary>
+        /// Query buffer.
+        /// </summary>
+        /// <returns>The pointer to the buffer.</returns>
+        [[nodiscard]]
+        auto GetBuffer() const -> const T*;
+
+        /// <summary>
+        /// Query amount of entries.
+        /// </summary>
+        /// <returns>The size of Ts in the allocated memory map.</returns>
+        [[nodiscard]]
+        auto GetSize() const -> std::uint64_t;
+
+        /// <summary>
+        /// Fills the buffer with an instance of T.
+        /// <param name="value">The value to fill the buffer with.</param>
+        /// </summary>
+        auto Fill(T&& value) -> void;
+
+        /// <summary>
+        /// Subscript operator.
+        /// IN debug mode bounds are checked.
+        /// </summary>
+        /// <param name="idx">The index in the buffer.</param>
+        /// <return>The T at index "idx".</return>
+        auto operator[](std::uint64_t idx) -> T&;
+
+        /// <summary>
+        /// Subscript operator.
+        /// IN debug mode bounds are checked.
+        /// </summary>
+        /// <param name="idx">The index in the buffer.</param>
+        /// <return>The T at index "idx".</return>
+        auto operator[](std::uint64_t idx) const -> const T&;
+
+        /// <summary>
+        /// Dereference operator.
+        /// </summary>
+        /// <return>The first element in the buffer.</return>
+        auto operator*() const -> const T&;
+
+        /// <summary>
+        /// Dereference operator.
+        /// </summary>
+        /// <return>The first element in the buffer.</return>
+        auto operator*() -> T&;
     };
-    ASSERT_NO_FATAL_FAILURE(executor());
+
+    template <typename T> requires std::is_trivial_v<T>
+    inline MappedMemoryWrapper<T>::MappedMemoryWrapper
+    (
+        const std::uint64_t size,
+        const MemoryPageProtectionFlags flags,
+        const bool lockedProtection
+    ) : MappedMemory(size * sizeof(T), flags, lockedProtection) { }
+
+    template <typename T> requires std::is_trivial_v<T>
+    inline auto MappedMemoryWrapper<T>::GetBuffer() -> T*
+    {
+        return static_cast<T*>(this->Region_);
+    }
+
+    template <typename T> requires std::is_trivial_v<T>
+    inline auto MappedMemoryWrapper<T>::GetBuffer() const -> const T*
+    {
+        return static_cast<const T*>(this->Region_);
+    }
+
+    template <typename T> requires std::is_trivial_v<T>
+    inline auto MappedMemoryWrapper<T>::GetSize() const -> std::uint64_t
+    {
+        return this->GetByteSize() / sizeof(T);
+    }
+
+    template <typename T> requires std::is_trivial_v<T>
+    inline auto MappedMemoryWrapper<T>::Fill(T&& value) -> void
+    {
+        T* i { this->GetBuffer() };
+        const T* const end { this->GetBuffer() + this->GetSize() };
+        for (; i < end; ++i) {
+            *i = value;
+        }
+    }
+
+    template <typename T> requires std::is_trivial_v<T>
+    inline auto MappedMemoryWrapper<T>::operator[](const std::uint64_t idx) -> T&
+    {
+        NOX_DBG_PAS_L(idx, this->GetSize(), "Subscript out of range!");
+        return *(this->GetBuffer() + idx);
+    }
+
+    template <typename T> requires std::is_trivial_v<T>
+    inline auto MappedMemoryWrapper<T>::operator[](const std::uint64_t idx) const -> const T&
+    {
+        NOX_DBG_PAS_L(idx, this->GetSize(), "Subscript out of range!");
+        return (*this->GetBuffer() + idx);
+    }
+
+    template <typename T> requires std::is_trivial_v<T>
+    inline auto MappedMemoryWrapper<T>::operator*() const -> const T&
+    {
+        return *this->GetBuffer();
+    }
+
+    template <typename T> requires std::is_trivial_v<T>
+    inline auto MappedMemoryWrapper<T>::operator*() -> T&
+    {
+        return *this->GetBuffer();
+    }
 }

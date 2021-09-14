@@ -220,6 +220,7 @@
 #define AR2 rdx
 #endif
 
+# Query general purpose register set (%rip) does not count as GPR!
 QueryRegSet_GPR:
     movq    %rax,   0x00(%AR0)
     movq    %rbx,   0x08(%AR0)
@@ -239,6 +240,7 @@ QueryRegSet_GPR:
     movq    %r15,   0x78(%AR0)
     retq
 
+# Query all SSE registers (%xmm0 - %xmm15)
 QueryRegSet_SSE:
     movdqu  %xmm0,  0x00(%AR0)
     movdqu  %xmm1,  0x10(%AR0)
@@ -258,6 +260,7 @@ QueryRegSet_SSE:
     movdqu  %xmm15, 0xF0(%AR0)
     retq
 
+# Query all AVX registers (%ymm0 - %ymm15)
 QueryRegSet_AVX:
     vmovdqu  %ymm0,  0x0000(%AR0)
     vmovdqu  %ymm1,  0x0020(%AR0)
@@ -277,6 +280,7 @@ QueryRegSet_AVX:
     vmovdqu  %ymm15, 0x01E0(%AR0)
     retq
 
+# Query all AVX-512 registers (%zmm0 - %zmm31)
 QueryRegSet_AVX512:
     vmovdqu64  %zmm0,  0x0000(%AR0)
     vmovdqu64  %zmm1,  0x0040(%AR0)
@@ -312,6 +316,8 @@ QueryRegSet_AVX512:
     vmovdqu64  %zmm31, 0x07C0(%AR0)
     retq
 
+# Query all AVX-512 mask registers (%k0 - %k7)
+# By default AVX-512 mask registers are 16-bit wide.
 QueryRegSet_AVX512Masks:
     kmovw   %k0,    %eax
     movw    %ax,    0x00(%AR0)
@@ -331,6 +337,8 @@ QueryRegSet_AVX512Masks:
     movw    %ax,    0x0E(%AR0)
     retq
 
+# If we have AVX-512 BW the mask registers are 64-bits wide instead of 16-bits
+# Query all AVX-512 mask registers (%k0 - %k7)
 QueryRegSet_AVX512BWMasks:
     kmovq   %k0,    %rax
     movq    %rax,   0x00(%AR0)

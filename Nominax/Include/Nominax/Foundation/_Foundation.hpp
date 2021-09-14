@@ -223,6 +223,7 @@
 #include "ISerializable.hpp"
 #include "MachineClass.hpp"
 #include "MappedMemory.hpp"
+#include "MappedMemoryWrapper.hpp"
 #include "MemoryUnits.hpp"
 #include "Object.hpp"
 #include "ObjectHeader.hpp"

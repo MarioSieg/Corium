@@ -239,10 +239,10 @@ namespace Nominax::Foundation
 		if (!file)
 		{
 			[[unlikely]]
-				return 0;
+            return 0;
 		}
-		long       pages = 0;
-		const auto items { std::fscanf(file, "%*s%ld", &pages) };
+		long pages { 0 };
+		const int items { std::fscanf(file, "%*s%ld", &pages) };
 		std::fclose(file);
 		return static_cast<std::uint64_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
 	}
