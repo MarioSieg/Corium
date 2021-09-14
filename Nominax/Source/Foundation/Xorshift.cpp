@@ -231,8 +231,7 @@ namespace Nominax::Foundation
 		static constinit std::atomic_uint32_t y { 0x159A55E5 };
 		static constinit std::atomic_uint32_t z { 0x1F123BB5 };
 		static constinit std::atomic_uint32_t w { 0x5491333 };
-
-		const uint32_t t = x ^ x << 0xB;
+		const uint32_t t { x ^ x << 0xB };
 		x.exchange(y);
 		y.exchange(z);
 		z.exchange(w);
@@ -264,11 +263,10 @@ namespace Nominax::Foundation
 		static constinit thread_local std::uint32_t y { 0x159A55E5 };
 		static constinit thread_local std::uint32_t z { 0x1F123BB5 };
 		static constinit thread_local std::uint32_t w { 0x5491333 };
-
-		const uint32_t t = x ^ x << 0xB;
-		x                = y;
-		y                = z;
-		z                = w;
+		const uint32_t t { x ^ x << 0xB };
+		x = y;
+		y = z;
+		z = w;
 		w ^= w >> 0xD ^ t ^ t >> 0x8;
 		return w;
 	}
