@@ -215,27 +215,42 @@ pub trait AstParseable<'a>: AstComponent {
 impl<'a> AstParseable<'a> for Function<'a> {
     fn parse(rule: RuleIterator<'a>) -> Self {
         let mut rule = rule.into_inner();
-        let ident = rule.next().expect("expected identifier!").as_str();
+        let ident = rule.next().unwrap().as_str();
         let mut parameters = Vec::new();
         let mut return_type = None;
         let mut block = Block(Vec::new());
 
         if let Some(nested) = rule.next() {
             match nested.as_rule() {
+                // we have params
                 Rule::parameter_list => {
-                    let inner = nested.into_inner();
-                    for param in inner {
+                    let parameter_list = nested.into_inner();
+                    for param in parameter_list {
                         parameters.push(Variable::parse(param));
                     }
-                    if let Some(ret_ty) = rule.next() {
-                        if ret_ty.as_rule() == Rule::qualified_name {
-                            return_type = Some(TypeName::from(ret_ty.as_str()));
+                    // fetch next
+                    let nested = rule.next().unwrap();
+                    match nested.as_rule() {
+                        Rule::qualified_name => {
+                            // yes we have a return type
+                            return_type = Some(TypeName::from(nested.as_str()));
+                            block = Block::parse(rule.next().unwrap());
+                        }
+                        Rule::block => {
+                            // no return type just a block
+                            block = Block::parse(nested);
+                        }
+                        _ => {
+                            unreachable!();
                         }
                     }
                 }
+                // we have no params, but a return type
                 Rule::qualified_name => {
                     return_type = Some(TypeName::from(nested.as_str()));
+                    block = Block::parse(rule.next().unwrap());
                 }
+                // we no params and no return type
                 Rule::block => {
                     block = Block::parse(nested);
                 }
@@ -288,7 +303,6 @@ impl<'a> AstParseable<'a> for Block<'a> {
             match rule.as_rule() {
                 Rule::statement => {
                     if let Some(nxt) = rule.into_inner().next() {
-                        dbg!(nxt.as_str());
                         result.push(Statement::parse(nxt));
                     }
                 }
@@ -312,7 +326,8 @@ impl<'a> AstParseable<'a> for Statement<'a> {
             Rule::return_statement => {
                 let mut expr = None;
                 if let Some(rule) = rule.into_inner().next() {
-                    expr = Some(Expression::parse(rule));
+                    let literal = rule.into_inner().next().unwrap();
+                    expr = Some(Expression::parse(literal));
                 }
                 Self::Return(expr)
             }
