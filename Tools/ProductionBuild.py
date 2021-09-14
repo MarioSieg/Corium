@@ -337,9 +337,9 @@ if is_missing_toolchain:
 
 print("Great, required toolchains and prerequisites are installed!")
 
-print("Cleaning build artifactor dir...")
-if os.path.isdir(build_dir):
-    shutil.rmtree(build_dir)
+#print("Cleaning build artifact dir...")
+#if os.path.isdir(build_dir):
+    #shutil.rmtree(build_dir)
 
 print("Creating build directories...")
 
@@ -368,7 +368,7 @@ def build_corium_compiler():
     print(f"OK! New working directory is: {os.getcwd()}")
     cmd = f"cargo build --target-dir ../../{compiler_build_dir} --release"
     exec(cmd, use_pipe=True)
-    target_file = mk_exe_name("corium_compiler")
+    target_file = mk_exe_name("corium")
     print("Target file: " + target_file)
     target_file_path = f"../../{compiler_build_dir}/release/{target_file}"
     print("Target file path: " + target_file_path)

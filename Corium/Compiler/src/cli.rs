@@ -203,16 +203,62 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#![allow(dead_code)]
+use std::path::PathBuf;
+use structopt::StructOpt;
 
-mod ast;
-mod cli;
-mod context;
-mod error;
-mod literal;
-mod parser;
-mod unit;
+use crate::context;
+use colored::Colorize;
 
-fn main() {
-    cli::entry();
+#[derive(StructOpt, Debug)]
+#[structopt(name = "corium")]
+struct Options {
+    #[structopt(short, long, parse(from_os_str), help = "Corium source files")]
+    input_files: Vec<PathBuf>,
+
+    #[structopt(
+        short,
+        long,
+        parse(from_os_str),
+        help = "The Nominax bytecode output file"
+    )]
+    output_file: PathBuf,
+
+    #[structopt(
+        short = "O",
+        long,
+        default_value = "0",
+        help = "Optimization level 0-3"
+    )]
+    opt_level: u8,
+
+    #[structopt(long, help = "Verbose printing")]
+    verbose: bool,
+
+    #[structopt(long, help = "Dump AST per module")]
+    dump_ast: bool,
+
+    #[structopt(long, help = "Dump Nominax bytecode per module")]
+    dump_asm: bool,
+
+    #[structopt(
+        short = "j",
+        long,
+        help = "The amount of threads to use for compilation. 0 = amount hardware threads",
+        default_value = "0"
+    )]
+    jobs: u16,
+}
+
+pub fn entry() {
+    let opt = Options::from_args();
+
+    if opt.input_files.is_empty() {
+        println!("{}", "No input files specified!".red());
+    }
+
+    let mut context = context::CompilerContext::new();
+    for file in opt.input_files {
+        context.enqueue_file(file);
+    }
+    context.compile();
 }
