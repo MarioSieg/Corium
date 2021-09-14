@@ -1,4 +1,4 @@
-# Extracted from https://github.com/MarioSieg/Opcodes - fork of https://github.com/Maratyszcza/Opcodes
+# Extracted from https://github.com/MarioSieg/Opcodes
 # Modified to convert the XML into C++ structures
 # License see x86_64OpCodesLicense.rst
 
