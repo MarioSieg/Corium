@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::unit::CompilationUnit;
+use crate::unit::CompilationUnit;
 use std::path::{Path, PathBuf};
 
 pub struct CompilerContext<'a> {

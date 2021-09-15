@@ -214,5 +214,11 @@ mod parser;
 mod unit;
 
 fn main() {
-    cli::entry();
+    let options = cli::Options::parse_and_validate();
+    println!("{:?}", options);
+    let mut context = context::CompilerContext::new();
+    for file in &options.input_files {
+        context.enqueue_file(file);
+    }
+    context.compile();
 }

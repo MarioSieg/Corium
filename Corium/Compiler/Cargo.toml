@@ -22,3 +22,4 @@ smallvec = "1.6.1"                                  # stack allocated vector
 colored = "2.0.0"                                   # terminal color printing
 humantime = "2.1.0"                                 # time formatting
 structopt = "0.3.23"                                # command line parsing
+num_cpus = "1.13.0"                                 # query amount of logical or physical cpus

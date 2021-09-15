@@ -206,22 +206,26 @@
 use std::path::PathBuf;
 use structopt::StructOpt;
 
-use crate::context;
-use colored::Colorize;
-
 #[derive(StructOpt, Debug)]
 #[structopt(name = "corium")]
-struct Options {
-    #[structopt(short, long, parse(from_os_str), help = "Corium source files")]
-    input_files: Vec<PathBuf>,
+pub struct Options {
+    #[structopt(
+        required = true,
+        short,
+        long,
+        parse(from_os_str),
+        help = "Corium source files"
+    )]
+    pub input_files: Vec<PathBuf>,
 
     #[structopt(
+        required = true,
         short,
         long,
         parse(from_os_str),
         help = "The Nominax bytecode output file"
     )]
-    output_file: PathBuf,
+    pub output_file: PathBuf,
 
     #[structopt(
         short = "O",
@@ -229,36 +233,33 @@ struct Options {
         default_value = "0",
         help = "Optimization level 0-3"
     )]
-    opt_level: u8,
+    pub opt_level: u8,
 
     #[structopt(long, help = "Verbose printing")]
-    verbose: bool,
+    pub verbose: bool,
 
     #[structopt(long, help = "Dump AST per module")]
-    dump_ast: bool,
+    pub dump_ast: bool,
 
     #[structopt(long, help = "Dump Nominax bytecode per module")]
-    dump_asm: bool,
+    pub dump_asm: bool,
 
     #[structopt(
         short = "j",
         long,
-        help = "The amount of threads to use for compilation. 0 = amount hardware threads",
+        help = "The amount of threads to use for compilation. 0 = amount of hardware threads",
         default_value = "0"
     )]
-    jobs: u16,
+    pub jobs: u16,
 }
 
-pub fn entry() {
-    let opt = Options::from_args();
-
-    if opt.input_files.is_empty() {
-        println!("{}", "No input files specified!".red());
+impl Options {
+    pub fn parse_and_validate() -> Self {
+        let mut options = Self::from_args();
+        if options.jobs == 0 {
+            options.jobs = num_cpus::get() as _;
+        }
+        options.opt_level = options.opt_level.clamp(0, 3);
+        options
     }
-
-    let mut context = context::CompilerContext::new();
-    for file in opt.input_files {
-        context.enqueue_file(file);
-    }
-    context.compile();
 }
